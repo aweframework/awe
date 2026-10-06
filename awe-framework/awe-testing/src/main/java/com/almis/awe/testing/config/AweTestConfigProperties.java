@@ -1,5 +1,6 @@
 package com.almis.awe.testing.config;
 
+import com.almis.awe.testing.model.types.BrowserTool;
 import com.almis.awe.testing.model.types.BrowserType;
 import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.model.types.RecordingSaveType;
@@ -19,6 +20,11 @@ import java.time.Duration;
 @Validated
 @Data
 public class AweTestConfigProperties {
+  /**
+   * Browser automation tool that runs the tests. Only selenium is available for now. An unknown tool stops the tests at
+   * startup. The Selenium driver (getDriver()) is only available with the selenium tool
+   */
+  private BrowserTool tool = BrowserTool.SELENIUM;
   /**
    * Selenium browser type
    */

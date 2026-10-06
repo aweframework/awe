@@ -767,6 +767,19 @@ compatibility promise yet: write your tests with the `SeleniumUtilities` steps, 
 actions it covers opening pages, scripts, scrolling, frames, window size, failure evidence (screenshot, page source, browser
 console) and quitting the browser.
 
+### Automation tool (`awe.test.tool`)
+
+The tool that drives the browser is chosen with `awe.test.tool`. Its only value today is `selenium` (the default), so nothing
+changes for existing suites; another tool (Playwright is planned) will be one more value. The name is not case sensitive, and
+a value that is not a supported tool stops the tests at startup with a message that lists the supported ones.
+`getDriver()` is the one part of the API that belongs to Selenium: it returns the Selenium driver with `selenium` and throws an
+`UnsupportedOperationException` with any other tool, so write your own steps with the neutral steps and `getBrowser()`.
+
+```
+mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
+  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
+```
+
 ## Writing Selenium tests for your product
 
 Your product tests should not know which libraries AWE uses to draw its components. If they do, replacing a library (as AWE
@@ -862,7 +875,9 @@ engine profiles (`IAweFrontEndInstructions`) still return `By` in 5.0; turn one 
 The steps that take or return a Selenium `By` (see the table under [Deprecated steps](#step-catalogue)) and `getDriver()`
 are `@Deprecated`. They keep working with the Selenium tool through the whole 5.x line and are not removed before 6.0,
 so an existing helper compiles unchanged and only shows a deprecation warning. `getDriver()` is only available when the
-tests run with the Selenium tool, so a step that uses it will not work with any other tool. Migrate a helper by replacing
+tests run with the Selenium tool (`awe.test.tool=selenium`, the default): with any other tool it throws an
+`UnsupportedOperationException` that points to the neutral steps and `getBrowser()`, so a step that uses it will not work
+with another tool. Migrate a helper by replacing
 `By.cssSelector(x)` with `Locator.css(x)`, `By.xpath(x)` with `Locator.xpath(x)` and `By.id(x)` with `Locator.css("[id='x']")`
 (`#x` stops matching when the id has dots, colons or other CSS special characters, as generated ids often do), and the
 calls to the driver with the neutral steps or `getBrowser()`.
@@ -985,6 +1000,7 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 ```
 
 - `-Dawe.test.browser` takes `headless-chrome` or `headless-firefox` (also `chrome` and `firefox` to watch the browser).
+  `-Dawe.test.tool` is `selenium` and can be left out (see [Automation tool](#automation-tool-awetesttool)).
 - `-Dit.test=` takes a class, several separated by commas (`CRUDTestsIT,CriteriaAndMatrixTestsIT`) or a method
   (`SchedulerTestsIT#t003_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser

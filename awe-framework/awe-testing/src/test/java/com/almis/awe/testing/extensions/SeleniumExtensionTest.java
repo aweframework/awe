@@ -1,6 +1,10 @@
 package com.almis.awe.testing.extensions;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.BrowserDriverFactory;
+import com.almis.awe.testing.driver.BrowserSession;
+import com.almis.awe.testing.driver.SeleniumBrowserDriverFactory;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.automation.remarks.video.exception.RecordingException;
 import com.automation.remarks.video.recorder.IVideoRecorder;
@@ -54,8 +58,8 @@ class SeleniumExtensionTest {
 
     extension = new SeleniumExtension();
     ReflectionTestUtils.setField(extension, "seleniumModel", model);
-    // A non-null driver makes beforeEach skip the real driver initialization
-    ReflectionTestUtils.setField(extension, "driver", driver);
+    // An open session makes beforeEach skip the opening of the browser
+    ReflectionTestUtils.setField(extension, "session", mock(BrowserSession.class));
   }
 
   @Test
@@ -157,6 +161,90 @@ class SeleniumExtensionTest {
     verify(recorder).stopAndSave(anyString());
   }
 
+  @Test
+  void theBrowserIsOpenedOnceThroughTheFactoryOfTheTool() throws Exception {
+    RecordingFactory factory = new RecordingFactory();
+    SeleniumExtension opening = factoryExtension(factory);
+
+    opening.beforeEach(context("t010_login", null));
+    opening.beforeEach(context("t020_next", null));
+
+    assertThat(factory.created).containsExactly("t010_login");
+    assertThat(factory.model).isSameAs(model);
+  }
+
+  @Test
+  void theBrowserIsClosedAfterTheTestClass() throws Exception {
+    RecordingFactory factory = new RecordingFactory();
+    SeleniumExtension opening = factoryExtension(factory);
+    opening.beforeEach(context("t010_login", null));
+
+    opening.afterAll(context("t010_login", null));
+    opening.afterAll(context("t010_login", null));
+
+    assertThat(factory.closed).isEqualTo(1);
+  }
+
+  @Test
+  void anotherToolIsOpenedWithoutTouchingTheSeleniumDriver() throws Exception {
+    BrowserDriver browser = mock(BrowserDriver.class);
+    SeleniumExtension opening = factoryExtension(new RecordingFactory() {
+      @Override
+      public BrowserSession create(SeleniumModel target, String testName) {
+        target.setBrowser(browser);
+        return super.create(target, testName);
+      }
+    });
+    model.setDriver(null);
+
+    opening.beforeEach(context("t010_login", null));
+
+    assertThat(model.getBrowser()).isSameAs(browser);
+  }
+
+  @Test
+  void theDefaultFactoryIsTheOneOfTheConfiguredTool() {
+    assertThat(new SeleniumExtension().createDriverFactory(new AweTestConfigProperties()))
+      .isInstanceOf(SeleniumBrowserDriverFactory.class);
+  }
+
+  private SeleniumExtension factoryExtension(BrowserDriverFactory factory) {
+    SeleniumExtension opening = new SeleniumExtension() {
+      @Override
+      protected BrowserDriverFactory createDriverFactory(AweTestConfigProperties properties) {
+        return factory;
+      }
+    };
+    ReflectionTestUtils.setField(opening, "seleniumModel", model);
+    return opening;
+  }
+
+  /**
+   * Factory double: records what it was asked for and hands out a session that counts its closes
+   */
+  private static class RecordingFactory implements BrowserDriverFactory {
+    private final List<String> created = new java.util.ArrayList<>();
+    private int closed;
+    private SeleniumModel model;
+
+    @Override
+    public BrowserSession create(SeleniumModel target, String testName) {
+      model = target;
+      created.add(testName);
+      return new BrowserSession() {
+        @Override
+        public BrowserDriver browser() {
+          return mock(BrowserDriver.class);
+        }
+
+        @Override
+        public void close() {
+          closed++;
+        }
+      };
+    }
+  }
+
   private SeleniumExtension recordingExtension(IVideoRecorder recorder) {
     SeleniumExtension recording = new SeleniumExtension() {
       @Override
@@ -171,7 +259,7 @@ class SeleniumExtensionTest {
   private void prepare(SeleniumExtension target) {
     model.getProperties().setAllowedRecording(true);
     ReflectionTestUtils.setField(target, "seleniumModel", model);
-    ReflectionTestUtils.setField(target, "driver", model.getDriver());
+    ReflectionTestUtils.setField(target, "session", mock(BrowserSession.class));
   }
 
   private ExtensionContext context(String testName, Throwable failure) {
