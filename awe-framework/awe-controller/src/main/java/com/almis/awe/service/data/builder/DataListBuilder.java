@@ -659,7 +659,7 @@ public class DataListBuilder extends ServiceConfig {
    * @param rowIndex Row number
    * @return Row data
    */
-  private HashMap<String, CellData> generateFieldValues(Integer rowIndex) {
+  private HashMap<String, CellData> generateFieldValues(int rowIndex) {
     // Variable definition */
     HashMap<String, CellData> row = new HashMap<>();
     int columnIndex;

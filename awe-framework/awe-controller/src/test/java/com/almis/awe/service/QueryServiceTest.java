@@ -3,11 +3,13 @@ package com.almis.awe.service;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,6 +72,19 @@ class QueryServiceTest {
     when(queryUtil.getParameters(null, null, null)).thenReturn(JsonNodeFactory.instance.objectNode());
     when(queryLauncher.launchQuery(any(Query.class), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(new DataList()));
     assertEquals(AnswerType.OK, queryService.launchQueryAction().getType());
+  }
+
+  @Test
+  void launchQueryActionWithoutDataListAddsNullDataVariables() throws Exception {
+    when(aweRequest.getTargetAction()).thenReturn("target");
+    when(aweElements.getQuery(anyString())).thenReturn(new Query().setIsPublic(true));
+    when(queryUtil.getParameters(null, null, null)).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(queryLauncher.launchQuery(any(Query.class), any(ObjectNode.class))).thenReturn(new ServiceData());
+
+    ServiceData out = queryService.launchQueryAction();
+
+    assertThat(out.getVariableMap().get(AweConstants.ACTION_DATA)).isEqualTo(new CellData());
+    assertThat(out.getVariableMap().get(AweConstants.ACTION_ROWS)).isEqualTo(new CellData());
   }
 
   @Test

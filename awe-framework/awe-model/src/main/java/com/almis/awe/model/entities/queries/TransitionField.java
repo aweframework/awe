@@ -58,6 +58,6 @@ public class TransitionField implements Copyable {
 
   @Override
   public String toString() {
-    return getField().toString();
+    return String.valueOf(getField());
   }
 }
