@@ -49,7 +49,8 @@ variables:
   DS_EXCLUDED_ANALYZERS: "gemnasium, gemnasium-python"
 
 cache:
-  - key: ${CI_COMMIT_REF_SLUG}
+  - &cache-maven-repository   # reused by the jobs that declare a cache of their own, which replaces this one
+    key: ${CI_COMMIT_REF_SLUG}
     policy: pull
     fallback_keys:
       - develop
@@ -148,6 +149,10 @@ stages:
   - awe-framework/awe-client-react/**/*
   - awe-tests/**/*
   - awe-samples/**/*
+.paths-playwright-pilot: &paths-playwright-pilot   # the Playwright pilot of the browser suites (#812): the adapter, the suites, this file
+  - .gitlab-ci.yml
+  - awe-framework/awe-testing/**/*
+  - awe-tests/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -178,11 +183,28 @@ stages:
 .if-mr-react-it: &if-mr-react-it
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-react-it
+.if-mr-playwright-pilot: &if-mr-playwright-pilot
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-playwright-pilot
 .if-mr-website: &if-mr-website
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
 .if-branches: &if-branches           # develop, master, support/*: always complete
   if: '$RENOVATE_RUN != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//)'
+# "All UT" (the adapter unit tests, which need the Chromium browser): AngularJS templates are compared by awe-boot unit tests,
+# so a frontend-only merge request that changes them can break it
+.rules-all-ut: &rules-all-ut
+  - <<: *if-mr-backend
+  - <<: *if-mr-angular-templates
+  - <<: *if-branches
+# Playwright pilot of the browser suites (#812): automatic on develop only; on a merge request that touches the adapter, the
+# suites or this file it is a manual job that the pipeline does not wait for (the pilot is 16 jobs: runner load). Not on
+# master or support/*
+.rules-playwright-pilot: &rules-playwright-pilot
+  - <<: *if-develop
+  - <<: *if-mr-playwright-pilot
+    when: manual
+    allow_failure: true
 
 ##############################
 # Build stage
@@ -360,6 +382,103 @@ Build website with i18n:
     - <<: *if-master
 
 ##############################
+# Playwright browsers
+##############################
+
+# The Playwright adapter of awe-testing (#812) drives a browser that Playwright installs itself. Two kinds of job use it:
+# the unit tests of the adapter ("All UT", Chromium) and the pilot browser suites ("Playwright ... IT", Chromium or
+# Firefox). Each one installs only the browser it needs, with the CLI of the same Playwright version as the project, so
+# there is one definition of the install (this one).
+#
+# The browser files are cached per browser. A cache is separated between protected branches and merge requests, so a job
+# of develop cannot fill the cache of a merge request: one small job per pipeline ("Playwright Chromium browser",
+# "Playwright Firefox browser") downloads the browser and pushes it, and the jobs that use the browser only pull it. A
+# job that finds no browser in the cache downloads it itself, so a cold or failed cache costs time, never a failure. The
+# cache job starts from nothing every time, so it always holds the revision of the current Playwright version and the
+# revisions of older versions never pile up.
+#
+# The cache key follows the Playwright version through the hash of awe-dependencies/pom.xml, which declares it (a cache key
+# cannot use a value that a script reads, so the version itself cannot be the key). Merge requests that pin different
+# versions then do not overwrite each other's cache. The trade-off: any other change to that pom renews the key too, and the
+# cache job fills the new one.
+#
+# Which browser a job installs is set by one of the two templates below (.playwright-chromium, .playwright-firefox), used by
+# the cache job and by the jobs that use the browser, so that the two cannot drift apart.
+.playwright-chromium:
+  variables:
+    PLAYWRIGHT_BROWSER: chromium                      # names the cache: playwright-chromium or playwright-firefox
+    PLAYWRIGHT_INSTALL_ARGS: "--only-shell chromium"  # the headless shell of Chromium is about 200 MB; Playwright downloads three browsers (about 1 GB) otherwise
+
+.playwright-firefox:
+  variables:
+    PLAYWRIGHT_BROWSER: firefox
+    PLAYWRIGHT_INSTALL_ARGS: firefox
+
+.playwright-install:
+  variables:
+    # Browsers of the tests that run through Playwright (they never download one). Kept under the project so the cache can store them
+    PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-browsers"
+    PLAYWRIGHT_INSTALL_DEPS: "--with-deps"            # system libraries (apt: the job runs as root on Ubuntu); the cache job leaves them out
+  # A job cache replaces the global one, so the Maven repository is declared again
+  cache:
+    - *cache-maven-repository
+    - key:
+        prefix: playwright-${PLAYWRIGHT_BROWSER}
+        files:
+          - awe-framework/awe-dependencies/pom.xml
+      policy: pull
+      paths:
+        - .playwright-browsers/
+  before_script:
+    # The version of Playwright is the one that awe-dependencies declares, and the dependency plugin version is the one that the
+    # root pom pins: the three jars of the CLI are fetched alone (a Maven exec on awe-testing would need the whole reactor built)
+    - PLAYWRIGHT_VERSION=$(sed -n 's:.*<playwright.version>\(.*\)</playwright.version>.*:\1:p' awe-framework/awe-dependencies/pom.xml)
+    - DEPENDENCY_PLUGIN_VERSION=$(sed -n 's:.*<plugin-dependency.version>\(.*\)</plugin-dependency.version>.*:\1:p' pom.xml)
+    - test -n "$PLAYWRIGHT_VERSION" && test -n "$DEPENDENCY_PLUGIN_VERSION"
+    - mvn $MAVEN_CLI_OPTS -N org.apache.maven.plugins:maven-dependency-plugin:${DEPENDENCY_PLUGIN_VERSION}:get -Dartifact=com.microsoft.playwright:playwright:${PLAYWRIGHT_VERSION} -Dtransitive=true
+    - PLAYWRIGHT_JARS=$MAVEN_REPO_PATH/com/microsoft/playwright
+    - java -cp "$PLAYWRIGHT_JARS/playwright/$PLAYWRIGHT_VERSION/playwright-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver/$PLAYWRIGHT_VERSION/driver-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver-bundle/$PLAYWRIGHT_VERSION/driver-bundle-$PLAYWRIGHT_VERSION.jar" com.microsoft.playwright.CLI install $PLAYWRIGHT_INSTALL_DEPS $PLAYWRIGHT_INSTALL_ARGS
+
+.playwright-browser-cache:
+  extends: .playwright-install
+  stage: build
+  needs: [ ]
+  timeout: 10m
+  allow_failure: true   # the jobs that use the browser download it when the cache is empty
+  variables:
+    PLAYWRIGHT_INSTALL_DEPS: ""
+  cache:
+    - *cache-maven-repository
+    - key:
+        prefix: playwright-${PLAYWRIGHT_BROWSER}
+        files:
+          - awe-framework/awe-dependencies/pom.xml
+      policy: push
+      paths:
+        - .playwright-browsers/
+  script:
+    - du -sh .playwright-browsers/*
+
+# Chromium: the adapter unit tests ("All UT") and the Chromium pilot suites need it, so the rules are both lists. The rules of
+# "All UT" come first: a merge request that touches the pilot paths also matches them (the pilot paths are a subset of theirs),
+# so the cache job is automatic there while the pilot jobs are manual, and a manual job could not be reached by its consumers
+Playwright Chromium browser:
+  extends:
+    - .playwright-browser-cache
+    - .playwright-chromium
+  rules:
+    - !reference [.rules-all-ut]
+    - !reference [.rules-playwright-pilot]
+
+# Firefox: only the pilot suites need it, so it follows their policy: automatic on develop, manual on a merge request (a
+# pilot job started there downloads Firefox itself when nobody started this job)
+Playwright Firefox browser:
+  extends:
+    - .playwright-browser-cache
+    - .playwright-firefox
+  rules: *rules-playwright-pilot
+
+##############################
 # testing stage
 ##############################
 
@@ -390,48 +509,17 @@ Build website with i18n:
         - "**/target/surefire-reports/TEST-*.xml"
 
 All UT:
-  extends: .unit-testing
-  variables:
-    # Browsers of the awe-testing tests that run a real Chromium through Playwright (they never download one). Kept
-    # under the project so the cache below can store them
-    PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-browsers"
-  # A job cache replaces the global one, so the Maven repository is declared again
-  cache:
-    - key: ${CI_COMMIT_REF_SLUG}
-      policy: pull
-      fallback_keys:
-        - develop
-      paths:
-        - .m2/repository/
-    # The browser revision follows the Playwright version, which awe-dependencies declares: a new version gets a new
-    # cache instead of piling revisions up in the old one
-    - key:
-        prefix: playwright
-        files:
-          - awe-framework/awe-dependencies/pom.xml
-      paths:
-        - .playwright-browsers/
-  before_script:
-    # Install the Chromium that the Playwright adapter tests run (awe-testing) with the CLI of the same Playwright version
-    # as the project: the version is read from awe-dependencies and the three jars of the CLI are fetched alone (a Maven
-    # exec on awe-testing would need the whole reactor built). Only the headless shell is installed (about 200 MB, not
-    # the three browsers of about 1 GB that Playwright downloads on its own); --with-deps adds the system libraries
-    # (apt, the job runs as root on Ubuntu). With the cache hit only the libraries are installed.
-    # The dependency plugin version is the one that the root pom pins (plugin-dependency.version)
-    - PLAYWRIGHT_VERSION=$(sed -n 's:.*<playwright.version>\(.*\)</playwright.version>.*:\1:p' awe-framework/awe-dependencies/pom.xml)
-    - mvn $MAVEN_CLI_OPTS -N org.apache.maven.plugins:maven-dependency-plugin:3.6.0:get -Dartifact=com.microsoft.playwright:playwright:${PLAYWRIGHT_VERSION} -Dtransitive=true
-    - PLAYWRIGHT_JARS=$MAVEN_REPO_PATH/com/microsoft/playwright
-    - java -cp "$PLAYWRIGHT_JARS/playwright/$PLAYWRIGHT_VERSION/playwright-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver/$PLAYWRIGHT_VERSION/driver-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver-bundle/$PLAYWRIGHT_VERSION/driver-bundle-$PLAYWRIGHT_VERSION.jar" com.microsoft.playwright.CLI install --with-deps --only-shell chromium
+  extends:
+    - .unit-testing
+    - .playwright-install   # Chromium for the adapter tests of awe-testing: variables, cache (read only) and install
+    - .playwright-chromium
   script:
     # The Playwright tests must run here: without the browser they fail instead of being skipped as they are on a developer
     # machine, so the coverage that Sonar reads for the adapter is real and cannot stop silently
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
   # Also on AngularJS template changes: awe-boot unit tests compare templates served by TemplateController
   # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
-  rules:
-    - <<: *if-mr-backend
-    - <<: *if-mr-angular-templates
-    - <<: *if-branches
+  rules: *rules-all-ut
 
 Embedded DB Tests:
   extends: .unit-testing
@@ -574,6 +662,8 @@ Javadoc test:
     # What the job runs: the JUnit tag group of the matrix entry (TEST_TAGS) by default; the React jobs
     # run the IT classes of their matrix entry (TEST_CLASSES) instead
     IT_SELECTION: -Dgroups=${TEST_TAGS}
+    # Extra options that choose the automation tool: empty for the Selenium jobs, the Playwright pilot jobs set them
+    IT_TOOL_OPTS: ""
     SCREEN_WIDTH: 1440
     SCREEN_HEIGHT: 1080
     FF_NETWORK_PER_BUILD: "true"
@@ -586,7 +676,7 @@ Javadoc test:
   before_script:
     - apt-get update -qq && apt-get install -y -qq fontconfig fonts-dejavu >/dev/null
   script:
-    - mvn -f ${IT_APP_MODULE}/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ ${IT_SELECTION} -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f ${IT_APP_MODULE}/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ ${IT_SELECTION} ${IT_TOOL_OPTS} -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
@@ -725,6 +815,125 @@ Chrome IT React:
       - TEST_CLASSES: SchedulerTestsIT
         TEST_PORT: "6316"
         TEST_NAME: react-chrome-scheduler
+
+# Playwright pilot of the browser suites (#812): the same suites as the Selenium jobs above, run with
+# awe.test.tool=playwright in a local headless browser that the job installs next to the application it starts (Playwright
+# has no service or remote browsers). The jobs compare the Playwright adapter with Selenium on the real suites, and so they:
+#   - do not block the pipeline (allow_failure) and are not retried, to show the first result of every run;
+#   - are not needed by "Launch Sonar": their coverage is not an input of the quality gate while this is a pilot;
+#   - run automatically on develop only; on a merge request that changes the adapter, the suites or this file they are manual
+#     (started from the pipeline page, which does not wait for them), and they do not run on master or support/*;
+#   - write failure evidence to selenium-evidence/ as the Selenium jobs do, but no video: a headless browser has no screen to
+#     film (awe.test.allowed-recording=false), the screenshot, page source and console of the failure replace it.
+# The suite groups, test names and ports follow the Selenium jobs (ports 6317 to 6332 are free, the Selenium jobs use 6301 to
+# 6316). Compare a job with the Selenium job of the same suite through the failsafe summary and the last line of its log.
+.playwright-testing:
+  extends:
+    - .browser-testing
+    - .playwright-install
+  allow_failure: true
+  retry: 0
+  variables:
+    IT_TOOL_OPTS: -Dawe.test.tool=playwright -Dawe.test.allowed-recording=false
+  # The fonts of the print tests, then the browser of this job
+  before_script:
+    - !reference [.browser-testing, before_script]
+    - !reference [.playwright-install, before_script]
+  after_script:
+    - !reference [.browser-testing, after_script]
+    - echo "Playwright pilot ${TEST_NAME} (${BROWSER}), job status ${CI_JOB_STATUS}, $(( $(date +%s) - $(date -d "$CI_JOB_STARTED_AT" +%s) )) s since the job started"
+
+.playwright-chromium-testing:
+  extends:
+    - .playwright-testing
+    - .playwright-chromium
+  variables:
+    BROWSER: headless-chrome
+
+.playwright-firefox-testing:
+  extends:
+    - .playwright-testing
+    - .playwright-firefox
+  variables:
+    BROWSER: headless-firefox
+
+
+Playwright Chromium IT:
+  extends: .playwright-chromium-testing
+  rules: *rules-playwright-pilot
+  parallel:
+    matrix:
+      - TEST_TAGS: ApplicationIntegrationIT
+        TEST_PORT: "6317"
+        TEST_NAME: playwright-chromium-application-integration
+      - TEST_TAGS: CRUDCriteriaMatrixIT
+        TEST_PORT: "6318"
+        TEST_NAME: playwright-chromium-crud-criteria-matrix
+      - TEST_TAGS: RegressionWebsocketPrintIT
+        TEST_PORT: "6319"
+        TEST_NAME: playwright-chromium-regression-websocket-print
+      - TEST_TAGS: SchedulerIT
+        TEST_PORT: "6320"
+        TEST_NAME: playwright-chromium-scheduler
+
+Playwright Firefox IT:
+  extends: .playwright-firefox-testing
+  rules: *rules-playwright-pilot
+  parallel:
+    matrix:
+      - TEST_TAGS: ApplicationIntegrationIT
+        TEST_PORT: "6321"
+        TEST_NAME: playwright-firefox-application-integration
+      - TEST_TAGS: CRUDCriteriaMatrixIT
+        TEST_PORT: "6322"
+        TEST_NAME: playwright-firefox-crud-criteria-matrix
+      - TEST_TAGS: RegressionWebsocketPrintIT
+        TEST_PORT: "6323"
+        TEST_NAME: playwright-firefox-regression-websocket-print
+      - TEST_TAGS: SchedulerIT
+        TEST_PORT: "6324"
+        TEST_NAME: playwright-firefox-scheduler
+
+Playwright Chromium IT React:
+  extends:
+    - .playwright-chromium-testing
+    - .react-testing
+  rules: *rules-playwright-pilot
+  parallel:
+    matrix:
+      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+        TEST_PORT: "6325"
+        TEST_NAME: playwright-react-chromium-application-integration
+      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+        TEST_PORT: "6326"
+        TEST_NAME: playwright-react-chromium-crud-criteria-matrix
+      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+        TEST_PORT: "6327"
+        TEST_NAME: playwright-react-chromium-regression-websocket-print
+      - TEST_CLASSES: SchedulerTestsIT
+        TEST_PORT: "6328"
+        TEST_NAME: playwright-react-chromium-scheduler
+
+Playwright Firefox IT React:
+  extends:
+    - .playwright-firefox-testing
+    - .react-testing
+  rules: *rules-playwright-pilot
+  parallel:
+    matrix:
+      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+        TEST_PORT: "6329"
+        TEST_NAME: playwright-react-firefox-application-integration
+      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+        TEST_PORT: "6330"
+        TEST_NAME: playwright-react-firefox-crud-criteria-matrix
+      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+        TEST_PORT: "6331"
+        TEST_NAME: playwright-react-firefox-regression-websocket-print
+      - TEST_CLASSES: SchedulerTestsIT
+        TEST_PORT: "6332"
+        TEST_NAME: playwright-react-firefox-scheduler
+
 
 gemnasium-maven-dependency_scanning:
   stage: test

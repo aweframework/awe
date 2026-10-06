@@ -824,9 +824,31 @@ The unit tests of `awe-testing` that run a real Chromium through Playwright neve
 installed and are **skipped** where there is none, so a machine without browsers still gets a green build. The CI job of the
 unit tests (`All UT`) installs only the Chromium headless shell with its libraries, caches it between pipelines and passes
 `-Dawe.test.playwright.required=true`, which turns a missing browser into a **failure** instead of a skip; use the same switch
-to make sure that the tests run on your machine. CI only proves Chromium for now: the Firefox of the adapter is checked
-where Firefox is installed, by running the same tests with `-Dawe.test.playwright.engine=firefox` (a Firefox that is installed
+to make sure that the tests run on your machine. CI only proves Chromium for the blocking adapter tests of `All UT` (the
+Firefox pilot suites below do not gate the pipeline): the Firefox of the adapter is checked where Firefox is installed, by
+running the same tests with `-Dawe.test.playwright.engine=firefox` (a Firefox that is installed
 and fails to launch fails the test; one that is not installed skips it).
+
+**Pilot jobs in the AWE pipeline.** To compare Playwright with Selenium on the real suites, the pipeline of AWE runs the same
+suites with `awe.test.tool=playwright`: 4 jobs (`Playwright Chromium IT`, `Playwright Firefox IT`,
+`Playwright Chromium IT React` and `Playwright Firefox IT React`), each one a matrix of the 4 suite groups of its Selenium
+counterpart, which makes **16 jobs**. The first two run the AngularJS application (`awe-tests/awe-boot`, the same groups as
+`Chrome IT` and `Firefox IT`) and the other two the React application (`awe-tests/awe-boot-react`, the classes of the React jobs).
+Two small jobs, `Playwright Chromium browser` and `Playwright Firefox browser`, download and cache the browsers for them.
+Each pilot job installs only the headless browser it needs, runs it next to the application it starts and writes its failure
+evidence (screenshot, page source and console) to `selenium-evidence/`, which you find in the artifacts of the job like the
+evidence of the Selenium jobs; it does not record video (`awe.test.allowed-recording=false`).
+
+- **When they run.** Automatically on `develop` only. On a merge request that changes `awe-framework/awe-testing`,
+  `awe-tests` or `.gitlab-ci.yml` they are **manual** jobs: start them from the pipeline page when you want the comparison
+  (a job that finds no cached browser downloads it). They do not run on other merge requests, on `master` or on `support/*`.
+- **They do not gate the pipeline.** The jobs are `allow_failure`, are not retried (the first result of every run is the one
+  that counts) and Sonar does not wait for them. This includes Firefox: the pilot **does** run Firefox in CI, but a failure
+  there never fails a pipeline. The sentence above that CI only proves Chromium refers to the adapter unit tests of `All UT`,
+  which are the ones that block.
+- **How to compare.** Open the Playwright job and the Selenium job of the same suite and read the failsafe summary
+  (`Tests run: ...`) and the `Playwright pilot ...` line that the Playwright job prints at the end of its log, with its status
+  and the time since the job started.
 
 Chromium is started with `--disable-dev-shm-usage` (the shared memory of a container is too small for it) and, when the
 sandbox cannot work, without its sandbox (`--no-sandbox`): that is the case when it runs headless, when the process runs as
