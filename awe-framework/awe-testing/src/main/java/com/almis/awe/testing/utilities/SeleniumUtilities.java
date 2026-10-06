@@ -62,6 +62,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Get driver
    *
    * @return Get driver
+   * @throws UnsupportedOperationException When the tests run with a tool other than Selenium ({@code awe.test.tool})
    * @deprecated Selenium specific: it exposes the Selenium driver and is only available when the tests run with the
    * Selenium tool, so a step that uses it does not work with any other tool. Write the steps of your product with the neutral steps of this class, with a {@link Locator} and with
    * {@link #getBrowser()}. It stays available through the whole 5.x line and is not removed before 6.0

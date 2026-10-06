@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,5 +50,41 @@ class SeleniumModelTest {
   @Test
   void shouldNotBuildABrowserWithoutADriver() {
     assertThat(new SeleniumModel().getBrowser()).isNull();
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void shouldGiveTheSeleniumDriverOfTheSeleniumTool() {
+    WebDriver driver = mock(WebDriver.class);
+
+    assertThat(new SeleniumModel().setDriver(driver).getDriver()).isSameAs(driver);
+    assertThat(new SeleniumModel().setDriver(driver).setBrowser(mock(BrowserDriver.class)).getDriver()).isSameAs(driver);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void shouldHaveNoSeleniumDriverBeforeTheBrowserIsOpened() {
+    assertThat(new SeleniumModel().getDriver()).isNull();
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void shouldRefuseTheSeleniumDriverWhenAnotherToolOwnsTheBrowser() {
+    SeleniumModel model = new SeleniumModel().setBrowser(mock(BrowserDriver.class));
+
+    assertThatThrownBy(model::getDriver)
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessageContaining("only available with the Selenium tool")
+      .hasMessageContaining("getBrowser()");
+  }
+
+  @Test
+  void shouldPrintAndCompareTheModelOfAnotherToolWithoutAskingForTheSeleniumDriver() {
+    BrowserDriver browser = mock(BrowserDriver.class);
+    SeleniumModel model = new SeleniumModel().setBrowser(browser).setTestTitle("title");
+    SeleniumModel same = new SeleniumModel().setBrowser(browser).setTestTitle("title");
+
+    assertThat(model.toString()).contains("title");
+    assertThat(model).isEqualTo(same).hasSameHashCodeAs(same);
   }
 }
