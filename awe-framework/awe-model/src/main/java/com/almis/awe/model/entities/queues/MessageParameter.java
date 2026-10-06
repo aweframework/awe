@@ -131,7 +131,7 @@ public class MessageParameter extends ServiceInputParameter {
       case DATE:
       case TIME:
       case TIMESTAMP:
-        stringValue = value.toString();
+        stringValue = value == null ? null : value.toString();
         break;
       case STRING:
       default:

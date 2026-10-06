@@ -28,6 +28,7 @@ public class ActionService extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
 
   private static final String SECURITY_MASK = "*****";
+  private static final String DEFAULT_ERROR = "DEFAULT_ERROR";
 
   /**
    * Autowired constructor
@@ -146,6 +147,13 @@ public class ActionService extends ServiceConfig {
     try {
       // Get answer and set it into output actions
       Answer answer = action.getAnswer(exception.getType());
+      if (answer == null && !DEFAULT_ERROR.equals(action.getId())) {
+        // The action does not answer this error: answer it as the default error does, so the client gets the message
+        answer = getDefaultErrorAnswer(exception);
+      }
+      if (answer == null) {
+        return new ArrayList<>();
+      }
       List<ClientAction> actionList = answer.getResponseList();
       actionList = getClientActionVariables(actionList, getExceptionVariables(exception));
 
@@ -164,6 +172,21 @@ public class ActionService extends ServiceConfig {
   }
 
   /**
+   * Retrieve the answer of the default error action for an exception
+   *
+   * @param exception Exception with the error
+   * @return Default error answer, or null if there is none
+   */
+  private Answer getDefaultErrorAnswer(AWException exception) {
+    try {
+      return getAction(DEFAULT_ERROR).getAnswer(exception.getType());
+    } catch (AWException exc) {
+      log.error("Default error not found", exc);
+      return null;
+    }
+  }
+
+  /**
    * Launch default error action
    *
    * @param exception Exception with the error description
@@ -173,7 +196,7 @@ public class ActionService extends ServiceConfig {
     List<ClientAction> actionList = null;
     // Get default error action
     try {
-      actionList = launchError(getAction("DEFAULT_ERROR"), exception);
+      actionList = launchError(getAction(DEFAULT_ERROR), exception);
     } catch (AWException exc) {
       // No encontrado el error por defecto. ¡Error fatal!
       log.error("Default error not found", exc);
