@@ -1,3 +1,13 @@
+# Release notes for AWE 4.13.0
+*06/10/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-scheduler): keep the launcher credential columns in SCHEDULER_V1.0.5 (#816) [support/4.x]. [MR #844](https://gitlab.com/aweframework/awe/-/merge_requests/844) (Pablo Vidal Otero)
+- feat(ci): make the Selenium suites blocking on support/4.x (#766) [support/4.x]. [MR #839](https://gitlab.com/aweframework/awe/-/merge_requests/839) (Pablo Javier García Mora)
+- fix(awe-model): stop serializing Option children twice in menu JSON [support/4.x]. [MR #793](https://gitlab.com/aweframework/awe/-/merge_requests/793) (Pablo Javier García Mora)
+- chore(release): move the support/4.x line to 4.13.0-SNAPSHOT. [MR #777](https://gitlab.com/aweframework/awe/-/merge_requests/777) (Pablo Javier García Mora)
+- fix(ci): release scripts keep the changelog and assign milestones by git range (+ 4.12.10 changelog). [MR #776](https://gitlab.com/aweframework/awe/-/merge_requests/776) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.12.10
 *30/09/2026*
  
