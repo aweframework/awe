@@ -538,6 +538,8 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldBringACellInsideItsScrollContainerBeforeDoubleClickingIt() {
     use(new ReactAweInstructions());
     WebElement cell = show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+    // The client does not identify the row of the cell: Selenium reports it as a missing element
+    when(cell.findElement(any(By.class))).thenThrow(new NoSuchElementException("no row"));
 
     utilities.editRow("GrdEdi", "clean");
 
@@ -600,7 +602,9 @@ class SeleniumUtilitiesSemanticStepsTest {
   @Test
   void shouldNotCheckTheEditionOfARowThatTheClientDoesNotIdentify() {
     use(new ReactAweInstructions());
-    show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+    WebElement cell = show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+    // Selenium reports the row that the client does not identify as a missing element
+    when(cell.findElement(any(By.class))).thenThrow(new NoSuchElementException("no row"));
     AtomicInteger doubleClicks = new AtomicInteger();
     doAnswer(invocation -> doubleClicks.incrementAndGet()).when((Interactive) driver).perform(any());
 
