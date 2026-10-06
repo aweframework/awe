@@ -1,7 +1,9 @@
 --------------------------------------------------------
 --  Unify FTP credentials into the scheduler server row
 --  Carries the per-task launcher credentials over to the ftp server they
---  point at, then drops the now-unused launcher credential columns.
+--  point at. The launcher credential columns (SrvUsr, SrvPwd) are kept in
+--  AweSchTskLch and HISAweSchTskLch as deprecated, nullable columns: the
+--  scheduler no longer reads or writes them.
 --  Winner on conflict: the lowest AWESCHTSKLCH.IDE with a non-empty user.
 --  Servers that already carry credentials are left untouched.
 --------------------------------------------------------
@@ -29,9 +31,3 @@ WHERE LOWER("AWESCHSRV"."PRO") = 'ftp'
               FROM "AWESCHTSKLCH" "CHK"
               WHERE "CHK"."IDSRV" = "AWESCHSRV"."IDE"
                 AND "CHK"."SRVUSR" IS NOT NULL);
-
-ALTER TABLE "AWESCHTSKLCH"
-    DROP ("SRVUSR", "SRVPWD");
-
-ALTER TABLE "HISAWESCHTSKLCH"
-    DROP ("SRVUSR", "SRVPWD");
