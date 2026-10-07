@@ -42,7 +42,8 @@ from `develop`/`master`.
 |---|---|---|---|---|
 | Build, unit/DB/frontend tests, javadoc | yes | yes | yes | yes |
 | Dependency scanning | yes | yes | yes | yes |
-| Selenium (browser) integration tests | yes | yes | yes | yes |
+| Playwright browser integration tests | yes | yes | no | yes |
+| Selenium browser integration tests | weekly scheduled pipeline only | yes | yes | no |
 | Sonar analysis (`sonar.branch.name` set) | yes | yes | yes | yes (MR analysis) |
 | Generate javadoc & schemas | yes | yes | yes | no |
 | Build package (Docker image) | yes | yes | yes | no |
@@ -55,17 +56,25 @@ from `develop`/`master`.
 | GitLab Pages (docs site) | yes | yes | no | no |
 | Tag pipeline (Maven Central, milestones, release notes) | on tag | on tag | on tag | no |
 
-The Selenium suites are blocking in every pipeline that runs them from the current
-configuration (`develop`, `master` and merge requests into them): a failing suite fails the
-pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Renovate from
-automerging. Each suite is retried once automatically on a script or runner failure to absorb
-an occasional flaky run; a real regression fails twice, and a timeout is not retried.
-`support/4.x` keeps its own pipeline configuration, and its Selenium suites are blocking in the
-same way (one automatic retry, no retry on timeout).
-The same four suites run twice per browser: against the AngularJS test application
-(`awe-tests/awe-boot`, jobs `Firefox IT` and `Chrome IT`) and against the React engine test
-application (`awe-tests/awe-boot-react`, jobs `Firefox IT React` and `Chrome IT React`). Both
-sets block in the same way.
+The browser suites run with two tools, and both are blocking wherever they run: a failing suite
+fails the pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Renovate
+from automerging. Each suite is retried once automatically on a script or runner failure to
+absorb an occasional flaky run; a real regression fails twice, and a timeout is not retried.
+
+- **Playwright** (jobs `Playwright Chromium IT`, `Playwright Firefox IT`, `Playwright Chromium IT
+  React` and `Playwright Firefox IT React`) is the browser tool of the everyday pipeline: merge
+  requests with code changes, `develop` and `master`. It does not run on `support/*`: `support/4.x`
+  has no Playwright adapter.
+- **Selenium** (jobs `Firefox IT`, `Chrome IT`, `Firefox IT React` and `Chrome IT React`) runs on
+  `master`, on `support/*` and in the pipelines of the **"Weekly Check" pipeline schedule on
+  `develop`**. It does not run on merge requests or on an ordinary push to `develop`. The schedule
+  is a project setting in GitLab (CI/CD, Schedules), not a file of the repository; the "Renovate"
+  schedule runs only the Renovate job.
+
+Each tool runs the same four suite groups twice: against the AngularJS test application
+(`awe-tests/awe-boot`) and against the React engine test application (`awe-tests/awe-boot-react`).
+`Launch Sonar` waits for whichever browser jobs ran in the pipeline (both tools on `master` and in
+the weekly schedule on `develop`).
 
 Only failed tests leave evidence. Open the pipeline **Tests** tab, pick the failed test and use
 **View details** to see its screenshot; the test output also links the screenshot and the video, and the
@@ -78,18 +87,18 @@ they behave the same whether the tag came from `develop` or from `support/4.x`.
 Merge-request pipelines are selective: jobs are added according to the paths the merge
 request touches. A change limited to `website/` builds only the documentation site; a change
 limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the AngularJS
-Selenium suites, Sonar and dependency scanning but not the database matrix nor the React
-Selenium suites; a change limited to `awe-framework/awe-client-react/` runs the React unit
-tests and lint, both sets of Selenium suites, Sonar and dependency scanning; a backend change
-runs the build, the database matrix, both sets of Selenium suites, Sonar, dependency scanning
+Playwright suites, Sonar and dependency scanning but not the database matrix nor the React
+Playwright suites; a change limited to `awe-framework/awe-client-react/` runs the React unit
+tests and lint, both sets of Playwright suites, Sonar and dependency scanning; a backend change
+runs the build, the database matrix, both sets of Playwright suites, Sonar, dependency scanning
 and the javadoc check, but neither the frontend unit tests nor the documentation build. A change to
 `.gitlab-ci.yml` counts as touching everything; a change to the root `pom.xml` counts as a
 backend change. Branch pipelines on `develop`, `master` and `support/*` always run the
-complete set. Merge-request pipelines are interruptible, so a new
+complete set, except that each branch runs only the browser tools listed above. Merge-request pipelines are interruptible, so a new
 push cancels the superseded pipeline automatically; pipelines on protected branches are not
 cancelled. Database and browser jobs are generated from `parallel:matrix` definitions
-(`Embedded DB Tests`, one job per database engine with and without Flyway, `Firefox IT`,
-`Chrome IT`, `Firefox IT React` and `Chrome IT React` per suite), and every job has a timeout of roughly twice its observed duration.
+(`Embedded DB Tests`, one job per database engine with and without Flyway, the Playwright and
+Selenium browser jobs per suite), and every job has a timeout of roughly twice its observed duration.
 
 Support branches must be **protected branches** in GitLab (the pattern `support/*` is
 protected with the same policy as `develop`). The credentials used by `Build package`

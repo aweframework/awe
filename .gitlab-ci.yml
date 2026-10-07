@@ -100,6 +100,8 @@ stages:
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
+.if-develop-schedule: &if-develop-schedule   # a pipeline schedule on develop (see .rules-selenium)
+  if: '$RENOVATE_RUN != "true" && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "develop"'
 
 # Path selection for merge-request pipelines only: rules:changes is only reliable when compared
 # against the MR target branch. Branch pipelines (develop/master/support/*) always run the full
@@ -149,10 +151,6 @@ stages:
   - awe-framework/awe-client-react/**/*
   - awe-tests/**/*
   - awe-samples/**/*
-.paths-playwright-pilot: &paths-playwright-pilot   # the Playwright pilot of the browser suites (#812): the adapter, the suites, this file
-  - .gitlab-ci.yml
-  - awe-framework/awe-testing/**/*
-  - awe-tests/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -183,9 +181,6 @@ stages:
 .if-mr-react-it: &if-mr-react-it
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-react-it
-.if-mr-playwright-pilot: &if-mr-playwright-pilot
-  if: '$CI_MERGE_REQUEST_IID'
-  changes: *paths-playwright-pilot
 .if-mr-website: &if-mr-website
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
@@ -197,14 +192,25 @@ stages:
   - <<: *if-mr-backend
   - <<: *if-mr-angular-templates
   - <<: *if-branches
-# Playwright pilot of the browser suites (#812): automatic on develop only; on a merge request that touches the adapter, the
-# suites or this file it is a manual job that the pipeline does not wait for (the pilot is 16 jobs: runner load). Not on
-# master or support/*
-.rules-playwright-pilot: &rules-playwright-pilot
+# Browser suites (#812). Two tools run the same suites and both block the pipeline wherever they run:
+#   - Playwright (the "Playwright ... IT" jobs) is the tool of the everyday pipeline: merge requests with code changes, develop
+#     and master. It has no support/* rule: support/4.x has no Playwright adapter;
+#   - Selenium (the "Chrome IT" and "Firefox IT" jobs) is the reference tool and runs less often: master, support/*, and the
+#     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
+#     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
+# A pipeline where both tools run (master, the weekly schedule on develop) gates "Launch Sonar" with both.
+.rules-playwright: &rules-playwright
+  - <<: *if-mr-code
   - <<: *if-develop
-  - <<: *if-mr-playwright-pilot
-    when: manual
-    allow_failure: true
+  - <<: *if-master
+.rules-playwright-react: &rules-playwright-react   # the React application: the merge requests that change the backend or the React client
+  - <<: *if-mr-react-it
+  - <<: *if-develop
+  - <<: *if-master
+.rules-selenium: &rules-selenium
+  - <<: *if-master
+  - <<: *if-support
+  - <<: *if-develop-schedule
 
 ##############################
 # Build stage
@@ -386,7 +392,7 @@ Build website with i18n:
 ##############################
 
 # The Playwright adapter of awe-testing (#812) drives a browser that Playwright installs itself. Two kinds of job use it:
-# the unit tests of the adapter ("All UT", Chromium) and the pilot browser suites ("Playwright ... IT", Chromium or
+# the unit tests of the adapter ("All UT", Chromium) and the browser suites ("Playwright ... IT", Chromium or
 # Firefox). Each one installs only the browser it needs, with the CLI of the same Playwright version as the project, so
 # there is one definition of the install (this one).
 #
@@ -459,24 +465,23 @@ Build website with i18n:
   script:
     - du -sh .playwright-browsers/*
 
-# Chromium: the adapter unit tests ("All UT") and the Chromium pilot suites need it, so the rules are both lists. The rules of
-# "All UT" come first: a merge request that touches the pilot paths also matches them (the pilot paths are a subset of theirs),
-# so the cache job is automatic there while the pilot jobs are manual, and a manual job could not be reached by its consumers
+# Chromium: the adapter unit tests ("All UT") and the Chromium suites need it, so the rules are both lists. Both are automatic
+# in every pipeline where a consumer runs (a merge request with code changes, develop, master), so none of them waits for a
+# cache job that does not exist
 Playwright Chromium browser:
   extends:
     - .playwright-browser-cache
     - .playwright-chromium
   rules:
     - !reference [.rules-all-ut]
-    - !reference [.rules-playwright-pilot]
+    - !reference [.rules-playwright]
 
-# Firefox: only the pilot suites need it, so it follows their policy: automatic on develop, manual on a merge request (a
-# pilot job started there downloads Firefox itself when nobody started this job)
+# Firefox: only the Playwright suites need it, so it follows their rules
 Playwright Firefox browser:
   extends:
     - .playwright-browser-cache
     - .playwright-firefox
-  rules: *rules-playwright-pilot
+  rules: *rules-playwright
 
 ##############################
 # testing stage
@@ -646,9 +651,10 @@ Javadoc test:
 .browser-testing:
   image: maven:3.9.9-eclipse-temurin-21
   stage: integration test
-  # Selenium suites block the pipeline (and therefore Renovate's automerge and the release jobs
-  # that need Sonar). One automatic job retry absorbs an occasional flaky run until per-test
-  # retry and a quarantine exist (#766); a real regression fails twice and still blocks.
+  # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
+  # automerge and the release jobs that need Sonar. One automatic job retry absorbs an occasional
+  # flaky run until per-test retry and a quarantine exist (#766); a real regression fails twice and
+  # still blocks. The Playwright jobs inherit this policy.
   # Timeouts are not retried: a hung browser session should fail within one timeout window.
   retry:
     max: 1
@@ -662,7 +668,7 @@ Javadoc test:
     # What the job runs: the JUnit tag group of the matrix entry (TEST_TAGS) by default; the React jobs
     # run the IT classes of their matrix entry (TEST_CLASSES) instead
     IT_SELECTION: -Dgroups=${TEST_TAGS}
-    # Extra options that choose the automation tool: empty for the Selenium jobs, the Playwright pilot jobs set them
+    # Extra options that choose the automation tool: empty for the Selenium jobs, the Playwright jobs set them
     IT_TOOL_OPTS: ""
     SCREEN_WIDTH: 1440
     SCREEN_HEIGHT: 1080
@@ -699,9 +705,8 @@ Javadoc test:
       junit:
         - ${IT_APP_MODULE}/target/surefire-reports/TEST-*.xml
     when: always
-  rules:
-    - <<: *if-mr-code
-    - <<: *if-branches
+  # Selenium rules; the Playwright jobs set their own (see .rules-playwright)
+  rules: *rules-selenium
 
 .firefox-testing:
   extends: .browser-testing
@@ -757,8 +762,9 @@ Chrome IT:
         TEST_PORT: "6308"
         TEST_NAME: chrome-scheduler
 
-# The browser suites against the React engine test application. They run when the backend or the React
-# client changes; a change limited to the AngularJS client does not select them.
+# The browser suites against the React engine test application. Selenium runs them where it runs at all (see
+# .rules-selenium); Playwright runs them on a merge request only when the backend or the React client changes, and a change
+# limited to the AngularJS client does not select them.
 # The React test application has its own IT classes, and they are migrated one by one to the semantic
 # steps of SeleniumUtilities (#812): a React job runs only the classes listed in TEST_CLASSES (comma
 # separated, as -Dit.test takes them), never a whole JUnit tag group, which would also run the classes
@@ -768,15 +774,13 @@ Chrome IT:
 #   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaAndMatrixTestsIT                (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
 #   SchedulerIT: SchedulerTestsIT                                              (port 6312 / 6316)
-# List .react-testing LAST in "extends": variables are merged, but "rules" is an array and the last
-# template that defines it wins, so another order would bring back the AngularJS selection rules.
+# List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
+# would bring back the AngularJS test application. It sets no rules: the Selenium jobs take .rules-selenium from
+# .browser-testing and the Playwright React jobs set .rules-playwright-react themselves.
 .react-testing:
   variables:
     IT_APP_MODULE: awe-tests/awe-boot-react
     IT_SELECTION: -Dit.test=${TEST_CLASSES}
-  rules:
-    - <<: *if-mr-react-it
-    - <<: *if-branches
 
 Firefox IT React:
   extends:
@@ -816,13 +820,12 @@ Chrome IT React:
         TEST_PORT: "6316"
         TEST_NAME: react-chrome-scheduler
 
-# Playwright pilot of the browser suites (#812): the same suites as the Selenium jobs above, run with
-# awe.test.tool=playwright in a local headless browser that the job installs next to the application it starts (Playwright
-# has no service or remote browsers). The jobs compare the Playwright adapter with Selenium on the real suites, and so they:
-#   - do not block the pipeline (allow_failure) and are not retried, to show the first result of every run;
-#   - are not needed by "Launch Sonar": their coverage is not an input of the quality gate while this is a pilot;
-#   - run automatically on develop only; on a merge request that changes the adapter, the suites or this file they are manual
-#     (started from the pipeline page, which does not wait for them), and they do not run on master or support/*;
+# Playwright browser suites (#812): the same suites as the Selenium jobs above, run with awe.test.tool=playwright in a local
+# headless browser that the job installs next to the application it starts (Playwright has no service or remote browsers).
+# They are the browser suites of the everyday pipeline, and so they:
+#   - block the pipeline, with the one automatic retry of .browser-testing (#766), like the Selenium jobs;
+#   - are needed by "Launch Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
+#   - run automatically on every merge request with code changes, on develop and on master, and never on support/*;
 #   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
 #     failure, the Playwright trace of the failed test and the page video of a class with a failure. The screen recorder of
 #     the Selenium jobs is off (awe.test.allowed-recording=false): a headless browser has no screen to film.
@@ -832,8 +835,6 @@ Chrome IT React:
   extends:
     - .browser-testing
     - .playwright-install
-  allow_failure: true
-  retry: 0
   variables:
     IT_TOOL_OPTS: -Dawe.test.tool=playwright -Dawe.test.allowed-recording=false
   # The fonts of the print tests, then the browser of this job
@@ -842,7 +843,7 @@ Chrome IT React:
     - !reference [.playwright-install, before_script]
   after_script:
     - !reference [.browser-testing, after_script]
-    - echo "Playwright pilot ${TEST_NAME} (${BROWSER}), job status ${CI_JOB_STATUS}, $(( $(date +%s) - $(date -d "$CI_JOB_STARTED_AT" +%s) )) s since the job started"
+    - echo "Playwright ${TEST_NAME} (${BROWSER}), job status ${CI_JOB_STATUS}, $(( $(date +%s) - $(date -d "$CI_JOB_STARTED_AT" +%s) )) s since the job started"
 
 .playwright-chromium-testing:
   extends:
@@ -861,7 +862,7 @@ Chrome IT React:
 
 Playwright Chromium IT:
   extends: .playwright-chromium-testing
-  rules: *rules-playwright-pilot
+  rules: *rules-playwright
   parallel:
     matrix:
       - TEST_TAGS: ApplicationIntegrationIT
@@ -879,7 +880,7 @@ Playwright Chromium IT:
 
 Playwright Firefox IT:
   extends: .playwright-firefox-testing
-  rules: *rules-playwright-pilot
+  rules: *rules-playwright
   parallel:
     matrix:
       - TEST_TAGS: ApplicationIntegrationIT
@@ -899,7 +900,7 @@ Playwright Chromium IT React:
   extends:
     - .playwright-chromium-testing
     - .react-testing
-  rules: *rules-playwright-pilot
+  rules: *rules-playwright-react
   parallel:
     matrix:
       - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
@@ -919,7 +920,7 @@ Playwright Firefox IT React:
   extends:
     - .playwright-firefox-testing
     - .react-testing
-  rules: *rules-playwright-pilot
+  rules: *rules-playwright-react
   parallel:
     matrix:
       - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
@@ -984,10 +985,24 @@ Launch Sonar:
       optional: true
     - job: Frontend UT React
       optional: true
+    # The browser suites: Playwright runs on merge requests, develop and master; Selenium on master, support/* and the
+    # pipeline schedule of develop. Each pipeline runs at least one tool (the React jobs of a tool also depend on the
+    # changed paths), so every job is optional; whichever job runs gates Sonar (and the release jobs). Keep it so:
+    # .rules-playwright and .rules-selenium together must cover every pipeline that runs this job, or Sonar and the
+    # releases go ahead with no browser suite. Their IT coverage reaches Sonar as before: the *.exec files of both tools
+    # have different names (jacoco-${TEST_NAME}-it.exec), so both sets are kept when both tools ran.
+    - job: Playwright Chromium IT
+      optional: true
+    - job: Playwright Firefox IT
+      optional: true
+    - job: Playwright Chromium IT React
+      optional: true
+    - job: Playwright Firefox IT React
+      optional: true
     - job: Firefox IT
+      optional: true
     - job: Chrome IT
-    # Optional only because a merge request limited to the AngularJS client does not run them;
-    # whenever they run they gate Sonar (and the release jobs) like the AngularJS suites.
+      optional: true
     - job: Firefox IT React
       optional: true
     - job: Chrome IT React
