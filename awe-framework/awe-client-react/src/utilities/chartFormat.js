@@ -1,10 +1,15 @@
+import {evaluate, parseTemplate} from "./chartTemplate";
+
+export {parseTemplate, resolvePath} from "./chartTemplate";
+
 /**
  * Formatting of chart texts.
  *
  * The server cannot send functions, so the chart sends Highcharts format templates (for example
- * `<b>{point.name}</b>: {point.percentage:.1f} %`) and the name of the formatters it needs. This module interprets
- * them in the client. The template is parsed into nodes (text and expressions) and then rendered against a context,
- * so that new node types (conditions, helpers) can be added to the parser without touching the renderer callers.
+ * `<b>{point.name}</b>: {point.percentage:.1f} %`, or `{#if (gt y 0)}{y:,.0f}{else}{(multiply y -1):,.0f}{/if}`) and
+ * the name of the formatters it needs. This module interprets them in the client: the template is parsed into nodes
+ * by `chartTemplate` (text, expressions and conditions) and then rendered against a context, with the number and
+ * date specifications of Highcharts.
  */
 
 /**
@@ -28,8 +33,8 @@ const DEFAULT_WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"
  */
 const MAGNITUDES = [{exp: 6, symbol: "M"}, {exp: 3, symbol: "K"}, {exp: 0, symbol: ""}];
 
-const EXPRESSION = /{([\w.$-]+)(?::([^{}]*))?}/g;
 const NUMBER_SPEC = /^(,)?\.(\d+)f$/;
+const MAX_PRECISION = 12;
 
 /**
  * Named formatters that the server asks for by name
@@ -147,38 +152,6 @@ export function toEChartsTimeFormat(pattern) {
 }
 
 /**
- * Resolve a dotted path in a context
- * @param {object} context Context
- * @param {string} path Path (point.y)
- * @returns {*} Value, undefined when the path does not exist
- */
-export function resolvePath(context, path) {
-  return String(path).split(".").reduce((value, key) => value?.[key], context);
-}
-
-/**
- * Parse a Highcharts format template into text and expression nodes
- * @param {string} template Template
- * @returns {object[]} Nodes
- */
-export function parseTemplate(template) {
-  const text = template === null || template === undefined ? "" : String(template);
-  const nodes = [];
-  let last = 0;
-  for (const match of text.matchAll(EXPRESSION)) {
-    if (match.index > last) {
-      nodes.push({type: "text", value: text.substring(last, match.index)});
-    }
-    nodes.push({type: "expression", path: match[1], spec: match[2]});
-    last = match.index + match[0].length;
-  }
-  if (last < text.length) {
-    nodes.push({type: "text", value: text.substring(last)});
-  }
-  return nodes;
-}
-
-/**
  * Render the value of an expression
  * @param {*} value Value
  * @param {string} [spec] Format specification (.2f, ,.2f, %Y-%m-%d)
@@ -186,7 +159,7 @@ export function parseTemplate(template) {
  * @returns {string} Text
  */
 function formatValue(value, spec, locale) {
-  if (value === undefined || value === null) {
+  if (value === undefined || value === null || Number.isNaN(value)) {
     return "";
   }
   if (spec?.startsWith("%")) {
@@ -200,6 +173,16 @@ function formatValue(value, spec, locale) {
     });
   }
   return String(value);
+}
+
+/**
+ * Escape the characters of a text that have a meaning in html
+ * @param {*} text Text
+ * @returns {string} Escaped text
+ */
+export function escapeHtml(text) {
+  return String(text ?? "").replace(/[&<>"']/g, character =>
+    ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[character]));
 }
 
 /**
@@ -235,18 +218,48 @@ export function stripHtml(text) {
 }
 
 /**
- * Format a Highcharts template with a context
- * @param {string} template Template ({point.name}: {point.y:.2f})
+ * Evaluate an expression. The result of a calculation may have floating point noise (0.1 + 0.2), which is rounded; a
+ * value that the context gives (a timestamp in milliseconds) stays exact
+ * @param {object} expression Expression of a parsed template
+ * @param {object} context Values that the expression refers to
+ * @returns {*} Value
+ */
+function calculated(expression, context) {
+  const value = evaluate(expression, context);
+  const rounded = expression.type === "call" && typeof value === "number" && Number.isFinite(value);
+  return rounded ? Number(value.toPrecision(MAX_PRECISION)) : value;
+}
+
+/**
+ * Render the nodes of a parsed template
+ * @param {object[]} nodes Nodes
  * @param {object} context Values that the expressions refer to
- * @param {{locale: ChartLocale, stripHtml: boolean}} [options] Locale to format numbers and dates, and whether the
- * html of the template has to be removed (labels of ECharts do not render html)
+ * @param {{locale: ChartLocale, escapeValues: boolean}} options Locale and escaping of the values
+ * @returns {string} Text
+ */
+function renderNodes(nodes, context, options) {
+  return nodes.map(node => {
+    if (node.type === "text") {
+      return node.value;
+    }
+    if (node.type === "if") {
+      return renderNodes(evaluate(node.condition, context) ? node.whenTrue : node.whenFalse, context, options);
+    }
+    const text = formatValue(calculated(node.expression, context), node.spec, options.locale);
+    return options.escapeValues ? escapeHtml(text) : text;
+  }).join("");
+}
+
+/**
+ * Format a Highcharts template with a context
+ * @param {string} template Template ({point.name}: {point.y:.2f}, {#if (gt y 0)}up{else}down{/if})
+ * @param {object} context Values that the expressions refer to
+ * @param {{locale: ChartLocale, stripHtml: boolean, escapeValues: boolean}} [options] Locale to format numbers and
+ * dates, whether the html of the template has to be removed (labels of ECharts do not render html), and whether the
+ * values that replace the expressions have to be escaped (the template is html, the values are not)
  * @returns {string} Formatted text
  */
 export function formatTemplate(template, context, options = {}) {
-  const locale = options.locale || {};
-  const text = parseTemplate(template).map(node => node.type === "text"
-    ? node.value
-    : formatValue(resolvePath(context, node.path), node.spec, locale)
-  ).join("");
+  const text = renderNodes(parseTemplate(template), context, {locale: options.locale || {}, escapeValues: options.escapeValues});
   return options.stripHtml ? stripHtml(text) : text;
 }

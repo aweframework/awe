@@ -2139,6 +2139,42 @@
     <field id="Nam" alias="names"/>
     <computed format="parseInt(Math.random()*100,10)" eval="true" alias="serie1" transform="NUMBER_PLAIN"/>
   </query>
+  <!-- FIXED DATA OF THE CHARTS WITH ADVANCED HIGHCHARTS OPTIONS (no random values: the charts always draw the same) -->
+  <query id="ChrAdvPyramidSrc" enumerated="ChrAdvAge">
+    <field id="value"/>
+    <computed format="'[value]'" eval="true" alias="age"/>
+    <computed format="-(1500 + parseInt('[value]') * 80 + parseInt('[value]') % 7 * 60)" eval="true" alias="men" transform="NUMBER_PLAIN"/>
+    <computed format="1300 + parseInt('[value]') * 75 + parseInt('[value]') % 5 * 70" eval="true" alias="women" transform="NUMBER_PLAIN"/>
+    <computed format="7000" eval="true" alias="dummyMax" transform="NUMBER_PLAIN"/>
+    <computed format="-7000" eval="true" alias="dummyMin" transform="NUMBER_PLAIN"/>
+  </query>
+  <query id="ChrAdvAreaSrc" enumerated="ChrAdvMonth">
+    <field id="value"/>
+    <computed format="Date.UTC(2024, [value] - 1, 1)" eval="true" alias="month" transform="NUMBER_PLAIN"/>
+    <computed format="110 + [value] * 8 + [value] % 4 * 5" eval="true" alias="staff" transform="NUMBER_PLAIN"/>
+  </query>
+  <query id="ChrAdvColumnsSrc" enumerated="ChrAdvYear">
+    <field id="value"/>
+    <computed format="'[value]'" eval="true" alias="year"/>
+    <computed format="900 + ([value] - 2017) * 140" eval="true" alias="company" transform="NUMBER_PLAIN"/>
+    <computed format="700 + ([value] - 2017) * 100" eval="true" alias="employee" transform="NUMBER_PLAIN"/>
+  </query>
+  <query id="ChrAdvPieSrc" enumerated="ChrAdvCategory">
+    <field id="value"/>
+    <computed format="'[value]'" eval="true" alias="category"/>
+    <computed format="'[value]'.length * 7 + 3" eval="true" alias="people" transform="NUMBER_PLAIN"/>
+  </query>
+  <query id="ChrAdvBubbleSrc" enumerated="ChrAdvMonth">
+    <field id="value"/>
+    <computed format="[value]" eval="true" alias="risk" transform="NUMBER_PLAIN"/>
+    <computed format="2 + [value] * 1.5 - [value] % 3" eval="true" alias="return" transform="NUMBER_PLAIN"/>
+    <computed format="10 + [value] * 8" eval="true" alias="weight" transform="NUMBER_PLAIN"/>
+  </query>
+  <query id="ChrAdvPieLabelsSrc" enumerated="ChrAdvCategory">
+    <field id="value"/>
+    <computed format="'[value]'" eval="true" alias="asset"/>
+    <computed format="'[value]'.length * 1000 + 500" eval="true" alias="amount" transform="NUMBER_PLAIN"/>
+  </query>
   <query id="GetUsrTotCol">
     <field id="red" alias="red"/>
     <field id="green" alias="green"/>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Charts of business applications with their attributes and chart-parameters, for the translation tests -->
+<screen template="window" label="Advanced charts">
+  <tag source="center">
+    <window label="Financial charts">
+      <!-- pie with percentage labels, small label font, no legend -->
+      <chart id="AdvPieLabels" label="Distribución por tipo de activo" type="pie" zoom-type="xAxis" enable-data-labels="true"
+             format-data-labels="&lt;b&gt;{point.name}&lt;/b&gt;: {point.percentage:.2f} %">
+        <chart-legend enabled="false" />
+        <chart-tooltip number-decimals="2" suffix=" €" />
+        <chart-serie id="dist" x-value="asset" y-value="amount" label="Importe" />
+        <chart-parameter type="object" name="plotOptions">
+          <chart-parameter type="object" name="pie">
+            <chart-parameter type="object" name="dataLabels">
+              <chart-parameter type="object" name="style">
+                <chart-parameter type="string" name="fontSize" value="70%" />
+              </chart-parameter>
+            </chart-parameter>
+          </chart-parameter>
+        </chart-parameter>
+      </chart>
+      <!-- stock chart, theme blue, dates, magnitude formatter -->
+      <chart id="AdvStock" label="Valor liquidativo" type="line" stock-chart="true" theme="blue" zoom-type="xAxis">
+        <chart-legend enabled="false" />
+        <chart-tooltip number-decimals="2" date-format="%d/%m/%Y" crosshairs="xAxis" shared="true" />
+        <x-axis type="datetime">
+          <chart-parameter type="object" name="dateTimeLabelFormats">
+            <chart-parameter type="string" name="day" value="%d/%m/%Y" />
+            <chart-parameter type="string" name="week" value="%d/%m/%Y" />
+            <chart-parameter type="string" name="month" value="%d/%m/%Y" />
+          </chart-parameter>
+        </x-axis>
+        <y-axis label="Valor" formatter-function="formatCurrencyMagnitude" />
+        <chart-serie id="nav" x-value="date" y-value="nav" label="Valor liquidativo" />
+      </chart>
+      <!-- bubble with z labels and bubble sizes -->
+      <chart id="AdvBubble" label="Rentabilidad frente a riesgo" type="bubble">
+        <chart-legend enabled="false" />
+        <x-axis label="Riesgo (%)" />
+        <y-axis label="Rentabilidad (%)" label-format="{value:.2f}" />
+        <chart-serie id="funds" x-value="risk" y-value="return" z-value="weight" label="Fondos" />
+        <chart-parameter type="object" name="plotOptions">
+          <chart-parameter type="object" name="series">
+            <chart-parameter type="object" name="dataLabels">
+              <chart-parameter type="boolean" name="enabled" value="true" />
+              <chart-parameter type="string" name="format" value="{point.z}" />
+            </chart-parameter>
+          </chart-parameter>
+          <chart-parameter type="object" name="bubble">
+            <chart-parameter type="integer" name="minSize" value="10" />
+            <chart-parameter type="integer" name="maxSize" value="40" />
+          </chart-parameter>
+        </chart-parameter>
+      </chart>
+      <!-- stacked columns with a tick interval -->
+      <chart id="AdvStacked" label="Cartera por gestora" type="column" stacking="normal" zoom-type="xAxis">
+        <chart-legend enabled="true" />
+        <chart-tooltip number-decimals="0" suffix=" k€" shared="true" />
+        <x-axis type="category" />
+        <y-axis label="Miles de euros" tick-interval="25" />
+        <chart-serie id="eq" x-value="manager" y-value="equity" label="Renta variable" />
+        <chart-serie id="fi" x-value="manager" y-value="fixed" label="Renta fija" />
+        <chart-serie id="mm" x-value="manager" y-value="money" label="Monetario" />
+      </chart>
+    </window>
+    <window label="Business charts">
+      <!-- salary pyramid with two category axes -->
+      <chart id="AdvPyramid" label="Pirámide salarial" type="column" inverted="true">
+        <chart-legend enabled="true" />
+        <chart-tooltip shared="false">
+          <chart-parameter type="boolean" name="useHTML" value="true" />
+          <chart-parameter type="string" name="headerFormat" value="&lt;table&gt;&lt;tr&gt;&lt;th colspan='2'&gt;{point.key}&lt;/th&gt;&lt;/tr&gt;" />
+          <chart-parameter type="string" name="pointFormat" value="&lt;tr&gt;&lt;td&gt;{series.userOptions.fullname}: &lt;/td&gt;&lt;td&gt;&lt;b&gt;{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;" />
+          <chart-parameter type="string" name="footerFormat" value="&lt;/table&gt;" />
+        </chart-tooltip>
+        <x-axis type="category" />
+        <x-axis type="category" opposite="true" />
+        <y-axis>
+          <chart-parameter type="object" name="labels">
+            <chart-parameter type="string" name="format" value="{#if (gt value 0)}{multiply value 0.001}k{else}{multiply value -0.001}k{/if}" />
+          </chart-parameter>
+          <chart-parameter type="string" name="gridLineWidth" value="0" />
+        </y-axis>
+        <chart-serie id="men" type="column" x-value="age" y-value="men" label="Hombres" color="#4a7dbf">
+          <chart-parameter type="string" name="stack" value="salary" />
+          <chart-parameter type="float" name="pointPadding" value="0" />
+          <chart-parameter type="float" name="groupPadding" value="0.1" />
+          <chart-parameter type="integer" name="borderRadius" value="20" />
+          <chart-parameter type="string" name="fullname" value="Salario bruto medio hombres" />
+          <chart-parameter type="object" name="dataLabels">
+            <chart-parameter type="boolean" name="enabled" value="true" />
+            <chart-parameter type="string" name="format" value="{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}" />
+          </chart-parameter>
+        </chart-serie>
+        <chart-serie id="women" type="column" x-value="age" y-value="women" label="Mujeres" color="#d9789b" x-axis="1">
+          <chart-parameter type="string" name="stack" value="salary" />
+          <chart-parameter type="float" name="pointPadding" value="0" />
+          <chart-parameter type="float" name="groupPadding" value="0.1" />
+          <chart-parameter type="integer" name="borderRadius" value="20" />
+          <chart-parameter type="string" name="fullname" value="Salario bruto medio mujeres" />
+          <chart-parameter type="object" name="dataLabels">
+            <chart-parameter type="boolean" name="enabled" value="true" />
+            <chart-parameter type="string" name="format" value="{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}" />
+          </chart-parameter>
+        </chart-serie>
+        <chart-serie id="dummyMax" type="scatter" x-value="age" y-value="dummyMax" label="max" color="transparent">
+          <chart-parameter type="boolean" name="showInLegend" value="false" />
+          <chart-parameter type="boolean" name="enableMouseTracking" value="false" />
+          <chart-parameter type="object" name="marker">
+            <chart-parameter type="boolean" name="enabled" value="false" />
+          </chart-parameter>
+        </chart-serie>
+        <chart-serie id="dummyMin" type="scatter" x-value="age" y-value="dummyMin" label="min" color="transparent">
+          <chart-parameter type="string" name="linkedTo" value=":previous" />
+          <chart-parameter type="boolean" name="showInLegend" value="false" />
+          <chart-parameter type="boolean" name="enableMouseTracking" value="false" />
+          <chart-parameter type="object" name="marker">
+            <chart-parameter type="boolean" name="enabled" value="false" />
+          </chart-parameter>
+        </chart-serie>
+      </chart>
+      <!-- area with a gradient fill and markers -->
+      <chart id="AdvArea" label="Evolución de la plantilla" type="area" zoom-type="xAxis">
+        <chart-legend enabled="false" />
+        <chart-tooltip number-decimals="0" date-format="%B %Y" crosshairs="xAxis" suffix=" personas" />
+        <x-axis type="datetime">
+          <chart-parameter type="object" name="dateTimeLabelFormats">
+            <chart-parameter type="string" name="month" value="%B %Y" />
+          </chart-parameter>
+          <chart-parameter type="string" name="gridLineWidth" value="0.5" />
+        </x-axis>
+        <y-axis>
+          <chart-parameter type="string" name="gridLineWidth" value="0.5" />
+        </y-axis>
+        <chart-serie id="staff" x-value="month" y-value="staff" label="Plantilla" color="#8cac41">
+          <chart-parameter type="object" name="fillColor">
+            <chart-parameter type="object" name="linearGradient">
+              <chart-parameter type="integer" name="x1" value="0" />
+              <chart-parameter type="integer" name="y1" value="0" />
+              <chart-parameter type="integer" name="x2" value="0" />
+              <chart-parameter type="integer" name="y2" value="1" />
+            </chart-parameter>
+            <chart-parameter type="array" name="stops">
+              <chart-parameter type="array" name="">
+                <chart-parameter type="integer" name="" value="0" />
+                <chart-parameter type="string" name="" value="rgba(140,172,65,0.7)" />
+              </chart-parameter>
+              <chart-parameter type="array" name="">
+                <chart-parameter type="integer" name="" value="1" />
+                <chart-parameter type="string" name="" value="rgba(140,172,65,0.05)" />
+              </chart-parameter>
+            </chart-parameter>
+          </chart-parameter>
+        </chart-serie>
+        <chart-parameter type="object" name="plotOptions">
+          <chart-parameter type="object" name="area">
+            <chart-parameter type="integer" name="lineWidth" value="2" />
+            <chart-parameter type="string" name="threshold" value="-Infinity" />
+            <chart-parameter type="object" name="marker">
+              <chart-parameter type="string" name="fillColor" value="#FFFFFF" />
+              <chart-parameter type="integer" name="lineWidth" value="2" />
+              <chart-parameter type="string" name="lineColor" value="#0088CC" />
+              <chart-parameter type="integer" name="radius" value="4" />
+            </chart-parameter>
+          </chart-parameter>
+        </chart-parameter>
+      </chart>
+      <!-- stacked rounded columns -->
+      <chart id="AdvColumns" label="Aportaciones por año" type="column" stacking="normal"
+             format-data-labels="&lt;b&gt;{point.name}&lt;/b&gt;: {point.y:.2f}">
+        <chart-legend enabled="true" />
+        <chart-tooltip number-decimals="2" suffix=" €" shared="true" />
+        <x-axis type="category" tick-interval="1" />
+        <y-axis formatter-function="formatCurrencyMagnitude" tick-interval="10000" />
+        <chart-serie id="company" type="column" x-value="year" y-value="company" label="Empresa" color="#2f6f8f">
+          <chart-parameter type="string" name="borderRadius" value="30%" />
+          <chart-parameter type="integer" name="legendIndex" value="2" />
+        </chart-serie>
+        <chart-serie id="employee" type="column" x-value="year" y-value="employee" label="Empleado" color="#7fb3c8">
+          <chart-parameter type="string" name="borderRadius" value="30%" />
+          <chart-parameter type="integer" name="legendIndex" value="1" />
+        </chart-serie>
+        <chart-parameter type="object" name="plotOptions">
+          <chart-parameter type="object" name="column">
+            <chart-parameter type="float" name="pointPadding" value="0.05" />
+            <chart-parameter type="float" name="groupPadding" value="0.05" />
+          </chart-parameter>
+        </chart-parameter>
+      </chart>
+      <!-- pie_3d with its own colours -->
+      <chart id="AdvPie3d" label="Plantilla por categoría" type="pie_3d" enable-data-labels="true">
+        <chart-legend enabled="true" />
+        <chart-tooltip number-decimals="0" suffix=" personas" />
+        <chart-serie id="cat" x-value="category" y-value="people" label="Personas" />
+        <chart-parameter type="array" name="colors">
+          <chart-parameter type="string" name="" value="rgba(201,229,134,0.9)" />
+          <chart-parameter type="string" name="" value="rgba(140,172,65,0.9)" />
+          <chart-parameter type="string" name="" value="rgba(47,111,143,0.9)" />
+          <chart-parameter type="string" name="" value="rgba(127,179,200,0.9)" />
+          <chart-parameter type="string" name="" value="rgba(217,120,155,0.9)" />
+        </chart-parameter>
+        <chart-parameter type="object" name="plotOptions">
+          <chart-parameter type="object" name="series">
+            <chart-parameter type="boolean" name="colorByPoint" value="true" />
+            <chart-parameter type="boolean" name="allowPointSelect" value="true" />
+          </chart-parameter>
+          <chart-parameter type="object" name="pie">
+            <chart-parameter type="object" name="dataLabels">
+              <chart-parameter type="string" name="connectorColor" value="rgba(128,128,128,0.7)" />
+            </chart-parameter>
+          </chart-parameter>
+        </chart-parameter>
+      </chart>
+    </window>
+  </tag>
+</screen>

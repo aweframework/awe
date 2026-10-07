@@ -48,11 +48,16 @@ import static com.almis.awe.model.entities.screen.component.chart.echarts.EChart
  * <ul>
  *   <li>Series: {@code type} (Highcharts series type, such as {@code bubble} or {@code spline}), {@code xValue},
  *   {@code yValue}, {@code zValue}, {@code drilldown} (id of the series that opens), {@code keys} (point binding of
- *   the drilldown points), {@code labelFormat} (Highcharts format of the data labels), {@code stackPercent}.</li>
+ *   the drilldown points), {@code labelFormat} (Highcharts format of the data labels), {@code stackPercent},
+ *   {@code borderRadius} (pixels, or a percentage text, of the bars; the client rounds the end of the bar away from
+ *   zero in the outermost series of a stack), {@code showInLegend}, {@code linkedTo} ({@code :previous} or a series
+ *   id) and {@code legendIndex} (the client builds the legend with them), {@code valueSuffix} (tooltip),
+ *   {@code minSize} and {@code maxSize} (range of the bubble sizes in pixels) and {@code userOptions} (the raw
+ *   {@code chart-parameter} options of the series, which the formats read as {@code series.userOptions.<key>}).</li>
  *   <li>Axes: {@code axis} ({@code x} or {@code y}, the AWE role), {@code labelFormat}, {@code formatter} (name of a
  *   client formatter, such as {@code formatCurrencyMagnitude}), {@code dateTimeLabelFormats}.</li>
  *   <li>Tooltip: {@code crosshairs}, {@code numberDecimals}, {@code prefix}, {@code suffix}, {@code pointFormat},
- *   {@code dateFormat}.</li>
+ *   {@code headerFormat}, {@code footerFormat}, {@code useHTML}, {@code dateFormat}.</li>
  *   <li>Legend: {@code title}, {@code floating}.</li>
  *   <li>Title: {@code offsetY} (pixels).</li>
  * </ul>
@@ -115,6 +120,10 @@ public final class EChartsModelBuilder {
       EChartsAxisBuilder axisBuilder = new EChartsAxisBuilder(translator);
       List<Object> xAxes = axisBuilder.build(chart.getXAxisList(), true, inverted, true);
       List<Object> yAxes = axisBuilder.build(chart.getYAxisList(), false, inverted, true);
+      if (hints(model).remove(EChartsMaps.ALIGN_TICKS) != null) {
+        alignTicks(xAxes);
+        alignTicks(yAxes);
+      }
       model.put("xAxis", inverted ? yAxes : xAxes);
       model.put("yAxis", inverted ? xAxes : yAxes);
       List<Object> zoom = dataZoom(chart, inverted);
@@ -123,9 +132,19 @@ public final class EChartsModelBuilder {
       }
     }
 
+    hints(model).remove(EChartsMaps.ALIGN_TICKS);
     model.put("series", buildSeries(series, seriesBuilder, false));
     putHints(model, chart, inverted, buildSeries(series, seriesBuilder, true));
     return model;
+  }
+
+  /**
+   * Ask ECharts to align the ticks of the value axes with the ones of the first axis
+   */
+  @SuppressWarnings("unchecked")
+  private static void alignTicks(List<Object> axes) {
+    axes.stream().map(axis -> (Map<String, Object>) axis).filter(axis -> "value".equals(axis.get("type")))
+      .forEach(axis -> axis.put("alignTicks", true));
   }
 
   /**

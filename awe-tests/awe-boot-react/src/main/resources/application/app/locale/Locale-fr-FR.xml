@@ -76,6 +76,7 @@
   <locale name="MENU_TEST_BUTTONS" value="Boutons"/>
   <locale name="MENU_TEST_CAROUSEL" value="Carousel"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Série dynamique"/>
+  <locale name="MENU_TEST_CHART_ADVANCED" value="Graphiques avancés"/>
   <locale name="MENU_TEST_CHARTS" value="Graphiques"/>
   <locale name="MENU_TEST_CRITERIA" value="Critères"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Critères Reset"/>
@@ -152,6 +153,12 @@
   <locale name="SCREEN_TEXT_CHART_SERIE_2" value="Série 2"/>
   <locale name="SCREEN_TEXT_CHART_SERIE_3" value="Série 3"/>
   <locale name="SCREEN_TEXT_CHART_TITLE_1" value="Graphique 1"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PYRAMID" value="Pyramide"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_AREA" value="Aire avec dégradé"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_BUBBLE" value="Bulles"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_COLUMNS" value="Colonnes arrondies"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PIE" value="Camembert avec couleurs"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PIE_LABELS" value="Camembert avec petites étiquettes"/>
   <locale name="SCREEN_TEXT_DONUT_CHART" value="Donut"/>
   <locale name="SCREEN_TEXT_DYNAMIC_SERIES_CHART" value="Série de graphe dynamique"/>
   <locale name="SCREEN_TEXT_INSERT_PASS" value="Mettre vôtre mot de pas"/>
@@ -173,6 +180,7 @@
   <locale name="SCREEN_TITLE_CHART_DYNAMIC_SERIES" value="Série Dynamic Graphics"/>
   <locale name="SCREEN_TITLE_CHART_GRID_PRINT" value="Essai d&apos;impression du matrices et graphiques"/>
   <locale name="SCREEN_TITLE_CHART_TEST" value="Controle des graphiques"/>
+  <locale name="SCREEN_TITLE_CHART_ADVANCED" value="Graphiques avec options Highcharts avancées"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Onglets verticaux"/>

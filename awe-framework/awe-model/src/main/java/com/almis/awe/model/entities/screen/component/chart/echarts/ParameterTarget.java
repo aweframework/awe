@@ -10,6 +10,7 @@ final class ParameterTarget {
 
   private final Map<String, Object> options;
   private final Map<String, Map<String, Object>> seriesDefaults = new LinkedHashMap<>();
+  private UnsupportedOptionReporter reporter;
 
   ParameterTarget(Map<String, Object> options) {
     this.options = options;
@@ -41,5 +42,26 @@ final class ParameterTarget {
    */
   Map<String, Object> existingSeriesDefaults(String type) {
     return seriesDefaults.getOrDefault(type, Map.of());
+  }
+
+  /**
+   * Set the reporter of the options that are approximated or dropped. The translator sets it before it applies a rule
+   *
+   * @param reporter Reporter
+   */
+  void reporter(UnsupportedOptionReporter reporter) {
+    this.reporter = reporter;
+  }
+
+  /**
+   * Report an option that is approximated or dropped by the translation
+   *
+   * @param key     Identity of the report, used to report it once
+   * @param message Message to log
+   */
+  void approximation(String key, String message) {
+    if (reporter != null) {
+      reporter.approximation(key, message);
+    }
   }
 }

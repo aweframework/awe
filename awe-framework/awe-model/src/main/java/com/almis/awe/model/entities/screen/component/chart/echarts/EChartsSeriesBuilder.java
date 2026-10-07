@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.AREA_STYLE;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.ITEM_STYLE;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.LABEL;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.RADIUS;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsMaps.child;
@@ -70,7 +72,7 @@ final class EChartsSeriesBuilder {
       options.put("smooth", true);
     }
     if (type.isArea()) {
-      options.put("areaStyle", map());
+      options.put(AREA_STYLE, map());
     }
     if (type.isApproximated()) {
       reporter.approximation("series-type:" + type.highchartsName(), "Highcharts series type '"
@@ -81,7 +83,7 @@ final class EChartsSeriesBuilder {
     }
     putStack(options, type);
     if (StringUtils.isNotBlank(serie.getColor())) {
-      child(options, "itemStyle").put("color", serie.getColor());
+      child(options, ITEM_STYLE).put("color", serie.getColor());
     }
     if (chart.isEnableDataLabels()) {
       child(options, LABEL).put("show", true);
@@ -93,6 +95,7 @@ final class EChartsSeriesBuilder {
     EChartsMaps.mergeDefaults(options, chartParameters.existingSeriesDefaults(type.highchartsName()));
     EChartsMaps.mergeDefaults(options, chartParameters.existingSeriesDefaults(SERIES_DEFAULTS));
 
+    SeriesFinisher.finish(options, type);
     if (type.isPie()) {
       putPieLayout(options);
     } else {
@@ -118,7 +121,7 @@ final class EChartsSeriesBuilder {
 
   private void putStack(Map<String, Object> options, EChartsSeriesType type) {
     if (chart.isStacking() && type.isStackable()) {
-      options.put("stack", "stack");
+      options.put(EChartsKeys.STACKING, true);
       if ("percent".equalsIgnoreCase(chart.getStacking())) {
         hints(options).put("stackPercent", true);
       }

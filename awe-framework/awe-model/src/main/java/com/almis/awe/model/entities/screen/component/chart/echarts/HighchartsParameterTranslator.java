@@ -14,6 +14,10 @@ import java.util.Optional;
  * walked option by option. Each option is looked up in the translation table; options without a row are not applied
  * and are reported once.
  * </p>
+ * <p>
+ * The raw options of a series are also sent as the {@code userOptions} hint of the series, so that the format
+ * templates can read them (including custom keys such as {@code fullname}) as {@code series.userOptions.<key>}.
+ * </p>
  */
 final class HighchartsParameterTranslator {
 
@@ -42,7 +46,12 @@ final class HighchartsParameterTranslator {
     }
     Map<String, Object> raw = EChartsMaps.map();
     source.addParameters(raw);
+    target.reporter(reporter);
     walk(raw, new ArrayList<>(), scope, target);
+    if (scope == ParameterScope.SERIES) {
+      // The formats read any option of the series as series.userOptions, like the Highcharts ones do
+      EChartsMaps.hints(target.options()).put("userOptions", raw);
+    }
   }
 
   @SuppressWarnings("unchecked")

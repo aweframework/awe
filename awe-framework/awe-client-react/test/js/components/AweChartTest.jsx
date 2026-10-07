@@ -7,6 +7,7 @@ import {updateAttributes, updateModel} from "../../../src/redux/actions/componen
 import {getChartImage} from "../../../src/utilities/chartRegistry";
 import {echarts, isDarkTheme, renderSvg} from "../../../src/utilities/echartsSetup";
 import models from "./fixtures/chrTstEchartsModels.json";
+import advancedModels from "./fixtures/advancedEchartsModels.json";
 import i18n from "../../../src/i18n/i18n";
 
 // The component is tested against a fake ECharts that records what it is given: the options are built by the real
@@ -35,6 +36,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       handlers,
       setOption: jest.fn(),
       resize: jest.fn(),
+      dispatchAction: jest.fn(),
       dispose: jest.fn(),
       on: jest.fn((event, handler) => {
         handlers[event] = handler;
@@ -321,6 +323,35 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       renderChart(models.ChrLinTst);
 
       expect(echarts.init).toHaveBeenCalled();
+    });
+  });
+
+  describe('linked series', () => {
+    const linkedModel = () => {
+      const model = clone(advancedModels.AdvPyramid);
+      delete model.series[3].silent;
+      return model;
+    };
+
+    it('should hide and show a linked series together with the series it is linked to', () => {
+      renderChart(linkedModel(), []);
+      const {handlers, dispatchAction} = lastChart();
+
+      act(() => handlers.legendselectchanged({name: "max", selected: {max: false, Hombres: true}}));
+      act(() => handlers.legendselectchanged({name: "max", selected: {max: true, Hombres: true}}));
+
+      expect(dispatchAction).toHaveBeenNthCalledWith(1, {type: "legendUnSelect", name: "min"});
+      expect(dispatchAction).toHaveBeenNthCalledWith(2, {type: "legendSelect", name: "min"});
+    });
+
+    it('should not dispatch anything for a series that nothing is linked to', () => {
+      renderChart(linkedModel(), []);
+      const {handlers, dispatchAction} = lastChart();
+
+      act(() => handlers.legendselectchanged({name: "Hombres", selected: {Hombres: false}}));
+      act(() => handlers.legendselectchanged({name: "min", selected: {min: false}}));
+
+      expect(dispatchAction).not.toHaveBeenCalled();
     });
   });
 

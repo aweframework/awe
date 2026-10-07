@@ -374,7 +374,7 @@ class EChartsModelBuilderTest {
     List<String> messages = new ArrayList<>();
     UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
     ChartParameter unknown = parameter("object", "plotOptions", null,
-      parameter("object", "area", null, parameter("integer", "threshold", "5")));
+      parameter("object", "area", null, parameter("float", "fillOpacity", "0.5")));
     ChartParameter known = parameter("object", "plotOptions", null,
       parameter("object", "pie", null, parameter("string", "size", "60%")));
     Chart chart = chart("pie").parameterList(List.of(unknown, known)).serieList(List.of(serie("a").build())).build();
@@ -384,8 +384,8 @@ class EChartsModelBuilderTest {
 
     assertThat(first).isEqualTo(second);
     assertThat(first.at("/series/0/radius").asText()).isEqualTo("60%");
-    assertThat(pathsOf(first, "threshold")).isEmpty();
-    assertThat(messages).containsExactly("Highcharts chart-parameter 'plotOptions.area.threshold' has no ECharts "
+    assertThat(pathsOf(first, "fillOpacity")).isEmpty();
+    assertThat(messages).containsExactly("Highcharts chart-parameter 'plotOptions.area.fillOpacity' has no ECharts "
       + "translation yet (scope: chart); it is ignored by the ECharts model");
   }
 
@@ -394,19 +394,19 @@ class EChartsModelBuilderTest {
     List<String> messages = new ArrayList<>();
     UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
     Chart chart = chart("line")
-      .xAxisList(List.of(ChartAxis.builder().parameterList(List.of(parameter("integer", "gridLineWidth", "0"))).build()))
-      .chartTooltip(ChartTooltip.builder().parameterList(List.of(parameter("string", "headerFormat", "x"))).build())
+      .xAxisList(List.of(ChartAxis.builder().parameterList(List.of(parameter("integer", "gridLineZIndex", "0"))).build()))
+      .chartTooltip(ChartTooltip.builder().parameterList(List.of(parameter("string", "borderColor", "x"))).build())
       .chartLegend(ChartLegend.builder().parameterList(List.of(parameter("string", "itemStyle", "x"))).build())
-      .serieList(List.of(serie("a").parameterList(List.of(parameter("integer", "lineWidth", "3"))).build()))
+      .serieList(List.of(serie("a").parameterList(List.of(parameter("integer", "zIndex", "3"))).build()))
       .build();
 
     echarts(chart, reporter);
 
     assertThat(messages).hasSize(4)
-      .anyMatch(message -> message.contains("'gridLineWidth'") && message.contains("scope: axis"))
-      .anyMatch(message -> message.contains("'headerFormat'") && message.contains("scope: tooltip"))
+      .anyMatch(message -> message.contains("'gridLineZIndex'") && message.contains("scope: axis"))
+      .anyMatch(message -> message.contains("'borderColor'") && message.contains("scope: tooltip"))
       .anyMatch(message -> message.contains("'itemStyle'") && message.contains("scope: legend"))
-      .anyMatch(message -> message.contains("'lineWidth'") && message.contains("scope: series"));
+      .anyMatch(message -> message.contains("'zIndex'") && message.contains("scope: series"));
   }
 
   @Test
@@ -608,5 +608,424 @@ class EChartsModelBuilderTest {
     assertThat(json.at("/series")).hasSize(1);
     assertThat(highcharts.has("echartsModel")).isFalse();
     assertThat(highcharts.at("/series/0/id").asText()).isEqualTo("a");
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Advanced options of business screens: one test per group of rules
+  // ------------------------------------------------------------------------------------------------------------
+
+  private static ChartParameter value(String type, String name, String value) {
+    return parameter(type, name, value);
+  }
+
+  private static ChartParameter object(String name, ChartParameter... children) {
+    return parameter("object", name, null, children);
+  }
+
+  /**
+   * Model of a chart with one series of the given type that carries the parameters
+   */
+  private static JsonNode withSeriesParameters(String chartType, ChartParameter... parameters) {
+    return echarts(chart(chartType).serieList(List.of(serie("a").parameterList(List.of(parameters)).build())).build());
+  }
+
+  /**
+   * Model of a chart with one series whose chart carries the parameters
+   */
+  private static JsonNode withChartParameters(String chartType, ChartParameter... parameters) {
+    return echarts(chart(chartType).parameterList(List.of(parameters)).serieList(List.of(serie("a").build())).build());
+  }
+
+  private static JsonNode withPlotOptions(String chartType, String plotType, ChartParameter... parameters) {
+    return withChartParameters(chartType, object("plotOptions", object(plotType, parameters)));
+  }
+
+  @Test
+  void barGeometryMapsToTheBarOptionsAndTheRadiusHint() {
+    JsonNode serie = withSeriesParameters("column", value("string", "stack", "salary"),
+      value("string", "stacking", "normal"), value("float", "groupPadding", "0.1"), value("float", "pointPadding", "0.05"),
+      value("integer", "pointWidth", "12"), value("integer", "borderRadius", "20")).at("/series/0");
+    JsonNode percent = withSeriesParameters("column", value("string", "borderRadius", "30%")).at("/series/0");
+
+    assertThat(serie.at("/stack").asText()).isEqualTo("salary");
+    assertThat(serie.at("/barCategoryGap").asText()).isEqualTo("20%");
+    assertThat(serie.at("/barGap").asText()).isEqualTo("5%");
+    assertThat(serie.at("/barWidth").asInt()).isEqualTo(12);
+    assertThat(serie.at("/awe/borderRadius").asInt()).isEqualTo(20);
+    assertThat(percent.at("/awe/borderRadius").asText()).isEqualTo("30%");
+  }
+
+  @Test
+  void stackNamesOnlyGroupTheSeriesWhenStackingIsActive() {
+    ChartParameter salary = value("string", "stack", "salary");
+    ChartParameter other = value("string", "stack", "other");
+
+    // Highcharts ignores the stack of a series unless stacking is enabled: the columns stay side by side
+    JsonNode clustered = echarts(chart("column").serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build(), serie("b").parameterList(List.of(other)).build())).build());
+    assertThat(clustered.at("/series/0").has("stack")).isFalse();
+    assertThat(clustered.at("/series/1").has("stack")).isFalse();
+
+    // With stacking, the name groups the series and the series without a name share the default group
+    JsonNode stacked = echarts(chart("column").stacking("normal").serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build(), serie("b").parameterList(List.of(other)).build(),
+      serie("c").build(), serie("d").build())).build());
+    assertThat(stacked.at("/series/0/stack").asText()).isEqualTo("salary");
+    assertThat(stacked.at("/series/1/stack").asText()).isEqualTo("other");
+    assertThat(stacked.at("/series/2/stack").asText()).isEqualTo("stack");
+    assertThat(stacked.at("/series/3/stack").asText()).isEqualTo("stack");
+    assertThat(pathsOf(stacked.at("/series"), "stacking")).isEmpty();
+  }
+
+  @Test
+  void anyStackingOptionActivatesTheStackNames() {
+    ChartParameter salary = value("string", "stack", "salary");
+    ChartParameter ownStacking = value("string", "stacking", "normal");
+    ChartParameter seriesStacking = object("plotOptions", object("series", value("string", "stacking", "normal")));
+
+    assertThat(withSeriesParameters("column", salary, ownStacking).at("/series/0/stack").asText()).isEqualTo("salary");
+    assertThat(withPlotOptions("column", "column", value("string", "stacking", "percent"))
+      .at("/series/0/stack").asText()).isEqualTo("stack");
+    assertThat(echarts(chart("column").parameterList(List.of(seriesStacking)).serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build())).build()).at("/series/0/stack").asText()).isEqualTo("salary");
+    assertThat(withSeriesParameters("column", salary).at("/series/0").has("stack")).isFalse();
+  }
+
+  @Test
+  void barGeometryOfAColumnPlotOptionAppliesToItsSeries() {
+    JsonNode model = withPlotOptions("column", "column", value("float", "pointPadding", "0.05"),
+      value("float", "groupPadding", "0.05"), value("string", "stacking", "normal"));
+
+    assertThat(model.at("/series/0/barGap").asText()).isEqualTo("5%");
+    assertThat(model.at("/series/0/barCategoryGap").asText()).isEqualTo("10%");
+    assertThat(model.at("/series/0/stack").asText()).isEqualTo("stack");
+    assertThat(model.at("/series/0/awe/stackPercent").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void lineAndAreaOptionsMapToTheLineAndAreaStyles() {
+    JsonNode serie = withSeriesParameters("area", value("integer", "lineWidth", "3"),
+      value("string", "dashStyle", "ShortDash"),
+      object("fillColor", object("linearGradient", value("integer", "x1", "0"), value("integer", "y1", "0"),
+          value("integer", "x2", "0"), value("integer", "y2", "1")),
+        parameter("array", "stops", null,
+          parameter("array", "", null, value("integer", "", "0"), value("string", "", "rgba(140,172,65,0.7)")),
+          parameter("array", "", null, value("integer", "", "1"), value("string", "", "rgba(140,172,65,0.05)")))))
+      .at("/series/0");
+
+    assertThat(serie.at("/lineStyle/width").asInt()).isEqualTo(3);
+    assertThat(serie.at("/lineStyle/type").asText()).isEqualTo("dashed");
+    assertThat(serie.at("/areaStyle/color/type").asText()).isEqualTo("linear");
+    assertThat(serie.at("/areaStyle/color/x").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/y").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/x2").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/y2").asInt()).isEqualTo(1);
+    assertThat(serie.at("/areaStyle/color/colorStops/0/offset").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/colorStops/0/color").asText()).isEqualTo("rgba(140,172,65,0.7)");
+    assertThat(serie.at("/areaStyle/color/colorStops/1/offset").asInt()).isEqualTo(1);
+    assertThat(serie.at("/areaStyle/color/colorStops/1/color").asText()).isEqualTo("rgba(140,172,65,0.05)");
+    assertThat(serie.at("/areaStyle/opacity").asInt()).isEqualTo(1);
+  }
+
+  @Test
+  void dashStylesMapToDashedOrDottedLines() {
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "Dot")).at("/series/0/lineStyle/type")
+      .asText()).isEqualTo("dotted");
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "LongDash")).at("/series/0/lineStyle/type")
+      .asText()).isEqualTo("dashed");
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "Solid")).at("/series/0/lineStyle/type")
+      .asText()).isEqualTo("solid");
+  }
+
+  @Test
+  void fillColorsOnlyApplyToAreas() {
+    ChartParameter fill = value("string", "fillColor", "#ff0000");
+
+    assertThat(withSeriesParameters("area", fill).at("/series/0/areaStyle/color").asText()).isEqualTo("#ff0000");
+    assertThat(withSeriesParameters("line", fill).at("/series/0").has("areaStyle")).isFalse();
+  }
+
+  @Test
+  void infiniteThresholdFillsFromTheStartOfTheAxis() {
+    JsonNode area = withPlotOptions("area", "area", value("string", "threshold", "-Infinity"));
+    JsonNode zero = withPlotOptions("area", "area", value("integer", "threshold", "0"));
+
+    assertThat(area.at("/series/0/areaStyle/origin").asText()).isEqualTo("start");
+    assertThat(zero.at("/series/0/areaStyle/origin").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void otherThresholdsAreApproximatedAndReported() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("area").parameterList(List.of(object("plotOptions", object("area",
+      value("integer", "threshold", "50"))))).serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(model.at("/series/0/areaStyle/origin").isMissingNode()).isTrue();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("threshold");
+  }
+
+  @Test
+  void markerOptionsMapToTheSymbol() {
+    JsonNode serie = withPlotOptions("area", "area", object("marker", value("string", "fillColor", "#FFFFFF"),
+      value("integer", "lineWidth", "2"), value("string", "lineColor", "#0088CC"), value("integer", "radius", "4")))
+      .at("/series/0");
+
+    assertThat(serie.at("/symbol").asText()).isEqualTo("circle");
+    assertThat(serie.at("/symbolSize").asInt()).isEqualTo(8);
+    assertThat(serie.at("/showSymbol").asBoolean()).isTrue();
+    // The fill is a hint: the client keeps the palette color for the line and the area, and gives the fill to the symbol
+    assertThat(serie.at("/awe/markerFill").asText()).isEqualTo("#FFFFFF");
+    assertThat(serie.at("/itemStyle").has("color")).isFalse();
+    assertThat(serie.at("/itemStyle/borderColor").asText()).isEqualTo("#0088CC");
+    assertThat(serie.at("/itemStyle/borderWidth").asInt()).isEqualTo(2);
+  }
+
+  @Test
+  void markerFillLeavesTheColorOfTheSeriesAlone() {
+    ChartParameter marker = object("marker", value("string", "fillColor", "#FFFFFF"));
+    JsonNode colored = echarts(chart("area").serieList(List.of(serie("a").color("#8cac41")
+      .parameterList(List.of(marker)).build())).build());
+    JsonNode palette = echarts(chart("area").serieList(List.of(serie("a").parameterList(List.of(marker)).build()))
+      .build());
+
+    assertThat(colored.at("/series/0/itemStyle/color").asText()).isEqualTo("#8cac41");
+    assertThat(colored.at("/series/0/awe/markerFill").asText()).isEqualTo("#FFFFFF");
+    assertThat(colored.at("/series/0").has("lineStyle")).isFalse();
+    assertThat(palette.at("/series/0/itemStyle").has("color")).isFalse();
+    assertThat(palette.at("/series/0/awe/markerFill").asText()).isEqualTo("#FFFFFF");
+  }
+
+  @Test
+  void plotOptionsDefaultsDoNotLeakBetweenSeriesOfDifferentTypes() {
+    ChartParameter defaults = object("plotOptions", object("series", value("integer", "borderRadius", "6"),
+      object("marker", value("boolean", "enabled", "false"), value("string", "fillColor", "#FFFFFF")),
+      value("boolean", "showInLegend", "false")));
+    Chart chart = chart("mixed").parameterList(List.of(defaults)).serieList(List.of(
+      serie("bars").type("column").build(), serie("line").type("line").build(),
+      serie("dots").type("scatter").build())).build();
+
+    JsonNode first = echarts(chart);
+    JsonNode second = echarts(chart);
+
+    assertThat(first).isEqualTo(second);
+    assertThat(first.at("/series/0/awe/borderRadius").asInt()).isEqualTo(6);
+    assertThat(first.at("/series/1/awe").has("borderRadius")).isFalse();
+    assertThat(first.at("/series/2/awe").has("borderRadius")).isFalse();
+    assertThat(first.at("/series/0").has("showSymbol")).isFalse();
+    assertThat(first.at("/series/1/showSymbol").asBoolean(true)).isFalse();
+    assertThat(first.at("/series/2").has("showSymbol")).isFalse();
+    assertThat(first.at("/series/2/itemStyle/opacity").asInt(-1)).isZero();
+    assertThat(first.at("/series/0/itemStyle").has("opacity")).isFalse();
+    for (int index = 0; index < 3; index++) {
+      assertThat(first.at("/series/" + index + "/awe/showInLegend").asBoolean(true)).isFalse();
+      assertThat(first.at("/series/" + index).has("marker")).isFalse();
+    }
+  }
+
+  @Test
+  void percentageBubbleSizesAreKeptAsText() {
+    JsonNode serie = withPlotOptions("bubble", "bubble", value("string", "maxSize", "20%"),
+      value("string", "minSize", "abc")).at("/series/0");
+
+    assertThat(serie.at("/awe/maxSize").asText()).isEqualTo("20%");
+    assertThat(serie.at("/awe").has("minSize")).isFalse();
+  }
+
+  @Test
+  void disabledMarkersHideTheSymbolsOfLinesAndScatters() {
+    ChartParameter disabled = object("marker", value("boolean", "enabled", "false"));
+    JsonNode line = withSeriesParameters("line", disabled).at("/series/0");
+    JsonNode scatter = withSeriesParameters("scatter", disabled).at("/series/0");
+
+    assertThat(line.at("/showSymbol").asBoolean(true)).isFalse();
+    assertThat(scatter.at("/itemStyle/opacity").asInt(-1)).isZero();
+    assertThat(scatter.has("showSymbol")).isFalse();
+  }
+
+  @Test
+  void disabledMarkersWinOverMarkerStyles() {
+    JsonNode line = withSeriesParameters("line", object("marker", value("boolean", "enabled", "false"),
+      value("integer", "radius", "4"))).at("/series/0");
+
+    assertThat(line.at("/showSymbol").asBoolean(true)).isFalse();
+  }
+
+  @Test
+  void interactionAndLegendOptionsMapToSeriesOptionsAndHints() {
+    JsonNode hidden = withSeriesParameters("scatter", value("boolean", "enableMouseTracking", "false"),
+      value("boolean", "showInLegend", "false"), value("string", "linkedTo", ":previous"),
+      value("integer", "legendIndex", "2")).at("/series/0");
+
+    assertThat(hidden.at("/silent").asBoolean()).isTrue();
+    assertThat(hidden.at("/tooltip/show").asBoolean(true)).isFalse();
+    assertThat(hidden.at("/awe/showInLegend").asBoolean(true)).isFalse();
+    assertThat(hidden.at("/awe/linkedTo").asText()).isEqualTo(":previous");
+    assertThat(hidden.at("/awe/legendIndex").asInt()).isEqualTo(2);
+    assertThat(withSeriesParameters("scatter").at("/series/0").has("silent")).isFalse();
+  }
+
+  @Test
+  void colorOptionsMapToThePaletteAndThePointColors() {
+    JsonNode model = withChartParameters("pie",
+      parameter("array", "colors", null, parameter("string", "", "#111111"), parameter("string", "", "#222222")),
+      object("plotOptions", object("series", value("boolean", "colorByPoint", "true"),
+        value("boolean", "allowPointSelect", "true"))));
+
+    assertThat(model.at("/color")).extracting(JsonNode::asText).containsExactly("#111111", "#222222");
+    assertThat(model.at("/series/0/colorBy").asText()).isEqualTo("data");
+    assertThat(model.at("/series/0/selectedMode").asText()).isEqualTo("single");
+    assertThat(withSeriesParameters("column", value("boolean", "colorByPoint", "false")).at("/series/0/colorBy")
+      .asText()).isEqualTo("series");
+    assertThat(withSeriesParameters("column", value("string", "color", "#abcdef")).at("/series/0/itemStyle/color")
+      .asText()).isEqualTo("#abcdef");
+    assertThat(withSeriesParameters("column", value("string", "borderColor", "#123456"))
+      .at("/series/0/itemStyle/borderColor").asText()).isEqualTo("#123456");
+  }
+
+  @Test
+  void pieDataLabelOptionsMapToTheLabelLineAndFontSize() {
+    JsonNode serie = withPlotOptions("pie", "pie", object("dataLabels",
+      value("string", "connectorColor", "rgba(128,128,128,0.7)"),
+      object("style", value("string", "fontSize", "70%")))).at("/series/0");
+    JsonNode pixels = withPlotOptions("pie", "pie", object("dataLabels", object("style",
+      value("string", "fontSize", "9px")))).at("/series/0");
+
+    assertThat(serie.at("/labelLine/lineStyle/color").asText()).isEqualTo("rgba(128,128,128,0.7)");
+    assertThat(serie.at("/label/fontSize").asInt()).isEqualTo(8);
+    assertThat(pixels.at("/label/fontSize").asInt()).isEqualTo(9);
+  }
+
+  @Test
+  void dataLabelOptionsOfASeriesMapToItsLabel() {
+    JsonNode serie = withSeriesParameters("column", object("dataLabels", value("boolean", "enabled", "true"),
+      value("string", "format", "{y:,.0f}€"), object("style", value("string", "fontSize", "11px"))))
+      .at("/series/0");
+
+    assertThat(serie.at("/label/show").asBoolean()).isTrue();
+    assertThat(serie.at("/label/fontSize").asInt()).isEqualTo(11);
+    assertThat(serie.at("/awe/labelFormat").asText()).isEqualTo("{y:,.0f}€");
+  }
+
+  @Test
+  void seriesParametersAreAvailableToTheFormatsAsUserOptions() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("column").serieList(List.of(serie("a").parameterList(List.of(
+      value("string", "fullname", "Average salary"), value("string", "stack", "salary"),
+      object("marker", value("boolean", "enabled", "false")))).build())).build();
+
+    JsonNode serie = echarts(chart, reporter).at("/series/0");
+
+    assertThat(serie.at("/awe/userOptions/fullname").asText()).isEqualTo("Average salary");
+    assertThat(serie.at("/awe/userOptions/stack").asText()).isEqualTo("salary");
+    assertThat(serie.at("/awe/userOptions/marker/enabled").asBoolean(true)).isFalse();
+    assertThat(messages).noneMatch(message -> message.contains("fullname"));
+    assertThat(withSeriesParameters("column").at("/series/0/awe").has("userOptions")).isFalse();
+  }
+
+  @Test
+  void seriesTooltipSuffixBecomesAHint() {
+    JsonNode serie = withSeriesParameters("line", object("tooltip", value("string", "valueSuffix", " €")))
+      .at("/series/0");
+
+    assertThat(serie.at("/awe/valueSuffix").asText()).isEqualTo(" €");
+  }
+
+  @Test
+  void tooltipFormatsAndStyleMapToHintsAndTextStyle() {
+    ChartTooltip tooltip = ChartTooltip.builder().parameterList(List.of(value("boolean", "useHTML", "true"),
+      value("string", "headerFormat", "<table>"), value("string", "pointFormat", "<tr>{y}</tr>"),
+      value("string", "footerFormat", "</table>"), object("style", value("string", "fontSize", "12px")))).build();
+    JsonNode model = echarts(chart("column").chartTooltip(tooltip).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/tooltip/awe/useHTML").asBoolean()).isTrue();
+    assertThat(model.at("/tooltip/awe/headerFormat").asText()).isEqualTo("<table>");
+    assertThat(model.at("/tooltip/awe/pointFormat").asText()).isEqualTo("<tr>{y}</tr>");
+    assertThat(model.at("/tooltip/awe/footerFormat").asText()).isEqualTo("</table>");
+    assertThat(model.at("/tooltip/textStyle/fontSize").asInt()).isEqualTo(12);
+  }
+
+  @Test
+  void tooltipDistanceIsDroppedWithAWarning() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    ChartTooltip tooltip = ChartTooltip.builder().parameterList(List.of(value("integer", "distance", "30"))).build();
+
+    JsonNode model = echarts(chart("column").chartTooltip(tooltip).serieList(List.of(serie("a").build())).build(),
+      reporter);
+
+    assertThat(pathsOf(model.at("/tooltip"), "distance")).isEmpty();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("distance");
+  }
+
+  @Test
+  void axisOptionsMapToGridLinesLabelFormatsAndTicks() {
+    ChartAxis axis = ChartAxis.builder().parameterList(List.of(value("string", "gridLineWidth", "0"),
+      object("labels", value("string", "format", "{value}k")), value("integer", "tickAmount", "5"))).build();
+    ChartAxis thin = ChartAxis.builder().parameterList(List.of(value("string", "gridLineWidth", "0.5"))).build();
+    JsonNode model = echarts(chart("line").yAxisList(List.of(axis, thin)).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/yAxis/0/splitLine/show").asBoolean(true)).isFalse();
+    assertThat(model.at("/yAxis/0/awe/labelFormat").asText()).isEqualTo("{value}k");
+    assertThat(model.at("/yAxis/0/splitNumber").asInt()).isEqualTo(5);
+    assertThat(model.at("/yAxis/1/splitLine/show").asBoolean()).isTrue();
+    assertThat(model.at("/yAxis/1/splitLine/lineStyle/width").asDouble()).isEqualTo(0.5);
+  }
+
+  @Test
+  void alignedTicksAreApproximatedOnTheValueAxes() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("line").parameterList(List.of(object("chart", value("boolean", "alignTicks", "true"),
+        value("boolean", "alignThresholds", "true"))))
+      .xAxisList(List.of(ChartAxis.builder().type("datetime").build()))
+      .yAxisList(List.of(ChartAxis.builder().build(), ChartAxis.builder().opposite(true).build()))
+      .serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(model.at("/yAxis/0/alignTicks").asBoolean()).isTrue();
+    assertThat(model.at("/yAxis/1/alignTicks").asBoolean()).isTrue();
+    assertThat(model.at("/xAxis/0/alignTicks").isMissingNode()).isTrue();
+    assertThat(pathsOf(model, "alignTicks")).doesNotContain("/awe/alignTicks");
+    assertThat(model.at("/awe").has("alignTicks")).isFalse();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("alignThresholds");
+  }
+
+  @Test
+  void bubbleSizesBecomeHints() {
+    JsonNode serie = withPlotOptions("bubble", "bubble", value("integer", "minSize", "10"),
+      value("integer", "maxSize", "40")).at("/series/0");
+
+    assertThat(serie.at("/awe/minSize").asInt()).isEqualTo(10);
+    assertThat(serie.at("/awe/maxSize").asInt()).isEqualTo(40);
+  }
+
+  @Test
+  void plainTitleParameterBecomesTheTitleText() {
+    JsonNode model = withChartParameters("line", value("string", "title", "Staff"));
+
+    assertThat(model.at("/title/text").asText()).isEqualTo("Staff");
+    assertThat(model.at("/title/left").asText()).isEqualTo("center");
+  }
+
+  @Test
+  void rootTickAmountIsDroppedWithoutWarning() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("line").parameterList(List.of(value("integer", "tickAmount", "5")))
+      .serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(pathsOf(model, "tickAmount")).isEmpty();
+    assertThat(pathsOf(model, "splitNumber")).isEmpty();
+    assertThat(messages).isEmpty();
   }
 }

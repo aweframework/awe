@@ -31,6 +31,7 @@ module.exports = {
     '**/utilities/chartFormatTest.{js,jsx}',
     '**/utilities/echartsOptionTest.{js,jsx}',
     '**/utilities/echartsSvgTest.{js,jsx}',
+    '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',
     '**/utilities/classChangesTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',

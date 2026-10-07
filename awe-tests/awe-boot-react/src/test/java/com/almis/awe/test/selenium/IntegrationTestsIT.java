@@ -221,6 +221,26 @@ class IntegrationTestsIT extends SeleniumUtilities {
   }
 
   /**
+   * Chart test with advanced Highcharts options
+   */
+  @Test
+  void t051_advancedChartTest() {
+    // Title
+    setTestTitle("Advanced chart test");
+
+    // Go to screen
+    gotoScreen("test", "chart", "chart-advanced-test");
+
+    // Pyramid with an html tooltip, gradient area, bubbles, rounded stacked columns and pies
+    checkChartVisible("ChrAdvPyramid");
+    checkChartVisible("ChrAdvArea");
+    checkChartVisible("ChrAdvBubble");
+    checkChartVisible("ChrAdvColumns");
+    checkChartVisible("ChrAdvPie3d");
+    checkChartVisible("ChrAdvPie");
+  }
+
+  /**
    * Wizard test
    */
   @Test
