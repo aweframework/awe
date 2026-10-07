@@ -19,8 +19,11 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
         buttonType: 'reset',
         isShowing: false,
         minimized: false,
-        chartModel: {
-          series: []
+        echartsModel: {
+          xAxis: [{type: 'time', awe: {axis: 'x'}}],
+          yAxis: [{type: 'value', awe: {axis: 'y'}}],
+          series: [],
+          awe: {chartType: 'line'}
         }
       },
       model: {
@@ -501,102 +504,199 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
   });
 
   describe('addPointsAction', () => {
-    it('debería agregar un punto al modelo', () => {
-      const action = {
-        type: 'addPoints',
-        address: mockAddress,
-        parameters: { value: { x: 10, y: 20 } }
-      };
-
-      thunks.addPointsAction(action)(dispatch, getState);
-
-      // Verificar que se llama a updateModel
+    const run = (parameters) => {
+      thunks.addPointsAction({type: 'add-points', address: mockAddress, parameters})(dispatch, getState);
       const [[updateModelWithDependencies]] = dispatch.mock.calls;
       const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.mock.calls;
+      return innerDispatch.mock.calls[0][0].data.values;
+    };
 
-      // Recuperar los valores
-      const values = updateModel.data.values;
+    it('should add the rows of the data list that the server sends', () => {
+      const values = run({data: {rows: [{date: 1, serie1: 10}, {date: 2, serie1: 20}], records: 2}});
+
+      expect(values.length).toBe(5);
+      expect(values[3]).toEqual({date: 1, serie1: 10});
+      expect(values[4]).toEqual({date: 2, serie1: 20});
+    });
+
+    it('should keep the original values before the new points', () => {
+      const values = run({data: {rows: [{date: 1}]}});
+
+      expect(values.slice(0, 3)).toEqual(mockComponent.model.values);
+    });
+
+    it('should keep accepting a single point in the value parameter', () => {
+      const values = run({value: {x: 10, y: 20}});
+
       expect(values.length).toBe(4);
-      expect(values[3]).toEqual({ x: 10, y: 20 });
+      expect(values[3]).toEqual({x: 10, y: 20});
+    });
+
+    it('should not change the values when the action has no parameters', () => {
+      expect(run({}).length).toBe(3);
+    });
+
+    it('should not change the values when the data list has no rows', () => {
+      expect(run({data: {}}).length).toBe(3);
+    });
+
+    it('should not change the values when the data list has no rows and nothing else', () => {
+      expect(run({data: {total: 0}}).length).toBe(3);
+    });
+
+    it('should accept the action once the points are added', () => {
+      run({data: {rows: [{date: 1}]}});
+
+      expect(dispatch.mock.calls[1][0].type).toBe('ACCEPT_ACTION');
     });
   });
 
-  describe('addSeriesAction', () => {
-    it('debería agregar series al chart', () => {
-      const action = {
-        type: 'addSeries',
-        address: mockAddress,
-        parameters: {
-          series: [
-            {
-              id: 'series1',
-              xValue: 'x',
-              yValue: 'y',
-              data: [[1, 10], [2, 20]]
-            }
-          ]
-        }
-      };
-
-      thunks.addSeriesAction(action)(dispatch, getState);
-
-      const [[updateAttributes]] = dispatch.mock.calls;
-      expect(updateAttributes).toBeDefined();
-      expect(updateAttributes.data.chartModel.series.length).toBe(1);
+  describe('chart series actions', () => {
+    const lineSeries = (id, extra = {}) => ({
+      id, name: id, type: 'spline', xValue: 'date', yValue: id, data: [[1, 10], [2, 20]],
+      echarts: {id, name: id, type: 'line', smooth: true, awe: {type: 'spline', xValue: 'date', yValue: id}},
+      ...extra
     });
-  });
+    const echartsSeries = (call) => call.data.echartsModel.series;
+    const valuesOf = (thunkDispatch) => {
+      const innerDispatch = jest.fn();
+      thunkDispatch(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].data.values;
+    };
 
-  describe('removeSeriesAction', () => {
-    it('debería eliminar series del chart', () => {
-      mockComponent.attributes.chartModel.series = [
-        { id: 'series1', data: [] },
-        { id: 'series2', data: [] }
-      ];
+    describe('addSeriesAction', () => {
+      it('should add the ECharts series that the server sends and keep the model', () => {
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [lineSeries('s1')]}})(dispatch, getState);
 
-      const action = {
-        type: 'removeSeries',
-        address: mockAddress,
-        parameters: {
-          series: [{ id: 'series1' }]
-        }
-      };
+        const [[updateAttributes]] = dispatch.mock.calls;
+        expect(echartsSeries(updateAttributes)).toEqual([lineSeries('s1').echarts]);
+        expect(updateAttributes.data.echartsModel.xAxis).toEqual(mockComponent.attributes.echartsModel.xAxis);
+        expect(updateAttributes.data.echartsModel.awe).toEqual({chartType: 'line'});
+      });
 
-      thunks.removeSeriesAction(action)(dispatch, getState);
+      it('should replace a series with the same identifier and keep the others', () => {
+        mockComponent.attributes.echartsModel.series = [{id: 's1', type: 'bar'}, {id: 's2', type: 'bar'}];
 
-      const [[updateAttributes]] = dispatch.mock.calls;
-      expect(updateAttributes.data.chartModel.series.length).toBe(1);
-      expect(updateAttributes.data.chartModel.series[0].id).toBe('series2');
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [lineSeries('s1')]}})(dispatch, getState);
+
+        const [[updateAttributes]] = dispatch.mock.calls;
+        expect(echartsSeries(updateAttributes).map(serie => serie.id)).toEqual(['s2', 's1']);
+        expect(echartsSeries(updateAttributes)[1].type).toBe('line');
+      });
+
+      it('should merge the points of the series into the values by position', () => {
+        mockComponent.model.values = [{date: 1, other: 'a'}, {date: 2, other: 'b'}];
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [lineSeries('s1')]}})(dispatch, getState);
+
+        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([
+          {date: 1, other: 'a', s1: 10},
+          {date: 2, other: 'b', s1: 20}
+        ]);
+      });
+
+      it('should bind the third coordinate of a series with z value', () => {
+        mockComponent.model.values = [];
+        const bubble = lineSeries('b1', {zValue: 'size', data: [[1, 10, 5]]});
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [bubble]}})(dispatch, getState);
+
+        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([{date: 1, b1: 10, size: 5}]);
+      });
+
+      it('should swap the axis of the series of an inverted chart', () => {
+        mockComponent.attributes.echartsModel.awe = {inverted: true};
+        const serie = lineSeries('s1');
+        serie.echarts.xAxisIndex = 1;
+        serie.echarts.yAxisIndex = 0;
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [serie]}})(dispatch, getState);
+
+        const added = echartsSeries(dispatch.mock.calls[0][0])[0];
+        expect(added.xAxisIndex).toBe(0);
+        expect(added.yAxisIndex).toBe(1);
+      });
+
+      it('should build a minimal series from the Highcharts fields when the server sent no translation', () => {
+        const serie = lineSeries('s1');
+        delete serie.echarts;
+        serie.type = 'column';
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [serie]}})(dispatch, getState);
+
+        expect(echartsSeries(dispatch.mock.calls[0][0])[0]).toEqual({
+          id: 's1', name: 's1', type: 'bar', awe: {type: 'column', xValue: 'date', yValue: 's1'}
+        });
+      });
+
+      it('should update only the values when the chart has no echartsModel', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        delete mockComponent.attributes.echartsModel;
+        mockComponent.model.values = [];
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [lineSeries('s1')]}})(dispatch, getState);
+
+        expect(dispatch.mock.calls[0][0].data?.echartsModel).toBeUndefined();
+        expect(valuesOf(dispatch.mock.calls[0][0])).toHaveLength(2);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('echartsModel'));
+        warn.mockRestore();
+      });
+
+      it('should not write points without the fields they are bound to', () => {
+        mockComponent.model.values = [];
+
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [{id: 'x', data: [[1, 2]]}]}})(dispatch, getState);
+
+        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([]);
+      });
+
+      it('should accept the action', () => {
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [lineSeries('s1')]}})(dispatch, getState);
+
+        expect(dispatch.mock.calls[dispatch.mock.calls.length - 1][0].type).toBe('ACCEPT_ACTION');
+      });
+
+      it('should work without series', () => {
+        thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {}})(dispatch, getState);
+
+        expect(echartsSeries(dispatch.mock.calls[0][0])).toEqual([]);
+      });
     });
-  });
 
-  describe('replaceSeriesAction', () => {
-    it('debería reemplazar todas las series del chart', () => {
-      mockComponent.attributes.chartModel.series = [
-        { id: 'series1', data: [] }
-      ];
+    describe('removeSeriesAction', () => {
+      it('should remove series of the ECharts model', () => {
+        mockComponent.attributes.echartsModel.series = [{id: 'series1'}, {id: 'series2'}];
 
-      const action = {
-        type: 'replaceSeries',
-        address: mockAddress,
-        parameters: {
-          series: [
-            {
-              id: 'newSeries',
-              xValue: 'x',
-              yValue: 'y',
-              data: [[1, 10]]
-            }
-          ]
-        }
-      };
+        thunks.removeSeriesAction({type: 'remove-chart-series', address: mockAddress, parameters: {series: [{id: 'series1'}]}})(dispatch, getState);
 
-      thunks.replaceSeriesAction(action)(dispatch, getState);
+        const [[updateAttributes]] = dispatch.mock.calls;
+        expect(echartsSeries(updateAttributes)).toEqual([{id: 'series2'}]);
+        expect(dispatch.mock.calls[1][0].type).toBe('ACCEPT_ACTION');
+      });
 
-      const [[updateAttributes]] = dispatch.mock.calls;
-      expect(updateAttributes.data.chartModel.series.length).toBe(1);
-      expect(updateAttributes.data.chartModel.series[0].id).toBe('newSeries');
+      it('should not fail when the chart has no echartsModel', () => {
+        delete mockComponent.attributes.echartsModel;
+
+        thunks.removeSeriesAction({type: 'remove-chart-series', address: mockAddress, parameters: {series: [{id: 'series1'}]}})(dispatch, getState);
+
+        expect(dispatch.mock.calls[dispatch.mock.calls.length - 1][0].type).toBe('ACCEPT_ACTION');
+      });
+    });
+
+    describe('replaceSeriesAction', () => {
+      it('should replace all the series and rebuild the values from the new ones', () => {
+        mockComponent.attributes.echartsModel.series = [{id: 'series1'}];
+
+        thunks.replaceSeriesAction({type: 'replace-chart-series', address: mockAddress, parameters: {series: [lineSeries('newSeries')]}})(dispatch, getState);
+
+        const [[updateAttributes]] = dispatch.mock.calls;
+        expect(echartsSeries(updateAttributes)).toEqual([lineSeries('newSeries').echarts]);
+        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([
+          {date: 1, newSeries: 10},
+          {date: 2, newSeries: 20}
+        ]);
+      });
     });
   });
 

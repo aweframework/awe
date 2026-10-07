@@ -28,6 +28,9 @@ module.exports = {
     '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
     '**/utilities/chartRegistryTest.{js,jsx}',
+    '**/utilities/chartFormatTest.{js,jsx}',
+    '**/utilities/echartsOptionTest.{js,jsx}',
+    '**/utilities/echartsSvgTest.{js,jsx}',
     '**/utilities/classChangesTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
@@ -87,7 +90,7 @@ module.exports = {
   },
   // Allow babel-jest to transpile ESM-only packages inside node_modules
   transformIgnorePatterns: [
-    'node_modules/(?!(quill|lodash-es|parchment)/)'
+    'node_modules/(?!(quill|lodash-es|parchment|echarts|zrender)/)'
   ],
   testPathIgnorePatterns: [
     '/node_modules/',

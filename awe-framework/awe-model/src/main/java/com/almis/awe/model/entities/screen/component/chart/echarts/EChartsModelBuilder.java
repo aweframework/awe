@@ -128,6 +128,24 @@ public final class EChartsModelBuilder {
     return model;
   }
 
+  /**
+   * Build the model of a single series, for the chart actions that add or replace series at runtime.
+   * <p>
+   * The series is translated on its own, as in a chart without inversion, stacking or data labels, because the
+   * action does not carry the chart. The client applies the chart level options it already has to it
+   * ({@code awe.inverted} swaps the axis indexes).
+   * </p>
+   *
+   * @param serie Series element
+   * @return Series options, without data
+   */
+  public Map<String, Object> buildSeries(ChartSerie serie) {
+    Chart chart = Chart.builder().type(StringUtils.defaultIfBlank(serie.getType(), "line")).build();
+    SeriesTypeResolver typeResolver = new SeriesTypeResolver(chart, reporter);
+    return new EChartsSeriesBuilder(chart, false, new ParameterTarget(map()), translator, typeResolver, reporter)
+      .build(serie);
+  }
+
   private void putTitle(Map<String, Object> model, Chart chart) {
     if (chart.getLabel() == null && chart.getSubTitle() == null) {
       return;

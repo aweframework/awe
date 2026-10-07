@@ -1,7 +1,8 @@
 /**
  * Charts that are currently rendered, by component identifier.
  * The form values are collected from the store, which cannot reach the chart instances, so the
- * charts expose themselves here to be able to send their image when the screen is printed.
+ * charts expose themselves here to be able to send their image when the screen is printed. A registered chart is an
+ * object with a `getImage({width, height})` method that returns the SVG image of the chart.
  * @type {Map<string, object>}
  */
 const charts = new Map();
@@ -18,7 +19,7 @@ export const CHART_SIZE = {
 /**
  * Register a rendered chart
  * @param {string} id Chart identifier
- * @param {object} chart Chart instance
+ * @param {{getImage: function({width: number, height: number}): string}} chart Chart that can draw its image
  */
 export function registerChart(id, chart) {
   charts.set(id, chart);
@@ -44,11 +45,11 @@ export function unregisterChart(id, chart) {
  */
 export function getChartImage(id, orientation) {
   const chart = charts.get(id);
-  if (!chart || typeof chart.getSVG !== "function") {
+  if (!chart || typeof chart.getImage !== "function") {
     return undefined;
   }
   try {
-    return chart.getSVG({chart: CHART_SIZE[orientation] || CHART_SIZE.PORTRAIT});
+    return chart.getImage({...(CHART_SIZE[orientation] || CHART_SIZE.PORTRAIT)});
   } catch (error) {
     console.warn(`[WARNING] Chart '${id}' image couldn't be generated`, error);
     return undefined;

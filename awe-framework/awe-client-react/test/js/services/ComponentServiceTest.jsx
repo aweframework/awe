@@ -15,11 +15,13 @@ const preloadedState = {
       model: {values: []},
       attributes: {
         style: "estilo-especifico",
-        chartModel: {
+        echartsModel: {
+          xAxis: [{type: "category", awe: {axis: "x"}}],
+          yAxis: [{type: "value", awe: {axis: "y"}}],
           series: [
-            {id: "tutu", data: []},
-            {id: "lala", data: []},
-            {id: "test", data: []}
+            {id: "tutu"},
+            {id: "lala"},
+            {id: "test"}
           ]
         }
       },
@@ -55,7 +57,7 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
     // Prepare
     const action = {
       address: {component: 'chart1', view: 'report'},
-      parameters: {values: [{tutu1: 1, tutu2: 2}]}
+      parameters: {data: {rows: [{tutu1: 1, tutu2: 2}], records: 1}}
     };
 
     // Test
@@ -63,7 +65,7 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
 
     // Verify
     await waitFor(() => {
-      expect(dispatchSpy).toHaveBeenCalled();
+      expect(store.getState().components.chart1.model.values).toEqual([{tutu1: 1, tutu2: 2}]);
     });
   });
 
@@ -81,6 +83,8 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
     // Verify
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalled();
+      expect(store.getState().components.chart1.attributes.echartsModel.series.map(serie => serie.id))
+        .toEqual(["lala", "test", "tutu"]);
     });
   });
 
@@ -98,6 +102,8 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
     // Verify
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalled();
+      expect(store.getState().components.chart1.attributes.echartsModel.series.map(serie => serie.id))
+        .toEqual(["lala", "test"]);
     });
   });
 
@@ -115,6 +121,8 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
     // Verify
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalled();
+      expect(store.getState().components.chart1.attributes.echartsModel.series.map(serie => serie.id))
+        .toEqual(["tutu"]);
     });
   });
 
