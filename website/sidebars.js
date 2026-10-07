@@ -130,6 +130,8 @@ module.exports = {
 				"api/include",
 				"api/dialog",
 				"api/chart",
+				"api/chart-format",
+				"api/chart-parameters",
 				"api/widget",
 				"api/actions",
 				"api/dependencies",
