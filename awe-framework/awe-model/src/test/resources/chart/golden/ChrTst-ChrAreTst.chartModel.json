@@ -1,0 +1,64 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "areaspline"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "align" : "right",
+    "enabled" : false,
+    "floating" : true,
+    "verticalAlign" : "top"
+  },
+  "plotOptions" : {
+    "areaspline" : {
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "id" : "serie1",
+    "name" : "Serie 1",
+    "xValue" : "dates",
+    "yValue" : "serie1"
+  }, {
+    "id" : "serie2",
+    "name" : "Serie 2",
+    "xValue" : "dates",
+    "yValue" : "serie2"
+  } ],
+  "stockChart" : false,
+  "title" : {
+    "text" : "Grafico 5"
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 3,
+    "valueSuffix" : " ºC"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "dateTimeLabelFormats" : {
+      "day" : "%Y-%m-%d"
+    },
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Fechas"
+    },
+    "type" : "datetime"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Temperaturas (ºC)"
+    }
+  } ]
+}
