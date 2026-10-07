@@ -36,7 +36,6 @@
     <xtream.version>1.4.21</xtream.version>
     <graalvm.version>23.0.6</graalvm.version>
     <selenium.version>4.18.1</selenium.version>
-    <jsoup.version>1.23.2</jsoup.version>
     <webdrivermanager.version>6.1.0</webdrivermanager.version>
     <playwright.version>1.63.0</playwright.version>
     <modelmapper.version>2.4.5</modelmapper.version>
@@ -263,11 +262,6 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jsoup</groupId>
-        <artifactId>jsoup</artifactId>
-        <version>${jsoup.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
