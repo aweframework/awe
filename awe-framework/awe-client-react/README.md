@@ -39,7 +39,7 @@ Typical consumer setup (inside an AWE-based project's `package.json`):
 - i18n support via `i18next`
 - Real-time updates over STOMP/WebSocket
 - PrimeReact-based UI component layer
-- Highcharts integration for data visualisation
+- Apache ECharts integration for data visualisation
 
 ## Project links
 

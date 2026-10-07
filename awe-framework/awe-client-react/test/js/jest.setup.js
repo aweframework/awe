@@ -56,7 +56,6 @@ if (!global.__AWE_JEST_CONSOLE_FILTERS__) {
 
   const suppressWarn = (message) => (
     message.includes('react-i18next:: You will need to pass in an i18next instance') ||
-    message.includes('Highcharts warning #26') ||
     message.includes('A non-serializable value was detected in an action') ||
     message.includes('A non-serializable value was detected in the state')
   );

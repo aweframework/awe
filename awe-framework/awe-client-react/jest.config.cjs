@@ -29,6 +29,7 @@ module.exports = {
     '**/utilities/componentsTest.{js,jsx}',
     '**/utilities/chartRegistryTest.{js,jsx}',
     '**/utilities/chartFormatTest.{js,jsx}',
+    '**/i18n/chartLocalesTest.{js,jsx}',
     '**/utilities/echartsOptionTest.{js,jsx}',
     '**/utilities/echartsSvgTest.{js,jsx}',
     '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',

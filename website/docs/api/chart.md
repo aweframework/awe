@@ -723,3 +723,25 @@ highcharts.server.url=http://export.highcharts.com
 ```
 
 The default export server is pointing to Highcharts export server: `http://export.highcharts.com`
+
+# Upgrading to AWE 5
+
+In AWE 5 the React engine draws the charts with [Apache ECharts](https://echarts.apache.org/) instead of Highcharts.
+The AngularJS engine keeps drawing them with Highcharts.
+
+The chart XML does not change. The server translates the chart, its axes, series and `chart-parameter` elements into
+an ECharts model, and logs a warning (once per option) for every option it cannot translate. Check these points when
+you upgrade an application that uses the React engine:
+
+* **Custom code that imports Highcharts.** The React client no longer depends on `highcharts` nor on
+  `highcharts-react-official`. A custom component of your application that imports them has to declare them in its own
+  `package.json` (check the Highcharts licence) or move to ECharts, which the client already provides.
+* **`.highcharts-*` CSS rules.** The charts are no longer drawn by Highcharts, so these rules do not match anything in
+  the React engine. Colors, fonts and borders come from the XML (`chart-parameter`) and from the theme. The dark mode
+  of the application is applied to the charts automatically.
+* **Palette.** The series without a color of their own keep the Highcharts default palette.
+* **3D charts** are drawn flat.
+* **`chart-options` dependency.** Its result is not applied to the charts drawn with ECharts; the client logs a warning.
+* **Chart texts.** The language files of the chart texts are `src/i18n/charts/charts-<language>.json` in the React
+  client, and they only hold the texts that the charts use: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`,
+  `months`, `shortMonths` and `weekdays`.

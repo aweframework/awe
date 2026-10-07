@@ -7180,62 +7180,6 @@
   }
 }
 
-/*
- HIGHCHARTS
- */
-
-.highcharts-title,
-.highcharts-container text,
-.highcharts-menu-item,
-.highcharts-contextbutton text
-{
-  fill: var(--text-color) !important;
-}
-
-.highcharts-axis-title,
-.highcharts-axis-labels text
-{
-  fill: var(--text-color-secondary);
-}
-
-.highcharts-background,
-.highcharts-menu {
-  fill: var(--surface-a);
-}
-
-.highcharts-subtitle,
-.highcharts-credits,
-.highcharts-axis-title {
-  fill-opacity: 0.7;
-}
-.highcharts-grid-line {
-  stroke: var(--text-color);
-  stroke-opacity: 0.2;
-}
-.highcharts-tooltip-box {
-  fill: var(--surface-a);
-}
-.highcharts-column-series rect.highcharts-point {
-  stroke: var(--surface-a);
-}
-
-.highcharts-text-outline {
-  display: none;
-}
-
-.highcharts-contextbutton rect{
-  fill: transparent;
-}
-
-.highcharts-contextmenu .highcharts-menu {
-  background: var(--surface-a) !important;
-  border-color: var(--border-color) !important;
-}
-
-.highcharts-contextmenu .highcharts-menu .highcharts-menu-item {
-  color: var(--text-color) !important;
-}
-
 .p-overlay-badge .p-avatar {
   margin: 0.5rem;
 }
