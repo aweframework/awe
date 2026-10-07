@@ -633,7 +633,7 @@ Javadoc test:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
     paths:
-      - awe-framework/target/site/apidocs
+      - awe-framework/target/reports/apidocs
     expire_in: 1 day
   rules:
     - <<: *if-mr-backend
@@ -1043,9 +1043,12 @@ Generate javadoc & schemas:
   timeout: 20m
   script:
     - mvn $MAVEN_CLI_OPTS install site javadoc:aggregate $SKIP_TESTS -Darchetype.test.skip=true -Dskip.javadoc=false -Dskip.main=true -Dskip.frontend=true -Dbuild.environment=production -f awe-framework/pom.xml
+    # maven-javadoc-plugin 3.12.0 writes the aggregate to target/reports/apidocs (3.5.0 used target/site/apidocs): fail here, not
+    # in pages, if a plugin update moves it again
+    - test -f awe-framework/target/reports/apidocs/index.html
   artifacts:
     paths:
-      - awe-framework/target/site/apidocs
+      - awe-framework/target/reports/apidocs
       - awe-framework/awe-generic-screens/src/main/resources/schemas/
     expire_in: 1 day
   rules:
@@ -1251,7 +1254,7 @@ pages:
     - job: Build website with i18n
   script:
     - mkdir -p .public/docs/schemas
-    - cp -r awe-framework/target/site/apidocs .public/javadoc-api/
+    - cp -r awe-framework/target/reports/apidocs .public/javadoc-api/
     - cp -r awe-framework/awe-generic-screens/src/main/resources/schemas/awe/*.xsd .public/docs/schemas/
     - cp -a website/build/. .public/
     - mv .public public
