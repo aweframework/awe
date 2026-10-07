@@ -1157,7 +1157,9 @@ public final class DateUtil {
    */
   public static LocalTime asLocalTime(java.util.Date date, ZoneId zone) {
 
-    if (date instanceof java.sql.Time)
+    if (date == null)
+      return null;
+    else if (date instanceof java.sql.Time)
       return ((java.sql.Time) date).toLocalTime();
     else
       return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalTime();

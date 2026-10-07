@@ -673,6 +673,9 @@ public class DataListBuilder extends ServiceConfig {
 
       // Store field value
       SqlField field = fieldList.get(columnIndex);
+      if (field == null) {
+        continue;
+      }
       String nom = field.getIdentifier();
       String value = serviceQueryResult.get(((rowIndex - 1) * totalColumns) + columnIndex);
 
