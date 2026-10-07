@@ -8,6 +8,7 @@ import {classNames} from "../utilities/components";
 import {TestIds, testHook} from "../utilities/testIds";
 import {registerChart, unregisterChart} from "../utilities/chartRegistry";
 import {buildEChartsOption, findDrilldownId} from "../utilities/echartsOption";
+import {linkedNames} from "../utilities/echartsLegend";
 import {echarts, getEChartsLocale, isDarkTheme, renderSvg} from "../utilities/echartsSetup";
 
 import "./AweChart.less";
@@ -99,6 +100,12 @@ function AweChart(props) {
       if (target) {
         setDrill({from: params.seriesId, to: target});
       }
+    });
+    // A series that is linked to another one hides and shows with it
+    chart.on("legendselectchanged", ({name, selected}) => {
+      const {echartsModel: current, t: translate} = latest.current;
+      const type = selected?.[name] === false ? "legendUnSelect" : "legendSelect";
+      linkedNames(current?.series || [], name, translate).forEach(linked => chart.dispatchAction({type, name: linked}));
     });
     // The image to print is drawn apart, in light colors and with the size of the page
     const handle = {

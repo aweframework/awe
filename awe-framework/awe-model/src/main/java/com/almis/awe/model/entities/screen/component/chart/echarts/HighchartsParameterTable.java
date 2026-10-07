@@ -3,19 +3,19 @@ package com.almis.awe.model.entities.screen.component.chart.echarts;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.LABEL;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.RADIUS;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.TITLE;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsMaps.child;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsMaps.hints;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterScope.AXIS;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterScope.CHART;
-import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterScope.SERIES;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterScope.TOOLTIP;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterValues.bool;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterValues.fontSize;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterValues.number;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.ParameterValues.putIfPresent;
 
 /**
  * Translation table of the Highcharts options that the screens set through {@code chart-parameter}.
@@ -30,12 +30,16 @@ import static com.almis.awe.model.entities.screen.component.chart.echarts.Parame
  * of that type. Pie sizes are stored as {@code radius}, a two items list [inner, outer] that the series builder
  * completes with the defaults of the chart type.
  * </p>
+ * <p>
+ * The options of the series and of the {@code plotOptions} are in {@link SeriesParameterRules}. Highcharts options
+ * that ECharts does not have are approximated or dropped, and say so in the log: {@code chart.alignThresholds} is
+ * approximated by aligned ticks, and the tooltip {@code distance} is dropped. The {@code tickAmount} of the chart
+ * root has no effect in Highcharts either, so it is dropped without a warning.
+ * </p>
  */
 final class HighchartsParameterTable {
 
   private static final List<ParameterRule> RULES = buildRules();
-  private static final Pattern TEXT_SHADOW = Pattern.compile("^(\\S++)\\s++(\\S++)\\s++(.++)$");
-  private static final Pattern BLUR_AND_COLOR = Pattern.compile("^(\\S++)\\s++(.++)$");
 
   private HighchartsParameterTable() {
   }
@@ -51,8 +55,19 @@ final class HighchartsParameterTable {
 
   private static List<ParameterRule> buildRules() {
     List<ParameterRule> rules = new ArrayList<>();
+    chartRules(rules);
+    rules.addAll(SeriesParameterRules.rules());
+    axisRules(rules);
+    tooltipRules(rules);
+    return List.copyOf(rules);
+  }
 
-    // Chart title placement
+  private static void chartRules(List<ParameterRule> rules) {
+    // Chart title: a plain string is the text, the rest places it
+    rules.add(new ParameterRule(CHART, TITLE,
+      (target, captures, value) -> child(target.options(), TITLE).put("text", String.valueOf(value))));
+    rules.add(new ParameterRule(CHART, "title.text",
+      (target, captures, value) -> child(target.options(), TITLE).put("text", String.valueOf(value))));
     rules.add(new ParameterRule(CHART, "title.align",
       (target, captures, value) -> child(target.options(), TITLE).put("left", String.valueOf(value))));
     rules.add(new ParameterRule(CHART, "title.verticalAlign",
@@ -61,35 +76,81 @@ final class HighchartsParameterTable {
     rules.add(new ParameterRule(CHART, "title.y",
       (target, captures, value) -> putIfPresent(hints(child(target.options(), TITLE)), "offsetY", number(value))));
 
+    // Palette of the chart
+    rules.add(new ParameterRule(CHART, "colors",
+      (target, captures, value) -> target.options().put("color", value)));
+
     // Pie sizes: Highcharts size is the outer radius, innerSize the inner one relative to the size
     rules.add(new ParameterRule(CHART, "plotOptions.pie.size",
       (target, captures, value) -> radius(target.seriesDefaults("pie"), 1, value)));
     rules.add(new ParameterRule(CHART, "plotOptions.pie.innerSize",
       (target, captures, value) -> radius(target.seriesDefaults("pie"), 0, value)));
 
-    // Data labels of any series type, or of all of them with plotOptions.series
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.enabled",
-      (target, captures, value) -> child(target.seriesDefaults(captures.get(0)), LABEL).put("show", bool(value))));
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.format",
-      (target, captures, value) -> hints(target.seriesDefaults(captures.get(0))).put("labelFormat", value)));
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.distance",
-      (target, captures, value) -> labelDistance(target.seriesDefaults(captures.get(0)), number(value))));
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.style.fontWeight",
-      (target, captures, value) -> child(target.seriesDefaults(captures.get(0)), LABEL).put("fontWeight", value)));
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.style.color",
-      (target, captures, value) -> child(target.seriesDefaults(captures.get(0)), LABEL).put("color", value)));
-    rules.add(new ParameterRule(CHART, "plotOptions.*.dataLabels.style.textShadow",
-      (target, captures, value) -> textShadow(child(target.seriesDefaults(captures.get(0)), LABEL), value)));
+    // ECharts aligns the ticks of the secondary value axes with the first one, which is what Highcharts does when
+    // the ticks or the thresholds are aligned. The axes are built after the parameters, so this is a model hint
+    rules.add(new ParameterRule(CHART, "chart.alignTicks", (target, captures, value) -> alignTicks(target, value)));
+    rules.add(new ParameterRule(CHART, "chart.alignThresholds", (target, captures, value) -> {
+      target.approximation("align-thresholds", "Highcharts chart.alignThresholds is approximated by aligned ticks "
+        + "(alignTicks) in the ECharts model");
+      alignTicks(target, value);
+    }));
+    // No effect in Highcharts either: the ticks are set in the axes
+    rules.add(new ParameterRule(CHART, "tickAmount", (target, captures, value) -> noEffect()));
+  }
 
-    // Binding of the point values to the drilldown point (name, y, drilldown)
-    rules.add(new ParameterRule(SERIES, "keys",
-      (target, captures, value) -> hints(target.options()).put("keys", value)));
+  /**
+   * Translation of an option that is dropped on purpose and does not deserve a warning
+   */
+  private static void noEffect() {
+    // Nothing to write: the option has no effect in Highcharts either
+  }
 
+  private static void alignTicks(ParameterTarget target, Object value) {
+    if (bool(value)) {
+      hints(target.options()).put(EChartsMaps.ALIGN_TICKS, true);
+    }
+  }
+
+  private static void axisRules(List<ParameterRule> rules) {
     // Date formats of the axis labels, interpreted by the client
     rules.add(new ParameterRule(AXIS, "dateTimeLabelFormats.*",
       (target, captures, value) -> child(hints(target.options()), "dateTimeLabelFormats").put(captures.get(0), value)));
+    // Label format of the axis, interpreted by the client
+    rules.add(new ParameterRule(AXIS, "labels.format",
+      (target, captures, value) -> hints(target.options()).put("labelFormat", value)));
+    rules.add(new ParameterRule(AXIS, "gridLineWidth",
+      (target, captures, value) -> gridLines(target.options(), number(value))));
+    rules.add(new ParameterRule(AXIS, "tickAmount",
+      (target, captures, value) -> putIfPresent(target.options(), "splitNumber", number(value))));
+  }
 
-    return List.copyOf(rules);
+  /**
+   * A grid line width of zero hides the grid lines
+   */
+  private static void gridLines(Map<String, Object> axis, Number width) {
+    if (width == null) {
+      return;
+    }
+    Map<String, Object> splitLine = child(axis, "splitLine");
+    splitLine.put("show", width.doubleValue() > 0);
+    if (width.doubleValue() > 0) {
+      child(splitLine, "lineStyle").put("width", width);
+    }
+  }
+
+  private static void tooltipRules(List<ParameterRule> rules) {
+    rules.add(new ParameterRule(TOOLTIP, "useHTML",
+      (target, captures, value) -> hints(target.options()).put("useHTML", bool(value))));
+    for (String format : List.of("headerFormat", "pointFormat", "footerFormat")) {
+      rules.add(new ParameterRule(TOOLTIP, format,
+        (target, captures, value) -> hints(target.options()).put(format, String.valueOf(value))));
+    }
+    rules.add(new ParameterRule(TOOLTIP, "style.fontSize",
+      (target, captures, value) -> putIfPresent(child(target.options(), "textStyle"), "fontSize", fontSize(value))));
+    // The ECharts tooltip follows the pointer at a fixed offset
+    rules.add(new ParameterRule(TOOLTIP, "distance", (target, captures, value) ->
+      target.approximation("tooltip-distance", "Highcharts tooltip.distance has no ECharts equivalent; "
+        + "it is ignored by the ECharts model")));
   }
 
   @SuppressWarnings("unchecked")
@@ -97,79 +158,5 @@ final class HighchartsParameterTable {
     List<Object> radius = (List<Object>) defaults.computeIfAbsent(RADIUS,
       key -> new ArrayList<>(Arrays.asList(null, null)));
     radius.set(index, value);
-  }
-
-  /**
-   * A negative Highcharts distance puts the label inside the pie, otherwise it is the length of the leader line
-   */
-  private static void labelDistance(Map<String, Object> defaults, Number distance) {
-    if (distance == null) {
-      return;
-    }
-    Map<String, Object> label = child(defaults, LABEL);
-    if (distance.doubleValue() < 0) {
-      label.put("position", "inside");
-    } else {
-      label.put("position", "outside");
-      child(defaults, "labelLine").put("length", distance);
-    }
-  }
-
-  /**
-   * Translate a CSS text shadow: {@code <offset-x> <offset-y> [<blur>] <color>}, where the color may be a functional
-   * notation with spaces such as {@code rgba(0, 0, 0, 0.5)}. Without blur, the shadow is sharp.
-   * <p>
-   * The Highcharts keywords {@code contrast} and {@code none}, and the forms that start with the color, have no
-   * ECharts equivalent and are dropped.
-   * </p>
-   */
-  private static void textShadow(Map<String, Object> label, Object value) {
-    Matcher shadow = TEXT_SHADOW.matcher(String.valueOf(value).trim());
-    if (!shadow.matches()) {
-      return;
-    }
-    Number offsetX = length(shadow.group(1));
-    Number offsetY = length(shadow.group(2));
-    String rest = shadow.group(3);
-    Number blur = 0;
-    String color = rest;
-    Matcher withBlur = BLUR_AND_COLOR.matcher(rest);
-    if (withBlur.matches() && length(withBlur.group(1)) != null) {
-      blur = length(withBlur.group(1));
-      color = withBlur.group(2);
-    }
-    if (offsetX == null || offsetY == null || length(color) != null) {
-      return;
-    }
-    label.put("textShadowOffsetX", offsetX);
-    label.put("textShadowOffsetY", offsetY);
-    label.put("textShadowBlur", blur);
-    label.put("textShadowColor", color);
-  }
-
-  private static Number length(String value) {
-    return number(value.endsWith("px") ? value.substring(0, value.length() - 2) : value);
-  }
-
-  private static void putIfPresent(Map<String, Object> map, String key, Object value) {
-    if (value != null) {
-      map.put(key, value);
-    }
-  }
-
-  private static Boolean bool(Object value) {
-    return value instanceof Boolean flag ? flag : Boolean.parseBoolean(String.valueOf(value).toLowerCase(Locale.ROOT));
-  }
-
-  private static Number number(Object value) {
-    if (value instanceof Number number) {
-      return number;
-    }
-    try {
-      double parsed = Double.parseDouble(String.valueOf(value).trim());
-      return parsed == Math.rint(parsed) ? (Number) Integer.valueOf((int) parsed) : (Number) Double.valueOf(parsed);
-    } catch (NumberFormatException exc) {
-      return null;
-    }
   }
 }

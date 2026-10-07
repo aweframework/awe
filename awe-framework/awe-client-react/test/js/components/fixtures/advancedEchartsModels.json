@@ -1,0 +1,638 @@
+{
+  "AdvPieLabels" : {
+    "title" : {
+      "text" : "Distribución por tipo de activo",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : false,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "item",
+      "awe" : {
+        "numberDecimals" : 2,
+        "suffix" : " €"
+      }
+    },
+    "awe" : {
+      "chartType" : "pie"
+    },
+    "series" : [ {
+      "id" : "dist",
+      "name" : "Importe",
+      "type" : "pie",
+      "label" : {
+        "show" : true,
+        "fontSize" : 8
+      },
+      "awe" : {
+        "type" : "pie",
+        "xValue" : "asset",
+        "yValue" : "amount",
+        "labelFormat" : "<b>{point.name}</b>: {point.percentage:.2f} %"
+      }
+    } ]
+  },
+  "AdvStock" : {
+    "title" : {
+      "text" : "Valor liquidativo",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : false,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "axis",
+      "awe" : {
+        "crosshairs" : "xAxis",
+        "numberDecimals" : 2,
+        "dateFormat" : "%d/%m/%Y"
+      },
+      "axisPointer" : {
+        "type" : "line"
+      }
+    },
+    "awe" : {
+      "chartType" : "line",
+      "theme" : "blue",
+      "stock" : true
+    },
+    "xAxis" : [ {
+      "type" : "time",
+      "awe" : {
+        "axis" : "x",
+        "dateTimeLabelFormats" : {
+          "week" : "%d/%m/%Y",
+          "month" : "%d/%m/%Y",
+          "day" : "%d/%m/%Y"
+        }
+      }
+    } ],
+    "yAxis" : [ {
+      "name" : "Valor",
+      "nameLocation" : "middle",
+      "nameGap" : 30,
+      "type" : "value",
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y",
+        "formatter" : "formatCurrencyMagnitude"
+      }
+    } ],
+    "dataZoom" : [ {
+      "type" : "inside",
+      "xAxisIndex" : 0
+    }, {
+      "type" : "slider",
+      "xAxisIndex" : 0
+    } ],
+    "series" : [ {
+      "id" : "nav",
+      "name" : "Valor liquidativo",
+      "type" : "line",
+      "awe" : {
+        "type" : "line",
+        "xValue" : "date",
+        "yValue" : "nav"
+      }
+    } ]
+  },
+  "AdvBubble" : {
+    "title" : {
+      "text" : "Rentabilidad frente a riesgo",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : false,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "item"
+    },
+    "awe" : {
+      "chartType" : "bubble"
+    },
+    "xAxis" : [ {
+      "name" : "Riesgo (%)",
+      "nameLocation" : "middle",
+      "nameGap" : 30,
+      "type" : "value",
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "x"
+      }
+    } ],
+    "yAxis" : [ {
+      "name" : "Rentabilidad (%)",
+      "nameLocation" : "middle",
+      "nameGap" : 30,
+      "type" : "value",
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y",
+        "labelFormat" : "{value:.2f}"
+      }
+    } ],
+    "series" : [ {
+      "id" : "funds",
+      "name" : "Fondos",
+      "type" : "scatter",
+      "awe" : {
+        "type" : "bubble",
+        "xValue" : "risk",
+        "yValue" : "return",
+        "zValue" : "weight",
+        "minSize" : 10,
+        "maxSize" : 40,
+        "labelFormat" : "{point.z}"
+      },
+      "label" : {
+        "show" : true
+      }
+    } ]
+  },
+  "AdvStacked" : {
+    "title" : {
+      "text" : "Cartera por gestora",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : true,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "axis",
+      "awe" : {
+        "numberDecimals" : 0,
+        "suffix" : " k€"
+      }
+    },
+    "awe" : {
+      "chartType" : "column",
+      "stacking" : "normal"
+    },
+    "xAxis" : [ {
+      "type" : "category",
+      "awe" : {
+        "axis" : "x"
+      }
+    } ],
+    "yAxis" : [ {
+      "name" : "Miles de euros",
+      "nameLocation" : "middle",
+      "nameGap" : 30,
+      "type" : "value",
+      "interval" : 25,
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y"
+      }
+    } ],
+    "dataZoom" : [ {
+      "type" : "inside",
+      "xAxisIndex" : 0
+    } ],
+    "series" : [ {
+      "id" : "eq",
+      "name" : "Renta variable",
+      "type" : "bar",
+      "awe" : {
+        "type" : "column",
+        "xValue" : "manager",
+        "yValue" : "equity"
+      },
+      "stack" : "stack"
+    }, {
+      "id" : "fi",
+      "name" : "Renta fija",
+      "type" : "bar",
+      "awe" : {
+        "type" : "column",
+        "xValue" : "manager",
+        "yValue" : "fixed"
+      },
+      "stack" : "stack"
+    }, {
+      "id" : "mm",
+      "name" : "Monetario",
+      "type" : "bar",
+      "awe" : {
+        "type" : "column",
+        "xValue" : "manager",
+        "yValue" : "money"
+      },
+      "stack" : "stack"
+    } ]
+  },
+  "AdvPyramid" : {
+    "title" : {
+      "text" : "Pirámide salarial",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : true,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "item",
+      "awe" : {
+        "useHTML" : true,
+        "headerFormat" : "<table><tr><th colspan='2'>{point.key}</th></tr>",
+        "pointFormat" : "<tr><td>{series.userOptions.fullname}: </td><td><b>{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}</b></td></tr>",
+        "footerFormat" : "</table>"
+      }
+    },
+    "awe" : {
+      "chartType" : "column",
+      "inverted" : true
+    },
+    "xAxis" : [ {
+      "type" : "value",
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y",
+        "labelFormat" : "{#if (gt value 0)}{multiply value 0.001}k{else}{multiply value -0.001}k{/if}"
+      },
+      "splitLine" : {
+        "show" : false
+      }
+    } ],
+    "yAxis" : [ {
+      "type" : "category",
+      "inverse" : true,
+      "awe" : {
+        "axis" : "x"
+      }
+    }, {
+      "type" : "category",
+      "position" : "right",
+      "inverse" : true,
+      "awe" : {
+        "axis" : "x"
+      }
+    } ],
+    "series" : [ {
+      "id" : "men",
+      "name" : "Hombres",
+      "type" : "bar",
+      "itemStyle" : {
+        "color" : "#4a7dbf"
+      },
+      "awe" : {
+        "type" : "column",
+        "xValue" : "age",
+        "yValue" : "men",
+        "borderRadius" : 20,
+        "labelFormat" : "{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}",
+        "userOptions" : {
+          "stack" : "salary",
+          "pointPadding" : 0.0,
+          "groupPadding" : 0.1,
+          "borderRadius" : 20,
+          "fullname" : "Salario bruto medio hombres",
+          "dataLabels" : {
+            "format" : "{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}",
+            "enabled" : true
+          }
+        }
+      },
+      "barGap" : "0%",
+      "barCategoryGap" : "20%",
+      "label" : {
+        "show" : true
+      }
+    }, {
+      "id" : "women",
+      "name" : "Mujeres",
+      "type" : "bar",
+      "yAxisIndex" : 1,
+      "itemStyle" : {
+        "color" : "#d9789b"
+      },
+      "awe" : {
+        "type" : "column",
+        "xValue" : "age",
+        "yValue" : "women",
+        "borderRadius" : 20,
+        "labelFormat" : "{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}",
+        "userOptions" : {
+          "stack" : "salary",
+          "pointPadding" : 0.0,
+          "groupPadding" : 0.1,
+          "borderRadius" : 20,
+          "fullname" : "Salario bruto medio mujeres",
+          "dataLabels" : {
+            "format" : "{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}",
+            "enabled" : true
+          }
+        }
+      },
+      "barGap" : "0%",
+      "barCategoryGap" : "20%",
+      "label" : {
+        "show" : true
+      }
+    }, {
+      "id" : "dummyMax",
+      "name" : "max",
+      "type" : "scatter",
+      "itemStyle" : {
+        "color" : "transparent",
+        "opacity" : 0
+      },
+      "awe" : {
+        "type" : "scatter",
+        "xValue" : "age",
+        "yValue" : "dummyMax",
+        "showInLegend" : false,
+        "userOptions" : {
+          "showInLegend" : false,
+          "enableMouseTracking" : false,
+          "marker" : {
+            "enabled" : false
+          }
+        }
+      },
+      "silent" : true,
+      "tooltip" : {
+        "show" : false
+      }
+    }, {
+      "id" : "dummyMin",
+      "name" : "min",
+      "type" : "scatter",
+      "itemStyle" : {
+        "color" : "transparent",
+        "opacity" : 0
+      },
+      "awe" : {
+        "type" : "scatter",
+        "xValue" : "age",
+        "yValue" : "dummyMin",
+        "linkedTo" : ":previous",
+        "showInLegend" : false,
+        "userOptions" : {
+          "linkedTo" : ":previous",
+          "showInLegend" : false,
+          "enableMouseTracking" : false,
+          "marker" : {
+            "enabled" : false
+          }
+        }
+      },
+      "silent" : true,
+      "tooltip" : {
+        "show" : false
+      }
+    } ]
+  },
+  "AdvArea" : {
+    "title" : {
+      "text" : "Evolución de la plantilla",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : false,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "item",
+      "awe" : {
+        "crosshairs" : "xAxis",
+        "numberDecimals" : 0,
+        "suffix" : " personas",
+        "dateFormat" : "%B %Y"
+      },
+      "axisPointer" : {
+        "type" : "line"
+      }
+    },
+    "awe" : {
+      "chartType" : "area"
+    },
+    "xAxis" : [ {
+      "type" : "time",
+      "awe" : {
+        "axis" : "x",
+        "dateTimeLabelFormats" : {
+          "month" : "%B %Y"
+        }
+      },
+      "splitLine" : {
+        "show" : true,
+        "lineStyle" : {
+          "width" : 0.5
+        }
+      }
+    } ],
+    "yAxis" : [ {
+      "type" : "value",
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y"
+      },
+      "splitLine" : {
+        "show" : true,
+        "lineStyle" : {
+          "width" : 0.5
+        }
+      }
+    } ],
+    "dataZoom" : [ {
+      "type" : "inside",
+      "xAxisIndex" : 0
+    } ],
+    "series" : [ {
+      "id" : "staff",
+      "name" : "Plantilla",
+      "type" : "line",
+      "areaStyle" : {
+        "opacity" : 1,
+        "color" : {
+          "type" : "linear",
+          "x" : 0,
+          "y" : 0,
+          "x2" : 0,
+          "y2" : 1,
+          "colorStops" : [ {
+            "offset" : 0,
+            "color" : "rgba(140,172,65,0.7)"
+          }, {
+            "offset" : 1,
+            "color" : "rgba(140,172,65,0.05)"
+          } ]
+        },
+        "origin" : "start"
+      },
+      "itemStyle" : {
+        "color" : "#8cac41",
+        "borderColor" : "#0088CC",
+        "borderWidth" : 2
+      },
+      "awe" : {
+        "type" : "area",
+        "xValue" : "month",
+        "yValue" : "staff",
+        "userOptions" : {
+          "fillColor" : {
+            "linearGradient" : {
+              "y1" : 0,
+              "x1" : 0,
+              "y2" : 1,
+              "x2" : 0
+            },
+            "stops" : [ [ 0, "rgba(140,172,65,0.7)" ], [ 1, "rgba(140,172,65,0.05)" ] ]
+          }
+        },
+        "markerFill" : "#FFFFFF"
+      },
+      "lineStyle" : {
+        "width" : 2
+      },
+      "showSymbol" : true,
+      "symbol" : "circle",
+      "symbolSize" : 8
+    } ]
+  },
+  "AdvColumns" : {
+    "title" : {
+      "text" : "Aportaciones por año",
+      "left" : "center"
+    },
+    "legend" : {
+      "show" : true,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "axis",
+      "awe" : {
+        "numberDecimals" : 2,
+        "suffix" : " €"
+      }
+    },
+    "awe" : {
+      "chartType" : "column",
+      "stacking" : "normal"
+    },
+    "xAxis" : [ {
+      "type" : "category",
+      "axisLabel" : {
+        "interval" : 0
+      },
+      "awe" : {
+        "axis" : "x"
+      }
+    } ],
+    "yAxis" : [ {
+      "type" : "value",
+      "interval" : 10000,
+      "minInterval" : 1,
+      "awe" : {
+        "axis" : "y",
+        "formatter" : "formatCurrencyMagnitude"
+      }
+    } ],
+    "series" : [ {
+      "id" : "company",
+      "name" : "Empresa",
+      "type" : "bar",
+      "itemStyle" : {
+        "color" : "#2f6f8f"
+      },
+      "awe" : {
+        "type" : "column",
+        "xValue" : "year",
+        "yValue" : "company",
+        "borderRadius" : "30%",
+        "legendIndex" : 2,
+        "userOptions" : {
+          "borderRadius" : "30%",
+          "legendIndex" : 2
+        }
+      },
+      "barGap" : "5%",
+      "barCategoryGap" : "10%",
+      "stack" : "stack"
+    }, {
+      "id" : "employee",
+      "name" : "Empleado",
+      "type" : "bar",
+      "itemStyle" : {
+        "color" : "#7fb3c8"
+      },
+      "awe" : {
+        "type" : "column",
+        "xValue" : "year",
+        "yValue" : "employee",
+        "borderRadius" : "30%",
+        "legendIndex" : 1,
+        "userOptions" : {
+          "borderRadius" : "30%",
+          "legendIndex" : 1
+        }
+      },
+      "barGap" : "5%",
+      "barCategoryGap" : "10%",
+      "stack" : "stack"
+    } ]
+  },
+  "AdvPie3d" : {
+    "title" : {
+      "text" : "Plantilla por categoría",
+      "left" : "center"
+    },
+    "color" : [ "rgba(201,229,134,0.9)", "rgba(140,172,65,0.9)", "rgba(47,111,143,0.9)", "rgba(127,179,200,0.9)", "rgba(217,120,155,0.9)" ],
+    "legend" : {
+      "show" : true,
+      "left" : "center",
+      "top" : "bottom"
+    },
+    "tooltip" : {
+      "show" : true,
+      "trigger" : "item",
+      "awe" : {
+        "numberDecimals" : 0,
+        "suffix" : " personas"
+      }
+    },
+    "awe" : {
+      "chartType" : "pie_3d"
+    },
+    "series" : [ {
+      "id" : "cat",
+      "name" : "Personas",
+      "type" : "pie",
+      "label" : {
+        "show" : true
+      },
+      "awe" : {
+        "type" : "pie",
+        "xValue" : "category",
+        "yValue" : "people"
+      },
+      "labelLine" : {
+        "lineStyle" : {
+          "color" : "rgba(128,128,128,0.7)"
+        }
+      },
+      "selectedMode" : "single",
+      "colorBy" : "data"
+    } ]
+  }
+}

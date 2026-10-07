@@ -76,6 +76,7 @@
   <locale name="MENU_TEST_BUTTONS" value="Botones"/>
   <locale name="MENU_TEST_CAROUSEL" value="Carrusel"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Series dinámicas"/>
+  <locale name="MENU_TEST_CHART_ADVANCED" value="Gráficos avanzados"/>
   <locale name="MENU_TEST_CHARTS" value="Gráficos"/>
   <locale name="MENU_TEST_CRITERIA" value="Criterios"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criterios Reset"/>
@@ -152,6 +153,12 @@
   <locale name="SCREEN_TEXT_CHART_SERIE_2" value="Serie 2"/>
   <locale name="SCREEN_TEXT_CHART_SERIE_3" value="Serie 3"/>
   <locale name="SCREEN_TEXT_CHART_TITLE_1" value="Gráfico 1"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PYRAMID" value="Pirámide"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_AREA" value="Área con degradado"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_BUBBLE" value="Burbujas"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_COLUMNS" value="Columnas redondeadas"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PIE" value="Tarta con colores"/>
+  <locale name="SCREEN_TEXT_CHART_ADVANCED_PIE_LABELS" value="Tarta con etiquetas pequeñas"/>
   <locale name="SCREEN_TEXT_DONUT_CHART" value="Donut"/>
   <locale name="SCREEN_TEXT_DYNAMIC_SERIES_CHART" value="Gráfico series dinámicas"/>
   <locale name="SCREEN_TEXT_INSERT_PASS" value="Introduce tu contraseña"/>
@@ -173,6 +180,7 @@
   <locale name="SCREEN_TITLE_CHART_DYNAMIC_SERIES" value="Gráfico series dinámicas"/>
   <locale name="SCREEN_TITLE_CHART_GRID_PRINT" value="Prueba de impresión de Grids y Charts"/>
   <locale name="SCREEN_TITLE_CHART_TEST" value="Test de gráficos"/>
+  <locale name="SCREEN_TITLE_CHART_ADVANCED" value="Gráficos con opciones avanzadas de Highcharts"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Test de criterios"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Test de matrices"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Pestañas verticales"/>

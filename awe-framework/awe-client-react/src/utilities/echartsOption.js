@@ -1,5 +1,10 @@
 import {translateLabel} from "./index";
-import {FORMATTERS, formatDate, formatNumber, formatTemplate, toEChartsTimeFormat} from "./chartFormat";
+import {FORMATTERS, formatTemplate, toEChartsTimeFormat} from "./chartFormat";
+import {AWE, SERIES_INFO, asArray, hintsOf, isPie, pointContext, withoutAwe} from "./echartsContext";
+import {roundBars} from "./echartsBars";
+import {buildLegends, seriesNames} from "./echartsLegend";
+import {fitPieLabels} from "./echartsPie";
+import {buildTooltip, createValueText} from "./echartsTooltip";
 
 /**
  * Builds the Apache ECharts option of a chart from the `echartsModel` that the server sends beside the Highcharts
@@ -13,13 +18,11 @@ import {FORMATTERS, formatDate, formatNumber, formatTemplate, toEChartsTimeForma
  * themes, the look comes from the application theme.
  */
 
-const AWE = "awe";
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 const MAX_SYMBOL_POINTS = 40;
 const PIE_RADIUS_FACTOR = 0.8;
 const BUBBLE_SIZE = {min: 10, max: 50};
 const TIME_LEVELS = ["year", "month", "day", "hour", "minute", "second", "millisecond"];
-const NO_VALUE = "-";
 const MAX_LABELLED_CATEGORIES = 60;
 const CATEGORY_LABEL = {fontSize: 11, charWidth: 7, labelPadding: 6, rotatedCharHeight: 4.7, maxRoom: 70, rotation: 45};
 
@@ -73,13 +76,6 @@ export function stripAwe(node) {
   return node;
 }
 
-const hintsOf = (node) => node?.[AWE] || {};
-const withoutAwe = (node) => Object.fromEntries(Object.entries(node || {}).filter(([key]) => key !== AWE));
-const escapeHtml = (text) => String(text ?? "").replace(/[&<>"']/g, character =>
-  ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[character]));
-const isPie = (serie) => serie.type === "pie";
-const asArray = (value) => Array.isArray(value) ? value : [];
-
 /**
  * Find the drilldown series that a series opens
  * @param {object} model ECharts model
@@ -91,29 +87,6 @@ export function findDrilldownId(model, seriesId) {
   const target = hintsOf(serie).drilldown;
   const exists = asArray(hintsOf(model).drilldown?.series).some(item => item.id === target);
   return target && exists ? target : null;
-}
-
-// ------------------------------------------------------------------------------------------------------------
-// Point context, shared by labels and tooltips
-// ------------------------------------------------------------------------------------------------------------
-
-/**
- * Describe a point that ECharts gives to a formatter in the terms of the Highcharts format language
- * @param {object} params Formatter parameters of ECharts
- * @param {boolean} inverted The chart is inverted, so the coordinates are [y, x]
- * @returns {object} Context of the format template
- */
-function pointContext(params, inverted) {
-  const coordinates = Array.isArray(params.value) ? params.value : null;
-  const [xIndex, yIndex] = inverted ? [1, 0] : [0, 1];
-  const x = coordinates?.[xIndex];
-  const y = coordinates ? coordinates[yIndex] : params.value;
-  const z = coordinates ? coordinates[2] : undefined;
-  return {
-    series: {name: params.seriesName},
-    point: {name: params.name, x, y, z, percentage: params.percent},
-    name: params.name, x, y, z, value: y, percentage: params.percent
-  };
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -156,22 +129,64 @@ function scaleRadius(radius) {
 }
 
 /**
+ * Resolve the size of a bubble: pixels, or a percentage (`20%`) of the smaller dimension of the chart, like Highcharts
+ * @param {number|string} value Size that the chart defines
+ * @param {number} fallback Size when the value is missing or is not a size
+ * @param {number} reference Smaller dimension of the chart, 0 when it is not known
+ * @returns {number} Size in pixels
+ */
+function bubbleLimit(value, fallback, reference) {
+  if (Number.isFinite(value)) {
+    return value;
+  }
+  const percent = typeof value === "string" && value.endsWith("%") ? Number.parseFloat(value) : Number.NaN;
+  return Number.isFinite(percent) && reference > 0 ? percent / 100 * reference : fallback;
+}
+
+/**
  * Size of the bubbles, scaled between a minimum and a maximum from their z value
  * @param {Array} data Points with [x, y, z]
+ * @param {{minSize: number|string, maxSize: number|string}} hints Range of the sizes that the chart may define
+ * @param {{width: number, height: number}} environment Size of the chart
  * @returns {function(Array): number} Symbol size function
  */
-function bubbleSize(data) {
+function bubbleSize(data, hints, {width, height}) {
+  const reference = Math.min(width, height) || 0;
+  const range = {
+    min: bubbleLimit(hints.minSize, BUBBLE_SIZE.min, reference),
+    max: bubbleLimit(hints.maxSize, BUBBLE_SIZE.max, reference)
+  };
   const zs = data.map(point => point[2]).filter(Number.isFinite);
   const min = Math.min(...zs);
   const max = Math.max(...zs);
-  const middle = (BUBBLE_SIZE.min + BUBBLE_SIZE.max) / 2;
+  const middle = (range.min + range.max) / 2;
   return (point) => {
     const z = point?.[2];
     if (!Number.isFinite(z) || max === min) {
       return middle;
     }
-    return BUBBLE_SIZE.min + (z - min) / (max - min) * (BUBBLE_SIZE.max - BUBBLE_SIZE.min);
+    return range.min + (z - min) / (max - min) * (range.max - range.min);
   };
+}
+
+/**
+ * Give the fill of the markers to the symbols. ECharts draws the line and the area with the color of the symbols, so
+ * they keep the color of the series (the palette one, unless the series has its own), and a gradient keeps its colors
+ * @param {object} built Series for ECharts, which is changed
+ * @param {string} [fill] Fill of the markers
+ * @param {string} [color] Color of the series
+ */
+function applyMarkerFill(built, fill, color) {
+  if (fill === undefined) {
+    return;
+  }
+  if (built.type === "line") {
+    built.lineStyle = {color, ...built.lineStyle};
+    if (built.areaStyle && built.areaStyle.color === undefined) {
+      built.areaStyle = {...built.areaStyle, color};
+    }
+  }
+  built.itemStyle = {...built.itemStyle, color: fill};
 }
 
 /**
@@ -182,7 +197,7 @@ function bubbleSize(data) {
  * @returns {object} Series for ECharts
  */
 function buildSeries(serie, environment, index) {
-  const {values, inverted, t, locale, hasTitle} = environment;
+  const {values, inverted, t, locale, hasTitle, tooltipHints, palette} = environment;
   const hints = hintsOf(serie);
   const data = bindData(serie, values, inverted);
   const built = {...withoutAwe(serie), data};
@@ -190,18 +205,22 @@ function buildSeries(serie, environment, index) {
   if (serie.name) {
     built.name = translateLabel(serie.name, t);
   }
+  const info = {
+    userOptions: hints.userOptions, silent: Boolean(serie.silent), valueSuffix: hints.valueSuffix,
+    borderRadius: hints.borderRadius
+  };
   if (hints.labelFormat && serie.label) {
     built.label = {
       ...serie.label,
-      formatter: (params) => formatTemplate(hints.labelFormat, pointContext(params, inverted), {locale, stripHtml: true})
+      formatter: (params) => formatTemplate(hints.labelFormat, pointContext(params, inverted, info), {locale, stripHtml: true})
     };
   }
-  if (!isPie(serie)) {
+  if (!isPie(serie) && serie.colorBy !== "data") {
     // The colors are assigned here because the stacks are reversed later, which would swap them
-    built.itemStyle = {color: PALETTE[index % PALETTE.length], ...serie.itemStyle};
+    built.itemStyle = {color: palette[index % palette.length], ...serie.itemStyle};
   }
   if (hints.type === "bubble") {
-    built.symbolSize = bubbleSize(data);
+    built.symbolSize = bubbleSize(data, hints, environment);
     built.itemStyle = {opacity: 0.6, ...built.itemStyle};
   }
   if (serie.type === "bar" && serie.label?.show) {
@@ -210,15 +229,33 @@ function buildSeries(serie, environment, index) {
   if (serie.type === "line" && data.length > MAX_SYMBOL_POINTS && serie.showSymbol === undefined) {
     built.showSymbol = false;
   }
+  if (hints.valueSuffix !== undefined) {
+    built.tooltip = {...serie.tooltip, valueFormatter: createValueText(tooltipHints, locale, hints.valueSuffix).write};
+  }
+  info.color = built.itemStyle?.color;
+  // The palette color is resolved before the marker fill takes the color of the symbols
+  applyMarkerFill(built, hints.markerFill, info.color ?? palette[index % palette.length]);
+  SERIES_INFO.set(built, info);
   if (isPie(serie)) {
-    if (serie.radius !== undefined) {
-      built.radius = scaleRadius(serie.radius);
-    }
-    if (hasTitle && serie.center === undefined) {
-      built.center = ["50%", "54%"];
-    }
+    layoutPie(built, serie, hasTitle);
+    fitPieLabels(built, environment);
   }
   return built;
+}
+
+/**
+ * Size and place a pie: the Highcharts size leaves room for the labels, and a title takes room above
+ * @param {object} built Series for ECharts, which is changed
+ * @param {object} serie Series of the model
+ * @param {boolean} hasTitle The chart has a title
+ */
+function layoutPie(built, serie, hasTitle) {
+  if (serie.radius !== undefined) {
+    built.radius = scaleRadius(serie.radius);
+  }
+  if (hasTitle && serie.center === undefined) {
+    built.center = ["50%", "54%"];
+  }
 }
 
 /**
@@ -347,8 +384,9 @@ function resolveDrill(model, drill) {
  * @returns {boolean} The axis has to fit its data
  */
 function fitsData(users) {
-  return users.length > 0 && users.every(serie => (serie.type === "line" && !serie.areaStyle) ||
-    serie.type === "scatter");
+  // An area that fills from the bottom of the axis does not need zero either
+  return users.length > 0 && users.every(serie => (serie.type === "line" && (!serie.areaStyle ||
+    serie.areaStyle.origin === "start")) || serie.type === "scatter");
 }
 
 /**
@@ -499,53 +537,6 @@ function valueAxisOptions(axis, key, users, environment) {
 }
 
 // ------------------------------------------------------------------------------------------------------------
-// Tooltip
-// ------------------------------------------------------------------------------------------------------------
-
-/**
- * Build the tooltip: the functions that the server cannot send are created from its hints
- * @param {object} tooltip Tooltip of the model
- * @param {object} environment Environment (inverted, locale, timeX)
- * @returns {object} Tooltip for ECharts
- */
-function buildTooltip(tooltip, environment) {
-  const {inverted, locale, timeX} = environment;
-  const hints = hintsOf(tooltip);
-  const built = {...withoutAwe(tooltip), confine: true};
-  const {numberDecimals, prefix = "", suffix = "", pointFormat, dateFormat} = hints;
-  const hasValueFormat = numberDecimals !== undefined || prefix !== "" || suffix !== "";
-  const valueText = (value) => {
-    if (value === null || value === undefined || value === "") {
-      return NO_VALUE;
-    }
-    const text = numberDecimals === undefined ? String(value) : formatNumber(value, numberDecimals, locale);
-    return `${prefix}${text}${suffix}`;
-  };
-
-  if (hasValueFormat) {
-    built.valueFormatter = valueText;
-  }
-  if (pointFormat || (dateFormat && timeX)) {
-    built.formatter = (params) => {
-      const list = Array.isArray(params) ? params : [params];
-      const points = list.map(item => ({item, context: pointContext(item, inverted)}));
-      const cartesian = Array.isArray(list[0]?.value);
-      let header = "";
-      if (cartesian) {
-        header = dateFormat && timeX
-          ? formatDate(points[0].context.x, dateFormat, locale)
-          : list[0].axisValueLabel ?? list[0].name ?? "";
-      }
-      const rows = points.map(({item, context}) => pointFormat
-        ? `${item.marker ?? ""}${formatTemplate(pointFormat, context, {locale})}`
-        : `${item.marker ?? ""}${escapeHtml(item.seriesName ?? item.name)}: ${valueText(context.y)}`);
-      return [header ? escapeHtml(header) : null, ...rows].filter(row => row !== null).join("<br/>");
-    };
-  }
-  return built;
-}
-
-// ------------------------------------------------------------------------------------------------------------
 // Layout
 // ------------------------------------------------------------------------------------------------------------
 
@@ -663,31 +654,19 @@ function buildAllSeries(modelSeries, environment) {
   let colored = 0;
   const built = modelSeries.map(serie => {
     const index = colored;
-    if (!isPie(serie) && !serie.itemStyle?.color) {
+    if (!isPie(serie) && serie.colorBy !== "data" && !serie.itemStyle?.color) {
       colored += 1;
     }
     return buildSeries(serie, environment, index);
   });
+  // A linked series takes the name of the one it is linked to
+  seriesNames(modelSeries, environment.t).forEach((name, index) => {
+    if (name) {
+      built[index].name = name;
+    }
+  });
   normalizePercentStacks(built, modelSeries, environment.inverted);
   placeBarLabels(built, environment.inverted);
-  return built;
-}
-
-/**
- * Build the legend. The series order was changed for the stacks, so the legend keeps the order of the model; the
- * legend of a pie lists its slices
- * @param {object} legend Legend of the model
- * @param {object[]} modelSeries Series of the model
- * @param {boolean} cartesian The chart has axes
- * @param {function} t Translator
- * @returns {object} Legend for ECharts
- */
-function buildLegend(legend, modelSeries, cartesian, t) {
-  const built = withoutAwe(legend);
-  const names = modelSeries.map(serie => serie.name && translateLabel(serie.name, t));
-  if (cartesian && !modelSeries.some(isPie) && names.length > 0 && names.every(Boolean)) {
-    built.data = names;
-  }
   return built;
 }
 
@@ -762,6 +741,32 @@ function hasTimeXAxis(model) {
 }
 
 /**
+ * Colors of the chart: the ones that the screen defines, or the default palette
+ * @param {object} model ECharts model
+ * @returns {string[]} Colors
+ */
+function paletteOf(model) {
+  return Array.isArray(model.color) && model.color.length > 0 ? model.color : PALETTE;
+}
+
+/**
+ * Environment of the tooltip: what it needs to know about the chart and about each series, by its position in the
+ * option
+ * @param {object} model ECharts model
+ * @param {object} environment Environment
+ * @param {object[]} series Built series, in the order of ECharts
+ * @returns {object} Environment of the tooltip
+ */
+function tooltipEnvironment(model, environment, series) {
+  return {
+    inverted: environment.inverted,
+    locale: environment.locale || {},
+    timeX: hasTimeXAxis(model),
+    infoOf: (params) => SERIES_INFO.get(series[params.seriesIndex]) ?? {}
+  };
+}
+
+/**
  * Build the ECharts option
  * @param {object} model `echartsModel` sent by the server
  * @param {object[]} values Values of the component
@@ -769,7 +774,7 @@ function hasTimeXAxis(model) {
  * @returns {object} ECharts option
  */
 export function buildEChartsOption(model, values, context) {
-  const environment = {inverted: false, hasTitle: false, ...context, values};
+  const environment = {inverted: false, hasTitle: false, tooltipHints: {}, palette: PALETTE, ...context, values};
   const locale = environment.locale || {};
   const noData = () => graphicText(locale.noData, {left: "center", top: "middle"}, environment);
 
@@ -780,16 +785,19 @@ export function buildEChartsOption(model, values, context) {
 
   environment.inverted = Boolean(hintsOf(model).inverted);
   environment.hasTitle = Boolean(model.title?.text);
-  const {t, inverted} = environment;
+  environment.tooltipHints = hintsOf(model.tooltip);
+  environment.palette = paletteOf(model);
+  const {t} = environment;
 
   // Series (a drilldown series replaces the one that was drilled)
   const drill = resolveDrill(model, environment.drill);
   const modelSeries = asArray(model.series).map(serie => drill?.from === serie.id ? drill.serie : serie);
   const built = buildAllSeries(modelSeries, environment);
   const series = reverseStacks(built);
+  roundBars(series, environment);
   const layout = {bottom: 0};
   const option = {
-    backgroundColor: TRANSPARENT, color: PALETTE, aria: {enabled: true}, series,
+    backgroundColor: TRANSPARENT, color: environment.palette, aria: {enabled: true}, series,
     ...buildAxesOptions(model, series, environment, layout)
   };
   const cartesian = Boolean(option.xAxis || option.yAxis);
@@ -799,10 +807,10 @@ export function buildEChartsOption(model, values, context) {
     option.title = buildTitle(model.title, environment);
   }
   if (model.tooltip) {
-    option.tooltip = buildTooltip(model.tooltip, {inverted, locale, timeX: hasTimeXAxis(model)});
+    option.tooltip = buildTooltip(model.tooltip, tooltipEnvironment(model, environment, series));
   }
   if (model.legend) {
-    option.legend = buildLegend(model.legend, modelSeries, cartesian, t);
+    option.legend = buildLegends(model.legend, modelSeries, cartesian, t);
   }
 
   const legendPlace = legendSide(model.legend);

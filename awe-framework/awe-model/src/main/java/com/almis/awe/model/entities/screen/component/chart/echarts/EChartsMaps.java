@@ -15,6 +15,11 @@ final class EChartsMaps {
    */
   static final String AWE = "awe";
 
+  /**
+   * Hint of the model that asks for aligned ticks in the value axes, which the model builder consumes
+   */
+  static final String ALIGN_TICKS = "alignTicks";
+
   private EChartsMaps() {
   }
 
@@ -109,7 +114,9 @@ final class EChartsMaps {
       return copy;
     }
     if (value instanceof List<?> source) {
-      return new ArrayList<>(source);
+      List<Object> copy = new ArrayList<>();
+      source.forEach(item -> copy.add(copy(item)));
+      return copy;
     }
     return value;
   }

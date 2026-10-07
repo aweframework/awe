@@ -99,9 +99,9 @@ describe('awe-react-client/test/js/utilities/chartFormatTest.jsx', () => {
     it('should split a template into text and expressions', () => {
       expect(parseTemplate("<b>{point.name}</b>: {point.y:.2f} %")).toEqual([
         {type: "text", value: "<b>"},
-        {type: "expression", path: "point.name", spec: undefined},
+        {type: "expression", expression: {type: "path", path: "point.name"}, spec: undefined},
         {type: "text", value: "</b>: "},
-        {type: "expression", path: "point.y", spec: ".2f"},
+        {type: "expression", expression: {type: "path", path: "point.y"}, spec: ".2f"},
         {type: "text", value: " %"}
       ]);
     });
@@ -158,6 +158,183 @@ describe('awe-react-client/test/js/utilities/chartFormatTest.jsx', () => {
 
     it('should return an empty text without template', () => {
       expect(formatTemplate(undefined, context)).toBe("");
+    });
+  });
+
+  describe('template language', () => {
+    const context = {
+      x: "30-35", y: -1234.5, value: 4500, key: "30-35",
+      point: {name: "30-35", x: "30-35", y: -1234.5, z: 7, key: "30-35", percentage: 12.5},
+      series: {name: "Men", userOptions: {fullname: "Average gross salary", stack: "salary"}}
+    };
+    const spanish = {
+      decimalPoint: ",",
+      thousandsSep: ".",
+      months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
+        "noviembre", "diciembre"]
+    };
+    const format = (template, values = context, options = {locale: spanish}) => formatTemplate(template, values, options);
+
+    it('should render the branch of a condition', () => {
+      const template = "{#if (gt y 0)}{y:,.0f}€{else}{(multiply y -1):,.0f}€{/if}";
+
+      expect(format(template)).toBe("1.235€");
+      expect(format(template, {y: 4321})).toBe("4.321€");
+    });
+
+    it('should render a condition without else only when it holds', () => {
+      expect(format("[{#if (lt y 0)}negative{/if}]")).toBe("[negative]");
+      expect(format("[{#if (gt y 0)}positive{/if}]")).toBe("[]");
+    });
+
+    it('should use the truthiness of a value as a condition', () => {
+      expect(format("{#if point.z}z={point.z}{else}no z{/if}")).toBe("z=7");
+      expect(format("{#if point.z}z{else}no z{/if}", {point: {z: 0}})).toBe("no z");
+      expect(format("{#if point.z}z{else}no z{/if}", {})).toBe("no z");
+    });
+
+    it('should accept a condition without parentheses', () => {
+      expect(format("{#if gt value 1000}big{else}small{/if}")).toBe("big");
+      expect(format("{#if eq point.name key}same{/if}")).toBe("same");
+    });
+
+    it('should nest conditions', () => {
+      const template = "{#if (gt y 0)}up{else}{#if (lt y -1000)}way down{else}down{/if}{/if}";
+
+      expect(format(template)).toBe("way down");
+      expect(format(template, {y: -5})).toBe("down");
+      expect(format(template, {y: 5})).toBe("up");
+    });
+
+    it('should evaluate the comparison helpers', () => {
+      const check = (helper, left, right) => format(`{#if (${helper} ${left} ${right})}yes{else}no{/if}`);
+
+      expect([check("gt", 2, 1), check("gt", 1, 1)]).toEqual(["yes", "no"]);
+      expect([check("lt", 1, 2), check("lt", 1, 1)]).toEqual(["yes", "no"]);
+      expect([check("ge", 1, 1), check("ge", 0, 1)]).toEqual(["yes", "no"]);
+      expect([check("le", 1, 1), check("le", 2, 1)]).toEqual(["yes", "no"]);
+      expect([check("eq", 3, 3), check("eq", 3, 4)]).toEqual(["yes", "no"]);
+      expect([check("ne", 3, 4), check("ne", 3, 3)]).toEqual(["yes", "no"]);
+    });
+
+    it('should evaluate the arithmetic helpers', () => {
+      expect(format("{multiply 3 4}")).toBe("12");
+      expect(format("{divide 9 4}")).toBe("2.25");
+      expect(format("{add 1.5 2}")).toBe("3.5");
+      expect(format("{subtract 1 3}")).toBe("-2");
+    });
+
+    it('should call a helper without parentheses', () => {
+      expect(format("{multiply value 0.001}k")).toBe("4.5k");
+      expect(format("{multiply value -0.001}k", {value: -4500})).toBe("4.5k");
+    });
+
+    it('should keep a raw value exact and round only the result of a helper', () => {
+      expect(format("{x} {point.x} {y}", {x: 1704067200001, point: {x: 1704067200001}, y: 0.30000000000000004}))
+        .toBe("1704067200001 1704067200001 0.30000000000000004");
+      expect(format("{(add y 0)}", {y: 0.30000000000000004})).toBe("0.3");
+    });
+
+    it('should not show floating point noise in a calculated value', () => {
+      expect(format("{multiply value 0.001}", {value: 300})).toBe("0.3");
+      expect(format("{add 0.1 0.2}")).toBe("0.3");
+    });
+
+    it('should evaluate parenthesised sub expressions with a format', () => {
+      expect(format("{(multiply y -1):,.0f}")).toBe("1.235");
+      expect(format("{(multiply y -1):,.2f}")).toBe("1.234,50");
+      expect(format("{(add (multiply y 2) 1)}")).toBe("-2468");
+      expect(format("{(y)}")).toBe("-1234.5");
+    });
+
+    it('should leave empty the result of a calculation without numbers', () => {
+      expect(format("[{multiply missing 2}]")).toBe("[]");
+    });
+
+    it('should keep as text the words between braces that do not start with a helper', () => {
+      expect(format("[{unknownHelper 1 2}]")).toBe("[{unknownHelper 1 2}]");
+      expect(format("[{constructor 1 2}]")).toBe("[{constructor 1 2}]");
+      expect(format("{#if (nothing 1 2)}a{else}b{/if}")).toBe("{#if (nothing 1 2)}a{else}b{/if}");
+      expect(format("{multiply (nothing 1 2) 2}")).toBe("{multiply (nothing 1 2) 2}");
+      expect(format("{Not a tag at all}")).toBe("{Not a tag at all}");
+    });
+
+    it('should read the keys of the point and of the series', () => {
+      expect(format("{key} {x} {point.key} {point.name} {point.percentage:.1f} {point.z}")).toBe("30-35 30-35 30-35 30-35 12,5 7");
+      expect(format("{series.name}: {series.userOptions.fullname}")).toBe("Men: Average gross salary");
+      expect(format("{series.userOptions.missing}|{point.missing.deeper}")).toBe("|");
+    });
+
+    it('should group thousands with the separator of the locale', () => {
+      expect(format("{value:,.0f}")).toBe("4.500");
+      expect(format("{value:.0f}")).toBe("4500");
+      expect(format("{value:,.0f}", {value: 4500}, {locale: {thousandsSep: " "}})).toBe("4 500");
+    });
+
+    it('should format dates with the month names of the locale', () => {
+      const date = new Date(2024, 2, 15).getTime();
+
+      expect(format("{x:%B %Y}", {x: date})).toBe("marzo 2024");
+      expect(format("{x:%d/%m/%Y}", {x: date})).toBe("15/03/2024");
+      expect(format("{(add x 0):%B}", {x: date})).toBe("marzo");
+    });
+
+    it('should keep as text what is not a tag of the language', () => {
+      expect(format("a { b")).toBe("a { b");
+      expect(format("{\"json\": 1}")).toBe("{\"json\": 1}");
+      expect(format("{(multiply y}")).toBe("{(multiply y}");
+      expect(format("{else}{/if}")).toBe("{else}{/if}");
+      expect(format("{#if}x{/if}")).toBe("{#if}x{/if}");
+    });
+
+    it('should close the conditions that stay open', () => {
+      expect(format("{#if (gt y 0)}up{else}down")).toBe("down");
+      expect(format("{#if (lt y 0)}down")).toBe("down");
+    });
+
+    it('should escape the values but not the template when asked', () => {
+      const values = {point: {name: "<b>R&D</b>"}};
+
+      expect(format("<td>{point.name}</td>", values, {escapeValues: true}))
+        .toBe("<td>&lt;b&gt;R&amp;D&lt;/b&gt;</td>");
+      expect(format("<td>{point.name}</td>", values)).toBe("<td><b>R&D</b></td>");
+    });
+
+    it('should parse the blocks of a template', () => {
+      const [text, block] = parseTemplate("a{#if (gt y 0)}{y}{else}-{/if}");
+
+      expect(text).toEqual({type: "text", value: "a"});
+      expect(block).toEqual({
+        type: "if",
+        condition: {type: "call", helper: "gt", args: [{type: "path", path: "y"}, {type: "number", value: 0}]},
+        whenTrue: [{type: "expression", expression: {type: "path", path: "y"}, spec: undefined}],
+        whenFalse: [{type: "text", value: "-"}]
+      });
+    });
+
+    it('should format a long html tooltip with conditions', () => {
+      const html = "<tr><td>{series.userOptions.fullname}: </td><td><b>{#if (gt y 0)}{y:,.0f}€{else}" +
+        "{(multiply y -1):,.0f}€{/if}</b></td></tr>";
+
+      expect(format(html)).toBe("<tr><td>Average gross salary: </td><td><b>1.235€</b></td></tr>");
+    });
+
+    it('should read a long run of braces as text', () => {
+      const braces = "{".repeat(100000);
+      const unclosed = "{a ".repeat(30000);
+
+      expect(format(braces)).toBe(braces);
+      expect(format(unclosed)).toBe(unclosed);
+    });
+
+    it('should limit the depth of the parentheses', () => {
+      const deep = (depth) => `{${"(".repeat(depth)}y${")".repeat(depth)}}`;
+      // Each pair of braces closes at the first closing brace, so the rest of the opening ones stays as text
+      const nested = "{(".repeat(20000) + "y" + ")}".repeat(20000);
+
+      expect(format(deep(20))).toBe("-1234.5");
+      expect(format(deep(21))).toBe(deep(21));
+      expect(format(nested)).toBe("{(".repeat(19999) + "-1234.5" + ")}".repeat(19999));
     });
   });
 

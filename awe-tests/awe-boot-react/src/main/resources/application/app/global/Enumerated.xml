@@ -57,4 +57,50 @@
     <option label="PDF" value="PDF" />
   </group>
 
+  <!-- CHART TEST WITH ADVANCED HIGHCHARTS OPTIONS: fixed rows for the charts, so that they always draw the same -->
+  <group id="ChrAdvAge">
+    <option label="20-24" value="20-24" />
+    <option label="25-29" value="25-29" />
+    <option label="30-34" value="30-34" />
+    <option label="35-39" value="35-39" />
+    <option label="40-44" value="40-44" />
+    <option label="45-49" value="45-49" />
+    <option label="50-54" value="50-54" />
+    <option label="55-59" value="55-59" />
+  </group>
+
+  <group id="ChrAdvMonth">
+    <option label="1" value="1" />
+    <option label="2" value="2" />
+    <option label="3" value="3" />
+    <option label="4" value="4" />
+    <option label="5" value="5" />
+    <option label="6" value="6" />
+    <option label="7" value="7" />
+    <option label="8" value="8" />
+    <option label="9" value="9" />
+    <option label="10" value="10" />
+    <option label="11" value="11" />
+    <option label="12" value="12" />
+  </group>
+
+  <group id="ChrAdvYear">
+    <option label="2018" value="2018" />
+    <option label="2019" value="2019" />
+    <option label="2020" value="2020" />
+    <option label="2021" value="2021" />
+    <option label="2022" value="2022" />
+    <option label="2023" value="2023" />
+    <option label="2024" value="2024" />
+    <option label="2025" value="2025" />
+  </group>
+
+  <group id="ChrAdvCategory">
+    <option label="Management" value="Management" />
+    <option label="Engineering" value="Engineering" />
+    <option label="Sales" value="Sales" />
+    <option label="Support" value="Support" />
+    <option label="Operations" value="Operations" />
+  </group>
+
 </enumerated>

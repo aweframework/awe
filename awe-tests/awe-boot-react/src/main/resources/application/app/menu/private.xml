@@ -89,6 +89,7 @@
       <option name="chart-test" label="MENU_TEST_CHARTS" screen="ChrTst" icon="bar-chart-o"/>
       <option name="chart-series-test" label="MENU_TEST_CHART_DYNAMIC_SERIES" screen="ChrTstDynamicSeries"
               icon="line-chart"/>
+      <option name="chart-advanced-test" label="MENU_TEST_CHART_ADVANCED" screen="ChrTstAdvanced" icon="area-chart"/>
       <option name="grid-and-chart" label="MENU_GRID_CHART" screen="GrdChrPrn" icon="file-text-o"/>
       <option name="queue-test" label="MENU_TEST_QUEUES" screen="QueTst" icon="exchange"/>
     </option>
