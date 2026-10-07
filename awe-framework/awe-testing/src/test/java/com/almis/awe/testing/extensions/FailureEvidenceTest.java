@@ -533,6 +533,21 @@ class FailureEvidenceTest {
   }
 
   @Test
+  void announceFilePrintsTheLabelAndTheLinkAndAttachesItOnlyWhenAsked() throws IOException {
+    environment.put("CI_PROJECT_DIR", tempDir.toString());
+    environment.put("CI_JOB_URL", "https://gitlab.example/group/project/-/jobs/42");
+    Path trace = tempDir.resolve("shots").resolve("LoginIT.trace.zip");
+
+    evidence.announceFile("Failure trace", trace, true);
+    evidence.announceFile("Failure video", tempDir.resolve("shots").resolve("LoginIT.webm"), false);
+
+    assertThat(output()).contains("[[ATTACHMENT|shots/LoginIT.trace.zip]]",
+      "Failure trace: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/LoginIT.trace.zip",
+      "Failure video: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/LoginIT.webm");
+    assertThat(output().split("\\[\\[ATTACHMENT\\|", -1)).hasSize(2);
+  }
+
+  @Test
   void keptVideoWithoutCiVariablesPrintsAbsolutePath() throws IOException {
     Path video = Files.createTempFile(tempDir, "video", ".mp4");
 

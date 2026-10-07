@@ -1,6 +1,7 @@
 package com.almis.awe.testing.config;
 
 import com.almis.awe.testing.model.types.BrowserTool;
+import com.almis.awe.testing.model.types.EvidenceMode;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -38,6 +39,21 @@ class AweTestConfigPropertiesTest {
         .hasMessageContaining("awe.test.tool")
         .hasMessageContaining("Supported tools: selenium, playwright");
     });
+  }
+
+  @Test
+  void thePlaywrightTraceAndVideoAreKeptOnFailureUnlessTheyAreConfigured() {
+    assertThat(new AweTestConfigProperties().getPlaywright().getTrace()).isEqualTo(EvidenceMode.ON_FAILURE);
+    assertThat(new AweTestConfigProperties().getPlaywright().getVideo()).isEqualTo(EvidenceMode.ON_FAILURE);
+    runner.withPropertyValues("awe.test.playwright.trace=off", "awe.test.playwright.video=always").run(context -> {
+      assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getTrace()).isEqualTo(EvidenceMode.OFF);
+      assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getVideo()).isEqualTo(EvidenceMode.ALWAYS);
+    });
+    assertThat(new AweTestConfigProperties().getPlaywright().isTraceSnapshots()).isFalse();
+    runner.withPropertyValues("awe.test.playwright.trace-snapshots=true").run(context ->
+      assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().isTraceSnapshots()).isTrue());
+    runner.withPropertyValues("awe.test.playwright.trace=on-failure").run(context ->
+      assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getTrace()).isEqualTo(EvidenceMode.ON_FAILURE));
   }
 
   @Test

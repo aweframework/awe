@@ -69,7 +69,7 @@ sets block in the same way.
 
 Only failed tests leave evidence. Open the pipeline **Tests** tab, pick the failed test and use
 **View details** to see its screenshot; the test output also links the screenshot and the video, and the
-end of each job log links to the `selenium-evidence/` folder in the job artifacts, where all the
+end of each job log links to the `browser-evidence/` folder in the job artifacts, where all the
 screenshots and videos of that job are stored.
 
 Tag pipeline jobs are branch-agnostic: they read the version from `$CI_COMMIT_TAG`, so

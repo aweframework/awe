@@ -188,6 +188,26 @@ public class FailureEvidence {
     announceScreenshot(model, target);
   }
 
+  /**
+   * Announce an evidence file that someone else stored (a trace, a video) in the test output: a line with the link to
+   * the file and, for the file of the running test, the {@code [[ATTACHMENT|path]]} marker that GitLab shows in the
+   * pipeline test report. Never throws: it must not mask the original test failure.
+   *
+   * @param label          What the file is (Failure trace, Failure video...)
+   * @param file           Stored file
+   * @param attachToReport Whether the report of the running test attaches it
+   */
+  public void announceFile(String label, Path file, boolean attachToReport) {
+    try {
+      if (attachToReport) {
+        relativeToProjectDir(file).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));
+      }
+      print(label + ": " + describe(file));
+    } catch (Exception exc) {
+      log.warn("The {} could not be announced", label, exc);
+    }
+  }
+
   private void announceScreenshot(SeleniumModel model, Path target) {
     model.setScreenshotTaken(true);
     relativeToProjectDir(target).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));

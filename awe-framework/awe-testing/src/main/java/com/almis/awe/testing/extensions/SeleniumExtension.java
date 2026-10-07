@@ -56,6 +56,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     System.setProperty(VIDEO_SCREEN_SIZE, String.format("%dx%d", properties.getBrowserWidth(), properties.getBrowserHeight()));
 
     session = createDriverFactory(properties).create(seleniumModel, extensionContext.getDisplayName());
+    session.onEvidence(failureEvidence::announceFile);
   }
 
   /**
@@ -79,6 +80,13 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     // Set test title
     seleniumModel.setTestTitle(extensionContext.getDisplayName());
     seleniumModel.setScreenshotTaken(false);
+
+    // The session delimits the evidence of each test (trace, video). It is evidence, never a test condition
+    try {
+      session.testStarted(testClass(extensionContext), seleniumModel.getTestTitle());
+    } catch (Exception exc) {
+      log.warn("The browser session could not be told that the test starts. The test goes on", exc);
+    }
 
     // Check recording
     this.recorder = null;
@@ -128,6 +136,15 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     boolean testFailed = extensionContext.getExecutionException().isPresent();
     String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
 
+    try {
+      if (session != null) {
+          session.testFinished(seleniumModel.getTestTitle(), failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
+          seleniumModel.getTestTitle(), testFailed), testFailed);
+      }
+    } catch (Exception exc) {
+      log.warn("The browser session could not be told that the test ends. The test result is not affected", exc);
+    }
+
     IVideoRecorder videoRecorder = this.recorder;
     this.recorder = null;
     if (videoRecorder != null && seleniumModel.getProperties().isAllowedRecording()) {
@@ -143,6 +160,12 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
         log.warn("Video recording could not be stored. The test result is not affected", exc);
       }
     }
+  }
+
+  private String testClass(ExtensionContext extensionContext) {
+    // The qualified name of the class tells two classes with the same simple name apart (it names the video of the class)
+    return extensionContext.getTestClass().map(Class::getName)
+      .orElseGet(() -> extensionContext.getParent().orElse(extensionContext).getDisplayName());
   }
 
   @Override

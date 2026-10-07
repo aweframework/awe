@@ -49,7 +49,7 @@ Selenium is skipped by default (`-Dskip.selenium=true`); these run only the JUni
 
 ## Output Contract
 
-Report the exact command run, the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On Selenium failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `selenium-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).
+Report the exact command run, the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On Selenium failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `browser-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).
 
 ## References
 

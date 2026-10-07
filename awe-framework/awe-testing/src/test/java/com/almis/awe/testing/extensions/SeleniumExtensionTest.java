@@ -73,6 +73,55 @@ class SeleniumExtensionTest {
   }
 
   @Test
+  void theSessionIsToldWhenEachTestStartsAndEndsAndWhetherItFailed() throws Exception {
+    BrowserSession session = mock(BrowserSession.class);
+    ReflectionTestUtils.setField(extension, "session", session);
+
+    extension.beforeEach(context("t010_login", null));
+    extension.afterEach(context("t010_login", null));
+    extension.beforeEach(context("t020_next", new AssertionError("boom")));
+    extension.afterEach(context("t020_next", new AssertionError("boom")));
+
+    verify(session).testStarted("LoginIT", "t010_login");
+    verify(session).testFinished(org.mockito.ArgumentMatchers.eq("t010_login"),
+      org.mockito.ArgumentMatchers.argThat(name -> name.startsWith("LoginIT-") && !name.contains("[ERROR]")), org.mockito.ArgumentMatchers.eq(false));
+    verify(session).testStarted("LoginIT", "t020_next");
+    verify(session).testFinished(org.mockito.ArgumentMatchers.eq("t020_next"),
+      org.mockito.ArgumentMatchers.argThat(name -> name.startsWith("LoginIT-") && name.contains("-[ERROR]-option-t020_next")),
+      org.mockito.ArgumentMatchers.eq(true));
+  }
+
+  @Test
+  void aSessionThatFailsToTrackTheTestsNeverChangesTheirResult() throws Exception {
+    BrowserSession session = mock(BrowserSession.class);
+    doThrow(new IllegalStateException("evidence is gone")).when(session).testStarted(anyString(), anyString());
+    doThrow(new IllegalStateException("evidence is gone")).when(session).testFinished(anyString(), anyString(),
+      org.mockito.ArgumentMatchers.anyBoolean());
+    ReflectionTestUtils.setField(extension, "session", session);
+
+    assertThatCode(() -> {
+      extension.beforeEach(context("t010_login", null));
+      extension.afterEach(context("t010_login", new AssertionError("boom")));
+    }).doesNotThrowAnyException();
+  }
+
+  @Test
+  void theOpenedSessionAnnouncesItsEvidenceThroughTheFailureEvidence() throws Exception {
+    BrowserSession session = mock(BrowserSession.class);
+    SeleniumExtension opening = new SeleniumExtension() {
+      @Override
+      protected BrowserDriverFactory createDriverFactory(AweTestConfigProperties properties) {
+        return (model, testName) -> session;
+      }
+    };
+    ReflectionTestUtils.setField(opening, "seleniumModel", model);
+
+    opening.beforeEach(context("t010_login", null));
+
+    verify(session).onEvidence(org.mockito.ArgumentMatchers.any(BrowserSession.EvidenceListener.class));
+  }
+
+  @Test
   void afterTestExecutionStoresNothingOnPass() throws Exception {
     extension.beforeEach(context("t010_login", null));
 
