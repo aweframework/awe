@@ -307,14 +307,31 @@ export const goToNthStepAction = (action) => {
   };
 };
 
+/**
+ * Retrieve the points of an add-points action
+ * @param {object} [data] Data list sent by the server
+ * @param {object} [value] Single point
+ * @returns {object[]} Points
+ */
+function getPoints(data, value) {
+  if (Array.isArray(data?.rows)) {
+    return data.rows;
+  }
+  return value ? [value] : [];
+}
+
 export const addPointsAction = (action) => {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
+    const {data, value} = action.parameters || {};
+    // The server sends a data list, the points are its rows (a single point in "value" is still accepted)
+    const points = getPoints(data, value);
+
     // Change state
     dispatch(updateModelWithDependencies(address, {
-      values: [...component.model.values, action.parameters.value]
+      values: [...component.model.values, ...points]
     }));
 
     // Accept action
@@ -322,30 +339,93 @@ export const addPointsAction = (action) => {
   };
 };
 
+const ECHARTS_TYPES = {column: "bar", bar: "bar", pie: "pie", scatter: "scatter", bubble: "scatter"};
+
+/**
+ * Retrieve the ECharts series of a series that a chart action sends. The server sends the translation in the
+ * "echarts" property; the series is built from its Highcharts fields when it is missing
+ * @param {object} serie Series of the action
+ * @param {boolean} inverted The chart is inverted, so its axes are swapped
+ * @returns {object} ECharts series
+ */
+function getEChartsSerie(serie, inverted) {
+  const translated = serie.echarts || {
+    id: serie.id,
+    name: serie.name ?? serie.label,
+    type: ECHARTS_TYPES[serie.type] || "line",
+    ...(serie.color ? {itemStyle: {color: serie.color}} : {}),
+    awe: {
+      type: serie.type,
+      xValue: serie.xValue,
+      yValue: serie.yValue,
+      ...(serie.zValue ? {zValue: serie.zValue} : {})
+    }
+  };
+  if (!inverted) {
+    return translated;
+  }
+  const {xAxisIndex, yAxisIndex, ...rest} = translated;
+  return {
+    ...rest,
+    ...(yAxisIndex === undefined ? {} : {xAxisIndex: yAxisIndex}),
+    ...(xAxisIndex === undefined ? {} : {yAxisIndex: xAxisIndex})
+  };
+}
+
+/**
+ * Merge the points of the series of an action into the values of the chart, row by row
+ * @param {object[]} values Current values
+ * @param {object[]} series Series of the action
+ * @returns {object[]} New values
+ */
+function mergeSeriesPoints(values, series) {
+  const rows = [...values];
+  series.forEach(serie => {
+    const {xValue = serie.echarts?.awe?.xValue, yValue = serie.echarts?.awe?.yValue} = serie;
+    const zValue = serie.zValue ?? serie.echarts?.awe?.zValue;
+    if (!xValue || !yValue) {
+      return;
+    }
+    (serie.data || []).forEach(([x, y, z], index) => {
+      rows[index] = {...rows[index], [xValue]: x, [yValue]: y, ...(zValue ? {[zValue]: z} : {})};
+    });
+  });
+  return rows;
+}
+
+/**
+ * Update the series of the ECharts model of a chart
+ * @param {function} dispatch Dispatch
+ * @param {object} address Address of the chart
+ * @param {object} component Chart
+ * @param {function(object[]): object[]} update Retrieves the new series from the current ones
+ */
+function updateEChartsSeries(dispatch, address, component, update) {
+  const echartsModel = component.attributes?.echartsModel;
+  if (!echartsModel) {
+    console.warn(`[WARNING] The chart '${address.component}' has no echartsModel, its series are not changed`);
+    return;
+  }
+  dispatch(updateAttributes(address, {echartsModel: {...echartsModel, series: update(echartsModel.series || [])}}));
+}
+
 export const addSeriesAction = (action) => {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const series = action.parameters.series || [];
-    const currentSeries = (component.attributes?.chartModel?.series || []).filter(serie => !series.map(s => s.id).includes(serie.id));
+    const ids = new Set(series.map(serie => serie.id));
+    const inverted = Boolean(component.attributes?.echartsModel?.awe?.inverted);
 
     // Add serie
-    dispatch(updateAttributes(address, {
-      chartModel: {
-        ...component.attributes.chartModel,
-        series: [
-          ...currentSeries,
-          ...series
-        ]
-      }
-    }));
-
-    const values = [...currentSeries, ...series].map((s) => s.data.map(([k, v]) => ({ [s.xValue]: k, [s.yValue]: v })))
-      .reduce((t, a) => [...a.map((ar, i) => ({ ...component.model.values[i] || {}, ...ar, ...t[i] || {} }))], []);
+    updateEChartsSeries(dispatch, address, component, current => [
+      ...current.filter(serie => !ids.has(serie.id)),
+      ...series.map(serie => getEChartsSerie(serie, inverted))
+    ]);
 
     // Change model
-    dispatch(updateModelWithDependencies(address, { values }));
+    dispatch(updateModelWithDependencies(address, {values: mergeSeriesPoints(component.model.values, series)}));
 
     // Accept action
     dispatch(acceptAction(action));
@@ -357,16 +437,10 @@ export const removeSeriesAction = (action) => {
     const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
-    const series = action.parameters.series || [];
-    const currentSeries = (component.attributes?.chartModel?.series || []).filter(serie => !series.map(s => s.id).includes(serie.id));
+    const ids = new Set((action.parameters.series || []).map(serie => serie.id));
 
     // Remove serie
-    dispatch(updateAttributes(address, {
-      chartModel: {
-        ...component.attributes.chartModel,
-        series: currentSeries
-      }
-    }));
+    updateEChartsSeries(dispatch, address, component, current => current.filter(serie => !ids.has(serie.id)));
 
     // Accept action
     dispatch(acceptAction(action));
@@ -379,22 +453,13 @@ export const replaceSeriesAction = (action) => {
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const series = action.parameters.series || [];
+    const inverted = Boolean(component.attributes?.echartsModel?.awe?.inverted);
 
     // Replace serie
-    dispatch(updateAttributes(address, {
-      chartModel: {
-        ...component.attributes.chartModel,
-        series: [
-          ...series
-        ]
-      }
-    }));
-
-    const values = [...series].map((s) => s.data.map(([k, v]) => ({ [s.xValue]: k, [s.yValue]: v })))
-      .reduce((t, a) => [...a.map((ar, i) => ({ ...ar, ...t[i] || {} }))], []);
+    updateEChartsSeries(dispatch, address, component, () => series.map(serie => getEChartsSerie(serie, inverted)));
 
     // Change model
-    dispatch(updateModelWithDependencies(address, { values }));
+    dispatch(updateModelWithDependencies(address, {values: mergeSeriesPoints([], series)}));
 
     // Accept action
     dispatch(acceptAction(action));

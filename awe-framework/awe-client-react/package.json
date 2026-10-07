@@ -36,6 +36,7 @@
     "classnames": "2.5.1",
     "deep-freeze": "^0.0.1",
     "downloadjs": "1.4.7",
+    "echarts": "6.1.0",
     "font-awesome": "4.7.0",
     "highcharts": "11.4.8",
     "highcharts-react-official": "3.2.3",

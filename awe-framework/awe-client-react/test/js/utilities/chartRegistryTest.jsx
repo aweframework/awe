@@ -7,7 +7,7 @@ import {
 } from "../../../src/utilities/chartRegistry";
 
 describe('awe-react-client/test/js/utilities/chartRegistryTest.jsx', () => {
-  const buildChart = () => ({getSVG: jest.fn(() => "<svg/>")});
+  const buildChart = () => ({getImage: jest.fn(() => "<svg/>")});
 
   it('should return no image for a chart that is not registered', () => {
     expect(getChartImage("unknown", "PORTRAIT")).toBeUndefined();
@@ -18,7 +18,7 @@ describe('awe-react-client/test/js/utilities/chartRegistryTest.jsx', () => {
     registerChart("chartPortrait", chart);
 
     expect(getChartImage("chartPortrait", "PORTRAIT")).toBe("<svg/>");
-    expect(chart.getSVG).toHaveBeenCalledWith({chart: CHART_SIZE.PORTRAIT});
+    expect(chart.getImage).toHaveBeenCalledWith(CHART_SIZE.PORTRAIT);
     unregisterChart("chartPortrait", chart);
   });
 
@@ -28,7 +28,7 @@ describe('awe-react-client/test/js/utilities/chartRegistryTest.jsx', () => {
 
     getChartImage("chartLandscape", "LANDSCAPE");
 
-    expect(chart.getSVG).toHaveBeenCalledWith({chart: CHART_SIZE.LANDSCAPE});
+    expect(chart.getImage).toHaveBeenCalledWith(CHART_SIZE.LANDSCAPE);
     unregisterChart("chartLandscape", chart);
   });
 
@@ -48,12 +48,20 @@ describe('awe-react-client/test/js/utilities/chartRegistryTest.jsx', () => {
     unregisterChart("chartReplaced", oldChart);
 
     expect(getChartImage("chartReplaced", "PORTRAIT")).toBe("<svg/>");
-    expect(newChart.getSVG).toHaveBeenCalled();
+    expect(newChart.getImage).toHaveBeenCalled();
     unregisterChart("chartReplaced", newChart);
   });
 
+  it('should return no image for a chart that cannot draw its image', () => {
+    const chart = {};
+    registerChart("chartNoImage", chart);
+
+    expect(getChartImage("chartNoImage", "PORTRAIT")).toBeUndefined();
+    unregisterChart("chartNoImage", chart);
+  });
+
   it('should return no image when the chart cannot export an svg', () => {
-    const chart = {getSVG: jest.fn(() => {
+    const chart = {getImage: jest.fn(() => {
       throw new Error("not rendered");
     })};
     const warn = jest.spyOn(console, "warn").mockImplementation(() => {});

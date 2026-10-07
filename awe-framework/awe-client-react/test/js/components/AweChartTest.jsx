@@ -2,2289 +2,369 @@ import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
 import {act} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
-import AweChart, {processChartOptions} from "../../../src/components/AweChart";
-import {updateModel} from "../../../src/redux/actions/components";
+import AweChart from "../../../src/components/AweChart";
+import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
 import {getChartImage} from "../../../src/utilities/chartRegistry";
+import {echarts, isDarkTheme, renderSvg} from "../../../src/utilities/echartsSetup";
+import models from "./fixtures/chrTstEchartsModels.json";
+import i18n from "../../../src/i18n/i18n";
 
-import "../../../src/i18n/i18n";
+// The component is tested against a fake ECharts that records what it is given: the options are built by the real
+// code, and the real library is exercised (SVG output, no warnings) by echartsSvgTest
+jest.mock("../../../src/utilities/echartsSetup", () => ({
+  echarts: {init: jest.fn()},
+  getEChartsLocale: jest.requireActual("../../../src/utilities/echartsSetup").getEChartsLocale,
+  isDarkTheme: jest.fn(() => false),
+  renderSvg: jest.fn(() => "<svg>print</svg>")
+}));
 
-const mockChartReflow = jest.fn();
-const mockChartSetSize = jest.fn();
-const mockChartRedraw = jest.fn();
-const mockHighchartsChart = {
-  reflow: mockChartReflow,
-  setSize: mockChartSetSize,
-  redraw: mockChartRedraw,
-  getSVG: jest.fn(() => "<svg>chart</svg>"),
-  renderTo: { isConnected: true },
-  options: { chart: { options3d: { enabled: true } } },
-  series: [{ type: 'pie', isDirty: false, isDirtyData: false, points: [] }],
-  isDirtyBox: false,
-  isDirtyLegend: false
-};
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const day = (value) => new Date(2024, 0, value).getTime();
+const values = [
+  {dates: day(1), serie1: 10, serie2: 5, names: "Chrome", subserie1: 3},
+  {dates: day(2), serie1: 20, serie2: 6, names: "Firefox", subserie1: 4}
+];
 
-jest.mock('highcharts-react-official', () => {
-  const React = require('react');
+describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
+  let instances;
+  let observers;
 
-  return function MockHighchartsReact(props) {
-    React.useEffect(() => {
-      props.callback?.(mockHighchartsChart);
-    }, [props]);
-
-    return React.createElement('div', props.containerProps);
+  const fakeChart = () => {
+    const handlers = {};
+    const chart = {
+      handlers,
+      setOption: jest.fn(),
+      resize: jest.fn(),
+      dispose: jest.fn(),
+      on: jest.fn((event, handler) => {
+        handlers[event] = handler;
+      })
+    };
+    instances.push(chart);
+    return chart;
   };
-});
+  const lastChart = () => instances[instances.length - 1];
+  const lastOption = (chart = lastChart()) => chart.setOption.mock.calls[chart.setOption.mock.calls.length - 1][0];
+  const texts = (option) => (option.graphic || []).map(element => element.style.text);
 
-describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
-
-  const values = [
-    {
-      "profitability": 0,
-      "amount": 250000,
-      "dates": 1704063600000,
-      "id": 1
-    },
-    {
-      "profitability": -0.3195386419506888,
-      "amount": 249201.15339512329,
-      "dates": 1704150000000,
-      "id": 2
-    },
-    {
-      "profitability": -0.8523447472901611,
-      "amount": 247869.1381317746,
-      "dates": 1704236400000,
-      "id": 3
-    },
-    {
-      "profitability": -0.28634817593067396,
-      "amount": 249284.1295601733,
-      "dates": 1704322800000,
-      "id": 4
-    },
-    {
-      "profitability": 0.32412282129479836,
-      "amount": 250810.307053237,
-      "dates": 1704409200000,
-      "id": 5
-    },
-    {
-      "profitability": 0.265694447401975,
-      "amount": 250664.23611850492,
-      "dates": 1704495600000,
-      "id": 6
-    },
-    {
-      "profitability": 0.6931996085082095,
-      "amount": 251732.9990212705,
-      "dates": 1704582000000,
-      "id": 7
-    },
-    {
-      "profitability": 1.05102852054232,
-      "amount": 252627.5713013558,
-      "dates": 1704668400000,
-      "id": 8
-    },
-    {
-      "profitability": 1.8318912179399702,
-      "amount": 254579.7280448499,
-      "dates": 1704754800000,
-      "id": 9
-    },
-    {
-      "profitability": 1.636043011629505,
-      "amount": 254090.10752907375,
-      "dates": 1704841200000,
-      "id": 10
-    },
-    {
-      "profitability": 1.453416251268962,
-      "amount": 253633.5406281724,
-      "dates": 1704927600000,
-      "id": 11
-    },
-    {
-      "profitability": 1.2191050388094569,
-      "amount": 253047.76259702365,
-      "dates": 1705014000000,
-      "id": 12
-    },
-    {
-      "profitability": 1.851509818215832,
-      "amount": 254628.77454553955,
-      "dates": 1705100400000,
-      "id": 13
-    },
-    {
-      "profitability": 2.3597104808299023,
-      "amount": 255899.27620207475,
-      "dates": 1705186800000,
-      "id": 14
-    },
-    {
-      "profitability": 1.7281892977393845,
-      "amount": 254320.47324434848,
-      "dates": 1705273200000,
-      "id": 15
-    },
-    {
-      "profitability": 2.1565420653553597,
-      "amount": 255391.3551633884,
-      "dates": 1705359600000,
-      "id": 16
-    },
-    {
-      "profitability": 2.6772992846881567,
-      "amount": 256693.2482117204,
-      "dates": 1705446000000,
-      "id": 17
-    },
-    {
-      "profitability": 3.520709495620232,
-      "amount": 258801.77373905055,
-      "dates": 1705532400000,
-      "id": 18
-    },
-    {
-      "profitability": 3.5708492070958995,
-      "amount": 258927.12301773974,
-      "dates": 1705618800000,
-      "id": 19
-    },
-    {
-      "profitability": 3.975803566069245,
-      "amount": 259939.5089151731,
-      "dates": 1705705200000,
-      "id": 20
-    },
-    {
-      "profitability": 4.242394841396064,
-      "amount": 260605.98710349013,
-      "dates": 1705791600000,
-      "id": 21
-    },
-    {
-      "profitability": 4.702958869363481,
-      "amount": 261757.39717340868,
-      "dates": 1705878000000,
-      "id": 22
-    },
-    {
-      "profitability": 4.3219276123117645,
-      "amount": 260804.8190307794,
-      "dates": 1705964400000,
-      "id": 23
-    },
-    {
-      "profitability": 4.58065385308605,
-      "amount": 261451.63463271514,
-      "dates": 1706050800000,
-      "id": 24
-    },
-    {
-      "profitability": 4.565054584873261,
-      "amount": 261412.63646218315,
-      "dates": 1706137200000,
-      "id": 25
-    },
-    {
-      "profitability": 3.7050214293324872,
-      "amount": 259262.5535733312,
-      "dates": 1706223600000,
-      "id": 26
-    },
-    {
-      "profitability": 4.399828004182652,
-      "amount": 260999.57001045666,
-      "dates": 1706310000000,
-      "id": 27
-    },
-    {
-      "profitability": 4.5268934207460845,
-      "amount": 261317.2335518652,
-      "dates": 1706396400000,
-      "id": 28
-    },
-    {
-      "profitability": 4.408351574301556,
-      "amount": 261020.87893575386,
-      "dates": 1706482800000,
-      "id": 29
-    },
-    {
-      "profitability": 4.87262714965085,
-      "amount": 262181.5678741271,
-      "dates": 1706569200000,
-      "id": 30
-    },
-    {
-      "profitability": 4.961685882047034,
-      "amount": 262404.2147051176,
-      "dates": 1706655600000,
-      "id": 31
-    },
-    {
-      "profitability": 5.553789438240207,
-      "amount": 263884.4735956005,
-      "dates": 1706742000000,
-      "id": 32
-    },
-    {
-      "profitability": 5.5227343274219125,
-      "amount": 263806.8358185548,
-      "dates": 1706828400000,
-      "id": 33
-    },
-    {
-      "profitability": 5.720137564601837,
-      "amount": 264300.3439115046,
-      "dates": 1706914800000,
-      "id": 34
-    },
-    {
-      "profitability": 6.052277251158302,
-      "amount": 265130.69312789576,
-      "dates": 1707001200000,
-      "id": 35
-    },
-    {
-      "profitability": 5.400972761447913,
-      "amount": 263502.4319036198,
-      "dates": 1707087600000,
-      "id": 36
-    },
-    {
-      "profitability": 5.230906802991423,
-      "amount": 263077.2670074786,
-      "dates": 1707174000000,
-      "id": 37
-    },
-    {
-      "profitability": 5.1122926894625484,
-      "amount": 262780.73172365635,
-      "dates": 1707260400000,
-      "id": 38
-    },
-    {
-      "profitability": 5.039755078929379,
-      "amount": 262599.38769732346,
-      "dates": 1707346800000,
-      "id": 39
-    },
-    {
-      "profitability": 4.736407251079323,
-      "amount": 261841.01812769833,
-      "dates": 1707433200000,
-      "id": 40
-    },
-    {
-      "profitability": 4.907137146804727,
-      "amount": 262267.84286701184,
-      "dates": 1707519600000,
-      "id": 41
-    },
-    {
-      "profitability": 4.765215598964004,
-      "amount": 261913.03899741004,
-      "dates": 1707606000000,
-      "id": 42
-    },
-    {
-      "profitability": 4.491051408047142,
-      "amount": 261227.62852011787,
-      "dates": 1707692400000,
-      "id": 43
-    },
-    {
-      "profitability": 4.742697162825088,
-      "amount": 261856.74290706273,
-      "dates": 1707778800000,
-      "id": 44
-    },
-    {
-      "profitability": 5.5867603704549245,
-      "amount": 263966.90092613734,
-      "dates": 1707865200000,
-      "id": 45
-    },
-    {
-      "profitability": 4.800771463375511,
-      "amount": 262001.9286584388,
-      "dates": 1707951600000,
-      "id": 46
-    },
-    {
-      "profitability": 5.094591074384924,
-      "amount": 262736.47768596234,
-      "dates": 1708038000000,
-      "id": 47
-    },
-    {
-      "profitability": 6.615299342034302,
-      "amount": 266538.2483550858,
-      "dates": 1708124400000,
-      "id": 48
-    },
-    {
-      "profitability": 6.675069604554772,
-      "amount": 266687.67401138693,
-      "dates": 1708210800000,
-      "id": 49
-    },
-    {
-      "profitability": 7.5366743505199265,
-      "amount": 268841.6858762998,
-      "dates": 1708297200000,
-      "id": 50
-    },
-    {
-      "profitability": 7.549794069806736,
-      "amount": 268874.48517451686,
-      "dates": 1708383600000,
-      "id": 51
-    },
-    {
-      "profitability": 7.049576513744981,
-      "amount": 267623.94128436246,
-      "dates": 1708470000000,
-      "id": 52
-    },
-    {
-      "profitability": 8.077915492914096,
-      "amount": 270194.78873228526,
-      "dates": 1708556400000,
-      "id": 53
-    },
-    {
-      "profitability": 8.279598330292428,
-      "amount": 270698.9958257311,
-      "dates": 1708642800000,
-      "id": 54
-    },
-    {
-      "profitability": 8.84884852438338,
-      "amount": 272122.12131095846,
-      "dates": 1708729200000,
-      "id": 55
-    },
-    {
-      "profitability": 9.051006763319602,
-      "amount": 272627.516908299,
-      "dates": 1708815600000,
-      "id": 56
-    },
-    {
-      "profitability": 9.200078815777236,
-      "amount": 273000.1970394431,
-      "dates": 1708902000000,
-      "id": 57
-    },
-    {
-      "profitability": 8.755612706142866,
-      "amount": 271889.0317653572,
-      "dates": 1708988400000,
-      "id": 58
-    },
-    {
-      "profitability": 8.76612541403724,
-      "amount": 271915.31353509316,
-      "dates": 1709074800000,
-      "id": 59
-    },
-    {
-      "profitability": 9.174828076337986,
-      "amount": 272937.07019084494,
-      "dates": 1709161200000,
-      "id": 60
-    },
-    {
-      "profitability": 8.993009745536447,
-      "amount": 272482.5243638411,
-      "dates": 1709247600000,
-      "id": 61
-    },
-    {
-      "profitability": 8.8672751036229,
-      "amount": 272168.18775905727,
-      "dates": 1709334000000,
-      "id": 62
-    },
-    {
-      "profitability": 8.734443094314937,
-      "amount": 271836.10773578734,
-      "dates": 1709420400000,
-      "id": 63
-    },
-    {
-      "profitability": 8.183983533527849,
-      "amount": 270459.9588338196,
-      "dates": 1709506800000,
-      "id": 64
-    },
-    {
-      "profitability": 8.727476064067245,
-      "amount": 271818.6901601681,
-      "dates": 1709593200000,
-      "id": 65
-    },
-    {
-      "profitability": 8.715569456916574,
-      "amount": 271788.92364229145,
-      "dates": 1709679600000,
-      "id": 66
-    },
-    {
-      "profitability": 8.106624878746608,
-      "amount": 270266.5621968665,
-      "dates": 1709766000000,
-      "id": 67
-    },
-    {
-      "profitability": 7.6333480852031945,
-      "amount": 269083.37021300796,
-      "dates": 1709852400000,
-      "id": 68
-    },
-    {
-      "profitability": 8.572707262546807,
-      "amount": 271431.768156367,
-      "dates": 1709938800000,
-      "id": 69
-    },
-    {
-      "profitability": 7.6067343521477575,
-      "amount": 269016.8358803694,
-      "dates": 1710025200000,
-      "id": 70
-    },
-    {
-      "profitability": 7.462616394004913,
-      "amount": 268656.5409850123,
-      "dates": 1710111600000,
-      "id": 71
-    },
-    {
-      "profitability": 7.192726737134322,
-      "amount": 267981.8168428358,
-      "dates": 1710198000000,
-      "id": 72
-    },
-    {
-      "profitability": 7.34149591508991,
-      "amount": 268353.73978772474,
-      "dates": 1710284400000,
-      "id": 73
-    },
-    {
-      "profitability": 6.78393700012393,
-      "amount": 266959.8425003098,
-      "dates": 1710370800000,
-      "id": 74
-    },
-    {
-      "profitability": 6.87639805473011,
-      "amount": 267190.99513682525,
-      "dates": 1710457200000,
-      "id": 75
-    },
-    {
-      "profitability": 6.082358713594857,
-      "amount": 265205.8967839872,
-      "dates": 1710543600000,
-      "id": 76
-    },
-    {
-      "profitability": 5.435938575591369,
-      "amount": 263589.84643897845,
-      "dates": 1710630000000,
-      "id": 77
-    },
-    {
-      "profitability": 5.943281859031876,
-      "amount": 264858.2046475797,
-      "dates": 1710716400000,
-      "id": 78
-    },
-    {
-      "profitability": 6.08189342027508,
-      "amount": 265204.73355068767,
-      "dates": 1710802800000,
-      "id": 79
-    },
-    {
-      "profitability": 7.004538657453887,
-      "amount": 267511.3466436347,
-      "dates": 1710889200000,
-      "id": 80
-    },
-    {
-      "profitability": 7.26335311207466,
-      "amount": 268158.38278018666,
-      "dates": 1710975600000,
-      "id": 81
-    },
-    {
-      "profitability": 7.399797288740937,
-      "amount": 268499.49322185235,
-      "dates": 1711062000000,
-      "id": 82
-    },
-    {
-      "profitability": 8.23195291598386,
-      "amount": 270579.88228995964,
-      "dates": 1711148400000,
-      "id": 83
-    },
-    {
-      "profitability": 7.465852135053822,
-      "amount": 268664.63033763453,
-      "dates": 1711234800000,
-      "id": 84
-    },
-    {
-      "profitability": 6.215146679480103,
-      "amount": 265537.8666987003,
-      "dates": 1711321200000,
-      "id": 85
-    },
-    {
-      "profitability": 5.827585754499473,
-      "amount": 264568.96438624867,
-      "dates": 1711407600000,
-      "id": 86
-    },
-    {
-      "profitability": 5.6843811230884045,
-      "amount": 264210.952807721,
-      "dates": 1711494000000,
-      "id": 87
-    },
-    {
-      "profitability": 5.903430828411117,
-      "amount": 264758.5770710278,
-      "dates": 1711580400000,
-      "id": 88
-    },
-    {
-      "profitability": 6.161066244151811,
-      "amount": 265402.6656103795,
-      "dates": 1711666800000,
-      "id": 89
-    },
-    {
-      "profitability": 6.637661078342657,
-      "amount": 266594.15269585664,
-      "dates": 1711753200000,
-      "id": 90
-    },
-    {
-      "profitability": 6.714154029669037,
-      "amount": 266785.3850741726,
-      "dates": 1711839600000,
-      "id": 91
-    },
-    {
-      "profitability": 5.960476573013574,
-      "amount": 264901.19143253396,
-      "dates": 1711922400000,
-      "id": 92
-    },
-    {
-      "profitability": 5.322657141663785,
-      "amount": 263306.64285415947,
-      "dates": 1712008800000,
-      "id": 93
-    },
-    {
-      "profitability": 4.884941524609551,
-      "amount": 262212.3538115239,
-      "dates": 1712095200000,
-      "id": 94
-    },
-    {
-      "profitability": 4.7380663928127795,
-      "amount": 261845.16598203193,
-      "dates": 1712181600000,
-      "id": 95
-    },
-    {
-      "profitability": 4.671254852355879,
-      "amount": 261678.13713088972,
-      "dates": 1712268000000,
-      "id": 96
-    },
-    {
-      "profitability": 4.947924797646607,
-      "amount": 262369.8119941165,
-      "dates": 1712354400000,
-      "id": 97
-    },
-    {
-      "profitability": 4.846841522276654,
-      "amount": 262117.10380569164,
-      "dates": 1712440800000,
-      "id": 98
-    },
-    {
-      "profitability": 5.035709568365807,
-      "amount": 262589.2739209145,
-      "dates": 1712527200000,
-      "id": 99
-    },
-    {
-      "profitability": 4.329738570420039,
-      "amount": 260824.34642605012,
-      "dates": 1712613600000,
-      "id": 100
-    },
-    {
-      "profitability": 4.415003912944626,
-      "amount": 261037.50978236157,
-      "dates": 1712700000000,
-      "id": 101
-    },
-    {
-      "profitability": 3.7792583851726826,
-      "amount": 259448.1459629317,
-      "dates": 1712786400000,
-      "id": 102
-    },
-    {
-      "profitability": 4.656661671860069,
-      "amount": 261641.65417965018,
-      "dates": 1712872800000,
-      "id": 103
-    },
-    {
-      "profitability": 4.630527496864669,
-      "amount": 261576.3187421617,
-      "dates": 1712959200000,
-      "id": 104
-    },
-    {
-      "profitability": 4.779742357069548,
-      "amount": 261949.35589267386,
-      "dates": 1713045600000,
-      "id": 105
-    },
-    {
-      "profitability": 5.558825731065701,
-      "amount": 263897.06432766427,
-      "dates": 1713132000000,
-      "id": 106
-    },
-    {
-      "profitability": 5.507933955291849,
-      "amount": 263769.8348882296,
-      "dates": 1713218400000,
-      "id": 107
-    },
-    {
-      "profitability": 5.488325548208541,
-      "amount": 263720.8138705214,
-      "dates": 1713304800000,
-      "id": 108
-    },
-    {
-      "profitability": 6.603456096501876,
-      "amount": 266508.6402412547,
-      "dates": 1713391200000,
-      "id": 109
-    },
-    {
-      "profitability": 7.010582308470673,
-      "amount": 267526.45577117667,
-      "dates": 1713477600000,
-      "id": 110
-    },
-    {
-      "profitability": 7.705730344572195,
-      "amount": 269264.3258614305,
-      "dates": 1713564000000,
-      "id": 111
-    },
-    {
-      "profitability": 8.701585184540864,
-      "amount": 271753.9629613522,
-      "dates": 1713650400000,
-      "id": 112
-    },
-    {
-      "profitability": 7.837849463308892,
-      "amount": 269594.62365827226,
-      "dates": 1713736800000,
-      "id": 113
-    },
-    {
-      "profitability": 8.354096741137546,
-      "amount": 270885.24185284384,
-      "dates": 1713823200000,
-      "id": 114
-    },
-    {
-      "profitability": 8.283587645826085,
-      "amount": 270708.96911456523,
-      "dates": 1713909600000,
-      "id": 115
-    },
-    {
-      "profitability": 7.570503734109015,
-      "amount": 268926.25933527254,
-      "dates": 1713996000000,
-      "id": 116
-    },
-    {
-      "profitability": 7.3324154178941106,
-      "amount": 268331.0385447353,
-      "dates": 1714082400000,
-      "id": 117
-    },
-    {
-      "profitability": 8.519425471657001,
-      "amount": 271298.5636791425,
-      "dates": 1714168800000,
-      "id": 118
-    },
-    {
-      "profitability": 8.193464401879513,
-      "amount": 270483.6610046988,
-      "dates": 1714255200000,
-      "id": 119
-    },
-    {
-      "profitability": 8.706701534735243,
-      "amount": 271766.7538368381,
-      "dates": 1714341600000,
-      "id": 120
-    },
-    {
-      "profitability": 8.54433261418733,
-      "amount": 271360.8315354683,
-      "dates": 1714428000000,
-      "id": 121
-    },
-    {
-      "profitability": 8.805676953596208,
-      "amount": 272014.1923839905,
-      "dates": 1714514400000,
-      "id": 122
-    },
-    {
-      "profitability": 8.852716433591965,
-      "amount": 272131.7910839799,
-      "dates": 1714600800000,
-      "id": 123
-    },
-    {
-      "profitability": 8.007726070382256,
-      "amount": 270019.31517595565,
-      "dates": 1714687200000,
-      "id": 124
-    },
-    {
-      "profitability": 8.262426867518903,
-      "amount": 270656.06716879725,
-      "dates": 1714773600000,
-      "id": 125
-    },
-    {
-      "profitability": 8.429849308716285,
-      "amount": 271074.62327179074,
-      "dates": 1714860000000,
-      "id": 126
-    },
-    {
-      "profitability": 9.024799619334736,
-      "amount": 272561.9990483368,
-      "dates": 1714946400000,
-      "id": 127
-    },
-    {
-      "profitability": 8.652644216765564,
-      "amount": 271631.61054191395,
-      "dates": 1715032800000,
-      "id": 128
-    },
-    {
-      "profitability": 8.891902140356004,
-      "amount": 272229.75535089,
-      "dates": 1715119200000,
-      "id": 129
-    },
-    {
-      "profitability": 8.709033904205356,
-      "amount": 271772.5847605134,
-      "dates": 1715205600000,
-      "id": 130
-    },
-    {
-      "profitability": 8.620267934529027,
-      "amount": 271550.6698363226,
-      "dates": 1715292000000,
-      "id": 131
-    },
-    {
-      "profitability": 9.081552712999532,
-      "amount": 272703.88178249885,
-      "dates": 1715378400000,
-      "id": 132
-    },
-    {
-      "profitability": 8.739504686842144,
-      "amount": 271848.76171710534,
-      "dates": 1715464800000,
-      "id": 133
-    },
-    {
-      "profitability": 9.284719596139754,
-      "amount": 273211.79899034934,
-      "dates": 1715551200000,
-      "id": 134
-    },
-    {
-      "profitability": 8.815465177957876,
-      "amount": 272038.6629448947,
-      "dates": 1715637600000,
-      "id": 135
-    },
-    {
-      "profitability": 8.908243042867868,
-      "amount": 272270.60760716966,
-      "dates": 1715724000000,
-      "id": 136
-    },
-    {
-      "profitability": 7.621159234040004,
-      "amount": 269052.8980851,
-      "dates": 1715810400000,
-      "id": 137
-    },
-    {
-      "profitability": 8.000369718116694,
-      "amount": 270000.9242952917,
-      "dates": 1715896800000,
-      "id": 138
-    },
-    {
-      "profitability": 7.708409205585187,
-      "amount": 269271.023013963,
-      "dates": 1715983200000,
-      "id": 139
-    },
-    {
-      "profitability": 8.27240473572918,
-      "amount": 270681.011839323,
-      "dates": 1716069600000,
-      "id": 140
-    },
-    {
-      "profitability": 7.8723433151424285,
-      "amount": 269680.8582878561,
-      "dates": 1716156000000,
-      "id": 141
-    },
-    {
-      "profitability": 8.416684364356415,
-      "amount": 271041.710910891,
-      "dates": 1716242400000,
-      "id": 142
-    },
-    {
-      "profitability": 8.834696240723288,
-      "amount": 272086.7406018082,
-      "dates": 1716328800000,
-      "id": 143
-    },
-    {
-      "profitability": 8.768623185957685,
-      "amount": 271921.5579648942,
-      "dates": 1716415200000,
-      "id": 144
-    },
-    {
-      "profitability": 8.521830254691857,
-      "amount": 271304.57563672966,
-      "dates": 1716501600000,
-      "id": 145
-    },
-    {
-      "profitability": 8.253991960357155,
-      "amount": 270634.97990089294,
-      "dates": 1716588000000,
-      "id": 146
-    },
-    {
-      "profitability": 8.1117864218928,
-      "amount": 270279.46605473204,
-      "dates": 1716674400000,
-      "id": 147
-    },
-    {
-      "profitability": 7.106508206090658,
-      "amount": 267766.27051522664,
-      "dates": 1716760800000,
-      "id": 148
-    },
-    {
-      "profitability": 7.587025167335179,
-      "amount": 268967.56291833794,
-      "dates": 1716847200000,
-      "id": 149
-    },
-    {
-      "profitability": 8.726500128465407,
-      "amount": 271816.2503211635,
-      "dates": 1716933600000,
-      "id": 150
-    },
-    {
-      "profitability": 8.273061272045554,
-      "amount": 270682.6531801139,
-      "dates": 1717020000000,
-      "id": 151
-    },
-    {
-      "profitability": 8.082653741197362,
-      "amount": 270206.6343529934,
-      "dates": 1717106400000,
-      "id": 152
-    },
-    {
-      "profitability": 8.378901350811354,
-      "amount": 270947.2533770284,
-      "dates": 1717192800000,
-      "id": 153
-    },
-    {
-      "profitability": 8.747180285049266,
-      "amount": 271867.95071262313,
-      "dates": 1717279200000,
-      "id": 154
-    },
-    {
-      "profitability": 8.994022605517554,
-      "amount": 272485.0565137939,
-      "dates": 1717365600000,
-      "id": 155
-    },
-    {
-      "profitability": 9.093529938301893,
-      "amount": 272733.8248457548,
-      "dates": 1717452000000,
-      "id": 156
-    },
-    {
-      "profitability": 9.354366724271094,
-      "amount": 273385.91681067774,
-      "dates": 1717538400000,
-      "id": 157
-    },
-    {
-      "profitability": 9.228486370671268,
-      "amount": 273071.21592667815,
-      "dates": 1717624800000,
-      "id": 158
-    },
-    {
-      "profitability": 9.28784640908721,
-      "amount": 273219.616022718,
-      "dates": 1717711200000,
-      "id": 159
-    },
-    {
-      "profitability": 9.541064296755906,
-      "amount": 273852.66074188973,
-      "dates": 1717797600000,
-      "id": 160
-    },
-    {
-      "profitability": 9.506802581482235,
-      "amount": 273767.0064537056,
-      "dates": 1717884000000,
-      "id": 161
-    },
-    {
-      "profitability": 9.832696329087945,
-      "amount": 274581.7408227199,
-      "dates": 1717970400000,
-      "id": 162
-    },
-    {
-      "profitability": 10.183699084094856,
-      "amount": 275459.24771023716,
-      "dates": 1718056800000,
-      "id": 163
-    },
-    {
-      "profitability": 10.17091092370229,
-      "amount": 275427.2773092557,
-      "dates": 1718143200000,
-      "id": 164
-    },
-    {
-      "profitability": 9.816146996502756,
-      "amount": 274540.36749125685,
-      "dates": 1718229600000,
-      "id": 165
-    },
-    {
-      "profitability": 9.544099551933547,
-      "amount": 273860.24887983385,
-      "dates": 1718316000000,
-      "id": 166
-    },
-    {
-      "profitability": 9.944069132407586,
-      "amount": 274860.172831019,
-      "dates": 1718402400000,
-      "id": 167
-    },
-    {
-      "profitability": 9.852362102075473,
-      "amount": 274630.9052551887,
-      "dates": 1718488800000,
-      "id": 168
-    },
-    {
-      "profitability": 9.230364736631671,
-      "amount": 273075.9118415792,
-      "dates": 1718575200000,
-      "id": 169
-    },
-    {
-      "profitability": 9.07209136831729,
-      "amount": 272680.2284207932,
-      "dates": 1718661600000,
-      "id": 170
-    },
-    {
-      "profitability": 9.433179941601974,
-      "amount": 273582.94985400495,
-      "dates": 1718748000000,
-      "id": 171
-    },
-    {
-      "profitability": 9.166914169519355,
-      "amount": 272917.28542379837,
-      "dates": 1718834400000,
-      "id": 172
-    },
-    {
-      "profitability": 8.57563237137789,
-      "amount": 271439.0809284447,
-      "dates": 1718920800000,
-      "id": 173
-    },
-    {
-      "profitability": 8.690873253269611,
-      "amount": 271727.183133174,
-      "dates": 1719007200000,
-      "id": 174
-    },
-    {
-      "profitability": 8.539517984633937,
-      "amount": 271348.7949615848,
-      "dates": 1719093600000,
-      "id": 175
-    },
-    {
-      "profitability": 8.953884205125824,
-      "amount": 272384.7105128145,
-      "dates": 1719180000000,
-      "id": 176
-    },
-    {
-      "profitability": 10.472791697908566,
-      "amount": 276181.9792447714,
-      "dates": 1719266400000,
-      "id": 177
-    },
-    {
-      "profitability": 10.525436579253759,
-      "amount": 276313.5914481344,
-      "dates": 1719352800000,
-      "id": 178
-    },
-    {
-      "profitability": 11.526074279094646,
-      "amount": 278815.1856977366,
-      "dates": 1719439200000,
-      "id": 179
-    },
-    {
-      "profitability": 11.121133100285064,
-      "amount": 277802.83275071264,
-      "dates": 1719525600000,
-      "id": 180
-    },
-    {
-      "profitability": 11.159687893052743,
-      "amount": 277899.2197326319,
-      "dates": 1719612000000,
-      "id": 181
-    },
-    {
-      "profitability": 11.50383999888827,
-      "amount": 278759.5999972207,
-      "dates": 1719698400000,
-      "id": 182
-    },
-    {
-      "profitability": 11.61928829747631,
-      "amount": 279048.2207436908,
-      "dates": 1719784800000,
-      "id": 183
-    },
-    {
-      "profitability": 12.140712246921701,
-      "amount": 280351.78061730426,
-      "dates": 1719871200000,
-      "id": 184
-    },
-    {
-      "profitability": 11.352196137593372,
-      "amount": 278380.49034398346,
-      "dates": 1719957600000,
-      "id": 185
-    },
-    {
-      "profitability": 10.976468823336553,
-      "amount": 277441.1720583414,
-      "dates": 1720044000000,
-      "id": 186
-    },
-    {
-      "profitability": 10.309334782448957,
-      "amount": 275773.33695612237,
-      "dates": 1720130400000,
-      "id": 187
-    },
-    {
-      "profitability": 10.545213871078422,
-      "amount": 276363.03467769607,
-      "dates": 1720216800000,
-      "id": 188
-    },
-    {
-      "profitability": 10.8953299449402,
-      "amount": 277238.3248623505,
-      "dates": 1720303200000,
-      "id": 189
-    },
-    {
-      "profitability": 10.006001768896722,
-      "amount": 275015.0044222418,
-      "dates": 1720389600000,
-      "id": 190
-    },
-    {
-      "profitability": 10.583272989068155,
-      "amount": 276458.1824726704,
-      "dates": 1720476000000,
-      "id": 191
-    },
-    {
-      "profitability": 10.608151856067396,
-      "amount": 276520.3796401685,
-      "dates": 1720562400000,
-      "id": 192
-    },
-    {
-      "profitability": 10.973606957918323,
-      "amount": 277434.0173947958,
-      "dates": 1720648800000,
-      "id": 193
-    },
-    {
-      "profitability": 10.73182468777502,
-      "amount": 276829.5617194376,
-      "dates": 1720735200000,
-      "id": 194
-    },
-    {
-      "profitability": 10.865650207919366,
-      "amount": 277164.1255197984,
-      "dates": 1720821600000,
-      "id": 195
-    },
-    {
-      "profitability": 11.076341664558253,
-      "amount": 277690.85416139563,
-      "dates": 1720908000000,
-      "id": 196
-    },
-    {
-      "profitability": 11.692340350478439,
-      "amount": 279230.8508761961,
-      "dates": 1720994400000,
-      "id": 197
-    },
-    {
-      "profitability": 11.4144347656013,
-      "amount": 278536.08691400324,
-      "dates": 1721080800000,
-      "id": 198
-    },
-    {
-      "profitability": 10.984279137192182,
-      "amount": 277460.69784298044,
-      "dates": 1721167200000,
-      "id": 199
-    },
-    {
-      "profitability": 11.399515754501996,
-      "amount": 278498.78938625497,
-      "dates": 1721253600000,
-      "id": 200
-    },
-    {
-      "profitability": 11.585861861819263,
-      "amount": 278964.65465454815,
-      "dates": 1721340000000,
-      "id": 201
-    },
-    {
-      "profitability": 11.737534034423001,
-      "amount": 279343.8350860575,
-      "dates": 1721426400000,
-      "id": 202
-    },
-    {
-      "profitability": 12.120361025902055,
-      "amount": 280300.9025647552,
-      "dates": 1721512800000,
-      "id": 203
-    },
-    {
-      "profitability": 12.034857546494935,
-      "amount": 280087.14386623737,
-      "dates": 1721599200000,
-      "id": 204
-    },
-    {
-      "profitability": 11.953275908611165,
-      "amount": 279883.18977152795,
-      "dates": 1721685600000,
-      "id": 205
-    },
-    {
-      "profitability": 12.41089574829989,
-      "amount": 281027.23937074974,
-      "dates": 1721772000000,
-      "id": 206
-    },
-    {
-      "profitability": 11.995525711996406,
-      "amount": 279988.814279991,
-      "dates": 1721858400000,
-      "id": 207
-    },
-    {
-      "profitability": 11.76001497742398,
-      "amount": 279400.03744355997,
-      "dates": 1721944800000,
-      "id": 208
-    },
-    {
-      "profitability": 11.880936235772833,
-      "amount": 279702.3405894321,
-      "dates": 1722031200000,
-      "id": 209
-    },
-    {
-      "profitability": 12.697308584314506,
-      "amount": 281743.2714607863,
-      "dates": 1722117600000,
-      "id": 210
-    },
-    {
-      "profitability": 12.662193582537736,
-      "amount": 281655.4839563443,
-      "dates": 1722204000000,
-      "id": 211
-    },
-    {
-      "profitability": 12.684424834891592,
-      "amount": 281711.062087229,
-      "dates": 1722290400000,
-      "id": 212
-    },
-    {
-      "profitability": 12.80595910547571,
-      "amount": 282014.8977636893,
-      "dates": 1722376800000,
-      "id": 213
-    },
-    {
-      "profitability": 12.521655914209102,
-      "amount": 281304.13978552277,
-      "dates": 1722463200000,
-      "id": 214
-    },
-    {
-      "profitability": 12.795391181959156,
-      "amount": 281988.4779548979,
-      "dates": 1722549600000,
-      "id": 215
-    },
-    {
-      "profitability": 12.918076302028478,
-      "amount": 282295.1907550712,
-      "dates": 1722636000000,
-      "id": 216
-    },
-    {
-      "profitability": 12.516746603131434,
-      "amount": 281291.8665078286,
-      "dates": 1722722400000,
-      "id": 217
-    },
-    {
-      "profitability": 12.630038879368584,
-      "amount": 281575.0971984214,
-      "dates": 1722808800000,
-      "id": 218
-    },
-    {
-      "profitability": 12.668887715017144,
-      "amount": 281672.21928754286,
-      "dates": 1722895200000,
-      "id": 219
-    },
-    {
-      "profitability": 13.206092990531976,
-      "amount": 283015.2324763299,
-      "dates": 1722981600000,
-      "id": 220
-    },
-    {
-      "profitability": 13.173039867790894,
-      "amount": 282932.59966947726,
-      "dates": 1723068000000,
-      "id": 221
-    },
-    {
-      "profitability": 12.220878120282439,
-      "amount": 280552.1953007061,
-      "dates": 1723154400000,
-      "id": 222
-    },
-    {
-      "profitability": 13.159442743996992,
-      "amount": 282898.6068599925,
-      "dates": 1723240800000,
-      "id": 223
-    },
-    {
-      "profitability": 13.74425974260009,
-      "amount": 284360.64935650025,
-      "dates": 1723327200000,
-      "id": 224
-    },
-    {
-      "profitability": 13.608065066613786,
-      "amount": 284020.1626665345,
-      "dates": 1723413600000,
-      "id": 225
-    },
-    {
-      "profitability": 14.246651033636667,
-      "amount": 285616.6275840917,
-      "dates": 1723500000000,
-      "id": 226
-    },
-    {
-      "profitability": 14.875810293440738,
-      "amount": 287189.5257336018,
-      "dates": 1723586400000,
-      "id": 227
-    },
-    {
-      "profitability": 14.71922674355411,
-      "amount": 286798.0668588853,
-      "dates": 1723672800000,
-      "id": 228
-    },
-    {
-      "profitability": 14.12663884368938,
-      "amount": 285316.5971092235,
-      "dates": 1723759200000,
-      "id": 229
-    },
-    {
-      "profitability": 14.018611795768454,
-      "amount": 285046.5294894211,
-      "dates": 1723845600000,
-      "id": 230
-    },
-    {
-      "profitability": 14.521437443259465,
-      "amount": 286303.5936081487,
-      "dates": 1723932000000,
-      "id": 231
-    },
-    {
-      "profitability": 13.892782164655515,
-      "amount": 284731.9554116388,
-      "dates": 1724018400000,
-      "id": 232
-    },
-    {
-      "profitability": 14.270025633792336,
-      "amount": 285675.06408448087,
-      "dates": 1724104800000,
-      "id": 233
-    },
-    {
-      "profitability": 14.342722268206636,
-      "amount": 285856.80567051657,
-      "dates": 1724191200000,
-      "id": 234
-    },
-    {
-      "profitability": 14.238535590998188,
-      "amount": 285596.3389774955,
-      "dates": 1724277600000,
-      "id": 235
-    },
-    {
-      "profitability": 13.907051930976587,
-      "amount": 284767.6298274415,
-      "dates": 1724364000000,
-      "id": 236
-    },
-    {
-      "profitability": 13.669613629346678,
-      "amount": 284174.0340733667,
-      "dates": 1724450400000,
-      "id": 237
-    },
-    {
-      "profitability": 13.49638440033839,
-      "amount": 283740.961000846,
-      "dates": 1724536800000,
-      "id": 238
-    },
-    {
-      "profitability": 13.518746252665615,
-      "amount": 283796.86563166406,
-      "dates": 1724623200000,
-      "id": 239
-    },
-    {
-      "profitability": 13.84674684357503,
-      "amount": 284616.8671089376,
-      "dates": 1724709600000,
-      "id": 240
-    },
-    {
-      "profitability": 14.894381420311142,
-      "amount": 287235.95355077786,
-      "dates": 1724796000000,
-      "id": 241
-    },
-    {
-      "profitability": 14.947981095738378,
-      "amount": 287369.95273934596,
-      "dates": 1724882400000,
-      "id": 242
-    },
-    {
-      "profitability": 15.095088853700066,
-      "amount": 287737.7221342502,
-      "dates": 1724968800000,
-      "id": 243
-    },
-    {
-      "profitability": 15.860033469225598,
-      "amount": 289650.083673064,
-      "dates": 1725055200000,
-      "id": 244
-    },
-    {
-      "profitability": 15.337169598989266,
-      "amount": 288342.9239974732,
-      "dates": 1725141600000,
-      "id": 245
-    },
-    {
-      "profitability": 15.350515219911989,
-      "amount": 288376.28804978,
-      "dates": 1725228000000,
-      "id": 246
-    },
-    {
-      "profitability": 15.083676366546875,
-      "amount": 287709.1909163672,
-      "dates": 1725314400000,
-      "id": 247
-    },
-    {
-      "profitability": 15.314206036057165,
-      "amount": 288285.5150901429,
-      "dates": 1725400800000,
-      "id": 248
-    },
-    {
-      "profitability": 15.571735933421833,
-      "amount": 288929.3398335546,
-      "dates": 1725487200000,
-      "id": 249
-    },
-    {
-      "profitability": 15.574010367389802,
-      "amount": 288935.02591847454,
-      "dates": 1725573600000,
-      "id": 250
-    },
-    {
-      "profitability": 15.664110863442067,
-      "amount": 289160.27715860517,
-      "dates": 1725660000000,
-      "id": 251
-    },
-    {
-      "profitability": 16.435819780105074,
-      "amount": 291089.5494502627,
-      "dates": 1725746400000,
-      "id": 252
-    },
-    {
-      "profitability": 17.25116823540449,
-      "amount": 293127.9205885112,
-      "dates": 1725832800000,
-      "id": 253
-    },
-    {
-      "profitability": 16.944479546297707,
-      "amount": 292361.1988657443,
-      "dates": 1725919200000,
-      "id": 254
-    },
-    {
-      "profitability": 17.88965132540794,
-      "amount": 294724.1283135199,
-      "dates": 1726005600000,
-      "id": 255
-    },
-    {
-      "profitability": 18.21052034565194,
-      "amount": 295526.30086412985,
-      "dates": 1726092000000,
-      "id": 256
-    },
-    {
-      "profitability": 18.08617011067764,
-      "amount": 295215.42527669406,
-      "dates": 1726178400000,
-      "id": 257
-    },
-    {
-      "profitability": 18.502007766836147,
-      "amount": 296255.0194170904,
-      "dates": 1726264800000,
-      "id": 258
-    },
-    {
-      "profitability": 17.73820353722184,
-      "amount": 294345.5088430546,
-      "dates": 1726351200000,
-      "id": 259
-    },
-    {
-      "profitability": 17.5926091879901,
-      "amount": 293981.52296997525,
-      "dates": 1726437600000,
-      "id": 260
-    },
-    {
-      "profitability": 17.691526603778318,
-      "amount": 294228.8165094458,
-      "dates": 1726524000000,
-      "id": 261
-    },
-    {
-      "profitability": 17.730238103572745,
-      "amount": 294325.59525893186,
-      "dates": 1726610400000,
-      "id": 262
-    },
-    {
-      "profitability": 17.872592535907824,
-      "amount": 294681.48133976955,
-      "dates": 1726696800000,
-      "id": 263
-    },
-    {
-      "profitability": 18.059441985114933,
-      "amount": 295148.60496278736,
-      "dates": 1726783200000,
-      "id": 264
-    },
-    {
-      "profitability": 17.678019733793477,
-      "amount": 294195.0493344837,
-      "dates": 1726869600000,
-      "id": 265
-    },
-    {
-      "profitability": 17.77213799395629,
-      "amount": 294430.3449848907,
-      "dates": 1726956000000,
-      "id": 266
-    },
-    {
-      "profitability": 17.909686545013454,
-      "amount": 294774.2163625336,
-      "dates": 1727042400000,
-      "id": 267
-    },
-    {
-      "profitability": 17.60714436410346,
-      "amount": 294017.86091025866,
-      "dates": 1727128800000,
-      "id": 268
-    },
-    {
-      "profitability": 18.37745276209741,
-      "amount": 295943.63190524356,
-      "dates": 1727215200000,
-      "id": 269
-    },
-    {
-      "profitability": 18.925946138904763,
-      "amount": 297314.86534726195,
-      "dates": 1727301600000,
-      "id": 270
-    },
-    {
-      "profitability": 18.77838256923379,
-      "amount": 296945.9564230845,
-      "dates": 1727388000000,
-      "id": 271
-    },
-    {
-      "profitability": 17.663500799665854,
-      "amount": 294158.75199916464,
-      "dates": 1727474400000,
-      "id": 272
-    },
-    {
-      "profitability": 17.621535164964698,
-      "amount": 294053.8379124117,
-      "dates": 1727560800000,
-      "id": 273
-    },
-    {
-      "profitability": 18.57169903125914,
-      "amount": 296429.24757814786,
-      "dates": 1727647200000,
-      "id": 274
-    },
-    {
-      "profitability": 19.17737484344602,
-      "amount": 297943.43710861506,
-      "dates": 1727733600000,
-      "id": 275
-    },
-    {
-      "profitability": 20.178543627471324,
-      "amount": 300446.35906867834,
-      "dates": 1727820000000,
-      "id": 276
-    },
-    {
-      "profitability": 20.435978101516103,
-      "amount": 301089.94525379024,
-      "dates": 1727906400000,
-      "id": 277
-    },
-    {
-      "profitability": 21.11615568375971,
-      "amount": 302790.3892093993,
-      "dates": 1727992800000,
-      "id": 278
-    },
-    {
-      "profitability": 20.917485470982406,
-      "amount": 302293.713677456,
-      "dates": 1728079200000,
-      "id": 279
-    },
-    {
-      "profitability": 20.35231240531457,
-      "amount": 300880.78101328644,
-      "dates": 1728165600000,
-      "id": 280
-    },
-    {
-      "profitability": 20.560647223504056,
-      "amount": 301401.6180587601,
-      "dates": 1728252000000,
-      "id": 281
-    },
-    {
-      "profitability": 19.96222779811361,
-      "amount": 299905.569495284,
-      "dates": 1728338400000,
-      "id": 282
-    },
-    {
-      "profitability": 20.24847713513377,
-      "amount": 300621.1928378344,
-      "dates": 1728424800000,
-      "id": 283
-    },
-    {
-      "profitability": 19.528184251453947,
-      "amount": 298820.4606286349,
-      "dates": 1728511200000,
-      "id": 284
-    },
-    {
-      "profitability": 19.60965810811539,
-      "amount": 299024.14527028846,
-      "dates": 1728597600000,
-      "id": 285
-    },
-    {
-      "profitability": 20.233028214341193,
-      "amount": 300582.570535853,
-      "dates": 1728684000000,
-      "id": 286
-    },
-    {
-      "profitability": 21.07376181476129,
-      "amount": 302684.4045369032,
-      "dates": 1728770400000,
-      "id": 287
-    },
-    {
-      "profitability": 21.356581665416147,
-      "amount": 303391.45416354033,
-      "dates": 1728856800000,
-      "id": 288
-    },
-    {
-      "profitability": 22.08028811639439,
-      "amount": 305200.720290986,
-      "dates": 1728943200000,
-      "id": 289
-    },
-    {
-      "profitability": 21.86451613755192,
-      "amount": 304661.2903438798,
-      "dates": 1729029600000,
-      "id": 290
-    },
-    {
-      "profitability": 21.58186799422315,
-      "amount": 303954.66998555785,
-      "dates": 1729116000000,
-      "id": 291
-    },
-    {
-      "profitability": 22.863834975808793,
-      "amount": 307159.587439522,
-      "dates": 1729202400000,
-      "id": 292
-    },
-    {
-      "profitability": 22.86219938654766,
-      "amount": 307155.4984663691,
-      "dates": 1729288800000,
-      "id": 293
-    },
-    {
-      "profitability": 22.772457518520618,
-      "amount": 306931.14379630156,
-      "dates": 1729375200000,
-      "id": 294
-    },
-    {
-      "profitability": 22.696992277107334,
-      "amount": 306742.48069276835,
-      "dates": 1729461600000,
-      "id": 295
-    },
-    {
-      "profitability": 22.693338681549463,
-      "amount": 306733.34670387366,
-      "dates": 1729548000000,
-      "id": 296
-    },
-    {
-      "profitability": 22.948420728329467,
-      "amount": 307371.0518208237,
-      "dates": 1729634400000,
-      "id": 297
-    },
-    {
-      "profitability": 23.515257999093038,
-      "amount": 308788.1449977326,
-      "dates": 1729720800000,
-      "id": 298
-    }
-  ];
-
-  const chartModel = {
-    "plotOptions": {
-      "line": {
-        "stacking": false
-      }
-    },
-    "drilldown": {
-      "series": []
-    },
-    "yAxis": [
-      {
-        "allowDecimals": false,
-        "opposite": false,
-        "title": {
-          "text": "PROFITABILITY"
-        },
-        "labels": {}
-      }
-    ],
-    "xAxis": [
-      {
-        "allowDecimals": false,
-        "opposite": false,
-        "title": {
-          "text": "DATE"
-        },
-        "type": "datetime",
-        "labels": {}
-      }
-    ],
-    "credits": {
-      "enabled": false
-    },
-    "series": [
-      {
-        "xValue": "dates",
-        "name": "PROFITABILITY",
-        "id": "serie1",
-        "yValue": "profitability"
-      }
-    ],
-    "legend": {
-      "floating": false,
-      "enabled": true
-    },
-    "tooltip": {
-      "shared": false,
-      "valueDecimals": 2,
-      "valueSuffix": " %",
-      "enabled": true
-    },
-    "stockChart": false,
-    "title": {
-      "text": ""
-    },
-    "chart": {
-      "zoomType": "xAxis",
-      "type": "line",
-      "inverted": false
-    }
-  };
-
-  const preloadedState = {
+  const stateOf = (echartsModel, rows = values, extra = {}) => ({
     settings: DEFAULT_SETTINGS,
     components: {
       chart: {
-        address: {component: 'chart', view: 'report'},
-        model: {values},
-        attributes: {
-          placeholder: "placeholder",
-          readonly: false,
-          label: "chart",
-          title: "chart",
-          image: "helpImage",
-          chartModel: {}
-        }
+        address: {component: "chart", view: "report"},
+        model: {values: rows},
+        attributes: {visible: true, label: "chart", ...(echartsModel ? {echartsModel} : {}), ...extra}
       }
     }
-  };
-
-  it('renders chart component', () => {
-    renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
-
-    // check
-    expect(document.querySelector("div#chart")).not.toBeNull();
   });
 
-  it('exposes the test hook of the chart with its identifier once the chart is rendered', () => {
-    renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
+  const renderChart = (echartsModel, rows, extra) => renderWithProviders(
+    <div style={{width: "1000px", height: "600px"}}><AweChart id="chart"/></div>,
+    {preloadedState: stateOf(echartsModel, rows, extra)});
 
-    const hook = document.querySelector("[data-testid='chart']");
-    expect(hook).not.toBeNull();
-    expect(hook.getAttribute("chart-id")).toBe("chart");
-    expect(hook.getAttribute("data-rendered")).toBe("true");
-  });
-
-  it('offers its image to be printed while it is rendered', () => {
-    const {unmount} = renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
-
-    expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>chart</svg>");
-
-    unmount();
-
-    expect(getChartImage("chart", "PORTRAIT")).toBeUndefined();
-  });
-
-  it('renders chart component with data', () => {
-    renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {
-      preloadedState: {
-        ...preloadedState,
-        components: {
-          ...preloadedState.components,
-          chart: {
-            ...preloadedState.components.chart,
-            attributes: {
-              ...preloadedState.components.chart.attributes,
-              chartModel
-            }
-          }
-        }
-      }
-    });
-
-    // check
-    expect(document.querySelector("div#chart")).not.toBeNull();
-  });
-
-  // Regression: filter-refresh — when the model's values are replaced (e.g. after applying a
-  // filter), the chart container must still be present and the component must not throw.
-  // This test also guards the allowChartUpdate fix: the component must not block chart.update()
-  // calls after the initial render (old bug: animating=true + afterAnimate never firing in
-  // headless/disabled-animation environments would permanently suppress updates).
-  it('re-renders chart when model values are refreshed via store dispatch', () => {
-    const address = {component: 'chart', view: 'report'};
-    const initialState = {
-      ...preloadedState,
-      components: {
-        ...preloadedState.components,
-        chart: {
-          ...preloadedState.components.chart,
-          model: {values},
-          attributes: {
-            ...preloadedState.components.chart.attributes,
-            chartModel
-          }
-        }
+  beforeEach(() => {
+    instances = [];
+    observers = [];
+    echarts.init.mockReset();
+    echarts.init.mockImplementation(fakeChart);
+    isDarkTheme.mockReturnValue(false);
+    renderSvg.mockClear();
+    global.ResizeObserver = class {
+      constructor(callback) {
+        this.callback = callback;
+        this.observe = jest.fn();
+        this.disconnect = jest.fn();
+        observers.push(this);
       }
     };
-
-    const { store, container } = renderWithProviders(
-      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
-      {preloadedState: initialState}
-    );
-
-    // Simulate a filter-refresh by replacing the model with a smaller data set
-    const filteredValues = values.slice(0, 10);
-    act(() => {
-      store.dispatch(updateModel(address, {values: filteredValues}));
-    });
-
-    // The chart container must still be present after the model update (component rerender path)
-    const chartDiv = container.querySelector("div#chart");
-    expect(chartDiv).not.toBeNull();
-
-    // The store model must reflect the updated values (store-driven rerender)
-    const state = store.getState();
-    expect(state.components.chart.model.values.length).toBe(filteredValues.length);
-
-    // Validate the chart computation path: processChartOptions must produce series data
-    // that reflects the filtered (reduced) model values, not the original full set.
-    // This mirrors the useMemo computation inside the component triggered by the rerender.
-    // Because allowChartUpdate is always true, the component passes these new options
-    // to HighchartsReact without any animation-state gate blocking the update.
-    const t = (key) => key; // identity translator — mirrors what i18n returns when not loaded
-    const computed = processChartOptions(chartModel, filteredValues, t, { language: "en" }, false);
-    expect(computed.series).toBeDefined();
-    expect(computed.series.length).toBeGreaterThan(0);
-    expect(computed.series[0].data.length).toBe(filteredValues.length);
-    // lang must be set in the computed options (language-driven locale path).
-    expect(computed.lang).toBeDefined();
-
-    // Also verify that the full original dataset would produce a different (longer) series,
-    // confirming the component would render different options before vs after the dispatch.
-    const computedFull = processChartOptions(chartModel, values, t, { language: "en" }, false);
-    expect(computedFull.series[0].data.length).toBe(values.length);
-    expect(computedFull.series[0].data.length).toBeGreaterThan(computed.series[0].data.length);
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {configurable: true, get: () => 900});
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", {configurable: true, get: () => 500});
   });
 
-  // Regression: allowChartUpdate must never be blocked by an animation-state gate.
-  // Previously, animating=true (set when model had data on mount) would suppress all
-  // chart.update() calls until afterAnimate fired. In headless/jsdom environments
-  // afterAnimate never fires, so subsequent model updates were silently dropped.
-  // With allowChartUpdate=true unconditionally, multiple sequential model updates must
-  // all survive without throwing and the chart container must remain in the DOM.
-  it('survives multiple sequential model updates without animation events (allowChartUpdate fix)', () => {
-    const address = {component: 'chart', view: 'report'};
-    const initialState = {
-      ...preloadedState,
-      components: {
-        ...preloadedState.components,
-        chart: {
-          ...preloadedState.components.chart,
-          model: {values},  // non-empty — would have triggered animating=true in the old code
-          attributes: {
-            ...preloadedState.components.chart.attributes,
-            chartModel
-          }
-        }
-      }
-    };
-
-    const { store, container } = renderWithProviders(
-      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
-      {preloadedState: initialState}
-    );
-
-    // Dispatch three successive model updates without any animation event in between.
-    // In the old code (animating=true, no afterAnimate in jsdom), all three would be
-    // silently ignored by HighchartsReact. With allowChartUpdate=true they must all
-    // pass through without errors.
-    act(() => { store.dispatch(updateModel(address, {values: values.slice(0, 50)})); });
-    act(() => { store.dispatch(updateModel(address, {values: values.slice(0, 20)})); });
-    act(() => { store.dispatch(updateModel(address, {values: []})); });
-
-    // Chart container must survive all updates
-    expect(container.querySelector("div#chart")).not.toBeNull();
-
-    // Store must reflect the final dispatched model
-    const finalState = store.getState();
-    expect(finalState.components.chart.model.values.length).toBe(0);
+  afterEach(() => {
+    delete global.ResizeObserver;
+    delete HTMLElement.prototype.clientWidth;
+    delete HTMLElement.prototype.clientHeight;
+    jest.useRealTimers();
   });
 
-  // Regression: model update with empty values (cleared filter) must not crash
-  it('handles empty model values without throwing', () => {
-    const address = {component: 'chart', view: 'report'};
-    const initialState = {
-      ...preloadedState,
-      components: {
-        ...preloadedState.components,
-        chart: {
-          ...preloadedState.components.chart,
-          model: {values},
-          attributes: {
-            ...preloadedState.components.chart.attributes,
-            chartModel
-          }
-        }
-      }
-    };
+  describe('creation', () => {
+    it('should create an SVG chart in its container, with the plain theme', () => {
+      renderChart(models.ChrLinTst);
 
-    const { store } = renderWithProviders(
-      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
-      {preloadedState: initialState}
-    );
-
-    act(() => {
-      store.dispatch(updateModel(address, {values: []}));
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+      const [element, theme, options] = echarts.init.mock.calls[0];
+      expect(element.parentElement.id).toBe("chart");
+      expect(theme).toBeNull();
+      expect(options).toEqual({renderer: "svg", locale: "EN"});
     });
 
-    expect(document.querySelector("div#chart")).not.toBeNull();
-  });
+    it('should use the dark theme when the application theme is dark', () => {
+      isDarkTheme.mockReturnValue(true);
 
-  it('forces chart size sync from container dimensions after chart creation', () => {
-    jest.useFakeTimers();
+      renderChart(models.ChrLinTst);
 
-    const originalRequestAnimationFrame = window.requestAnimationFrame;
-    const originalCancelAnimationFrame = window.cancelAnimationFrame;
-    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
-    const clientHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
-    const offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
-    const offsetHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
-
-    window.requestAnimationFrame = jest.fn(callback => setTimeout(callback, 0));
-    window.cancelAnimationFrame = jest.fn(id => clearTimeout(id));
-    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
-      configurable: true,
-      get() {
-        return 1000;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
-      configurable: true,
-      get() {
-        return 1000;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
-      configurable: true,
-      get() {
-        return 500;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
-      configurable: true,
-      get() {
-        return 500;
-      }
+      expect(echarts.init.mock.calls[0][1]).toBe("dark");
+      expect(lastOption().backgroundColor).toBe("rgba(0, 0, 0, 0)");
     });
 
-    try {
-      renderWithProviders(
-        <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
-        {
-          preloadedState: {
-            ...preloadedState,
-            components: {
-              ...preloadedState.components,
-              chart: {
-                ...preloadedState.components.chart,
-                attributes: {
-                  ...preloadedState.components.chart.attributes,
-                  chartModel
-                }
-              }
-            }
-          }
-        }
-      );
+    it('should expose the test hook with the chart identifier, rendered once ECharts finishes', () => {
+      renderChart(models.ChrLinTst);
 
-      act(() => {
-        jest.runAllTimers();
+      const hook = document.querySelector("[data-testid='chart']");
+      expect(hook.getAttribute("chart-id")).toBe("chart");
+      expect(hook.getAttribute("data-rendered")).toBe("false");
+
+      act(() => lastChart().handlers.finished());
+
+      expect(hook.getAttribute("data-rendered")).toBe("true");
+    });
+
+    it('should also mark the chart as rendered when ECharts reports a render', () => {
+      renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.rendered());
+
+      expect(document.querySelector("[data-testid='chart']").getAttribute("data-rendered")).toBe("true");
+    });
+
+    it('should hide the chart when it is not visible', () => {
+      renderChart(models.ChrLinTst, values, {visible: false});
+
+      expect(document.querySelector("div#chart").classList.contains("hidden")).toBe(true);
+    });
+
+    it('should not crash the screen when ECharts cannot create the chart', () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      echarts.init.mockImplementation(() => {
+        throw new Error("no svg");
       });
 
-      // New implementation uses reflow() instead of setSize()
-      expect(mockChartReflow).toHaveBeenCalled();
-      expect(mockChartSetSize).not.toHaveBeenCalled();
-    } finally {
-      window.requestAnimationFrame = originalRequestAnimationFrame;
-      window.cancelAnimationFrame = originalCancelAnimationFrame;
-      if (offsetWidthDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
-      } else {
-        delete HTMLElement.prototype.offsetWidth;
-      }
-      if (clientWidthDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'clientWidth', clientWidthDescriptor);
-      } else {
-        delete HTMLElement.prototype.clientWidth;
-      }
-      if (offsetHeightDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeightDescriptor);
-      } else {
-        delete HTMLElement.prototype.offsetHeight;
-      }
-      if (clientHeightDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeightDescriptor);
-      } else {
-        delete HTMLElement.prototype.clientHeight;
-      }
-      jest.useRealTimers();
-      mockChartReflow.mockClear();
-      mockChartRedraw.mockClear();
-      mockChartSetSize.mockClear();
-    }
-  });
+      renderChart(models.ChrLinTst);
 
-  it('forces an internal redraw for 3D pie charts after syncing container size', () => {
-    jest.useFakeTimers();
-
-    const originalRequestAnimationFrame = window.requestAnimationFrame;
-    const originalCancelAnimationFrame = window.cancelAnimationFrame;
-    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
-    const clientHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
-    const offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
-    const offsetHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
-
-    window.requestAnimationFrame = jest.fn(callback => setTimeout(callback, 0));
-    window.cancelAnimationFrame = jest.fn(id => clearTimeout(id));
-    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
-      configurable: true,
-      get() {
-        return 800;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
-      configurable: true,
-      get() {
-        return 800;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
-      configurable: true,
-      get() {
-        return 400;
-      }
-    });
-    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
-      configurable: true,
-      get() {
-        return 400;
-      }
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
     });
 
-    mockHighchartsChart.isDirtyBox = false;
-    mockHighchartsChart.isDirtyLegend = false;
-    mockHighchartsChart.series[0].isDirty = false;
-    mockHighchartsChart.series[0].isDirtyData = false;
-
-    try {
-      renderWithProviders(
-        <div style={{width: "800px", height: "400px"}}><AweChart id="chart"/></div>,
-        {
-          preloadedState: {
-            ...preloadedState,
-            components: {
-              ...preloadedState.components,
-              chart: {
-                ...preloadedState.components.chart,
-                attributes: {
-                  ...preloadedState.components.chart.attributes,
-                  chartModel
-                }
-              }
-            }
-          }
-        }
-      );
-
-      act(() => {
-        jest.runAllTimers();
+    it('should not crash the screen when ECharts cannot draw the option', () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      echarts.init.mockImplementation(() => {
+        const chart = fakeChart();
+        chart.setOption.mockImplementation(() => {
+          throw new Error("bad option");
+        });
+        return chart;
       });
 
-      // New implementation uses reflow() instead of setSize() + redraw()
-      expect(mockChartReflow).toHaveBeenCalled();
-      expect(mockChartSetSize).not.toHaveBeenCalled();
-    } finally {
-      window.requestAnimationFrame = originalRequestAnimationFrame;
-      window.cancelAnimationFrame = originalCancelAnimationFrame;
-      if (offsetWidthDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
-      } else {
-        delete HTMLElement.prototype.offsetWidth;
-      }
-      if (clientWidthDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'clientWidth', clientWidthDescriptor);
-      } else {
-        delete HTMLElement.prototype.clientWidth;
-      }
-      if (offsetHeightDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeightDescriptor);
-      } else {
-        delete HTMLElement.prototype.offsetHeight;
-      }
-      if (clientHeightDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeightDescriptor);
-      } else {
-        delete HTMLElement.prototype.clientHeight;
-      }
-      jest.useRealTimers();
-      mockChartReflow.mockClear();
-      mockChartRedraw.mockClear();
-      mockChartSetSize.mockClear();
-      mockHighchartsChart.isDirtyBox = false;
-      mockHighchartsChart.isDirtyLegend = false;
-      mockHighchartsChart.series[0].isDirty = false;
-      mockHighchartsChart.series[0].isDirtyData = false;
-    }
+      renderChart(models.ChrLinTst);
+
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
   });
 
+  describe('option', () => {
+    it('should give ECharts the option built from the model and the values', () => {
+      renderChart(models.ChrLinTst);
+
+      const option = lastOption();
+      expect(lastChart().setOption.mock.calls[0][1]).toEqual({notMerge: true});
+      expect(option.series[0].data).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(option.series[1].data).toEqual([[day(1), 5], [day(2), 6]]);
+      expect(JSON.stringify(option)).not.toContain("\"awe\"");
+    });
+
+    it('should translate the texts of the chart', () => {
+      renderChart(models.ChrLinTst);
+
+      expect(lastOption().title.text).toBe(i18n.t("SCREEN_TEXT_CHART_TITLE_1"));
+    });
+
+    it('should draw an empty chart with the no data message when the server sent no echartsModel', () => {
+      const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+      renderChart(undefined);
+
+      expect(lastOption().series).toEqual([]);
+      expect(texts(lastOption())).toEqual([expect.any(String)]);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("echartsModel"));
+      warn.mockRestore();
+    });
+
+    it('should show the no data message when there are no values', () => {
+      renderChart(models.ChrLinTst, []);
+
+      expect(texts(lastOption())).toHaveLength(1);
+      expect(texts(lastOption())[0]).toBeTruthy();
+    });
+
+    it('should draw again when the values change', () => {
+      const {store} = renderChart(models.ChrLinTst);
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => {
+        store.dispatch(updateModel({component: "chart", view: "report"}, {values: [values[0]]}));
+      });
+
+      expect(lastChart().setOption.mock.calls.length).toBeGreaterThan(calls);
+      expect(lastOption().series[0].data).toEqual([[day(1), 10]]);
+    });
+
+    it('should draw again when the server replaces the echarts model', () => {
+      const {store} = renderChart(models.ChrLinTst);
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: models.ChrStockTst}));
+      });
+
+      expect(lastOption().series).toHaveLength(1);
+      expect(lastOption().dataZoom).toHaveLength(2);
+    });
+  });
+
+  describe('lifecycle', () => {
+    it('should dispose the chart and forget its image when it is unmounted', () => {
+      const {unmount} = renderChart(models.ChrLinTst);
+      const chart = lastChart();
+      expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
+
+      unmount();
+
+      expect(chart.dispose).toHaveBeenCalledTimes(1);
+      expect(getChartImage("chart", "PORTRAIT")).toBeUndefined();
+    });
+
+    it('should create the chart again when the language changes', async () => {
+      renderChart(models.ChrLinTst);
+      const first = lastChart();
+
+      await act(async () => {
+        await i18n.changeLanguage("es-ES");
+      });
+
+      expect(first.dispose).toHaveBeenCalled();
+      expect(echarts.init).toHaveBeenCalledTimes(2);
+      expect(echarts.init.mock.calls[1][2].locale).toBe("ES");
+      await act(async () => {
+        await i18n.changeLanguage("en-GB");
+      });
+    });
+  });
+
+  describe('print', () => {
+    it('should draw the image of the page size apart, in light colors, from the same model', () => {
+      isDarkTheme.mockReturnValue(true);
+      renderChart(models.ChrLinTst);
+
+      expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
+      expect(getChartImage("chart", "LANDSCAPE")).toBe("<svg>print</svg>");
+
+      const [portrait, landscape] = renderSvg.mock.calls;
+      expect(portrait[1]).toEqual({width: 796, height: 540});
+      expect(landscape[1]).toEqual({width: 1167, height: 360});
+      expect(portrait[0].series[0].data).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(portrait[2]).toBe(i18n.language);
+    });
+
+    it('should print the latest values', () => {
+      const {store} = renderChart(models.ChrLinTst);
+
+      act(() => {
+        store.dispatch(updateModel({component: "chart", view: "report"}, {values: [values[1]]}));
+      });
+      getChartImage("chart", "PORTRAIT");
+
+      expect(renderSvg.mock.calls[0][0].series[0].data).toEqual([[day(2), 20]]);
+    });
+  });
+
+  describe('resize', () => {
+    it('should observe the container and resize the chart, debounced', () => {
+      jest.useFakeTimers();
+      renderChart(models.ChrLinTst);
+      const chart = lastChart();
+      expect(observers).toHaveLength(1);
+      expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector("div#chart"));
+      chart.resize.mockClear();
+
+      act(() => {
+        observers[0].callback();
+        observers[0].callback();
+        jest.advanceTimersByTime(60);
+      });
+
+      expect(chart.resize).toHaveBeenCalledTimes(1);
+    });
+
+    it('should build the option with the size of the container', () => {
+      const model = clone(models.ChrSemiCircleTst);
+
+      renderChart(model);
+
+      // 500 / 2 + 50 - 12
+      expect(lastOption().title.top).toBe(288);
+    });
+
+    it('should stop observing when it is unmounted', () => {
+      const {unmount} = renderChart(models.ChrLinTst);
+
+      unmount();
+
+      expect(observers[0].disconnect).toHaveBeenCalled();
+    });
+
+    it('should work without ResizeObserver', () => {
+      delete global.ResizeObserver;
+
+      renderChart(models.ChrLinTst);
+
+      expect(echarts.init).toHaveBeenCalled();
+    });
+  });
+
+  describe('drilldown', () => {
+    const pieValues = [
+      {names: "Chrome", serie1: 10, subserie1: 3},
+      {names: "Firefox", serie1: 20, subserie1: 4}
+    ];
+
+    it('should replace a series that has a drilldown when it is clicked, and restore it with the back control', () => {
+      renderChart(models.ChrPieTst, pieValues);
+      expect(lastOption().series[0].id).toBe("serie1");
+
+      act(() => lastChart().handlers.click({seriesId: "serie1", name: "Chrome"}));
+
+      expect(lastOption().series[0].id).toBe("serie1_1");
+      expect(lastOption().series[0].data[0]).toEqual({name: "Chrome", value: 3});
+      expect(texts(lastOption())[0]).toContain(i18n.t("Themes"));
+
+      act(() => lastOption().graphic[0].onclick());
+
+      expect(lastOption().series[0].id).toBe("serie1");
+      expect(lastOption().graphic).toBeUndefined();
+    });
+
+    it('should ignore the click on a series without drilldown', () => {
+      renderChart(models.ChrLinTst);
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => lastChart().handlers.click({seriesId: "serie-1"}));
+
+      expect(lastChart().setOption.mock.calls.length).toBe(calls);
+    });
+
+    it('should close the drilldown when the server sends another chart', () => {
+      const {store} = renderChart(models.ChrPieTst, pieValues);
+      act(() => lastChart().handlers.click({seriesId: "serie1"}));
+      expect(lastOption().series[0].id).toBe("serie1_1");
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: clone(models.ChrPieTst)}));
+      });
+
+      expect(lastOption().series[0].id).toBe("serie1");
+    });
+  });
 });

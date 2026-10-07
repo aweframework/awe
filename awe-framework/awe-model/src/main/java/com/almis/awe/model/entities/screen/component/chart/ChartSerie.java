@@ -1,6 +1,9 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
+import com.almis.awe.model.entities.screen.component.chart.echarts.EChartsModelBuilder;
 import com.almis.awe.model.util.data.ListUtil;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -11,8 +14,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +30,7 @@ import java.util.Map;
  * </p>
  * @author Pablo VIDAL - 21/OCT/2014
  */
+@Slf4j
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
@@ -86,6 +92,26 @@ public class ChartSerie extends AbstractChart {
   // Chart serie data
   @XStreamImplicit
   private transient List<ChartSeriePoint> data;
+
+  /**
+   * Retrieve the Apache ECharts translation of the series, without data.
+   * <p>
+   * It travels with the series of the chart actions (add, replace and remove series), beside the fields that the
+   * AngularJS client reads. If the translation fails, a warning is logged and the key is omitted.
+   * </p>
+   *
+   * @return ECharts series, empty when it could not be built
+   */
+  @JsonGetter("echarts")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, Object> getEcharts() {
+    try {
+      return new EChartsModelBuilder().buildSeries(this);
+    } catch (RuntimeException exc) {
+      log.warn("The ECharts series '{}' could not be built and is omitted: {}", getId(), exc.toString());
+      return Collections.emptyMap();
+    }
+  }
 
   @Override
   public ChartSerie copy() {

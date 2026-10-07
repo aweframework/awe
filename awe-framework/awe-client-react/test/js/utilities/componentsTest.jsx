@@ -232,7 +232,7 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   });
 
   it('should send the image of a rendered chart when printing', () => {
-    const chart = {getSVG: jest.fn(() => "<svg>chart</svg>")};
+    const chart = {getImage: jest.fn(() => "<svg>chart</svg>")};
     registerChart("chartPrint", chart);
     const chartComponent = {
       address: {component: "chartPrint", view: "report"},

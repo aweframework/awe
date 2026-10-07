@@ -142,6 +142,27 @@ describe('awe-react-client/test/js/redux/actions/dependenciesTest.jsx', function
     expect(dispatch).toHaveBeenCalled();
   });
 
+  it('should warn that a chart-options dependency is not applied to ECharts charts', function () {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    state = {...state,
+      components: {
+        ...state.components,
+        component: {
+          ...state.components.component,
+          dependencies: [{
+            type: "and", source: "formule", formule: "{test:1}", target: "chart-options", initial: true,
+            elements: [{id: 'component2', checkChanges: true, alias: "criteriaValue"}],
+            actions: []
+          }]
+        }
+      }};
+    initializeDependencies('base', state, dispatch);
+    checkDependencies(state, dispatch);
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("chart-options"));
+    warn.mockRestore();
+  });
+
   it('should initialize and check an attribute dependency', function () {
     state = {...state,
       components: {
