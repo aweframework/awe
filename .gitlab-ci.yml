@@ -9,11 +9,23 @@ include:
   - template: Secret-Detection.gitlab-ci.yml
   - template: Container-Scanning.gitlab-ci.yml
 
+# A new commit cancels the interruptible jobs (build, tests, analysis) of the older pipelines of the same ref: on merge
+# request and feature branches, and on develop pushes, where merges often come in a row and only the newest commit matters.
+# A job that publishes, deploys or must see every commit (secret detection) sets interruptible: false and always finishes;
+# a job whose needs were cancelled does not start. Never cancelled: scheduled pipelines (the weekly develop pipeline runs
+# the Selenium suites), develop pipelines started from Run pipeline, the API or a trigger, and the other protected
+# branches (master, support/*), where every commit keeps its full pipeline.
 workflow:
   auto_cancel:
     on_new_commit: interruptible
   rules:
-    - if: $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      auto_cancel:
+        on_new_commit: none
+    - if: $CI_COMMIT_REF_NAME == "develop" && $CI_PIPELINE_SOURCE =~ /^(web|api|trigger)$/
+      auto_cancel:
+        on_new_commit: none
+    - if: $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_REF_NAME != "develop"
       auto_cancel:
         on_new_commit: none
     - when: always
@@ -953,6 +965,9 @@ gemnasium-maven-dependency_scanning:
 secret_detection:
   needs: [ ]
   timeout: 15m
+  # Never auto-cancelled, on any ref (see workflow): on develop a newer pipeline does not scan the commits of an older one;
+  # on a merge request the cost is this short job finishing in a superseded pipeline
+  interruptible: false
   rules:
     - <<: *if-mr-code
     - <<: *if-mr-website
