@@ -770,8 +770,8 @@ console) and quitting the browser.
 ### Automation tool (`awe.test.tool`)
 
 The tool that drives the browser is chosen with `awe.test.tool`. Its values are `selenium` (the default, so nothing changes for
-existing suites) and `playwright`, which is a **pilot** (see below). The name is not case sensitive, and a value that is not a
-supported tool stops the tests at startup with a message that lists the supported ones.
+existing suites) and `playwright`, which is a **pilot** for projects of your own (see below) although it is the blocking
+browser tool of the AWE pipeline. The name is not case sensitive, and a value that is not a supported tool stops the tests at startup with a message that lists the supported ones.
 `getDriver()` is the one part of the API that belongs to Selenium: it returns the Selenium driver with `selenium` and throws an
 `UnsupportedOperationException` with any other tool, so write your own steps with the neutral steps and `getBrowser()`.
 
@@ -780,12 +780,13 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
   -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
-#### Playwright (pilot)
+#### Playwright {#playwright-pilot}
 
 `awe.test.tool=playwright` runs the same tests with [Playwright for Java](https://playwright.dev/java/), which is part of
 `awe-testing` (there is nothing else to add to your project). The steps behave as they do with Selenium: the same pauses, the
-same scrolls before a click, queries that answer at once and are polled by the steps. It is a pilot, so use it to try your
-suites and report what differs, not yet as the only tool of a pipeline.
+same scrolls before a click, queries that answer at once and are polled by the steps. For your own projects it is new: try your
+suites with it and report what differs. The AWE pipeline runs its browser suites with it: the Playwright jobs block merge
+requests, `develop` and `master` (see below).
 
 The browser is chosen with the usual `awe.test.browser`; Playwright runs the browsers it installs itself, not the ones of your
 machine:
@@ -824,32 +825,33 @@ The unit tests of `awe-testing` that run a real Chromium through Playwright neve
 installed and are **skipped** where there is none, so a machine without browsers still gets a green build. The CI job of the
 unit tests (`All UT`) installs only the Chromium headless shell with its libraries, caches it between pipelines and passes
 `-Dawe.test.playwright.required=true`, which turns a missing browser into a **failure** instead of a skip; use the same switch
-to make sure that the tests run on your machine. CI only proves Chromium for the blocking adapter tests of `All UT` (the
-Firefox pilot suites below do not gate the pipeline): the Firefox of the adapter is checked where Firefox is installed, by
-running the same tests with `-Dawe.test.playwright.engine=firefox` (a Firefox that is installed
-and fails to launch fails the test; one that is not installed skips it).
+to make sure that the tests run on your machine. CI proves Chromium in the adapter tests of `All UT`; the Playwright
+suites below run Chromium and Firefox. To check the Firefox of the adapter on your machine, run the same unit tests with
+`-Dawe.test.playwright.engine=firefox` (a Firefox that is installed and fails to launch fails the test; one that is not
+installed skips it).
 
-**Pilot jobs in the AWE pipeline.** To compare Playwright with Selenium on the real suites, the pipeline of AWE runs the same
-suites with `awe.test.tool=playwright`: 4 jobs (`Playwright Chromium IT`, `Playwright Firefox IT`,
+**Playwright jobs in the AWE pipeline.** The pipeline of AWE runs the same suites as the Selenium jobs with
+`awe.test.tool=playwright`: 4 jobs (`Playwright Chromium IT`, `Playwright Firefox IT`,
 `Playwright Chromium IT React` and `Playwright Firefox IT React`), each one a matrix of the 4 suite groups of its Selenium
 counterpart, which makes **16 jobs**. The first two run the AngularJS application (`awe-tests/awe-boot`, the same groups as
 `Chrome IT` and `Firefox IT`) and the other two the React application (`awe-tests/awe-boot-react`, the classes of the React jobs).
 Two small jobs, `Playwright Chromium browser` and `Playwright Firefox browser`, download and cache the browsers for them.
-Each pilot job installs only the headless browser it needs, runs it next to the application it starts and writes its failure
+Each job installs only the headless browser it needs, runs it next to the application it starts and writes its failure
 evidence (screenshot, page source, console, [trace and video](#playwright-evidence)) to `browser-evidence/`, which you find
 in the artifacts of the job like the evidence of the Selenium jobs; the screen recorder of Selenium is off
 (`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
-- **When they run.** Automatically on `develop` only. On a merge request that changes `awe-framework/awe-testing`,
-  `awe-tests` or `.gitlab-ci.yml` they are **manual** jobs: start them from the pipeline page when you want the comparison
-  (a job that finds no cached browser downloads it). They do not run on other merge requests, on `master` or on `support/*`.
-- **They do not gate the pipeline.** The jobs are `allow_failure`, are not retried (the first result of every run is the one
-  that counts) and Sonar does not wait for them. This includes Firefox: the pilot **does** run Firefox in CI, but a failure
-  there never fails a pipeline. The sentence above that CI only proves Chromium refers to the adapter unit tests of `All UT`,
-  which are the ones that block.
-- **How to compare.** Open the Playwright job and the Selenium job of the same suite and read the failsafe summary
-  (`Tests run: ...`) and the `Playwright pilot ...` line that the Playwright job prints at the end of its log, with its status
-  and the time since the job started.
+- **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`. They do not run on
+  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Chrome IT`, `Firefox IT` and their React
+  versions) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
+  requests or ordinary pushes.
+- **They gate the pipeline.** A failing Playwright job fails the pipeline, stops `Launch Sonar` and the release jobs, and
+  prevents Renovate from automerging, exactly like a Selenium job. They have the same one automatic retry on a script or
+  runner failure (#766), and the same for Firefox as for Chromium. Their jacoco files have a different name per job
+  (`jacoco-${TEST_NAME}-it.exec`), so the coverage of both tools is kept when both ran.
+- **How to compare.** On `master` and in the weekly scheduled pipeline both tools run. Open the Playwright job and the Selenium job
+  of the same suite and read the failsafe summary (`Tests run: ...`) and the `Playwright ...` line that the Playwright job
+  prints at the end of its log, with its status and the time since the job started.
 
 Chromium is started with `--disable-dev-shm-usage` (the shared memory of a container is too small for it) and, when the
 sandbox cannot work, without its sandbox (`--no-sandbox`): that is the case when it runs headless, when the process runs as
