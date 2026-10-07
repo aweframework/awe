@@ -284,6 +284,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getTreeRowIcon", () -> i.getTreeRowIcon(GRID, ROW));
     catalog.put("getDeletedTreeRow", () -> i.getDeletedTreeRow(GRID, ROW));
     catalog.put("getSelectOption", () -> i.getSelectOption(2));
+    catalog.put("getSelectOptions", i::getSelectOptions);
     return catalog;
   }
 

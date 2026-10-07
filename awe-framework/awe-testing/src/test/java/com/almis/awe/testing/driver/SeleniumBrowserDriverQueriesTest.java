@@ -67,6 +67,19 @@ class SeleniumBrowserDriverQueriesTest {
   }
 
   @Test
+  void shouldRenderWhatSeleniumDisplaysAndNothingElse() {
+    assertThat(browser.isRendered(ITEM)).isFalse();
+
+    WebElement element = present();
+    when(element.isDisplayed()).thenReturn(true, false);
+
+    assertThat(browser.isRendered(ITEM)).isTrue();
+    assertThat(browser.isRendered(ITEM)).isFalse();
+    when(element.isDisplayed()).thenThrow(new StaleElementReferenceException("replaced"));
+    assertThat(browser.isRendered(ITEM)).isFalse();
+  }
+
+  @Test
   void shouldTakeAMissingOrReplacedElementAsNotVisibleAndNotEnabled() {
     assertThat(browser.isVisible(ITEM)).isFalse();
     assertThat(browser.isEnabled(ITEM)).isFalse();

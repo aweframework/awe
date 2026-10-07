@@ -956,6 +956,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get every option of the open select dropdown (or suggest list)
+   *
+   * @return Options selector
+   */
+  default By getSelectOptions() {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.SELECT_DROPDOWN) + "]//*[" + TestIds.xpath(TestIds.SELECT_OPTION) + "]");
+  }
+
+  /**
    * Get an option of the open select dropdown (or suggest list) by its position
    *
    * @param position Position of the option (the first is 1)

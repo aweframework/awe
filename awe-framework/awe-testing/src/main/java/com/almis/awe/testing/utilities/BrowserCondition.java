@@ -4,6 +4,8 @@ import com.almis.awe.testing.driver.BrowserDriver;
 import com.almis.awe.testing.driver.ElementReplacedException;
 import com.almis.awe.testing.driver.Locator;
 
+import java.time.Duration;
+import java.util.function.LongSupplier;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -16,6 +18,9 @@ import java.util.function.Predicate;
  */
 @FunctionalInterface
 interface BrowserCondition {
+
+  /** Time that a rendered element has to be transparent to be taken as gone */
+  Duration TRANSPARENT_TO_BE_GONE = Duration.ofMillis(300);
 
   /**
    * Check the condition now
@@ -67,13 +72,67 @@ interface BrowserCondition {
   }
 
   /**
-   * The first match of the locator is not displayed, or there is none
+   * The first match of the locator is gone: there is none, it is not rendered ({@code display:none},
+   * {@code visibility:hidden}, no box), or it has been transparent for at least {@link #TRANSPARENT_TO_BE_GONE}.
+   *
+   * <p>A transparent element that is still rendered is not gone at its first look: a loader that fades in is at
+   * {@code opacity:0} in its first frame and covers what it loads from the next one. An element that is still transparent
+   * 300 milliseconds after it was first seen transparent has faded out to stay (it is gone, as it is for Selenium, whose
+   * {@code isDisplayed} counts opacity) while a fade-in of some hundred milliseconds is over by then and restarts the
+   * time. It depends on the time, not on the number of checks, so the interval of the poll does not matter (the poll of
+   * the utilities looks every 500 ms, so a transparent element is gone at its second look).</p>
+   *
+   * <p>The condition remembers when the element was first seen transparent, so <strong>create one per wait</strong> (as the
+   * utilities do). If one is reused it is still correct: the time restarts when the element is shown or not rendered, and
+   * when the condition is met. With Selenium a transparent element is not rendered ({@link BrowserDriver#isRendered} is
+   * its {@link BrowserDriver#isVisible}), so it is gone at once, as it always was.</p>
    *
    * @param locator Locator
    * @return Condition
    */
   static BrowserCondition invisible(Locator locator) {
-    return of("element located by " + locator + " to be invisible", browser -> !browser.isVisible(locator));
+    return invisible(locator, System::nanoTime);
+  }
+
+  /**
+   * The first match of the locator is gone, with the time that a monotonic ticker tells (nanoseconds, as
+   * {@link System#nanoTime()}: a change of the system clock does not change how long the element has been transparent)
+   *
+   * @param locator Locator
+   * @param nanos   Ticker that measures the time that the element is transparent, in nanoseconds
+   * @return Condition
+   * @see #invisible(Locator)
+   */
+  static BrowserCondition invisible(Locator locator, LongSupplier nanos) {
+    return new BrowserCondition() {
+      private Long transparentSince;
+
+      @Override
+      public boolean isMet(BrowserDriver browser) {
+        if (!browser.isRendered(locator)) {
+          transparentSince = null;
+          return true;
+        }
+        if (browser.isVisible(locator)) {
+          transparentSince = null;
+          return false;
+        }
+        long now = nanos.getAsLong();
+        if (transparentSince == null) {
+          transparentSince = now;
+        }
+        boolean gone = now - transparentSince >= TRANSPARENT_TO_BE_GONE.toNanos();
+        if (gone) {
+          transparentSince = null;
+        }
+        return gone;
+      }
+
+      @Override
+      public String toString() {
+        return "element located by " + locator + " to be invisible";
+      }
+    };
   }
 
   /**
@@ -99,6 +158,40 @@ interface BrowserCondition {
     return of("text '" + text + "' to be present in element located by " + locator, browser -> {
       try {
         return browser.text(locator).contains(text);
+      } catch (ElementReplacedException exc) {
+        return false;
+      }
+    });
+  }
+
+  /**
+   * The text of the first match is a text, ignoring the case. See {@link #textContains} for a missing or replaced element
+   *
+   * @param locator Locator
+   * @param text    Text
+   * @return Condition
+   */
+  static BrowserCondition textEquals(Locator locator, String text) {
+    return of("text '" + text + "' to be the text of the element located by " + locator, browser -> {
+      try {
+        return browser.text(locator).equalsIgnoreCase(text);
+      } catch (ElementReplacedException exc) {
+        return false;
+      }
+    });
+  }
+
+  /**
+   * The text of any of the matches contains a text. Nothing matching is "not yet", not an error
+   *
+   * @param locator Locator
+   * @param text    Text
+   * @return Condition
+   */
+  static BrowserCondition anyTextContains(Locator locator, String text) {
+    return of("text '" + text + "' to be present in any of the elements located by " + locator, browser -> {
+      try {
+        return browser.texts(locator).stream().anyMatch(candidate -> candidate.contains(text));
       } catch (ElementReplacedException exc) {
         return false;
       }

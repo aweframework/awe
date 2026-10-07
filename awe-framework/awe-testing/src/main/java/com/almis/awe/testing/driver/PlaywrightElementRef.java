@@ -28,9 +28,9 @@ record PlaywrightElementRef(ElementHandle handle, Locator locator, String id) im
   @Override
   public boolean isVisible() {
     try {
-      // Playwright answers false for an element that left the page: Selenium (and the port) report it as replaced
+      // An element that left the page is reported as replaced, as Selenium (and the port) do
       requireAttached();
-      return handle.isVisible();
+      return Boolean.TRUE.equals(handle.evaluate(PlaywrightBrowserDriver.IS_SHOWN));
     } catch (PlaywrightException exc) {
       throw replacedOrSame(exc);
     }

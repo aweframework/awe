@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
  * browser is not installed.
  */
 @RequiresPlaywrightBrowser
-abstract class AbstractPlaywrightBrowserTest {
+public abstract class AbstractPlaywrightBrowserTest {
 
   protected BrowserContext context;
   protected Page page;
