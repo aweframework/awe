@@ -1,0 +1,9 @@
+{
+  "noData": "Aucune donnée à afficher",
+  "decimalPoint": ",",
+  "thousandsSep": ".",
+  "drillUpText": "Retour à {series.name}",
+  "months": [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],
+  "shortMonths": [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jul", "Aou", "Sep", "Oct", "Nov", "Déc" ],
+  "weekdays": [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" ]
+}
