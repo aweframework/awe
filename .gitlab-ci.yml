@@ -676,21 +676,21 @@ Javadoc test:
   before_script:
     - apt-get update -qq && apt-get install -y -qq fontconfig fonts-dejavu >/dev/null
   script:
-    - mvn -f ${IT_APP_MODULE}/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ ${IT_SELECTION} ${IT_TOOL_OPTS} -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f ${IT_APP_MODULE}/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/browser-evidence/ ${IT_SELECTION} ${IT_TOOL_OPTS} -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
     - |
-      if [ -d selenium-evidence ] && [ -n "$(find selenium-evidence -type f 2>/dev/null | head -n 1)" ]; then
-        echo "Selenium evidence (screenshots and videos): ${CI_JOB_URL}/artifacts/browse/selenium-evidence/"
-        echo "Files in selenium-evidence/: $(find selenium-evidence -type f | wc -l)"
+      if [ -d browser-evidence ] && [ -n "$(find browser-evidence -type f 2>/dev/null | head -n 1)" ]; then
+        echo "Browser test evidence (screenshots, traces and videos): ${CI_JOB_URL}/artifacts/browse/browser-evidence/"
+        echo "Files in browser-evidence/: $(find browser-evidence -type f | wc -l)"
       fi
-  # Failure evidence (screenshots and videos) is written under selenium-evidence/, at the artifact root.
+  # Failure evidence (screenshots, Playwright traces and videos) is written under browser-evidence/, at the artifact root.
   # It has no expose_as: GitLab does not display it when a path uses a CI variable, and the per-job
   # jacoco file name (needed by Launch Sonar) requires one.
   artifacts:
     paths:
-      - selenium-evidence/
+      - browser-evidence/
       - ${IT_APP_MODULE}/target/tests/
       - ${IT_APP_MODULE}/target/surefire-reports/
       - ${IT_APP_MODULE}/target/jacoco-${TEST_NAME}-it.exec
@@ -823,8 +823,9 @@ Chrome IT React:
 #   - are not needed by "Launch Sonar": their coverage is not an input of the quality gate while this is a pilot;
 #   - run automatically on develop only; on a merge request that changes the adapter, the suites or this file they are manual
 #     (started from the pipeline page, which does not wait for them), and they do not run on master or support/*;
-#   - write failure evidence to selenium-evidence/ as the Selenium jobs do, but no video: a headless browser has no screen to
-#     film (awe.test.allowed-recording=false), the screenshot, page source and console of the failure replace it.
+#   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
+#     failure, the Playwright trace of the failed test and the page video of a class with a failure. The screen recorder of
+#     the Selenium jobs is off (awe.test.allowed-recording=false): a headless browser has no screen to film.
 # The suite groups, test names and ports follow the Selenium jobs (ports 6317 to 6332 are free, the Selenium jobs use 6301 to
 # 6316). Compare a job with the Selenium job of the same suite through the failsafe summary and the last line of its log.
 .playwright-testing:

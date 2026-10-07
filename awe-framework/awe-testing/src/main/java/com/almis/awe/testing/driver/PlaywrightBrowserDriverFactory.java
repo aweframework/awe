@@ -3,12 +3,15 @@ package com.almis.awe.testing.driver;
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.model.types.BrowserType;
+import com.almis.awe.testing.model.types.EvidenceMode;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -107,21 +110,59 @@ public class PlaywrightBrowserDriverFactory implements BrowserDriverFactory {
     Playwright playwright = createPlaywright();
     Browser browser = null;
     BrowserContext context = null;
+    Path videoDir = null;
     try {
       browser = launch(playwright, engine, isHeadless(properties.getBrowser()), properties.getPlaywright().getNoSandbox());
-      context = browser.newContext(new Browser.NewContextOptions()
+      Path evidenceDir = Path.of(properties.getScreenshotPath());
+      videoDir = properties.getPlaywright().getVideo() == EvidenceMode.OFF ? null : createVideoDirectory(evidenceDir);
+      Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
         .setViewportSize(properties.getBrowserWidth(), properties.getBrowserHeight())
         // As the Firefox profile of the Selenium tool does: the environments under test have self signed certificates
-        .setIgnoreHTTPSErrors(true));
+        .setIgnoreHTTPSErrors(true);
+      if (videoDir != null) {
+        // The context lasts the whole test class, so that is the video: it is kept (or not) when the context is closed. It
+        // is recorded at half the window size: encoding the full size made the Chromium suites about 50% slower in CI
+        contextOptions.setRecordVideoDir(videoDir)
+          .setRecordVideoSize(properties.getBrowserWidth() / 2, properties.getBrowserHeight() / 2);
+      }
+      context = browser.newContext(contextOptions);
       context.setDefaultTimeout(properties.getTimeout().toMillis());
       context.setDefaultNavigationTimeout(properties.getTimeout().toMillis());
+      // The video starts with the page
+      long recordingStart = System.nanoTime();
       Page page = context.newPage();
+      PlaywrightEvidence evidence = new PlaywrightEvidence(context, videoDir == null ? null : page.video(), videoDir,
+        evidenceDir, properties.getPlaywright().getTrace(), properties.getPlaywright().isTraceSnapshots(), properties.getPlaywright().getVideo(), System::nanoTime, recordingStart);
+      evidence.startTracing();
       PlaywrightBrowserDriver driver = new PlaywrightBrowserDriver(page);
       model.setBrowser(driver);
-      return new PlaywrightBrowserSession(playwright, browser, context, driver);
+      return new PlaywrightBrowserSession(playwright, browser, context, driver, evidence);
     } catch (RuntimeException exc) {
       new PlaywrightBrowserSession(playwright, browser, context, null).closeQuietly();
+      // Nothing was recorded in it yet: it must not stay among the evidence
+      deleteQuietly(videoDir);
       throw exc;
+    }
+  }
+
+  // A folder of its own inside the evidence one, which is on the same file system and is removed when the video is resolved
+  private static void deleteQuietly(Path videoDir) {
+    if (videoDir == null) {
+      return;
+    }
+    try (java.util.stream.Stream<Path> files = Files.walk(videoDir)) {
+      files.sorted(java.util.Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+    } catch (IOException | RuntimeException exc) {
+      log.debug("The folder of the Playwright video {} could not be removed", videoDir, exc);
+    }
+  }
+
+  private static Path createVideoDirectory(Path evidenceDir) {
+    try {
+      Files.createDirectories(evidenceDir);
+      return Files.createTempDirectory(evidenceDir, "playwright-video-");
+    } catch (IOException exc) {
+      throw new UncheckedIOException("Could not create the folder of the Playwright video in " + evidenceDir, exc);
     }
   }
 
@@ -162,12 +203,40 @@ public class PlaywrightBrowserDriverFactory implements BrowserDriverFactory {
     private final Browser browser;
     private final BrowserContext context;
     private final BrowserDriver driver;
+    private final PlaywrightEvidence evidence;
 
     PlaywrightBrowserSession(Playwright playwright, Browser browser, BrowserContext context, BrowserDriver driver) {
+      this(playwright, browser, context, driver, null);
+    }
+
+    PlaywrightBrowserSession(Playwright playwright, Browser browser, BrowserContext context, BrowserDriver driver,
+                             PlaywrightEvidence evidence) {
       this.playwright = playwright;
       this.browser = browser;
       this.context = context;
       this.driver = driver;
+      this.evidence = evidence;
+    }
+
+    @Override
+    public void testStarted(String testClass, String testName) {
+      if (evidence != null) {
+        evidence.testStarted(testClass, testName);
+      }
+    }
+
+    @Override
+    public void testFinished(String testName, String evidenceName, boolean failed) {
+      if (evidence != null) {
+        evidence.testFinished(testName, evidenceName, failed);
+      }
+    }
+
+    @Override
+    public void onEvidence(EvidenceListener listener) {
+      if (evidence != null) {
+        evidence.setListener(listener);
+      }
     }
 
     @Override
@@ -179,7 +248,9 @@ public class PlaywrightBrowserDriverFactory implements BrowserDriverFactory {
     public void close() {
       log.info("Disposing Playwright browser...");
       RuntimeException failure = null;
+      // The video is complete when its context is closed, and that is when it is kept or deleted
       for (AutoCloseable resource : new AutoCloseable[]{context == null ? null : context::close,
+        evidence == null ? null : evidence::finishVideo,
         browser == null ? null : browser::close, playwright == null ? null : playwright::close}) {
         failure = closeResource(resource, failure);
       }

@@ -836,8 +836,9 @@ counterpart, which makes **16 jobs**. The first two run the AngularJS applicatio
 `Chrome IT` and `Firefox IT`) and the other two the React application (`awe-tests/awe-boot-react`, the classes of the React jobs).
 Two small jobs, `Playwright Chromium browser` and `Playwright Firefox browser`, download and cache the browsers for them.
 Each pilot job installs only the headless browser it needs, runs it next to the application it starts and writes its failure
-evidence (screenshot, page source and console) to `selenium-evidence/`, which you find in the artifacts of the job like the
-evidence of the Selenium jobs; it does not record video (`awe.test.allowed-recording=false`).
+evidence (screenshot, page source, console, [trace and video](#playwright-evidence)) to `browser-evidence/`, which you find
+in the artifacts of the job like the evidence of the Selenium jobs; the screen recorder of Selenium is off
+(`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
 - **When they run.** Automatically on `develop` only. On a merge request that changes `awe-framework/awe-testing`,
   `awe-tests` or `.gitlab-ci.yml` they are **manual** jobs: start them from the pipeline page when you want the comparison
@@ -868,9 +869,42 @@ Differences you may notice with respect to Selenium:
   is not started later. A script that navigates the page (changes the location, submits a form) runs once and returns null.
 - A CSS locator also finds the elements inside open shadow roots.
 - Visible means that the element has a box and is not `visibility: hidden`; enabled also takes `aria-disabled` into account.
-- The video recorder of the test run films the screen of the machine, not the browser, so a headless Playwright run has nothing
-  of the test to film: turn it off with `awe.test.allowed-recording=false` and use the screenshot, page source and console of
-  the [failure evidence](#failure-evidence).
+- The video recorder of the test run (`awe.test.allowed-recording`) films the screen of the machine, not the browser, so a
+  headless Playwright run has nothing of the test to film: turn it off with `awe.test.allowed-recording=false`. Playwright
+  records the page itself, see [its evidence](#playwright-evidence).
+
+#### Playwright evidence
+
+Besides the screenshot, page source and console of the [failure evidence](#failure-evidence), Playwright leaves two more
+files in `awe.test.screenshot-path` (`browser-evidence/` in CI, and linked from the log like the screenshot):
+
+| File | What it is |
+|---|---|
+| `<test>.trace.zip` | The **trace** of a failed test: every action with its screenshots, the console and the network (and the DOM at each step, see `trace-snapshots` below). One file for each failed test, named like its screenshot |
+| `<qualified.TestClass>.webm` | The **video** of the page during the whole test class (named after the qualified class name, e.g. `com.almis.awe.test.selenium.CRUDTestsIT.webm`). One per class, and kept only when a test of the class failed |
+| `<qualified.TestClass>.video-times.txt` | Next to the video: the start of each test of the class from the beginning of the video (`mm:ss.SSS`, approximate), its result and its name. Look for the `FAILED` line and move the video there |
+
+The browser lasts the whole test class (its ordered tests share the login and the data), so the video is of the class and not
+of the test; the times file tells where each test starts.
+
+To open a trace, use the Trace Viewer of Playwright, which shows the timeline, the page at each action and its details:
+
+```bash
+npx playwright show-trace path/to/LoginIT-2026-10-06_10-00-00-000-[ERROR]-option-t020.trace.zip
+```
+
+or drop the file in [trace.playwright.dev](https://trace.playwright.dev), which runs in your browser: the file is not uploaded
+anywhere.
+
+Both are chosen with a mode, `off`, `on-failure` (the default) or `always`:
+
+| Property | Default | Meaning |
+|---|---|---|
+| `awe.test.playwright.trace` | `on-failure` | `on-failure` saves the trace of each failed test and discards the others; `always` saves them all; `off` does not even record them |
+| `awe.test.playwright.trace-snapshots` | `false` | `true` also takes the DOM snapshots of every action, so the Trace Viewer shows the page you can inspect before and after each one. They made the Scheduler suite about 40% slower in our measurements (the screenshots of the trace cost nothing noticeable), so turn them on only to investigate a failure that the screenshots do not explain |
+| `awe.test.playwright.video` | `on-failure` | `on-failure` keeps the video of a class with a failed test and deletes the others; `always` keeps every one; `off` does not record video. The video is recorded at half the window size (`awe.test.browser-width` × `awe.test.browser-height`): encoding a full size video made the Chromium suites about 50% slower on the CI runners |
+
+Set both modes to `off` to record nothing at all, for example when you debug something else.
 
 ## Writing Selenium tests for your product
 
@@ -1104,7 +1138,7 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 ### Failure evidence
 
 When a test fails, `awe-testing` collects its evidence next to each other in `awe.test.screenshot-path`
-(`target/tests/selenium/screenshots/` by default; the CI sets `selenium-evidence/`) and prints a link to each file in
+(`target/tests/selenium/screenshots/` by default; the CI sets `browser-evidence/`) and prints a link to each file in
 the test output:
 
 | File | What it is |
@@ -1113,6 +1147,7 @@ the test output:
 | `<test>.html` | Page source (DOM): look here for the hooks and attributes of the element the test did not find |
 | `<test>.console.log` | Console of the browser (JavaScript errors, warnings and logs). The severe entries are also printed in the test output, since a client error often explains a blank screen |
 | video | The recording of the test. Videos are kept only for failed tests (`awe.test.video-save=FAILED`); `awe.test.allowed-recording=false` turns recording off |
+| `<test>.trace.zip`, `<qualified.TestClass>.webm` | **Playwright only**: the trace of the failed test and the video of the class, see [Playwright evidence](#playwright-evidence) |
 
 Start with the console and the HTML: a failed step usually means the element was not in the DOM yet, did not carry the
 expected state attribute, or the client threw an error before rendering it.
@@ -1157,7 +1192,7 @@ Many CI-only failures are timing failures: the CI container has little CPU. Limi
 (`--cpus=4`) to check that a fix does not depend on a fast machine.
 :::
 
-When the failure shows only on CI, download the job artifacts (`selenium-evidence/` has the screenshot, the page source,
+When the failure shows only on CI, download the job artifacts (`browser-evidence/` has the screenshot, the page source,
 the browser console and the video of every failed test) before changing code: the evidence usually says whether the step
 needs a better wait (a state to wait on) or whether the client has a defect.
 

@@ -106,6 +106,67 @@ class PlaywrightBrowserDriverFactoryTest {
   }
 
   @Test
+  void aContextThatCannotBeCreatedDoesNotLeaveTheFolderOfTheVideoBehind(@org.junit.jupiter.api.io.TempDir java.nio.file.Path evidence) throws java.io.IOException {
+    AweTestConfigProperties properties = new AweTestConfigProperties();
+    properties.setBrowser(BrowserType.HEADLESS_CHROME);
+    properties.setScreenshotPath(evidence.toString());
+    SeleniumModel model = new SeleniumModel().setProperties(properties);
+    Playwright playwright = mock(Playwright.class);
+    Browser browser = mock(Browser.class);
+    org.mockito.Mockito.when(browser.newContext(org.mockito.ArgumentMatchers.any(Browser.NewContextOptions.class)))
+      .thenThrow(new PlaywrightException("cannot create the context"));
+    PlaywrightBrowserDriverFactory factory = new PlaywrightBrowserDriverFactory() {
+      @Override
+      protected Playwright createPlaywright() {
+        return playwright;
+      }
+
+      @Override
+      protected Browser launch(Playwright started, Engine engine, boolean headless, Boolean noSandbox) {
+        return browser;
+      }
+    };
+
+    assertThatThrownBy(() -> factory.create(model, "test")).isInstanceOf(PlaywrightException.class);
+
+    try (java.util.stream.Stream<java.nio.file.Path> left = java.nio.file.Files.list(evidence)) {
+      assertThat(left).isEmpty();
+    }
+  }
+
+  @Test
+  void theVideoIsRecordedAtHalfTheSizeOfTheWindow(@org.junit.jupiter.api.io.TempDir java.nio.file.Path evidence) {
+    // Encoding the video of a full size window made the Chromium suites about 50% slower on the CI runners
+    AweTestConfigProperties properties = new AweTestConfigProperties();
+    properties.setBrowser(BrowserType.HEADLESS_CHROME);
+    properties.setBrowserWidth(1280);
+    properties.setBrowserHeight(1024);
+    properties.setScreenshotPath(evidence.toString());
+    SeleniumModel model = new SeleniumModel().setProperties(properties);
+    Browser browser = mock(Browser.class);
+    org.mockito.ArgumentCaptor<Browser.NewContextOptions> options = org.mockito.ArgumentCaptor.forClass(Browser.NewContextOptions.class);
+    org.mockito.Mockito.when(browser.newContext(options.capture())).thenThrow(new PlaywrightException("stop after the options"));
+    PlaywrightBrowserDriverFactory factory = new PlaywrightBrowserDriverFactory() {
+      @Override
+      protected Playwright createPlaywright() {
+        return mock(Playwright.class);
+      }
+
+      @Override
+      protected Browser launch(Playwright started, Engine engine, boolean headless, Boolean noSandbox) {
+        return browser;
+      }
+    };
+
+    assertThatThrownBy(() -> factory.create(model, "test")).isInstanceOf(PlaywrightException.class);
+
+    assertThat(options.getValue().viewportSize.get().width).isEqualTo(1280);
+    assertThat(options.getValue().viewportSize.get().height).isEqualTo(1024);
+    assertThat(options.getValue().recordVideoSize.width).isEqualTo(640);
+    assertThat(options.getValue().recordVideoSize.height).isEqualTo(512);
+  }
+
+  @Test
   void aBrowserThatCannotBeLaunchedDoesNotLeaveThePlaywrightDriverRunning() {
     AweTestConfigProperties properties = new AweTestConfigProperties();
     properties.setBrowser(BrowserType.HEADLESS_CHROME);

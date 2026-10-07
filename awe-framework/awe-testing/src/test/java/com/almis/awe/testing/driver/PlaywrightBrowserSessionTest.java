@@ -50,4 +50,51 @@ class PlaywrightBrowserSessionTest {
     verify(browser).close();
     verify(playwright).close();
   }
+
+  @Test
+  void theVideoIsResolvedAfterTheContextIsClosedBecauseThatIsWhenItIsComplete() {
+    Playwright playwright = mock(Playwright.class);
+    Browser browser = mock(Browser.class);
+    BrowserContext context = mock(BrowserContext.class);
+    PlaywrightEvidence evidence = mock(PlaywrightEvidence.class);
+    PlaywrightBrowserDriverFactory.PlaywrightBrowserSession session =
+      new PlaywrightBrowserDriverFactory.PlaywrightBrowserSession(playwright, browser, context, null, evidence);
+
+    session.close();
+
+    org.mockito.InOrder order = inOrder(context, evidence, browser);
+    order.verify(context).close();
+    order.verify(evidence).finishVideo();
+    order.verify(browser).close();
+  }
+
+  @Test
+  void theLifecycleOfTheTestsGoesToTheEvidence() {
+    PlaywrightEvidence evidence = mock(PlaywrightEvidence.class);
+    PlaywrightBrowserDriverFactory.PlaywrightBrowserSession session =
+      new PlaywrightBrowserDriverFactory.PlaywrightBrowserSession(mock(Playwright.class), mock(Browser.class),
+        mock(BrowserContext.class), null, evidence);
+    BrowserSession.EvidenceListener listener = (label, file, attach) -> { };
+
+    session.testStarted("LoginIT", "t010_login");
+    session.testFinished("t010_login", "name", true);
+    session.onEvidence(listener);
+
+    verify(evidence).testStarted("LoginIT", "t010_login");
+    verify(evidence).testFinished("t010_login", "name", true);
+    verify(evidence).setListener(listener);
+  }
+
+  @Test
+  void aSessionWithoutEvidenceIgnoresTheLifecycle() {
+    PlaywrightBrowserDriverFactory.PlaywrightBrowserSession session =
+      new PlaywrightBrowserDriverFactory.PlaywrightBrowserSession(mock(Playwright.class), mock(Browser.class),
+        mock(BrowserContext.class), null);
+
+    org.assertj.core.api.Assertions.assertThatCode(() -> {
+      session.testStarted("LoginIT", "t010_login");
+      session.testFinished("t010_login", "name", true);
+      session.onEvidence((label, file, attach) -> { });
+    }).doesNotThrowAnyException();
+  }
 }
