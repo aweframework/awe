@@ -11,8 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -315,7 +313,7 @@ public final class StringUtil {
    * @return parameter sanitized
    */
   public static String sanitizeInputParameter(String parameter) {
-    return Jsoup.clean(StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeJava(StringEscapeUtils.escapeJson(parameter))), Safelist.basic());
+    return StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeJava(StringEscapeUtils.escapeJson(parameter)));
   }
 
   /**

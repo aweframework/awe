@@ -12,4 +12,14 @@ class StringUtilTest {
     assertEquals("Param \\\\n eter12", StringUtil.sanitizeInputParameter("Param \n eter12"));
     assertEquals("Parameter-1", StringUtil.sanitizeInputParameter("Parameter-1"));
   }
+
+  @Test
+  void sanitizeInputParameterKeepsDoubleQuotesEscaped() {
+    assertEquals("a\\\\\\&quot;b", StringUtil.sanitizeInputParameter("a\"b"));
+  }
+
+  @Test
+  void sanitizeInputParameterEscapesScriptTags() {
+    assertEquals("&lt;script&gt;alert(1)&lt;\\\\/script&gt;", StringUtil.sanitizeInputParameter("<script>alert(1)</script>"));
+  }
 }
