@@ -56,25 +56,25 @@
 
     <!-- plugin versions -->
     <plugin-spring-boot.version>${spring-boot.version}</plugin-spring-boot.version>
-    <plugin-frontend.version>1.13.4</plugin-frontend.version>
-    <plugin-compiler.version>3.11.0</plugin-compiler.version>
-    <plugin-war.version>3.4.0</plugin-war.version>
-    <plugin-surefire.version>3.5.4</plugin-surefire.version>
-    <plugin-failsafe.version>3.5.4</plugin-failsafe.version>
-    <plugin-xml-maven.version>1.1.0</plugin-xml-maven.version>
-    <plugin-jar.version>3.3.0</plugin-jar.version>
+    <plugin-frontend.version>1.15.4</plugin-frontend.version>
+    <plugin-compiler.version>3.16.0</plugin-compiler.version>
+    <plugin-war.version>3.5.1</plugin-war.version>
+    <plugin-surefire.version>3.6.0</plugin-surefire.version>
+    <plugin-failsafe.version>3.6.0</plugin-failsafe.version>
+    <plugin-xml-maven.version>1.2.2</plugin-xml-maven.version>
+    <plugin-jar.version>3.5.1</plugin-jar.version>
     <plugin-ant.version>1.8</plugin-ant.version>
-    <plugin-flatten-maven.version>1.1.0</plugin-flatten-maven.version>
+    <plugin-flatten-maven.version>1.8.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
-    <plugin-resources.version>3.3.1</plugin-resources.version>
+    <plugin-resources.version>3.5.0</plugin-resources.version>
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
-    <plugin-japicmp.version>0.26.2</plugin-japicmp.version>
+    <plugin-japicmp.version>0.26.3</plugin-japicmp.version>
     <!-- Lombok engine bundled inside lombok-maven-plugin 1.18.20.0 predates JDK 17+ and breaks
          delombok on newer JDKs (NoSuchFieldError JCImport.qualid). Override it with a JDK 21+
          compatible Lombok. Keep aligned with the version managed by the Spring Boot BOM. -->
-    <delombok-lombok.version>1.18.46</delombok-lombok.version>
-    <plugin-maven-archetype.version>3.3.0</plugin-maven-archetype.version>
-    <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
+    <delombok-lombok.version>1.18.48</delombok-lombok.version>
+    <plugin-maven-archetype.version>3.4.1</plugin-maven-archetype.version>
+    <plugin-maven-install.version>3.2.0</plugin-maven-install.version>
     <!-- Skip configuration -->
     <skip.selenium>true</skip.selenium>
     <skip.main>false</skip.main>

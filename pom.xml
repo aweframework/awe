@@ -33,7 +33,7 @@
     <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
-    <plugin-sonar.version>4.0.0.4121</plugin-sonar.version>
+    <plugin-sonar.version>4.0.1.6619</plugin-sonar.version>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.links.homepage>https://gitlab.com/aweframework/awe</sonar.links.homepage>
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
@@ -54,19 +54,19 @@
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
-    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
+    <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <plugin-resources.version>3.3.1</plugin-resources.version>
     <plugin-archetype.version>3.1.1</plugin-archetype.version>
-    <plugin-site.version>3.5.1</plugin-site.version>
+    <plugin-site.version>3.22.0</plugin-site.version>
     <plugin-info-reports.version>2.9</plugin-info-reports.version>
-    <plugin-dependency.version>3.6.0</plugin-dependency.version>
-    <plugin-jacoco.version>0.8.13</plugin-jacoco.version>
-    <gitflow-maven-plugin.version>1.13.0</gitflow-maven-plugin.version>
+    <plugin-dependency.version>3.11.0</plugin-dependency.version>
+    <plugin-jacoco.version>0.8.15</plugin-jacoco.version>
+    <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
     <build.environment>production</build.environment>
