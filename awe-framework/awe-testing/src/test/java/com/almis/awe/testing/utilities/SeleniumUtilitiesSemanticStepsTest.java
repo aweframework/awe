@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -127,6 +128,64 @@ class SeleniumUtilitiesSemanticStepsTest {
     when(input.getAttribute("value")).thenReturn("5 (DjrRepPth)", "5 (DjrRepPth)", "6 (DjrHdgPag)");
 
     assertThatCode(() -> utilities.checkCriterionContents("SugTst", "DjrHdgPag")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldWaitForTheChosenTextOfASelectThatIsStillLoading() {
+    // The screen is still fading in: the select shows its placeholder until the value arrives
+    WebElement chosen = show(instructions.getSelectChosen("Sug"), "");
+    when(chosen.getText()).thenReturn("Search value", "test (Manager)");
+
+    assertThatCode(() -> utilities.checkSelectContents("Sug", "test (Manager)")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWithTheTextThatWasReadWhenTheSelectNeverContainsTheText() {
+    WebElement chosen = show(instructions.getSelectChosen("Sug"), "");
+    when(chosen.getText()).thenReturn("Search value");
+
+    assertThatThrownBy(() -> utilities.checkSelectContents("Sug", "test (Manager)"))
+      .isInstanceOf(AssertionFailedError.class)
+      .hasMessageContaining(" text: 'Search value' doesn't contain test (Manager)");
+  }
+
+  @Test
+  void shouldWaitForTheTextOfAnElementThatIsStillLoading() {
+    By selector = By.cssSelector(".loading");
+    WebElement element = show(selector, "");
+    when(element.getText()).thenReturn("Loading", "Done");
+
+    assertThatCode(() -> utilities.checkTextContains(".loading", "Done")).doesNotThrowAnyException();
+    when(element.getText()).thenReturn("Loading", "DONE");
+    assertThatCode(() -> utilities.checkText(".loading", "done")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWithTheTextThatWasReadWhenAnElementNeverHasTheExpectedText() {
+    WebElement element = show(By.cssSelector(".loading"), "");
+    when(element.getText()).thenReturn("Loading");
+
+    assertThatThrownBy(() -> utilities.checkText(".loading", "Done"))
+      .isInstanceOf(AssertionFailedError.class)
+      .hasMessageContaining(" text: 'Loading' isn't equal to Done");
+  }
+
+  @Test
+  void shouldWaitForAnOptionOfAMultipleSelectThatIsStillLoading() {
+    WebElement option = show(instructions.getSelectMultipleTextContainer("SugMulReq"), "");
+    when(option.getText()).thenReturn("", "test (test@test.com)");
+
+    assertThatCode(() -> utilities.checkMultipleSelectorContents("SugMulReq", "test (test@test.com)")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWhenTheOptionsOfAMultipleSelectNeverContainTheText() {
+    WebElement option = show(instructions.getSelectMultipleTextContainer("SugMulReq"), "");
+    when(option.getText()).thenReturn("other");
+
+    assertThatThrownBy(() -> utilities.checkMultipleSelectorContents("SugMulReq", "test (test@test.com)"))
+      .isInstanceOf(AssertionFailedError.class)
+      .hasMessageContaining(" list doesn't contain test (test@test.com)");
   }
 
   @Test
@@ -457,6 +516,201 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     // Type and choose the option, nothing else
     verify((Interactive) driver, times(2)).perform(any());
+  }
+
+  /**
+   * The options of the open list, that answer a list of texts per lookup (the last one stays) and count the lookups
+   */
+  private AtomicInteger showOptionsThatChange(String[]... lookups) {
+    AtomicInteger looked = new AtomicInteger();
+    By options = Locator.from(instructions.getSelectOptions()).toBy();
+    when(driver.findElements(argThat(options::equals))).thenAnswer(invocation -> {
+      String[] texts = lookups[Math.min(looked.getAndIncrement(), lookups.length - 1)];
+      List<WebElement> elements = new ArrayList<>();
+      for (String text : texts) {
+        WebElement option = mock(WebElement.class);
+        when(option.isDisplayed()).thenReturn(true);
+        when(option.getText()).thenReturn(text);
+        elements.add(option);
+      }
+      return elements;
+    });
+    return looked;
+  }
+
+  @Test
+  void shouldWaitForTheOptionsToSettleBeforeChoosingOneOfAMultipleSuggest() {
+    // Typing "1" filters the list in steps: the option that was found is not where it was when the pointer arrives
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("1"), "1");
+    properties.setTimeout(Duration.ofSeconds(5));
+    AtomicInteger looked = showOptionsThatChange(new String[]{"1", "10", "11"}, new String[]{"1"}, new String[]{"1"});
+    AtomicInteger lookedWhenChoosing = new AtomicInteger();
+    AtomicInteger performed = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (performed.incrementAndGet() == 2) {
+        lookedWhenChoosing.set(looked.get());
+      }
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    utilities.suggestMultiple("Months", "1", "1");
+
+    // Two lookups in a row gave the same options before the click
+    assertThat(lookedWhenChoosing.get()).isGreaterThanOrEqualTo(3);
+  }
+
+  @Test
+  void shouldTakeOnlyOneMoreLookWhenTheOptionsAreAlreadySettled() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("1"), "1");
+    properties.setTimeout(Duration.ofSeconds(5));
+    AtomicInteger looked = showOptionsThatChange(new String[]{"1", "10"});
+    AtomicInteger lookedWhenChoosing = new AtomicInteger();
+    AtomicInteger performed = new AtomicInteger();
+    doAnswer(invocation -> {
+      if (performed.incrementAndGet() == 2) {
+        lookedWhenChoosing.set(looked.get());
+      }
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    utilities.suggestMultiple("Months", "1", "1");
+
+    assertThat(lookedWhenChoosing.get()).isEqualTo(2);
+  }
+
+  @Test
+  void shouldWaitForThePendingServerTasksBeforeChoosingTheOptionsOfTheMenu() {
+    // A restore that still loads its suggests: the client drops the actions that are waiting when an option is chosen, so
+    // the screen would not change
+    SeleniumUtilities navigating = new SeleniumUtilities() {
+    };
+    ReflectionTestUtils.setField(navigating, "properties", properties);
+    ReflectionTestUtils.setField(navigating, "seleniumModel", model);
+    ReflectionTestUtils.setField(navigating, "frontEndInstructions", instructions);
+    properties.setTimeout(Duration.ofSeconds(5));
+    show(instructions.getMenuOption("test"), "Tests");
+    WebElement loadingBar = show(instructions.getLoadingBar(), "");
+    AtomicInteger barLooks = new AtomicInteger();
+    when(loadingBar.isDisplayed()).thenAnswer(invocation -> barLooks.incrementAndGet() <= 2);
+    AtomicInteger looksWhenChoosing = new AtomicInteger(-1);
+    doAnswer(invocation -> {
+      looksWhenChoosing.compareAndSet(-1, barLooks.get());
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    navigating.gotoScreen("test");
+
+    // The bar was looked at until it was gone (two looks displayed, one not) before the first gesture on the menu
+    assertThat(looksWhenChoosing.get()).isGreaterThanOrEqualTo(3);
+  }
+
+  private SeleniumUtilities navigatingUtilities() {
+    SeleniumUtilities navigating = new SeleniumUtilities() {
+      @Override
+      protected void waitForLoadingBar() {
+        // No browser
+      }
+    };
+    ReflectionTestUtils.setField(navigating, "properties", properties);
+    ReflectionTestUtils.setField(navigating, "seleniumModel", model);
+    ReflectionTestUtils.setField(navigating, "frontEndInstructions", instructions);
+    return navigating;
+  }
+
+  private AtomicInteger menuOptionBecomesActiveAfterClick(int clicksNeeded) {
+    use(new ReactAweInstructions());
+    properties.setTimeout(Duration.ofMillis(300));
+    show(instructions.getMenuOption("test"), "Tests");
+    AtomicInteger clicks = new AtomicInteger();
+    doAnswer(invocation -> {
+      clicks.incrementAndGet();
+      return null;
+    }).when((Interactive) driver).perform(any());
+    WebElement active = show(instructions.getMenuActiveOption("test"), "Tests");
+    when(active.isDisplayed()).thenAnswer(invocation -> clicks.get() >= clicksNeeded);
+    return clicks;
+  }
+
+  @Test
+  void shouldClickTheLastMenuOptionAgainWhenTheFirstClickWasIgnored() {
+    // The browser reports the click as done but the screen does not change (the option only gets the focus)
+    AtomicInteger clicks = menuOptionBecomesActiveAfterClick(2);
+
+    assertThatCode(() -> navigatingUtilities().gotoScreen("test")).doesNotThrowAnyException();
+
+    assertThat(clicks.get()).isEqualTo(2);
+  }
+
+  @Test
+  void shouldNotClickTheLastMenuOptionAgainWhenTheFirstClickTookEffect() {
+    AtomicInteger clicks = menuOptionBecomesActiveAfterClick(1);
+
+    assertThatCode(() -> navigatingUtilities().gotoScreen("test")).doesNotThrowAnyException();
+
+    assertThat(clicks.get()).isEqualTo(1);
+  }
+
+  @Test
+  void shouldFailAfterClickingTheLastMenuOptionAgainWhenTheClickNeverTakesEffect() {
+    AtomicInteger clicks = menuOptionBecomesActiveAfterClick(Integer.MAX_VALUE);
+    SeleniumUtilities navigating = navigatingUtilities();
+
+    assertThatThrownBy(() -> navigating.gotoScreen("test"))
+      .isInstanceOf(AssertionFailedError.class)
+      .hasMessageContaining("data-active");
+
+    // The click and two more
+    assertThat(clicks.get()).isEqualTo(3);
+  }
+
+  @Test
+  void shouldChooseTheOptionAfterABoundedWaitWhenTheOptionsNeverSettle() {
+    // A list that changes at every look never settles: the step waits for the configured time at most, then chooses
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("1"), "1");
+    properties.setTimeout(Duration.ofSeconds(1));
+    AtomicInteger looked = new AtomicInteger();
+    By options = Locator.from(instructions.getSelectOptions()).toBy();
+    when(driver.findElements(argThat(options::equals))).thenAnswer(invocation -> {
+      WebElement option = mock(WebElement.class);
+      when(option.isDisplayed()).thenReturn(true);
+      when(option.getText()).thenReturn("option " + looked.incrementAndGet());
+      return List.of(option);
+    });
+    AtomicInteger performed = new AtomicInteger();
+    doAnswer(invocation -> {
+      performed.incrementAndGet();
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    utilities.suggestMultiple("Months", "1", "1");
+
+    // It chose, after looking more than once and not for ever: a look is 200 ms after the last one for at most the timeout
+    // of 1 s, so there are six at the most whatever the speed of the machine
+    assertThat(performed.get()).isGreaterThanOrEqualTo(2);
+    assertThat(looked.get()).isBetween(2, 7);
+  }
+
+  @Test
+  void shouldChooseTheOptionAfterABoundedWaitWhenThereAreNoOptionsToLookAt() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("1"), "1");
+    properties.setTimeout(Duration.ofSeconds(1));
+    AtomicInteger looked = showOptionsThatChange(new String[0]);
+    AtomicInteger performed = new AtomicInteger();
+    doAnswer(invocation -> {
+      performed.incrementAndGet();
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    utilities.suggestMultiple("Months", "1", "1");
+
+    // It chose, after looking more than once and not for ever: a look is 200 ms after the last one for at most the timeout
+    // of 1 s, so there are six at the most whatever the speed of the machine
+    assertThat(performed.get()).isGreaterThanOrEqualTo(2);
+    assertThat(looked.get()).isBetween(2, 7);
   }
 
   @Test

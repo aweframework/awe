@@ -90,6 +90,12 @@ public class SeleniumBrowserDriver implements BrowserDriver {
   }
 
   @Override
+  public boolean isRendered(Locator locator) {
+    // Selenium gives no way to tell a transparent element from a hidden one: it is its displayed rule for both
+    return isVisible(locator);
+  }
+
+  @Override
   public boolean isEnabled(Locator locator) {
     return orFalse(locator, WebElement::isEnabled);
   }

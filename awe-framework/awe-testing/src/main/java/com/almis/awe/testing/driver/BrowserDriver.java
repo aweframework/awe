@@ -9,7 +9,7 @@ import java.util.Optional;
  *
  * <p>It works with {@link Locator}s that are resolved on every call (no element is kept between calls, so none goes
  * stale) and exposes <em>instant</em> queries: waiting is a poll that the caller does over them. Queries on the first
- * match fail with {@link ElementNotFoundException} when there is none, except {@link #isVisible} and {@link #isEnabled}
+ * match fail with {@link ElementNotFoundException} when there is none, except {@link #isVisible}, {@link #isRendered} and {@link #isEnabled}
  * which answer false. Any operation fails with {@link ElementReplacedException} when the element is replaced while it is
  * used. Internal preview: no compatibility promise yet.</p>
  */
@@ -40,6 +40,17 @@ public interface BrowserDriver {
    * @return true if there is a match and it is displayed
    */
   boolean isVisible(Locator locator);
+
+  /**
+   * Check whether the first match is still there to be seen or to get in the way: it is rendered, whatever its opacity.
+   * An element that fades in is not {@link #isVisible shown} in its first frames but it is already rendered, so a wait
+   * for something to be gone has to look at this and not at {@link #isVisible}
+   *
+   * @param locator Locator
+   * @return true if there is a match and it is rendered (not {@code display:none}, not {@code visibility:hidden}, with a
+   * size or something with one inside it), even if it is transparent
+   */
+  boolean isRendered(Locator locator);
 
   /**
    * Check whether the first match is enabled

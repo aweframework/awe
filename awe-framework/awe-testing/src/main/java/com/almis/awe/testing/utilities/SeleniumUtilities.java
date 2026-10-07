@@ -28,8 +28,10 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,6 +47,11 @@ public class SeleniumUtilities implements IAweInstructions {
   // Constants
   private static final Integer RETRY_COUNT = 10;
   private static final int STALE_RETRY_COUNT = 3;
+  // How often, and for how long at most, the options of a list are looked at to see that they stopped changing
+  private static final Duration OPTIONS_SETTLE_INTERVAL = Duration.ofMillis(200);
+  private static final Duration OPTIONS_SETTLE_TIMEOUT = Duration.ofSeconds(3);
+  private static final Duration MENU_CLICK_EFFECT_TIMEOUT = Duration.ofSeconds(5);
+  private static final int MENU_CLICK_RETRIES = 2;
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final String TEXT_VALUE = " text: '";
@@ -181,6 +188,36 @@ public class SeleniumUtilities implements IAweInstructions {
       log.debug(condition.toString());
     } catch (Exception exc) {
       assertWithScreenshot(condition.toString(), false, exc);
+    }
+  }
+
+  /**
+   * Wait until the options of the open list stop changing: two looks in a row (about 200 milliseconds apart) give the same
+   * non-empty options. A list that is filtered while the text is typed shows some options first and others after it, and an
+   * option that was found among the first is not where it was when the pointer arrives. It is a help, not a requirement:
+   * if the options keep changing, or there are none, the step goes on and the wait for the option it needs says what is
+   * wrong
+   *
+   * @param options Selector of the options
+   */
+  private void waitForTheOptionsToSettle(By options) {
+    Locator locator = locator(options);
+    AtomicReference<List<String>> previous = new AtomicReference<>();
+    BrowserCondition settled = BrowserCondition.of("options located by " + locator + " to stop changing", browser -> {
+      try {
+        List<String> current = browser.texts(locator);
+        return !current.isEmpty() && current.equals(previous.getAndSet(current));
+      } catch (ElementReplacedException exc) {
+        previous.set(null);
+        return false;
+      }
+    });
+    Duration timeout = properties.getTimeout().compareTo(OPTIONS_SETTLE_TIMEOUT) < 0 ? properties.getTimeout() : OPTIONS_SETTLE_TIMEOUT;
+    try {
+      BrowserPoll.until(getBrowser(), settled, timeout, OPTIONS_SETTLE_INTERVAL, Clock.systemUTC(),
+        duration -> Thread.sleep(duration.toMillis()));
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("The options did not settle: {}", exc.getMessage());
     }
   }
 
@@ -1162,6 +1199,9 @@ public class SeleniumUtilities implements IAweInstructions {
     // Wait for loading bar
     waitForLoadingBar();
 
+    // Let the filtered list settle: the option is chosen where it is when the pointer arrives
+    waitForTheOptionsToSettle(frontEndInstructions.getSelectOptions());
+
     // Select result on list
     suggestResult(label);
 
@@ -1187,6 +1227,21 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Give the page time to show the text that a check expects. A screen that is still appearing, or a value that an
+   * asynchronous action is still loading, is not a failure yet: the check that follows asserts what is shown, as it always
+   * did, and reports it (with evidence) if it is not the expected text
+   *
+   * @param condition Text that is expected
+   */
+  private void waitForExpectedText(BrowserCondition condition) {
+    try {
+      BrowserPoll.until(getBrowser(), condition, properties.getTimeout());
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("Not yet: {}", condition);
+    }
+  }
+
+  /**
    * Check text inside selector
    *
    * @param selector Selector to check
@@ -1203,6 +1258,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkText(Locator selector, String text) {
+    waitForExpectedText(BrowserCondition.textEquals(selector, text));
     String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
@@ -1227,6 +1283,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextContains(Locator selector, String text) {
+    waitForExpectedText(BrowserCondition.textContains(selector, text));
     String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
@@ -1241,6 +1298,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextMultipleContains(By selector, String text) {
+    waitForExpectedText(BrowserCondition.anyTextContains(locator(selector), text));
     List<String> nodeValues = getBrowser().texts(locator(selector));
     String message = selector.toString() + " list doesn't contain " + text;
 
@@ -1319,6 +1377,10 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void gotoScreen(String... menuOptions) {
 
+    // The previous step may still have server tasks pending (a restore that loads its suggests): the client drops the
+    // actions that are waiting when an option is chosen, so the screen would not change
+    waitForLoadingBar();
+
     int optionNumber = 1;
     for (String option : menuOptions) {
       // Wait for text in selector
@@ -1340,8 +1402,10 @@ public class SeleniumUtilities implements IAweInstructions {
       optionNumber++;
     }
 
-    // Wait for the click to take effect
-    waitForMenuOption(menuOptions[menuOptions.length - 1]);
+    // Wait for the click to take effect, clicking again when the browser ignored it
+    String lastOption = menuOptions[menuOptions.length - 1];
+    retryMenuClickWhenIgnored(lastOption);
+    waitForMenuOption(lastOption);
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -1354,12 +1418,40 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param option Last option clicked
    */
   protected void waitForMenuOption(String option) {
+    waitUntil(menuOptionTookEffect(option));
+  }
+
+  /**
+   * Condition: the click on a menu option has taken effect (the screen of the option is the current one or, in a client
+   * that collapses its menu, the dropdown is closed)
+   */
+  private BrowserCondition menuOptionTookEffect(String option) {
     By activeOption = frontEndInstructions.getMenuActiveOption(option);
-    if (activeOption != null) {
-      waitUntil(toBeVisible(activeOption));
-    } else {
-      // Wait for element not visible
-      waitUntil(toBeInvisible(frontEndInstructions.getMenuDropdown()));
+    return activeOption != null ? toBeVisible(activeOption) : toBeInvisible(frontEndInstructions.getMenuDropdown());
+  }
+
+  /**
+   * A browser may ignore a click on a menu option that it reports as done (the option gets the focus but the screen does
+   * not change). Give the click a short time to take effect and, if it did not, click the option again (at most
+   * {@value #MENU_CLICK_RETRIES} more times). A click that took effect is never repeated, and a click that never takes
+   * effect is reported by the wait that follows, as always
+   *
+   * @param option Last option clicked
+   */
+  private void retryMenuClickWhenIgnored(String option) {
+    Duration timeout = properties.getTimeout().compareTo(MENU_CLICK_EFFECT_TIMEOUT) < 0 ? properties.getTimeout() : MENU_CLICK_EFFECT_TIMEOUT;
+    BrowserCondition tookEffect = menuOptionTookEffect(option);
+    for (int retry = 0; retry <= MENU_CLICK_RETRIES; retry++) {
+      try {
+        BrowserPoll.until(getBrowser(), tookEffect, timeout);
+        return;
+      } catch (BrowserPoll.PollTimeoutException exc) {
+        if (retry == MENU_CLICK_RETRIES) {
+          return;
+        }
+        log.warn("The click on the menu option '{}' had no effect after {} ms, clicking it again", option, timeout.toMillis());
+        click(frontEndInstructions.getMenuOption(option));
+      }
     }
   }
 

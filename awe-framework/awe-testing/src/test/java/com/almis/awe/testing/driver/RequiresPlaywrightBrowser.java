@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ExtendWith(RequiresPlaywrightBrowser.Condition.class)
-@interface RequiresPlaywrightBrowser {
+public @interface RequiresPlaywrightBrowser {
 
   /**
    * Evaluates whether a Playwright browser is available

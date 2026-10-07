@@ -59,15 +59,18 @@ import java.util.function.Supplier;
  *
  * <p>Differences that Playwright imposes: {@link #setWindowPosition(int, int)} has no equivalent (a page has a viewport,
  * not a window on a screen), so it is logged and ignored; {@link #quit()} closes the context of the page and the factory session closes the browser;
- * {@link #isVisible(Locator)} follows Playwright (a box that is not empty and no {@code visibility:hidden}) and
- * {@link #isEnabled(Locator)} adds {@code aria-disabled} to the {@code disabled} property; the text of an element that
- * is not rendered ({@code display:none}) is empty, as Selenium reports it.</p>
+ * {@link #isVisible(Locator)} follows the {@code isDisplayed} rule of Selenium, not the one of Playwright (see
+ * {@link #IS_SHOWN}), {@link #isRendered(Locator)} is the same rule without the opacity and {@link #isEnabled(Locator)} adds {@code aria-disabled} to the {@code disabled} property; the
+ * text of an element that is not shown is empty, as Selenium reports it.</p>
  */
 @Slf4j
 public class PlaywrightBrowserDriver implements BrowserDriver {
 
   private static final int CLICK_PAUSE_MILLIS = 100;
   private static final int TYPE_PAUSE_MILLIS = 200;
+  // What a user holds the right button for, at the very least: browsers fire contextmenu when it is pressed
+  private static final int CONTEXT_PRESS_MILLIS = 100;
+  private static final int FRAMES_GIVE_UP_MILLIS = 500;
   private static final String VALUE = "value";
   private static final String BACKSPACE = "Backspace";
   // Selenium gives a script thirty seconds unless it is told otherwise
@@ -78,6 +81,12 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   // A click on the last pixels of the viewport is lost by the browser: an element closer than this to an edge is brought
   // to the center
   private static final int VIEWPORT_EDGE_MARGIN_PX = 60;
+  // A gesture waits for the element to stop moving (a modal that scales in, a group of the menu that expands) and to receive
+  // the pointer at its center (not clipped nor covered): both must hold in this many frames in a row. It does not wait longer
+  // than the cap, so an element that never stops (an endless animation) or is always covered still gets its gesture, where it
+  // is at that moment
+  private static final int STABLE_FRAMES = 3;
+  private static final int STABLE_BOX_CAP_MILLIS = 1500;
   // Playwright polls the function that it waits for: a function that returns an object is truthy at the first run
   private static final double SCRIPT_POLLING_MILLIS = 100;
   // The page tells the adapter what happens to a script through this function, which Playwright installs in every document of
@@ -125,12 +134,50 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
     + "const rect = e.getBoundingClientRect();"
     + "if (rect.top < " + VIEWPORT_EDGE_MARGIN_PX + " || rect.bottom > window.innerHeight - " + VIEWPORT_EDGE_MARGIN_PX + ") {"
     + "e.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'});} }";
+  // Resolves when, in STABLE_FRAMES animation frames in a row, the box of the element was the same and the point at its center
+  // went to the element or to something inside it (what Playwright calls "receives events"), or when the cap is over. The
+  // second part matters for an element that does not move but is not where the pointer would land yet: clipped by a container
+  // that is still expanding (the submenu of a panel menu) or covered by something that is about to go away. The point is the
+  // center of the box, also when another part of the element is free: the gesture goes there, so it is what has to be
+  // reachable. An element with no area cannot be hit and is only waited for to stop, and a point outside the viewport is not
+  // judged. The point is looked up in the document of the element (a frame has its own); the answer is whether it was ready
+  // (false when the cap was over). A page that does not run animation frames (it is hidden) is given up by the timer
+  private static final String WAIT_UNTIL_READY = "(e, limits) => new Promise(resolve => {"
+    + "const read = () => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; };"
+    + "const receives = box => { if (box[2] <= 0 || box[3] <= 0) { return true; }"
+    + "const x = box[0] + box[2] / 2; const y = box[1] + box[3] / 2;"
+    + "let hit = e.ownerDocument.elementFromPoint(x, y); if (!hit) { return true; }"
+    + "while (hit.shadowRoot) { const inner = hit.shadowRoot.elementFromPoint(x, y); if (!inner || inner === hit) { break; } hit = inner; }"
+    // The hit is the element when it or one of its ancestors is, also across shadow roots (a shadow root has no parent node,
+    // its host is the way up), so a web component that renders its own content is not waited for
+    + "for (let n = hit; n; n = n.parentNode || n.host || null) { if (n === e) { return true; } } return false; };"
+    + "let last = read(); let ready = 0;"
+    + "const timer = setTimeout(() => resolve(false), limits.cap);"
+    + "const frame = () => { const box = read();"
+    + "ready = box.every((value, index) => value === last[index]) && receives(box) ? ready + 1 : 0; last = box;"
+    + "if (ready >= limits.frames) { clearTimeout(timer); resolve(true); } else { requestAnimationFrame(frame); } };"
+    + "requestAnimationFrame(frame); })";
   // An element can be inside the viewport but clipped by a container with its own scroll
   private static final String SCROLL_NEAREST = "e => e.scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'})";
   // A suggest panel opens aligned to its search box, so a scroll after that would leave it misplaced
   private static final String SCROLL_TO_CENTER = "e => e.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'})";
-  // Rendered text, as Selenium reports it: empty when the element is not displayed
-  private static final String TEXT = "e => (e.checkVisibility({visibilityProperty: true}) ? "
+  /**
+   * Function of the page that tells whether an element is shown, with the rule of the {@code isDisplayed} atom of Selenium
+   * (the one that the browser tests were tuned with) instead of the one of Playwright, which needs a box that is not empty:
+   * the element must be rendered ({@code display}), not {@code visibility:hidden} and not transparent (its own opacity and
+   * the one of its ancestors), and it must have a size or, if it has none, something inside it that has one (a child
+   * element, or a text), unless it hides its overflow. The wrapper of the pinned columns of a tree grid has a width and
+   * no height around floated cells, and is shown for Selenium and not for Playwright.
+   */
+  static final String IS_SHOWN = shownFunction(true);
+  /**
+   * Function of the page that tells whether an element is still rendered: the rule of {@link #IS_SHOWN} without its opacity
+   * check. An element that fades in has opacity 0 in its first frames, and it is already there and covers what is under
+   * it, so a wait for it to be gone must not take it as gone
+   */
+  static final String IS_RENDERED = shownFunction(false);
+  // Rendered text, as Selenium reports it: empty when the element is not shown
+  private static final String TEXT = "e => ((" + IS_SHOWN + ")(e) ? "
     + "(e.innerText !== undefined ? e.innerText : e.textContent) : '')";
   // As Selenium does: the property when the element has one (the current value of an input), otherwise the attribute;
   // a boolean property is 'true' or nothing
@@ -222,6 +269,23 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
       || message.contains("element is detached");
   }
 
+  private static String shownFunction(boolean checkOpacity) {
+    return "e => {"
+      + "if (!e.checkVisibility({visibilityProperty: true, opacityProperty: " + checkOpacity + "})) { return false; }"
+      + "const sized = (node) => {"
+      + "const rect = node.getBoundingClientRect();"
+      + "if (rect.width > 0 && rect.height > 0) { return true; }"
+      + "const style = getComputedStyle(node);"
+      + "if (style.overflowX === 'hidden' && style.overflowY === 'hidden') { return false; }"
+      + "for (const child of node.childNodes) {"
+      + "if (child.nodeType === Node.ELEMENT_NODE) { if (sized(child)) { return true; } }"
+      + "else if (child.nodeType === Node.TEXT_NODE) {"
+      + "const range = document.createRange(); range.selectNodeContents(child);"
+      + "const box = range.getBoundingClientRect(); if (box.width > 0 && box.height > 0) { return true; } } }"
+      + "return false; };"
+      + "return sized(e); }";
+  }
+
   @Override
   public int count(Locator locator) {
     return guard(locator, () -> current.locator(selector(locator)).count());
@@ -230,8 +294,19 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   @Override
   public boolean isVisible(Locator locator) {
     try {
-      // Locator.isVisible does not wait, and is false when nothing matches
-      return guard(locator, () -> current.locator(selector(locator)).first().isVisible());
+      // Evaluated in the page, which does not wait, and false when nothing matches
+      return Boolean.TRUE.equals(guard(locator, () -> current.evalOnSelectorAll(selector(locator),
+        "elements => elements.length > 0 && (" + IS_SHOWN + ")(elements[0])")));
+    } catch (ElementReplacedException exc) {
+      return false;
+    }
+  }
+
+  @Override
+  public boolean isRendered(Locator locator) {
+    try {
+      return Boolean.TRUE.equals(guard(locator, () -> current.evalOnSelectorAll(selector(locator),
+        "elements => elements.length > 0 && (" + IS_RENDERED + ")(elements[0])")));
     } catch (ElementReplacedException exc) {
       return false;
     }
@@ -330,8 +405,20 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   public void contextClick(Locator locator) {
     act(locator, handle -> {
       runScript(handle, SCROLL_NEAREST);
-      BoundingBox center = pointAt(locator, handle);
-      mouse().click(center.x, center.y, new Mouse.ClickOptions().setButton(MouseButton.RIGHT));
+      pointAt(locator, handle);
+      // Chromium and Firefox (macOS, Linux) fire contextmenu on press, not on release. A client may show its menu a few
+      // frames after the handler (an animation), behind a mask that closes it on mouseup: pressing and releasing at once
+      // lands the release on that mask and closes the menu that was just opened. A user releases when the page has
+      // rendered the menu under the pointer, and so does this: it waits for the page to render, and holds the button for
+      // at least what a user does
+      mouse().down(new Mouse.DownOptions().setButton(MouseButton.RIGHT));
+      try {
+        waitForRenderedFrames();
+        pause(CONTEXT_PRESS_MILLIS);
+      } finally {
+        // Whatever happens while it is held (the page navigates, the frame goes away), the button is never left pressed
+        mouse().up(new Mouse.UpOptions().setButton(MouseButton.RIGHT));
+      }
       pause(CLICK_PAUSE_MILLIS);
     });
   }
@@ -670,6 +757,15 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
     return page.mouse();
   }
 
+  /**
+   * Wait until the page has rendered two frames, so what a handler scheduled for the next frame is on the screen. A page
+   * that renders no frames (a hidden one) does not stop the wait for more than half a second
+   */
+  private void waitForRenderedFrames() {
+    current.evaluate("() => new Promise(resolve => { const giveUp = setTimeout(resolve, " + FRAMES_GIVE_UP_MILLIS + ");"
+      + "requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(giveUp); resolve(); })); })");
+  }
+
   private void pause(long millis) {
     page.waitForTimeout(millis);
   }
@@ -681,19 +777,30 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   }
 
   /**
-   * Move the pointer to the center of an element
+   * Move the pointer to the center of an element that has stopped moving and receives the pointer there. The wait runs in
+   * the page; the box that the pointer goes to is then read from Playwright, which gives it in the coordinates of the page
+   * also when the element is in a frame
    */
   private BoundingBox pointAt(Locator locator, ElementHandle handle) {
-    BoundingBox box = handle.boundingBox();
-    if (box == null) {
-      // The element has no box: it was removed or hidden after it was found
-      throw new ElementReplacedException(locator, new PlaywrightException("The element is not displayed"));
+    boundingBoxOf(locator, handle);
+    if (!Boolean.TRUE.equals(handle.evaluate(WAIT_UNTIL_READY, Map.of("frames", STABLE_FRAMES, "cap", STABLE_BOX_CAP_MILLIS)))) {
+      log.debug("The element did not stop or did not receive the pointer in {} ms: going on as it is {}", STABLE_BOX_CAP_MILLIS, locator);
     }
+    BoundingBox box = boundingBoxOf(locator, handle);
     BoundingBox center = new BoundingBox();
     center.x = box.x + box.width / 2;
     center.y = box.y + box.height / 2;
     movePointer(center.x, center.y);
     return center;
+  }
+
+  private static BoundingBox boundingBoxOf(Locator locator, ElementHandle handle) {
+    BoundingBox box = handle.boundingBox();
+    if (box == null) {
+      // The element has no box: it was removed or hidden after it was found
+      throw new ElementReplacedException(locator, new PlaywrightException("The element is not displayed"));
+    }
+    return box;
   }
 
   private void focusWithClick(Locator locator, ElementHandle handle) {
