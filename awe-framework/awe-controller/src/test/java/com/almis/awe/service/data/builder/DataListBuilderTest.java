@@ -3,6 +3,7 @@ package com.almis.awe.service.data.builder;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FilterColumn;
 import com.almis.awe.model.dto.SortColumn;
+import com.almis.awe.model.entities.queries.Field;
 import com.almis.awe.model.pojo.NoAttributes;
 import com.almis.awe.model.pojo.Planet;
 import com.almis.awe.model.type.CellDataType;
@@ -363,5 +364,24 @@ class DataListBuilderTest {
   @Test
   void asBeanListNull() {
     assertThrows(NullPointerException.class, () -> DataListUtil.asBeanList(null, null));
+  }
+
+  @Test
+  void testBuilderSkipsNullFieldsInServiceQueryResult() throws Exception {
+    // Prepare
+    Field field = new Field();
+    field.setId("first");
+    DataListBuilder builder = new DataListBuilder()
+      .setFieldList(Arrays.asList(field, null))
+      .setServiceQueryResult(new String[]{"a", "b", "c", "d"});
+
+    // Run
+    DataList output = builder.build();
+
+    // Assert
+    assertEquals(2, output.getRows().size());
+    assertEquals("a", output.getRows().get(0).get("first").getStringValue());
+    assertEquals("c", output.getRows().get(1).get("first").getStringValue());
+    assertEquals(2, output.getRows().get(0).size());
   }
 }
