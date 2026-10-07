@@ -1,0 +1,54 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "line",
+    "zoomType" : "xAxis"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "plotOptions" : {
+    "line" : {
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "id" : "serie1",
+    "name" : "Serie 1",
+    "xValue" : "dates",
+    "yValue" : "serie1"
+  } ],
+  "stockChart" : true,
+  "theme" : "blue",
+  "title" : {
+    "text" : "Grafico 4"
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 2,
+    "valueSuffix" : " ºC"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Fechas"
+    },
+    "type" : "datetime"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : {
+      "format" : "{value} ºC"
+    },
+    "opposite" : false,
+    "title" : {
+      "text" : "Temperaturas (ºC)"
+    }
+  } ]
+}

@@ -1,0 +1,74 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "pie"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "enabled" : true,
+    "floating" : false
+  },
+  "plotOptions" : {
+    "pie" : {
+      "allowPointSelect" : true,
+      "center" : [ "50%", "75%" ],
+      "cursor" : "pointer",
+      "dataLabels" : {
+        "distance" : -20,
+        "enabled" : true,
+        "style" : {
+          "color" : "white",
+          "fontWeight" : "bold",
+          "textShadow" : "0px 1px 2px black"
+        }
+      },
+      "endAngle" : 90,
+      "innerSize" : "40%",
+      "showInLegend" : true,
+      "size" : "75%",
+      "stacking" : false,
+      "startAngle" : -90
+    }
+  },
+  "series" : [ {
+    "id" : "serie1",
+    "name" : "Themes",
+    "xValue" : "names",
+    "yValue" : "serie1"
+  } ],
+  "stockChart" : false,
+  "theme" : "gray",
+  "title" : {
+    "align" : "center",
+    "text" : "Grafico 8",
+    "verticalAlign" : "middle",
+    "y" : 50
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 2,
+    "valueSuffix" : " %"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Themes"
+    }
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Percent (%)"
+    }
+  } ]
+}

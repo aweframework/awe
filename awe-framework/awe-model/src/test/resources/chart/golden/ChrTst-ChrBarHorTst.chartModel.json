@@ -1,0 +1,72 @@
+{
+  "chart" : {
+    "inverted" : true,
+    "type" : "column"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "align" : "right",
+    "borderWidth" : 1,
+    "enabled" : false,
+    "floating" : false,
+    "layout" : "vertical",
+    "verticalAlign" : "middle"
+  },
+  "plotOptions" : {
+    "column" : {
+      "dataLabels" : {
+        "enabled" : true,
+        "format" : "{y:.3f}"
+      },
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "id" : "serie1",
+    "name" : "Serie 1",
+    "xValue" : "dates",
+    "yValue" : "serie1"
+  }, {
+    "id" : "serie2",
+    "name" : "Serie 2",
+    "xValue" : "dates",
+    "yValue" : "serie2"
+  } ],
+  "stockChart" : false,
+  "title" : {
+    "text" : "Grafico 3"
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 3,
+    "valueSuffix" : " ºC",
+    "xDateFormat" : "%Y-%m-%d"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "tickInterval" : 259200,
+    "title" : {
+      "text" : "SCREEN_TEXT_CHART_AXIS_DATES"
+    },
+    "type" : "datetime"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : {
+      "format" : "{value} ºC"
+    },
+    "opposite" : false,
+    "tickInterval" : 1,
+    "title" : {
+      "text" : "Temperaturas (ºC)"
+    }
+  } ]
+}

@@ -1,0 +1,47 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "line"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "legend" : {
+    "align" : "right",
+    "borderWidth" : 1,
+    "enabled" : false,
+    "floating" : false,
+    "layout" : "vertical",
+    "title" : {
+      "text" : "SCREEN_TEXT_LEGEND"
+    },
+    "verticalAlign" : "middle"
+  },
+  "plotOptions" : {
+    "line" : {
+      "stacking" : false
+    }
+  },
+  "stockChart" : false,
+  "theme" : "dark-unica",
+  "title" : {
+    "text" : "SCREEN_TEXT_DYNAMIC_SERIES_CHART"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "SCREEN_TEXT_MONTHS"
+    },
+    "type" : "category"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "SCREEN_TEXT_NUM_ACCESS_WEB"
+    }
+  } ]
+}

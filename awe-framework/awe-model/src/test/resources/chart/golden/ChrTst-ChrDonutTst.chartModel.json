@@ -1,0 +1,63 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "options3d" : {
+      "alpha" : 45,
+      "enabled" : true
+    },
+    "type" : "pie"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "enabled" : true,
+    "floating" : false
+  },
+  "plotOptions" : {
+    "pie" : {
+      "allowPointSelect" : true,
+      "cursor" : "pointer",
+      "depth" : 45,
+      "innerSize" : "40%",
+      "showInLegend" : true,
+      "size" : "75%",
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "id" : "serie1",
+    "name" : "Themes",
+    "xValue" : "names",
+    "yValue" : "serie1"
+  } ],
+  "stockChart" : false,
+  "title" : {
+    "text" : "Grafico 7"
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 2,
+    "valueSuffix" : " %"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Themes"
+    }
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Percent (%)"
+    }
+  } ]
+}

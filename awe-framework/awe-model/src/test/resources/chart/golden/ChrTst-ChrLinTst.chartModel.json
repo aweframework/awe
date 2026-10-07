@@ -1,0 +1,81 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "mixed",
+    "zoomType" : "xAxis"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "enabled" : false,
+    "floating" : false,
+    "title" : {
+      "text" : "Leyenda"
+    }
+  },
+  "plotOptions" : {
+    "mixed" : {
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "color" : "#A8E0A6",
+    "id" : "serie-1",
+    "name" : "Serie 1",
+    "type" : "column",
+    "xValue" : "dates",
+    "yAxis" : 0,
+    "yValue" : "serie1"
+  }, {
+    "id" : "serie-2",
+    "name" : "Serie 2",
+    "type" : "spline",
+    "xValue" : "dates",
+    "yAxis" : 1,
+    "yValue" : "serie2"
+  } ],
+  "stockChart" : false,
+  "subtitle" : {
+    "text" : "Subtitulo grafico 1"
+  },
+  "title" : {
+    "text" : "SCREEN_TEXT_CHART_TITLE_1"
+  },
+  "tooltip" : {
+    "crosshairs" : [ true, false ],
+    "enabled" : true,
+    "shared" : true,
+    "valueDecimals" : 3,
+    "valueSuffix" : " ºC"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Fechassss"
+    },
+    "type" : "datetime"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : {
+      "formatter" : "formatCurrencyMagnitude"
+    },
+    "opposite" : false,
+    "title" : {
+      "text" : "Temperaturas (ºC)"
+    }
+  }, {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : true,
+    "title" : {
+      "text" : "Lluvias (mm)"
+    }
+  } ]
+}

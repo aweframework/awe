@@ -2,10 +2,12 @@ package com.almis.awe.model.entities.screen.component.chart;
 
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.screen.component.chart.echarts.EChartsModelBuilder;
 import com.almis.awe.model.type.ChartType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -15,6 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -28,6 +31,7 @@ import java.util.*;
  * </p>
  * @author Pablo VIDAL - 20/OCT/2014
  */
+@Slf4j
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
@@ -231,6 +235,29 @@ public class Chart extends AbstractChart {
 
     // Return string parameter list
     return chartModel;
+  }
+
+  /**
+   * Retrieve the Apache ECharts option model of the chart.
+   * <p>
+   * It is always sent next to {@link #getChartModel()}, which is not affected. See {@link EChartsModelBuilder} for
+   * the contract of this model. The ECharts model never breaks the serialization of the chart: if its translation
+   * fails, a warning is logged and the result is an empty map, so the {@code echartsModel} key is omitted while
+   * {@code chartModel} is sent as usual
+   * </p>
+   *
+   * @return ECharts model, without data; empty when it could not be built
+   */
+  @JsonGetter("echartsModel")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, Object> getEchartsModel() {
+    try {
+      return new EChartsModelBuilder().build(this);
+    } catch (RuntimeException exc) {
+      log.warn("The ECharts model of the chart '{}' could not be built and is omitted: {}", getId(), exc.toString());
+      log.debug("ECharts model failure of the chart '{}'", getId(), exc);
+      return Collections.emptyMap();
+    }
   }
 
   /**
