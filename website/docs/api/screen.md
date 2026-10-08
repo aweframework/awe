@@ -40,4 +40,4 @@ Screen element has the following attributes:
 | target        | Optional     | String  | Initial queries which initialize all criteria values in the screen. Queries columns must match [criteria](criteria.md) identifiers | [Query](query-definition.md) identifiers, separated by commas `,` |
 | onload        | Optional     | String  | Maintain target to launch on screen load | Maintain target identifier       |
 | onunload      | Optional     | String  | Maintain target to launch on screen unload | Maintain target identifier     |
-|schema-location| **Required** | String  | Location for XSD files | Example for awe screens: "../../sch/awe/screen.xsd"
+|schema-location| **Required** | String  | Location for XSD files | Example for awe screens: `https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd` (see [XSD tooling](../guides/xsd-tooling.md))

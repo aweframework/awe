@@ -29,6 +29,20 @@
     <performancetest.path/>
   </properties>
 
+  <dependencies>
+    <!-- Tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <finalName>${project.artifactId}</finalName>
     <resources>
@@ -90,6 +104,26 @@
             <goals>
               <goal>validate</goal>
             </goals>
+            <configuration>
+              <!-- This list overrides the validationSets inherited from awe-dependencies (it is not merged),
+                   so the default set is repeated here with its options, plus the React client definitions -->
+              <validationSets>
+                <validationSet>
+                  <dir>${check.xml.directory}/${application.acronym}/</dir>
+                  <excludes>
+                    <exclude>templates/**</exclude>
+                  </excludes>
+                  <validating>true</validating>
+                </validationSet>
+                <validationSet>
+                  <dir>${check.xml.directory}/${application.acronym}-react/</dir>
+                  <excludes>
+                    <exclude>templates/**</exclude>
+                  </excludes>
+                  <validating>true</validating>
+                </validationSet>
+              </validationSets>
+            </configuration>
           </execution>
         </executions>
       </plugin>

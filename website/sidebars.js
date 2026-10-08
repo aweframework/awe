@@ -79,6 +79,7 @@ module.exports = {
 				"guides/validation",
 				"guides/v4-migration",
 				"guides/v5-migration",
+				"guides/xsd-tooling",
 				"guides/default-screens",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
