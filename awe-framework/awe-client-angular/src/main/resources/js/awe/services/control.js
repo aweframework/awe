@@ -125,13 +125,14 @@ aweApplication.factory('Control',
 
           // Check if address, action, view and component exists in both checks
           switch (Control.getAddressType(address)) {
-            case "cell":
+            case "cell": {
               // Retrieve cell id
               let cellId = Utilities.getCellId(address);
               let cells = storedAction[view][component].cells || {};
               cells[cellId] = value;
               target = cells[cellId];
               break;
+            }
             case "viewAndComponent":
               // Normal component
               storedAction[view] = storedAction[view] || {};

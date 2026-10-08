@@ -155,4 +155,58 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/utilities.js',
       expect($log.error).toHaveBeenCalledWith("[ERROR] Copying test value to the clipboard", expect.any(Error));
     });
   });
+
+  describe('behaviour pinned before the lint cleanup', function () {
+    it('should remove every child node of a node', function () {
+      const node = document.createElement("div");
+      node.appendChild(document.createElement("span"));
+      node.appendChild(document.createTextNode("text"));
+      node.appendChild(document.createComment("comment"));
+      node.appendChild(document.createElement("b"));
+
+      $utilities.removeChildren(node);
+
+      expect(node.childNodes.length).toBe(0);
+      expect(node.firstChild).toBeNull();
+    });
+
+    it('should leave an empty node empty', function () {
+      const node = document.createElement("div");
+      $utilities.removeChildren(node);
+      expect(node.childNodes.length).toBe(0);
+    });
+
+    it('should url encode spaces, percent signs, dashes, slashes and reserved characters', function () {
+      expect($utilities.urlEncode("a b")).toBe("a+b");
+      expect($utilities.urlEncode("100%")).toBe("100%25");
+      expect($utilities.urlEncode("a-b_c.d")).toBe("a-b_c.d");
+      expect($utilities.urlEncode("a/b")).toBe("a%2Fb");
+      expect($utilities.urlEncode("it's (1)*~!")).toBe("it%27s+%281%29%2a%7e%21");
+    });
+
+    it('should url decode what it encodes and the plus sign as a space', function () {
+      expect($utilities.urlDecode("a+b")).toBe("a b");
+      expect($utilities.urlDecode("100%25")).toBe("100%");
+      expect($utilities.urlDecode("a%2Fb")).toBe("a/b");
+      expect($utilities.urlDecode("it%27s+%281%29%2A%7E%21")).toBe("it's (1)*~!");
+      ["a b", "100%", "a-b/c d", "it's (1)*~!", "ñ é-/%"].forEach(function (value) {
+        expect($utilities.urlDecode($utilities.urlEncode(value))).toBe(value);
+      });
+    });
+
+    it('should tell numbers from other types', function () {
+      expect($utilities.isNumber(12)).toBe(true);
+      expect($utilities.isNumber(-3.5)).toBe(true);
+      expect($utilities.isNumber("12")).toBe(true);
+      expect($utilities.isNumber("-12")).toBe(true);
+      expect($utilities.isNumber("1.5")).toBe(true);
+      // The string pattern is not anchored, so any string matches it (empty matches too)
+      expect($utilities.isNumber("abc")).toBe(true);
+      expect($utilities.isNumber("")).toBe(true);
+      expect($utilities.isNumber(true)).toBe(false);
+      expect($utilities.isNumber(null)).toBe(false);
+      expect($utilities.isNumber(undefined)).toBe(false);
+      expect($utilities.isNumber({})).toBe(false);
+    });
+  });
 });

@@ -396,13 +396,13 @@ aweApplication.factory('GridEvents',
                   rowsPrintData.push([]);
                 }
                 rowsPrintData[index + 1].push(cellPrintData);
-              })
+              });
             });
 
           // We join all values of a row and separate them with tabs
           rowsPrintData.forEach((rowPrintData, index) => {
             rowsPrintData[index] = rowPrintData.join("\t");
-          })
+          });
 
           // Copy the lines into the clipboard
           navigator.clipboard.writeText(rowsPrintData.join("\n"))

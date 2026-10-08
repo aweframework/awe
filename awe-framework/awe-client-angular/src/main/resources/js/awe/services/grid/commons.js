@@ -373,10 +373,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           // Summarize value
           switch (column.type) {
             case "sum":
-            default:
+            default: {
               let value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
               column.value += isNaN(value) ? 0 : value;
               break;
+            }
           }
           // Store as footer data
           if (column.component) {
@@ -740,7 +741,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
               footerData[column.id] = {
                 value: (component.model.footer || {})[column.id] || null,
                 label: component.getVisibleData(address, "footer", column)
-              }
+              };
             }
           });
           data[component.address.component + $settings.get("dataSuffix")].footer = footerData;
@@ -854,7 +855,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
               name: header.titleText,
               label: header.titleText.split(" ").map(singleLabel => $translate.instant(singleLabel)).join(" "),
               header: true
-            }
+            };
           }
           return null;
         }
@@ -1662,7 +1663,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           });
           // Retrieve new id
           return deferred.promise;
-        }
+        };
 
         /** ******************************************************************* */
         /* EVENTS */

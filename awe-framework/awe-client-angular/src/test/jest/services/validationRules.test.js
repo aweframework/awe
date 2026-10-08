@@ -38,4 +38,46 @@ describe("ValidationRules Jest logging contract", () => {
       infoSpy.mockRestore();
     }
   });
+
+  describe("email pattern", () => {
+    const valid = [
+      "user@example.com",
+      "first.last@example.com",
+      "user-name@example.co.uk",
+      "user+tag@example.com",
+      "a/b=c?d@example.com",
+      "o'neil@example.com",
+      "{user}@example.com",
+      "user_100%@sub-domain.example.org",
+      "x@y"
+    ];
+    const invalid = [
+      "plainaddress",
+      "@example.com",
+      "user@",
+      "user@@example.com",
+      "user@-example.com",
+      "user@example-.com",
+      "user@exa mple.com",
+      "user name@example.com",
+      "user@example..com",
+      "user@.example.com"
+    ];
+
+    valid.forEach((email) => {
+      it(`accepts ${email}`, () => {
+        expect($rules.email({values: {value1: email}})).toBeNull();
+      });
+    });
+
+    invalid.forEach((email) => {
+      it(`rejects ${email}`, () => {
+        expect($rules.email({values: {value1: email}})).not.toBeNull();
+      });
+    });
+
+    it("does not validate an empty value", () => {
+      expect($rules.email({values: {value1: ""}})).toBeNull();
+    });
+  });
 });

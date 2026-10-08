@@ -55,7 +55,7 @@ aweApplication.directive('aweTagList',
           component.onData = function (parameters) {
             // Store taglist json data
             _.each(parameters.components, function (currentComponent) {
-              serverData.storeComponent(currentComponent, model[view], controller[view], api[view], screen[view].option)
+              serverData.storeComponent(currentComponent, model[view], controller[view], api[view], screen[view].option);
             });
 
             // assign it into the current DOM
