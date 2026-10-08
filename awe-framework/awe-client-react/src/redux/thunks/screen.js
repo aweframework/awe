@@ -144,6 +144,8 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
       const componentsCount = Object.keys(getState().components || {}).length;
       const structureSize = safeSize(response.structure);
       const menuSize = safeSize(menu?.controller?.options || []);
+      // Debug-level screen metrics, only emitted when the debug setting asks for them
+      // eslint-disable-next-line no-console
       console.info("[Metrics] sizes(bytes)", {
         reduxState: stateSize,
         componentsCount,

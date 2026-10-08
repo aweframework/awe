@@ -1216,14 +1216,10 @@ function updateModel(state, address, data, update = true, settings) {
 
   if (isEmpty(component)) return state;
 
-  // Debug log
-  // console.error('updateModel component:', component, typeof component, 'isGrid:', isGridComponent(component), 'data.selected:', data.selected);
-
   let newModel;
   if (isGridComponent(component) && data.values && update) {
     newModel = getGridModelUpdate(state, address, data, update, settings);
   } else if (isGridComponent(component) && data.selected) {
-    // console.error('Entering updateSelectedGrid path, values:', component.model?.values?.length);
     newModel = updateSelectedGrid(state, component.model?.values || [], address, data, settings);
   } else if (isGroup(component)) {
     newModel = getGroupModelUpdate(state, address?.view, component.attributes?.group, data, settings);

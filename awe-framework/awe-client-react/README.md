@@ -58,4 +58,4 @@ Upgrading from `awe-react-client` 2.x? See the [React client upgrade guide](http
 
 ## License
 
-ISC — see [`LICENSE`](https://gitlab.com/aweframework/awe/-/blob/master/LICENSE.md) for details.
+Apache License 2.0, like the rest of AWE — see [`LICENSE.md`](https://gitlab.com/aweframework/awe/-/blob/master/LICENSE.md) (also included in the published package).

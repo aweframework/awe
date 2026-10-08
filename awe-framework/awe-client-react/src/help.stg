@@ -23,7 +23,7 @@ helpScreen(e,content) ::= <<
     <div>
       $if(e.help)$<p class="text-justify">{t{'$e.help$'}}</p>$endif$
       $if(e.helpImage)$<div class="p-1 text-center">
-        <img class="help-image" src="{t{'$e.helpImage$'}"/>
+        <img class="help-image" src="{t{'$e.helpImage$'}}"/>
       </div>$endif$
     </div>
   </div>
@@ -138,7 +138,7 @@ helpContainer(e,label,content,developers) ::= <<
   $endif$
   $if(e.help)$<p class="$if(developers)$shadow-2$endif$ m-0 text-justify">{t{'$e.help$'}}</p>$endif$
   $if(e.helpImage)$<div class="p-1 text-center">
-    <img class="help-image" src="{t{'$e.helpImage$'}"/>
+    <img class="help-image" src="{t{'$e.helpImage$'}}"/>
   </div>$endif$
 </div>
 $content$

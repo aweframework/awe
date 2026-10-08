@@ -11,6 +11,9 @@ module.exports = {
     '**/utilities/mergeUtilsTest.{js,jsx}',
     '**/packaging/bootstrapGridCompatTest.{js,jsx}',
     '**/packaging/packageVersionTest.{js,jsx}',
+    '**/packaging/packageLicenseTest.{js,jsx}',
+    '**/packaging/babelConfigTest.{js,jsx}',
+    '**/packaging/helpTemplatesTest.{js,jsx}',
     '**/packaging/textUtilitiesTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
@@ -44,6 +47,7 @@ module.exports = {
     '**/services/ComponentServiceTest.{js,jsx}',
     '**/services/FormServiceTest.{js,jsx}',
     '**/services/WebsocketServiceTest.{js,jsx}',
+    '**/redux/thunks/websocketThunkTest.{js,jsx}',
     '**/services/ScreenServiceTest.{js,jsx}',
     '**/services/components/GridServiceTest.{js,jsx}',
     '**/utilities/gridTest.{js,jsx}',
@@ -95,8 +99,7 @@ module.exports = {
     'node_modules/(?!(quill|lodash-es|parchment|echarts|zrender)/)'
   ],
   testPathIgnorePatterns: [
-    '/node_modules/',
-    '/test/js/index.js$'
+    '/node_modules/'
   ],
   coverageDirectory: '<rootDir>/target/reports/jest/coverage',
   coverageReporters: ['lcov', 'text-summary', 'html'],

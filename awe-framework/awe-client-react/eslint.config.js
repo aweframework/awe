@@ -67,5 +67,12 @@ module.exports = [
       'no-console': 1,
       'no-case-declarations': 0
     }
+  },
+  {
+    // Tests and their Jest setup log and silence the console on purpose
+    files: ['test/**/*.{js,jsx}'],
+    rules: {
+      'no-console': 0
+    }
   }
 ];

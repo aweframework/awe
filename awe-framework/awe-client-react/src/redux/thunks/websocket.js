@@ -33,10 +33,14 @@ const handleWebSocketClose = (evn, t, dispatch, client) => {
     case 1001:
       console.warn("Server disconnected, trying to reconnect", evn);
       break;
+    case 1000:
+    case 1005:
     case 1006:
+      // Normal and abnormal closures without a reason need no action: the client reconnects by itself
       break;
     default:
-      console.info("Graceful WebSocket disconnection", evn);
+      console.warn("WebSocket closed", evn);
+      break;
   }
 };
 
@@ -72,7 +76,6 @@ export const connectWebSocketAction = (action, t) => {
     client.onConnect = (evn) => {
       client.subscribe('/topic/broadcast', (m) => onMessage(m, dispatch));
       client.subscribe(`/topic/${token}`, (m) => onMessage(m, dispatch));
-      console.info("WebSocket connected", evn);
     };
 
     // Configurar el comportamiento cuando el WebSocket se cierre
@@ -81,7 +84,7 @@ export const connectWebSocketAction = (action, t) => {
     };
 
     client.onStompError = (evn) => {
-      console.log('WebSocket error', evn);
+      console.error('WebSocket error', evn);
     };
 
     // Activar la conexión

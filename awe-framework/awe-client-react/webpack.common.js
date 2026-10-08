@@ -66,10 +66,11 @@ module.exports = {
       patterns: [
         {from: "src/template.html", to: "[name][ext]"},
         {from: "src/*.stg", to: "[name][ext]"},
-        {from: "src/templates.stg", to: "[name][ext]"},
         {from: "src/plugins", to: "plugins/[name][ext]"},
         {from: "src/static", to: "static/"},
         {from: "README.md", to: "[name][ext]"},
+        // The licence of the AWE repository travels with the published package
+        {from: "../../LICENSE.md", to: "[name][ext]"},
       ]
     })
   ]

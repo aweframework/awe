@@ -39,6 +39,8 @@ function Action({parameters}) {
   if (target) label.push(`(${target})`);
 
   const showInfo = useCallback(() => {
+    // Clicking an entry of the action stack prints its parameters: a deliberate debugging aid
+    // eslint-disable-next-line no-console
     console.debug(parameters);
   }, [parameters]);
 
