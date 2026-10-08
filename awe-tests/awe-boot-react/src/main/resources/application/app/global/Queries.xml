@@ -660,6 +660,25 @@
     <order-by field="l1_nom" type="ASC"/>
   </query>
 
+  <!-- Values with markup that the cells of a grid must show as text or sanitized (XssGridCells screen) -->
+  <query id="XssGridCellTst">
+    <table id="ope"/>
+    <field id="l1_nom" alias="id"/>
+    <constant value="Alpha &lt;img src=&quot;x&quot; onerror=&quot;window.aweInjected=true&quot;&gt;omega" alias="image"/>
+    <constant value="&lt;a href=&quot;javascript:window.aweInjected=true&quot;&gt;Bravo&lt;/a&gt;" alias="link"/>
+    <constant value="Charlie&lt;script&gt;window.aweInjected=true&lt;/script&gt;Delta" alias="script"/>
+    <constant value="&lt;b onmouseover=&quot;window.aweInjected=true&quot;&gt;Echo&lt;/b&gt;" alias="event"/>
+    <constant value="&lt;iframe src=&quot;https://example.com&quot;&gt;&lt;/iframe&gt;Foxtrot" alias="frame"/>
+    <constant value="&lt;strong&gt;Golf&lt;/strong&gt; and &lt;em&gt;Hotel&lt;/em&gt;" alias="safe"/>
+    <constant value="&lt;b&gt;India&lt;/b&gt; text" alias="escaped" transform="TEXT_HTML"/>
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="eq" right-variable="user"/>
+      </and>
+    </where>
+    <variable id="user" type="STRING" value="test"/>
+  </query>
+
   <query id="TransformTextHtml">
     <table id="ope"/>
     <field id="l1_nom" alias="nombre"/>

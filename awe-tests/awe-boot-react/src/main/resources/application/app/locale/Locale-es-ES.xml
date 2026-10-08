@@ -27,6 +27,13 @@
   <locale name="BUTTON_SET_VALUE3" value="Poner &apos;Valor3&apos;"/>
   <locale name="COLUMN_COUNTRY" value="País"/>
   <locale name="COLUMN_NUMERIC" value="Numérico (test)"/>
+  <locale name="COLUMN_XSS_ESCAPED" value="Escaped text"/>
+  <locale name="COLUMN_XSS_EVENT" value="Event handler"/>
+  <locale name="COLUMN_XSS_FRAME" value="Frame"/>
+  <locale name="COLUMN_XSS_IMAGE" value="Image"/>
+  <locale name="COLUMN_XSS_LINK" value="Script link"/>
+  <locale name="COLUMN_XSS_SAFE" value="Safe markup"/>
+  <locale name="COLUMN_XSS_SCRIPT" value="Script tag"/>
   <locale name="ELEMENT_TYPE_GRID" value="Tabla"/>
   <locale name="ENUM_MATRIX_EDITABLE" value="Editable"/>
   <locale name="ENUM_MATRIX_EDITABLE_MULTISELECT" value="Editable multiselección"/>
@@ -91,6 +98,7 @@
   <locale name="MENU_TEST_MATRIX_LOAD_ALL" value="Load all matrix"/>
   <locale name="MENU_TEST_MATRIX_NUMBERS" value="Matriz con números"/>
   <locale name="MENU_TEST_MATRIX_SUGGEST" value="Matriz con suggest"/>
+  <locale name="MENU_TEST_MATRIX_XSS_CELLS" value="Cells with markup"/>
   <locale name="MENU_TEST_NO_SCREEN" value="Sin pantalla"/>
   <locale name="MENU_TEST_PIVOT" value="Tabla cruzada"/>
   <locale name="MENU_TEST_QUEUES" value="Colas de mensajes"/>
@@ -186,6 +194,7 @@
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Pestañas verticales"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Asistente"/>
   <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Asistente vertical"/>
+  <locale name="SCREEN_TITLE_XSS_CELLS" value="Cells with markup"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="Nuevo evento"/>
   <locale name="SCR_EVENT_CALENDAR_EDIT" value="Editar evento"/>
   <locale name="SCR_EVENT_CALENDAR_TITLE" value="Título del evento"/>

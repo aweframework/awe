@@ -279,6 +279,8 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getContextMenuMask", i::getContextMenuMask);
     catalog.put("getGridPageSize", i::getGridPageSize);
     catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
+    catalog.put("getGridCells", () -> i.getGridCells(GRID));
+    catalog.put("getGridCellsActiveContent", () -> i.getGridCellsActiveContent(GRID));
     catalog.put("getColumnSuccessIcon", () -> i.getColumnSuccessIcon(COLUMN));
     catalog.put("getTreeRow", () -> i.getTreeRow(GRID, ROW));
     catalog.put("getTreeRowIcon", () -> i.getTreeRowIcon(GRID, ROW));

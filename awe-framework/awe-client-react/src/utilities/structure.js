@@ -3,7 +3,7 @@ import {ComponentList, IGNORE_COMPONENT_LIST} from "../components/AweComponents"
 import {CriteriaList} from "../criteria/AweCriteria";
 import {classNames, getComponentId} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
-import parse from "html-react-parser";
+import {renderSafeHtml} from "./sanitizeHtml";
 import {extractCellModel} from "./grid";
 import {getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
 
@@ -102,10 +102,10 @@ export const Columns = (node, data = {}, attrs = {}, editing = false) => {
       .filter(value => value !== "")
       .join(", ");
     const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate");
-    return <span className={className} title={visibleValue}>{parse(String(visibleValue))}</span>;
+    return <span className={className} title={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
   }
   const {label, value, style} = fixedData;
   const visibleValue = getFirstDefinedAndNotNullValue(label, value, "");
   const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate", style);
-  return <span className={className} title={visibleValue}>{parse(String(visibleValue))}</span>;
+  return <span className={className} title={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
 };

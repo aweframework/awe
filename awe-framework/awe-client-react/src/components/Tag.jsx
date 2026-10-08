@@ -2,7 +2,7 @@ import React from "react";
 import {useTranslation} from 'react-i18next';
 import {classNames, isVoidElement} from "../utilities/components";
 import {Components} from "../utilities/structure";
-import parse from 'html-react-parser';
+import {renderSafeHtml} from "../utilities/sanitizeHtml";
 import {translateLabel} from "../utilities";
 import PropTypes from "prop-types";
 
@@ -19,8 +19,8 @@ function Tag(props) {
   return React.createElement(type || "div", {
     id: id,
     className: classes,
-    ...(elementList.length > 0 ? {children: [...[parse(translateLabel(label, t) || ""), value], ...(elementList.map((node, index) => Components(node, index)))]} :
-      {children: [parse(translateLabel(label, t) || ""), value]})
+    ...(elementList.length > 0 ? {children: [...[renderSafeHtml(translateLabel(label, t)), value], ...(elementList.map((node, index) => Components(node, index)))]} :
+      {children: [renderSafeHtml(translateLabel(label, t)), value]})
   });
 }
 

@@ -3634,6 +3634,19 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the cells of a grid show text and nothing active: no script, frame, image, form or event handler, and no
+   * link to a script url. The grid has to show at least one cell
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridCellsHaveNoActiveContent(String gridId) {
+    waitUntil(BrowserCondition.allOf(toBePresent(frontEndInstructions.getGridCells(gridId)), checkIfGridLoaderIsNotVisible()));
+    By selector = frontEndInstructions.getGridCellsActiveContent(gridId);
+    assertWithScreenshot("The cells of the grid " + gridId + " have active content (" + selector + ")",
+      !toBePresent(selector).isMet(getBrowser()));
+  }
+
+  /**
    * Check that every row of a grid is selected (the checkbox of its header is checked)
    *
    * @param gridId Grid identifier

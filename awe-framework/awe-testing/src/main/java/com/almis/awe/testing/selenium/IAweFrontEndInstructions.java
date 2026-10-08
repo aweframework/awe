@@ -881,6 +881,32 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the cells of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Grid cells selector
+   */
+  default By getGridCells(String gridId) {
+    String literal = XpathLiterals.of(gridId);
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s]", literal, literal, TestIds.xpath(TestIds.GRID_CELL)));
+  }
+
+  /**
+   * Get the active content that a cell of a grid holds: an element that loads or runs something (script, frame, image,
+   * object, svg, form), an event handler attribute or a link to a script url. A cell shows text, so it has none
+   *
+   * @param gridId Grid identifier
+   * @return Active content selector
+   */
+  default By getGridCellsActiveContent(String gridId) {
+    String lowerCaseHref = "translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')";
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s]//*[self::script or self::iframe or self::img or self::object"
+        + " or self::embed or self::svg or self::form or self::style or @*[starts-with(name(),'on')]"
+        + " or starts-with(normalize-space(%s),'javascript:')]",
+      XpathLiterals.of(gridId), XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_CELL), lowerCaseHref));
+  }
+
+  /**
    * Get the open context menu
    *
    * @return Context menu selector
