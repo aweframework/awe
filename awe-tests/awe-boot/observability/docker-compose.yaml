@@ -3,7 +3,7 @@ version: "2"
 services:
 
   tempo:
-    image: grafana/tempo:2.0.1
+    image: grafana/tempo:2.10.8@sha256:f0561deb1c68ec44d6e6e7e4487f30106c4e5e768642077695b37958b105812a
     container_name: tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
       - loki
 
   prometheus:
-    image: prom/prometheus:v2.43.0
+    image: prom/prometheus:v2.55.1@sha256:2659f4c2ebb718e7695cb9b25ffa7d6be64db013daba13e05c875451cf51b0d3
     container_name: prometheus
     restart: unless-stopped
     volumes:
@@ -33,7 +33,7 @@ services:
       - loki
 
   grafana:
-    image: grafana/grafana-oss:9.4.7
+    image: grafana/grafana-oss:9.5.21@sha256:681dc3261b0a8050809733e04d76f10300b91a1400cea17abe102b2cdef36b6d
     container_name: grafana
     restart: unless-stopped
     user: root
@@ -52,7 +52,7 @@ services:
       - prometheus
 
   loki:
-    image: grafana/loki:2.8.0
+    image: grafana/loki:2.9.17@sha256:c4a25af6f2709fa625d88ee5df494a332a85f30e9575854031667823ecc5be04
     container_name: loki
     restart: unless-stopped
     volumes:
@@ -62,7 +62,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yaml
 
   promtail:
-    image: grafana/promtail:2.8.0
+    image: grafana/promtail:2.9.17@sha256:b28495fdab552b183428c5b5cebbf258231fc5f00be7724be2bc091ad21ac390
     container_name: promtail
     restart: unless-stopped
     volumes:
@@ -73,7 +73,7 @@ services:
     command: -config.file=/etc/promtail/promtail.yaml
 
   redis:
-    image: redis:7.0.10
+    image: redis:7.4.11@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
     container_name: redis-service
     ports:
       - "6379:6379"
@@ -81,6 +81,6 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
 
   redisinsight:
-    image: redislabs/redisinsight:latest
+    image: redislabs/redisinsight:latest@sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84
     ports:
       - "5540:5540"
