@@ -237,25 +237,69 @@ function buildSeries(serie, environment, index) {
   applyMarkerFill(built, hints.markerFill, info.color ?? palette[index % palette.length]);
   SERIES_INFO.set(built, info);
   if (isPie(serie)) {
-    layoutPie(built, serie, hasTitle);
+    layoutPie(built, serie, hasTitle, environment.plotArea);
     fitPieLabels(built, environment);
   }
   return built;
 }
 
 /**
- * Size and place a pie: the Highcharts size leaves room for the labels, and a title takes room above
+ * Size and place a pie. A pie whose model gives its center (a semicircle) takes the geometry of
+ * Highcharts: its center and its size are measured in the plot area. Otherwise the size is scaled down, because the
+ * Highcharts plot area leaves room for the title and the legend, and a title lowers the pie
  * @param {object} built Series for ECharts, which is changed
  * @param {object} serie Series of the model
  * @param {boolean} hasTitle The chart has a title
+ * @param {PlotArea|null} plotArea Plot area of the chart, null when the size of the chart is unknown
  */
-function layoutPie(built, serie, hasTitle) {
+function layoutPie(built, serie, hasTitle, plotArea) {
+  if (Array.isArray(serie.center) && plotArea) {
+    built.center = [
+      toPlotPixels(serie.center[0], plotArea.left, plotArea.width),
+      toPlotPixels(serie.center[1], plotArea.top, plotArea.height)
+    ];
+    if (serie.radius !== undefined) {
+      built.radius = plotRadius(serie.radius, Math.min(plotArea.width, plotArea.height) / 2);
+    }
+    return;
+  }
   if (serie.radius !== undefined) {
     built.radius = scaleRadius(serie.radius);
   }
   if (hasTitle && serie.center === undefined) {
     built.center = ["50%", "54%"];
   }
+}
+
+/**
+ * Turn a percentage radius into pixels of the plot area
+ * @param {string|number|Array} radius Radius, or [inner, outer] radius
+ * @param {number} half Half of the smaller side of the plot area
+ * @returns {string|number|Array} Radius in pixels, or the value when it is not a percentage
+ */
+function plotRadius(radius, half) {
+  if (Array.isArray(radius)) {
+    return radius.map(value => plotRadius(value, half));
+  }
+  const percent = typeof radius === "string" && radius.trim().endsWith("%") ? Number.parseFloat(radius) : Number.NaN;
+  return Number.isFinite(percent) ? percent / 100 * half : radius;
+}
+
+/**
+ * Turn a coordinate of the plot area into pixels of the chart. Highcharts measures the center of a pie in the plot
+ * area (a percentage of its size, or pixels from its corner), ECharts measures it in the whole chart, legend included
+ * @param {string|number} value Percentage (`75%`) or pixels
+ * @param {number} start Start of the plot area in pixels
+ * @param {number} length Size of the plot area in pixels
+ * @returns {string|number} Pixels of the chart, or the value when it is not a coordinate
+ */
+function toPlotPixels(value, start, length) {
+  if (typeof value === "string" && value.trim().endsWith("%")) {
+    const percent = Number.parseFloat(value);
+    return Number.isFinite(percent) ? start + percent / 100 * length : value;
+  }
+  const pixels = typeof value === "string" && value.trim() === "" ? Number.NaN : Number(value);
+  return Number.isFinite(pixels) ? start + pixels : value;
 }
 
 /**
@@ -556,6 +600,52 @@ function legendSide(legend) {
 }
 
 /**
+ * Add the room of the legend to the margins of the plot area
+ * @param {{top: number, right: number, bottom: number, left: number}} margin Margins, which are changed
+ * @param {string} legendPlace Side of the legend
+ * @param {boolean} hasLegendTitle The legend has a title
+ */
+function addLegendMargin(margin, legendPlace, hasLegendTitle) {
+  if (legendPlace === "top" || legendPlace === "bottom") {
+    margin[legendPlace] += LAYOUT.legend + (hasLegendTitle ? LAYOUT.legendTitle : 0);
+  } else if (legendPlace !== "none") {
+    margin[legendPlace] += LAYOUT.verticalLegend;
+  }
+}
+
+/**
+ * Plot area of a chart without axes, in pixels
+ * @typedef {object} PlotArea
+ * @property {number} left Left side
+ * @property {number} top Top side
+ * @property {number} width Width
+ * @property {number} height Height
+ */
+
+/**
+ * Plot area of a chart without axes: the chart without its margins, the legend and a title on top. A title placed in
+ * the middle floats over the plot, like in Highcharts
+ * @param {object} model ECharts model
+ * @param {{width: number, height: number}} size Size of the chart
+ * @returns {PlotArea|null} Plot area, null when the size of the chart is unknown
+ */
+function pieArea(model, {width, height}) {
+  if (!(width > 0 && height > 0)) {
+    return null;
+  }
+  const margin = {top: LAYOUT.margin, right: LAYOUT.margin, bottom: LAYOUT.margin, left: LAYOUT.margin};
+  if (model.title?.text && model.title.top !== "middle") {
+    margin.top += LAYOUT.title + (model.title.subtext ? LAYOUT.subtitle : 0);
+  }
+  const legendPlace = legendSide(model.legend);
+  addLegendMargin(margin, legendPlace, Boolean(hintsOf(model.legend).title) && legendPlace !== "none");
+  return {
+    left: margin.left, top: margin.top,
+    width: Math.max(width - margin.left - margin.right, 0), height: Math.max(height - margin.top - margin.bottom, 0)
+  };
+}
+
+/**
  * Margins of the plot area. The server does not send the grid, but the title, the legend and the slider need room
  * @param {object} model ECharts model
  * @param {string} legendPlace Side of the legend
@@ -571,11 +661,7 @@ function buildGrid(model, legendPlace, hasLegendTitle, extraBottom) {
   if (model.title?.subtext) {
     margin.top += LAYOUT.subtitle;
   }
-  if (legendPlace === "top" || legendPlace === "bottom") {
-    margin[legendPlace] += LAYOUT.legend + (hasLegendTitle ? LAYOUT.legendTitle : 0);
-  } else if (legendPlace !== "none") {
-    margin[legendPlace] += LAYOUT.verticalLegend;
-  }
+  addLegendMargin(margin, legendPlace, hasLegendTitle);
   if (asArray(model.dataZoom).some(zoom => zoom.type === "slider")) {
     margin.bottom += LAYOUT.slider;
   }
@@ -787,6 +873,7 @@ export function buildEChartsOption(model, values, context) {
   environment.hasTitle = Boolean(model.title?.text);
   environment.tooltipHints = hintsOf(model.tooltip);
   environment.palette = paletteOf(model);
+  environment.plotArea = pieArea(model, environment);
   const {t} = environment;
 
   // Series (a drilldown series replaces the one that was drilled)

@@ -608,7 +608,9 @@ radius and `plotOptions.pie.innerSize` the inner radius, relative to `size`. The
 ### Semicircle chart
 
 Type `semicircle` draws only the upper half of a donut. The labels are written inside the slices (a negative
-`dataLabels.distance`), and the title is moved to the middle of the chart with the `title` parameters.
+`dataLabels.distance`), and the title is moved to the middle of the chart with the `title` parameters. Like in
+Highcharts, the center and the size of the semicircle are measured in the plot area, which leaves out the legend, so
+the title sits in the hole.
 
 <img alt="Semicircle chart with the labels inside the slices" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-semicircle.png')} />
 
