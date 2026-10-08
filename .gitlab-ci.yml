@@ -369,6 +369,17 @@ Build project:jdk 21:
   variables:
     SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
 
+# Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
+# Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
+Spotless:
+  stage: build
+  needs: [ ]
+  timeout: 10m
+  script:
+    - mvn $MAVEN_CLI_OPTS spotless:check -Dspotless.ratchetFrom=$CI_MERGE_REQUEST_DIFF_BASE_SHA
+  rules:
+    - <<: *if-mr-code
+
 Build website:
   extends: .build-website
   script:
@@ -654,6 +665,28 @@ Javadoc test:
     expire_in: 1 day
   rules:
     - <<: *if-mr-backend
+
+# Manual (#762): shows what the OpenRewrite recipes of rewrite.yml would change, without touching the code. Download the
+# patch from the job artifacts and apply it with "git apply". See website/docs/guides/openrewrite-guide.md.
+Rewrite dry-run:
+  stage: test
+  timeout: 20m
+  needs:
+    - job: Build project
+      artifacts: true
+      optional: true
+  script:
+    - mvn $MAVEN_CLI_OPTS -Prewrite rewrite:dryRun
+  artifacts:
+    paths:
+      - target/rewrite/rewrite.patch
+    expire_in: 1 week
+  allow_failure: true
+  rules:
+    - <<: *if-mr-code
+      when: manual
+    - <<: *if-branches
+      when: manual
 
 ##############################
 # Integration testing stage

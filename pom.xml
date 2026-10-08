@@ -66,6 +66,10 @@
     <plugin-info-reports.version>2.9</plugin-info-reports.version>
     <plugin-dependency.version>3.11.0</plugin-dependency.version>
     <plugin-jacoco.version>0.8.15</plugin-jacoco.version>
+    <plugin-spotless.version>3.10.3</plugin-spotless.version>
+    <plugin-rewrite.version>6.46.1</plugin-rewrite.version>
+    <rewrite-migrate-java.version>3.42.1</rewrite-migrate-java.version>
+    <rewrite-spring.version>6.37.1</rewrite-spring.version>
     <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
@@ -73,6 +77,9 @@
 
     <!-- Skip stages -->
     <skip.javadoc>true</skip.javadoc>
+
+    <!-- Spotless: ref the check compares against (empty = every file); the CI job sets the merge base of the MR -->
+    <spotless.ratchetFrom></spotless.ratchetFrom>
   </properties>
 
   <modules>
@@ -113,9 +120,34 @@
         <artifactId>sonar-maven-plugin</artifactId>
         <version>${plugin-sonar.version}</version>
       </plugin>
+      <!-- Spotless: hygiene checks, run on demand (mvn spotless:check / spotless:apply), not bound to the build -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
+        <!-- Spotless (#762): hygiene only (unused imports, trailing whitespace, final newline, import order), never a
+             reformat. No execution is bound to the lifecycle, so the normal build is untouched and the check runs only
+             when invoked. With spotless.ratchetFrom set only the files changed since that ref are checked. -->
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${plugin-spotless.version}</version>
+          <configuration>
+            <ratchetFrom>${spotless.ratchetFrom}</ratchetFrom>
+            <java>
+              <removeUnusedImports/>
+              <!-- Current layout: everything else, then javax and java, then static imports (blank line between groups) -->
+              <importOrder>
+                <order>,javax|java,\#</order>
+              </importOrder>
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
+            </java>
+          </configuration>
+        </plugin>
         <!-- Maven source plugin -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -185,6 +217,43 @@
   </build>
 
   <profiles>
+    <!-- OpenRewrite (#762): never active by default. Run mvn -Prewrite rewrite:dryRun (one aggregate patch in target/rewrite/rewrite.patch
+         of the reactor root) or rewrite:run. Recipes live in rewrite.yml; see website/docs/guides/openrewrite-guide.md -->
+    <profile>
+      <id>rewrite</id>
+      <properties>
+        <!-- Recipe to run; override with -Drewrite.activeRecipes=<name> -->
+        <rewrite.activeRecipes>com.almis.awe.rewrite.Java21Migration</rewrite.activeRecipes>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${plugin-rewrite.version}</version>
+            <configuration>
+              <configLocation>${session.executionRootDirectory}/rewrite.yml</configLocation>
+              <exclusions>
+                <exclusion>**/node_modules/**</exclusion>
+                <exclusion>**/target/**</exclusion>
+              </exclusions>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-migrate-java</artifactId>
+                <version>${rewrite-migrate-java.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-spring</artifactId>
+                <version>${rewrite-spring.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- Coverage report profile -->
     <profile>
       <id>generate-coverage-report</id>

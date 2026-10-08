@@ -83,6 +83,7 @@ module.exports = {
 				"guides/custom-widgets-react",
 				"guides/react-client-upgrade",
 				"guides/release-lines-and-support",
+				"guides/openrewrite",
 			],
 		},
 		{
