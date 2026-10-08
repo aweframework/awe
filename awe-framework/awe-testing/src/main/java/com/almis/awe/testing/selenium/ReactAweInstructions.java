@@ -505,6 +505,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return USER_ACTION_ID;
   }
 
+  @Override
+  public boolean logoutNeedsConfirmation() {
+    // The React reference application asks for a confirmation before logging out
+    return true;
+  }
+
   public By getLoginScreenMarker() {
     return By.cssSelector("#ButLogIn");
   }

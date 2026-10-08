@@ -50,6 +50,9 @@ public class SeleniumUtilities implements IAweInstructions {
   // How often, and for how long at most, the options of a list are looked at to see that they stopped changing
   private static final Duration OPTIONS_SETTLE_INTERVAL = Duration.ofMillis(200);
   private static final Duration OPTIONS_SETTLE_TIMEOUT = Duration.ofSeconds(3);
+  // How often, and for how long at most, the avatar of the logged user is looked at to see that its name is filled
+  private static final Duration LOGGED_USER_NAME_INTERVAL = Duration.ofMillis(100);
+  private static final Duration LOGGED_USER_NAME_TIMEOUT = Duration.ofSeconds(3);
   private static final Duration MENU_CLICK_EFFECT_TIMEOUT = Duration.ofSeconds(5);
   private static final int MENU_CLICK_RETRIES = 2;
   private static final int EDIT_ROW_ATTEMPTS = 3;
@@ -3109,6 +3112,97 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Make sure that the user is logged in: it does nothing when the application already shows that user, logs in when
+   * nobody is logged in, and logs the other user out first when another user is. It lets a test class start from
+   * whatever state the browser has (a new browser, or the page that an earlier test left), so a test does not depend on a
+   * login done by another one. A test that checks the login itself uses {@link #checkLogin(String, String, String)}.
+   *
+   * @param username Login of the user
+   * @param password Password
+   * @param userName Name that the application shows for the logged user (the whole name, not a part of it)
+   */
+  protected void ensureLoggedIn(String username, String password, String userName) {
+    String shown = shownLoggedUser();
+    if (userName.equals(shown)) {
+      return;
+    }
+    if (shown != null) {
+      logOut();
+    }
+    checkLogin(username, password, userName);
+  }
+
+  /**
+   * Make sure that nobody is logged in: it does nothing when no user is shown (the login screen, or a page that is not the
+   * application), and logs out when one is, with the logout of the application (it accepts the confirmation when the
+   * application asks for it). It lets a test class that checks the login start from the login screen whatever the browser
+   * showed before. A test that checks the logout itself uses {@link #checkLogout()}.
+   */
+  protected void ensureLoggedOut() {
+    if (shownLoggedUser() != null) {
+      logOut();
+    }
+  }
+
+  /**
+   * Log out with the logout that the application uses
+   */
+  private void logOut() {
+    if (frontEndInstructions.logoutNeedsConfirmation()) {
+      checkLogoutWithConfirmation();
+    } else {
+      checkLogout();
+    }
+  }
+
+  /**
+   * Read the name that the application shows for the logged user. It does not wait for the user to appear, but it waits a
+   * little for a name that is not filled yet (the avatar is drawn before its name)
+   *
+   * @return Name of the logged user, or null when none is shown or none could be read
+   */
+  private String shownLoggedUser() {
+    Locator loggedUser = locator(frontEndInstructions.getLoggedUser());
+    try {
+      if (!getBrowser().isVisible(loggedUser)) {
+        return null;
+      }
+      String shown = getBrowser().text(loggedUser).trim();
+      return shown.isEmpty() ? waitForLoggedUserName(loggedUser) : shown;
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      // The page changed while it was read: there is no logged user to rely on
+      return null;
+    }
+  }
+
+  /**
+   * Wait, for a short time, until the avatar of the logged user shows a name
+   *
+   * @param loggedUser Locator of the logged user
+   * @return The name, or null when it did not arrive: the user is not recognised, neither as the expected one nor as another
+   */
+  private String waitForLoggedUserName(Locator loggedUser) {
+    AtomicReference<String> shown = new AtomicReference<>();
+    BrowserCondition named = BrowserCondition.of("the name of the logged user to be shown", browser -> {
+      try {
+        shown.set(browser.isVisible(loggedUser) ? browser.text(loggedUser).trim() : "");
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        shown.set("");
+      }
+      return !shown.get().isEmpty();
+    });
+    Duration timeout = properties.getTimeout().compareTo(LOGGED_USER_NAME_TIMEOUT) < 0 ? properties.getTimeout() : LOGGED_USER_NAME_TIMEOUT;
+    try {
+      BrowserPoll.until(getBrowser(), named, timeout, LOGGED_USER_NAME_INTERVAL, Clock.systemUTC(),
+        duration -> Thread.sleep(duration.toMillis()));
+      return shown.get();
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("The logged user showed no name: {}", exc.getMessage());
+      return null;
+    }
+  }
+
+  /**
    * Log into the application and check the name of the logged user
    *
    * @param username Login of the user
@@ -3287,6 +3381,37 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait for loading bar
     waitForLoadingBar();
+  }
+
+  /**
+   * Make sure that a module is selected: it does nothing when the menu of the module is already shown, and selects the
+   * module otherwise. It lets a test class choose the module it needs without depending on another test having done it.
+   * A test that checks the module selection itself uses {@link #selectModule(String)}.
+   *
+   * @param moduleName Module name
+   * @param menuOption Menu option that only the module shows
+   */
+  protected void ensureModule(String moduleName, String menuOption) {
+    Locator option = locator(frontEndInstructions.getMenuOptionItem(menuOption));
+    if (isVisibleNow(option)) {
+      return;
+    }
+    selectModule(moduleName);
+    checkVisible(option);
+  }
+
+  /**
+   * Check, without waiting, that an element is visible; an element that changes or goes away while it is read is not
+   *
+   * @param selector Locator of the element
+   * @return The element is visible
+   */
+  private boolean isVisibleNow(Locator selector) {
+    try {
+      return getBrowser().isVisible(selector);
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      return false;
+    }
   }
 
   /**

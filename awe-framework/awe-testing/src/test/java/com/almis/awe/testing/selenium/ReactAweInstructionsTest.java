@@ -297,6 +297,7 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getLoggedUser()).hasToString("By.cssSelector: [data-testid='avatar-name']");
     // The logout button is inside the user menu, which opens on click
     assertThat(instructions.getUserMenuButtonId()).isEqualTo("ButUsrAct");
+    assertThat(instructions.logoutNeedsConfirmation()).isTrue();
     assertThat(instructions.getLoginScreenMarker()).hasToString("By.cssSelector: #ButLogIn");
     assertThat(instructions.getLoginScreenText()).isEqualTo("Login");
   }

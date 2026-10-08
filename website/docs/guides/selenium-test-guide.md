@@ -173,6 +173,50 @@ parameters:
  If the application asks for a confirmation before logging out, use `checkLogoutWithConfirmation()`. To check that
  the application rejects some credentials, use `checkLoginRejected(user, password, messageType, title, message)`.
 
+### Independent test classes
+
+The test classes of the AWE test applications do not depend on each other, and each test opens its own screen and
+session, so a failing test does not leave the next classes without a login or a module. Inside a class, the tests of a
+create, update and delete sequence on the same record are still a chain ordered by the `tNNN_` names: the update needs the
+record that the create made. Three rules keep the classes independent:
+
+- **Set up the session before every test, idempotently.** `ensureLoggedIn("test", "test", "Manager (test)")` does nothing
+  when the application already shows that user (the text must be exactly the one the front end shows, for instance
+  `Manager (test)`, and it waits briefly for a name that is not filled yet), logs the other user out when another one is logged in,
+  and logs in when nobody is. `ensureModule("Test", "test")` selects the module only when its menu option is not shown, and
+  `ensureLoggedOut()` logs out only when a user is shown. They are safe to run before every test. In the test applications
+  (`awe-tests/awe-boot` and `awe-tests/awe-boot-react`) a small base class, `AbstractSessionTests`, runs them in a
+  `@BeforeEach`; the extension that opens the browser runs before it, so the first test of a class finds a new browser and
+  logs in. The class chooses the state that its tests start from with a `Session` value in its constructor (`LOGGED_IN`, or
+  `TEST_MODULE` for the test screens), and a test that checks the login or the module selection itself declares an earlier
+  state with `@StartsFrom`:
+
+  ```java
+  class MatrixTestsIT extends AbstractSessionTests {
+
+    MatrixTestsIT() {
+      super(Session.TEST_MODULE);
+    }
+
+    // Starts from the login screen: ensureLoggedOut() leaves it there whatever the browser showed
+    @Test
+    @StartsFrom(Session.BLANK)
+    void t000_loginTest() {
+      checkLogin("test", "test", "Manager (test)");
+    }
+  }
+  ```
+
+- **Keep one real login test and one real logout test per class** (`t000_...` and `t999_...`), because they check those
+  features. The other tests never rely on them: the setup logs in again when the login test did not run or failed.
+- **Open the screen in every test** (`gotoScreen`) instead of continuing on the screen that the previous test left, and
+  use data of your own: a class creates the records that it updates and deletes, with names that no other class uses
+  (the email server tests use `auth server` and `plain server`, not the same name).
+
+The classes that come from splitting a long one keep its `@Tag`, so they run in the same CI job and no new job is needed.
+A React job lists its classes in `TEST_CLASSES`: replace the old name with the new ones (a test of the React application
+checks that every listed class exists).
+
 ### Go to a new page
 
 To go to a new page, you need to call the `gotoScreen` method with a list of 
@@ -326,6 +370,8 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `setTestTitle(String title)` | Writes the title of the test in the log. Start every test with it |
 | `checkLogin(String username, String password, String userName)` | Logs in and checks the name the application shows for the logged user. Preferred form |
 | `checkLogin(String username, String password, String cssSelector, String checkText)` | Logs in and checks a text inside a CSS selector. Raw-selector form: prefer the three-argument one |
+| `ensureLoggedIn(String username, String password, String userName)` | Does nothing when the application already shows that user (the exact text that the front end shows, such as `Manager (test)`); logs the other user out when another is logged in, and logs in (`checkLogin`) when nobody is. Use it in the setup of a test class, not in the test that checks the login |
+| `ensureLoggedOut()` | Does nothing when no user is shown; logs out when one is, accepting the confirmation when the application asks for it. Use it in the setup of the test that checks the login |
 | `checkLoginRejected(String username, String password, String messageType, String title, String message)` | Tries to log in with credentials that the application rejects and checks the message it shows |
 | `checkLogout()` | Logs out and checks that the login screen is shown. Preferred form |
 | `checkLogout(String cssSelector, String checkText)` | Logs out and checks a text inside a CSS selector. Raw-selector form: prefer `checkLogout()` |
@@ -334,6 +380,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `waitForMenuOption(String option)` | Waits until the click on a menu option has taken effect. `gotoScreen` already calls it |
 | `checkMenuOption(String option, String text)` | Checks that a menu option is visible and contains a text |
 | `selectModule(String moduleName)` | Opens the settings menu (`ButSetTog`) and selects a module in the `module` selector |
+| `ensureModule(String moduleName, String menuOption)` | Does nothing when the menu option that only that module shows is already visible; selects the module (`selectModule`) when it is not |
 | `broadcastMessageToUser(String user, String text)` | Goes to the `tools > broadcast-messages` screen of the AWE test applications, sends a text to a user and closes the `success` and `info` messages |
 | `invalidateSession()` | Invalidates the session of the user from another window, as if it had been closed on the server |
 
@@ -733,7 +780,7 @@ writer still meets, because they are visible in the screens and not in the rende
 
 | Topic | AngularJS | React | What to do in a test |
 |---|---|---|---|
-| Logout | The logout button is visible in the shell | The logout button is inside the menu of the avatar, which `checkLogout()` opens | Use `checkLogout()`. If the application asks for a confirmation (the React reference application does), use `checkLogoutWithConfirmation()` |
+| Logout | The logout button is visible in the shell | The logout button is inside the menu of the avatar, which `checkLogout()` opens | Use `checkLogout()`. If the application asks for a confirmation (the React reference application does), use `checkLogoutWithConfirmation()` The `ensureLoggedIn` and `ensureLoggedOut` steps choose the variant themselves |
 | Tab label | `clickTab` matches the **locale key** of the label (`ENUM_MATRIX_EDITABLE`) | `clickTab` matches the **translated text** the user sees (`Editable`) | Pass the value of the client you test. If one suite targets both, keep the label in a constant per suite |
 | Suggest value | The chosen value is shown as text | The chosen value is the **value of an input** | Use `checkSuggestContents` for a suggest and `checkSelectContents` for a select; never read the value with a selector |
 | Button groups | Every option of a button checkbox or radio is a criterion of its own | A button group is **one criterion** and every option carries its `option-id` | Use `clickCheckboxOption(criterionName, optionId)`, and `checkCheckboxRadio(...)` for the state. A group may have no option checked by default |
@@ -1134,8 +1181,9 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser
   reads the address from `awe.test.start-url`, which follows `server.port`.
 - Add `xvfb-run -a` in front of `mvn` when the machine has no display (for instance WSL).
-- A suite shares state between its tests (`t000_...` to `t999_...` run in name order), so run the class, not a lone
-  method, unless the method does not depend on the previous ones.
+- The tests of a class run in name order (`t000_...` to `t999_...`). The classes that are independent (see
+  [Independent test classes](#independent-test-classes)) can be run one test at a time; in the others a test continues
+  where the previous one left, so run the class, not a lone method, unless the method does not depend on the previous ones.
 
 ### Failure evidence
 
