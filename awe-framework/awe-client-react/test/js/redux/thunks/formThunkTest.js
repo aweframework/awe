@@ -168,18 +168,8 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
     describe('when the target component is not registered in the view', () => {
       // Like the AngularJS client garbage action collector: an action targeting a component which does not exist
-      // is aborted (debug log only) and the actions queue goes on, as the scheduler does with the "reload-execution-data"
+      // is aborted silently and the actions queue goes on, as the scheduler does with the "reload-execution-data"
       // filter of the "report" view, which only exists while the execution data dialog is open
-      let debugSpy;
-
-      beforeEach(() => {
-        debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-      });
-
-      afterEach(() => {
-        debugSpy.mockRestore();
-      });
-
       it.each([
         ['silent', true],
         ['not silent', false]
@@ -195,7 +185,6 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
         expect(dispatch).toHaveBeenCalledTimes(1);
         expect(dispatch.mock.calls[0][0].type).toBe('ACCEPT_ACTION');
-        expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('reload-execution-data'), action);
       });
 
       it('lets the next queued action run', () => {

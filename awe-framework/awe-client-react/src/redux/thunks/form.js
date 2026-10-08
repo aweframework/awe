@@ -102,11 +102,9 @@ export function filterAction(action) {
     // Get component
     let component = getComponent(components, address);
 
-    // If the component is not found (i.e. a broadcast filter of a dialog which is not open), ignore the action like
-    // the AngularJS garbage action collector does
-    if (!component) {
-      console.debug(`filter action ignored, component '${address.component}' is not defined in view '${address.view}'`, action);
-    } else {
+    // If the component is not found (i.e. a broadcast filter of a dialog which is not open), the action is ignored
+    // like the AngularJS garbage action collector does
+    if (component) {
       // Start loading component
       dispatch(updateAttributes(address, { loading: true }));
 

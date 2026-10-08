@@ -115,7 +115,6 @@ export function checkActions(allowedActions, actions, props) {
     runningActions.forEach(a => {
       const { type } = a;
       if (type in allowedActions) {
-        console.info("Running action: ", a);
         dispatch(startAction(a));
         delayActions(settings.actionsStack, () => allowedActions[type](a, props));
       }

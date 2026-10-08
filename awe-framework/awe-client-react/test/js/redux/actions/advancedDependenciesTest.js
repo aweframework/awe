@@ -309,10 +309,21 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         condition: 'invalid-condition',
         checkChanges: true
       }];
+      dependencies.initializeDependencies('testView', mockState, dispatch);
+      const invalidCalls = JSON.stringify(dispatch.mock.calls);
 
+      // An unknown condition is evaluated as a condition that does not match
+      dispatch.mockClear();
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'eq',
+        value: 'a value that does not match',
+        checkChanges: true
+      }];
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      expect(console.log).toHaveBeenCalled();
+      expect(invalidCalls).toEqual(JSON.stringify(dispatch.mock.calls));
     });
 
     it('debería evaluar trigger opcional', () => {

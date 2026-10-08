@@ -724,16 +724,8 @@ function applyTarget(dependency, component, value, result) {
  * Execute the dependency
  */
 function executeDependency(dependency, component, result, state) {
-  // Log executing dependency
   const { address } = dependency;
   let dispatchActions = [];
-  let dependencyString = result.string.join(` ${dependency.type || "and"} `);
-  dependencyString = dependency.invert ? `!(${dependencyString})` : dependencyString;
-  const depId = `${address.component} #${dependency.index + 1}`;
-  const depSource = dependency.source ? ` source=${dependency.source}` : "";
-  const depTarget = dependency.target ? ` target=${dependency.target}` : "";
-  const depTargetAction = dependency[state.settings.targetActionKey] ? ` action=${dependency[state.settings.targetActionKey]}` : "";
-  console.log(`%cExecuting dependency ${depId} (${result.launch}${depSource}${depTarget}${depTargetAction}) => ${dependencyString}`, (result.launch && "background:#FFFF66;color:black") || "background:#DDDDFF;color:black");
 
   // Launch dependency actions
   if (dependency.actions?.length > 0 && result.launch) {
@@ -800,7 +792,6 @@ function checkDependency(dependency, component, state) {
   // Fix result with invert
   result.launch = dependency.invert ? !result.launch : result.launch;
 
-  console.info(`Checking dependency ${component.address.component} #${dependency.index + 1}`, dependency, component, result);
   if (state.settings.activeDependencies) {
     return executeDependency(dependency, component, result, state);
   }
@@ -923,13 +914,11 @@ function dispatchExecutions(executions, state, dispatch) {
 
 export function checkDependencies(state, dispatch) {
   const executions = getDependenciesExecutions(state, false);
-  Object.keys(executions).length && console.log("%cDependency executions:", "background: #BBFFBB;color:black", executions);
   dispatchExecutions(executions, state, dispatch);
 }
 
 export function initializeDependencies(view, state, dispatch) {
   DEPENDENCY_VALUES[view] = {};
   const executions = getDependenciesExecutions(state, true, view);
-  Object.keys(executions).length && console.log("%cInitial dependency executions:", "background: #FFBBBB;color:black", executions);
   dispatchExecutions(executions, state, dispatch);
 }

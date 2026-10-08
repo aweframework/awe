@@ -25,7 +25,7 @@
     "Client"
   ],
   "author": "Pablo Javier García Mora",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "description": "AWE React client",
   "homepage": "https://docs.aweframework.com",
   "repository": {

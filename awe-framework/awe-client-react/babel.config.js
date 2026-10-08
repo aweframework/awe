@@ -10,4 +10,9 @@ module.exports = {
     ],
     ['@babel/preset-react', { runtime: 'automatic' }]
   ],
+  env: {
+    development: {
+      compact: false
+    }
+  }
 };
