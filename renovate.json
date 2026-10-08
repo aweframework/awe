@@ -204,7 +204,7 @@
       "minimumReleaseAge": "3 days"
     },
     {
-      "description": "Node releases: odd majors are unstable and are skipped.",
+      "description": "Node releases: odd majors are unstable and are skipped. The Node of the build (awe-dependencies) and the one of the development container use the same datasource, package name and versioning, so this rule groups both in one merge request.",
       "matchDatasources": [
         "node-version"
       ],
@@ -267,6 +267,19 @@
         "awe\\.testing\\.image\\.[a-z]+=(?<depName>[^:\\s@]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "datasourceTemplate": "docker"
+    },
+    {
+      "description": "Reads the Node version pinned in the development container with the same datasource, package name (node) and versioning as the node.version of the build, so the node toolchain group updates both files together.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.devcontainer/devcontainer\\.json$/"
+      ],
+      "matchStrings": [
+        "features/node:[^\"]*\"\\s*:\\s*\\{[^}]*\"version\":\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
     }
   ]
 }
