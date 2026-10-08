@@ -863,7 +863,8 @@ Chrome IT:
 #                             IntegrationTestsIT                                (port 6309 / 6313)
 #   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaTestsIT, ButtonTestsIT, MatrixTestsIT   (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
-#   SchedulerIT: SchedulerTestsIT                                              (port 6312 / 6316)
+#   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
+#                SchedulerFileTaskTestsIT, SchedulerManagementTestsIT       (port 6312 / 6316)
 # List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
 # would bring back the AngularJS test application. It sets no rules: the Selenium jobs take .rules-selenium from
 # .browser-testing and the Playwright React jobs set .rules-playwright-react themselves.
@@ -887,7 +888,7 @@ Firefox IT React:
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6311"
         TEST_NAME: react-firefox-regression-websocket-print
-      - TEST_CLASSES: SchedulerTestsIT
+      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6312"
         TEST_NAME: react-firefox-scheduler
 
@@ -906,7 +907,7 @@ Chrome IT React:
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6315"
         TEST_NAME: react-chrome-regression-websocket-print
-      - TEST_CLASSES: SchedulerTestsIT
+      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6316"
         TEST_NAME: react-chrome-scheduler
 
@@ -1002,7 +1003,7 @@ Playwright Chromium IT React:
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6327"
         TEST_NAME: playwright-react-chromium-regression-websocket-print
-      - TEST_CLASSES: SchedulerTestsIT
+      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6328"
         TEST_NAME: playwright-react-chromium-scheduler
 
@@ -1022,7 +1023,7 @@ Playwright Firefox IT React:
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6331"
         TEST_NAME: playwright-react-firefox-regression-websocket-print
-      - TEST_CLASSES: SchedulerTestsIT
+      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6332"
         TEST_NAME: playwright-react-firefox-scheduler
 
