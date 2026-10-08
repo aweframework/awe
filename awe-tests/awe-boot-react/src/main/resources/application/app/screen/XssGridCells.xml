@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : XssGridCells.xml
+    Description: Grid whose cells carry markup, to check that the client shows it as text or sanitized
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_XSS_CELLS">
+  <tag source="buttons">
+    <button label="BUTTON_RESET" button-type="reset" icon="eraser" id="ButRst"/>
+    <button button-type="submit" label="BUTTON_SEARCH" icon="search" id="ButSch">
+      <button-action type="filter" target="GrdXssCells"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_XSS_CELLS" expandible="vertical">
+      <grid id="GrdXssCells" style="expand" initial-load="query" server-action="data" target-action="XssGridCellTst" max="10">
+        <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+        <column label="COLUMN_XSS_IMAGE" name="image" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_LINK" name="link" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_SCRIPT" name="script" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_EVENT" name="event" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_FRAME" name="frame" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_SAFE" name="safe" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_ESCAPED" name="escaped" align="left" charlength="20"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

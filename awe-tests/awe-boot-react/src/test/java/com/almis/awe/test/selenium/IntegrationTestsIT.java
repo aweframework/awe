@@ -185,6 +185,31 @@ class IntegrationTestsIT extends SeleniumUtilities {
   }
 
   /**
+   * Grid test: cells with markup are shown as text or sanitized, and nothing in them runs
+   */
+  @Test
+  void t045_gridCellsWithMarkup() {
+    // Title
+    setTestTitle("Grid test: cells with markup");
+
+    // Go to screen (the grid loads a row whose cells carry images, links, scripts, handlers and frames; the texts of the
+    // cells are not the labels of the column headers, so a header cannot satisfy the checks)
+    gotoScreen("test", "matrix", "matrix-test-xss-cells");
+
+    // Check that the text around the markup that is removed is still shown
+    checkRowContentsGrid("GrdXssCells", "Alpha", "omega", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot");
+
+    // Check that the safe markup is kept (its text is shown)
+    checkRowContentsGrid("GrdXssCells", "Golf", "Hotel");
+
+    // Check that a value that the server escaped is shown as text, tags included
+    checkRowContentsGrid("GrdXssCells", "<b>India</b> text");
+
+    // Check that no cell holds a script, frame, image, handler or script link
+    checkGridCellsHaveNoActiveContent("GrdXssCells");
+  }
+
+  /**
    * Chart test
    */
   @Test

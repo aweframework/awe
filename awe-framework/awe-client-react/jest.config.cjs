@@ -51,6 +51,8 @@ module.exports = {
     '**/services/ScreenServiceTest.{js,jsx}',
     '**/services/components/GridServiceTest.{js,jsx}',
     '**/utilities/gridTest.{js,jsx}',
+    '**/utilities/structureCellTest.{js,jsx}',
+    '**/utilities/sanitizeHtmlTest.{js,jsx}',
     '**/utilities/testIdsTest.{js,jsx}',
     '**/containers/*Test.{js,jsx}',
     '**/templates/*Test.{js,jsx}',

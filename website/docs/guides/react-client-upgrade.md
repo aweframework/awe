@@ -62,6 +62,27 @@ If your application has custom components that import Highcharts, declare it in 
 licence) or move to ECharts. The complete list of chart differences (palette, themes, 3D charts, formats, printing,
 CSS rules) is in [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5).
 
+### HTML in cells is sanitized
+
+The text of a grid cell (and the label of a `tag`) can carry HTML, because the `TEXT_HTML` and `MARKDOWN_HTML` transforms
+of a query generate it. The React client no longer puts that HTML in the page as it comes: it sanitizes it with
+[DOMPurify](https://github.com/cure53/DOMPurify) and a strict allow-list.
+
+- **Tags kept**: `a`, `abbr`, `b`, `blockquote`, `br`, `code`, `del`, `em`, `h1` to `h6`, `hr`, `i`, `ins`, `li`, `mark`,
+  `ol`, `p`, `pre`, `s`, `small`, `span`, `strong`, `sub`, `sup`, `u` and `ul`.
+- **Attributes kept**: `class`, `href`, `target` and `title`. A link with `target` gets `rel="noopener noreferrer"`.
+- **Removed**: scripts, frames, images, forms, styles, inline `style`, `data-*` attributes, event handlers (`onclick`,
+  `onerror`...) and links to `javascript:` urls. The text inside a removed tag stays.
+
+The labels of a `tag` follow the same rules, with the same list: none of the labels and locales of the framework, its
+modules and its test applications carries markup that the list removes (they hold text, and a few use line breaks or
+Markdown-like characters, which stay as text). If a label of your application uses an inline `style`, replace it with a
+CSS class (`class` is kept).
+
+A value that the server escaped (`TEXT_HTML` escapes `<` and `>`) is shown as text, tags included. If a cell of your
+application showed an image, an inline style or another tag that is not in the list, use the column that renders it (for
+instance an image column) or a CSS class instead.
+
 ### Dependencies of the client
 
 The client installs its own dependencies, and several of them were updated since `awe-react-client` 2.2.5, among them

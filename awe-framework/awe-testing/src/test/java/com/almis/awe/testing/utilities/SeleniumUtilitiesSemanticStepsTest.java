@@ -326,6 +326,35 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldAcceptTheCellsOfAGridThatShowOnlyText() {
+    show(instructions.getGridCells("GrdXss"), "Alice");
+
+    assertThatCode(() -> utilities.checkGridCellsHaveNoActiveContent("GrdXss")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldRejectTheCellsOfAGridThatHoldActiveContent() {
+    show(instructions.getGridCells("GrdXss"), "Alice");
+    show(instructions.getGridCellsActiveContent("GrdXss"), "");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellsHaveNoActiveContent("GrdXss"));
+  }
+
+  @Test
+  void shouldFailWhenTheGridShowsNoCells() {
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellsHaveNoActiveContent("GrdXss"));
+  }
+
+  @Test
+  void shouldLookForActiveContentInTheCellsOfTheGridOnBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      String xpath = client.getGridCellsActiveContent("GrdXss").toString();
+
+      assertThat(xpath).contains("'GrdXss'", "self::script", "self::iframe", "self::img", "starts-with(name(),'on')", "javascript:");
+    }
+  }
+
+  @Test
   void shouldCheckTheNumberOfResultsOfTheOpenList() {
     show(instructions.getSelectOption(1), "asp");
 
