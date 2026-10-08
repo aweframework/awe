@@ -134,3 +134,4 @@ Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is
 - All new code must include unit tests. Bug fixes should have a test that fails previously and now passes. All new features should be covered. If your code does not have tests, or regresses old tests, it will be rejected.
 - As you push over the project, the merge request pipeline will start. Please don't try to merge without passing all pipeline tasks
 - When you finish your develop, remove the `WIP` status
+- If your merge request has impacts on existing applications (a removed or renamed API, property, XML, database script or JSON field, or a changed default), add an entry to the [AWE 5 migration guide](website/docs/guides/v5-migration.md) in the same merge request.
