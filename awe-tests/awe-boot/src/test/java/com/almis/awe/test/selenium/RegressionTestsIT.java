@@ -1,19 +1,28 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+/**
+ * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
+ * so a failing test does not leave the next ones without a session or a screen. The wrong login test logs out and in again:
+ * when it fails in between, the next test logs in again through the session setup.
+ */
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
-class RegressionTestsIT extends SeleniumUtilities {
+class RegressionTestsIT extends AbstractSessionTests {
+
+  RegressionTestsIT() {
+    super(Session.TEST_MODULE);
+  }
 
   /**
    * Log into the application
    */
   @Test
+  @StartsFrom(Session.BLANK)
   void t000_loginTest() {
     checkLogin("test", "test", "Manager (test)");
   }
@@ -30,12 +39,16 @@ class RegressionTestsIT extends SeleniumUtilities {
    * Select test module on select criterion
    */
   @Test
+  @StartsFrom(Session.LOGGED_IN)
   void t001_selectTestModule() {
     // Title
     setTestTitle("Select test module: Test to select test module");
 
     // Select module
-    selectTestModule();
+    selectModule("Test");
+
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -118,6 +131,12 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Title
     setTestTitle("Quote check on unit label");
 
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
     // Write on criterion
     writeText("Tar", "\"");
 
@@ -135,6 +154,12 @@ class RegressionTestsIT extends SeleniumUtilities {
   void t006_checkFilteredDateDependency() {
     // Title
     setTestTitle("Check filtered date dependency (#31141)");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
 
     // Write on criterion
     writeText("Txt", "edita");
@@ -329,8 +354,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t012_fillOverSelect() {
-    selectTestModule();
-
     // Title
     setTestTitle("Test filling a select with less values than usual");
 
@@ -382,10 +405,11 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t020_checkDependenciesAfterRestore() {
-    selectTestModule();
-
     // Title
     setTestTitle("Check if dependencies are working after restore (issue #279)");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
 
     // Wait for button
     waitForButton("ButPrn");
@@ -442,8 +466,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t040_suggestChangeValue() {
-    selectTestModule();
-
     // Title
     setTestTitle("Launch 2 selected actions into a suggest and check value has changed successfully");
 
@@ -480,8 +502,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t050_updateSuggestMultipleWithDependency() {
-    selectTestModule();
-
     // Title
     setTestTitle("Update suggest multiple with dependency");
 
@@ -500,16 +520,5 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Check suggest value
     checkMultipleSelectorContents("SugMul", "pei (pei@test.com)");
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
-  }
-
-  /**
-   * Select test module
-   */
-  private void selectTestModule() {
-    // Select module
-    selectModule("Test");
-
-    // Check the menu of the module
-    checkMenuOption("test", "Tests");
   }
 }

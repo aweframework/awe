@@ -211,7 +211,23 @@ record that the create made. Three rules keep the classes independent:
   features. The other tests never rely on them: the setup logs in again when the login test did not run or failed.
 - **Open the screen in every test** (`gotoScreen`) instead of continuing on the screen that the previous test left, and
   use data of your own: a class creates the records that it updates and deletes, with names that no other class uses
-  (the email server tests use `auth server` and `plain server`, not the same name).
+  (the email server tests use `auth server` and `plain server`, not the same name). The grids are searched by the text
+  that a row contains, so no name may be contained in the name of another class's record (`Manual task` and
+  `Prerequisite task`, not `Task` and `Task 2`). A record that a class only needs as a prerequisite (the scheduled task
+  tests use a calendar and a manual task for their custom launch and their dependencies) is created by that class at the
+  start and deleted at the end, after the records that use it.
+- **`gotoScreen` does not reload the screen that is already open.** The client keeps its criteria, its pending reloads and
+  the row that the previous test selected, and a grid that reloads afterwards loses that selection, so a test that selects
+  a row right after another one on the same screen can fail on a button that stays disabled. Where it matters, go through
+  another screen first (the scheduler tests do it in `AbstractSchedulerTests.openScreen`). In the same way, a test must not
+  leave background work running into the next one: a scheduled task with dependencies launches them when it ends, so the
+  scheduled task tests run it before the dependencies are added.
+- **A test that changes something global puts it back even when it fails.** Do it in an `@AfterEach` that runs only when
+  the test did not finish its own cleanup, with a flag that the test sets before the step that may change the state and
+  clears after the step that restores it. `SchedulerManagementTestsIT` stops and restarts the one scheduler of the
+  application, which the other scheduler classes need running: it is a class of its own, each test ends by starting the
+  scheduler again, and its cleanup presses the restart button (it works whatever state the scheduler is in) when the test
+  fails in between. `IntegrationTestsIT` removes the screen configuration that it stores in the same way.
 
 The classes that come from splitting a long one keep its `@Tag`, so they run in the same CI job and no new job is needed.
 A React job lists its classes in `TEST_CLASSES`: replace the old name with the new ones (a test of the React application
@@ -825,7 +841,7 @@ browser tool of the AWE pipeline. The name is not case sensitive, and a value th
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
+  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
 ```
 
 #### Playwright {#playwright-pilot}
@@ -866,7 +882,7 @@ keep the browsers somewhere else, for instance in a folder that the CI caches.
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
+  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
 ```
 
 The unit tests of `awe-testing` that run a real Chromium through Playwright never download a browser: they use the one that is
@@ -1172,13 +1188,13 @@ The test applications are `awe-tests/awe-boot` (AngularJS) and `awe-tests/awe-bo
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
+  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
 ```
 
 - `-Dawe.test.browser` takes `headless-chrome` or `headless-firefox` (also `chrome` and `firefox` to watch the browser).
   `-Dawe.test.tool` is `selenium` and can be left out (see [Automation tool](#automation-tool-awetesttool)).
 - `-Dit.test=` takes a class, several separated by commas (`CRUDTestsIT,CriteriaAndMatrixTestsIT`) or a method
-  (`SchedulerTestsIT#t003_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
+  (`SchedulerCalendarTestsIT#t001_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser
   reads the address from `awe.test.start-url`, which follows `server.port`.
 - Add `xvfb-run -a` in front of `mvn` when the machine has no display (for instance WSL).
@@ -1223,7 +1239,7 @@ slower machine and with a different Firefox or Chrome build. To reproduce it, ru
    SERVER_ADDRESS=0.0.0.0 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
      -Dawe.test.browser=service-chrome -Dawe.test.browser-host=localhost -Dawe.test.browser-port=4444 \
      -Dawe.test.server-host=host.docker.internal -Dawe.test.server-port=8080 \
-     -Dawe.test.allowed-recording=false -Dit.test=SchedulerTestsIT
+     -Dawe.test.allowed-recording=false -Dit.test=SchedulerCalendarTestsIT
    ```
 
    Use `service-firefox` with the `selenoid/firefox` image for Firefox. `-Dawe.test.allowed-recording=false` is needed

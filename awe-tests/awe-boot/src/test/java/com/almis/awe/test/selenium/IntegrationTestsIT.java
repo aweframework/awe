@@ -1,19 +1,59 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Integration tests of the framework screens. Every test starts logged in with the Test module selected and opens its own
+ * screen, so a failing test does not leave the next ones without a session or a screen. The test that stores a screen
+ * configuration removes it even when it fails.
+ */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("ApplicationIntegrationIT")
-class IntegrationTestsIT extends SeleniumUtilities {
+class IntegrationTestsIT extends AbstractSessionTests {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IntegrationTestsIT.class);
+  private static final String SCREEN_CONFIGURATION = "screen-configuration";
+  private static final String SETTINGS = "settings";
+  private static final String DATABASES = "databases";
+  private static final String PRINT_BUTTON = "ButPrn";
+
+  /**
+   * The test stored the screen configuration of the databases screen and did not remove it yet
+   */
+  private boolean screenConfigurationStored = false;
+
+  IntegrationTestsIT() {
+    super(Session.TEST_MODULE);
+  }
+
+  /**
+   * Remove the screen configuration that a test stored and left, so a failing test does not hide the button of the
+   * databases screen for the next tests. It runs only after a test that failed before removing it (the flag is set before
+   * the step that may store it, so the row may not exist when that step failed): a cleanup that fails is logged and does not
+   * add a second failure to the one of the test.
+   */
+  @AfterEach
+  void removeStoredScreenConfiguration() {
+    if (screenConfigurationStored) {
+      try {
+        removeScreenConfiguration();
+      } catch (RuntimeException | AssertionError exc) {
+        LOG.warn("The screen configuration could not be removed after the test (it may not have been stored): {}", exc.getMessage());
+      }
+    }
+  }
 
   /**
    * Log into the application
    */
   @Test
+  @StartsFrom(Session.BLANK)
   void t000_loginTest() {
     checkLogin("test", "test", "Manager (test)");
   }
@@ -35,7 +75,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     setTestTitle("Test screen configuration usage");
 
     // Go to screen
-    gotoScreen("settings", "screen-configuration");
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
 
     // Click button
     clickButton("ButRst");
@@ -50,7 +90,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     suggest("GrdScrCnf", "IdeOpe",  "test", "test");
 
     // Select on selector
-    suggest("GrdScrCnf", "Nam",  "ButPrn", "ButPrn");
+    suggest("GrdScrCnf", "Nam",  PRINT_BUTTON, PRINT_BUTTON);
 
     // Select text
     suggest("GrdScrCnf", "Atr", "visible", "Visible");
@@ -67,56 +107,34 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Save row
     saveRow();
 
-    // Store and confirm
+    // Store and confirm (from here the configuration may be stored, so the cleanup after the test removes it)
+    screenConfigurationStored = true;
     clickButtonAndConfirm("ButCnf");
 
     // Go to databases screen
-    gotoScreen("tools", "databases");
+    gotoScreen("tools", DATABASES);
 
     // Wait for button
     waitForButton("ButRst");
 
     // Verify that ButPrn button is not visible
-    checkButtonNotVisible("ButPrn");
+    checkButtonNotVisible(PRINT_BUTTON);
 
-    // Go to screen
-    gotoScreen("settings", "screen-configuration");
-
-    // Click button
-    clickButton("ButRst");
-
-    // Select on selector
-    suggest("CrtScr",  "Dbs", "Dbs");
-
-    // Select on selector
-    suggest("CrtUsr",  "test", "test");
-
-    // Select text
-    selectContain("CrtAct", "Yes");
-
-    // Search and wait
-    searchAndWait();
-
-    // Click on row
-    clickRowContents("Dbs");
-
-    // Click on delete button
-    clickButton("ButGrdDel");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
+    // Remove the configuration and verify that the button is visible again
+    removeScreenConfiguration();
 
     // Go to databases screen
-    gotoScreen("tools", "databases");
+    gotoScreen("tools", DATABASES);
 
     // Click button
-    waitForButton("ButPrn");
+    waitForButton(PRINT_BUTTON);
   }
 
   /**
    * Select test module on select criterion
    */
   @Test
+  @StartsFrom(Session.LOGGED_IN)
   void t020_selectTestModule() {
     // Title
     setTestTitle("Select test module: Test to select test module");
@@ -323,5 +341,40 @@ class IntegrationTestsIT extends SeleniumUtilities {
 
     // Check the content of the embedded application (its selector is not an AWE one)
     checkTextInEmbeddedFrame("ol.breadcrumb a", "angular-filemanager");
+  }
+
+  /**
+   * Remove the screen configuration of the databases screen for the test user that t010 stores
+   */
+  private void removeScreenConfiguration() {
+    // Whatever happens next, the cleanup after the test must not try it again
+    screenConfigurationStored = false;
+
+    // Go to screen
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
+
+    // Click button
+    clickButton("ButRst");
+
+    // Select on selector
+    suggest("CrtScr",  "Dbs", "Dbs");
+
+    // Select on selector
+    suggest("CrtUsr",  "test", "test");
+
+    // Select text
+    selectContain("CrtAct", "Yes");
+
+    // Search and wait
+    searchAndWait();
+
+    // Click on row
+    clickRowContents("Dbs");
+
+    // Click on delete button
+    clickButton("ButGrdDel");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
   }
 }
