@@ -309,6 +309,22 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().title.top).toBe(288);
     });
 
+    it('should place a semicircle again with the new size of the container', () => {
+      jest.useFakeTimers();
+      renderChart(clone(models.ChrSemiCircleTst));
+      // Plot area of 900x500: margins of 16 and the legend below (34)
+      expect(lastOption().series[0].center).toEqual([450, 16 + 0.75 * (500 - 16 - 50)]);
+
+      Object.defineProperty(HTMLElement.prototype, "clientWidth", {configurable: true, get: () => 600});
+      Object.defineProperty(HTMLElement.prototype, "clientHeight", {configurable: true, get: () => 400});
+      act(() => {
+        observers[0].callback();
+        jest.advanceTimersByTime(60);
+      });
+
+      expect(lastOption().series[0].center).toEqual([300, 16 + 0.75 * (400 - 16 - 50)]);
+    });
+
     it('should stop observing when it is unmounted', () => {
       const {unmount} = renderChart(models.ChrLinTst);
 

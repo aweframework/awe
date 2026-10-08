@@ -237,8 +237,47 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       expect(donut.radius).toEqual(["24%", "60%"]);
     });
 
-    it('should keep the center of a semicircle', () => {
-      expect(build("ChrSemiCircleTst").series[0].center).toEqual(["50%", "75%"]);
+    it('should place the center of a semicircle in the plot area, without the legend, like Highcharts', () => {
+      // Plot area of 800x400: margins of 16, the legend takes 34 more below, the title in the middle takes no room
+      expect(build("ChrSemiCircleTst").series[0].center).toEqual([400, 16 + 0.75 * (400 - 16 - 50)]);
+    });
+
+    it('should size a semicircle in the plot area, like Highcharts, without the room for outer labels', () => {
+      // The smaller side of the plot area is 400 - 16 - 50 = 334 px; Highcharts sizes are diameters
+      const half = (400 - 16 - 50) / 2;
+
+      expect(build("ChrSemiCircleTst").series[0].radius).toEqual([0.3 * half, 0.75 * half]);
+    });
+
+    it('should leave room for a title on top when it places a pie center', () => {
+      const model = clone(models.ChrPieTst);
+      model.title = {text: "Title"};
+      model.legend = {show: false};
+      model.series[0].center = ["50%", 100];
+
+      const option = buildEChartsOption(model, values, context());
+
+      // The top title takes 28 px; a number is in pixels from the plot area, like in Highcharts
+      expect(option.series[0].center).toEqual([400, 16 + 28 + 100]);
+    });
+
+    it('should leave room for a side legend with a title, and keep the values that are not coordinates', () => {
+      const model = clone(models.ChrSemiCircleTst);
+      model.legend = {show: true, orient: "vertical", left: "right", awe: {title: "Themes"}};
+      model.series[0].center = ["50%", "middle"];
+      model.series[0].radius = [40, "50%"];
+
+      const pie = buildEChartsOption(model, values, context()).series[0];
+
+      // The vertical legend takes 120 px on the right: the plot area is 800 - 16 - 136 wide and 400 - 32 high
+      expect(pie.center).toEqual([16 + 0.5 * (800 - 16 - 136), "middle"]);
+      expect(pie.radius).toEqual([40, 0.5 * (400 - 32) / 2]);
+    });
+
+    it('should keep the percentage center of a pie when the size of the chart is unknown', () => {
+      const option = buildEChartsOption(clone(models.ChrSemiCircleTst), values, context({width: 0, height: 0}));
+
+      expect(option.series[0].center).toEqual(["50%", "75%"]);
     });
 
     it('should not move the center of a pie without title', () => {
