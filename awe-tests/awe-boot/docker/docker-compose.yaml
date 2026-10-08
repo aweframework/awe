@@ -3,7 +3,7 @@ version: "2"
 services:
 
   oracle-xe:
-    image: gvenzl/oracle-xe:18.4.0-slim
+    image: gvenzl/oracle-xe:18.4.0-slim@sha256:118d22f6df24caff2456323e334c14b9cfcc8fad7475b5421fa1638baa6f54ca
     container_name: oracle-xe
     restart: unless-stopped
     environment:
