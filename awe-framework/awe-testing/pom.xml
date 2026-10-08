@@ -108,6 +108,14 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>oracle-free</artifactId>
     </dependency>
+    <!-- Testcontainers 1.x brings JUnit 4 (junit:junit), and with it Surefire adds the Vintage engine itself, resolved with a
+         JUnit Platform launcher that does not match the Jupiter engine of the consumers that pin surefire-junit-platform
+         (awe-boot): discovery then finds no test at all and the build still passes. Declaring the engine here puts the
+         whole JUnit Platform on one version (managed by the Spring Boot BOM) in every module that uses awe-testing. -->
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+    </dependency>
     <!-- Drivers used only by the utility's own tests -->
     <dependency>
       <groupId>org.postgresql</groupId>

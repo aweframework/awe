@@ -527,6 +527,8 @@
         <configuration>
           <skip>${skip.junit}</skip>
           <groups>${test.tags}</groups>
+          <!-- A run that finds no test must fail: it means broken discovery or a wrong tag, not a green build -->
+          <failIfNoTests>true</failIfNoTests>
         </configuration>
         <dependencies>
           <dependency>
