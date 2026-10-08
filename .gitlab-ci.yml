@@ -34,7 +34,7 @@ default:
   interruptible: true
   timeout: 30m
 
-image: maven:3.9.9-eclipse-temurin-21
+image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -266,7 +266,7 @@ stages:
 
 .renovate-image:
   image:
-    name: ghcr.io/renovatebot/renovate:44@sha256:5e9ea3e65b3e8e7c0caf813214ed0705827433b7ea19e65f697083cca3a9c0e7   # major pin + digest; Renovate updates its own pin
+    name: ghcr.io/renovatebot/renovate:44@sha256:6f1f3e2d9d0c3f99aa1f61f7509d302185de7deb173ac8c5ff88a5ce283ec435   # major pin + digest; Renovate updates its own pin
     entrypoint: [""]
 
 # Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
@@ -365,7 +365,7 @@ Build project:
 
 Build project:jdk 21:
   extends: .build
-  image: maven:3.9.9-eclipse-temurin-21
+  image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
   variables:
     SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
 
@@ -550,7 +550,7 @@ MySQL Tests:
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
   services:
-    - mysql:8.4.9
+    - mysql:8.4.11@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
   parallel:
     matrix:
       - TEST_NAME: [ mysql, mysql-flyway ]
@@ -562,7 +562,7 @@ PostgreSQL Tests:
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
   services:
-    - name: postgres:17.9
+    - name: postgres:17.11@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
       alias: postgres
   parallel:
     matrix:
@@ -590,7 +590,7 @@ SQL Server Tests:
   before_script:
     - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
-    - name: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04
+    - name: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04@sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce
       alias: mssqlserver
   parallel:
     matrix:
@@ -661,7 +661,7 @@ Javadoc test:
 
 # Browser testing extension
 .browser-testing:
-  image: maven:3.9.9-eclipse-temurin-21
+  image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
   stage: integration test
   # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
   # automerge and the release jobs that need Sonar. One automatic job retry absorbs an occasional
@@ -1091,7 +1091,7 @@ Generate javadoc & schemas:
 ##############################
 
 Build package:
-  image: docker:28.5.2-cli
+  image: docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
   stage: package
   cache: { }
   interruptible: false
@@ -1109,7 +1109,7 @@ Build package:
     - job: Launch Sonar
       artifacts: false
   services:
-    - docker:28.5.2-dind
+    - docker:28.5.2-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
   before_script:
     - apk add --no-cache cosign
   script:
@@ -1274,7 +1274,7 @@ dast:
     - <<: *if-develop
 
 pages:
-  image: docker:28.5.2-cli
+  image: docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
   stage: deploy
   cache: { }
   interruptible: false
@@ -1402,7 +1402,7 @@ Notify new release:
 
 Generate gitlab release:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:v0.24.0
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.24.0@sha256:3f52d526f48e8d10625c722fa6d6423ee82aadeae1b1aa91f07b62551d96dacf
   interruptible: false
   needs:
     - job: Generate release notes
