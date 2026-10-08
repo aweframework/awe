@@ -152,3 +152,6 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 
 # Playwright browsers installed by the CI job of the unit tests
 .playwright-browsers/
+
+# npm cache of the "Lint frontend" CI job
+/.npm-lint/

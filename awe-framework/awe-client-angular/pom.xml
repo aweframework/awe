@@ -74,8 +74,9 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <executions>
-          <!-- Lint the AngularJS sources and their Jest tests before the unit tests: lint errors fail the build,
-               warnings are only reported. Declared before "jest" so it runs first within the test phase. -->
+          <!-- Lint the AngularJS sources and their Jest tests before the unit tests: lint errors fail the build, and so do
+               more warnings than the limit of the lint:ci script (package.json), which only goes down. Declared before "jest" so
+               it runs first within the test phase. CI skips it (-Dskip.lint=true) because the "Lint frontend" job runs lint:ci. -->
           <execution>
             <id>lint</id>
             <goals>
@@ -83,7 +84,8 @@
             </goals>
             <phase>test</phase>
             <configuration>
-              <arguments>run lint</arguments>
+              <arguments>run lint:ci</arguments>
+              <skip>${skip.lint}</skip>
             </configuration>
           </execution>
           <execution>

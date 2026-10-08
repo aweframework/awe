@@ -8,6 +8,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint src/main/resources/js/awe src/test/jest",
+    "lint:ci": "npm run lint -- --max-warnings 93",
     "lint:fix": "eslint src/main/resources/js/awe src/test/jest --fix",
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",

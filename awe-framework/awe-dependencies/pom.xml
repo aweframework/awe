@@ -78,6 +78,9 @@
     <skip.selenium>true</skip.selenium>
     <skip.main>false</skip.main>
     <skip.frontend>false</skip.frontend>
+    <!-- ESLint of the two clients (lint:ci, in their poms): skipped with skip.frontend, or alone with -Dskip.lint=true (CI does
+         it: the "Lint frontend" job runs the same lint:ci scripts) -->
+    <skip.lint>${skip.frontend}</skip.lint>
     <skip.delombok>true</skip.delombok>
 
     <!-- Jacoco configuration -->
