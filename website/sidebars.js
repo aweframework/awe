@@ -78,6 +78,7 @@ module.exports = {
 				"guides/parameter-handling",
 				"guides/validation",
 				"guides/v4-migration",
+				"guides/v5-migration",
 				"guides/default-screens",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
