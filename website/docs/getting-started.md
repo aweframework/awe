@@ -87,6 +87,7 @@ Continue with [awe-101 Your first AWE App](training/awe-101.md) for the first ha
 Use these docs as follow-up references after the first run:
 
 - [Project Structure](guides/project-structure.md) for the AWE XML layout and folders
+- [XSD tooling](guides/xsd-tooling.md) for XML autocompletion and validation in IntelliJ IDEA and VS Code
 - [awe-101 Your first AWE App](training/awe-101.md) for the first practical tutorial after quick-start
 - [Installation](installation.md) for server and environment setup details
 - [Deployment](deployment.md) for JAR, WAR, Docker, and cloud packaging options

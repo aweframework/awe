@@ -1475,7 +1475,7 @@ pages:
   script:
     - mkdir -p .public/docs/schemas
     - cp -r awe-framework/target/reports/apidocs .public/javadoc-api/
-    - cp -r awe-framework/awe-generic-screens/src/main/resources/schemas/awe/*.xsd .public/docs/schemas/
+    - cp -r awe-framework/awe-generic-screens/src/main/resources/schemas/awe/*.xsd awe-framework/awe-generic-screens/src/main/resources/schemas/awe/catalog.xml .public/docs/schemas/
     - cp -a website/build/. .public/
     - mv .public public
   artifacts:
