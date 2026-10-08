@@ -23,7 +23,7 @@ aweApplication.directive('aweImage',
         link: function (scope) {
           scope.trustSrc = function (src) {
             return $sce.trustAsResourceUrl(src);
-          }
+          };
 
           // Init as component
           let  component = new Component(scope, scope.imageId);

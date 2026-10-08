@@ -7,6 +7,8 @@
   "license": "SEE LICENSE IN ./../LICENSE.md",
   "private": true,
   "scripts": {
+    "lint": "eslint src/main/resources/js/awe src/test/jest",
+    "lint:fix": "eslint src/main/resources/js/awe src/test/jest --fix",
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",
     "build:production": "webpack --config webpack.config.js --mode production",
@@ -72,9 +74,10 @@
   },
   "devDependencies": {
     "@casualbot/jest-sonar-reporter": "^2.7.1",
+    "@eslint/js": "^9.39.5",
     "angular-mocks": "1.5.8",
     "babel-jest": "^29.7.0",
-    "eslint": "^6.8.0",
+    "eslint": "^9.39.5",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^16.0.0"

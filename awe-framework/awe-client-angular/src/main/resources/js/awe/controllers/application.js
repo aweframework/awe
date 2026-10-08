@@ -30,8 +30,8 @@ aweApplication.controller('AppController',
         $root.status = {
           ...$root.status,
           [id]:value
-        }
-      }
+        };
+      };
 
       /**
        * Manage keydown event

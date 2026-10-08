@@ -70,7 +70,7 @@ aweApplication.factory('ServerData',
             controller[view] = {};
             let modelView = {};
             _.each(data.components, function (component) {
-              ServerData.storeComponent(component, modelView, controller[view], api[view], screen[view].option)
+              ServerData.storeComponent(component, modelView, controller[view], api[view], screen[view].option);
             });
 
             // Change model
