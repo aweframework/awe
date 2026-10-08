@@ -1,0 +1,56 @@
+// Development container for AWE. See website/docs/guides/devcontainer.md.
+// Images and features are pinned; Renovate keeps them current (see renovate.json).
+{
+  "name": "AWE",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm@sha256:3aacff4130e6cf04709f9cab1d7a6d3e1cc4bff6202bc61611831a18d3755673",
+  "features": {
+    // Temurin JDK 21 like the CI image (the project target stays Java 17) and Maven
+    "ghcr.io/devcontainers/features/java:1.8.3": {
+      "version": "21.0.12",
+      "jdkDistro": "tem",
+      "installMaven": true,
+      "mavenVersion": "3.10.0"
+    },
+    // The same Node version as the frontend-maven-plugin (node.version in awe-framework/awe-dependencies/pom.xml)
+    "ghcr.io/devcontainers/features/node:2.1.1": {
+      "version": "24.14.0"
+    },
+    // Testcontainers and the Selenium docker browsers need a Docker daemon
+    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {}
+  },
+  "containerEnv": {
+    // The same settings that the GitLab CI uses. No credentials are baked in: the server and
+    // GPG entries of settings.xml read MAVEN_REPO_USER, MAVEN_REPO_PASS, ... from the environment.
+    "MAVEN_ARGS": "-s ${containerWorkspaceFolder}/.m2/settings.xml -Dsettings.security=${containerWorkspaceFolder}/.m2/settings-security.xml --batch-mode"
+  },
+  // Playwright browsers (Chromium and Firefox) in the version that awe-dependencies declares
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [8080, 3000],
+  "portsAttributes": {
+    "8080": {
+      "label": "AWE test application (awe-boot / awe-boot-react)",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Website (Docusaurus)",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "redhat.vscode-xml",
+        "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "maven.executable.preferMavenWrapper": false,
+        // AWE XML catalog: autocompletion and validation for screens, menus, queries... (see guides/xsd-tooling)
+        "xml.catalogs": [
+          "${containerWorkspaceFolder}/awe-framework/awe-generic-screens/src/main/resources/schemas/awe/catalog.xml"
+        ]
+      }
+    }
+  }
+}

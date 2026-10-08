@@ -80,6 +80,7 @@ module.exports = {
 				"guides/v4-migration",
 				"guides/v5-migration",
 				"guides/xsd-tooling",
+				"guides/devcontainer",
 				"guides/default-screens",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
