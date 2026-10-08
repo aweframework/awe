@@ -47,6 +47,24 @@ mvn -pl awe-tests/awe-boot -am test -Dtest=MenuServiceTest -Dsurefire.failIfNoSp
 ```
 Selenium is skipped by default (`-Dskip.selenium=true`); these run only the JUnit tests.
 
+### Databases in containers (slice 1 of #764: available, not yet used by the suites)
+`awe-testing` ships a Testcontainers utility (`com.almis.awe.testing.database`). The existing suites still use the `-P<db>` profiles and the CI service hostnames; nothing below is wired into them yet.
+
+A Spring test class opts in with one annotation; the module needs the JDBC driver of that database:
+```java
+@SpringBootTest
+@AweDatabaseTest(TestDatabase.POSTGRESQL)                  // HSQLDB, H2, MYSQL, POSTGRESQL, SQLSERVER, ORACLE
+class MyQueryIT { }
+@AweDatabaseTest(value = TestDatabase.MYSQL, flyway = true) // Flyway instead of schema/data scripts
+```
+- It writes `spring.datasource.*`, `spring.sql.init.*` (or `spring.flyway.*` + `awe.database.migration-modules`) with precedence over `@TestPropertySource`. A `@DynamicPropertySource` method can call `AweDatabaseProperties.register(registry, db, flyway)` instead.
+- Script convention: `classpath:sql/schema-<db>.sql` and `classpath:sql/testdata-<db>.sql` (as in `awe-boot`).
+- Each container starts once per JVM and is shared by every test class. Local reuse across runs: `testcontainers.reuse.enable=true` in `~/.testcontainers.properties` (never in CI).
+- Docker must be running. Without it the container tests are skipped (`@Testcontainers(disabledWithoutDocker = true)`) or fail with Testcontainers' own message.
+- **External mode** (transition, CI services): `-Ddb.external=true` (or env `DB_EXTERNAL=true`) starts no container; url/user/password come from the environment, driver and scripts still come from the annotation.
+- **SQL Server EULA**: the container runs only after you accept the Microsoft EULA explicitly: `-Dawe.testing.sqlserver.accept-eula=true` (or env `AWE_TESTING_SQLSERVER_ACCEPT_EULA=true`). Without it the test fails with a message saying so.
+- Images are pinned `name:tag@sha256:digest` in `awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`; Renovate updates that file. Oracle uses `gvenzl/oracle-free` 23 (first start is slow); the container user is `awe`, not `system`.
+
 ## Output Contract
 
 Report the exact command run, the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On Selenium failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `browser-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).

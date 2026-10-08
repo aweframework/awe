@@ -165,6 +165,27 @@
       ]
     },
     {
+      "groupName": "test database images",
+      "description": "Database images used by the Testcontainers integration tests.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-testing/src/main/resources/awe-testing-images.properties"
+      ]
+    },
+    {
+      "description": "SQL Server tags look like 2022-CU27-ubuntu-22.04: stay on the 2022 line and follow its cumulative updates.",
+      "matchPackageNames": [
+        "mcr.microsoft.com/mssql/server"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-testing/src/main/resources/awe-testing-images.properties"
+      ],
+      "versioning": "regex:^(?<major>\\d+)-CU(?<minor>\\d+)-(?<compatibility>ubuntu-\\d+\\.\\d+)$",
+      "allowedVersions": "/^2022-CU\\d+-ubuntu-22\\.04$/"
+    },
+    {
       "description": "Patch releases of direct Maven and npm dependencies merge by themselves on develop once the merge-request pipeline passes; everything else (digests, pins, CI images, Dockerfile, compose files, lock-file maintenance) waits for a human.",
       "matchBaseBranches": [
         "develop"
@@ -235,6 +256,17 @@
       ],
       "depNameTemplate": "org.cyclonedx:cyclonedx-maven-plugin",
       "datasourceTemplate": "maven"
+    },
+    {
+      "description": "Container images of the integration-test databases (awe-testing-images.properties), pinned as name:tag@sha256:digest.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-testing/src/main/resources/awe-testing-images\\.properties$/"
+      ],
+      "matchStrings": [
+        "awe\\.testing\\.image\\.[a-z]+=(?<depName>[^:\\s@]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
     }
   ]
 }
