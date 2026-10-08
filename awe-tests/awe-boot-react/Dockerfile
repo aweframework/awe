@@ -16,6 +16,6 @@ VOLUME /logs
 VOLUME /tmp
 
 # Execute jar
-ENTRYPOINT ["java", "-jar", "/awe-react.jar"]
+ENTRYPOINT ["java", "-Xms256m", "-Xmx1g", "-XshowSettings:vm", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-react.jar"]
 
 

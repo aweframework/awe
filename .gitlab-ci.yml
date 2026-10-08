@@ -1090,6 +1090,29 @@ Generate javadoc & schemas:
 # Package stage
 ##############################
 
+# The React test application jar for the "awe-boot-react" image. "Build project" artifacts only the awe-boot jar (every
+# test job downloads that job's artifacts, so a second ~250MB jar would be downloaded dozens of times); this job packages
+# the React application from the modules and the client bundle that "Build project" already built, and runs on the
+# branches that publish images only.
+Build React package:
+  stage: package
+  interruptible: false
+  timeout: 20m
+  needs:
+    - job: Build project
+      artifacts: true
+  script:
+    - mvn -f awe-tests/awe-boot-react/pom.xml $MAVEN_CLI_OPTS package $SKIP_TESTS
+    - test -f awe-tests/awe-boot-react/target/awe-react.jar
+  artifacts:
+    paths:
+      - awe-tests/awe-boot-react/target/awe-react.jar
+    expire_in: 1 day
+  rules:
+    - <<: *if-develop
+    - <<: *if-master
+    - <<: *if-support
+
 Build package:
   image: docker:28.5.2-cli
   stage: package
@@ -1108,6 +1131,8 @@ Build package:
       artifacts: true
     - job: Launch Sonar
       artifacts: false
+    - job: Build React package
+      artifacts: true
   services:
     - docker:28.5.2-dind
   before_script:
@@ -1132,6 +1157,21 @@ Build package:
     - DOCKERHUB_IMAGE_DIGEST_REF=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' aweframework/awe-boot:$PROJECT_VERSION | grep '^aweframework/awe-boot@' | head -n1)
     - test -n "$DOCKERHUB_IMAGE_DIGEST_REF" || { echo "Docker Hub digest not found for aweframework/awe-boot:$PROJECT_VERSION"; exit 1; }
     - cosign sign "$DOCKERHUB_IMAGE_DIGEST_REF"
+    # React test application image (awe-boot-react), built, signed and attested like awe-boot. No deploy job uses it.
+    # The digest is read from RepoDigests of the pushed image, so it is exactly the one that was pushed.
+    - docker build -t registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION ./awe-tests/awe-boot-react
+    - docker push registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION
+    - GITLAB_REACT_IMAGE_DIGEST_REF=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION | grep '^registry.gitlab.com/aweframework/awe/awe-boot-react@' | head -n1)
+    - test -n "$GITLAB_REACT_IMAGE_DIGEST_REF" || { echo "GitLab registry digest not found for awe-boot-react:$PROJECT_VERSION"; exit 1; }
+    - echo "PACKAGE_REACT_DIGEST=${GITLAB_REACT_IMAGE_DIGEST_REF#*@}" >> build.env
+    - cosign sign "$GITLAB_REACT_IMAGE_DIGEST_REF"
+    - cosign attest --type cyclonedx --predicate target/awe-sbom.json "$GITLAB_REACT_IMAGE_DIGEST_REF"
+    # Docker Hub: the same image (no second build), pushed and signed by digest (both registries are logged in above).
+    - docker tag registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION aweframework/awe-boot-react:$PROJECT_VERSION
+    - docker push aweframework/awe-boot-react:$PROJECT_VERSION
+    - DOCKERHUB_REACT_IMAGE_DIGEST_REF=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' aweframework/awe-boot-react:$PROJECT_VERSION | grep '^aweframework/awe-boot-react@' | head -n1)
+    - test -n "$DOCKERHUB_REACT_IMAGE_DIGEST_REF" || { echo "Docker Hub digest not found for aweframework/awe-boot-react:$PROJECT_VERSION"; exit 1; }
+    - cosign sign "$DOCKERHUB_REACT_IMAGE_DIGEST_REF"
     # Support branches (maintenance lines) also get floating major and major.minor tags, never "latest".
     - |
       if [[ "$CI_COMMIT_REF_NAME" == support/* ]]; then
@@ -1139,10 +1179,12 @@ Build package:
         MAJOR_VERSION="${CLEAN_VERSION%%.*}"
         MAJOR_MINOR_VERSION="${CLEAN_VERSION%.*}"
         for TAG in "$MAJOR_VERSION" "$MAJOR_MINOR_VERSION"; do
-          docker tag registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION registry.gitlab.com/aweframework/awe/awe-boot:$TAG
-          docker push registry.gitlab.com/aweframework/awe/awe-boot:$TAG
-          docker tag aweframework/awe-boot:$PROJECT_VERSION aweframework/awe-boot:$TAG
-          docker push aweframework/awe-boot:$TAG
+          for IMAGE in awe-boot awe-boot-react; do
+            docker tag registry.gitlab.com/aweframework/awe/$IMAGE:$PROJECT_VERSION registry.gitlab.com/aweframework/awe/$IMAGE:$TAG
+            docker push registry.gitlab.com/aweframework/awe/$IMAGE:$TAG
+            docker tag aweframework/$IMAGE:$PROJECT_VERSION aweframework/$IMAGE:$TAG
+            docker push aweframework/$IMAGE:$TAG
+          done
         done
       fi
   artifacts:
@@ -1212,6 +1254,76 @@ Deploy Maven Central:
     - mvn $MAVEN_CLI_OPTS deploy $DEPLOY_OPTS -DperformRelease=true
   rules:
     - <<: *if-tag
+
+# Publishes the React client to npm as "awe-react-client", only from the tag pipelines of the 5.x line and later: support/4.x
+# tags (v4.*) never publish it, because that line has no React client. The npm version is the tag without the "v", which is also
+# the Maven project version of the tagged commit: the job builds the client through Maven (the same pinned Node and npm as
+# the other jobs), checks the generated dist/package.json against the tag, and publishes dist/ with an npm provenance
+# statement (the job OIDC token, audience "sigstore", is what npm reads on GitLab). NPM_AUTH_TOKEN is a CI variable
+# (protected, masked) that must be visible to tag pipelines. Prerelease versions (e.g. 5.1.0-rc.1) go to the "next" dist-tag, final
+# versions to "latest". npm refuses to republish a version, so a rerun of a tag whose version already exists is a success.
+Publish npm:
+  stage: deploy
+  interruptible: false
+  timeout: 30m
+  needs:
+    - job: Deploy Maven Central
+      artifacts: false
+  id_tokens:
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
+  variables:
+    CLIENT_DIR: awe-framework/awe-client-react
+  script:
+    - VERSION="${CI_COMMIT_TAG#v}"
+    # Install Node and npm (pinned in awe-dependencies), install the dependencies and build the client (compile phase only:
+    # lint and unit tests already ran on the commit pipelines).
+    - mvn -f $CLIENT_DIR/pom.xml $MAVEN_CLI_OPTS compile
+    - export PATH="$CI_PROJECT_DIR/$CLIENT_DIR/node:$PATH"
+    - cd $CLIENT_DIR
+    # Fail unless the generated package carries exactly the tag version (never publish a stale or SNAPSHOT version).
+    - AWE_VERSION="$VERSION" npm run verify:version
+    # CycloneDX SBOM of the runtime dependencies of the client, labelled with the released version.
+    - npm pkg set version="$VERSION"
+    - npm sbom --sbom-format cyclonedx --sbom-type library --omit dev > "$CI_PROJECT_DIR/awe-react-client-sbom.json"
+    # npm names the root component after the folder (awe-client-react): set the package name.
+    - |
+      node -e 'const fs = require("fs"); const f = process.argv[1]; const bom = JSON.parse(fs.readFileSync(f, "utf8"));
+      bom.metadata.component.name = "awe-react-client"; fs.writeFileSync(f, JSON.stringify(bom, null, 2) + "\n");' "$CI_PROJECT_DIR/awe-react-client-sbom.json"
+    - cd "$CI_PROJECT_DIR"
+    # Idempotency: npm cannot republish a version. A version that is not published yet gives no output: npm 11 exits
+    # with E404, some older npm versions exit 0. Any other answer or failure stops the job.
+    - |
+      view_rc=0
+      existing=$(npm view "awe-react-client@${VERSION}" version 2>npm-view.err) || view_rc=$?
+      if [ "$existing" = "$VERSION" ]; then
+        echo "awe-react-client@${VERSION} is already published: nothing to do"
+        exit 0
+      fi
+      if [ -n "$existing" ] || { [ "$view_rc" -ne 0 ] && ! grep -q E404 npm-view.err; }; then
+        echo "Cannot tell whether awe-react-client@${VERSION} exists:"
+        cat npm-view.err
+        exit 1
+      fi
+    # The token reaches npm through the environment: the line below is written literally and npm expands it.
+    - printf '%s\n' '//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}' > "$HOME/.npmrc"
+    - |
+      case "$VERSION" in
+        *-*) NPM_TAG=next ;;
+        *) NPM_TAG=latest ;;
+      esac
+    - echo "Publishing awe-react-client@${VERSION} with dist-tag ${NPM_TAG}"
+    # "./" is mandatory: a bare "dist" or "a/b/dist" could be read by npm as a registry package or a git shorthand, not a folder.
+    - npm publish "./$CLIENT_DIR/dist" --provenance --access public --tag "$NPM_TAG"
+  after_script:
+    - rm -f "$HOME/.npmrc"
+  artifacts:
+    paths:
+      - awe-react-client-sbom.json
+    # The SBOM is the record of what the published version contains, so it is kept like the release itself.
+    expire_in: never
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v([5-9]|[1-9][0-9]+)\./'
 
 # Kubernetes deployment
 .k8s_deploy:

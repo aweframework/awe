@@ -159,13 +159,16 @@
               <goal>install-node-and-npm</goal>
             </goals>
           </execution>
+          <!-- The id must stay "npm ci" to override the execution inherited from awe-dependencies. The generated project has
+               no package-lock.json (awe-react-client is pinned to the framework version, not to a lock): "npm install"
+               creates it, and committing it makes later builds reproducible (then switch the arguments back to ci). -->
           <execution>
             <id>npm ci</id>
             <goals>
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>ci --include=dev</arguments>
+              <arguments>install --include=dev</arguments>
             </configuration>
           </execution>
           <execution>

@@ -53,7 +53,8 @@
 
     <!-- Plugins -->
     <plugins>
-      <!-- Filter root POM to replace project version -->
+      <!-- Filter the root POM and package.json to replace the project version: the generated application depends on the
+           awe-react-client npm package of the same version as the archetype -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -78,6 +79,7 @@
         <filtering>true</filtering>
         <includes>
           <include>archetype-resources/pom.xml</include>
+          <include>archetype-resources/package.json</include>
         </includes>
       </resource>
       <resource>
@@ -85,15 +87,21 @@
         <filtering>false</filtering>
         <excludes>
           <exclude>archetype-resources/pom.xml</exclude>
+          <exclude>archetype-resources/package.json</exclude>
         </excludes>
       </resource>
     </resources>
+    <!-- The archetype integration test builds the generated project with "package -Dskip.frontend=true" (see
+         src/test/resources/projects/it1/goal.txt): the generated package.json pins awe-react-client to this project's
+         version, which is published to npm only when a release is tagged, so a snapshot build cannot install it. The
+         test still compares the generated files with the reference and compiles and tests the Java application. -->
     <testResources>
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>false</filtering>
         <excludes>
           <exclude>projects/it1/reference/pom.xml</exclude>
+          <exclude>projects/it1/reference/package.json</exclude>
         </excludes>
       </testResource>
       <testResource>
@@ -101,6 +109,7 @@
         <filtering>true</filtering>
         <includes>
           <include>projects/it1/reference/pom.xml</include>
+          <include>projects/it1/reference/package.json</include>
         </includes>
       </testResource>
     </testResources>
