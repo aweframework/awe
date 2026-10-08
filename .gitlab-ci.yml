@@ -37,7 +37,7 @@ default:
 image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
 
 variables:
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version -Dskip.lint=true"
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
@@ -362,6 +362,39 @@ MR checks tests:
         - bin/test-mr-checks.sh
         - bin/test-fixtures/**/*
         - .gitlab/commitlint/**/*
+
+# Blocking (#762): ESLint of the two front-end engines (AngularJS and React), in a job of its own so a lint failure shows
+# in about a minute, before the unit tests start. Each client has a "lint:ci" script (package.json) with --max-warnings set
+# to its current number of warnings: errors fail, and so does any new warning. The number only goes down: when a merge request
+# fixes warnings, lower it in the same change (npm run lint prints the new count). It runs in merge requests that change a
+# client and on develop, master and support/*, and replaces the "lint" execution of the two client poms in CI: the unit test
+# jobs skip it (-Dskip.lint=true in MAVEN_CLI_OPTS), so lint runs once per pipeline. Local "mvn test" still runs it (lint:ci).
+# The CI variable NODE_ENV=production makes npm skip devDependencies, and ESLint is one: --include=dev installs them.
+# --ignore-scripts: lint needs no install scripts, and nothing from a dependency runs in the job.
+Lint frontend:
+  extends: .mr-checks
+  timeout: 10m
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/.npm-lint"
+  script:
+    - npm --prefix awe-framework/awe-client-angular ci --include=dev --ignore-scripts --no-audit --no-fund
+    - npm --prefix awe-framework/awe-client-react ci --include=dev --ignore-scripts --no-audit --no-fund
+    # Both lints always run, so one failure does not hide the other
+    - |
+      status=0
+      npm --prefix awe-framework/awe-client-angular run lint:ci || status=1
+      npm --prefix awe-framework/awe-client-react run lint:ci || status=1
+      exit $status
+  cache:
+    key: lint-frontend-npm-${CI_COMMIT_REF_SLUG}
+    fallback_keys:
+      - lint-frontend-npm-develop
+    paths:
+      - .npm-lint
+  rules:
+    - <<: *if-mr-frontend
+    - <<: *if-mr-frontend-react
+    - <<: *if-branches
 
 Build project:
   extends: .build

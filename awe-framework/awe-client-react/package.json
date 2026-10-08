@@ -4,6 +4,7 @@
   "main": "main.jsx",
   "scripts": {
     "lint": "eslint .",
+    "lint:ci": "npm run lint -- --max-warnings 105",
     "lint:fix": "eslint . --fix",
     "test": "npm run test:unit",
     "test:unit": "jest --config jest.config.cjs",

@@ -111,6 +111,7 @@ empty Docker login and a `401 Unauthorized` from the Maven repository.
 ## Merge request title and size
 
 Two fast jobs of the `build` stage check every merge request pipeline, before anything is built.
+A third one, [`Lint frontend`](#frontend-lint-blocking), checks the front-end code of the merge requests that change it.
 
 ### Title format (blocking)
 
@@ -166,6 +167,27 @@ bin/mr-size.sh origin/develop   # base to compare with; head is HEAD
 
 `bin/test-mr-checks.sh` tests both scripts; the job `MR checks tests` runs it in merge requests
 that change them.
+
+## Frontend lint (blocking)
+
+The job `Lint frontend` runs [ESLint](https://eslint.org/) on both front-end engines, the AngularJS
+client (`awe-client-angular`) and the React client (`awe-client-react`), in the `build` stage, so a
+failure shows in about a minute, before the unit tests start. It runs in the merge requests that
+change a client and on `develop`, `master` and `support/*`.
+
+Each client has a `lint:ci` script in its `package.json` with `--max-warnings` set to the number of
+warnings it has today. An ESLint error fails the job, and so does any warning above that number:
+**the warnings can only go down**. A merge request that fixes warnings lowers the number in the same
+change; `npm run lint` prints the current count.
+
+```bash
+npm --prefix awe-framework/awe-client-angular run lint:ci
+npm --prefix awe-framework/awe-client-react run lint:ci
+```
+
+The Maven build runs the same `lint:ci` before the unit tests, so `mvn test` fails locally with the
+same limit. CI skips that Maven step (`-Dskip.lint=true`, set in `MAVEN_CLI_OPTS`), because
+`Lint frontend` already ran it: lint runs once per pipeline.
 
 ## Supply chain
 
