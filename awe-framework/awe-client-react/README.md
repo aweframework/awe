@@ -11,6 +11,8 @@ React client library for **AWE (Almis Web Engine)** — the Almis web applicatio
 
 ## Installation
 
+The package version follows the AWE Framework version exactly: use the `awe-react-client` version that matches the AWE version of your application (for example, AWE `5.0.0` uses `awe-react-client@5.0.0`). Prerelease versions are published under the `next` dist-tag, final versions under `latest`.
+
 ```bash
 npm install awe-react-client
 # or
@@ -27,10 +29,14 @@ Typical consumer setup (inside an AWE-based project's `package.json`):
 ```json
 {
   "dependencies": {
-    "awe-react-client": "^2.1.0"
+    "awe-react-client": "5.0.0"
   }
 }
 ```
+
+Pin the exact version (or a `5.x` range if your project updates the framework and the client together): the client and the server of an AWE application are released together and are tested only in matching versions.
+
+Upgrading from `awe-react-client` 2.x? See the [React client upgrade guide](https://docs.aweframework.com/docs/guides/react-client-upgrade).
 
 ## Key capabilities
 
@@ -45,11 +51,11 @@ Typical consumer setup (inside an AWE-based project's `package.json`):
 
 | Resource | URL |
 |----------|-----|
-| Source repository | <https://gitlab.com/aweframework/awe-react> |
-| Issue tracker | <https://gitlab.com/aweframework/awe-react/-/issues> |
-| AWE Framework | <https://gitlab.com/aweframework/awe> |
-| Demo / live instance | <https://react-demo.aweframework.com> |
+| Source repository | <https://gitlab.com/aweframework/awe> (`awe-framework/awe-client-react`) |
+| Issue tracker | <https://gitlab.com/aweframework/awe/-/issues> |
+| Documentation | <https://docs.aweframework.com> |
+| 2.x changelog (history) | <https://gitlab.com/aweframework/awe/-/blob/master/awe-framework/awe-client-react/CHANGELOG-2.x.md> |
 
 ## License
 
-ISC — see [`LICENSE`](https://gitlab.com/aweframework/awe-react/-/blob/master/LICENSE) for details.
+ISC — see [`LICENSE`](https://gitlab.com/aweframework/awe/-/blob/master/LICENSE.md) for details.

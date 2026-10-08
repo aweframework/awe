@@ -27,6 +27,19 @@
   "author": "Pablo Javier García Mora",
   "license": "ISC",
   "description": "AWE React client",
+  "homepage": "https://docs.aweframework.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/aweframework/awe.git",
+    "directory": "awe-framework/awe-client-react"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/aweframework/awe/-/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "dependencies": {
     "@redux-devtools/extension": "^3.3.0",
     "@reduxjs/toolkit": "1.9.7",
