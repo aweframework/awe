@@ -115,7 +115,9 @@ class ExecutionLogWriterTest {
     writer.complete(key, ExecutionLogOrigin.SCHEDULER);
 
     verify(maintainService, timeout(2000)).launchPrivateMaintain(eq("insertExecutionLogLines"), any());
-    assertEquals(0, writer.liveWindowCount());
+    // The window is evicted on the writer thread only after the insert returns, so wait for it.
+    await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofMillis(20))
+      .untilAsserted(() -> assertEquals(0, writer.liveWindowCount()));
   }
 
   @Test
