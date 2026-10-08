@@ -1,0 +1,13 @@
+{
+  "name": "awe-mr-title-lint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tooling of the \"MR title lint\" CI job (see bin/lint-mr-title.sh). Not part of any AWE artifact.",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

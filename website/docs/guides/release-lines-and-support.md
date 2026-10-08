@@ -42,6 +42,7 @@ from `develop`/`master`.
 |---|---|---|---|---|
 | Build, unit/DB/frontend tests, javadoc | yes | yes | yes | yes |
 | Dependency scanning | yes | yes | yes | yes |
+| Merge request title lint (blocking) and size warning | no | no | no | yes |
 | Playwright browser integration tests | yes | yes | no | yes |
 | Selenium browser integration tests | weekly scheduled pipeline only | yes | yes | no |
 | Sonar analysis (`sonar.branch.name` set) | yes | yes | yes | yes (MR analysis) |
@@ -106,6 +107,65 @@ protected with the same policy as `develop`). The credentials used by `Build pac
 keys, git identity) are protected CI variables, and GitLab only injects them into
 pipelines of protected refs. On an unprotected support branch those jobs fail with an
 empty Docker login and a `401 Unauthorized` from the Maven repository.
+
+## Merge request title and size
+
+Two fast jobs of the `build` stage check every merge request pipeline, before anything is built.
+
+### Title format (blocking)
+
+The merge request is squash merged, so its title becomes the commit message on `develop`.
+The job `MR title lint` checks it with [commitlint](https://commitlint.js.org/) and fails the
+pipeline when it does not follow Conventional Commits:
+
+```
+type(scope): description (#issue Ttask)
+```
+
+- **type**: `feat`, `fix`, `chore`, `ci`, `docs`, `test`, `refactor`, `build`, `perf`, `style`
+  or `revert`, in lower case. Add `!` after the type or scope for a breaking change.
+- **scope**: optional and an open list: the module or area, such as `awe-client-react`,
+  `awe-model`, `ci` or `deps`. Several scopes are separated by a comma.
+- **description**: any case, no full stop at the end. Put the issue reference last, for example
+  `(#794 T7)` for a task of an issue or `(#795)` for the issue. The header can have up to 150
+  characters. A `Draft:` prefix is ignored.
+
+```
+feat(awe-model): ECharts option model for charts beside the Highcharts one (#795 T1a)
+fix: guard null dates in DateUtil.asLocalTime
+chore(deps): update dependency postcss to v8.5.28 (develop)
+```
+
+The titles Renovate writes already follow the format, so its merge requests pass without changes.
+To fix a failing title, edit it in GitLab and retry the job.
+
+The rules are in `.gitlab/commitlint/commitlint.config.mjs`; the commitlint versions are pinned
+in `.gitlab/commitlint/package.json` and `package-lock.json`, which Renovate updates. To check a
+title locally (Node.js 22.12 or later):
+
+```bash
+bin/lint-mr-title.sh "feat(awe-model): new option model (#795 T1a)"
+```
+
+### Size warning (not blocking)
+
+The job `MR size warning` counts the lines the merge request changes (additions plus deletions)
+and warns above **400**, the size a reviewer can still read with attention. It does not fail the
+pipeline: the job ends with exit code 64, which is allowed to fail, and the pipeline shows a
+warning. The job log lists the biggest files. Splitting the work into smaller merge requests
+(one behavior with its tests and docs each) keeps reviews fast.
+
+These files are not counted: lockfiles (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`,
+`*.lock`, `skills-lock.json`), generated files (`*.min.js`, `*.min.css`, `*.svg`, `generated/`
+and `target/` folders), `CHANGELOG.md`, the website documentation (`website/docs/**`,
+`website/i18n/**`) and binary files. Run it locally against the target branch:
+
+```bash
+bin/mr-size.sh origin/develop   # base to compare with; head is HEAD
+```
+
+`bin/test-mr-checks.sh` tests both scripts; the job `MR checks tests` runs it in merge requests
+that change them.
 
 ## Supply chain
 

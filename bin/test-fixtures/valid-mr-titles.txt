@@ -1,0 +1,36 @@
+test: independent browser test classes for Application and Criteria/Matrix (#766 T5a)
+chore: React engine hygiene: no istanbul in the bundle, lighter npm package, Apache-2.0 (#794 T7)
+chore(deps): update jest to v30.5.2 (develop)
+fix(deps): update dependency react-router to v7.18.4 (develop)
+feat: publish the React client to npm and build the awe-boot-react image (#794 T5)
+fix: place semicircles in the plot area like Highcharts (#795)
+feat: charts with advanced Highcharts options render with ECharts, translated on the server (#795 T2)
+feat(awe-client-react): render charts with Apache ECharts from the server echartsModel (#795 T1b)
+feat(awe-model): ECharts option model for charts beside the Highcharts one (#795 T1a)
+ci: a new commit on develop cancels the interruptible jobs of older develop pipelines
+fix(awe-scheduler): keep the launcher credential columns in SCHEDULER_V1.0.5 (#816) [support/4.x]
+feat(awe-testing): choose the test tool with awe.test.tool through a factory; fix the Firefox driver setup (#812 T5.5)
+feat(awe-testing): neutral Locator overloads; deprecate the By overloads and getDriver() (#812 T5.4)
+feat(ci): make the Selenium suites blocking on support/4.x (#766) [support/4.x]
+refactor(awe-testing): façade waits and queries over the BrowserDriver port (#812 T5.3a)
+fix(awe-client-react): reset restores XML defaults, hidden criteria, grid behaviour and test hooks (React criteria/matrix, slice 1)
+fix(awe-client-react): text-uppercase and test hooks for charts, wizard steps and tag lists; React integration suite blocking in CI
+fix(awe-client-react): lay out criteria nested in plain wrapper divs and rows like Bootstrap 3
+fix(awe-client-react): nested multiple values, dependency element context and class changes on later-mounted nodes
+chore(deps): update testing-library monorepo (develop)
+chore(deps): update maven plugins (develop)
+feat(awe-testing): locate React engine components through the data-testid hooks
+chore(deps): update dependency css-loader to v7.1.5 (develop)
+chore(deps): update dependency babel-plugin-istanbul to v7.0.1 (develop)
+fix(deps): update dependency i18next-http-backend to v4 [security] (develop)
+fix(deps): update dependency react-router to v7.18.2 [security] (develop)
+chore(deps): update dependency postcss to v8.5.23 [security] (develop)
+ci(awe-client-react): lint sources and tests in the build, scope Renovate major approval
+fix(ci): release scripts fixes from support/4.x (backport of !774 and !776)
+fix(ci): let the support release script find the hotfix branch that gitflow creates
+fix(awe-client-angular): log clipboard write failures instead of leaving the promise unhandled
+chore(deps): update dependency moment to v2.31.0 [security] (support/4.x)
+chore(deps): update dependency karma-sourcemap-loader to v0.4.0 (develop)
+chore(deps): update dependency karma to v6.4.4 (develop)
+chore(deps): update dependency com.squareup.okhttp3:mockwebserver3 to v5.5.0 (develop)
+chore(deps): update dependency com.microsoft.sqlserver:mssql-jdbc to v13.6.0.jre11 (develop)

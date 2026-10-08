@@ -319,6 +319,50 @@ Validate renovate config:
       changes:
         - renovate.json
 
+# Merge request checks (#762): fast, with no build behind them, in merge-request pipelines only. They run in the image
+# of the website build, which has Node.js 24, npm and git.
+.mr-checks:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
+  stage: build
+  needs: [ ]
+  cache: { }
+  timeout: 5m
+  before_script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+  rules:
+    - <<: *if-merge-request
+
+# Blocking. The title of the merge request becomes the commit message on develop (squash), so it must follow
+# Conventional Commits: type(scope): description (#issue Ttask). Rules in .gitlab/commitlint/commitlint.config.mjs.
+MR title lint:
+  extends: .mr-checks
+  script:
+    - bin/lint-mr-title.sh
+
+# Non-blocking. More than 400 changed lines (lockfiles, generated files, website docs and binaries not counted) ends with
+# exit code 64, which is allowed to fail: the pipeline shows a warning (orange) instead of a failure.
+MR size warning:
+  extends: .mr-checks
+  script:
+    - bin/mr-size.sh
+  allow_failure:
+    exit_codes: 64
+
+# Tests of the two checks above; only when something they use changes.
+MR checks tests:
+  extends: .mr-checks
+  script:
+    - sh bin/test-mr-checks.sh
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - .gitlab-ci.yml
+        - bin/lint-mr-title.sh
+        - bin/mr-size.sh
+        - bin/test-mr-checks.sh
+        - bin/test-fixtures/**/*
+        - .gitlab/commitlint/**/*
+
 Build project:
   extends: .build
   script:

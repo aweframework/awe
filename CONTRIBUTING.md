@@ -114,6 +114,7 @@ the 5.0 GA release, whichever is later.
 - All feature branches should be based on `develop` and have the format `feature/branch_name`.
 - Minor bug fixes, that is bug fixes that do not change, add, or remove any public API, should be based on `master` and have the format `hotfix/branch_name`.
 - All merge requests should implement a single feature or fix a single bug. Merge Requests that involve multiple changes (it is our discretion what precisely this means) will be rejected with a reason.
+- The title of the merge request follows Conventional Commits, `type(scope): description (#issue Ttask)`, because it becomes the commit message on `develop`; the pipeline checks it. Keep merge requests under about 400 changed lines: a bigger one gets a size warning. Details in [Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size).
 - All commits should separated into logical units, i.e. unrelated changes should be in different commits within a pull request.
 - Work over the new feature branch
 - All new code must include unit tests. Bug fixes should have a test that fails previously and now passes. All new features should be covered. If your code does not have tests, or regresses old tests, it will be rejected.
