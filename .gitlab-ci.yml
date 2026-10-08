@@ -782,8 +782,9 @@ Chrome IT:
 # separated, as -Dit.test takes them), never a whole JUnit tag group, which would also run the classes
 # that are not migrated yet. Add a class to the entry of its group when it is migrated, or add an entry
 # (with its own port and name) when the group has none yet; the groups are:
-#   ApplicationIntegrationIT: ApplicationTestsIT, IntegrationTestsIT           (port 6309 / 6313)
-#   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaAndMatrixTestsIT                (port 6310 / 6314)
+#   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
+#                             IntegrationTestsIT                                (port 6309 / 6313)
+#   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaTestsIT, ButtonTestsIT, MatrixTestsIT   (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
 #   SchedulerIT: SchedulerTestsIT                                              (port 6312 / 6316)
 # List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
@@ -800,10 +801,10 @@ Firefox IT React:
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6309"
         TEST_NAME: react-firefox-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6310"
         TEST_NAME: react-firefox-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
@@ -819,10 +820,10 @@ Chrome IT React:
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6313"
         TEST_NAME: react-chrome-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6314"
         TEST_NAME: react-chrome-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
@@ -915,10 +916,10 @@ Playwright Chromium IT React:
   rules: *rules-playwright-react
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6325"
         TEST_NAME: playwright-react-chromium-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6326"
         TEST_NAME: playwright-react-chromium-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
@@ -935,10 +936,10 @@ Playwright Firefox IT React:
   rules: *rules-playwright-react
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
+      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6329"
         TEST_NAME: playwright-react-firefox-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6330"
         TEST_NAME: playwright-react-firefox-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT

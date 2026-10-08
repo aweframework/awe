@@ -186,6 +186,7 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getLoggedUser()).hasToString("By.cssSelector: #ButUsrAct span.avatar-text");
     // The logout button is visible in the shell: there is no user menu to open
     assertThat(instructions.getUserMenuButtonId()).isNull();
+    assertThat(instructions.logoutNeedsConfirmation()).isFalse();
     assertThat(instructions.getLoginScreenMarker()).hasToString("By.cssSelector: .slogan");
     assertThat(instructions.getLoginScreenText()).isEqualTo("Almis Web Engine");
   }

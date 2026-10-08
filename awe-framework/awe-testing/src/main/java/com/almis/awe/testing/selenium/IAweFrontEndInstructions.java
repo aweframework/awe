@@ -672,6 +672,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Tell whether the application asks for a confirmation before it logs the user out
+   *
+   * @return true when the logout must be confirmed. By default it is false
+   */
+  default boolean logoutNeedsConfirmation() {
+    return false;
+  }
+
+  /**
    * Get the element that shows the login screen once the user has logged out
    *
    * @return Login screen marker selector
