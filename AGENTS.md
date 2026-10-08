@@ -162,6 +162,14 @@ Minimal config exists. Enforce:
 - ES2018 features supported
 - No unused variables
 
+### Spotless (Java hygiene)
+Merge requests run `Spotless` on the Java files they change (unused imports, trailing whitespace, final newline, import
+order; no reformatting). Before committing Java changes run:
+
+```bash
+mvn spotless:apply -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)
+```
+
 ### General
 - Keep lines under 120 characters when practical
 - Use meaningful variable names

@@ -108,6 +108,20 @@ As proposed to management, `support/4.x` is intended to receive security and cri
 fixes until FMB 21 completes its migration to AWE 5, and for at least 18 months after
 the 5.0 GA release, whichever is later.
 
+## Code hygiene (Spotless)
+
+Merge requests that change Java code run the `Spotless` job. It checks only the Java files your merge request changes (legacy
+files are never flagged) for unused imports, trailing whitespace, a final newline and the import order (other imports, then
+`javax`/`java`, then static imports). It never reformats or wraps code. To fix what it reports:
+
+```bash
+mvn spotless:apply -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)   # fixes only the files you changed
+mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)   # the same check as the CI job (use your MR's target branch)
+```
+
+Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is not part of the normal build. The
+`.editorconfig` at the root sets the same basics (2 spaces, LF, final newline) for editors.
+
 ## Contributing guideline
 - Please follow the repository's for all code and documentation.
 - Create an issue and a merge request over the issue. Please fill the `features` or `bug` templates as best as possible.

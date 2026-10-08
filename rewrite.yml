@@ -1,0 +1,19 @@
+# OpenRewrite recipes (#762). Only used by the "rewrite" Maven profile: mvn -Prewrite rewrite:dryRun
+# Nothing here runs in the normal build. See website/docs/guides/openrewrite-guide.md.
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.almis.awe.rewrite.Java21Migration
+displayName: AWE migration to Java 21
+description: Moves the AWE sources to Java 21 idioms and APIs. The active recipe of the "rewrite" profile.
+recipeList:
+  - org.openrewrite.java.migrate.UpgradeToJava21
+
+# Not active. Spring Boot 3.5 -> 4.0 (recipe from rewrite-spring, name verified with "mvn -Prewrite rewrite:discover").
+# To try it: run with -Drewrite.activeRecipes=com.almis.awe.rewrite.SpringBoot4Migration
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: com.almis.awe.rewrite.SpringBoot4Migration
+displayName: AWE migration to Spring Boot 4
+description: Spring Boot 4.0 upgrade of the AWE sources. Not part of the active recipes of the "rewrite" profile.
+recipeList:
+  - org.openrewrite.java.spring.boot4.UpgradeSpringBoot_4_0
