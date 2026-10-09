@@ -56,6 +56,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | `jsoup` dependency | `org.jsoup:jsoup` is no longer on the classpath of `awe-model` and is no longer managed by the `awe-dependencies` BOM. | If your own code uses jsoup, declare the dependency and its version in your `pom.xml`. No action otherwise. See the note below the table. | MR !849 |
 | Menu JSON | The menu payload is smaller. | Nothing, unless a custom client reads `elementList` from a menu `Option`: read `options` instead. See the note below the table. | MR !792 |
 | Scheduler database | Flyway fails with a checksum mismatch on `SCHEDULER_V1.0.5`, or a new database cannot be built from scratch. | Run the migration step described below. | MR !843 |
+| Default folders (developer module, scheduler logs) | The developer module path and the scheduler execution logs are now in a folder without the stray `}` that the default value used to end with (`<user.home>/awe-developer` instead of `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` instead of `.../scheduler}`). Only applies if you did not set `awe.developer.path` or `awe.scheduler.execution-log-path`. | Move your existing files from the old folder to the new one if you need them, or set the property to the old path. |  |
 
 ### jsoup in the input parameter sanitizer
 

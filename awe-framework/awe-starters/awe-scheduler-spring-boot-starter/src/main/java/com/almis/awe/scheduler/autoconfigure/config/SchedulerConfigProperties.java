@@ -46,9 +46,10 @@ public class SchedulerConfigProperties {
    */
   private String reportEmailFromValue = DEFAULT_REPORT_EMAIL_FROM_VALUE;
   /**
-   * Scheduler execution log path
+   * Scheduler execution log path. A single placeholder: the property itself, or by default the logging folder (or the
+   * temporary folder) followed by /scheduler.
    */
-  @Value("${logging.file.path:${java.io.tmpdir}}/scheduler}")
+  @Value("${awe.scheduler.execution-log-path:${logging.file.path:${java.io.tmpdir}}/scheduler}")
   private String executionLogPath;
   /**
    * Scheduler execution log pattern
