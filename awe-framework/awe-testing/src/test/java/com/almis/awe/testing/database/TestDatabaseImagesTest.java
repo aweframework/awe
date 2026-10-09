@@ -27,6 +27,15 @@ class TestDatabaseImagesTest {
   }
 
   @Test
+  void theSqlServerImageIsNotOnDockerHubSoTheHubPrefixNeverTouchesIt() {
+    // Testcontainers' hub image name prefix (the CI dependency proxy) only rewrites images without a registry
+    assertThat(DockerImageName.parse(TestDatabaseImages.imageFor(TestDatabase.SQLSERVER)).getRegistry())
+      .isEqualTo("mcr.microsoft.com");
+    assertThat(DockerImageName.parse(TestDatabaseImages.imageFor(TestDatabase.ORACLE)).getRegistry())
+      .as("Docker Hub images have no registry and go through the prefix").isEmpty();
+  }
+
+  @Test
   void embeddedDatabasesHaveNoImage() {
     assertThatThrownBy(() -> TestDatabaseImages.imageFor(TestDatabase.H2))
       .isInstanceOf(IllegalArgumentException.class)

@@ -124,17 +124,22 @@ Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is
 
 ## Database integration tests
 
-The PostgreSQL and MySQL tests of `awe-tests/awe-boot` (and their Flyway variants) start their database in a
+The PostgreSQL, MySQL, SQL Server and Oracle tests of `awe-tests/awe-boot` (and their Flyway variants) start their database in a
 [Testcontainers](https://testcontainers.com) container, so all you need is a running Docker; no database server to install.
 Install the modules once, then run a profile of the database you changed:
 
 ```bash
 mvn install -DskipTests -Dskip.frontend=true -pl awe-tests/awe-boot -am
-mvn -pl awe-tests/awe-boot -Ppostgresql test -Dskip.frontend=true   # postgresql-flyway, mysql, mysql-flyway
+mvn -pl awe-tests/awe-boot -Ppostgresql test -Dskip.frontend=true   # postgresql-flyway, mysql, mysql-flyway, oracle, oracle-flyway
 ```
 
-The pipeline runs the same profiles in the `MySQL Tests` and `PostgreSQL Tests` jobs, with Docker-in-Docker. H2 and HSQLDB run
-embedded; SQL Server and Oracle still run against CI services. The
+SQL Server (`-Psqlserver`, `-Psqlserver-flyway`) needs you to accept the Microsoft SQL Server licence explicitly:
+`AWE_TESTING_SQLSERVER_ACCEPT_EULA=true mvn -pl awe-tests/awe-boot -Psqlserver test -Dskip.frontend=true`. The image is amd64-only,
+so on Apple Silicon it runs under Docker Desktop's x86 emulation (it worked on Docker Desktop 27, a bit slower); the Oracle image
+is large (about 6 GB), so the first run spends most of its time pulling it.
+
+The pipeline runs the same profiles in the `MySQL Tests`, `PostgreSQL Tests`, `SQL Server Tests` and `Oracle Tests` jobs, with
+Docker-in-Docker. H2 and HSQLDB run embedded. The
 [`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, external mode, CI setup).
 
 ## Definition of done
