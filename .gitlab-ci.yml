@@ -632,26 +632,70 @@ Embedded DB Tests:
     matrix:
       - TEST_NAME: [ h2, h2-flyway, hsql-flyway ]
 
-MySQL Tests:
-  extends: .unit-testing
+# The databases of these jobs run in Testcontainers (awe-testing, #764): the test JVM starts the container of its database in the
+# Docker daemon of a docker-in-docker service and connects to it through the service host. Nothing else is needed per database:
+# the image (pinned by digest) is read from awe-testing-images.properties. Ryuk (the container reaper) is off: the daemon dies
+# with the job, so it would only pull one more image from Docker Hub. The dind service is defined once here (anchor) and
+# "Build package" reuses it.
+# Docker Hub images (the databases) are pulled through the group dependency proxy when its variables exist, so a Docker Hub
+# rate limit or outage does not stop the pipeline once an image is cached; set DEPENDENCY_PROXY_DISABLED=true to pull from Docker
+# Hub directly. The credentials go to ~/.docker/config.json, where Testcontainers reads them, and are never printed.
+# The CI_DEPENDENCY_PROXY_* variables exist even when the proxy cannot serve, so a proxy failure shows as a failed image pull of
+# the job, and its log names the registry in use on a line starting with DATABASE IMAGES REGISTRY:.
+# A job that extends this must not define its own before_script (it would replace the one below); if it needs one, include this
+# with "!reference [.database-containers, before_script]".
+.database-containers:
+  services:
+    - &dind-service { name: "docker:28.5.2-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac", alias: docker }
   variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""   # plain TCP on 2375: the daemon is only reachable from this job
+    TESTCONTAINERS_RYUK_DISABLED: "true"
+  before_script:
+    - |
+      if [ "$DEPENDENCY_PROXY_DISABLED" != "true" ] && [ -n "$CI_DEPENDENCY_PROXY_PASSWORD" ] && [ -n "$CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX" ]; then
+        mkdir -p "$HOME/.docker"
+        auth=$(printf '%s:%s' "$CI_DEPENDENCY_PROXY_USER" "$CI_DEPENDENCY_PROXY_PASSWORD" | base64 | tr -d '\n')
+        printf '{"auths":{"%s":{"auth":"%s"}}}' "$CI_DEPENDENCY_PROXY_SERVER" "$auth" > "$HOME/.docker/config.json"
+        export TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX="$CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX/"
+        echo "DATABASE IMAGES REGISTRY: GitLab dependency proxy ($CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX); set DEPENDENCY_PROXY_DISABLED=true to use Docker Hub"
+      else
+        echo "DATABASE IMAGES REGISTRY: Docker Hub (dependency proxy off or its variables are missing)"
+      fi
+
+# Transition switch: to run one of these jobs against a database service again (without containers), replace
+# ".database-containers" by the matching template below in its "extends". DB_EXTERNAL=true makes the tests read the connection
+# of the test properties files (the service hostnames) instead of starting a container.
+.mysql-external:
+  variables:
+    DB_EXTERNAL: "true"
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
   services:
     - mysql:8.4.11@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
-  parallel:
-    matrix:
-      - TEST_NAME: [ mysql, mysql-flyway ]
 
-PostgreSQL Tests:
-  extends: .unit-testing
+.postgresql-external:
   variables:
+    DB_EXTERNAL: "true"
     POSTGRES_DB: "awetestdb"
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
   services:
     - name: postgres:17.11@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
       alias: postgres
+
+MySQL Tests:
+  extends:
+    - .unit-testing
+    - .database-containers
+  parallel:
+    matrix:
+      - TEST_NAME: [ mysql, mysql-flyway ]
+
+PostgreSQL Tests:
+  extends:
+    - .unit-testing
+    - .database-containers
   parallel:
     matrix:
       - TEST_NAME: [ postgresql, postgresql-flyway ]
@@ -1246,7 +1290,7 @@ Build package:
     - job: Build React package
       artifacts: true
   services:
-    - docker:28.5.2-dind@sha256:2a232a42256f70d78e3cc5d2b5d6b3276710a0de0596c145f627ecfae90282ac
+    - *dind-service   # defined in .database-containers
   before_script:
     - apk add --no-cache cosign
   script:

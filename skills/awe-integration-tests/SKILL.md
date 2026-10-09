@@ -47,8 +47,20 @@ mvn -pl awe-tests/awe-boot -am test -Dtest=MenuServiceTest -Dsurefire.failIfNoSp
 ```
 Selenium is skipped by default (`-Dskip.selenium=true`); these run only the JUnit tests.
 
-### Databases in containers (slice 1 of #764: available, not yet used by the suites)
-`awe-testing` ships a Testcontainers utility (`com.almis.awe.testing.database`). The existing suites still use the `-P<db>` profiles and the CI service hostnames; nothing below is wired into them yet.
+### Databases in containers (#764)
+`awe-testing` ships a Testcontainers utility (`com.almis.awe.testing.database`). **PostgreSQL and MySQL already use it**: their `-Ppostgresql`, `-Ppostgresql-flyway`, `-Pmysql` and `-Pmysql-flyway` runs start the database in a container, locally and in CI, with no external server. SQL Server and Oracle still use their CI services and connection properties until their slice lands; H2 and HSQLDB are embedded.
+
+```bash
+# Docker running (Docker Desktop, Colima...); the first run pulls the pinned image. Run Maven on JDK 17 or 21 (Lombok does not
+# work on JDK 25). -Dskip.frontend=true saves the Node build.
+mvn install -DskipTests -Dskip.frontend=true -pl awe-tests/awe-boot -am     # once, so awe-boot sees your modules
+mvn -pl awe-tests/awe-boot -Ppostgresql test -Dskip.frontend=true          # or postgresql-flyway, mysql, mysql-flyway
+```
+- Check the result is meaningful, not just green: `Tests run:` is non-zero and has no skips you cannot explain. Compare the counts with the latest develop pipeline (the `All UT` and the database jobs of the same profile). The skips of `QueryTest` are the same on every engine, so a profile with more skips than the last develop run is suspect. Allow a minute or so per profile once the image is local.
+- **A run that finds no test fails** (`failIfNoTests` in awe-boot). Do not trust a green build with `Tests run: 0`.
+- The Flyway classes compare the versioned scripts shipped for the dialect with the successful rows of each `flyway_schema_<module>` table and query a migrated table; a database that was not migrated fails them.
+- In CI these jobs (`MySQL Tests`, `PostgreSQL Tests`) extend `.database-containers` in `.gitlab-ci.yml`: the `docker:dind` service (one definition, anchor `&dind-service`, shared with `Build package`; the digest pin lives only there), `DOCKER_HOST`, `DOCKER_TLS_CERTDIR=""` and `TESTCONTAINERS_RYUK_DISABLED=true`. Docker Hub images are pulled through the GitLab group dependency proxy when `CI_DEPENDENCY_PROXY_*` exist; `DEPENDENCY_PROXY_DISABLED=true` pulls from Docker Hub. The job log says which registry is used on a line (`DATABASE IMAGES REGISTRY: ...`); a proxy failure shows as a failed image pull. A job that extends `.database-containers` must not define its own `before_script` (it would replace the proxy setup); include it with `!reference [.database-containers, before_script]` instead. To run one of them against a service database again, extend `.mysql-external` / `.postgresql-external` instead of `.database-containers` (they set `DB_EXTERNAL=true`).
+- To rehearse the CI topology on a laptop: run the dind image pinned in `.gitlab-ci.yml` (`--privileged`, `-e DOCKER_TLS_CERTDIR=`) with the name `docker` on a user network, and the CI Maven image on the same network with `-e DOCKER_HOST=tcp://docker:2375 -e TESTCONTAINERS_RYUK_DISABLED=true`.
 
 A Spring test class opts in with one annotation; the module needs the JDBC driver of that database:
 ```java
@@ -58,10 +70,10 @@ class MyQueryIT { }
 @AweDatabaseTest(value = TestDatabase.MYSQL, flyway = true) // Flyway instead of schema/data scripts
 ```
 - It writes `spring.datasource.*`, `spring.sql.init.*` (or `spring.flyway.*` + `awe.database.migration-modules`) with precedence over `@TestPropertySource`. A `@DynamicPropertySource` method can call `AweDatabaseProperties.register(registry, db, flyway)` instead.
-- Script convention: `classpath:sql/schema-<db>.sql` and `classpath:sql/testdata-<db>.sql` (as in `awe-boot`).
+- Script convention: `classpath:sql/schema-<db>.sql` and `classpath:sql/testdata-<db>.sql` (as in `awe-boot`). In `awe-boot` the classes keep `@TestPropertySource("classpath:<db>.properties")` next to the annotation; it supplies the pool settings and, in external mode only, the connection. With a container the annotation overrides url, user, password and scripts.
 - Each container starts once per JVM and is shared by every test class. Local reuse across runs: `testcontainers.reuse.enable=true` in `~/.testcontainers.properties` (never in CI).
-- Docker must be running. Without it the container tests are skipped (`@Testcontainers(disabledWithoutDocker = true)`) or fail with Testcontainers' own message.
-- **External mode** (transition, CI services): `-Ddb.external=true` (or env `DB_EXTERNAL=true`) starts no container; url/user/password come from the environment, driver and scripts still come from the annotation.
+- Docker must be running. Without it the tests that use `@AweDatabaseTest` fail with Testcontainers' own message (the Postgres/MySQL profiles of `awe-boot` included): they are not skipped.
+- **External mode** (transition, CI services): `-Ddb.external=true` (or env `DB_EXTERNAL=true`) starts no container and the annotation writes no url, user or password. The connection then has one source: the regular Spring properties of the test. In `awe-boot` that is the `<db>.properties` file named by `@TestPropertySource` (it holds the CI service hostnames); the driver and the scripts still come from the annotation.
 - **SQL Server EULA**: the container runs only after you accept the Microsoft EULA explicitly: `-Dawe.testing.sqlserver.accept-eula=true` (or env `AWE_TESTING_SQLSERVER_ACCEPT_EULA=true`). Without it the test fails with a message saying so.
 - Images are pinned `name:tag@sha256:digest` in `awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`; Renovate updates that file. Oracle uses `gvenzl/oracle-free` 23 (first start is slow); the container user is `awe`, not `system`.
 

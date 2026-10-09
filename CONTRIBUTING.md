@@ -122,6 +122,21 @@ mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop) 
 Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is not part of the normal build. The
 `.editorconfig` at the root sets the same basics (2 spaces, LF, final newline) for editors.
 
+## Database integration tests
+
+The PostgreSQL and MySQL tests of `awe-tests/awe-boot` (and their Flyway variants) start their database in a
+[Testcontainers](https://testcontainers.com) container, so all you need is a running Docker; no database server to install.
+Install the modules once, then run a profile of the database you changed:
+
+```bash
+mvn install -DskipTests -Dskip.frontend=true -pl awe-tests/awe-boot -am
+mvn -pl awe-tests/awe-boot -Ppostgresql test -Dskip.frontend=true   # postgresql-flyway, mysql, mysql-flyway
+```
+
+The pipeline runs the same profiles in the `MySQL Tests` and `PostgreSQL Tests` jobs, with Docker-in-Docker. H2 and HSQLDB run
+embedded; SQL Server and Oracle still run against CI services. The
+[`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, external mode, CI setup).
+
 ## Contributing guideline
 - Please follow the repository's for all code and documentation.
 - Create an issue and a merge request over the issue. Please fill the `features` or `bug` templates as best as possible.
