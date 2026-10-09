@@ -12,6 +12,8 @@ files: [
   # JSON translation files
   {
     source: '/i18n/en/**/*',
+    # The generated, English-only reference (website/reference) is not translated
+    ignore: ['/i18n/en/docusaurus-plugin-content-docs-reference/**/*'],
     translation: '/i18n/%two_letters_code%/**/%original_file_name%',
   },
   # Docs (Current) Markdown files

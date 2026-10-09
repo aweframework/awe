@@ -6,6 +6,10 @@ sidebar_label: Query definition
 
 The AWE query engine is used for querying data on external systems. It works as an interface.
 
+:::tip
+Every element and attribute of queries is listed in the generated [XSD reference](/reference/query).
+:::
+
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/Data_engine.png')}/>
 
 :::info

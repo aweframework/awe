@@ -6,6 +6,10 @@ sidebar_label: Enumerate definition
 
 Enumerated components are structures to define `label` - `value` lists. They are useful i.e. for translations.
 
+:::tip
+Every element and attribute of enumerated lists is listed in the generated [XSD reference](/reference/enumerated).
+:::
+
 :::info
 **Note:** All enumerateds are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
 :::

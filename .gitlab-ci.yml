@@ -461,6 +461,8 @@ Build website:
   extends: .build-website
   script:
     - npm --prefix website ci
+    # Unit tests of the generator of the XSD reference (see website/scripts/xsd-reference)
+    - npm --prefix website run test:reference
     # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot
     # before building, so the MR pipeline validates the same injection used in production.
     - chmod +x ./bin/website-maintenance-docs.sh

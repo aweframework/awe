@@ -6,6 +6,10 @@ sidebar_label: Email definition
 
 The email engine is the tool AWE provides to define email structures with the application parameters and variables.
 
+:::tip
+Every element and attribute of emails is listed in the generated [XSD reference](/reference/email).
+:::
+
 Emails are sent using the `send-email` operation inside a `target` from [maintains](maintain-definition.md#email-maintain).
 
 :::info

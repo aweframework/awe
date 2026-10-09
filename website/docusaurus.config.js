@@ -1,4 +1,9 @@
 const versions = require('./versions.json');
+const {ensureGenerated} = require('./scripts/xsd-reference/generate');
+
+// The "reference" docs instance below needs its folder for ANY docusaurus command (build, deploy, swizzle,
+// docs:version...), not only the npm scripts that regenerate it first (see the "pre" scripts in package.json).
+ensureGenerated();
 
 // "current" (develop, 5.0) is always present. A maintenance-line entry (e.g. "4.x") is
 // only present in versions.json inside a CI checkout, after bin/website-maintenance-docs.sh
@@ -31,6 +36,20 @@ module.exports = {
 		mermaid: true,
 	},
 	themes: ['@docusaurus/theme-mermaid'],
+	plugins: [
+		// Reference generated from the sources at build time (see scripts/xsd-reference). It is a docs
+		// instance of its own so that it is English only and never reaches Crowdin (which uploads
+		// docs/** and versioned_docs/**) nor the "docs:version" snapshots of the default instance.
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'reference',
+				path: 'reference',
+				routeBasePath: 'reference',
+				sidebarPath: require.resolve('./reference-sidebars.js'),
+			},
+		],
+	],
 	themeConfig: {
 		docs: {
 			sidebar: {
@@ -58,6 +77,13 @@ module.exports = {
 				{
 					type: 'localeDropdown',
 					position: 'right',
+				},
+				{
+					type: 'docSidebar',
+					docsPluginId: 'reference',
+					sidebarId: 'reference',
+					position: 'left',
+					label: 'XSD reference',
 				},
 				{
 					type: 'doc',

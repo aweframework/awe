@@ -6,6 +6,10 @@ sidebar_label: Maintain definition
 
 The maintain engine is used to do operations that don't return data. These operations are valid for updating data in the server. They **only return** the result of proccess, if operation has been **ok** or if there has been a **problem** while doing the operation.
 
+:::tip
+Every element and attribute of maintain targets is listed in the generated [XSD reference](/reference/maintain).
+:::
+
 There are several types of maintain operations: insert, update, delete and multiple operations. Also a maintain operation can call a service to do the job (send email, print a report, ...).
 
 You can put as many operations as you want inside a target. I.e. an insert operation followed by two update operations.
