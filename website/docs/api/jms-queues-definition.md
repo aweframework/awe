@@ -85,6 +85,27 @@ The `request-message` element has the following attributes:
 | destination | **Required** | String | Physical name of queue in JMS Server | **Note:**  Must be exist one record in **AweQue** table with this name|
 | type | **Required** | String | Message type to send/receive | `MAP` (send a set of name-value pairs) or `TEXT` (sent a text info)    |
 | selector | Optional | String | Set a a selector to filter the message consumption | **Ex.:** `selector="EUR"` It will consume only messages whose header `"JMSType=EUR"`    |
+| separator | Optional | String | Separator character of the message fields | |
+| timeout | Optional | Long | Time to wait for the message | |
+
+### response-message element
+
+The `response-message` element defines the message that is received as the answer of the queue. It has the same
+attributes as the [request-message element](#request-message-element) (`destination`, `type`, `selector`,
+`separator` and `timeout`) and contains [message-parameter](#message-parameter-element) elements, or a
+`message-wrapper` or `message-status` element.
+
+### message-parameter element
+
+The `message-parameter` element, inside a `request-message` or a `response-message`, has the following attributes:
+
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| id | **Required** | String | Identifier of the parameter | |
+| type | **Required** | String | Data type of the parameter | `STRING`, `INTEGER`, `LONG`, `FLOAT`, `DOUBLE`, `BOOLEAN`, `DATE`, `TIME`, `TIMESTAMP`, `OBJECT`... (the same types as the other definition files) |
+| name | Optional | String | Name of the parameter in the message | |
+| value | Optional | String | Static value of the parameter | |
+| list | Optional | Boolean | Whether the parameter is a list of values | `true` or `false` |
 
 ## **Synchronous messages**
 

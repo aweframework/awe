@@ -27,4 +27,4 @@ to your `pom.xml` file:
 </dependency>
 ```
 
-The configuration of spring session is defined on `session.properties`. These properties are defined on [properties configuration page](properties#session-properties).
+The configuration of spring session is defined on `session.properties`. These properties are defined on [properties configuration page](properties#awe-session-properties).

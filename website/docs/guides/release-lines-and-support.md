@@ -110,8 +110,8 @@ empty Docker login and a `401 Unauthorized` from the Maven repository.
 
 ## Merge request title and size
 
-Two fast jobs of the `build` stage check every merge request pipeline, before anything is built.
-A third one, [`Lint frontend`](#frontend-lint-blocking), checks the front-end code of the merge requests that change it.
+Three fast jobs of the `build` stage check every merge request pipeline, before anything is built.
+A fourth one, [`Lint frontend`](#frontend-lint-blocking), checks the front-end code of the merge requests that change it.
 
 ### Title format (blocking)
 
@@ -165,8 +165,31 @@ and `target/` folders), `CHANGELOG.md`, the website documentation (`website/docs
 bin/mr-size.sh origin/develop   # base to compare with; head is HEAD
 ```
 
-`bin/test-mr-checks.sh` tests both scripts; the job `MR checks tests` runs it in merge requests
-that change them.
+### Docs warning (not blocking)
+
+The job `MR docs warning` is part of the definition of done: documentation changes with the code.
+It warns when a merge request changes code (`awe-framework/`, `awe-samples/`, `bin/` or `pom.xml`,
+without test sources, lockfiles or markdown) but changes no documentation (`website/`,
+`CONTRIBUTING.md`, `README.md` or `AGENTS.md`) and does not say why none is needed. Like the size
+warning, it ends with exit code 64, which is allowed to fail, so the pipeline shows a warning and
+never blocks the merge.
+
+To clear it, update the docs in the merge request, or tick one of the two items of the merge
+request template: **Docs updated**, or **No docs needed because:** with the reason written after
+it (the `…` of the template is not a reason). A merge request whose title is a dependency update
+(`chore(deps)` or `build(deps)`) is not checked. The job reads the description through the CI
+variable `CI_MERGE_REQUEST_DESCRIPTION`; when GitLab truncates a long description (it keeps 2700
+characters) the items cannot be read and the job does not warn. The check is advisory: when it
+cannot do its work (no base to compare with, a base commit missing from a shallow clone) it prints a
+notice and ends with 0. Run it locally against the target branch (it compares with the merge base,
+as a merge request does):
+
+```bash
+CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop
+```
+
+`bin/test-mr-checks.sh` tests the three scripts; the job `MR checks tests` runs it in merge
+requests that change them.
 
 ## Frontend lint (blocking)
 

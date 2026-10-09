@@ -348,7 +348,16 @@ MR size warning:
   allow_failure:
     exit_codes: 64
 
-# Tests of the two checks above; only when something they use changes.
+# Non-blocking (#784). Warns when a merge request changes code but no documentation and its description does not tick the
+# "Docs updated" or "No docs needed because: <reason>" item of the merge request template. Same exit code 64 as the size warning.
+MR docs warning:
+  extends: .mr-checks
+  script:
+    - bin/mr-docs.sh
+  allow_failure:
+    exit_codes: 64
+
+# Tests of the checks above and of the broken anchors check of the website build; only when something they use changes.
 MR checks tests:
   extends: .mr-checks
   script:
@@ -359,6 +368,8 @@ MR checks tests:
         - .gitlab-ci.yml
         - bin/lint-mr-title.sh
         - bin/mr-size.sh
+        - bin/mr-docs.sh
+        - bin/check-website-anchors.sh
         - bin/test-mr-checks.sh
         - bin/test-fixtures/**/*
         - .gitlab/commitlint/**/*
@@ -467,7 +478,15 @@ Build website:
     # before building, so the MR pipeline validates the same injection used in production.
     - chmod +x ./bin/website-maintenance-docs.sh
     - ./bin/website-maintenance-docs.sh
-    - npm --prefix website run build
+    # The build output streams to the job log as it happens and is also kept in a file for the check below, so a timeout or a
+    # kill still leaves the log. The exit code of the build is saved aside: in a pipe, the code of "tee" would hide it, and
+    # "set -o pipefail" does not exist in every sh. Broken anchors (#784) fail the job only in the current docs, never in the
+    # frozen versions: Docusaurus has a single onBrokenAnchors setting for the whole site, which stays at "warn".
+    - |
+      { npm --prefix website run build 2>&1; echo $? > "$CI_PROJECT_DIR/website-build.status"; } | tee "$CI_PROJECT_DIR/website-build.log"
+      build_status=$(cat "$CI_PROJECT_DIR/website-build.status")
+      [ "$build_status" -eq 0 ] || exit "$build_status"
+    - bin/check-website-anchors.sh "$CI_PROJECT_DIR/website-build.log"
   rules:
     - <<: *if-mr-website
 
