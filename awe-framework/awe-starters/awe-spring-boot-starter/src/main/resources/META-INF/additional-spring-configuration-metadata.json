@@ -1,0 +1,40 @@
+{
+  "properties": [
+    {
+      "name": "awe.websocket.stomp.destination-prefixes",
+      "description": "Destination prefixes for message broker.",
+      "defaultValue": ["/topic", "/queue"]
+    },
+    {
+      "name": "spring.datasource.hikari.minimum-idle",
+      "description": "Minimum number of idle connections kept in the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 10
+    },
+    {
+      "name": "spring.datasource.hikari.maximum-pool-size",
+      "description": "Maximum number of connections in the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 10
+    },
+    {
+      "name": "spring.datasource.hikari.connection-time-out",
+      "description": "Maximum time, in milliseconds, to wait for a connection from the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 30000
+    },
+    {
+      "name": "spring.datasource.hikari.connection-test-query",
+      "description": "Query used to check that a connection is alive before it is handed out, for every datasource AWE creates from its database connections (multidatabase). When it is not set, the JDBC driver validation is used. It does not apply to JNDI datasources."
+    },
+    {
+      "name": "spring.datasource.hikari.data-source-map",
+      "description": "Internal runtime state: datasources created from the AWE database connections, indexed by alias. It is exposed by the binder but is not a setting; do not configure it."
+    },
+    {
+      "name": "spring.datasource.hikari.data-sources",
+      "description": "Internal runtime state: datasources built from the AWE database connections each time they are loaded. It is exposed by the binder but is not a setting; do not configure it."
+    },
+    {
+      "name": "spring.datasource.hikari.properties",
+      "description": "Internal runtime state: datasource properties of the connection being built. It is exposed by the binder but is not a setting; configure spring.datasource.* instead."
+    }
+  ]
+}

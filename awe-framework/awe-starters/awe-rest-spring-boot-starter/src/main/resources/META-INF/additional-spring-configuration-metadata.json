@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "awe.rest.api.jwt.secret",
+      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master.key).",
+      "defaultValue": "${awe.security.master.key}"
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-username-claims",
+      "defaultValue": ["preferred_username", "upn", "email", "oid"]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-display-name-claims",
+      "defaultValue": ["name", "preferred_username", "email"]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-email-claims",
+      "defaultValue": ["email", "upn", "preferred_username"]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.client-id-claims",
+      "defaultValue": ["azp", "appid", "client_id", "clientId", "sub"]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.client-display-name-claims",
+      "defaultValue": ["app_displayname", "azp", "appid", "client_id", "clientId"]
+    }
+  ]
+}

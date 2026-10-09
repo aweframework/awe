@@ -1,0 +1,52 @@
+{
+  "properties": [
+    {
+      "name": "awe.application.language-list",
+      "defaultValue": ["en-GB", "es-ES", "fr-FR"]
+    },
+    {
+      "name": "awe.application.paths.tag-angular",
+      "defaultValue": "tags/angular/"
+    },
+    {
+      "name": "awe.application.paths.icon-favicon",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.icon-phone",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.icon-tablet",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.image-startup-logo",
+      "defaultValue": "../images/logo/logo-awe-nuevo.svg"
+    },
+    {
+      "name": "awe.application.paths.image-navbar-logo",
+      "defaultValue": "../images/logo/logo-awe-nuevo2.svg"
+    },
+    {
+      "name": "awe.application.paths.image-startup-background",
+      "defaultValue": "../images/background/signin-bg-1.jpg"
+    },
+    {
+      "name": "awe.numeric.min-value",
+      "defaultValue": -9999999999.99
+    },
+    {
+      "name": "awe.numeric.separator-thousand",
+      "defaultValue": "."
+    },
+    {
+      "name": "awe.numeric.separator-decimal",
+      "defaultValue": ","
+    },
+    {
+      "name": "awe.numeric.currency-sign",
+      "defaultValue": ""
+    }
+  ]
+}
