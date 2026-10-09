@@ -229,7 +229,7 @@
         "/^awe-framework/awe-dependencies/pom\\.xml$/"
       ],
       "matchStrings": [
-        "<node\\.version>(?<currentValue>v?\\d+\\.\\d+\\.\\d+)</node\\.version>"
+        "<node\\.version>v(?<currentValue>\\d+\\.\\d+\\.\\d+)</node\\.version>"
       ],
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version",
