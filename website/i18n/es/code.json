@@ -1,0 +1,732 @@
+{
+  "homepage.meta.title": {
+    "message": "Aplicaciones web completas y funcionales con low code",
+    "description": "Browser tab and search result title for the home page"
+  },
+  "homepage.meta.description": {
+    "message": "AWE convierte XML declarativo en aplicaciones web completas: pantallas, menús, navegación y vinculación de datos, renderizadas con React sobre Spring Boot.",
+    "description": "Meta and social preview description for the home page"
+  },
+  "homepage.bento.title": {
+    "message": "Diseñado para aplicaciones empresariales",
+    "description": "Title of the homepage feature grid"
+  },
+  "homepage.bento.description": {
+    "message": "Todo lo que necesita una plataforma interna con gran volumen de datos, desde el primer momento.",
+    "description": "Description of the homepage feature grid"
+  },
+  "homepage.bento.frontends.title": {
+    "message": "Un XML, dos frontends",
+    "description": "Bento cell: one XML two frontends, title"
+  },
+  "homepage.bento.frontends.body": {
+    "message": "La misma definición de pantalla se renderiza con el cliente moderno de React o con el cliente estable de AngularJS. Migra motor a motor: tu XML no cambia.",
+    "description": "Bento cell: one XML two frontends, body"
+  },
+  "homepage.bento.engine.title": {
+    "message": "Motor de queries y maintains",
+    "description": "Bento cell: query and maintain engine, title"
+  },
+  "homepage.bento.engine.body": {
+    "message": "Lecturas declarativas y escrituras transaccionales con auditoría, bloqueo y paginación, sobre SQL, NoSQL, REST y JavaBeans.",
+    "description": "Bento cell: query and maintain engine, body"
+  },
+  "homepage.bento.starters.title": {
+    "message": "Starters modulares",
+    "description": "Bento cell: pluggable starters, title"
+  },
+  "homepage.bento.starters.body": {
+    "message": "Los starters de Spring Boot activan exactamente los módulos que necesitas: planificador, notificaciones, impresión, REST.",
+    "description": "Bento cell: pluggable starters, body"
+  },
+  "homepage.bento.theming.title": {
+    "message": "i18n y temas",
+    "description": "Bento cell: i18n and themes, title"
+  },
+  "homepage.bento.theming.body": {
+    "message": "Inglés, español y francés desde el inicio, y puedes añadir el idioma que necesites. Temas preconfigurados y personalizables con CSS.",
+    "description": "Bento cell: i18n and themes, body"
+  },
+  "homepage.bento.components.title": {
+    "message": "Componentes avanzados",
+    "description": "Bento cell: rich components, title"
+  },
+  "homepage.bento.components.body": {
+    "message": "Sobre PrimeReact: grids editables, matrices dinámicas, gráficos, calendarios y asistentes, o añade tus propios componentes.",
+    "description": "Bento cell: rich components, body"
+  },
+  "homepage.bento.security.title": {
+    "message": "Seguridad integrada",
+    "description": "Bento cell: security, title"
+  },
+  "homepage.bento.security.body": {
+    "message": "Autenticación, perfiles y permisos por pantalla gestionados con Spring Security.",
+    "description": "Bento cell: security, body"
+  },
+  "homepage.hub.start.title": {
+    "message": "Primeros pasos",
+    "description": "Docs hub card: getting started, title"
+  },
+  "homepage.hub.start.body": {
+    "message": "Instala, genera un proyecto y ejecuta tu primera pantalla.",
+    "description": "Docs hub card: getting started, body"
+  },
+  "homepage.hub.screens.title": {
+    "message": "Desarrollo de pantallas",
+    "description": "Docs hub card: screen development, title"
+  },
+  "homepage.hub.screens.body": {
+    "message": "Todo el vocabulario XML: ventanas, criterios, grids y gráficos.",
+    "description": "Docs hub card: screen development, body"
+  },
+  "homepage.hub.data.title": {
+    "message": "Motor de datos",
+    "description": "Docs hub card: data engine, title"
+  },
+  "homepage.hub.data.body": {
+    "message": "Queries, maintains, listas enumeradas y llamadas a servicios.",
+    "description": "Docs hub card: data engine, body"
+  },
+  "homepage.hub.theming.title": {
+    "message": "Temas e i18n",
+    "description": "Docs hub card: theming and i18n, title"
+  },
+  "homepage.hub.theming.body": {
+    "message": "Idiomas, temas y personalización con CSS para tu marca.",
+    "description": "Docs hub card: theming and i18n, body"
+  },
+  "homepage.hub.title": {
+    "message": "Encuentra tu camino en la documentación",
+    "description": "Title of the docs hub section"
+  },
+  "homepage.hub.description": {
+    "message": "Cuatro puntos de entrada cubren la mayoría de recorridos, desde la instalación hasta la vinculación avanzada de datos.",
+    "description": "Description of the docs hub section"
+  },
+  "homepage.hero.eyebrow": {
+    "message": "// Low-code · Spring Boot · React",
+    "description": "Small monospace kicker above the homepage headline"
+  },
+  "homepage.hero.title": {
+    "message": "Low code para{lineBreak}{gradient}.",
+    "description": "Homepage hero headline. {gradient} is the brand-gradient part of the sentence."
+  },
+  "homepage.hero.title.highlight": {
+    "message": "aplicaciones web completas y funcionales",
+    "description": "Gradient-highlighted part of the homepage headline"
+  },
+  "homepage.hero.subtitle": {
+    "message": "AWE convierte XML declarativo en aplicaciones web completas —pantallas, menús, navegación y vinculación de datos— renderizadas con React, sobre Spring Boot y el motor de queries y maintains.",
+    "description": "Paragraph below the homepage headline"
+  },
+  "homepage.hero.cta.start": {
+    "message": "Empezar con AWE",
+    "description": "Primary call to action of the homepage hero"
+  },
+  "homepage.hero.cta.demo": {
+    "message": "Probar la demo",
+    "description": "Secondary call to action of the homepage hero"
+  },
+  "homepage.steps.screen.title": {
+    "message": "Define la pantalla",
+    "description": "How it works, step 1 title"
+  },
+  "homepage.steps.screen.body": {
+    "message": "Ventanas, criterios, grids, gráficos y pestañas, declarados en un esquema XML validado.",
+    "description": "How it works, step 1 body"
+  },
+  "homepage.steps.data.title": {
+    "message": "Vincula los datos",
+    "description": "How it works, step 2 title"
+  },
+  "homepage.steps.data.body": {
+    "message": "Las queries leen y los maintains escriben. Apúntalos a SQL, NoSQL, servicios REST o beans de Java.",
+    "description": "How it works, step 2 body"
+  },
+  "homepage.steps.dynamic.title": {
+    "message": "Hazlo dinámico",
+    "description": "How it works, step 3 title"
+  },
+  "homepage.steps.dynamic.body": {
+    "message": "Las dependencias reaccionan a lo que introduce el usuario: validaciones, valores calculados, reglas de visibilidad y acciones encadenadas, todo en XML y sin una línea de JavaScript.",
+    "description": "How it works, step 3 body"
+  },
+  "homepage.steps.run.title": {
+    "message": "Ejecuta y renderiza",
+    "description": "How it works, step 4 title"
+  },
+  "homepage.steps.run.body": {
+    "message": "Los starters de Spring Boot sirven la aplicación y el cliente React la renderiza en vivo. AngularJS mantiene en marcha las aplicaciones existentes.",
+    "description": "How it works, step 4 body"
+  },
+  "homepage.steps.title": {
+    "message": "De XML a aplicación en cuatro pasos",
+    "description": "Title of the how-it-works section"
+  },
+  "homepage.steps.description": {
+    "message": "Todas las aplicaciones AWE siguen el mismo ciclo declarativo: sin controladores que conectar y sin JavaScript que escribir para el comportamiento dinámico.",
+    "description": "Description of the how-it-works section"
+  },
+  "homepage.quickstart.title": {
+    "message": "En marcha con un solo comando",
+    "description": "Title of the homepage quick start section"
+  },
+  "homepage.quickstart.description": {
+    "message": "Genera un proyecto AWE a partir del arquetipo de Maven, en React o AngularJS, y empieza a construir pantallas de inmediato. Incluye recarga en caliente.",
+    "description": "Description of the homepage quick start section"
+  },
+  "homepage.quickstart.cta": {
+    "message": "Leer la guía de inicio",
+    "description": "Call to action of the homepage quick start section"
+  },
+  "homepage.quickstart.copied": {
+    "message": "Copiado ✓",
+    "description": "Copy button label right after the command was copied"
+  },
+  "homepage.quickstart.copy": {
+    "message": "Copiar",
+    "description": "Copy button label of the homepage terminal"
+  },
+  "homepage.stats.components.label": {
+    "message": "Componentes avanzados",
+    "description": "Stats strip: rich components label"
+  },
+  "homepage.stats.components.caption": {
+    "message": "Basados en PrimeReact",
+    "description": "Stats strip: rich components caption"
+  },
+  "homepage.stats.databases.label": {
+    "message": "Cualquier base de datos SQL",
+    "description": "Stats strip: databases label"
+  },
+  "homepage.stats.databases.caption": {
+    "message": "6 motores compatibles",
+    "description": "Stats strip: databases caption"
+  },
+  "homepage.stats.frontends.label": {
+    "message": "Dos frontends",
+    "description": "Stats strip: frontends label"
+  },
+  "homepage.stats.frontends.caption": {
+    "message": "React · AngularJS",
+    "description": "Stats strip: frontends caption"
+  },
+  "homepage.stats.i18n.label": {
+    "message": "Multiidioma",
+    "description": "Stats strip: multi-language label"
+  },
+  "homepage.stats.i18n.caption": {
+    "message": "idiomas ampliables",
+    "description": "Stats strip: multi-language caption"
+  },
+  "homepage.stats.backend.label": {
+    "message": "Spring Boot",
+    "description": "Stats strip: backend label"
+  },
+  "homepage.stats.backend.caption": {
+    "message": "Backend en Java",
+    "description": "Stats strip: backend caption"
+  },
+  "homepage.demo.status.active": {
+    "message": "Active",
+    "description": "Active status value in the mock AWE screen"
+  },
+  "homepage.demo.tablist.label": {
+    "message": "Ficheros de definición de AWE",
+    "description": "Accessible label of the AWE definition files tab list"
+  },
+  "homepage.demo.rendered.label": {
+    "message": "Resultado renderizado",
+    "description": "Label above the mock AWE screen in the homepage demo"
+  },
+  "homepage.demo.engine.label": {
+    "message": "Motor de renderizado",
+    "description": "Accessible label of the rendering engine toggle"
+  },
+  "homepage.demo.window.title": {
+    "message": "Usuarios",
+    "description": "Title of the mock AWE window in the homepage demo"
+  },
+  "homepage.demo.criteria.name": {
+    "message": "Name",
+    "description": "Name criterion label in the mock AWE screen"
+  },
+  "homepage.demo.criteria.status": {
+    "message": "Estado",
+    "description": "Status criterion label in the mock AWE screen"
+  },
+  "homepage.demo.status.inactive": {
+    "message": "Inactivo",
+    "description": "Inactive status value in the mock AWE screen"
+  },
+  "homepage.demo.button.search": {
+    "message": "Buscar",
+    "description": "Search button of the mock AWE screen"
+  },
+  "homepage.demo.button.new": {
+    "message": "Nuevo",
+    "description": "New button of the mock AWE screen"
+  },
+  "homepage.demo.footer.react": {
+    "message": "El mismo XML, renderizado con {client}",
+    "description": "Caption below the demo when the React engine is selected"
+  },
+  "homepage.demo.footer.angular": {
+    "message": "El mismo XML, renderizado con {client} (estable / heredado)",
+    "description": "Caption below the demo when the AngularJS engine is selected"
+  },
+  "theme.ErrorPageContent.title": {
+    "message": "Esta página ha fallado.",
+    "description": "The title of the fallback page when the page crashed"
+  },
+  "theme.BackToTopButton.buttonAriaLabel": {
+    "message": "Desplazarse hacia arriba",
+    "description": "The ARIA label for the back to top button"
+  },
+  "theme.blog.archive.title": {
+    "message": "Archivo",
+    "description": "The page & hero title of the blog archive page"
+  },
+  "theme.blog.archive.description": {
+    "message": "Archivo",
+    "description": "The page & hero description of the blog archive page"
+  },
+  "theme.blog.paginator.navAriaLabel": {
+    "message": "Navegación por la página de la lista de blogs ",
+    "description": "The ARIA label for the blog pagination"
+  },
+  "theme.blog.paginator.newerEntries": {
+    "message": "Newer entries",
+    "description": "The label used to navigate to the newer blog posts page (previous page)"
+  },
+  "theme.blog.paginator.olderEntries": {
+    "message": "Older entries",
+    "description": "The label used to navigate to the older blog posts page (next page)"
+  },
+  "theme.blog.post.paginator.navAriaLabel": {
+    "message": "Navegación de la página de publicaciones del blog ",
+    "description": "The ARIA label for the blog posts pagination"
+  },
+  "theme.blog.post.paginator.newerPost": {
+    "message": "Newer post",
+    "description": "The blog post button label to navigate to the newer/previous post"
+  },
+  "theme.blog.post.paginator.olderPost": {
+    "message": "Older post",
+    "description": "The blog post button label to navigate to the older/next post"
+  },
+  "theme.tags.tagsPageLink": {
+    "message": "View all tags",
+    "description": "The label of the link targeting the tag list page"
+  },
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "system mode",
+    "description": "The name for the system color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.light": {
+    "message": "light mode",
+    "description": "The name for the light color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "dark mode",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Switch between dark and light mode (currently {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Breadcrumbs",
+    "description": "The ARIA label for the breadcrumbs"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "1 item|{count} items",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
+  },
+  "theme.docs.paginator.navAriaLabel": {
+    "message": "Docs pages",
+    "description": "The ARIA label for the docs pagination"
+  },
+  "theme.docs.paginator.previous": {
+    "message": "Anterior",
+    "description": "The label used to navigate to the previous doc"
+  },
+  "theme.docs.paginator.next": {
+    "message": "Siguiente",
+    "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "Un documento etiquetado|{count} documentos etiquetados",
+    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} con \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Version: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "Esta es la versión {versionLabel} de la documentación no publicada de {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "Esta es la documentación para {siteTitle} {versionLabel}, que ya no está mantenida de forma activa.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "Para obtener la última documentación actualizada, consulte {latestVersionLink} ({versionLabel}).",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "última versión",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "Editar esta página",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Direct link to {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " en {date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " por {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "Última actualización {atDate} {byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Versiones",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "Página no encontrada",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "Etiquetas:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "caution",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "danger",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "info",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "note",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "tip",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "warning",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Cerrar",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Navegación de publicaciones recientes del blog",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Expand sidebar category '{label}'",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Collapse sidebar category '{label}'",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Main",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Languages",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "No podemos encontrar lo que estás buscando.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Por favor, contacte con el propietario del sitio al que está enlazada la URL original y hágale saber que el enlace está roto.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "En esta página",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Read more",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Read more about {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "Lectura de un minuto|{readingTime} min de lectura",
+    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Copiar",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Copiado",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Copiar en el portapapeles",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Toggle word wrap",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Home page",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "Ocultar barra lateral",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "Ocultar barra lateral",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Docs sidebar",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "Close navigation bar",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Volver al menú principal",
+    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "Toggle navigation bar",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Expand the dropdown",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Collapse the dropdown",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "Expandir barra lateral",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "Expandir barra lateral",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "See all {count} results"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "Un documento encontrado|{count} documentos encontrados",
+    "description": "Pluralized label for \"{count} documents found\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Resultados de búsqueda para \"{query}\"",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Buscar en la documentación",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.inputPlaceholder": {
+    "message": "Escribe tu búsqueda aquí",
+    "description": "The placeholder for search page input"
+  },
+  "theme.SearchPage.inputLabel": {
+    "message": "Buscar",
+    "description": "The ARIA label for search page input"
+  },
+  "theme.SearchPage.algoliaLabel": {
+    "message": "Búsqueda por Algolia",
+    "description": "The ARIA label for Algolia mention"
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "No se han encontrado resultados",
+    "description": "The paragraph for empty search result"
+  },
+  "theme.SearchPage.fetchingNewResults": {
+    "message": "Obteniendo nuevos resultados...",
+    "description": "The paragraph for fetching new search results"
+  },
+  "theme.SearchBar.label": {
+    "message": "Buscar",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchModal.searchBox.resetButtonTitle": {
+    "message": "Clear the query",
+    "description": "The label and ARIA label for search box reset button"
+  },
+  "theme.SearchModal.searchBox.cancelButtonText": {
+    "message": "Cancel",
+    "description": "The label and ARIA label for search box cancel button"
+  },
+  "theme.SearchModal.startScreen.recentSearchesTitle": {
+    "message": "Recent",
+    "description": "The title for recent searches"
+  },
+  "theme.SearchModal.startScreen.noRecentSearchesText": {
+    "message": "No recent searches",
+    "description": "The text when no recent searches"
+  },
+  "theme.SearchModal.startScreen.saveRecentSearchButtonTitle": {
+    "message": "Save this search",
+    "description": "The label for save recent search button"
+  },
+  "theme.SearchModal.startScreen.removeRecentSearchButtonTitle": {
+    "message": "Remove this search from history",
+    "description": "The label for remove recent search button"
+  },
+  "theme.SearchModal.startScreen.favoriteSearchesTitle": {
+    "message": "Favorite",
+    "description": "The title for favorite searches"
+  },
+  "theme.SearchModal.startScreen.removeFavoriteSearchButtonTitle": {
+    "message": "Remove this search from favorites",
+    "description": "The label for remove favorite search button"
+  },
+  "theme.SearchModal.errorScreen.titleText": {
+    "message": "Unable to fetch results",
+    "description": "The title for error screen of search modal"
+  },
+  "theme.SearchModal.errorScreen.helpText": {
+    "message": "You might want to check your network connection.",
+    "description": "The help text for error screen of search modal"
+  },
+  "theme.SearchModal.footer.selectText": {
+    "message": "to select",
+    "description": "The explanatory text of the action for the enter key"
+  },
+  "theme.SearchModal.footer.selectKeyAriaLabel": {
+    "message": "Enter key",
+    "description": "The ARIA label for the Enter key button that makes the selection"
+  },
+  "theme.SearchModal.footer.navigateText": {
+    "message": "to navigate",
+    "description": "The explanatory text of the action for the Arrow up and Arrow down key"
+  },
+  "theme.SearchModal.footer.navigateUpKeyAriaLabel": {
+    "message": "Arrow up",
+    "description": "The ARIA label for the Arrow up key button that makes the navigation"
+  },
+  "theme.SearchModal.footer.navigateDownKeyAriaLabel": {
+    "message": "Arrow down",
+    "description": "The ARIA label for the Arrow down key button that makes the navigation"
+  },
+  "theme.SearchModal.footer.closeText": {
+    "message": "to close",
+    "description": "The explanatory text of the action for Escape key"
+  },
+  "theme.SearchModal.footer.closeKeyAriaLabel": {
+    "message": "Escape key",
+    "description": "The ARIA label for the Escape key button that close the modal"
+  },
+  "theme.SearchModal.footer.searchByText": {
+    "message": "Search by",
+    "description": "The text explain that the search is making by Algolia"
+  },
+  "theme.SearchModal.noResultsScreen.noResultsText": {
+    "message": "No results for",
+    "description": "The text explains that there are no results for the following search"
+  },
+  "theme.SearchModal.noResultsScreen.suggestedQueryText": {
+    "message": "Try searching for",
+    "description": "The text for the suggested query when no results are found for the following search"
+  },
+  "theme.SearchModal.noResultsScreen.reportMissingResultsText": {
+    "message": "Believe this query should return results?",
+    "description": "The text for the question where the user thinks there are missing results"
+  },
+  "theme.SearchModal.noResultsScreen.reportMissingResultsLinkText": {
+    "message": "Let us know.",
+    "description": "The text for the link to report missing results"
+  },
+  "theme.SearchModal.placeholder": {
+    "message": "Search docs",
+    "description": "The placeholder of the input of the DocSearch pop-up modal"
+  },
+  "theme.blog.post.plurals": {
+    "message": "Una publicación|{count} publicaciones",
+    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.blog.tagTitle": {
+    "message": "{nPosts} etiquetados con \\\"{tagName}\\\"",
+    "description": "The title of the page for a blog tag"
+  },
+  "theme.blog.author.pageTitle": {
+    "message": "{authorName} - {nPosts}",
+    "description": "The title of the page for a blog author"
+  },
+  "theme.blog.authorsList.pageTitle": {
+    "message": "Authors",
+    "description": "The title of the authors page"
+  },
+  "theme.blog.authorsList.viewAll": {
+    "message": "View all authors",
+    "description": "The label of the link targeting the blog authors page"
+  },
+  "theme.blog.author.noPosts": {
+    "message": "This author has not written any posts yet.",
+    "description": "The text for authors with 0 blog post"
+  },
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "Unlisted page",
+    "description": "The unlisted content banner title"
+  },
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "This page is unlisted. Search engines will not index it, and only users having a direct link can access it.",
+    "description": "The unlisted content banner message"
+  },
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "Draft page",
+    "description": "The draft content banner title"
+  },
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "This page is a draft. It will only be visible in dev and be excluded from the production build.",
+    "description": "The draft content banner message"
+  },
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Inténtelo de nuevo",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+  },
+  "theme.common.skipToMainContent": {
+    "message": "Saltar al contenido principal",
+    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+  },
+  "theme.tags.tagsPageTitle": {
+    "message": "Etiquetas",
+    "description": "The title of the tag list page"
+  }
+}

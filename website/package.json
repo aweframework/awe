@@ -7,6 +7,7 @@
     "docusaurus": "docusaurus",
     "generate:reference": "node scripts/xsd-reference/generate.js",
     "test:reference": "node --test \"scripts/xsd-reference/__tests__/*.test.js\"",
+    "test:scripts": "node --test \"scripts/xsd-reference/__tests__/*.test.js\" \"scripts/*.test.js\"",
     "prestart": "npm run generate:reference",
     "start": "docusaurus start",
     "prebuild": "npm run generate:reference",
@@ -17,14 +18,9 @@
     "serve": "docusaurus serve",
     "prewrite-translations": "npm run generate:reference",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "crowdin": "crowdin",
-    "precrowdin:sync": "npm run generate:reference",
-    "crowdin:sync": "docusaurus write-translations && crowdin upload && crowdin download"
+    "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@crowdin/cli": "3.7.7",
-    "@crowdin/crowdin-api-client": "1.23.1",
     "@docusaurus/core": "3.8.1",
     "@docusaurus/plugin-content-docs": "3.8.1",
     "@docusaurus/preset-classic": "3.8.1",
