@@ -856,6 +856,11 @@
               <skip>${skip.junit}</skip>
               <groups>Oracle</groups>
               <excludedGroups>NotOracleDatabase</excludedGroups>
+              <!-- Same driver settings as the CI jobs: without them the Oracle DATE columns of some queries are not read as dates -->
+              <systemPropertyVariables>
+                <oracle.jdbc.J2EE13Compliant>true</oracle.jdbc.J2EE13Compliant>
+                <oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
+              </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>
@@ -887,6 +892,11 @@
               <skip>${skip.junit}</skip>
               <groups>Oracle-Flyway</groups>
               <excludedGroups>NotOracleDatabase</excludedGroups>
+              <!-- Same driver settings as the CI jobs: without them the Oracle DATE columns of some queries are not read as dates -->
+              <systemPropertyVariables>
+                <oracle.jdbc.J2EE13Compliant>true</oracle.jdbc.J2EE13Compliant>
+                <oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
+              </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>

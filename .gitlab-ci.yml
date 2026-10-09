@@ -686,6 +686,29 @@ Embedded DB Tests:
     - name: postgres:17.11@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
       alias: postgres
 
+.oracle-external:
+  variables:
+    ORACLE_ALLOW_REMOTE: "true"
+    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
+    RELAX_SECURITY: "1"
+    DB_EXTERNAL: "true"
+  services:
+    - name: epiclabs/docker-oracle-xe-11g:latest@sha256:404173b90d09d0619c854dd469c76c3e7256c88a7aac5d47e05f934ec7afae06
+      alias: oracle
+
+# Needs the image with the SQL Server command line tools (the service database is created by the job before the tests)
+.sqlserver-external:
+  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest@sha256:9f3ce1ccebdc1374f382670a47aeef0f4ec056eb959c660bd67ca48cfdc24517
+  variables:
+    ACCEPT_EULA: Y
+    SA_PASSWORD: "$DATABASE_PASSWORD"
+    DB_EXTERNAL: "true"
+  before_script:
+    - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
+  services:
+    - name: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04@sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce
+      alias: mssqlserver
+
 MySQL Tests:
   extends:
     - .unit-testing
@@ -702,33 +725,27 @@ PostgreSQL Tests:
     matrix:
       - TEST_NAME: [ postgresql, postgresql-flyway ]
 
-Oracle Tests:
-  extends: .unit-testing
-  variables:
-    ORACLE_ALLOW_REMOTE: "true"
-    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
-    RELAX_SECURITY: "1"
-  services:
-    - name: epiclabs/docker-oracle-xe-11g:latest@sha256:404173b90d09d0619c854dd469c76c3e7256c88a7aac5d47e05f934ec7afae06
-      alias: oracle
-  parallel:
-    matrix:
-      - TEST_NAME: [ oracle, oracle-flyway ]
-
+# SQL Server runs in a container only when its licence is accepted explicitly: this job accepts it (the Microsoft EULA, see
+# DatabaseContainers), nothing else sets it. The image comes from mcr.microsoft.com, not from Docker Hub, so the dependency proxy
+# prefix never touches it (Testcontainers only prefixes images without a registry).
 SQL Server Tests:
-  extends: .unit-testing
-  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest@sha256:9f3ce1ccebdc1374f382670a47aeef0f4ec056eb959c660bd67ca48cfdc24517
+  extends:
+    - .unit-testing
+    - .database-containers
   variables:
-    ACCEPT_EULA: Y
-    SA_PASSWORD: "$DATABASE_PASSWORD"
-  before_script:
-    - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
-  services:
-    - name: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04@sha256:7a879e9af3557e81a3b3ad14acd071e3638788387f394d27a9d3404b28e954ce
-      alias: mssqlserver
+    AWE_TESTING_SQLSERVER_ACCEPT_EULA: "true"
   parallel:
     matrix:
       - TEST_NAME: [ sqlserver, sqlserver-flyway ]
+
+# The Oracle image (gvenzl/oracle-free, faststart) is about 6 GB unpacked: the dind service of the job has to hold it.
+Oracle Tests:
+  extends:
+    - .unit-testing
+    - .database-containers
+  parallel:
+    matrix:
+      - TEST_NAME: [ oracle, oracle-flyway ]
 
 Frontend UT:
   stage: test
