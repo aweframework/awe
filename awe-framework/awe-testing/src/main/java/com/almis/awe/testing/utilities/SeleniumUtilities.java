@@ -2830,6 +2830,31 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Tell whether a grid shows a text, once it has loaded, without failing when it does not. A step that creates or deletes a
+   * record uses it to find out whether the record is already there, which is the state that a failed attempt of the same
+   * step leaves when the step is run again
+   *
+   * @param search Text to search for in the grid
+   * @return The grid shows the text
+   */
+  protected boolean hasRowContents(String search) {
+    return hasRowContentsGrid(null, search);
+  }
+
+  /**
+   * Tell whether a grid shows a text, once it has loaded, without failing when it does not
+   *
+   * @param gridId Grid Identifier
+   * @param search Text to search for in the grid
+   * @return The grid shows the text
+   */
+  protected boolean hasRowContentsGrid(String gridId, String search) {
+    // The rows of a search that is still loading are not there yet
+    waitUntil(checkIfGridLoaderIsNotVisible());
+    return hasVisibleElement(getBrowser(), frontEndInstructions.findGridCell(gridId, search));
+  }
+
+  /**
    * Check cell contents
    *
    * @param gridId   Grid id

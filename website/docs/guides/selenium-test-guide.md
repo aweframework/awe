@@ -215,7 +215,7 @@ record that the create made. Three rules keep the classes independent:
   that a row contains, so no name may be contained in the name of another class's record (`Manual task` and
   `Prerequisite task`, not `Task` and `Task 2`). A record that a class only needs as a prerequisite (the scheduled task
   tests use a calendar and a manual task for their custom launch and their dependencies) is created by that class at the
-  start and deleted at the end, after the records that use it.
+  start and deleted at the end, after the records that use it. The CRUD classes (`AbstractCrudTests`) do the same: the module and the database classes create their own site, and the user class its own profile.
 - **`gotoScreen` does not reload the screen that is already open.** The client keeps its criteria, its pending reloads and
   the row that the previous test selected, and a grid that reloads afterwards loses that selection, so a test that selects
   a row right after another one on the same screen can fail on a button that stays disabled. Where it matters, go through
@@ -562,6 +562,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkRowContents(String... searchList)` | Checks that the grid contains every text |
 | `checkRowContentsGrid(String gridId, String... searchList)` | Same in a given grid |
 | `checkRowNotContains(String search)` | Checks that the grid does not contain a text |
+| `hasRowContents(String search)` | Tells, without failing, whether the grid contains a text once it has loaded: a step that creates or deletes a record uses it to find out whether the record is already there, so that it can be run again after a failed attempt |
+| `hasRowContentsGrid(String gridId, String search)` | Same in a given grid |
 | `checkCellContents(String gridId, String rowId, String columnId, String search)` | Checks the content of a cell |
 | `checkGridCellsHaveNoActiveContent(String gridId)` | Checks that the cells of a grid show text and nothing active: no script, frame, image, form, event handler or link to a script url. Use it with a value that carries markup to prove that the grid does not interpret it |
 | `checkGridPresent(String gridId)` | Checks that a grid exists in the screen, even if it is hidden |
@@ -895,10 +897,16 @@ suites below run Chromium and Firefox. To check the Firefox of the adapter on yo
 installed skips it).
 
 **Playwright jobs in the AWE pipeline.** The pipeline of AWE runs the same suites as the Selenium jobs with
-`awe.test.tool=playwright`: 4 jobs (`Playwright Chromium IT`, `Playwright Firefox IT`,
-`Playwright Chromium IT React` and `Playwright Firefox IT React`), each one a matrix of the 4 suite groups of its Selenium
-counterpart, which makes **16 jobs**. The first two run the AngularJS application (`awe-tests/awe-boot`, the same groups as
-`Chrome IT` and `Firefox IT`) and the other two the React application (`awe-tests/awe-boot-react`, the classes of the React jobs).
+`awe.test.tool=playwright`: 4 jobs (`Playwright IT 1/4` to `Playwright IT 4/4`), each one a matrix of the 4 suite groups of
+its Selenium counterpart, which makes **16 jobs**. The first two (Chromium and Firefox) run the AngularJS application
+(`awe-tests/awe-boot`, the same groups as `Selenium IT 1/4` and `2/4`) and the other two the React application
+(`awe-tests/awe-boot-react`, the classes of `Selenium IT 3/4` and `4/4`). The names end in `n/4` so that the pipeline graph
+shows each tool as one group (GitLab groups the jobs whose names end in a number over a total, and the jobs of a matrix, by the
+rest of the name); the first variable of every matrix entry is `TARGET` (browser and engine), so a failed job reads
+`Playwright IT 3/4: [chromium-react, ..., playwright-react-chromium-scheduler]`. The
+four jobs of a tool cannot be one job with the browser and the engine as matrix variables: the React jobs have their own
+`rules` (they run on a merge request only when the backend or the React client changes) and the rules of a job do not see the
+matrix variables. The Selenium jobs have a different browser service each.
 Two small jobs, `Playwright Chromium browser` and `Playwright Firefox browser`, download and cache the browsers for them.
 Each job installs only the headless browser it needs, runs it next to the application it starts and writes its failure
 evidence (screenshot, page source, console, [trace and video](#playwright-evidence)) to `browser-evidence/`, which you find
@@ -906,12 +914,11 @@ in the artifacts of the job like the evidence of the Selenium jobs; the screen r
 (`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
 - **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`. They do not run on
-  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Chrome IT`, `Firefox IT` and their React
-  versions) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
+  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium IT 1/4` to `4/4`) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
   requests or ordinary pushes.
 - **They gate the pipeline.** A failing Playwright job fails the pipeline, stops `Launch Sonar` and the release jobs, and
-  prevents Renovate from automerging, exactly like a Selenium job. They have the same one automatic retry on a script or
-  runner failure (#766), and the same for Firefox as for Chromium. Their jacoco files have a different name per job
+  prevents Renovate from automerging, exactly like a Selenium job. They have the same [per-test rerun](#a-failed-test-is-rerun-alone)
+  and the same job retry (#766), and the same for Firefox as for Chromium. Their jacoco files have a different name per job
   (`jacoco-${TEST_NAME}-it.exec`), so the coverage of both tools is kept when both ran.
 - **How to compare.** On `master` and in the weekly scheduled pipeline both tools run. Open the Playwright job and the Selenium job
   of the same suite and read the failsafe summary (`Tests run: ...`) and the `Playwright ...` line that the Playwright job
@@ -947,7 +954,7 @@ files in `awe.test.screenshot-path` (`browser-evidence/` in CI, and linked from 
 | File | What it is |
 |---|---|
 | `<test>.trace.zip` | The **trace** of a failed test: every action with its screenshots, the console and the network (and the DOM at each step, see `trace-snapshots` below). One file for each failed test, named like its screenshot |
-| `<qualified.TestClass>.webm` | The **video** of the page during the whole test class (named after the qualified class name, e.g. `com.almis.awe.test.selenium.CRUDTestsIT.webm`). One per class, and kept only when a test of the class failed |
+| `<qualified.TestClass>.webm` | The **video** of the page during the whole test class (named after the qualified class name, e.g. `com.almis.awe.test.selenium.CRUDSiteTestsIT.webm`). One per class, and kept only when a test of the class failed |
 | `<qualified.TestClass>.video-times.txt` | Next to the video: the start of each test of the class from the beginning of the video (`mm:ss.SSS`, approximate), its result and its name. Look for the `FAILED` line and move the video there |
 
 The browser lasts the whole test class (its ordered tests share the login and the data), so the video is of the class and not
@@ -1193,7 +1200,7 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 
 - `-Dawe.test.browser` takes `headless-chrome` or `headless-firefox` (also `chrome` and `firefox` to watch the browser).
   `-Dawe.test.tool` is `selenium` and can be left out (see [Automation tool](#automation-tool-awetesttool)).
-- `-Dit.test=` takes a class, several separated by commas (`CRUDTestsIT,CriteriaAndMatrixTestsIT`) or a method
+- `-Dit.test=` takes a class, several separated by commas (`CRUDSiteTestsIT,CriteriaTestsIT`) or a method
   (`SchedulerCalendarTestsIT#t001_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser
   reads the address from `awe.test.start-url`, which follows `server.port`.
@@ -1218,6 +1225,120 @@ the test output:
 
 Start with the console and the HTML: a failed step usually means the element was not in the DOM yet, did not carry the
 expected state attribute, or the client threw an error before rendering it.
+
+### Flaky tests: rerun, chains and quarantine
+
+The browser jobs block the pipeline, so a test that fails now and then without a defect (a flaky test) would block merge
+requests and releases at random. Three mechanisms deal with it, from the cheapest to the strongest: a failed test is
+**rerun alone** once, a class whose tests cannot be rerun alone is declared a **dependent chain**, and a test that keeps
+failing is **quarantined**.
+
+#### A failed test is rerun alone
+
+The test applications run the integration tests with failsafe's `rerunFailingTestsCount` set to 1 (the Maven property
+`it.rerun-count`). When a test of an [independent class](#independent-test-classes) fails, that one test runs once more, after all the tests of the run, in a
+new instance of its class with a new browser, and the session setup of the class logs in again. The tests that already passed
+are not run again.
+
+- If the second attempt passes, the test passes and is reported as **flaky**: the job log lists it under `Flakes:` with the
+  failure of the first attempt, the summary says `Flakes: 1`, and the XML report of the class (`TEST-*.xml` in the job
+  artifacts) keeps the first failure in a `<flakyFailure>` element of the test. The [failure evidence](#failure-evidence) of the
+  first attempt (screenshot, page source, console, video or trace) stays in `browser-evidence/`. GitLab's test report counts
+  the test as passed, so read the `Flakes:` section of the job log, and open an issue when a test shows up there.
+- If the second attempt fails too, the test fails and so does the job. A real regression fails twice.
+- The job itself is retried only when the runner fails (`runner_system_failure`), not because a test failed: a job retry
+  would run every test of the job again and hide the flaky ones. A timeout is not retried either. (A job that runs a
+  [dependent chain](#dependent-chains) would also be retried on a test failure: no job is today.)
+- Run without rerun, as when you reproduce a flaky test, with `-Dit.rerun-count=0`.
+
+**A rerun comes after the whole run.** failsafe reruns the failed tests when all the tests of the execution have run, in a new
+instance of the class, so a test is rerun in the state that the *end* of the run left, not the one that its failure left. For a
+test that opens its screen and uses data of its own that is the same, and the rerun works. For a step of a create, update and
+delete sequence it is not: the later steps of the class (which ran after the failure) have already updated or deleted the
+record, and a plain rerun of the step would find it gone, or find a record that it does not expect. A step that must work
+when it is rerun makes sure of what it needs before it uses it, and does nothing when it is already there:
+
+- a step that needs a record (an update, a duplicate, a view) creates it first with a helper that does nothing when the record
+  is there, and the helper creates the records that it depends on in the same way (a module creates its site first);
+- a step that creates a record does nothing when it is already there and then runs its own checks, so an attempt that failed
+  after saving is not repeated as a duplicate;
+- a step that deletes a record does nothing when it is gone and then checks that it is not there;
+- a step that edits a row finds it by what it shows before and after the step (the profile of a module is `TST` before the
+  update and `ADM` after it).
+
+`hasRowContents` (see the [step catalogue](#grids-checks)) is the probe, and the CRUD classes (`AbstractCrudTests`) are the
+example: every step runs all its checks on a rerun, never fewer. The Application and Scheduler classes are not written this
+way yet: their steps that update or delete a record fail when rerun after the run ended, so the rerun does not help them (it
+never makes them pass by mistake). Until they are, a flaky step of those classes is fixed or quarantined, not left to the
+rerun. A class whose steps cannot be made to work alone is a dependent chain.
+
+#### Dependent chains
+
+No browser test class is a dependent chain today: the CRUD tests were split into independent classes (sites, profiles,
+modules, database connections and users, each one with the site or the profile that it needs), and that is the way to go.
+The facility stays for a class whose tests really are one ordered sequence, each one using what the previous one created,
+and that cannot be split. Such a class is declared with `@DependentChain` and the reason, and keeps its `@TestMethodOrder`:
+
+```java
+@DependentChain("The import creates the records that the following tests check and delete")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("ImportIT")
+class ImportTestsIT extends SeleniumUtilities {
+```
+
+The build runs the chains in a second failsafe execution of the same job (`integration-test-chains`), after the independent
+classes and against the same application, **without rerun**: a rerun of one step would find the data that the failed attempt
+left (a duplicated record, a record that was already deleted). The class is the unit to run again, and the way to do it is
+the **whole-job retry**: `.chain-retry` in `.gitlab-ci.yml` (one retry on `script_failure` and `runner_system_failure`, in a
+new container with a clean database), which only a job that runs a chain extends, listed after the template that brings `.browser-testing` (GitLab merges the
+templates in order and the last one that sets a key wins). GitLab retries a job and not an entry of its
+matrix, so the classes that share the job of the chain are retried with it. `CiBrowserClassesGuardTest` checks the rule
+from the sources: a job whose classes include a `@DependentChain` class extends `.chain-retry`, and a job without one does
+not. A chain can only be quarantined as a whole class, because it cannot run with a step missing. Do not add
+`@DependentChain` to hide a flaky test: make the tests independent (see [Independent test classes](#independent-test-classes)).
+
+#### Quarantine a flaky test
+
+A flaky test that fails twice in a row, or that keeps showing up under `Flakes:`, is not deleted or ignored: it is
+**quarantined**, which takes it out of the blocking jobs and keeps running it where it cannot block anything.
+
+```java
+@Test
+@Quarantine(issue = "#812", reason = "The suggest answers after the test has read the text")
+void t002_loadSuggestOnGrid() {
+  ...
+}
+```
+
+`@Quarantine` (`com.almis.awe.testing.annotations`) goes on a test method, or on a class to quarantine all its tests. It
+tags the test `quarantine` for JUnit, and then:
+
+- **The blocking jobs leave it out.** The test applications exclude the `quarantine` tag from their integration run (the
+  Maven property `it.excluded-groups` of `awe-tests/awe-boot` and `awe-tests/awe-boot-react`), so neither the Playwright nor the
+  Selenium jobs run it.
+- **A job that never blocks runs it.** `Quarantine Playwright IT` and `Quarantine Selenium IT` run the quarantined tests of
+  both applications (AngularJS and React), with Chromium. They have `allow_failure: true`, no job retry and no per-test rerun (`-Dit.rerun-count=0`, so a flaky test shows as the failure it
+  was), and they are not
+  needed by `Launch Sonar` or the release jobs, so a quarantined test that fails shows a warning on the pipeline and nothing
+  else. They keep the same report and the same [failure evidence](#failure-evidence) as the other browser jobs, in the
+  artifacts of the job. When nothing is quarantined, the jobs finish at once without starting the application.
+- **Run it yourself** with `-Dgroups=quarantine -Dit.excluded-groups= -Dit.rerun-count=0` (empty and zero) added to the command of
+  [Run a suite locally](#run-a-suite-locally).
+
+The rules of a quarantine:
+
+1. **Quarantine with evidence, not to get a green pipeline.** A test that failed in a pipeline for a real defect is not
+   flaky: fix the defect. Quarantine a test when you have seen it fail and pass with the same code (the job link goes in the
+   issue).
+2. **Every quarantine has an issue and a reason.** `issue` is the number (`#812`) or the URL of the issue that tracks the
+   flakiness, and `reason` says why the test is flaky as far as it is known. `BrowserTestDeclarationsGuardTest`, a unit test
+   of both applications, fails the build without them, and it also rejects `@Tag("quarantine")` written by hand, which would
+   hide a test without an issue.
+3. **A quarantine is temporary.** Fix the cause, remove the annotation and close the issue in the same merge request: the
+   pipeline of that merge request runs the test again as a blocking test. The `Quarantine ... IT` job is the evidence that
+   the test is still flaky or that it has recovered, so look at it before removing the annotation.
+4. **Quarantine the smallest thing that fails.** A method before a class. Products can use the same annotation and the same
+   guard (`BrowserTestDeclarationsGuard.scan(...)`) in their own browser tests.
 
 ### Reproduce a failure of the CI browser
 

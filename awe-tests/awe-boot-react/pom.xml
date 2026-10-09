@@ -36,6 +36,14 @@
         <skip.selenium>true</skip.selenium>
         <skip.junit>false</skip.junit>
         <test.tags>integration</test.tags>
+        <!-- Browser tests (failsafe). The independent classes run in one execution that leaves out the quarantined tests
+             (@Quarantine) and the dependent chains (@DependentChain), and reruns a failed test alone; the chains run in a second
+             execution, without rerun, that leaves out the quarantined ones and everything that is not a chain.
+             The quarantine job of the pipeline runs the quarantined tests with -Dgroups=quarantine -Dit.excluded-groups=
+             -Dit.rerun-count=0 (JUnit tag expressions: | is "or", ! is "not") -->
+        <it.excluded-groups>quarantine | dependent-chain</it.excluded-groups>
+        <it.chains-excluded-groups>quarantine | !dependent-chain</it.chains-excluded-groups>
+        <it.rerun-count>1</it.rerun-count>
 
         <!-- Build properties -->
         <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
@@ -439,6 +447,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <skip>${skip.selenium}</skip>
+                    <systemPropertyVariables>
+                        <failsafe.browser>${browser}</failsafe.browser>
+                    </systemPropertyVariables>
+                </configuration>
+                <!-- The browser tests run in two executions against the same application:
+                     - integration-test: the independent classes; a failed test is rerun alone (see it.rerun-count);
+                     - integration-test-chains: the @DependentChain classes, which never rerun a step alone.
+                     The generate-integration-report profile adds "verify", which reads both results after the application has
+                     stopped (the failsafe summary adds up the executions). -->
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -447,11 +467,18 @@
                             <goal>integration-test</goal>
                         </goals>
                         <configuration>
-                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                            <skip>${skip.selenium}</skip>
-                            <systemPropertyVariables>
-                                <failsafe.browser>${browser}</failsafe.browser>
-                            </systemPropertyVariables>
+                            <excludedGroups>${it.excluded-groups}</excludedGroups>
+                            <rerunFailingTestsCount>${it.rerun-count}</rerunFailingTestsCount>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>integration-test-chains</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <excludedGroups>${it.chains-excluded-groups}</excludedGroups>
                         </configuration>
                     </execution>
                 </executions>
@@ -476,21 +503,17 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <awe.test.browser>${browser}</awe.test.browser>
+                            </systemPropertyVariables>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>integration-test</id>
-                                <phase>integration-test</phase>
+                                <id>verify</id>
                                 <goals>
-                                    <goal>integration-test</goal>
                                     <goal>verify</goal>
                                 </goals>
-                                <configuration>
-                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                                    <skip>${skip.selenium}</skip>
-                                    <systemPropertyVariables>
-                                        <awe.test.browser>${browser}</awe.test.browser>
-                                    </systemPropertyVariables>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
