@@ -5,11 +5,17 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.almis.awe.config.RestConfigProperties;
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.services.AbstractServiceRest;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.entities.services.ServiceMicroservice;
 import com.almis.awe.model.rest.RestParameter;
+import com.almis.awe.model.rest.ServiceAuth;
+import com.almis.awe.model.rest.ServiceDetails;
+import com.almis.awe.model.type.ServiceAuthType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -29,6 +35,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -270,6 +282,105 @@ class MicroserviceConnectorTest {
     }
   }
 
+  // Issue #850: launching a microservice must not mutate the shared service definition
+  @Test
+  void launch_repeatedCalls_doNotMutateSharedService() throws Exception {
+    // Given
+    ServiceMicroservice shared = buildMicroservice("alu-service", buildServiceParameter("Als", false));
+    shared.setEndpoint("/search");
+    stubServiceConfig("alu-service", authDetails(), staticRestParameter("tenant", "acme"));
+
+    // When
+    for (int i = 0; i < 5; i++) {
+      connector.launch(shared, new HashMap<>());
+    }
+
+    // Then
+    assertEquals(1, shared.getParameterList().size(), "The shared parameter list must keep its size");
+    assertEquals("Als", shared.getParameterList().get(0).getName());
+    assertNull(shared.getAuthentication(), "The shared service authentication must stay untouched");
+    assertNull(shared.getUsername(), "The shared service username must stay untouched");
+    assertNull(shared.getPassword(), "The shared service password must stay untouched");
+  }
+
+  // Issue #850: the request still receives the XML parameters plus the configured ones, exactly once
+  @Test
+  void launch_requestSeesXmlAndConfiguredParametersExactlyOnce() throws Exception {
+    // Given
+    ServiceMicroservice shared = buildMicroservice("alu-service", buildServiceParameter("Als", false));
+    shared.setEndpoint("/search");
+    stubServiceConfig("alu-service", authDetails(), staticRestParameter("tenant", "acme"));
+
+    // When
+    connector.launch(shared, new HashMap<>());
+    connector.launch(shared, new HashMap<>());
+
+    // Then
+    assertEquals(2, connector.requestedParameterNames.size());
+    connector.requestedParameterNames.forEach(names -> assertEquals(List.of("Als", "tenant"), names));
+    assertEquals(ServiceAuthType.BASIC, connector.requestedAuthentication.get(0));
+    assertEquals("user", connector.requestedUsernames.get(0));
+  }
+
+  // Issue #850: concurrent calls on the same shared service must not fail (smoke test, race dependent)
+  @Test
+  void launch_concurrentCallsOnSharedService_doNotFailNorGrowTheList() throws Exception {
+    // Given
+    int tasks = 20;
+    ServiceMicroservice shared = buildMicroservice("alu-service", buildServiceParameter("Als", false));
+    shared.setEndpoint("/search");
+    stubServiceConfig("alu-service", authDetails(), staticRestParameter("tenant", "acme"));
+    connector.iterateParametersOnRequest = true;
+    ExecutorService executor = Executors.newFixedThreadPool(tasks);
+    CountDownLatch start = new CountDownLatch(1);
+    List<Future<Void>> futures = new ArrayList<>();
+
+    try {
+      // When
+      for (int i = 0; i < tasks; i++) {
+        futures.add(executor.submit(() -> {
+          assertTrue(start.await(10, TimeUnit.SECONDS));
+          for (int j = 0; j < 20; j++) {
+            connector.launch(shared, new HashMap<>());
+          }
+          return null;
+        }));
+      }
+      start.countDown();
+
+      // Then
+      for (Future<Void> future : futures) {
+        future.get(30, TimeUnit.SECONDS);
+      }
+      assertEquals(1, shared.getParameterList().size(), "The shared parameter list must keep its size");
+      assertEquals(tasks * 20, connector.requestedParameterNames.size());
+      connector.requestedParameterNames.forEach(names -> assertEquals(List.of("Als", "tenant"), names));
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  private void stubServiceConfig(String name, ServiceDetails details, RestParameter... parameters) {
+    details.setName(name);
+    details.setParameters(new ArrayList<>(Arrays.asList(parameters)));
+    when(restConfigProperties.getServices()).thenReturn(Map.of(name, details));
+  }
+
+  private ServiceDetails authDetails() {
+    ServiceAuth auth = new ServiceAuth();
+    auth.setUsername("user");
+    auth.setPassword("secret");
+    return new ServiceDetails().setBaseUrl("http://localhost:8080").setAuthentication(auth);
+  }
+
+  private RestParameter staticRestParameter(String name, String value) {
+    RestParameter parameter = new RestParameter();
+    parameter.setName(name);
+    parameter.setValue(value);
+    parameter.setType(RestParameter.ServiceParameterType.VALUE);
+    return parameter;
+  }
+
   private ServiceMicroservice buildMicroservice(String name, ServiceInputParameter... parameters) {
     ServiceMicroservice microservice = new ServiceMicroservice();
     microservice.setName(name);
@@ -303,6 +414,10 @@ class MicroserviceConnectorTest {
 	static class TestableMicroserviceConnector extends MicroserviceConnector {
     private AweSession testSession;
     private AweRequest testRequest;
+    private boolean iterateParametersOnRequest;
+    private final List<List<String>> requestedParameterNames = new CopyOnWriteArrayList<>();
+    private final List<Object> requestedAuthentication = new CopyOnWriteArrayList<>();
+    private final List<String> requestedUsernames = new CopyOnWriteArrayList<>();
 
     public TestableMicroserviceConnector(ClientHttpRequestFactory requestFactory, QueryUtil queryUtil, ObjectMapper objectMapper, RestConfigProperties restConfigProperties) {
       super(requestFactory, queryUtil, objectMapper, restConfigProperties);
@@ -313,5 +428,20 @@ class MicroserviceConnectorTest {
 
     @Override
     public AweRequest getRequest() { return testRequest; }
+
+    @Override
+    protected ServiceData doRequest(String url, AbstractServiceRest service, Map<String, Object> paramsMapFromRequest) throws AWException {
+      List<String> names = new ArrayList<>();
+      for (ServiceInputParameter parameter : service.getParameterList()) {
+        names.add(parameter.getName());
+        if (iterateParametersOnRequest) {
+          Thread.yield();
+        }
+      }
+      requestedParameterNames.add(names);
+      requestedAuthentication.add(service.getAuthentication());
+      requestedUsernames.add(service.getUsername());
+      return new ServiceData();
+    }
   }
 }
