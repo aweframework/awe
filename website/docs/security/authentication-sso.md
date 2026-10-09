@@ -12,6 +12,8 @@ src={require('@docusaurus/useBaseUrl').default('img/undraw_security-on_btwg.svg'
 # Single sign On
 In AWE applications you can use SSO authentication method. This feature allows a user to utilize a single account to access different apps (user name and password).
 
+To run the identity provider as the only sign-in path, see [IdP-first security mode](idp-first.md).
+
 ## Azure EntraID
 AWE provide Azure oauth2 authentication service integration using native `spring-cloud-azure-starter-active-directory`. Uses the Spring Boot Starter for Microsoft Entra ID enables you to connect your web application to a Microsoft Entra tenant and protect your resource server with Microsoft Entra ID. It uses the Oauth 2.0 protocol to protect web applications and resource servers.
 
