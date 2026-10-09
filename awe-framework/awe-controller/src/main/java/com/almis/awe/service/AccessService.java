@@ -23,6 +23,8 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -236,11 +238,31 @@ public class AccessService extends ServiceConfig {
 	private AweUserDetails loadUserDetailsWithRoleSync(String userName, Optional<String> roleFromOAuth, OAuth2AuthenticationToken oauth2Token) throws AWException {
 		try {
 			AweUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+			checkAccountStatus(userDetails);
 			checkUpdateRoleInOAuth(userDetails, roleFromOAuth);
 			return userDetails;
 		} catch (UsernameNotFoundException ex) {
 			// User not found in the database, provision a new one
 			return loadAndProvisionNewUser(oauth2Token);
+		}
+	}
+
+	/**
+	 * Rejects an existing AWE user that is disabled or locked, so the identity provider cannot be used to bypass
+	 * those AWE flags. Credentials expiration is not checked: the password is not used on SSO.
+	 *
+	 * @param userDetails user details loaded from the database
+	 * @throws DisabledException if the user is disabled
+	 * @throws LockedException   if the user is locked
+	 */
+	private void checkAccountStatus(AweUserDetails userDetails) {
+		if (!userDetails.isEnabled()) {
+			log.warn("SSO login rejected: user {} is disabled in AWE", userDetails.getUsername());
+			throw new DisabledException(getLocale("ERROR_MESSAGE_SSO_USER_DISABLED"));
+		}
+		if (!userDetails.isAccountNonLocked()) {
+			log.warn("SSO login rejected: user {} is locked in AWE", userDetails.getUsername());
+			throw new LockedException(getLocale("ERROR_MESSAGE_SSO_USER_LOCKED"));
 		}
 	}
 
