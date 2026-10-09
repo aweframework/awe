@@ -67,6 +67,8 @@ For easier development of queues, not all elements are required.
 | [request-message](#request-message-element) |  Optional | No | Used to define the request in the jms comunication |
 | [response-message](#response-message-element) |  Optional | No | Used to define the response in the jms comunication |
 | [message-parameter](#message-parameter-element) |  Optional | Yes | Are parameters of message for the request or response |
+| [message-wrapper](#message-wrapper-element) |  Optional | No | Java class that builds the request or reads the response, instead of `message-parameter` elements |
+| [message-status](#message-status-element) |  Optional | No | Fields of a `MAP` response that carry the answer type, title and description |
 
 ### Queue element
 
@@ -106,6 +108,31 @@ The `message-parameter` element, inside a `request-message` or a `response-messa
 | name | Optional | String | Name of the parameter in the message | |
 | value | Optional | String | Static value of the parameter | |
 | list | Optional | Boolean | Whether the parameter is a list of values | `true` or `false` |
+
+### message-wrapper element
+
+The `message-wrapper` element, inside a `request-message` or a `response-message`, maps the whole message to a Java
+class instead of listing `message-parameter` elements. A response wrapper class implements `ResponseWrapper`, and its
+`toServiceData()` result is the answer of the queue.
+
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| type | **Required** | String | How the message is mapped to the class | `XML` (the message text, or one field of a map message, is an XML document) or `OBJECT` (each field of a map message is copied to the class field with the same name) |
+| classname | **Required** | String | Fully qualified name of the wrapper class | |
+| name | Optional | String | Field of a `MAP` message that holds the wrapped value | Required with `XML` on a `MAP` response; must be omitted with `OBJECT` |
+
+### message-status element
+
+The `message-status` element, inside a `response-message` of type `MAP`, reads the result of the operation from the
+response and shows it to the user like the answer of any other action. Its attributes are the **names of the map
+fields** that hold each value, not the values themselves.
+
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| type | **Required** | String | Field with the answer type | `ok`, `error`, `warning` or `info` (case insensitive) |
+| translate | Optional | String | Enumerated group used to translate the received value into an answer type | **Ex.:** the response sends `0` and the enumerated group maps `0` to `ok` |
+| title | Optional | String | Field with the title of the message | |
+| description | Optional | String | Field with the text of the message | |
 
 ## **Synchronous messages**
 
