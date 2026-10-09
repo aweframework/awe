@@ -160,8 +160,8 @@ Keep in mind:
 | icon             | Icon column component. Use it for showing font awesome icons in a column.                                   |
 | image            | Image column component. Use it for showing images in a column.                                              |
 | button           | Component which allows the user to click a button which launches a set of `button-action`                   |
-| progress         | Progress column component. Useful for showing a progress bar in a column. (Work in progress)                |
-| sparkline        | Sparkline column component. Useful for showing a sparkline chart in a column. (Work in progress)            |
+| progress         | Progress column component. Useful for showing a progress bar in a column. See [progress](#progress-column-component) |
+| sparkline        | Reserved name. Not implemented in either client engine: the column renders nothing useful. |
 | link             | HTML Link component. Opens an URL in a new page                                                             |
 
 
@@ -275,10 +275,6 @@ The progress component is very useful to show the status of a job, or a task.
 | label     | Text to show in the progress bar (ie percentage)                                                                       |
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
 | style     | CSS class to format the contents                                                                                       |
-
-#### Sparkline column component
-
-(Work in progress)
 
 ## Group header structure
 
