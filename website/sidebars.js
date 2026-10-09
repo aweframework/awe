@@ -23,6 +23,7 @@ module.exports = {
 						"security/protection-mechanism",
 						"security/security-authentication",
 						"security/authentication-sso",
+						"security/idp-first",
 					],
 				},
 			],
