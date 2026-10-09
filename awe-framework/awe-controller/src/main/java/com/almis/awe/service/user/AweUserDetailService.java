@@ -15,7 +15,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -157,6 +156,19 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
     return authList;
   }
 
+  /**
+   * Check if the password of a user is expired
+   * <ul>
+   *   <li>Without the <code>PwdExp</code> parameter (number of days), passwords never expire</li>
+   *   <li>With <code>PwdExp</code> and a user who has never changed the password (no change date, for example a new
+   *   user or a password reset by an administrator), the password is expired: the user has to change it</li>
+   *   <li>With <code>PwdExp</code> and a change date, the password is valid until <code>PwdExp</code> days after
+   *   the change date, and expired from that moment on</li>
+   * </ul>
+   *
+   * @param updateDate Date of the last password change (null if it has never been changed)
+   * @return true if the password is expired
+   */
   private boolean checkExpiredPassword(Date updateDate) {
     // Get PwdExp (number of days for password to expire)
     String passwordExpirationDaysStr = getProperty("PwdExp");
@@ -174,8 +186,8 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
       Date expirationDate = calendar.getTime();
       Date currentDate = new Date();
 
-      // Check expiration date versus current date
-      return expirationDate.compareTo(currentDate) > 0;
+      // The password is expired once the expiration date has been reached
+      return !expirationDate.after(currentDate);
     }
   }
 

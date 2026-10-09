@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -71,9 +73,66 @@ class AweUserDetailServiceTest {
     UserDetails details = userDetailsService.loadUserByUsername("test");
     assertAll(
       () -> assertNotNull(details),
-      () -> assertFalse(details.isCredentialsNonExpired()),
+      () -> assertTrue(details.isCredentialsNonExpired()),
       () -> assertFalse(details.isAccountNonLocked())
     );
+  }
+
+  @Test
+  void givenPwdExpAndPasswordChangedRecently_credentialsAreNotExpired() {
+    assertCredentialsNonExpired("30", daysAgo(5), true);
+  }
+
+  @Test
+  void givenPwdExpAndPasswordChangedLongAgo_credentialsAreExpired() {
+    assertCredentialsNonExpired("30", daysAgo(31), false);
+  }
+
+  @Test
+  void givenPwdExpAndPasswordChangedJustInsideTheLimit_credentialsAreNotExpired() {
+    // The password is valid until PwdExp days after the change: two hours before that moment it is still valid
+    assertCredentialsNonExpired("30", daysAgo(30).plusHours(2), true);
+  }
+
+  @Test
+  void givenPwdExpAndPasswordChangedJustOutsideTheLimit_credentialsAreExpired() {
+    // Two hours after PwdExp days since the change the password is expired
+    assertCredentialsNonExpired("30", daysAgo(30).minusHours(2), false);
+  }
+
+  @Test
+  void givenPwdExpAndPasswordNeverChanged_credentialsAreExpired() {
+    // A user without a last change date (new or reset by an administrator) must change the password when PwdExp is set
+    assertCredentialsNonExpired("30", null, false);
+  }
+
+  @Test
+  void givenNoPwdExp_passwordsNeverExpire() {
+    assertCredentialsNonExpired(null, daysAgo(10000), true);
+  }
+
+  @Test
+  void givenNoPwdExpAndPasswordNeverChanged_credentialsAreNotExpired() {
+    assertCredentialsNonExpired(null, null, true);
+  }
+
+  private LocalDateTime daysAgo(int days) {
+    return LocalDateTime.now().minusDays(days);
+  }
+
+  private void assertCredentialsNonExpired(String pwdExp, LocalDateTime lastChange, boolean expectedNonExpired) {
+    mockProperties();
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getProperty("PwdExp")).thenReturn(pwdExp);
+    given(userDAO.findByUserName(anyString())).willReturn(new User()
+      .setUsername("test")
+      .setPassword("test")
+      .setEnabled(true)
+      .setProfile("ADM")
+      .setLastChangedPasswordDate(lastChange == null ? null : Date.from(lastChange.atZone(ZoneId.systemDefault()).toInstant()))
+      .setLocked(false));
+    UserDetails details = userDetailsService.loadUserByUsername("test");
+    assertEquals(expectedNonExpired, details.isCredentialsNonExpired());
   }
 
   private void mockProperties() {
