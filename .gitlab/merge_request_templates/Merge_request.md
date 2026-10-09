@@ -16,6 +16,8 @@ Closes %{issues}
 - [ ] New and existing unit tests pass locally with my changes.
 - [ ] Commented code, particularly in hard-to-understand areas
 - [ ] If this MR has impacts on existing applications, I added an entry to the [AWE 5 migration guide](https://docs.aweframework.com/docs/guides/v5-migration)
+- [ ] Docs updated (`website/docs`, `CONTRIBUTING.md` or `README.md`)
+- [ ] No docs needed because: …
 
 
 ### Description

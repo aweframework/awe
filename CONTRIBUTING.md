@@ -137,6 +137,23 @@ The pipeline runs the same profiles in the `MySQL Tests` and `PostgreSQL Tests` 
 embedded; SQL Server and Oracle still run against CI services. The
 [`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, external mode, CI setup).
 
+## Definition of done
+
+A merge request is done when all of this is true:
+
+- **Tests**: new behavior has unit tests, and a bug fix has a test that failed before and passes now.
+  The merge request pipeline is green (check the failed jobs, not only the pipeline colour).
+- **Docs**: the documentation in `website/docs` describes the new or changed behavior in the same merge
+  request, or the description says why no docs are needed. The `MR docs warning` job reminds you when
+  code changes and neither happens; it is a warning, not a blocker (see
+  [Merge request title and size](website/docs/guides/release-lines-and-support.md#docs-warning-not-blocking)).
+  The English pages are the source: translations come from Crowdin and are never edited by hand.
+- **Migration guide**: a breaking change (a removed or renamed API, property, XML, database script or
+  JSON field, or a changed default) has its entry in the
+  [AWE 5 migration guide](website/docs/guides/v5-migration.md).
+- **Review**: the checklist of the merge request template is complete, the title follows Conventional
+  Commits, and a maintainer has reviewed it.
+
 ## Contributing guideline
 - Please follow the repository's for all code and documentation.
 - Create an issue and a merge request over the issue. Please fill the `features` or `bug` templates as best as possible.
