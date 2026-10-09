@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "awe.developer.path",
+      "defaultValue": "${user.home}/awe-developer"
+    }
+  ]
+}
