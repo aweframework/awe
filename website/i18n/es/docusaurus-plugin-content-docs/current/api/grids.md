@@ -154,8 +154,8 @@ Keep in mind:
 | icon                 | Componente de columna de icono. Úselo para mostrar iconos impresionantes de fuentes en una columna.                   |
 | imagen               | Componente de columna de imagen. Utilícelo para mostrar imágenes en una columna.                                      |
 | button               | Componente que permite al usuario hacer clic en un botón que lanza un conjunto de `botón-acción`                      |
-| progreso             | Componente de columna de progreso. Útil para mostrar una barra de progreso en una columna. (Trabajo en curso)         |
-| sparkline            | Sparkline column component. Útil para mostrar un gráfico de sparkline en una columna. (Trabajo en curso)              |
+| progress             | Componente de columna de progreso. Útil para mostrar una barra de progreso en una columna. Ver [progreso](#progress-column-component) |
+| sparkline            | Nombre reservado. No está implementado en ninguno de los dos motores de cliente: la columna no muestra nada útil. |
 | link                 | HTML Link component. Opens an URL in a new page                                                                       |
 
 
@@ -268,10 +268,6 @@ El componente de progreso es muy útil para mostrar el estado de un trabajo, o u
 | label    | Texto a mostrar en la barra de progreso (es decir, porcentaje)                                                            |
 | title    | Texto a mostrar cuando mueve el ratón sobre el botón. Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
 | style    | Clase CSS para formatear el contenido                                                                                     |
-
-#### Sparkline column component
-
-(Trabajo en curso)
 
 ## Estructura de cabecera de grupo {#group-header-structure}
 
