@@ -6,6 +6,10 @@ sidebar_label: Queues definition
 
 The AWE Jms engine allows integration with queue servers. Both JMS typologies, **point to point** and **publish/subscribe**.
 
+:::tip
+Every element and attribute of JMS queues is listed in the generated [XSD reference](/reference/queues).
+:::
+
 The `Java Message Service` (JMS) API is a Java Message Oriented Middleware (MOM) API for sending messages between two or more clients. JMS is a part of the Java Platform, Enterprise Edition, and is defined by a specification developed under the Java Community Process as JSR 914. 
 
 It is a messaging standard that allows application components based on the Java Enterprise Edition (Java EE) to create, send, receive, and read messages. It allows the communication between different components of a distributed application to be loosely coupled, reliable, and asynchronous.

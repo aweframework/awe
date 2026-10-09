@@ -33,6 +33,9 @@ to its file:
 `general.xsd`, `query.xsd` and `variable.xsd` are shared building blocks included by the other schemas: you do not
 reference them from your XML files.
 
+Every element and attribute of these schemas, with its type, allowed values and where it can be used, is listed in the
+generated [XSD reference](/reference/).
+
 ## Reference the schema in your XML
 
 AWE schemas have no target namespace, so the file declares its schema with `xsi:noNamespaceSchemaLocation`:

@@ -6,6 +6,10 @@ sidebar_label: Services Definition
 
 Service operations are designed to perform specific treatments and calculations out of the AWE utilities.
 
+:::tip
+Every element and attribute of services is listed in the generated [XSD reference](/reference/services).
+:::
+
 Currently there are two types of services declared in the AWE Engine: **Java Services** and **Web Services**
 
 :::info

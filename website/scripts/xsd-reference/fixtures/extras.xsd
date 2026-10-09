@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:appinfo>Fixture Extras Schema</xs:appinfo>
+  </xs:annotation>
+
+  <xs:attribute name="lang" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>Language code.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:element name="panel" type="panelType"/>
+
+  <xs:complexType name="panelType">
+    <xs:choice>
+      <xs:annotation>
+        <xs:documentation>At least one cell.</xs:documentation>
+      </xs:annotation>
+      <xs:element name="cell" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="span" type="xs:int"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="lang" use="required"/>
+  </xs:complexType>
+</xs:schema>

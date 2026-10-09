@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:appinfo>Fixture Main Schema</xs:appinfo>
+    <xs:documentation xml:lang="en">Describes a {box} with &lt;items&gt; and a | pipe.</xs:documentation>
+  </xs:annotation>
+
+  <xs:include schemaLocation="https://example.com/docs/schemas/base.xsd"/>
+
+  <xs:element name="box" type="boxType">
+    <xs:annotation>
+      <xs:documentation>The root box.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="item" type="itemType"/>
+  <xs:element name="special-item" type="specialItemType"/>
+
+  <xs:group name="boxGroup">
+    <xs:choice>
+      <xs:element ref="item"/>
+      <xs:element ref="special-item"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="boxType">
+    <xs:sequence>
+      <xs:element ref="note" minOccurs="0"/>
+      <xs:group ref="boxGroup" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="commonAttr"/>
+    <xs:attribute name="size" type="sizeEnum"/>
+    <xs:attribute name="mode">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="fast"/>
+          <xs:enumeration value="slow"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="itemType">
+    <xs:attributeGroup ref="commonAttr"/>
+    <xs:attribute name="count" type="xs:int" default="1">
+      <xs:annotation>
+        <xs:documentation>How many.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mixed" type="flexibleType"/>
+  </xs:complexType>
+
+  <xs:complexType name="specialItemType">
+    <xs:complexContent>
+      <xs:extension base="itemType">
+        <xs:attribute name="level" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

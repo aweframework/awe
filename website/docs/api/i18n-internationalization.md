@@ -6,6 +6,10 @@ sidebar_label: I18N (Internationalization)
 
 AWE implements a i18n system for internationalization of web applications. For this reason, AWE uses locale files containing literals in different languages.
 
+:::tip
+Every element and attribute of locales is listed in the generated [XSD reference](/reference/locale).
+:::
+
 Also you can add `CDATA` tag inside local in **markdown** language to show rich text. Very useful when you want to show a lot of formatting information. For example in the help screen application. You can view all markdown syntax in [this](https://wiki.almis.com/help/markdown/markdown) page.
 
 :::info
