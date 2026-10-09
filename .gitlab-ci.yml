@@ -207,7 +207,7 @@ stages:
 # Browser suites (#812). Two tools run the same suites and both block the pipeline wherever they run:
 #   - Playwright (the "Playwright ... IT" jobs) is the tool of the everyday pipeline: merge requests with code changes, develop
 #     and master. It has no support/* rule: support/4.x has no Playwright adapter;
-#   - Selenium (the "Chrome IT" and "Firefox IT" jobs) is the reference tool and runs less often: master, support/*, and the
+#   - Selenium (the "Selenium IT" jobs) is the reference tool and runs less often: master, support/*, and the
 #     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
 #     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
 # A pipeline where both tools run (master, the weekly schedule on develop) gates "Launch Sonar" with both.
@@ -856,14 +856,18 @@ Rewrite dry-run:
   image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
   stage: integration test
   # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
-  # automerge and the release jobs that need Sonar. One automatic job retry absorbs an occasional
-  # flaky run until per-test retry and a quarantine exist (#766); a real regression fails twice and
-  # still blocks. The Playwright jobs inherit this policy.
-  # Timeouts are not retried: a hung browser session should fail within one timeout window.
+  # automerge and the release jobs that need Sonar. A flaky test is handled by the tests, not by the job (#766):
+  # a failed test of an independent class is rerun alone and reported as flaky (failsafe rerunFailingTestsCount of the
+  # test applications, it.rerun-count), the classes that are a @DependentChain are never rerun in part, and a test that
+  # keeps being flaky is quarantined (see the quarantine jobs below). A test failure fails the job.
+  # The job is retried only when the runner fails (the infrastructure, not the test): a lost runner, a runner error.
+  # Not a script failure (that would run every test of the job again and hide the flaky ones) and not a timeout
+  # (a hung browser session should fail within one timeout window). No browser job retries on a script failure today: no test
+  # class is a @DependentChain, and .chain-retry (below) is the unused template that such a job would extend. The Playwright jobs
+  # inherit this policy.
   retry:
     max: 1
     when:
-      - script_failure
       - runner_system_failure
   timeout: 30m
   variables:
@@ -932,37 +936,65 @@ Rewrite dry-run:
   variables:
     BROWSER: service-chrome
 
-Firefox IT:
-  extends: .firefox-testing
+# Whole-job retry for the jobs that run a @DependentChain class (awe-testing). No browser test class is a chain today (CRUD was
+# split into independent classes), so no job extends this template and every browser job retries only on runner failures
+# (.browser-testing). It stays so that a chain that appears again has its retry: a chain is never rerun test by test (the rerun of
+# one step would find the data of the failed attempt), so a flaky step is absorbed by running the job again in a new container,
+# with a clean database. GitLab retries a job, not an entry of its matrix, so such a job retries as a whole. CiBrowserClassesGuardTest
+# derives the jobs that need it from the sources: a job that runs a @DependentChain class must extend this template and a job that
+# does not must not.
+# Order in "extends": list it AFTER the template that brings .browser-testing (.chrome-testing, .firefox-testing,
+# .playwright-chromium-testing, .playwright-firefox-testing). GitLab merges the listed templates in order and the last one that sets
+# a key wins, so listed before them, the retry that they inherit (runner failures only) would replace this one. It sets only
+# "retry", so its place among the other templates (.react-testing, which sets variables) does not matter.
+.chain-retry:
+  retry:
+    max: 1
+    when:
+      - script_failure
+      - runner_system_failure
+
+Selenium IT 2/4:
+  extends:
+    - .firefox-testing
   parallel:
     matrix:
-      - TEST_TAGS: ApplicationIntegrationIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: ApplicationIntegrationIT
         TEST_PORT: "6301"
         TEST_NAME: firefox-application-integration
-      - TEST_TAGS: CRUDCriteriaMatrixIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: CRUDCriteriaMatrixIT
         TEST_PORT: "6302"
         TEST_NAME: firefox-crud-criteria-matrix
-      - TEST_TAGS: RegressionWebsocketPrintIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: RegressionWebsocketPrintIT
         TEST_PORT: "6303"
         TEST_NAME: firefox-regression-websocket-print
-      - TEST_TAGS: SchedulerIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: SchedulerIT
         TEST_PORT: "6304"
         TEST_NAME: firefox-scheduler
 
-Chrome IT:
-  extends: .chrome-testing
+Selenium IT 1/4:
+  extends:
+    - .chrome-testing
   parallel:
     matrix:
-      - TEST_TAGS: ApplicationIntegrationIT
+      - TARGET: chrome-angularjs
+        TEST_TAGS: ApplicationIntegrationIT
         TEST_PORT: "6305"
         TEST_NAME: chrome-application-integration
-      - TEST_TAGS: CRUDCriteriaMatrixIT
+      - TARGET: chrome-angularjs
+        TEST_TAGS: CRUDCriteriaMatrixIT
         TEST_PORT: "6306"
         TEST_NAME: chrome-crud-criteria-matrix
-      - TEST_TAGS: RegressionWebsocketPrintIT
+      - TARGET: chrome-angularjs
+        TEST_TAGS: RegressionWebsocketPrintIT
         TEST_PORT: "6307"
         TEST_NAME: chrome-regression-websocket-print
-      - TEST_TAGS: SchedulerIT
+      - TARGET: chrome-angularjs
+        TEST_TAGS: SchedulerIT
         TEST_PORT: "6308"
         TEST_NAME: chrome-scheduler
 
@@ -976,7 +1008,8 @@ Chrome IT:
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
 #                             IntegrationTestsIT                                (port 6309 / 6313)
-#   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaTestsIT, ButtonTestsIT, MatrixTestsIT   (port 6310 / 6314)
+#   CRUDCriteriaMatrixIT: CRUDSiteTestsIT, CRUDProfileTestsIT, CRUDModuleTestsIT, CRUDDatabaseTestsIT, CRUDUserTestsIT,
+#                         CriteriaTestsIT, ButtonTestsIT, MatrixTestsIT   (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
 #   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
 #                SchedulerFileTaskTestsIT, SchedulerManagementTestsIT       (port 6312 / 6316)
@@ -988,48 +1021,57 @@ Chrome IT:
     IT_APP_MODULE: awe-tests/awe-boot-react
     IT_SELECTION: -Dit.test=${TEST_CLASSES}
 
-Firefox IT React:
+Selenium IT 4/4:
   extends:
     - .firefox-testing
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6309"
         TEST_NAME: react-firefox-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6310"
         TEST_NAME: react-firefox-crud-criteria-matrix
-      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6311"
         TEST_NAME: react-firefox-regression-websocket-print
-      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6312"
         TEST_NAME: react-firefox-scheduler
 
-Chrome IT React:
+Selenium IT 3/4:
   extends:
     - .chrome-testing
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+      - TARGET: chrome-react
+        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6313"
         TEST_NAME: react-chrome-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+      - TARGET: chrome-react
+        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6314"
         TEST_NAME: react-chrome-crud-criteria-matrix
-      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+      - TARGET: chrome-react
+        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6315"
         TEST_NAME: react-chrome-regression-websocket-print
-      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+      - TARGET: chrome-react
+        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6316"
         TEST_NAME: react-chrome-scheduler
 
 # Playwright browser suites (#812): the same suites as the Selenium jobs above, run with awe.test.tool=playwright in a local
 # headless browser that the job installs next to the application it starts (Playwright has no service or remote browsers).
 # They are the browser suites of the everyday pipeline, and so they:
-#   - block the pipeline, with the one automatic retry of .browser-testing (#766), like the Selenium jobs;
+#   - block the pipeline, with the per-test rerun and the job retry of .browser-testing (#766), like the
+#     Selenium jobs;
 #   - are needed by "Launch Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
 #   - run automatically on every merge request with code changes, on develop and on master, and never on support/*;
 #   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
@@ -1066,81 +1108,156 @@ Chrome IT React:
     BROWSER: headless-firefox
 
 
-Playwright Chromium IT:
-  extends: .playwright-chromium-testing
+Playwright IT 1/4:
+  extends:
+    - .playwright-chromium-testing
   rules: *rules-playwright
   parallel:
     matrix:
-      - TEST_TAGS: ApplicationIntegrationIT
+      - TARGET: chromium-angularjs
+        TEST_TAGS: ApplicationIntegrationIT
         TEST_PORT: "6317"
         TEST_NAME: playwright-chromium-application-integration
-      - TEST_TAGS: CRUDCriteriaMatrixIT
+      - TARGET: chromium-angularjs
+        TEST_TAGS: CRUDCriteriaMatrixIT
         TEST_PORT: "6318"
         TEST_NAME: playwright-chromium-crud-criteria-matrix
-      - TEST_TAGS: RegressionWebsocketPrintIT
+      - TARGET: chromium-angularjs
+        TEST_TAGS: RegressionWebsocketPrintIT
         TEST_PORT: "6319"
         TEST_NAME: playwright-chromium-regression-websocket-print
-      - TEST_TAGS: SchedulerIT
+      - TARGET: chromium-angularjs
+        TEST_TAGS: SchedulerIT
         TEST_PORT: "6320"
         TEST_NAME: playwright-chromium-scheduler
 
-Playwright Firefox IT:
-  extends: .playwright-firefox-testing
+Playwright IT 2/4:
+  extends:
+    - .playwright-firefox-testing
   rules: *rules-playwright
   parallel:
     matrix:
-      - TEST_TAGS: ApplicationIntegrationIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: ApplicationIntegrationIT
         TEST_PORT: "6321"
         TEST_NAME: playwright-firefox-application-integration
-      - TEST_TAGS: CRUDCriteriaMatrixIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: CRUDCriteriaMatrixIT
         TEST_PORT: "6322"
         TEST_NAME: playwright-firefox-crud-criteria-matrix
-      - TEST_TAGS: RegressionWebsocketPrintIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: RegressionWebsocketPrintIT
         TEST_PORT: "6323"
         TEST_NAME: playwright-firefox-regression-websocket-print
-      - TEST_TAGS: SchedulerIT
+      - TARGET: firefox-angularjs
+        TEST_TAGS: SchedulerIT
         TEST_PORT: "6324"
         TEST_NAME: playwright-firefox-scheduler
 
-Playwright Chromium IT React:
+Playwright IT 3/4:
   extends:
     - .playwright-chromium-testing
     - .react-testing
   rules: *rules-playwright-react
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+      - TARGET: chromium-react
+        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6325"
         TEST_NAME: playwright-react-chromium-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+      - TARGET: chromium-react
+        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6326"
         TEST_NAME: playwright-react-chromium-crud-criteria-matrix
-      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+      - TARGET: chromium-react
+        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6327"
         TEST_NAME: playwright-react-chromium-regression-websocket-print
-      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+      - TARGET: chromium-react
+        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6328"
         TEST_NAME: playwright-react-chromium-scheduler
 
-Playwright Firefox IT React:
+Playwright IT 4/4:
   extends:
     - .playwright-firefox-testing
     - .react-testing
   rules: *rules-playwright-react
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
         TEST_PORT: "6329"
         TEST_NAME: playwright-react-firefox-application-integration
-      - TEST_CLASSES: CRUDTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
         TEST_PORT: "6330"
         TEST_NAME: playwright-react-firefox-crud-criteria-matrix
-      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6331"
         TEST_NAME: playwright-react-firefox-regression-websocket-print
-      - TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+      - TARGET: firefox-react
+        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
         TEST_PORT: "6332"
         TEST_NAME: playwright-react-firefox-scheduler
+
+# Quarantine (#766): a flaky browser test is quarantined with @Quarantine(issue = "#123", reason = "..."), a class or a method
+# (awe-testing). The blocking jobs above leave the "quarantine" JUnit tag out (it.excluded-groups of the test applications), and
+# these jobs run the quarantined tests of both applications, so their results and their failure evidence (the artifacts of the
+# job) are not lost. They never block the pipeline (allow_failure) and are not needed by Sonar or the release jobs: a red
+# quarantine job is the signal that the issue of the test is still open. The job without quarantined tests ends at once:
+# it only searches the sources for the annotation (the application of the job is not even started).
+# Rules: the Playwright job runs where the Playwright suites run and the Selenium job where the Selenium suites run. They
+# run with the same tool and browser as the suites that left the test out: a test that is flaky with the other tool is not
+# covered. Ports 6333 to 6336 are free.
+.quarantine-testing:
+  allow_failure: true
+  # The report of one run is what is wanted: no job retry and no per-test rerun (it.rerun-count=0), so a flaky test shows
+  # as the failure it was instead of as a pass on the second attempt
+  retry: 0
+  variables:
+    IT_SELECTION: -Dgroups=quarantine -Dit.excluded-groups= -Dit.rerun-count=0
+    # The annotation in any form (@Quarantine(...) beside other annotations, with a space, fully qualified), searched only in the
+    # browser test classes (*IT.java): the guard and the helper classes mention it in strings and comments. A mention in a
+    # comment of a browser test only starts a run that finds nothing. CiBrowserClassesGuardTest runs this very command over
+    # each form and over the files that must not select the job.
+    QUARANTINE_ANNOTATION: '@([A-Za-z0-9_.]+[.])?Quarantine'
+  script:
+    - |
+      if ! grep -rqE --include='*IT.java' "$QUARANTINE_ANNOTATION" ${IT_APP_MODULE}/src/test/java; then
+        echo "Nothing is quarantined in ${IT_APP_MODULE}: there is nothing to run"
+        exit 0
+      fi
+    - !reference [.browser-testing, script]
+
+Quarantine Playwright IT:
+  extends:
+    - .playwright-chromium-testing
+    - .quarantine-testing
+  rules: *rules-playwright
+  parallel:
+    matrix:
+      - IT_APP_MODULE: awe-tests/awe-boot
+        TEST_PORT: "6333"
+        TEST_NAME: quarantine-playwright-chromium-angular
+      - IT_APP_MODULE: awe-tests/awe-boot-react
+        TEST_PORT: "6334"
+        TEST_NAME: quarantine-playwright-chromium-react
+
+Quarantine Selenium IT:
+  extends:
+    - .chrome-testing
+    - .quarantine-testing
+  rules: *rules-selenium   # explicit: the same rules as the Selenium suites that leave the quarantined tests out
+  parallel:
+    matrix:
+      - IT_APP_MODULE: awe-tests/awe-boot
+        TEST_PORT: "6335"
+        TEST_NAME: quarantine-chrome-angular
+      - IT_APP_MODULE: awe-tests/awe-boot-react
+        TEST_PORT: "6336"
+        TEST_NAME: quarantine-chrome-react
 
 
 gemnasium-maven-dependency_scanning:
@@ -1200,21 +1317,21 @@ Launch Sonar:
     # .rules-playwright and .rules-selenium together must cover every pipeline that runs this job, or Sonar and the
     # releases go ahead with no browser suite. Their IT coverage reaches Sonar as before: the *.exec files of both tools
     # have different names (jacoco-${TEST_NAME}-it.exec), so both sets are kept when both tools ran.
-    - job: Playwright Chromium IT
+    - job: Playwright IT 1/4
       optional: true
-    - job: Playwright Firefox IT
+    - job: Playwright IT 2/4
       optional: true
-    - job: Playwright Chromium IT React
+    - job: Playwright IT 3/4
       optional: true
-    - job: Playwright Firefox IT React
+    - job: Playwright IT 4/4
       optional: true
-    - job: Firefox IT
+    - job: Selenium IT 2/4
       optional: true
-    - job: Chrome IT
+    - job: Selenium IT 1/4
       optional: true
-    - job: Firefox IT React
+    - job: Selenium IT 4/4
       optional: true
-    - job: Chrome IT React
+    - job: Selenium IT 3/4
       optional: true
   cache:
     - key: ${CI_COMMIT_REF_SLUG}

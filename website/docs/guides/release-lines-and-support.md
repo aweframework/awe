@@ -59,14 +59,15 @@ from `develop`/`master`.
 
 The browser suites run with two tools, and both are blocking wherever they run: a failing suite
 fails the pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Renovate
-from automerging. Each suite is retried once automatically on a script or runner failure to
-absorb an occasional flaky run; a real regression fails twice, and a timeout is not retried.
+from automerging. A flaky test is rerun alone once and reported as flaky; a test that fails twice
+fails the job, and a job is retried only when the runner fails (not on a test failure or a timeout).
 
-- **Playwright** (jobs `Playwright Chromium IT`, `Playwright Firefox IT`, `Playwright Chromium IT
-  React` and `Playwright Firefox IT React`) is the browser tool of the everyday pipeline: merge
+- **Playwright** (jobs `Playwright IT 1/4` to `Playwright IT 4/4`: Chromium and Firefox, each one
+  against the AngularJS and the React application) is the browser tool of the everyday pipeline: merge
   requests with code changes, `develop` and `master`. It does not run on `support/*`: `support/4.x`
   has no Playwright adapter.
-- **Selenium** (jobs `Firefox IT`, `Chrome IT`, `Firefox IT React` and `Chrome IT React`) runs on
+- **Selenium** (jobs `Selenium IT 1/4` to `Selenium IT 4/4`: Chrome and Firefox, each one against
+  the AngularJS and the React application) runs on
   `master`, on `support/*` and in the pipelines of the **"Weekly Check" pipeline schedule on
   `develop`**. It does not run on merge requests or on an ordinary push to `develop`. The schedule
   is a project setting in GitLab (CI/CD, Schedules), not a file of the repository; the "Renovate"
