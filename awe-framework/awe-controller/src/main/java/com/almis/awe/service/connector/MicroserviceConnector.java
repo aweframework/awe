@@ -50,7 +50,9 @@ public class MicroserviceConnector extends AbstractRestConnector {
     // Variable definition
     ServiceData outData;
     final Map<String, ServiceDetails> microservicesConfig = restConfigProperties.getServices();
-    ServiceMicroservice microservice = (ServiceMicroservice) service;
+    // Work on a per-call copy: the service definition loaded from Services.xml is shared between calls and threads
+    ServiceMicroservice microservice = ((ServiceMicroservice) service).copy();
+    microservice.setParameterList(new ArrayList<>(Optional.ofNullable(microservice.getParameterList()).orElse(Collections.emptyList())));
     ServiceDetails serviceDetails = Optional.ofNullable(microservicesConfig.get(microservice.getName())).orElse(new ServiceDetails().setName(microservice.getName()));
 
     // Retrieve microservice url
@@ -143,12 +145,7 @@ public class MicroserviceConnector extends AbstractRestConnector {
     parameter.setName(restParameter.getName());
     parameter.setValue(restParameter.getValue());
     parameter.setType(ParameterType.STRING.toString());
-    List<ServiceInputParameter> parameterList = microservice.getParameterList();
-    if (parameterList == null) {
-      parameterList = Collections.synchronizedList(new ArrayList<>());
-    }
-    parameterList.add(parameter);
-    microservice.setParameterList(parameterList);
+    microservice.getParameterList().add(parameter);
   }
 
   /**
