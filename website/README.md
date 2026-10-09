@@ -31,7 +31,7 @@ The build treats a broken link as an error. Broken anchors (`page#section`) are 
 | `sidebars.js` | Sidebar of the current docs. |
 | `src/`, `static/` | Site pages, components and static files. |
 | `docusaurus.config.js` | Site configuration (locales, versions, navbar). |
-| `crowdin.yml` | Translation configuration. |
+| `i18n/es/` | Spanish translations (see Translations below). |
 
 The 4.x maintenance line is not edited here: it is written on the `support/4.x` branch and injected as a live
 "4.x (maintenance)" version at build time by `bin/website-maintenance-docs.sh`. See
@@ -47,23 +47,34 @@ The 4.x maintenance line is not edited here: it is written on the `support/4.x` 
   `import Anchor from '@site/src/components/Anchor';` and `<Anchor id="my-anchor"/>`.
 - A change in behavior is not done until its page is updated. See "Definition of done" in `CONTRIBUTING.md`.
 
-## Translations (Crowdin)
+## Translations
 
-English is the source and Spanish (`es`) is translated in [Crowdin](https://crowdin.com/): the translated files live
-in `website/i18n`, which is **not** in the repository (it is git-ignored). Never edit translations by hand.
+English is the source and Spanish (`es`) is translated **in this repository**, under `i18n/es`: pages of the current docs in
+`i18n/es/docusaurus-plugin-content-docs/current`, frozen versions in `.../version-<x.y.z>`, blog posts in
+`.../docusaurus-plugin-content-blog` and the interface texts in the `*.json` files. The folder mirrors `docs/`, so the
+Spanish version of `docs/api/button.md` is `i18n/es/docusaurus-plugin-content-docs/current/api/button.md`.
 
-- The pipeline job `Build website with i18n` runs `npm run crowdin:sync` (`docusaurus write-translations`, then
-  `crowdin upload` and `crowdin download`) on `develop` and `master`, and then builds all locales. It needs the CI
-  variables `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
-- Locally you only get English content in every locale: without `website/i18n`, the `es` site shows the English
-  text. To work on the English site only, run `npm --prefix website start` (the dev server serves the default locale).
+- A page without a translation shows the English one (Docusaurus falls back to the default content). Commit only pages
+  that are really translated: do not copy an English page just to have it there.
+- Edit the Spanish page in the same merge request as the English one. The `MR translation drift warning` job warns (it
+  never blocks) when a merge request changes an English page under `docs/` whose Spanish translation exists and is not
+  changed in that merge request.
+- Every translated heading keeps the id of its English heading (`## Elemento chart {#chart-element}`), so a link such
+  as `chart.md#chart-element` works in both languages. Keep the same headings, in the same order, as the English page.
+- Links between pages work whether the target is translated or not: a plugin (`scripts/remark-content-root-links.js`)
+  resolves relative `.md` links from the root of the docs, so keep writing them as usual.
+- The pipeline job `Build website with i18n` builds all locales from the repository on `develop` and `master`. Locally,
+  `npm --prefix website run build` does the same and `npm --prefix website start` serves English only; to see Spanish
+  run `npm --prefix website start -- --locale es`.
+- New interface texts: `npm --prefix website run write-translations -- --locale es` adds the missing keys to the JSON
+  files; translate the new `message` values.
 
 ## Generated reference
 
 The "XSD reference" (`/reference`) is generated from the schemas in `awe-framework/awe-generic-screens` by
 `scripts/xsd-reference/`. It is written to the ignored `reference/` folder before every `start`, `build`,
-`write-translations`, `crowdin:sync` and `docusaurus` run (npm `pre` scripts), and by `docusaurus.config.js` when it is
-missing, so any other docusaurus command finds it. It is English only and is not uploaded to Crowdin.
+`write-translations` and `docusaurus` run (npm `pre` scripts), and by `docusaurus.config.js` when it is
+missing, so any other docusaurus command finds it. It is English only and has no translation.
 
 ```
 $ npm run generate:reference   # regenerate it and print the attribute documentation coverage

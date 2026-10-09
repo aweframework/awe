@@ -152,7 +152,7 @@ A merge request is done when all of this is true:
   request, or the description says why no docs are needed. The `MR docs warning` job reminds you when
   code changes and neither happens; it is a warning, not a blocker (see
   [Merge request title and size](website/docs/guides/release-lines-and-support.md#docs-warning-not-blocking)).
-  The English pages are the source: translations come from Crowdin and are never edited by hand.
+  The English pages are the source. Spanish translations live in `website/i18n/es` and are edited in the repository; a page without a translation shows the English one. The `MR translation drift warning` job tells you when you change an English page whose translation you did not touch.
 - **Migration guide**: a breaking change (a removed or renamed API, property, XML, database script or
   JSON field, or a changed default) has its entry in the
   [AWE 5 migration guide](website/docs/guides/v5-migration.md).

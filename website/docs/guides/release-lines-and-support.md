@@ -53,7 +53,6 @@ from `develop`/`master`.
 | Start a new release (manual) | yes | no | yes | no |
 | Deploy staging / production (Kubernetes) | no | yes (prod) | no | no |
 | DAST | no | yes | no | no |
-| Crowdin sync | yes | no | no | no |
 | GitLab Pages (docs site) | yes | yes | no | no |
 | Tag pipeline (Maven Central, milestones, release notes) | on tag | on tag | on tag | no |
 
@@ -189,7 +188,20 @@ as a merge request does):
 CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop
 ```
 
-`bin/test-mr-checks.sh` tests the three scripts; the job `MR checks tests` runs it in merge
+### Translation drift warning (not blocking)
+
+Spanish translations live in the repository (`website/i18n/es`), and a page without a translation
+falls back to English. The job `MR translation drift warning` warns when a merge request changes
+an English page under `website/docs` whose Spanish translation exists in
+`website/i18n/es/docusaurus-plugin-content-docs/current` and does not change that translation in
+the same merge request. Frozen versions are not checked. It ends with exit code 64 (allowed to
+fail) or 0, like the other warnings; run it locally with:
+
+```bash
+bin/mr-translations.sh origin/develop
+```
+
+`bin/test-mr-checks.sh` tests the four scripts; the job `MR checks tests` runs it in merge
 requests that change them.
 
 ## Frontend lint (blocking)
@@ -466,8 +478,8 @@ maintenance-docs.sh` fetches `support/4.x`, snapshots its `website/docs` and
 A documentation change for the 4.x line is therefore made **once**, in a merge request
 against `support/4.x`, and appears on the public site automatically after the next
 `develop` pipeline runs, without any change on `develop` itself (see issue #787).
-Crowdin also receives the `support/4.x` sources for translation, the same way it
-receives `develop`'s.
+Spanish translations of the 4.x pages are not part of that injection: the page falls back to
+English unless a translation exists under `website/i18n/es` on `develop`.
 
 ## Support window (proposed)
 

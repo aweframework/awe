@@ -357,6 +357,15 @@ MR docs warning:
   allow_failure:
     exit_codes: 64
 
+# Non-blocking (#784). Warns when a merge request changes an English page of website/docs whose Spanish translation exists in
+# website/i18n/es and does not change that translation in the same merge request. Same exit code 64 as the other warnings.
+MR translation drift warning:
+  extends: .mr-checks
+  script:
+    - bin/mr-translations.sh
+  allow_failure:
+    exit_codes: 64
+
 # Tests of the checks above and of the broken anchors check of the website build; only when something they use changes.
 MR checks tests:
   extends: .mr-checks
@@ -369,6 +378,7 @@ MR checks tests:
         - bin/lint-mr-title.sh
         - bin/mr-size.sh
         - bin/mr-docs.sh
+        - bin/mr-translations.sh
         - bin/check-website-anchors.sh
         - bin/test-mr-checks.sh
         - bin/test-fixtures/**/*
@@ -472,8 +482,8 @@ Build website:
   extends: .build-website
   script:
     - npm --prefix website ci
-    # Unit tests of the generator of the XSD reference (see website/scripts/xsd-reference)
-    - npm --prefix website run test:reference
+    # Unit tests of the website scripts: the XSD reference generator and the remark link plugin
+    - npm --prefix website run test:scripts
     # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot
     # before building, so the MR pipeline validates the same injection used in production.
     - chmod +x ./bin/website-maintenance-docs.sh
@@ -496,14 +506,12 @@ Build website with i18n:
   script:
     - npm --prefix website ci
     # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot before
-    # building, so Crowdin syncs its sources too and the published site tracks support/4.x.
+    # building, so the published site tracks support/4.x.
     - chmod +x ./bin/website-maintenance-docs.sh
     - ./bin/website-maintenance-docs.sh
-    # Do translations
-    - npm --prefix website run crowdin:sync
+    # Builds every locale from the repository: the Spanish translations live in website/i18n/es
     - npm --prefix website run build
-  resource_group: crowdin
-  # Support branches are intentionally excluded: no Crowdin sync for maintenance lines.
+  # Support branches are intentionally excluded: the public site is published from develop and master.
   rules:
     - <<: *if-develop
     - <<: *if-master

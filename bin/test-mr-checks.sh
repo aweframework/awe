@@ -8,6 +8,7 @@ set -eu
 #   - bin/lint-mr-title.sh  (job "MR title lint", blocking)
 #   - bin/mr-size.sh        (job "MR size warning", non-blocking)
 #   - bin/mr-docs.sh        (job "MR docs warning", non-blocking)
+#   - bin/mr-translations.sh (job "MR translation drift warning", non-blocking)
 #
 # Run it from anywhere: sh bin/test-mr-checks.sh
 # The title tests install commitlint on first use (npm ci in .gitlab/commitlint), so they need
@@ -394,6 +395,112 @@ set -e
 case "$OUT" in *"MR docs warning"*) text_ok=1 ;; *) text_ok=0 ;; esac
 if [ "$RC" -eq 64 ] && [ "$text_ok" -eq 1 ]; then pass "docs: docs that only the base has do not count"; else fail "docs: moved base, docs (exit $RC)" "$OUT"; fi
 (cd "$REPO" && git branch -q -D feature)
+
+# ------------------------------------------------------------
+# Translation drift warning (#784)
+# ------------------------------------------------------------
+
+TRANSLATIONS="$BIN_DIR/mr-translations.sh"
+EN_PAGE="website/docs/api/button.md"
+ES_PAGE="website/i18n/es/docusaurus-plugin-content-docs/current/api/button.md"
+
+# A repository where the English page and its translation exist at the base (BASE_TR), ready for the change under test
+translations_repo() {
+  reset_repo
+  lines 5 "$REPO/$EN_PAGE"
+  lines 5 "$REPO/$ES_PAGE"
+  lines 5 "$REPO/website/docs/api/untranslated.md"
+  commit_all
+  BASE_TR=$(cd "$REPO" && git rev-parse HEAD)
+}
+
+# "$1" name, "$2" exit code, "$3" text in the output
+translations_case() {
+  set +e
+  OUT=$(cd "$REPO" && env -u CI_MERGE_REQUEST_DIFF_BASE_SHA -u CI_MERGE_REQUEST_TARGET_BRANCH_NAME "$TRANSLATIONS" "$BASE_TR" HEAD 2>&1)
+  RC=$?
+  set -e
+  case "$OUT" in
+    *"$3"*) text_ok=1 ;;
+    *) text_ok=0 ;;
+  esac
+  if [ "$RC" -eq "$2" ] && [ "$text_ok" -eq 1 ]; then
+    pass "translations: $1"
+  else
+    fail "translations: $1 (exit $RC, expected $2, text '$3')" "$OUT"
+  fi
+}
+
+translations_repo
+lines 9 "$REPO/$EN_PAGE"
+commit_all
+translations_case "an English page changed without its translation warns" 64 "MR translation drift warning"
+case "$OUT" in *"$EN_PAGE -> $ES_PAGE"*) pass "translations: the warning names the page and its translation" ;; *) fail "translations: the warning should name the pair" "$OUT" ;; esac
+
+translations_repo
+lines 9 "$REPO/$EN_PAGE"
+lines 9 "$REPO/$ES_PAGE"
+commit_all
+translations_case "the page and its translation changed together passes" 0 "no translated page"
+
+translations_repo
+lines 9 "$REPO/website/docs/api/untranslated.md"
+commit_all
+translations_case "an English page without translation passes" 0 "no translated page"
+
+translations_repo
+lines 9 "$REPO/$ES_PAGE"
+commit_all
+translations_case "a translation changed alone passes" 0 "no translated page"
+
+translations_repo
+(cd "$REPO" && git rm -q "$EN_PAGE")
+commit_all
+translations_case "a deleted English page passes" 0 "no translated page"
+
+translations_repo
+lines 9 "$REPO/website/versioned_docs/version-4.12.0/api/button.md"
+lines 9 "$REPO/awe-framework/awe-model/src/main/java/Foo.java"
+commit_all
+translations_case "frozen versions and code are not checked" 0 "no translated page"
+
+# Several pages: only the ones without their translation are named
+translations_repo
+lines 5 "$REPO/website/docs/api/grids.md"
+lines 5 "$REPO/website/i18n/es/docusaurus-plugin-content-docs/current/api/grids.md"
+commit_all
+BASE_TR=$(cd "$REPO" && git rev-parse HEAD)
+lines 9 "$REPO/$EN_PAGE"
+lines 9 "$REPO/website/docs/api/grids.md"
+lines 9 "$REPO/website/i18n/es/docusaurus-plugin-content-docs/current/api/grids.md"
+commit_all
+translations_case "only the pages without their translation are named" 64 "1 English page(s)"
+case "$OUT" in *"api/grids.md"*) fail "translations: grids.md was translated in the same change" "$OUT" ;; *) pass "translations: a page changed with its translation is not named" ;; esac
+
+# Advisory: no base, or a base that is not in the clone, is a notice with exit 0
+set +e
+OUT=$(cd "$REPO" && env -u CI_MERGE_REQUEST_DIFF_BASE_SHA -u CI_MERGE_REQUEST_TARGET_BRANCH_NAME "$TRANSLATIONS" 2>&1)
+RC=$?
+set -e
+case "$OUT" in *"no base to compare with"*) text_ok=1 ;; *) text_ok=0 ;; esac
+if [ "$RC" -eq 0 ] && [ "$text_ok" -eq 1 ]; then pass "translations: a missing base is a notice, exit 0"; else fail "translations: missing base (exit $RC)" "$OUT"; fi
+
+set +e
+OUT=$(cd "$REPO" && CI_MERGE_REQUEST_DIFF_BASE_SHA=0123456789012345678901234567890123456789 "$TRANSLATIONS" 2>&1)
+RC=$?
+set -e
+case "$OUT" in *"could not compare"*) text_ok=1 ;; *) text_ok=0 ;; esac
+if [ "$RC" -eq 0 ] && [ "$text_ok" -eq 1 ]; then pass "translations: a base that is not in the clone is a notice, exit 0"; else fail "translations: unknown base (exit $RC)" "$OUT"; fi
+
+# Base from the CI variable
+translations_repo
+lines 9 "$REPO/$EN_PAGE"
+commit_all
+set +e
+OUT=$(cd "$REPO" && CI_MERGE_REQUEST_DIFF_BASE_SHA="$BASE_TR" "$TRANSLATIONS" 2>&1)
+RC=$?
+set -e
+if [ "$RC" -eq 64 ]; then pass "translations: base from CI_MERGE_REQUEST_DIFF_BASE_SHA"; else fail "translations: CI_MERGE_REQUEST_DIFF_BASE_SHA" "$OUT"; fi
 
 # ------------------------------------------------------------
 # Broken anchors of the website build

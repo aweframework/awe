@@ -227,6 +227,16 @@ else
 
   echo "+ npm --prefix website run docusaurus -- docs:version $LABEL"
   npm --prefix website run docusaurus -- docs:version "$LABEL"
+
+  # docs:version also copies the translations of the current docs (website/i18n/<locale>/.../current) into the new
+  # version. Those pages belong to develop, not to the maintenance line (they link pages the line does not have), so
+  # they are removed: the maintenance version shows its own English pages in every locale.
+  for translated in website/i18n/*/docusaurus-plugin-content-docs/version-"$LABEL"; do
+    if [[ -d "$translated" ]]; then
+      echo "+ rm -rf $translated (copy of the current translations, not of $LABEL)"
+      rm -rf "$translated"
+    fi
+  done
 fi
 
 if [[ "$DRY_RUN" == "1" ]]; then

@@ -1,5 +1,6 @@
 const versions = require('./versions.json');
 const {ensureGenerated} = require('./scripts/xsd-reference/generate');
+const remarkContentRootLinks = require('./scripts/remark-content-root-links');
 
 // The "reference" docs instance below needs its folder for ANY docusaurus command (build, deploy, swizzle,
 // docs:version...), not only the npm scripts that regenerate it first (see the "pre" scripts in package.json).
@@ -38,8 +39,8 @@ module.exports = {
 	themes: ['@docusaurus/theme-mermaid'],
 	plugins: [
 		// Reference generated from the sources at build time (see scripts/xsd-reference). It is a docs
-		// instance of its own so that it is English only and never reaches Crowdin (which uploads
-		// docs/** and versioned_docs/**) nor the "docs:version" snapshots of the default instance.
+		// instance of its own so that it is English only (it has no translations) and is kept out of the
+		// "docs:version" snapshots of the default instance.
 		[
 			'@docusaurus/plugin-content-docs',
 			{
@@ -197,6 +198,9 @@ module.exports = {
 						}
 						return `https://gitlab.com/aweframework/awe/edit/master/website/versioned_docs/version-${version}/${docPath}`;
 					},
+					// Relative .md links resolve against the page's own tree, which breaks between translated and
+					// untranslated (fallback) pages of the es locale: see the plugin for the detail.
+					beforeDefaultRemarkPlugins: [[remarkContentRootLinks, {siteDir: __dirname}]],
 					includeCurrentVersion: true,
 					showLastUpdateTime: true,
 					showLastUpdateAuthor: true,
