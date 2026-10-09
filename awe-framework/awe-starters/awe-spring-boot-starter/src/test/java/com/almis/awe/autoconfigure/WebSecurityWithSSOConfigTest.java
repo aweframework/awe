@@ -7,6 +7,7 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.security.handler.AweOauth2AuthenticationFailureHandler;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.session.AweSessionDetails;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -80,6 +82,25 @@ class AuthenticationWithSSOConfigTest {
 					Assertions.assertThat(context).hasBean("authenticationConverter");
 					Assertions.assertThat(context).hasBean("authSuccessHandler");
 					Assertions.assertThat(context).hasBean("authFailureHandler");
+				});
+	}
+
+	@Test
+	void testSuccessHandlerUsesTheInjectedFailureHandlerBean() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.run(context -> Assertions.assertThat(ReflectionTestUtils.getField(context.getBean("authSuccessHandler"), "failureHandler"))
+						.isSameAs(context.getBean("authFailureHandler")));
+	}
+
+	@Test
+	void testApplicationProvidedFailureHandlerIsHonoured() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.withBean("customFailureHandler", AweOauth2AuthenticationFailureHandler.class, () -> new AweOauth2AuthenticationFailureHandler(null))
+				.run(context -> {
+					Assertions.assertThat(context).hasNotFailed();
+					Assertions.assertThat(context).doesNotHaveBean("authFailureHandler");
+					Assertions.assertThat(ReflectionTestUtils.getField(context.getBean("authSuccessHandler"), "failureHandler"))
+							.isSameAs(context.getBean("customFailureHandler"));
 				});
 	}
 

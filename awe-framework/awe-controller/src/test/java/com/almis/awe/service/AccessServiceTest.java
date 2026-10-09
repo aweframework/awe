@@ -8,8 +8,8 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
-import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
@@ -28,6 +28,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -268,16 +270,16 @@ class AccessServiceTest {
         .setContext("public-context")
         .addParameter("connectionToken", "mock-uuid");
     when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
-    
+
     // When
     ServiceData serviceData = accessService.logout();
-    
+
     // Then
     assertEquals(1, serviceData.getClientActionList().size());
-    
+
     // Verify the logout redirect action is called
     verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
-    
+
     // Verify client actions are properly configured for SSO with auto-launch
     ClientAction clientAction = serviceData.getClientActionList().get(0);
     assertEquals("screen", clientAction.getType());
@@ -292,16 +294,16 @@ class AccessServiceTest {
         .setTarget("/")
         .addParameter("connectionToken", "mock-uuid");
     when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
-    
+
     // When
     ServiceData serviceData = accessService.logout();
-    
+
     // Then
     assertEquals(1, serviceData.getClientActionList().size());
-    
+
     // Verify the logout redirect action is called
     verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
-    
+
     // Verify client actions are properly configured for non-SSO
     ClientAction clientAction = serviceData.getClientActionList().get(0);
     assertEquals("screen", clientAction.getType());
@@ -597,6 +599,79 @@ class AccessServiceTest {
 
     // Then
     assertThrows(AWException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingDisabledUser_isRejected() throws AWException {
+    // Given - user stored in AWE as disabled
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setEnabled(false));
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage("ERROR_MESSAGE_SSO_USER_DISABLED", "en-GB")).thenReturn("disabled message");
+
+    // When
+    DisabledException exception = assertThrows(DisabledException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+
+    // Then - no AWE session, no profile update, localized message
+    assertEquals("disabled message", exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingLockedUser_isRejected() throws AWException {
+    // Given - user stored in AWE as locked
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setAccountNonLocked(false));
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage("ERROR_MESSAGE_SSO_USER_LOCKED", "en-GB")).thenReturn("locked message");
+
+    // When
+    LockedException exception = assertThrows(LockedException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+
+    // Then
+    assertEquals("locked message", exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingUserWithExpiredPassword_stillLogsIn() throws AWException {
+    // Given - the password is not used on SSO, so credentials expiration must not block the login
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName("DUMMY").setCredentialsNonExpired(false));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("DUMMY"));
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // When
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Then
+    assertNotNull(initialUrl);
+    verify(aweSessionDetails, times(1)).onLoginSuccess(any());
+  }
+
+  private static OAuth2AuthenticationToken getTokenWithRole(String role) {
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap), new SimpleGrantedAuthority(role));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    return new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
   }
 
 	@NotNull

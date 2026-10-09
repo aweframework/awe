@@ -473,6 +473,8 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="Maintain operation -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Malformed query, using a variable list in a field: {0}"/>
+  <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Your user is disabled in the application. Contact your system administrator."/>
+  <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Your user is locked in the application. Contact your system administrator."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="SUBSTRING operation requires 2 or 3 operands (source, beginIndex) or (source, beginIndex, endIndex), but got {0}"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="SUBSTRING operand {0} must be an integer-compatible constant or variable, but got: {1}"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="Current menu is not cloneable"/>

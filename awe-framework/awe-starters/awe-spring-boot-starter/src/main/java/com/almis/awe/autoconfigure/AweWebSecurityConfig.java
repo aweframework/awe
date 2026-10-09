@@ -229,8 +229,9 @@ public class AweWebSecurityConfig {
 				oauth2.loginPage("/");
 			}
 			// Configure sso handlers
-			oauth2.successHandler(authSuccessHandler());
-			oauth2.failureHandler(authFailureHandler());
+			// (resolved from the context so handler beans provided by the application are honoured)
+			oauth2.successHandler(context.getBean(AweOauth2AuthenticationSuccessHandler.class));
+			oauth2.failureHandler(context.getBean(AweOauth2AuthenticationFailureHandler.class));
 		});
 	}
 
@@ -395,8 +396,8 @@ public class AweWebSecurityConfig {
 	@Bean
 	@ConditionalOnProperty(prefix = "awe.security.sso", name = "enabled", havingValue = "true")
 	@ConditionalOnMissingBean
-	public AweOauth2AuthenticationSuccessHandler authSuccessHandler() {
-		return new AweOauth2AuthenticationSuccessHandler(accessService);
+	public AweOauth2AuthenticationSuccessHandler authSuccessHandler(AweOauth2AuthenticationFailureHandler failureHandler) {
+		return new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler);
 	}
 
 	@Bean
@@ -405,7 +406,7 @@ public class AweWebSecurityConfig {
 	public AweOauth2AuthenticationFailureHandler authFailureHandler() {
 		return new AweOauth2AuthenticationFailureHandler(errorPageService);
 	}
-	
+
 	// ============== TRADITIONAL AUTH BEANS ==============
 
 	@Bean

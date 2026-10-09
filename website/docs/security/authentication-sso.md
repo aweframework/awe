@@ -45,6 +45,17 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 By default, if the user logged in the application with this  doesn't exist in database, it  will be provisioned by registering it by adding a new record in the user table.
 If you do not want this behavior, you can disable it setting false the configuration property `awe.security.auto-provision-use`.
 
+## Disabled and locked users
+
+AWE keeps the final say on who can enter the application. If the user that the identity provider has just
+authenticated already exists in AWE and is **disabled** or **locked**, the SSO login is rejected: no AWE session is
+created, the authentication is discarded and the user sees an error page explaining that the user is disabled or
+locked in the application. The provider cannot be used to bypass those flags.
+
+- Users that do not exist in AWE yet follow the auto-provisioning rules above.
+- Password expiration does not apply to SSO logins, since the password is not used. Account expiration is not checked either, because AWE has no account-expiry column.
+- Each rejection is logged as a warning with the user name.
+
 ## Role mapping and profile synchronization
 
 On every SSO login, AWE maps the granted authorities coming from the identity provider to a profile, using
