@@ -1,3 +1,13 @@
+# Release notes for AWE 4.13.1
+*09/10/2026*
+ 
+🐛 Bug fixes:
+- build(deps): upgrade ADE to 3.0.3 on support/4.x (#851). [MR #903](https://gitlab.com/aweframework/awe/-/merge_requests/903) (Pablo Javier García Mora)
+- fix(awe-controller): do not mutate the shared microservice definition on each call (#850). [MR #899](https://gitlab.com/aweframework/awe/-/merge_requests/899) (Pablo Javier García Mora)
+- chore(deps): update dependency @babel/core to v7.29.6 [security] (support/4.x). [MR #755](https://gitlab.com/aweframework/awe/-/merge_requests/755) (Pablo Javier García Mora)
+- fix(deps): update dependency org.jsoup:jsoup to v1.23.2 [security] (support/4.x). [MR #747](https://gitlab.com/aweframework/awe/-/merge_requests/747) (Pablo Javier García Mora)
+- chore(deps): update dependency karma to v6.3.16 [security] (support/4.x). [MR #743](https://gitlab.com/aweframework/awe/-/merge_requests/743) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.13.0
 *06/10/2026*
  
