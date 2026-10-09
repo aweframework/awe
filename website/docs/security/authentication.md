@@ -52,6 +52,35 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
+## Password expiration (local login)
+
+The `PwdExp` application parameter sets the number of days a password stays valid. It applies to the local login
+(`bbdd` authentication mode, users stored in the `ope` table). The date of the last password change is the `l1_psd`
+column of the user.
+
+| `PwdExp` | Last password change | Result |
+|---|---|---|
+| Not set or inactive | Any, including never | The password never expires. |
+| Set (for example `30`) | Fewer than `PwdExp` days ago | The password is accepted. |
+| Set | `PwdExp` days ago or more | The password is expired and the login is rejected. |
+| Set | Never (empty date) | The password is expired and the login is rejected: the user has to change it. |
+
+A user who has never changed the password has no change date. This is the case of a user that is created without a
+change date and of a user whose password an administrator sets in the users screen (the screen clears the date). With `PwdExp` set, such a user is rejected as expired, and without `PwdExp` the
+missing date has no effect.
+
+The expiration is checked after the password is verified. An expired login is rejected with the
+message `User credentials have expired`. Accounts that authenticate through [SSO](authentication-sso.md)
+are not affected, because the password is not used there.
+
+To change the password, the `change-password` screen (`ChdPwd` maintain target) stores the current date as the new
+date of the last change.
+
+:::note
+The date is stored without time of day by the `change-password` screen, so a password is valid until `PwdExp` days
+after the start of the day it was changed.
+:::
+
 ## Two-factor authentication (2fa)
 We've recently developed a new two-factor authentication system based on _authentication apps_ such as **Google Authenticator**.
 

@@ -54,6 +54,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Charts (React engine) | Charts are empty with an AWE 4 server, a series has a different color, 3D charts are flat, `.highcharts-*` CSS rules do nothing, or a custom component that imports Highcharts does not build. | Review the server log for `Highcharts chart-parameter` warnings, set colors and fonts in the XML, and declare Highcharts yourself if your own code imports it. | [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5), [React client upgrade](react-client-upgrade.md#charts-use-apache-echarts) (MR !854, !855, !856) |
 | Browser tests | The compiler warns that `By` overloads and `getDriver()` are deprecated; tests depend on the order of the classes. | Move custom steps to the `Locator` overloads and to `getBrowser()`; set up the session in each test with `ensureLoggedIn`/`ensureModule`. To try Playwright, set `awe.test.tool=playwright`. Nothing is removed before 6.0. | [Selenium test guide](selenium-test-guide.md#api-compatibility-of-awe-testing), [independent test classes](selenium-test-guide.md#independent-test-classes), [Custom steps without Selenium types](selenium-test-guide.md#custom-steps-without-selenium-types) (MR !840, !841) |
 | `jsoup` dependency | `org.jsoup:jsoup` is no longer on the classpath of `awe-model` and is no longer managed by the `awe-dependencies` BOM. | If your own code uses jsoup, declare the dependency and its version in your `pom.xml`. No action otherwise. See the note below the table. | MR !849 |
+| Password expiration (`PwdExp`) | The application sets the `PwdExp` parameter. After the upgrade, users whose last password change is older than `PwdExp` days are rejected as expired (they used to get in), and users who changed it recently can log in again (they used to be rejected). | Nothing for correct data: the check is no longer inverted (see the note below the table). Review the users that never changed the password and the value of `PwdExp`. | [Password expiration](../security/authentication.md#password-expiration-local-login), issue #846 |
 | Menu JSON | The menu payload is smaller. | Nothing, unless a custom client reads `elementList` from a menu `Option`: read `options` instead. See the note below the table. | MR !792 |
 | Scheduler database | Flyway fails with a checksum mismatch on `SCHEDULER_V1.0.5`, or a new database cannot be built from scratch. | Run the migration step described below. | MR !843 |
 
@@ -73,6 +74,27 @@ A menu `Option` used to serialize its children twice, under `elementList` and un
 the payload at each level of the menu tree. `elementList` is no longer part of the JSON of an `Option` (MR !792). The
 clients of this repository read `options`, so nothing changes for them. The `elementList` of the screen tree
 (components of a screen) is not affected.
+
+### Password expiration (`PwdExp`)
+
+When the `PwdExp` parameter is set, the local login evaluated the expiration the wrong way round: a password changed
+within the last `PwdExp` days was rejected as expired and an older one was accepted. It is now evaluated correctly
+(issue #846): the password is accepted until `PwdExp` days after the last change.
+
+What to do:
+
+- **Applications that do not set `PwdExp`:** nothing, passwords never expire.
+- **Applications that set `PwdExp`:** users whose last change is older than `PwdExp` days can no longer log in until
+  they change the password, and users with a recent change can log in. Check the value of `PwdExp` before the upgrade.
+  To avoid locking many users out at once, review the password change dates before the upgrade and raise `PwdExp`
+  (or deactivate it) for a transition period, until users have changed their passwords through the change-password
+  option. A password set by an administrator in the users screen does not help here: it leaves the change date empty,
+  which counts as expired while `PwdExp` is set (see below). The login screen has no guided password change yet.
+- **Rolling back to AWE 4** after users changed their passwords brings the inverted check back: users with a recent
+  change are rejected again. Deactivate `PwdExp` before rolling back.
+- **Users that never changed the password** (empty date) are still rejected as expired when `PwdExp` is set, as before.
+  This includes users whose password an administrator set in the users screen.
+- **Test data:** an integration test that logs in with a user whose password date is old needs a `PwdExp` value larger than the age of that password (the AWE test apps use 36500 days).
 
 ### Scheduler migration `SCHEDULER_V1.0.5`
 
@@ -116,6 +138,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Every screen with a chart was opened and the server log has no `Highcharts chart-parameter` warnings
 - [ ] Custom code that imports Highcharts or reads `.highcharts-*` CSS was reviewed
 - [ ] Custom code that uses jsoup declares its own dependency
+- [ ] If the application sets `PwdExp`, the value and the users with an old or empty password change date were reviewed
 - [ ] Custom clients do not read `elementList` from the menu JSON
 - [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
 - [ ] Browser tests compile; the `By` overloads and `getDriver()` were moved to `Locator` and `getBrowser()`
