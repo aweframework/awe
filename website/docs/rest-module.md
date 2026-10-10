@@ -1,5 +1,5 @@
 ---
-id: rest 
+id: rest
 title: Rest API Module
 sidebar_label: Rest API Module
 ---
@@ -339,7 +339,7 @@ public void authenticateUser() {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     // Build authenticate request
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api/authenticate"))
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api/authenticate")
     .queryParam("username","test")
     .queryParam("password","test");
     HttpEntity<String> entity = new HttpEntity<>(headers);

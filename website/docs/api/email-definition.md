@@ -49,7 +49,7 @@ The email structure is the following:
 | Element                                             | Use           | Multiples instances | Description                                                |
 |-----------------------------------------------------|---------------|---------------------|------------------------------------------------------------|
 | email                                               | **Required**  | No                  | It describe the name of email                              |
-| from                                                | **Required*   | No                  | Source of the email                                        |
+| from                                                | **Required**  | No                  | Source of the email                                        |
 | to                                                  | **Required**  | No                  | Target destination of the email                            |
 | cc                                                  | Optional      | No                  | Target copy                                                |
 | cco                                                 | Optional      | No                  | Target hidden copy                                         |

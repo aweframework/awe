@@ -133,17 +133,3 @@ del mapa** que contienen cada valor, no los valores en sí.
 | translate | Opcional | String | Grupo de enumerados usado para traducir el valor recibido a un tipo de respuesta | **Ej.:** la respuesta envía `0` y el grupo de enumerados asocia `0` con `ok` |
 | title | Opcional | String | Campo con el título del mensaje | |
 | description | Opcional | String | Campo con el texto del mensaje | |
-
-## **Mensajes síncronos** {#synchronous-messages}
-
-### **Enviar y recibir datos** {#send-and-receive-data}
-
-### **Enviar datos y recibir mensaje** {#send-data-and-receive-message}
-
-## **Mensajes asíncronos** {#asynchronous-messages}
-
-### **Suscribirse** {#subscribe}
-
-### **Publicar** {#publish}
-
-## Ejemplos {#examples}

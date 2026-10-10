@@ -61,10 +61,6 @@ Una tarea consiste en un trabajo asociado a un disparador que es ejecutado por e
 
 Una tarea también puede encadenarse con otras tareas para crear un flujo de trabajo. Esto se hace añadiendo esas otras tareas como dependencias en el asistente de configuración de la tarea padre.
 
-Una tarea consiste en un trabajo asociado a un disparador que es ejecutado por el planificador en el momento configurado.
-
-Una tarea también puede encadenarse con otras tareas para crear un flujo de trabajo. Esto se hace añadiendo esas otras tareas como dependencias en el asistente de configuración de la tarea padre.
-
 ### Tipos {#types}
 
 Hay dos tipos de tareas con los que puede trabajar el planificador: las tareas maintain y las tareas de comando.
@@ -280,7 +276,7 @@ Esto reutiliza el mismo mecanismo que los valores proporcionados por el operador
 La propagación se basa en el nombre: cualquier tarea dependiente que declare un parámetro `Variable` que coincida con el nombre de un parámetro del padre recibe el valor del padre en tiempo de ejecución &mdash; incluidos valores que pueden ser sensibles (credenciales, cadenas de conexión). La configuración de las tareas es un límite de confianza de los administradores; no añadas dependencias de procedencia no fiable a tareas que contengan parámetros sensibles.
 :::
 
-#### 3. Informe de la tarea {#3-task-report}
+#### 5. Informe de la tarea {#5-task-report}
 
 El último paso es elegir un tipo de informe.
 
@@ -288,13 +284,13 @@ El informe dará información sobre la tarea cuando esta finalice.
 
 Podemos elegir una de estas cuatro opciones:
 
-##### 3.1 Ninguno {#31-none}
+##### 5.1 Ninguno {#51-none}
 
 Se usa cuando no queremos obtener ningún informe de la tarea.
 
 Esto podría compararse con la acción silenciosa (silent-action) de AWE.
 
-##### 3.2 Correo electrónico {#32-email}
+##### 5.2 Correo electrónico {#52-email}
 
 Esta opción enviará un correo electrónico con la información de la tarea, y también añadirá la información de las dependencias, si las hay.
 
@@ -344,7 +340,7 @@ Cualquier marcador cuyo nombre coincida con un parámetro de la tarea (de la pes
 
 > **Nota:** La sustitución de variables se aplica solo a los campos **Title** y **Message**, no al bloque fijo de detalles de la tarea que el informe añade automáticamente.
 
-##### 3.3 Difusión (Broadcast) {#33-broadcast}
+##### 5.3 Difusión (Broadcast) {#53-broadcast}
 
 Esta opción enviará un mensaje de difusión con el mensaje indicado solo a los usuarios seleccionados.
 
@@ -354,7 +350,7 @@ Esta opción enviará un mensaje de difusión con el mensaje indicado solo a los
 | Send to users    | La lista de usuarios a los que enviar la difusión                               | **Obligatorio** |
 | Message          | El mensaje a enviar en la difusión                                              | **Obligatorio** |
 
-#### 4. Maintain {#4-maintain}
+##### 5.4 Maintain {#54-maintain}
 
 Esta opción lanzará el maintain seleccionado como un informe.
 
@@ -378,7 +374,7 @@ Al seleccionar una tarea, se activarán algunas opciones:
 | Update              | Actualiza la tarea seleccionada                                                                                                    |    No    |
 | Delete              | Elimina la(s) tarea(s) seleccionada(s)                                                                                             |    Sí    |
 | Start               | Lanza la tarea seleccionada como una tarea manual. No es necesario que sea una tarea manual para lanzar una instancia de la tarea manualmente |    No    |
-| Activate/Deactivate | Act                                                                                                                                |          |
+| Activate/Deactivate | Activa / desactiva la tarea seleccionada; la etiqueta cambia según el estado actual de la tarea seleccionada                       |    No    |
 
 ## Servidores {#servers}
 

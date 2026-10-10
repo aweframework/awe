@@ -222,13 +222,15 @@ Este ejemplo busca el selector CSS `.selector` y elimina las clases "class1", "c
 
 ####  **Constructor de acción `toggle-class`** {#toggle-class-action-builder}
 
-Esta acción busca una clase CSS en la pantalla y la alterna en el elemento.
+Esta acción busca un selector CSS en la pantalla y, si lo encuentra, alterna algunas clases CSS en el elemento: las clases que el elemento tiene se eliminan y las que no tiene se añaden.
 
 Uso:
 
 ```java
 serviceData.addClientAction(new ToggleCssClassActionBuilder(".selector", "class1", "class2", "class3").build());
 ```
+
+Este ejemplo busca el selector CSS `.selector` y alterna las clases "class1", "class2" y "class3" en el elemento si lo encuentra.
 
 Este ejemplo busca el selector CSS `.selector` y elimina las clases "class1", "class2" y "class3" del elemento si lo encuentra.
 
@@ -367,7 +369,7 @@ serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", rowData).build
 También puedes definir la fila que quieres actualizar:
 
 ```java
-serviceData.addClientAction(new DeleteRowActionBuilder("my-grid", "my-row", rowData).build());
+serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", "my-row", rowData).build());
 ```
 
 #### **Constructor de acción `delete-row`** {#delete-row-action-builder}

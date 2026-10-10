@@ -133,17 +133,3 @@ fields** that hold each value, not the values themselves.
 | translate | Optional | String | Enumerated group used to translate the received value into an answer type | **Ex.:** the response sends `0` and the enumerated group maps `0` to `ok` |
 | title | Optional | String | Field with the title of the message | |
 | description | Optional | String | Field with the text of the message | |
-
-## **Synchronous messages**
-
-### **Send and receive data**
-
-### **Send data and receive message**
-
-## **Asynchronous messages**
-
-### **Subscribe**
-
-### **Publish**
-
-## Examples

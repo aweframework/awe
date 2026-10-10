@@ -222,13 +222,15 @@ This sample search for the `.selector` CSS selector, and removes the "class1", "
 
 ####  **`toggle-class` action builder**
 
-This action search for a CSS class in the screen and toggles it from the element.
+This action searches for a CSS selector in the screen and, if it finds it, toggles some CSS classes on the element: the classes the element has are removed and the classes it lacks are added.
 
 Usage:
 
 ```java
 serviceData.addClientAction(new ToggleCssClassActionBuilder(".selector", "class1", "class2", "class3").build());
 ```
+
+This sample searches for the `.selector` CSS selector, and toggles the "class1", "class2" and "class3" classes on the element if found.
 
 This sample search for the `.selector` CSS selector, and removes the "class1", "class2" and "class3" classes from the element if found.
 
@@ -367,7 +369,7 @@ serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", rowData).build
 You also can define the row you want to update:
 
 ```java
-serviceData.addClientAction(new DeleteRowActionBuilder("my-grid", "my-row", rowData).build());
+serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", "my-row", rowData).build());
 ```
 
 #### **`delete-row` action builder**

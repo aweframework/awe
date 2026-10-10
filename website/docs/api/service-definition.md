@@ -83,7 +83,7 @@ Microservice element has the following attributes:
 | Attribute    | Use          | Type    | Description                          | Values                                                                                                 |
 |--------------|--------------|---------|--------------------------------------|--------------------------------------------------------------------------------------------------------|
 | name         | **Required** | String  | Name of web service                  | **Note:** Must be unique                                                                               |
-| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - POST**: Send the parameters in the request body |
+| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - **POST**: Send the parameters in the request body |
 | endpoint     | **Required** | String  | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain                                                     |
 | wrapper      | Optional     | String  | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                                                                    |
 | content-type | Optional     | String  | Way to send the parameters           | `URLENCODED` (default), `JSON`                                                                         |
@@ -131,7 +131,7 @@ Are services to execute `java` code. Its xml structure is:
 Service definition with parameters
 
 ```xml
-<!-- Store a session variable -->
+<!-- Insert and schedule a task -->
 <service id="insertSchedulerTask">
   <java classname="com.almis.awe.scheduler.controller.SchedulerController" method="insertSchedulerTask">
     <service-parameter name="IdeTsk" type="INTEGER" />
@@ -453,7 +453,7 @@ Microservices are connectors to REST-defined services. Its xml structure is:
     <service-parameter type="STRING" name="Ent" />
     <service-parameter type="STRING" name="Liq" />
     <service-parameter type="STRING" name="Crr" />
-  </web>
+  </microservice>
 </service>
 ```
 > **Note:** `microservice.name` attributes are optional. `name` attribute is used to allow overwrite microservice name and set auth configuration.
@@ -520,14 +520,14 @@ REST services are very useful to connect to REST API's. Their xml structure is:
 </service>
 ```
 
-* **Call to a local URL with GET method without parameters**
+* **Call to a local URL with GET method without parameters, to the complex test endpoint**
 ```xml
 <service id="testComplexRestGet">
   <rest method="GET" endpoint="http://localhost:18089/testapi/complex/QtyTst"/>
 </service>
 ```
 
-* **Call to a local URL with POST method without parameters**
+* **Call to a local URL with POST method without parameters, to the complex test endpoint**
 ```xml
 <service id="testComplexRestPost">
   <rest method="POST" endpoint="http://localhost:18089/testapi/complex/testInclude"/>
@@ -562,14 +562,14 @@ REST services are very useful to connect to REST API's. Their xml structure is:
 </service>
 ```
 
-* **Call to a external URL with GET method without parameters and a wrapper**
+* **Call to an external URL (`islandia` server) with GET method without parameters and a wrapper**
 ```xml
 <service id="testExternalRest">
   <rest server="islandia" method="GET" endpoint="/concerts" wrapper="com.almis.awe.test.bean.Concerts"/>
 </service>
 ```
 
-* **Call to a external URL with GET method without parameters and a wrapper**
+* **Call to an external URL (`postman` server) with GET method without parameters and a wrapper**
 ```xml
 <service id="testPostman">
   <rest server="postman" method="GET" endpoint="/gzip" wrapper="com.almis.awe.test.bean.Postman"/>

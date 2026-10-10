@@ -31,7 +31,7 @@ A window is a container with a title bar. It also can be maximized or restored, 
 | [grid](grids.md)             | Optional     | No                    | A [grid](grids.md) inside the window                                                              |
 | [chart](chart.md)            | Optional     | No                    | A [chart](chart.md) inside the window                                                             |
 
-> **Note** There are two special styles you can use as tag styles on windows:
+> **Note** There are three special styles you can use as tag styles on windows:
 > * `panel-body`: A special style to define the content of a window. It adds margins to the content.
 > * `panel-footer`: A special style to define the bottom of a window. It is recommended to put buttons inside.
 > * `expand-maximize`: A special style usually combined with `panel-body` which expands the content of the window when it is maximized.

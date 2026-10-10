@@ -29,7 +29,7 @@ A typical custom `logback-spring.xml` file would look something like this:
 <configuration>
     <!-- Includes -->
     <include resource="com/almis/awe/logging/awe-log.xml"/>
-    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (Only if you user Scheduler module)>
+    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (only if you use the Scheduler module) -->
     <!-- Loggers -->
     <logger name="org.springframework.web" level="DEBUG"/>
 </configuration>
@@ -343,11 +343,11 @@ You can customize the format using this property:
 | `logging.pattern.file`    | `FILE_LOG_PATTERN`    | The log pattern to use in a file.               |
 
 ## Log File Output
-By default, if you use AWE logback configuration includes, the logs are writen in log files. The default output destination has as value `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}}` and `LOG_PATH` is populated by logging spring boot property `logging.file.path`.
+By default, if you use AWE logback configuration includes, the logs are writen in log files. The default output destination has as value `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}` and `LOG_PATH` is populated by logging spring boot property `logging.file.path`.
 
 | Spring Environment  | System Property | Comments                                                                                  |
 |---------------------|-----------------|-------------------------------------------------------------------------------------------|
-| `logging.file.path` | `LOG_PATH`       | If defined, it is used in the default log configuration to configure destination log path |
+| `logging.file.path` | `LOG_PATH`      | If defined, it is used in the default log configuration to configure destination log path |
 
 ## Log File Rotation
 By default, the log files are rotated when the file is 10 Mb, but you can tune the rotation policy using the next properties:

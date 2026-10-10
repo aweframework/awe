@@ -171,6 +171,33 @@ awe.database.migration-modules=AWE,SCHEDULER,NOTIFIER
   </TabItem>
 </Tabs>
 
+# Pruebas con cada base de datos {#testing-against-each-database}
+
+Las pruebas de integración de AWE ejecutan cada base de datos de servidor en un contenedor de [Testcontainers](https://testcontainers.com), por lo que el único
+requisito es tener Docker en ejecución. HSQLDB y H2 se ejecutan embebidas. Una clase de prueba de Spring elige su base de datos con una única anotación de
+`awe-testing`, y el módulo necesita el driver JDBC de esa base de datos:
+
+```java
+@SpringBootTest
+@AweDatabaseTest(TestDatabase.POSTGRESQL)                    // HSQLDB, H2, MYSQL, POSTGRESQL, SQLSERVER, ORACLE
+class MyQueryIT { }
+
+@AweDatabaseTest(value = TestDatabase.MYSQL, flyway = true)  // Flyway instead of the schema and data scripts
+class MyFlywayIT { }
+```
+
+El contenedor se inicia una sola vez por ejecución de pruebas, y la anotación escribe la conexión `spring.datasource.*` (y la configuración de scripts o de
+Flyway) correspondiente. Las imágenes están fijadas en un único fichero, `awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`.
+
+| Motor | Imagen | Notas |
+|---|---|---|
+| MySQL | `mysql` | |
+| PostgreSQL | `postgres` | |
+| SQL Server | `mcr.microsoft.com/mssql/server` | Requiere `AWE_TESTING_SQLSERVER_ACCEPT_EULA=true` (o `-Dawe.testing.sqlserver.accept-eula=true`) para aceptar la licencia de Microsoft. La imagen solo está disponible para amd64. |
+| Oracle | `gvenzl/oracle-free` | Imagen grande (unos 6 GB): la primera ejecución dedica la mayor parte del tiempo a descargarla. |
+
+Para ejecutar las suites de una base de datos desde el repositorio de AWE, consulte "Database integration tests" en `CONTRIBUTING.md`.
+
 # Disposición de los scripts de Flyway {#flyway-script-layout}
 
 Coloque los scripts específicos de cada proveedor en:
@@ -180,7 +207,7 @@ classpath:db/migration/{vendor}
 ```
 
 Los propios módulos de AWE siguen esa convención. Por ejemplo:
-- Núcleo de AWE: `awe-starters/awe-spring-boot-starter/src/main/resources/db/migration/mysql` and `.../postgresql`.
+- Núcleo de AWE: `awe-starters/awe-spring-boot-starter/src/main/resources/db/migration/mysql` y `.../postgresql`.
 - Scheduler: `awe-starters/awe-scheduler-spring-boot-starter/src/main/resources/db/migration/{vendor}`.
 - Notifier: `awe-starters/awe-notifier-spring-boot-starter/src/main/resources/db/migration/{vendor}`.
 

@@ -83,7 +83,7 @@ El elemento microservice tiene los siguientes atributos:
 | Atributo     | Uso             | Tipo    | Descripción                                   | Valores                                                                                                          |
 |--------------|-----------------|---------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | name         | **Obligatorio** | String  | Nombre del servicio web                       | **Nota:** Debe ser único                                                                                         |
-| method       | **Obligatorio** | String  | Método REST.                                  | **GET**: Envía los parámetros como parte del endpoint - POST**: Envía los parámetros en el cuerpo de la petición |
+| method       | **Obligatorio** | String  | Método REST.                                  | **GET**: Envía los parámetros como parte del endpoint - **POST**: Envía los parámetros en el cuerpo de la petición |
 | endpoint     | **Obligatorio** | String  | Ruta de la llamada REST                       | Ej: /data/ServiceData o /maintain/ServiceMaintain                                                                |
 | wrapper      | Opcional        | String  | Nombre de clase para envolver la respuesta de la llamada REST | Ej: com.almis.awe.test.bean.Postman                                                              |
 | content-type | Opcional        | String  | Forma de enviar los parámetros                | `URLENCODED` (por defecto), `JSON`                                                                               |
@@ -131,7 +131,7 @@ Son servicios para ejecutar código `java`. Su estructura xml es:
 Definición de servicio con parámetros
 
 ```xml
-<!-- Store a session variable -->
+<!-- Insert and schedule a task -->
 <service id="insertSchedulerTask">
   <java classname="com.almis.awe.scheduler.controller.SchedulerController" method="insertSchedulerTask">
     <service-parameter name="IdeTsk" type="INTEGER" />
@@ -453,7 +453,7 @@ Los microservicios son conectores con servicios definidos mediante REST. Su estr
     <service-parameter type="STRING" name="Ent" />
     <service-parameter type="STRING" name="Liq" />
     <service-parameter type="STRING" name="Crr" />
-  </web>
+  </microservice>
 </service>
 ```
 > **Nota:** Los atributos `microservice.name` son opcionales. El atributo `name` se usa para permitir sobrescribir el nombre del microservicio y establecer la configuración de autenticación.
@@ -520,14 +520,14 @@ Los servicios REST son muy útiles para conectar con APIs REST. Su estructura xm
 </service>
 ```
 
-* **Llamada a una URL local con método GET sin parámetros**
+* **Llamada a una URL local con método GET sin parámetros, al endpoint de pruebas complejo**
 ```xml
 <service id="testComplexRestGet">
   <rest method="GET" endpoint="http://localhost:18089/testapi/complex/QtyTst"/>
 </service>
 ```
 
-* **Llamada a una URL local con método POST sin parámetros**
+* **Llamada a una URL local con método POST sin parámetros, al endpoint de pruebas complejo**
 ```xml
 <service id="testComplexRestPost">
   <rest method="POST" endpoint="http://localhost:18089/testapi/complex/testInclude"/>
@@ -562,14 +562,14 @@ Los servicios REST son muy útiles para conectar con APIs REST. Su estructura xm
 </service>
 ```
 
-* **Llamada a una URL externa con método GET sin parámetros y un wrapper**
+* **Llamada a una URL externa (servidor `islandia`) con método GET sin parámetros y un wrapper**
 ```xml
 <service id="testExternalRest">
   <rest server="islandia" method="GET" endpoint="/concerts" wrapper="com.almis.awe.test.bean.Concerts"/>
 </service>
 ```
 
-* **Llamada a una URL externa con método GET sin parámetros y un wrapper**
+* **Llamada a una URL externa (servidor `postman`) con método GET sin parámetros y un wrapper**
 ```xml
 <service id="testPostman">
   <rest server="postman" method="GET" endpoint="/gzip" wrapper="com.almis.awe.test.bean.Postman"/>

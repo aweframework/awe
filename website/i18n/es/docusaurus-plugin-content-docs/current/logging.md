@@ -29,7 +29,7 @@ Un archivo `logback-spring.xml` personalizado típico tendría un aspecto simila
 <configuration>
     <!-- Includes -->
     <include resource="com/almis/awe/logging/awe-log.xml"/>
-    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (Only if you user Scheduler module)>
+    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (only if you use the Scheduler module) -->
     <!-- Loggers -->
     <logger name="org.springframework.web" level="DEBUG"/>
 </configuration>
@@ -343,11 +343,11 @@ Puede personalizar el formato mediante esta propiedad:
 | `logging.pattern.file`    | `FILE_LOG_PATTERN`    | El patrón de log a usar en un archivo.          |
 
 ## Salida a archivo de log {#log-file-output}
-Por defecto, si utiliza los includes de configuración de logback de AWE, los logs se escriben en archivos de log. El destino de salida por defecto tiene como valor `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}}` y `LOG_PATH` se rellena con la propiedad de spring boot de registro `logging.file.path`.
+Por defecto, si utiliza los includes de configuración de logback de AWE, los logs se escriben en archivos de log. El destino de salida por defecto tiene como valor `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}` y `LOG_PATH` se rellena con la propiedad de spring boot de registro `logging.file.path`.
 
-| Entorno de Spring   | Propiedad del sistema | Comentarios                                                                         |
-|---------------------|-----------------|-------------------------------------------------------------------------------------------|
-| `logging.file.path` | `LOG_PATH`       | Si se define, se usa en la configuración de log por defecto para configurar la ruta de destino del log |
+| Entorno de Spring   | Propiedad del sistema | Comentarios                                                                                            |
+|---------------------|-----------------------|--------------------------------------------------------------------------------------------------------|
+| `logging.file.path` | `LOG_PATH`            | Si se define, se usa en la configuración de log por defecto para configurar la ruta de destino del log |
 
 ## Rotación de archivos de log {#log-file-rotation}
 Por defecto, los archivos de log se rotan cuando el archivo alcanza 10 Mb, pero puede ajustar la política de rotación mediante las siguientes propiedades:

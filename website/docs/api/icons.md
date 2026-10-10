@@ -1,6 +1,6 @@
 ---
 id: icons
-Title: Icons
+title: Icons
 sidebar_label: Icons
 ---
 
