@@ -14,7 +14,7 @@ AWE es un framework web de Java ligero. Permite construir aplicaciones web de la
 - :white_check_mark: Componentes adaptables modernos en la interfaz de usuario
 - :white_check_mark: Temas de estilo y soporte multiidioma
 - :white_check_mark: Múltiples enlaces de datos. Rest, base de datos SQL y noSql, ...
-- :white_check_mark: Built-in Spring Boot 3 support
+- :white_check_mark: Compatibilidad integrada con Spring Boot 3
 - :white_check_mark: Curva de aprendizaje más fácil
 
 ## Página principal del Proyecto AWE {#awe-project-main-page}
@@ -24,22 +24,22 @@ Por favor visítenos en [https://www.aweframework.com](https://www.aweframework.
 
 ## Primeros pasos {#getting-started}
 
-If you are new to AWE, follow the dedicated [Getting Started](getting-started.md) guide.
+Si es la primera vez que usa AWE, siga la guía dedicada [Primeros pasos](getting-started.md).
 
-It is the canonical onboarding path for:
+Es el recorrido de incorporación de referencia para:
 
-- prerequisites
-- choosing the AngularJS or React archetype
-- generating your first project
-- running it locally
-- understanding what you should expect after startup
-- finding the next reference docs
+- los requisitos previos
+- elegir el arquetipo de AngularJS o de React
+- generar su primer proyecto
+- ejecutarlo en local
+- entender qué debería esperar tras el arranque
+- encontrar los siguientes documentos de referencia
 
-If you want to contribute to AWE itself, import this repository as a multi-module Maven project in your preferred IDE.
+Si desea contribuir al propio AWE, importe este repositorio como un proyecto Maven multimódulo en su IDE preferido.
 
 ## Creado con {#built-with}
 * [Maven](https://maven.apache.org/) - Gestión de dependencias
-* [Spring Boot](https://spring.io/) - AWE Spring Boot starter
+* [Spring framework](https://spring.io/) - AWE Spring boot starter
 * [Angular JS](https://angularjs.org/) - Angular JS framework
 * [Bootstrap](https://getbootstrap.com/) - Kit de herramientas web de Bootstrap
 * [Highcharts](https://www.highcharts.com/) - Biblioteca de gráficos interactivos

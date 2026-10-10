@@ -38,7 +38,7 @@ Acciones genéricas que se lanzan en el navegador. Estas acciones no necesitan a
 
 #### Acciones generales {#general-actions}
 
-| Action                     | Descripción                                                                                                                                          |
+| Acción                     | Descripción                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `reset`                    | Vaciar todos los criterios en la pantalla                                                                                                            |
 | `restore`                  | Restaurar los valores iniciales de todos los criterios en la pantalla                                                                                |
@@ -57,9 +57,9 @@ Acciones genéricas que se lanzan en el navegador. Estas acciones no necesitan a
 | `value`                    | Establece un valor a un criterio                                                                                                                     |
 | `wait`                     | Espera una cantidad de milisegundos definidos en el atributo `target`                                                                                |
 | `close-window`             | Intenta cerrar la ventana actual del navegador (a veces pedirá permiso al usuario)                                                                   |
-| `update-theme`             | Reload the theme stylesheet to retrieve theme changes without reloading the screen                                                                   |
-| `get-file`                 | Download a file from the server. The file to retrieve is identified by the `filename` parameter                                                      |
-| `change-menu`              | Replace the current menu options with the options received on the `options` parameter                                                                |
+| `update-theme`             | Recargar la hoja de estilos del tema para obtener los cambios del tema sin recargar la pantalla                                                                   |
+| `get-file`                 | Descargar un archivo del servidor. El archivo a obtener se identifica mediante el parámetro `filename`                                                      |
+| `change-menu`              | Sustituir las opciones de menú actuales por las opciones recibidas en el parámetro `options`                                                                |
 
 ### Mensaje {#message}
 
@@ -67,7 +67,7 @@ Acciones que eventualmente pueden mostrar un mensaje al usuario.
 
 #### Acciones de mensaje {#message-actions}
 
-| Action    | Descripción                                                                        |
+| Acción    | Descripción                                                                        |
 | --------- | ---------------------------------------------------------------------------------- |
 | `confirm` | Muestra un diálogo de confirmación con el mensaje definido en el atributo `target` |
 
@@ -84,15 +84,15 @@ Las acciones de navegación se utilizan para pasar de una pantalla a otra.
 
 #### Acciones de navegación {#navigation-actions}
 
-| Action            | Descripción                                                                                                                                                                                                                                                                                                                               |
+| Acción            | Descripción                                                                                                                                                                                                                                                                                                                               |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `back`            | Ir a la pantalla anterior. Igual que el botón atrás del navegador. **No** necesita el atributo `target`.                                                                                                                                                                                                                                  |
 | `screen`          | Ir a una pantalla. **Necesita** el atributo `target`.                                                                                                                                                                                                                                                                                     |
 | `reload`          | Recargar pantalla actual                                                                                                                                                                                                                                                                                                                  |
-| `reload-page`     | Fully reload the browser page, like a manual refresh. Unlike `reload` (which re-runs the current screen inside the SPA), it re-fetches everything from the server, so it also picks up structural changes. Used by the development [hot reload](../dev-tools) to refresh the browser automatically. **No** necesita el atributo `target`. |
+| `reload-page`     | Recarga por completo la página del navegador, como un refresco manual. A diferencia de `reload` (que vuelve a ejecutar la pantalla actual dentro de la SPA), vuelve a obtener todo del servidor, por lo que también recoge los cambios estructurales. Lo utiliza la [recarga en caliente](../dev-tools) de desarrollo para refrescar el navegador automáticamente. **No** necesita el atributo `target`. |
 | `logout`          | Cerrar sesión y salir del menú privado.  **No** necesita el atributo `target`.                                                                                                                                                                                                                                                            |
-| `redirect`        | Redirects the current screen to a new URL defined in `target` attribute. If parameter `newWindow` is set to `true`, the URL will be open in a new window                                                                                                                                                                                  |
-| `redirect-screen` | Launches a `redirect` action if the current screen matches the `screen` parameter                                                                                                                                                                                                                                                         |
+| `redirect`        | Redirige la pantalla actual a una nueva URL definida en el atributo `target`. Si el parámetro `newWindow` es `true`, la URL se abrirá en una ventana nueva                                                                                                                                                                                  |
+| `redirect-screen` | Lanza una acción `redirect` si la pantalla actual coincide con el parámetro `screen`                                                                                                                                                                                                                                                         |
 
 #### Atributos de navegación {#navigation-attributes}
 
@@ -100,8 +100,8 @@ Las acciones de navegación se utilizan para pasar de una pantalla a otra.
 | ----------- |:----------------------:|:-------:| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `target`    | *Depende* de la acción | String  | Identificador de opción                                                                             |                                                                              |
 | `context`   |        Opcional        | String  | Contexto de la pantalla. Si no está definido, el contexto es el mismo que la pantalla del lanzador. | `screen/public` para opciones públicas, `screen/home` para opciones privadas |
-| `newWindow` |        Opcional        | Boolean | Open the redirect url in a new window.                                                              |                                                                              |
-| `screen`    | *Depende* de la acción | String  | Screen to check when launching the `redirect-screen` action.                                        |                                                                              |
+| `newWindow` |        Opcional        | Boolean | Abrir la URL de redirección en una ventana nueva.                                                              |                                                                              |
+| `screen`    | *Depende* de la acción | String  | Pantalla a comprobar al lanzar la acción `redirect-screen`.                                        |                                                                              |
 
 ### Componente {#component}
 
@@ -109,23 +109,23 @@ Acciones que funcionan sobre componentes en la pantalla.
 
 #### Acciones del componente {#component-actions}
 
-| Action                           | Descripción                                                                                              | Funciona en                 |
+| Acción                           | Descripción                                                                                              | Funciona en                 |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------- |
 | `add-class`                      | Agrega la clase css definida en `target-action` a la etiqueta con el selector definido en `target`       | `tag`                       |
 | `remove-class`                   | Elimina las clases definidas en `target-action` a la etiqueta con el selector definido en `target`       | `tag`                       |
-| `toggle-class`                   | Toggle the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
+| `toggle-class`                   | Alternar la clase o clases css definidas en `target-action` en la etiqueta con el selector definido en `target` | `tag`                       |
 | `reset`                          | Vaciar un valor de criterio                                                                              | `criteria`, `grid`, `chart` |
 | `restore`                        | Restaurar a los valores iniciales un criterio                                                            | `criteria`, `grid`, `chart` |
 | `start-load`                     | Establece un componente como *cargando*                                                                  | `criteria`, `grid`, `chart` |
-| `copy-criterion-value-clipboard` | Copy a criterion value to the clipboard                                                                  | `criteria`                  |
+| `copy-criterion-value-clipboard` | Copiar el valor de un criterio al portapapeles                                                                  | `criteria`                  |
 | `validate`                       | Inicia una validación sobre el criterio o criterios dentro de la etiqueta `target`                       | `tag`, `criteria`           |
-| `set-valid`                      | Set a criterion as valid, clearing its previous validation error                                         | `criteria`                  |
-| `set-invalid`                    | Set a criterion as invalid, showing the message defined on the `message` parameter                       | `criteria`                  |
-| `fill-suggest`                   | Fill the available and selected values of a suggest criterion with the `values` parameter                | `criteria`                  |
-| `update-controller`              | Update the controller attribute defined on the `attribute` parameter with the value received             | Any component               |
+| `set-valid`                      | Establecer un criterio como válido, eliminando su error de validación anterior                                         | `criteria`                  |
+| `set-invalid`                    | Establecer un criterio como no válido, mostrando el mensaje definido en el parámetro `message`                       | `criteria`                  |
+| `fill-suggest`                   | Rellenar los valores disponibles y seleccionados de un criterio de sugerencia con el parámetro `values`                | `criteria`                  |
+| `update-controller`              | Actualizar el atributo del controlador definido en el parámetro `attribute` con el valor recibido             | Any component               |
 | `dialog`                         | Abre un diálogo modal                                                                                    | `dialog`                    |
 | `close`                          | Cierra un diálogo                                                                                        | `dialog`                    |
-| `close-cancel`                   | Closes a dialog cancelling the actions stack which opened it                                             | `dialog`                    |
+| `close-cancel`                   | Cierra un diálogo cancelando la pila de acciones que lo abrió                                             | `dialog`                    |
 | `filter`                         | Recargar una matriz                                                                                      | `grid`                      |
 | `add-row`                        | Añadir una fila vacía en la parte inferior de la matriz                                                  | `grid`                      |
 | `add-row-top`                    | Añadir una fila vacía en la parte superior de la matriz                                                  | `grid`                      |
@@ -137,7 +137,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `copy-row-down`                  | Copiar la fila seleccionada debajo de la fila seleccionada                                               | `grid`                      |
 | `delete-row`                     | Eliminar la fila seleccionada                                                                            | `grid`                      |
 | `save-row`                       | Guardar la fila seleccionada                                                                             | `grid`                      |
-| `cancelar fila`                  | Cancel the edition of the selected row                                                                   | `grid` (editable)           |
+| `cancel-row`                  | Cancelar la edición de la fila seleccionada                                                                   | `grid` (editable)           |
 | `check-one-selected`             | Comprueba si hay una fila seleccionada                                                                   | `grid`                      |
 | `check-some-selected`            | Comprueba si hay una o más filas seleccionadas                                                           | `grid`                      |
 | `check-records-saved`            | Comprueba si todos los registros están almacenados (el usuario no está editando una fila)                | `grid`                      |
@@ -147,10 +147,10 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `select-all-rows`                | Seleccionar todas las filas de la matriz                                                                 | `grid`                      |
 | `unselect-all-rows`              | Deseleccionar todas las filas de la tabla                                                                | `grid`                      |
 | `validate-selected-row`          | Iniciar una validación en la fila seleccionada de la matriz                                              | `grid`                      |
-| `copy-selected-rows-clipboard`   | Copy the selected rows on the grid to the clipboard                                                      | `grid`                      |
-| `show-columns`                   | Show the grid columns defined on the `columns` parameter                                                 | `grid`                      |
-| `hide-columns`                   | Hide the grid columns defined on the `columns` parameter                                                 | `grid`                      |
-| `tree-branch`                    | Add the rows received on the `datalist` parameter as children of the expanding branch                    | `grid` (tree)               |
+| `copy-selected-rows-clipboard`   | Copiar las filas seleccionadas de la cuadrícula al portapapeles                                                      | `grid`                      |
+| `show-columns`                   | Mostrar las columnas de la cuadrícula definidas en el parámetro `columns`                                                 | `grid`                      |
+| `hide-columns`                   | Ocultar las columnas de la cuadrícula definidas en el parámetro `columns`                                                 | `grid`                      |
+| `tree-branch`                    | Añadir las filas recibidas en el parámetro `datalist` como hijas de la rama que se expande                    | `grid` (tree)               |
 | `change-theme`                   | Cambia el tema al valor definido en el criterio definido en `target`                                     | `criteria`                  |
 | `change-language`                | Cambia el idioma al valor definido en el criterio definido en `target`                                   | `criteria`                  |
 | `reload-language`                | Recargar el idioma buscando cambios                                                                      | `criteria`                  |
@@ -159,13 +159,13 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `first-step`                     | Mover al primer paso del asistente                                                                       | `wizard`                    |
 | `last-step`                      | Mover al último paso del asistente                                                                       | `wizard`                    |
 | `nth-step`                       | Mover al paso n del asistente                                                                            | `wizard`                    |
-| `add-points`                     | Add the points received on the `data` parameter to the chart series                                      | `chart`                     |
-| `set-pivot-sorters`              | Set the field sort order of a pivot table with the `sorters` parameter                                   | `pivot`                     |
-| `set-pivot-group-rows`           | Set the fields used as row groups, defined as a comma-separated list on the `rows` parameter             | `pivot`                     |
-| `set-pivot-group-cols`           | Set the fields used as column groups, defined as a comma-separated list on the `cols` parameter          | `pivot`                     |
-| `clear-file`                     | Clear the uploaded file, resetting the uploader component                                                | `cargador`                  |
-| `taglist-data`                   | Load the content of a taglist with the HTML and component data received from the server                  | `taglist`                   |
-| `polyline`                       | Draw a polyline on a map with the points received on the `rows` parameter (`Lat` and `Lon` fields)       | `map`                       |
+| `add-points`                     | Añadir los puntos recibidos en el parámetro `data` a las series del gráfico                                      | `chart`                     |
+| `set-pivot-sorters`              | Establecer el orden de los campos de una tabla dinámica con el parámetro `sorters`                                   | `pivot`                     |
+| `set-pivot-group-rows`           | Establecer los campos usados como grupos de filas, definidos como lista separada por comas en el parámetro `rows`             | `pivot`                     |
+| `set-pivot-group-cols`           | Establecer los campos usados como grupos de columnas, definidos como lista separada por comas en el parámetro `cols`          | `pivot`                     |
+| `clear-file`                     | Borrar el archivo subido, reiniciando el componente de carga de archivos                                                | `uploader`                  |
+| `taglist-data`                   | Cargar el contenido de una lista de etiquetas con el HTML y los datos de componentes recibidos del servidor                  | `taglist`                   |
+| `polyline`                       | Dibujar una polilínea en un mapa con los puntos recibidos en el parámetro `rows` (campos `Lat` y `Lon`)       | `map`                       |
 
 
 #### Atributos del componente {#component-attributes}
@@ -179,7 +179,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 
 #### Acciones de llamada al servidor {#server-call-actions}
 
-| Action            | Descripción                                                                                                         |
+| Acción            | Descripción                                                                                                         |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `server`          | Lanzar una llamada de servidor con los parámetros de la pantalla                                                    |
 | `server-print`    | Iniciar una llamada al servidor con los parámetros de la pantalla e información adicional de impresión              |
@@ -194,30 +194,30 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `server-action` | **Obligatorio** | String | Acción para lanzar en el servidor.                                                                              | Ver lista de [acciones del servidor](#server-actions)                                                |
 | `target-action` | **Obligatorio** | String | Objetivo para la acción del servidor                                                                            | [Identificador de consulta](query-definition.md) o [Identificador de mantenimiento](maintain-definition.md) |
 
-### Internal actions
+### Acciones internas {#internal-actions}
 
-These actions are dispatched by the framework itself as part of the screen and component lifecycle. They are documented here for reference, and are not normally used in application XML.
+Estas acciones las lanza el propio framework como parte del ciclo de vida de las pantallas y los componentes. Se documentan aquí a modo de referencia y normalmente no se utilizan en el XML de las aplicaciones.
 
-#### Internal action list
+#### Lista de acciones internas {#internal-action-list}
 
-| Action                 | Descripción                                                                                   |
+| Acción                 | Descripción                                                                                   |
 | ---------------------- | --------------------------------------------------------------------------------------------- |
-| `screen-data`          | Store the screen configuration received from the server and launch the actions attached to it |
-| `end-load`             | Notify a component that its data load has finished                                            |
-| `end-dependency`       | Notify the dependency controller that a dependency has finished                               |
-| `file-status`          | Update the upload progress of an uploader component                                           |
-| `file-uploaded`        | Store the uploaded file data in the uploader model when an upload finishes                    |
-| `file-downloaded`      | Notify a downloader component that the file download has finished                             |
-| `locals-retrieved`     | Store the translations retrieved from the server for a language                               |
-| `log-delta`            | Append new log lines to a log viewer component and scroll it down                             |
-| `pos-añadir-fila`      | Launched after a row has been added to a grid                                                 |
-| `pos-eliminar-fila`    | Launched after a row has been deleted from a grid                                             |
-| `después-guardar-fila` | Launched after a row has been saved on an editable grid                                       |
-| `pos-cancelar-fila`    | Launched after the edition of a row has been cancelled on an editable grid                    |
+| `screen-data`          | Almacenar la configuración de pantalla recibida del servidor y lanzar las acciones asociadas a ella |
+| `end-load`             | Notificar a un componente que ha terminado la carga de sus datos                                            |
+| `end-dependency`       | Notificar al controlador de dependencias que una dependencia ha terminado                               |
+| `file-status`          | Actualizar el progreso de subida de un componente de carga de archivos                                           |
+| `file-uploaded`        | Almacenar los datos del archivo subido en el modelo del componente de carga cuando termina una subida                    |
+| `file-downloaded`      | Notificar a un componente de descarga que ha terminado la descarga del archivo                             |
+| `locals-retrieved`     | Almacenar las traducciones obtenidas del servidor para un idioma                               |
+| `log-delta`            | Añadir nuevas líneas de registro a un visor de registros y desplazarlo hacia abajo                             |
+| `after-add-row`      | Se lanza después de añadir una fila a una cuadrícula                                                 |
+| `after-delete-row`    | Se lanza después de eliminar una fila de una cuadrícula                                             |
+| `after-save-row` | Se lanza después de guardar una fila en una cuadrícula editable                                       |
+| `after-cancel-row`    | Se lanza después de cancelar la edición de una fila en una cuadrícula editable                    |
 
 ## Acciones del servidor {#server-actions}
 
-| Action                    | Descripción                                                                                                                                                                  | Valores                                                                |
+| Acción                    | Descripción                                                                                                                                                                  | Valores                                                                |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `login`                   | Iniciar sesión en la aplicación                                                                                                                                              | Usuario y contraseña                                                   |
 | `logout`                  |                                                                                                                                                                              |                                                                        |
@@ -239,7 +239,7 @@ These actions are dispatched by the framework itself as part of the screen and c
 | `control-empty-cancel`    | Lanzar una consulta, y si no devuelve datos, muestra un mensaje y cancela la cola                                                                                            | `targetAction`: Query identifier, `target`: Message identifier         |
 | `control-unique-cancel`   | Lanzar una consulta, y si devuelve datos, muestra un mensaje y cancela la cola                                                                                               | `targetAction`: Query identifier, `target`: Message identifier         |
 | `app-help`                | Muestra la ayuda de pantalla generada automáticamente basándose en los atributos de la pantalla                                                                              | `target`: Identificador de pantalla (opcional)                         |
-| `ayuda`                   | Obtener el libro de ayuda de la aplicación en el idioma actual                                                                                                               |                                                                        |
+| `help`                   | Obtener el libro de ayuda de la aplicación en el idioma actual                                                                                                               |                                                                        |
 | `get-file-maintain`       | Lanzar un proceso de mantenimiento y recuperar un archivo para descargar                                                                                                     |                                                                        |
 
 ## Acciones del cliente de servicios Java {#client-actions-from-java-services}
@@ -252,15 +252,15 @@ Este tipo de acciones se utilizan para ejecutar las acciones del cliente desde l
 | ----------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `message`         | Enviar un mensaje al cliente (sin target)                                                 | `type` - Tipo de mensaje (`ok`, `info`, `warning`, `error`), `title` - Título del mensaje, `message`- Descripción del mensaje |
 | `target-message`  | Enviar un mensaje a un componente cliente                                                 | `type` - Tipo de mensaje (`ok`, `info`, `warning`, `error`), `title` - Título del mensaje, `message`- Descripción del mensaje |
-| `screen`          | Navigate to a screen option. The option is defined as the action `target`                 | `reload` - Force the screen reload (optional)                                                                                 |
-| `redirect`        | Redirect the browser to the URL defined as the action `target`                            | `newWindow` - Open the URL in a new window (optional)                                                                         |
-| `redirect-screen` | Launch a `redirect` action only if the current screen matches the `screen` parameter      | `screen` - Screen name to check against the current screen                                                                    |
-| `dialog`          | Open a modal dialog. The dialog identifier is defined as the action `target`              |                                                                                                                               |
+| `screen`          | Navegar a una opción de pantalla. La opción se define como `target` de la acción                 | `reload` - Forzar la recarga de la pantalla (opcional)                                                                                 |
+| `redirect`        | Redirigir el navegador a la URL definida como `target` de la acción                            | `newWindow` - Abrir la URL en una ventana nueva (opcional)                                                                         |
+| `redirect-screen` | Lanzar una acción `redirect` solo si la pantalla actual coincide con el parámetro `screen`      | `screen` - Nombre de la pantalla con la que comparar la pantalla actual                                                                    |
+| `dialog`          | Abrir un diálogo modal. El identificador del diálogo se define como `target` de la acción              |                                                                                                                               |
 | `confirm`         | Launch a confirm dialog                                                                   | `title` - Confirm title, `message` - Confirm description                                                                      |
-| `get-file`        | Download a file from the server                                                           | `filename` - Serialized file data of the file to download                                                                     |
-| `add-class`       | Add css classes to the elements matching the selector defined as the action `target`      | `targetAction` - Space-separated css class list                                                                               |
-| `remove-class`    | Remove css classes from the elements matching the selector defined as the action `target` | `targetAction` - Space-separated css class list                                                                               |
-| `toggle-class`    | Toggle css classes on the elements matching the selector defined as the action `target`   | `targetAction` - Space-separated css class list                                                                               |
+| `get-file`        | Descargar un archivo del servidor                                                           | `filename` - Datos serializados del archivo a descargar                                                                     |
+| `add-class`       | Añadir clases css a los elementos que coinciden con el selector definido como `target` de la acción      | `targetAction` - Space-separated css class list                                                                               |
+| `remove-class`    | Quitar clases css de los elementos que coinciden con el selector definido como `target` de la acción | `targetAction` - Space-separated css class list                                                                               |
+| `toggle-class`    | Alternar clases css en los elementos que coinciden con el selector definido como `target` de la acción   | `targetAction` - Space-separated css class list                                                                               |
 
 **message**
 
@@ -382,10 +382,10 @@ public ServiceData togglePanel() {
 
 | Acción              | Descripción                                                                  | Parámetros                                                                                                                            |
 | ------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `seleccionar`       | Rellenar los valores seleccionados en un criterio                            | `values` - Lista de datos con los valores de los criterios                                                                            |
-| `fill`              | Rellenar la lista de los valores disponibles para seleccionar en un criterio | `row` - filas de la lista (al menos deben tener los campos `value` y `label`)                                                         |
-| `fill-suggest`      | Fill the available and selected values of a suggest criterion                | `values` - List of suggest values (with `value` and `label` fields)                                                                   |
-| `update-controller` | Update an attribute of a component controller                                | `attribute` - Controller attribute to update, `value` - Value to set (or `datalist` - DataList whose first row `value` field is used) |
+| `select`       | Rellenar los valores seleccionados en un criterio                            | `values` - Lista de datos con los valores de los criterios                                                                            |
+| `fill`              | Rellenar la lista de los valores disponibles para seleccionar en un criterio | `rows` - filas de la lista (al menos deben tener los campos `value` y `label`)                                                         |
+| `fill-suggest`      | Rellenar los valores disponibles y seleccionados de un criterio de sugerencia                | `values` - Lista de valores de sugerencia (con los campos `value` y `label`)                                                                   |
+| `update-controller` | Actualizar un atributo del controlador de un componente                                | `attribute` - Atributo del controlador a actualizar, `value` - Valor a establecer (o `datalist` - DataList cuyo campo `value` de la primera fila se utiliza) |
 
 **seleccionar**
 
@@ -408,7 +408,7 @@ ServiceData setCriteriaValue() {
 
  return serviceData;
 }
-```
+``` 
 
 **fill-suggest**
 
@@ -457,15 +457,15 @@ public ServiceData updateButtonLabel() {
 | `copy-row-down`     | Copiar la fila seleccionada debajo de la fila seleccionada                                                                     | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `update-row`        | Actualizar los valores de fila seleccionados                                                                                   | `row` - valores de la fila, `rowId` - id de fila a actualizar (si no se da ninguna, se cogerá la fila seleccionada), `style` - clase CSS para añadir a la fila (opcional) |
 | `delete-row`        | Elimina la fila seleccionada                                                                                                   |                                                                                                                                                                           |
-| `filter`            | Reload the grid data                                                                                                           |                                                                                                                                                                           |
-| `show-columns`      | Show grid columns                                                                                                              | `columns` - List of column identifiers to show                                                                                                                            |
-| `hide-columns`      | Hide grid columns                                                                                                              | `columns` - List of column identifiers to hide                                                                                                                            |
+| `filter`            | Recargar los datos de la cuadrícula                                                                                                           |                                                                                                                                                                           |
+| `show-columns`      | Show grid columns                                                                                                              | `columns` - Lista de identificadores de columnas a mostrar                                                                                                                            |
+| `hide-columns`      | Hide grid columns                                                                                                              | `columns` - Lista de identificadores de columnas a ocultar                                                                                                                            |
 | `select-all-rows`   | Seleccionar todas las filas de la matriz                                                                                       |                                                                                                                                                                           |
 | `unselect-all-rows` | Deseleccionar todas las filas de la tabla                                                                                      |                                                                                                                                                                           |
 
 **fill**
 
-Using a list of beans as parameters:
+Usando una lista de beans como parámetros:
 ```java
 @Data
 @Accessors(chain=true)
@@ -476,7 +476,7 @@ public class MyBean {
 }
 ```
 
-The _fill_ action should be something like:
+La acción _fill_ debería ser algo como:
 ```java
 public ServiceData fillGrid(List<MyBean> beanList) {
  return new ServiceData()
@@ -486,14 +486,14 @@ public ServiceData fillGrid(List<MyBean> beanList) {
 }
 ```
 
-Using parameter list the _fill_ action should be like:
+Usando una lista de parámetros, la acción _fill_ debería ser así:
 ```java
 public ServiceData fillGrid(List<String> idList, List<String> labelList, List<Integer> typeList) {
   DataList dataList = new DataList();
   DataListUtil.addColumn(dataList, "id", idList);
   DataListUtil.addColumn(dataList, "label", labelList);
   DataListUtil.addColumn(dataList, "type", typeList);
-
+  
   return new ServiceData()
    .addClientAction(new FillActionBuilder("GridToFill", dataList)
      .build()
@@ -604,12 +604,12 @@ columnList.add(columnType );
  updateCell.setAsync("true");
  updateCell.setSilent("true");
  updateCell.addParameter("data", new CellData(values));
-
+ 
  // Add action to list
  clientActionList.add(updateCell);
 
  return serviceData;
-
+ 
 ```
 
 > **Nota:** Si desea cambiar solo un valor, solo es necesario pasar el valor al parámetro `data` dentro de un `CellData`. Si desea cambiar algo más, entonces será necesario generar un objeto JSON con el modelo que desea actualizar. En este modelo debe incluir los atributos `value` y `label`.
@@ -661,12 +661,12 @@ public ServiceData unselectAllRows() {
 
 ### Acciones de gráficas desde servicios java {#chart-actions-from-java-services}
 
-| Action                 | Descripción                       | Parámetros                                             |
+| Acción                 | Descripción                       | Parámetros                                             |
 | ---------------------- | --------------------------------- | ------------------------------------------------------ |
 | `replace-chart-series` | Reemplazar la serie de un gráfico | `series` - ArrayNode con series de gráficos            |
 | `add-chart-series`     | Añadir una serie al gráfico       | `series` - ArrayNode con serie de gráficos             |
 | `remove-chart-series`  | Eliminar la serie de un gráfico   | `series` - ArrayNode con series de gráficos            |
-| `add-points`           | Add points to the chart series    | `data` - DataList with the points to add to each serie |
+| `add-points`           | Añadir puntos a las series del gráfico    | `data` - DataList con los puntos a añadir a cada serie |
 
 **replace-chart-series**
 

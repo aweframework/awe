@@ -43,12 +43,12 @@ Cuando el tamaño de la pantalla es demasiado pequeño (dispositivos móviles) l
 | id              | Opcional | String | Identificador del botón. Con fines de referencia                                    |                                                                                     |
 | label           | Opcional | String | Texto del botón                                                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
 | style           | Opcional | String | Clases CSS del botón                                                                |                                                                                     |
-| icon            | Opcional | String | Identificador de icono                                                              | **Note:** You can check all iconsets at [icons](icons.md) screen                    |
+| icon            | Opcional | String | Identificador de icono                                                              | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)                    |
 | button-type     | Opcional | String | Comportamiento por defecto del botón                                                | `button` (por defecto), `submit` o `reset`. Ver [tipos de botones](#button-types) |
 | size            | Opcional | String | Tamaño del criterio                                                                 | `sm` (por defecto), `md` o `lg`.                                                    |
 | value           | Opcional | String | Establece un valor para el botón (puede ser utilizado como variable en el servidor) |                                                                                     |
 | help-text       | Opcional | String | Texto para mostrar en el botón como ayuda                                           | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
-| imagen de ayuda | Opcional | String | URL de imagen para mostrar en el botón como ayuda                                   | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
+| help-image | Opcional | String | URL de imagen para mostrar en el botón como ayuda                                   | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
 
 ## Tipos de botón {#button-types}
 

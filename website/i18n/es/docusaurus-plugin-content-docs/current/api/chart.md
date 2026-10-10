@@ -3,53 +3,53 @@ id: chart
 title: Gráficas
 ---
 
-A chart shows the result of a query as a graphic: lines, columns, areas, pies, scatter plots... You describe it in the screen XML with a `chart` element, its axes, its series and, optionally, a legend, a tooltip and extra parameters. The chart loads its data from a query, like any other AWE component.
+Un gráfico muestra el resultado de una consulta de forma gráfica: líneas, columnas, áreas, sectores, diagramas de dispersión... Se describe en el XML de la pantalla con un elemento `chart`, sus ejes, sus series y, opcionalmente, una leyenda, un tooltip y parámetros adicionales. El gráfico carga sus datos de una consulta, como cualquier otro componente de AWE.
 
-Two engines draw the charts, and **the chart XML is the same in both**:
+Dos motores dibujan los gráficos y **el XML del gráfico es el mismo en ambos**:
 
-| Engine    | Library                                             | Notes                                                                                             |
+| Motor    | Biblioteca                                             | Notas                                                                                             |
 | --------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| React     | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Default client of AWE 5. Charts are drawn as SVG                                                  |
-| AngularJS | [Highcharts](https://www.highcharts.com/)           | Keeps drawing the charts with Highcharts until the AngularJS engine moves to ECharts (issue #775) |
+| React     | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Cliente por defecto de AWE 5. Los gráficos se dibujan como SVG                                                  |
+| AngularJS | [Highcharts](https://www.highcharts.com/)           | Sigue dibujando los gráficos con Highcharts hasta que el motor AngularJS pase a ECharts (issue #775) |
 
-The server does the translation. For every chart it builds the Highcharts `chartModel` (used by the AngularJS engine) and, next to it, an `echartsModel` (used by the React engine). The `echartsModel` is an ECharts option without data and without functions: the client adds the values of the query, and interprets the [formats](chart-format.md) and the other hints that the server sends. The options that you set with [`chart-parameter`](chart-parameters.md) are translated too; the ones that have no ECharts counterpart are ignored and reported in the log of the server.
+La traducción la hace el servidor. Para cada gráfico construye el `chartModel` de Highcharts (usado por el motor AngularJS) y, junto a él, un `echartsModel` (usado por el motor React). El `echartsModel` es una opción de ECharts sin datos y sin funciones: el cliente añade los valores de la consulta e interpreta los [formatos](chart-format.md) y el resto de indicaciones que envía el servidor. Las opciones que se establecen con [`chart-parameter`](chart-parameters.md) también se traducen; las que no tienen equivalente en ECharts se ignoran y se registran en el log del servidor.
 
-> **Note:** Apache ECharts is open source (Apache License 2.0). Highcharts is open source for **non commercial applications**. For commercial purposes, you must *purchase* a license to use it in the AngularJS engine.
+> **Nota:** Apache ECharts es de código abierto (Apache License 2.0). Highcharts es de código abierto para **aplicaciones no comerciales**. Para fines comerciales, debe *adquirir* una licencia para usarlo en el motor AngularJS.
 
-The pages about charts are:
+Las páginas sobre gráficos son:
 
-* **Charts** (this page): XML structure, examples of every chart type, actions, differences between the engines.
-* [Chart formats](chart-format.md): the format language of labels, tooltips and axes.
-* [Chart parameters](chart-parameters.md): the Highcharts options that you can set, and how each one is translated.
+* **Gráficas** (esta página): estructura XML, ejemplos de cada tipo de gráfico, acciones y diferencias entre los motores.
+* [Formatos de gráficos](chart-format.md): el lenguaje de formato de etiquetas, tooltips y ejes.
+* [Parámetros de gráficos](chart-parameters.md): las opciones de Highcharts que se pueden establecer y cómo se traduce cada una.
 
 ## Conceptos del gráfico {#chart-concepts}
 
-To get to grasp with how a chart works it is important to understand the various parts or concepts of a chart. Below is an image and a description of the main concepts in a chart. The image was drawn with Highcharts but the parts are the same in both engines.
+Para entender cómo funciona un gráfico es importante conocer las distintas partes o conceptos que lo componen. A continuación se muestra una imagen y una descripción de los conceptos principales de un gráfico. La imagen se dibujó con Highcharts, pero las partes son las mismas en ambos motores.
 
 <img alt="Sobre Highcharts" src={require('@docusaurus/useBaseUrl').default('img/understanding_highcharts.png')} />
 
-* **Título:** Es el texto que se presentará en la parte superior de un gráfico. Also you can put a subtitle element to describe in more detail the graphic. Más información sobre la estructura XML del elemento [gráfico](#chart-element).
+* **Título:** Es el texto que se presentará en la parte superior de un gráfico. También puede añadir un elemento de subtítulo para describir con más detalle el gráfico. Más información sobre la estructura XML del elemento [gráfico](#chart-element).
 
 * **Series:** Conjunto de datos relacionados que se presentan en un gráfico. Un gráfico puede contener una o varias series de datos. See [series](#serie-element) for more information in XML structure.
 
-* **Tooltip:** When hovering over a series or a point on the chart you can get a tooltip that describes the values on that particular part of the chart. See [tooltip](#tooltip-element) for more information in XML structure.
+* **Tooltip:** Al pasar el ratón sobre una serie o un punto del gráfico se puede obtener un tooltip que describe los valores de esa parte concreta del gráfico. Más información sobre la estructura XML del elemento [tooltip](#tooltip-element).
 
-* **Legend:** The legend shows the data series in the graph and allows for enabling and disabling one or more series. Más información sobre la estructura XML del elemento [leyenda](#legend-element).
+* **Leyenda:** La leyenda muestra las series de datos del gráfico y permite activar y desactivar una o varias series. Más información sobre la estructura XML del elemento [leyenda](#legend-element).
 
-* **Axis:** The x and y-axis of the chart, can also use multiple axes for different data series. Most chart types, like the typical cartesian types line and column, have axes. See [axis](#axis-element) for more information in XML structure.
+* **Eje:** Los ejes x e y del gráfico; también se pueden usar varios ejes para distintas series de datos. La mayoría de los tipos de gráfico, como los típicos cartesianos de línea y columna, tienen ejes. Más información sobre la estructura XML del elemento [eje](#axis-element).
 
-### Time series with zoom (stock charts)
+### Series temporales con zoom (gráficos bursátiles) {#time-series-with-zoom-stock-charts}
 
-A chart with `stock-chart="true"` is meant to show the evolution of a lot of data over time. In the React engine it has a **slider** under the plot (the navigator) and the x axis can be zoomed with the mouse wheel. The AngularJS engine draws it with Highstock, which adds a range selector, a scrollbar and a navigator.
+Un gráfico con `stock-chart="true"` está pensado para mostrar la evolución de muchos datos a lo largo del tiempo. En el motor React tiene un **deslizador** bajo el área del gráfico (el navegador) y el eje x se puede ampliar con la rueda del ratón. El motor AngularJS lo dibuja con Highstock, que añade un selector de rango, una barra de desplazamiento y un navegador.
 
 <img alt="Sobre Highstock" src={require('@docusaurus/useBaseUrl').default('img/understanding_highstock.png')} />
 
 * **Selector fino:** Te permite ajustar el rango del gráfico que se muestra.
-* **Range selector:** Allows you to quickly select a range to be shown on the chart or specify the exact interval to be shown. Only in the AngularJS engine.
-* **Barra de desplazamiento:** Permite desplazarse en el gráfico. Only in the AngularJS engine.
-* **Cruceta:** Muestra una línea siguiendo la descripción de un gráfico para leer mejor los resultados del eje x. This functionality can be found in the tooltip options, and it can be used in any chart (it is not enabled by default).
+* **Selector de rango:** Permite seleccionar rápidamente un rango para mostrar en el gráfico o especificar el intervalo exacto. Solo en el motor AngularJS.
+* **Barra de desplazamiento:** Permite desplazarse en el gráfico. Solo en el motor AngularJS.
+* **Cruceta:** Muestra una línea siguiendo la descripción de un gráfico para leer mejor los resultados del eje x. Esta funcionalidad se encuentra en las opciones del tooltip y se puede usar en cualquier gráfico (no está habilitada por defecto).
 
-The image above shows Highstock. See the [stock chart example](#stock-chart-with-zoom) for the React engine.
+La imagen anterior muestra Highstock. Consulte el [ejemplo de gráfico bursátil](#stock-chart-with-zoom) para el motor React.
 
 ## Esqueleto de XML {#xml-skeleton}
 
@@ -80,10 +80,10 @@ Para facilitar el desarrollo, no todas las etiquetas son necesarias.
 | [chart-tooltip](#tooltip-element)           | Opcional        | No                | El tooltip aparece al pasar sobre un punto de una serie. Por defecto, el tooltip muestra los valores del punto y el nombre de la serie                                  |
 | [x-axis](#axis-element)                     | **Obligatorio** | Si                | Describe el eje X del gráfico                                                                                                                                           |
 | [y-axis](#axis-element)                     | **Obligatorio** | Si                | Describe el eje Y del gráfico. Es posible tener múltiples ejes y enlazarlos con diferentes series de datos                                                              |
-| [chart-serie](#serie-element)               | **Obligatorio** | Si                | Una serie es un conjunto de datos. It's represented as list of arrays with two values, _[[x1,y1], [x2,y2]]_. Cada array es un punto en la serie representado por el eje |
-| [chart-parameter](#chart-parameter-element) | Opcional        | Si                | Extra parameters to overwrite the chart structure. See [chart parameters](chart-parameters.md)                                                                          |
+| [chart-serie](#serie-element)               | **Obligatorio** | Si                | Una serie es un conjunto de datos. Se representa como una lista de arrays con dos valores, _[[x1,y1], [x2,y2]]_. Cada array es un punto en la serie representado por el eje |
+| [chart-parameter](#chart-parameter-element) | Opcional        | Si                | Parámetros adicionales para sobrescribir la estructura del gráfico. Véase [parámetros de gráficos](chart-parameters.md)                                                                          |
 
-The `chart` element can also hold `dependency`, `context-button` and `context-separator` elements, like the other components. A pie chart has no axes: the axes that the XML declares are not drawn.
+El elemento `chart` también puede contener elementos `dependency`, `context-button` y `context-separator`, como el resto de componentes. Un gráfico de sectores no tiene ejes: los ejes que declare el XML no se dibujan.
 
 #### Elemento gráfico {#chart-element}
 
@@ -95,40 +95,40 @@ El elemento gráfico tiene los siguientes atributos:
 | label              | Opcional        | String  | Es el título del gráfico                                                                                                       | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                             |
 | subtitle           | Opcional        | String  | Es el subtítulo del gráfico                                                                                                    | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                             |
 | type               | **Obligatorio** | String  | Tipo de gráfico                                                                                                                | `line`, `spline`, `column`, `column_3d`, `area`, `areaspline`, `arearange`, `areasplinerange`, `pie`, `pie_3d`, `donut`, `donut_3d`, `semicircle`, `mixed`, `bubble`, `scatter`. See [chart types](#chart-types) |
-| stock-chart        | Opcional        | Boolean | Indicador de tipo de gráfico de stock                                                                                          | `true` or `false`                                                                                                                                                                                                |
-| theme              | Opcional        | String  | Is the name of the Highcharts theme                                                                                            | AngularJS engine only. See [Highcharts themes](#highcharts-themes-angularjs-engine)                                                                                                                              |
-| inverted           | Opcional        | Boolean | Invertir los ejes para que el eje x sea vertical y el eje y sea horizontal. Cuando es true, el eje x es revertido por defecto. | `true` or `false`                                                                                                                                                                                                |
-| stacking           | Opcional        | String  | Si se deben apilar los valores de cada serie encima de la otra                                                                 | `normal` or `percent`                                                                                                                                                                                            |
-| enable-data-labels | Opcional        | Boolean | Whether to show the data labels of the points                                                                                  | Defaults to `false`                                                                                                                                                                                              |
-| format-data-labels | Opcional        | String  | Format string for the data labels. See [chart formats](chart-format.md)                                                        | Ej. Punto y con 3 decimales `format-data-labels="{y:.3f}"`                                                                                                                                                       |
-| zoom-type          | Opcional        | String  | Decides in what dimensions the user can zoom                                                                                   | `xAxis`, `yAxis` or `all`                                                                                                                                                                                        |
-| carga-inicial      | **Obligatorio** | String  | Para cargar el gráfico cuando se genera la pantalla                                                                            | **Nota:** Solo puede tener el valor 'query'                                                                                                                                                                      |
+| stock-chart        | Opcional        | Boolean | Indicador de tipo de gráfico de stock                                                                                          | `true` o `false`                                                                                                                                                                                                |
+| theme              | Opcional        | String  | Es el nombre del tema de Highcharts                                                                                            | Solo motor AngularJS. Véase [Highcharts themes](#highcharts-themes-angularjs-engine)                                                                                                                              |
+| inverted           | Opcional        | Boolean | Invertir los ejes para que el eje x sea vertical y el eje y sea horizontal. Cuando es true, el eje x es revertido por defecto. | `true` o `false`                                                                                                                                                                                                |
+| stacking           | Opcional        | String  | Si se deben apilar los valores de cada serie encima de la otra                                                                 | `normal` o `percent`                                                                                                                                                                                            |
+| enable-data-labels | Opcional        | Boolean | Indica si se muestran las etiquetas de datos de los puntos                                                                                  | Por defecto es `false`                                                                                                                                                                                              |
+| format-data-labels | Opcional        | String  | Cadena de formato de las etiquetas de datos. Véase [formatos de gráficos](chart-format.md)                                                        | Ej. Punto y con 3 decimales `format-data-labels="{y:.3f}"`                                                                                                                                                       |
+| zoom-type          | Opcional        | String  | Decide en qué dimensiones puede ampliar el usuario                                                                                   | `xAxis`, `yAxis` o `all`                                                                                                                                                                                        |
+| initial-load      | **Obligatorio** | String  | Para cargar el gráfico cuando se genera la pantalla                                                                            | **Nota:** Solo puede tener el valor 'query'                                                                                                                                                                      |
 | target-action      | **Obligatorio** | String  | Es el nombre de la consulta que carga el gráfico                                                                               |                                                                                                                                                                                                                  |
-| server-action      | Opcional        | String  | Type of server action that loads the chart                                                                                     |                                                                                                                                                                                                                  |
+| server-action      | Opcional        | String  | Tipo de acción de servidor que carga el gráfico                                                                                     |                                                                                                                                                                                                                  |
 | max                | Opcional        | Number  | Número de puntos a mostrar                                                                                                     | **Nota:** 0 significa todos los elementos                                                                                                                                                                        |
-| autorefrescar      | Opcional        | Number  | Interval of the automatic reload of the chart                                                                                  |                                                                                                                                                                                                                  |
-| carga automática   | Opcional        | Boolean | Whether the chart loads its data automatically                                                                                 |                                                                                                                                                                                                                  |
-| style              | Opcional        | String  | CSS classes of the chart                                                                                                       |                                                                                                                                                                                                                  |
-| visible            | Opcional        | Boolean | Whether the chart is visible                                                                                                   |                                                                                                                                                                                                                  |
-| ayuda              | Opcional        | String  | Help text of the chart                                                                                                         | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                             |
-| imagen de ayuda    | Opcional        | String  | Image shown in the help of the chart                                                                                           |                                                                                                                                                                                                                  |
-| carga de íconos    | Opcional        | String  | Define el icono de carga                                                                                                       | `spinner` (por defecto), `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none`                                                                           |
+| autorefresh      | Opcional        | Number  | Intervalo de la recarga automática del gráfico                                                                                  |                                                                                                                                                                                                                  |
+| autoload   | Opcional        | Boolean | Indica si el gráfico carga sus datos automáticamente                                                                                 |                                                                                                                                                                                                                  |
+| style              | Opcional        | String  | Clases CSS del gráfico                                                                                                       |                                                                                                                                                                                                                  |
+| visible            | Opcional        | Boolean | Indica si el gráfico es visible                                                                                                   |                                                                                                                                                                                                                  |
+| help              | Opcional        | String  | Texto de ayuda del gráfico                                                                                                         | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                             |
+| help-image    | Opcional        | String  | Imagen que se muestra en la ayuda del gráfico                                                                                           |                                                                                                                                                                                                                  |
+| icon-loading    | Opcional        | String  | Define el icono de carga                                                                                                       | `spinner` (por defecto), `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none`                                                                           |
 
-##### Chart types
+##### Tipos de gráfico {#chart-types}
 
-| Tipo                           | Drawn as (React engine)                                                                    |
+| Tipo                           | Dibujado como (motor React)                                                                    |
 | ------------------------------ | ------------------------------------------------------------------------------------------ |
-| `line`, `spline`               | Lines. `spline` smooths them                                                               |
-| `area`, `areaspline`           | Filled lines. `areaspline` smooths them                                                    |
-| `arearange`, `areasplinerange` | Approximated by a filled line (the server logs a warning)                                  |
-| `columna`                      | Vertical bars                                                                              |
-| `column_3d`                    | Vertical bars, **flat** (3D is not drawn)                                                  |
-| `pie`                          | Pie                                                                                        |
-| `pie_3d`                       | Pie, **flat**                                                                              |
-| `donut`, `donut_3d`            | Pie with an inner radius (50% by default), flat                                            |
-| `semicircle`                   | Donut that only draws its upper half                                                       |
-| `scatter`, `bubble`            | Points. `bubble` uses the `z-value` of the series as the size                              |
-| `mixed`                        | The type of each series decides (`type` of `chart-serie`). A series without type is a line |
+| `line`, `spline`               | Líneas. `spline` las suaviza                                                               |
+| `area`, `areaspline`           | Líneas rellenas. `areaspline` las suaviza                                                    |
+| `arearange`, `areasplinerange` | Aproximado mediante una línea rellena (el servidor registra una advertencia)                                  |
+| `column`                      | Barras verticales                                                                              |
+| `column_3d`                    | Barras verticales, **planas** (el 3D no se dibuja)                                                  |
+| `pie`                          | Sectores                                                                                        |
+| `pie_3d`                       | Sectores, **plano**                                                                              |
+| `donut`, `donut_3d`            | Sectores con radio interior (50% por defecto), plano                                            |
+| `semicircle`                   | Anillo que solo dibuja su mitad superior                                                       |
+| `scatter`, `bubble`            | Puntos. `bubble` usa el `z-value` de la serie como tamaño                              |
+| `mixed`                        | Lo decide el tipo de cada serie (`type` de `chart-serie`). Una serie sin tipo es una línea |
 
 #### Eje {#axis-element}
 El elemento eje tiene los siguientes atributos:
@@ -136,15 +136,15 @@ El elemento eje tiene los siguientes atributos:
 | Atributo           | Uso      | Tipo    | Descripción                                                                                                                                                                                                               | Valores                                                                                                                                                                     |
 | ------------------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label              | Opcional | String  | Es el nombre del eje                                                                                                                                                                                                      | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                        |
-| label-format       | Opcional | String  | A format string for the axis label. See [chart formats](chart-format.md)                                                                                                                                                  | Defaults to `{value}`. Ex.: Add unit to axis `label-format = "{value} ºC"`                                                                                                  |
-| formatter-function | Opcional | String  | Named function to format axis labels                                                                                                                                                                                      | `formatCurrencyMagnitude`. See [named formatters](chart-format.md#named-formatters)                                                                                         |
+| label-format       | Opcional | String  | Cadena de formato de la etiqueta del eje. Véase [formatos de gráficos](chart-format.md)                                                                                                                                                  | Por defecto es `{value}`. Ej.: añadir una unidad al eje `label-format = "{value} ºC"`                                                                                                  |
+| formatter-function | Opcional | String  | Función con nombre para formatear las etiquetas del eje                                                                                                                                                                                      | `formatCurrencyMagnitude`. See [named formatters](chart-format.md#named-formatters)                                                                                         |
 | label-rotation     | Opcional | Number  | Rotación de las etiquetas en grados                                                                                                                                                                                       | Por defecto a 0                                                                                                                                                             |
-| type               | Opcional | String  | El tipo de eje.                                                                                                                                                                                                           | `linear`, `logarithmic`, `datetime` or `category`. Defaults to `linear`                                                                                                     |
-| tick-interval      | Opcional | Number  | El intervalo de las marcas de separación en unidades de eje                                                                                                                                                               | In a `datetime` axis the unit is the millisecond, so an interval of one day is `24 * 3600 * 1000` = `86400000`. In a `category` axis, one label is shown every n categories |
-| allow-decimal      | Opcional | Boolean | Whether to allow decimals in the ticks of the axis. Cuando se cuentan números enteros, como personas o coincidencias en una página web, los decimales deben evitarse en las etiquetas de las marcas de separación del eje | Defaults to `false`, so the ticks are integers unless you set `true`                                                                                                        |
-| opposite           | Opcional | Boolean | Mostrar el eje en el lado opuesto al usual. La normal es en el lado izquierdo para los ejes verticales y el inferior para horizontal, así que los lados opuestos serán de derecha y superior respectivamente              | Defaults to `false`                                                                                                                                                         |
+| type               | Opcional | String  | El tipo de eje.                                                                                                                                                                                                           | `linear`, `logarithmic`, `datetime` o `category`. Por defecto es `linear`                                                                                                     |
+| tick-interval      | Opcional | Number  | El intervalo de las marcas de separación en unidades de eje                                                                                                                                                               | En un eje `datetime` la unidad es el milisegundo, por lo que un intervalo de un día es `24 * 3600 * 1000` = `86400000`. En un eje `category` se muestra una etiqueta cada n categorías |
+| allow-decimal      | Opcional | Boolean | Indica si se permiten decimales en las marcas de separación del eje. Cuando se cuentan números enteros, como personas o coincidencias en una página web, los decimales deben evitarse en las etiquetas de las marcas de separación del eje | Por defecto es `false`, por lo que las marcas son enteros salvo que se establezca `true`                                                                                                        |
+| opposite           | Opcional | Boolean | Mostrar el eje en el lado opuesto al usual. La normal es en el lado izquierdo para los ejes verticales y el inferior para horizontal, así que los lados opuestos serán de derecha y superior respectivamente              | Por defecto es `false`                                                                                                                                                         |
 
-An `x-axis` or `y-axis` element can hold `chart-parameter` elements, with the options of the [axis scope](chart-parameters.md#axis-scope).
+Un elemento `x-axis` o `y-axis` puede contener elementos `chart-parameter`, con las opciones del [ámbito de eje](chart-parameters.md#axis-scope).
 
 #### Elemento leyenda {#legend-element}
 El elemento leyenda tiene los siguientes atributos:
@@ -152,30 +152,30 @@ El elemento leyenda tiene los siguientes atributos:
 | Atributo      | Uso      | Tipo    | Descripción                                                                                         | Valores                                                                                                                                                          |
 | ------------- | -------- | ------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label         | Opcional | String  | Es el título de la leyenda                                                                          | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                             |
-| enabled       | Opcional | Boolean | Para activar o desactivar la leyenda en el gráfico                                                  | Defaults to `false` when the `chart-legend` element is present. Without the element, the legend is shown in charts with axes and hidden in pies and stock charts |
+| enabled       | Opcional | Boolean | Para activar o desactivar la leyenda en el gráfico                                                  | Por defecto es `false` cuando el elemento `chart-legend` está presente. Sin el elemento, la leyenda se muestra en los gráficos con ejes y se oculta en los de sectores y bursátiles |
 | border-width  | Opcional | Number  | El ancho del borde dibujado alrededor de la leyenda                                                 | Default to `0`                                                                                                                                                   |
-| layout        | Opcional | String  | El diseño de los elementos de la leyenda                                                            | `horizontal` or `vertical`. Defaults to `horizontal`                                                                                                             |
-| align         | Opcional | String  | La alineación horizontal de la caja de la leyenda dentro del área del gráfico                       | `left`, `center` or `right`. Defaults to `center`                                                                                                                |
-| verticalAlign | Opcional | String  | La alineación vertical de la caja de leyenda                                                        | `top`, `middle` or `bottom`. Defaults to `bottom`                                                                                                                |
-| floating      | Opcional | Boolean | Cuando la leyenda está flotando, el área de la parcela ignora y se permite colocarla debajo de ella | `true` or `false`. Defaults to `false`                                                                                                                           |
+| layout        | Opcional | String  | El diseño de los elementos de la leyenda                                                            | `horizontal` o `vertical`. Por defecto es `horizontal`                                                                                                             |
+| align         | Opcional | String  | La alineación horizontal de la caja de la leyenda dentro del área del gráfico                       | `left`, `center` o `right`. Por defecto es `center`                                                                                                                |
+| verticalAlign | Opcional | String  | La alineación vertical de la caja de leyenda                                                        | `top`, `middle` o `bottom`. Por defecto es `bottom`                                                                                                                |
+| floating      | Opcional | Boolean | Cuando la leyenda está flotando, el área de la parcela ignora y se permite colocarla debajo de ella | `true` o `false`. Por defecto es `false`                                                                                                                           |
 
-In a pie chart the legend lists the slices. In the other charts it lists the series and clicking an entry hides and shows the series.
+En un gráfico de sectores la leyenda enumera los sectores. En los demás gráficos enumera las series y al hacer clic en una entrada se oculta o se muestra la serie.
 
 #### Elemento tooltip {#tooltip-element}
 El elemento tooltip tiene los siguientes atributos:
 
 | Atributo        | Uso      | Tipo    | Descripción                                                                                   | Valores                                                                        |
 | --------------- | -------- | ------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| enabled         | Opcional | Boolean | Para activar o desactivar la descripción en el gráfico                                        | Defaults to `true`                                                             |
-| crosshairs      | Opcional | String  | Muestra el cruce de caminos para conectar los puntos con sus correspondientes valores del eje | `xAxis`, `yAxis` or `all`                                                      |
+| enabled         | Opcional | Boolean | Para activar o desactivar la descripción en el gráfico                                        | Por defecto es `true`                                                             |
+| crosshairs      | Opcional | String  | Muestra el cruce de caminos para conectar los puntos con sus correspondientes valores del eje | `xAxis`, `yAxis` o `all`                                                      |
 | number-decimals | Opcional | Number  | Valor de la descripción de formato ajustando el número de decimales                           |                                                                                |
-| suffix          | Opcional | String  | Formatear el valor del tooltip añadiendo una cadena de sufijo                                 | Ej.: `suffix = " °C"`                                                          |
+| suffix          | Opcional | String  | Formatear el valor del tooltip añadiendo una cadena de sufijo                                 | Ej.: `suffix = " ºC"`                                                          |
 | prefix          | Opcional | String  | Formatear valor tooltip añadiendo una cadena de prefijo                                       | Ej.: `prefix = "Temp. "`                                                       |
-| point-format    | Opcional | String  | The format of the point's line in the tooltip. See [chart formats](chart-format.md#tooltips)  | Ex.: `point-format = '{series.name}: <b>{point.y}</b><br/>'` |
-| date-format     | Opcional | String  | For series on a datetime axes, the date pattern of the header of the tooltip                  | Ex.: `date-format = "%Y-%m-%d"`                                                |
-| shared          | Opcional | Boolean | Descripción compartida para múltiples series de gráficos                                      | Defaults to `false`                                                            |
+| point-format    | Opcional | String  | El formato de la línea del punto en el tooltip. Véase [formatos de gráficos](chart-format.md#tooltips)  | Ej.: `point-format = '{series.name}: <b>{point.y}</b><br/>'` |
+| date-format     | Opcional | String  | Para series en un eje datetime, el patrón de fecha de la cabecera del tooltip                  | Ej.: `date-format = "%Y-%m-%d"`                                                |
+| shared          | Opcional | Boolean | Descripción compartida para múltiples series de gráficos                                      | Por defecto es `false`                                                            |
 
-The header and the footer of the tooltip, and the HTML mode, are set with parameters of the tooltip. See [HTML tooltips](chart-format.md#html-tooltips).
+La cabecera y el pie del tooltip, así como el modo HTML, se establecen con parámetros del tooltip. Véase [tooltips HTML](chart-format.md#html-tooltips).
 
 #### Elemento serie {#serie-element}
 El elemento serie tiene los siguientes atributos:
@@ -183,35 +183,35 @@ El elemento serie tiene los siguientes atributos:
 | Atributo        | Uso             | Tipo    | Descripción                                                                                                                                       | Valores                                                                                                                                                                                                                                                                                                |
 | --------------- | --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | id              | **Obligatorio** | String  | Identificador de serie                                                                                                                            |                                                                                                                                                                                                                                                                                                        |
-| label           | Opcional        | String  | Es el nombre de la serie. Este valor se muestra en la leyenda                                                                                     | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                             |
-| type            | Opcional        | String  | Tipo de serie                                                                                                                                     | `line`, `spline`, `column`, `bar`, `pie`, `area`, `areaspline`, `arearange`, `areasplinerange` or `scatter`. **Note:** If there are several series of different type, you should set the type attribute of chart element to `mixed`. A `bar` series is a horizontal column: it inverts the whole chart |
-| color           | Opcional        | String  | Se utiliza para establecer un color para la serie                                                                                                 | **Nota:** Puede usar el nombre de colores o código hexadecimal. Ej.: `color = "rojo"` o `color = "#BF0B23"`                                                                                                                                                                                            |
+| label           | Opcional        | String  | Es el nombre de la serie. Este valor se muestra en la leyenda                                                                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                                                                                                             |
+| type            | Opcional        | String  | Tipo de serie                                                                                                                                     | `line`, `spline`, `column`, `bar`, `pie`, `area`, `areaspline`, `arearange`, `areasplinerange` o `scatter`. **Nota:** Si hay varias series de distinto tipo, debe establecer el atributo type del elemento chart en `mixed`. Una serie `bar` es una columna horizontal: invierte todo el gráfico |
+| color           | Opcional        | String  | Se utiliza para establecer un color para la serie                                                                                                 | **Nota:** Puede usar el nombre de colores o código hexadecimal. Ej.: `color = "red"` o `color = "#BF0B23"`                                                                                                                                                                                            |
 | x-value         | **Obligatorio** | String  | Define el valor del punto en el eje x. Corresponde al atributo `alias` del campo en la consulta                                                   |                                                                                                                                                                                                                                                                                                        |
 | y-value         | **Obligatorio** | String  | Define el valor del punto en el eje y. Corresponde al atributo `alias` del campo en la consulta                                                   |                                                                                                                                                                                                                                                                                                        |
-| z-value         | Opcional        | String  | Defines the value of the point on the z axis (the size of a bubble). Corresponde al atributo `alias` del campo en la consulta                     |                                                                                                                                                                                                                                                                                                        |
-| x-axis          | Opcional        | Number  | Al usar ejes x dobles o múltiples, este número define a qué xAxis está conectada la serie en particular. It refers to the position of the axis    | El valor por defecto es 0                                                                                                                                                                                                                                                                              |
-| y-axis          | Opcional        | Number  | Al usar ejes dobles o múltiples, este número define a qué ejes yAxis está conectada la serie en particular. It refers to the position of the axis | El valor por defecto es 0                                                                                                                                                                                                                                                                              |
-| drilldown-serie | Opcional        | String  | Identificador de la serie de desglose                                                                                                             | **Note:** View [this](#drilldown) example                                                                                                                                                                                                                                                              |
-| drilldown       | Opcional        | Boolean | Marcar para indicar si la serie se utiliza en un subgráfico                                                                                       | `true` or `false`                                                                                                                                                                                                                                                                                      |
+| z-value         | Opcional        | String  | Define el valor del punto en el eje z (el tamaño de una burbuja). Corresponde al atributo `alias` del campo en la consulta                     |                                                                                                                                                                                                                                                                                                        |
+| x-axis          | Opcional        | Number  | Al usar ejes x dobles o múltiples, este número define a qué xAxis está conectada la serie en particular. Hace referencia a la posición del eje    | El valor por defecto es 0                                                                                                                                                                                                                                                                              |
+| y-axis          | Opcional        | Number  | Al usar ejes dobles o múltiples, este número define a qué ejes yAxis está conectada la serie en particular. Hace referencia a la posición del eje | El valor por defecto es 0                                                                                                                                                                                                                                                                              |
+| drilldown-serie | Opcional        | String  | Identificador de la serie de desglose                                                                                                             | **Nota:** Véase [este](#drilldown) ejemplo                                                                                                                                                                                                                                                              |
+| drilldown       | Opcional        | Boolean | Marcar para indicar si la serie se utiliza en un subgráfico                                                                                       | `true` o `false`                                                                                                                                                                                                                                                                                      |
 
-A `chart-serie` can hold `chart-parameter` elements, with the options of the [series scope](chart-parameters.md#series-scope-and-plotoptions).
+Un elemento `chart-serie` puede contener elementos `chart-parameter`, con las opciones del [ámbito de serie](chart-parameters.md#series-scope-and-plotoptions).
 
 #### Elemento parámetro de gráfico {#chart-parameter-element}
-It is used for overwrite values in chart elements. Tiene los siguientes atributos:
+Se utiliza para sobrescribir valores en los elementos del gráfico. Tiene los siguientes atributos:
 
 | Atributo | Uso             | Tipo   | Descripción                  | Valores                                                                                               |
 | -------- | --------------- | ------ | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
-| type     | **Obligatorio** | String | Tipo de parámetro de gráfico | Can be one of `string`, `integer`, `long`, `float`, `double`, `boolean`, `array`, `object` or `null`. |
+| type     | **Obligatorio** | String | Tipo de parámetro de gráfico | Puede ser uno de `string`, `integer`, `long`, `float`, `double`, `boolean`, `array`, `object` o `null`. |
 | name     | **Obligatorio** | String | Nombre del parámetro gráfico |                                                                                                       |
 | value    | Opcional        | String | Valor del parámetro gráfico  |                                                                                                       |
 
-The chart element, the axes, the legend, the tooltip and the series accept `chart-parameter` children. See [chart parameters](chart-parameters.md) for the options that each engine applies.
+El elemento chart, los ejes, la leyenda, el tooltip y las series admiten hijos `chart-parameter`. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que aplica cada motor.
 
 ## Conceptos de series y consultas {#series-and-queries-concepts}
 
-In this section, it explains how works the integration between series of graphics and query engine of AWE. A series is a list of points, and a point has an `x` value and a `y` value (and a `z` value in a bubble chart). Each point is a row of the query.
+Esta sección explica cómo funciona la integración entre las series de los gráficos y el motor de consultas de AWE. Una serie es una lista de puntos, y un punto tiene un valor `x` y un valor `y` (y un valor `z` en un gráfico de burbujas). Cada punto es una fila de la consulta.
 
-Por lo tanto, debe establecer los valores de x e y para el punto de una serie. For this, exist the serie attributes `x-value` and `y-value`.
+Por lo tanto, debe establecer los valores de x e y para el punto de una serie. Para ello existen los atributos de serie `x-value` y `y-value`.
 
 Estos atributos corresponden al atributo `alias` del campo en la consulta. Veamos el siguiente ejemplo:
 
@@ -241,25 +241,25 @@ Estos atributos corresponden al atributo `alias` del campo en la consulta. Veamo
   </query>
 ```
 
-In this example, you can see the attribute `x-value = "dates"` of chart serie is equal to attribute `alias` in field element and the attribute `y-value = "serie1"` is equal to alias in the query.
+En este ejemplo, puede ver que el atributo `x-value = "dates"` de la serie del gráfico es igual al atributo `alias` del elemento field y que el atributo `y-value = "serie1"` es igual al alias de la consulta.
 
-> **Note:** If the axis type is **datetime**, the chart expects a date as a long value: a JavaScript date timestamp (milliseconds since Jan 1st 1970). AWE provides **transform = "DATE_MS"**.
+> **Nota:** Si el tipo de eje es **datetime**, el gráfico espera una fecha como valor long: una marca de tiempo de fecha de JavaScript (milisegundos desde el 1 de enero de 1970). AWE proporciona **transform = "DATE_MS"**.
 
-The series of a chart can also be defined at runtime, without `chart-serie` elements, with the [chart actions](#chart-actions).
+Las series de un gráfico también se pueden definir en tiempo de ejecución, sin elementos `chart-serie`, con las [acciones de gráfico](#chart-actions).
 
-> **Note:** The values of the points are drawn as the query gives them. The chart does not round them: use `number-decimals` in the tooltip or a [format](chart-format.md) to show a given number of decimals.
+> **Nota:** Los valores de los puntos se dibujan tal como los devuelve la consulta. El gráfico no los redondea: use `number-decimals` en el tooltip o un [formato](chart-format.md) para mostrar un número determinado de decimales.
 
 ## Ejemplos {#examples}
 
-The examples show trimmed screens of the React test application, drawn with ECharts. The values of the series of the test queries are random, so a chart of your application will not look exactly the same. The test screens use Spanish and English texts for their titles and labels.
+Los ejemplos muestran pantallas recortadas de la aplicación de pruebas de React, dibujadas con ECharts. Los valores de las series de las consultas de prueba son aleatorios, por lo que un gráfico de su aplicación no se verá exactamente igual. Las pantallas de prueba usan textos en español y en inglés para sus títulos y etiquetas.
 
-Every example uses the same query structure: one field with the x value (`DATE_MS` for dates) and one computed or selected field for each series, as described in [Series and queries concepts](#series-and-queries-concepts).
+Todos los ejemplos usan la misma estructura de consulta: un campo con el valor x (`DATE_MS` para fechas) y un campo calculado o seleccionado para cada serie, como se describe en [Conceptos de series y consultas](#series-and-queries-concepts).
 
 ### Gráfico de líneas {#line-chart}
 
-Type `line`: the series are drawn as lines with a marker on each point. The `color` attribute of a series sets its color and `zoom-type="xAxis"` lets the user zoom the x axis.
+Tipo `line`: las series se dibujan como líneas con un marcador en cada punto. El atributo `color` de una serie establece su color y `zoom-type="xAxis"` permite al usuario ampliar el eje x.
 
-<img alt="Line chart with two series and a date axis" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-line.png')} />
+<img alt="Gráfico de líneas con dos series y un eje de fechas" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-line.png')} />
 
 ``` xml
 <chart id="ChrLinTst" label="SCREEN_TEXT_LINE_CHART" type="line" initial-load="query"
@@ -273,13 +273,13 @@ Type `line`: the series are drawn as lines with a marker on each point. The `col
 </chart>
 ```
 
-> **Note:** A `chart-legend` element is disabled unless you set `enabled="true"`, so the legend of this chart is not drawn.
+> **Nota:** Un elemento `chart-legend` está deshabilitado salvo que se establezca `enabled="true"`, por lo que la leyenda de este gráfico no se dibuja.
 
-### Mixed chart: column, spline and two y axes
+### Gráfico mixto: columnas, spline y dos ejes y {#mixed-chart-column-spline-and-two-y-axes}
 
-Type `mixed`: each series sets its own `type`. This chart draws a column series and a `spline` series, each one on its own y axis (`y-axis="0"` and `y-axis="1"`; the second axis is `opposite`).
+Tipo `mixed`: cada serie establece su propio `type`. Este gráfico dibuja una serie de columnas y una serie `spline`, cada una en su propio eje y (`y-axis="0"` y `y-axis="1"`; el segundo eje es `opposite`).
 
-<img alt="Mixed chart with columns on the left axis and a smoothed line on the right axis" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-mixed.png')} />
+<img alt="Gráfico mixto con columnas en el eje izquierdo y una línea suavizada en el eje derecho" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-mixed.png')} />
 
 ``` xml
 <chart id="ChrLinTst" label="SCREEN_TEXT_CHART_TITLE_1" subtitle="Subtitulo grafico 1" type="mixed"
@@ -294,13 +294,13 @@ Type `mixed`: each series sets its own `type`. This chart draws a column series 
 </chart>
 ```
 
-The tooltip of this chart is shared: it shows the values of all the series at the same x value, with a crosshair. See the [tooltip example](chart-format.md#tooltips).
+El tooltip de este gráfico es compartido: muestra los valores de todas las series para el mismo valor de x, con una cruceta. Véase el [ejemplo de tooltip](chart-format.md#tooltips).
 
 ### Gráfico de área {#area-chart}
 
-Types `area` and `areaspline` fill the area under the line. This example uses `areaspline` and changes the date pattern of the labels of the axis with a `chart-parameter`.
+Los tipos `area` y `areaspline` rellenan el área bajo la línea. Este ejemplo usa `areaspline` y cambia el patrón de fecha de las etiquetas del eje con un `chart-parameter`.
 
-<img alt="Smoothed area chart with two overlapping series" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-areaspline.png')} />
+<img alt="Gráfico de áreas suavizado con dos series superpuestas" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-areaspline.png')} />
 
 ``` xml
 <chart id="ChrAreTst" label="Grafico 5" type="areaspline" initial-load="query" target-action="TstChrTwoSrcLab" max="16">
@@ -317,11 +317,11 @@ Types `area` and `areaspline` fill the area under the line. This example uses `a
 </chart>
 ```
 
-#### Area with a gradient fill
+#### Área con relleno en degradado {#area-with-a-gradient-fill}
 
-The fill of an area is a linear gradient set in the series (`fillColor`). The gradient goes from the top to the bottom of the plot. The `threshold` of `-Infinity` fills the area from the bottom of the axis, and the markers are styled with `plotOptions.area.marker`.
+El relleno de un área es un degradado lineal definido en la serie (`fillColor`). El degradado va de la parte superior a la inferior del área del gráfico. El `threshold` de `-Infinity` rellena el área desde la base del eje, y los marcadores se estilizan con `plotOptions.area.marker`.
 
-<img alt="Area chart with a green gradient fill and white markers" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-gradient-area.png')} />
+<img alt="Gráfico de áreas con relleno en degradado verde y marcadores blancos" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-gradient-area.png')} />
 
 ``` xml
 <chart id="ChrAdvArea" label="Evolución de la plantilla" type="area" zoom-type="xAxis"
@@ -372,11 +372,11 @@ The fill of an area is a linear gradient set in the series (`fillColor`). The gr
 </chart>
 ```
 
-### Column chart
+### Gráfico de columnas {#column-chart}
 
-Type `column`. With the `stacking` attribute (`normal` or `percent`) the series are stacked. The type `column_3d` is accepted in the XML, but **the React engine draws it flat**, like this stacked chart:
+Tipo `column`. Con el atributo `stacking` (`normal` o `percent`) las series se apilan. El tipo `column_3d` se acepta en el XML, pero **el motor React lo dibuja plano**, como este gráfico apilado:
 
-<img alt="Stacked column chart with three series" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stacked-column.png')} />
+<img alt="Gráfico de columnas apiladas con tres series" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stacked-column.png')} />
 
 ``` xml
 <chart id="ChrBarTst" label="Grafico 2" subtitle="Subtitulo grafico 2" type="column_3d" stacking="normal"
@@ -391,13 +391,13 @@ Type `column`. With the `stacking` attribute (`normal` or `percent`) the series 
 </chart>
 ```
 
-The series of a stack are the ones with the same `stack` parameter (the default stack is shared by all the series).
+Las series de una pila son las que tienen el mismo parámetro `stack` (la pila por defecto es compartida por todas las series).
 
-#### Stacked columns with rounded corners
+#### Columnas apiladas con esquinas redondeadas {#stacked-columns-with-rounded-corners}
 
-The `borderRadius` of a series (pixels or percentage) rounds the end of the bar that is away from zero, and only in the outermost series of a stack. The padding between columns is set with `pointPadding` and `groupPadding`, and the order of the entries of the legend with `legendIndex`. The y axis uses the `formatCurrencyMagnitude` formatter.
+El `borderRadius` de una serie (píxeles o porcentaje) redondea el extremo de la barra que queda más lejos del cero, y solo en la serie más externa de una pila. El espaciado entre columnas se establece con `pointPadding` y `groupPadding`, y el orden de las entradas de la leyenda con `legendIndex`. El eje y usa el formateador `formatCurrencyMagnitude`.
 
-<img alt="Stacked columns with rounded tops and a legend in a custom order" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-rounded-columns.png')} />
+<img alt="Columnas apiladas con la parte superior redondeada y una leyenda en orden personalizado" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-rounded-columns.png')} />
 
 ``` xml
 <chart id="ChrAdvColumns" label="Aportaciones por año" type="column" stacking="normal"
@@ -423,13 +423,13 @@ The `borderRadius` of a series (pixels or percentage) rounds the end of the bar 
 </chart>
 ```
 
-### Bar chart and pyramid
+### Gráfico de barras y pirámide {#bar-chart-and-pyramid}
 
-A **bar** chart is a column chart turned on its side. There are two ways to get it: a series of type `bar`, or `inverted="true"` in the chart. In both cases the x axis is vertical, and the y axis is horizontal (the first category or the oldest date is at the top).
+Un gráfico de **barras** es un gráfico de columnas girado de lado. Hay dos maneras de obtenerlo: una serie de tipo `bar`, o `inverted="true"` en el gráfico. En ambos casos el eje x es vertical y el eje y es horizontal (la primera categoría o la fecha más antigua queda arriba).
 
-The pyramid is a bar chart with two series that share a stack, a second x axis on the opposite side, and negative and positive values formatted with a [condition](chart-format.md#conditions). Two helper series (`dummyMax` and `dummyMin`, of type `scatter`) are hidden from the legend and from the mouse: they only extend the range of the axis.
+La pirámide es un gráfico de barras con dos series que comparten una pila, un segundo eje x en el lado opuesto y valores negativos y positivos formateados con una [condición](chart-format.md#conditions). Dos series auxiliares (`dummyMax` y `dummyMin`, de tipo `scatter`) están ocultas en la leyenda y para el ratón: solo amplían el rango del eje.
 
-<img alt="Salary pyramid: horizontal bars for two series on both sides of a central axis" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pyramid.png')} />
+<img alt="Pirámide salarial: barras horizontales para dos series a ambos lados de un eje central" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pyramid.png')} />
 
 ``` xml
 <chart id="ChrAdvPyramid" label="Pirámide salarial" type="column" inverted="true"
@@ -476,11 +476,11 @@ The pyramid is a bar chart with two series that share a stack, a second x axis o
 </chart>
 ```
 
-### Pie chart
+### Gráfico de sectores {#pie-chart}
 
-Type `pie`. The legend lists the slices. `enable-data-labels` shows the label of each slice, and its text is set with `format-data-labels` (see [chart formats](chart-format.md#data-labels-and-axis-labels)). A pie has no axes, so the axes that the XML declares are not drawn.
+Tipo `pie`. La leyenda enumera los sectores. `enable-data-labels` muestra la etiqueta de cada sector y su texto se establece con `format-data-labels` (véase [formatos de gráficos](chart-format.md#data-labels-and-axis-labels)). Un gráfico de sectores no tiene ejes, por lo que los ejes que declare el XML no se dibujan.
 
-<img alt="Pie chart with a legend and a percentage label for each slice" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pie.png')} />
+<img alt="Gráfico de sectores con una leyenda y una etiqueta de porcentaje para cada sector" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pie.png')} />
 
 ``` xml
 <chart id="ChrPieTst" label="Grafico 6" type="pie" initial-load="query" enable-data-labels="true"
@@ -499,11 +499,11 @@ Type `pie`. The legend lists the slices. `enable-data-labels` shows the label of
 </chart>
 ```
 
-#### Pie with its own colors
+#### Sectores con colores propios {#pie-with-its-own-colors}
 
-The `colors` parameter sets the palette of the chart. With `colorByPoint` every slice takes a color, and `allowPointSelect` lets the user select a slice with a click. This chart has the type `pie_3d`, which is drawn flat.
+El parámetro `colors` establece la paleta del gráfico. Con `colorByPoint` cada sector toma un color y `allowPointSelect` permite al usuario seleccionar un sector con un clic. Este gráfico es de tipo `pie_3d`, que se dibuja plano.
 
-<img alt="Pie chart with a green and blue custom palette" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pie-colors.png')} />
+<img alt="Gráfico de sectores con una paleta personalizada en verde y azul" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-pie-colors.png')} />
 
 ``` xml
 <chart id="ChrAdvPie3d" label="Plantilla por categoría" type="pie_3d" enable-data-labels="true"
@@ -530,11 +530,11 @@ The `colors` parameter sets the palette of the chart. With `colorByPoint` every 
 </chart>
 ```
 
-### Donut chart
+### Gráfico de anillo {#donut-chart}
 
-Types `donut` and `donut_3d` draw a pie with an inner radius (50% by default). `plotOptions.pie.size` is the outer radius and `plotOptions.pie.innerSize` the inner radius, relative to `size`. The 3D type is drawn flat.
+Los tipos `donut` y `donut_3d` dibujan un gráfico de sectores con radio interior (50% por defecto). `plotOptions.pie.size` es el radio exterior y `plotOptions.pie.innerSize` el radio interior, relativo a `size`. El tipo 3D se dibuja plano.
 
-<img alt="Donut chart with five slices" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-donut.png')} />
+<img alt="Gráfico de anillo con cinco sectores" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-donut.png')} />
 
 ``` xml
 <chart id="ChrDonutTst" label="Grafico 7" type="donut_3d" initial-load="query" target-action="TstChrPieSrc" max="5">
@@ -554,9 +554,9 @@ Types `donut` and `donut_3d` draw a pie with an inner radius (50% by default). `
 
 ### Gráfico de semicírculo {#semicircle-chart}
 
-Type `semicircle` draws only the upper half of a donut. The labels are written inside the slices (a negative `dataLabels.distance`), and the title is moved to the middle of the chart with the `title` parameters. Like in Highcharts, the center and the size of the semicircle are measured in the plot area, which leaves out the legend, so the title sits in the hole.
+El tipo `semicircle` dibuja solo la mitad superior de un anillo. Las etiquetas se escriben dentro de los sectores (un `dataLabels.distance` negativo) y el título se desplaza al centro del gráfico con los parámetros de `title`. Como en Highcharts, el centro y el tamaño del semicírculo se miden en el área del gráfico, que excluye la leyenda, por lo que el título queda en el hueco.
 
-<img alt="Semicircle chart with the labels inside the slices" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-semicircle.png')} />
+<img alt="Gráfico de semicírculo con las etiquetas dentro de los sectores" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-semicircle.png')} />
 
 ``` xml
 <chart id="ChrSemiCircleTst" label="Grafico 8" type="semicircle" enable-data-labels="true"
@@ -589,11 +589,11 @@ Type `semicircle` draws only the upper half of a donut. The labels are written i
 </chart>
 ```
 
-### Drilldown
+### Drilldown {#drilldown}
 
-A series with `drilldown-serie` opens another series when the user clicks one of its points. The target series sets `drilldown="true"` and is not drawn until it is opened. A **Back to Themes** link (the name of the first series) at the top left of the chart returns to the first level (the text comes from the `drillUpText` of the chart text files). The `keys` parameter of the first series binds the values of each point to the `name`, the `y` value and the `drilldown` target.
+Una serie con `drilldown-serie` abre otra serie cuando el usuario hace clic en uno de sus puntos. La serie de destino establece `drilldown="true"` y no se dibuja hasta que se abre. Un enlace **Back to Themes** (el nombre de la primera serie) en la parte superior izquierda del gráfico devuelve al primer nivel (el texto procede del `drillUpText` de los archivos de textos del gráfico). El parámetro `keys` de la primera serie enlaza los valores de cada punto con el `name`, el valor `y` y el destino `drilldown`.
 
-<img alt="Second level of a drilldown pie chart with a back link at the top left" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-drilldown.png')} />
+<img alt="Segundo nivel de un gráfico de sectores con drilldown y un enlace de retroceso arriba a la izquierda" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-drilldown.png')} />
 
 ``` xml
 <chart id="ChrPieTst" label="Grafico 6" type="pie" initial-load="query" enable-data-labels="true"
@@ -614,7 +614,7 @@ A series with `drilldown-serie` opens another series when the user clicks one of
 </chart>
 ```
 
-The query returns the values of both levels in the same row:
+La consulta devuelve los valores de ambos niveles en la misma fila:
 
 ``` xml
 <query id="TstChrPieDrillSrc" distinct="true">
@@ -625,11 +625,11 @@ The query returns the values of both levels in the same row:
 </query>
 ```
 
-### Scatter chart
+### Gráfico de dispersión {#scatter-chart}
 
-Type `scatter`: one point for each row, with no line. The x and y values are numbers or dates.
+Tipo `scatter`: un punto por cada fila, sin línea. Los valores x e y son números o fechas.
 
-<img alt="Scatter chart with one series and a date axis" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-scatter.png')} />
+<img alt="Gráfico de dispersión con una serie y un eje de fechas" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-scatter.png')} />
 
 ``` xml
 <chart id="ChrScaTst" label="Grafico 10" subtitle="Subtitulo grafico 10" type="scatter" initial-load="query"
@@ -642,11 +642,11 @@ Type `scatter`: one point for each row, with no line. The x and y values are num
 </chart>
 ```
 
-### Bubble chart
+### Gráfico de burbujas {#bubble-chart}
 
-Type `bubble`: a scatter chart where the `z-value` of the series gives the size of each bubble. The range of the sizes is set with `minSize` and `maxSize`, and the data labels can show the z value with `{point.z}`.
+Tipo `bubble`: un gráfico de dispersión en el que el `z-value` de la serie da el tamaño de cada burbuja. El rango de tamaños se establece con `minSize` y `maxSize`, y las etiquetas de datos pueden mostrar el valor z con `{point.z}`.
 
-<img alt="Bubble chart where the size of each bubble is its z value, labeled with the same value" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-bubble-labels.png')} />
+<img alt="Gráfico de burbujas donde el tamaño de cada burbuja es su valor z, etiquetado con el mismo valor" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-bubble-labels.png')} />
 
 ``` xml
 <chart id="ChrAdvBubble" label="Rentabilidad frente a riesgo" type="bubble" initial-load="query"
@@ -670,15 +670,15 @@ Type `bubble`: a scatter chart where the `z-value` of the series gives the size 
 </chart>
 ```
 
-Without `minSize` and `maxSize` the sizes go from 10 to 50 pixels:
+Sin `minSize` ni `maxSize`, los tamaños van de 10 a 50 píxeles:
 
-<img alt="Bubble chart with the default sizes" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-bubble.png')} />
+<img alt="Gráfico de burbujas con los tamaños por defecto" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-bubble.png')} />
 
-### Stock chart with zoom
+### Gráfico bursátil con zoom {#stock-chart-with-zoom}
 
-With `stock-chart="true"` the chart is meant for long time series. The React engine adds a slider (the navigator) under the plot, a zoom of the x axis with the mouse wheel, and shows no legend by default.
+Con `stock-chart="true"` el gráfico está pensado para series temporales largas. El motor React añade un deslizador (el navegador) bajo el área del gráfico, un zoom del eje x con la rueda del ratón y no muestra leyenda por defecto.
 
-<img alt="Time series chart with a navigator slider under the plot" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stock.png')} />
+<img alt="Gráfico de series temporales con un deslizador de navegación bajo el área del gráfico" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stock.png')} />
 
 ``` xml
 <chart style="expand-3x" id="ChrStockTst" label="Grafico 4" stock-chart="true" zoom-type="xAxis" type="line"
@@ -690,20 +690,20 @@ With `stock-chart="true"` the chart is meant for long time series. The React eng
 </chart>
 ```
 
-`zoom-type` (`xAxis`, `yAxis` or `all`) adds the zoom of the axes to any chart, not only to the stock ones.
+`zoom-type` (`xAxis`, `yAxis` o `all`) añade el zoom de los ejes a cualquier gráfico, no solo a los bursátiles.
 
-## Chart actions
+## Acciones de gráfico {#chart-actions}
 
-The server can change a chart from a service, with client actions. The actions are built with the classes of `com.almis.awe.builder.client.chart` and are listed in the [actions](actions.md) page:
+El servidor puede modificar un gráfico desde un servicio, mediante acciones de cliente. Las acciones se construyen con las clases de `com.almis.awe.builder.client.chart` y se enumeran en la página de [acciones](actions.md):
 
 | Action                 | Builder                           | Effect                                                   |
 | ---------------------- | --------------------------------- | -------------------------------------------------------- |
-| `add-chart-series`     | `AddChartSeriesActionBuilder`     | Adds series (a series with the same id is replaced)      |
-| `remove-chart-series`  | `RemoveChartSeriesActionBuilder`  | Removes the series with the given ids                    |
-| `replace-chart-series` | `ReplaceChartSeriesActionBuilder` | Replaces all the series                                  |
-| `add-points`           | `AddPointsActionBuilder`          | Adds the rows of a `DataList` to the values of the chart |
+| `add-chart-series`     | `AddChartSeriesActionBuilder`     | Añade series (una serie con el mismo id se sustituye)      |
+| `remove-chart-series`  | `RemoveChartSeriesActionBuilder`  | Elimina las series con los ids indicados                    |
+| `replace-chart-series` | `ReplaceChartSeriesActionBuilder` | Sustituye todas las series                                  |
+| `add-points`           | `AddPointsActionBuilder`          | Añade las filas de un `DataList` a los valores del gráfico |
 
-The series that the actions carry are `ChartSerie` objects, with the id, the name, the `x-value` and `y-value` names and the points. The server translates each one to ECharts, as it does with the `chart-serie` elements of the XML, and sends the translation with the action. The chart does not need to declare series in its XML: the screen of the example has no `chart-serie` elements.
+Las series que llevan las acciones son objetos `ChartSerie`, con el id, el nombre, los nombres `x-value` e `y-value` y los puntos. El servidor traduce cada una a ECharts, igual que hace con los elementos `chart-serie` del XML, y envía la traducción con la acción. El gráfico no necesita declarar series en su XML: la pantalla del ejemplo no tiene elementos `chart-serie`.
 
 ```java
 public ServiceData replaceSeriesChart(List<String> userList) {
@@ -723,13 +723,13 @@ public ServiceData replaceSeriesChart(List<String> userList) {
 }
 ```
 
-<img alt="Line chart after a replace series action, with the months on a category axis" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-dynamic-series.png')} />
+<img alt="Gráfico de líneas tras una acción de sustitución de series, con los meses en un eje de categorías" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-dynamic-series.png')} />
 
-The `ChrTstDynamicSeries` screen of the test application has three buttons that call services like this one (add, remove and replace series).
+La pantalla `ChrTstDynamicSeries` de la aplicación de pruebas tiene tres botones que llaman a servicios como este (añadir, eliminar y sustituir series).
 
-### Dependencies
+### Dependencias {#dependencies}
 
-A dependency with `target-type="chart-options"` changes the options of a chart at runtime. For example, to synchronize the zoom of two charts:
+Una dependencia con `target-type="chart-options"` cambia las opciones de un gráfico en tiempo de ejecución. Por ejemplo, para sincronizar el zoom de dos gráficos:
 
 ```xml
 <dependency source-type="formule" target-type="chart-options" formule="{zoom: {x: {min: [xMin],max: [xMax]}}}">
@@ -739,38 +739,38 @@ A dependency with `target-type="chart-options"` changes the options of a chart a
 </dependency>
 ```
 
-The result of the formula is a **Highcharts** options object, so it is applied only by the AngularJS engine. The React engine does not apply it: the client logs a warning in the browser console (`The 'chart-options' dependency is not applied to charts drawn with ECharts`) and leaves the chart as it is. The other dependencies of a chart (visibility, attributes, `reload`...) work in both engines. See [dependencies](dependencies.md).
+El resultado de la fórmula es un objeto de opciones de **Highcharts**, por lo que solo lo aplica el motor AngularJS. El motor React no lo aplica: el cliente registra una advertencia en la consola del navegador (`The 'chart-options' dependency is not applied to charts drawn with ECharts`) y deja el gráfico como está. Las demás dependencias de un gráfico (visibilidad, atributos, `reload`...) funcionan en ambos motores. Véase [dependencias](dependencies.md).
 
-## Differences between the engines
+## Diferencias entre los motores {#differences-between-the-engines}
 
-| Feature                                      | React (ECharts)                                                                     | AngularJS (Highcharts)                          |
+| Característica                                      | React (ECharts)                                                                     | AngularJS (Highcharts)                          |
 | -------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
-| 3D types (`column_3d`, `pie_3d`, `donut_3d`) | Drawn **flat**                                                                      | Drawn in 3D                                     |
-| `chart-parameter` options                    | Only the [translated options](chart-parameters.md); the rest are ignored and logged | Any option of the Highcharts API                |
-| `chart-options` dependency                   | Not applied (warning in the console)                                                | Applied                                         |
-| `theme` attribute (Highcharts themes)        | Ignored. The look comes from the theme of the application                           | Applied                                         |
-| Default palette                              | The Highcharts 11 palette, for the series without color                             | The Highcharts palette, or the one of the theme |
-| Dark mode                                    | The charts follow the theme of the application (see below)                          | Highcharts themes (`theme` attribute)           |
-| Stock charts                                 | Slider and zoom with the mouse wheel                                                | Highstock: navigator, range selector, scrollbar |
-| Printing                                     | Image drawn by the SVG renderer of ECharts                                          | Highcharts export                               |
-| Chart texts                                  | Files `src/i18n/charts/charts-<language>.json`                                | Texts of the AngularJS client                   |
+| Tipos 3D (`column_3d`, `pie_3d`, `donut_3d`) | Dibujado **plano**                                                                      | Dibujado en 3D                                     |
+| Opciones de `chart-parameter`                    | Solo las [opciones traducidas](chart-parameters.md); el resto se ignoran y se registran | Cualquier opción de la API de Highcharts                |
+| Dependencia `chart-options`                   | No se aplica (advertencia en la consola)                                                | Se aplica                                         |
+| Atributo `theme` (temas de Highcharts)        | Se ignora. El aspecto proviene del tema de la aplicación                           | Se aplica                                         |
+| Paleta por defecto                              | La paleta de Highcharts 11, para las series sin color                             | La paleta de Highcharts, o la del tema |
+| Modo oscuro                                    | Los gráficos siguen el tema de la aplicación (véase más abajo)                          | Temas de Highcharts (atributo `theme`)           |
+| Gráficos bursátiles                                 | Deslizador y zoom con la rueda del ratón                                                | Highstock: navegador, selector de rango, barra de desplazamiento |
+| Impresión                                     | Imagen dibujada por el renderizador SVG de ECharts                                          | Exportación de Highcharts                               |
+| Textos del gráfico                                  | Archivos `src/i18n/charts/charts-<language>.json`                                | Textos del cliente AngularJS                   |
 
-### Known limits of the React engine
+### Límites conocidos del motor React {#known-limits-of-the-react-engine}
 
-* **3D charts are flat.** The 3D types are accepted, so existing screens keep working, but the depth is not drawn.
-* **Colors.** When the XML gives no colors, the series take the colors of the Highcharts 11 default palette (`#2caffe`, `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`). Set the `color` of the series, or the `colors` parameter of the chart, to use your own.
-* **Dark theme.** The chart reads the theme of the application when it is created, and draws itself with light or dark colors. If the user changes the theme while the screen is open, the chart picks the new theme when it is created again (for example when the screen is opened again or the language changes).
-* **Drilldown and printing.** Printing a chart that is drilled down prints the top level.
-* **Raw values.** The values are drawn as the query gives them: nothing is rounded unless a format or `number-decimals` says so.
-* **Highcharts options.** Options without an ECharts counterpart are ignored. Check the log of the server, which reports each one once (see [chart parameters](chart-parameters.md#everything-else)).
-* **Highcharts themes.** The `theme` attribute applies only to the AngularJS engine.
-* **Range types.** `arearange` and `areasplinerange` are approximated by a filled line.
+* **Los gráficos 3D son planos.** Los tipos 3D se aceptan, de modo que las pantallas existentes siguen funcionando, pero la profundidad no se dibuja.
+* **Colores.** Cuando el XML no indica colores, las series toman los colores de la paleta por defecto de Highcharts 11 (`#2caffe`, `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`). Establezca el `color` de las series, o el parámetro `colors` del gráfico, para usar los suyos.
+* **Tema oscuro.** El gráfico lee el tema de la aplicación cuando se crea y se dibuja con colores claros u oscuros. Si el usuario cambia el tema con la pantalla abierta, el gráfico adopta el nuevo tema cuando se vuelve a crear (por ejemplo, al abrir de nuevo la pantalla o al cambiar el idioma).
+* **Drilldown e impresión.** Al imprimir un gráfico con drilldown se imprime el nivel superior.
+* **Valores sin procesar.** Los valores se dibujan tal como los devuelve la consulta: nada se redondea salvo que lo indique un formato o `number-decimals`.
+* **Opciones de Highcharts.** Las opciones sin equivalente en ECharts se ignoran. Consulte el log del servidor, que informa de cada una una sola vez (véase [parámetros de gráficos](chart-parameters.md#everything-else)).
+* **Temas de Highcharts.** El atributo `theme` solo se aplica al motor AngularJS.
+* **Tipos de rango.** `arearange` y `areasplinerange` se aproximan mediante una línea rellena.
 
-## Highcharts themes (AngularJS engine)
+## Temas de Highcharts (motor AngularJS) {#highcharts-themes-angularjs-engine}
 
-> **Note:** This section applies only to the AngularJS engine. The React engine ignores the `theme` attribute.
+> **Nota:** Esta sección solo se aplica al motor AngularJS. El motor React ignora el atributo `theme`.
 
-The AngularJS engine and the Highcharts library allow to change the style easily. Hay algunos temas por defecto. Just set the attribute `theme` of the chart element with the name of the theme.
+El motor AngularJS y la biblioteca Highcharts permiten cambiar el estilo fácilmente. Hay algunos temas por defecto. Basta con establecer el atributo `theme` del elemento chart con el nombre del tema.
 
 La lista de temas disponible es:
 
@@ -782,7 +782,7 @@ La lista de temas disponible es:
 
 ### Creando tu propio tema {#creating-your-own-theme}
 
-Here is a simple example to show the process:
+Aquí hay un ejemplo sencillo para mostrar el proceso:
 
 ```javascript
 /**
@@ -829,19 +829,19 @@ colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572',
 
 > **Nota:** Debe añadir el nuevo nombre de archivo en **scripts.xml** en su proyecto.
 
-## Printing and server rendering
+## Impresión y renderizado en el servidor {#printing-and-server-rendering}
 
-**Printing in the React engine.** When the user prints a screen with a chart, the client draws an image of the chart apart from the screen, with the SVG renderer of ECharts, in light colors and with the size of the page. The image is drawn from the top level of the chart, even when the user has drilled down.
+**Impresión en el motor React.** Cuando el usuario imprime una pantalla con un gráfico, el cliente dibuja una imagen del gráfico aparte de la pantalla, con el renderizador SVG de ECharts, en colores claros y con el tamaño de la página. La imagen se dibuja a partir del nivel superior del gráfico, incluso cuando el usuario ha hecho drilldown.
 
-**Rendering on the server.** The `ChartService` described below is independent of the engine of the browser: it builds the Highcharts model of the chart and sends it to a Highcharts export server, which returns an SVG image. It still needs the export server (`highcharts.server.url`).
+**Renderizado en el servidor.** El `ChartService` descrito a continuación es independiente del motor del navegador: construye el modelo de Highcharts del gráfico y lo envía a un servidor de exportación de Highcharts, que devuelve una imagen SVG. Sigue necesitando el servidor de exportación (`highcharts.server.url`).
 
 ## Servicio de exportación de gráficas {#chart-render-service}
 
-Highcharts tiene un servidor de exportación que le permite generar gráficas de alta calidad en el servidor:
+Highcharts tiene un servidor de exportación que permite generar gráficos de alta calidad en el lado del servidor:
 
 https://www.highcharts.com/docs/export-module/setting-up-the-server
 
-Hemos desarrollado un nuevo servicio de renderizado que le permite generar cartas en formato `SVG` usando este servidor de exportación y cartas AWE.
+Hemos desarrollado un nuevo servicio de renderizado que permite generar gráficos en formato `SVG` usando este servidor de exportación y los gráficos de AWE.
 
 ### Definiendo gráficos {#defining-charts}
 
@@ -855,35 +855,35 @@ Los gráficos definidos para ser generados en el servidor no necesitan atributos
 
 Hay un nuevo servicio diseñado para generar gráficas en el lado del servidor, llamado `ChartService`. Este servicio tiene dos métodos que permiten al desarrollador generar cartas usando una sola fuente de datos o múltiples fuentes de datos:
 
-#### Renderiza un gráfico con un solo `Lista de datos` {#render-a-chart-with-a-single-datalist}
+#### Renderizar un gráfico con un solo `DataList` {#render-a-chart-with-a-single-datalist}
 
-El método de render chart (con una sola `lista de datos`) genera una gráfica usando solo una lista de datos como fuente de datos.
+El método de renderizado de gráficos (con un solo `DataList`) genera un gráfico usando únicamente un DataList como origen de datos.
 
 ```java
 public String renderChart(String screenName, String chartName, DataList data) throws AWException
 ```
 
 * `screenName` es el nombre del archivo de pantalla donde está el gráfico
-* `chartName` es el id `` del gráfico que se generará
-* `data` es la `lista de datos` origen
+* `chartName` es el `id` del gráfico que se generará
+* `data` es el `DataList` de origen
 
 Este método devolverá un gráfico en formato SVG+XML (o AWException si hay un error).
 
-#### Procesar un gráfico con múltiples `listas de datos` {#render-a-chart-with-multiple-datalist}
+#### Renderizar un gráfico con varios `DataList` {#render-a-chart-with-multiple-datalist}
 
-El método de procesamiento de cartas (con un mapa de `listas de datos`) genera un gráfico usando múltiples listas de datos.
+El método de renderizado de gráficos (con un mapa de `DataList`) genera un gráfico usando varios DataList.
 
 ```java
 public String renderChart(String screenName, String chartName, Map<String, DataList> datasources) throws AWException
 ```
 
 * `screenName` es el nombre del archivo de pantalla donde está el gráfico
-* `chartName` es el id `` del gráfico que se generará
+* `chartName` es el `id` del gráfico que se generará
 * `datasources` es un mapa de String y DataList que contendrá todas las fuentes de datos.
 
 Este método devolverá un gráfico en formato SVG+XML (o AWException si hay un error).
 
-Uno de los datos debe llamarse `principal`, y será el predeterminado. el resto coincidirá con un parámetro `de datos` definido en la serie que debería seleccionar los datos. For example, this serie would pick the DataList inside the `detail` map key:
+Uno de los datos debe llamarse `main` y será el predeterminado; el resto coincidirá con un parámetro `datasource` definido en la serie que debería seleccionar los datos. Por ejemplo, esta serie seleccionaría el DataList que hay dentro de la clave de mapa `detail`:
 
 ```xml
 <chart-serie id="data" x-value="name" y-value="value"/>
@@ -900,7 +900,7 @@ datasources.put("main", mainDataList);
 datasources.put("detail", detailDataList);
 ```
 
-La primera serie (`data`) elegirá los datos definidos en `clave principal` y la segunda serie (`detalle`) elegirá los datos definidos en la tecla `detalle`
+La primera serie (`data`) elegirá los datos definidos en la clave `main` y la segunda serie (`detail`) elegirá los datos definidos en la clave `detail`
 
 ### Procesar servidor {#render-server}
 
@@ -913,22 +913,22 @@ Puede configurar el servidor de renderizado en el archivo `application.propertie
 highcharts.server.url=http://export.highcharts.com
 ```
 
-El servidor de exportación predeterminado apunta al servidor de exportación de Highchart: `http://export.highcharts.com`
+El servidor de exportación predeterminado apunta al servidor de exportación de Highcharts: `http://export.highcharts.com`
 
-## Upgrading to AWE 5
+## Actualización a AWE 5 {#upgrading-to-awe-5}
 
-In AWE 5 the React engine draws the charts with [Apache ECharts](https://echarts.apache.org/) 6.1.0 instead of Highcharts. The AngularJS engine keeps drawing them with Highcharts until it moves to ECharts (issue #775).
+En AWE 5 el motor React dibuja los gráficos con [Apache ECharts](https://echarts.apache.org/) 6.1.0 en lugar de Highcharts. El motor AngularJS sigue dibujándolos con Highcharts hasta que pase a ECharts (issue #775).
 
-The chart XML does not change. The server translates the chart, its axes, series and `chart-parameter` elements into an ECharts model, and logs a warning (once per option) for every option it cannot translate. Check these points when you upgrade an application that uses the React engine:
+El XML del gráfico no cambia. El servidor traduce el gráfico, sus ejes, series y elementos `chart-parameter` a un modelo de ECharts y registra una advertencia (una vez por opción) por cada opción que no puede traducir. Revise estos puntos al actualizar una aplicación que usa el motor React:
 
-* **Review the log of the server.** Open every screen with a chart and look for warnings that start with `Highcharts chart-parameter`. Each one is an option that the React engine ignores. See [chart parameters](chart-parameters.md) for the options that are translated.
-* **Custom code that imports Highcharts.** The React client no longer depends on `highcharts` nor on `highcharts-react-official`. A custom component of your application that imports them has to declare them in its own `package.json` (check the Highcharts licence) or move to ECharts, which the client already provides.
-* **`.highcharts-*` CSS rules.** The charts are no longer drawn by Highcharts, so these rules do not match anything in the React engine. Colors, fonts and borders come from the XML (`chart-parameter`) and from the theme. The dark mode of the application is applied to the charts automatically, when the chart is created.
-* **Palette.** The series without a color of their own keep the Highcharts 11 default palette. Set `color` in the series or the `colors` parameter in the chart to change it.
-* **Highcharts themes.** The `theme` attribute is ignored by the React engine. If a theme gave colors or fonts to your charts, set them in the XML.
-* **3D charts** (`column_3d`, `pie_3d`, `donut_3d`) are drawn flat.
-* **`chart-options` dependency.** Its result is a Highcharts options object. It is not applied to the charts drawn with ECharts and the client logs a warning in the browser console.
-* **Formats.** The format strings of Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, the date patterns of `%Y-%m-%d`...) work as before, see [chart formats](chart-format.md). Number specifications other than `.Nf` and `,.Nf` are written as the raw value, and the values are never rounded unless a format asks for it.
-* **Printing.** The charts are printed from an image drawn by ECharts. A drilled-down chart prints its top level.
-* **Chart texts.** The language files of the chart texts are `src/i18n/charts/charts-<language>.json` in the React client, and they only hold the texts that the charts use: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`, `months`, `shortMonths` and `weekdays`. Copy your customizations to those files.
-* **Server rendering.** `ChartService` still uses the Highcharts export server and the Highcharts model of the chart, so `highcharts.server.url` is still needed for it.
+* **Revise el log del servidor.** Abra cada pantalla con un gráfico y busque las advertencias que empiecen por `Highcharts chart-parameter`. Cada una es una opción que el motor React ignora. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que se traducen.
+* **Código propio que importa Highcharts.** El cliente React ya no depende de `highcharts` ni de `highcharts-react-official`. Un componente propio de su aplicación que los importe debe declararlos en su propio `package.json` (compruebe la licencia de Highcharts) o pasar a ECharts, que el cliente ya incluye.
+* **Reglas CSS `.highcharts-*`.** Los gráficos ya no los dibuja Highcharts, por lo que estas reglas no coinciden con nada en el motor React. Los colores, las fuentes y los bordes provienen del XML (`chart-parameter`) y del tema. El modo oscuro de la aplicación se aplica automáticamente a los gráficos cuando se crea el gráfico.
+* **Paleta.** Las series sin color propio mantienen la paleta por defecto de Highcharts 11. Establezca `color` en la serie o el parámetro `colors` en el gráfico para cambiarla.
+* **Temas de Highcharts.** El motor React ignora el atributo `theme`. Si un tema daba colores o fuentes a sus gráficos, establézcalos en el XML.
+* **Gráficos 3D** (`column_3d`, `pie_3d`, `donut_3d`): se dibujan planos.
+* **Dependencia `chart-options`.** Su resultado es un objeto de opciones de Highcharts. No se aplica a los gráficos dibujados con ECharts y el cliente registra una advertencia en la consola del navegador.
+* **Formatos.** Las cadenas de formato de Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, los patrones de fecha como `%Y-%m-%d`...) funcionan como antes, véase [formatos de gráficos](chart-format.md). Las especificaciones numéricas distintas de `.Nf` y `,.Nf` se escriben como el valor sin procesar, y los valores nunca se redondean salvo que un formato lo pida.
+* **Impresión.** Los gráficos se imprimen a partir de una imagen dibujada por ECharts. Un gráfico con drilldown imprime su nivel superior.
+* **Textos del gráfico.** Los archivos de idioma de los textos del gráfico son `src/i18n/charts/charts-<language>.json` en el cliente React, y solo contienen los textos que usan los gráficos: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`, `months`, `shortMonths` y `weekdays`. Copie sus personalizaciones a esos archivos.
+* **Renderizado en el servidor.** `ChartService` sigue usando el servidor de exportación de Highcharts y el modelo de Highcharts del gráfico, por lo que sigue siendo necesario `highcharts.server.url`.

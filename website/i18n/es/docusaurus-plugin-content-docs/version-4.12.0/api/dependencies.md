@@ -461,12 +461,12 @@ Una vez que las consultas están definidas y apuntan a un servicio, debemos crea
 
 ```xml
 <service id="getErrorMessageInfo">
-  <java classname="com.isban.smgmi.web.controller.ErrorMessageController" method="getErrorMessageInfo">
+  <java classname="com.example.web.controller.ErrorMessageController" method="getErrorMessageInfo">
   </java>
 </service>
 ```
 
-Este servicio ejecuta el método "getErrorMessageInfo" en la clase "com.isban.smgmi.web.controller.ErrorMessageController".
+Este servicio ejecuta el método "getErrorMessageInfo" en la clase "com.example.web.controller.ErrorMessageController".
 
 **Java**
 

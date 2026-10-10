@@ -13,13 +13,13 @@ src={require('@docusaurus/useBaseUrl').default('img/undraw_security.svg')}
 
 Awe es un framework de servidor, donde toda la lógica de su aplicación, negocio y interfaz de usuario reside en el servidor. A diferencia de los frameworks orientados a cliente, las aplicaciones Awe nunca exponen su código al navegador donde las vulnerabilidades pueden ser aprovechadas por un atacante.
 
-It uses **`Spring Security`** utilities to manage and configure all safety-related aspects.
+Utiliza las herramientas de **`Spring Security`** para gestionar y configurar todos los aspectos relacionados con la seguridad.
 
 ## Bibliotecas de terceros {#3rd-party-libraries}
 
-AWE actualiza constantemente las dependencias a librerías de terceros cuando se liberan parches de seguridad para ellas. Cuando es necesario se crean nuevas versiones de mantenimiento de Awe para aplicar parches. Furthermore, AWE has a public `SonarCloud` server to be
-audited and constantly adapt to new security flaws.
-You can check [here](https://sonarcloud.io/component_measures?id=aweframework_awe&metric=Security).
+AWE actualiza constantemente las dependencias a librerías de terceros cuando se liberan parches de seguridad para ellas. Cuando es necesario se crea una nueva versión de mantenimiento de Awe para aplicar la corrección. Además, AWE dispone de un servidor público de `SonarCloud` para ser
+auditado y adaptarse constantemente a nuevos fallos de seguridad.
+Puede consultarlo [aquí](https://sonarcloud.io/component_measures?id=aweframework_awe&metric=Security).
 
 ## Protección contra ataques CSRF {#cross-site-request-forgery-csrfxsrf}
 
@@ -32,7 +32,7 @@ X-XSRF-TOKEN: faad4d18-035a-4394-ab5f-be3bae2a1a09
 Cookie: XSRF-TOKEN=faad4d18-035a-4394-ab5f-be3bae2a1a09; JSESSIONID=7177A217096E0BF9E4D47C967C74431D
 ```
 
-## Cross-Site Scripting (XSS)
+## Cross-Site Scripting (XSS) {#cross-site-scripting-xss}
 
 Awe tiene protección integrada contra ataques de cross-site scripting (XSS). Awe convierte todos los datos para usar entidades HTML antes de que los datos se procesen en el navegador del usuario.
 
@@ -54,13 +54,13 @@ En las aplicaciones desarrolladas con Awe, el API de enlace de datos soporta la 
 Sin embargo, Awe tiene una acción de validación en el lado del cliente para hacer una doble comprobación y aumentar la capacidad de respuesta de la aplicación,
 pero el desarrollador debe ser consciente de que estas acciones deben ser utilizados exclusivamente para conveniencia, ya que son fácilmente eludidos en el navegador.
 Además, el desarrollador es libre de usar cualquier API de Java para validar los datos, incluyendo la conexión a servicios externos.
-There is also a built-in integration with Java’s Bean Validation (`JSR 303`) standard.
+También existe una integración nativa con el estándar Bean Validation (`JSR 303`) de Java.
 
 ## Inyección SQL {#sql-injections}
 
 Awe es un framework de IU de backend-agnóstico, no trata directamente con acceso backend; en cambio, utiliza un framework backend
-(e.. Spring Data) para gestionar esto. Awe provides mitigation for SQL injections using techniques like _Parameterized Queries_ with QueryDSL.
-Internally uses `PreparedStatement`and _User data sanitization_.
+(p. ej. Spring Data) para gestionar esto. Awe ofrece mitigación frente a inyecciones SQL mediante técnicas como las *consultas parametrizadas* con QueryDSL.
+Internamente utiliza `PreparedStatement` y *saneamiento de los datos del usuario*.
 
 ```java title="QueryDsl Example"
 QCustomer customer = new QCustomer("Foo");

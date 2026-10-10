@@ -460,12 +460,12 @@ Once the queries are defined and points to a service we must create this service
 
 ```xml
 <service id="getErrorMessageInfo">
-  <java classname="com.isban.smgmi.web.controller.ErrorMessageController" method="getErrorMessageInfo">
+  <java classname="com.example.web.controller.ErrorMessageController" method="getErrorMessageInfo">
   </java>
 </service>
 ```
 
-This service launch the "getErrorMessageInfo" method in the "com.isban.smgmi.web.controller.ErrorMessageController" class.
+This service launch the "getErrorMessageInfo" method in the "com.example.web.controller.ErrorMessageController" class.
 
 **Java**
 

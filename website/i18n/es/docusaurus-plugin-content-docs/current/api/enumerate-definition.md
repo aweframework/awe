@@ -6,9 +6,13 @@ sidebar_label: Definición de enumerados
 
 Los componentes enumerados son estructuras para definir listas de `label` - `value`. Son útiles, por ejemplo, para traducciones.
 
-:::tip Every element and attribute of enumerated lists is listed in the generated [XSD reference](/reference/enumerated). :::
+:::tip
+Todos los elementos y atributos de las listas de enumerados se enumeran en la [referencia XSD](/reference/enumerated) generada.
+:::
 
-:::info **Nota:** Todos los enumerados están definidas en el archivo `Enumerated.xml` en la **carpeta global**. Ver la [estructura de proyecto](../guides/project-structure.md#global-folder)  para más información. :::
+:::info
+**Nota:** Todos los enumerados están definidos en el archivo `Enumerated.xml` en la **carpeta global**. Ver la [estructura de proyecto](../guides/project-structure.md#global-folder) para más información.
+:::
 
 ## Estructura XML del enumerado {#enumerated-xml-structure}
 
@@ -36,7 +40,7 @@ xsi:noNamespaceSchemaLocation = "https://aweframework.gitlab.io/awe/docs/schemas
 | ----------------------------- | --------------- | ----------------- | ---------------------------------------------------------------- |
 | enumerated                    | **Obligatorio** | No                | Nodo raíz de la estructura del enumerado                         |
 | [group](#group-element)   | **Obligatorio** | Si                | Utilizado para agrupar las opciones del enumerado                |
-| [option](#option-element) | **Obligatorio** | Si                | Defina cada una de las `clave` - `valor` de un grupo de opciones |
+| [option](#option-element) | **Obligatorio** | Si                | Defina cada una de las `key` - `values` de un grupo de opciones |
 
 ### Elemento de grupo {#group-element}
 
@@ -52,7 +56,7 @@ El elemento de opción tiene los siguientes atributos:
 
 | Atributo | Uso             | Tipo   | Descripción              | Valores                                                                       |
 | -------- | --------------- | ------ | ------------------------ | ----------------------------------------------------------------------------- |
-| label    | **Obligatorio** | String | La etiqueta de la opción | **Nota:** Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
+| label    | **Obligatorio** | String | La etiqueta de la opción | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md) |
 | value    | **Obligatorio** | String | El valor de la opción    | **Nota:**  El nombre del id debe ser único                                    |
 
 
