@@ -209,7 +209,7 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "DRY-RUN: mv website/sidebars.js $SIDEBARS_BACKUP"
   echo "DRY-RUN: cp -r $EXPORT_DIR/website/docs website/docs"
   echo "DRY-RUN: cp $EXPORT_DIR/website/sidebars.js website/sidebars.js"
-  echo "DRY-RUN: npm --prefix website run docusaurus -- docs:version $LABEL"
+  echo "DRY-RUN: AWE_SKIP_PROPERTIES_REFERENCE=1 npm --prefix website run docusaurus -- docs:version $LABEL"
   echo "DRY-RUN: restore develop's website/docs and website/sidebars.js"
 else
   rm -rf "$DOCS_BACKUP" "$SIDEBARS_BACKUP"
@@ -225,8 +225,9 @@ else
   echo "+ cp $EXPORT_DIR/website/sidebars.js website/sidebars.js"
   cp "$EXPORT_DIR/website/sidebars.js" website/sidebars.js
 
-  echo "+ npm --prefix website run docusaurus -- docs:version $LABEL"
-  npm --prefix website run docusaurus -- docs:version "$LABEL"
+  # The maintenance line has its own hand-written properties page: do not generate the current one over it.
+  echo "+ AWE_SKIP_PROPERTIES_REFERENCE=1 npm --prefix website run docusaurus -- docs:version $LABEL"
+  AWE_SKIP_PROPERTIES_REFERENCE=1 npm --prefix website run docusaurus -- docs:version "$LABEL"
 
   # docs:version also copies the translations of the current docs (website/i18n/<locale>/.../current) into the new
   # version. Those pages belong to develop, not to the maintenance line (they link pages the line does not have), so

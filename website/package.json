@@ -5,9 +5,10 @@
   "scripts": {
     "predocusaurus": "npm run generate:reference",
     "docusaurus": "docusaurus",
-    "generate:reference": "node scripts/xsd-reference/generate.js",
+    "generate:reference": "node scripts/xsd-reference/generate.js && node scripts/properties-reference/generate.js",
+    "refresh:properties": "node scripts/properties-reference/generate.js --refresh",
     "test:reference": "node --test \"scripts/xsd-reference/__tests__/*.test.js\"",
-    "test:scripts": "node --test \"scripts/xsd-reference/__tests__/*.test.js\" \"scripts/*.test.js\"",
+    "test:scripts": "node --test \"scripts/xsd-reference/__tests__/*.test.js\" \"scripts/properties-reference/__tests__/*.test.js\" \"scripts/*.test.js\"",
     "prestart": "npm run generate:reference",
     "start": "docusaurus start",
     "prebuild": "npm run generate:reference",

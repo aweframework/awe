@@ -89,7 +89,7 @@ public class NumericConfigProperties {
 
   /**
    * Controls the placement of the currency symbol for numeric component.
-   * Default value s (suffix to the right). Use p for prefix to the left
+   * Use s for suffix to the right or p for prefix to the left.
    */
   private String currencyPlace = "s";
 
