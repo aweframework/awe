@@ -31,7 +31,7 @@ Un acordeón es un componente de diseño que permite organizar el contenido en d
 | id           | **Obligatorio** | String | Identificador del acordeón. Con fines de referencia                                       |                                                                                                                                                        |
 | autocollapse | Opcional        | String | Si se establece en "true" solo un panel del acordeón puede permanecer abierto a la vez    | `true` o `false` (por defecto es `true`)                                                                                                               |
 | selected     | Opcional        | String | Si queremos que un elemento del acordeón esté abierto al principio, establezca su ID aquí |                                                                                                                                                        |
-| style        | Opcional        | String | Clases CSS                                                                                | Podemos usar clases de `panel-group-[type]` y `panel-group-dark` para definir el estilo (`type` puede ser uno de los valores `danger`, `success`, etc) |
+| style        | Opcional        | String | Clases CSS                                                                                | Podemos usar clases de `panel-group-[type]` y `panel-group-dark` para definir el estilo (type puede ser uno de los valores habituales `danger`, `success`, etc.) |
 
 ## Estructura de paneles de acordeón {#accordion-item-structure}
 
@@ -62,11 +62,11 @@ Si queremos colapsar o expandir un elemento de acordeón usando una dependencia,
 
 ## Ejemplos {#examples}
 
-A continuación podemos ver la diferencia entre tener el atributo * autocollapse* como `true` (izquierda) o `false` (derecha)
+A continuación podemos ver la diferencia entre tener el atributo *autocollapse* como `true` (izquierda) o `false` (derecha)
 
 <img alt="Ejemplo de acordeón 1" src={require('@docusaurus/useBaseUrl').default('img/accordion.png')} />
 
-Lo siguiente es un panel de acordeón que contiene una ventana con un `include`
+A continuación, un panel de acordeón que contiene una ventana con un include
 
 <img alt="Ejemplo de acordeón 2" src={require('@docusaurus/useBaseUrl').default('img/accordion3.png')} />
 

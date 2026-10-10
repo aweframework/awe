@@ -6,15 +6,19 @@ sidebar_label: 'i18n: Internacionalización'
 
 AWE implementa un sistema i18n para la internacionalización de aplicaciones web. Por esta razón, AWE utiliza archivos locales que contienen literales en diferentes idiomas.
 
-:::tip Every element and attribute of locales is listed in the generated [XSD reference](/reference/locale). :::
+:::tip
+Todos los elementos y atributos de los locales se enumeran en la [referencia XSD](/reference/locale) generada.
+:::
 
 También puedes añadir la etiqueta `CDATA` dentro del idioma local en **markdown** para mostrar texto enriquecido. Muy útil cuando quiera mostrar mucha información de formato. Por ejemplo, en la aplicación de pantalla de ayuda. Puedes ver toda la sintaxis de markdown en [esta página](https://wiki.almis.com/help/markdown/markdown).
 
-:::info **Note:** All locales are defined in the `Locale-[Locale code].xml` files at **locale folder**. The country codes must be in ISO 3166 and ISO 639 codes (es-ES, en-GB, fr-FR...).  View [project structure](../guides/project-structure.md#global-folder)  for more info. :::
+:::info
+**Nota:** Todos los locales están definidos en los archivos `Locale-[Locale code].xml` en la **carpeta de locales**. Los códigos de país deben seguir los códigos ISO 3166 e ISO 639 (es-ES, en-GB, fr-FR...). Ver la [estructura de proyecto](../guides/project-structure.md#global-folder) para más información.
+:::
 
-## Locales XML structure
+## Estructura XML de locales {#locales-xml-structure}
 
-La estructura local completa es la siguiente:
+La estructura completa de locales es la siguiente:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -27,13 +31,13 @@ La estructura local completa es la siguiente:
 </locales>
 ```
 
-### Locales structure
+### Estructura de locales {#locales-structure}
 
 
 | Elemento                 | Uso             | Varias instancias | Descripción                                    |
 | ------------------------ | --------------- | ----------------- | ---------------------------------------------- |
 | locales                  | **Obligatorio** | No                | Nodo raíz de la estructura de locales          |
-| [local](#locale-element) | **Obligatorio** | Si                | Utilizado para definir una traducción regional |
+| [locale](#locale-element) | **Obligatorio** | Si                | Utilizado para definir una traducción regional |
 
 
 ### Elemento local {#locale-element}
@@ -52,7 +56,7 @@ Algunos ejemplos de locales en diferentes idiomas:
 
 
 
-**File Locale-en-GB.xml**
+**Archivo Locale-en-GB.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Accept" />
@@ -64,11 +68,11 @@ Algunos ejemplos de locales en diferentes idiomas:
 
 
 
-**File Locale-es-ES.xml**
+**Archivo Locale-es-ES.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Aceptar" />
-  <nombre locale ="CONFIRM_MESSAGE_DELETE" value="Vas a borrar el registro seleccionado. ¿Estás de acuerdo?" />
+  <locale name="CONFIRM_MESSAGE_DELETE" value="Vas a borrar el registro seleccionado. ¿Estás de acuerdo?" />
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="El formato de la petición a la cola {0} es erróneo" />
   ...
 </locales>
@@ -76,7 +80,7 @@ Algunos ejemplos de locales en diferentes idiomas:
 
 
 
-**File Locale-fr-FR.xml**
+**Archivo Locale-fr-FR.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Accepter" />

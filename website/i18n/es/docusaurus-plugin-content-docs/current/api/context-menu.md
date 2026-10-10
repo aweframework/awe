@@ -48,13 +48,13 @@ La estructura xml de los menús contextuales es la siguiente:
 | ------- | ------ | --------------- | ------------------------------------- | -------------------------------------------------------------------- |
 | `id`    | String | **Obligatorio** | Identificador del botón de contexto   |                                                                      |
 | `label` | String | **Obligatorio** | Etiqueta del botón contextual.        | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md) |
-| `icon`  | String | Opcional        | Nombre del icono del botón contextual | **Note:** You can check all iconsets at [icons](icons.md) screen     |
+| `icon`  | String | Opcional        | Nombre del icono del botón contextual | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)     |
 
 > **Nota:** El botón contextual tiene los mismos atributos que el elemento de botón. Puedes ver más información [aquí](button.md#button-attributes)
 
 ### Atributos de acción del botón {#button-action-attributes}
 
-> **Nota:** Puede ver todos los atributos de `acción del botón` [aquí](button.md#button-actions)
+> **Nota:** Puede ver todos los atributos de `button-action ` [aquí](button.md#button-actions)
 
 ### Atributos de los separadores de contexto {#context-separator-attributes}
 

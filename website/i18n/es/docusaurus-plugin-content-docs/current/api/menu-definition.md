@@ -8,9 +8,13 @@ El menú de navegación para una aplicación AWE se define en archivos XML. Los 
 * **public.xml:** Contiene las pantallas públicas (aquellas a las que se puede acceder sin iniciar sesión en el sistema).
 * **private.xml:** Pantallas dentro de la protección de una sesión del sistema
 
-:::tip Every element and attribute of menus is listed in the generated [XSD reference](/reference/menu). :::
+:::tip
+Todos los elementos y atributos de los menús se enumeran en la [referencia XSD](/reference/menu) generada.
+:::
 
-:::**Nota:** Todos los descriptores XML del menú están definidos en la **carpeta de menú**. Ver la [estructura de proyecto](../guides/project-structure.md#menu-folder) para más información. :::
+:::info
+**Nota:** Todos los descriptores XML del menú están definidos en la **carpeta de menú**. Ver la [estructura de proyecto](../guides/project-structure.md#menu-folder) para más información.
+:::
 
 ## Estructura del menú {#menu-structure}
 
@@ -54,8 +58,8 @@ El atributo [context](#menu-structure) define **dónde** se van a lanzar las opc
 | Ruta del contexto     | Menú    | Descripción                                                                                                                                                                                                                                                                                                                                                                                              |
 | --------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `screen`              | public  | Útil para una sola página de inicio de sesión sin menú                                                                                                                                                                                                                                                                                                                                                   |
-| `screen/public/home`  | public  | Este contexto se utiliza cuando la página principal debe tener un menú. En este caso, el parámetro `screen.configuration.home` no debe **** estar vacío, ya que esta será la pantalla mostrada dentro del menú. La pantalla inicial del contenedor de menú será la definida en el atributo de la pantalla de menú                                                                                        |
-| `screen/private/home` | private | Este contexto se utilizará cuando se registre en la aplicación. En este caso el parámetro `screen.configuration.information` no debe **** estar vacío, ya que esta será la pantalla mostrada dentro del menú privado (cuando el usuario y el perfil no tienen ninguna definición inicial de pantalla). La pantalla inicial del contenedor de menú será la definida en el atributo de la pantalla de menú |
+| `screen/public/home`  | public  | Este contexto se utiliza cuando la página principal debe tener un menú. En este caso, el parámetro `screen.configuration.home` **no** debe estar vacío, ya que esta será la pantalla mostrada dentro del menú. La pantalla inicial del contenedor de menú será la definida en el atributo de la pantalla de menú                                                                                        |
+| `screen/private/home` | private | Este contexto se utilizará cuando se registre en la aplicación. En este caso el parámetro `screen.configuration.information` **no** debe estar vacío, ya que esta será la pantalla mostrada dentro del menú privado (cuando el usuario y el perfil no tienen ninguna definición inicial de pantalla). La pantalla inicial del contenedor de menú será la definida en el atributo de la pantalla de menú |
 
 ## Estructura de opciones {#options-structure}
 
@@ -81,7 +85,7 @@ Dentro de la opción de herramientas hay un conjunto de opciones, algunas de ell
 | separator   | Opcional        | Boolean | Si se establece en true, la opción se convierte en una línea separadora                                                                                                                                                       | El valor predeterminado es `false`                                                                                         |
 | icon        | Opcional        | String  | Define un icono que se mostrará antes del texto de la opción                                                                                                                                                                  | Puedes ver toda la lista de iconos [aquí](http://fortawesome.github.io/Font-Awesome/icons/)                                |
 | menu-screen | Opcional        | Boolean | La opción es una pantalla autogenerada con sub opciones                                                                                                                                                                       | Ver [ventana de opciones](#menu-screen) para más información                                                               |
-| expanded    | Opcional        | Boolean | If set to true, the option will be initially expanded (only for vertical menus)                                                                                                                                               | El valor predeterminado es `falso`                                                                                         |
+| expanded    | Opcional        | Boolean | Si se establece en true, la opción se mostrará inicialmente expandida (solo en menús verticales)                                                                                                                              | El valor predeterminado es `false`                                                                                         |
 
 ## Ventana de opciones {#menu-screen}
 
@@ -148,41 +152,41 @@ xsi:noNamespaceSchemaLocation = "../../sch/menu.xsd" context="screen/home" defau
   </option>
 </menu>
 ```
-## Favourites **(NEW)**
+## Favoritos **(NUEVO)** {#favourites-new}
 
-Favourites is a brand new functionality added since 4.7.1 version of AWE. This functionality allows the user to mark any subpage (on report view) as favourite.
+Los favoritos son una funcionalidad completamente nueva añadida desde la versión 4.7.1 de AWE. Esta funcionalidad permite al usuario marcar cualquier subpágina (en la vista de informe) como favorita.
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites1.png')} />
 
-To use this functionality, simply add this piece of code into your navbar:
+Para usar esta funcionalidad, simplemente añada este fragmento de código a su barra de navegación:
 
 ```xml
 <include target-screen="info-buttons" target-source="favourites"/>
 ```
 
-This will add a **star** button on the top navbar which will appear while the user navigates through the screens.
+Esto añadirá un botón con forma de **estrella** en la barra de navegación superior, que aparecerá mientras el usuario navega por las pantallas.
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites2.png')} />
 
-This button will be filled up when the current screen is marked as favourite. To mark/unmark a screen as favourite simply click on this button.
+Este botón se rellenará cuando la pantalla actual esté marcada como favorita. Para marcar o desmarcar una pantalla como favorita, basta con hacer clic en este botón.
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites3.png')} />
 
-When a screen is marked as favourite, it will appear on a new menu option called `Favourites` on the first position on the menu:
+Cuando una pantalla se marca como favorita, aparecerá en una nueva opción de menú llamada `Favourites`, situada en la primera posición del menú:
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites4.png')} />
 
-To remove it from the `Favourites` option, simply navigate to the screen and unmark it on the **star** button.
+Para quitarla de la opción `Favourites`, simplemente navegue hasta la pantalla y desmárquela con el botón de **estrella**.
 
-## Menu option search **(NEW)**
+## Búsqueda de opciones de menú **(NUEVO)** {#menu-option-search-new}
 
-The menu includes a **search box** to quickly find any option in large or deeply nested menus. A search icon is shown on the opposite edge to where the options expand: at the **top** of a vertical menu and on the **right** of a horizontal menu.
+El menú incluye un **cuadro de búsqueda** para encontrar rápidamente cualquier opción en menús grandes o con muchos niveles. Se muestra un icono de búsqueda en el borde opuesto a aquel hacia el que se despliegan las opciones: en la parte **superior** de un menú vertical y a la **derecha** de un menú horizontal.
 
-Clicking the icon reveals a text input. As you type, the menu shows a **flat list of the matching options** together with their breadcrumb path (`Parent › Child › Option`), so you can locate an option without navigating the tree. Selecting a result launches that option exactly as if it had been clicked in the menu.
+Al hacer clic en el icono aparece un campo de texto. Mientras escribe, el menú muestra una **lista plana de las opciones coincidentes** junto con su ruta de navegación (`Parent › Child › Option`), de modo que puede localizar una opción sin recorrer el árbol. Al seleccionar un resultado se lanza esa opción exactamente igual que si se hubiera pulsado en el menú.
 
-Matching is case- and accent-insensitive, token based (every typed word must match), and runs against the **translated** option labels as well as the breadcrumb path. Use the arrow keys to move through the results, `Enter` to open the highlighted one and `Escape` (or a click outside) to close the panel.
+La coincidencia no distingue mayúsculas ni acentos, se basa en palabras (cada palabra escrita debe coincidir) y se aplica sobre las etiquetas **traducidas** de las opciones, así como sobre la ruta de navegación. Use las teclas de flecha para moverse por los resultados, `Enter` para abrir el resultado resaltado y `Escape` (o un clic fuera) para cerrar el panel.
 
-The search is enabled by default. To hide it, set the [`awe.application.menu-search-enabled`](../properties.md#awe.application.menu-search-enabled) property to `false`:
+La búsqueda está habilitada por defecto. Para ocultarla, establezca la propiedad [`awe.application.menu-search-enabled`](../properties.md#awe.application.menu-search-enabled) en `false`:
 
 ```properties
 awe.application.menu-search-enabled=false

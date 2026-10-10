@@ -28,109 +28,109 @@ La pantalla de temas permite definir nuevos *temas en CSS* para la aplicación. 
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/ThemesScreen.png')} />
 
-Now you can update the defined color schema for each theme on the `Theme customization` screen. Simply select a theme on the `Themes` screen and click on the `Customize` button:
+Ahora puede actualizar el esquema de colores definido para cada tema en la pantalla `Theme customization`. Basta con seleccionar un tema en la pantalla `Themes` y hacer clic en el botón `Customize`:
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Themes_screen.png')} />
 
-You will be redirected to the `Theme customization` screen where you can change a set of properties (mostly colors) to customize the theme properties and adapt it to your needing:
+Será redirigido a la pantalla `Theme customization`, donde puede cambiar un conjunto de propiedades (principalmente colores) para personalizar el tema y adaptarlo a sus necesidades:
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Customize_screen.png')} />
 
-When a property has changed, a `save` button will appear to store the modified value and show a preview of the theme on the right panel.
+Cuando se modifica una propiedad, aparece un botón `save` para almacenar el valor modificado y mostrar una vista previa del tema en el panel derecho.
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Change_properties.png')} />
 
-Each theme has two modes, `light` and `dark`, which will be switched with the mode button on the navigation bar.
+Cada tema tiene dos modos, `light` y `dark`, que se alternan con el botón de modo de la barra de navegación.
 
-The navigation bar buttons are defined on the `info-buttons.xml` screen. Here you have the `themeModeSelector` and the `themeSelector`.
+Los botones de la barra de navegación se definen en la pantalla `info-buttons.xml`. Aquí se encuentran el `themeModeSelector` y el `themeSelector`.
 
 ## Sitios {#sites}
 
-This option is a high level option which allow you to separate application logic in sites, each one with its own database (or set of databases). Here you can define sites and the relationship between them and the databases they manage. You can also define the modules which can site can use.
+Esta es una opción de alto nivel que permite separar la lógica de la aplicación en sitios, cada uno con su propia base de datos (o conjunto de bases de datos). Aquí se pueden definir los sitios y la relación entre ellos y las bases de datos que gestionan. También se pueden definir los módulos que puede utilizar cada sitio.
 
 ## Módulos {#modules}
 
-A module is a special set of options defined on the menu which can be used to separate functionalities inside an application. A user can only have an active module at a time, so when the module is changed, menu options will be refreshed with common and module options.
+Un módulo es un conjunto especial de opciones definidas en el menú que se puede utilizar para separar funcionalidades dentro de una aplicación. Un usuario solo puede tener un módulo activo a la vez, por lo que cuando se cambia de módulo, las opciones del menú se actualizan con las opciones comunes y las del módulo.
 
-This screen allows to define the selectable modules, based on the ones which are defined on the menu. Here you can also define the relationship between modules and profiles, users or sites (and databases).
+Esta pantalla permite definir los módulos seleccionables, basándose en los que están definidos en el menú. Aquí también se puede definir la relación entre módulos y perfiles, usuarios o sitios (y bases de datos).
 
 ## Bases de datos {#databases}
 
-In databases option you can manage a set of connections to datasources of any supported database types, like Oracle, SQL Server, H2, etc.
+En la opción de bases de datos se puede gestionar un conjunto de conexiones a orígenes de datos de cualquiera de los tipos de base de datos soportados, como Oracle, SQL Server, H2, etc.
 
-Inside a database management screen you can set the site/module configuration for each one.
+Dentro de la pantalla de gestión de una base de datos se puede establecer la configuración de sitio y módulo de cada una.
 
 ## Servidores de correo {#mail-servers}
 
-Mail server option contains a set of external mail servers used to send e-mail in some parts of the application, like print screens and scheduler reports.
+La opción de servidores de correo contiene un conjunto de servidores de correo externos que se utilizan para enviar correos electrónicos en algunas partes de la aplicación, como la impresión de pantallas y los informes del planificador.
 
 ## Colas de mensajes {#message-queues}
 
-This option can define a list of message queues to be used as external communication with AWE applications. Each entry contains a broker queue definition which can be used by the [Queues.xml](api/jms-queues-definition.md) file.
+Esta opción permite definir una lista de colas de mensajes que se utilizan como comunicación externa con las aplicaciones AWE. Cada entrada contiene la definición de una cola de un broker que puede ser utilizada por el archivo [Queues.xml](api/jms-queues-definition.md).
 
 ## Secuencias {#sequences}
 
-The sequences screen contains a list of identifiers and sequence values which awe uses in maintain files. These sequences are used as if they were autonumeric fields, very useful for old database models without autonumeric fields.
+La pantalla de secuencias contiene una lista de identificadores y valores de secuencia que AWE utiliza en los archivos de mantenimiento. Estas secuencias se utilizan como si fueran campos autonuméricos, algo muy útil para modelos de base de datos antiguos que no disponen de ellos.
 
 ## Parámetros de la aplicación {#application-parameters}
 
-The application parameters screen defines a sort of extra application properties which can override the ones defined on `application.properties` file. This is an extra layer to improve application customization.
+La pantalla de parámetros de la aplicación define una especie de propiedades adicionales de la aplicación que pueden sobrescribir las definidas en el archivo `application.properties`. Es una capa extra para mejorar la personalización de la aplicación.
 
 ## Difusión {#broadcasting}
 
-This screen is simply a way to send messages to all connected users inside the application, or a specific message to a single user.
+Esta pantalla es simplemente una forma de enviar mensajes a todos los usuarios conectados a la aplicación, o un mensaje específico a un único usuario.
 
-It will appear as a message in the top side of the screen.
+Aparecerá como un mensaje en la parte superior de la pantalla.
 
 ## Registro {#log}
 
-The log screen contains access to all the application logs. This will be deprecated soon in order to give way to new observability stack in a distributed architecture.
+La pantalla de registro da acceso a todos los registros de la aplicación. Se dejará de utilizar próximamente para dar paso a una nueva pila de observabilidad en una arquitectura distribuida.
 
 ## Acceso a las pantallas {#screen-access}
 
-Screen access contains a list of option restrictions which can be defined to all application users, to a specific profile or even to a specific user.
+El acceso a pantallas contiene una lista de restricciones de opciones que se pueden definir para todos los usuarios de la aplicación, para un perfil concreto o incluso para un usuario concreto.
 
-You can search a specific restriction with the upper criteria, or update
+Puede buscar una restricción concreta con los criterios superiores, o actualizar
 
 ## Acceso al menú {#menu-access}
 
-This is a new screen designed to improve the usability of menu option restriction. In this screen you have a menu tree and three criteria: `User`, `Profile` and `Module`. The tree below is based in the selections you have picked in the criteria: for example, the initial tree shows the restriction menu for all users and all profiles, for the options which doesn't belong to any module.
+Esta es una nueva pantalla diseñada para mejorar la usabilidad de la restricción de opciones de menú. En esta pantalla hay un árbol de menú y tres criterios: `User`, `Profile` y `Module`. El árbol inferior se basa en las selecciones realizadas en los criterios: por ejemplo, el árbol inicial muestra el menú de restricciones para todos los usuarios y todos los perfiles, para las opciones que no pertenecen a ningún módulo.
 
-When you select a module in the criteria, the tree below will show all the menu options for this module, including the options which doesn't have module defined.
+Cuando se selecciona un módulo en los criterios, el árbol inferior muestra todas las opciones de menú de ese módulo, incluidas las opciones que no tienen módulo definido.
 
-If you pick a profile in the `Profile` criterion, the tree will show the restrictions for this profile (and in the `access` column you will see the general restrictions for all users and profiles for each option).
+Si se elige un perfil en el criterio `Profile`, el árbol muestra las restricciones de ese perfil (y en la columna `access` se ven las restricciones generales para todos los usuarios y perfiles de cada opción).
 
-Picking a user in the `User` criterion will make the tree to show the restrictions for the user. The `access` column will show the specific restrictions for the user profile in each option.
+Al elegir un usuario en el criterio `User`, el árbol muestra las restricciones de ese usuario. La columna `access` muestra las restricciones específicas del perfil del usuario en cada opción.
 
 <img alt="Menu restrictions" src={require('@docusaurus/useBaseUrl').default('img/MenuRestrictionsScreen.png')} />
 
-To change the restrictions for any option, you can do it by selecting the option and doing *right-click* on it. It will show a context-menu with the restriction options (allow, restrict or remove restriction in case of defined). You can also select the option and click on the buttons below the tree to change a restriction value.
+Para cambiar las restricciones de cualquier opción, se puede seleccionar la opción y hacer *clic derecho* sobre ella. Se mostrará un menú contextual con las opciones de restricción (permitir, restringir o eliminar la restricción en caso de estar definida). También se puede seleccionar la opción y pulsar los botones situados debajo del árbol para cambiar el valor de una restricción.
 
 ## Utilidad de cifrado {#encrypt-util}
 
-This option is very useful to generate encrypted values or properties. Simply put on the text you want to encrypt on the `Text` criterion and push the `Encrypt` button. You will have filled the `Encrypted` text with the text you need to add in database encrypted columns and the `Encrypted property` which is the encrypted text to be used in `application.properties` file values.
+Esta opción es muy útil para generar valores o propiedades cifrados. Basta con introducir el texto que se desea cifrar en el criterio `Text` y pulsar el botón `Encrypt`. Se rellenará el texto `Encrypted` con el texto que hay que añadir en las columnas cifradas de la base de datos y `Encrypted property`, que es el texto cifrado que se utiliza en los valores del archivo `application.properties`.
 
 <img alt="Utilidad de cifrado" src={require('@docusaurus/useBaseUrl').default('img/EncryptManagerScreen.png')} />
 
 ## Configuración de pantalla {#screen-configuration}
 
-This screen allows to change the functionality of the screen defined in XML file. The new functionality is stored in the database, and it can be restricted by user or profile. To change a screen element you only have to define the screen, the element to be restricted/modified and the attribute with the new values.
+Esta pantalla permite cambiar la funcionalidad de la pantalla definida en el archivo XML. La nueva funcionalidad se almacena en la base de datos y puede restringirse por usuario o perfil. Para cambiar un elemento de una pantalla solo hay que definir la pantalla, el elemento que se va a restringir o modificar y el atributo con los nuevos valores.
 
 ### Ejemplo: {#example}
 
-If we have a criteria that will be required `validation="required"`.
+Si tenemos un criterio que será obligatorio `validation="required"`.
 
 ``` xml
  <criteria id="CrtSit" label="PARAMETER_NAME" component="suggest" server-action="data" target-action="SitSug" style="col-xs-7 col-sm-6 col-lg-3" validation="required"/>
 ```
 
-And we want to be not required, put the new configuration like in the picture below:
+Y queremos que deje de ser obligatorio, establezca la nueva configuración como se muestra en la imagen siguiente:
 
 <img alt="Configuración de pantalla" src={require('@docusaurus/useBaseUrl').default('img/screen_conf.png')} />
 
 ### Cómo se usa: {#how-to-use-it}
 
-If you want to access and use this screen, put the next option in your `private.xml` or `public.xml`.
+Si desea acceder a esta pantalla y utilizarla, añada la siguiente opción en su `private.xml` o `public.xml`.
 
 ``` xml
  <option name="screen_configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop" />
@@ -138,7 +138,7 @@ If you want to access and use this screen, put the next option in your `private.
 
 ## Manual de usuario {#user-manual}
 
-This option allows the user to access a PDF file defined on the application, as a user manual. This PDF file can be defined in some languages
+Esta opción permite al usuario acceder a un archivo PDF definido en la aplicación como manual de usuario. Este archivo PDF puede definirse en varios idiomas.
 
 ## Ayuda de la aplicación {#application-help}
 

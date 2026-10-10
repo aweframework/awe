@@ -28,9 +28,9 @@ Un diálogo es un elemento gráfico que proporciona la funcionalidad de mostrar 
 | -------- | -------- | ------ | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
 | id       | Opcional | String | Identificador del diálogo. Con fines de referencia     |                                                                                                       |
 | label    | Opcional | String | Título del diálogo                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                  |
-| icon     | Opcional | String | Identificador de icono                                 | **Note:** You can check all iconsets at [icons](icons.md) screen                                      |
+| icon     | Opcional | String | Identificador de icono                                 | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)                                      |
 | style    | Opcional | String | Estilo de la pantalla (clases de Css)                  | Clases CSS separadas por espacio (`' '`)                                                              |
-| ayuda    | Opcional | String | Texto de ayuda que quieres mostrar                     | El nombre de un literal con el mensaje                                                                |
+| help    | Opcional | String | Texto de ayuda que quieres mostrar                     | El nombre de un literal con el mensaje                                                                |
 | on-close | Opcional | String | Comportamiento de la pila después de cerrar el diálogo | `accept` (por defecto), `reject`- Reject cancela la pila, accept continúa ejecutando acciones de pila |
 
 > **Nota:** Puedes añadir los estilos `modal-lg`, `modal-md` o `modal-sm` para cambiar el ancho del diálogo.

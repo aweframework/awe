@@ -52,19 +52,19 @@ Para utilizar este módulo, se necesitan los siguientes pasos:
 </info>
 ```
 
-- Configure property value to add `awe-notifier` to module list.
+- Configure el valor de la propiedad para añadir `awe-notifier` a la lista de módulos.
 
 ```properties
 awe.application.module-list = APP, ..., awe-notifier, ..., awe
 ```
 
-- If you are using `flyway`, add the notifier tables into the migration module:
+- Si utiliza `flyway`, añada las tablas del notificador al módulo de migración:
 
 ```properties
 awe.database.migration-modules=AWE,...,NOTIFIER,...
 ```
 
-- Finally, add the `from` name and email properties to set the notification email sender:
+- Por último, añada las propiedades de nombre y correo del remitente (`from`) para establecer el remitente del correo de notificaciones:
 
 ```properties
 awe.notifier.from-name=Notifier

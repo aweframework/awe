@@ -19,7 +19,7 @@ Una **pestaña** es un componente muy útil para dividir los componentes de la p
 </tab>
 ```
 
-The tab list is filled with the `value` and `label` fields of the query/enum launched with `[target-action]`.
+La lista de pestañas se rellena con los campos `value` y `label` de la consulta o enumerado lanzado con `[target-action]`.
 
 ## Estructura de pestañas {#tab-structure}
 
@@ -40,17 +40,17 @@ The tab list is filled with the `value` and `label` fields of the query/enum lau
 
 | Atributo      |       Uso       |  Tipo   | Descripción                                                                                     | Valores                                                                                             |
 | ------------- |:---------------:|:-------:| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| id            | **Obligatorio** | String  | Identificador de pestañas. Tiene que coincidir con los valores definidos en el `target-action`. |                                                                                                     |
-| carga-inicial | **Obligatorio** | String  | Llamada de acción al servidor para cargar los datos de criterio (se lanza al cargar la ventana) | `enum` (para [enumerado](enumerate-definition.md)) o `query` (para [consulta](query-definition.md)) |
-| target-action | **Obligatorio** | String  | Identificador de consulta en el servidor                                                        |                                                                                                     |
+| id            | **Obligatorio** | String  | Identificador de pestañas. Debe coincidir con los valores de target-action |                                                                                                     |
+| initial-load  | **Obligatorio** | String  | Llamada de acción al servidor para cargar los datos de criterio (se lanza al cargar la ventana) | `enum` (para [enumerado](enumerate-definition.md)) o `query` (para [consulta](query-definition.md)) |
+| target-action | **Obligatorio** | String  | Destino al que llamar en el servidor                                                            |                                                                                                     |
 | style         |    Opcional     | String  | Clases CSS de la pestaña                                                                        | **Nota:** Aquí puedes usar la clase `expand` para permitir que la ventana se expanda                |
 | maximize      |    Opcional     | Boolean | Mostrar el icono maximizar o no                                                                 |                                                                                                     |
-| orientation   |    Opcional     | String  | Wizard steps orientation                                                                        | Default value is `vertical`                                                                         |
+| orientation   |    Opcional     | String  | Orientación de los pasos del asistente                                                          | El valor por defecto es `vertical`                                                                  |
 
 
 ## Estructura del contenedor de pestaña {#tabcontainer-structure}
 
-A tabcontainer is a window opened when a tab is selected. Note that `[tabcontainer-identifier]` must match the value of the query/enumerated list set at `Tab` element.
+Un contenedor de pestaña (tabcontainer) es una ventana que se abre al seleccionar una pestaña. Tenga en cuenta que `[tabcontainer-identifier]` debe coincidir con el valor de la consulta o lista enumerada definida en el elemento `Tab`.
 
 ```xml
 <tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]">
@@ -62,7 +62,7 @@ A tabcontainer is a window opened when a tab is selected. Note that `[tabcontain
 
 | Atributo   |       Uso       |  Tipo  | Descripción                                                                                        | Valores                                                                              |
 | ---------- |:---------------:|:------:| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| id         | **Obligatorio** | String | Identificador del contenedor. Tiene que coincidir con los valores definidos en el `target-action`. |                                                                                      |
+| id         | **Obligatorio** | String | Identificador del contenedor. Debe coincidir con los valores de target-action |                                                                                      |
 | label      |    Opcional     | String | Título del contenedor                                                                              | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                 |
 | style      |    Opcional     | String | Clases CSS del contenedor                                                                          | **Nota:** Aquí puedes usar la clase `expand` para permitir que la ventana se expanda |
 | type       |    Opcional     | String | Tipo de etiqueta HTML del contenedor                                                               | `div`, `span`, `p`, ...                                                              |
