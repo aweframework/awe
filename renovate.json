@@ -159,7 +159,7 @@
     },
     {
       "groupName": "docker compose images",
-      "description": "Local tooling stacks (observability, Oracle) described by docker-compose files under awe-tests.",
+      "description": "Local tooling stack (observability) described by the docker-compose file under awe-tests.",
       "matchManagers": [
         "docker-compose"
       ]

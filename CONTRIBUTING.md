@@ -125,7 +125,8 @@ Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is
 ## Database integration tests
 
 The PostgreSQL, MySQL, SQL Server and Oracle tests of `awe-tests/awe-boot` (and their Flyway variants) start their database in a
-[Testcontainers](https://testcontainers.com) container, so all you need is a running Docker; no database server to install.
+[Testcontainers](https://testcontainers.com) container, so all you need is a running Docker (Docker Desktop, Colima or similar) and JDK 17 or 21; no database server to install and no
+connection settings to change.
 Install the modules once, then run a profile of the database you changed:
 
 ```bash
@@ -140,7 +141,7 @@ is large (about 6 GB), so the first run spends most of its time pulling it.
 
 The pipeline runs the same profiles in the `MySQL Tests`, `PostgreSQL Tests`, `SQL Server Tests` and `Oracle Tests` jobs, with
 Docker-in-Docker. H2 and HSQLDB run embedded. The
-[`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, external mode, CI setup).
+[`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, CI setup).
 
 ## Definition of done
 

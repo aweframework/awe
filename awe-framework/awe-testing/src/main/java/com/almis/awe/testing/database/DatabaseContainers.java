@@ -39,7 +39,7 @@ public final class DatabaseContainers {
    * Get the connection of the container of a database, starting it if needed.
    *
    * @param database Database
-   * @return The connection, or empty when the database is embedded or external mode is on
+   * @return The connection, or empty when the database is embedded
    * @throws IllegalStateException when the SQL Server licence was not accepted explicitly
    */
   public static Optional<DatabaseConnection> connectionFor(TestDatabase database) {
@@ -47,7 +47,7 @@ public final class DatabaseContainers {
   }
 
   static synchronized Optional<DatabaseConnection> connectionFor(TestDatabase database, Function<String, String> environment) {
-    if (!database.needsContainer() || TestDatabaseSettings.isExternal(environment)) {
+    if (!database.needsContainer()) {
       return Optional.empty();
     }
     if (database == TestDatabase.SQLSERVER && !TestDatabaseSettings.isSqlServerEulaAccepted(environment)) {

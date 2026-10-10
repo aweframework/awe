@@ -55,16 +55,6 @@ class AweDatabasePropertiesTest {
   }
 
   @Test
-  void externalModeLeavesTheConnectionToTheEnvironment() {
-    Map<String, Object> properties = AweDatabaseProperties.build(TestDatabase.SQLSERVER, false, MODULES, null);
-
-    assertThat(properties)
-      .doesNotContainKeys("spring.datasource.url", "spring.datasource.username", "spring.datasource.password")
-      .containsEntry("spring.datasource.driver-class-name", "com.microsoft.sqlserver.jdbc.SQLServerDriver")
-      .containsEntry("spring.sql.init.schema-locations", "classpath:sql/schema-sqlserverdb.sql");
-  }
-
-  @Test
   void theMigrationModulesAreConfigurable() {
     Map<String, Object> properties = AweDatabaseProperties.build(TestDatabase.H2, true, new String[]{"AWE"}, null);
 
