@@ -1,3 +1,8 @@
+# Release notes for AWE 4.13.2 (unreleased)
+
+**[HAS IMPACTS]** Changed:
+- Password change and user information definitions now require a session (#852). The `ChdPwd` maintain target changes the password of the logged in user only; the public change-password screens (`ChdPwdPub`, `change-password`) use the new public `ChdPwdPub` target, which changes the password only when the current password (`OldPas`) matches. The `UsrInf`, `AutUsr`, `GetEmlSrvByOpe` and `JmsConnections` queries and the `UpdCntLog` and `UpdPwdLck` maintain targets are no longer public, and `UsrInf` and `AutUsr` no longer return password fields. Applications that launched any of them without a session must sign the user in first (or use `ChdPwdPub` with the current password).
+
 # Release notes for AWE 4.13.1
 *09/10/2026*
  
