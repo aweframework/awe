@@ -2,6 +2,7 @@ import {aweApplication} from "../../awe";
 import {ClientActions} from "../../data/actions";
 import "jquery-ui-sortable-npm";
 import "PivotTable";
+import {buildCustomAggregators} from "./pivotCustomAggregators";
 
 // Pivot table plugin
 aweApplication.directive('uiPivotTable',
@@ -36,22 +37,7 @@ aweApplication.directive('uiPivotTable',
           // Add custom aggregators
           if (scope.controller.aggregator) {
             // Overwrite aggregators to apply number format
-            aggregatorList["Custom Sum"] = {fn: tpl.sum(customNumberFormat), label: "Custom Sum"};
-            aggregatorList["Custom Average"] = {fn: tpl.average(customNumberFormat), label: "Custom Average"};
-            aggregatorList["Custom Minimum"] = {fn: tpl.min(customNumberFormat), label: "Custom Minimum"};
-            aggregatorList["Custom Maximum"] = {fn: tpl.max(customNumberFormat), label: "Custom Maximum"};
-            aggregatorList["Custom Sum over Sum"] = {
-              fn: tpl.sumOverSum(customNumberFormat),
-              label: "Custom Sum over Sum"
-            };
-            aggregatorList["Custom 80% Upper Bound"] = {
-              fn: tpl.sumOverSumBound80(customNumberFormat),
-              label: "Custom 80% Upper Bound"
-            };
-            aggregatorList["Custom 80% Lower Bound"] = {
-              fn: tpl.sumOverSumBound80(customNumberFormat),
-              label: "Custom 80% Lower Bound"
-            };
+            Object.assign(aggregatorList, buildCustomAggregators(tpl, customNumberFormat));
           }
 
           // Init pivot configuration
