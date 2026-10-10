@@ -6,14 +6,9 @@ import java.util.function.Function;
  * Switches of the database test utility.
  *
  * <p>Each one is read, in this order, from the JVM system property and from the environment variable with the same
- * name written in upper case with underscores ({@code db.external} becomes {@code DB_EXTERNAL}).</p>
+ * name written in upper case with underscores ({@code awe.testing.sqlserver.accept-eula} becomes {@code AWE_TESTING_SQLSERVER_ACCEPT_EULA}).</p>
  */
 public final class TestDatabaseSettings {
-
-  /**
-   * Skip the containers and use the connection the environment already provides (CI service mode)
-   */
-  public static final String EXTERNAL = "db.external";
 
   /**
    * Explicit acceptance of the Microsoft SQL Server licence (EULA) required to run its container image
@@ -21,19 +16,6 @@ public final class TestDatabaseSettings {
   public static final String SQLSERVER_ACCEPT_EULA = "awe.testing.sqlserver.accept-eula";
 
   private TestDatabaseSettings() {
-  }
-
-  /**
-   * Whether the databases are provided by the environment instead of by containers
-   *
-   * @return True when external mode is on
-   */
-  public static boolean isExternal() {
-    return isExternal(System::getenv);
-  }
-
-  static boolean isExternal(Function<String, String> environment) {
-    return "true".equalsIgnoreCase(read(EXTERNAL, environment));
   }
 
   /**

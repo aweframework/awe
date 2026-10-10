@@ -229,10 +229,8 @@ same limit. CI skips that Maven step (`-Dskip.lint=true`, set in `MAVEN_CLI_OPTS
 
 Every image and service referenced in `.gitlab-ci.yml` is pinned (jobs that come from
 GitLab's own security templates use the analyzer images GitLab maintains): an immutable version tag where
-the upstream publishes one (`maven`, `docker`, `mysql`, `postgres`, `mssql`,
-`release-cli`), or a `tag@sha256:digest` reference where only a `latest` tag exists (the
-`docker-tools` images, `selenoid/firefox`, `selenoid/chrome`, `epiclabs/docker-oracle-
-xe-11g`). The `tag` part of `tag@digest` is kept only so the reference stays
+the upstream publishes one (`maven`, `docker`, `release-cli`), or a `tag@sha256:digest` reference where only a `latest` tag exists (the
+`docker-tools` images, `selenoid/firefox`, `selenoid/chrome`). The `tag` part of `tag@digest` is kept only so the reference stays
 human-readable; the digest is what actually freezes the image. Nothing in `.gitlab-ci.yml`
 tracks a floating `latest` tag. [Renovate](#dependency-updates)
 is responsible for opening merge requests that bump these pins (including re-resolving the
@@ -301,8 +299,8 @@ BOM in `awe-framework/awe-dependencies/pom.xml`), npm manifests and their
 `awe-boot` Dockerfile, every `image:` and `services:` entry in `.gitlab-ci.yml`
 (re-resolving `latest@sha256` digests and pinning version tags with digests), plus the
 Node and npm versions of the frontend-maven-plugin and the inline CycloneDX plugin
-coordinate, and the two `docker-compose` tooling stacks under `awe-tests` (observability,
-Oracle). It does not manage the root `package.json` (an unused leftover) or the archetype
+coordinate, the `docker-compose` observability stack under `awe-tests`, and the Testcontainers
+database images pinned in `awe-testing-images.properties`. It does not manage the root `package.json` (an unused leftover) or the archetype
 templates.
 
 | Branch | Updates opened | Automerge |

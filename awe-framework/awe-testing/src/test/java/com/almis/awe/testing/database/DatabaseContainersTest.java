@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,20 +17,16 @@ class DatabaseContainersTest {
   /** Hermetic: the tests never read the real environment variables */
   private static final Function<String, String> NO_ENVIRONMENT = name -> null;
 
-  private String externalBefore;
   private String eulaBefore;
 
   @BeforeEach
   void rememberTheSettings() {
-    externalBefore = System.getProperty(TestDatabaseSettings.EXTERNAL);
     eulaBefore = System.getProperty(TestDatabaseSettings.SQLSERVER_ACCEPT_EULA);
-    System.clearProperty(TestDatabaseSettings.EXTERNAL);
     System.clearProperty(TestDatabaseSettings.SQLSERVER_ACCEPT_EULA);
   }
 
   @AfterEach
   void restoreTheSettings() {
-    restore(TestDatabaseSettings.EXTERNAL, externalBefore);
     restore(TestDatabaseSettings.SQLSERVER_ACCEPT_EULA, eulaBefore);
   }
 
@@ -47,24 +42,6 @@ class DatabaseContainersTest {
   void embeddedDatabasesHaveNoContainerConnection() {
     assertThat(DatabaseContainers.connectionFor(TestDatabase.H2, NO_ENVIRONMENT)).isEmpty();
     assertThat(DatabaseContainers.connectionFor(TestDatabase.HSQLDB, NO_ENVIRONMENT)).isEmpty();
-  }
-
-  @Test
-  void externalModeSkipsTheContainersOfEveryServerDatabase() {
-    System.setProperty(TestDatabaseSettings.EXTERNAL, "true");
-
-    for (TestDatabase database : new TestDatabase[]{TestDatabase.MYSQL, TestDatabase.POSTGRESQL, TestDatabase.SQLSERVER, TestDatabase.ORACLE}) {
-      assertThat(DatabaseContainers.connectionFor(database, NO_ENVIRONMENT)).as(database.name()).isEqualTo(Optional.empty());
-    }
-  }
-
-  @Test
-  void externalModeIsOffByDefaultAndReadsTheSystemProperty() {
-    assertThat(TestDatabaseSettings.isExternal(NO_ENVIRONMENT)).isFalse();
-    System.setProperty(TestDatabaseSettings.EXTERNAL, "true");
-    assertThat(TestDatabaseSettings.isExternal(NO_ENVIRONMENT)).isTrue();
-    System.setProperty(TestDatabaseSettings.EXTERNAL, "false");
-    assertThat(TestDatabaseSettings.isExternal(NO_ENVIRONMENT)).isFalse();
   }
 
   @Test
@@ -85,17 +62,8 @@ class DatabaseContainersTest {
   }
 
   @Test
-  void externalModeDoesNotRequireTheEula() {
-    System.setProperty(TestDatabaseSettings.EXTERNAL, "true");
-
-    assertThat(DatabaseContainers.connectionFor(TestDatabase.SQLSERVER, NO_ENVIRONMENT)).isEmpty();
-  }
-
-  @Test
   void theEnvironmentVariablesAreHonouredThroughTheInjectedLookup() {
-    assertThat(TestDatabaseSettings.isExternal(name -> "DB_EXTERNAL".equals(name) ? "true" : null)).isTrue();
     assertThat(TestDatabaseSettings.isSqlServerEulaAccepted(name -> "AWE_TESTING_SQLSERVER_ACCEPT_EULA".equals(name) ? "true" : null)).isTrue();
-    assertThat(DatabaseContainers.connectionFor(TestDatabase.SQLSERVER, name -> "DB_EXTERNAL".equals(name) ? "true" : null)).isEmpty();
   }
 
   @ParameterizedTest

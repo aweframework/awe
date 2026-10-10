@@ -15,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Smoke test of the real thing: a PostgreSQL container started by the utility and reached through the properties
@@ -36,7 +35,6 @@ class PostgresContainerSmokeTest {
 
   @Test
   void theAnnotationStartsAContainerAndTheContextCanQueryIt() throws SQLException {
-    assumeFalse(TestDatabaseSettings.isExternal(), "External mode: no container is started");
     try (Connection connection = DriverManager.getConnection(
       environment.getRequiredProperty("spring.datasource.url"),
       environment.getRequiredProperty("spring.datasource.username"),

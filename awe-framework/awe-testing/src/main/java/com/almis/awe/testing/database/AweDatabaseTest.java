@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
  *
  * <p>The database is configured through the {@code spring.datasource.*}, {@code spring.sql.init.*} (and, with
  * {@link #flyway()}, {@code spring.flyway.*}) properties, which take precedence over any {@code @TestPropertySource}.
- * A database that needs a container starts it the first time a context is created and shares it with the rest of the JVM.
- * With {@code -Ddb.external=true} no container starts and the connection comes from the environment.</p>
+ * A database that needs a container starts it the first time a context is created and shares it with the rest of the JVM;
+ * Docker is required to run the server databases.</p>
  *
  * <pre>
  * &#64;SpringBootTest

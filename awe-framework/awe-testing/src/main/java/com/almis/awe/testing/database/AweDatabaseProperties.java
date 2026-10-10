@@ -27,8 +27,7 @@ public final class AweDatabaseProperties {
    * @param database         Database
    * @param flyway           True to migrate with Flyway, false to run the schema and data scripts
    * @param migrationModules AWE modules to migrate (Flyway variant)
-   * @param connection       Connection of the container; {@code null} to leave the connection (url, user and password) to the
-   *                         environment, which is what external mode does for the server databases
+   * @param connection       Connection of the container; {@code null} for an embedded database, which uses its own url
    * @return Properties, in insertion order
    */
   public static Map<String, Object> build(TestDatabase database, boolean flyway, String[] migrationModules,
@@ -59,7 +58,7 @@ public final class AweDatabaseProperties {
   }
 
   /**
-   * Build the properties of a database, starting its container when it needs one and external mode is off
+   * Build the properties of a database, starting its container when it needs one
    *
    * @param database         Database
    * @param flyway           True to migrate with Flyway
