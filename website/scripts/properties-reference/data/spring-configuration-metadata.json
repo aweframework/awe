@@ -1,0 +1,1742 @@
+{
+  "properties": [
+    {
+      "name": "awe.application.acronym",
+      "type": "java.lang.String",
+      "description": "Application acronym (in lowercase). Default value awe",
+      "defaultValue": "awe"
+    },
+    {
+      "name": "awe.application.address",
+      "type": "java.lang.String",
+      "description": "Application address parameter name. Default value address",
+      "defaultValue": "address"
+    },
+    {
+      "name": "awe.application.component.chart-limit-point-serie",
+      "type": "java.lang.Integer",
+      "description": "Limit of points series in chart component.",
+      "defaultValue": 1000000
+    },
+    {
+      "name": "awe.application.component.computed-empty-if-null",
+      "type": "java.lang.Boolean",
+      "description": "Empty computed values if one of the wildcards are empty Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.component.criteria-rows-per-page",
+      "type": "java.lang.Integer",
+      "description": "Rows per page in criteria component (Set to 0 to avoid pagination) Default value 100",
+      "defaultValue": 100
+    },
+    {
+      "name": "awe.application.component.data-suffix",
+      "type": "java.lang.String",
+      "description": "Suffix of data parameter send from client Default value .data",
+      "defaultValue": ".data"
+    },
+    {
+      "name": "awe.application.component.download-file-id",
+      "type": "java.lang.String",
+      "description": "File downloader component Id. Default value d",
+      "defaultValue": "d"
+    },
+    {
+      "name": "awe.application.component.grid-pixels-per-character",
+      "type": "java.lang.Integer",
+      "description": "Pixels per char in grids Default value 8",
+      "defaultValue": 8
+    },
+    {
+      "name": "awe.application.component.grid-rows-per-page",
+      "type": "java.lang.Integer",
+      "description": "Rows per page in grid component (Set to 0 to avoid pagination) Default value 30",
+      "defaultValue": 30
+    },
+    {
+      "name": "awe.application.component.help-timeout",
+      "type": "java.time.Duration",
+      "description": "Component help timeout in milliseconds. Default value 1000ms",
+      "defaultValue": "1000ms"
+    },
+    {
+      "name": "awe.application.component.pivot-num-group",
+      "type": "java.lang.Integer",
+      "description": "Number of group element limit of pivot table component. Default value 5000",
+      "defaultValue": 5000
+    },
+    {
+      "name": "awe.application.component.size",
+      "type": "com.almis.awe.config.ComponentSize",
+      "description": "Component size Default value md (Medium)",
+      "defaultValue": "md"
+    },
+    {
+      "name": "awe.application.component.suggest-timeout",
+      "type": "java.time.Duration",
+      "description": "Suggest timeout in milliseconds. Default value 300ms",
+      "defaultValue": "300ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.chat-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for chat messages (in milliseconds). Default value 0ms",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.error-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for error messages (in milliseconds). Default value 0ms",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.help-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for help messages (in milliseconds). Default value 5000ms",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.info-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for info messages (in milliseconds). Default value 0ms",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.ok-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for ok messages (in milliseconds). Default value 2000ms",
+      "defaultValue": "2000ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.validation-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for validation messages (in milliseconds). Default value 2000ms",
+      "defaultValue": "2000ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.warning-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for warning messages (in milliseconds). Default value 4000ms",
+      "defaultValue": "4000ms"
+    },
+    {
+      "name": "awe.application.component.tooltip.wrong-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for wrong messages (in milliseconds). Default value 0ms",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "awe.application.component.upload-file-id",
+      "type": "java.lang.String",
+      "description": "File uploader component Id. Default value u",
+      "defaultValue": "u"
+    },
+    {
+      "name": "awe.application.component.upload-file-path",
+      "type": "java.lang.String",
+      "description": "Path for file uploads (Relative to application.base.path starts with @) Default value @upload/",
+      "defaultValue": "@upload/"
+    },
+    {
+      "name": "awe.application.component.upload-max-file-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Max size for uploaded files (in MB) Default value 100MB",
+      "defaultValue": "100MB"
+    },
+    {
+      "name": "awe.application.component.upload-max-files-folder",
+      "type": "java.lang.Integer",
+      "description": "Max elements per folder Default value 100",
+      "defaultValue": 100
+    },
+    {
+      "name": "awe.application.default-role",
+      "type": "java.lang.String",
+      "description": "Application default user role",
+      "defaultValue": "operator"
+    },
+    {
+      "name": "awe.application.encoding",
+      "type": "java.lang.String",
+      "description": "Base encoding for all files. Default value UTF-8",
+      "defaultValue": "UTF-8"
+    },
+    {
+      "name": "awe.application.extension-xml",
+      "type": "java.lang.String",
+      "description": "XML file extension parameter name. Default value .xml",
+      "defaultValue": ".xml"
+    },
+    {
+      "name": "awe.application.filemanager.base-path",
+      "type": "java.lang.String",
+      "description": "File manager base path Default value root path (/)",
+      "defaultValue": "/"
+    },
+    {
+      "name": "awe.application.filemanager.date-format",
+      "type": "java.lang.String",
+      "description": "File manager date format Default value yyyy-MM-dd hh:mm:ss",
+      "defaultValue": "yyyy-MM-dd hh:mm:ss"
+    },
+    {
+      "name": "awe.application.files.actions",
+      "type": "java.lang.String",
+      "description": "Xml file name of actions definition. Default value Actions.",
+      "defaultValue": "Actions"
+    },
+    {
+      "name": "awe.application.files.components",
+      "type": "java.lang.String",
+      "description": "Xml file name of components definition. Default value Components.",
+      "defaultValue": "Components"
+    },
+    {
+      "name": "awe.application.files.email",
+      "type": "java.lang.String",
+      "description": "Xml file name of Email definition. Default value Email.",
+      "defaultValue": "Email"
+    },
+    {
+      "name": "awe.application.files.enumerated",
+      "type": "java.lang.String",
+      "description": "Xml file name of enumerated definition. Default value Enumerated.",
+      "defaultValue": "Enumerated"
+    },
+    {
+      "name": "awe.application.files.locale",
+      "type": "java.lang.String",
+      "description": "Xml file name of locales definition. Default value Locale-.",
+      "defaultValue": "Locale-"
+    },
+    {
+      "name": "awe.application.files.maintain",
+      "type": "java.lang.String",
+      "description": "Xml file name of maintains definition. Default value Maintain.",
+      "defaultValue": "Maintain"
+    },
+    {
+      "name": "awe.application.files.menu-private",
+      "type": "java.lang.String",
+      "description": "Xml file name of private menu definition. Default value private.",
+      "defaultValue": "private"
+    },
+    {
+      "name": "awe.application.files.menu-public",
+      "type": "java.lang.String",
+      "description": "Xml file name of public menu definition. Default value public.",
+      "defaultValue": "public"
+    },
+    {
+      "name": "awe.application.files.query",
+      "type": "java.lang.String",
+      "description": "Xml file name of queries definition. Default value Queries.",
+      "defaultValue": "Queries"
+    },
+    {
+      "name": "awe.application.files.queue",
+      "type": "java.lang.String",
+      "description": "Xml file name of Queues definition. Default value Queues.",
+      "defaultValue": "Queues"
+    },
+    {
+      "name": "awe.application.files.services",
+      "type": "java.lang.String",
+      "description": "Xml file name of services definition. Default value Services.",
+      "defaultValue": "Services"
+    },
+    {
+      "name": "awe.application.files.templates",
+      "type": "java.lang.String",
+      "description": "Xml file name of templates definition. Default value Templates.",
+      "defaultValue": "Templates"
+    },
+    {
+      "name": "awe.application.highcharts-server-url",
+      "type": "java.lang.String",
+      "description": "Highcharts export server url Default value <a href=\"https://export.highcharts.com\">...</a>",
+      "defaultValue": "https://export.highcharts.com"
+    },
+    {
+      "name": "awe.application.jms.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable AWE JMS service connector. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.application.jms.message-time-to-live",
+      "type": "java.time.Duration",
+      "description": "Jms message time to live in milliseconds. Default value 0ms (the message remains on the queue indefinitely until is processed)",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "awe.application.jms.service-timeout",
+      "type": "java.time.Duration",
+      "description": "Jms service timeout in milliseconds. Default value 10000ms",
+      "defaultValue": "10000ms"
+    },
+    {
+      "name": "awe.application.json-only",
+      "type": "java.lang.Boolean",
+      "description": "Serve JSON only. AWE removes every XML-advertising HTTP message converter from the served list, so its wire format does not depend on whether an XML provider (such as {@code jackson-dataformat-xml}) reaches the classpath transitively. With it enabled an explicit {@code Accept: application/xml} answers {@code 406 Not Acceptable}. Set it to {@code false} to keep the XML converters; any other value leaves JSON-only active.",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.language-default",
+      "type": "java.lang.String",
+      "description": "Application language in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain) Default value en",
+      "defaultValue": "en-GB"
+    },
+    {
+      "name": "awe.application.language-list",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Application available languages in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain) Default value list with en-GB, es-ES, fr-FR languages",
+      "defaultValue": [
+        "en-GB",
+        "es-ES",
+        "fr-FR"
+      ]
+    },
+    {
+      "name": "awe.application.loading-timeout",
+      "type": "java.time.Duration",
+      "description": "Loading timeout in milliseconds. Default value 10000ms",
+      "defaultValue": "10000ms"
+    },
+    {
+      "name": "awe.application.log-group",
+      "type": "java.lang.String",
+      "description": "Define the parent path for application log files Default value /application",
+      "defaultValue": "/application"
+    },
+    {
+      "name": "awe.application.log-manager-path",
+      "type": "java.lang.String",
+      "description": "Define the path where awe log manager search the log files Default value ${logging.file.path:${java.io.tmpdir}}${awe.application.log.group:/application}"
+    },
+    {
+      "name": "awe.application.log-user-enable",
+      "type": "java.lang.Boolean",
+      "description": "Flag to activate log file appender by user. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.menu-search-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable the menu option search box. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.menu-type",
+      "type": "com.almis.awe.model.type.MenuType",
+      "description": "Menu position layout type",
+      "defaultValue": "horizontal"
+    },
+    {
+      "name": "awe.application.module-list",
+      "type": "java.lang.String[]",
+      "description": "List with application modules separate by commas. Used to load xml files for each module."
+    },
+    {
+      "name": "awe.application.name",
+      "type": "java.lang.String",
+      "description": "Application name Default value AWE (Almis Web Engine)",
+      "defaultValue": "AWE (Almis Web Engine)"
+    },
+    {
+      "name": "awe.application.parameter.password",
+      "type": "java.lang.String",
+      "description": "Screen password parameter value. Default value pwd_usr",
+      "defaultValue": "pwd_usr"
+    },
+    {
+      "name": "awe.application.parameter.token",
+      "type": "java.lang.String",
+      "description": "Token parameter name. Default value frame",
+      "defaultValue": "t"
+    },
+    {
+      "name": "awe.application.parameter.username",
+      "type": "java.lang.String",
+      "description": "Screen username parameter value. Default value cod_usr",
+      "defaultValue": "cod_usr"
+    },
+    {
+      "name": "awe.application.paths.application",
+      "type": "java.lang.String",
+      "description": "Application folder path. Default value /application/",
+      "defaultValue": "/application/"
+    },
+    {
+      "name": "awe.application.paths.base",
+      "type": "java.lang.String",
+      "description": "Application base path. Default value /",
+      "defaultValue": "/"
+    },
+    {
+      "name": "awe.application.paths.documents",
+      "type": "java.lang.String",
+      "description": "Documents folder path. Default value static/docs/",
+      "defaultValue": "static/docs/"
+    },
+    {
+      "name": "awe.application.paths.global",
+      "type": "java.lang.String",
+      "description": "Global folder path. Default value /global/",
+      "defaultValue": "/global/"
+    },
+    {
+      "name": "awe.application.paths.icon-favicon",
+      "type": "java.lang.String",
+      "description": "Favicon icon path. Uses application.paths.images as parent path. Default value /images/icon/favicon-awe.ico",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.icon-phone",
+      "type": "java.lang.String",
+      "description": "Apple icon 57x57 path. Uses application.paths.images as parent path. Default value /images/icon/favicon-awe.ico",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.icon-tablet",
+      "type": "java.lang.String",
+      "description": "Apple icon 114x114 path. Uses application.paths.images as parent path. Default value /images/icon/favicon-awe.ico",
+      "defaultValue": "images/icon/favicon-awe.ico"
+    },
+    {
+      "name": "awe.application.paths.image-navbar-logo",
+      "type": "java.lang.String",
+      "description": "Navigation bar logo. Uses application.paths.images as parent path. Default value ../images/logo/logo-awe-nuevo2.svg",
+      "defaultValue": "../images/logo/logo-awe-nuevo2.svg"
+    },
+    {
+      "name": "awe.application.paths.image-startup-background",
+      "type": "java.lang.String",
+      "description": "Sign-in screen background image. Uses application.paths.images as parent path. Default value ../images/background/signin-bg-1.jpg",
+      "defaultValue": "../images/background/signin-bg-1.jpg"
+    },
+    {
+      "name": "awe.application.paths.image-startup-logo",
+      "type": "java.lang.String",
+      "description": "Sign-in screen logo. Uses application.paths.images as parent path. Default value ../images/logo/logo-awe-nuevo.svg",
+      "defaultValue": "../images/logo/logo-awe-nuevo.svg"
+    },
+    {
+      "name": "awe.application.paths.images",
+      "type": "java.lang.String",
+      "description": "Images folder path. Default value images/",
+      "defaultValue": "images/"
+    },
+    {
+      "name": "awe.application.paths.jrx",
+      "type": "java.lang.String",
+      "description": "Jasper jrx folder path. Default value /jrx/",
+      "defaultValue": "/jrx/"
+    },
+    {
+      "name": "awe.application.paths.locale",
+      "type": "java.lang.String",
+      "description": "Locale folder path. Default value /locale/",
+      "defaultValue": "/locale/"
+    },
+    {
+      "name": "awe.application.paths.menu",
+      "type": "java.lang.String",
+      "description": "Menu folder path. Default value /menu/",
+      "defaultValue": "/menu/"
+    },
+    {
+      "name": "awe.application.paths.profile",
+      "type": "java.lang.String",
+      "description": "Profile folder path. Default value /profile/",
+      "defaultValue": "/profile/"
+    },
+    {
+      "name": "awe.application.paths.reports",
+      "type": "java.lang.String",
+      "description": "Reports destination folder path. Default value @reports/",
+      "defaultValue": "@reports/"
+    },
+    {
+      "name": "awe.application.paths.reports-historic",
+      "type": "java.lang.String",
+      "description": "Historic report's destination folder path. Default value @historicReports/",
+      "defaultValue": "@historicReports/"
+    },
+    {
+      "name": "awe.application.paths.screen",
+      "type": "java.lang.String",
+      "description": "Screen folder path. Default value /screen/",
+      "defaultValue": "/screen/"
+    },
+    {
+      "name": "awe.application.paths.server",
+      "type": "java.lang.String",
+      "description": "Server path. Used for set initial URL Default value empty \"\"",
+      "defaultValue": ""
+    },
+    {
+      "name": "awe.application.paths.tag",
+      "type": "java.lang.String",
+      "description": "Tag folder path. Default value angular/",
+      "defaultValue": "tags/"
+    },
+    {
+      "name": "awe.application.paths.tag-angular",
+      "type": "java.lang.String",
+      "description": "Tag angular folder path. Default value angular/",
+      "defaultValue": "tags/angular/"
+    },
+    {
+      "name": "awe.application.paths.temp",
+      "type": "java.lang.String",
+      "description": "Temp folder path. Default value /tmp",
+      "defaultValue": "/tmp"
+    },
+    {
+      "name": "awe.application.paths.templates",
+      "type": "java.lang.String",
+      "description": "Templates folder path. Default value templates/",
+      "defaultValue": "templates/"
+    },
+    {
+      "name": "awe.application.paths.templates-angular",
+      "type": "java.lang.String",
+      "description": "Angular templates folder path. Default value angular/",
+      "defaultValue": "angular"
+    },
+    {
+      "name": "awe.application.print-all-options-enable",
+      "type": "java.lang.Boolean",
+      "description": "Show all print options Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.reload-current-screen",
+      "type": "java.lang.Boolean",
+      "description": "Reload current screen. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.application.screen.change-password",
+      "type": "java.lang.String",
+      "description": "Change password screen name. Default value change_password",
+      "defaultValue": "change_password"
+    },
+    {
+      "name": "awe.application.screen.home",
+      "type": "java.lang.String",
+      "description": "Home screen name. Default value home",
+      "defaultValue": "home"
+    },
+    {
+      "name": "awe.application.screen.initial",
+      "type": "java.lang.String",
+      "description": "Default initial screen name. Default value information",
+      "defaultValue": "information"
+    },
+    {
+      "name": "awe.application.task.pool.await-termination",
+      "type": "java.time.Duration",
+      "description": "Task executor await termination in seconds. Default value 120s",
+      "defaultValue": "120s"
+    },
+    {
+      "name": "awe.application.task.pool.contextless-thread-prefix",
+      "type": "java.lang.String",
+      "description": "AWE context less Pool executor threads prefix. Default value AweInitThread-",
+      "defaultValue": "AweInitThread-"
+    },
+    {
+      "name": "awe.application.task.pool.help-thread-prefix",
+      "type": "java.lang.String",
+      "description": "AWE Help Pool executor threads prefix. Default value AweHelpThread-",
+      "defaultValue": "AweHelpThread-"
+    },
+    {
+      "name": "awe.application.task.pool.max-size",
+      "type": "java.lang.Integer",
+      "description": "Task executor pool max elements. Default value 50",
+      "defaultValue": 50
+    },
+    {
+      "name": "awe.application.task.pool.queue-size",
+      "type": "java.lang.Integer",
+      "description": "Task executor queue size. Default value 1000",
+      "defaultValue": 1000
+    },
+    {
+      "name": "awe.application.task.pool.size",
+      "type": "java.lang.Integer",
+      "description": "Task executor pool size. Default value 20",
+      "defaultValue": 20
+    },
+    {
+      "name": "awe.application.task.pool.thread-prefix",
+      "type": "java.lang.String",
+      "description": "AWE Pool executor threads prefix. Default value AweThread-",
+      "defaultValue": "AweThread-"
+    },
+    {
+      "name": "awe.application.theme",
+      "type": "java.lang.String",
+      "description": "Application theme. Default value sky",
+      "defaultValue": "sky"
+    },
+    {
+      "name": "awe.application.xml-hot-reload",
+      "type": "java.lang.Boolean",
+      "description": "Enable XML definition hot reload (development only). Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.application.xml-hot-reload-sources",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Source directories to watch for XML hot reload (e.g. src/main/resources). Changed XML files are copied to the matching classpath location before reloading. Default value empty list"
+    },
+    {
+      "name": "awe.application.xstream-driver-type",
+      "type": "com.almis.awe.model.type.XStreamDriverType",
+      "description": "XStream driver",
+      "defaultValue": "dom"
+    },
+    {
+      "name": "awe.database.audit-action",
+      "type": "java.lang.String",
+      "description": "Name of Action column in audit tables. Default value HISact",
+      "defaultValue": "HISact"
+    },
+    {
+      "name": "awe.database.audit-date",
+      "type": "java.lang.String",
+      "description": "Name of Date column in audit tables. Default value HISdat",
+      "defaultValue": "HISdat"
+    },
+    {
+      "name": "awe.database.audit-enable",
+      "type": "java.lang.Boolean",
+      "description": "Enable audit operations in AWE database engine. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.database.audit-lag",
+      "type": "java.time.Duration",
+      "description": "Audit lag in milliseconds. Used to built a timestamp in audit process. Default value 100ms",
+      "defaultValue": "100ms"
+    },
+    {
+      "name": "awe.database.audit-user",
+      "type": "java.lang.String",
+      "description": "Name of User column in audit tables. Default value HISope",
+      "defaultValue": "HISope"
+    },
+    {
+      "name": "awe.database.batch-max",
+      "type": "java.lang.Integer",
+      "description": "Chunk size for batch operations. Default value 100",
+      "defaultValue": 100
+    },
+    {
+      "name": "awe.database.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable awe database loading beans. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.database.limit-log-size",
+      "type": "java.lang.Integer",
+      "description": "Limit log size when a query is printed (0 to disable) Default value 0",
+      "defaultValue": 0
+    },
+    {
+      "name": "awe.database.migration-modules",
+      "type": "java.lang.String[]",
+      "description": "List of modules separated by comma to be migrated by flyway. Default value AWE module",
+      "defaultValue": [
+        "AWE"
+      ]
+    },
+    {
+      "name": "awe.database.multidatabase-enable",
+      "type": "java.lang.Boolean",
+      "description": "Enable multi database. Enable a custom datasource to allow connections to multiple database. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.database.parameter-name",
+      "type": "java.lang.String",
+      "description": "Database criterion name. Configure the database parameter to retrieve the value from screen context. Default value _database_",
+      "defaultValue": "_database_"
+    },
+    {
+      "name": "awe.developer.path",
+      "type": "java.lang.String",
+      "description": "Developer path. Used to manage the locale files. Default value ${user.home}/awe-developer",
+      "defaultValue": "${user.home}/awe-developer"
+    },
+    {
+      "name": "awe.developer.path-file",
+      "type": "java.lang.String",
+      "description": "Path file name Default value path.properties",
+      "defaultValue": "path.properties"
+    },
+    {
+      "name": "awe.developer.path-property",
+      "type": "java.lang.String",
+      "description": "Path property name Default value path.project",
+      "defaultValue": "path.project"
+    },
+    {
+      "name": "awe.developer.translation-service",
+      "type": "com.almis.awe.developer.translators.TranslationServiceEnum",
+      "description": "Translation service Default value MY_MEMORY",
+      "defaultValue": "my-memory"
+    },
+    {
+      "name": "awe.developer.translation.mymemory.email",
+      "type": "java.lang.String",
+      "description": "Translation service reference email Default value awe@almis.com",
+      "defaultValue": "awe@almis.com"
+    },
+    {
+      "name": "awe.developer.translation.mymemory.host",
+      "type": "java.lang.String",
+      "description": "MyMemory translation service host Default value api.mymemory.translated.net",
+      "defaultValue": "api.mymemory.translated.net"
+    },
+    {
+      "name": "awe.developer.translation.mymemory.key",
+      "type": "java.lang.String",
+      "description": "MyMemory api key"
+    },
+    {
+      "name": "awe.developer.translation.rapidapi.email",
+      "type": "java.lang.String",
+      "description": "Translation service reference email Default value awe@almis.com",
+      "defaultValue": "awe@almis.com"
+    },
+    {
+      "name": "awe.developer.translation.rapidapi.host",
+      "type": "java.lang.String",
+      "description": "Translation service host Default value translated-mymemory---translation-memory.p.rapidapi.com",
+      "defaultValue": "translated-mymemory---translation-memory.p.rapidapi.com"
+    },
+    {
+      "name": "awe.developer.translation.rapidapi.key",
+      "type": "java.lang.String",
+      "description": "Rapid API Key"
+    },
+    {
+      "name": "awe.mail.auth",
+      "type": "java.lang.Boolean",
+      "description": "Email authentication. Flag to specify if authentication is needed. The Default value is false.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.mail.debug",
+      "type": "java.lang.Boolean",
+      "description": "Execute email in debug mode. The Default value is false.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.mail.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Flag to enable awe email features. The Default value is false.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.mail.host",
+      "type": "java.lang.String",
+      "description": "Email server host"
+    },
+    {
+      "name": "awe.mail.localhost",
+      "type": "java.lang.String",
+      "description": "Name of local smtp server. The Default value is localhost.",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "awe.mail.pass",
+      "type": "java.lang.String",
+      "description": "Email server auth password"
+    },
+    {
+      "name": "awe.mail.port",
+      "type": "java.lang.Integer",
+      "description": "Email server port. The Default value is 25.",
+      "defaultValue": 25
+    },
+    {
+      "name": "awe.mail.ssl",
+      "type": "java.lang.Boolean",
+      "description": "Flag to specify the usage of SSL protocol. The Default value is false.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.mail.tls",
+      "type": "java.lang.Boolean",
+      "description": "Flag to specify the usage of TLS protocol. The Default value is false.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.mail.user",
+      "type": "java.lang.String",
+      "description": "Email server auth username"
+    },
+    {
+      "name": "awe.maintain.multiple.validation-mode",
+      "type": "com.almis.awe.config.MaintainValidationMode",
+      "description": "Validation behavior when a multiple maintain has no declared non-audit list variable. <ul> <li>{@code strict} (default): throw an error, protecting new development.</li> <li>{@code warn}: log a warning with the operation id and skip the operation, preserving pre-4.12.1 no-op semantics during migration.</li> </ul> Default value strict",
+      "defaultValue": "strict"
+    },
+    {
+      "name": "awe.notifier.from-email",
+      "type": "java.lang.String",
+      "description": "Notification email: From field email value"
+    },
+    {
+      "name": "awe.notifier.from-name",
+      "type": "java.lang.String",
+      "description": "Notification email: From field name"
+    },
+    {
+      "name": "awe.numeric.currency-place",
+      "type": "java.lang.String",
+      "description": "Controls the placement of the currency symbol for numeric component. Use s for suffix to the right or p for prefix to the left.",
+      "defaultValue": "s"
+    },
+    {
+      "name": "awe.numeric.currency-sign",
+      "type": "java.lang.String",
+      "description": "Desired currency symbol for numeric component. Default value empty string",
+      "defaultValue": ""
+    },
+    {
+      "name": "awe.numeric.decimal-numbers",
+      "type": "java.lang.Integer",
+      "description": "Number of decimals for numeric component. Default value 5.",
+      "defaultValue": 5
+    },
+    {
+      "name": "awe.numeric.empty-value",
+      "type": "java.lang.String",
+      "description": "Controls controls input display behavior for numeric component. Default value empty",
+      "defaultValue": "empty"
+    },
+    {
+      "name": "awe.numeric.format",
+      "type": "com.almis.awe.model.type.NumericFormatType",
+      "description": "Number format separator for input numeric. Default value NumericFormatType.EUR (eur)",
+      "defaultValue": "eur"
+    },
+    {
+      "name": "awe.numeric.group-decimal",
+      "type": "java.lang.Integer",
+      "description": "Controls the digital grouping - the placement of the thousand separator for numeric component. Default value 3",
+      "defaultValue": 3
+    },
+    {
+      "name": "awe.numeric.max-value",
+      "type": "java.lang.Double",
+      "description": "Maximum value for numeric component. Default value 9999999999.99",
+      "defaultValue": 9999999999.99
+    },
+    {
+      "name": "awe.numeric.min-value",
+      "type": "java.lang.Double",
+      "description": "Minimum value for numeric component. Default value -9999999999.99",
+      "defaultValue": -9999999999.99
+    },
+    {
+      "name": "awe.numeric.padding-with-zeros",
+      "type": "java.lang.Boolean",
+      "description": "Padding with zeros to complete format number in numeric component. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.numeric.pattern-formatted",
+      "type": "java.lang.String",
+      "description": "Numeric format for field pattern value. Default value ###,###.####",
+      "defaultValue": "###,###.####"
+    },
+    {
+      "name": "awe.numeric.pattern-unformatted",
+      "type": "java.lang.String",
+      "description": "Numeric format for field pattern value (plain, without a thousand separators). Default value ######.####",
+      "defaultValue": "######.####"
+    },
+    {
+      "name": "awe.numeric.round-type",
+      "type": "com.almis.awe.model.type.RoundingType",
+      "description": "Rounding type for numeric operations. Default value Half Up Symmetric (S)",
+      "defaultValue": "half-up-symmetric"
+    },
+    {
+      "name": "awe.numeric.separator-decimal",
+      "type": "java.lang.String",
+      "description": "Decimal separator for numeric component. Default value Thousands Char of NumericFormatType (awe.numeric.format)",
+      "defaultValue": ","
+    },
+    {
+      "name": "awe.numeric.separator-thousand",
+      "type": "java.lang.String",
+      "description": "Thousands separator for numeric component. Default value Thousands Char of NumericFormatType (awe.numeric.format)",
+      "defaultValue": "."
+    },
+    {
+      "name": "awe.rest.api.auth.mode",
+      "type": "com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode",
+      "description": "REST authentication mode. \"local-jwt\" authenticates with a token issued by AWE (/api/authenticate); \"oauth2-resource-server\" validates access tokens issued by an external OAuth2/OIDC provider.",
+      "defaultValue": "local-jwt"
+    },
+    {
+      "name": "awe.rest.api.doc-contact-email",
+      "type": "java.lang.String",
+      "description": "Open API Contact email."
+    },
+    {
+      "name": "awe.rest.api.doc-contact-name",
+      "type": "java.lang.String",
+      "description": "Open API Contact name."
+    },
+    {
+      "name": "awe.rest.api.doc-contact-url",
+      "type": "java.lang.String",
+      "description": "Open API Contact url."
+    },
+    {
+      "name": "awe.rest.api.doc-description",
+      "type": "java.lang.String",
+      "description": "Open API Info description.",
+      "defaultValue": "Rest API to access AWE services"
+    },
+    {
+      "name": "awe.rest.api.doc-external-description",
+      "type": "java.lang.String",
+      "description": "Open API External doc description."
+    },
+    {
+      "name": "awe.rest.api.doc-external-url",
+      "type": "java.lang.String",
+      "description": "Open API External doc url."
+    },
+    {
+      "name": "awe.rest.api.doc-license-name",
+      "type": "java.lang.String",
+      "description": "Open API License name.",
+      "defaultValue": "Apache 2.0"
+    },
+    {
+      "name": "awe.rest.api.doc-license-url",
+      "type": "java.lang.String",
+      "description": "Open API License url.",
+      "defaultValue": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    {
+      "name": "awe.rest.api.doc-terms-of-service-url",
+      "type": "java.lang.String",
+      "description": "Open API Terms of service url."
+    },
+    {
+      "name": "awe.rest.api.doc-title",
+      "type": "java.lang.String",
+      "description": "Open API Info title Default value \"AWE Rest API\"",
+      "defaultValue": "AWE Rest API"
+    },
+    {
+      "name": "awe.rest.api.doc-version",
+      "type": "java.lang.String",
+      "description": "Open API Info version. Default value \"v1.0.0\"",
+      "defaultValue": "v1.0.0"
+    },
+    {
+      "name": "awe.rest.api.jwt.authorization-header",
+      "type": "java.lang.String",
+      "description": "Authentication header name. Default value \"Authorization\"",
+      "defaultValue": "Authorization"
+    },
+    {
+      "name": "awe.rest.api.jwt.expiration-time",
+      "type": "java.time.Duration",
+      "description": "JWT time valid token to expire. You can use Duration format (1ms, 1s, 1m, 1h, 1d, ...) See {@link Duration} The Default value is 60m",
+      "defaultValue": "60m"
+    },
+    {
+      "name": "awe.rest.api.jwt.issuer",
+      "type": "java.lang.String",
+      "description": "JWT issuer name. The Default value is AWE ISSUER",
+      "defaultValue": "AWE ISSUER"
+    },
+    {
+      "name": "awe.rest.api.jwt.prefix",
+      "type": "java.lang.String",
+      "description": "JWT token prefix. Default value \"Bearer\"",
+      "defaultValue": "Bearer"
+    },
+    {
+      "name": "awe.rest.api.jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master.key).",
+      "defaultValue": "${awe.security.master.key}"
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.jwt.audiences",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Accepted values of the \"aud\" claim. Required (at least one) in oauth2-resource-server mode; a token is accepted when its audience matches any of them exactly."
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.jwt.issuer-uri",
+      "type": "java.lang.String",
+      "description": "Issuer URI of the provider. Tokens are accepted only when their \"iss\" claim matches it. Either this or the JWK set URI is required in oauth2-resource-server mode."
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.jwt.jwk-set-uri",
+      "type": "java.lang.String",
+      "description": "URI of the provider JSON Web Key set used to verify the token signature. Either this or the issuer URI is required in oauth2-resource-server mode."
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.client-display-name-claims",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Token claims, in order of precedence, holding the display name of an application token. The first non-blank one is used; the principal username when none is found.",
+      "defaultValue": [
+        "app_displayname",
+        "azp",
+        "appid",
+        "client_id",
+        "clientId"
+      ]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.client-id-claims",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Token claims, in order of precedence, holding the client identifier of an application token (one without a delegated username). The first non-blank one is used; the \"sub\" claim when none is found.",
+      "defaultValue": [
+        "azp",
+        "appid",
+        "client_id",
+        "clientId",
+        "sub"
+      ]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.client-principal-prefix",
+      "type": "java.lang.String",
+      "description": "Prefix added to the client identifier to build the username of an application token.",
+      "defaultValue": "client:"
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.default-profile",
+      "type": "java.lang.String",
+      "description": "AWE profile assigned when the token does not provide one. When it is not set, the application default role (awe.application.default-role) is used."
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-display-name-claims",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Token claims, in order of precedence, holding the display name of a delegated (user) token. The first non-blank one is used; the username when none is found.",
+      "defaultValue": [
+        "name",
+        "preferred_username",
+        "email"
+      ]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-email-claims",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Token claims, in order of precedence, holding the email of a delegated (user) token. The first non-blank one is used.",
+      "defaultValue": [
+        "email",
+        "upn",
+        "preferred_username"
+      ]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.delegated-username-claims",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Token claims, in order of precedence, holding the username of a delegated (user) token. The first non-blank one is used.",
+      "defaultValue": [
+        "preferred_username",
+        "upn",
+        "email",
+        "oid"
+      ]
+    },
+    {
+      "name": "awe.rest.api.oauth2-resource-server.principal.profile-claim",
+      "type": "java.lang.String",
+      "description": "Token claim holding the AWE profile to assign to the principal. When it is not set or the token does not carry it, the default profile is used."
+    },
+    {
+      "name": "awe.rest.api.openapi.oauth2.authorization-url",
+      "type": "java.lang.String",
+      "description": "Authorization endpoint of the provider, used by Swagger UI to start the authorization code flow."
+    },
+    {
+      "name": "awe.rest.api.openapi.oauth2.client-id",
+      "type": "java.lang.String",
+      "description": "Client identifier of the public application Swagger UI authenticates with."
+    },
+    {
+      "name": "awe.rest.api.openapi.oauth2.scopes",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Scopes offered by Swagger UI, mapped to their description."
+    },
+    {
+      "name": "awe.rest.api.openapi.oauth2.token-url",
+      "type": "java.lang.String",
+      "description": "Token endpoint of the provider, used by Swagger UI to exchange the authorization code."
+    },
+    {
+      "name": "awe.rest.api.openapi.oauth2.use-pkce",
+      "type": "java.lang.Boolean",
+      "description": "Use PKCE (Proof Key for Code Exchange) in the Swagger UI authorization code flow.",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.rest.authentication",
+      "type": "com.almis.awe.model.rest.ServiceAuth",
+      "description": "Service authentication"
+    },
+    {
+      "name": "awe.rest.client-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable AWE application as Eureka Client. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.rest.connection-request-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout for waiting for a connection from the connection manager. Default value 5 seconds",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.rest.connection-timeout",
+      "type": "java.time.Duration",
+      "description": "Rest connection timeout in millis",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.rest.response-timeout",
+      "type": "java.time.Duration",
+      "description": "Response timeout in millis that covers the entire request-response cycle",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.rest.services",
+      "type": "java.util.Map<java.lang.String,com.almis.awe.model.rest.ServiceDetails>",
+      "description": "Map with rest service info used by AWE microservice and REST connector. [Service name, Object with service details]"
+    },
+    {
+      "name": "awe.scheduler.connection-test-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout in seconds for the interactive connection test on the server screens, deliberately shorter than the batch-oriented sshConnectTimeout Default value 10s",
+      "defaultValue": "10s"
+    },
+    {
+      "name": "awe.scheduler.execution-log-batch-size",
+      "type": "java.lang.Integer",
+      "description": "Database-mode dirty-slot count that triggers an eager flush, and the maximum number of queued events drained per writer poll cycle. Default value 200",
+      "defaultValue": 200
+    },
+    {
+      "name": "awe.scheduler.execution-log-callback-capture",
+      "type": "java.lang.Boolean",
+      "description": "Application-side kill switch for tagging an admitted remote-maintain callback with the propagated execution key (D3, D7). Gates only the callback filter bean; has no effect on the scheduler's own header, which is always sent, nor on the {@code database} execution-log store selection itself. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.scheduler.execution-log-flush-interval",
+      "type": "java.time.Duration",
+      "description": "Database-mode time-based flush trigger; kept below the log-viewer's 5s autorefresh so a running execution keeps tailing live. Default value 2s",
+      "defaultValue": "2s"
+    },
+    {
+      "name": "awe.scheduler.execution-log-max-line-length",
+      "type": "java.lang.Integer",
+      "description": "Database-mode defensive per-line character cap, independent of the line-count window. Default value 1000",
+      "defaultValue": 1000
+    },
+    {
+      "name": "awe.scheduler.execution-log-max-lines",
+      "type": "java.lang.Integer",
+      "description": "Database-mode execution log window size (head + tail lines retained per execution). Default value 1000",
+      "defaultValue": 1000
+    },
+    {
+      "name": "awe.scheduler.execution-log-path",
+      "type": "java.lang.String",
+      "description": "Scheduler execution log path. A single placeholder: the property itself, or by default the logging folder (or the temporary folder) followed by /scheduler.",
+      "defaultValue": "${logging.file.path:${java.io.tmpdir}}/scheduler"
+    },
+    {
+      "name": "awe.scheduler.execution-log-pattern",
+      "type": "java.lang.String",
+      "description": "Scheduler execution log pattern Default value %d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx",
+      "defaultValue": "%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx"
+    },
+    {
+      "name": "awe.scheduler.execution-log-queue-capacity",
+      "type": "java.lang.Integer",
+      "description": "Database-mode bounded async capture queue capacity. Overflow drops lines rather than blocking the task. Default value 10000",
+      "defaultValue": 10000
+    },
+    {
+      "name": "awe.scheduler.execution-log-store",
+      "type": "com.almis.awe.scheduler.enums.ExecutionLogStoreType",
+      "description": "Execution log store selection: {@code file} (default, on-disk, unchanged behavior) or {@code database} (opt-in, persists to the shared scheduler datasource). An unrecognized value fails application context startup instead of silently falling back.",
+      "defaultValue": "file"
+    },
+    {
+      "name": "awe.scheduler.remote-callback-password",
+      "type": "java.lang.String",
+      "description": "Remote password"
+    },
+    {
+      "name": "awe.scheduler.remote-callback-secure-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Remote call is secured (Auth is required)",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.scheduler.remote-callback-url",
+      "type": "java.net.URI",
+      "description": "URL to call from remote scheduler instance"
+    },
+    {
+      "name": "awe.scheduler.remote-callback-user",
+      "type": "java.lang.String",
+      "description": "Remote user name"
+    },
+    {
+      "name": "awe.scheduler.remote-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Flag which indicates if scheduler is in a separate instance",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.scheduler.remote-scheduler-url",
+      "type": "java.net.URI",
+      "description": "URL to call to remote scheduler instance"
+    },
+    {
+      "name": "awe.scheduler.report-email-from-value",
+      "type": "java.lang.String",
+      "description": "Scheduler report email",
+      "defaultValue": "scheduler@almis.com"
+    },
+    {
+      "name": "awe.scheduler.scheduler-instance",
+      "type": "java.lang.Boolean",
+      "description": "Flag which indicates if instance is a separate scheduler instance",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.scheduler.ssh-connect-timeout",
+      "type": "java.time.Duration",
+      "description": "SSH connect and authentication timeout in seconds Default value 30s",
+      "defaultValue": "30s"
+    },
+    {
+      "name": "awe.scheduler.ssh-host-key-policy",
+      "type": "com.almis.awe.scheduler.enums.SshHostKeyPolicy",
+      "description": "SSH host-key verification policy for remote command execution. Default value ACCEPT_ON_FIRST_USE (trust-on-first-use)",
+      "defaultValue": "accept-on-first-use"
+    },
+    {
+      "name": "awe.scheduler.ssh-known-hosts-path",
+      "type": "java.lang.String",
+      "description": "Path to the known_hosts file used to persist/read trusted SSH host keys. Default value ${user.home}/.ssh/known_hosts",
+      "defaultValue": "${user.home}/.ssh/known_hosts"
+    },
+    {
+      "name": "awe.scheduler.stored-executions",
+      "type": "java.lang.Integer",
+      "description": "Number of executions to stored in log Default value 5",
+      "defaultValue": 5
+    },
+    {
+      "name": "awe.scheduler.task-pool.max-size",
+      "type": "java.lang.Integer",
+      "description": "Scheduler task pool max size The Default value is 50",
+      "defaultValue": 50
+    },
+    {
+      "name": "awe.scheduler.task-pool.queue-size",
+      "type": "java.lang.Integer",
+      "description": "Scheduler task pool queue capacity The Default value is 1000",
+      "defaultValue": 1000
+    },
+    {
+      "name": "awe.scheduler.task-pool.size",
+      "type": "java.lang.Integer",
+      "description": "Scheduler task pool size The Default value is 20",
+      "defaultValue": 20
+    },
+    {
+      "name": "awe.scheduler.task-pool.termination",
+      "type": "java.time.Duration",
+      "description": "Scheduler task pool termination (in seconds). You can use Duration format (1ms, 1s, 1m, 1h, 1d, ...) See {@link Duration} The Default value is 120s",
+      "defaultValue": "120s"
+    },
+    {
+      "name": "awe.scheduler.task-timeout",
+      "type": "java.time.Duration",
+      "description": "Scheduler tasks default timeout in seconds Default value 1800s",
+      "defaultValue": "1800s"
+    },
+    {
+      "name": "awe.scheduler.tasks-load-on-start",
+      "type": "java.lang.Boolean",
+      "description": "Flag to load tasks on start application Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.allowed-origin-patterns",
+      "type": "java.lang.String[]",
+      "description": "List with allowed origin paths separate by commas. Default value *;",
+      "defaultValue": [
+        "*"
+      ]
+    },
+    {
+      "name": "awe.security.auth-custom-providers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Authentication custom class providers. Used to implement your custom authentication provider"
+    },
+    {
+      "name": "awe.security.auth-mode",
+      "type": "com.almis.awe.config.AuthType",
+      "description": "Authentication mode Default value BBDD (Database)",
+      "defaultValue": "bbdd"
+    },
+    {
+      "name": "awe.security.default-restriction",
+      "type": "java.lang.String",
+      "description": "Default restriction set (default should be the most restricted). Default value general",
+      "defaultValue": "general"
+    },
+    {
+      "name": "awe.security.json-encrypt-enable",
+      "type": "java.lang.Boolean",
+      "description": "Enable json encryption in between client-server",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.json-parameter",
+      "type": "java.lang.String",
+      "description": "Encrypted parameter list name. Default value p",
+      "defaultValue": "p"
+    },
+    {
+      "name": "awe.security.ldap.base-dn",
+      "type": "java.lang.String",
+      "description": "Ldap base domain for search. Default value empty (Root Dn)",
+      "defaultValue": ""
+    },
+    {
+      "name": "awe.security.ldap.connect-timeout",
+      "type": "java.time.Duration",
+      "description": "Ldap connection timeout in millis. Set com.sun.jndi.ldap.connect.timeout environment property Default value 5s",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.security.ldap.password-bind",
+      "type": "java.lang.String",
+      "description": "Ldap user bind password."
+    },
+    {
+      "name": "awe.security.ldap.read-timeout",
+      "type": "java.time.Duration",
+      "description": "Ldap read timeout in millis. Set com.sun.jndi.ldap.read.timeout environment property Default value 5s",
+      "defaultValue": "5000ms"
+    },
+    {
+      "name": "awe.security.ldap.url",
+      "type": "java.lang.String[]",
+      "description": "Ldap server url. Set server values separate by commas when you need config more than one. Default value ldap://localhost:389",
+      "defaultValue": [
+        "ldap://localhost:389"
+      ]
+    },
+    {
+      "name": "awe.security.ldap.user-bind",
+      "type": "java.lang.String",
+      "description": "Ldap user bind search pattern."
+    },
+    {
+      "name": "awe.security.ldap.user-filter",
+      "type": "java.lang.String",
+      "description": "Ldap user login property name. Examples of filters: In WINDOWS environment sAMAccountName={0} In UNIX environment uid={0}",
+      "defaultValue": "sAMAccountName={0}"
+    },
+    {
+      "name": "awe.security.master-key",
+      "type": "java.lang.String",
+      "description": "Master key used in encryption process. Default value B1Le3s%25abc75TeBe05",
+      "defaultValue": "B1Le3s%25abc75TeBe05"
+    },
+    {
+      "name": "awe.security.password-min-length",
+      "type": "java.lang.Integer",
+      "description": "Password minimum length. Used in criteria validation field Default value .*",
+      "defaultValue": 4
+    },
+    {
+      "name": "awe.security.password-pattern",
+      "type": "java.lang.String",
+      "description": "Password regex pattern. Used in criteria validation field Default value .*",
+      "defaultValue": ".*"
+    },
+    {
+      "name": "awe.security.role-prefix",
+      "type": "java.lang.String",
+      "description": "Role prefix to build user grants in spring security Default value ROLE_",
+      "defaultValue": "ROLE_"
+    },
+    {
+      "name": "awe.security.same-origin-enable",
+      "type": "java.lang.Boolean",
+      "description": "Enable same origin in http headers. Avoid cross domain frame requests. Default value true;",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.sso.auto-launch",
+      "type": "java.lang.Boolean",
+      "description": "When Auto Launch is enabled, the login page will automatically redirect the user to the OAuth authorization url, to log in with OAuth",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.auto-provision-user",
+      "type": "java.lang.Boolean",
+      "description": "Flag to enable auto provisioning users in oauth2 authentication process. Create new record in ope table with user",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.sso.enable-azure-button",
+      "type": "java.lang.Boolean",
+      "description": "Enable the Azure SSO button. Used in Signin screen",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.enable-generic-sso-button",
+      "type": "java.lang.Boolean",
+      "description": "Enable the Generic SSO button. Used in signin screen",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.enable-google-button",
+      "type": "java.lang.Boolean",
+      "description": "Enable Google SSO button. Used in signin screen",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable SSO flow login",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.filter-authority-prefix",
+      "type": "java.lang.String",
+      "description": "Used to filtering granted authorities in post authentication process"
+    },
+    {
+      "name": "awe.security.sso.multitenant.default-tenant",
+      "type": "java.lang.String",
+      "description": "Default tenant (used when no subdomain is detected)",
+      "defaultValue": "default"
+    },
+    {
+      "name": "awe.security.sso.multitenant.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable SSO multitenant.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.multitenant.tenant-mappings",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Optional: Explicit mapping from tenant (subdomain) to registration ID If empty, convention is used: tenant name = registration ID Example: \"acme\" -> \"keycloak-acme\""
+    },
+    {
+      "name": "awe.security.sso.overwrite-profile-with-default-role",
+      "type": "java.lang.Boolean",
+      "description": "When {@code false} (default), an existing user's profile is kept as-is and not overwritten with the application default role ({@code awe.application.default-role}) when the SSO provider claim carries no role (or none of the granted authorities match {@code awe.security.sso.filter-authority-prefix}). Set to {@code true} to restore the previous behaviour, where the default role always overwrites the stored profile in that case.",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.sso.user-name-attribute",
+      "type": "java.lang.String",
+      "description": "The name of the attribute used to extract the username during the SSO authentication process. This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.",
+      "defaultValue": "preferred_username"
+    },
+    {
+      "name": "awe.security.totp.activate-screen",
+      "type": "java.lang.String",
+      "description": "Initial screen to force enable TOTP Default value activate-2fa",
+      "defaultValue": "activate-2fa"
+    },
+    {
+      "name": "awe.security.totp.enabled",
+      "type": "com.almis.awe.model.type.SecondFactorStatusType",
+      "description": "Disable, enable or force the TOTP Default value disabled",
+      "defaultValue": "disabled"
+    },
+    {
+      "name": "awe.security.totp.initial-screen",
+      "type": "java.lang.String",
+      "description": "Initial screen to check TOTP Default value check-2fa",
+      "defaultValue": "check-2fa"
+    },
+    {
+      "name": "awe.security.xstream-allow-paths",
+      "type": "java.lang.String[]",
+      "description": "Allows paths for xstream serializer. Default value \"java.*\", \"com.almis.awe.model.entities.**\"",
+      "defaultValue": [
+        "java.*",
+        "com.almis.awe.model.entities.**"
+      ]
+    },
+    {
+      "name": "awe.session.parameter",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Parameters map injected to session when the application context is starting. Ex: [ParameterName, QueryName]"
+    },
+    {
+      "name": "awe.test.allowed-recording",
+      "type": "java.lang.Boolean",
+      "description": "Enable recording test video",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.test.browser",
+      "type": "com.almis.awe.testing.model.types.BrowserType",
+      "description": "Selenium browser type",
+      "defaultValue": "chrome"
+    },
+    {
+      "name": "awe.test.browser-container",
+      "type": "java.lang.String",
+      "description": "Browser container service",
+      "defaultValue": "browser"
+    },
+    {
+      "name": "awe.test.browser-display",
+      "type": "java.lang.Integer",
+      "description": "Browser display service",
+      "defaultValue": 99
+    },
+    {
+      "name": "awe.test.browser-height",
+      "type": "java.lang.Integer",
+      "description": "Selenium browser height size",
+      "defaultValue": 1024
+    },
+    {
+      "name": "awe.test.browser-host",
+      "type": "java.lang.String",
+      "description": "Browser host service",
+      "defaultValue": "browser"
+    },
+    {
+      "name": "awe.test.browser-port",
+      "type": "java.lang.Integer",
+      "description": "Browser port service",
+      "defaultValue": 4444
+    },
+    {
+      "name": "awe.test.browser-width",
+      "type": "java.lang.Integer",
+      "description": "Selenium browser width size",
+      "defaultValue": 1280
+    },
+    {
+      "name": "awe.test.context-path",
+      "type": "java.lang.String",
+      "description": "Context path of selenium tests",
+      "defaultValue": "/"
+    },
+    {
+      "name": "awe.test.frontend",
+      "type": "com.almis.awe.testing.model.types.FrontendType",
+      "description": "Frontend type for tests",
+      "defaultValue": "angular"
+    },
+    {
+      "name": "awe.test.playwright.no-sandbox",
+      "type": "java.lang.Boolean",
+      "description": "Whether Chromium runs without its sandbox ({@code --no-sandbox}). Left empty it is automatic: it runs without the sandbox when it is headless, or when the process runs as root or inside a container (Docker, Podman or Kubernetes), where the sandbox cannot start. Set it to false to keep the sandbox in such an environment, or to true to remove it"
+    },
+    {
+      "name": "awe.test.playwright.trace",
+      "type": "com.almis.awe.testing.model.types.EvidenceMode",
+      "description": "Playwright trace of each test (opened with {@code npx playwright show-trace file.zip} or at trace.playwright.dev): {@code off}, {@code on-failure} (a trace for each failed test, the default) or {@code always}. The trace has the screenshots of every action, which cost next to nothing",
+      "defaultValue": "on-failure"
+    },
+    {
+      "name": "awe.test.playwright.trace-snapshots",
+      "type": "java.lang.Boolean",
+      "description": "Whether the trace also takes the DOM snapshots of every action, which the Trace Viewer shows as the page you can inspect before and after each one. They make a run about 40% slower, so they are off by default: turn them on to investigate a failure that the screenshots do not explain",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.test.playwright.video",
+      "type": "com.almis.awe.testing.model.types.EvidenceMode",
+      "description": "Playwright page video of a test class (the browser lasts the whole class, so the video is one per class, with the start of each test in a {@code .video-times.txt} next to it): {@code off}, {@code on-failure} (kept only when a test of the class failed, the default) or {@code always}. It is independent of {@code awe.test.allowed-recording}, which belongs to the screen recorder of the Selenium tool",
+      "defaultValue": "on-failure"
+    },
+    {
+      "name": "awe.test.recorder-url",
+      "type": "java.lang.String",
+      "description": "Url of recorder service",
+      "defaultValue": "http://recorder:3000"
+    },
+    {
+      "name": "awe.test.remote-browser",
+      "type": "java.lang.Boolean",
+      "description": "Enable remote browser",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.test.screenshot-path",
+      "type": "java.lang.String",
+      "description": "Selenium screenshots path report",
+      "defaultValue": "target/tests/selenium/screenshots/"
+    },
+    {
+      "name": "awe.test.server-host",
+      "type": "java.lang.String",
+      "description": "Server host of selenium tests"
+    },
+    {
+      "name": "awe.test.server-port",
+      "type": "java.lang.Integer",
+      "description": "Server port of selenium tests",
+      "defaultValue": 8080
+    },
+    {
+      "name": "awe.test.show-mouse",
+      "type": "java.lang.Boolean",
+      "description": "Enable capture mouse icon in selenium tests",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.test.start-url",
+      "type": "java.lang.String",
+      "description": "Start Url of selenium tests"
+    },
+    {
+      "name": "awe.test.timeout",
+      "type": "java.time.Duration",
+      "description": "Selenium timeout",
+      "defaultValue": "60s"
+    },
+    {
+      "name": "awe.test.tool",
+      "type": "com.almis.awe.testing.model.types.BrowserTool",
+      "description": "Browser automation tool that runs the tests: selenium or playwright (pilot: local Chromium and Firefox only). An unknown tool stops the tests at startup. The Selenium driver (getDriver()) is only available with the selenium tool",
+      "defaultValue": "selenium"
+    },
+    {
+      "name": "awe.test.video-format",
+      "type": "com.almis.awe.testing.model.types.VideoFormatType",
+      "description": "Video format type",
+      "defaultValue": "webm"
+    },
+    {
+      "name": "awe.test.video-save",
+      "type": "com.almis.awe.testing.model.types.RecordingSaveType",
+      "description": "Recording save mode",
+      "defaultValue": "failed"
+    },
+    {
+      "name": "awe.websocket.stomp.client-login",
+      "type": "java.lang.String",
+      "description": "Client login for STOMP broker"
+    },
+    {
+      "name": "awe.websocket.stomp.client-passcode",
+      "type": "java.lang.String",
+      "description": "Client password for STOMP broker"
+    },
+    {
+      "name": "awe.websocket.stomp.destination-prefixes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Destination prefixes for message broker.",
+      "defaultValue": [
+        "/topic",
+        "/queue"
+      ]
+    },
+    {
+      "name": "awe.websocket.stomp.enable-stomp-broker-relay",
+      "type": "java.lang.Boolean",
+      "description": "Enable STOMP broker relay instead of simple broker Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.websocket.stomp.relay-host",
+      "type": "java.lang.String",
+      "description": "Relay host for STOMP broker Default value localhost",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "awe.websocket.stomp.relay-port",
+      "type": "java.lang.Integer",
+      "description": "Relay port for STOMP broker Default value 61613",
+      "defaultValue": 61613
+    },
+    {
+      "name": "awe.websocket.stomp.system-login",
+      "type": "java.lang.String",
+      "description": "System login for STOMP broker"
+    },
+    {
+      "name": "awe.websocket.stomp.system-passcode",
+      "type": "java.lang.String",
+      "description": "System password for STOMP broker"
+    },
+    {
+      "name": "awe.websocket.stomp.virtual-host",
+      "type": "java.lang.String",
+      "description": "Virtual host for STOMP broker, used to segregate applications sharing the same broker. When not set, the broker applies its own default (the relay host)"
+    },
+    {
+      "name": "spring.datasource.hikari.connection-test-query",
+      "type": "java.lang.String",
+      "description": "Query used to check that a connection is alive before it is handed out, for every datasource AWE creates from its database connections (multidatabase). When it is not set, the JDBC driver validation is used. It does not apply to JNDI datasources."
+    },
+    {
+      "name": "spring.datasource.hikari.connection-time-out",
+      "type": "java.lang.Long",
+      "description": "Maximum time, in milliseconds, to wait for a connection from the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 30000
+    },
+    {
+      "name": "spring.datasource.hikari.data-source-map",
+      "type": "java.util.Map<java.lang.Object,java.lang.Object>",
+      "description": "Internal runtime state: datasources created from the AWE database connections, indexed by alias. It is exposed by the binder but is not a setting; do not configure it."
+    },
+    {
+      "name": "spring.datasource.hikari.data-sources",
+      "type": "java.util.Map<java.lang.Object,java.lang.Object>",
+      "description": "Internal runtime state: datasources built from the AWE database connections each time they are loaded. It is exposed by the binder but is not a setting; do not configure it."
+    },
+    {
+      "name": "spring.datasource.hikari.maximum-pool-size",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of connections in the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 10
+    },
+    {
+      "name": "spring.datasource.hikari.minimum-idle",
+      "type": "java.lang.Integer",
+      "description": "Minimum number of idle connections kept in the pool of every datasource AWE creates from its database connections (multidatabase). It does not apply to JNDI datasources.",
+      "defaultValue": 10
+    },
+    {
+      "name": "spring.datasource.hikari.properties",
+      "type": "org.springframework.boot.autoconfigure.jdbc.DataSourceProperties",
+      "description": "Internal runtime state: datasource properties of the connection being built. It is exposed by the binder but is not a setting; configure spring.datasource.* instead."
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "hidden": [
+    "spring.datasource.hikari.data-source-map",
+    "spring.datasource.hikari.data-sources",
+    "spring.datasource.hikari.properties"
+  ],
+  "groups": [
+    {
+      "id": "awe-base-properties",
+      "title": "AWE Base Properties",
+      "prefix": "awe.application",
+      "intro": "These are the base application configuration properties for AWE projects. They have the prefix `awe.application`."
+    },
+    {
+      "id": "awe-database-properties",
+      "title": "AWE Database Properties",
+      "prefix": "awe.database",
+      "intro": "These are the database configuration properties for AWE projects. They have the prefix `awe.database`."
+    },
+    {
+      "id": "awe-datasource-pool-properties",
+      "title": "AWE Datasource Pool Properties",
+      "prefix": "spring.datasource",
+      "intro": "AWE builds a connection pool for every database connection it loads (multidatabase). These are the Hikari pool settings it applies to all of them, under the Spring `spring.datasource` prefix. They do not apply to JNDI datasources."
+    },
+    {
+      "id": "awe-maintain-properties",
+      "title": "AWE Maintain Properties",
+      "prefix": "awe.maintain",
+      "intro": "These are the maintain configuration properties for AWE projects. They have the prefix `awe.maintain`. The multiple-maintain validation mode applies only to SQL-backed multiple maintain targets; service-delegated (`serve`), queue and email maintains are not affected."
+    },
+    {
+      "id": "awe-security-properties",
+      "title": "AWE Security Properties",
+      "prefix": "awe.security",
+      "intro": "These are all security configuration properties for AWE projects. They have the prefix `awe.security`."
+    },
+    {
+      "id": "awe-numeric-properties",
+      "title": "AWE Numeric Properties",
+      "prefix": "awe.numeric",
+      "intro": "These are the numeric configuration properties for AWE projects. They have the prefix `awe.numeric`."
+    },
+    {
+      "id": "awe-session-properties",
+      "title": "AWE Session Properties",
+      "prefix": "awe.session",
+      "intro": "These are the session configuration properties for AWE projects. They have the prefix `awe.session`."
+    },
+    {
+      "id": "awe-email-properties",
+      "title": "AWE Email Properties",
+      "prefix": "awe.mail",
+      "intro": "These are the Email engine configuration properties for AWE projects. They have the prefix `awe.mail`."
+    },
+    {
+      "id": "awe-developer-properties",
+      "title": "AWE Developer Properties",
+      "prefix": "awe.developer",
+      "intro": "These are the Developer module configuration properties for AWE projects. They have the prefix `awe.developer`."
+    },
+    {
+      "id": "awe-rest-properties",
+      "title": "AWE Rest Properties",
+      "prefix": "awe.rest",
+      "intro": "These are the REST connector and Microservice connector configuration properties for AWE projects. They have the prefix `awe.rest`.",
+      "outro": "rest-examples.md"
+    },
+    {
+      "id": "awe-scheduler-properties",
+      "title": "AWE Scheduler Properties",
+      "prefix": "awe.scheduler",
+      "intro": "These are the Scheduler module configuration properties for AWE projects. They have the prefix `awe.scheduler`."
+    },
+    {
+      "id": "awe-websocket-properties",
+      "title": "AWE Websocket Properties",
+      "prefix": "awe.websocket",
+      "intro": "These are the Websocket STOMP configuration properties for AWE projects. They have the prefix `awe.websocket`."
+    },
+    {
+      "id": "awe-notifier-properties",
+      "title": "AWE Notifier Properties",
+      "prefix": "awe.notifier",
+      "intro": "These are the Notifier module configuration properties for AWE projects. They have the prefix `awe.notifier`."
+    },
+    {
+      "id": "awe-test-properties",
+      "title": "AWE Test Properties",
+      "prefix": "awe.test",
+      "intro": "These are the configuration properties of the AWE testing module (`awe-testing`), used by the Selenium and Playwright integration tests. They have the prefix `awe.test`."
+    }
+  ]
+}

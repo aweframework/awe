@@ -123,7 +123,6 @@ public class SecurityConfigProperties {
 		/**
 		 * The name of the attribute used to extract the username during the SSO authentication process.
 		 * This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.
-		 * The default value is set to "preferred_username".
 		 */
 		private String userNameAttribute = "preferred_username";
 

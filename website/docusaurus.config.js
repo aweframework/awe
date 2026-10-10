@@ -1,10 +1,12 @@
 const versions = require('./versions.json');
 const {ensureGenerated} = require('./scripts/xsd-reference/generate');
+const {ensureGenerated: ensurePropertiesGenerated} = require('./scripts/properties-reference/generate');
 const remarkContentRootLinks = require('./scripts/remark-content-root-links');
 
 // The "reference" docs instance below needs its folder for ANY docusaurus command (build, deploy, swizzle,
 // docs:version...), not only the npm scripts that regenerate it first (see the "pre" scripts in package.json).
 ensureGenerated();
+ensurePropertiesGenerated();
 
 // "current" (develop, 5.0) is always present. A maintenance-line entry (e.g. "4.x") is
 // only present in versions.json inside a CI checkout, after bin/website-maintenance-docs.sh

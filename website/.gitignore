@@ -38,3 +38,6 @@ yarn-error.log*
 # versions.json is only ever modified inside a CI checkout, by bin/website-maintenance-docs.sh,
 # to temporarily prepend a maintenance-line label (e.g. "4.x"). It must never be committed
 # with such an entry present.
+
+# Properties reference, generated from the Spring configuration metadata by scripts/properties-reference/generate.js before every start/build
+/docs/properties.md
