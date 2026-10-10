@@ -31,7 +31,7 @@
           <button button-type="submit" label="BUTTON_CONFIRM" icon="save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
             <button-action type="validate" />
             <button-action type="confirm" target="UpdMsg" />
-            <button-action type="server" server-action="maintain" target-action="ChdPwd" />
+            <button-action type="server" server-action="maintain" target-action="ChdPwdPub" />
             <button-action type="server" server-action="login" />
           </button>
           <button button-type="button" label="BUTTON_BACK" icon="arrow-circle-left" id="ButBck" help="HELP_BACK_BUTTON">

@@ -4,6 +4,9 @@
 - Integration tests of MySQL, PostgreSQL, SQL Server and Oracle (and their Flyway variants) run their database in a Testcontainers container, locally and in CI, with the image of each engine pinned in `awe-testing-images.properties` (#764). Docker is the only requirement; no database server or connection settings are needed.
 - `awe-testing` ships `@AweDatabaseTest` and `TestDatabase` to choose the database of a Spring test class.
 
+**[HAS IMPACTS]** Changed:
+- Password change and user information definitions now require a session (#852). The `ChdPwd` maintain target changes the password of the logged in user only; the public change-password screens (`ChdPwdPub`, `change-password`) use the new public `ChdPwdPub` target, which changes the password only when the current password (`OldPas`) matches. The `UsrInf`, `AutUsr`, `GetEmlSrvByOpe` and `JmsConnections` queries and the `UpdCntLog` and `UpdPwdLck` maintain targets are no longer public, and `UsrInf` and `AutUsr` no longer return password fields. Applications that launched any of them without a session must sign the user in first (or use `ChdPwdPub` with the current password).
+
 **[HAS IMPACTS]** Removed:
 - The external database services of the CI jobs and the `db.external` test mode: the database tests always use containers. The server connection lines of the test `*.properties` files of `awe-boot` (they only keep the pool settings) and the unused database properties of `awe-boot-react` and the Oracle XE `docker-compose` file are gone (#764).
 

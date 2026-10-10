@@ -196,7 +196,8 @@
     </update>
   </target>
 
-  <target name="ChdPwd" public="true">
+  <!-- Change the password of the user in session (not public: only an authenticated user can launch it) -->
+  <target name="ChdPwd">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
@@ -207,7 +208,7 @@
           <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
         </and>
       </where>
-      <variable id="l1_nom" type="STRING" name="Usr"/>
+      <variable id="l1_nom" type="STRING" session="user"/>
       <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
       <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
@@ -226,6 +227,29 @@
     </delete>
   </target>
 
+
+  <!-- Change the password without a session (ChdPwdPub and change-password screens): only when the current password matches -->
+  <target name="ChdPwdPub" public="true">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <field id="OpePas" variable="OpePas"/>
+      <field id="l1_psd" variable="SysDat"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+          <filter left-field="l1_pas" condition="eq" right-variable="OldPas" ignorecase="true"/>
+          <filter left-field="l1_act" condition="eq" right-variable="active"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" name="Usr"/>
+      <variable id="OldPas" type="STRING_HASH_RIPEMD160" name="OldPas"/>
+      <variable id="active" type="INTEGER" value="1"/>
+      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
+      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
+  </target>
 
   <!-- Modules -->
   <target name="ModNew">
@@ -1184,7 +1208,7 @@
   </target>
 
   <!-- Update count loggin -->
-  <target name="UpdCntLog" public="true">
+  <target name="UpdCntLog">
     <update>
       <table id="ope"/>
       <field id="NumLog" variable="NumLog"/>
@@ -1199,7 +1223,7 @@
   </target>
 
   <!-- Update flag password blocked -->
-  <target name="UpdPwdLck" public="true">
+  <target name="UpdPwdLck">
     <update>
       <table id="ope"/>
       <field id="PwdLck" variable="PwdLck"/>

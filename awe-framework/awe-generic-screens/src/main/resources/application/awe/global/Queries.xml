@@ -222,11 +222,10 @@
   </query>
 
   <!-- GET USER INFO -->
-  <query id="UsrInf" cacheable="true" public="true">
+  <query id="UsrInf" cacheable="true">
     <table id="ope" alias="ope" />
     <table id="AwePro" alias="pro" />
     <field id="l1_nom" alias="Usr" />
-    <field id="l1_pas" alias="Pwd" />
     <field id="Res" table="ope" alias="UsrRes" />
     <field id="Res" table="pro" alias="ProRes" />
     <field id="Acr" table="pro" alias="Pro" />
@@ -243,13 +242,11 @@
   </query>
 
   <!-- AUTHENTICATE USER -->
-  <query id="AutUsr" public="true">
+  <query id="AutUsr">
     <table id="ope" alias="ope" />
     <table id="AwePro" alias="pro" />
     <field id="IdeOpe" alias="IdeOpe" />
     <field id="l1_nom" alias="Usr" />
-    <field id="l1_pas" alias="Pwd" />
-    <field id="OpePas" alias="NewPwd" />
     <field id="NumLog" alias="NumLog" />
     <field id="PwdLck" alias="PwdLck" />
     <where>
@@ -2237,7 +2234,7 @@
   </query>
 
   <!-- Email server (Get info by alias -->
-  <query id="GetEmlSrvByOpe" public="true">
+  <query id="GetEmlSrvByOpe">
     <table id="AweEmlSrv" alias="EmlSrv" />
     <field id="Hst" alias="Hst" />
     <field id="Ath" alias="Ath" />
@@ -2258,7 +2255,7 @@
   </query>
 
   <!-- JMS QUEUES -->
-  <query id="JmsConnections" public="true">
+  <query id="JmsConnections">
     <table id="AweQue" />
     <field id="IdeAweQue" alias="IdeAweQue" />
     <field id="Als" alias="Als" />
