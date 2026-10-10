@@ -13,7 +13,7 @@ To manage application options, you must navigate to `Tools -> Application parame
 
 <img alt="Application parameters screen" src={require('@docusaurus/useBaseUrl').default('img/ApplicationOptions.png')} />
 
-There, you will have a screen where you can add, update or delete the application screens in three
+There, you will have a screen where you can add, update or delete the application options in three
 categories:
 
 * **Security**: Security-related properties 

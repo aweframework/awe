@@ -26,7 +26,7 @@ from web technology progress, but getting benefit of it.
 
 AWE also provides some tools to make the web development easier, such as:
 
-* Hability to use various **authentication** methods.
+* Ability to use various **authentication** methods.
 * Perform **queries** to SQL and NO-SQL databases.
 * Send/receive messages over **JMS queues**.
 * Launch **services** to interact with your business logic:

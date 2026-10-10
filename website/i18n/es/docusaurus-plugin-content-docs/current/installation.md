@@ -62,7 +62,7 @@ Recomendamos seguir estos pasos para mejorar la seguridad del servidor de aplica
     pattern="common" resolveHosts="false"/>
 ```
 
-*  Habilite la protección contra clickjacking (solo para Tomcat versión 8 o superior). :
+*  Habilite la protección contra clickjacking (solo para Tomcat versión 8 o superior).
 **web.xml**: Descomente el siguiente código
 
 ```xml

@@ -13,7 +13,9 @@ src={require('@docusaurus/useBaseUrl').default('img/undraw_security-on_btwg.svg'
 Awe te permite elegir qué sistema de autenticación y autorización quieres usar, en lugar de incluir uno específico.
 Awe es totalmente compatible con las soluciones de seguridad más utilizadas en el ecosistema Spring Boot como `In memory`, `Database`, `LDAP`, `OAuth`, `Oauth2`, ...
 
-:::info Puedes visitar [este enlace](https://spring.io/guides/topicals/spring-security-architecture) para más información.:::
+:::info
+Puedes visitar [este enlace](https://spring.io/guides/topicals/spring-security-architecture) para más información.
+:::
 
 ## Spring Security en Awe {#spring-security-in-awe}
 Awe proporciona beans de configuración para gestionar la seguridad en tu aplicación. Puedes usarlos o sobrescribirlos y crear tu propio método de autenticación.
@@ -89,24 +91,24 @@ Hay tres formas de gestionar esta autenticación de dos factores en AWE según l
 - `disabled`: La autenticación de dos factores está desactivada y no se pedirá un código temporal al acceder.
 - `optional`: El usuario **puede activar** la autenticación de dos factores en la **pantalla de ajustes** y se pedirá el código temporal al iniciar sesión.
 
-<img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
-alt="Pantalla de ajustes"
-src={require('@docusaurus/useBaseUrl').default('img/security-settings.png')}
-/>
-<div style={{textAlign:"center",fontStyle:"italic"}}>Pantalla de ajustes de seguridad</div>
+  <img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
+  alt="Pantalla de ajustes"
+  src={require('@docusaurus/useBaseUrl').default('img/security-settings.png')}
+  />
+  <div style={{textAlign:"center",fontStyle:"italic"}}>Pantalla de ajustes de seguridad</div>
 
-<img style={{ width: "60%", margin: "30px 20% 0% 20%" }}
-alt="Pantalla del código TOTP"
-src={require('@docusaurus/useBaseUrl').default('img/totp-code.png')}
-/>
-<div style={{textAlign:"center",fontStyle:"italic",marginBottom:"30px"}}>Pantalla del código TOTP</div>
+  <img style={{ width: "60%", margin: "30px 20% 0% 20%" }}
+  alt="Pantalla del código TOTP"
+  src={require('@docusaurus/useBaseUrl').default('img/totp-code.png')}
+  />
+  <div style={{textAlign:"center",fontStyle:"italic",marginBottom:"30px"}}>Pantalla del código TOTP</div>
 
 
 - `force`: Al iniciar sesión, **si el usuario no ha activado la autenticación de dos factores**, aparecerá una pantalla con el código QR para obligar al usuario a
   activarla. Tras esa pantalla, se pedirá al usuario el código temporal basado en el código secreto generado previamente.
 
-<img style={{ width: "40%", margin: "30px 30% 0% 30%" }}
-alt="Pantalla de autenticación de dos factores obligatoria"
-src={require('@docusaurus/useBaseUrl').default('img/force-2fa.png')}
-/>
-<div style={{textAlign:"center",fontStyle:"italic"}}>Pantalla de seguridad de dos factores obligatoria</div>
+  <img style={{ width: "40%", margin: "30px 30% 0% 30%" }}
+  alt="Pantalla de autenticación de dos factores obligatoria"
+  src={require('@docusaurus/useBaseUrl').default('img/force-2fa.png')}
+  />
+  <div style={{textAlign:"center",fontStyle:"italic"}}>Pantalla de seguridad de dos factores obligatoria</div>

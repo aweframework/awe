@@ -76,7 +76,7 @@ En el primer paso, necesitamos construir una imagen de contenedor. Para ello, co
 
 Por ejemplo:
 
-```shell script
+```shell
 # Use an official Open jdk runtime as a parent image
 FROM eclipse-temurin:17-jre-alpine
 # Copy the current directory contents into the container at /app
@@ -97,7 +97,7 @@ Las aplicaciones AWE, al igual que los jars ejecutables de Spring Boot, están l
 Idealmente, su aplicación, como un jar ejecutable de Spring Boot, lleva empaquetado todo lo que necesita para ejecutarse.
 
 :::tip Información
-Puede leer más documentación sobre el despliegue **[aquí](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deploymenta)**
+Puede leer más documentación sobre el despliegue **[aquí](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deployment)**
 :::
 
 

@@ -31,7 +31,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 | [grid](grids.md)             | Opcional        | No                | Una [rejilla](grids.md) dentro de la ventana                                                                  |
 | [chart](chart.md)            | Opcional        | No                | Un [gráfico](chart.md) dentro de la ventana                                                                   |
 
-> **Nota** Hay dos estilos especiales que puedes usar como estilos de tag en las ventanas:
+> **Nota** Hay tres estilos especiales que puedes usar como estilos de tag en las ventanas:
 > * `panel-body`: Un estilo especial para definir el contenido de una ventana. Añade márgenes al contenido.
 > * `panel-footer`: Un estilo especial para definir la parte inferior de una ventana. Se recomienda colocar botones dentro.
 > * `expand-maximize`: Un estilo especial, normalmente combinado con `panel-body`, que expande el contenido de la ventana cuando esta se maximiza.

@@ -28,15 +28,15 @@ La estructura completa de una consulta sql es la siguiente:
 <!-- Example sql query -->
 
 <query id="[Query Id]" cacheable="[Cacheable]" distinct="Distinct" managed-pagination="Pagination" post-process="Post processed">
-  <table id="[Table id]" schema="[Schema name]" alias="[Table alias] query="[Subquery]"/>
+  <table id="[Table id]" schema="[Schema name]" alias="[Table alias]" query="[Subquery]"/>
   <field id="[Field id]" table="[Table field]" alias="[Alias field]"/>
   ...
   <field id="[Field id]" table="[Table field]" alias="[Alias field]"/>
   <field variable="[Variable id]"/>
   <constant value="[Constant value]" type="INTEGER"/>
-  <computed format="[Format]" alias="[Alias] transform="[Transform]"/>
+  <computed format="[Format]" alias="[Alias]" transform="[Transform]"/>
   ...
-  <computed format="[Format]" alias="[Alias] transform="[Transform]"/>
+  <computed format="[Format]" alias="[Alias]" transform="[Transform]"/>
   <compound alias="[Compoun alias]">
     <computed format="[Format]" alias="[Alias]"/>
     ...
@@ -70,14 +70,14 @@ La estructura completa de una consulta sql es la siguiente:
  </where>
  <variable id="[Variable id]" type="[Variable Type]" name="[Variable name]" optional="[Optional]"/>
  ... (More <variable>)
- <group_by field="[Group field]" table="[Group table]" />
- ... (More <group_by>)
+ <group-by field="[Group field]" table="[Group table]" />
+ ... (More <group-by>)
  <order-by field="[Order field]" table="[Order table]" type="[Order type]"/>
  ... (More <order-by >)
  <totalize function="[Totalize function]" label="[Label]" field="[Totalize field]" style="[Totalize style]">
-   <totalize_by  field="[Totalize by field]"/>
+   <totalize-by field="[Totalize by field]"/>
    ... (more totalize by fields)
-   <totalize_field field="[Totalize field]"/>
+   <totalize-field field="[Totalize field]"/>
    ... (more totalized fields)
   </totalize>
 </query>
@@ -303,7 +303,7 @@ El elemento *operation* permite definir operaciones entre campos y se resolverá
   <constant value="[constant value]" />
   <field id="[field name]" table="[field table]" />
   ...
-</field>
+</operation>
 ```
 
 | Atributo  |    Uso     |    Tipo     | Descripción                                                              | Valores                                                                                              |
@@ -418,7 +418,7 @@ Campo concatenado: `("Pro" + pro.Nam + "-Mod" + mod.Nam) as parent`
   <field id="Nam" table="pro" />
   <constant value="-Mod" />
   <field id="Nam" table="mod" />
-</field>
+</operation>
 ```
 
 Sumar 1 a un campo: `(pro.Nam + 1) as parent`
@@ -427,7 +427,7 @@ Sumar 1 a un campo: `(pro.Nam + 1) as parent`
 <operation operator="ADD" alias="parent">
   <field id="Nam" table="pro" />
   <constant value="1" type="INTEGER"/>
-</field>
+</operation>
 ```
 
 Redondear un campo a 2 decimales: 'round(column, 2)'
@@ -435,7 +435,7 @@ Redondear un campo a 2 decimales: 'round(column, 2)'
 <operation operator="ROUND" alias="roundField">
   <field id="Rate" table="User" />
   <constant value="2" type="INTEGER"/>
-</field>
+</operation>
 ``` 
 
 ### Elemento case {#case-element}

@@ -210,7 +210,7 @@ El elemento *operation* permite definir operaciones entre campos y se resolverá
   <constant value="[constant value]" />
   <field id="[field name]" table="[field table]" />
   ...
-</field>
+</operation>
 ```
 
 | Atributo  | Uso          | Tipo    | Descripción                    | Valores                                                                                   |
@@ -728,7 +728,7 @@ El elemento serve en los maintains tiene los siguientes atributos:
 
 ```xml
 <!-- Serve example -->
-</target>
+<target name="[target_name]">
   <serve service="RelAllScrCfg" />
   <serve service="LoaScrCfgByDbs">
     <variable id="database" type="STRING" session="database"/>

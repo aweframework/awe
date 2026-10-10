@@ -8,29 +8,24 @@ sidebar_label: Guía de migración a v4.0
 
 * Cambie la estructura del proyecto a una estructura de proyecto Spring:
 
-> * **[application-name]** -> Archivos del proyecto (pom.xml, package.json...)
-    >
-* src
-  >
-* main
-  >
-* **java** -> ApplicationBoot + clases Java
->          * **resources** -> Propiedades
-             >
-* application/[application-name] -> Archivos XML
->              * config -> Propiedades de AWE sobrescritas
->              * js -> Archivos Javascript
->              * css -> Archivos CSS
->              * less -> Archivos LESS
->              * schemas -> Esquemas XSD
->              * static -> Imágenes/Fuentes
->              * webpack -> Configuración de Webpack
->              * sql -> Archivos SQL de inicialización
->      * test
-         >
-* *java* -> Pruebas JUnit
->          * *resources* -> Propiedades de prueba
->          * *selenium* -> Suites de Selenium
+  - **[application-name]** -> Archivos del proyecto (pom.xml, package.json...)
+    - src
+      - main
+        - **java** -> ApplicationBoot + clases Java
+        - **resources** -> Propiedades
+          - application/[application-name] -> Archivos XML
+          - config -> Propiedades de AWE sobrescritas
+          - js -> Archivos Javascript
+          - css -> Archivos CSS
+          - less -> Archivos LESS
+          - schemas -> Esquemas XSD
+          - static -> Imágenes/Fuentes
+          - webpack -> Configuración de Webpack
+          - sql -> Archivos SQL de inicialización
+      - test
+        - *java* -> Pruebas JUnit
+        - *resources* -> Propiedades de prueba
+        - *selenium* -> Suites de Selenium
 
 ## **Maven** {#maven}
 
@@ -650,7 +645,7 @@ private static Logger logger=LogManager.getLogger(MyClass.class);
 
 1. Añada la anotación `@Slf4j` sobre la clase:
 
- ```java
+```java
 @Slf4j
 public MyClass{
         ...
@@ -1031,7 +1026,7 @@ los siguientes puntos:
 
     - *Maintains:* El atributo name de `service-parameter` debe ser igual al atributo `id` del campo `variable`
       de los elementos serve.
-      ```jsx title=maintains.xml
+      ```xml title=maintains.xml
       <target name="MyMaintain">
          <serve service="MyService">
            <variable id="id1" type="STRING" name="criterion1.selected"/>
@@ -1040,7 +1035,7 @@ los siguientes puntos:
         </serve>
       </target>
       ```
-       ```jsx title=global/Services.xml
+       ```xml title=global/Services.xml
       <service id="CtrEvnDetIsuCnfSer">
         <microservice name="alu-microservice" method="POST" endpoint="/maintain/myMicroservice" content-type="JSON">
           <service-parameter name="id1" type="STRING" list="true"/>
@@ -1049,7 +1044,7 @@ los siguientes puntos:
         </microservice>
       </service>
       ```
-      ```jsx title=webservice/services.xml
+      ```xml title=webservice/services.xml
        <service name="myMicroService" type="MAINTAION" call="myWebService">
          <param list="false" name="id1" type="STRING"/>
          <param list="false" name="id2" type="STRING"/>
@@ -1059,7 +1054,7 @@ los siguientes puntos:
 
     - *Queries:* El atributo name de `service-parameter` debe ser igual al atributo `id` del `field` de la query.
       Normalmente, debe añadir un campo alias con el nombre para describir ese campo.
-      ```jsx title=queries.xml
+      ```xml title=queries.xml
        <query id="MyQuery" service="MyService">
          <field id="id1" alias="alias1"/>
          <field id="id2" alias="alias2"/>
@@ -1067,7 +1062,7 @@ los siguientes puntos:
          ...
       </query>      
       ```
-      ```jsx title=global/services.xml
+      ```xml title=global/services.xml
        <service id="MyService">
          <microservice name="alu-microservice" method="POST" endpoint="/data/myMicroService" content-type="JSON">
            <service-parameter list="false" name="id1" type="STRING"/>
@@ -1076,7 +1071,7 @@ los siguientes puntos:
          </microservice>
       </service>
       ```
-      ```jsx title=webservice/services.xml
+      ```xml title=webservice/services.xml
        <service name="myMicroService" type="DATA" call="myWebService">
          <param list="false" name="id1" type="STRING"/>
          <param list="false" name="id2" type="STRING"/>

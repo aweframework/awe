@@ -20,25 +20,24 @@ La estructura XML del componente de barra de navegación es la siguiente:
   <tag type="div" style="right clearfix">
     <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
       <info id="[id]" icon="[icon]" title="[info-title]">
+        <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
+          target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
+          <dependency/>
+        </info-criteria>
+        ... more info-criteria elements
+      </info>
       ... more info elements
-      <info id="[id]" icon="[icon]" title="[info-title]">
-      <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
-        target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
-        <dependency/>
-      </info-criteria>
-      ... more info criteria elements              
-    </info>
-    <info-button id="[id]" icon="[icon]" title="[button-title]">
-      <button-action type="[action-type]" />
-      ... more button.action
-    </info-button>
-    ... more info-button
-   </tag>
- </tag>
+      <info-button id="[id]" icon="[icon]" title="[button-title]">
+        <button-action type="[action-type]" />
+        ... more button.action
+      </info-button>
+      ... more info-button
+    </tag>
+  </tag>
 </tag>
 ```
 
-## Estructura de la barra de navegación {#nabvar-structure}
+## Estructura de la barra de navegación {#navbar-structure}
 
 | Elemento                                   | Uso        | Varias instancias   | Descripción                                                                                                                         |
 |--------------------------------------------|------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|

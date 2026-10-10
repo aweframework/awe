@@ -349,8 +349,8 @@ clickButtonAndConfirm("ButCnf");
 Cada paso que puede llamar una prueba es un método `protected` de `SeleniumUtilities`, de modo que una clase de prueba que lo extienda los llama
 directamente. Este catálogo los lista todos, agrupados por área, para que puedas revisarlo antes de escribir una prueba. Los nombres de
 los parámetros siguen la firma Java: `criterionName` es el identificador del criterio, `gridId`, `rowId` y `columnId` son los identificadores de la tabla,
-la fila y la columna, y `messageType` es `success`, `info`, `warning` o `danger`. La columna *Motor* está vacía cuando
-el paso se comporta igual en el cliente AngularJS y en el React; en caso contrario indica qué difiere (consulta
+la fila y la columna, y `messageType` es `success`, `info`, `warning` o `danger`. Un paso se comporta igual en
+el cliente AngularJS y en el React, salvo que su descripción indique qué difiere (consulte
 [Clientes AngularJS y React](#angularjs-and-react-clients)).
 
 Un paso que no está listado aquí no existe: añádelo (consulta [Añadir un paso que falta](#adding-a-missing-step)) en lugar de

@@ -24,7 +24,6 @@ Pero primero, los siguientes campos son comunes a todas las opciones posibles:
 | Desde ^1 | La fecha / hora de inicio de la planificación de la tarea actual | Opcional | Ninguno |
 | Hasta ^2 | La fecha / hora de fin de la planificación de la tarea actual | Opcional | Ninguno |
 | Repetir cada | El tiempo entre ejecuciones | **Obligatorio** | Ninguno |
-º
 
 ***
 

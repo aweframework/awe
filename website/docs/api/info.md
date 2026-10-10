@@ -20,25 +20,24 @@ The xml structure of navigation bar component is the following:
   <tag type="div" style="right clearfix">
     <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
       <info id="[id]" icon="[icon]" title="[info-title]">
+        <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
+          target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
+          <dependency/>
+        </info-criteria>
+        ... more info-criteria elements
+      </info>
       ... more info elements
-      <info id="[id]" icon="[icon]" title="[info-title]">
-      <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
-        target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
-        <dependency/>
-      </info-criteria>
-      ... more info criteria elements              
-    </info>
-    <info-button id="[id]" icon="[icon]" title="[button-title]">
-      <button-action type="[action-type]" />
-      ... more button.action
-    </info-button>
-    ... more info-button
-   </tag>
- </tag>
+      <info-button id="[id]" icon="[icon]" title="[button-title]">
+        <button-action type="[action-type]" />
+        ... more button.action
+      </info-button>
+      ... more info-button
+    </tag>
+  </tag>
 </tag>
 ```
 
-## Nabvar structure
+## Navbar structure
 
 | Element                                    | Use        | Multiples instances | Description                                                                                                                         |
 |--------------------------------------------|------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -75,7 +74,7 @@ The xml structure of navigation bar component is the following:
 | `title`      | Optional | String | Static text show when over button  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `info-style` | Optional | String | Css style of info-button container |                                                                            |
 
-> **Note:** `info-butto`n element has other attributes as `button` element. You can see more info [here](button.md#button-attributes).
+> **Note:** `info-button` element has other attributes as `button` element. You can see more info [here](button.md#button-attributes).
 
 ### info-criteria attributes
 

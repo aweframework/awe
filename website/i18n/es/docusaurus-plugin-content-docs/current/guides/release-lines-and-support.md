@@ -106,7 +106,7 @@ vacío y un `401 Unauthorized` del repositorio Maven.
 
 ## Título y tamaño de la merge request {#merge-request-title-and-size}
 
-Tres jobs rápidos de la etapa `build` comprueban cada pipeline de merge request, antes de construir nada. Un cuarto,
+Cuatro jobs rápidos de la etapa `build` comprueban cada pipeline de merge request, antes de construir nada. Un quinto,
 [`Lint frontend`](#frontend-lint-blocking), comprueba el código de frontend de las merge requests que lo modifican.
 
 ### Formato del título (bloqueante) {#title-format-blocking}
@@ -222,9 +222,9 @@ con el mismo límite. La CI omite ese paso de Maven (`-Dskip.lint=true`, definid
 
 Cada imagen y servicio referenciado en `.gitlab-ci.yml` está fijado (los jobs que provienen de las plantillas de
 seguridad propias de GitLab usan las imágenes de analizador que mantiene GitLab): una etiqueta de versión inmutable
-cuando el proveedor la publica (`maven`, `docker`, `mysql`, `postgres`, `mssql`, `release-cli`), o una referencia
+cuando el proveedor la publica (`maven`, `docker`, `release-cli`), o una referencia
 `tag@sha256:digest` cuando solo existe una etiqueta `latest` (las imágenes `docker-tools`, `selenoid/firefox`,
-`selenoid/chrome`, `epiclabs/docker-oracle-xe-11g`). La parte `tag` de `tag@digest` se conserva solo para que la
+`selenoid/chrome`). La parte `tag` de `tag@digest` se conserva solo para que la
 referencia siga siendo legible; el digest es lo que realmente congela la imagen. Nada en `.gitlab-ci.yml` sigue una
 etiqueta flotante `latest`. [Renovate](#dependency-updates) es el responsable de abrir las merge requests que actualizan
 estos fijados (incluyendo la resolución de nuevo de los digests), por lo que un fijado nunca se actualiza editando
@@ -241,12 +241,12 @@ tiene su propio SBOM CycloneDX, generado por el job `Publish npm` (consulte [paq
 `Build package` también firma las imágenes `awe-boot` y `awe-boot-react` sin clave, usando la propia identidad OIDC de
 GitLab (`id_tokens: SIGSTORE_ID_TOKEN`) en lugar de una clave privada almacenada: tanto la imagen del registro de
 GitLab como la imagen de Docker Hub se firman por digest, una sola vez, ya que todas las etiquetas flotantes
-(`$PROJECT_VERSION`, y en las ramas `support/*` los alias mayor/mayor.menor) apuntan a ese mismo digest. Verifique una
-imagen publicada con:
+(`$PROJECT_VERSION`, y en las ramas `support/*` los alias mayor/mayor.menor) apuntan a ese mismo digest.
 
 La identidad del certificado es la definición de pipeline que produjo la firma
 (`https://gitlab.com/aweframework/awe//.gitlab-ci.yml@refs/heads/<branch>`), por lo que la expresión de abajo solo
-acepta imágenes construidas desde las líneas de publicación, no desde una rama de funcionalidad:
+acepta imágenes construidas desde las líneas de publicación, no desde una rama de funcionalidad.
+Verifique una imagen publicada con:
 
 ```bash
 cosign verify \
@@ -288,8 +288,9 @@ Renovate siempre lee la rama por defecto, también cuando actualiza `support/4.x
 de archivos de bloqueo se ejecuta el lunes a primera hora), el Dockerfile de `awe-boot`, cada entrada `image:` y
 `services:` de `.gitlab-ci.yml` (resolviendo de nuevo los digests `latest@sha256` y fijando las etiquetas de versión
 con digests), además de las versiones de Node y npm del frontend-maven-plugin y la coordenada del plugin CycloneDX en
-línea, y las dos pilas de herramientas `docker-compose` bajo `awe-tests` (observabilidad, Oracle). No gestiona el
-`package.json` raíz (un resto sin uso) ni las plantillas de arquetipos.
+línea, la pila `docker-compose` de observabilidad bajo `awe-tests` y las imágenes de bases de datos de Testcontainers
+fijadas en `awe-testing-images.properties`. No gestiona el `package.json` raíz (un resto sin uso) ni las plantillas de
+arquetipos.
 
 | Rama | Actualizaciones abiertas | Automerge |
 |---|---|---|

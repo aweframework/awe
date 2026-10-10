@@ -210,7 +210,7 @@ The *operation* element allows to define operation between fields and will be re
   <constant value="[constant value]" />
   <field id="[field name]" table="[field table]" />
   ...
-</field>
+</operation>
 ```
 
 | Attribute | Use          | Type    | Description                    | Values                                                                                    |
@@ -721,14 +721,14 @@ Serve element in maintains has the following attributes:
 
 | Attribute | Use          | Type    | Description                                                   | Values                                                                      |
 |-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| service   | **Required** | String  | Service indentifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
+| service   | **Required** | String  | Service identifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Service maintain examples**
 
 ```xml
 <!-- Serve example -->
-</target>
+<target name="[target_name]">
   <serve service="RelAllScrCfg" />
   <serve service="LoaScrCfgByDbs">
     <variable id="database" type="STRING" session="database"/>
@@ -767,7 +767,7 @@ Queue element in maintains has the following attributes:
 
 | Attribute | Use          | Type     | Description                                                   | Values                                                                      |
 |-----------|--------------|----------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| name      | **Required** | String   | Queue indentifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
+| name      | **Required** | String   | Queue identifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
 | label     | Optional     | String   | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Queue maintain examples**
@@ -803,7 +803,7 @@ Email element in maintains has the following attributes:
 
 | Attribute | Use          | Type    | Description                                                   | Values                                                                      |
 |-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| id        | **Required** | String  | Email indentifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
+| id        | **Required** | String  | Email identifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Email maintain examples**

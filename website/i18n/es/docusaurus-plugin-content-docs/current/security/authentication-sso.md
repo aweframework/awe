@@ -45,7 +45,7 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 :::
 
 Por defecto, si el usuario que inicia sesión en la aplicación con este método no existe en la base de datos, se aprovisionará registrándolo mediante un nuevo registro en la tabla de usuarios.
-Si no quieres este comportamiento, puedes desactivarlo poniendo a false la propiedad de configuración `awe.security.auto-provision-use`.
+Si no quieres este comportamiento, puedes desactivarlo poniendo a false la propiedad de configuración `awe.security.sso.auto-provision-user`.
 
 ## Usuarios deshabilitados y bloqueados {#disabled-and-locked-users}
 

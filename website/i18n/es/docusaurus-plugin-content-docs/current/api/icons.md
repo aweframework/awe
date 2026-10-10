@@ -1,6 +1,6 @@
 ---
 id: icons
-Title: Iconos
+title: Iconos
 sidebar_label: Iconos
 ---
 

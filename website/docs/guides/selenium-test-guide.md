@@ -349,8 +349,8 @@ clickButtonAndConfirm("ButCnf");
 Every step a test can call is a `protected` method of `SeleniumUtilities`, so a test class that extends it calls them
 directly. This catalogue lists all of them, grouped by area, so you can scan it before writing a test. Parameter names
 follow the Java signature: `criterionName` is the criterion identifier, `gridId`, `rowId` and `columnId` are the grid,
-row and column identifiers, and `messageType` is `success`, `info`, `warning` or `danger`. The *Engine* column is empty when
-the step behaves the same in the AngularJS and the React client; otherwise it says what differs (see
+row and column identifiers, and `messageType` is `success`, `info`, `warning` or `danger`. A step behaves the same in
+the AngularJS and the React client unless its description says what differs (see
 [AngularJS and React clients](#angularjs-and-react-clients)).
 
 A step that is not listed here does not exist: add it (see [Adding a missing step](#adding-a-missing-step)) instead of

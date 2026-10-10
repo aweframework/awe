@@ -45,7 +45,7 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 :::
 
 By default, if the user logged in the application with this  doesn't exist in database, it  will be provisioned by registering it by adding a new record in the user table.
-If you do not want this behavior, you can disable it setting false the configuration property `awe.security.auto-provision-use`.
+If you do not want this behavior, you can disable it setting false the configuration property `awe.security.sso.auto-provision-user`.
 
 ## Disabled and locked users
 

@@ -5,7 +5,7 @@ sidebar_label: Deployment
 ---
 
 ## Intro
-Awe framework same as Spring Boot apps, has flexible packaging options provide a great deal of choice when it comes to deploying your application. You can deploy Awe applications to a variety of cloud platforms, to container images (such as Docker), or to virtual/real machines.
+Like Spring Boot applications, the AWE framework has flexible packaging options that provide a great deal of choice when it comes to deploying your application. You can deploy Awe applications to a variety of cloud platforms, to container images (such as Docker), or to virtual/real machines.
 
 This section covers some of the more common deployment scenarios.
 
@@ -76,7 +76,7 @@ On the first step, we need to build a container image. For this, we start with c
 
 For example:
 
-```shell script
+```shell
 # Use an official Open jdk runtime as a parent image
 FROM eclipse-temurin:17-jre-alpine
 # Copy the current directory contents into the container at /app
@@ -97,7 +97,7 @@ Awe apps same as Spring Boot’s executable jars are ready-made for most popular
 Ideally, your application, like a Spring Boot executable jar, has everything that it needs to run packaged within it.
 
 :::tip Info
-You can read more docs about deploying **[here](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deploymenta)**
+You can read more docs about deploying **[here](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deployment)**
 :::
 
 
