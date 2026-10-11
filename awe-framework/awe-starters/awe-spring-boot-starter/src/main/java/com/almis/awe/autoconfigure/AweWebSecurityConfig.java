@@ -8,6 +8,7 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
@@ -21,6 +22,7 @@ import com.almis.awe.security.multitenant.MultiTenantOAuth2AuthenticationEntryPo
 import com.almis.awe.service.AccessService;
 import com.almis.awe.service.ActionService;
 import com.almis.awe.service.ErrorPageService;
+import com.almis.awe.service.user.PasswordChangeService;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,10 +42,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -81,7 +87,7 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableWebSecurity
-@Import({AweAutoConfiguration.class, SessionConfig.class})
+@Import({AweAutoConfiguration.class, SessionConfig.class, LocalLoginConfig.class})
 @EnableMethodSecurity(securedEnabled = true)
 @EnableConfigurationProperties(value = {
 		BaseConfigProperties.class,
@@ -146,7 +152,7 @@ public class AweWebSecurityConfig {
 	 * @throws Exception Spring http security error
 	 */
 	@Bean(name = "aweSecurityFilterChain")
-	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity httpSecurity, @Qualifier("localLoginAuthenticationManager") AuthenticationManager localLoginAuthenticationManager) throws Exception {
 		boolean ssoEnabled = securityConfigProperties.getSso() != null && securityConfigProperties.getSso().isEnabled();
 		boolean autoLaunch = ssoEnabled && securityConfigProperties.getSso().isAutoLaunch();
 
@@ -162,11 +168,20 @@ public class AweWebSecurityConfig {
 			httpSecurity.addFilterBefore(multiTenantFilter, BasicAuthenticationFilter.class);
 		}
 
+		// Local login policy wiring. The decorated manager is used by exactly three entry points and never by the shared
+		// authentication manager bean, so internal flows such as re-authentication are not affected. The entry points are
+		// the JSON login filter of the login action, the standard form login and the REST authentication endpoint of the
+		// REST module. For the standard form login the decorated manager is the parent of the HttpSecurity builder manager,
+		// which asks its own providers first and the parent only afterwards: no provider registered in that builder may
+		// support username and password tokens, or it would answer first and skip the policy. The OAuth2 providers do not
+		// support them, and a test guards this.
+		httpSecurity.getSharedObject(AuthenticationManagerBuilder.class).parentAuthenticationManager(localLoginAuthenticationManager);
+
 		// Configure authorization rules
 		configureAuthorization(httpSecurity, ssoEnabled, autoLaunch);
 
 		// Configure an authentication mechanism
-		configureTraditionalAuthentication(httpSecurity);
+		configureTraditionalAuthentication(httpSecurity, localLoginAuthenticationManager);
 
 		// Configure form login only if NOT using auto-launch SSO
 		if (!autoLaunch) {
@@ -238,10 +253,11 @@ public class AweWebSecurityConfig {
 	/**
 	 * Configure traditional form-based authentication
 	 */
-	private void configureTraditionalAuthentication(HttpSecurity http) throws Exception {
+	private void configureTraditionalAuthentication(HttpSecurity http, AuthenticationManager localLoginAuthenticationManager) throws Exception {
 		// Add a filter to parse login parameters
-		http.addFilterAt(jsonAuthenticationFilter(baseConfigProperties, elements, actionService, objectMapper),
-				UsernamePasswordAuthenticationFilter.class);
+		JsonAuthenticationFilter jsonFilter = jsonAuthenticationFilter(baseConfigProperties, elements, actionService, objectMapper);
+		jsonFilter.setAuthenticationManager(localLoginAuthenticationManager);
+		http.addFilterAt(jsonFilter, UsernamePasswordAuthenticationFilter.class);
 
 		// Security context repository (to adapt for spring security 6)
 		http.securityContext(httpSecuritySecurityContextConfigurer ->
@@ -326,6 +342,7 @@ public class AweWebSecurityConfig {
 	}
 
 	@Bean
+	@Primary
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
@@ -417,6 +434,8 @@ public class AweWebSecurityConfig {
 		authenticationFilter.setUsernameParameter(baseConfigProperties.getParameter().getUsername());
 		authenticationFilter.setPasswordParameter(baseConfigProperties.getParameter().getPassword());
 		authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
+			// A pending expired password change never survives into a login
+			clearPasswordChange(request);
 			initRequest(request, objectMapper);
 			response.getWriter().write(objectMapper.writeValueAsString(actionService.launchAction("afterLogin")));
 		});
@@ -424,7 +443,13 @@ public class AweWebSecurityConfig {
 			initRequest(request, objectMapper);
 			String username = context.getBean(AweRequest.class).getParameterAsString(baseConfigProperties.getParameter().getUsername());
 			response.setHeader("Content-Type", "application/json; charset=UTF-8");
-			response.getWriter().write(objectMapper.writeValueAsString(actionService.launchError("afterLogin", getCredentialsException(authenticationException, username))));
+			List<ClientAction> actions = actionService.launchError("afterLogin", getCredentialsException(authenticationException, username));
+			// Any failed attempt discards the pending change; an expired password stores a new one
+			clearPasswordChange(request);
+			if (authenticationException instanceof CredentialsExpiredException) {
+				actions = addPasswordChangeStep(actions, request, username);
+			}
+			response.getWriter().write(objectMapper.writeValueAsString(actions));
 		});
 		authenticationFilter.setSecurityContextRepository(securityContextRepository());
 
@@ -442,10 +467,35 @@ public class AweWebSecurityConfig {
 		}
 	}
 
+	/**
+	 * The password has been verified and is expired: the user can set a new one, but gets no authenticated session.
+	 * The change is allowed through a short-lived request of the HTTP session bound to the user
+	 */
+	private List<ClientAction> addPasswordChangeStep(List<ClientAction> errorActions, HttpServletRequest request, String username) {
+		PasswordChangeService passwordChangeService = context.getBeanProvider(PasswordChangeService.class).getIfAvailable();
+		if (passwordChangeService == null || !passwordChangeService.allowPasswordChange(request, username)) {
+			return errorActions;
+		}
+		// The screen action replaces the cancel of the error answer, which would discard it
+		List<ClientAction> actions = new ArrayList<>(errorActions);
+		actions.removeIf(action -> "cancel".equals(action.getType()));
+		actions.add(passwordChangeService.getPasswordChangeScreenAction());
+		return actions;
+	}
+
+	private void clearPasswordChange(HttpServletRequest request) {
+		PasswordChangeService passwordChangeService = context.getBeanProvider(PasswordChangeService.class).getIfAvailable();
+		if (passwordChangeService != null) {
+			passwordChangeService.clearPasswordChange(request.getSession(false));
+		}
+	}
+
 	private AWException getCredentialsException(AuthenticationException authenticationException, String username) {
 		AWException exc;
 		if (authenticationException instanceof UsernameNotFoundException) {
 			exc = new AWException(elements.getLocale("ERROR_TITLE_INVALID_USER"), elements.getLocale("ERROR_MESSAGE_INVALID_USER", username), authenticationException);
+		} else if (authenticationException instanceof CredentialsExpiredException) {
+			exc = new AWException(elements.getLocale("ERROR_TITLE_EXPIRED_PASSWORD"), elements.getLocale("ERROR_MESSAGE_EXPIRED_PASSWORD"), authenticationException);
 		} else if (authenticationException instanceof BadCredentialsException) {
 			exc = new AWException(elements.getLocale("ERROR_TITLE_INVALID_CREDENTIALS"), elements.getLocale("ERROR_MESSAGE_INVALID_CREDENTIALS", username), authenticationException);
 		} else {

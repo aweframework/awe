@@ -76,6 +76,24 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
   });
 
+  it("guides to the public screen that changes an expired password, and back to the sign in after the change", () => {
+    jest.spyOn($utilities, "sameUrl").mockReturnValue(false);
+    jest.spyOn($utilities, "getState").mockReturnValue({to: "base.screen", parameters: {}});
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    // The server answers a login with an expired password with this action (no token: there is no session)
+    const changeAction = action({context: "screen", parameters: {screen: "change-expired-password"}, target: undefined});
+    $screen.screen(changeAction);
+    expect($utilities.getState).toHaveBeenLastCalledWith("/screen/change-expired-password", false);
+    expect($actionController.acceptAction).toHaveBeenCalledWith(changeAction);
+
+    // After the password change the server sends the user back to the sign in screen
+    const signinAction = action({context: undefined, parameters: {connectionToken: "abc"}, target: "/"});
+    $screen.screen(signinAction);
+    expect($utilities.getState).toHaveBeenLastCalledWith("/", false);
+    expect($actionController.acceptAction).toHaveBeenCalledWith(signinAction);
+  });
+
   it("reloads current screen only when same URL reload is enabled", () => {
     jest.spyOn($utilities, "sameUrl").mockReturnValue(true);
     jest.spyOn($settings, "get").mockImplementation((key) => key === "reloadCurrentScreen");

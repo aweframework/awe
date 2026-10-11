@@ -83,6 +83,25 @@ class UserCredentialDefinitionsTest extends AbstractSpringAppIntegrationTest {
 
   @Test
   @WithAnonymousUser
+  void anonymousExpiredPasswordUpdateIsRejectedAndKeepsThePassword() throws Exception {
+    launchMaintain("ChdPwdExpiredUpdate", null, "{\"Usr\":\"" + OTHER_USER + "\",\"Pas\":\"" + NEW_PASSWORD + "\"}")
+      .andExpect(status().isUnauthorized());
+
+    assertThat(readCredentials(OTHER_USER).sameAs(otherUserCredentials)).isTrue();
+  }
+
+  @Test
+  @WithMockUser(username = SIGNED_IN_USER, password = SIGNED_IN_USER, roles = {"ADMIN", "USER"})
+  void signedInUserCannotDriveTheExpiredPasswordUpdateOfAnotherUser() throws Exception {
+    // The update of an expired password is only meant for the server-side change request: the user is never a parameter
+    launchMaintain("ChdPwdExpiredUpdate", signedInSession(), "{\"Usr\":\"" + OTHER_USER + "\",\"Pas\":\"" + NEW_PASSWORD + "\"}");
+
+    assertThat(readCredentials(OTHER_USER).sameAs(otherUserCredentials)).isTrue();
+    assertThat(readCredentials(SIGNED_IN_USER).sameAs(signedInUserCredentials)).isTrue();
+  }
+
+  @Test
+  @WithAnonymousUser
   void publicChangePasswordWithAWrongCurrentPasswordKeepsThePassword() throws Exception {
     setPassword(OTHER_USER, OLD_PASSWORD);
     StoredCredentials before = readCredentials(OTHER_USER);

@@ -32,13 +32,27 @@
           <tag type="span" label="SCREEN_TITLE_LOGIN"/>
         </tag>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" id="cod_usr" validation="required" size="lg"
-                  icon="user signin-form-icon" style="no-label"/>
+                  icon="user signin-form-icon" style="no-label">
+          <dependency target-type="hide" initial="true" type="and">
+            <dependency-element id="local-login" condition="eq" value="false"/>
+            <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+          </dependency>
+        </criteria>
         <criteria placeholder="SCREEN_TEXT_PASS" component="password" id="pwd_usr" validation="required" size="lg"
-                  icon="key signin-form-icon" style="no-label"/>
+                  icon="key signin-form-icon" style="no-label">
+          <dependency target-type="hide" initial="true" type="and">
+            <dependency-element id="local-login" condition="eq" value="false"/>
+            <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+          </dependency>
+        </criteria>
         <tag type="div" style="signin-with">
           <tag type="div" style="form-actions">
             <button button-type="submit" label="BUTTON_LOGIN" style="no-class btn btn-awe btn-primary signin-btn bg-primary"
                     icon="sign-in" id="ButLogIn">
+              <dependency target-type="hide" initial="true" type="and">
+                <dependency-element id="local-login" condition="eq" value="false"/>
+                <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+              </dependency>
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>
             </button>
@@ -75,5 +89,7 @@
   <tag source="hidden">
     <criteria id="azure-enabled" component="text" property="awe.security.sso.enable-azure-button"/>
     <criteria id="sso-enabled" component="text" property="awe.security.sso.enable-generic-sso-button"/>
+    <criteria id="local-login" component="text" property="awe.security.sso.local-login"/>
+    <criteria id="sso-master-enabled" component="text" property="awe.security.sso.enabled"/>
   </tag>
 </screen>

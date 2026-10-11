@@ -3,6 +3,7 @@ package com.almis.awe.rest.autoconfigure;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.rest.autoconfigure.config.AweRestConfigProperties;
 import com.almis.awe.rest.autoconfigure.config.JWTProperties;
 import com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode;
@@ -17,6 +18,7 @@ import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +57,8 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
   // Autowire services
   private final AuthenticationManager authenticationManager;
+  // Applies the local login policy (awe.security.sso.local-login). Used only by /api/authenticate
+  private final AuthenticationManager localLoginAuthenticationManager;
   private final UserDetailsService userDetailsService;
   private final ObjectMapper objectMapper;
   private final AweRestConfigProperties restConfigProperties;
@@ -64,6 +68,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
   @Autowired
   public RestSecurityConfiguration(PublicQueryMaintainAuthorization publicQueryMaintainAuthorization,
                                    AuthenticationManager authenticationManager,
+                                   @Qualifier("localLoginAuthenticationManager") AuthenticationManager localLoginAuthenticationManager,
                                    UserDetailsService userDetailsService,
                                    ObjectMapper objectMapper,
                                    AweRestConfigProperties restConfigProperties,
@@ -71,6 +76,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
                                    SecurityConfigProperties securityConfigProperties) {
     this.publicQueryMaintainAuthorization = publicQueryMaintainAuthorization;
     this.authenticationManager = authenticationManager;
+    this.localLoginAuthenticationManager = localLoginAuthenticationManager;
     this.userDetailsService = userDetailsService;
     this.objectMapper = objectMapper;
     this.restConfigProperties = restConfigProperties;
@@ -127,7 +133,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
   }
 
   private void configureLocalJwtMode(HttpSecurity httpSecurity) {
-    httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.addFilterBefore(new JWTAuthenticationFilter(localLoginAuthenticationManager, objectMapper, getBean(JWTTokenService.class), getApplicationContext().getBeanProvider(AweElements.class).getIfAvailable()), UsernamePasswordAuthenticationFilter.class);
     httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
   }
 

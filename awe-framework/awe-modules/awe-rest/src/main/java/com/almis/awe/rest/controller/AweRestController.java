@@ -91,7 +91,7 @@ public class AweRestController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Success. Authorized OK", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
     @ApiResponse(responseCode = "400", description = "Bad request"),
-    @ApiResponse(responseCode = "401", description = "Unauthorized. User not found or invalid credentials"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized. User not found, invalid credentials or expired password (code PASSWORD_EXPIRED: the password has to be changed in the web application)", content = @Content(schema = @Schema(implementation = AweRestResponse.class))),
     @ApiResponse(responseCode = "500", description = "Internal error")})
   public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
     Assert.notNull(loginRequest.getUsername());

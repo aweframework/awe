@@ -150,7 +150,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(0, screenData.get("actions").size());
       assertEquals(0, screenData.get("messages").size());
       ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-      assertEquals(7, screenDataComponents.size());
+      assertEquals(9, screenDataComponents.size());
       assertEquals("signin", screenData.get("screen").get("name").textValue());
 
       // Test all keys

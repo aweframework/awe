@@ -1412,6 +1412,11 @@
       "defaultValue": true
     },
     {
+      "name": "awe.security.sso.break-glass-users",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Emergency (break-glass) users that can still sign in with username and password while {@code awe.security.sso.local-login} is {@code false}, for example when the identity provider is down. Empty by default (nobody). Every use is logged at WARN level. Keep the list short and use strong passwords."
+    },
+    {
       "name": "awe.security.sso.enable-azure-button",
       "type": "java.lang.Boolean",
       "description": "Enable the Azure SSO button. Used in Signin screen",
@@ -1439,6 +1444,12 @@
       "name": "awe.security.sso.filter-authority-prefix",
       "type": "java.lang.String",
       "description": "Used to filtering granted authorities in post authentication process"
+    },
+    {
+      "name": "awe.security.sso.local-login",
+      "type": "java.lang.Boolean",
+      "description": "Allow local (username and password) login when SSO is enabled. Set to {@code false} to make the identity provider the only way to sign in: the login screen hides the local form and the local login endpoints ({@code /action/login} and {@code /api/authenticate}) refuse every user except the ones listed in {@code awe.security.sso.break-glass-users}. It has no effect when SSO is disabled.",
+      "defaultValue": true
     },
     {
       "name": "awe.security.sso.multitenant.default-tenant",

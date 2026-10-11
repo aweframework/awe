@@ -36,6 +36,11 @@
   <service id="logoutMaintain">
     <java classname="com.almis.awe.service.AccessService" method="logoutMaintain" />
   </service>
+  <service id="changeExpiredPassword">
+    <java classname="com.almis.awe.service.user.PasswordChangeService" method="changeExpiredPassword">
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
   <service id="verify2faCode">
     <java classname="com.almis.awe.service.AccessService" method="verify2faCode">
       <service-parameter type="STRING" name="code" />

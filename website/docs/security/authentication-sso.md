@@ -58,6 +58,54 @@ locked in the application. The provider cannot be used to bypass those flags.
 - Password expiration does not apply to SSO logins, since the password is not used. Account expiration is not checked either, because AWE has no account-expiry column.
 - Each rejection is logged as a warning with the user name.
 
+## Switching off local login
+
+By default AWE keeps its own username and password login active when SSO is enabled. To make the identity provider
+the only way in, set:
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.local-login=false
+```
+
+With `awe.security.sso.local-login=false` (default `true`) and SSO enabled:
+
+- The sign-in screen hides the user, password and **Log in** controls in both the AngularJS and the React clients, so
+  only the SSO buttons remain.
+- The three login entry points refuse every user who is not a break-glass user (below): `POST /action/login`,
+  `POST /api/authenticate` and the standard Spring form login. They share one authentication manager that applies
+  the policy. The shared `AuthenticationManager` bean that internal flows use (for example re-authentication) is not
+  affected, and with SSO off or `local-login=true` the login requests reach the real providers unchanged.
+- A refused user gets **exactly the same response as a wrong password** (same status, title and message), so the
+  failure cannot be used to find out which users are break-glass users. A refusal still runs the real authentication
+  with a throw-away password, so it costs about the same as a wrong password, it can never succeed, and it publishes
+  the same bad-credentials failure event for audit or lockout listeners. The real reason is only written to the
+  server log, as a `WARN` line with the user name (sanitized, never the password).
+
+The switch has no effect when SSO is disabled, so it can never lock everybody out of an application without a provider.
+An application can replace the policy by declaring its own `LocalLoginPolicy` bean.
+
+### Break-glass users
+
+If the identity provider is down you still need a way in. List the AWE users that may keep signing in locally:
+
+```properties
+awe.security.sso.local-login=false
+awe.security.sso.break-glass-users=admin
+```
+
+- The list is empty by default: nobody can sign in locally when the switch is off.
+- User names are trimmed and compared **exactly** (case-sensitive). The name that was checked is the name that is
+  authenticated. Several names are separated by commas; spaces and blank entries are ignored.
+- A break-glass user still goes through the normal account checks: a locked or expired account is refused.
+- A break-glass user opens the local sign-in screen at `/screen/public/signin-local` (for example
+  `https://my-app.example.com/screen/public/signin-local`) and signs in with the normal local credentials. The screen is
+  always reachable and only shows the user and password form; showing it grants nothing, because the server still
+  refuses everybody who is not in the list, with the same message as a wrong password.
+- Each break-glass login attempt is logged at `WARN` level with the `[break-glass]` tag and the user name, so you can
+  alert on it. Refusals are logged at `WARN` too, without the tag.
+- Keep the list short, use strong passwords and treat every `[break-glass]` entry in the log as an event to review.
+
 ## Role mapping and profile synchronization
 
 On every SSO login, AWE maps the granted authorities coming from the identity provider to a profile, using

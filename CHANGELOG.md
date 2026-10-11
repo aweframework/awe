@@ -3,8 +3,11 @@
 ✨ Features:
 - Integration tests of MySQL, PostgreSQL, SQL Server and Oracle (and their Flyway variants) run their database in a Testcontainers container, locally and in CI, with the image of each engine pinned in `awe-testing-images.properties` (#764). Docker is the only requirement; no database server or connection settings are needed.
 - `awe-testing` ships `@AweDatabaseTest` and `TestDatabase` to choose the database of a Spring test class.
+- `awe.security.sso.local-login` (default `true`) switches off the local username and password login when SSO is enabled, and `awe.security.sso.break-glass-users` lists the users that can still sign in locally in an emergency from `/screen/public/signin-local`; each use is logged at `WARN`. The sign-in screens of both clients hide the local form, and the three login entry points (`/action/login`, `/api/authenticate`, standard form login) refuse the other users with the same response as a wrong password (#767).
+- A user whose password expired (`PwdExp`) is guided from the login to set a new one in both web engines, without getting a session with the expired password, and then signs in with the new password. The expired-password message is localized (en-GB, es-ES, fr-FR) and `POST /api/authenticate` answers `401` with a localized message and the code `PASSWORD_EXPIRED` (#849).
 
 **[HAS IMPACTS]** Changed:
+- A password set by an administrator counts as expired while `PwdExp` is set, so the user changes it at the first login (#849).
 - Password change and user information definitions now require a session (#852). The `ChdPwd` maintain target changes the password of the logged in user only; the public change-password screens (`ChdPwdPub`, `change-password`) use the new public `ChdPwdPub` target, which changes the password only when the current password (`OldPas`) matches. The `UsrInf`, `AutUsr`, `GetEmlSrvByOpe` and `JmsConnections` queries and the `UpdCntLog` and `UpdPwdLck` maintain targets are no longer public, and `UsrInf` and `AutUsr` no longer return password fields. Applications that launched any of them without a session must sign the user in first (or use `ChdPwdPub` with the current password).
 
 **[HAS IMPACTS]** Removed:

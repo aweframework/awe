@@ -22,10 +22,24 @@
 
         <!-- Right side -->
         <tag type="div" style="signin-form">
-          <criteria label="SCREEN_TEXT_USER" placeholder="SCREEN_TEXT_INSERT_USER" component="text" id="cod_usr" validation="required"/>
-          <criteria label="SCREEN_TEXT_PASS" placeholder="SCREEN_TEXT_INSERT_PASS" component="password" id="pwd_usr" validation="required"/>
+          <criteria label="SCREEN_TEXT_USER" placeholder="SCREEN_TEXT_INSERT_USER" component="text" id="cod_usr" validation="required">
+            <dependency target-type="hide" initial="true" type="and">
+              <dependency-element id="local-login" condition="eq" value="false"/>
+              <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+            </dependency>
+          </criteria>
+          <criteria label="SCREEN_TEXT_PASS" placeholder="SCREEN_TEXT_INSERT_PASS" component="password" id="pwd_usr" validation="required">
+            <dependency target-type="hide" initial="true" type="and">
+              <dependency-element id="local-login" condition="eq" value="false"/>
+              <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+            </dependency>
+          </criteria>
           <tag style="p-2 mt-5">
             <button button-type="submit" label="BUTTON_LOGIN" id="ButLogIn" style="m-0 col-12">
+              <dependency target-type="hide" initial="true" type="and">
+                <dependency-element id="local-login" condition="eq" value="false"/>
+                <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+              </dependency>
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>
             </button>
@@ -54,5 +68,7 @@
   <tag source="hidden">
     <criteria id="azure-enabled" component="text" property="awe.security.sso.enable-azure-button"/>
     <criteria id="sso-enabled" component="text" property="awe.security.sso.enable-generic-sso-button"/>
+    <criteria id="local-login" component="text" property="awe.security.sso.local-login"/>
+    <criteria id="sso-master-enabled" component="text" property="awe.security.sso.enabled"/>
   </tag>
 </screen>

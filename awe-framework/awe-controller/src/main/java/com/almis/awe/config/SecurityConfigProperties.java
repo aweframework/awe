@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "awe.security")
@@ -108,6 +109,19 @@ public class SecurityConfigProperties {
      * redirect the user to the OAuth authorization url, to log in with OAuth
      */
     private boolean autoLaunch = false;
+    /**
+     * Allow local (username and password) login when SSO is enabled. Set to {@code false} to make the identity
+     * provider the only way to sign in: the login screen hides the local form and the local login endpoints
+     * ({@code /action/login} and {@code /api/authenticate}) refuse every user except the ones listed in
+     * {@code awe.security.sso.break-glass-users}. It has no effect when SSO is disabled.
+     */
+    private boolean localLogin = true;
+    /**
+     * Emergency (break-glass) users that can still sign in with username and password while
+     * {@code awe.security.sso.local-login} is {@code false}, for example when the identity provider is down.
+     * Empty by default (nobody). Every use is logged at WARN level. Keep the list short and use strong passwords.
+     */
+    private List<String> breakGlassUsers = new ArrayList<>();
     /**
      * Used to filtering granted authorities in post authentication process
      */
