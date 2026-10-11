@@ -120,6 +120,19 @@ class AweElementsTest {
   }
 
   /**
+   * A language that is not configured (e.g. a user whose language is not in the language list) must not break the
+   * localized messages: the default language is used
+   */
+  @Test
+  void unknownLanguageFallsBackToTheDefaultLanguage() {
+    baseConfigProperties.setLanguageDefault(LANGUAGE);
+
+    assertEquals("Module one value", aweElements.getLocaleWithLanguage("SHARED_KEY", "ENG"));
+    assertEquals("Module one value", aweElements.getLocaleWithLanguage("SHARED_KEY", null));
+    assertEquals("UNKNOWN_KEY", aweElements.getLocaleWithLanguage("UNKNOWN_KEY", "ENG"));
+  }
+
+  /**
    * Test that reloading locales discards poisoned entries and preserves merge semantics
    */
   @Test

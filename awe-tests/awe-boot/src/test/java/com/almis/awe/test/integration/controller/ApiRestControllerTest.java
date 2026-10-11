@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Class used for testing /api rest controller
@@ -115,6 +116,39 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
       assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("User not found or not active", Objects.requireNonNull(response.getBody()).getMessage());
+    }
+
+    @Test
+    void authenticateWithExpiredPassword_unauthorizedWithLocalizedMessageAndCode() {
+      // The test user never changed the password and PwdExp is set: the password is expired
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
+      LoginRequest loginRequest = new LoginRequest()
+        .setUsername("jaimito")
+        .setPassword("test");
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
+        HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+      AweRestResponse body = Objects.requireNonNull(response.getBody());
+      assertEquals(AnswerType.ERROR, body.getType());
+      assertEquals("Your password has expired. Set a new password to continue.", body.getMessage());
+      assertEquals("PASSWORD_EXPIRED", body.getCode());
+    }
+
+    @Test
+    void authenticateWithBadCredentials_hasNoErrorCode() {
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
+      LoginRequest loginRequest = new LoginRequest()
+        .setUsername("jaimito")
+        .setPassword("dummy");
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
+        HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+      assertEquals("Bad credentials", Objects.requireNonNull(response.getBody()).getMessage());
+      assertNull(response.getBody().getCode());
     }
 
     // Queries

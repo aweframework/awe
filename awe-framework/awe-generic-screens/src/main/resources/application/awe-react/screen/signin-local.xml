@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : signin-local.xml
+    Description: Local (username and password) login screen. It is always available at /screen/public/signin-local,
+                 also when awe.security.sso.local-login=false hides the local form of the main sign-in screen. Showing
+                 it grants nothing: the server only lets break-glass users in (awe.security.sso.break-glass-users).
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="SCREEN_TITLE_LOGIN"
+        help="HELP_SCREEN_TITLE_LOGIN">
+  <tag source="center">
+    <tag type="div" id="page-signin" style="expand grid m-0">
+      <tag type="div" style="awe-signin signin-container align-self-center shadow-3">
+
+        <!-- Left side -->
+        <tag type="div" style="signin-info">
+          <tag type="h1">
+            <tag type="span" label="APP_CLIENT"/>
+          </tag>
+        </tag>
+        <!-- / Left side -->
+
+        <!-- Right side -->
+        <tag type="div" style="signin-form">
+          <criteria label="SCREEN_TEXT_USER" placeholder="SCREEN_TEXT_INSERT_USER" component="text" id="cod_usr" validation="required"/>
+          <criteria label="SCREEN_TEXT_PASS" placeholder="SCREEN_TEXT_INSERT_PASS" component="password" id="pwd_usr" validation="required"/>
+          <tag style="p-2 mt-5">
+            <button button-type="submit" label="BUTTON_LOGIN" id="ButLogIn" style="m-0 col-12">
+              <button-action type="validate"/>
+              <button-action type="server" server-action="login"/>
+            </button>
+          </tag>
+        </tag>
+        <!-- Right side -->
+      </tag>
+    </tag>
+  </tag>
+</screen>

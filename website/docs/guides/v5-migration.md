@@ -54,7 +54,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Charts (React engine) | Charts are empty with an AWE 4 server, a series has a different color, 3D charts are flat, `.highcharts-*` CSS rules do nothing, or a custom component that imports Highcharts does not build. | Review the server log for `Highcharts chart-parameter` warnings, set colors and fonts in the XML, and declare Highcharts yourself if your own code imports it. | [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5), [React client upgrade](react-client-upgrade.md#charts-use-apache-echarts) (MR !854, !855, !856) |
 | Browser tests | The compiler warns that `By` overloads and `getDriver()` are deprecated; tests depend on the order of the classes. | Move custom steps to the `Locator` overloads and to `getBrowser()`; set up the session in each test with `ensureLoggedIn`/`ensureModule`. To try Playwright, set `awe.test.tool=playwright`. Nothing is removed before 6.0. | [Selenium test guide](selenium-test-guide.md#api-compatibility-of-awe-testing), [independent test classes](selenium-test-guide.md#independent-test-classes), [Custom steps without Selenium types](selenium-test-guide.md#custom-steps-without-selenium-types) (MR !840, !841) |
 | `jsoup` dependency | `org.jsoup:jsoup` is no longer on the classpath of `awe-model` and is no longer managed by the `awe-dependencies` BOM. | If your own code uses jsoup, declare the dependency and its version in your `pom.xml`. No action otherwise. See the note below the table. | MR !849 |
-| Password expiration (`PwdExp`) | The application sets the `PwdExp` parameter. After the upgrade, users whose last password change is older than `PwdExp` days are rejected as expired (they used to get in), and users who changed it recently can log in again (they used to be rejected). | Nothing for correct data: the check is no longer inverted (see the note below the table). Review the users that never changed the password and the value of `PwdExp`. | [Password expiration](../security/authentication.md#password-expiration-local-login), issue #846 |
+| Password expiration (`PwdExp`) | The application sets the `PwdExp` parameter. After the upgrade, users whose last password change is older than `PwdExp` days are told that the password has expired (they used to get in) and have to set a new one, and users who changed it recently can log in again (they used to be rejected). | Nothing for correct data: the check is no longer inverted and the login guides the user to change the password (see the note below the table). Review the users that never changed the password and the value of `PwdExp`. | [Password expiration](../security/authentication.md#password-expiration-local-login), issue #846 |
 | Menu JSON | The menu payload is smaller. | Nothing, unless a custom client reads `elementList` from a menu `Option`: read `options` instead. See the note below the table. | MR !792 |
 | SSO login of disabled or locked users | A user that is disabled or locked in AWE could log in through the identity provider; now the SSO login is refused with an error page. | Nothing, unless you relied on it: enable the user in AWE instead. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
 | SSO handler beans | Your own code calls `AweWebSecurityConfig.authSuccessHandler()` (it now takes the `AweOauth2AuthenticationFailureHandler` bean as a parameter), or builds `AweOauth2AuthenticationSuccessHandler` with one argument (deprecated for removal). | Pass the failure handler: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Handler beans of your own are now honoured by the SSO login. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
@@ -92,11 +92,23 @@ What to do:
   To avoid locking many users out at once, review the password change dates before the upgrade and raise `PwdExp`
   (or deactivate it) for a transition period, until users have changed their passwords through the change-password
   option. A password set by an administrator in the users screen does not help here: it leaves the change date empty,
-  which counts as expired while `PwdExp` is set (see below). The login screen has no guided password change yet.
+  which counts as expired while `PwdExp` is set (see below). Users do not need an administrator: the login guides them
+  to set a new password (see below).
 - **Rolling back to AWE 4** after users changed their passwords brings the inverted check back: users with a recent
   change are rejected again. Deactivate `PwdExp` before rolling back.
-- **Users that never changed the password** (empty date) are still rejected as expired when `PwdExp` is set, as before.
-  This includes users whose password an administrator set in the users screen.
+- **Users that never changed the password** (empty date) are still expired when `PwdExp` is set, as before. This
+  includes users whose password an administrator set in the users screen: they have to change it at the first login
+  (documented decision, issue #849).
+- **Expired passwords can be changed from the login** (issue #849). The user gets a localized message (the message used
+  to be Spring's English text under the invalid credentials title) and is taken to the public
+  `change-expired-password` screen in both web engines, then signs in with the new password. The user never gets a
+  session with the expired password. `POST /api/authenticate` answers `401` with a localized message and the code
+  `PASSWORD_EXPIRED`; REST clients cannot change the password and have to use the web application. See
+  [Password expiration](../security/authentication.md#password-expiration-local-login).
+- **The `ChdPwd` maintain target is no longer public.** It could be called without a session to change the password of
+  any user. It now needs a session and changes the password of the logged in user only. A custom screen that relied on
+  the anonymous call has to use `ChdPwdExpired` (expired passwords) or sign in first. An application that replaces the
+  whole `public` menu has to add the `change-expired-password` option.
 - **Test data:** an integration test that logs in with a user whose password date is old needs a `PwdExp` value larger than the age of that password (the AWE test apps use 36500 days).
 
 ### Scheduler migration `SCHEDULER_V1.0.5`

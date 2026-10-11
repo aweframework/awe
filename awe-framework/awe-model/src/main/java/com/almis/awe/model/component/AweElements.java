@@ -958,10 +958,15 @@ public class AweElements {
    */
   public String getLocaleWithLanguage(String localeIdentifier, String language) {
     String locale = localeIdentifier;
-    Map<String, String> locales = localeList.get(language);
+    Map<String, String> locales = language == null ? null : localeList.get(language);
+
+    // A language that is not configured (e.g. the language of a user) falls back to the default language
+    if (locales == null) {
+      locales = localeList.get(baseConfigProperties.getLanguageDefault());
+    }
 
     // Check if locale exists, and retrieve it
-    if (localeIdentifier != null && locales.containsKey(localeIdentifier)) {
+    if (localeIdentifier != null && locales != null && locales.containsKey(localeIdentifier)) {
       locale = locales.get(localeIdentifier);
     }
 

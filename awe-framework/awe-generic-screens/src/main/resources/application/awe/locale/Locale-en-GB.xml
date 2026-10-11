@@ -408,6 +408,7 @@
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="There has been an error calling the method {1} in class {0}"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="There has been a problem trying to initialize the instance of the class"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="There has been a problem executing {0} query."/>
+  <locale name="ERROR_MESSAGE_EXPIRED_PASSWORD" value="Your password has expired. Set a new password to continue."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="There has been a problem exporting the file"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Error trying to process expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="There was a problem trying to open the file: {0}"/>
@@ -473,6 +474,9 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="Maintain operation -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Malformed query, using a variable list in a field: {0}"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="The password change is not available or has expired. Sign in again to change the password."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="The new password does not meet the password policy. Sign in again to set a new password."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="The new password must be different from the expired one. Sign in again to set a new password."/>
   <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Your user is disabled in the application. Contact your system administrator."/>
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Your user is locked in the application. Contact your system administrator."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="SUBSTRING operation requires 2 or 3 operands (source, beginIndex) or (source, beginIndex, endIndex), but got {0}"/>
@@ -599,6 +603,7 @@
   <locale name="ERROR_TITLE_ERROR_CALLING_METHOD" value="Error calling method"/>
   <locale name="ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY" value="Error executing service query"/>
   <locale name="ERROR_TITLE_ERROR_INITIALIZING_INSTANCE" value="Error initializing instance"/>
+  <locale name="ERROR_TITLE_EXPIRED_PASSWORD" value="Password expired"/>
   <locale name="ERROR_TITLE_EXPORTING_FILE" value="Error exporting file"/>
   <locale name="ERROR_TITLE_EXPRESSION_EVALUATION" value="Expression evaluation error"/>
   <locale name="ERROR_TITLE_FILE_ACCESS" value="Error trying to open the file"/>
@@ -680,6 +685,7 @@
   <locale name="ERROR_TITLE_PARSING_RESULTSET" value="Error parsing resultset"/>
   <locale name="ERROR_TITLE_PARSING_SERVICE_DATA" value="Error parsing service data"/>
   <locale name="ERROR_TITLE_PARSING_TEXT" value="Error parsing text"/>
+  <locale name="ERROR_TITLE_PASSWORD_CHANGE" value="Password change"/>
   <locale name="ERROR_TITLE_PATH_NOT_FOUND" value="Missing folder {0} or incorrect permission to access"/>
   <locale name="ERROR_TITLE_PRINTING_SCREEN" value="The document couldn&apos;t be printed"/>
   <locale name="ERROR_TITLE_QUEUE_CONNECTION_FAILED" value="Queue connection failed"/>
@@ -782,6 +788,7 @@
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Send a broadcast message. If you let the &apos;User&apos; criterion empty, the message is sent to all connected users in the application"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Calendar management"/>
   <locale name="HELP_SCREEN_TITLE_CAL_VIW" value="View calendar"/>
+  <locale name="HELP_SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Set a new password"/>
   <locale name="HELP_SCREEN_TITLE_CHD_PWD" value="Change password"/>
   <locale name="HELP_SCREEN_TITLE_COM" value="Commands management"/>
   <locale name="HELP_SCREEN_TITLE_COM_UPD" value="Update command"/>
@@ -922,6 +929,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="All caches have been cleared sucessfully"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="-{0}-  cache has been cleared sucessfully"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="An email has been sent"/>
+  <locale name="OK_MESSAGE_EXPIRED_PASSWORD_CHANGED" value="Password changed. Sign in with the new password."/>
   <locale name="OK_MESSAGE_GENERATING_DOCUMENT" value="Document has been successfully generated"/>
   <locale name="OK_MESSAGE_LAUNCHING_BATCH" value="Batch process has been launched successfully. You will be redirected to process status screen to watch process status."/>
   <locale name="OK_MESSAGE_LOCAL_UPDATED" value="The localee -{0}- has been updated sucessfully"/>
@@ -932,6 +940,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="The localee -{0}- has been deleted sucessfully"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Cache cleared"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Email sent successfully"/>
+  <locale name="OK_TITLE_EXPIRED_PASSWORD_CHANGED" value="Password changed"/>
   <locale name="OK_TITLE_GENERATING_DOCUMENT" value="Document generated successfully"/>
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch launched successfully"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operation successful"/>
@@ -1161,6 +1170,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Add a localee identifier"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendar"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Added dates"/>
+  <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Your password has expired. Set a new one to sign in."/>
   <locale name="SCREEN_TEXT_CHANGE_PWD" value="Change password"/>
   <locale name="SCREEN_TEXT_CONFIGURATION" value="Configuration"/>
   <locale name="SCREEN_TEXT_CRITERIA" value="Criteria"/>
@@ -1222,6 +1232,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_BROADCAST" value="Broadcasting"/>
   <locale name="SCREEN_TITLE_CAL" value="Calendar management"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="View calendar"/>
+  <locale name="SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Expired password"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Change password"/>
   <locale name="SCREEN_TITLE_CHECK_2FA" value="Two-factor authentication check"/>
   <locale name="SCREEN_TITLE_COM" value="Commands management"/>

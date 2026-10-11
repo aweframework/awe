@@ -215,6 +215,33 @@
     </update>
   </target>
 
+  <!-- Change the expired password of the user who verified it at the login (no session: see PasswordChangeService) -->
+  <target name="ChdPwdExpired" public="true">
+    <serve service="changeExpiredPassword">
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Stores the new password of an expired one. Not public, and the user is never a request parameter (any signed in user can launch a
+       target): PasswordChangeService sets the session parameter expiredPasswordUser only while it launches this target -->
+  <target name="ChdPwdExpiredUpdate">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <field id="OpePas" variable="OpePas"/>
+      <field id="l1_psd" variable="SysDat"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="expiredPasswordUser"/>
+      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
+      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
+  </target>
+
   <target name="UsrDel">
     <delete multiple="true">
       <table id="ope"/>

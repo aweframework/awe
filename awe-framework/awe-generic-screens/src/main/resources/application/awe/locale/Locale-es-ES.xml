@@ -411,6 +411,7 @@
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="La ejecución del método {1} de la clase {0} ha ocasionado un problema"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Ha habido un problema tratando de generar una instancia de la clase"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Ha habido un problema ejecutando la consulta {0}."/>
+  <locale name="ERROR_MESSAGE_EXPIRED_PASSWORD" value="Su contraseña ha caducado. Establezca una nueva contraseña para continuar."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Ha habido un error exportando el archivo"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Ha habido un error tratando de evaluar la expresión:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Ha habido un problema tratando de acceder al fichero: {0}"/>
@@ -476,6 +477,9 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="La operación de mantenimiento -{0}- no ha sido definida"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Query mal formada, se está utilizando una variable de lista como campo: {0}"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="El cambio de contraseña no está disponible o ha caducado. Inicie sesión de nuevo para cambiar la contraseña."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="La nueva contraseña no cumple la política de contraseñas. Inicie sesión de nuevo para establecer una nueva contraseña."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="La nueva contraseña debe ser distinta de la caducada. Inicie sesión de nuevo para establecer una nueva contraseña."/>
   <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Tu usuario está desactivado en la aplicación. Contacta con el administrador del sistema."/>
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Tu usuario está bloqueado en la aplicación. Contacta con el administrador del sistema."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="La operación SUBSTRING requiere 2 o 3 operandos (fuente, beginIndex) o (fuente, beginIndex, endIndex), pero se recibieron {0}"/>
@@ -602,6 +606,7 @@
   <locale name="ERROR_TITLE_ERROR_CALLING_METHOD" value="Error de llamada al método"/>
   <locale name="ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY" value="Error ejecutando servicio de consulta"/>
   <locale name="ERROR_TITLE_ERROR_INITIALIZING_INSTANCE" value="Error generando instancia"/>
+  <locale name="ERROR_TITLE_EXPIRED_PASSWORD" value="Contraseña caducada"/>
   <locale name="ERROR_TITLE_EXPORTING_FILE" value="Error exportando archivo"/>
   <locale name="ERROR_TITLE_EXPRESSION_EVALUATION" value="Error evaluando expresión"/>
   <locale name="ERROR_TITLE_FILE_ACCESS" value="Error accediendo al fichero"/>
@@ -683,6 +688,7 @@
   <locale name="ERROR_TITLE_PARSING_RESULTSET" value="Error generando los resultados"/>
   <locale name="ERROR_TITLE_PARSING_SERVICE_DATA" value="Error generando los resultados del servicio"/>
   <locale name="ERROR_TITLE_PARSING_TEXT" value="Error traduciendo el texto"/>
+  <locale name="ERROR_TITLE_PASSWORD_CHANGE" value="Cambio de contraseña"/>
   <locale name="ERROR_TITLE_PATH_NOT_FOUND" value="El directorio {0} no existe o no tiene permisos de lectura"/>
   <locale name="ERROR_TITLE_PRINTING_SCREEN" value="Error al tratar de imprimir el documento"/>
   <locale name="ERROR_TITLE_QUEUE_CONNECTION_FAILED" value="Conexión fallida"/>
@@ -785,6 +791,7 @@
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Gestión de calendarios"/>
   <locale name="HELP_SCREEN_TITLE_CAL_VIW" value="Consulta de calendario"/>
+  <locale name="HELP_SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Establecer una nueva contraseña"/>
   <locale name="HELP_SCREEN_TITLE_CHD_PWD" value="Cambio de contraseña"/>
   <locale name="HELP_SCREEN_TITLE_COM" value="Gestión de comandos"/>
   <locale name="HELP_SCREEN_TITLE_COM_UPD" value="Modificación de comando"/>
@@ -925,6 +932,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="Se han borrado todas las caches correctamente"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="Se ha borrado la cache -{0}- correctamente"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="Se ha enviado un correo electrónico"/>
+  <locale name="OK_MESSAGE_EXPIRED_PASSWORD_CHANGED" value="Contraseña cambiada. Inicie sesión con la nueva contraseña."/>
   <locale name="OK_MESSAGE_GENERATING_DOCUMENT" value="Se ha generado el documento solicitado correctamente"/>
   <locale name="OK_MESSAGE_LAUNCHING_BATCH" value="El batch ha sido lanzado correctamente. Se redireccionará a la pantalla de procesos para ver el estado del proceso."/>
   <locale name="OK_MESSAGE_LOCAL_UPDATED" value="El literal -{0}- se ha actualizado correctamente"/>
@@ -935,6 +943,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="El literal -{0}- se ha eliminado correctamente"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Borrado de cache"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Correo enviado correctamente"/>
+  <locale name="OK_TITLE_EXPIRED_PASSWORD_CHANGED" value="Contraseña cambiada"/>
   <locale name="OK_TITLE_GENERATING_DOCUMENT" value="Documento generado correctamente"/>
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch lanzado correctamente"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operación realizada correctamente"/>
@@ -1164,6 +1173,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Añadir un identificador de literal"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendario"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Fechas añadidas"/>
+  <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Su contraseña ha caducado. Establezca una nueva para iniciar sesión."/>
   <locale name="SCREEN_TEXT_CHANGE_PWD" value="Cambio de contraseña"/>
   <locale name="SCREEN_TEXT_CONFIGURATION" value="Configuración"/>
   <locale name="SCREEN_TEXT_CRITERIA" value="Criterios"/>
@@ -1225,6 +1235,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="SCREEN_TITLE_CAL" value="Gestión de calendarios"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="Consulta de calendario"/>
+  <locale name="SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Contraseña caducada"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Cambio de contraseña"/>
   <locale name="SCREEN_TITLE_CHECK_2FA" value="Comprobación del segundo factor de autenticación"/>
   <locale name="SCREEN_TITLE_COM" value="Gestión de comandos"/>

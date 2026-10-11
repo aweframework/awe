@@ -408,6 +408,7 @@
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="L&apos;exécution de la méthode {1} dans la classe {0} a causé un problème"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Probleme a l&apos;instantiation d&apos;une classe"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}."/>
+  <locale name="ERROR_MESSAGE_EXPIRED_PASSWORD" value="Votre mot de passe a expiré. Définissez un nouveau mot de passe pour continuer."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Il y a eu un problème d&apos;exportation du fichier"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Erreur lors de la tentative de traitement de l&apos;expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Il y avait un problème d&apos;accès au fichier: {0}"/>
@@ -473,6 +474,9 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="L&apos;utilisateur {0} n&apos;existe pas ou est désactivé dans le LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="L&apos;operation de maintenance -{0}- n&apos;a pas ete definie"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Requête mal formée, utilisant une liste de variables dans un champ: {0}"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="Le changement de mot de passe n&apos;est pas disponible ou a expiré. Connectez-vous à nouveau pour changer le mot de passe."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="Le nouveau mot de passe ne respecte pas la politique des mots de passe. Connectez-vous à nouveau pour définir un nouveau mot de passe."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="Le nouveau mot de passe doit être différent de celui qui a expiré. Connectez-vous à nouveau pour définir un nouveau mot de passe."/>
   <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Votre utilisateur est désactivé dans l&apos;application. Contactez votre administrateur système."/>
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Votre utilisateur est verrouillé dans l&apos;application. Contactez votre administrateur système."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="L'opération SUBSTRING nécessite 2 ou 3 opérandes (source, beginIndex) ou (source, beginIndex, endIndex), mais {0} ont été fournis"/>
@@ -599,6 +603,7 @@
   <locale name="ERROR_TITLE_ERROR_CALLING_METHOD" value="Erreur dans l&apos;appel de la methode"/>
   <locale name="ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY" value="Erreur dans l&apos;exécution de la requête"/>
   <locale name="ERROR_TITLE_ERROR_INITIALIZING_INSTANCE" value="Erreur dans la generation d&apos;instance"/>
+  <locale name="ERROR_TITLE_EXPIRED_PASSWORD" value="Mot de passe expiré"/>
   <locale name="ERROR_TITLE_EXPORTING_FILE" value="Erreur lors de l&apos;exportation du fichier"/>
   <locale name="ERROR_TITLE_EXPRESSION_EVALUATION" value="Erreur d&apos;évaluation de l&apos;expression"/>
   <locale name="ERROR_TITLE_FILE_ACCESS" value="Erreur d&apos;acces au fichier"/>
@@ -680,6 +685,7 @@
   <locale name="ERROR_TITLE_PARSING_RESPONSE_MESSAGE" value="Erreur d&apos;analyser du message reçu"/>
   <locale name="ERROR_TITLE_PARSING_RESULTSET" value="Erreur generant un resultat"/>
   <locale name="ERROR_TITLE_PARSING_SERVICE_DATA" value="Erreur generant un resultat d&apos;une service"/>
+  <locale name="ERROR_TITLE_PASSWORD_CHANGE" value="Changement de mot de passe"/>
   <locale name="ERROR_TITLE_PATH_NOT_FOUND" value="Répertoire {0} n&apos;existe pas ou n&apos;est pas lisible"/>
   <locale name="ERROR_TITLE_PRINTING_SCREEN" value="Erreur lorsque vous essayez d&apos;imprimer le document"/>
   <locale name="ERROR_TITLE_QUEUE_CONNECTION_FAILED" value="Échec de la connexion"/>
@@ -782,6 +788,7 @@
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Gestión de calendriers"/>
   <locale name="HELP_SCREEN_TITLE_CAL_VIW" value="Consultation de calendrier"/>
+  <locale name="HELP_SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Définir un nouveau mot de passe"/>
   <locale name="HELP_SCREEN_TITLE_CHD_PWD" value="Changement de mot de passe"/>
   <locale name="HELP_SCREEN_TITLE_COM" value="Gestion des commandes"/>
   <locale name="HELP_SCREEN_TITLE_COM_UPD" value="Modification de commande"/>
@@ -922,6 +929,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="Se han borrado todas las caches correctamente"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="La cache -{0}- a ete correctement effacee"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="Mail envoye"/>
+  <locale name="OK_MESSAGE_EXPIRED_PASSWORD_CHANGED" value="Mot de passe modifié. Connectez-vous avec le nouveau mot de passe."/>
   <locale name="OK_MESSAGE_GENERATING_DOCUMENT" value="Document demande correctement genere"/>
   <locale name="OK_MESSAGE_LAUNCHING_BATCH" value="Batch lance correctement. Redirectionne a l&apos;ecran des process pour voir l&apos;etat des process."/>
   <locale name="OK_MESSAGE_LOCAL_UPDATED" value="Le localee -{0}- a été mis à jour avec succès"/>
@@ -932,6 +940,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="Le localee -{0}, a été supprimée avec succès"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Effacement de la memoire cache"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Mail envoye correctement"/>
+  <locale name="OK_TITLE_EXPIRED_PASSWORD_CHANGED" value="Mot de passe modifié"/>
   <locale name="OK_TITLE_GENERATING_DOCUMENT" value="Document genere correctement"/>
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch lance correctement"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Deal correctement realisée"/>
@@ -1161,6 +1170,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Ajouter un identificateur de paramètres régionaux"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendrier"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Les Dates d&apos;ajout"/>
+  <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Votre mot de passe a expiré. Définissez-en un nouveau pour vous connecter."/>
   <locale name="SCREEN_TEXT_CHANGE_PWD" value="Changement de mot de passe"/>
   <locale name="SCREEN_TEXT_CONFIGURATION" value="Configuration"/>
   <locale name="SCREEN_TEXT_CRITERIA" value="Criteres"/>
@@ -1222,6 +1232,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="SCREEN_TITLE_CAL" value="Gestión de calendriers"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="Consultation de calendrier"/>
+  <locale name="SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Mot de passe expiré"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Changement de mot de passe"/>
   <locale name="SCREEN_TITLE_CHECK_2FA" value="Vérification de l&amp;#39;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_COM" value="Gestion des commandes"/>

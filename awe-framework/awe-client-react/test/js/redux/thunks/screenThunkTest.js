@@ -174,6 +174,22 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(nav.payload.target).toBe('/a/b/d');
     });
 
+    it('guia a la pantalla publica de cambio de contraseña caducada y despues vuelve al login', () => {
+      // Respuesta del login con la contraseña caducada: no hay token porque no hay sesion
+      const change = { context: 'screen', parameters: { screen: 'change-expired-password' } };
+      screenThunks.screenAction(change, '/')(dispatch, () => ({ settings: {} }));
+      const [nav, accept] = dispatch.mock.calls.map(a => a[0]);
+      expect(nav.type).toBe('NAVIGATE_TO');
+      expect(nav.payload.target).toBe('/screen/change-expired-password');
+      expect(accept.type).toBe('ACCEPT_ACTION');
+
+      // Tras el cambio el servidor devuelve al usuario al login
+      dispatch.mockClear();
+      const signin = { parameters: { connectionToken: 'abc' }, target: '/' };
+      screenThunks.screenAction(signin, '/screen/change-expired-password')(dispatch, () => ({ settings: {} }));
+      expect(dispatch.mock.calls[0][0].payload.target).toBe('/');
+    });
+
     it('actualiza token si viene en parámetros', () => {
       const action = { parameters: { token: 'TKN', screen: '/home' }, target: '/home' };
       screenThunks.screenAction(action, '/old')(dispatch, () => ({ settings: {} }));

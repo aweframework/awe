@@ -153,21 +153,39 @@ awe.security.sso.overwrite-profile-with-default-role=false
 ```
 
 :::warning Auto-launch is not a switch for local login
-`awe.security.sso.auto-launch=true` only skips the native login screen. The local login endpoint
+`awe.security.sso.auto-launch=true` only skips the native login screen. By default the local login endpoint
 (`POST /action/login`, `JsonAuthenticationFilter`) and the configured authentication provider
-(`awe.security.auth-mode`: database, LDAP, in-memory or custom) stay registered and active while SSO is enabled.
-Today, an account that has a local password can still sign in without the provider.
+(`awe.security.auth-mode`: database, LDAP, in-memory or custom) stay registered and active while SSO is enabled, so an
+account that has a local password can still sign in without the provider. Use the local-login switch below to close it.
 :::
 
-Until the planned switch exists, reduce the local path by not provisioning local passwords for SSO users and by
-restricting network access to `/action/login` where your infrastructure allows it.
+### Local login switch and break-glass users
+
+Since AWE 5, `awe.security.sso.local-login=false` turns the local login path off when SSO is enabled (default `true`,
+which keeps the previous behaviour). Details and examples are in
+[Single sign-on](authentication-sso.md#switching-off-local-login).
+
+```properties title="IdP-first with an emergency way in"
+awe.security.sso.enabled=true
+awe.security.sso.local-login=false
+# Optional. Empty by default: nobody can sign in locally.
+awe.security.sso.break-glass-users=admin
+```
+
+| Aspect | Behaviour |
+| --- | --- |
+| Scope | Only applies when `awe.security.sso.enabled=true`; ignored otherwise. |
+| Local paths | The three login entry points (`POST /action/login`, `POST /api/authenticate` and the standard form login) share one authentication manager that applies the policy. Only break-glass users get through. The shared `AuthenticationManager` bean used by internal flows is not decorated. |
+| What a refused user sees | The same response as a wrong password, at about the same cost (a real authentication with a throw-away password runs), plus the same bad-credentials failure event. Which users are break-glass users cannot be found out from the outside. |
+| Sign-in screen | Both clients hide the user, password and log-in button; SSO buttons remain. A break-glass user opens `/screen/public/signin-local`. |
+| Break-glass users | The user names in `awe.security.sso.break-glass-users`, trimmed and matched exactly (case-sensitive). Off by default (empty list). They authenticate with their normal local credentials and profile; locked or expired accounts are still refused. |
+| Audit | Each break-glass login attempt is logged at `WARN` with the `[break-glass]` tag and the sanitized user name; refusals are logged at `WARN` without the tag. Passwords and tokens are never logged. |
+| What it does not cover | OIDC login, the REST `oauth2-resource-server` mode and any authentication the application adds outside the AWE authentication manager. |
 
 ### Planned in AWE 5
 
 | Item | Intent |
 | --- | --- |
-| Local-login switch | A property (proposed name `awe.security.sso.local-login`, default `true` to preserve current behaviour) that disables the local login path when SSO is active. |
-| Break-glass admin | An optional local administrator that can still sign in when the local path is disabled; off by default. |
 | Back-channel logout | OIDC back-channel logout plus a session registry, so provider-side revocation ends AWE sessions. |
 | Configurable roles claim | Reading the roles from a configurable claim so Entra ID works directly, in addition to Keycloak brokering. Includes deterministic profile selection when several roles match. |
 | Fail-closed role mapping | In IdP-first, deny the login when no role maps; the default-role fallback becomes opt-in. |
@@ -178,7 +196,7 @@ restricting network access to `/action/login` where your infrastructure allows i
 | Risk | Recommendation |
 | --- | --- |
 | Open AWE sessions survive IdP revocation until expiry. | Use a short session timeout; adopt back-channel logout when available. |
-| Local login stays active under SSO. | Do not keep local passwords for SSO users; adopt the local-login switch when available and treat the break-glass admin as a monitored exception. |
+| Local login stays active under SSO (default). | Set `awe.security.sso.local-login=false` and treat every break-glass login in the log as a monitored exception. |
 | Default role can grant access to users with no role. | Keep `awe.application.default-role` **unprivileged** (never an administrative profile); prefer fail-closed mapping when available. |
 | Ambiguous mapping when several roles carry the prefix. | Send a single prefixed role per user; do not rely on the order. |
 | Client secrets in configuration files. | Inject them from environment variables or a secret vault; if you use `ENC(...)` encrypted properties, replace the default `awe.security.master-key`. Never commit secrets. |

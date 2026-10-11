@@ -2,15 +2,19 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.*;
 import com.almis.awe.security.accessbean.LoginAccessControl;
+import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.service.*;
 import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
 import com.almis.awe.service.totp.ZxingQrPngGenerator;
 import com.almis.awe.service.user.AweUserDetailService;
+import com.almis.awe.service.user.PasswordChangeService;
 import com.almis.awe.session.AweSessionDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +27,7 @@ import java.time.Clock;
 import java.util.Objects;
 
 @Configuration
+@AutoConfigureAfter(AuthenticationConfig.class)
 @Slf4j
 @EnableConfigurationProperties({SecurityConfigProperties.class, TotpConfigProperties.class})
 public class SecurityConfig extends ServiceConfig {
@@ -104,6 +109,24 @@ public class SecurityConfig extends ServiceConfig {
 																		 UserDetailsService userDetailsService,
 																		 MaintainService maintainService) {
     return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties, (AweUserDetailService) userDetailsService, maintainService);
+  }
+
+  /**
+   * Password change service for users whose password has expired
+   *
+   * @param securityConfigProperties Security config properties
+   * @param userDetailsService       AWE user details
+   * @param maintainService          Maintain service
+   * @return PasswordChangeService bean (only when AWE's user details service is in use; otherwise the expired password
+   * login answers with the localized message only)
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnBean(AweUserDetailService.class)
+  public PasswordChangeService passwordChangeService(SecurityConfigProperties securityConfigProperties,
+                                                     AweUserDetailService userDetailsService,
+                                                     MaintainService maintainService) {
+    return new PasswordChangeService(securityConfigProperties, userDetailsService, maintainService, new Ripemd160PasswordEncoder());
   }
 
   /**
