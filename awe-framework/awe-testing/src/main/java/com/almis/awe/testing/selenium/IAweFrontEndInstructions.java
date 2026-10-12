@@ -935,6 +935,132 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the button of the paginator that goes to the next page of a grid
+   *
+   * @return Next page button selector
+   */
+  default By getGridPageNext() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGE_NEXT));
+  }
+
+  /**
+   * Get the text of the paginator of a grid that tells the range of rows shown and the total
+   *
+   * @return Paginator information selector
+   */
+  default By getGridPaginationInfo() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGINATION_INFO));
+  }
+
+  /**
+   * Get the empty state that a grid without rows shows
+   *
+   * @return Empty state selector
+   */
+  default By getGridEmpty() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY));
+  }
+
+  /**
+   * Get the title of the empty state of a grid
+   *
+   * @return Empty state title selector
+   */
+  default By getGridEmptyTitle() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_TITLE));
+  }
+
+  /**
+   * Get the text of the empty state of a grid
+   *
+   * @return Empty state text selector
+   */
+  default By getGridEmptyText() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_TEXT));
+  }
+
+  /**
+   * Get the button that the empty state of a grid offers
+   *
+   * @return Empty state action selector
+   */
+  default By getGridEmptyAction() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_ACTION));
+  }
+
+  /**
+   * Get an option of the radio of a cell of a grid (a radio or a button-radio column), the element the user clicks to
+   * choose it. Every option of the list of the column is one element of the cell and carries its value as
+   * {@code option-id}
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   * @return Option selector
+   */
+  default By getGridRadioOption(String gridId, String rowId, String columnId, String optionId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + "[option-id='" + optionId + "']");
+  }
+
+  /**
+   * Get the radio input of a cell of a grid in a given state. By default the state is the native one ({@code checked});
+   * a client that renders it in another way overrides it
+   *
+   * @param gridId    Grid identifier
+   * @param rowId     Row identifier
+   * @param columnId  Column identifier
+   * @param optionId  Value of the option, or null for any option of the cell
+   * @param isChecked True for the radio that is checked, false for the one that is not
+   * @return Radio selector
+   */
+  default By getGridRadioChecked(String gridId, String rowId, String columnId, String optionId, boolean isChecked) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " " + TestIds.css(TestIds.CRITERION_INPUT)
+      + (optionId == null ? "" : "[value='" + optionId + "']") + (isChecked ? ":checked" : ":not(:checked)"));
+  }
+
+  /**
+   * Get the input of the radio of a cell of a grid, the element that has the focus when the user moves the choice of
+   * its cell with the arrow keys. It is the same for a radio column and a button-radio column; the first one is the
+   * first option
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Radio input selector
+   */
+  default By getGridRadioInput(String gridId, String rowId, String columnId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " input[type='radio']");
+  }
+
+  /**
+   * Get a cell of a grid (or the content it renders) that has a style class, as the query assigns it to the cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cssClass Style class
+   * @return Cell selector
+   */
+  default By getGridCellWithClass(String gridId, String rowId, String columnId, String cssClass) {
+    String cell = String.format("//*[@grid-id=%1$s or @tree-grid-id=%1$s]//*[%2$s and @row-id=%3$s]//*[%4$s and @column-id=%5$s]",
+      XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_ROW), XpathLiterals.of(rowId), TestIds.xpath(TestIds.GRID_CELL),
+      XpathLiterals.of(columnId));
+    return By.xpath(cell + "/descendant-or-self::*[contains(concat(' ', normalize-space(@class), ' '), "
+      + XpathLiterals.of(" " + cssClass + " ") + ")]");
+  }
+
+  /**
+   * Get the panel of an open dialog, the element that has the size of the dialog. By default it is the dialog itself
+   *
+   * @param dialogId Dialog identifier
+   * @return Dialog panel selector
+   */
+  default By getDialogPanel(String dialogId) {
+    return getOpenDialog(dialogId);
+  }
+
+  /**
    * Get the icon that a column of a grid shows for a row
    *
    * @param gridId   Grid identifier

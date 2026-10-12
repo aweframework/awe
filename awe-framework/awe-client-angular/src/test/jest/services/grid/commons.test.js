@@ -1134,6 +1134,16 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     // Component select column
     testVisibleValue(component, row, column, undefined, "select", {value: 21, label: "tutu"}, "tutu");
 
+    // Component radio and button-radio columns: the label of the chosen option comes from the cell component, as
+    // in a select column, because the cell only stores the chosen value
+    ["radio", "button-radio"].forEach(function (radioComponent) {
+      column.type = undefined;
+      column.component = radioComponent;
+      row["value"] = "B";
+      component.getApi = () => ({getVisibleValue: () => "Option B"});
+      expect(component.getVisibleData({component: "componentId", row: 4, column: "value"}, row, column)).toEqual("Option B");
+    });
+
     // Component suggest column
     testVisibleValue(component, row, column, undefined, "suggest", {value: 21, label: "tutu"}, "tutu");
 

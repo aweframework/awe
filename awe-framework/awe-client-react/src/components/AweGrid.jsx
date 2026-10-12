@@ -5,7 +5,9 @@ import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
 import {getGridIdentifier, getWidthStyle, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
+import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
+import "./AweGridThemeClasses.less";
 import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
@@ -14,16 +16,21 @@ import {ProgressSpinner} from "primereact/progressspinner";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
+import {useTranslation} from "react-i18next";
+
+const PAGINATOR_TEMPLATE = "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport";
 
 function AweGrid(props) {
   const { id } = props;
   const dispatch = useDispatch();
+  const {t} = useTranslation();
   const [rowsPerPageOptions, setRowsPerPageOptions] = useState([]);
 
   const {
     address,
     attributes,
     model,
+    modelLoaded,
     specificAttributes,
     settings,
     editRow,
@@ -163,10 +170,11 @@ function AweGrid(props) {
       footerColumnGroup={footerTemplate()}
       rowClassName={rowClassName}
       dataKey="id"
-      emptyMessage={""}
+      emptyMessage={loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />}
       paginator lazy={!loadAll}
       loading={loading}
-      paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
+      paginatorTemplate={disablePagination ? "" : PAGINATOR_TEMPLATE}
+      currentPageReportTemplate={`${t("SCREEN_TEXT_GRID_VIEW")} {first} - {last} ${t("SCREEN_TEXT_GRID_OF")} {totalRecords}`}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={onPage}
       paginatorRight={<span>&nbsp;</span>} totalRecords={records} rowsPerPageOptions={rowsPerPageOptions}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"

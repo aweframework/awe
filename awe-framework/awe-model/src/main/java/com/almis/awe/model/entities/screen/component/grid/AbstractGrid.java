@@ -167,6 +167,26 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private String rowHeight;
 
+  // Empty state icon
+  @XStreamAlias("empty-icon")
+  @XStreamAsAttribute
+  private String emptyIcon;
+
+  // Empty state title (locale)
+  @XStreamAlias("empty-title")
+  @XStreamAsAttribute
+  private String emptyTitle;
+
+  // Empty state text (locale)
+  @XStreamAlias("empty-text")
+  @XStreamAsAttribute
+  private String emptyText;
+
+  // Empty state action (identifier of a button of the grid)
+  @XStreamAlias("empty-action")
+  @XStreamAsAttribute
+  private String emptyAction;
+
   /**
    * Retrieve component tag
    *

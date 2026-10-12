@@ -810,6 +810,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
                 case "suggest":
                 case "select-multiple":
                 case "suggest-multiple":
+                case "radio":
+                case "button-radio":
                 case "progress":
                 case "numeric":
                   if (component.getApi) {

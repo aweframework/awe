@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdEmptyTst.xml
+    Description: Grid whose query returns no rows, with a configured empty state and an action that clears the search
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_EMPTY">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_EMPTY" expandible="vertical">
+      <tag type="div" style="panel-body">
+        <criteria label="PARAMETER_TEXT" id="EmptySearch" component="text" value="zzz" style="col-xs-12 col-sm-6"/>
+      </tag>
+      <grid id="GrdEmptyTst" style="expand" initial-load="query" server-action="data" target-action="EmptyGridTst" max="30" load-all="true"
+            empty-icon="search" empty-title="GRID_EMPTY_TITLE_TST" empty-text="GRID_EMPTY_TEXT_TST" empty-action="ButEmptyClear">
+        <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+        <column label="COLUMN_RADIO_THEME" name="name" align="left" charlength="30"/>
+        <button id="ButEmptyClear" label="BUTTON_EMPTY_CLEAR" icon="eraser">
+          <button-action type="value" target="EmptySearch" value="cleared"/>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

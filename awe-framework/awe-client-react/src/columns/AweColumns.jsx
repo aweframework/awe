@@ -4,6 +4,8 @@ import ColumnText from "./ColumnText";
 import ColumnSelect from "./ColumnSelect";
 import ColumnStaticCheckbox from "./ColumnStaticCheckbox";
 import ColumnCheckbox from "./ColumnCheckbox";
+import ColumnRadio from "./ColumnRadio";
+import ColumnButtonRadio from "./ColumnButtonRadio";
 import ColumnNumeric from "./ColumnNumeric";
 import ColumnStaticSelect from "./ColumnStaticSelect";
 import ColumnStaticNumeric from "./ColumnStaticNumeric";
@@ -30,6 +32,8 @@ export const Static = {
   "icon": ColumnIcon,
   "image": ColumnImage,
   "checkbox": ColumnStaticCheckbox,
+  "radio": ColumnRadio,
+  "button-radio": ColumnButtonRadio,
   "button": ColumnButton,
   "uploader": ColumnStaticUploader,
   "color": ColumnStaticColor,
@@ -53,6 +57,8 @@ export const Editor = {
   "suggest-multiple": ColumnSuggestMultiple,
   "numeric": ColumnNumeric,
   "checkbox": ColumnCheckbox,
+  "radio": ColumnRadio,
+  "button-radio": ColumnButtonRadio,
   "button": ColumnButton,
   "uploader": ColumnUploader,
   "color": ColumnColor,

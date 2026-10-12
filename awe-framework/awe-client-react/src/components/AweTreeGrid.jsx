@@ -5,6 +5,7 @@ import {generateServerAction} from "../utilities";
 import {getWidthStyle, OperationType} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
+import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweTreeGrid.less";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
@@ -31,6 +32,7 @@ function AweTreeGrid(props) {
     address,
     attributes,
     model,
+    modelLoaded,
     specificAttributes,
     settings,
     saveRow,
@@ -207,7 +209,7 @@ function AweTreeGrid(props) {
       paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
-      emptyMessage={""}
+      emptyMessage={loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
       loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}

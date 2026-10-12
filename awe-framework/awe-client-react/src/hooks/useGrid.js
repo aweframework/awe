@@ -23,6 +23,9 @@ import {
 } from "../utilities/testPassThrough";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 
+// Model of a grid whose data has not arrived yet
+const EMPTY_MODEL = Object.freeze({ values: [] });
+
 function mapContextMenu(contextMenu, props) {
   const { t, addActionsTop, address, components } = props;
   return (contextMenu || [])
@@ -49,7 +52,10 @@ export function useGrid(id) {
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { attributes = {}, model = { values: [] }, specificAttributes = {} } = useComponentState(id);
+  const { attributes = {}, model: stateModel, specificAttributes = {} } = useComponentState(id);
+  const model = stateModel ?? EMPTY_MODEL;
+  // The model only exists once the data of the component has arrived
+  const modelLoaded = stateModel !== undefined;
   const settings = useSelector(state => state.settings || {});
   const components = useAllComponents();
   const cmRef = useRef(null);
@@ -261,6 +267,7 @@ export function useGrid(id) {
     address,
     attributes,
     model,
+    modelLoaded,
     specificAttributes,
     settings,
     components,
@@ -291,6 +298,7 @@ export function useGrid(id) {
     address,
     attributes,
     model,
+    modelLoaded,
     specificAttributes,
     settings,
     components,

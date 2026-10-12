@@ -9,12 +9,12 @@ import com.almis.awe.scheduler.dao.ServerDAO;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyEncryptionContext;
 import org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyPairResourceWriter;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.command.AbstractCommandSupport;
 import org.apache.sshd.server.command.CommandFactory;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.time.Duration;
@@ -62,6 +63,13 @@ class SshCommandExecutorTest {
   // Well beyond the ~2MB default SSH channel window so the drain ordering actually matters.
   private static final int LARGE_OUTPUT_BYTES = 4 * 1024 * 1024;
 
+  /**
+   * Host key shared by every embedded server in this class. Letting each test's server generate its own
+   * nistp521 key on the first handshake took 1-11 s on slow CI runners (and, counted against the 10 s
+   * connect/auth timeout, made the suite flaky), so a fast P-256 key is generated once.
+   */
+  private static final KeyPairProvider HOST_KEYS = KeyPairProvider.wrap(generateHostKey());
+
   @Mock
   private ServerDAO serverDAO;
 
@@ -78,7 +86,7 @@ class SshCommandExecutorTest {
   void startEmbeddedServer() throws IOException {
     sshServer = SshServer.setUpDefaultServer();
     sshServer.setPort(0);
-    sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(tempDir.resolve("host-key.ser")));
+    sshServer.setKeyPairProvider(HOST_KEYS);
     sshServer.setPasswordAuthenticator((username, password, session) -> TEST_USER.equals(username) && TEST_PASSWORD.equals(password));
     sshServer.setCommandFactory(scriptedCommandFactory());
     sshServer.start();
@@ -575,6 +583,16 @@ class SshCommandExecutorTest {
         exit = 1;
       }
       onExit(exit);
+    }
+  }
+
+  private static KeyPair generateHostKey() {
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+      generator.initialize(256);
+      return generator.generateKeyPair();
+    } catch (GeneralSecurityException exc) {
+      throw new IllegalStateException("Cannot generate the test SSH host key", exc);
     }
   }
 }

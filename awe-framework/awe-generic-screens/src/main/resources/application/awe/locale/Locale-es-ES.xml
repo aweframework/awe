@@ -1188,6 +1188,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_DATE" value="Fecha del sistema"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filtros"/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="No hay registros que mostrar. Prueba a cambiar los criterios de búsqueda."/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="No se han encontrado registros"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="Primero"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Último"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Siguiente"/>

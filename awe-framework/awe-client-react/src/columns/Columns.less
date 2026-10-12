@@ -40,3 +40,90 @@
     }
   }
 }
+
+// Radio column: the options of the cell in a row, the checked one is always the solid primary colour with a white dot,
+// also under the pointer
+.column-radio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 14px;
+
+  .column-radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .column-radio-label {
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .p-radiobutton {
+    width: 20px;
+    height: 20px;
+
+    .p-radiobutton-box {
+      width: 20px;
+      height: 20px;
+    }
+
+    &.p-highlight .p-radiobutton-box,
+    &.p-highlight:not(.p-disabled):has(.p-radiobutton-input:hover) .p-radiobutton-box {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+
+      .p-radiobutton-icon {
+        width: 10px;
+        height: 10px;
+        background-color: var(--surface-a, #fff);
+      }
+    }
+  }
+}
+
+// Button radio column: the options of the cell are one joined bar of buttons (the segmented control of the
+// button-radio criterion): adjacent buttons share their borders and only the ends of the bar are rounded
+.column-button-radio {
+  display: inline-flex;
+  max-width: 100%;
+
+  .p-button {
+    flex: 0 1 auto;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0;
+    border-radius: 0;
+    white-space: nowrap;
+
+    &:first-child {
+      border-top-left-radius: var(--border-radius, 6px);
+      border-bottom-left-radius: var(--border-radius, 6px);
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--border-radius, 6px);
+      border-bottom-right-radius: var(--border-radius, 6px);
+    }
+
+    // The border between two joined buttons is drawn once
+    &:not(:first-child) {
+      border-left-width: 0;
+    }
+
+    &:focus-within {
+      z-index: 1;
+      box-shadow: 0 0 0 0.2rem var(--primary-200, rgba(0, 123, 255, 0.35));
+    }
+
+    &.p-disabled {
+      cursor: default;
+    }
+  }
+
+  &.p-invalid .p-button {
+    border-color: var(--red-500);
+  }
+}

@@ -278,6 +278,17 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getContextMenu", i::getContextMenu);
     catalog.put("getContextMenuMask", i::getContextMenuMask);
     catalog.put("getGridPageSize", i::getGridPageSize);
+    catalog.put("getGridPaginationInfo", i::getGridPaginationInfo);
+    catalog.put("getGridPageNext", i::getGridPageNext);
+    catalog.put("getGridEmpty", i::getGridEmpty);
+    catalog.put("getGridEmptyTitle", i::getGridEmptyTitle);
+    catalog.put("getGridEmptyText", i::getGridEmptyText);
+    catalog.put("getGridEmptyAction", i::getGridEmptyAction);
+    catalog.put("getGridRadioChecked", () -> i.getGridRadioChecked(GRID, ROW, COLUMN, "B", true));
+    catalog.put("getGridRadioOption", () -> i.getGridRadioOption(GRID, ROW, COLUMN, "B"));
+    catalog.put("getGridRadioInput", () -> i.getGridRadioInput(GRID, ROW, COLUMN));
+    catalog.put("getGridCellWithClass", () -> i.getGridCellWithClass(GRID, ROW, COLUMN, "scale-seq-1"));
+    catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
     catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
     catalog.put("getGridCells", () -> i.getGridCells(GRID));
     catalog.put("getGridCellsActiveContent", () -> i.getGridCellsActiveContent(GRID));

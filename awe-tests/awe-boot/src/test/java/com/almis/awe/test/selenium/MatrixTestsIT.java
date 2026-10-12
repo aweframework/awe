@@ -388,6 +388,166 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Open a screen of the matrix menu by the name of its option
+   *
+   * @param option Menu option
+   */
+  private void openMatrixOption(String option) {
+    gotoScreen("test", "matrix", option);
+  }
+
+  /**
+   * Paginator test: the range of rows shown and the total. The wide pager of the AngularJS client has no hook for its
+   * page links, so the change of page is checked in the React client only
+   */
+  @Test
+  void t091_gridPaginatorShowsRangeAndTotal() {
+    // Title
+    setTestTitle("Grid paginator: visible range and total");
+
+    // Go to screen
+    openMatrixOption("matrix-test-pager");
+
+    // First page: five rows of eighteen
+    checkRowContentsGrid("GrdPagerTst", "adminflare");
+    checkGridPaginationInfo("View 1 - 5 of 18");
+
+    // The grid has rows, so it does not show its empty state
+    checkGridEmptyStateNotVisible();
+  }
+
+  /**
+   * Radio columns test: a radio column and a button-radio column show the options of their list in every cell
+   */
+  @Test
+  void t092_gridRadioColumnsChooseOneOptionPerCell() {
+    // Title
+    setTestTitle("Grid radio columns: one choice per cell");
+
+    // Go to screen
+    openMatrixOption("matrix-test-radio");
+
+    // The query chooses the option B in one row and nothing in the others
+    checkRowContentsGrid("GrdRadioTst", "adminflare");
+    checkGridRadioChoice("GrdRadioTst", "12", "choice", "B");
+    checkGridRadioNoChoice("GrdRadioTst", "3", "choice");
+    checkGridRadioNoChoice("GrdRadioTst", "3", "mode");
+
+    // Choosing another option of the list replaces the previous choice of the same cell
+    selectGridRadioOption("GrdRadioTst", "12", "choice", "A");
+    checkGridRadioChoice("GrdRadioTst", "12", "choice", "A");
+
+    // The rows are independent: a choice in another row leaves the first row as it was
+    selectGridRadioOption("GrdRadioTst", "3", "choice", "C");
+    checkGridRadioChoice("GrdRadioTst", "3", "choice", "C");
+    checkGridRadioChoice("GrdRadioTst", "12", "choice", "A");
+
+    // The arrow keys move the choice between the options of the cell
+    moveGridRadioChoicePrevious("GrdRadioTst", "3", "choice");
+    checkGridRadioChoice("GrdRadioTst", "3", "choice", "B");
+    moveGridRadioChoiceNext("GrdRadioTst", "3", "choice");
+    checkGridRadioChoice("GrdRadioTst", "3", "choice", "C");
+    checkGridRadioChoice("GrdRadioTst", "12", "choice", "A");
+
+    // The button-radio column is another choice of the row, with the same behaviour
+    selectGridRadioOption("GrdRadioTst", "3", "mode", "2");
+    checkGridRadioChoice("GrdRadioTst", "3", "mode", "2");
+    selectGridRadioOption("GrdRadioTst", "3", "mode", "3");
+    checkGridRadioChoice("GrdRadioTst", "3", "mode", "3");
+    moveGridRadioChoicePrevious("GrdRadioTst", "3", "mode");
+    checkGridRadioChoice("GrdRadioTst", "3", "mode", "2");
+    moveGridRadioChoiceNext("GrdRadioTst", "3", "mode");
+    checkGridRadioChoice("GrdRadioTst", "3", "mode", "3");
+    checkGridRadioNoChoice("GrdRadioTst", "12", "mode");
+    checkGridRadioChoice("GrdRadioTst", "3", "choice", "C");
+
+    // The server receives the chosen value of each column in every row, and nothing for the rows without choice
+    clickButton("ButRadioSend");
+    checkMessageText("success", "12:A/-;3:C/3");
+  }
+
+  /**
+   * Theme class test: the grid without header hides it and keeps the rows, a normal grid shows it
+   */
+  @Test
+  void t093_gridThemeNoHeader() {
+    // Title
+    setTestTitle("Grid theme: no header");
+
+    // The grid with the grid-no-header class keeps its rows but not its header
+    openMatrixOption("matrix-test-no-header");
+    checkRowContentsGrid("GrdNoHeaderTst", "adminflare");
+    checkGridHeaderNotVisible("GrdNoHeaderTst", "name");
+    checkGridFirstRowAtTop("GrdNoHeaderTst", "12", "name");
+
+    // A grid without the class shows it
+    openMatrixOption("matrix-test-radio");
+    checkRowContentsGrid("GrdRadioTst", "adminflare");
+    checkGridHeaderVisible("GrdRadioTst", "name");
+  }
+
+  /**
+   * Theme class test: the cells take the colour scale class that the query assigns
+   */
+  @Test
+  void t094_gridThemeColourScales() {
+    // Title
+    setTestTitle("Grid theme: colour scales");
+
+    // Go to screen
+    openMatrixOption("matrix-test-scale");
+
+    // Every scale paints its cells with the class of the query
+    checkRowContentsGrid("GrdScaleTst", "adminflare");
+    checkCellHasClass("GrdScaleTst", "12", "seq3", "scale-seq-3");
+    checkCellHasClass("GrdScaleTst", "12", "pos5", "scale-pos-5");
+    checkCellHasClass("GrdScaleTst", "12", "neg1", "scale-neg-1");
+  }
+
+  /**
+   * Empty state test: a grid without rows shows its configured empty state, and its action runs the button
+   */
+  @Test
+  void t095_gridEmptyState() {
+    // Title
+    setTestTitle("Grid empty state");
+
+    // Go to screen
+    openMatrixOption("matrix-test-empty");
+
+    // The configured empty state is shown
+    checkGridEmptyState("No themes found", "Clear the search to see the themes again");
+
+    // Its action runs the actions of the button of the grid
+    clickGridEmptyAction();
+    checkCriterionContents("EmptySearch", "cleared");
+  }
+
+  /**
+   * Dialog test: the size classes give the dialog its width
+   */
+  @Test
+  void t096_dialogSizeClasses() {
+    // Title
+    setTestTitle("Dialog size classes");
+
+    // Go to screen
+    openMatrixOption("matrix-test-dialog-size");
+
+    // Small dialog
+    clickButton("ButDlgSmall");
+    checkDialogWidth("DlgSmall", 300);
+    clickButton("ButDlgSmallClose");
+    checkDialogClosed("DlgSmall");
+
+    // Large dialog
+    clickButton("ButDlgLarge");
+    checkDialogWidth("DlgLarge", 900);
+    clickButton("ButDlgLargeClose");
+    checkDialogClosed("DlgLarge");
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

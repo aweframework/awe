@@ -59,6 +59,23 @@ export const templateColumnCheckbox = `<div ng-show="component.controller.visibl
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
+export const templateColumnRadio = `<div ng-show="component.controller.visible" role="radiogroup" ng-attr-aria-label="{{component.controller.label | translateMultiple}}" class="validator column-input criterion column-radio no-animate {{criterionClass}}" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <label class="radio" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" title="{{option.title | translateMultiple}}">
+    <input type="radio" class="px form-control" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-keydown="keyDown($event)" ng-disabled="component.controller.readonly" data-testid="${TestIds.criterionInput}"/>
+    <span class="lbl">{{option.label | translateMultiple}}</span>
+  </label>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
+export const templateColumnButtonRadio = `<div ng-show="component.controller.visible" role="radiogroup" ng-attr-aria-label="{{component.controller.label | translateMultiple}}" class="validator column-input criterion column-button-radio btn-group no-animate {{criterionClass}}" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <label class="btn btn-awe" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'active btn-primary': isChecked(option), 'disabled': component.controller.readonly}" title="{{option.title | translateMultiple}}">
+    <input type="radio" class="form-control px" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-keydown="keyDown($event)" ng-disabled="component.controller.readonly" data-testid="${TestIds.criterionInput}"/>
+    <i></i>
+    <span class="lbl">{{option.label | translateMultiple}}</span>
+  </label>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
 export const templateRadio = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
@@ -89,6 +106,31 @@ aweApplication.factory('CheckboxRadio',
      */
     function (Criterion, Control, Utilities) {
 
+      // Keys that move the choice of a radio column cell, with the step they take
+      const KEY_STEP = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1};
+
+      /**
+       * Move the choice of a cell to its next or previous enabled option and focus it.
+       * The options are the radio inputs of the group the key was pressed in.
+       * @param {Event} event Key down event on one option
+       */
+      function moveChoice(event) {
+        let  step = KEY_STEP[event.key];
+        if (!step) {
+          return;
+        }
+        let  group = event.target.closest ? event.target.closest("[role=radiogroup]") : null;
+        let  options = Array.from(group ? group.querySelectorAll("input[type=radio]") : []).filter((input) => !input.disabled);
+        let  current = options.indexOf(event.target);
+        if (options.length < 2 || current < 0) {
+          return;
+        }
+        event.preventDefault();
+        let  next = options[(current + step + options.length) % options.length];
+        next.focus();
+        next.click();
+      }
+
       /**
        * Button constructor
        * @param {Scope} scope Button scope
@@ -108,6 +150,9 @@ aweApplication.factory('CheckboxRadio',
         };
         this.component.asRadio = function () {
           return checkboxradio.asRadio();
+        };
+        this.component.asColumnRadio = function () {
+          return checkboxradio.asColumnRadio();
         };
         return this.component;
       }
@@ -187,6 +232,79 @@ aweApplication.factory('CheckboxRadio',
           };
 
           // Return initialization
+          return true;
+        },
+        /**
+         * Initialize as grid column radio or button-radio: the options come from the list of the column, like the ones
+         * of a select column, and the selected value is the value of the cell
+         */
+        asColumnRadio: function () {
+          let  component = this.component;
+          if (!component.asCriterion()) {
+            // If criterion is wrong, cancel initialization
+            return false;
+          }
+          component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
+
+          /**
+           * Check if an option is the selected value of the cell
+           * @param {Object} option Option of the list
+           * @return {boolean} The option is the choice of the cell
+           */
+          component.scope.isChecked = function (option) {
+            let  selected = component.model.selected;
+            return !Utilities.isEmpty(selected) && String(selected) === String(option.value);
+          };
+
+          /**
+           * Choose an option: its value is the value of the cell
+           * @param {Object} option Option of the list
+           */
+          component.scope.choose = function (option) {
+            if (component.controller.readonly || component.scope.isChecked(option)) {
+              return;
+            }
+            component.model.selected = option.value;
+            component.modelChange();
+          };
+
+          /**
+           * Move the choice with the arrow keys
+           * @param {Event} event Key down event
+           */
+          component.scope.keyDown = moveChoice;
+
+          /**
+           * Retrieves the label of the selected option as the visible value of the cell
+           * @return {string} Visible value
+           */
+          component.getVisibleValue = function () {
+            let  option = _.find(component.model.values, (item) => component.scope.isChecked(item));
+            return option ? String(option.label) : "";
+          };
+
+          /**
+           * Refresh the name shared by the options of the cell, which is the one of its row, and the visible value
+           */
+          component.updateVisibleValue = function () {
+            let  address = component.address;
+            component.scope.radioName = [address.view, address.component, address.row, address.column].join("-");
+            component.visibleValue = component.getVisibleValue();
+          };
+          component.updateVisibleValue();
+
+          /**
+           * API link to update the model values
+           * @param {Object} data New model data attributes
+           */
+          component.api.updateModelValues = function (data) {
+            let  model = component.model;
+            if (model && "selected" in data) {
+              model.selected = Control.formatDataList(data.selected);
+              component.updateVisibleValue();
+            }
+          };
+
           return true;
         },
         /**

@@ -898,6 +898,26 @@
         <xs:documentation xml:lang="en">Height of each row in pixels. AngularJS grids only (default 27); the React engine ignores it.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="empty-title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title (locale or text) shown in the empty state of the grid. Default: a translated "No records" title</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-text" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Description (locale or text) shown in the empty state of the grid. Default: a translated "No records match the search" text</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown in the empty state of the grid (grid without rows). Default: an inbox icon</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-action" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of a button of the grid. The empty state shows a button with its label and icon that runs the button actions</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -982,7 +1002,7 @@
     </xs:attribute>
     <xs:attribute name="target-action" type="nameEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Query or enumerated that provides the options of the column component.</xs:documentation>
+        <xs:documentation xml:lang="en">Query or enumerated that provides the options of the column component (select, suggest, radio and button-radio columns).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="initial-load" type="initialLoadEnum">
@@ -1868,7 +1888,7 @@
   <!-- Column component attribute values -->
   <xs:simpleType name="columnComponentType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing. link is React only; sparkline is reserved and not implemented by any engine; formatted-text renders sanitized HTML.</xs:documentation>
+      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing; radio and button-radio columns show the options of their list in every cell, like a select column. link is React only; sparkline is reserved and not implemented by any engine; formatted-text renders sanitized HTML.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="text" />
@@ -1885,6 +1905,16 @@
       <xs:enumeration value="textarea" />
       <xs:enumeration value="uploader" />
       <xs:enumeration value="checkbox" />
+      <xs:enumeration value="radio">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Single choice among the options of a list, shown in every cell as a row of radio buttons with their labels. The options come from the list of the column exactly as for a select column (initial-load and target-action, a query or an enumerated with value and label), and the value of the chosen option is the value of the cell: it is sent like the one of a select column, as one value per row. The column is sortable and can be validated (a required column needs a choice in every row). Left and right arrow keys move the choice between the options of the cell. A read-only column cannot be changed.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="button-radio">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Same choice as the radio column, drawn as one joined bar of toggle buttons (a segmented control), like the button-radio criterion: adjacent buttons share their borders and only the ends of the bar are rounded. The options come from the list of the column, as for a select column, and the value of the chosen option is the value of the cell.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="image" />
       <xs:enumeration value="icon" />
       <xs:enumeration value="sparkline" />

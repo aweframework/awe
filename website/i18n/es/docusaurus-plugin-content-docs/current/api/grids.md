@@ -61,6 +61,28 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | row-numbers        | Opcional        | Boolean | Indica si se muestran los números de fila                                                                                                              | El valor predeterminado es `true`                                                                                                                     |
 | row-height             | Opcional        | Entero  | Establece la altura de la fila en píxeles                                                                                                                    |                                                                                                                                                            |
 | validate-on-save       | Opcional        | Boolean | Establezca `false` para evitar validar la fila seleccionada al pulsar el botón `save`                                                                  | El valor predeterminado es `true`                                                                                                                     |
+| empty-icon             | Opcional        | String  | Icono del [estado vacío](#empty-state) del grid                                                                                                        | El valor predeterminado es `inbox`. Consulte [iconos](icons.md)                                                                                       |
+| empty-title            | Opcional        | String  | Título del [estado vacío](#empty-state) del grid                                                                                                       | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un título traducido "No se han encontrado registros"      |
+| empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
+| empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
+
+### Estado vacío {#empty-state}
+
+Un grid sin filas muestra un estado vacío en lugar de una tabla vacía, tanto en el motor AngularJS como en el de React. Se
+compone de un icono, un título y un texto. Los textos por defecto están traducidos; utilice `empty-icon`, `empty-title` y
+`empty-text` para cambiarlos. Mientras el grid se está cargando, no se muestra el estado vacío.
+
+El atributo opcional `empty-action` apunta a un botón del grid (un `button` declarado dentro del grid). El estado vacío
+ofrece un botón con la etiqueta y el icono del botón referenciado, y al hacer clic en él se ejecutan las acciones de ese
+botón, por lo que puede usarse, por ejemplo, para limpiar los criterios de búsqueda.
+
+```xml
+<grid id="UserGrid" server-action="data" target-action="UserList"
+      empty-icon="search" empty-title="GRID_NO_USERS" empty-text="GRID_NO_USERS_HELP" empty-action="ClearSearch">
+  <column label="USER" name="user" />
+  <button id="ClearSearch" label="BUTTON_CLEAR" icon="eraser" button-type="reset" />
+</grid>
+```
 
 
 ## Estructura de columna {#column-structure}
@@ -147,6 +169,8 @@ Tenga en cuenta lo siguiente:
 | select-multiple | Seleccione un componente de columna múltiple. See [select multiple criterion](criteria.md#multiple-select-criterion)  |
 | suggest-multiple     | Sugerir el componente de múltiples columnas. See [suggest multiple criterion](criteria.md#multiple-suggest-criterion) |
 | checkbox              | Componente de columna Checkbox. See [checkbox criterion](criteria.md#checkbox-criterion)                              |
+| radio                 | Componente de columna Radio: las opciones de una lista como una fila de botones de opción. Ver [componente de columna radio](#radio-column-component) |
+| button-radio          | Componente de columna Radio: las opciones de una lista como una barra de botones unidos. Ver [componente de columna radio](#radio-column-component) |
 | color                | Componente de columna de color. Ver el [criterio de color](criteria.md#color-criterion)                              |
 | uploader             | Componente de columna del cargador. Ver el [criterio de carga de archivos](criteria.md#uploader-criterion)                   |
 | text-view       | Componente de columna de vista de texto. Ver el [criterio de vista de texto](criteria.md#text-view-criterion)        |
@@ -169,6 +193,58 @@ Cuando necesite establecer un estilo específico para todas las celdas de una fi
     <variable id="styleClass" type="STRING" value="red"/>
 </query>
 ```
+
+### Clases de tema {#theme-classes}
+
+AWE proporciona clases CSS listas para usar para dos aspectos habituales de un grid. Están disponibles en **ambos motores
+de cliente y en todos los temas**, claros u oscuros, por lo que una aplicación no necesita escribir su propio CSS.
+
+#### Grid sin fila de cabecera {#grid-without-header-row}
+
+Añada la clase `grid-no-header` al `style` del grid. La fila de cabecera se oculta pero sigue participando en la
+disposición de las columnas, de modo que estas mantienen sus anchos (`charlength` y `width`). Es útil para listas compactas.
+
+```xml
+<grid id="GrdCompactList" style="expand grid-no-header" initial-load="query" server-action="data" target-action="CompactList">
+  <column label="Name" name="name" align="left" charlength="30"/>
+  <column label="Description" name="description" align="left" charlength="40"/>
+</grid>
+```
+
+:::note
+La cabecera no está disponible para los lectores de pantalla mientras está oculta, ni tampoco los controles de
+ordenación, filtro y menú de columna de la cabecera. Utilice la clase en grids que no los necesiten.
+:::
+
+#### Celdas coloreadas por escala (mapas de calor) {#colour-scaled-cells-heat-maps}
+
+La consulta asigna una de las siguientes clases a cada celda con el atributo `style` de una
+[celda compuesta](#standard-cell-without-components). Cada clase pinta toda la celda y establece su propio color de texto,
+de modo que el texto mantiene un contraste de al menos 4,5:1 (WCAG AA) en todos los temas.
+
+| Escala                        | Clases                                              | Úsela para                                  |
+|-------------------------------|-----------------------------------------------------|---------------------------------------------|
+| Secuencial (azul)             | `scale-seq-1` (la más baja) a `scale-seq-5` (la más alta) | Valores que van de bajos a altos      |
+| Divergente, positiva (verde)  | `scale-pos-1` (la más baja) a `scale-pos-5` (la más alta) | Valores por encima de la referencia (p. ej. ganancias) |
+| Divergente, negativa (roja)   | `scale-neg-1` (la más baja) a `scale-neg-5` (la más alta) | Valores por debajo de la referencia (p. ej. pérdidas)  |
+
+Por ejemplo, una consulta que colorea el importe en la escala positiva o negativa según su valor:
+
+```xml
+<query id="Results">
+  <table id="Results"/>
+  <field id="Name" alias="name"/>
+  <field id="Amount" alias="amount" noprint="true"/>
+  <compound alias="result">
+    <computed alias="value" format="[amount]"/>
+    <computed alias="label" format="[amount]"/>
+    <computed alias="style" format="[amount] &lt; -50 ? 'scale-neg-5' : [amount] &lt; 0 ? 'scale-neg-2' : [amount] &lt; 50 ? 'scale-pos-2' : 'scale-pos-5'" eval="true"/>
+  </compound>
+</query>
+```
+
+Las aplicaciones de prueba incluyen las pantallas *Grid without header* y *Colour scales* en el menú de la matriz de
+pruebas, con un ejemplo de cada clase.
 
 ### Componentes de columna específicos {#specific-column-components}
 
@@ -255,6 +331,91 @@ Una columna de botón es un componente que permite lanzar un conjunto de `button
 | title    | Texto a mostrar cuando mueve el ratón sobre el botón. Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
 | icon     | Clase de icono para mostrar en el botón. Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)                           |
 | style    | Clase CSS para formatear el contenido                                                                                     |
+
+#### Componente de columna radio {#radio-column-component}
+
+Las columnas `radio` y `button-radio` muestran **todas las opciones de una lista en cada celda** y el usuario elige una
+de ellas. Las opciones salen de la columna igual que en una columna `select`: con `initial-load` y `target-action` (por
+ejemplo un enumerado, `enum`, o una consulta) y cada opción tiene un `value` y un `label`. El valor de la opción elegida
+es el valor de la celda.
+
+```xml
+<enumerated>
+  <group id="LevelOptions">
+    <option label="Low" value="L"/>
+    <option label="Medium" value="M"/>
+    <option label="High" value="H"/>
+  </group>
+</enumerated>
+```
+
+```xml
+<grid id="GrdTheme" style="expand" initial-load="query" server-action="data" target-action="ThemeList" send-all="true">
+  <column label="Theme" name="name" align="left" charlength="30"/>
+  <column label="Level" name="level" component="radio" initial-load="enum" target-action="LevelOptions" align="center" charlength="30"/>
+  <column label="Mode" name="mode" component="button-radio" initial-load="enum" target-action="ModeOptions" align="center" charlength="30"/>
+</grid>
+```
+
+| Atributo      | Descripción                                                                                                                  |
+|---------------|------------------------------------------------------------------------------------------------------------------------------|
+| initial-load  | Cómo se cargan las opciones: `enum` para un enumerado, `query` para una consulta                                              |
+| target-action | Grupo del enumerado o consulta que proporciona las opciones (`value` y `label` de cada una)                                   |
+| label         | Cabecera de la columna. Es también el nombre accesible del grupo de opciones de cada celda                                    |
+| validation    | `required` exige una elección en cada fila                                                                                    |
+| readonly      | Una columna o una celda de solo lectura no se puede cambiar                                                                   |
+
+Para empezar con una elección, la consulta que rellena el grid devuelve el valor de la opción en un campo con el nombre de
+la columna (aquí `level`, con `L`, `M` o `H`). Una fila en la que ese campo está vacío o es nulo empieza sin elección.
+
+La columna se comporta como cualquier otra columna del grid: se puede ordenar, validar, editar e imprimir.
+
+##### Aspecto de `radio` {#radio-look}
+
+Cada opción es un botón de opción seguido de su etiqueta, y las opciones de una celda van en una línea. Cuando la
+columna es estrecha, el motor React las reparte en varias líneas, mientras que el motor AngularJS las mantiene en una y
+oculta lo que no cabe, así que da a la columna anchura suficiente (por ejemplo con `charlength`). El botón marcado tiene el
+color primario del tema.
+
+##### Aspecto de `button-radio` {#button-radio-look}
+
+Las opciones de una celda son **una barra de botones unidos** (un control segmentado), como el
+[criterio botón radio](criteria.md#radio-button-criterion-line): los botones contiguos comparten sus bordes, solo los dos
+extremos de la barra son redondeados y la opción elegida aparece resaltada.
+
+##### Teclado, validación y solo lectura {#keyboard-validation-and-read-only}
+
+| Comportamiento | Descripción                                                                                                                                       |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Teclado        | Las flechas izquierda y derecha mueven la elección entre las opciones de la celda (también las de arriba y abajo) y dan la vuelta en los extremos; `Tab` abandona la celda |
+| Accesibilidad  | Las opciones de una celda son un `radiogroup` etiquetado con la etiqueta de la columna, y los radios de una fila comparten un nombre             |
+| Validación     | Con `validation="required"` una fila sin elección no es válida                                                                                    |
+| Solo lectura   | Una columna o una celda de solo lectura no se puede cambiar                                                                                       |
+
+:::note
+La opción elegida no se desmarca por sí sola, solo al elegir otra.
+:::
+
+##### Datos enviados al servidor {#data-sent-to-the-server}
+
+El grid envía la columna igual que una columna `select`: una lista con un valor por fila (en el mismo orden que las demás
+columnas), la opción elegida de cada fila y `null` para una fila sin elección:
+
+```json
+{
+  "id": [12, 3, 7],
+  "level": ["M", null, "H"],
+  "level.selected": "H"
+}
+```
+
+* `<columna>` contiene el valor elegido de cada fila enviada (todas las filas cuando el grid tiene `send-all`, las
+  seleccionadas en caso contrario).
+* `<columna>.selected` contiene el valor de las filas seleccionadas.
+* `<columna>.editing` contiene el valor de las filas que se están editando, en los grids editables y de multioperación.
+
+El objetivo de mantenimiento lee la lista como una variable con el nombre de la columna
+(`<variable id="level" type="STRING" name="level"/>`).
 
 #### Componente de columna de progreso {#progress-column-component}
 

@@ -3559,4 +3559,120 @@
 
   <query id="TestControlTarget" service="TestControlTarget"/>
 
+
+  <!-- One theme per row with the adminflare row choosing the option B of the choice column, to show the radio columns (GrdRadioTst screen) -->
+  <query id="RadioColumnTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <computed alias="choice" format="'[name]' == 'adminflare' ? 'B' : null" eval="true"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+
+  <!-- Themes list for the grid without header (GrdNoHeaderTst screen) -->
+  <query id="ThemeStyleTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+
+  <!-- Cells with the five steps of each colour scale, assigned with the style of the cell (GrdScaleTst screen) -->
+  <query id="ThemeScaleTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id" noprint="true"/>
+    <field id="Nam" alias="name"/>
+    <compound alias="seq1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-seq-1"/>
+    </compound>
+    <compound alias="seq2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-seq-2"/>
+    </compound>
+    <compound alias="seq3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-seq-3"/>
+    </compound>
+    <compound alias="seq4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-seq-4"/>
+    </compound>
+    <compound alias="seq5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-seq-5"/>
+    </compound>
+    <compound alias="pos1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-pos-1"/>
+    </compound>
+    <compound alias="pos2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-pos-2"/>
+    </compound>
+    <compound alias="pos3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-pos-3"/>
+    </compound>
+    <compound alias="pos4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-pos-4"/>
+    </compound>
+    <compound alias="pos5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-pos-5"/>
+    </compound>
+    <compound alias="neg1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-neg-1"/>
+    </compound>
+    <compound alias="neg2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-neg-2"/>
+    </compound>
+    <compound alias="neg3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-neg-3"/>
+    </compound>
+    <compound alias="neg4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-neg-4"/>
+    </compound>
+    <compound alias="neg5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-neg-5"/>
+    </compound>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+  <!-- Themes list without rows, for the empty state of a grid (GrdEmptyTst screen) -->
+  <query id="EmptyGridTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="eq" right-variable="noTheme"/>
+      </and>
+    </where>
+    <variable id="noTheme" type="INTEGER" value="-1"/>
+  </query>
+
 </queries>

@@ -61,7 +61,29 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | row-numbers         | Optional     | Boolean | Whether to show row numbers or not                                                                                        | Default value is `true`                                                                                                            |                                                                                                          
 | row-height          | Optional     | Integer | Set the row height in pixels                                                                                              |                                                                                                                                    |
 | validate-on-save    | Optional     | Boolean | Set `false` to avoid validate the selected row when clicking the `save` button                                            | Default value is `true`                                                                                                            |
+| empty-icon          | Optional     | String  | Icon of the [empty state](#empty-state) of the grid                                                                       | Default value is `inbox`. Check [icons](icons.md)                                                                                  |
+| empty-title         | Optional     | String  | Title of the [empty state](#empty-state) of the grid                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated "No records found" title         |
+| empty-text          | Optional     | String  | Text of the [empty state](#empty-state) of the grid                                                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated explanation text                 |
+| empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
 
+
+### Empty state
+
+A grid without rows shows an empty state instead of an empty table, in both the AngularJS and the React engines. It is
+made of an icon, a title and a text. The default texts are translated; use `empty-icon`, `empty-title` and `empty-text`
+to change them. While the grid is loading, the empty state is not shown.
+
+The optional `empty-action` points to a button of the grid (a `button` declared inside the grid). The empty state offers
+a button with the label and the icon of the referenced one, and clicking it runs the actions of that button, so it
+can be used, for example, to clear the search criteria.
+
+```xml
+<grid id="UserGrid" server-action="data" target-action="UserList"
+      empty-icon="search" empty-title="GRID_NO_USERS" empty-text="GRID_NO_USERS_HELP" empty-action="ClearSearch">
+  <column label="USER" name="user" />
+  <button id="ClearSearch" label="BUTTON_CLEAR" icon="eraser" button-type="reset" />
+</grid>
+```
 
 ## Column structure
 
@@ -153,6 +175,8 @@ Keep in mind:
 | select-multiple  | Select multiple column component. See [select multiple criterion](criteria.md#multiple-select-criterion)    |
 | suggest-multiple | Suggest multiple column component. See [suggest multiple criterion](criteria.md#multiple-suggest-criterion) |
 | checkbox         | Checkbox column component. See [checkbox criterion](criteria.md#checkbox-criterion)                         |
+| radio            | Radio column component: the options of a list as a row of radio buttons. See [radio column component](#radio-column-component) |
+| button-radio     | Radio column component: the options of a list as one joined bar of buttons. See [radio column component](#radio-column-component) |
 | color            | Color column component. See [color criterion](criteria.md#color-criterion)                                  |
 | uploader         | Uploader column component. See [uploader criterion](criteria.md#uploader-criterion)                         |
 | text-view        | Text view column component. See [text view criterion](criteria.md#text-view-criterion)                      |
@@ -175,6 +199,58 @@ When you need set specific style to all cells of one row (ex.: change background
     <variable id="styleClass" type="STRING" value="red"/>
 </query>
 ```
+
+### Theme classes
+
+AWE provides ready-made CSS classes for two common grid looks. They are available in **both client engines and in every
+theme**, light or dark, so an application does not need to write its own CSS.
+
+#### Grid without header row
+
+Add the `grid-no-header` class to the `style` of the grid. The header row is hidden but it keeps taking part in the
+layout of the columns, so the columns keep their widths (`charlength` and `width`). It is useful for compact lists.
+
+```xml
+<grid id="GrdCompactList" style="expand grid-no-header" initial-load="query" server-action="data" target-action="CompactList">
+  <column label="Name" name="name" align="left" charlength="30"/>
+  <column label="Description" name="description" align="left" charlength="40"/>
+</grid>
+```
+
+:::note
+The header is not available to screen readers while it is hidden, and neither are the sort, filter and column menu
+controls of the header. Use the class on grids that do not need them.
+:::
+
+#### Colour-scaled cells (heat maps)
+
+The query assigns one of the following classes to each cell with the `style` attribute of a
+[compound cell](#standard-cell-without-components). Every class paints the whole cell and sets its own text colour, so the text keeps
+a contrast of at least 4.5:1 (WCAG AA) in every theme.
+
+| Scale                         | Classes                                             | Use it for                                  |
+|-------------------------------|-----------------------------------------------------|---------------------------------------------|
+| Sequential (blue)             | `scale-seq-1` (lowest) to `scale-seq-5` (highest)   | Values that go from low to high             |
+| Diverging, positive (green)   | `scale-pos-1` (lowest) to `scale-pos-5` (highest)   | Values above the reference (e.g. gains)     |
+| Diverging, negative (red)     | `scale-neg-1` (lowest) to `scale-neg-5` (highest)   | Values below the reference (e.g. losses)    |
+
+For example, a query that colours the amount in the positive or negative scale depending on its value:
+
+```xml
+<query id="Results">
+  <table id="Results"/>
+  <field id="Name" alias="name"/>
+  <field id="Amount" alias="amount" noprint="true"/>
+  <compound alias="result">
+    <computed alias="value" format="[amount]"/>
+    <computed alias="label" format="[amount]"/>
+    <computed alias="style" format="[amount] &lt; -50 ? 'scale-neg-5' : [amount] &lt; 0 ? 'scale-neg-2' : [amount] &lt; 50 ? 'scale-pos-2' : 'scale-pos-5'" eval="true"/>
+  </compound>
+</query>
+```
+
+The test applications include the screens *Grid without header* and *Colour scales* in the matrix test menu, with an
+example of each class.
 
 ### Specific column components
 
@@ -262,6 +338,88 @@ A button column is a component which allows to launch a set of `button-action` d
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
 | icon      | Icon class to show in the button. You can check all iconsets at [icons](icons.md) screen                               |
 | style     | CSS class to format the contents                                                                                       |
+
+#### Radio column component
+
+The `radio` and `button-radio` columns show **all the options of a list in every cell** and the user chooses one of them.
+The options come from the column in the same way as in a `select` column: with `initial-load` and `target-action`
+(for instance an enumerated, `enum`, or a query) and every option has a `value` and a `label`. The value of the chosen
+option is the value of the cell.
+
+```xml
+<enumerated>
+  <group id="LevelOptions">
+    <option label="Low" value="L"/>
+    <option label="Medium" value="M"/>
+    <option label="High" value="H"/>
+  </group>
+</enumerated>
+```
+
+```xml
+<grid id="GrdTheme" style="expand" initial-load="query" server-action="data" target-action="ThemeList" send-all="true">
+  <column label="Theme" name="name" align="left" charlength="30"/>
+  <column label="Level" name="level" component="radio" initial-load="enum" target-action="LevelOptions" align="center" charlength="30"/>
+  <column label="Mode" name="mode" component="button-radio" initial-load="enum" target-action="ModeOptions" align="center" charlength="30"/>
+</grid>
+```
+
+| Attribute      | Description                                                                                                                   |
+|----------------|-------------------------------------------------------------------------------------------------------------------------------|
+| initial-load   | How the options are loaded: `enum` for an enumerated, `query` for a query                                                      |
+| target-action  | Enumerated group or query that provides the options (`value` and `label` of each one)                                          |
+| label          | Header of the column. It is also the accessible name of the group of options of every cell                                      |
+| validation     | `required` requires a choice in every row                                                                                      |
+| readonly       | A read-only column, or a read-only cell, cannot be changed                                                                     |
+
+To start with a choice, the query that fills the grid returns the value of the option in a field named like the column
+(here `level`, with `L`, `M` or `H`). A row where that field is empty or null starts without choice.
+
+The column behaves like any other column of the grid: it can be sorted, validated, edited and printed.
+
+##### `radio` look
+
+Every option is a radio button followed by its label, and the options of a cell are in one line. When the column is
+narrow, the React engine wraps them onto more lines, while the AngularJS engine keeps one line and hides what does not fit,
+so give the column enough width (for example with `charlength`). The checked radio has the primary colour of the theme.
+
+##### `button-radio` look
+
+The options of a cell are **one joined bar of buttons** (a segmented control), like the
+[button radio criterion](criteria.md#radio-button-criterion-line): adjacent buttons share their borders, only the two
+ends of the bar are rounded and the chosen option is highlighted.
+
+##### Keyboard, validation and read-only
+
+| Behaviour     | Description                                                                                                                                       |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Keyboard      | The left and right arrow keys move the choice between the options of the cell (the up and down ones too) and go round at both ends; `Tab` leaves the cell |
+| Accessibility | The options of a cell are a `radiogroup` labelled with the label of the column, and the radios of a row share one name                              |
+| Validation    | With `validation="required"` a row without choice is not valid                                                                                    |
+| Read-only     | A read-only column, or a read-only cell, cannot be changed                                                                                        |
+
+:::note
+The chosen option cannot be unchecked by itself, only by choosing another one.
+:::
+
+##### Data sent to the server
+
+The grid sends the column in the same way as a `select` column: a list with one value per row (in the same order as the
+other columns), the chosen option of each row and `null` for a row without choice:
+
+```json
+{
+  "id": [12, 3, 7],
+  "level": ["M", null, "H"],
+  "level.selected": "H"
+}
+```
+
+* `<column>` has the chosen value of each row sent (all the rows when the grid has `send-all`, the selected ones otherwise).
+* `<column>.selected` has the value of the selected rows.
+* `<column>.editing` has the value of the rows being edited, in editable and multioperation grids.
+
+The maintain target reads the list as a variable named like the column (`<variable id="level" type="STRING" name="level"/>`).
 
 #### Progress column component
 

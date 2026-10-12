@@ -163,6 +163,13 @@ export function fillAction(action) {
     // Publish end loading
     dispatch(updateAttributes(address, { loading: false }));
 
+    // The loaded rows may predate cells pushed (update-cell) while the load was pending: apply them again
+    const pendingCellUpdates = getComponent(getAllComponents(getState()), address)?.attributes?.pendingCellUpdates || [];
+    if (pendingCellUpdates.length > 0) {
+      dispatch(updateAttributes(address, { pendingCellUpdates: [] }));
+      pendingCellUpdates.forEach(({ row, column, data }) => dispatch(updateModelWithDependencies({ ...address, row, column }, { values: data })));
+    }
+
     // Finish action
     dispatch(acceptAction(action));
   };
@@ -198,8 +205,8 @@ export function selectAction(action) {
     // Call the method update selected value from API
     dispatch(updateModelWithDependencies(address, { selected }));
 
-    // Publish end loading
-    dispatch(updateAttributes(address, { loading: false }));
+    // Publish end loading (no load is pending any more, so no pushed cell is waiting for it)
+    dispatch(updateAttributes(address, { loading: false, pendingCellUpdates: [] }));
 
     // Finish action
     dispatch(acceptAction(action));
@@ -227,9 +234,9 @@ export function startLoadAction(action) {
  */
 export function endLoadAction(action) {
   return (dispatch) => {
-    // Start loading
+    // Finish loading: a load which ends without rows (error, abort) leaves no pushed cell waiting for them
     const address = getActionAddress(action);
-    dispatch(updateAttributes(address, { loading: false }));
+    dispatch(updateAttributes(address, { loading: false, pendingCellUpdates: [] }));
 
     // Close action
     dispatch(acceptAction(action));

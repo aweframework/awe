@@ -82,6 +82,14 @@
     </java>
   </service>
 
+  <service id="returnRadioChoices">
+    <java classname="com.almis.awe.service.DummyService" method="returnRadioChoices">
+      <service-parameter type="STRING" name="id" list="true"/>
+      <service-parameter type="STRING" name="choice" list="true"/>
+      <service-parameter type="STRING" name="mode" list="true"/>
+    </java>
+  </service>
+
   <service id="returnMaintainOkNoParams">
     <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams">
     </java>

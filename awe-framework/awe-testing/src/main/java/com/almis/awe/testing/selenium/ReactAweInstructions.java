@@ -192,6 +192,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(getParentXpath(gridId, rowId, columnId));
   }
 
+  @Override
+  public By getGridRadioChecked(String gridId, String rowId, String columnId, String optionId, boolean isChecked) {
+    return By.cssSelector(String.format("%s %s%s%s", getParentCss(gridId, rowId, columnId), css(TestIds.CRITERION_INPUT),
+      optionId == null ? "" : "[option-id='" + optionId + "']", stateCss(TestAttributes.SELECTED, isChecked)));
+  }
+
   public By getColumnSuccessIcon(String columnId) {
     return By.cssSelector("[column-id='" + columnId + "'] " + css(TestIds.COLUMN_ICON) + " .text-success");
   }

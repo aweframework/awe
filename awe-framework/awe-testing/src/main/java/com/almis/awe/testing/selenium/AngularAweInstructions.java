@@ -172,6 +172,13 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(getParentXpath(gridId, rowId, columnId));
   }
 
+  @Override
+  public By getDialogPanel(String dialogId) {
+    // The hook is in the layer that covers the page: the panel that has the size is its first child
+    return By.cssSelector(css(TestIds.DIALOG) + TestAttributes.css(TestAttributes.OWNER, dialogId)
+      + TestAttributes.css(TestAttributes.OPEN, true) + " > *");
+  }
+
   public By getGridSaveButton() {
     return By.cssSelector(css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }

@@ -1204,4 +1204,55 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
   });
 
+
+  describe('pagination range', () => {
+    const PAGINATION_INFO = "[data-testid='grid-pagination-info']";
+    const rangeState = ({ records = 25, first = 0, rows = 10, count = rows, attributes = {} } = {}) => ({
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            records,
+            values: Array.from({length: count}, (_, index) => ({id: `r${index}`, name: `Name ${index}`}))
+          },
+          attributes: {
+            columnModel: [{name: "name", label: "Name"}],
+            headerModel: [],
+            buttonModel: [],
+            visible: true,
+            max: rows,
+            ...attributes
+          },
+          specificAttributes: {sort: [], first, rows}
+        }
+      }
+    });
+    const infoText = (container) => container.querySelector(PAGINATION_INFO).textContent.replace(/\s+/g, " ").trim();
+
+    it.each([
+      [0, 10, "1 - 10"],
+      [10, 10, "11 - 20"],
+      [20, 5, "21 - 25"]
+    ])('shows the visible range and the total for the page starting at %i', (first, count, range) => {
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: rangeState({first, count})});
+
+      expect(infoText(container)).toBe(`SCREEN_TEXT_GRID_VIEW ${range} SCREEN_TEXT_GRID_OF 25`);
+    });
+
+    it('shows an empty range when the grid has no records', () => {
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: rangeState({records: 0, count: 0})});
+
+      expect(infoText(container)).toBe("SCREEN_TEXT_GRID_VIEW 0 - 0 SCREEN_TEXT_GRID_OF 0");
+    });
+
+    it('does not show the range when the pagination is disabled', () => {
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {
+        preloadedState: rangeState({attributes: {disablePagination: true}})
+      });
+
+      expect(container.querySelector(PAGINATION_INFO)).toBeNull();
+    });
+  });
 });

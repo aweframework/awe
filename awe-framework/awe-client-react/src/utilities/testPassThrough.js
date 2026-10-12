@@ -130,6 +130,7 @@ export function autoCompletePassThrough(owner, multiple = false) {
 export function paginatorPassThrough() {
   return {
     root: testHook(TestIds.gridPagination),
+    current: testHook(TestIds.gridPaginationInfo),
     prevPageButton: ({ context }) => testHook(TestIds.gridPagePrevious, { disabled: context?.disabled }),
     nextPageButton: ({ context }) => testHook(TestIds.gridPageNext, { disabled: context?.disabled }),
     // The text of the dropdown repeats the page size (its hidden native selector also holds it): expose it as a value
@@ -296,11 +297,12 @@ export function toastPassThrough() {
 /**
  * Pass-through of a modal dialog
  * @param {string} owner Id of the dialog component
+ * @param {boolean} [open] Whether the dialog is open: the tests find the open dialog by it, as in the AngularJS client
  * @returns {object} Dialog pt
  */
-export function dialogPassThrough(owner) {
+export function dialogPassThrough(owner, open = true) {
   return {
-    root: testHook(TestIds.dialog, { owner }),
+    root: testHook(TestIds.dialog, { owner, open }),
     closeButton: testHook(TestIds.dialogClose)
   };
 }

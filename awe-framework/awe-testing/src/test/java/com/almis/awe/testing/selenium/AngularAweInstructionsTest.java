@@ -1,7 +1,7 @@
 package com.almis.awe.testing.selenium;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 
 import javax.xml.xpath.XPathFactory;
@@ -252,5 +252,25 @@ class AngularAweInstructionsTest {
   void shouldLocateTheNthOptionOfTheOpenDropdown() {
     assertThat(instructions.getSelectOption(2)).hasToString(
       "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[2]");
+  }
+
+  @Test
+  void shouldLocateThePaginatorInfoTheEmptyStateTheRadiosTheCellClassesAndTheDialogPanel() {
+    assertThat(instructions.getGridPaginationInfo()).hasToString("By.cssSelector: [data-testid='grid-pagination-info']");
+    assertThat(instructions.getGridEmpty()).hasToString("By.cssSelector: [data-testid='grid-empty']");
+    assertThat(instructions.getGridEmptyTitle()).hasToString("By.cssSelector: [data-testid='grid-empty-title']");
+    assertThat(instructions.getGridEmptyText()).hasToString("By.cssSelector: [data-testid='grid-empty-text']");
+    assertThat(instructions.getGridEmptyAction()).hasToString("By.cssSelector: [data-testid='grid-empty-action']");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true).toString())
+      .endsWith("[data-testid='criterion-input']:checked");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", true).toString())
+      .endsWith("[data-testid='criterion-input'][value='B']:checked");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", false).toString())
+      .endsWith("[data-testid='criterion-input'][value='B']:not(:checked)");
+    assertThat(instructions.getGridRadioOption("Grd", "1", "Rad", "B").toString()).endsWith("[option-id='B']");
+    assertThat(instructions.getGridCellWithClass("Grd", "1", "Col", "scale-seq-3").toString())
+      .endsWith("/descendant-or-self::*[contains(concat(' ', normalize-space(@class), ' '), ' scale-seq-3 ')]");
+    assertThat(instructions.getDialogPanel("Dlg")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='Dlg'][data-open='true'] > *");
   }
 }
