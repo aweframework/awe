@@ -1,7 +1,6 @@
 package com.almis.awe.testing.driver;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -17,6 +16,7 @@ import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.interactions.WheelInput;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.Select;
 
@@ -159,6 +159,15 @@ public class SeleniumBrowserDriver implements BrowserDriver {
     act(locator, element -> {
       runScript(SCROLL_INTO_CONTAINER, element);
       new Actions(driver).moveToElement(element).contextClick(element).pause(CLICK_PAUSE_MILLIS).perform();
+    });
+  }
+
+  @Override
+  public void wheel(Locator locator, int deltaY) {
+    act(locator, element -> {
+      runScript(SCROLL_INTO_CONTAINER, element);
+      new Actions(driver).scrollFromOrigin(WheelInput.ScrollOrigin.fromElement(element), 0, deltaY)
+        .pause(CLICK_PAUSE_MILLIS).perform();
     });
   }
 

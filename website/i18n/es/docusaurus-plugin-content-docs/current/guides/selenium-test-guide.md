@@ -606,6 +606,8 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkActiveWizardStep(String number)` | Comprueba el número del paso activo de un asistente |
 | `checkTagListContains(String tagListId, String text)` | Comprueba que una lista de etiquetas (vista de texto) contiene un texto |
 | `checkChartVisible(String chartId)` | Comprueba que un gráfico se muestra (el gráfico se ha dibujado) |
+| `zoomChart(String chartId)` | Hace zoom en un gráfico con la rueda del ratón sobre su centro |
+| `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
 | `checkLogViewerContains(String text)` | Espera hasta que el visor de logs muestra un texto |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Comprueba un texto dentro del frame que incrusta una aplicación externa. El selector pertenece a esa aplicación, por lo que es el único literal que puedes pasar |
 
@@ -773,6 +775,7 @@ o `"false"`, excepto `data-type`, `data-container`, `data-icon`, `data-value` y 
 | `data-editing` | Fila de grid que se está editando. **Solo React**: el cliente React puede editar una fila que no está seleccionada (AngularJS edita la fila seleccionada) |
 | `data-deleted` | Fila de grid marcada para eliminar cuando se guarda el grid (grids de multioperación y grids en árbol). **Solo React**. Consulta `checkTreeRowDeleted(gridId, rowId)` |
 | `data-rendered` | Un gráfico que se ha dibujado. **Solo React** |
+| `data-zoomed` | Un gráfico que muestra una parte de su rango porque tiene zoom. **Solo React** |
 | `data-step-number` | Número de un paso de asistente (un texto, no un booleano). **Solo React** |
 | `data-value` | Valor de un control cuyo texto lo repite, como el tamaño de página de un grid (un texto, no un booleano). **Solo React** |
 

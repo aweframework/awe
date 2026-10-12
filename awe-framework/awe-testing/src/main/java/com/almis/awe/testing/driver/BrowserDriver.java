@@ -128,6 +128,14 @@ public interface BrowserDriver {
   void click(Locator locator);
 
   /**
+   * Turn the mouse wheel over the first match, which zooms what it draws (a chart)
+   *
+   * @param locator Locator
+   * @param deltaY  Vertical amount of the wheel in pixels: negative values scroll up (zoom in)
+   */
+  void wheel(Locator locator, int deltaY);
+
+  /**
    * Double click on the first match, as one gesture
    *
    * @param locator Locator

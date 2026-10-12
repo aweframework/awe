@@ -42,6 +42,7 @@ module.exports = {
     '**/i18n/chartLocalesTest.{js,jsx}',
     '**/utilities/echartsOptionTest.{js,jsx}',
     '**/utilities/echartsSvgTest.{js,jsx}',
+    '**/utilities/echartsEventsTest.{js,jsx}',
     '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',
     '**/utilities/classChangesTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',

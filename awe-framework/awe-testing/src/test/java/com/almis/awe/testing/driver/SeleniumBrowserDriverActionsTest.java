@@ -126,6 +126,15 @@ class SeleniumBrowserDriverActionsTest {
   }
 
   @Test
+  void shouldTurnTheWheelOverTheElement() {
+    browser.wheel(ITEM, -300);
+
+    verify((JavascriptExecutor) driver).executeScript(contains("behavior: 'instant'"), eq(element));
+    List<Map<String, Object>> actions = performedActions();
+    assertThat(actions).anyMatch(action -> "scroll".equals(action.get("type")) && Integer.valueOf(-300).equals(action.get("deltaY")));
+  }
+
+  @Test
   void shouldHoverWithoutClicking() {
     browser.hover(ITEM);
 

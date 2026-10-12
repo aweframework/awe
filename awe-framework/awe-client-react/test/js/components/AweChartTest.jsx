@@ -9,6 +9,7 @@ import {echarts, isDarkTheme, renderSvg} from "../../../src/utilities/echartsSet
 import models from "./fixtures/chrTstEchartsModels.json";
 import advancedModels from "./fixtures/advancedEchartsModels.json";
 import i18n from "../../../src/i18n/i18n";
+import {updateAttributesWithDependencies} from "../../../src/redux/thunks/components";
 
 // The component is tested against a fake ECharts that records what it is given: the options are built by the real
 // code, and the real library is exercised (SVG output, no warnings) by echartsSvgTest
@@ -18,6 +19,12 @@ jest.mock("../../../src/utilities/echartsSetup", () => ({
   isDarkTheme: jest.fn(() => false),
   renderSvg: jest.fn(() => "<svg>print</svg>")
 }));
+
+// The events of the chart go through the thunk that writes the attributes and checks the dependencies: it is spied
+jest.mock("../../../src/redux/thunks/components", () => {
+  const actual = jest.requireActual("../../../src/redux/thunks/components");
+  return {...actual, updateAttributesWithDependencies: jest.fn(actual.updateAttributesWithDependencies)};
+});
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const day = (value) => new Date(2024, 0, value).getTime();
@@ -37,6 +44,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       setOption: jest.fn(),
       resize: jest.fn(),
       dispatchAction: jest.fn(),
+      getOption: jest.fn(() => ({})),
       dispose: jest.fn(),
       on: jest.fn((event, handler) => {
         handlers[event] = handler;
@@ -67,6 +75,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   beforeEach(() => {
     instances = [];
     observers = [];
+    updateAttributesWithDependencies.mockClear();
     echarts.init.mockReset();
     echarts.init.mockImplementation(fakeChart);
     isDarkTheme.mockReturnValue(false);
@@ -408,10 +417,188 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().series[0].id).toBe("serie1_1");
 
       act(() => {
-        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: clone(models.ChrPieTst)}));
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: {...clone(models.ChrPieTst), title: {text: "Other"}}}));
       });
 
       expect(lastOption().series[0].id).toBe("serie1");
+    });
+
+    it('should keep the drilldown and the drawing when an event only writes the chart attributes', () => {
+      renderChart(models.ChrPieTst, pieValues);
+      act(() => lastChart().handlers.click({seriesId: "serie1"}));
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => lastChart().handlers.contextmenu({name: "Chrome", value: 3}));
+
+      expect(lastOption().series[0].id).toBe("serie1_1");
+      expect(lastChart().setOption.mock.calls.length).toBe(calls);
+    });
+  });
+
+  describe('events and attributes', () => {
+    const address = {component: "chart", view: "report"};
+    const attributesOf = (store) => store.getState().components.chart.attributes;
+    const emitted = () => updateAttributesWithDependencies.mock.calls;
+
+    it('should emit click with the point as the x and y attributes', () => {
+      const {store} = renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.click({seriesId: "serie-1", value: [day(2), 20]}));
+
+      expect(emitted()).toEqual([[address, {x: day(2), y: 20, event: "click"}]]);
+      expect(attributesOf(store)).toMatchObject({x: day(2), y: 20});
+    });
+
+    it('should use the name and the value of a point without coordinates (pie)', () => {
+      const {store} = renderChart(models.ChrPieTst, [{names: "Chrome", serie1: 3}]);
+
+      act(() => lastChart().handlers.click({seriesId: "none", name: "Chrome", value: 3}));
+
+      expect(attributesOf(store)).toMatchObject({x: "Chrome", y: 3});
+    });
+
+    it('should emit double-click and context-menu with the point', () => {
+      renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.dblclick({value: [day(1), 10]}));
+      act(() => lastChart().handlers.contextmenu({value: [day(2), 20]}));
+
+      expect(emitted()).toEqual([
+        [address, {x: day(1), y: 10, event: "double-click"}],
+        [address, {x: day(2), y: 20, event: "context-menu"}]
+      ]);
+    });
+
+    it('should emit zoom with the range of the zoomed axes, and keep the y range empty', () => {
+      const {store} = renderChart(models.ChrLinTst);
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 20, end: 60, startValue: day(2), endValue: day(5)}]});
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()).toEqual([[address, {xMin: day(2), xMax: day(5), yMin: null, yMax: null, event: "zoom"}]]);
+      expect(attributesOf(store)).toMatchObject({xMin: day(2), xMax: day(5), yMin: null, yMax: null});
+    });
+
+    it('should tell through its test hook whether it is zoomed', () => {
+      renderChart(models.ChrLinTst);
+      const hook = () => document.querySelector("[data-testid='chart']").getAttribute("data-zoomed");
+      expect(hook()).toBe("false");
+
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 20, end: 60, startValue: day(2), endValue: day(5)}]});
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(hook()).toBe("true");
+    });
+
+    it('should emit zoom with an empty range when the zoom is reset', () => {
+      renderChart(models.ChrLinTst);
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 0, end: 100, startValue: day(1), endValue: day(9)}]});
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()[0][1]).toMatchObject({xMin: null, xMax: null, event: "zoom"});
+    });
+
+    it('should not fail when the chart cannot tell its zoom', () => {
+      renderChart(models.ChrLinTst);
+      lastChart().getOption.mockImplementation(() => {
+        throw new Error("disposed");
+      });
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()[0][1]).toMatchObject({xMin: null, xMax: null, event: "zoom"});
+    });
+  });
+
+  describe('chart options and linked zoom', () => {
+    const setOptions = (store, chartOptions) => act(() => {
+      store.dispatch(updateAttributes({component: "chart", view: "report"}, {chartOptions}));
+    });
+    const zoomOption = () => ({dataZoom: [
+      {xAxisIndex: [0], start: 0, end: 100},
+      {xAxisIndex: [0], start: 0, end: 100}
+    ]});
+
+    it('should zoom every x data zoom to the range of the chart options', () => {
+      const {store} = renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 0, startValue: day(2), endValue: day(5)});
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 1, startValue: day(2), endValue: day(5)});
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
+    });
+
+    it('should accept the chart options as a JSON text', () => {
+      const {store} = renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, `{"zoom": {"x": {"min": 10, "max": 20}}}`);
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith(expect.objectContaining({startValue: 10, endValue: 20}));
+    });
+
+    it('should show the whole range when the zoom of the options is empty', () => {
+      const {store} = renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: null, max: null}}});
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 0, start: 0, end: 100});
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: null, xMax: null});
+    });
+
+    it('should not zoom again to the range it already has', () => {
+      const {store} = renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      expect(lastChart().dispatchAction).not.toHaveBeenCalled();
+    });
+
+    it('should not emit the zoom event that its own zoom raises (no loop between linked charts)', () => {
+      const {store} = renderChart(models.ChrStockTst);
+      const chart = lastChart();
+      chart.getOption.mockReturnValue(zoomOption());
+      chart.dispatchAction.mockImplementation(() => chart.handlers.datazoom({}));
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      const events = updateAttributesWithDependencies.mock.calls.filter(([, data]) => data.event);
+      expect(events).toEqual([]);
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
+    });
+
+    it('should ignore the options that have no zoom, a text that is not JSON and an unknown axis', () => {
+      const {store} = renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {title: {text: "none"}});
+      setOptions(store, "not json at all");
+      setOptions(store, {zoom: {y: {min: 1, max: 2}}});
+      setOptions(store, null);
+
+      expect(lastChart().dispatchAction).not.toHaveBeenCalled();
+    });
+
+    it('should zoom the chart that is linked to another one when the first one is zoomed', () => {
+      // Two charts: the zoom event of the first one becomes the chart options of the second one (the dependency)
+      const first = renderChart(models.ChrLinTst);
+      const firstChart = lastChart();
+      const second = renderChart(models.ChrStockTst);
+      const secondChart = lastChart();
+      secondChart.getOption.mockReturnValue(zoomOption());
+      firstChart.getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 10, end: 50, startValue: day(3), endValue: day(4)}]});
+
+      act(() => firstChart.handlers.datazoom({}));
+      const {xMin, xMax} = first.store.getState().components.chart.attributes;
+      setOptions(second.store, {zoom: {x: {min: xMin, max: xMax}}});
+
+      expect(secondChart.dispatchAction).toHaveBeenCalledWith(expect.objectContaining({startValue: day(3), endValue: day(4)}));
+      expect(firstChart.dispatchAction).not.toHaveBeenCalled();
     });
   });
 });

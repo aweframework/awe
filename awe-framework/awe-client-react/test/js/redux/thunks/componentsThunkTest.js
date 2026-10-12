@@ -811,6 +811,26 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
     });
   });
 
+  describe('updateAttributesWithDependencies', () => {
+    const address = { view: 'test', component: 'chart1' };
+
+    it('should update the attributes with the settings and raise the event while the dependencies are checked', () => {
+      thunks.updateAttributesWithDependencies(address, { x: 1, y: 2, event: 'click' })(dispatch, getState);
+
+      const calls = dispatch.mock.calls.map(([action]) => action);
+      expect(calls.map(action => action.type)).toEqual(['UPDATE_ATTRIBUTES', 'SET_RUNTIME_EVENT', 'CLEAR_RUNTIME_EVENT']);
+      expect(calls[0]).toMatchObject({ address, data: { x: 1, y: 2 } });
+      expect(calls[0]).toHaveProperty('settings');
+      expect(calls[1]).toMatchObject({ address, event: 'click' });
+    });
+
+    it('should not raise any event when there is none', () => {
+      thunks.updateAttributesWithDependencies(address, { xMin: 1 })(dispatch, getState);
+
+      expect(dispatch.mock.calls.map(([action]) => action.type)).toEqual(['UPDATE_ATTRIBUTES']);
+    });
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });

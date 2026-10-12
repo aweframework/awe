@@ -341,6 +341,12 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateAZoomedChartThroughItsHook() {
+    assertThat(instructions.getChartZoomed("ChrLinTst")).hasToString("By.cssSelector: "
+      + "[data-testid='chart'][chart-id='ChrLinTst'][data-zoomed='true']");
+  }
+
+  @Test
   void shouldLocateTheTreeRowsThroughTheGridRowHook() {
     assertThat(instructions.getTreeRow("Tre", "R1")).hasToString(
       "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1']");

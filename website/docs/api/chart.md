@@ -806,11 +806,33 @@ the zoom of two charts:
 </dependency>
 ```
 
-The result of the formula is a **Highcharts** options object, so it is applied only by the AngularJS engine. The React
-engine does not apply it: the client logs a warning in the browser console
-(`The 'chart-options' dependency is not applied to charts drawn with ECharts`) and leaves the chart as it is. The
-other dependencies of a chart (visibility, attributes, `reload`...) work in both engines. See
+The result of the formula is an options object (or its JSON text). Both engines apply the **zoom**
+(`{zoom: {x: {min, max}, y: {min, max}}}`): the AngularJS engine sets the extremes of the Highcharts axes, and the React
+engine zooms the data zoom components of the ECharts axes. A `null` range shows the whole axis again. The chart does
+not zoom again to the range it already has, so two charts linked by the same dependency do not trigger each other in a
+loop.
+
+The rest of the options are Highcharts options and the React engine ignores them: only the zoom is supported with
+ECharts. The other dependencies of a chart (visibility, attributes, `reload`...) work in both engines. See
 [dependencies](dependencies.md).
+
+### Events and attributes
+
+Both engines emit the same events and write the same attributes, so the dependencies of a chart work in both:
+
+| Event          | When                                        | Attributes it writes           |
+| -------------- | ------------------------------------------- | ------------------------------ |
+| `click`        | The user clicks a point                     | `x`, `y` of the point          |
+| `double-click` | The user double clicks a point              | `x`, `y` of the point          |
+| `context-menu` | The user right clicks a point               | `x`, `y` of the point          |
+| `zoom`         | The user zooms the chart or resets the zoom | `xMin`, `xMax`, `yMin`, `yMax` |
+
+`x` and `y` are the coordinates of the point (the name and the value of a pie slice). `xMin`, `xMax`, `yMin` and `yMax`
+are the visible range of each axis, and they are `null` while the whole axis is shown. A zoom that comes from a
+`chart-options` dependency writes the attributes but does not emit the `zoom` event again. In the React engine the zoom
+is made with the mouse wheel or with the slider of the chart (a `dataZoom` of the chart model), and the chart tells in
+its `data-zoomed` test attribute that it is zoomed. The React engine does not show the context menu of the chart
+buttons on `context-menu` yet (issue #801).
 
 ## Differences between the engines
 
@@ -818,7 +840,7 @@ other dependencies of a chart (visibility, attributes, `reload`...) work in both
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | 3D types (`column_3d`, `pie_3d`, `donut_3d`) | Drawn **flat**                                                                              | Drawn in 3D                                     |
 | `chart-parameter` options                 | Only the [translated options](chart-parameters.md); the rest are ignored and logged            | Any option of the Highcharts API                |
-| `chart-options` dependency                | Not applied (warning in the console)                                                           | Applied                                         |
+| `chart-options` dependency                | Only the zoom is applied, the other options are ignored                                        | Applied                                         |
 | `theme` attribute (Highcharts themes)     | Ignored. The look comes from the theme of the application                                      | Applied                                         |
 | Default palette                           | The Highcharts 11 palette, for the series without color                                        | The Highcharts palette, or the one of the theme |
 | Dark mode                                 | The charts follow the theme of the application (see below)                                     | Highcharts themes (`theme` attribute)           |
@@ -1027,8 +1049,8 @@ you upgrade an application that uses the React engine:
 * **Highcharts themes.** The `theme` attribute is ignored by the React engine. If a theme gave colors or fonts to your
   charts, set them in the XML.
 * **3D charts** (`column_3d`, `pie_3d`, `donut_3d`) are drawn flat.
-* **`chart-options` dependency.** Its result is a Highcharts options object. It is not applied to the charts drawn
-  with ECharts and the client logs a warning in the browser console.
+* **`chart-options` dependency.** Its result is a Highcharts options object. The React engine applies only its
+  `zoom` (to link the zoom of charts) and ignores the other options.
 * **Formats.** The format strings of Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, the date patterns of
   `%Y-%m-%d`...) work as before, see [chart formats](chart-format.md). Number specifications other than `.Nf` and
   `,.Nf` are written as the raw value, and the values are never rounded unless a format asks for it.

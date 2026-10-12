@@ -606,6 +606,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkActiveWizardStep(String number)` | Checks the number of the active step of a wizard |
 | `checkTagListContains(String tagListId, String text)` | Checks that a tag list (text view) contains a text |
 | `checkChartVisible(String chartId)` | Checks that a chart is displayed (the chart has been drawn) |
+| `zoomChart(String chartId)` | Zooms a chart in with the mouse wheel over its center |
+| `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 
@@ -773,6 +775,7 @@ or `"false"`, except `data-type`, `data-container`, `data-icon`, `data-value` an
 | `data-editing` | Grid row that is being edited. **React only**: the React client can edit a row that is not selected (AngularJS edits the selected row) |
 | `data-deleted` | Grid row marked to be deleted when the grid is saved (multioperation grids and tree grids). **React only**. See `checkTreeRowDeleted(gridId, rowId)` |
 | `data-rendered` | A chart that has been drawn. **React only** |
+| `data-zoomed` | A chart that shows a part of its range because it has been zoomed. **React only** |
 | `data-step-number` | Number of a wizard step (a text, not a boolean). **React only** |
 | `data-value` | Value of a control whose text repeats it, such as the page size of a grid (a text, not a boolean). **React only** |
 

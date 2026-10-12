@@ -563,6 +563,11 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(css(TestIds.CHART) + "[chart-id='" + chartId + "']" + stateCss(TestAttributes.RENDERED, true));
   }
 
+  @Override
+  public By getChartZoomed(String chartId) {
+    return By.cssSelector(css(TestIds.CHART) + "[chart-id='" + chartId + "']" + stateCss(TestAttributes.ZOOMED, true));
+  }
+
   public By getContextMenuMask() {
     // The context menu closes with the keyboard: there is no mask to click
     return null;

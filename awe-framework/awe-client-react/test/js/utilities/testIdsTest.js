@@ -15,7 +15,7 @@ const REACT_ONLY_TEST_IDS = [
   'avatar', 'avatarName', 'chart', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'tagList', 'wizardStepNumber',
   'errorBoundary', 'errorBoundaryTitle', 'errorBoundaryMessage', 'errorBoundaryDetails', 'errorBoundaryRetry', 'errorBoundaryReload'
 ];
-const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'rendered', 'stepNumber', 'value'];
+const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'rendered', 'stepNumber', 'value', 'zoomed'];
 
 /**
  * Read the entries of a frozen constant ("export const Name = Object.freeze({ key: "value", ... })")

@@ -38,6 +38,10 @@ public final class TestAttributes {
    */
   public static final String RENDERED = "data-rendered";
   /**
+   * The chart shows a part of its range because it has been zoomed. Only the React client renders it
+   */
+  public static final String ZOOMED = "data-zoomed";
+  /**
    * Number of a wizard step, which the step may replace with an icon. Only the React client renders it
    */
   public static final String STEP_NUMBER = "data-step-number";
