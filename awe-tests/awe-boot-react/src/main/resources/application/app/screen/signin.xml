@@ -34,7 +34,7 @@
               <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
             </dependency>
           </criteria>
-          <tag style="p-2 mt-5">
+          <tag type="div" style="p-2 mt-5">
             <button button-type="submit" label="BUTTON_LOGIN" id="ButLogIn" style="m-0 col-12">
               <dependency target-type="hide" initial="true" type="and">
                 <dependency-element id="local-login" condition="eq" value="false"/>

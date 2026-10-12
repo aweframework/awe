@@ -20,13 +20,34 @@ export function getSource(source, elements) {
 }
 
 /**
- * Retrieves a list of child components from the provided node.
+ * Retrieves the content of a source tag of the screen. As in the AngularJS engine, a source tag with a type
+ * generates its own element (with its id, style and expandible direction) around its children; without a type the
+ * children go straight to the template.
  *
  * @param {Object} node - The source node containing an element list.
- * @return {Array|null} Returns an array of child components generated from the node's element list, or null if the node is falsy.
+ * @return {Array|Object|null} The children, wrapped in the element of the source tag when it has a type, or null if the node is falsy.
  */
 export function getSourceChildren(node= {elementList: []}) {
-  return node ? node.elementList.map((child, index) => Components(child, index)) : null;
+  if (!node) {
+    return null;
+  }
+  const children = (node.elementList || []).map((child, index) => Components(child, index));
+  if (!node.type) {
+    return children;
+  }
+  const className = classNames({[`expandible-${node.expand}`]: node.expand}, node.style);
+  return React.createElement(node.type, {id: node.id, className: className || undefined}, children);
+}
+
+/**
+ * Retrieves the style that a template applies to its own container of a source. When the source tag generates
+ * its own element, the style belongs to that element and not to the container.
+ *
+ * @param {Object} node - The source node.
+ * @return {string} The style of the container.
+ */
+export function getSourceStyle(node) {
+  return node && !node.type && node.style ? node.style : "";
 }
 
 /**

@@ -52,17 +52,27 @@ A `source` can be used **once** per screen, and the tags that have a `source` ar
 
 ## AngularJS and React engines
 
-| Case                                           | AngularJS engine                                                              | React engine                                                                    |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Tag without `type` (and without `source`)      | No HTML element: the children are placed in the parent                        | A `div` is generated                                                            |
-| Tag with `label` **and** children              | Only the label is drawn (inside a `span`); the children are ignored           | The label, the `<text>` and the children are drawn, in this order               |
-| `type` and `expandible` of a tag with `source` | Applied: the source tag generates its own element inside the template         | Not applied: the template uses the `style` and the children of the source tag   |
+Both engines generate the same thing for a tag:
 
-Because of the first two rows, write tags that behave the same in both engines:
+| Case                                           | Result in both engines                                                                          |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tag without `type` (and without `source`)      | No HTML element: its content is placed in the parent. Its `style` and `expandible` are ignored  |
+| Tag with `label`                               | Only the label is drawn. The `<text>` and the children of the tag are ignored                   |
+| Tag with `<text>` and no `label`               | Only the text is drawn. The children of the tag are ignored                                     |
+| `type` and `expandible` of a tag with `source` | Applied: the source tag generates its own element inside the template                           |
 
-* Give a `type` to every tag that has a `style` or an `expandible`, so it is a real element in both engines.
+The only remaining differences are minor:
+
+* The AngularJS engine draws the `label` inside a `span`; the React engine draws it directly in the element of the tag.
+* A tag without `type` that has a `style` ignores it in both engines. If you need the style, give the tag a `type`.
+* In the React engine the `style` of a source tag **without** `type` is still applied to the container that the template
+  draws for the source. The AngularJS engine ignores it. Do not rely on it: give the tag a `type`.
+
+Write tags so that the result is clear in both engines:
+
+* Give a `type` to every tag that has a `style` or an `expandible`, so it is a real element.
 * Use a tag with `label` for text only. If you need text next to other elements, put each one in its own tag.
-* Use `<tag source="...">` only to fill a source point. Put the `div` with `expandible` **inside** it.
+* Use `<tag source="...">` only to fill a source point. Add a `type` to it if it needs an `expandible`.
 
 ## Examples
 

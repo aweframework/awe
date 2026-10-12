@@ -1,5 +1,5 @@
 import React from "react";
-import {getSource, getSourceChildren} from "../utilities/structure";
+import {getSource, getSourceChildren, getSourceStyle} from "../utilities/structure";
 import PropTypes from "prop-types";
 
 function FullTemplate(props) {
@@ -11,8 +11,8 @@ function FullTemplate(props) {
 
   return (
     <div className={"expand expandible-vertical animate__animated animate__fadeIn"}>
-      <div className={`expand expandible-vertical ${sourceCenter.style}`}>{getSourceChildren(sourceCenter)}</div>
-      <div style={{position:'absolute'}} className={sourceModal.style}>{getSourceChildren(sourceModal)}</div>
+      <div className={`expand expandible-vertical maximize-target ${getSourceStyle(sourceCenter)}`}>{getSourceChildren(sourceCenter)}</div>
+      <div style={{position:'absolute'}} className={getSourceStyle(sourceModal)}>{getSourceChildren(sourceModal)}</div>
       <div style={{display:'none'}}>{getSourceChildren(sourceHidden)}</div>
     </div>
   );

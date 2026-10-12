@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderWithProviders } from '../test-utils';
+import '../../../src/components/AweComponents';
 import Tag from '../../../src/components/Tag';
 import { DEFAULT_SETTINGS } from '../../../src/redux/actions/settings';
 
@@ -26,13 +27,60 @@ describe('awe-react-client/test/js/components/TagTest.jsx', () => {
     expect(container.textContent).toBe('');
   });
 
-  it('keeps rendering the label and the value of a regular tag', () => {
+  it('shows only the label when the tag has a label and a value, as the AngularJS engine does', () => {
     const { container } = renderWithProviders(
       <Tag type="span" id="regular" label="Some label" value=" and value" elementList={[]} />,
       { preloadedState: { settings: DEFAULT_SETTINGS } }
     );
 
-    expect(container.querySelector('span#regular').textContent).toBe('Some label and value');
+    expect(container.querySelector('span#regular').textContent).toBe('Some label');
+  });
+
+  it('shows the value when the tag has no label', () => {
+    const { container } = renderWithProviders(
+      <Tag type="p" id="valued" value="Plain text" elementList={[]} />,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('p#valued').textContent).toBe('Plain text');
+  });
+
+  it('shows only the label when the tag has a label and children', () => {
+    const { container } = renderWithProviders(
+      <Tag type="div" id="labelled" label="Title" elementList={[{elementType: "Tag", type: "span", id: "child", label: "Child", elementList: []}]} />,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('div#labelled').textContent).toBe('Title');
+    expect(container.querySelector('#child')).toBeNull();
+  });
+
+  it('shows the children when the tag has neither label nor value', () => {
+    const { container } = renderWithProviders(
+      <Tag type="div" id="parent" elementList={[{elementType: "Tag", type: "span", id: "child", label: "Child", elementList: []}]} />,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('div#parent > span#child').textContent).toBe('Child');
+  });
+
+  it('does not generate any element for a tag without type, the children go to the parent', () => {
+    const { container } = renderWithProviders(
+      <div id="outer"><Tag style="ignored" elementList={[{elementType: "Tag", type: "span", id: "child", label: "Child", elementList: []}]} /></div>,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('#outer > span#child')).not.toBeNull();
+    expect(container.querySelectorAll('#outer > div')).toHaveLength(0);
+  });
+
+  it('draws the label of a tag without type as plain text in the parent', () => {
+    const { container } = renderWithProviders(
+      <div id="outer"><Tag label="Just text" elementList={[]} /></div>,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('#outer').innerHTML).toBe('Just text');
   });
 
   it('keeps the icons, the emphasis and the line breaks that a label may use', () => {

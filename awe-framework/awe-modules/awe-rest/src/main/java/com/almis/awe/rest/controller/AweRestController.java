@@ -193,7 +193,7 @@ public class AweRestController {
    * @throws AWException the AWE exception
    */
   @PostMapping({"/maintain/async/{maintainId}"})
-  @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services asynchronously")
+  @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services")
   @Operation(summary = "Maintain service.", description = "Launch a maintain given maintain id and parameters, and launch a callback function on maintain end",
     security = @SecurityRequirement(name = "bearerAuth"),
     tags = "Protected API")

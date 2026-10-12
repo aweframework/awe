@@ -33,6 +33,8 @@ To activate this module, follow this steps:
 </dependencies>
 ```
 
+The endpoints, parameters, request bodies and responses are listed in the generated [REST API reference](rest-api.md).
+
 <img alt="AWE Rest" src={require('@docusaurus/useBaseUrl').default('img/AWE_Rest.png')} />
 
 ## **AWE Rest configuration properties**
