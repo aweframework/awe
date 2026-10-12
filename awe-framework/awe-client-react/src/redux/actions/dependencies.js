@@ -912,6 +912,29 @@ function dispatchExecutions(executions, state, dispatch) {
     });
 }
 
+/**
+ * Forget the values stored for the dependencies that write the model of the given components (target "input").
+ * A restore goes back to the default model of a component, which does not hold the value that one of these dependencies
+ * had written (e.g. a suggest filled from another criterion). The stored values would make the next check believe that
+ * nothing changed, so the dependency would not write the model again and the restored component would stay empty.
+ * Forgetting them makes the next check launch these dependencies again.
+ * @param {object[]} componentList Restored components
+ */
+export function forgetInputDependencies(componentList = []) {
+  componentList.forEach(component => {
+    const view = component?.address?.view;
+    if (!DEPENDENCY_VALUES[view]) {
+      return;
+    }
+    getComponentDependencies(component)
+      .filter(dependency => dependency.target === "input")
+      .forEach(dependency => {
+        const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
+        delete DEPENDENCY_VALUES[view][componentId];
+      });
+  });
+}
+
 export function checkDependencies(state, dispatch) {
   const executions = getDependenciesExecutions(state, false);
   dispatchExecutions(executions, state, dispatch);
