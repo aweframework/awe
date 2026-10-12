@@ -481,6 +481,8 @@
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Votre utilisateur est verrouillé dans l&apos;application. Contactez votre administrateur système."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="L'opération SUBSTRING nécessite 2 ou 3 opérandes (source, beginIndex) ou (source, beginIndex, endIndex), mais {0} ont été fournis"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="L'opérande {0} de SUBSTRING doit être une constante ou variable compatible avec un entier, mais reçu: {1}"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Le cast {2} du champ {1} de la requête {0} n'est pas supporté"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="La fonction {2} du champ {1} de la requête {0} n'est pas supportée"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="Le menu actuel n&apos;est pas cloneable"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="La methode a invoquer n&apos;est pas definie"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="L&apos;operation de maintenance de l&apos;instruction simple avec controle multiple n&apos;a pas fini correctement. [{0}]"/>

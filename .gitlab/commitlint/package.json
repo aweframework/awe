@@ -2,7 +2,7 @@
   "name": "awe-mr-title-lint",
   "version": "0.0.0",
   "private": true,
-  "description": "Tooling of the \"MR title lint\" CI job (see bin/lint-mr-title.sh). Not part of any AWE artifact.",
+  "description": "Tooling of the local merge request title check (see bin/lint-mr-title.sh), not run by the pipeline. Not part of any AWE artifact.",
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3"

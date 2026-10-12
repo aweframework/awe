@@ -1340,6 +1340,19 @@ Las reglas de una cuarentena:
 4. **Pon en cuarentena lo más pequeño que falla.** Un método antes que una clase. Los productos pueden usar la misma anotación y el mismo
    guard (`BrowserTestDeclarationsGuard.scan(...)`) en sus propias pruebas de navegador.
 
+#### Pruebas guard de la CI {#ci-guard-tests}
+
+Tres pruebas unitarias evitan que las reglas anteriores se desvíen. Leen fuentes, clases compiladas o `.gitlab-ci.yml`, no necesitan
+navegador y se ejecutan con las pruebas unitarias (`All UT`):
+
+| Prueba | Módulo | Falla ante |
+|---|---|---|
+| `BrowserTestDeclarationsGuardTest` | `awe-boot`, `awe-boot-react` | Un `@Quarantine` sin incidencia o sin motivo, un `@Tag("quarantine")` escrito a mano, un `@DependentChain` mal declarado |
+| `BrowserTestSourcesGuardTest` | `awe-boot`, `awe-boot-react` | Selectores o tipos de la herramienta de automatización en las fuentes de las pruebas de navegador (consulta [Mantener las pruebas de navegador libres de selectores](#keeping-browser-tests-free-of-selectors)) |
+| `CiBrowserClassesGuardTest` | `awe-boot-react` | Que `.gitlab-ci.yml` se desvíe de las fuentes: una clase listada en `TEST_CLASSES` que no existe, un job de cuarentena que podría bloquear el pipeline, un job reintentado ante un fallo de prueba, un job de cadena sin `.chain-retry`, un job de navegador que no condiciona `Launch Sonar` |
+
+Ejecuta una desde la raíz del repositorio, por ejemplo `mvn test -pl awe-tests/awe-boot-react -Dtest=CiBrowserClassesGuardTest -Dskip.frontend=true`.
+
 ### Reproducir un fallo del navegador de la CI {#reproduce-a-failure-of-the-ci-browser}
 
 Una prueba que pasa con `headless-chrome` puede fallar en CI porque la CI ejecuta el navegador desde una imagen de contenedor Selenoid, en una

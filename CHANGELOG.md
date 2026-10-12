@@ -8,6 +8,7 @@
 
 **[HAS IMPACTS]** Changed:
 - A password set by an administrator counts as expired while `PwdExp` is set, so the user changes it at the first login (#849).
+- A query `function` or `cast` that the engine does not support makes the query fail with an error that names the query, the field and the value, instead of silently becoming `SUM` or `INTEGER`; `LENGTH` is a field function and is no longer accepted as a `totalize` function (#853). Check the queries for values outside the documented lists (for example `COUNT`, whose real name is `CNT`). Applications that extend `SQLBuilder` and override `getExpressionFunction` or `getExpressionCast` must use the new signatures, which receive the field name and declare `AWEQueryException`.
 - Password change and user information definitions now require a session (#852). The `ChdPwd` maintain target changes the password of the logged in user only; the public change-password screens (`ChdPwdPub`, `change-password`) use the new public `ChdPwdPub` target, which changes the password only when the current password (`OldPas`) matches. The `UsrInf`, `AutUsr`, `GetEmlSrvByOpe` and `JmsConnections` queries and the `UpdCntLog` and `UpdPwdLck` maintain targets are no longer public, and `UsrInf` and `AutUsr` no longer return password fields. Applications that launched any of them without a session must sign the user in first (or use `ChdPwdPub` with the current password).
 
 **[HAS IMPACTS]** Removed:

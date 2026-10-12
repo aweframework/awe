@@ -387,7 +387,7 @@ public class SQLQueryBuilder extends SQLBuilder {
    * @param finalQuery SQLQuery created in build method
    * @throws AWException Order by statement generation error
    */
-  private void doOrderBy(SQLQuery<Tuple> finalQuery) {
+  private void doOrderBy(SQLQuery<Tuple> finalQuery) throws AWException {
     // Add component sorts
     Set<String> addedSorts = addComponentSorts(finalQuery);
 
@@ -402,7 +402,7 @@ public class SQLQueryBuilder extends SQLBuilder {
    * @return Added sorts
    * @throws AWException Error adding component sorts
    */
-  private Set<String> addComponentSorts(SQLQuery<Tuple> finalQuery) {
+  private Set<String> addComponentSorts(SQLQuery<Tuple> finalQuery) throws AWException {
     Set<String> addedSorts = new HashSet<>();
 
     // Add component sort first
@@ -428,7 +428,7 @@ public class SQLQueryBuilder extends SQLBuilder {
    * @param finalQuery Query
    * @throws AWException Error sorting
    */
-  private void addQuerySorts(Set<String> addedSorts, SQLQuery<Tuple> finalQuery) {
+  private void addQuerySorts(Set<String> addedSorts, SQLQuery<Tuple> finalQuery) throws AWException {
     // Add query sort
     if (getQuery().getOrderByList() != null) {
       for (OrderBy orderBy : getQuery().getOrderByList()) {

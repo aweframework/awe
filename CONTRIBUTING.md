@@ -175,13 +175,19 @@ Guard tests keep these rules from rotting (`BrowserTestDeclarationsGuardTest`, `
 Merge requests get fast jobs in the `build` stage, before anything is built. Blocking ones fail the pipeline; warnings end
 with exit code 64, which is allowed to fail, so the pipeline shows an orange warning and the merge is never blocked.
 
+Three checks are **not** pipeline jobs, only local commands you can run before you open the merge request: the title, the size
+and the translation drift.
+
+| Local check (not a pipeline job) | Checks | Run it locally |
+|---|---|---|
+| Title | Title follows Conventional Commits (`type(scope): description (#issue Ttask)`) | `bin/lint-mr-title.sh "feat: x (#1)"` (Node 22.12+) |
+| Size | More than 400 changed lines (lockfiles, generated files, `website/docs`, `website/i18n` and binaries excluded) | `bin/mr-size.sh origin/develop` |
+| Translation drift | An English page changed whose Spanish translation in `website/i18n/es` did not | `bin/mr-translations.sh origin/develop` |
+
 | Job | Blocks? | Checks | Run it locally |
 |---|---|---|---|
-| `MR title lint` | yes | Title follows Conventional Commits (`type(scope): description (#issue Ttask)`) | `bin/lint-mr-title.sh "feat: x (#1)"` (Node 22.12+) |
-| `MR size warning` | warning | More than 400 changed lines (lockfiles, generated files, `website/docs`, `website/i18n` and binaries excluded) | `bin/mr-size.sh origin/develop` |
 | `MR docs warning` | warning | Code changed with no docs change and neither "Docs updated" nor "No docs needed because: ..." ticked in the description | `CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop` |
-| `MR translation drift warning` | warning | An English page changed whose Spanish translation in `website/i18n/es` did not | `bin/mr-translations.sh origin/develop` |
-| `MR checks tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
+| `MR checks tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above (`bin/lint-mr-title.sh`, `bin/mr-size.sh`, `bin/mr-docs.sh`, `bin/mr-translations.sh`) and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
 | `Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
 | `Lint frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
 | `Build website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
@@ -219,7 +225,7 @@ A merge request is done when all of this is true:
   request, or the description says why no docs are needed. The `MR docs warning` job reminds you when
   code changes and neither happens; it is a warning, not a blocker (see
   [Merge request title and size](website/docs/guides/release-lines-and-support.md#docs-warning-not-blocking)).
-  The English pages are the source. Spanish translations live in `website/i18n/es` and are edited in the repository; a page without a translation shows the English one. The `MR translation drift warning` job tells you when you change an English page whose translation you did not touch.
+  The English pages are the source. Spanish translations live in `website/i18n/es` and are edited in the repository; a page without a translation shows the English one. Run `bin/mr-translations.sh origin/develop` locally to see whether you changed an English page whose translation you did not touch; the pipeline does not check it.
 - **Migration guide**: a breaking change (a removed or renamed API, property, XML, database script or
   JSON field, or a changed default) has its entry in the
   [AWE 5 migration guide](website/docs/guides/v5-migration.md).
@@ -232,7 +238,7 @@ A merge request is done when all of this is true:
 - All feature branches should be based on `develop` and have the format `feature/branch_name`.
 - Minor bug fixes, that is bug fixes that do not change, add, or remove any public API, should be based on `master` and have the format `hotfix/branch_name`.
 - All merge requests should implement a single feature or fix a single bug. Merge Requests that involve multiple changes (it is our discretion what precisely this means) will be rejected with a reason.
-- The title of the merge request follows Conventional Commits, `type(scope): description (#issue Ttask)`, because it becomes the commit message on `develop`; the pipeline checks it. Keep merge requests under about 400 changed lines: a bigger one gets a size warning. Details in [Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size).
+- The title of the merge request follows Conventional Commits, `type(scope): description (#issue Ttask)`, because it becomes the commit message on `develop`; the pipeline does not check it, run `bin/lint-mr-title.sh` locally. Keep merge requests under about 400 changed lines (`bin/mr-size.sh` measures it locally). Details in [Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size).
 - All commits should separated into logical units, i.e. unrelated changes should be in different commits within a pull request.
 - Work over the new feature branch
 - All new code must include unit tests. Bug fixes should have a test that fails previously and now passes. All new features should be covered. If your code does not have tests, or regresses old tests, it will be rejected.

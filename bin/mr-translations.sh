@@ -6,8 +6,8 @@ set -eu
 #
 # Warns when a merge request changes an English page of the current docs (website/docs) whose Spanish
 # translation exists (website/i18n/es/docusaurus-plugin-content-docs/current, same path) and does not change
-# that translation in the same merge request (#784). It is the "MR translation drift warning" job of the
-# pipeline: the job is allowed to fail with exit code 64, so a stale translation shows a warning, never a failure.
+# that translation in the same merge request (#784). It is a local check, no
+# longer a job of the pipeline: it exits with code 64 when a translation is stale.
 #
 # Spanish lives in the repository (no Crowdin), and a page without a translation falls back to English, so only a
 # page that is translated can drift. Frozen versions (versioned_docs) are history and are not checked.

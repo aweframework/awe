@@ -1,4 +1,4 @@
-// Rules of the "MR title lint" CI job (bin/lint-mr-title.sh), #762.
+// Rules of the local merge request title check (bin/lint-mr-title.sh), #762. Not run by the pipeline.
 //
 // The title of a merge request becomes the commit message on develop (squash), so it follows
 // Conventional Commits: type(scope): description, with the issue reference at the end of the

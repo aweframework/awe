@@ -670,12 +670,12 @@
     </xs:attribute>
     <xs:attribute name="function" type="functionTypeEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">SQL function applied to the field. A value the engine does not recognize is treated as SUM.</xs:documentation>
+        <xs:documentation xml:lang="en">SQL function applied to the field. A value the engine does not support makes the query fail.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="cast" type="castType">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Casts the value to the given type. A value the engine does not recognize is treated as INTEGER.</xs:documentation>
+        <xs:documentation xml:lang="en">Casts the value to the given type. A value the engine does not support makes the query fail.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1029,7 +1029,7 @@
   <!-- Field function list -->
   <xs:simpleType name="fieldFunctions">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Functions applied to a single value. ABS is the absolute value, TRUNCDATE drops the time of a date, TRIM removes the spaces at both ends, and YEAR, MONTH, DAY, HOUR, MINUTE and SECOND extract that part of a date. ROW_NUMBER and RANK are window functions and LAG returns the previous row value.</xs:documentation>
+      <xs:documentation xml:lang="en">Functions applied to a single value. ABS is the absolute value, TRUNCDATE drops the time of a date, TRIM removes the spaces at both ends, and YEAR, MONTH, DAY, HOUR, MINUTE and SECOND extract that part of a date. LENGTH gives the length of a string. ROW_NUMBER and RANK are window functions and LAG returns the previous row value.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="ABS" />
@@ -1044,13 +1044,14 @@
       <xs:enumeration value="SECOND" />
       <xs:enumeration value="TRIM" />
       <xs:enumeration value="LAG" />
+      <xs:enumeration value="LENGTH" />
     </xs:restriction>
   </xs:simpleType>
 
   <!-- Aggregation functions -->
   <xs:simpleType name="aggregationFunctions">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Aggregation functions. AVG is the average, CNT counts values, CNT_DISTINCT counts distinct values, MAX and MIN give the greatest and lowest value, SUM adds values, FIRST_VALUE and LAST_VALUE give the first and last value of a window, and LENGTH gives the length of a string. LENGTH is not accepted by the totalize element.</xs:documentation>
+      <xs:documentation xml:lang="en">Aggregation functions. AVG is the average, CNT counts values, CNT_DISTINCT counts distinct values, MAX and MIN give the greatest and lowest value, SUM adds values, FIRST_VALUE and LAST_VALUE give the first and last value of a window. They are the functions the totalize element accepts.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="AVG" />
@@ -1061,7 +1062,6 @@
       <xs:enumeration value="SUM" />
       <xs:enumeration value="FIRST_VALUE" />
       <xs:enumeration value="LAST_VALUE" />
-      <xs:enumeration value="LENGTH" />
     </xs:restriction>
   </xs:simpleType>
 

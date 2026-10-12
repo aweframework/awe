@@ -58,7 +58,7 @@ The complete sql query structure is the following:
     <filter left-field="[Filter field]" table="[Filter table]" condition="[Condition]" right-variable="[Variable]" optional="[Filter Optional]"/>
     <filter left-field="[Field 1]" table="[Filter table]" condition="[Condition]" 
       right-field="[Field 2]" right-table="[Table 2]" ignorecase="[Ignorecase]" trim="[Trim]"/>
-    <filter left-field="[Field]" table="[Filter table]" condition="[Condition]" right-query="[Subquery]"/>
+    <filter left-field="[Field]" table="[Filter table]" condition="[Condition]" query="[Subquery]"/>
       <or>
        ... (more filters or filter groups)
       </or>
@@ -112,7 +112,7 @@ The *query* element has the following attributes:
 | id                 |  **Required**  |  String   | Query identifier                                                                                                                                                                      | **Note:**  The id name must be unique                                                                                                                             |
 | distinct           |    Optional    |  Boolean  | Used to return only distinct (different) values                                                                                                                                       | By default is `false`                                                                                                                                             |
 | cacheable          |    Optional    |  Boolean  | Used to set a query as cacheable (in order to save data in memory and avoid executing the query again)                                                                                | By default is `false`. **Note:** If you set a **query as cacheable** and there are subqueries, you must define on it the same variables that all subqueries have. |
-| managed-pagination |    Optional    |  Boolean  | To set a query as paginated (to load just the data in that specific page, not all query registries).  Used to achieve high performance in queries with a very high number of records. | By default is `false`. **Note:** Use this parameter only in queries without totalize.                                                                             |
+| managed-pagination |    Optional    |  Boolean  | To set how a SQL query is paginated. When `true` or omitted the database returns only the requested page (`limit` and `offset` plus a count query); when `false` all the rows are loaded and the page is cut in memory. Used to achieve high performance in queries with a very high number of records. | By default (omitted) it is the same as `true`, the database paginates. **Note:** It does not apply to queries with a `totalize` element, nor when the page size is 0. |
 | post-process       |    Optional    |  Boolean  | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing                                                       | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)                                                 |
 | public             |    Optional    |  Boolean  | Allows the query to run without the need to be logged                                                                                                                                 | By default is `false`                                                                                                                                             |
 | enumerated         |    Optional    |  String   | The name of enumerate to fill the query                                                                                                                                               | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)                                                            |
@@ -175,7 +175,7 @@ The *table* element has the following attributes:
   <!-- Define Subquery -->
   <query id="GetProcessedAccountingDirectDebit">
     <field id="Id" alias="idCol" table="a" />
-    <field id="Id" alias="OperationsCol" function="COUNT" table="a"/>
+    <field id="Id" alias="OperationsCol" function="CNT" table="a"/>
     <table id="ACCOUNTING" alias="a" />
     <join type="LEFT">
         <table id="ADEUDO_OPERACION"  alias="o"/>
@@ -236,6 +236,11 @@ The *field* element has the following attributes:
 - `SECOND`: Retrieve seconds from date
 - `TRIM`: Remove all spaces from both sides of the string
 - `LENGTH`: Get length of field
+- `FIRST_VALUE`: First value of a window
+- `LAST_VALUE`: Last value of a window
+- `LAG`: Value of the previous row
+
+A `function` or a `cast` that is not listed is not supported: the query fails with an error that names the query, the field and the value. AWE never replaces it by another function or type.
 
 #### Transform attribute
 
@@ -803,11 +808,11 @@ The *group by* element has the following attributes:
 
 | Attribute |      Use      |   Type    | Description                      | Values                                                                 |
 |-----------|:-------------:|:---------:|----------------------------------|------------------------------------------------------------------------|
-| field     | **Required**  |  String   | Field alias to group the results |                                                                        |
+| field     |   Optional    |  String   | Field alias to group the results | **Note:** It can be omitted when the `group-by` has a `case`, which takes precedence |
 | table     |   Optional    |  String   | Table alias to group the results |                                                                        |
 | function  |   Optional    |  String   | Function to apply to the field   | The possible values are defined in [field functions](#field-functions) |
 
-Also, you can use `CASE` operation inside `group-by`.
+Also, you can use a `case` element inside `group-by`. When it is defined, the `field` attribute can be omitted and the `case` expression is the one used to group.
 
 ### Order by element
 

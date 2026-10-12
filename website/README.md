@@ -56,13 +56,17 @@ Spanish version of `docs/api/button.md` is `i18n/es/docusaurus-plugin-content-do
 
 - A page without a translation shows the English one (Docusaurus falls back to the default content). Commit only pages
   that are really translated: do not copy an English page just to have it there.
-- Edit the Spanish page in the same merge request as the English one. The `MR translation drift warning` job warns (it
-  never blocks) when a merge request changes an English page under `docs/` whose Spanish translation exists and is not
-  changed in that merge request.
+- Edit the Spanish page in the same merge request as the English one. The pipeline does not check it, but
+  `bin/mr-translations.sh origin/develop` warns locally when a merge request changes an English page under `docs/` whose
+  Spanish translation exists and is not changed in that merge request.
 - Every translated heading keeps the id of its English heading (`## Elemento chart {#chart-element}`), so a link such
   as `chart.md#chart-element` works in both languages. Keep the same headings, in the same order, as the English page.
 - Links between pages work whether the target is translated or not: a plugin (`scripts/remark-content-root-links.js`)
   resolves relative `.md` links from the root of the docs, so keep writing them as usual.
+- `npm --prefix website run check:translations` lints the Spanish pages in a few seconds, without building the site: each
+  page compiles as MDX, has the heading anchors, code blocks and front matter `id`/`slug` of its English page, and its
+  relative links point to existing pages. It runs in merge requests (job `Spanish docs lint`), which build the English
+  site only. Pass file paths to check only some pages.
 - The pipeline job `Build website with i18n` builds all locales from the repository on `develop` and `master`. Locally,
   `npm --prefix website run build` does the same and `npm --prefix website start` serves English only; to see Spanish
   run `npm --prefix website start -- --locale es`.

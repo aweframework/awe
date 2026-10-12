@@ -125,6 +125,21 @@ apuntar su IDE a `target/schemas/awe/catalog.xml` después de la primera compila
 - **El esquema parece desactualizado**: la URL publicada siempre contiene los últimos esquemas de AWE; use el jar de su
   versión para que coincida exactamente con su proyecto.
 
+## Comprobaciones al cambiar un esquema {#checks-when-you-change-a-schema}
+
+Los XSD están en `awe-framework/awe-generic-screens/src/main/resources/schemas/awe`. Tres comprobaciones los protegen; ninguna es un job
+propio, se ejecutan dentro de los jobs normales de pruebas y compilación:
+
+| Comprobación | Qué verifica | Cómo ejecutarla en local |
+|---|---|---|
+| `XsdCatalogConsistencyTest` (prueba unitaria de `awe-generic-screens`) | Los system id del catálogo son únicos y son las URL publicadas, cada XSD tiene una entrada en el catálogo, cada entrada apunta a un archivo existente y cada `schemaLocation` se resuelve a través del catálogo | `mvn test -pl awe-framework/awe-generic-screens -Dtest=XsdCatalogConsistencyTest` |
+| `validate` de `xml-maven-plugin` (fase `compile`) | El XML de aplicación de los módulos que lo configuran (`awe-boot`, `awe-boot-react`, `awe-scheduler-boot`, los módulos de AWE...) es válido frente a los esquemas, resueltos con el catálogo desempaquetado en `target/schemas/awe/` | `mvn compile -pl awe-tests/awe-scheduler-boot -Dskip.frontend=true` |
+| Pruebas unitarias del generador de la referencia XSD (`website/scripts/xsd-reference`) | El generador que produce la [referencia XSD](/reference/) a partir de los esquemas | `npm --prefix website run test:scripts` (también forma parte del job `Build website`) |
+
+Cuando añadas un XSD, añade su entrada a `catalog.xml` (la prueba falla en caso contrario) y su fila a la tabla de
+[esquemas publicados](#published-schemas). El pipeline publica los XSD y el catálogo en el sitio desde `develop` y
+`master` (job `pages`).
+
 ## JSON Schema: evaluado, no adoptado {#json-schema-evaluated-not-adopted}
 
 Evaluamos publicar versiones en JSON Schema de las definiciones. No lo adoptamos: las definiciones de AWE son XML y los
