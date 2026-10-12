@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { delayActions, startAction } from "../redux/actions/actions";
+import { isComponentAction, runActionOnTarget } from "../redux/thunks/targets";
 import { fromDate } from "./dates";
 import download from "downloadjs";
 import React from "react";
@@ -116,7 +117,9 @@ export function checkActions(allowedActions, actions, props) {
       const { type } = a;
       if (type in allowedActions) {
         dispatch(startAction(a));
-        delayActions(settings.actionsStack, () => allowedActions[type](a, props));
+        const run = () => allowedActions[type](a, props);
+        // A component action whose target is not on screen is ignored, as in the AngularJS client
+        delayActions(settings.actionsStack, isComponentAction(type) ? () => dispatch(runActionOnTarget(a, run)) : run);
       }
     });
   }
