@@ -119,4 +119,32 @@ class ButtonTestsIT extends AbstractSessionTests {
     // Check text
     checkCriterionContents("ButVal", "Valor3");
   }
+
+  /**
+   * Test buttons: closing a dialog with on-close="reject" rejects the action list that opened it
+   */
+  @Test
+  void t032_buttonTestRejectedDialog() {
+    // Title
+    setTestTitle("Button test: dialog rejected on close");
+
+    // Go to screen
+    gotoScreen("test", "button-test");
+
+    // Open the dialog: the first action of the button is run and the one after the dialog waits for it
+    clickButton("ButOpnRej");
+    checkCriterionContents("ButRejVal", "Before");
+
+    // Close the dialog with the icon of its header
+    closeDialog("DlgRej");
+    checkDialogClosed("DlgRej");
+
+    // The React client has no step that tells that the action queue is idle, so a later action is the positive signal:
+    // actions run in order, and when this one has finished the one that followed the dialog would already have run
+    clickButton("ButSetVa1");
+    checkCriterionContents("ButVal", "Valor1");
+
+    // The dialog rejects on close: the action after it has not been run
+    checkCriterionContents("ButRejVal", "Before");
+  }
 }

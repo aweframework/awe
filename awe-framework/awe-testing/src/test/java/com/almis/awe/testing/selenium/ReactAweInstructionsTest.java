@@ -377,6 +377,8 @@ class ReactAweInstructionsTest {
       "By.cssSelector: [data-testid='alert'][data-type='warning'] [data-testid='alert-title']");
     assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");
+    assertThat(instructions.getDialogClose("PrnOpt")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'] [data-testid='dialog-close']");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getSelectOption(1)).hasToString(
       "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[1]");

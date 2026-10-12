@@ -3,6 +3,7 @@ import {classNames} from "../utilities/components";
 import {formatMessage, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import "./AweCriterion.less";
 import {TestIds, testHook} from "../utilities/testIds";
 import PropTypes from "prop-types";
@@ -12,7 +13,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
                         generateUnit = true, groupClass = "p-inputgroup"}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly} = attributes || {};
   const {t} = useTranslation();
-  const {settings} = useSelector((state) => ({settings: state.settings}));
+  const settings = useSelector(selectSettings);
 
   const getHelpIcon = () => {
     if (help || helpImage) {

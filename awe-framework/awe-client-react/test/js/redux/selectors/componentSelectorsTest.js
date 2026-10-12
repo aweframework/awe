@@ -1,4 +1,4 @@
-import { makeGetComponent, getAllComponents, makeGetMultipleComponents } from '../../../../src/redux/selectors/componentSelectors';
+import { makeGetComponent, getAllComponents, makeGetMultipleComponents, getContextMenuAttributes } from '../../../../src/redux/selectors/componentSelectors';
 import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 
 describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', () => {
@@ -256,6 +256,85 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             const result = selector(mockState);
 
             expect(result).toEqual({});
+        });
+    });
+
+    describe('stable references', () => {
+        const withChangedComp3 = (state) => ({
+            ...state,
+            components: { ...state.components, comp3: { attributes: { label: 'Changed' } } }
+        });
+
+        it.each([true, false])('keeps the reference of a requested component when another one changes (registry %s)', (useComponentRegistry) => {
+            mockState.settings.useComponentRegistry = useComponentRegistry;
+            const selector = makeGetMultipleComponents(['comp1', 'comp2']);
+            const before = selector(mockState);
+
+            const after = selector(withChangedComp3(mockState));
+
+            expect(after.comp1).toBe(before.comp1);
+            expect(after.comp2).toBe(before.comp2);
+        });
+
+        it('builds a new reference of a requested component when its delta changes', () => {
+            const selector = makeGetMultipleComponents(['comp1']);
+            const before = selector(mockState);
+
+            const after = selector({
+                ...mockState,
+                components: { ...mockState.components, comp1: { attributes: { label: 'Changed' } } }
+            });
+
+            expect(after.comp1).not.toBe(before.comp1);
+            expect(after.comp1.attributes.label).toBe('Changed');
+        });
+    });
+
+    describe('getContextMenuAttributes', () => {
+        const state = {
+            settings: { useComponentRegistry: false },
+            components: {
+                first: { attributes: { label: 'First', contextMenu: [{ id: 'child' }] } },
+                child: { attributes: { label: 'Child' } },
+                second: { attributes: { label: 'Second' } },
+                unrelated: { attributes: { label: 'Unrelated' } }
+            }
+        };
+
+        it('returns the attributes of the options and of their nested options', () => {
+            const result = getContextMenuAttributes(state, [{ id: 'first' }, { id: 'second' }]);
+
+            expect(Object.keys(result).sort()).toEqual(['child', 'first', 'second']);
+            expect(result.child).toBe(state.components.child.attributes);
+        });
+
+        it('skips the options that do not exist', () => {
+            expect(getContextMenuAttributes(state, [{ id: 'missing' }])).toEqual({});
+        });
+
+        it('returns nothing without a context menu', () => {
+            expect(getContextMenuAttributes(state, undefined)).toEqual({});
+        });
+
+        it('merges the base and the delta of the options with the component registry', () => {
+            ComponentRegistry.register('first', {
+                address: { view: 'base', component: 'first' },
+                attributes: { label: 'Base', icon: 'check' }
+            });
+
+            const result = getContextMenuAttributes({ ...state, settings: { useComponentRegistry: true } }, [{ id: 'first' }]);
+
+            expect(result.first).toMatchObject({ label: 'First', icon: 'check' });
+        });
+
+        it('keeps the references of the attributes when an unrelated component changes', () => {
+            const before = getContextMenuAttributes(state, [{ id: 'first' }]);
+            const after = getContextMenuAttributes(
+                { ...state, components: { ...state.components, unrelated: { attributes: { label: 'New' } } } },
+                [{ id: 'first' }]);
+
+            expect(after.first).toBe(before.first);
+            expect(after.child).toBe(before.child);
         });
     });
 

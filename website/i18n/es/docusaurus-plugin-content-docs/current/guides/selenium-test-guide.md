@@ -451,6 +451,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkMessageTitle(String messageType, String text)` | Comprueba el título de un mensaje |
 | `checkMessageText(String messageType, String text)` | Comprueba el texto de un mensaje |
 | `checkMessageMissing(String messageType)` | Comprueba que no se muestra ningún mensaje del tipo |
+| `closeDialog(String dialogId)` | Cierra un diálogo modal con el icono de cierre de su cabecera, como un usuario que lo descarta sin usar sus botones |
 | `checkDialogClosed(String dialogId)` | Comprueba que se ha cerrado un diálogo modal |
 | `checkDialogWidth(String dialogId, int width)` | Comprueba el ancho en píxeles de un diálogo abierto, con dos de margen. Úsalo para comprobar las clases de tamaño `modal-sm`, `modal-md` y `modal-lg` |
 | `checkValidationErrorVisible()` | Comprueba que la pantalla muestra errores de validación |

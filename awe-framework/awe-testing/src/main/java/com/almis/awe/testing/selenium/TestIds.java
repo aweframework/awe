@@ -120,6 +120,7 @@ public final class TestIds {
 
   // Modal dialogs (owner: dialog id)
   public static final String DIALOG = "dialog";
+  public static final String DIALOG_CLOSE = "dialog-close";
 
   // React only: chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";

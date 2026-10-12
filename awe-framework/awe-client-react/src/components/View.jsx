@@ -3,6 +3,7 @@ import ViewContainer from "../containers/ViewContainer";
 import {Route, Routes} from 'react-router';
 import SubViewContainer from "../containers/SubViewContainer";
 import {useDispatch, useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import {updateSettings} from "../redux/actions/settings";
 import {navigationActions} from "../redux/actions/navigation";
 import PropTypes from "prop-types";
@@ -16,7 +17,7 @@ const routes = [
 
 function View(props) {
   const dispatch = useDispatch();
-  const {settings} = useSelector((state) => ({settings: state.settings}));
+  const settings = useSelector(selectSettings);
   const {initialURL, reloadCurrentScreen} = settings;
 
   useEffect(() => {

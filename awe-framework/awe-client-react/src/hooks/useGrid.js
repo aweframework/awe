@@ -13,7 +13,7 @@ import { updateAttributes as updateAttributesAction } from "../redux/actions/com
 import { useTranslation } from "react-i18next";
 import AweButton from "../components/AweButton";
 import useComponent from "./useComponent";
-import { useComponentState, useAllComponents } from "./useComponentState";
+import { useComponentState, useContextMenuAttributes } from "./useComponentState";
 import {
   bodyCellPassThrough,
   contextMenuLinkTemplate,
@@ -27,9 +27,10 @@ import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 const EMPTY_MODEL = Object.freeze({ values: [] });
 
 function mapContextMenu(contextMenu, props) {
-  const { t, addActionsTop, address, components } = props;
+  const { t, addActionsTop, address, optionAttributes } = props;
   return (contextMenu || [])
-    .map(option => ({ ...components[option.id].attributes, optionId: option.id }))
+    .filter(option => optionAttributes[option.id])
+    .map(option => ({ ...optionAttributes[option.id], optionId: option.id }))
     .map(option => ({
       optionId: option.optionId,
       template: contextMenuLinkTemplate,
@@ -57,7 +58,7 @@ export function useGrid(id) {
   // The model only exists once the data of the component has arrived
   const modelLoaded = stateModel !== undefined;
   const settings = useSelector(state => state.settings || {});
-  const components = useAllComponents();
+  const optionAttributes = useContextMenuAttributes(attributes.contextMenu);
   const cmRef = useRef(null);
 
   const addActionsTop = useCallback((actions) => dispatch(addActionsTopAction(actions)), [dispatch]);
@@ -112,7 +113,7 @@ export function useGrid(id) {
 
   const contextMenuTemplate = () => {
     const { contextMenu = [] } = attributes;
-    let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, components });
+    let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, optionAttributes });
     if (contextMenuMapped.length > 0) {
       return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />;
     }
@@ -270,7 +271,7 @@ export function useGrid(id) {
     modelLoaded,
     specificAttributes,
     settings,
-    components,
+    optionAttributes,
     addActionsTop,
     updateModelWithDependencies,
     updateAttributes,
@@ -301,7 +302,7 @@ export function useGrid(id) {
     modelLoaded,
     specificAttributes,
     settings,
-    components,
+    optionAttributes,
     addActionsTop,
     updateModelWithDependencies,
     updateAttributes,

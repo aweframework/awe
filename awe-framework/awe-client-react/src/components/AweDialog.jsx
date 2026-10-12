@@ -32,9 +32,11 @@ function AweDialog(props) {
 
   const hide = useCallback(() => {
     if (attributes.isShowing) {
-      dispatch(addActionsTop([{ address, type: "close" }]));
+      // on-close="reject" (acceptOnClose false) rejects the action that opened the dialog, as the AngularJS engine does
+      const type = attributes.acceptOnClose === false ? "close-cancel" : "close";
+      dispatch(addActionsTop([{ address, type }]));
     }
-  }, [dispatch, attributes?.isShowing, address]);
+  }, [dispatch, attributes?.isShowing, attributes?.acceptOnClose, address]);
 
   // If address is undefined, return skeleton
   if (!address) {

@@ -285,6 +285,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getLogViewer", i::getLogViewer);
     catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
     catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));
+    catalog.put("getDialogClose", () -> i.getDialogClose("Dia"));
     catalog.put("getAnyButton", () -> i.getAnyButton("ButId"));
     catalog.put("getDisabledButton", () -> i.getDisabledButton("ButId"));
     catalog.put("getGrid", () -> i.getGrid(GRID));

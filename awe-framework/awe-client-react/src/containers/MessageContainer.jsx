@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {selectMessages, selectSettings} from "../redux/selectors/stateSelectors";
 import {acceptAction, rejectAction} from "../redux/actions/actions";
 import {removeConfirm, removeMessage, showMessages as showMessagesAction} from "../redux/actions/messages";
 
@@ -12,6 +13,9 @@ import {translateLabel} from "../utilities";
 import {TestIds, testHook} from "../utilities/testIds";
 import {toastPassThrough} from "../utilities/testPassThrough";
 
+const NO_MESSAGES = {};
+const NO_SETTINGS = {};
+
 /**
  * Message container
  * @category Containers
@@ -19,10 +23,8 @@ import {toastPassThrough} from "../utilities/testPassThrough";
 function MessageContainer() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { messages = [], settings = {} } = useSelector(state => ({
-    messages: state.messages,
-    settings: state.settings
-  }));
+  const messages = useSelector(selectMessages) ?? NO_MESSAGES;
+  const settings = useSelector(selectSettings) ?? NO_SETTINGS;
   const { confirm } = messages;
   const toastRef = useRef(null);
 

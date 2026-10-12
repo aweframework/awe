@@ -6,11 +6,12 @@ import MessageContainer from "../containers/MessageContainer";
 
 import {getContextPath} from "../utilities";
 import {useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import {Helmet} from "react-helmet";
 
 function AweApp() {
 
-  const {settings} = useSelector((state) => ({settings: state.settings}));
+  const settings = useSelector(selectSettings);
 
   return (
     <>

@@ -6,6 +6,7 @@ import i18n from "../i18n/i18n";
 import {acceptAction} from "../redux/actions/actions";
 import {useLocation} from "react-router";
 import {useDispatch, useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import {
   backAction,
   changeLanguageAction,
@@ -21,7 +22,7 @@ import {
 const useScreenService = () => {
 
   const dispatch = useDispatch();
-  const { settings } = useSelector((state) => ({settings: state.settings}));
+  const settings = useSelector(selectSettings);
   const { pathname, search, hash } = useLocation();
   const currentLocation = `${pathname}${search}${hash}`;
 
