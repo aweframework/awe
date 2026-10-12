@@ -55,7 +55,7 @@ More info about logging in Spring boot [here](https://docs.spring.io/spring-boot
   <!-- Properties -->
   <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name" defaultValue="awe-app"/>
   <springProperty name="APPLICATION_LOG_PATH" scope="context" source="awe.application.log.group" defaultValue="/application"/>
-  <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}}"/>
+  <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}"/>
   <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-30.30logger{29}){cyan} %clr(:){faint} %clr(%X{execution}%X{user}%X{database}%X{currentScreen}){magenta}%m%n%wEx}"/>
   <property name="CONSOLE_LOG_CHARSET" value="${CONSOLE_LOG_CHARSET:-${file.encoding:-UTF-8}}"/>
   <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %X{execution}%X{user}%X{database}%X{currentScreen}%m%n%wEx}"/>

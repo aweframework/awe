@@ -124,6 +124,21 @@ point your IDE to `target/schemas/awe/catalog.xml` after the first build.
 - **Schema looks out of date**: the published URL always holds the latest AWE schemas; use the jar of your version
   to match your project exactly.
 
+## Checks when you change a schema
+
+The XSDs are in `awe-framework/awe-generic-screens/src/main/resources/schemas/awe`. Three checks protect them; none is a job of
+its own, they run inside the normal test and build jobs:
+
+| Check | What it verifies | Run it locally |
+|---|---|---|
+| `XsdCatalogConsistencyTest` (unit test of `awe-generic-screens`) | Catalog system ids are unique and are the published URLs, every XSD has a catalog entry, every entry points to an existing file, and every `schemaLocation` resolves through the catalog | `mvn test -pl awe-framework/awe-generic-screens -Dtest=XsdCatalogConsistencyTest` |
+| `xml-maven-plugin` `validate` (phase `compile`) | The application XML of the modules that configure it (`awe-boot`, `awe-boot-react`, `awe-scheduler-boot`, the AWE modules...) is valid against the schemas, resolved with the catalog unpacked into `target/schemas/awe/` | `mvn compile -pl awe-tests/awe-scheduler-boot -Dskip.frontend=true` |
+| Unit tests of the XSD reference generator (`website/scripts/xsd-reference`) | The generator that produces the [XSD reference](/reference/) from the schemas | `npm --prefix website run test:scripts` (also part of the `Build website` job) |
+
+When you add an XSD, add its entry to `catalog.xml` (the test fails otherwise) and its row to the
+[published schemas](#published-schemas) table. The pipeline publishes the XSDs and the catalog to the site from `develop` and
+`master` (job `pages`).
+
 ## JSON Schema: evaluated, not adopted
 
 We evaluated publishing JSON Schema versions of the definitions. We did not adopt it: AWE definitions are XML
