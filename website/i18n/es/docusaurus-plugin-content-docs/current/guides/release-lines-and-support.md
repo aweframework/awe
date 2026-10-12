@@ -106,14 +106,16 @@ vacío y un `401 Unauthorized` del repositorio Maven.
 
 ## Título y tamaño de la merge request {#merge-request-title-and-size}
 
-Cuatro jobs rápidos de la etapa `build` comprueban cada pipeline de merge request, antes de construir nada. Un quinto,
-[`Lint frontend`](#frontend-lint-blocking), comprueba el código de frontend de las merge requests que lo modifican.
+La etapa `build` ejecuta jobs rápidos en cada pipeline de merge request, antes de construir nada: `MR docs warning`
+(véase [Aviso de documentación](#docs-warning-not-blocking)) y, en las merge requests que modifican un cliente,
+[`Lint frontend`](#frontend-lint-blocking). Las comprobaciones de título, tamaño y desfase de traducción **no** son jobs
+de la pipeline: son scripts que se pueden ejecutar en local, descritos a continuación.
 
-### Formato del título (bloqueante) {#title-format-blocking}
+### Formato del título (comprobación local) {#title-format-blocking}
 
-La merge request se integra con squash, por lo que su título se convierte en el mensaje de commit en `develop`. El job
-`MR title lint` lo comprueba con [commitlint](https://commitlint.js.org/) y hace fallar la pipeline cuando no sigue
-Conventional Commits:
+La merge request se integra con squash, por lo que su título se convierte en el mensaje de commit en `develop`. Debe
+seguir Conventional Commits. La pipeline no lo comprueba (el antiguo job `MR title lint` se eliminó), así que
+compruébelo con [commitlint](https://commitlint.js.org/) (véase más abajo) antes de abrir la merge request:
 
 ```
 type(scope): description (#issue Ttask)
@@ -144,12 +146,12 @@ Las reglas están en `.gitlab/commitlint/commitlint.config.mjs`; las versiones d
 bin/lint-mr-title.sh "feat(awe-model): new option model (#795 T1a)"
 ```
 
-### Aviso de tamaño (no bloqueante) {#size-warning-not-blocking}
+### Aviso de tamaño (comprobación local) {#size-warning-not-blocking}
 
-El job `MR size warning` cuenta las líneas que cambia la merge request (adiciones más eliminaciones) y avisa por encima
-de **400**, el tamaño que un revisor todavía puede leer con atención. No hace fallar la pipeline: el job termina con
-código de salida 64, que tiene permitido fallar, y la pipeline muestra un aviso. El log del job lista los archivos más
-grandes. Dividir el trabajo en merge requests más pequeñas (un comportamiento con sus pruebas y documentación cada una)
+El script `bin/mr-size.sh` cuenta las líneas que cambia la merge request (adiciones más eliminaciones) y avisa por
+encima de **400**, el tamaño que un revisor todavía puede leer con atención. Es un comando local, ya no un job de la
+pipeline (`MR size warning` se eliminó): termina con código de salida 64 cuando el tamaño supera el límite y lista los
+archivos más grandes. Dividir el trabajo en merge requests más pequeñas (un comportamiento con sus pruebas y documentación cada una)
 mantiene las revisiones ágiles.
 
 Estos archivos no se cuentan: archivos de bloqueo (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `*.lock`,
@@ -182,13 +184,14 @@ base ausente en un clon superficial) imprime un aviso y termina con 0. Ejecútel
 CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop
 ```
 
-### Aviso de desfase de traducción (no bloqueante) {#translation-drift-warning-not-blocking}
+### Aviso de desfase de traducción (comprobación local) {#translation-drift-warning-not-blocking}
 
 Las traducciones al español viven en el repositorio (`website/i18n/es`), y una página sin traducción recurre al inglés.
-El job `MR translation drift warning` avisa cuando una merge request cambia una página en inglés bajo `website/docs`
+El script `bin/mr-translations.sh` avisa cuando una merge request cambia una página en inglés bajo `website/docs`
 cuya traducción al español existe en `website/i18n/es/docusaurus-plugin-content-docs/current` y no cambia esa
-traducción en la misma merge request. Las versiones congeladas no se comprueban. Termina con código de salida 64
-(tiene permitido fallar) o 0, como los demás avisos; ejecútelo en local con:
+traducción en la misma merge request. Las versiones congeladas no se comprueban. Es un comando local, ya no un job
+de la pipeline (`MR translation drift warning` se eliminó); termina con código de salida 64 cuando una traducción está
+desfasada, o 0. Ejecútelo con:
 
 ```bash
 bin/mr-translations.sh origin/develop
@@ -196,6 +199,20 @@ bin/mr-translations.sh origin/develop
 
 `bin/test-mr-checks.sh` prueba los cuatro scripts; el job `MR checks tests` lo ejecuta en las merge requests que los
 modifican.
+
+### Lint de la documentación en español (bloqueante) {#spanish-docs-lint}
+
+Las merge requests construyen solo el sitio en inglés, así que el job `Spanish docs lint` comprueba la traducción al español sin
+construirla. Ejecuta `npm --prefix website run check:translations` en las merge requests que cambian `website/`, en
+pocos segundos, y falla cuando una página en español bajo `website/i18n/es/docusaurus-plugin-content-docs/current`:
+
+- no compila como MDX (el informe indica el archivo y la línea);
+- difiere de la página en inglés de la misma ruta: un ancla de encabezado que falta o sobra, otro número de bloques de código
+  delimitados, u otro `id` o `slug` en el front matter; una página en español sin página en inglés es un error, y una página en inglés
+  sin traducción no lo es (Docusaurus recurre al inglés). Se omiten los generados `properties.md` y `rest-api.md`;
+- enlaza a una página `.md` que no existe ni en el árbol en español ni en el inglés.
+
+Ejecútelo en local con `npm --prefix website run check:translations`, seguido opcionalmente de las rutas de las páginas a comprobar.
 
 ## Lint del frontend (bloqueante) {#frontend-lint-blocking}
 
@@ -264,9 +281,9 @@ Los mismos comandos verifican `awe-boot-react`. El SBOM adjunto a ambas imágene
 
 Los escáneres se ejecutan en distintos puntos de la pipeline:
 
-- **El análisis de dependencias** (`gemnasium-maven-dependency_scanning`) se ejecuta en merge requests y en las
+- **El análisis de dependencias** (`Dependency scanning`) se ejecuta en merge requests y en las
   pipelines de rama `develop`/`master`/`support/*`, como antes.
-- **La detección de secretos** (`secret_detection`) se ejecuta en cada merge request y en cada pipeline de rama.
+- **La detección de secretos** (`Secret detection`) se ejecuta en cada merge request y en cada pipeline de rama.
 - **El análisis de contenedores** (`container_scanning`) se ejecuta solo en las pipelines de rama `develop`, `master` y
   `support/*`, después de que `Build package` haya enviado la imagen; tiene `allow_failure: true` durante las primeras
   semanas tras su adopción, de modo que los hallazgos aparecen sin bloquear las publicaciones, y se endurecerá una vez

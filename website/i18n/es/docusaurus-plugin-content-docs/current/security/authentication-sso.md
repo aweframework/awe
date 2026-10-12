@@ -58,6 +58,54 @@ bloqueado en la aplicación. El proveedor no puede usarse para saltarse esos ind
 - La caducidad de la contraseña no se aplica a los inicios de sesión SSO, ya que no se usa la contraseña. Tampoco se comprueba la caducidad de la cuenta, porque AWE no tiene una columna de caducidad de cuenta.
 - Cada rechazo se registra como una advertencia con el nombre de usuario.
 
+## Desactivar el inicio de sesión local {#switching-off-local-login}
+
+Por defecto AWE mantiene activo su propio inicio de sesión con usuario y contraseña cuando el SSO está habilitado. Para que el
+proveedor de identidad sea la única vía de entrada, define:
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.local-login=false
+```
+
+Con `awe.security.sso.local-login=false` (por defecto `true`) y el SSO habilitado:
+
+- La pantalla de acceso oculta el usuario, la contraseña y los controles de **Iniciar sesión** tanto en el cliente AngularJS como en el
+  de React, de modo que solo quedan los botones de SSO.
+- Los tres puntos de entrada de inicio de sesión rechazan a todo usuario que no sea un usuario de emergencia (más abajo):
+  `POST /action/login`, `POST /api/authenticate` y el inicio de sesión estándar por formulario de Spring. Comparten un único
+  gestor de autenticación que aplica la política. El bean `AuthenticationManager` compartido que usan los flujos internos (por ejemplo la
+  reautenticación) no se ve afectado, y con el SSO desactivado o `local-login=true` las peticiones de inicio de sesión llegan a los proveedores reales sin cambios.
+- Un usuario rechazado recibe **exactamente la misma respuesta que con una contraseña incorrecta** (mismo estado, título y mensaje), de modo que
+  el fallo no puede usarse para averiguar qué usuarios son de emergencia. Un rechazo sigue ejecutando la autenticación real
+  con una contraseña desechable, así que cuesta aproximadamente lo mismo que una contraseña incorrecta, nunca puede tener éxito y publica
+  el mismo evento de fallo de credenciales incorrectas para los oyentes de auditoría o bloqueo. El motivo real solo se escribe en el
+  log del servidor, como una línea `WARN` con el nombre de usuario (saneado, nunca la contraseña).
+
+El interruptor no tiene efecto cuando el SSO está desactivado, así que nunca puede dejar a todo el mundo fuera de una aplicación sin proveedor.
+Una aplicación puede sustituir la política declarando su propio bean `LocalLoginPolicy`.
+
+### Usuarios de emergencia (break-glass) {#break-glass-users}
+
+Si el proveedor de identidad está caído sigues necesitando una vía de entrada. Enumera los usuarios de AWE que pueden seguir iniciando sesión en local:
+
+```properties
+awe.security.sso.local-login=false
+awe.security.sso.break-glass-users=admin
+```
+
+- La lista está vacía por defecto: nadie puede iniciar sesión en local cuando el interruptor está desactivado.
+- Los nombres de usuario se recortan y se comparan **exactamente** (distingue mayúsculas y minúsculas). El nombre que se comprobó es el nombre que se
+  autentica. Varios nombres se separan con comas; los espacios y las entradas vacías se ignoran.
+- Un usuario de emergencia sigue pasando por las comprobaciones normales de cuenta: una cuenta bloqueada o caducada se rechaza.
+- Un usuario de emergencia abre la pantalla de acceso local en `/screen/public/signin-local` (por ejemplo
+  `https://my-app.example.com/screen/public/signin-local`) e inicia sesión con las credenciales locales normales. La pantalla está
+  siempre accesible y solo muestra el formulario de usuario y contraseña; mostrarla no concede nada, porque el servidor sigue
+  rechazando a todo el que no esté en la lista, con el mismo mensaje que una contraseña incorrecta.
+- Cada intento de inicio de sesión de emergencia se registra a nivel `WARN` con la etiqueta `[break-glass]` y el nombre de usuario, para que puedas
+  alertar sobre ello. Los rechazos también se registran a nivel `WARN`, sin la etiqueta.
+- Mantén la lista corta, usa contraseñas robustas y trata cada entrada `[break-glass]` del log como un evento que revisar.
+
 ## Mapeo de roles y sincronización de perfiles {#role-mapping-and-profile-synchronization}
 
 En cada inicio de sesión SSO, AWE mapea las autoridades concedidas procedentes del proveedor de identidad a un perfil, usando

@@ -32,6 +32,7 @@ describe('awe-react-client/test/js/criteria/AweInputEditorTest.jsx', () => {
 
     // check
     expect(document.querySelector("#editor")).not.toBeNull();
-  }, 15000);
+    // The first render loads and transforms the editor library (quill): slow on a cold cache in CI
+  }, 60000);
 
 });

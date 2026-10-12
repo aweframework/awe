@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.entities.queries.Constant;
@@ -19,6 +20,8 @@ import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 import static com.almis.awe.model.type.ParameterType.LIST_TO_STRING;
 
@@ -30,6 +33,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
   private static final String ERROR_TITLE_LAUNCHING_SQL_QUERY = "ERROR_TITLE_LAUNCHING_SQL_QUERY";
   private static final String ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE = "ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE";
+  private static final String ERROR_MESSAGE_UNSUPPORTED_FUNCTION = "ERROR_MESSAGE_UNSUPPORTED_FUNCTION";
+  private static final String ERROR_MESSAGE_UNSUPPORTED_CAST = "ERROR_MESSAGE_UNSUPPORTED_CAST";
   private static final String TYPE_INTEGER = "INTEGER";
   private static final String TYPE_LONG = "LONG";
 
@@ -115,8 +120,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @param function function
    * @return Field expression
    */
-  protected Expression getSimpleFieldExpression(String table, String field, String function) {
-    return applyFunctionToField(function, buildPath(table, field));
+  protected Expression getSimpleFieldExpression(String table, String field, String function) throws AWEQueryException {
+    return applyFunctionToField(function, buildPath(table, field), field);
   }
 
   /**
@@ -124,12 +129,15 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    *
    * @param function        Function to apply
    * @param fieldExpression Field expression
+   * @param fieldName       Field name, used to report an unsupported function
    * @return Field expression with function applied
+   * @throws AWEQueryException The function is not supported
    */
-  private Expression applyFunctionToField(String function, Expression fieldExpression) {
+  private Expression applyFunctionToField(String function, Expression fieldExpression, String fieldName) throws AWEQueryException {
     // Apply function to field
-    if (function != null) {
-      fieldExpression = getExpressionFunction(fieldExpression, function);
+    // An empty function means none, as when it is not set
+    if (function != null && !function.isBlank()) {
+      fieldExpression = getExpressionFunction(fieldExpression, function, fieldName);
     }
 
     return fieldExpression;
@@ -141,11 +149,13 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @param field           Field to apply cast
    * @param fieldExpression Field expression
    * @return Field expression with function applied
+   * @throws AWEQueryException The cast is not supported
    */
-  private Expression applyCastToField(SqlField field, Expression fieldExpression) {
+  private Expression applyCastToField(SqlField field, Expression fieldExpression) throws AWEQueryException {
     // Apply function to field
-    if (field.getCast() != null) {
-      fieldExpression = getExpressionCast(fieldExpression, field.getCast());
+    // An empty cast means none, as when it is not set
+    if (field.getCast() != null && !field.getCast().isBlank()) {
+      fieldExpression = getExpressionCast(fieldExpression, field.getCast(), getFieldName(field));
     }
 
     return fieldExpression;
@@ -435,7 +445,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     Expression castedField = applyCastToField(operand, expression);
 
     // Apply function
-    return applyFunctionToField(operand.getFunction(), castedField);
+    return applyFunctionToField(operand.getFunction(), castedField, getFieldName(operand));
   }
 
   /**
@@ -530,7 +540,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @param orderBy Order by
    * @return Expression
    */
-  protected OrderSpecifier getOrderByExpression(OrderBy orderBy) {
+  protected OrderSpecifier getOrderByExpression(OrderBy orderBy) throws AWEQueryException {
     Order order = orderBy.getType() != null ? Order.valueOf(orderBy.getType().toUpperCase()) : Order.ASC;
     OrderSpecifier orderSpecifier = new OrderSpecifier(order, getSimpleFieldExpression(orderBy.getTable(), orderBy.getField(), orderBy.getFunction()));
     if (orderBy.getNulls() != null) {
@@ -776,14 +786,28 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   }
 
   /**
+   * Retrieve the name of a field to report it in an error: its alias, its id or its variable
+   *
+   * @param field Field
+   * @return Field name
+   */
+  private String getFieldName(SqlField field) {
+    return Optional.ofNullable(field.getIdentifier())
+      .or(() -> Optional.ofNullable(field.getId()))
+      .orElse(field.getVariable());
+  }
+
+  /**
    * Add function to expression
    *
    * @param fieldExpression Current field expression
    * @param function        Function
+   * @param fieldName       Field name, used to report an unsupported function
    * @return Expression
+   * @throws AWEQueryException The function is not supported
    */
-  protected Expression getExpressionFunction(Expression fieldExpression, String function) {
-    switch (function.toUpperCase()) {
+  protected Expression getExpressionFunction(Expression fieldExpression, String function, String fieldName) throws AWEQueryException {
+    switch (function.toUpperCase(Locale.ROOT)) {
       case "ABS":
         // The field expression may be null when it could not be resolved (buildPath returns null for a
         // null node), so fall back to the same default type as an untyped expression instead of
@@ -818,7 +842,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case "HOUR":
       case "MONTH":
       case "YEAR":
-        return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.valueOf(function.toUpperCase()), fieldExpression);
+        return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.valueOf(function.toUpperCase(Locale.ROOT)), fieldExpression);
       case "DAY":
         return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.DAY_OF_MONTH, fieldExpression);
       case "ROW_NUMBER":
@@ -826,20 +850,37 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case "RANK":
         return SQLExpressions.rank();
       case "SUM":
-      default:
         return new WindowOver<>(Long.class, Ops.AggOps.SUM_AGG, fieldExpression);
+      default:
+        throw getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_FUNCTION, fieldName, function);
     }
+  }
+
+  /**
+   * Retrieve the exception of a function or cast that the engine does not support
+   *
+   * @param message   Locale key of the message
+   * @param fieldName Field that uses the value
+   * @param value     Unsupported value
+   * @return Exception naming the query, the field and the value
+   */
+  private AWEQueryException getUnsupportedValueException(String message, String fieldName, String value) {
+    String queryId = getQuery() == null ? null : getQuery().getId();
+    return new AWEQueryException(getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
+      getLocale(message, queryId, fieldName, value), queryId, null);
   }
 
   /**
    * Add cast to expression
    *
    * @param fieldExpression Current field expression
-   * @param cast            Function
+   * @param cast            Cast
+   * @param fieldName       Field name, used to report an unsupported cast
    * @return Expression
+   * @throws AWEQueryException The cast is not supported
    */
-  protected Expression getExpressionCast(Expression fieldExpression, String cast) {
-    switch (cast.toUpperCase()) {
+  protected Expression getExpressionCast(Expression fieldExpression, String cast, String fieldName) throws AWEQueryException {
+    switch (cast.toUpperCase(Locale.ROOT)) {
       case "STRING":
         return Expressions.stringOperation(Ops.STRING_CAST, fieldExpression);
       case "LONG":
@@ -849,8 +890,9 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case "DOUBLE":
         return Expressions.asString(fieldExpression).castToNum(Double.class);
       case TYPE_INTEGER:
-      default:
         return Expressions.asString(fieldExpression).castToNum(Integer.class);
+      default:
+        throw getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_CAST, fieldName, cast);
     }
   }
 

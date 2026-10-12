@@ -8,7 +8,7 @@ set -eu
 #
 #     type(scope): description (#issue Ttask)
 #
-# It is the "MR title lint" job of the pipeline (#762). The title is the commit message that
+# It is a local check (#762), no longer a job of the pipeline. The title is the commit message that
 # lands on develop (squash merge), so a title that does not follow the format breaks the history
 # conventions and the changelog.
 #

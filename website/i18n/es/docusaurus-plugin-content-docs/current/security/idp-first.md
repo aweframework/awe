@@ -153,21 +153,39 @@ awe.security.sso.overwrite-profile-with-default-role=false
 ```
 
 :::warning Auto-launch no es un interruptor del inicio de sesión local
-`awe.security.sso.auto-launch=true` solo omite la pantalla de inicio de sesión nativa. El endpoint de inicio de sesión local
+`awe.security.sso.auto-launch=true` solo omite la pantalla de inicio de sesión nativa. Por defecto el endpoint de inicio de sesión local
 (`POST /action/login`, `JsonAuthenticationFilter`) y el proveedor de autenticación configurado
-(`awe.security.auth-mode`: base de datos, LDAP, en memoria o personalizado) permanecen registrados y activos mientras el SSO está habilitado.
-Hoy, una cuenta que tiene contraseña local todavía puede iniciar sesión sin el proveedor.
+(`awe.security.auth-mode`: base de datos, LDAP, en memoria o personalizado) permanecen registrados y activos mientras el SSO está habilitado, así que una
+cuenta que tiene contraseña local todavía puede iniciar sesión sin el proveedor. Usa el interruptor de inicio de sesión local de abajo para cerrarlo.
 :::
 
-Hasta que exista el interruptor planificado, reduce la vía local no aprovisionando contraseñas locales para los usuarios SSO y
-restringiendo el acceso de red a `/action/login` donde tu infraestructura lo permita.
+### Interruptor del inicio de sesión local y usuarios de emergencia {#local-login-switch-and-break-glass-users}
+
+Desde AWE 5, `awe.security.sso.local-login=false` desactiva la vía de inicio de sesión local cuando el SSO está habilitado (por defecto `true`,
+que mantiene el comportamiento anterior). Los detalles y ejemplos están en
+[Inicio de sesión único](authentication-sso.md#switching-off-local-login).
+
+```properties title="IdP-first con una vía de entrada de emergencia"
+awe.security.sso.enabled=true
+awe.security.sso.local-login=false
+# Optional. Empty by default: nobody can sign in locally.
+awe.security.sso.break-glass-users=admin
+```
+
+| Aspecto | Comportamiento |
+| --- | --- |
+| Ámbito | Solo se aplica cuando `awe.security.sso.enabled=true`; se ignora en caso contrario. |
+| Vías locales | Los tres puntos de entrada de inicio de sesión (`POST /action/login`, `POST /api/authenticate` y el inicio de sesión estándar por formulario) comparten un único gestor de autenticación que aplica la política. Solo pasan los usuarios de emergencia. El bean `AuthenticationManager` compartido que usan los flujos internos no se decora. |
+| Qué ve un usuario rechazado | La misma respuesta que con una contraseña incorrecta, con aproximadamente el mismo coste (se ejecuta una autenticación real con una contraseña desechable), más el mismo evento de fallo de credenciales incorrectas. No se puede averiguar desde fuera qué usuarios son de emergencia. |
+| Pantalla de acceso | Ambos clientes ocultan el usuario, la contraseña y el botón de iniciar sesión; los botones de SSO permanecen. Un usuario de emergencia abre `/screen/public/signin-local`. |
+| Usuarios de emergencia | Los nombres de usuario de `awe.security.sso.break-glass-users`, recortados y comparados exactamente (distingue mayúsculas y minúsculas). Desactivado por defecto (lista vacía). Se autentican con sus credenciales locales y su perfil normales; las cuentas bloqueadas o caducadas se siguen rechazando. |
+| Auditoría | Cada intento de inicio de sesión de emergencia se registra a nivel `WARN` con la etiqueta `[break-glass]` y el nombre de usuario saneado; los rechazos se registran a nivel `WARN` sin la etiqueta. Las contraseñas y los tokens nunca se registran. |
+| Qué no cubre | El inicio de sesión OIDC, el modo REST `oauth2-resource-server` y cualquier autenticación que la aplicación añada fuera del gestor de autenticación de AWE. |
 
 ### Planificado en AWE 5 {#planned-in-awe-5}
 
 | Elemento | Intención |
 | --- | --- |
-| Interruptor del inicio de sesión local | Una propiedad (nombre propuesto `awe.security.sso.local-login`, por defecto `true` para preservar el comportamiento actual) que desactiva la vía de inicio de sesión local cuando el SSO está activo. |
-| Administrador de emergencia (break-glass) | Un administrador local opcional que todavía pueda iniciar sesión cuando la vía local esté desactivada; desactivado por defecto. |
 | Cierre de sesión por canal trasero | Cierre de sesión por canal trasero de OIDC más un registro de sesiones, para que la revocación del lado del proveedor termine las sesiones de AWE. |
 | Claim de roles configurable | Lectura de los roles desde un claim configurable para que Entra ID funcione directamente, además de la intermediación de Keycloak. Incluye selección determinista de perfil cuando coinciden varios roles. |
 | Mapeo de roles con fallo cerrado | En IdP-first, denegar el inicio de sesión cuando ningún rol se mapee; el rol por defecto de respaldo pasa a ser opcional. |
@@ -178,7 +196,7 @@ restringiendo el acceso de red a `/action/login` donde tu infraestructura lo per
 | Riesgo | Recomendación |
 | --- | --- |
 | Las sesiones de AWE abiertas sobreviven a la revocación en el IdP hasta que caducan. | Usa un tiempo de espera de sesión corto; adopta el cierre de sesión por canal trasero cuando esté disponible. |
-| El inicio de sesión local permanece activo bajo SSO. | No mantengas contraseñas locales para los usuarios SSO; adopta el interruptor de inicio de sesión local cuando esté disponible y trata al administrador de emergencia como una excepción monitorizada. |
+| El inicio de sesión local permanece activo bajo SSO (por defecto). | Define `awe.security.sso.local-login=false` y trata cada inicio de sesión de emergencia del log como una excepción monitorizada. |
 | El rol por defecto puede conceder acceso a usuarios sin rol. | Mantén `awe.application.default-role` **sin privilegios** (nunca un perfil administrativo); prefiere el mapeo con fallo cerrado cuando esté disponible. |
 | Mapeo ambiguo cuando varios roles llevan el prefijo. | Envía un único rol con prefijo por usuario; no dependas del orden. |
 | Secretos de cliente en archivos de configuración. | Inyéctalos desde variables de entorno o un almacén de secretos; si usas propiedades cifradas `ENC(...)`, sustituye el valor por defecto de `awe.security.master-key`. Nunca subas secretos al repositorio. |

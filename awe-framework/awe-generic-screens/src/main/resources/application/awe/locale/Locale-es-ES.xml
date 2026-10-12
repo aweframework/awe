@@ -484,6 +484,8 @@
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Tu usuario está bloqueado en la aplicación. Contacta con el administrador del sistema."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="La operación SUBSTRING requiere 2 o 3 operandos (fuente, beginIndex) o (fuente, beginIndex, endIndex), pero se recibieron {0}"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="El operando {0} de SUBSTRING debe ser una constante o variable compatible con entero, pero se obtuvo: {1}"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="El cast {2} del campo {1} de la query {0} no está soportado"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="La función {2} del campo {1} de la query {0} no está soportada"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="El menú actual no puede ser clonado"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="El método que se quiere invocar no está definido"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="El mantenimiento de la sentencia individual con auditoría múltiple ha fallado. [{0}]"/>

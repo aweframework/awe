@@ -110,14 +110,16 @@ empty Docker login and a `401 Unauthorized` from the Maven repository.
 
 ## Merge request title and size
 
-Four fast jobs of the `build` stage check every merge request pipeline, before anything is built.
-A fifth one, [`Lint frontend`](#frontend-lint-blocking), checks the front-end code of the merge requests that change it.
+The `build` stage runs fast jobs on every merge request pipeline, before anything is built: `MR docs warning`
+(see [Docs warning](#docs-warning-not-blocking)) and, for the merge requests that change a client,
+[`Lint frontend`](#frontend-lint-blocking). The title, size and translation drift checks are **not** pipeline jobs: they
+are scripts you can run locally, described below.
 
-### Title format (blocking)
+### Title format (local check) {#title-format-blocking}
 
 The merge request is squash merged, so its title becomes the commit message on `develop`.
-The job `MR title lint` checks it with [commitlint](https://commitlint.js.org/) and fails the
-pipeline when it does not follow Conventional Commits:
+It must follow Conventional Commits. The pipeline does not check it (the former `MR title lint` job was removed), so
+check it yourself with [commitlint](https://commitlint.js.org/) (see below) before you open the merge request:
 
 ```
 type(scope): description (#issue Ttask)
@@ -138,7 +140,7 @@ chore(deps): update dependency postcss to v8.5.28 (develop)
 ```
 
 The titles Renovate writes already follow the format, so its merge requests pass without changes.
-To fix a failing title, edit it in GitLab and retry the job.
+To fix a title, edit it in GitLab.
 
 The rules are in `.gitlab/commitlint/commitlint.config.mjs`; the commitlint versions are pinned
 in `.gitlab/commitlint/package.json` and `package-lock.json`, which Renovate updates. To check a
@@ -148,12 +150,12 @@ title locally (Node.js 22.12 or later):
 bin/lint-mr-title.sh "feat(awe-model): new option model (#795 T1a)"
 ```
 
-### Size warning (not blocking)
+### Size warning (local check) {#size-warning-not-blocking}
 
-The job `MR size warning` counts the lines the merge request changes (additions plus deletions)
-and warns above **400**, the size a reviewer can still read with attention. It does not fail the
-pipeline: the job ends with exit code 64, which is allowed to fail, and the pipeline shows a
-warning. The job log lists the biggest files. Splitting the work into smaller merge requests
+The script `bin/mr-size.sh` counts the lines the merge request changes (additions plus deletions)
+and warns above **400**, the size a reviewer can still read with attention. It is a local
+command, no longer a pipeline job (`MR size warning` was removed): it ends with exit code 64 when the
+size is above the limit and lists the biggest files. Splitting the work into smaller merge requests
 (one behavior with its tests and docs each) keeps reviews fast.
 
 These files are not counted: lockfiles (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`,
@@ -188,14 +190,14 @@ as a merge request does):
 CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop
 ```
 
-### Translation drift warning (not blocking)
+### Translation drift warning (local check) {#translation-drift-warning-not-blocking}
 
 Spanish translations live in the repository (`website/i18n/es`), and a page without a translation
-falls back to English. The job `MR translation drift warning` warns when a merge request changes
+falls back to English. The script `bin/mr-translations.sh` warns when a merge request changes
 an English page under `website/docs` whose Spanish translation exists in
 `website/i18n/es/docusaurus-plugin-content-docs/current` and does not change that translation in
-the same merge request. Frozen versions are not checked. It ends with exit code 64 (allowed to
-fail) or 0, like the other warnings; run it locally with:
+the same merge request. Frozen versions are not checked. It is a local command, no longer a
+pipeline job (`MR translation drift warning` was removed); it ends with exit code 64 when a translation is stale, or 0:
 
 ```bash
 bin/mr-translations.sh origin/develop
@@ -203,6 +205,20 @@ bin/mr-translations.sh origin/develop
 
 `bin/test-mr-checks.sh` tests the four scripts; the job `MR checks tests` runs it in merge
 requests that change them.
+
+### Spanish docs lint (blocking) {#spanish-docs-lint}
+
+Merge requests build the English site only, so the job `Spanish docs lint` checks the Spanish translation without
+building it. It runs `npm --prefix website run check:translations` in the merge requests that change `website/`, in
+a few seconds, and fails when a Spanish page under `website/i18n/es/docusaurus-plugin-content-docs/current`:
+
+- does not compile as MDX (the report gives the file and line);
+- differs from the English page of the same path: a missing or extra heading anchor, another number of fenced code
+  blocks, or another front matter `id` or `slug`; a Spanish page with no English page is an error, and an English page
+  without translation is not (Docusaurus falls back to English). The generated `properties.md` and `rest-api.md` are skipped;
+- links to a `.md` page that exists neither in the Spanish nor in the English tree.
+
+Run it locally with `npm --prefix website run check:translations`, optionally followed by the paths of the pages to check.
 
 ## Frontend lint (blocking)
 
@@ -273,9 +289,9 @@ The same commands verify `awe-boot-react`. The SBOM attached to both images is t
 
 Scanners run at different points in the pipeline:
 
-- **Dependency scanning** (`gemnasium-maven-dependency_scanning`) runs on merge requests
+- **Dependency scanning** (`Dependency scanning`) runs on merge requests
   and on `develop`/`master`/`support/*` branch pipelines, as before.
-- **Secret detection** (`secret_detection`) runs on every merge request and every branch
+- **Secret detection** (`Secret detection`) runs on every merge request and every branch
   pipeline.
 - **Container scanning** (`container_scanning`) runs on `develop`, `master` and
   `support/*` branch pipelines only, after `Build package` has pushed the image; it has

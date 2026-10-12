@@ -72,3 +72,14 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 </window>
 ```
 <img alt="Ventana estática con botones y panel" src={require('@docusaurus/useBaseUrl').default('img/Static_window_with_buttons_and_panel.png')} />
+
+## Motores AngularJS y React {#angularjs-and-react-engines}
+
+Ambos motores tratan `expandible` y `maximize` de la misma forma:
+
+* `expandible` establece la dirección en la que la ventana reparte el espacio entre sus hijos (`vertical` por defecto).
+* `maximize="true"` muestra un botón en la barra de título que maximiza la ventana sobre el contenido de la pantalla y la
+  restaura. Mientras la ventana está maximizada, el contenido con el estilo `expand-maximize` ocupa el espacio libre.
+
+Las diferencias son solo visuales: el motor AngularJS usa iconos de Font Awesome para el botón de maximizar y el motor React
+usa PrimeIcons, y el motor React muestra el `icon` de la ventana a la derecha de la barra de título.

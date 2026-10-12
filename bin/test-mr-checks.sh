@@ -4,11 +4,11 @@ set -eu
 # ============================================================
 # test-mr-checks.sh
 #
-# Tests of the merge request checks of the pipeline (#762, #784):
-#   - bin/lint-mr-title.sh  (job "MR title lint", blocking)
-#   - bin/mr-size.sh        (job "MR size warning", non-blocking)
-#   - bin/mr-docs.sh        (job "MR docs warning", non-blocking)
-#   - bin/mr-translations.sh (job "MR translation drift warning", non-blocking)
+# Tests of the merge request checks (#762, #784):
+#   - bin/lint-mr-title.sh   (local check, not a pipeline job)
+#   - bin/mr-size.sh         (local check, not a pipeline job)
+#   - bin/mr-docs.sh         (job "MR docs warning", non-blocking)
+#   - bin/mr-translations.sh (local check, not a pipeline job)
 #
 # Run it from anywhere: sh bin/test-mr-checks.sh
 # The title tests install commitlint on first use (npm ci in .gitlab/commitlint), so they need

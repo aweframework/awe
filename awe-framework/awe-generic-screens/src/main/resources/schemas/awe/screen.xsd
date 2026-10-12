@@ -105,7 +105,11 @@
   </xs:element>
 
   <!-- Grid Element -->
-  <xs:element name="grid" type="gridType" />
+  <xs:element name="grid" type="gridType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Data grid (or tree grid when treegrid is true) that shows the rows returned by a query. It contains the columns, optional group headers, buttons and context menu, and can be editable. Supported by both client engines; the tree grid support of the React engine is partial (see the attributes).</xs:documentation>
+    </xs:annotation>
+  </xs:element>
   
   <!-- Accordion Element -->
   <xs:element name="accordion" type="accordionType" />
@@ -150,10 +154,18 @@
   <xs:element name="wizard-panel" type="elementType" />
 
   <!-- Column Element -->
-  <xs:element name="column" type="columnType" />
+  <xs:element name="column" type="columnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column of a grid. It names the field of the data list to show and sets how the cell is shown or edited. It can also be placed inside a group-header.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Column Element -->
-  <xs:element name="group-header" type="groupHeaderType" />
+  <xs:element name="group-header" type="groupHeaderType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Second header level that spans over a set of consecutive columns of the grid. The label is shown over the columns it contains, and printed reports keep the grouping.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Window Element -->
   <xs:element name="window" type="windowType" />
@@ -162,7 +174,11 @@
   <xs:element name="resizable" type="resizableType" />
 
   <!-- Criteria Element -->
-  <xs:element name="criteria" type="criteriaType" />
+  <xs:element name="criteria" type="criteriaType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Input component (text, select, date, checkbox...) that gets a value from the user and sends it to the server. Its component attribute selects the kind of input. It can contain dependencies and a context menu.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Button Element -->
   <xs:element name="button" type="buttonType" />
@@ -250,12 +266,36 @@
 
   <!-- Server Call Attributes -->
   <xs:attributeGroup name="serverCallAttr">
-    <xs:attribute name="initial-load" type="initialLoadEnum" />
-    <xs:attribute name="server-action" type="serverActionEnum" />
-    <xs:attribute name="target-action" type="nameEnum" />
-    <xs:attribute name="max" type="xs:integer" />
-    <xs:attribute name="autorefresh" type="xs:integer" />
-    <xs:attribute name="autoload" type="booleanEnum" />
+    <xs:attribute name="initial-load" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the component gets its data when the screen is built. query runs the target query, enum reads the target enumerated, and value runs the target and uses the first row to fill the selected value (for a criterion this overrides the value from variable, session, property and value). A grid only loads data with query.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action used to load or refresh the component data (for example data). Used together with target-action.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the target (query, enumerated or maintain) that the server action runs.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Number of rows requested per page. Default: for a grid, the grid.rows.per.page property (30); for a criterion, the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autorefresh" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Reloads the component data from the server every this many seconds. 0 or empty means no automatic refresh.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autoload" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the component is reloaded from the server as soon as it is created, after the screen is shown. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Screen Attributes -->
@@ -439,45 +479,201 @@
 
   <!-- Criteria Attributes -->
   <xs:attributeGroup name="criteriaAttr">
-    <xs:attribute name="component" type="criteriaComponentType" use="required" />
-    <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
-    <xs:attribute name="unit" type="xs:string" />
-    <xs:attribute name="size" type="xs:string" />
-    <xs:attribute name="area-rows" type="xs:string" />
-    <xs:attribute name="placeholder" type="xs:string" />
-    <xs:attribute name="optional" type="booleanEnum" />
-    <xs:attribute name="value" type="xs:string" use="optional" default="" />
-    <xs:attribute name="readonly" type="booleanEnum" />
-    <xs:attribute name="variable" type="xs:string" />
-    <xs:attribute name="property" type="xs:string" />
-    <xs:attribute name="session" type="xs:string" />
-    <xs:attribute name="validation" type="xs:string" />
-    <xs:attribute name="number-format" type="xs:string" />
-    <xs:attribute name="show-slider" type="booleanEnum" />
-    <xs:attribute name="capitalize" type="booleanEnum" />
-    <xs:attribute name="strict" type="booleanEnum" />
-    <xs:attribute name="message" type="xs:string" />
-    <xs:attribute name="printable" type="printableEnum" />
-    <xs:attribute name="check-empty" type="booleanEnum" />
-    <xs:attribute name="check-initial" type="booleanEnum" />
-    <xs:attribute name="check-target" type="xs:string" />
-    <xs:attribute name="specific" type="xs:string" />
-    <xs:attribute name="checked" type="booleanEnum" />
-    <xs:attribute name="timeout" type="xs:integer" />
-    <xs:attribute name="group" type="xs:string" />
-    <xs:attribute name="destination" type="xs:string" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="show-weekends" type="xs:boolean" />
-    <xs:attribute name="show-future-dates" type="xs:boolean" />
-    <xs:attribute name="date-format" type="xs:string" />
-    <xs:attribute name="date-show-today-button" type="booleanEnum" />
-    <xs:attribute name="date-view-mode" type="viewModeEnum" />
-    <xs:attribute name="left-label" type="xs:integer" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="title" type="xs:string" />
+    <xs:attribute name="component" type="criteriaComponentType" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Kind of input: hidden, text, numeric, select, suggest, suggest-multiple, select-multiple, picklist, date, time, filtered-calendar, color, textarea, uploader, checkbox, radio, button-checkbox, button-radio, password, text-view or markdown-editor (progress is accepted by the schema but no engine implements it). picklist exists only in the React engine. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown above the input. It is a localization key that is translated. A style containing no-label hides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the criterion wrapper, usually Bootstrap grid classes such as col-sm-6. React adds col-12 when there is no style.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon class (Font Awesome) shown next to the input. React does not show it in a textarea.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit text shown after the input (text, password, numeric and text-view). React hides it when the slider is shown and in a textarea.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="size" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Size of the input: xs, sm, md or lg. Default: md (property awe.component.size).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="area-rows" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Textarea only. Number of visible rows. Without it the browser default applies.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="placeholder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hint text shown inside an empty input. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Select and select-multiple only. When false the first value is selected automatically if nothing is selected; when true an empty value is allowed and the selection can be cleared. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string" use="optional" default="">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Static initial value of the criterion. A comma separated list gives several values. For a checkbox or radio it is the value sent when checked. It has the lowest priority: a screen target, a variable, the stored criteria, the session and the property replace it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readonly" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Disables the input. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="variable" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the screen variable (a parameter sent from another screen) that gives the initial value. It also names the parameter sent to check a suggest value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="property" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of an application property whose value is the initial value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="session" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a session variable whose value is the initial value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validation" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Validation rules (for example required), separated by spaces. A rule list containing required also marks the criterion as required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Numeric only. Number format options in autoNumeric style (for example min, max, step and precision). AngularJS passes them to autoNumeric; React translates the common options.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-slider" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Numeric only. Shows a slider below the input. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="capitalize" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="strict" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. When true the value must be one of the values suggested by the server; when false any typed text is accepted. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="message" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="printable" type="printableEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Whether the criterion goes to printed reports. Only false excludes it; hidden criteria are never printed. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-empty" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Includes the criterion in the check that warns when a form is empty. React only looks at the criteria that set it to true; AngularJS ignores the attribute and checks all the top level criteria. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-initial" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared for suggest criteria; neither client engine nor the server reads it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-target" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. Query used to find the label of the selected value when only the value is known. Default: the target-action.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="specific" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checked" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox and radio only. The criterion starts checked. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="timeout" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. Delay in milliseconds before searching after typing. React uses this attribute (300 by default); AngularJS ignores it and uses a global setting.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox and radio only. Name of the group the criterion belongs to; the group is used in validation and to match the screen target field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="destination" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Folder where the uploaded files are stored.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text shown in a tooltip next to the label. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the help tooltip.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-weekends" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. When false, Saturdays and Sundays cannot be chosen. AngularJS only; React ignores it. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-future-dates" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. When false, dates after the current selected value cannot be chosen. AngularJS only; React ignores it. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Date format in bootstrap-datepicker syntax (default dd/mm/yyyy). AngularJS only; React always uses its own fixed format.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-show-today-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Shows the button that goes to today. AngularJS only (default: shown); React always shows it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-view-mode" type="viewModeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Smallest view of the calendar: days, months or years. Default: days. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="left-label" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the label to the left of the input, with a width of this many characters. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Initial visibility of the criterion. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tooltip shown over the input. AngularJS only; React does not use it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -557,35 +753,151 @@
 
   <!-- Grid Attributes -->
   <xs:attributeGroup name="gridAttr">
-    <xs:attribute name="id" use="required" type="nameEnum" />
-    <xs:attribute name="name" type="nameEnum" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="multiselect" type="booleanEnum" />
-    <xs:attribute name="checkbox-multiselect" type="booleanEnum" />
-    <xs:attribute name="send-operations" type="booleanEnum" />
-    <xs:attribute name="editable" type="booleanEnum" />
-    <xs:attribute name="show-totals" type="booleanEnum" />
-    <xs:attribute name="enable-filters" type="booleanEnum" />
-    <xs:attribute name="row-numbers" type="booleanEnum" />
-    <xs:attribute name="treegrid" type="booleanEnum" />
-    <xs:attribute name="tree-id" type="xs:string" />
-    <xs:attribute name="tree-parent" type="xs:string" />
-    <xs:attribute name="tree-leaf" type="xs:string" />
-    <xs:attribute name="expand-column" type="xs:string" />
-    <xs:attribute name="icon-expand" type="xs:string" />
-    <xs:attribute name="icon-collapse" type="xs:string" />
-    <xs:attribute name="icon-loading" type="loadingIconEnum" default="spinner" />
-    <xs:attribute name="initial-level" type="xs:integer" />
-    <xs:attribute name="icon-leaf" type="xs:string" />
-    <xs:attribute name="load-all" type="booleanEnum" />
-    <xs:attribute name="send-all" type="booleanEnum" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="validate-on-save" type="booleanEnum" />
-    <xs:attribute name="pagination-disabled" type="booleanEnum" />
-    <xs:attribute name="pager-values" type="xs:string" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="row-height" type="xs:integer" />
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Grid identifier. It is the key of the grid on the screen and the name of the grid variables sent to the server (for example id-RowTyp). Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Component name stored in the screen model. Neither client engine uses it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes added to the grid.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="multiselect" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows selecting several rows and adds a checkbox column to select them. Default: false. In a tree grid the React engine only supports single selection.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checkbox-multiselect" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Read by the model but not implemented by either client engine; use multiselect to get a checkbox column. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="send-operations" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Makes the grid editable and sends only the rows that were inserted, updated or deleted, with the type of operation of each row in the id-RowTyp parameter, and shows an operation icon column. It takes precedence over editable in the AngularJS engine. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="editable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows editing rows. In AngularJS the selected row is edited in place with save and cancel buttons; in React a row is edited with a row editor opened by double click. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-totals" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a footer row with the summary of each column that has a summary-type. AngularJS only calculates sums, whatever the summary-type; React supports sum, avg, max and min. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enable-filters" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a filter for each column. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="row-numbers" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Adds a first column with the row number. Not shown in tree grids. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="treegrid" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the data as a tree grid instead of a plain grid. The rows are related by the tree-id and tree-parent fields. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field that identifies each row. Default: id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-parent" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field with the identifier of the parent row. Default: parent.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-leaf" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field that tells whether a row is a leaf. Default: isLeaf. The React engine ignores this attribute and always reads isLeaf.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="expand-column" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the column that holds the expand and collapse toggle. React only (default: the tree-id field); the AngularJS engine ignores it and shows the toggle in the row header.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-expand" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a collapsed node. Default: plus-square. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-collapse" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of an expanded node. Default: minus-square. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-loading" type="loadingIconEnum" default="spinner">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. Default: spinner. AngularJS only; React always shows its own spinner.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-level" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Number of levels expanded after loading: a value of N expands N-1 levels, so 0 and 1 both start collapsed. AngularJS only; React expands only the rows that arrive marked as expanded.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-leaf" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a node without children. Default: dot-circle-o. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="load-all" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Loads every row at once (max is ignored) and sorts and paginates locally in the client. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="send-all" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sends the values of all the grid rows to the server instead of only the selected ones; the selected rows are then sent in the id.selected parameter. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text of the grid. AngularJS shows it in the column headers; React does not show it for grids.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the grid help. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validate-on-save" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When false, the row being edited is not validated before it is saved, or before the page is changed. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pagination-disabled" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hides the paginator of the grid. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pager-values" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma separated list of rows-per-page values the user can choose in the paginator (for example 5,25,50,100). Every value must be an integer. Without it AngularJS shows no selector and React offers 10, 20 and 30 plus the max value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Initial visibility of the grid. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="row-height" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Height of each row in pixels. AngularJS grids only (default 27); the React engine ignores it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -609,51 +921,215 @@
 
   <!-- Group Header Column Attributes -->
   <xs:attributeGroup name="columnGroupHeaderAttr">
-    <xs:attribute use="required" name="name" type="nameEnum" />
-    <xs:attribute name="label" type="xs:string" />
+    <xs:attribute use="required" name="name" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Required by the schema, but the model does not read it: the group header position comes from the columns it contains.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown over the grouped columns. It is a localization key that is translated. The header spans all the columns it contains, starting at the first one.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Column Attributes -->
   <xs:attributeGroup name="columnAttr">
-    <xs:attribute name="name" use="required" type="nameEnum" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="value" type="xs:string" />
-    <xs:attribute name="component" type="columnComponentType" />
-    <xs:attribute name="icon" type="xs:string" />
-    <xs:attribute name="unit" type="xs:string" />
-    <xs:attribute name="type" type="cellDataTypes" />
-    <xs:attribute name="server-action" type="serverActionEnum" />
-    <xs:attribute name="target-action" type="nameEnum" />
-    <xs:attribute name="initial-load" type="initialLoadEnum" />
-    <xs:attribute name="autorefresh" type="xs:integer" />
-    <xs:attribute name="align" type="alignEnum" />
-    <xs:attribute name="charlength" type="xs:integer" />
-    <xs:attribute name="width" type="columnWidth" />
-    <xs:attribute name="sort-field" type="xs:string" />
-    <xs:attribute name="hidden" type="booleanEnum" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="sortable" type="booleanEnum" />
-    <xs:attribute name="movable" type="booleanEnum" />    
-    <xs:attribute name="sendable" type="booleanEnum" />
-    <xs:attribute name="optional" type="booleanEnum" />
-    <xs:attribute name="summary-type" type="xs:string" />
-    <xs:attribute name="number-format" type="xs:string" />
-    <xs:attribute name="validation" type="xs:string" />
-    <xs:attribute name="formatter" type="xs:string" />
-    <xs:attribute name="format-options" type="xs:string" />
-    <xs:attribute name="frozen" type="booleanEnum" />
-    <xs:attribute name="pagebreak" type="booleanEnum" />
-    <xs:attribute name="printable" type="printableEnum" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="check-initial" type="booleanEnum" />
-    <xs:attribute name="checked" type="booleanEnum" />
-    <xs:attribute name="readonly" type="booleanEnum" />
-    <xs:attribute name="max" type="xs:string" />
-    <xs:attribute name="dialog" type="xs:string" />
-    <xs:attribute name="show-weekends" type="booleanEnum"/>
-    <xs:attribute name="strict" type="xs:boolean"/>
+    <xs:attribute name="name" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the field of the data list shown in the column. It is also the column identifier. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS class applied to the column. AngularJS applies it to the header and the cells; in React plain text cells ignore it and only column components use it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column header text. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Static value of the column. Cell values normally come from the query, so no client engine uses it for plain cells.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="component" type="columnComponentType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component only exists in React; progress, image, icon, text-view, button, formatted-text and sparkline are display components; sparkline is not implemented by any engine. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon class (Font Awesome) shown in the cell. Used by text-view and button columns; an icon or unit sent in the cell data overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit text shown to the right of the cell value (text-view, numeric and text cells). A unit sent in the cell data overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="cellDataTypes">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Type of the data of the column, used when printing so exported cells get the right format. It is not used for sorting or filtering. An invalid value makes the report fail.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action that loads the options of the column component (for example the values of a select).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Query or enumerated that provides the options of the column component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-load" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the options of the column component are loaded when the screen is built: query, enum or value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autorefresh" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Reloads the column options from the server every this many seconds. No client engine applies it specifically to columns.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="align" type="alignEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Horizontal alignment of the cell text: left, center or right. The header is always centered. It also sets the alignment in printed reports.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="charlength" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column width in characters. AngularJS uses it only when width is not set (characters times the character size, 8 pixels by default); React always uses it, as (characters + 4) times 8 pixels, and ignores width. Printed reports use it too.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="width" type="columnWidth">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column width: a number of pixels, or * to share the free space. AngularJS uses it before charlength and also accepts a percentage (for example 20%), which this schema does not allow and which fails when printing. React ignores it and uses charlength. In reports, * is a fixed width.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sort-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field used to sort the column. Default: the column name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="hidden" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hides the column. Hidden columns are still sent to the server and can be printed with printable. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Not applied: the initial visibility of a column is the opposite of hidden, so visible=false has no effect on its own. Dependencies can still change the visibility at run time.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sortable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows sorting by the column. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="movable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not applied: neither client engine uses it to allow or forbid moving the column. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>    
+    <xs:attribute name="sendable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sends the column values to the server (and to the print request). A printed column that is not sendable shows empty cells. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">For select and suggest column components, allows clearing the value. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="summary-type" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Calculation shown in the grid footer when show-totals is true. AngularJS always calculates a sum; React supports sum, avg, max and min and shows nothing for other values.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Number format options (autoNumeric style) of numeric cells and of the footer total. Both engines apply it; React translates only the common options.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validation" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Validation rules of the cell (for example required), applied when the cell is editable.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="formatter" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format-options" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="frozen" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Pins the column on the left so it stays out of the horizontal scroll. AngularJS only; do not use it when the header has more than one line. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pagebreak" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="printable" type="printableEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Whether the column goes to printed reports: true always prints it, even if hidden; excel prints it only in spreadsheet formats (XLSX, CSV); false never prints it. Without it the column is printed only when it is visible on screen. Only the AngularJS engine sends this information; React ignores it and prints the visible columns.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text shown in the column header. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the column help. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-initial" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model for suggest cells; neither client engine reads it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checked" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox cells only. Initial checked state. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readonly" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Prevents editing the cell when the column has an editable component. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of rows retrieved for the column options when the column is loaded from a target. Default: the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dialog" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-weekends" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date cells only. Shows the weekends in the calendar. The AngularJS engine honours it; React ignores it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="strict" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest cells only. When true (the default) the value must be one of the values suggested by the server. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Action Attributes -->
@@ -872,6 +1348,9 @@
 
   <!-- Criteria Type -->
   <xs:complexType name="criteriaType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a criterion: optional dependencies, context buttons and context separators. The id attribute is required.</xs:documentation>
+    </xs:annotation>
     <xs:complexContent>
       <xs:extension base="criteriaBaseType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -988,6 +1467,9 @@
 
   <!-- Grid Type -->
   <xs:complexType name="gridType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, and dependencies, in any order and number.</xs:documentation>
+    </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element minOccurs="0" ref="group-header" />
       <xs:element minOccurs="0" ref="column" />
@@ -1011,6 +1493,9 @@
 
   <!-- GroupHeader columns Type -->
   <xs:complexType name="groupHeaderType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a group header: the columns it spans. The columns must be consecutive, because the header starts at the first column and spans as many columns as it contains.</xs:documentation>
+    </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="column" />
     </xs:choice>
@@ -1019,6 +1504,9 @@
 
   <!-- Column Type -->
   <xs:complexType name="columnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a column: optional dependencies and button actions. The button actions run when the user clicks a column of component button.</xs:documentation>
+    </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="dependency" />
       <xs:element ref="button-action" />
@@ -1184,6 +1672,9 @@
 
   <!-- Printable Enumeration -->
   <xs:simpleType name="printableEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Printing mode: true always prints, false never prints, excel prints only in spreadsheet formats.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="true" />
       <xs:enumeration value="false" />
@@ -1193,6 +1684,9 @@
 
   <!-- View Mode Enumeration  -->
   <xs:simpleType name="viewModeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Smallest view of a date calendar: days, months or years.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="days" />
       <xs:enumeration value="months" />
@@ -1202,6 +1696,9 @@
 
   <!-- Initial load Enumeration -->
   <xs:simpleType name="initialLoadEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">How a component loads its data when the screen is built: from an enumerated, from a query, or from the first row of a query as a value.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="enum" />
       <xs:enumeration value="query" />
@@ -1339,6 +1836,9 @@
 
   <!-- Criteria component attribute values -->
   <xs:simpleType name="criteriaComponentType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Kind of input of a criterion. All values are implemented by both engines except picklist (React only) and progress (accepted by the schema but not implemented as a criterion by any engine; it only exists as a grid column).</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="hidden" />
       <xs:enumeration value="text" />
@@ -1367,6 +1867,9 @@
 
   <!-- Column component attribute values -->
   <xs:simpleType name="columnComponentType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing. link is React only; sparkline is reserved and not implemented by any engine; formatted-text renders sanitized HTML.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="text" />
       <xs:enumeration value="numeric" />
@@ -1429,6 +1932,9 @@
 
   <!-- Column cellData type Enumeration -->
   <xs:simpleType name="cellDataTypes">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Data type of a column used when printing: string, integer, float, date or boolean.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="string" />
       <xs:enumeration value="integer" />
@@ -1641,6 +2147,9 @@
 
   <!-- Loading icon enum -->
   <xs:simpleType name="loadingIconEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Style of the loading indicator of a grid.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="spinner" />
       <xs:enumeration value="square" />
@@ -1685,6 +2194,9 @@
 
   <!-- Modal on close enum -->
   <xs:simpleType name="columnWidth">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column width: a number of pixels or * for the free space.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:pattern value="([0-9]+|\*)"/>
     </xs:restriction>

@@ -5,9 +5,8 @@ set -eu
 # mr-size.sh
 #
 # Counts the lines a merge request changes (additions plus deletions) and warns when there are
-# more than 400, the size a reviewer can still read with attention. It is the "MR size warning"
-# job of the pipeline (#762): the job is allowed to fail with exit code 64, so a big merge
-# request shows a warning in the pipeline instead of a failure.
+# more than 400, the size a reviewer can still read with attention. It is a local check
+# (#762), no longer a job of the pipeline: it exits with code 64 when the merge request is big.
 #
 # Not counted: lockfiles (package-lock.json, yarn.lock, pnpm-lock.yaml, *.lock, skills-lock.json),
 # generated files (*.min.js, *.min.css, *.svg images, generated/ folders, target/ output), the changelog, the
