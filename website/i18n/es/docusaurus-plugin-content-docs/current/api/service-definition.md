@@ -289,7 +289,7 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-**Ejemplo 3**: Cargar un nodo json desde una rejilla
+**Ejemplo 3**: Cargar un nodo json desde un *grid*
 
 Definición de consulta para cargar un parámetro bean (cada variable es una lista de parámetros que rellenará un atributo del bean)
 
@@ -328,7 +328,7 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-**Ejemplo 4**: Cargar una lista de datos almacenada desde una fila de una rejilla
+**Ejemplo 4**: Cargar una lista de datos almacenada desde una fila de un grid
 
 Definición de consulta
 

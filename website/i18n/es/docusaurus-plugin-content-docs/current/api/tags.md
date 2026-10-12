@@ -18,7 +18,7 @@ Un `tag` es el bloque básico de construcción de una pantalla. Hace dos trabajo
 </tag>
 ```
 
-Un tag puede contener cualquier elemento de pantalla: otros tags, [ventanas](window.md), [rejillas](grids.md), [criterios](criteria.md),
+Un tag puede contener cualquier elemento de pantalla: otros tags, [ventanas](window.md), [grids](grids.md), [criterios](criteria.md),
 [botones](button.md), [includes](include.md)...
 
 Existe una forma especial que solo contiene texto:
@@ -52,17 +52,27 @@ Un `source` se puede usar **una vez** por pantalla, y los tags que tienen un `so
 
 ## Motores AngularJS y React {#angularjs-and-react-engines}
 
-| Caso                                           | Motor AngularJS                                                               | Motor React                                                                     |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Tag sin `type` (y sin `source`)                | Ningún elemento HTML: los hijos se colocan en el padre                        | Se genera un `div`                                                              |
-| Tag con `label` **y** con hijos                | Solo se dibuja la etiqueta (dentro de un `span`); los hijos se ignoran        | Se dibujan la etiqueta, el `<text>` y los hijos, en este orden                  |
-| `type` y `expandible` de un tag con `source`   | Se aplican: el tag de origen genera su propio elemento dentro de la plantilla | No se aplican: la plantilla usa el `style` y los hijos del tag de origen        |
+Ambos motores generan lo mismo para un tag:
 
-Por las dos primeras filas, escribe tags que se comporten igual en ambos motores:
+| Caso                                           | Resultado en ambos motores                                                                      |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tag sin `type` (y sin `source`)                | Ningún elemento HTML: su contenido se coloca en el padre. Su `style` y su `expandible` se ignoran |
+| Tag con `label`                                | Solo se dibuja la etiqueta. El `<text>` y los hijos del tag se ignoran                          |
+| Tag con `<text>` y sin `label`                 | Solo se dibuja el texto. Los hijos del tag se ignoran                                           |
+| `type` y `expandible` de un tag con `source`   | Se aplican: el tag de origen genera su propio elemento dentro de la plantilla                   |
 
-* Da un `type` a cada tag que tenga un `style` o un `expandible`, para que sea un elemento real en ambos motores.
+Las únicas diferencias que quedan son menores:
+
+* El motor AngularJS dibuja el `label` dentro de un `span`; el motor React lo dibuja directamente en el elemento del tag.
+* Un tag sin `type` que tiene un `style` lo ignora en ambos motores. Si necesitas el estilo, da un `type` al tag.
+* En el motor React el `style` de un tag de origen **sin** `type` sigue aplicándose al contenedor que la plantilla dibuja
+  para el origen. El motor AngularJS lo ignora. No dependas de ello: da un `type` al tag.
+
+Escribe los tags de modo que el resultado sea claro en ambos motores:
+
+* Da un `type` a cada tag que tenga un `style` o un `expandible`, para que sea un elemento real.
 * Usa un tag con `label` solo para texto. Si necesitas texto junto a otros elementos, pon cada uno en su propio tag.
-* Usa `<tag source="...">` solo para rellenar un punto de origen. Coloca el `div` con `expandible` **dentro** de él.
+* Usa `<tag source="...">` solo para rellenar un punto de origen. Añade un `type` si necesita un `expandible`.
 
 ## Ejemplos {#examples}
 

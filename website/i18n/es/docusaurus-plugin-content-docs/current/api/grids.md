@@ -1,20 +1,20 @@
 ---
 id: grids
-title: Tablas
+title: Grids
 ---
 
-Las tablas son el componente principal de AWE para mostrar las listas de datos. Está definido por *grid* y *columns*:
+Los *grids* son el componente principal de AWE para mostrar las listas de datos. Se definen con *grid* y *columns*:
 
-* La **tabla** es el contenedor de la lista de datos. Tiene la consulta a cargar y un conjunto de atributos para definir el comportamiento de la tabla.
+* El **grid** es el contenedor de la lista de datos. Tiene la consulta a cargar y un conjunto de atributos para definir el comportamiento del grid.
 * Cada **columna** contiene la fuente de los datos de la lista de datos, la etiqueta de la columna y otros atributos para administrar cada celda de columna.
 
 También hay una etiqueta **group-header** que se utiliza para mostrar una cabecera de segundo nivel sobre un grupo de encabezados de columnas.
 
-<img alt="Tabla" src={require('@docusaurus/useBaseUrl').default('img/Grid.png')} />
+<img alt="Grid" src={require('@docusaurus/useBaseUrl').default('img/Grid.png')} />
 
 ## Esqueleto de XML {#xml-skeleton}
 
-Para definir una cuadrícula (**grid**) o un **treegrid** en AWE debe seguir la siguiente estructura:
+Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estructura:
 
 ```xml
 <grid id="[grid-identifier]" ...>
@@ -31,7 +31,7 @@ Para definir una cuadrícula (**grid**) o un **treegrid** en AWE debe seguir la 
   ...
 </grid>
 ```
-## Estructura de cuadrícula {#grid-structure}
+## Estructura de grid {#grid-structure}
 
 ```xml
 <grid id="[grid-id]" style="[grid-style]" 
@@ -45,18 +45,18 @@ Para definir una cuadrícula (**grid**) o un **treegrid** en AWE debe seguir la 
 | Atributo               | Uso             | Tipo    | Descripción                                                                                                                                     | Valores                                                                                                                                                    |
 | ---------------------- | --------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | id                     | **Obligatorio** | String  | Grid identifier. Con fines de referencia                                                                                                        |                                                                                                                                                            |
-| label                  | Opcional        | String  | Título de cuadrícula (sólo para imprimir)                                                                                                       | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                 |
+| label                  | Opcional        | String  | Título de grid (sólo para imprimir)                                                                                                       | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                 |
 | style                  | Opcional        | String  | Clases CSS de Grid                                                                                                                              |                                                                                                                                                            |
-| initial-load          | Opcional        | String  | Llamada de acción del servidor para cargar los datos de la cuadrícula. Sólo soporta el valor de `query`                                      |                                                                                                                                                            |
+| initial-load          | Opcional        | String  | Llamada de acción del servidor para cargar los datos del grid. Sólo soporta el valor de `query`                                      |                                                                                                                                                            |
 | server-action          | Opcional        | String  | Llamada de acción del servidor                                                                                                                  | Ver [lista de acciones del servidor](actions.md#server-actions)                                                                                            |
 | target-action          | Opcional        | String  | Destino para llamar al servidor                                                                                                                 |                                                                                                                                                            |
 | max                    | Opcional        | Entero  | Número máximo de elementos a recuperar **por página**                                                                                           |                                                                                                                                                            |
-| pagination-disabled | Opcional        | Boolean | Deshabilitado el elemento de paginación de la cuadrícula                                                                                        | **Nota:** Valor predeterminado `false`                                                                                                                     |
-| pager-values      | Opcional        | String  | Activar paginador de cuadrícula. Establecer la lista de valores con el número de filas por página                                               | **Ejemplo:** `pager-value="5,25,50,100"`                                                                                                                   |
-| load-all            | Opcional        | Boolean | Cargar todos los valores de la cuadrícula y ordenar y paginar localmente                                                                        | **Nota:** El valor predeterminado es `false`                                                                                                               |
-| send-all            | Opcional        | Boolean | Enviar todos los valores de la cuadrícula al servidor en lugar de a los seleccionados. (Las seleccionadas se enviarán el parámetro `.selected`) | **Nota:** El valor predeterminado es `false`                                                                                                               |
-| help                  | Opcional        | String  | Texto de ayuda para la cuadrícula                                                                                                               | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                 |
-| help-image        | Opcional        | String  | Imagen de ayuda para la cuadrícula                                                                                                              | Esta **debe** ser una ruta de imagen                                                                                                                       |
+| pagination-disabled | Opcional        | Boolean | Deshabilitado el elemento de paginación del grid                                                                                        | **Nota:** Valor predeterminado `false`                                                                                                                     |
+| pager-values      | Opcional        | String  | Activar paginador de grid. Establecer la lista de valores con el número de filas por página                                               | **Ejemplo:** `pager-value="5,25,50,100"`                                                                                                                   |
+| load-all            | Opcional        | Boolean | Cargar todos los valores del grid y ordenar y paginar localmente                                                                        | **Nota:** El valor predeterminado es `false`                                                                                                               |
+| send-all            | Opcional        | Boolean | Enviar todos los valores del grid al servidor en lugar de a los seleccionados. (Las seleccionadas se enviarán el parámetro `.selected`) | **Nota:** El valor predeterminado es `false`                                                                                                               |
+| help                  | Opcional        | String  | Texto de ayuda para el grid                                                                                                               | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                 |
+| help-image        | Opcional        | String  | Imagen de ayuda para el grid                                                                                                              | Esta **debe** ser una ruta de imagen                                                                                                                       |
 | icon-loading        | Opcional        | String  | Establecer el icono de carga                                                                                                                    | `spinner` (por defecto), `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none` |
 | row-numbers        | Opcional        | Boolean | Indica si se muestran los números de fila                                                                                                              | El valor predeterminado es `true`                                                                                                                     |
 | row-height             | Opcional        | Entero  | Establece la altura de la fila en píxeles                                                                                                                    |                                                                                                                                                            |
@@ -85,7 +85,7 @@ Para definir una cuadrícula (**grid**) o un **treegrid** en AWE debe seguir la 
 | align      | Opcional        | String  | La columna **no es** visible                                                                                                                           | `left`, `center` o `right`                                                |
 | width      | Opcional        | Entero  | Ancho de la columna en píxeles o en porcentaje.                                                                                                                     | Ej.: `width = "10"` o `width = "20%"` **Nota:** Puede usar el valor '*' para ajuste automático. |
 | sortable   | Opcional        | Boolean | El campo es ordenable (si no es treegrid)                                                                                                              | El valor predeterminado es `true`                                           |
-| movable    | Opcional        | Boolean | Permite mover la posición de la columna en la cuadrícula                                                                                               | El valor predeterminado es `true`                                           |
+| movable    | Opcional        | Boolean | Permite mover la posición de la columna en el grid                                                                                               | El valor predeterminado es `true`                                           |
 | sendable   | Opcional        | Boolean | Los datos de columna deben ser enviados al servidor                                                                                                    | El valor predeterminado es `true`                                           |
 | charlength | Opcional        | Entero  | Ancho de columna en caracteres                                                                                                                         |                                                                                  |
 | label      | Opcional        | String  | Etiqueta de columna                                                                                                                                    | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)       |
@@ -99,7 +99,7 @@ Para definir una cuadrícula (**grid**) o un **treegrid** en AWE debe seguir la 
 
 ### Columnas de impresión {#printing-columns}
 
-Cuando se imprime una pantalla (véase la [guía del motor de impresión](../guides/print-guide.md)), cada cuadrícula decide qué columnas van al informe mediante el atributo `printable` de la columna:
+Cuando se imprime una pantalla (véase la [guía del motor de impresión](../guides/print-guide.md)), cada grid decide qué columnas van al informe mediante el atributo `printable` de la columna:
 
 | `printable` | Impreso en PDF, DOCX y TEXT         | Impreso en XLSX y CSV               |
 | ----------- | ----------------------------------- | ----------------------------------- |
@@ -128,7 +128,7 @@ Tenga en cuenta lo siguiente:
 - Una columna impresa necesita sus datos en el cliente, por lo que debe ser `sendable` (el valor por defecto). Una columna `sendable="false"` aparece en la cabecera del informe con celdas vacías.
 - Use `type` (`string`, `integer`, `float`, `date`) en las columnas impresas para que las celdas de la hoja de cálculo tengan el formato correcto.
 - Las columnas dentro de un `group-header` mantienen su agrupación en el informe. Las columnas del grupo que no se imprimen en un formato se omiten, y la cabecera del grupo desaparece cuando ninguna de sus columnas se imprime.
-- Cuando una petición de impresión mezcla formatos de hoja de cálculo y de documento y alguna columna es `printable="excel"`, AWE diseña el informe dos veces, una por cada tipo de salida. Las cuadrículas que se imprimen desde una consulta ejecutan esa consulta una vez por diseño.
+- Cuando una petición de impresión mezcla formatos de hoja de cálculo y de documento y alguna columna es `printable="excel"`, AWE diseña el informe dos veces, una por cada tipo de salida. Los grids que se imprimen desde una consulta ejecutan esa consulta una vez por diseño.
 - Los valores `all` y `tab`, admitidos por el esquema en versiones anteriores, se han eliminado. Sustituya `all` por `true`.
 
 ### Componentes de columna {#column-components}
@@ -196,7 +196,7 @@ Cuando se envía una **estructura compuesta** a una celda estándar, se pueden u
 
 #### Componente de columna de vista de texto {#text-view-column-component}
 
-Este componente es muy útil para mostrar un texto con estilo dentro de una cuadrícula con un icono. Los **atributos compuestos** para rellenar este componente son los siguientes:
+Este componente es muy útil para mostrar un texto con estilo dentro de un grid con un icono. Los **atributos compuestos** para rellenar este componente son los siguientes:
 
 | Atributo | Descripción                                                                                                                   |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -211,7 +211,7 @@ Este componente es muy útil para mostrar un texto con estilo dentro de una cuad
 
 <img alt="IconColumn" src={require('@docusaurus/useBaseUrl').default('img/IconColumn.png')} />
 
-Este componente es muy útil para mostrar un icono dentro de una cuadrícula. Los **atributos compuestos** para rellenar este componente son los siguientes:
+Este componente es muy útil para mostrar un icono dentro de un grid. Los **atributos compuestos** para rellenar este componente son los siguientes:
 
 | Atributo | Descripción                                                                                                               |
 | -------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -223,7 +223,7 @@ Este componente es muy útil para mostrar un icono dentro de una cuadrícula. Lo
 
 #### Componente de columna de texto con formato {#formatted-text-column-component}
 
-Este componente se utiliza para mostrar código HTML dentro de una cuadrícula. Se permiten dos tipos de etiquetas HTML:
+Este componente se utiliza para mostrar código HTML dentro de un grid. Se permiten dos tipos de etiquetas HTML:
 
 * `<format style="[text class]">`: Texto formateado.
 * `<br>`: Nueva línea
@@ -232,7 +232,7 @@ Este componente se utiliza para mostrar código HTML dentro de una cuadrícula. 
 
 <img alt="Columna" src={require('@docusaurus/useBaseUrl').default('img/ImageColumn.png')} />
 
-Este componente se utiliza para mostrar una imagen dentro de una cuadrícula. Los **atributos compuestos** para rellenar este componente son los siguientes:
+Este componente se utiliza para mostrar una imagen dentro de un grid. Los **atributos compuestos** para rellenar este componente son los siguientes:
 
 | Atributo | Descripción                                                                                                               |
 | -------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -287,13 +287,13 @@ El componente de progreso es muy útil para mostrar el estado de un trabajo, o u
 | name     | **Obligatorio** | String | Identificador de cabecera de grupo. Con fines de referencia |                                                                            |
 | label    | Opcional        | String | Etiqueta de cabecera de grupo                               | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md) |
 
-## Cuadrícula básica {#basic-grid}
+## Grid básico {#basic-grid}
 
-La cuadrícula básica es la cuadrícula estándar sin una estructura de árbol. Se puede definir como cuadrícula de una sola selección, cuadrícula multiselectiva, cuadrícula editable o cuadrícula multiopcional y combinaciones entre ellas.
+El grid básico es el grid estándar sin una estructura de árbol. Se puede definir como grid de una sola selección, grid multiselectivo, grid editable o grid multiopcional y combinaciones entre ellas.
 
 <img alt="BasicGrid" src={require('@docusaurus/useBaseUrl').default('img/BasicGrid.png')} />
 
-### Atributos básicos específicos de la cuadrícula {#basic-grid-specific-attributes}
+### Atributos básicos específicos del grid {#basic-grid-specific-attributes}
 
 | Atributo        | Tipo    | Descripción                         | Valores                            |
 | --------------- | ------- | ----------------------------------- | ---------------------------------- |
@@ -301,30 +301,30 @@ La cuadrícula básica es la cuadrícula estándar sin una estructura de árbol.
 | row-numbers | Boolean | Mostrar los números de fila         | El valor predeterminado es `false` |
 
 
-## Multiselección de cuadrícula {#multiselect-grid}
+## Multiselección de grid {#multiselect-grid}
 
 <img alt="MultiselectGrid" src={require('@docusaurus/useBaseUrl').default('img/MultiselectGrid.png')} />
 
-### Atributos específicos de cuadrícula de selección múltiple {#multiselect-grid-specific-attributes}
+### Atributos específicos de grid de selección múltiple {#multiselect-grid-specific-attributes}
 
 | Atributo                | Tipo    | Descripción                                                                                     | Valores                            |
 | ----------------------- | ------- | ----------------------------------------------------------------------------------------------- | ---------------------------------- |
 | multiselect          | Boolean | Permitir seleccionar más de una línea                                                           | El valor predeterminado es `false` |
 | checkbox-multiselect | Boolean | Permitir seleccionar más de una línea, pero haciendo clic en **solo** en las casillas laterales | El valor predeterminado es `false` |
 
-## Rejilla de árbol {#tree-grid}
+## Grid de árbol {#tree-grid}
 
-La rejilla de árbol es una rejilla que se puede expandir como árbol. Se puede definir como *árbol estándar*, *cargando árbol*, *árbol editable* o *árbol multiopción*, y combinaciones entre ellos.
+El grid de árbol es un grid que se puede expandir como árbol. Se puede definir como *árbol estándar*, *cargando árbol*, *árbol editable* o *árbol multiopción*, y combinaciones entre ellos.
 
-La estructura de datos **necesita** un identificador **por fila**, y también un **identificador padre**, sin valor si la fila es una fila raíz (sin padre). El campo identificador debe definirse en el atributo tree-id de la cuadrícula y el padre debe definirse en el atributo tree-parent.
+La estructura de datos **necesita** un identificador **por fila**, y también un **identificador padre**, sin valor si la fila es una fila raíz (sin padre). El campo identificador debe definirse en el atributo tree-id del grid y el padre debe definirse en el atributo tree-parent.
 
 <img alt="Cuadrícula" src={require('@docusaurus/useBaseUrl').default('img/TreeGrid.png')} />
 
-### Atributos específicos de la cuadrícula del árbol {#tree-grid-specific-attributes}
+### Atributos específicos del grid del árbol {#tree-grid-specific-attributes}
 
 | Atributo            | Tipo    | Descripción                         | Valores                                                          |
 | ------------------- | ------- | ----------------------------------- | ---------------------------------------------------------------- |
-| treegrid           | Boolean | Establecer cuadrícula como treegrid | El valor predeterminado es `false`                               |
+| treegrid           | Boolean | Establecer grid como treegrid | El valor predeterminado es `false`                               |
 | tree-id            | String  | Definir campo identificador         | El valor predeterminado es `id`                                  |
 | tree-parent         | String  | Definir campo padre                 | El valor predeterminado es `parent`                               |
 | tree-leaf       | String  | Definir el campo 'is leaf'          | El valor predeterminado es `isLeaf`                              |
@@ -334,34 +334,34 @@ La estructura de datos **necesita** un identificador **por fila**, y también un
 | icon-collapse     | String  | Icono de una rama expandida         | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md) |
 | icon-leaf       | String  | Icono de una rama de hoja           | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md) |
 
-## Rejilla editable {#editable-grid}
+## Grid editable {#editable-grid}
 
 <img alt="Grilla editable" src={require('@docusaurus/useBaseUrl').default('img/EditableGrid.png')} />
 
-### Atributos específicos de rejilla editables {#editable-grid-specific-attributes}
+### Atributos específicos del grid editable {#editable-grid-specific-attributes}
 
 | Atributo | Tipo    | Descripción                            | Valores                            |
 | -------- | ------- | -------------------------------------- | ---------------------------------- |
-| editable | Boolean | Permite editar las filas de cuadrícula | El valor predeterminado es `false` |
+| editable | Boolean | Permite editar las filas de grid | El valor predeterminado es `false` |
 
-## Multiopción de cuadrícula {#multioption-grid}
+## Multiopción de grid {#multioption-grid}
 
 <img alt="Multiopción" src={require('@docusaurus/useBaseUrl').default('img/MultioptionGrid.png')} />
 
-> **Nota:** La cuadrícula multiopción enviará una variable llamada `[GridId]-RowTyp` (donde `[GridId]` es el identificador de la cuadrícula) que contiene la acción realizada en cada fila (`INSERT`, `UPDATE` o `DELETE` acciones)
+> **Nota:** El grid multiopción enviará una variable llamada `[GridId]-RowTyp` (donde `[GridId]` es el identificador del grid) que contiene la acción realizada en cada fila (`INSERT`, `UPDATE` o `DELETE` acciones)
 
-### Atributos específicos de cuadrícula de múltiples opciones {#multioption-grid-specific-attributes}
+### Atributos específicos de grid de múltiples opciones {#multioption-grid-specific-attributes}
 
 | Atributo           | Tipo    | Descripción                                                                       | Valores                            |
 | ------------------ | ------- | --------------------------------------------------------------------------------- | ---------------------------------- |
-| send-operations | Boolean | Permite editar las filas de cuadrícula, pero enviando sólo las líneas modificadas | El valor predeterminado es `false` |
+| send-operations | Boolean | Permite editar las filas de grid, pero enviando sólo las líneas modificadas | El valor predeterminado es `false` |
 
-## Botones de cuadrícula {#grid-buttons}
+## Botones de grid {#grid-buttons}
 
 
-Puede añadir elementos de botón para realizar acciones sobre las cuadrículas. Por ejemplo, un par de botones para insertar y borrar filas.
+Puede añadir elementos de botón para realizar acciones sobre los grids. Por ejemplo, un par de botones para insertar y borrar filas.
 
-<img alt="Botones de rejilla" src={require('@docusaurus/useBaseUrl').default('img/GridButtons.png')} />
+<img alt="Botones de grid" src={require('@docusaurus/useBaseUrl').default('img/GridButtons.png')} />
 
 ```xml
 <grid id="GrdKeyLst" style="expand" initial-load="query" server-action="data" target-action="AweKeyLst" send-operations="true" editable="true" max="40">
@@ -385,13 +385,13 @@ Puede añadir elementos de botón para realizar acciones sobre las cuadrículas.
 
 ## Menú contextual {#context-menu}
 
-Puede definir un menú de contexto dentro de la cuadrícula para ayudar al usuario a realizar acciones con las filas seleccionadas. Ver [menú contextual](context-menu.md).
+Puede definir un menú de contexto dentro del grid para ayudar al usuario a realizar acciones con las filas seleccionadas. Ver [menú contextual](context-menu.md).
 
-<img alt="Menú contextual cuadriculado" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
+<img alt="Menú contextual de grid" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 
 ## Variables {#variables}
 
-El componente grid envía algunas variables específicas al servidor, dependiendo de su estado y atributos. Aquí está la lista de variables que pueden ser enviadas por el componente de cuadrícula:
+El componente grid envía algunas variables específicas al servidor, dependiendo de su estado y atributos. Aquí está la lista de variables que pueden ser enviadas por el componente de grid:
 
 | Variable                        | Tipo         | Condición                              | Descripción                                                                                                                                              |
 | ------------------------------- | ------------ | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -401,10 +401,10 @@ El componente grid envía algunas variables específicas al servidor, dependiend
 | _[ColumnName]_                  | Matriz       | `send-all="true"`               | Lista de todos los valores de columna (para cada columna)                                                                                                |
 | _[ColumnName]_.selected         | Valor/Matriz | Siempre                                | Lista de valores de columna de líneas seleccionadas (para cada columna). Si sólo hay una fila seleccionada, sólo enviará el valor en lugar de una matriz |
 | _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila                                                                    |
-| sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de cuadrícula (`id`: id de columna, `direction`: dirección de ordenación)                          |
-| _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra de la cuadrícula (página, máximos registros, información de ordenación, etc.)                                                 |
+| sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de grid (`id`: id de columna, `direction`: dirección de ordenación)                          |
+| _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra del grid (página, máximos registros, información de ordenación, etc.)                                                 |
 
-La cuadrícula multioperación envía las variables de una manera diferente a las otras rejillas:
+El grid multioperación envía las variables de una manera diferente a los otros grids:
 
 | Variable                        | Tipo         | Condición                              | Descripción                                                                                                                                              |
 | ------------------------------- | ------------ | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -414,7 +414,7 @@ La cuadrícula multioperación envía las variables de una manera diferente a la
 | _[ColumnName]_                  | Matriz       | `multioperation="true"`           | Lista de valores de columna para filas con operaciones (para cada columna)                                                                               |
 | _[ColumnName]_.selected         | Valor/Matriz | Siempre                                | Lista de valores de columna de líneas seleccionadas (para cada columna). Si sólo hay una fila seleccionada, sólo enviará el valor en lugar de una matriz |
 | _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila                                                                    |
-| sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de cuadrícula (`id`: id de columna, `direction`: dirección de ordenación)                          |
-| _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra de la cuadrícula (página, máximos registros, información de ordenación, etc.)                                                 |
+| sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de grid (`id`: id de columna, `direction`: dirección de ordenación)                          |
+| _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra del grid (página, máximos registros, información de ordenación, etc.)                                                 |
 
 > **Nota:** Ver muestras de uso en [Definición de servicio](service-definition.md#load-beans-from-parameters)

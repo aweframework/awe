@@ -126,13 +126,13 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `dialog`                         | Abre un diálogo modal                                                                                    | `dialog`                    |
 | `close`                          | Cierra un diálogo                                                                                        | `dialog`                    |
 | `close-cancel`                   | Cierra un diálogo cancelando la pila de acciones que lo abrió                                             | `dialog`                    |
-| `filter`                         | Recargar una matriz                                                                                      | `grid`                      |
-| `add-row`                        | Añadir una fila vacía en la parte inferior de la matriz                                                  | `grid`                      |
-| `add-row-top`                    | Añadir una fila vacía en la parte superior de la matriz                                                  | `grid`                      |
+| `filter`                         | Recargar un *grid*                                                                                      | `grid`                      |
+| `add-row`                        | Añadir una fila vacía en la parte inferior del grid                                                  | `grid`                      |
+| `add-row-top`                    | Añadir una fila vacía en la parte superior del grid                                                  | `grid`                      |
 | `add-row-up`                     | Añadir una fila vacía sobre la fila seleccionada                                                         | `grid`                      |
 | `add-row-down`                   | Añadir una fila vacía debajo de la fila seleccionada                                                     | `grid`                      |
-| `copy-row`                       | Copia la fila seleccionada en la parte inferior de la matriz                                             | `grid`                      |
-| `copy-row-top`                   | Copia la fila seleccionada en la parte superior de la matriz                                             | `grid`                      |
+| `copy-row`                       | Copia la fila seleccionada en la parte inferior del grid                                             | `grid`                      |
+| `copy-row-top`                   | Copia la fila seleccionada en la parte superior del grid                                             | `grid`                      |
 | `copy-row-up`                    | Copiar la fila seleccionada sobre la fila seleccionada                                                   | `grid`                      |
 | `copy-row-down`                  | Copiar la fila seleccionada debajo de la fila seleccionada                                               | `grid`                      |
 | `delete-row`                     | Eliminar la fila seleccionada                                                                            | `grid`                      |
@@ -141,15 +141,15 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `check-one-selected`             | Comprueba si hay una fila seleccionada                                                                   | `grid`                      |
 | `check-some-selected`            | Comprueba si hay una o más filas seleccionadas                                                           | `grid`                      |
 | `check-records-saved`            | Comprueba si todos los registros están almacenados (el usuario no está editando una fila)                | `grid`                      |
-| `check-records-generated`        | Comprueba si hay al menos una fila en la matriz                                                          | `grid`                      |
-| `select-first-row`               | Selecciona la primera fila de la matriz                                                                  | `grid`                      |
-| `select-last-row`                | Selecciona la última fila de la matriz                                                                   | `grid`                      |
-| `select-all-rows`                | Seleccionar todas las filas de la matriz                                                                 | `grid`                      |
-| `unselect-all-rows`              | Deseleccionar todas las filas de la tabla                                                                | `grid`                      |
-| `validate-selected-row`          | Iniciar una validación en la fila seleccionada de la matriz                                              | `grid`                      |
-| `copy-selected-rows-clipboard`   | Copiar las filas seleccionadas de la cuadrícula al portapapeles                                                      | `grid`                      |
-| `show-columns`                   | Mostrar las columnas de la cuadrícula definidas en el parámetro `columns`                                                 | `grid`                      |
-| `hide-columns`                   | Ocultar las columnas de la cuadrícula definidas en el parámetro `columns`                                                 | `grid`                      |
+| `check-records-generated`        | Comprueba si hay al menos una fila en el grid                                                          | `grid`                      |
+| `select-first-row`               | Selecciona la primera fila del grid                                                                  | `grid`                      |
+| `select-last-row`                | Selecciona la última fila del grid                                                                   | `grid`                      |
+| `select-all-rows`                | Seleccionar todas las filas del grid                                                                 | `grid`                      |
+| `unselect-all-rows`              | Deseleccionar todas las filas del grid                                                                | `grid`                      |
+| `validate-selected-row`          | Iniciar una validación en la fila seleccionada del grid                                              | `grid`                      |
+| `copy-selected-rows-clipboard`   | Copiar las filas seleccionadas del grid al portapapeles                                                      | `grid`                      |
+| `show-columns`                   | Mostrar las columnas del grid definidas en el parámetro `columns`                                                 | `grid`                      |
+| `hide-columns`                   | Ocultar las columnas del grid definidas en el parámetro `columns`                                                 | `grid`                      |
 | `tree-branch`                    | Añadir las filas recibidas en el parámetro `datalist` como hijas de la rama que se expande                    | `grid` (tree)               |
 | `change-theme`                   | Cambia el tema al valor definido en el criterio definido en `target`                                     | `criteria`                  |
 | `change-language`                | Cambia el idioma al valor definido en el criterio definido en `target`                                   | `criteria`                  |
@@ -210,10 +210,10 @@ Estas acciones las lanza el propio framework como parte del ciclo de vida de las
 | `file-downloaded`      | Notificar a un componente de descarga que ha terminado la descarga del archivo                             |
 | `locals-retrieved`     | Almacenar las traducciones obtenidas del servidor para un idioma                               |
 | `log-delta`            | Añadir nuevas líneas de registro a un visor de registros y desplazarlo hacia abajo                             |
-| `after-add-row`      | Se lanza después de añadir una fila a una cuadrícula                                                 |
-| `after-delete-row`    | Se lanza después de eliminar una fila de una cuadrícula                                             |
-| `after-save-row` | Se lanza después de guardar una fila en una cuadrícula editable                                       |
-| `after-cancel-row`    | Se lanza después de cancelar la edición de una fila en una cuadrícula editable                    |
+| `after-add-row`      | Se lanza después de añadir una fila a un grid                                                 |
+| `after-delete-row`    | Se lanza después de eliminar una fila de un grid                                             |
+| `after-save-row` | Se lanza después de guardar una fila en un grid editable                                       |
+| `after-cancel-row`    | Se lanza después de cancelar la edición de una fila en un grid editable                    |
 
 ## Acciones del servidor {#server-actions}
 
@@ -244,7 +244,7 @@ Estas acciones las lanza el propio framework como parte del ciclo de vida de las
 
 ## Acciones del cliente de servicios Java {#client-actions-from-java-services}
 
-Este tipo de acciones se utilizan para ejecutar las acciones del cliente desde los servicios java en el servidor. Son útiles para realizar muchas acciones en el elemento de la ventana con un único servicio. Por ejemplo, rellene criterios y matrices a la vez, añada dinámicamente columnas a una matriz, agregue o reemplace series en las gráficas, etc.
+Este tipo de acciones se utilizan para ejecutar las acciones del cliente desde los servicios java en el servidor. Son útiles para realizar muchas acciones en el elemento de la ventana con un único servicio. Por ejemplo, rellene criterios y grids a la vez, añada dinámicamente columnas a un grid, agregue o reemplace series en las gráficas, etc.
 
 ### Acciones generales de servicios java {#general-actions-from-java-services}
 
@@ -432,36 +432,36 @@ public ServiceData updateButtonLabel() {
 }
 ```
 
-### Acciones de matrices desde servicios de java {#grid-actions-from-java-services}
+### Acciones de grids desde servicios de java {#grid-actions-from-java-services}
 
 | Acción              | Descripción                                                                                                                    | Parámetros                                                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fill`              | Rellena una tabla con una lista de datos                                                                                       | `rows` - filas de la lista de datos                                                                                                                                       |
+| `fill`              | Rellena un grid con una lista de datos                                                                                       | `rows` - filas de la lista de datos                                                                                                                                       |
 |                     |                                                                                                                                | `total` - Número total de páginas de la lista de datos                                                                                                                    |
 |                     |                                                                                                                                | `page` - Página de la lista de datos                                                                                                                                      |
 |                     |                                                                                                                                | `records` - Número de registros de la lista de datos                                                                                                                      |
-| `add-columns`       | Añadir columnas a la estructura de la matriz                                                                                   | `columns` - ArrayNode con estructura de columna                                                                                                                           |
-| `replace-columns`   | Reemplazar las columnas de la matriz con otra estructura de columnas                                                           | `columns` - ArrayNode con estructura de columna                                                                                                                           |
-| `update-cell`       | Actualizar una celda en una matriz. Utilizado para actualizar una celda de una tabla con otro valor, estilo, icono, título ... | `values` - ObjectNode con atributos de celda                                                                                                                              |
-| `add-row`           | Añadir una fila en la parte inferior de la matriz                                                                              | `row` - valores de la fila (opcional)                                                                                                                                     |
+| `add-columns`       | Añadir columnas a la estructura del grid                                                                                   | `columns` - ArrayNode con estructura de columna                                                                                                                           |
+| `replace-columns`   | Reemplazar las columnas del grid con otra estructura de columnas                                                           | `columns` - ArrayNode con estructura de columna                                                                                                                           |
+| `update-cell`       | Actualizar una celda en un grid. Utilizado para actualizar una celda de un grid con otro valor, estilo, icono, título ... | `values` - ObjectNode con atributos de celda                                                                                                                              |
+| `add-row`           | Añadir una fila en la parte inferior del grid                                                                              | `row` - valores de la fila (opcional)                                                                                                                                     |
 |                     |                                                                                                                                | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
-| `add-row-top`       | Añadir una fila en la parte superior de la matriz                                                                              | `row` - valores de fila (opcional)                                                                                                                                        |
+| `add-row-top`       | Añadir una fila en la parte superior del grid                                                                              | `row` - valores de fila (opcional)                                                                                                                                        |
 |                     |                                                                                                                                | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `add-row-up`        | Añadir una fila sobre la fila seleccionada                                                                                     | `row` - valores de fila (opcional)                                                                                                                                        |
 |                     |                                                                                                                                | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `add-row-down`      | Añadir una fila debajo de la fila seleccionada                                                                                 | `row` - valores de la fila (opcional)                                                                                                                                     |
 |                     |                                                                                                                                | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
-| `copy-row`          | Copia la fila seleccionada en la parte inferior de la tabla                                                                    | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
-| `copy-row-top`      | Copia la fila seleccionada en la parte superior de la tabla                                                                    | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
+| `copy-row`          | Copia la fila seleccionada en la parte inferior del grid                                                                    | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
+| `copy-row-top`      | Copia la fila seleccionada en la parte superior del grid                                                                    | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `copy-row-up`       | Copiar la fila seleccionada en la fila anterior                                                                                | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `copy-row-down`     | Copiar la fila seleccionada debajo de la fila seleccionada                                                                     | `selectedRow` - Identificador de fila seleccionada (opcional)                                                                                                             |
 | `update-row`        | Actualizar los valores de fila seleccionados                                                                                   | `row` - valores de la fila, `rowId` - id de fila a actualizar (si no se da ninguna, se cogerá la fila seleccionada), `style` - clase CSS para añadir a la fila (opcional) |
 | `delete-row`        | Elimina la fila seleccionada                                                                                                   |                                                                                                                                                                           |
-| `filter`            | Recargar los datos de la cuadrícula                                                                                                           |                                                                                                                                                                           |
+| `filter`            | Recargar los datos del grid                                                                                                           |                                                                                                                                                                           |
 | `show-columns`      | Show grid columns                                                                                                              | `columns` - Lista de identificadores de columnas a mostrar                                                                                                                            |
 | `hide-columns`      | Hide grid columns                                                                                                              | `columns` - Lista de identificadores de columnas a ocultar                                                                                                                            |
-| `select-all-rows`   | Seleccionar todas las filas de la matriz                                                                                       |                                                                                                                                                                           |
-| `unselect-all-rows` | Deseleccionar todas las filas de la tabla                                                                                      |                                                                                                                                                                           |
+| `select-all-rows`   | Seleccionar todas las filas del grid                                                                                       |                                                                                                                                                                           |
+| `unselect-all-rows` | Deseleccionar todas las filas del grid                                                                                      |                                                                                                                                                                           |
 
 **fill**
 

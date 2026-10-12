@@ -65,7 +65,7 @@ temas, gráficos 3D, formatos, impresión, reglas CSS) está en [Actualización 
 
 ### El HTML de las celdas se sanitiza {#html-in-cells-is-sanitized}
 
-El texto de una celda de rejilla (y la etiqueta de un `tag`) puede llevar HTML, porque las transformaciones `TEXT_HTML`
+El texto de una celda de *grid* (y la etiqueta de un `tag`) puede llevar HTML, porque las transformaciones `TEXT_HTML`
 y `MARKDOWN_HTML` de una consulta lo generan. El cliente React ya no inserta ese HTML en la página tal como llega: lo
 sanitiza con [DOMPurify](https://github.com/cure53/DOMPurify) y una lista de permitidos estricta.
 
@@ -99,7 +99,7 @@ conservado como artefacto del job `Publish npm` de cada etiqueta de publicación
 ### Otros cambios {#other-changes}
 
 Entre `awe-react-client` 2.2.5 y la primera versión de AWE 5 el cliente también recibió correcciones de comportamiento
-(criterios, rejillas, árboles, asistentes, impresión, las pantallas del planificador) encontradas mientras sus suites
+(criterios, grids, árboles, asistentes, impresión, las pantallas del planificador) encontradas mientras sus suites
 de integración se migraban al repositorio de AWE, además de atributos `data-testid` en sus componentes para que las
 pruebas de navegador no dependan de clases CSS. El historial de la línea 2.x, con las merge requests de cada versión,
 se conserva en

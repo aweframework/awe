@@ -112,12 +112,12 @@ Los elementos de dependencia son la definición de las *condiciones* necesarias 
 | Atributo        | Uso             | Tipo    | Descripción                                                                                                                       | Valores                                                                                                                        |
 | --------------- | --------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | id              | **Obligatorio** | String  | Identificador del componente                                                                                                              |                                                                                                                                |
-| column         | Opcional        | String  | Identificador de columna del componente (aplicable en las rejillas)                                                               |                                                                                                                                |
+| column         | Opcional        | String  | Identificador de columna del componente (aplicable en los *grids*)                                                               |                                                                                                                                |
 | attribute        | Opcional        | String  | Atributo a comprobar.                                                                                                             | Ver [atributos](#attributes) a continuación. El valor predeterminado es `selected`                                         |
 | condition       | Opcional        | String  | Condición de comparación                                                                                                          | Vea las condiciones del elemento de dependencia [dependency element conditions](#dependency-element-conditions). El valor predeterminado es `is not empty` |
-| row            | Opcional        | String  | Número de fila de la cuadrícula para comprobar el atributo                                                                        |                                                                                                                                |
+| row            | Opcional        | String  | Número de fila del grid para comprobar el atributo                                                                        |                                                                                                                                |
 | id2             | Opcional        | String  | Identificador de componente a comparar                                                                                            |                                                                                                                                |
-| column2        | Opcional        | String  | Identificador de columna del componente (aplicable en las rejillas)                                                               |                                                                                                                                |
+| column2        | Opcional        | String  | Identificador de columna del componente (aplicable en los grids)                                                               |                                                                                                                                |
 | attribute2       | Opcional        | String  | Atributo a comprobar.                                                                                                             |                                                                                                                                |
 | event          | Opcional        | String  | Evento a comprobar                                                                                                                | Ver [eventos](#events) a continuación.                                                                                         |
 | value           | Opcional        | String  | Valor a comprobar                                                                                                                 |                                                                                                                                |
@@ -157,27 +157,27 @@ Los atributos son todos los datos que se pueden obtener de un componente AWE. De
 | required              | [Criterios](criteria.md)                                                  | `true` si el componente es requerido                                                                                             |
 | selectedValues         | [Seleccionar y Sugerir Múltiples](criteria.md#multiple-select-criterion) | Obtiene el número de los valores seleccionados del criterio de selección                                                              |
 | totalValues           | [Seleccionar](criteria.md#select-criterion)                              | Obtiene el número total de valores del criterio de selección                                                                          |
-| currentRow            | [Tabla](grids.md)                                                        | Obtiene el identificador de fila actual                                                                                               |
-| currentRowValue           | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila actual (no la seleccionada). Esto es útil para actualizar los valores de fila sin una selección |
-| prevCurrentRow  | [Tabla](grids.md)                                                        | Obtiene la fila anterior a la fila actual                                                                                             |
-| prevCurrentRowValue    | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila anterior a la fila actual                                                                       |
-| nextCurrentRow  | [Tabla](grids.md)                                                        | Obtiene la siguiente fila a la fila actual                                                                                            |
-| nextCurrentRowValue | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la siguiente fila a la fila actual                                                                      |
-| selectedRow            | [Tabla](grids.md)                                                        | Obtiene el identificador de fila seleccionado                                                                                         |
-| selectedRowValue       | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila seleccionada.                                                                                   |
-| prevRow               | [Tabla](grids.md)                                                        | Obtiene la fila anterior al identificador seleccionado                                                                                |
-| prevRowValue           | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila anterior a la seleccionada                                                                      |
-| nextRow               | [Tabla](grids.md)                                                        | Obtiene la siguiente fila al identificador seleccionado                                                                               |
-| nextRowValue           | [Tabla](grids.md)                                                        | Obtiene el valor de la columna `column` de la siguiente fila a la seleccionada                                                                     |
-| selected               | [Tabla](grids.md)                                                        | Número de filas seleccionadas de la cuadrícula                                                                                        |
-| selectedRows    | [Tabla](grids.md)                                                        | Número de filas seleccionadas de la cuadrícula                                                                                        |
-| modifiedRows       | [Tabla](grids.md)                                                        | Número de filas modificadas de la cuadrícula (en cuadrícula multioperativa)                                                           |
-| totalRows              | [Tabla](grids.md)                                                        | Número total de filas de la cuadrícula (registros)                                                                                    |
-| hasDataColumn          | [Tabla](grids.md)                                                        | `true` si la columna `column` definida tiene algún dato                                                                                |
-| emptyDataColumn        | [Tabla](grids.md)                                                        | `true` si la columna `column` definida está vacía                                                                                      |
-| fullDataColumn         | [Tabla](grids.md)                                                        | `true` si la columna `column` definida está llena de datos                                                                             |
+| currentRow            | [Grid](grids.md)                                                        | Obtiene el identificador de fila actual                                                                                               |
+| currentRowValue           | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila actual (no la seleccionada). Esto es útil para actualizar los valores de fila sin una selección |
+| prevCurrentRow  | [Grid](grids.md)                                                        | Obtiene la fila anterior a la fila actual                                                                                             |
+| prevCurrentRowValue    | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila anterior a la fila actual                                                                       |
+| nextCurrentRow  | [Grid](grids.md)                                                        | Obtiene la siguiente fila a la fila actual                                                                                            |
+| nextCurrentRowValue | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la siguiente fila a la fila actual                                                                      |
+| selectedRow            | [Grid](grids.md)                                                        | Obtiene el identificador de fila seleccionado                                                                                         |
+| selectedRowValue       | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila seleccionada.                                                                                   |
+| prevRow               | [Grid](grids.md)                                                        | Obtiene la fila anterior al identificador seleccionado                                                                                |
+| prevRowValue           | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la fila anterior a la seleccionada                                                                      |
+| nextRow               | [Grid](grids.md)                                                        | Obtiene la siguiente fila al identificador seleccionado                                                                               |
+| nextRowValue           | [Grid](grids.md)                                                        | Obtiene el valor de la columna `column` de la siguiente fila a la seleccionada                                                                     |
+| selected               | [Grid](grids.md)                                                        | Número de filas seleccionadas del grid                                                                                        |
+| selectedRows    | [Grid](grids.md)                                                        | Número de filas seleccionadas del grid                                                                                        |
+| modifiedRows       | [Grid](grids.md)                                                        | Número de filas modificadas del grid (en grid multioperativo)                                                           |
+| totalRows              | [Grid](grids.md)                                                        | Número total de filas del grid (registros)                                                                                    |
+| hasDataColumn          | [Grid](grids.md)                                                        | `true` si la columna `column` definida tiene algún dato                                                                                |
+| emptyDataColumn        | [Grid](grids.md)                                                        | `true` si la columna `column` definida está vacía                                                                                      |
+| fullDataColumn         | [Grid](grids.md)                                                        | `true` si la columna `column` definida está llena de datos                                                                             |
 
-> **Nota:** Si desea recuperar un `selectedRowValue` de una columna cuadrícula que no es editable, debe añadir un [lanzador de eventos](#events) para asegurarse de que la dependencia está siendo lanzada al seleccionar una fila (p. ej. `event="select-row"`)
+> **Nota:** Si desea recuperar un `selectedRowValue` de una columna de grid que no es editable, debe añadir un [lanzador de eventos](#events) para asegurarse de que la dependencia está siendo lanzada al seleccionar una fila (p. ej. `event="select-row"`)
 
 ### Eventos {#events}
 
@@ -186,21 +186,21 @@ Algunos componentes lanzan eventos en algunos casos. Puede capturar esos eventos
 | Evento                  | Aplicar a                                                                        | Descripción                                                 |
 | ----------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | click                   | [Botón](button.md), [Opciones de contexto](context-menu.md) y [Gráficos](chart.md) | Lanzado al pulsar el elemento                               |
-| select-row        | [Tabla](grids.md)                                                                | Se lanzó cuando una fila ha sido seleccionada               |
-| before-save-row      | [Tabla](grids.md)                                                                | Lanzado antes de guardar una fila                           |
-| save-row                | [Tabla](grids.md)                                                                | Iniciado al guardar una fila                                |
-| after-save-row    | [Tabla](grids.md)                                                                | Iniciado después de guardar una fila                        |
-| before-cancel-row  | [Tabla](grids.md)                                                                | Ejecutado antes de cancelar guardar una fila                |
-| cancel-row           | [Tabla](grids.md)                                                                | Se lanzó al cancelar guardando una fila                     |
-| after-cancel-row       | [Tabla](grids.md)                                                                | Ejecutado después de cancelar el guardado de una fila       |
-| delete-row              | [Tabla](grids.md)                                                                | Iniciado al eliminar una fila                               |
-| after-delete-row       | [Tabla](grids.md)                                                                | Iniciado después de eliminar una fila                       |
-| add-row                 | [Tabla](grids.md)                                                                | Lanzado al agregar una fila                                 |
-| after-add-row         | [Tabla](grids.md)                                                                | Iniciado después de añadir una fila                         |
-| check-records-saved     | [Tabla](grids.md)                                                                | Iniciado al comprobar si los registros han sido guardados   |
-| check-records-generated | [Tabla](grids.md)                                                                | Iniciado al comprobar si se han generado registros          |
-| check-one-selected      | [Tabla](grids.md)                                                                | Se lanzó al comprobar si hay una fila seleccionada          |
-| check-some-selected     | [Tabla](grids.md)                                                                | Iniciado al comprobar si hay al menos una fila seleccionada |
+| select-row        | [Grid](grids.md)                                                                | Se lanzó cuando una fila ha sido seleccionada               |
+| before-save-row      | [Grid](grids.md)                                                                | Lanzado antes de guardar una fila                           |
+| save-row                | [Grid](grids.md)                                                                | Iniciado al guardar una fila                                |
+| after-save-row    | [Grid](grids.md)                                                                | Iniciado después de guardar una fila                        |
+| before-cancel-row  | [Grid](grids.md)                                                                | Ejecutado antes de cancelar guardar una fila                |
+| cancel-row           | [Grid](grids.md)                                                                | Se lanzó al cancelar guardando una fila                     |
+| after-cancel-row       | [Grid](grids.md)                                                                | Ejecutado después de cancelar el guardado de una fila       |
+| delete-row              | [Grid](grids.md)                                                                | Iniciado al eliminar una fila                               |
+| after-delete-row       | [Grid](grids.md)                                                                | Iniciado después de eliminar una fila                       |
+| add-row                 | [Grid](grids.md)                                                                | Lanzado al agregar una fila                                 |
+| after-add-row         | [Grid](grids.md)                                                                | Iniciado después de añadir una fila                         |
+| check-records-saved     | [Grid](grids.md)                                                                | Iniciado al comprobar si los registros han sido guardados   |
+| check-records-generated | [Grid](grids.md)                                                                | Iniciado al comprobar si se han generado registros          |
+| check-one-selected      | [Grid](grids.md)                                                                | Se lanzó al comprobar si hay una fila seleccionada          |
+| check-some-selected     | [Grid](grids.md)                                                                | Iniciado al comprobar si hay al menos una fila seleccionada |
 | double-click              | [Gráficos](chart.md)                                                               | Se lanzó al hacer clic dos veces en un punto de gráfico     |
 | context-menu            | [Gráficos](chart.md)                                                               | Se lanzó cuando se hace clic derecho en un punto de gráfico |
 | zoom                    | [Gráficos](chart.md)                                                               | Se lanzó al seleccionar un rango (zooming) en un gráfico    |
@@ -230,7 +230,7 @@ Las acciones de dependencias son acciones lanzadas cuando una dependencia ha sid
 ```
 
 
-**Activar un botón cuando hay una fila seleccionada en una cuadrícula**
+**Activar un botón cuando hay una fila seleccionada en un grid**
 ```xml
 <dependency target-type="enable" initial="true">
   <dependency-element id="GrdKeyLst" attribute="selectedRows" condition="eq" value="1" />
@@ -290,7 +290,7 @@ Las acciones de dependencias son acciones lanzadas cuando una dependencia ha sid
 ```
 
 
-**Mostrar un componente cuando el valor de la columna de la fila seleccionada de una cuadrícula no es igual a `awemadora02`**
+**Mostrar un componente cuando el valor de la columna de la fila seleccionada de un grid no es igual a `awemadora02`**
 ```xml
 <dependency target-type="show" initial="true">
   <dependency-element id="GrdSta" column="Als" attribute="selectedRowValue" condition="ne" value="awemadora02"/>
@@ -305,7 +305,7 @@ Las acciones de dependencias son acciones lanzadas cuando una dependencia ha sid
 </dependency>
 ```
 
-> **Nota:** Si desea recuperar un *valor de fila seleccionado* de una columna de cuadrícula que no es editable, debe añadir un [lanzador de eventos](#events) para asegurarse de que la dependencia está siendo lanzada al seleccionar una fila (p. ej. `event="select-row"`)
+> **Nota:** Si desea recuperar un *valor de fila seleccionado* de una columna de grid que no es editable, debe añadir un [lanzador de eventos](#events) para asegurarse de que la dependencia está siendo lanzada al seleccionar una fila (p. ej. `event="select-row"`)
 
 
 **Validar un criterio utilizando un método Java**
@@ -360,7 +360,7 @@ public class Validation {
 
 <img alt="Animación de Campanas" src={require('@docusaurus/useBaseUrl').default('img/Bell_Animation.gif')} />
 
-A veces necesitamos mostrar un consejo en la pantalla para notar a los usuarios que algo ha sucedido en el back-end como una nueva entrada en la base de datos o similar. Vamos a explicar cómo agregar dos nombres de clase ("animated" y "faa-slow" para ajustar la velocidad animada) a un elemento HTML para animar un icono de campana y mostrar un número sobre el icono que representa una serie de errores en la aplicación. Al pulsar este botón, la campana detiene la animación y muestra un diálogo con una cuadrícula que muestra los detalles del error.
+A veces necesitamos mostrar un consejo en la pantalla para notar a los usuarios que algo ha sucedido en el back-end como una nueva entrada en la base de datos o similar. Vamos a explicar cómo agregar dos nombres de clase ("animated" y "faa-slow" para ajustar la velocidad animada) a un elemento HTML para animar un icono de campana y mostrar un número sobre el icono que representa una serie de errores en la aplicación. Al pulsar este botón, la campana detiene la animación y muestra un diálogo con un grid que muestra los detalles del error.
 
 
 **Definición de los elementos de la pantalla**
@@ -449,7 +449,7 @@ En el archivo "Queries.xml" debemos definir las siguientes etiquetas:
 </query>
 ```
 
-La primera consulta apunta a un servicio llamado "getErrorMessageInfo" definido en el archivo "Services.xml" en AWE. Esta consulta será lanzada por la cuadrícula creada en el diálogo.
+La primera consulta apunta a un servicio llamado "getErrorMessageInfo" definido en el archivo "Services.xml" en AWE. Esta consulta será lanzada por el grid creado en el diálogo.
 
 La segunda consulta apunta al mismo servicio y espera dos valores uno para un campo "valor" y otro para un campo "etiqueta". Esta consulta será lanzada por los criterios ocultos.
 
@@ -482,7 +482,7 @@ public class ErrorMessageController extends AWEController {
 }
 ```
 
-En la definición de Gestor debemos crear una acción de llenado del cliente para cargar datos en la cuadrícula de diálogo y una acción de cliente seleccionada para cargar datos en criterios ocultos.
+En la definición de Gestor debemos crear una acción de llenado del cliente para cargar datos en el grid de diálogo y una acción de cliente seleccionada para cargar datos en criterios ocultos.
 
 ```java
 public class ErrorMessageManager extends AWEManager {

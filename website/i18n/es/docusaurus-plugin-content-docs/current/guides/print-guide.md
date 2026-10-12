@@ -30,7 +30,7 @@ Por defecto, el título de un informe impreso se genera con el patrón:
 report title : report subtitle
 ```
 
-Los valores usados para el título y el subtítulo se toman de las etiquetas definidas en la pantalla, como la etiqueta de la pantalla, del tabcontainer, de la ventana o de la tabla.
+Los valores usados para el título y el subtítulo se toman de las etiquetas definidas en la pantalla, como la etiqueta de la pantalla, del tabcontainer, de la ventana o del *grid*.
 
 El siguiente ejemplo muestra una pantalla antes de imprimir:
 
@@ -58,7 +58,7 @@ En resumen, el título impreso se controla con las mismas etiquetas que se usan 
 
 Desde AWE 3.2, el motor de impresión utiliza los datos que están disponibles actualmente en el cliente y los envía al motor de impresión.
 
-Esto es importante cuando una tabla usa paginación en el servidor (`load-all="false"`). En ese caso, el cliente solo tiene las filas cargadas actualmente en la página, por lo que el documento impreso solo incluirá esos datos.
+Esto es importante cuando un grid usa paginación en el servidor (`load-all="false"`). En ese caso, el cliente solo tiene las filas cargadas actualmente en la página, por lo que el documento impreso solo incluirá esos datos.
 
 Si necesitas imprimir el conjunto de resultados completo, la opción más sencilla es usar paginación local:
 
@@ -74,9 +74,9 @@ Este enfoque puede causar graves problemas de rendimiento si la consulta devuelv
 
 Si necesitas mantener la paginación en el servidor y aun así imprimir el conjunto de datos completo, debes implementar un flujo de impresión específico del proyecto que recargue los datos necesarios antes de generar el documento. Ese escenario depende de la aplicación y queda fuera del alcance de esta guía genérica.
 
-## Elegir qué columnas de la tabla se imprimen {#choose-which-grid-columns-are-printed}
+## Elegir qué columnas del grid se imprimen {#choose-which-grid-columns-are-printed}
 
-Las columnas de la tabla se imprimen según su atributo `printable`:
+Las columnas del grid se imprimen según su atributo `printable`:
 
 - **Sin definir**: se imprime en todos los formatos, pero solo mientras la columna esté visible en pantalla.
 - **`true`**: se imprime en todos los formatos, incluso cuando la columna es `hidden="true"`.

@@ -41,7 +41,7 @@ Hay varios tipos de validación:
 | **maxlength**      | `Text` / `Textarea` / `Password`      | Comprueba si la longitud del texto es menor que `value`                                 | `validation="{maxlength:`[value](#validation-values)`}"`                                       |
 | **minlength**      | `Text` / `Textarea` / `Password`      | Comprueba si la longitud del texto es mayor que `value`                                 | `validation="{minlength:`[value](#validation-values)`}"`                                      |
 | **checkAtLeast**   | `Checkbox` / `Button checkbox`        | Asegura que haya al menos `value` casillas marcadas en el grupo                         | `validation="{checkAtLeast:`[value](#validation-values)`}"`                                   |
-| **maxRepeat**      | `Grid columns`                        | Comprueba si un elemento se repite `value` veces en su columna de la tabla            | `validation="{maxRepeat:`[value](#validation-values)`}"`                                      |
+| **maxRepeat**      | `Grid columns`                        | Comprueba si un elemento se repite `value` veces en su columna del *grid*            | `validation="{maxRepeat:`[value](#validation-values)`}"`                                      |
 | **pattern**        | `Text` / `Textarea` / `Password`      | Comprueba si el texto es igual al parámetro                                             | `validation="{pattern:`[value](#validation-values)`}"`                                        |
  
 ### Valores de validación {#validation-values}

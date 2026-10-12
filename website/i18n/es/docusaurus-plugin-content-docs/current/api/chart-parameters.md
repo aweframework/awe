@@ -137,7 +137,7 @@ Estas opciones solo son válidas en un `chart-serie`:
 | ---------------------------- | ---------- | ----------------------------------------------------------------------------------------------- |
 | `dateTimeLabelFormats.<unit>` | Traducida | Patrón de fecha de las etiquetas de un eje de tiempo para una unidad: `year`, `month`, `day`, `hour`, `minute`, `second`, `millisecond` |
 | `labels.format`              | Traducida  | [Formato](chart-format.md) de las etiquetas. El valor es `{value}`                              |
-| `gridLineWidth`              | Traducida  | `0` oculta las líneas de la cuadrícula                                                          |
+| `gridLineWidth`              | Traducida  | `0` oculta las líneas del *grid*                                                          |
 | `tickAmount`                 | Traducida  | Número aproximado de marcas del eje                                                             |
 
 ### Ámbito de tooltip {#tooltip-scope}
