@@ -29,88 +29,200 @@
   -->
 
   <!-- Table Element -->
-  <xs:element name="table" type="tableType" />
+  <xs:element name="table" type="tableType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Table, view or subquery the statement reads from or modifies.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Field Element -->
-  <xs:element name="field" type="fieldType" />
+  <xs:element name="field" type="fieldType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column of a table, the result of a subquery, or the value of a variable.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Constant Element -->
-  <xs:element name="constant" type="constantType" />
+  <xs:element name="constant" type="constantType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Static value used as a field or as an operand.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Case Element -->
-  <xs:element name="operation" type="operationType" />
+  <xs:element name="operation" type="operationType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Operation between its nested operands, such as a concatenation, an arithmetic operation or a date calculation.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Case Element -->
-  <xs:element name="case" type="caseType" />
+  <xs:element name="case" type="caseType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">SQL CASE expression made of when clauses and an optional else.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Case When Element -->
-  <xs:element name="when" type="caseWhenType" />
+  <xs:element name="when" type="caseWhenType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Condition of a case expression with the value returned when it holds. It has the filter attributes and may contain nested filters.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Case Then Element -->
-  <xs:element name="then" type="operandType" />
+  <xs:element name="then" type="operandType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Value returned by a when clause.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Case Else Element -->
-  <xs:element name="else" type="operandType" />
+  <xs:element name="else" type="operandType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Value returned when no when clause holds.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Over Element -->
-  <xs:element name="over" type="overType" />
+  <xs:element name="over" type="overType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Window function. It contains the field to compute and its partition-by and order-by clauses.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Filter Element -->
-  <xs:element name="filter" type="filterType"/>
+  <xs:element name="filter" type="filterType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Comparison between a left and a right operand, given as attributes or as left-operand and right-operand children.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- And Element -->
-  <xs:element name="and" type="filterGroupType"/>
+  <xs:element name="and" type="filterGroupType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Group of filters that must all hold.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Or Element -->
-  <xs:element name="or" type="filterGroupType"/>
+  <xs:element name="or" type="filterGroupType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Group of filters of which at least one must hold.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Left operand element -->
-  <xs:element name="left-operand" type="operandType" />
+  <xs:element name="left-operand" type="operandType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Left side of a filter. It contains a field, constant, operation, case or over.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Right operand element -->
-  <xs:element name="right-operand" type="operandType" />
+  <xs:element name="right-operand" type="operandType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Right side of a filter. It contains a field, constant, operation, case or over.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Query Element -->
-  <xs:element name="query" type="queryType" />
+  <xs:element name="query" type="queryType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Query definition. It is resolved with SQL, a service, an enumerated group or a queue, depending on its attributes.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Computed Element -->
-  <xs:element name="computed" type="computedType" />
+  <xs:element name="computed" type="computedType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Output column built after the SQL statement runs, by replacing placeholders in a format with values of the same row.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Compound Element -->
-  <xs:element name="compound" type="compoundType" />
+  <xs:element name="compound" type="compoundType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Output column that groups several computed elements into one structure.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Where Element -->
-  <xs:element name="where" type="whereType"/>
+  <xs:element name="where" type="whereType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">WHERE clause. It contains filter groups.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Having Element -->
-  <xs:element name="having" type="whereType"/>
+  <xs:element name="having" type="whereType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">HAVING clause. It contains filter groups evaluated after grouping.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Join Element -->
-  <xs:element name="join" type="joinType" />
+  <xs:element name="join" type="joinType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">SQL join with another table or subquery. It contains the table and the join condition.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Union Element -->
-  <xs:element name="union" type="unionType" />
+  <xs:element name="union" type="unionType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Combines the result of this query with another query.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Totalize element -->
-  <xs:element name="totalize" type="totalizeType" />
+  <xs:element name="totalize" type="totalizeType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Adds total or subtotal rows to the result after the SQL statement runs.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Totalize By Element -->
-  <xs:element name="totalize-by" type="totalizeElementType" />
+  <xs:element name="totalize-by" type="totalizeElementType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column whose change of value starts a new totalized group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Totalize Field Element -->
-  <xs:element name="totalize-field" type="totalizeFieldType" />
+  <xs:element name="totalize-field" type="totalizeFieldType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column to totalize, optionally with its own function.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Group By Element -->
-  <xs:element name="group-by" type="groupByType" />
+  <xs:element name="group-by" type="groupByType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">GROUP BY expression. It is a column or a nested case.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Partition By Element -->
-  <xs:element name="partition-by" type="groupByType" />
+  <xs:element name="partition-by" type="groupByType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Partition of a window function. It is a column or a nested case.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Order By Element -->
-  <xs:element name="order-by" type="orderByType" />
+  <xs:element name="order-by" type="orderByType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">ORDER BY expression.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Variable Element -->
-  <xs:element name="variable" type="variableType"/>
+  <xs:element name="variable" type="variableType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Parameter of the query. Its value comes from the request, the session, a property or a static value.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!--
   ==============================================================================
@@ -151,8 +263,16 @@
   <!-- Order By Type -->
   <xs:complexType name="orderByType">
     <xs:attributeGroup ref="orderAttr" />
-    <xs:attribute name="type" type="orderType" />
-    <xs:attribute name="nulls" type="nullsType" />
+    <xs:attribute name="type" type="orderType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sort direction. ASC when omitted.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nulls" type="nullsType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Position of null values, FIRST or LAST. When omitted the database default applies.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!--
@@ -165,7 +285,11 @@
   <xs:complexType name="queryType">
     <xs:group ref="queryGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="queryBaseAttributes" />
-    <xs:attribute name="id" use="required" type="identifierType" />
+    <xs:attribute name="id" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unique identifier of the query. Screens, services and other queries refer to the query by this id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Table Type -->
@@ -253,19 +377,55 @@
     <xs:sequence maxOccurs="unbounded">
       <xs:element ref="computed" />
     </xs:sequence>
-    <xs:attribute name="alias" use="required" type="xs:string" />
+    <xs:attribute name="alias" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the output column that holds the structure built from the nested computed elements. Must be unique in the query.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Computed Element -->
   <xs:complexType name="computedType">
-    <xs:attribute name="alias" use="required" type="xs:string" />
-    <xs:attribute name="format" use="required" />
-    <xs:attribute name="eval" type="booleanEnum" />
-    <xs:attribute name="nullValue" type="xs:string" />
-    <xs:attribute name="transform" type="transformType" />
-    <xs:attribute name="pattern" type="xs:string" />
-    <xs:attribute name="translate" type="identifierType" />
-    <xs:attribute name="label" type="xs:string" />
+    <xs:attribute name="alias" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the output column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Expression that builds the value. Each [name] placeholder is replaced by the value of the query variable or output column with that name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="eval" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Evaluates the resulting text as a JavaScript expression. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nullValue" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Value used for a placeholder whose column is null or empty. Blank by default.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="transform" type="transformType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Transformation applied to the computed value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pattern" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Format pattern for the computed value. See the pattern attribute of field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="translate" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of an enumerated group. When the computed value matches one of its values, the localized label is output instead.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accepted by the schema and the model but not used when the computed value is generated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Case When type -->
@@ -297,13 +457,25 @@
         <xs:element ref="and"/>
       </xs:choice>
     </xs:sequence>
-    <xs:attribute name="type" type="joinElementType"/>
+    <xs:attribute name="type" type="joinElementType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Kind of SQL join. INNER when omitted.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Union Element -->
   <xs:complexType name="unionType">
-    <xs:attribute name="query" use="required" type="identifierType" />
-    <xs:attribute name="type" type="unionElementType" />
+    <xs:attribute name="query" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the query whose result is combined with this one.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="unionElementType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Set to ALL to keep duplicate rows (UNION ALL). When omitted, duplicates are removed (UNION).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Totalize Type -->
@@ -312,34 +484,78 @@
       <xs:element ref="totalize-by" />
       <xs:element ref="totalize-field" />
     </xs:choice>
-    <xs:attribute name="function" use="required" type="aggregationFunctions" />
-    <xs:attribute name="label" use="required" type="xs:string" />
-    <xs:attribute name="field" use="required" type="identifierType" />
-    <xs:attribute name="style" use="required" type="totalizeStyleType" />
+    <xs:attribute name="function" use="required" type="aggregationFunctions">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Aggregation applied to every totalized field unless a totalize-field overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the text written in the total row.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="field" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Output column that receives the label in the total row.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" use="required" type="totalizeStyleType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Row style given to the total row, TOTAL or SUBTOTAL.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Totalize Element Type -->
   <xs:complexType name="totalizeElementType">
-    <xs:attribute name="field" use="required" type="identifierType" />
+    <xs:attribute name="field" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Output column whose value change starts a new group; a total row is added after each group.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Totalize Element Type -->
   <xs:complexType name="totalizeFieldType">
-    <xs:attribute name="field" use="required" type="identifierType" />
-    <xs:attribute name="function" type="aggregationFunctions" />
+    <xs:attribute name="field" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Output column to totalize.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="function" type="aggregationFunctions">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Aggregation applied to this column. When omitted, the function of the totalize element is used.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Table Attributes -->
   <xs:attributeGroup name="tableAttr">
-    <xs:attribute name="id" type="identifierType"/>
-    <xs:attribute name="schema" type="identifierType"/>
+    <xs:attribute name="id" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the database table or view.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="schema" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Database schema (owner) of the table.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Table Attributes -->
   <xs:attributeGroup name="tableQueryAttr">
     <xs:attributeGroup ref="tableAttr"/>
-    <xs:attribute name="query" type="identifierType"/>
-    <xs:attribute name="alias" type="xs:string"/>
+    <xs:attribute name="query" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of another query used as a subquery in place of a table.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="alias" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Alias of the table. Fields refer to it through their table attribute.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Table Attributes -->
@@ -348,45 +564,149 @@
   </xs:attributeGroup>
 
   <xs:attributeGroup name="queryBaseAttributes">
-    <xs:attribute name="distinct" type="booleanEnum" />
-    <xs:attribute name="enumerated" type="identifierType" />
-    <xs:attribute name="service" type="identifierType" />
-    <xs:attribute name="queue" type="identifierType" />
-    <xs:attribute name="cacheable" type="booleanEnum" />
-    <xs:attribute name="managed-pagination" type="booleanEnum" />
-    <xs:attribute name="post-process" type="booleanEnum" />
-    <xs:attribute name="public" type="booleanEnum" />
+    <xs:attribute name="distinct" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Returns only distinct rows (SELECT DISTINCT). Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enumerated" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of an enumerated group whose values fill the query instead of a database table. Only used by enumerated queries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="service" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the service, defined in the services file, that returns the data instead of a database. Only used by service queries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="queue" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the JMS queue, defined in the queues file, used to obtain the data. Only used by queue queries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cacheable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Caches the result using the query id plus the resolved request parameters as key, so the same call is not executed again during the cache lifetime. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="managed-pagination" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Controls how a SQL query is paginated. When true or omitted, the database returns only the requested page (limit and offset plus a count query), unless the query has a totalize element or the page size is 0. When false, all rows are fetched and the page is cut in memory. Not applied to totalized queries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="post-process" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for service queries. When true (default) AWE processes the returned data list (transforms, translations, computed fields). Set it to false to keep the service result untouched.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="public" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows the query to be launched without an authenticated session. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Base Field Attributes -->
   <xs:attributeGroup name="baseQueryAttr">
     <xs:attributeGroup ref="allFieldsAttr"/>
-    <xs:attribute name="noprint" type="booleanEnum"/>
-    <xs:attribute name="transform" type="transformType"/>
-    <xs:attribute name="pattern" type="xs:string"/>
-    <xs:attribute name="translate" type="xs:string"/>
-    <xs:attribute name="format-from" type="xs:string"/>
-    <xs:attribute name="format-to" type="xs:string" />
-    <xs:attribute name="alias" type="identifierType"/>
-    <xs:attribute name="audit" type="booleanEnum"/>
-    <xs:attribute name="key" type="booleanEnum"/>
+    <xs:attribute name="noprint" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hides the column from the output. The column is removed after the other processing steps (computed fields, transforms) have run. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="transform" type="transformType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Transformation applied to the value after it is retrieved, for example to format a date or a number.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pattern" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Format pattern. For the NUMBER and NUMBER_PLAIN transforms it is a Java DecimalFormat pattern; for the ARRAY and LIST transforms it is the separator used to split the value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="translate" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of an enumerated group. When the value matches one of its values, the localized label is output instead.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format-from" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Source date format of the value. Used by the GENERIC_DATE transform.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format-to" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Target date format of the value. Used by the GENERIC_DATE transform.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="alias" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the output column. Computed fields, totalize and screen components refer to the column by it. When omitted, the id is used.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="audit" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only used in maintain operations. When true the column is written only to the audit table and not to the target table; when false it is written only to the target table and not audited; when omitted it is written to both. Ignored in queries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="key" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only used in maintain operations. Marks a key column. In a multiple maintain the key columns build the filter of each update and delete. In an insert, a key column with no sequence and no value is left out so the database generates it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- AllFieldsAttr -->
   <xs:attributeGroup name="allFieldsAttr">
-    <xs:attribute name="id" type="identifierType"/>
-    <xs:attribute name="table" type="identifierType"/>
-    <xs:attribute name="function" type="functionTypeEnum"/>
-    <xs:attribute name="cast" type="castType"/>
+    <xs:attribute name="id" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the table column. Ignored when query or variable is also defined.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="table" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Table, or table alias, the column belongs to.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="function" type="functionTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">SQL function applied to the field. A value the engine does not recognize is treated as SUM.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cast" type="castType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Casts the value to the given type. A value the engine does not recognize is treated as INTEGER.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Base Field Attributes -->
   <xs:attributeGroup name="fieldAttr">
-    <xs:attribute name="query" type="identifierType"/>
-    <xs:attribute name="variable" type="identifierType"/>
-    <xs:attribute name="sequence" type="identifierType"/>
-    <xs:attribute name="auto-incremental" type="identifierType"/>
-    <xs:attribute name="optional" type="booleanEnum"/>
+    <xs:attribute name="query" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of a query used as a subquery to obtain the field value. It takes precedence over variable and id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="variable" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of a variable of the query that supplies the field value. It takes precedence over id and table, and is ignored if query is also defined.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sequence" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only used in maintain inserts. Name of an AWE sequence, stored in the key table, whose next value is written to the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="auto-incremental" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only used in maintain inserts. The column is generated by the database (identity or auto-increment): it is left out of the insert and the generated value is stored in the field variable.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only used in maintain operations. When true and the field variable is null or empty, the field is left out of the statement: an insert uses the column default and an update keeps the stored value. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Field Attributes -->
@@ -397,8 +717,16 @@
 
   <!-- Constant Attributes -->
   <xs:attributeGroup name="constantAttr">
-    <xs:attribute name="value" type="xs:string"/>
-    <xs:attribute name="type" type="variableRestriction"/>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Static value of the constant.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="variableRestriction">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Variable type used to convert the value. STRING when omitted.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Constant Attributes -->
@@ -409,7 +737,11 @@
 
   <!-- Operation Attributes -->
   <xs:attributeGroup name="operationAttr">
-    <xs:attribute name="operator" type="operationRestriction" use="required"/>
+    <xs:attribute name="operator" type="operationRestriction" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Operator applied to the operands, which are the nested fields, constants, operations or cases.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Operation Attributes -->
@@ -430,45 +762,129 @@
 
   <!-- Filter Attributes -->
   <xs:attributeGroup name="filterAttrBase">
-    <xs:attribute name="left-field" type="identifierType"/>
-    <xs:attribute name="left-table" type="identifierType"/>
-    <xs:attribute name="left-variable" type="identifierType"/>
-    <xs:attribute name="left-function" type="functionTypeEnum"/>
-    <xs:attribute name="right-field" type="identifierType"/>
-    <xs:attribute name="right-table" type="identifierType"/>
-    <xs:attribute name="right-variable" type="identifierType"/>
-    <xs:attribute name="right-function" type="functionTypeEnum"/>
-    <xs:attribute name="ignorecase" type="booleanEnum"/>
-    <xs:attribute name="trim" type="booleanEnum"/>
-    <xs:attribute name="optional" type="booleanEnum"/>
-    <xs:attribute name="query" type="identifierType"/>
-    <xs:attribute name="type" type="valueTypeEnum"/>
+    <xs:attribute name="left-field" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column on the left side of the comparison.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="left-table" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Table, or table alias, of the left field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="left-variable" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the variable used as the left side of the comparison.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="left-function" type="functionTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">SQL function applied to the left side. See the function attribute of field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="right-field" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column on the right side of the comparison.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="right-table" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Table, or table alias, of the right field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="right-variable" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the variable used as the right side of the comparison. A list variable produces an IN comparison.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="right-function" type="functionTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">SQL function applied to the right side. See the function attribute of field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ignorecase" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Compares without distinguishing upper and lower case. Applies to eq, ne, like and not like. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="trim" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Trims the field operands before comparing them. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true and the compared variable is null or empty, the filter is removed from the statement instead of comparing with null. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="query" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of a query used as the right side of the comparison. Use it with in, not in, exists and not exists.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="valueTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared type of the compared values. The engine does not use it when it generates the SQL.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Where condition filter attributes -->
   <xs:attributeGroup name="filterAttr">
     <xs:attributeGroup ref="filterAttrBase"/>
-    <xs:attribute name="condition" use="required" type="conditionEnum"/>
+    <xs:attribute name="condition" use="required" type="conditionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comparison applied between the left and the right side.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- When condition filter attributes -->
   <xs:attributeGroup name="caseWhenFilterAttr">
     <xs:attributeGroup ref="filterAttrBase"/>
-    <xs:attribute name="condition" type="conditionEnum"/>
+    <xs:attribute name="condition" type="conditionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comparison applied between the left and the right side of the when clause. May be omitted when the clause uses nested filters.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Order Call Attributes -->
   <xs:attributeGroup name="orderAttr">
-    <xs:attribute name="field" use="required" type="identifierType"/>
-    <xs:attribute name="table" type="identifierType"/>
-    <xs:attribute name="function" type="functionTypeEnum"/>
+    <xs:attribute name="field" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column to sort by.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="table" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Table, or table alias, of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="function" type="functionTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">SQL function applied to the column before sorting.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- GroupBy Call Attributes -->
   <xs:attributeGroup name="groupBytAttr">
-    <xs:attribute name="field" type="identifierType"/>
-    <xs:attribute name="table" type="identifierType"/>
-    <xs:attribute name="function" type="functionTypeEnum"/>
+    <xs:attribute name="field" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column to group by. May be omitted when a nested case provides the expression; the case takes precedence.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="table" type="identifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Table, or table alias, of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="function" type="functionTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">SQL function applied to the column before grouping.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!--
@@ -479,6 +895,9 @@
 
   <!-- Query identifiers -->
   <xs:simpleType name="identifierType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Identifier made of letters, digits, underscores and hyphens.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:pattern value="([0-9a-zA-Z_\-]+)"/>
     </xs:restriction>
@@ -486,6 +905,9 @@
 
   <!-- Totalize Style Enumeration -->
   <xs:simpleType name="totalizeStyleType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Style of a total row. TOTAL is the final total; SUBTOTAL is the total of a group.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="TOTAL"/>
       <xs:enumeration value="SUBTOTAL"/>
@@ -494,6 +916,9 @@
 
   <!-- Join Type Enumeration -->
   <xs:simpleType name="joinElementType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Kind of join. INNER keeps rows with a match on both sides; LEFT keeps all rows of the left side; RIGHT keeps all rows of the right side; FULL keeps all rows of both sides.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="FULL" />
       <xs:enumeration value="INNER" />
@@ -504,6 +929,9 @@
 
   <!-- Union Type Enumeration -->
   <xs:simpleType name="unionElementType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">ALL keeps duplicate rows (UNION ALL).</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="ALL" />
     </xs:restriction>
@@ -511,6 +939,9 @@
 
   <!-- Transformation type -->
   <xs:simpleType name="transformType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Transformation applied to a value after it is retrieved. DATE, TIME and TIMESTAMP give web formats (dd/MM/yyyy, HH:mm:ss and dd/MM/yyyy HH:mm:ss); TIMESTAMP_MS adds milliseconds; DATE_MS is a date in milliseconds. JS_DATE and JS_TIMESTAMP give JavaScript date formats. ELAPSED_TIME turns milliseconds into a localized duration and DATE_SINCE gives the time elapsed since a date. NUMBER and NUMBER_PLAIN format a number with the pattern attribute, with and without thousands separator. BOOLEAN gives true or false. TEXT_HTML, TEXT_PLAIN and TEXT_UNILINE prepare text for HTML, plain text and a single line; MARKDOWN_HTML converts Markdown to HTML. DECRYPT decrypts an encrypted column. GENERIC_DATE converts a date between the formats of format-from and format-to, and DATE_RDB converts a dd-MMM-yyyy date to dd/MM/yyyy. ARRAY and LIST split the value with the separator in pattern, into an array and a list.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="DATE"/>
       <xs:enumeration value="DATE_MS"/>
@@ -538,6 +969,9 @@
 
   <!-- Condition type -->
   <xs:simpleType name="conditionEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Comparison between two operands. eq, ne, ge, le, gt and lt mean equal, not equal, greater or equal, lower or equal, greater than and lower than. in and not in test membership in a list variable or a subquery; with a single value they behave as eq and ne. is null and is not null test the left operand only. like and not like use SQL patterns, and the STRINGL, STRINGR and STRINGB variable types add the wildcards. exists and not exists test whether a subquery returns rows.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="eq" />
       <xs:enumeration value="ne" />
@@ -558,6 +992,9 @@
   
   <!-- Filter value type -->
   <xs:simpleType name="valueTypeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Declared type of the values of a filter. The engine does not use it when it generates the SQL.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="NUMBER" />
       <xs:enumeration value="DECIMAL_NUMBER" />
@@ -569,11 +1006,17 @@
 
   <!-- Function list -->
   <xs:simpleType name="functionTypeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">SQL function applied to a field. It accepts the aggregation functions and the field functions.</xs:documentation>
+    </xs:annotation>
     <xs:union memberTypes="aggregationFunctions fieldFunctions"/>
   </xs:simpleType>
 
   <!-- Cast list -->
   <xs:simpleType name="castType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Type a value is cast to.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="INTEGER" />
       <xs:enumeration value="LONG" />
@@ -585,6 +1028,9 @@
 
   <!-- Field function list -->
   <xs:simpleType name="fieldFunctions">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Functions applied to a single value. ABS is the absolute value, TRUNCDATE drops the time of a date, TRIM removes the spaces at both ends, and YEAR, MONTH, DAY, HOUR, MINUTE and SECOND extract that part of a date. ROW_NUMBER and RANK are window functions and LAG returns the previous row value.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="ABS" />
       <xs:enumeration value="TRUNCDATE" />
@@ -603,6 +1049,9 @@
 
   <!-- Aggregation functions -->
   <xs:simpleType name="aggregationFunctions">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Aggregation functions. AVG is the average, CNT counts values, CNT_DISTINCT counts distinct values, MAX and MIN give the greatest and lowest value, SUM adds values, FIRST_VALUE and LAST_VALUE give the first and last value of a window, and LENGTH gives the length of a string. LENGTH is not accepted by the totalize element.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="AVG" />
       <xs:enumeration value="CNT" />
@@ -618,6 +1067,9 @@
 
   <!-- Operation restriction list -->
   <xs:simpleType name="operationRestriction">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Operator of an operation. CONCAT joins strings; REPLACE replaces the second operand with the third in the first; SUBSTRING extracts part of a string with 0-based indexes, begin inclusive and end exclusive; NULLIF returns null when the operands are equal; COALESCE returns the first operand that is not null. ADD, SUB, MULT, DIV and MOD are the arithmetic operators; POWER raises the first operand to the second; ROUND rounds with an optional number of decimals. ADD_, SUB_ and DIFF_ followed by SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS or YEARS add to a date, subtract from a date and give the difference between two dates in that unit.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="CONCAT" />
       <xs:enumeration value="REPLACE"/>
@@ -657,6 +1109,9 @@
 
   <!-- Order Type Enumeration -->
   <xs:simpleType name="orderType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Sort direction. ASC is ascending and DESC is descending.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="ASC" />
       <xs:enumeration value="DESC" />
@@ -665,6 +1120,9 @@
 
   <!-- Nulls Type Enumeration -->
   <xs:simpleType name="nullsType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Position of null values in a sort. FIRST puts them before other values and LAST after them.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="FIRST" />
       <xs:enumeration value="LAST" />

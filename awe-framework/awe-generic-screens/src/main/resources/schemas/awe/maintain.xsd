@@ -30,6 +30,9 @@
 
   <!-- Maintain element -->
   <xs:element name="maintain" type="maintainType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Root element of a maintain file. It contains the targets.</xs:documentation>
+    </xs:annotation>
     <xs:unique name="TargetNameUnique">
       <xs:selector xpath=".//target" />
       <xs:field xpath="@name" />
@@ -37,37 +40,81 @@
   </xs:element>
 
   <!-- Target element -->
-  <xs:element name="target" type="targetType"/>
+  <xs:element name="target" type="targetType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Named group of operations that run in order in one transaction. The changes are committed at each commit element and at the end of the target; an error rolls back what was not committed.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Email element -->
-  <xs:element name="send-email" type="emailType"/>
+  <xs:element name="send-email" type="emailType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Sends an email defined in the email file.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Commit element -->
-  <xs:element name="commit"/>
+  <xs:element name="commit">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Commits the changes made so far in the target.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Retrieve data element -->
-  <xs:element name="retrieve-data" type="retrieveDataType"/>
+  <xs:element name="retrieve-data" type="retrieveDataType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Runs a query (SQL, service, enumerated or queue) and stores every returned column as a parameter named after its alias, for the following operations.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Multiple element -->
-  <xs:element name="multiple" type="multipleType"/>
+  <xs:element name="multiple" type="multipleType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Inserts, updates or deletes the rows sent by a grid, according to the row type of each row.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Serve element -->
-  <xs:element name="serve" type="serveType"/>
+  <xs:element name="serve" type="serveType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Calls a Java or web service.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Queue element -->
-  <xs:element name="queue" type="queueType"/>
+  <xs:element name="queue" type="queueType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Sends a message to a JMS queue.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Delete element -->
-  <xs:element name="delete" type="deleteType"/>
+  <xs:element name="delete" type="deleteType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Deletes the rows that match its where clause.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Insert element -->
-  <xs:element name="insert" type="insertType"/>
+  <xs:element name="insert" type="insertType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Inserts a row, or the rows of a query.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Update element -->
-  <xs:element name="update" type="updateType"/>
+  <xs:element name="update" type="updateType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Updates the rows that match its where clause.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- IncludeTarget element -->
-  <xs:element name="include-target" type="includeTargetType"/>
+  <xs:element name="include-target" type="includeTargetType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Runs the operations of another target at this point.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!--
   ==============================================================================
@@ -76,11 +123,31 @@
   -->
   <!-- Server Call Attributes -->
   <xs:attributeGroup name="sqlAttr">
-    <xs:attribute name="multiple" type="multipleRestriction"/>
-    <xs:attribute name="audit" type="xs:string"/>
-    <xs:attribute name="batch" type="booleanEnum"/>
-    <xs:attribute name="batch-size" type="xs:integer"/>
-    <xs:attribute name="label" type="xs:string"/>
+    <xs:attribute name="multiple" type="multipleRestriction">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Runs the operation once per value of the list variables (true), or only audits once per value (audit). When omitted the operation runs once.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="audit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the audit table that stores the audit rows of the operation. The table must exist and have the audit user, date and action columns.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="batch" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Runs the statements in JDBC batches. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="batch-size" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Number of statements per batch. When omitted, the value of the database configuration property is used.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the message returned when the operation finishes without a message of its own.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!--
@@ -121,16 +188,40 @@
   <!-- Target Type -->
   <xs:complexType name="targetType">
     <xs:group ref="targetGroup" minOccurs="0" maxOccurs="unbounded"/>
-    <xs:attribute name="name" use="required" type="xs:string"/>
-    <xs:attribute name="label" type="xs:string"/>
-    <xs:attribute name="exclusive" type="booleanEnum"/>
-    <xs:attribute name="public" type="booleanEnum"/>
+    <xs:attribute name="name" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unique identifier of the target. Screens launch the target by this name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the title of the response. When omitted a generic success title is used.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="exclusive" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Intended to prevent concurrent executions of the target. The engine reads it but does not use it yet.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="public" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows the target to be launched without an authenticated session. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Email Type -->
   <xs:complexType name="emailType">
-    <xs:attribute name="id" use="required" type="xs:string"/>
-    <xs:attribute name="label" type="xs:string"/>
+    <xs:attribute name="id" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the email, defined in the email file, that is sent.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the message returned when the operation finishes without a message of its own.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Serve Type -->
@@ -138,8 +229,16 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element minOccurs="0" maxOccurs="unbounded" ref="variable"/>
     </xs:choice>
-    <xs:attribute name="service" use="required" type="xs:string"/>
-    <xs:attribute name="label" type="xs:string"/>
+    <xs:attribute name="service" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the service, defined in the services file, that is called.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the message returned when the operation finishes without a message of its own.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Queue Type -->
@@ -147,8 +246,16 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element minOccurs="0" maxOccurs="unbounded" ref="variable"/>
     </xs:choice>
-    <xs:attribute name="name" use="required" type="xs:string"/>
-    <xs:attribute name="label" type="xs:string"/>
+    <xs:attribute name="name" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the JMS queue, defined in the queues file, that receives the message.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the message returned when the operation finishes without a message of its own.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Multiple Type -->
@@ -158,9 +265,21 @@
       <xs:element maxOccurs="unbounded" ref="field"/>
       <xs:element maxOccurs="unbounded" ref="variable"/>
     </xs:choice>
-    <xs:attribute name="audit" type="xs:string"/>
-    <xs:attribute name="label" type="xs:string"/>
-    <xs:attribute name="grid"  type="xs:string" use="required"/>
+    <xs:attribute name="audit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the audit table that stores the audit rows of the operations.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Localization key of the message returned when the operation finishes without a message of its own.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="grid"  type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the grid that sends the rows. The row type of each row (insert, update or delete) is read from the request parameter named after the grid followed by -RowTyp.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Delete Type -->
@@ -186,7 +305,11 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" ref="variable"/>
     </xs:choice>
     <xs:attributeGroup ref="sqlAttr"/>
-    <xs:attribute name="query" type="xs:string"/>
+    <xs:attribute name="query" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of a query whose rows are inserted (INSERT INTO SELECT). The number of fields must match the columns of the query.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Update element -->
@@ -207,7 +330,11 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element minOccurs="0" maxOccurs="unbounded" ref="variable"/>
     </xs:choice>
-    <xs:attribute name="name" use="required" type="xs:string"/>
+    <xs:attribute name="name" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the target whose operations are run at this point. The target must exist in a maintain file.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Retrieve data type -->
@@ -223,6 +350,9 @@
   -->
 
   <xs:simpleType name="multipleRestriction">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">true runs the operation once per value of the list variables; audit runs it once and audits once per value.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="true"/>
       <xs:enumeration value="audit"/>
