@@ -1,4 +1,4 @@
-import {checkDependencies, initializeDependencies} from "../actions/dependencies";
+import {checkDependencies, forgetInputDependencies, initializeDependencies} from "../actions/dependencies";
 import {
   ButtonTypes,
   resetModel,
@@ -99,6 +99,9 @@ export function restoreMultipleModelWithDependencies(componentList, initial = fa
     const { settings } = getState();
     // Update the model first
     dispatch({ ...restoreMultipleModel(componentList, initial), settings });
+
+    // The restored models lose the values the dependencies wrote: launch them again
+    forgetInputDependencies(componentList);
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);
