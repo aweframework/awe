@@ -128,6 +128,18 @@ const useScreenService = () => {
   };
 
   /**
+   * Launch a window resize event so the components recalculate their layout, as the AngularJS client does
+   * @param {Action} action Action received
+   */
+  const resize = (action) => {
+    const {delay = 0} = action.parameters || {};
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+      dispatch(acceptAction(action));
+    }, delay);
+  };
+
+  /**
    * Close current window
    * @param {Action} action Action received
    */
@@ -173,7 +185,8 @@ const useScreenService = () => {
     "add-class": addClass,
     "remove-class": removeClass,
     "toggle-class": toggleClass,
-    "screen-print": screenPrint,
+    "print": screenPrint,
+    "resize": resize,
     "close-window": closeWindow,
     "reload-page": reloadPage,
     "logout": logout,

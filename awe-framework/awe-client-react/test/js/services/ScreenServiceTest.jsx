@@ -54,7 +54,49 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Get all screen actions
   it('should get all screen actions', async function() {
-    expect(Object.keys(actions).length).toBe(16);
+    expect(Object.keys(actions).length).toBe(17);
+  });
+
+  it('registers the print action under the contract name and no longer as screen-print', () => {
+    expect(actions).toHaveProperty('print');
+    expect(actions).not.toHaveProperty('screen-print');
+  });
+
+  it('prints the window and accepts the print action', () => {
+    const print = jest.spyOn(window, 'print').mockImplementation(() => {});
+    const action = {id: 'p1', type: 'print', parameters: {}};
+
+    actions.print(action, props);
+
+    expect(print).toHaveBeenCalledTimes(1);
+    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({type: 'ACCEPT_ACTION', payload: action}));
+  });
+
+  it('launches a window resize event after the delay and accepts the resize action', () => {
+    jest.useFakeTimers();
+    const onResize = jest.fn();
+    window.addEventListener('resize', onResize);
+    const action = {id: 'r1', type: 'resize', parameters: {delay: 200}};
+
+    actions.resize(action, props);
+    expect(onResize).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(200);
+    window.removeEventListener('resize', onResize);
+
+    expect(onResize).toHaveBeenCalledTimes(1);
+    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({type: 'ACCEPT_ACTION', payload: action}));
+  });
+
+  it('resizes without delay when the action has no parameters', () => {
+    jest.useFakeTimers();
+    const onResize = jest.fn();
+    window.addEventListener('resize', onResize);
+
+    actions.resize({id: 'r2', type: 'resize'}, props);
+    jest.advanceTimersByTime(0);
+    window.removeEventListener('resize', onResize);
+
+    expect(onResize).toHaveBeenCalledTimes(1);
   });
 
   // Launch screen action erasing the token

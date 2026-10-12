@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { delayActions, startAction } from "../redux/actions/actions";
+import { acceptAction, delayActions, startAction } from "../redux/actions/actions";
 import { isComponentAction, runActionOnTarget } from "../redux/thunks/targets";
 import { fromDate } from "./dates";
 import download from "downloadjs";
@@ -12,17 +12,6 @@ import { isEmpty } from "./general";
  * @category Utilities
  * @namespace Utilities
  */
-
-/**
- * Combine service actions
- * @returns {*} Combined actions
- * @memberOf Utilities
- */
-export function combineActions() {
-  return [...arguments]
-    .map(service => service.getActions())
-    .reduce((allActions, actions) => ({ ...allActions, ...actions }), {});
-}
 
 /**
  * Get REST url
@@ -120,6 +109,11 @@ export function checkActions(allowedActions, actions, props) {
         const run = () => allowedActions[type](a, props);
         // A component action whose target is not on screen is ignored, as in the AngularJS client
         delayActions(settings.actionsStack, isComponentAction(type) ? () => dispatch(runActionOnTarget(a, run)) : run);
+      } else {
+        // An unknown action never blocks the actions that follow it
+        // eslint-disable-next-line no-console
+        console.warn(`Unknown client action "${type}" skipped`, a);
+        dispatch(acceptAction(a));
       }
     });
   }

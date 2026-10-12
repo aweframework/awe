@@ -26,8 +26,7 @@ describe('awe-react-client/test/js/mainTest.jsx', () => {
     jest.doMock('../../src/i18n/i18n', () => ({__esModule: true, default: {init: i18nInit}}));
     jest.doMock('../../src/components/AweApp', () => ({__esModule: true, default: () => null}));
     jest.doMock('../../src/redux/store', () => ({
-      createStore: () => ({dispatch: jest.fn()}),
-      setNavigateFn: jest.fn()
+      createStore: () => ({dispatch: jest.fn()})
     }));
     jest.doMock('react-dom/client', () => ({createRoot: () => ({render})}));
   });

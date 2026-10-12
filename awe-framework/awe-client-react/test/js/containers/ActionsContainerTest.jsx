@@ -4,6 +4,7 @@ import { renderWithProviders } from '../test-utils';
 import ActionsContainer from '../../../src/containers/ActionsContainer';
 import { ActionStatus } from '../../../src/redux/actions/actions';
 import { MemoryRouter } from 'react-router';
+import * as utilities from '../../../src/utilities';
 
 const { STATUS_RUNNING, STATUS_STARTED, STATUS_INITIAL } = ActionStatus;
 
@@ -33,6 +34,9 @@ function buildState(overrides = {}) {
 }
 
 describe('awe-react-client/test/js/containers/ActionsContainerTest.jsx', () => {
+  // A spy installed by one test (checkActions) must not leak into the others
+  afterEach(() => jest.restoreAllMocks());
+
   it('renders hidden when settings.actionsStack = 0 and shows when > 0', () => {
     const preloaded = buildState();
     const { container, rerender } = renderWithProviders(<MemoryRouter><ActionsContainer /></MemoryRouter>, { preloadedState: preloaded });
@@ -53,6 +57,8 @@ describe('awe-react-client/test/js/containers/ActionsContainerTest.jsx', () => {
   });
 
   it('renders async and sync stacks with proper labels, classes and icons coming from Actions.jsx', () => {
+    // The fake action types of this fixture are not client actions: do not let the container run them
+    jest.spyOn(utilities, 'checkActions').mockImplementation(() => undefined);
     const preloaded = buildState({ settings: { actionsStack: 1000 } });
     const { container } = renderWithProviders(<MemoryRouter><ActionsContainer /></MemoryRouter>, { preloadedState: preloaded });
 
