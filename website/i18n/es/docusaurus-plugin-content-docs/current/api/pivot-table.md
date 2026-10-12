@@ -12,14 +12,14 @@ usuario arrastra los campos a las filas y a las columnas, elige una agregación 
 ## Cuándo usarla {#when-to-use-it}
 
 Usa una tabla dinámica cuando el usuario deba **explorar** un conjunto de datos (agruparlo, totalizarlo, cruzarlo) y no sepas de
-antemano qué grupos necesitará. Si el informe es fijo, una [rejilla](grids.md) con la consulta adecuada es más sencilla y
+antemano qué grupos necesitará. Si el informe es fijo, un [grid](grids.md) con la consulta adecuada es más sencilla y
 admite paginación, edición y selección.
 
 La tabla dinámica trabaja sobre **todas las filas que devuelve la consulta**: la agrupación y los totales los calcula el
 cliente, no el servidor. Por ello:
 
-* Indica `max="0"` para cargar todas las filas. Cuando no se indica `max`, la carga inicial pide al servidor una página de filas, como hace una
-  rejilla (30 filas por defecto, consulta `awe.application.component.grid-rows-per-page` en [propiedades](../properties.md)),
+* Indica `max="0"` para cargar todas las filas. Cuando no se indica `max`, la carga inicial pide al servidor una página de filas, como hace un
+  *grid* (30 filas por defecto, consulta `awe.application.component.grid-rows-per-page` en [propiedades](../properties.md)),
   y la tabla dinámica solo usaría esas filas.
 * Limita la consulta a los campos que necesita el usuario. Cada campo de la consulta se convierte en un campo de la tabla dinámica.
 
@@ -47,7 +47,7 @@ Los atributos son los del esquema `screen.xsd` (consulta las [herramientas XSD](
 | initial-load  | Opcional        | String  | De dónde proceden los datos en la carga inicial                     | `query` (el habitual), `enum`, `value`                                            |
 | server-action | Opcional        | String  | Acción de servidor que recarga los datos                            | Consulta la [lista de acciones de servidor](actions.md#server-actions)            |
 | target-action | Opcional        | String  | [Consulta](query-definition.md) que devuelve los datos              | Identificador de la consulta                                                      |
-| max           | Opcional        | Integer | Número máximo de filas a cargar                                     | `0` carga todas las filas. Por defecto: el tamaño de página de la rejilla (30)    |
+| max           | Opcional        | Integer | Número máximo de filas a cargar                                     | `0` carga todas las filas. Por defecto: el tamaño de página del grid (30)    |
 | autoload      | Opcional        | Boolean | Lanza la `target-action` cuando se inicializa la pantalla           | Solo motor AngularJS                                                              |
 | autorefresh   | Opcional        | Integer | Lanza la `target-action` cada X segundos                            | Solo motor AngularJS                                                              |
 

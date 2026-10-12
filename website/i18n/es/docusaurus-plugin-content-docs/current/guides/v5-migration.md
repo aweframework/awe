@@ -55,7 +55,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Gráficos (motor React) | Los gráficos aparecen vacíos con un servidor AWE 4, una serie tiene un color distinto, los gráficos 3D son planos, las reglas CSS `.highcharts-*` no hacen nada, o un componente personalizado que importa Highcharts no compila. | Revise en el log del servidor los avisos `Highcharts chart-parameter`, defina colores y fuentes en el XML y declare Highcharts usted mismo si su propio código lo importa. | [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5), [actualización del cliente React](react-client-upgrade.md#charts-use-apache-echarts) (MR !854, !855, !856) |
 | Pruebas de navegador | El compilador avisa de que las sobrecargas de `By` y `getDriver()` están obsoletas; las pruebas dependen del orden de las clases. | Mueva los pasos personalizados a las sobrecargas de `Locator` y a `getBrowser()`; prepare la sesión en cada prueba con `ensureLoggedIn`/`ensureModule`. Para probar Playwright, establezca `awe.test.tool=playwright`. No se elimina nada antes de la 6.0. | [Compatibilidad de API de awe-testing](selenium-test-guide.md#api-compatibility-of-awe-testing), [clases de prueba independientes](selenium-test-guide.md#independent-test-classes), [pasos personalizados sin tipos de Selenium](selenium-test-guide.md#custom-steps-without-selenium-types) (MR !840, !841) |
 | Dependencia `jsoup` | `org.jsoup:jsoup` ya no está en el classpath de `awe-model` y ya no lo gestiona el BOM `awe-dependencies`. | Si su propio código usa jsoup, declare la dependencia y su versión en su `pom.xml`. En caso contrario no hay que hacer nada. Consulte la nota bajo la tabla. | MR !849 |
-| Caducidad de contraseña (`PwdExp`) | La aplicación define el parámetro `PwdExp`. Tras la actualización, los usuarios cuyo último cambio de contraseña es anterior a `PwdExp` días son rechazados por caducidad (antes entraban), y los que la cambiaron recientemente pueden volver a iniciar sesión (antes eran rechazados). | Nada si los datos son correctos: la comprobación ya no está invertida (consulte la nota bajo la tabla). Revise los usuarios que nunca cambiaron la contraseña y el valor de `PwdExp`. | [Caducidad de contraseña](../security/authentication.md#password-expiration-local-login), incidencia #846 |
+| Caducidad de contraseña (`PwdExp`) | La aplicación define el parámetro `PwdExp`. Tras la actualización, los usuarios cuyo último cambio de contraseña es anterior a `PwdExp` días se les indica que la contraseña ha caducado (antes entraban) y tienen que establecer una nueva, y los que la cambiaron recientemente pueden volver a iniciar sesión (antes eran rechazados). | Nada si los datos son correctos: la comprobación ya no está invertida y el inicio de sesión guía al usuario para cambiar la contraseña (consulte la nota bajo la tabla). Revise los usuarios que nunca cambiaron la contraseña y el valor de `PwdExp`. | [Caducidad de contraseña](../security/authentication.md#password-expiration-local-login), incidencia #846 |
 | JSON del menú | La carga del menú es más pequeña. | Nada, salvo que un cliente personalizado lea `elementList` de una `Option` del menú: lea `options` en su lugar. Consulte la nota bajo la tabla. | MR !792 |
 | Inicio de sesión SSO de usuarios deshabilitados o bloqueados | Un usuario deshabilitado o bloqueado en AWE podía iniciar sesión a través del proveedor de identidad; ahora el inicio de sesión SSO se rechaza con una página de error. | Nada, salvo que dependiera de ello: habilite el usuario en AWE en su lugar. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
 | Beans del manejador SSO | Su propio código llama a `AweWebSecurityConfig.authSuccessHandler()` (ahora recibe como parámetro el bean `AweOauth2AuthenticationFailureHandler`), o construye `AweOauth2AuthenticationSuccessHandler` con un argumento (obsoleto y pendiente de eliminación). | Pase el manejador de fallos: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Los beans de manejador propios ahora se respetan en el inicio de sesión SSO. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
@@ -94,13 +94,23 @@ Qué hacer:
   contraseña antes de la actualización y aumente `PwdExp` (o desactívelo) durante un periodo de transición, hasta que
   los usuarios hayan cambiado sus contraseñas mediante la opción de cambio de contraseña. Una contraseña establecida por
   un administrador en la pantalla de usuarios no ayuda aquí: deja la fecha de cambio vacía, lo que cuenta como caducada
-  mientras `PwdExp` esté definido (véase más abajo). La pantalla de inicio de sesión todavía no tiene un cambio de
-  contraseña guiado.
+  mientras `PwdExp` esté definido (véase más abajo). Los usuarios no necesitan a un administrador: el inicio de sesión les
+  guía para establecer una nueva contraseña (véase más abajo).
 - **Volver a AWE 4** después de que los usuarios hayan cambiado sus contraseñas restituye la comprobación invertida: los
   usuarios con un cambio reciente vuelven a ser rechazados. Desactive `PwdExp` antes de volver atrás.
-- **Los usuarios que nunca cambiaron la contraseña** (fecha vacía) siguen siendo rechazados por caducidad cuando
+- **Los usuarios que nunca cambiaron la contraseña** (fecha vacía) siguen estando caducados cuando
   `PwdExp` está definido, como antes. Esto incluye a los usuarios cuya contraseña fue establecida por un administrador
-  en la pantalla de usuarios.
+  en la pantalla de usuarios: tienen que cambiarla en el primer inicio de sesión (decisión documentada, incidencia #849).
+- **Las contraseñas caducadas se pueden cambiar desde el inicio de sesión** (incidencia #849). El usuario recibe un mensaje
+  localizado (antes era el texto en inglés de Spring bajo el título de credenciales no válidas) y es llevado a la pantalla
+  pública `change-expired-password` en ambos motores web, y después inicia sesión con la nueva contraseña. El usuario nunca
+  obtiene una sesión con la contraseña caducada. `POST /api/authenticate` responde `401` con un mensaje localizado y el
+  código `PASSWORD_EXPIRED`; los clientes REST no pueden cambiar la contraseña y tienen que usar la aplicación web. Consulte
+  [Caducidad de contraseña](../security/authentication.md#password-expiration-local-login).
+- **El maintain target `ChdPwd` ya no es público.** Podía invocarse sin sesión para cambiar la contraseña de cualquier
+  usuario. Ahora necesita sesión y cambia solo la contraseña del usuario conectado. Una pantalla propia que dependiera de
+  la llamada anónima tiene que usar `ChdPwdExpired` (contraseñas caducadas) o iniciar sesión primero. Una aplicación que
+  sustituya todo el menú `public` tiene que añadir la opción `change-expired-password`.
 - **Datos de prueba:** una prueba de integración que inicia sesión con un usuario cuya fecha de contraseña es antigua
   necesita un valor de `PwdExp` mayor que la antigüedad de esa contraseña (las aplicaciones de prueba de AWE usan 36500
   días).
@@ -132,11 +142,11 @@ aplicaciones. Se listan para que pueda planificar; cada una añadirá su propia 
 |---|---|
 | [#755](https://gitlab.com/aweframework/awe/-/issues/755) | Sustituir el Bootstrap 3 incluido por Tailwind y una capa de compatibilidad de AWE |
 | [#775](https://gitlab.com/aweframework/awe/-/issues/775) | Migrar los gráficos de Highcharts a Apache ECharts con renderizado en el servidor |
-| [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de rejilla moderno |
+| [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de *grid* moderno |
 | [#778](https://gitlab.com/aweframework/awe/-/issues/778) | Imponer un hash de contraseñas moderno y una clave maestra obligatoria |
 | [#783](https://gitlab.com/aweframework/awe/-/issues/783) | Actualizar la plataforma base a Java 21 y Spring Boot 4 |
 | [#823](https://gitlab.com/aweframework/awe/-/issues/823) | Alinear los nombres de acciones del constructor y los valores muertos del XSD con el contrato del cliente |
-| [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de rejilla en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
+| [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de grid en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
 
 ## Lista de comprobación de la actualización {#upgrade-checklist}
 

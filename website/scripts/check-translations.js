@@ -162,8 +162,9 @@ function linkExists(siteDir, fromRelative, url) {
 	const candidates = [path.posix.normalize(path.posix.join(fromDir, target))];
 	// A link that does not start with ./ or ../ is also tried from the content root
 	if (!/^\.\.?\//.test(target)) candidates.push(path.posix.normalize(target));
-	return candidates.some((candidate) => !candidate.startsWith('..') && [ES_ROOT, EN_ROOT]
-		.some((root) => fs.existsSync(path.join(siteDir, root, candidate))));
+	// The generated pages exist only after a build (they are git-ignored), and the lint runs without one
+	return candidates.some((candidate) => !candidate.startsWith('..') && (GENERATED.has(candidate) || [ES_ROOT, EN_ROOT]
+		.some((root) => fs.existsSync(path.join(siteDir, root, candidate)))));
 }
 
 async function run({siteDir = process.cwd(), files} = {}) {

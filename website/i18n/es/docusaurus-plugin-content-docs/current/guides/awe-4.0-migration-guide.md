@@ -294,7 +294,7 @@ condition="lte" => condition="le"
 condition="gte" => condition="ge"
 ```
 
-* De paginación de rejilla a paginación gestionada de rejilla:
+* De paginación de *grid* a paginación gestionada de grid:
 
 ```regexp
 pagination="true" => managed-pagination="true"

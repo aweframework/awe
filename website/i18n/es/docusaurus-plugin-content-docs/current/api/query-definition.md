@@ -261,7 +261,7 @@ Estos son los valores posibles del atributo `transform`:
 * `NUMBER`: Transforma el campo de salida como un número con un patrón. **IMPORTANTE**:
 * Al usar esta transformación, el patrón asociado debe tener separador de millares. Por ejemplo: ###,###.00
 * **NUNCA** uses esta transformación si los datos recuperados son para un componente numérico
-* Esta transformación se usa normalmente cuando queremos mostrar un valor numérico en una rejilla de visualización (columnas sin
+* Esta transformación se usa normalmente cuando queremos mostrar un valor numérico en un *grid* de visualización (columnas sin
   componente)
 * `NUMBER_PLAIN`: Transforma el campo de salida como un número con un patrón en bruto (sin separador de millares). **
   IMPORTANTE**:
@@ -908,7 +908,7 @@ El elemento *compound* tiene los siguientes atributos:
 ```
 Uso del compound de icono:
 
-* El `alias` del compound debe coincidir con el `id` del campo de icono en la rejilla.
+* El `alias` del compound debe coincidir con el `id` del campo de icono en el grid.
 * El elemento computed con el alias `icon` contiene el icono que se asignará al campo de icono.
   En este caso, hay un enumerado con los identificadores de los iconos.
 * El elemento computed con el alias `label` contiene la cadena que se mostrará al pasar el ratón por encima.
@@ -960,7 +960,7 @@ El elemento *totalize* tiene los siguientes atributos:
 | function  |**Obligatorio**| String  | Función usada para generar el total                                 | Los valores posibles se definen en [funciones de agregación](#aggregation-functions-for-totalize) |
 | label     |**Obligatorio**| String  | Etiqueta del texto que aparecerá en `totalizer-field` en las filas totalizadas |                                                                      |
 | field     |**Obligatorio**| String  | Campo donde se mostrará la etiqueta del totalizador                 |                                                                                                 |
-| style     |**Obligatorio**| String  | Es el estilo css que se establece en el widget de la rejilla        | Los valores posibles son `TOTAL` o `SUBTOTAL`                                                   |
+| style     |**Obligatorio**| String  | Es el estilo css que se establece en el widget del grid        | Los valores posibles son `TOTAL` o `SUBTOTAL`                                                   |
 
 El elemento totalize tiene los siguientes elementos:
 

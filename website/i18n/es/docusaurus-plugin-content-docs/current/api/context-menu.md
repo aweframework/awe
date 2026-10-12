@@ -3,9 +3,9 @@ id: context-menu
 title: Menú contextual
 ---
 
-El motor de Awe permite definir un menú contextual dentro de una matriz, criterios o gráficas. Con estos menús, se puede añadir funcionalidad a la ventana.
+El motor de Awe permite definir un menú contextual dentro de un *grid*, criterios o gráficas. Con estos menús, se puede añadir funcionalidad a la ventana.
 
-<img alt="Menú contextual cuadriculado" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
+<img alt="Menú contextual de grid" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 
 ## Estructura Xml {#xml-structure}
 
@@ -64,7 +64,7 @@ La estructura xml de los menús contextuales es la siguiente:
 
 ## Ejemplos {#examples}
 
-- Menú contextual dentro de una matriz
+- Menú contextual dentro de un grid
 
 ```xml
 <grid id="GrdSta" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="30">

@@ -28,7 +28,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 |------------------------------|-----------------|-------------------|---------------------------------------------------------------------------------------------------------------|
 | [window](#window-attributes) | **Obligatorio** | No                | Nodo global de la ventana. Describe los atributos de la ventana                                               |
 | [tag](tags.md)               | Opcional        | Sí                | Una lista de [tags](tags.md) dentro de la ventana, normalmente con estilos como `panel-body` y `panel-footer` |
-| [grid](grids.md)             | Opcional        | No                | Una [rejilla](grids.md) dentro de la ventana                                                                  |
+| [grid](grids.md)             | Opcional        | No                | Un [grid](grids.md) dentro de la ventana                                                                  |
 | [chart](chart.md)            | Opcional        | No                | Un [gráfico](chart.md) dentro de la ventana                                                                   |
 
 > **Nota** Hay tres estilos especiales que puedes usar como estilos de tag en las ventanas:
@@ -51,7 +51,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 
 ## Ejemplos {#examples}
 
-### Ventana expandible con rejilla (maximizable) {#expandible-window-with-grid-maximizable}
+### Ventana expandible con grid (maximizable) {#expandible-window-with-grid-maximizable}
 
 ```xml 
 <window style="expand" maximize="true" label="SCREEN_TEXT_DATA" icon="list">
@@ -59,7 +59,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 </window>
 ```
 
-<img alt="Ventana expandible con rejilla" src={require('@docusaurus/useBaseUrl').default('img/expandible window with grid.png')} />
+<img alt="Ventana expandible con grid" src={require('@docusaurus/useBaseUrl').default('img/expandible window with grid.png')} />
 
 ### Ventana estática con contenido y zona de botones {#static-window-with-content-and-buttons-zone}
 

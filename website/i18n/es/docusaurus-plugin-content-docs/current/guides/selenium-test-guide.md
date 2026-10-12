@@ -13,7 +13,7 @@ Todo el contenido de este documento está explicado asumiendo que el lector ya s
 - Algo difiere entre los clientes AngularJS y React: [Clientes AngularJS y React](#angularjs-and-react-clients).
 - Falta un paso o un hook: [Añadir un paso que falta](#adding-a-missing-step) y [Hooks de prueba estables](#stable-test-hooks-data-testid).
 - Una prueba falla: [Ejecutar las suites y resolver problemas](#running-the-suites-and-troubleshooting).
-- Detalles y ejemplos por componente: las secciones *Criterios* y [Celdas de tabla](#grid-cells) más adelante.
+- Detalles y ejemplos por componente: las secciones *Criterios* y [Celdas de grid](#grid-cells) más adelante.
 :::
 
 :::tip
@@ -211,13 +211,13 @@ registro que creó la creación. Tres reglas mantienen las clases independientes
   funcionalidades. Las demás pruebas nunca dependen de ellas: la preparación inicia sesión de nuevo cuando la prueba de inicio de sesión no se ejecutó o falló.
 - **Abre la pantalla en cada prueba** (`gotoScreen`) en lugar de continuar en la pantalla que dejó la prueba anterior, y
   usa datos propios: una clase crea los registros que actualiza y elimina, con nombres que ninguna otra clase usa
-  (las pruebas del servidor de correo usan `auth server` y `plain server`, no el mismo nombre). Las tablas se buscan por el texto
+  (las pruebas del servidor de correo usan `auth server` y `plain server`, no el mismo nombre). Los *grids* se buscan por el texto
   que contiene una fila, de modo que ningún nombre puede estar contenido en el nombre de un registro de otra clase (`Manual task` y
   `Prerequisite task`, no `Task` y `Task 2`). Un registro que una clase solo necesita como requisito previo (las pruebas de tareas programadas
   usan un calendario y una tarea manual para su lanzamiento personalizado y sus dependencias) lo crea esa clase al
   principio y lo elimina al final, después de los registros que lo usan. Las clases CRUD (`AbstractCrudTests`) hacen lo mismo: las clases de módulo y de base de datos crean su propio sitio, y la clase de usuario su propio perfil.
 - **`gotoScreen` no recarga la pantalla que ya está abierta.** El cliente conserva sus criterios, sus recargas pendientes y
-  la fila que seleccionó la prueba anterior, y una tabla que se recarga después pierde esa selección, de modo que una prueba que selecciona
+  la fila que seleccionó la prueba anterior, y un grid que se recarga después pierde esa selección, de modo que una prueba que selecciona
   una fila justo después de otra en la misma pantalla puede fallar en un botón que permanece deshabilitado. Donde importe, pasa por
   otra pantalla primero (las pruebas del planificador lo hacen en `AbstractSchedulerTests.openScreen`). De la misma manera, una prueba no debe
   dejar trabajo en segundo plano ejecutándose hacia la siguiente: una tarea programada con dependencias las lanza cuando termina, por lo que las
@@ -261,7 +261,7 @@ Si el botón hace que se cargue una nueva pantalla, puedes indicar al método qu
 clickButton("ButNew", true);
 ```
 
-Si el botón es un botón de búsqueda, puedes llamar al método `searchAndWait` para esperar a que la tabla se cargue
+Si el botón es un botón de búsqueda, puedes llamar al método `searchAndWait` para esperar a que el grid se cargue
 (si el botón se llama `ButSch`):
 
 ```java
@@ -295,9 +295,9 @@ waitForButtonClickability("ButLogIn");
 
 Úsalos cuando la UI renderiza el elemento pronto pero una actualización posterior del frontend aún está habilitando el control.
 
-### Esperar a que una tabla se cargue {#wait-for-a-grid-to-load}
+### Esperar a que un grid se cargue {#wait-for-a-grid-to-load}
 
-Para esperar a que una tabla se cargue, llama al método `waitForLoadingGrid`:
+Para esperar a que un grid se cargue, llama al método `waitForLoadingGrid`:
 
 ```java
 // Wait a grid to load
@@ -348,7 +348,7 @@ clickButtonAndConfirm("ButCnf");
 
 Cada paso que puede llamar una prueba es un método `protected` de `SeleniumUtilities`, de modo que una clase de prueba que lo extienda los llama
 directamente. Este catálogo los lista todos, agrupados por área, para que puedas revisarlo antes de escribir una prueba. Los nombres de
-los parámetros siguen la firma Java: `criterionName` es el identificador del criterio, `gridId`, `rowId` y `columnId` son los identificadores de la tabla,
+los parámetros siguen la firma Java: `criterionName` es el identificador del criterio, `gridId`, `rowId` y `columnId` son los identificadores del grid,
 la fila y la columna, y `messageType` es `success`, `info`, `warning` o `danger`. Un paso se comporta igual en
 el cliente AngularJS y en el React, salvo que su descripción indique qué difiere (consulte
 [Clientes AngularJS y React](#angularjs-and-react-clients)).
@@ -410,7 +410,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `waitForTab(String tabCriterionName)` | Espera hasta que un criterio de pestañas es pulsable |
 | `waitForContextButton(String buttonName)` | Espera hasta que un botón del menú contextual es pulsable |
 | `waitForLoadingBar()` | Espera a que desaparezca la barra de carga de la página |
-| `waitForLoadingGrid()` | Espera a que termine la carga de una tabla |
+| `waitForLoadingGrid()` | Espera a que termine la carga de un grid |
 | `waitForText(String clazz, String contains)` | Espera un texto dentro de la etiqueta con una clase CSS. Forma con selector en bruto |
 | `waitForText(Locator selector, String contains)` | Espera un texto dentro de un locator. Para ayudantes de tu producto |
 | `waitForValue(Locator selector, String contains)` | Espera hasta que el valor de un input contiene un texto. Para ayudantes de tu producto |
@@ -438,7 +438,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `clickContextButton(String... contextButtonOptionList)` | Hace clic en las opciones de un menú contextual en orden |
 | `closeContextMenu()` | Cierra el menú contextual abierto sin elegir una opción |
 | `checkContextMenuNotVisible()` | Comprueba que no se muestra ningún menú contextual |
-| `searchAndWait()` | Hace clic en `ButSch` y espera a que la tabla se cargue |
+| `searchAndWait()` | Hace clic en `ButSch` y espera a que el grid se cargue |
 | `searchAndWait(String buttonName)` | Igual con otro botón de búsqueda |
 
 ### Mensajes y diálogos {#messages-and-dialogs}
@@ -512,7 +512,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 
 Usa `checkSelectContents` para un select y `checkSuggestContents` para un suggest: un suggest no se dibuja como un select.
 
-### Tablas: filas, celdas y columnas {#grids-rows-cells-and-columns}
+### Grids: filas, celdas y columnas {#grids-rows-cells-and-columns}
 
 Los pasos sobre una celda tienen dos formas: con un `rowId` (la celda de una fila dada) y sin él (la celda de la fila que se
 está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando existe la otra.
@@ -520,22 +520,22 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | Paso | Qué hace |
 |---|---|
 | `clickRowContents(String search)` | Selecciona la fila que contiene un texto |
-| `clickRowContents(String gridId, String search)` | Igual en una tabla dada. Una fila que ya está seleccionada sigue seleccionada |
+| `clickRowContents(String gridId, String search)` | Igual en un grid dado. Una fila que ya está seleccionada sigue seleccionada |
 | `toggleRowContents(String gridId, String search)` | Hace clic en una fila aunque ya esté seleccionada, para alternar su selección |
 | `editRow(String search)` | Inicia la edición de la fila que contiene un texto |
-| `editRow(String gridId, String search)` | Igual en una tabla dada |
+| `editRow(String gridId, String search)` | Igual en un grid dado |
 | `editRow(String gridId, String rowId, String columnId)` | Inicia la edición de una fila haciendo clic en una de sus celdas |
 | `clickCell(String gridId, String columnId)` | Hace clic en una celda de la fila seleccionada |
 | `clickCell(String gridId, String rowId, String columnId)` | Hace clic en una celda |
 | `contextMenuRowContents(String search)` | Abre el menú contextual de la fila que contiene un texto |
-| `contextMenuRowContents(String gridId, String search)` | Igual en una tabla dada |
+| `contextMenuRowContents(String gridId, String search)` | Igual en un grid dado |
 | `contextMenu(String gridId, String rowId, String columnId)` | Abre el menú contextual de una celda |
 | `selectAllRowsOfGrid(String gridId)` | Selecciona todas las filas con el checkbox de la cabecera |
-| `checkAllRowsSelected(String gridId)` | Comprueba que todas las filas de una tabla están seleccionadas |
-| `clickGridViewport(String gridId)` | Hace clic en la zona de la tabla que muestra las filas, fuera de cualquier fila |
+| `checkAllRowsSelected(String gridId)` | Comprueba que todas las filas de un grid están seleccionadas |
+| `clickGridViewport(String gridId)` | Hace clic en la zona del grid que muestra las filas, fuera de cualquier fila |
 | `sortGrid(String gridId, String columnId)` | Hace clic en la cabecera de una columna para ordenar |
-| `scrollGrid(String gridId, int horizontal, int vertical)` | Desplaza la tabla en píxeles |
-| `saveRow()` / `saveRow(String gridId)` | Hace clic en el botón de guardar de una tabla editable y espera |
+| `scrollGrid(String gridId, int horizontal, int vertical)` | Desplaza el grid en píxeles |
+| `saveRow()` / `saveRow(String gridId)` | Hace clic en el botón de guardar de un grid editable y espera |
 | `getText(String gridId, String columnId)` | Devuelve el texto del editor de una celda de la fila que se está editando |
 | `getText(String gridId, String rowId, String columnId)` | Devuelve el texto de una celda |
 | `writeText(String gridId, String columnId, CharSequence text)` | Escribe en el editor de una celda de la fila que se está editando |
@@ -555,24 +555,24 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `suggestLast(String gridId, String columnId, String search)` | Sugiere el último resultado en una celda (también con `rowId`) |
 | `suggestMultiple(String gridId, String columnId, String search, String label)` | Añade un valor a una celda múltiple (también con `rowId`, y con `clear`) |
 
-### Tablas: comprobaciones {#grids-checks}
+### Grids: comprobaciones {#grids-checks}
 
 | Paso | Qué hace |
 |---|---|
-| `checkRowContents(String... searchList)` | Comprueba que la tabla contiene todos los textos |
-| `checkRowContentsGrid(String gridId, String... searchList)` | Igual en una tabla dada |
-| `checkRowNotContains(String search)` | Comprueba que la tabla no contiene un texto |
-| `hasRowContents(String search)` | Indica, sin fallar, si la tabla contiene un texto una vez cargada: un paso que crea o elimina un registro lo usa para averiguar si el registro ya está, de modo que pueda ejecutarse de nuevo tras un intento fallido |
-| `hasRowContentsGrid(String gridId, String search)` | Igual en una tabla dada |
+| `checkRowContents(String... searchList)` | Comprueba que el grid contiene todos los textos |
+| `checkRowContentsGrid(String gridId, String... searchList)` | Igual en un grid dado |
+| `checkRowNotContains(String search)` | Comprueba que el grid no contiene un texto |
+| `hasRowContents(String search)` | Indica, sin fallar, si el grid contiene un texto una vez cargada: un paso que crea o elimina un registro lo usa para averiguar si el registro ya está, de modo que pueda ejecutarse de nuevo tras un intento fallido |
+| `hasRowContentsGrid(String gridId, String search)` | Igual en un grid dado |
 | `checkCellContents(String gridId, String rowId, String columnId, String search)` | Comprueba el contenido de una celda |
-| `checkGridCellsHaveNoActiveContent(String gridId)` | Comprueba que las celdas de una tabla muestran texto y nada activo: ningún script, frame, imagen, formulario, manejador de eventos ni enlace a una url de script. Úsalo con un valor que lleve marcado para demostrar que la tabla no lo interpreta |
-| `checkGridPresent(String gridId)` | Comprueba que una tabla existe en la pantalla, aunque esté oculta |
-| `checkGridNotVisible(String gridId)` | Comprueba que una tabla no se muestra |
-| `checkGridPageSize(String size)` | Comprueba el número de filas que una tabla muestra en cada página |
+| `checkGridCellsHaveNoActiveContent(String gridId)` | Comprueba que las celdas de un grid muestran texto y nada activo: ningún script, frame, imagen, formulario, manejador de eventos ni enlace a una url de script. Úsalo con un valor que lleve marcado para demostrar que el grid no lo interpreta |
+| `checkGridPresent(String gridId)` | Comprueba que un grid existe en la pantalla, aunque esté oculta |
+| `checkGridNotVisible(String gridId)` | Comprueba que un grid no se muestra |
+| `checkGridPageSize(String size)` | Comprueba el número de filas que un grid muestra en cada página |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 
-### Tablas en árbol {#tree-grids}
+### Grids en árbol {#tree-grids}
 
 | Paso | Qué hace |
 |---|---|
@@ -644,7 +644,7 @@ ui-grid, Bootstrap...). Prefiere estos hooks a las clases de librería (`.select
 `.nav-tabs`, `.fa-*`...) en tus propios selectores.
 
 La instancia se identifica siempre con el atributo que AWE ya renderiza: `criterion-id` en el contenedor de un criterio,
-`grid-id` / `tree-grid-id`, `row-id` y `column-id` en las tablas, `option-id` en un menú contextual, `name` en el menú de la
+`grid-id` / `tree-grid-id`, `row-id` y `column-id` en los grids, `option-id` en un menú contextual, `name` en el menú de la
 aplicación, `info-dropdown-id`, `dialog-id` y el `id` de botones y paneles. Algunas librerías añaden su DOM al final del
 `<body>` (el desplegable del select, el popup del selector de fechas, los popovers). Esos elementos llevan `data-testid-owner="<component id>"`
 para que una prueba pueda saber qué componente los abrió.
@@ -653,7 +653,7 @@ para que una prueba pueda saber qué componente los abrió.
 
 | `data-testid` | Elemento | Dónde encontrarlo |
 |---|---|---|
-| `criterion-input` | El control real del criterio: el `input`, `textarea`, checkbox, radio o input oculto, el valor de una vista de texto, o el selector de archivos de un uploader. En un select o suggest es el input oculto que contiene el valor: interactúa con `select`. Los editores de las celdas de una tabla editable también lo llevan | Dentro de `[criterion-id='X']`, o dentro de la celda de la tabla |
+| `criterion-input` | El control real del criterio: el `input`, `textarea`, checkbox, radio o input oculto, el valor de una vista de texto, o el selector de archivos de un uploader. En un select o suggest es el input oculto que contiene el valor: interactúa con `select`. Los editores de las celdas de un grid editable también lo llevan | Dentro de `[criterion-id='X']`, o dentro de la celda del grid |
 | `select` | Contenedor select2 visible de un select o suggest (el elemento en el que hacer clic) | Dentro de `[criterion-id='X']` |
 | `select-value` | Valor elegido de un select simple | Dentro de `[criterion-id='X']` |
 | `select-choice`, `select-choice-close` | Un elemento elegido de un select o suggest múltiple, y el enlace que lo elimina | Dentro de `[criterion-id='X']` |
@@ -662,7 +662,7 @@ para que una prueba pueda saber qué componente los abrió.
 | `select-option` | Una opción del desplegable abierto | Dentro del desplegable, con `data-testid-owner` |
 | `datepicker` | El popup de fecha abierto | Final de `<body>`, con `data-testid-owner` |
 | `datepicker-day`, `datepicker-month`, `datepicker-year` | Celdas de día, mes y año del popup | Dentro del popup, con `data-testid-owner` |
-| `upload-filename`, `upload-clear` | Nombre del archivo subido y botón que lo borra | Dentro de `[criterion-id='X']`, o dentro de la celda de la tabla |
+| `upload-filename`, `upload-clear` | Nombre del archivo subido y botón que lo borra | Dentro de `[criterion-id='X']`, o dentro de la celda del grid |
 | `loader` | Cargador de un criterio o de cualquier otro componente | Dentro del componente |
 | `select-trigger` | La flecha que abre el panel de un select. Haz clic en ella en lugar de en el medio de un select corto, donde puede estar el icono de borrar. **Solo React** | Dentro de `[criterion-id='X']` |
 | `criterion-unit` | El complemento de unidad de un criterio (el texto tras el input, como `EUR`). **Solo React** | Dentro de `[criterion-id='X']` |
@@ -672,23 +672,23 @@ En un checkbox o radio de botones, el cliente React renderiza **un criterio para
 `criterion-input` que lleva `option-id` con su valor: `[criterion-id='X'] [data-testid='criterion-input'][option-id='Y']`.
 AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOption(criterionName, optionId)`.
 
-### Tablas y árboles {#grids-and-trees}
+### Grids y árboles {#grids-and-trees}
 
 | `data-testid` | Elemento | Dónde encontrarlo |
 |---|---|---|
-| `grid` | Raíz de una tabla o tabla en árbol | `[grid-id='X']`, `[tree-grid-id='X']` |
-| `grid-header-cell` | Celda de cabecera de una columna | Dentro de la tabla, con `column-id` |
-| `grid-header-checkbox` | Etiqueta del checkbox "seleccionar todo". `data-selected` | Dentro de la tabla |
-| `grid-viewport` | Zona desplazable de las filas. `data-container` es `body`, `left` o `right` (columnas fijas) | Dentro de la tabla |
+| `grid` | Raíz de un grid o grid en árbol | `[grid-id='X']`, `[tree-grid-id='X']` |
+| `grid-header-cell` | Celda de cabecera de una columna | Dentro del grid, con `column-id` |
+| `grid-header-checkbox` | Etiqueta del checkbox "seleccionar todo". `data-selected` | Dentro del grid |
+| `grid-viewport` | Zona desplazable de las filas. `data-container` es `body`, `left` o `right` (columnas fijas) | Dentro del grid |
 | `grid-row` | Una fila, con `row-id`. `data-selected` | Dentro del viewport |
 | `grid-cell` | Una celda: el elemento que lleva `column-id`, sea lo que sea lo que renderice (valor, editor, checkbox, icono de árbol) | Dentro de una fila, con `column-id` |
 | `grid-row-checkbox` | Etiqueta del checkbox de selección de una fila. `data-selected` | Dentro de la celda |
-| `grid-row-save`, `grid-row-cancel` | Botones de guardar y cancelar de una tabla editable | Dentro de la tabla |
-| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size` | Paginación del pie, sus flechas anterior/siguiente (`data-disabled`) del paginador compacto, el input "ir a la página" (solo AngularJS) y el select del tamaño de página. En React el tamaño de página lleva además `data-value`, porque el desplegable repite el texto | Dentro de la tabla |
-| `grid-loader` | Cargador de la tabla (también de la tabla dinámica) | Dentro de la tabla |
+| `grid-row-save`, `grid-row-cancel` | Botones de guardar y cancelar de un grid editable | Dentro del grid |
+| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size` | Paginación del pie, sus flechas anterior/siguiente (`data-disabled`) del paginador compacto, el input "ir a la página" (solo AngularJS) y el select del tamaño de página. En React el tamaño de página lleva además `data-value`, porque el desplegable repite el texto | Dentro del grid |
+| `grid-loader` | Cargador del grid (también de la tabla dinámica) | Dentro del grid |
 | `tree-icon` | Icono de expandir/contraer de una fila de árbol. `data-expanded` y `data-loading` | Dentro de la celda |
-| `tree-header-icon` | Icono de expandir/contraer todo de la cabecera. Solo AngularJS | Dentro de la tabla |
-| `column-icon` | El icono de una columna de iconos. `data-icon` lleva el icono del valor de la celda (por ejemplo `fa-plus` en una tabla de multioperación) | Dentro de la celda |
+| `tree-header-icon` | Icono de expandir/contraer todo de la cabecera. Solo AngularJS | Dentro del grid |
+| `column-icon` | El icono de una columna de iconos. `data-icon` lleva el icono del valor de la celda (por ejemplo `fa-plus` en un grid de multioperación) | Dentro de la celda |
 | `grid-row-edit` | El botón que inicia la edición de una fila. **Solo React** | Dentro de la fila |
 
 ### Pestañas y asistentes {#tabs-and-wizards}
@@ -706,7 +706,7 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 
 | `data-testid` | Elemento | Dónde encontrarlo |
 |---|---|---|
-| `button` | El `<button>` de un botón, con el `id` del botón (también dentro de celdas de tabla) | Cualquier lugar |
+| `button` | El `<button>` de un botón, con el `id` del botón (también dentro de celdas de grid) | Cualquier lugar |
 | `context-menu`, `context-menu-option`, `context-menu-link`, `context-submenu` | Un menú contextual, una opción (con `option-id`), su enlace (`data-disabled`) y un menú anidado | Dentro del componente que posee el menú |
 | `menu`, `menu-option`, `menu-link`, `menu-dropdown`, `menu-submenu` | El menú de la aplicación, una opción (`data-active`, `data-open`), su enlace (con `name`), el desplegable de primer nivel y los submenús anidados (`data-open`) | Dentro del menú |
 | `info-dropdown`, `info-dropdown-toggle`, `info-dropdown-menu` | Un desplegable de info (con `info-dropdown-id`), el enlace que lo abre y su menú | Cualquier lugar |
@@ -733,7 +733,7 @@ estos selectores.
 | `help-popover` | **Solo AngularJS.** La ayuda de un componente, renderizada una vez para toda la aplicación. Se muestra solo mientras `data-open` es `true` | Zona de alertas |
 | `dialog`, `dialog-close` | Un diálogo modal (con `data-testid-owner` = id del diálogo, y `data-open`) y el botón de su cabecera que lo cierra | Dentro de `[dialog-id='X']` |
 | `confirm-dialog`, `confirm-accept`, `confirm-cancel` | El diálogo de confirmación y sus botones | Final de la zona de alertas |
-| `loader` | Un cargador de componente (criterios, columnas, selects). Las tablas usan `grid-loader` | Dentro del componente |
+| `loader` | Un cargador de componente (criterios, columnas, selects). Los grids usan `grid-loader` | Dentro del componente |
 | `error-boundary`, `error-boundary-title`, `error-boundary-message`, `error-boundary-details`, `error-boundary-retry`, `error-boundary-reload` | **Solo React.** El panel que muestra un error boundary cuando una parte de la aplicación falla al renderizar (`data-scope` es `app` o `view`), su título, el mensaje del error, su pila de componentes y sus botones. Lee el mensaje y la pila del código fuente de la página de la evidencia del fallo para diagnosticar una pantalla en blanco | En lugar de la parte que falló (`view`) o de toda la aplicación (`app`) |
 | `loading-bar`, `loading-spinner` | La barra de carga global (solo AngularJS) y su spinner. React no tiene barra de carga: muestra el spinner mientras se carga una vista. Existen solo mientras la aplicación se está cargando | Final de `<body>` |
 
@@ -752,13 +752,13 @@ o `"false"`, excepto `data-type`, `data-container`, `data-icon`, `data-value` y 
 | `data-completed` | Paso de asistente que ya está hecho |
 | `data-outside-month` | Día del selector de fechas que pertenece al mes anterior o siguiente |
 | `data-type` | Tipo de un mensaje |
-| `data-container` | Contenedor del viewport de una tabla: `body`, `left` o `right` |
+| `data-container` | Contenedor del viewport de un grid: `body`, `left` o `right` |
 | `data-icon` | Clases de icono que muestra una columna de iconos. Haz coincidir una con `[data-icon~='fa-plus']` |
-| `data-editing` | Fila de tabla que se está editando. **Solo React**: el cliente React puede editar una fila que no está seleccionada (AngularJS edita la fila seleccionada) |
-| `data-deleted` | Fila de tabla marcada para eliminar cuando se guarda la tabla (tablas de multioperación y tablas en árbol). **Solo React**. Consulta `checkTreeRowDeleted(gridId, rowId)` |
+| `data-editing` | Fila de grid que se está editando. **Solo React**: el cliente React puede editar una fila que no está seleccionada (AngularJS edita la fila seleccionada) |
+| `data-deleted` | Fila de grid marcada para eliminar cuando se guarda el grid (grids de multioperación y grids en árbol). **Solo React**. Consulta `checkTreeRowDeleted(gridId, rowId)` |
 | `data-rendered` | Un gráfico que se ha dibujado. **Solo React** |
 | `data-step-number` | Número de un paso de asistente (un texto, no un booleano). **Solo React** |
-| `data-value` | Valor de un control cuyo texto lo repite, como el tamaño de página de una tabla (un texto, no un booleano). **Solo React** |
+| `data-value` | Valor de un control cuyo texto lo repite, como el tamaño de página de un grid (un texto, no un booleano). **Solo React** |
 
 ```java
 // Value of the input of a criterion
@@ -803,7 +803,7 @@ un autor de pruebas todavía se encuentra, porque son visibles en las pantallas 
 | Etiqueta de pestaña | `clickTab` coincide con la **clave de locale** de la etiqueta (`ENUM_MATRIX_EDITABLE`) | `clickTab` coincide con el **texto traducido** que ve el usuario (`Editable`) | Pasa el valor del cliente que pruebas. Si una suite apunta a ambos, mantén la etiqueta en una constante por suite |
 | Valor de suggest | El valor elegido se muestra como texto | El valor elegido es el **valor de un input** | Usa `checkSuggestContents` para un suggest y `checkSelectContents` para un select; nunca leas el valor con un selector |
 | Grupos de botones | Cada opción de un checkbox o radio de botón es un criterio propio | Un grupo de botones es **un criterio** y cada opción lleva su `option-id` | Usa `clickCheckboxOption(criterionName, optionId)`, y `checkCheckboxRadio(...)` para el estado. Un grupo puede no tener ninguna opción marcada por defecto |
-| Fila editada y fila seleccionada | La fila que editas es la fila seleccionada | Una fila puede **editarse sin estar seleccionada** (`data-editing`), y una tabla multiselección alterna la selección cuando haces doble clic para editar | Usa `editRow(...)` y los pasos de celda; usa `toggleRowContents(gridId, search)` cuando necesites que la selección cambie aunque la fila estuviera seleccionada |
+| Fila editada y fila seleccionada | La fila que editas es la fila seleccionada | Una fila puede **editarse sin estar seleccionada** (`data-editing`), y un grid multiselección alterna la selección cuando haces doble clic para editar | Usa `editRow(...)` y los pasos de celda; usa `toggleRowContents(gridId, search)` cuando necesites que la selección cambie aunque la fila estuviera seleccionada |
 | Gesto de edición | Un solo clic en la fila | Doble clic, reintentado hasta que el editor está abierto | Usa `editRow(...)`. No hagas clic tú mismo en la celda |
 | Números | Nada especial: escribe el valor | El input numérico (`InputNumber` de PrimeReact) toma un `.` o `,` escrito como su **separador decimal** y añade él mismo el separador de miles | Escribe solo los dígitos y el separador decimal, no el separador de miles: `writeText("Unt", "325274,50")`, y después comprueba `325.274,50` con `checkCriterionContents` |
 | Errores de criterio | Se muestran en el contenedor de errores compartido | Se muestran bajo el criterio (`criterion-error`) | Usa `checkValidationErrorVisible()` |
@@ -1591,12 +1591,12 @@ checkSelectContents("Scr", "Usr");
 checkSuggestContents("Sug", "Test");
 ```
 
-## Celdas de tabla {#grid-cells}
+## Celdas de grid {#grid-cells}
 
 ### Columna de input y textarea {#input-and-textarea-column}
 
 Simplemente llama al método `writeText` con los siguientes parámetros:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **text** - Texto a escribir
 
@@ -1609,8 +1609,8 @@ writeText("GrdMuo", "Des2", "asdasda");
 
 #### Elegir una fecha concreta en el selector de fechas en una columna {#pick-a-specific-date-in-the-datepicker-in-a-column}
 
-Para elegir una fecha en una fila de tabla, llama al método selectDate:
- - **gridId** - Identificador de la tabla
+Para elegir una fecha en una fila de grid, llama al método selectDate:
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **date** - Fecha a elegir
 
@@ -1622,7 +1622,7 @@ selectDate("GrdEdi", "Dat", "23/10/1978");
 #### Elegir un día del mes actual en una columna {#pick-a-day-from-the-current-month-in-a-column}
 
 Llama al método `selectDay` con los siguientes parámetros:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **day** - Día a seleccionar
 
@@ -1634,7 +1634,7 @@ selectDay("GrdEdi", "Dat", 23);
 ### Columna de hora {#time-column}
 
 Igual que [columna de input y textarea](#input-and-textarea-column):
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **time** - Hora a seleccionar
  
@@ -1646,7 +1646,7 @@ writeText("gridId", "timeColumn", "12:23:41");
 ### Columna select {#select-column}
 
 Para elegir un resultado en un criterio select, llama al método `selectContain`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **text** - Texto a buscar en la lista de resultados
 
@@ -1658,7 +1658,7 @@ selectContain("GrdScrCnf", "Act", "Yes");
 ### Columna suggest {#suggest-column}
 
 Para usar un criterio suggest, llama al método `suggest`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **text to suggest** - Texto a buscar
  - **result label** - Texto a buscar en la lista de resultados
@@ -1671,7 +1671,7 @@ suggest("GrdScrCnf", "Atr", "visible", "Visible");
 ### Select y suggest múltiples en una columna {#multiple-select-and-suggest-in-a-column}
 
 Estos dos criterios se pueden probar de la misma manera con el criterio `suggestMultiple`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
  - **text to suggest** - Texto a buscar
  - **result label** - Texto a buscar en la lista de resultados
@@ -1684,7 +1684,7 @@ suggestMultiple("gridId", "columnId", "application-info", "application-info");
 ### Columna de checkbox {#checkbox-column}
 
 Haz clic en un checkbox o en un botón de radio de la misma manera con el método `clickCheckbox`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **columnId** - Identificador de la columna
 
 ```java
@@ -1694,14 +1694,14 @@ clickCheckbox("gridId", "columnId");
 
 ### Botón de guardar {#save-button}
 
-Para hacer clic en un botón de guardar de una tabla, llama al método `saveRow`.
+Para hacer clic en un botón de guardar de un grid, llama al método `saveRow`.
 
 ```java
 // Save line
 saveRow();
 ```
 
-Si hay varias tablas en la pantalla, necesitas añadir el identificador de la tabla al método:
+Si hay varios grids en la pantalla, necesitas añadir el identificador del grid al método:
 
 ```java
 // Save line
@@ -1710,7 +1710,7 @@ saveRow("myGridIdentifier");
 
 ### Comprobar el valor de una fila {#check-a-row-value}
 
-Para comprobar si hay textos concretos dentro de una tabla, llama al método `checkRowContents`:
+Para comprobar si hay textos concretos dentro de un grid, llama al método `checkRowContents`:
 
 ```java
 // Check row contents
@@ -1720,7 +1720,7 @@ checkRowContents("test", "ADM", "Site changed");
 Puedes añadir tantos textos como quieras comprobar.
 
 Si quieres comprobar el contenido de una celda concreta, puedes llamar al método `checkCellContents`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **rowId** - Identificador de la fila
  - **columnId** - Identificador de la columna
  - **text** - Texto con el que coincidir
@@ -1733,7 +1733,7 @@ checkCellContents("GrdEdi", "2", "Dat", date);
 ### Hacer clic en una fila {#click-on-a-row}
 
 Para hacer clic en una fila con un texto definido, llama al método `clickRowContents`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **text** - Texto con el que coincidir
 
 ```java
@@ -1742,7 +1742,7 @@ clickRowContents("GrdEdi", "asphalt");
 ```
 
 O si quieres hacer clic en una celda concreta, puedes llamar al método `clickCell`:
- - **gridId** - Identificador de la tabla
+ - **gridId** - Identificador del grid
  - **rowId** - Identificador de la fila
  - **columnId** - Identificador de la columna
 
@@ -1753,8 +1753,8 @@ O si quieres hacer clic en una celda concreta, puedes llamar al método `clickCe
 
 ### Expandir o contraer una fila {#expand-or-collapse-a-row}
 
-Para expandir o contraer una fila de una tabla en árbol, hemos definido el método `clickTreeButton`:
- - **gridId** - Identificador de la tabla
+Para expandir o contraer una fila de un grid en árbol, hemos definido el método `clickTreeButton`:
+ - **gridId** - Identificador del grid
  - **rowId** - Identificador de la fila
  
 ```java
@@ -1764,8 +1764,8 @@ clickTreeButton("TreGrdLoaEdi", "Prooperator");
 
 ### Menú contextual en una fila {#context-menu-on-a-row}
 
-Para abrir un menú contextual en una fila de tabla, simplemente llama al método `contextMenu`:
- - **gridId** - Identificador de la tabla
+Para abrir un menú contextual en una fila de grid, simplemente llama al método `contextMenu`:
+ - **gridId** - Identificador del grid
  - **rowId** - Identificador de la fila
  - **columnId** - Identificador de la columna
  

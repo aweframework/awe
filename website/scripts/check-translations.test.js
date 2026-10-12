@@ -98,6 +98,15 @@ test('broken links are reported, links to untranslated pages fall back to Englis
 	assert.strictEqual(result.errors[0].line, 3);
 });
 
+test('links to the generated pages count as valid although the files exist only after a build', async () => {
+	const dir = site({
+		'docs/rest-module.md': '# R\n',
+		[`${ES}/rest-module.md`]: '# R\n\n[api](rest-api.md) [props](./properties.md#awe.x)\n'
+	});
+	const result = await run({siteDir: dir});
+	assert.deepStrictEqual(result.errors, [], messages(result));
+});
+
 test('only the given files are checked when paths are passed', async () => {
 	const dir = site({
 		'docs/a.md': '# A\n', 'docs/b.md': '# B\n',

@@ -72,9 +72,9 @@ Consulte la sección de [acciones](actions.md) para obtener más detalles.
 
 ## Ejemplos {#examples}
 
-### Botón estándar con acciones y dependencias (borrar fila en tabla) {#standard-button-with-actions-and-dependencies-delete-row-in-grid}
+### Botón estándar con acciones y dependencias (borrar fila en grid) {#standard-button-with-actions-and-dependencies-delete-row-in-grid}
 
-El botón está desactivado hasta que se seleccione al menos un elemento en la tabla.
+El botón está desactivado hasta que se seleccione al menos un elemento en el *grid*.
 
 ```xml 
 <button label="BUTTON_DELETE" icon="trash" id="ButDel">

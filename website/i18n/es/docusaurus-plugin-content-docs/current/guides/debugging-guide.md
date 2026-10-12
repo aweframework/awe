@@ -64,7 +64,7 @@ En chrome la opción es la siguiente:
 
 <img alt="Inspeccionar en Chrome" src={require('@docusaurus/useBaseUrl').default('img/inspect_chrome.png')} />
 
-En este ejemplo seleccionamos una rejilla que contiene información de usuarios. Entre todas las opciones podemos ver la información del `controller`, como los atributos de la rejilla, los tipos de variables...
+En este ejemplo seleccionamos un *grid* que contiene información de usuarios. Entre todas las opciones podemos ver la información del `controller`, como los atributos del grid, los tipos de variables...
 
 <img alt="Controlador del scope" src={require('@docusaurus/useBaseUrl').default('img/scope_controller.png')} />
 
@@ -79,9 +79,9 @@ Para buscar en los logs del servidor podemos usar las herramientas que proporcio
 Una vez que el servidor está en ejecución, los logs aparecerán en la pestaña Console.
 Cada acción que ejecuta el servidor se mostrará aquí, como las consultas SQL.
 
-En el siguiente ejemplo tenemos una rejilla que muestra información de la tabla de usuarios, y un criterio que filtra esa rejilla ejecutando una consulta SQL asociada a él:
+En el siguiente ejemplo tenemos un grid que muestra información de la tabla de usuarios, y un criterio que filtra ese grid ejecutando una consulta SQL asociada a él:
 
-<img alt="Logs de la rejilla" src={require('@docusaurus/useBaseUrl').default('img/window_grid_log.png')} />
+<img alt="Logs del grid" src={require('@docusaurus/useBaseUrl').default('img/window_grid_log.png')} />
 
 Una vez que pulsamos el botón de búsqueda, el servidor ejecutará la consulta SQL y el log de la consola la mostrará:
 
@@ -96,13 +96,13 @@ Para buscar en la consola del navegador, pulse la tecla F12 y haga clic en la pe
 #### Acciones {#actions}
 
 En esta pestaña podemos ver las acciones que tienen lugar en el lado cliente, junto con los tiempos que tardan y los parámetros enviados al servidor.
-En este ejemplo hay una acción fill, utilizada para rellenar una rejilla con datos de una consulta.
+En este ejemplo hay una acción fill, utilizada para rellenar un grid con datos de una consulta.
 
 <img alt="Ejemplo de log del navegador" src={require('@docusaurus/useBaseUrl').default('img/browser_log.png')} />
 
 #### Dependencias {#dependencies}
 
-En el siguiente ejemplo tenemos una rejilla y un botón de ver con una dependencia asociada. La dependencia comprueba si el número de filas seleccionadas no es igual a 1. Si la condición es verdadera, el botón de ver se oculta. En caso contrario, el botón se activa.
+En el siguiente ejemplo tenemos un grid y un botón de ver con una dependencia asociada. La dependencia comprueba si el número de filas seleccionadas no es igual a 1. Si la condición es verdadera, el botón de ver se oculta. En caso contrario, el botón se activa.
 
 <img alt="Ejemplo de log de dependencia" src={require('@docusaurus/useBaseUrl').default('img/dependency_log.png')} />
 

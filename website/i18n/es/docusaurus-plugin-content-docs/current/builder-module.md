@@ -234,11 +234,11 @@ Este ejemplo busca el selector CSS `.selector` y alterna las clases "class1", "c
 
 Este ejemplo busca el selector CSS `.selector` y elimina las clases "class1", "class2" y "class3" del elemento si lo encuentra.
 
-###  **Constructores de acciones de tabla** {#grid-action-builders}
+###  **Constructores de acciones de grid** {#grid-action-builders}
 
 ####  **Constructor de acción `add-columns`** {#add-columns-action-builder}
 
-Esta acción añade algunas columnas a una tabla.
+Esta acción añade algunas columnas a un *grid*.
 
 Uso:
 
@@ -248,11 +248,11 @@ List<Column> columnList = new ArrayList<>();
 serviceData.addClientAction(new AddColumnsActionBuilder("my-grid", columnList).build());
 ```
 
-Este ejemplo añade una lista de columnas a la tabla `"my-grid"`.
+Este ejemplo añade una lista de columnas al grid `"my-grid"`.
 
 ####  **Constructor de acción `replace-columns`** {#replace-columns-action-builder}
 
-Esta acción **reemplaza todas las columnas de la tabla** por la lista de columnas definida.
+Esta acción **reemplaza todas las columnas del grid** por la lista de columnas definida.
 
 Uso:
 
@@ -262,11 +262,11 @@ List<Column> columnList = new ArrayList<>();
 serviceData.addClientAction(new ReplaceColumnsActionBuilder("my-grid", columnList).build());
 ```
 
-Este ejemplo reemplaza todas las columnas de la tabla `"my-grid"`.
+Este ejemplo reemplaza todas las columnas del grid `"my-grid"`.
 
 ####  **Constructor de acción `show-columns`** {#show-columns-action-builder}
 
-Esta acción muestra algunas columnas de una tabla.
+Esta acción muestra algunas columnas de un grid.
 
 Uso:
 
@@ -284,7 +284,7 @@ serviceData.addClientAction(new ShowColumnsActionBuilder("my-grid", "column1", "
 
 ####  **Constructor de acción `hide-columns`** {#hide-columns-action-builder}
 
-Esta acción oculta algunas columnas de una tabla.
+Esta acción oculta algunas columnas de un grid.
 
 Uso:
 
@@ -302,10 +302,10 @@ serviceData.addClientAction(new HideColumnsActionBuilder("my-grid", "column1", "
 
 #### **Constructor de acción `add-row`** {#add-row-action-builder}
 
-Esta acción añade una fila a la tabla. Dependiendo de la fila seleccionada puedes decidir dónde añadir la nueva fila:
+Esta acción añade una fila al grid. Dependiendo de la fila seleccionada puedes decidir dónde añadir la nueva fila:
 
-- `TOP`: Como primera línea de la tabla.
-- `BOTTOM`: Como última línea de la tabla (por defecto).
+- `TOP`: Como primera línea del grid.
+- `BOTTOM`: Como última línea del grid (por defecto).
 - `UP`: Encima de la fila seleccionada.
 - `DOWN`: Debajo de la fila seleccionada.
 
@@ -327,10 +327,10 @@ serviceData.addClientAction(new AddRowActionBuilder(RowPosition.DOWN, "my-grid",
 
 #### **Constructor de acción `copy-row`** {#copy-row-action-builder}
 
-Esta acción copia una fila en la tabla. Dependiendo de la fila seleccionada puedes decidir dónde añadir la nueva fila:
+Esta acción copia una fila en el grid. Dependiendo de la fila seleccionada puedes decidir dónde añadir la nueva fila:
 
-- `TOP`: Como primera línea de la tabla.
-- `BOTTOM`: Como última línea de la tabla (por defecto).
+- `TOP`: Como primera línea del grid.
+- `BOTTOM`: Como última línea del grid (por defecto).
 - `UP`: Encima de la fila seleccionada.
 - `DOWN`: Debajo de la fila seleccionada.
 
@@ -390,7 +390,7 @@ serviceData.addClientAction(new DeleteRowActionBuilder("my-grid", "my-row").buil
 
 #### **Constructor de acción `select-all-rows`** {#select-all-rows-action-builder}
 
-Esta acción selecciona todas las filas de la tabla.
+Esta acción selecciona todas las filas del grid.
 
 Uso:
 
@@ -400,7 +400,7 @@ serviceData.addClientAction(new SelectAllRowsActionBuilder("my-grid").build());
 
 #### **Constructor de acción `unselect-all-rows`** {#unselect-all-rows-action-builder}
 
-Esta acción deselecciona todas las filas de la tabla.
+Esta acción deselecciona todas las filas del grid.
 
 Uso:
 
@@ -411,7 +411,7 @@ serviceData.addClientAction(new UnselectAllRowsActionBuilder("my-grid").build())
 
 ####  **Constructor de acción `update-cell`** {#update-cell-action-builder}
 
-Esta acción actualiza los datos de una celda de la tabla.
+Esta acción actualiza los datos de una celda del grid.
 
 Uso:
 
@@ -422,7 +422,7 @@ CellData cellData = new CellData(value);
 serviceData.addClientAction(new UpdateCellActionBuilder("my-grid", cellData).build());
 ```
 
-Este ejemplo cambia la celda `column` de la fila `row` de la tabla `component` con el valor `cellData`.
+Este ejemplo cambia la celda `column` de la fila `row` del grid `component` con el valor `cellData`.
 
 Este constructor también permite definir los datos como `JsonNode` en lugar de `CellData`:
 
@@ -698,9 +698,9 @@ Hay un constructor para cada tipo de criterio definido en AWE:
 - `TimeCriteriaBuilder`: Construye un componente `<criteria>` con el componente `time`.
 - `UploaderCriteriaBuilder`: Construye un componente `<criteria>` con el componente `uploader`.
 
-### **Constructores de tablas y columnas** {#grid-and-column-builders}
+### **Constructores de grids y columnas** {#grid-and-column-builders}
 
-Hay un par de constructores para los elementos de la tabla:
+Hay un par de constructores para los elementos del grid:
 
 - `GridBuilder`: Construye un componente `<grid>`.
 - `GroupHeaderBuilder`: Construye un componente `<group-header>`.
