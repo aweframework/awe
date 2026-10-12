@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.database.hsql;
 
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import com.almis.awe.test.integration.LoadTestWarmUpExtension;
 import com.almis.awe.test.integration.database.QueryTest;
 import org.jsmart.zerocode.core.domain.LoadWith;
 import org.jsmart.zerocode.core.domain.TestMapping;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-@ExtendWith({ParallelLoadExtension.class})
+@ExtendWith({LoadTestWarmUpExtension.class, ParallelLoadExtension.class})
 @DisplayName("HSQL Performance Tests")
 @Tag("integration")
 class HsqlPerformanceTests extends AbstractSpringAppIntegrationTest {

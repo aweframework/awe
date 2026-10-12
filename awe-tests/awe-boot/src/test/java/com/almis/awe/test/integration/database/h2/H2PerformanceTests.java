@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.database.h2;
 
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import com.almis.awe.test.integration.LoadTestWarmUpExtension;
 import org.jsmart.zerocode.core.domain.LoadWith;
 import org.jsmart.zerocode.core.domain.TestMapping;
 import org.jsmart.zerocode.jupiter.extension.ParallelLoadExtension;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-@ExtendWith({ParallelLoadExtension.class})
+@ExtendWith({LoadTestWarmUpExtension.class, ParallelLoadExtension.class})
 @DisplayName("H2 Performance Tests")
 @Tag("H2")
 @TestPropertySource("classpath:h2.properties")
