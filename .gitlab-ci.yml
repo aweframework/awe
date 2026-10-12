@@ -223,7 +223,8 @@ stages:
   - <<: *if-branches
 # Browser suites (#812). Two tools run the same suites and both block the pipeline wherever they run:
 #   - Playwright (the "Playwright ... IT" jobs) is the tool of the everyday pipeline: merge requests with code changes, develop
-#     and master. It has no support/* rule: support/4.x has no Playwright adapter;
+#     and master. It has no support/* rule: support/4.x has no Playwright adapter. Merge requests run only the Chromium suites
+#     (jobs 1/4 and 3/4); the Firefox suites (jobs 2/4 and 4/4) run on develop and master only;
 #   - Selenium (the "Selenium IT" jobs) is the reference tool and runs less often: master, support/*, and the
 #     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
 #     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
@@ -234,6 +235,11 @@ stages:
   - <<: *if-master
 .rules-playwright-react: &rules-playwright-react   # the React application: the merge requests that change the backend or the React client
   - <<: *if-mr-react-it
+  - <<: *if-develop
+  - <<: *if-master
+# Firefox suites and their browser cache job: never in merge requests (they only add time to the Chromium result), so there is no
+# merge request rule at all. Same pipelines as the Chromium suites otherwise (develop, master and their schedules or manual runs).
+.rules-playwright-firefox: &rules-playwright-firefox
   - <<: *if-develop
   - <<: *if-master
 .rules-selenium: &rules-selenium
@@ -633,12 +639,12 @@ Playwright Chromium browser:
     - !reference [.rules-all-ut]
     - !reference [.rules-playwright]
 
-# Firefox: only the Playwright suites need it, so it follows their rules
+# Firefox: only the Firefox Playwright suites need it, so it follows their rules (develop and master, never a merge request)
 Playwright Firefox browser:
   extends:
     - .playwright-browser-cache
     - .playwright-firefox
-  rules: *rules-playwright
+  rules: *rules-playwright-firefox
 
 ##############################
 # testing stage
@@ -1074,7 +1080,8 @@ Selenium IT 3/4:
 #   - block the pipeline, with the per-test rerun and the job retry of .browser-testing (#766), like the
 #     Selenium jobs;
 #   - are needed by "Launch Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
-#   - run automatically on every merge request with code changes, on develop and on master, and never on support/*;
+#   - run automatically on every merge request with code changes (Chromium only: the Firefox jobs 2/4 and 4/4 skip merge
+#     requests), on develop and on master, and never on support/*;
 #   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
 #     failure, the Playwright trace of the failed test and the page video of a class with a failure. The screen recorder of
 #     the Selenium jobs is off (awe.test.allowed-recording=false): a headless browser has no screen to film.
@@ -1135,7 +1142,7 @@ Playwright IT 1/4:
 Playwright IT 2/4:
   extends:
     - .playwright-firefox-testing
-  rules: *rules-playwright
+  rules: *rules-playwright-firefox   # not in merge requests
   parallel:
     matrix:
       - TARGET: firefox-angularjs
@@ -1183,7 +1190,7 @@ Playwright IT 4/4:
   extends:
     - .playwright-firefox-testing
     - .react-testing
-  rules: *rules-playwright-react
+  rules: *rules-playwright-firefox   # not in merge requests
   parallel:
     matrix:
       - TARGET: firefox-react
@@ -1329,7 +1336,7 @@ Launch Sonar:
       optional: true
     - job: Frontend UT React
       optional: true
-    # The browser suites: Playwright runs on merge requests, develop and master; Selenium on master, support/* and the
+    # The browser suites: Playwright runs on merge requests (Chromium only), develop and master; Selenium on master, support/* and the
     # pipeline schedule of develop. Each pipeline runs at least one tool (the React jobs of a tool also depend on the
     # changed paths), so every job is optional; whichever job runs gates Sonar (and the release jobs). Keep it so:
     # .rules-playwright and .rules-selenium together must cover every pipeline that runs this job, or Sonar and the

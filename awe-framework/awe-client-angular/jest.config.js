@@ -4,6 +4,9 @@ const path = require("path");
 // `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution,
 // and LCOV reports under target/reports/jest.
 module.exports = {
+  // In CI the job shares the runner with other jobs and may have little memory: Jest's default of one worker per CPU
+  // gets workers killed (SIGKILL), so CI runs 4 workers. Local runs keep Jest's default.
+  ...(process.env.CI ? {maxWorkers: 4} : {}),
   testEnvironment: "jsdom",
   cacheDirectory: path.join(__dirname, "target", ".cache", "jest"),
   setupFilesAfterEnv: [path.join(__dirname, "src", "test", "jest", "setup.js")],

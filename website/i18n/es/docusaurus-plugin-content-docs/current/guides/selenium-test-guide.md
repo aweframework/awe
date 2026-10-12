@@ -913,7 +913,7 @@ de fallos (captura de pantalla, código fuente de la página, consola, [trace y 
 en los artefactos del job como la evidencia de los jobs de Selenium; el grabador de pantalla de Selenium está desactivado
 (`awe.test.allowed-recording=false`), ya que Playwright graba la propia página.
 
-- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`. No se ejecutan en
+- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (`Playwright IT 1/4` y `3/4`), y los de Firefox (`2/4` y `4/4`) y `Playwright Firefox browser` se ejecutan en `develop` y `master`. No se ejecutan en
   `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium IT 1/4` a `4/4`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
   requests ni en pushes ordinarios.
 - **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Launch Sonar` y los jobs de publicación, e
