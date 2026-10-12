@@ -33,7 +33,7 @@ function buildState(type, components = {}) {
       running: true,
       sync: [[
         {id: "target-action", type, target: MISSING, address: {view: VIEW, component: MISSING}, parameters: {}, status: STATUS_RUNNING},
-        {id: NEXT_ID, type: "next-action", status: STATUS_INITIAL}
+        {id: NEXT_ID, type: "wait", parameters: {target: 600000}, status: STATUS_INITIAL}
       ]],
       async: []
     }
@@ -66,7 +66,7 @@ describe("awe-react-client/test/js/containers/ActionsContainerMissingTargetTest.
 
     const [stack] = store.getState().actions.sync;
     expect(stack.map(a => a.id)).toEqual([NEXT_ID]);
-    expect(stack[0].status).toBe(STATUS_RUNNING);
+    expect(stack[0].status).toBe(ActionStatus.STATUS_STARTED);
   });
 
   it("covers every action of the grid service", () => {
@@ -169,8 +169,8 @@ describe("awe-react-client/test/js/containers/ActionsContainerMissingTargetTest.
     });
 
     it("clicks the button", () => {
-      const state = run("click", {attributes: {}, actions: [{type: "clicked"}]});
-      expect(state.actions.sync[0].map(a => a.type)).toEqual(["clicked", "next-action"]);
+      const state = run("click", {attributes: {}, actions: [{type: "wait", parameters: {target: 700000}}]});
+      expect(state.actions.sync[0].map(a => a.type)).toEqual(["wait", "wait"]);
     });
   });
 });

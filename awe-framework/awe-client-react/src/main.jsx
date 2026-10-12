@@ -31,16 +31,19 @@ import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";
 import {fetchJson, getContextPath} from "./utilities";
 import {Provider} from "react-redux";
 import {BrowserRouter, useNavigate} from "react-router";
-import { createStore, setNavigateFn } from "./redux/store";
+import { createStore } from "./redux/store";
+import { createNavigator } from "./redux/navigator";
 
-const store = createStore();
+const navigator = createNavigator();
+const store = createStore({ navigator });
 
 const AppWithStore = (props) => {
   const { settings } = props;
   const navigate = useNavigate();
 
   useEffect(() => {
-    setNavigateFn(navigate);
+    // Thunks queue their navigations until the router is attached
+    navigator.attach(navigate);
     store.dispatch(updateSettings(settings));
   }, []);
 
