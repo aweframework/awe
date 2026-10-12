@@ -451,6 +451,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkMessageTitle(String messageType, String text)` | Checks the title of a message |
 | `checkMessageText(String messageType, String text)` | Checks the text of a message |
 | `checkMessageMissing(String messageType)` | Checks that no message of the type is shown |
+| `closeDialog(String dialogId)` | Closes a modal dialog with the close icon of its header, as a user dismissing it without its buttons |
 | `checkDialogClosed(String dialogId)` | Checks that a modal dialog has been closed |
 | `checkDialogWidth(String dialogId, int width)` | Checks the width in pixels of an open dialog, give or take two. Use it to check the size classes `modal-sm`, `modal-md` and `modal-lg` |
 | `checkValidationErrorVisible()` | Checks that the screen shows validation errors |

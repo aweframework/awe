@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import {Helmet} from "react-helmet";
 import Templates from "../templates";
 import SizeRegistry from "../redux/registry/SizeRegistry";
@@ -33,9 +34,7 @@ function ViewContainer() {
   // Accedemos a Redux usando los hooks de Redux
   const dispatch = useDispatch();
 
-  const {settings} = useSelector((state) => ({
-    settings: state.settings,
-  }));
+  const settings = useSelector(selectSettings);
   const view = useView(VIEW);
   const screenReloadToken = location.state?.screenReloadToken;
 

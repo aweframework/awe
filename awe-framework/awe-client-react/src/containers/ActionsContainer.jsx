@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import {shallowEqual, useDispatch, useSelector} from "react-redux";
+import {selectSettings} from "../redux/selectors/stateSelectors";
 import {StackList} from "../components/Actions";
 import {updateSettings} from "../redux/actions/settings";
 import {checkActions} from "../utilities";
@@ -16,17 +17,16 @@ const DIGITS = ["Digit0", "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Dig
 function ActionsContainer() {
   const dispatch = useDispatch();
   const prevRunningActionsRef = useRef([]);
-  const {isShowing, syncStack, asyncStack, settings} = useSelector((state) => ({
-    isShowing: state.settings.actionsStack > 0,
-    syncStack: state.actions.sync,
-    asyncStack: state.actions.async,
-    settings: state.settings
-  }));
+  const isShowing = useSelector((state) => state.settings.actionsStack > 0);
+  const syncStack = useSelector((state) => state.actions.sync);
+  const asyncStack = useSelector((state) => state.actions.async);
+  const settings = useSelector(selectSettings);
 
+  // The list is rebuilt on every call, but its actions are the ones of the state: shallowEqual keeps the previous list
   const runningActions = useSelector((state) => [
     ...state.actions.sync[state.actions.sync.length - 1].filter((a) => a.status === STATUS_RUNNING),
     ...state.actions.async.filter((a) => a.status === STATUS_RUNNING)
-  ]);
+  ], shallowEqual);
 
   const combinedActions = useClientActions();
 

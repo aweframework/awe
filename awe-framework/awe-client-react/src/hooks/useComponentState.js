@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { makeGetComponent, getAllComponents, makeGetMultipleComponents } from '../redux/selectors/componentSelectors';
+import { shallowEqual, useSelector } from 'react-redux';
+import { makeGetComponent, getAllComponents, makeGetMultipleComponents, getContextMenuAttributes } from '../redux/selectors/componentSelectors';
 
 /**
  * Hook para acceder al estado de UN componente específico
@@ -37,5 +37,16 @@ export function useMultipleComponents(componentIds) {
         () => makeGetMultipleComponents(componentIds),
         [componentIds.join(',')]
     );
-    return useSelector(selector);
+    return useSelector(selector, shallowEqual);
+}
+
+/**
+ * Hook to access the attributes of the options of a context menu (and of their nested options), by option identifier.
+ * It only renders again when one of those options changes, not when any other component does
+ *
+ * @param {object[]} contextMenu - Context menu options ({id})
+ * @returns {Object} Attributes by option identifier
+ */
+export function useContextMenuAttributes(contextMenu) {
+    return useSelector(state => getContextMenuAttributes(state, contextMenu), shallowEqual);
 }

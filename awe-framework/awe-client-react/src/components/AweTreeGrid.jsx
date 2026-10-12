@@ -14,7 +14,7 @@ import {isEmpty} from "../utilities/general";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
-import {ProgressSpinner} from "primereact/progressspinner";
+import AweLoader from "./AweLoader";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -189,7 +189,7 @@ function AweTreeGrid(props) {
     isRowDeleted: () => renderingRowDeleted.current
   }), [address?.component]);
 
-  const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false } = attributes;
+  const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
   const { first = 0, rows = max } = specificAttributes;
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
 
@@ -212,7 +212,7 @@ function AweTreeGrid(props) {
       emptyMessage={loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
-      loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
+      loadingIcon={<AweLoader icon={iconLoading} rootProps={testHook(TestIds.gridLoader)} />}
       rowClassName={rowClassName}
       pt={passThrough}
     >

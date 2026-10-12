@@ -851,6 +851,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the close icon of the header of a modal dialog
+   *
+   * @param dialogId Dialog identifier
+   * @return Dialog close icon selector
+   */
+  default By getDialogClose(String dialogId) {
+    return By.cssSelector(TestIds.css(TestIds.DIALOG) + TestAttributes.css(TestAttributes.OWNER, dialogId)
+      + " " + TestIds.css(TestIds.DIALOG_CLOSE));
+  }
+
+  /**
    * Get a button whatever its state (enabled or disabled)
    *
    * @param buttonId Button identifier

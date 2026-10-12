@@ -222,6 +222,8 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getEmbeddedFrame()).hasToString("By.cssSelector: iframe");
     assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");
+    assertThat(instructions.getDialogClose("PrnOpt")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'] [data-testid='dialog-close']");
   }
 
   @Test

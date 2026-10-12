@@ -4030,6 +4030,15 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Close a modal dialog with the close icon of its header, as a user dismissing it without using its buttons
+   *
+   * @param dialogId Dialog identifier
+   */
+  protected void closeDialog(String dialogId) {
+    click(frontEndInstructions.getDialogClose(dialogId));
+  }
+
+  /**
    * Check that a modal dialog has been closed
    *
    * @param dialogId Dialog identifier

@@ -12,7 +12,7 @@ import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
-import {ProgressSpinner} from "primereact/progressspinner";
+import AweLoader from "./AweLoader";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -155,7 +155,7 @@ function AweGrid(props) {
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
-  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false } = attributes;
+  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
@@ -191,7 +191,7 @@ function AweGrid(props) {
       onSort={onSort}
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
-      loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
+      loadingIcon={<AweLoader icon={iconLoading} rootProps={testHook(TestIds.gridLoader)} />}
       pt={gridPassThrough({
         gridId: address?.component,
         getRowId: () => renderingRowId.current,

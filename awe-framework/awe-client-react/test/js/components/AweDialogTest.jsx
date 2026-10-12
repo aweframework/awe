@@ -61,6 +61,35 @@ describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
       expect(document.querySelector(".p-dialog")).not.toBeNull();
     }
   });
+  const closeActionType = (attributes) => {
+    const { dispatchSpy } = renderWithProviders(
+      <AweDialog id="dialog" label="Close me" elementList={[]} />,
+      {
+        preloadedState: {
+          ...preloadedState,
+          components: { dialog: { ...preloadedState.components.dialog, attributes: { isShowing: true, ...attributes } } }
+        },
+        spyDispatch: true
+      }
+    );
+    fireEvent.click(document.querySelector(".p-dialog .p-dialog-header .p-dialog-header-icon"));
+    return dispatchSpy.mock.calls
+      .map(([action]) => action)
+      .filter(action => action?.actions)
+      .flatMap(action => action.actions.map(a => a.type));
+  };
+
+  it("closes with the close action by default", () => {
+    expect(closeActionType({})).toEqual(["close"]);
+  });
+
+  it("closes with the close action when on-close accepts", () => {
+    expect(closeActionType({ acceptOnClose: true })).toEqual(["close"]);
+  });
+
+  it("closes with the close-cancel action when on-close is reject", () => {
+    expect(closeActionType({ acceptOnClose: false })).toEqual(["close-cancel"]);
+  });
 
   describe("size classes", () => {
     const renderWithStyle = (style) => {

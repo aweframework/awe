@@ -314,6 +314,16 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCloseADialogWithTheCloseIconOfItsHeader() {
+    show(instructions.getDialogClose("Dia"), "");
+
+    assertThatCode(() -> utilities.closeDialog("Dia")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.closeDialog("Missing"));
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
   void shouldReadThePageSizeOfANativeSelectFromItsSelectedOption() {
     WebElement pageSize = show(instructions.getGridPageSize(), "10 25 50");
     when(pageSize.getTagName()).thenReturn("select");
