@@ -217,6 +217,37 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Grid test: move the selected row of an editable grid to the top, up, down and to the bottom
+   */
+  @Test
+  void t062_gridTestMoveRows() {
+    // Title
+    setTestTitle("Grid test: move rows");
+
+    // Go to screen
+    gotoScreen("test", "matrix", "matrix-test-move-rows");
+
+    // The rows come in the order of the query
+    checkGridColumnOrder("GrdMoveRows", "label", "Step one", "Step two", "Step three", "Step four", "Step five");
+
+    // Move the third row to the top
+    clickRowContents("GrdMoveRows", "Step three");
+    clickButton("ButMoveRowTop");
+    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step four", "Step five");
+
+    // Move the fourth row one position up and down: the row stays selected
+    clickRowContents("GrdMoveRows", "Step four");
+    clickButton("ButMoveRowUp");
+    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step four", "Step two", "Step five");
+    clickButton("ButMoveRowDown");
+    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step four", "Step five");
+
+    // Move it to the bottom
+    clickButton("ButMoveRowBottom");
+    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step five", "Step four");
+  }
+
+  /**
    * Grid test: Multioperation grid
    */
   @Test

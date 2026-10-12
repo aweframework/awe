@@ -17,6 +17,7 @@ import {
   deleteRowGridAction,
   editRowGridAction,
   hideColumnsGridAction,
+  moveRowGridAction,
   replaceColumnsGridAction,
   saveRowGridAction,
   selectAllRowsGridAction,
@@ -170,6 +171,30 @@ const useGridService = () => {
   const onGridCopyRowBefore = (action) => dispatch(copyRowGridAction(action, BEFORE));
 
   /**
+   * Launch when moving the selected row to the top
+   * @param {Action} action Action received
+   */
+  const onGridMoveRowTop = (action) => dispatch(moveRowGridAction(action, FIRST));
+
+  /**
+   * Launch when moving the selected row one position up
+   * @param {Action} action Action received
+   */
+  const onGridMoveRowUp = (action) => dispatch(moveRowGridAction(action, BEFORE));
+
+  /**
+   * Launch when moving the selected row one position down
+   * @param {Action} action Action received
+   */
+  const onGridMoveRowDown = (action) => dispatch(moveRowGridAction(action, AFTER));
+
+  /**
+   * Launch when moving the selected row to the bottom
+   * @param {Action} action Action received
+   */
+  const onGridMoveRowBottom = (action) => dispatch(moveRowGridAction(action, LAST));
+
+  /**
    * Launch when adding some columns
    * @param {Action} action Action received
    */
@@ -288,6 +313,10 @@ const useGridService = () => {
     "copy-row-bottom": onGridCopyRowLast,
     "copy-row-down": onGridCopyRowAfter,
     "copy-row-up": onGridCopyRowBefore,
+    "move-row-top": onGridMoveRowTop,
+    "move-row-up": onGridMoveRowUp,
+    "move-row-down": onGridMoveRowDown,
+    "move-row-bottom": onGridMoveRowBottom,
     "add-columns": onGridAddColumns,
     "replace-columns": onGridReplaceColumns,
     "update-cell": onGridUpdateCell,

@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {getGridIdentifier, getWidthStyle, OperationType} from "../utilities/grid";
+import {getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
@@ -57,6 +57,11 @@ function AweGrid(props) {
       editRow(rowId);
     }
   }, [attributes, editRow]);
+
+  // Alt+ArrowUp, Alt+ArrowDown, Alt+Home and Alt+End move the selected row of an editable grid
+  const onKeyMoveRow = useCallback((position) => {
+    dispatch(addActionsTop([{ type: MoveRowActionType[position], address }]));
+  }, [dispatch, address]);
 
   const onPage = useCallback((event) => {
     const { loadAll } = attributes;
@@ -156,7 +161,8 @@ function AweGrid(props) {
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
   const selectedValues = values.filter(item => item.selected);
 
-  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu}>
+  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
+                    onContextMenu={onContextMenu}>
     <DataTable
       selection={selectedValues}
       selectionMode={multiselect ? null : "single"}

@@ -509,6 +509,37 @@ The data structure **needs** an **identifier per row**, and also a **parent iden
 |-----------|---------|-----------------------------|--------------------------|
 | editable  | Boolean | Allow editing the grid rows | Default value is `false` |
 
+### Moving rows
+
+An editable grid can reorder its rows with four client actions that move the selected row: `move-row-top`, `move-row-up`,
+`move-row-down` and `move-row-bottom`. See the [actions](actions.md) page. The rows keep the new order in the grid model, so
+that order is the one the grid sends to the server when it is saved (set `send-all="true"` to send every row, not only the
+selected ones). The order of the rows is stored in the position of the values of each column list, and an application
+that wants to keep it must save that position (for instance in an `order` column).
+
+```xml
+<grid id="GrdSteps" editable="true" send-all="true" server-action="data" target-action="StepList">
+  <column name="name" label="COLUMN_NAME" component="text"/>
+  <button label="BUTTON_MOVE_ROW_UP" icon="angle-up" id="ButStepUp">
+    <button-action type="move-row-up" target="GrdSteps" silent="true"/>
+    <dependency target-type="enable" initial="true">
+      <dependency-element id="GrdSteps" attribute="selectedRows" condition="eq" value="1"/>
+    </dependency>
+  </button>
+</grid>
+```
+
+With a row selected, both web engines also move it with the keyboard while the grid has the focus:
+
+| Keys             | Action          |
+|------------------|-----------------|
+| `Alt+ArrowUp`    | `move-row-up`   |
+| `Alt+ArrowDown`  | `move-row-down` |
+| `Alt+Home`       | `move-row-top`  |
+| `Alt+End`        | `move-row-bottom` |
+
+The actions are ignored when the row is already in that position, and tree grids do not support them.
+
 ## Multioption grid
 
 <img alt="MultioptionGrid" src={require('@docusaurus/useBaseUrl').default('img/MultioptionGrid.png')} />

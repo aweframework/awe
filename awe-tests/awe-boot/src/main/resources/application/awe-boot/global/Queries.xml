@@ -1363,6 +1363,12 @@
     <variable id="var4" type="STRING" name="test"/>
   </query>
 
+  <!-- Rows of the editable grid of the MoveRowsTst screen -->
+  <query id="MoveRowTstLst" enumerated="MoveRowTst">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+
   <query id="SimpleEnum" enumerated="Es1Es0">
     <field id="value"/>
     <field id="label"/>

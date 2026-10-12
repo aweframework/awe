@@ -35,6 +35,10 @@ public enum Action {
   COPY_ROW_DOWN("copy-row-down"),
   COPY_ROW_UP("copy-row-up"),
   DELETE_ROW("delete-row"),
+  MOVE_ROW_TOP("move-row-top"),
+  MOVE_ROW_UP("move-row-up"),
+  MOVE_ROW_DOWN("move-row-down"),
+  MOVE_ROW_BOTTOM("move-row-bottom"),
   DIALOG("dialog"),
   DISABLE_DEPENDENCIES("disable-dependencies"),
   ENABLE_DEPENDENCIES("enable-dependencies"),
@@ -70,7 +74,7 @@ public enum Action {
   VALIDATE("validate"),
   VALUE("value"),
   WAIT("wait");
-  
+
   private final String value;
 
   private Action(String value) {
@@ -91,5 +95,5 @@ public enum Action {
   public String toString() {
     return this.value;
   }
-  
+
 }

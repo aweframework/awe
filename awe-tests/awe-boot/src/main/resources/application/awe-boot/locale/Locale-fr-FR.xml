@@ -12,6 +12,10 @@
   <locale name="BUTTON_CONFIRM_EMPTY" value="Confirmer (contrôle videes)"/>
   <locale name="BUTTON_FIRST" value="Première"/>
   <locale name="BUTTON_LAST" value="Dernière"/>
+  <locale name="BUTTON_MOVE_ROW_BOTTOM" value="Déplacer en bas"/>
+  <locale name="BUTTON_MOVE_ROW_DOWN" value="Descendre"/>
+  <locale name="BUTTON_MOVE_ROW_TOP" value="Déplacer en haut"/>
+  <locale name="BUTTON_MOVE_ROW_UP" value="Monter"/>
   <locale name="BUTTON_NEW_CHILD" value="Noeud enfant"/>
   <locale name="BUTTON_NTH" value="Nième"/>
   <locale name="BUTTON_PAUSE" value="Pause"/>
@@ -28,6 +32,7 @@
   <locale name="BUTTON_TEST_LOAD_SUGGEST" value="Test load suggest"/>
   <locale name="BUTTON_TEST_RESET_SUGGEST" value="Test reset suggest"/>
   <locale name="COLUMN_COUNTRY" value="Pays"/>
+  <locale name="COLUMN_MOVE_ROW_STEP" value="Étape"/>
   <locale name="COLUMN_NUMERIC" value="Numérique (test)"/>
   <locale name="ELEMENT_TYPE_GRID" value="Grid"/>
   <locale name="ENUM_MATRIX_EDITABLE" value="Modifiable"/>
@@ -80,6 +85,8 @@
   <locale name="MENU_TEST_CRITERIA_RESET" value="Critères Reset"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestionnaire de fichiers"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendrier d'événements"/>
+  <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Déplacer les lignes"/>
+  <locale name="SCREEN_TITLE_MOVE_ROWS" value="Déplacer les lignes (Alt+Haut, Alt+Bas, Alt+Début, Alt+Fin)"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="Nouvel événement"/>
   <locale name="SCR_EVENT_CALENDAR_EDIT" value="Modifier l'événement"/>
   <locale name="SCR_EVENT_CALENDAR_TITLE" value="Titre de l'événement"/>

@@ -892,6 +892,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the cells of a column of a grid, in the order the grid shows its rows
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column cells selector
+   */
+  default By getGridColumnCells(String gridId, String columnId) {
+    String literal = XpathLiterals.of(gridId);
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s and @column-id=%s]", literal, literal,
+      TestIds.xpath(TestIds.GRID_CELL), XpathLiterals.of(columnId)));
+  }
+
+  /**
    * Get the active content that a cell of a grid holds: an element that loads or runs something (script, frame, image,
    * object, svg, form), an event handler attribute or a link to a script url. A cell shows text, so it has none
    *

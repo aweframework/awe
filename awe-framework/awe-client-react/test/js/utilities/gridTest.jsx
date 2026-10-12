@@ -7,7 +7,10 @@ import {
   getCellModel,
   getDirection,
   getGridData,
+  getMoveRowKeyPosition,
   getWidthStyle,
+  moveRowInValues,
+  RowPositionType,
   sortRow
 } from '../../../src/utilities/grid';
 
@@ -170,6 +173,70 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     };
     const data = getGridData(grid, model, {}, false);
     expect(data.tags).toEqual([["a", "b"]]);
+  });
+
+  describe('moveRowInValues', () => {
+    const rows = () => [{id: 1}, {id: 2}, {id: 3}, {id: 4}];
+    const ids = (values) => values.map(row => row.id);
+
+    it('moves a row to the top', () => {
+      expect(ids(moveRowInValues(rows(), "id", 3, RowPositionType.FIRST))).toEqual([3, 1, 2, 4]);
+    });
+
+    it('moves a row one position up', () => {
+      expect(ids(moveRowInValues(rows(), "id", 3, RowPositionType.BEFORE))).toEqual([1, 3, 2, 4]);
+    });
+
+    it('moves a row one position down', () => {
+      expect(ids(moveRowInValues(rows(), "id", 2, RowPositionType.AFTER))).toEqual([1, 3, 2, 4]);
+    });
+
+    it('moves a row to the bottom', () => {
+      expect(ids(moveRowInValues(rows(), "id", 2, RowPositionType.LAST))).toEqual([1, 3, 4, 2]);
+    });
+
+    it('compares the identifiers as text', () => {
+      expect(ids(moveRowInValues(rows(), "id", "4", RowPositionType.FIRST))).toEqual([4, 1, 2, 3]);
+    });
+
+    it.each([
+      [1, RowPositionType.FIRST],
+      [1, RowPositionType.BEFORE],
+      [4, RowPositionType.AFTER],
+      [4, RowPositionType.LAST],
+      [99, RowPositionType.FIRST],
+      [null, RowPositionType.FIRST]
+    ])('keeps the same list when the row %s cannot move %s', (rowId, position) => {
+      const values = rows();
+      expect(moveRowInValues(values, "id", rowId, position)).toBe(values);
+    });
+
+    it('does not modify the original list', () => {
+      const values = rows();
+      moveRowInValues(values, "id", 3, RowPositionType.FIRST);
+      expect(ids(values)).toEqual([1, 2, 3, 4]);
+    });
+  });
+
+  describe('getMoveRowKeyPosition', () => {
+    it.each([
+      [{key: "ArrowUp", altKey: true}, RowPositionType.BEFORE],
+      [{key: "ArrowDown", altKey: true}, RowPositionType.AFTER],
+      [{key: "Home", altKey: true}, RowPositionType.FIRST],
+      [{key: "End", altKey: true}, RowPositionType.LAST]
+    ])('maps %j to %s', (event, position) => {
+      expect(getMoveRowKeyPosition(event)).toBe(position);
+    });
+
+    it.each([
+      [{key: "ArrowUp"}],
+      [{key: "ArrowUp", altKey: true, ctrlKey: true}],
+      [{key: "ArrowUp", altKey: true, shiftKey: true}],
+      [{key: "ArrowUp", altKey: true, metaKey: true}],
+      [{key: "Enter", altKey: true}]
+    ])('ignores %j', (event) => {
+      expect(getMoveRowKeyPosition(event)).toBeNull();
+    });
   });
 
   describe('radio and button-radio columns', () => {

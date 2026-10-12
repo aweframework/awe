@@ -12,6 +12,10 @@
   <locale name="BUTTON_CONFIRM_EMPTY" value="Confirmer (contrôle videes)"/>
   <locale name="BUTTON_FIRST" value="Première"/>
   <locale name="BUTTON_LAST" value="Dernière"/>
+  <locale name="BUTTON_MOVE_ROW_BOTTOM" value="Déplacer en bas"/>
+  <locale name="BUTTON_MOVE_ROW_DOWN" value="Descendre"/>
+  <locale name="BUTTON_MOVE_ROW_TOP" value="Déplacer en haut"/>
+  <locale name="BUTTON_MOVE_ROW_UP" value="Monter"/>
   <locale name="BUTTON_NEW_CHILD" value="Noeud enfant"/>
   <locale name="BUTTON_NTH" value="Nième"/>
   <locale name="BUTTON_PAUSE" value="Pause"/>
@@ -26,6 +30,7 @@
   <locale name="BUTTON_SET_VALUE2" value="Mettre &apos;Valor2&apos;"/>
   <locale name="BUTTON_SET_VALUE3" value="Mettre &apos;Valor3&apos;"/>
   <locale name="COLUMN_COUNTRY" value="Pays"/>
+  <locale name="COLUMN_MOVE_ROW_STEP" value="Étape"/>
   <locale name="COLUMN_NUMERIC" value="Numérique (test)"/>
   <locale name="COLUMN_XSS_ESCAPED" value="Escaped text"/>
   <locale name="COLUMN_XSS_EVENT" value="Event handler"/>
@@ -96,6 +101,7 @@
   <locale name="MENU_TEST_MATRIX_ALL" value="Toutes les tableaux"/>
   <locale name="MENU_TEST_MATRIX_HAVING" value="Test having"/>
   <locale name="MENU_TEST_MATRIX_LOAD_ALL" value="Load all matrix"/>
+  <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Déplacer les lignes"/>
   <locale name="MENU_TEST_MATRIX_NUMBERS" value="Tableau de nombres"/>
   <locale name="MENU_TEST_MATRIX_SUGGEST" value="Tableau de suggest"/>
   <locale name="MENU_TEST_MATRIX_XSS_CELLS" value="Cells with markup"/>
@@ -191,6 +197,7 @@
   <locale name="SCREEN_TITLE_CHART_ADVANCED" value="Graphiques avec options Highcharts avancées"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
+  <locale name="SCREEN_TITLE_MOVE_ROWS" value="Déplacer les lignes (Alt+Haut, Alt+Bas, Alt+Début, Alt+Fin)"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Onglets verticaux"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Assistant"/>
   <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Assistant vertical"/>

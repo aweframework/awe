@@ -346,6 +346,27 @@ You also can define the row you want to copy from:
 serviceData.addClientAction(new CopyRowActionBuilder(RowPosition.BOTTOM, "my-grid", "my-row").build());
 ```
 
+#### **`move-row` action builder**
+
+This action moves the selected row of a grid. The position tells where the row goes:
+
+- `TOP`: To the first line of the grid.
+- `BOTTOM`: To the last line of the grid (default).
+- `UP`: One position up.
+- `DOWN`: One position down.
+
+Usage:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.TOP, "my-grid").build());
+```
+
+You also can define the row you want to move:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.DOWN, "my-grid", "my-row").build());
+```
+
 #### **`update-row` action builder**
 
 This action updates the selected row.

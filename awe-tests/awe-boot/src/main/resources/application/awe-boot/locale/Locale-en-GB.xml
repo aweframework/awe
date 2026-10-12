@@ -12,6 +12,10 @@
   <locale name="BUTTON_CONFIRM_EMPTY" value="Confirm (check empty)"/>
   <locale name="BUTTON_FIRST" value="First"/>
   <locale name="BUTTON_LAST" value="Last"/>
+  <locale name="BUTTON_MOVE_ROW_BOTTOM" value="Move to bottom"/>
+  <locale name="BUTTON_MOVE_ROW_DOWN" value="Move down"/>
+  <locale name="BUTTON_MOVE_ROW_TOP" value="Move to top"/>
+  <locale name="BUTTON_MOVE_ROW_UP" value="Move up"/>
   <locale name="BUTTON_NEW_CHILD" value="Child row"/>
   <locale name="BUTTON_NTH" value="Nth"/>
   <locale name="BUTTON_PAUSE" value="Pause"/>
@@ -28,6 +32,7 @@
   <locale name="BUTTON_TEST_LOAD_SUGGEST" value="Test load suggest"/>
   <locale name="BUTTON_TEST_RESET_SUGGEST" value="Test reset suggest"/>
   <locale name="COLUMN_COUNTRY" value="Country"/>
+  <locale name="COLUMN_MOVE_ROW_STEP" value="Step"/>
   <locale name="COLUMN_NUMERIC" value="Numeric (test)"/>
   <locale name="ELEMENT_TYPE_GRID" value="Grid"/>
   <locale name="ENUM_MATRIX_EDITABLE" value="Editable"/>
@@ -80,6 +85,8 @@
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criteria Reset"/>
   <locale name="MENU_TEST_FILEMANAGER" value="File Manager"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Event Calendar"/>
+  <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Move rows"/>
+  <locale name="SCREEN_TITLE_MOVE_ROWS" value="Move rows (Alt+Up, Alt+Down, Alt+Home, Alt+End)"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="New event"/>
   <locale name="SCR_EVENT_CALENDAR_EDIT" value="Edit event"/>
   <locale name="SCR_EVENT_CALENDAR_TITLE" value="Event title"/>

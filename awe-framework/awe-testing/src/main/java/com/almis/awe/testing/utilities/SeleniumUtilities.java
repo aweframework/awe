@@ -3674,6 +3674,27 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the rows of a grid are in a given order, reading the values of one of its columns
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param expected Values of the column, in the order the rows are expected to be shown
+   */
+  protected void checkGridColumnOrder(String gridId, String columnId, String... expected) {
+    Locator cells = locator(frontEndInstructions.getGridColumnCells(gridId, columnId));
+    List<String> expectedValues = List.of(expected);
+    BrowserCondition inOrder = BrowserCondition.of("the column " + columnId + " of the grid " + gridId + " to show " + expectedValues,
+      browser -> {
+        try {
+          return browser.texts(cells).stream().map(String::trim).toList().equals(expectedValues);
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      });
+    waitUntil(BrowserCondition.allOf(inOrder, checkIfGridLoaderIsNotVisible()));
+  }
+
+  /**
    * Check that every row of a grid is selected (the checkbox of its header is checked)
    *
    * @param gridId Grid identifier

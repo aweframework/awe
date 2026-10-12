@@ -1205,6 +1205,72 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
   });
 
 
+  describe('moves rows with the keyboard', () => {
+    const address = {component: 'grid', view: 'report'};
+
+    const buildState = (attributes = {}) => ({
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address,
+          model: {
+            values: [{id: 1, name: "one", selected: true}, {id: 2, name: "two"}, {id: 3, name: "three"}],
+            records: 3
+          },
+          attributes: {
+            editable: true,
+            columnModel: [{name: "name", label: "Name"}],
+            headerModel: [],
+            buttonModel: [],
+            ...attributes
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    });
+
+    const pressKey = (init) => fireEvent.keyDown(screen.getByRole("grid-container"), {bubbles: true, ...init});
+
+    const movedActions = (dispatchSpy) => dispatchSpy.mock.calls
+      .map(([action]) => action)
+      .filter(action => action.type === 'ADD_ACTIONS_TOP')
+      .flatMap(action => action.payload)
+      .filter(action => action.type.startsWith("move-row"));
+
+    it.each([
+      ["ArrowUp", "move-row-up"],
+      ["ArrowDown", "move-row-down"],
+      ["Home", "move-row-top"],
+      ["End", "move-row-bottom"]
+    ])('moves the selected row of an editable grid with Alt+%s', (key, type) => {
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState(), spyDispatch: true});
+
+      pressKey({key, altKey: true});
+
+      expect(movedActions(dispatchSpy)).toEqual([{type, address}]);
+    });
+
+    it('does nothing without the Alt key', () => {
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState(), spyDispatch: true});
+
+      pressKey({key: "ArrowUp"});
+
+      expect(movedActions(dispatchSpy)).toEqual([]);
+    });
+
+    it('does nothing in a grid that is not editable', () => {
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {
+        preloadedState: buildState({editable: false}),
+        spyDispatch: true
+      });
+
+      pressKey({key: "ArrowUp", altKey: true});
+
+      expect(movedActions(dispatchSpy)).toEqual([]);
+    });
+  });
+
   describe('pagination range', () => {
     const PAGINATION_INFO = "[data-testid='grid-pagination-info']";
     const rangeState = ({ records = 25, first = 0, rows = 10, count = rows, attributes = {} } = {}) => ({

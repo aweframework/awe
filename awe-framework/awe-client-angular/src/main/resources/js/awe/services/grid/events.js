@@ -40,6 +40,20 @@ aweApplication.factory('GridEvents',
         component.storeEvent('add-row');
       }
 
+      /**
+       * Move the selected row (or the one of the selectedRow parameter)
+       * @param {Object} parameters Action parameters
+       * @param {Object} scope Scope
+       * @param {String} position Where to move the row: first, before, after or last
+       */
+      function moveRow(parameters, scope, position) {
+        let component = scope.component;
+        component.hideContextMenu();
+        if (component.moveRow(position, parameters.selectedRow)) {
+          component.storeEvent('move-row');
+        }
+      }
+
       /*************************************************************************
        * EVENTS
        ************************************************************************/
@@ -360,6 +374,42 @@ aweApplication.factory('GridEvents',
          */
         onCopyRowAfterSelected : function(parameters, scope) {
           addRow(parameters, scope, "after", scope.component.getSelectedRowData());
+        },
+        /**
+         * Move the selected row to the top of the grid
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowTop : function(parameters, scope) {
+          moveRow(parameters, scope, "first");
+        },
+        /**
+         * Move the selected row one position up
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowBeforeSelected : function(parameters, scope) {
+          moveRow(parameters, scope, "before");
+        },
+        /**
+         * Move the selected row one position down
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowAfterSelected : function(parameters, scope) {
+          moveRow(parameters, scope, "after");
+        },
+        /**
+         * Move the selected row to the bottom of the grid
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowBottom : function(parameters, scope) {
+          moveRow(parameters, scope, "last");
         },
         /**
          * Copy selected rows to clipboard

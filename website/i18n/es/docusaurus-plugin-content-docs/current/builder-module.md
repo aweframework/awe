@@ -346,6 +346,27 @@ También puedes definir la fila que quieres copiar:
 serviceData.addClientAction(new CopyRowActionBuilder(RowPosition.BOTTOM, "my-grid", "my-row").build());
 ```
 
+#### **Constructor de acción `move-row`** {#move-row-action-builder}
+
+Esta acción mueve la fila seleccionada de un grid. La posición indica adónde va la fila:
+
+- `TOP`: A la primera línea del grid.
+- `BOTTOM`: A la última línea del grid (por defecto).
+- `UP`: Una posición hacia arriba.
+- `DOWN`: Una posición hacia abajo.
+
+Uso:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.TOP, "my-grid").build());
+```
+
+También puedes definir la fila que quieres mover:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.DOWN, "my-grid", "my-row").build());
+```
+
 #### **Constructor de acción `update-row`** {#update-row-action-builder}
 
 Esta acción actualiza la fila seleccionada.
