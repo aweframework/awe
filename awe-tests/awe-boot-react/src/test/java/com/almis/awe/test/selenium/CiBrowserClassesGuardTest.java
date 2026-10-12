@@ -338,6 +338,41 @@ class CiBrowserClassesGuardTest {
   }
 
   @Test
+  void shouldKeepTheFirefoxPlaywrightJobsOutOfMergeRequests() throws IOException {
+    assumeTrue(Files.isRegularFile(PIPELINE), PIPELINE + " is not reachable from this module: CI rules check skipped");
+
+    String pipeline = Files.readString(PIPELINE);
+
+    assertThat(firefoxRuleProblems(pipeline)).isEmpty();
+    assertThat(jobs(pipeline).keySet()).contains("Playwright Firefox browser", "Playwright IT 2/4", "Playwright IT 4/4");
+  }
+
+  @Test
+  void shouldReportFirefoxPlaywrightJobsThatRunInMergeRequestsAndChromiumJobsThatDoNot() {
+    String pipeline = """
+      Playwright Firefox browser:
+        rules: *rules-playwright
+      Playwright IT 2/2:
+        extends:
+          - .playwright-firefox-testing
+        rules: *rules-playwright-firefox
+      Playwright IT 1/2:
+        extends:
+          - .playwright-chromium-testing
+        rules: *rules-playwright-firefox
+      Playwright IT 3/3:
+        extends:
+          - .playwright-firefox-testing
+        rules: *rules-playwright-react
+      """;
+
+    assertThat(firefoxRuleProblems(pipeline)).hasSize(3)
+      .anyMatch(problem -> problem.contains("Playwright Firefox browser"))
+      .anyMatch(problem -> problem.contains("Playwright IT 1/2"))
+      .anyMatch(problem -> problem.contains("Playwright IT 3/3"));
+  }
+
+  @Test
   void shouldReportBrowserJobsThatDoNotGroupOrDoNotGateSonar() {
     String pipeline = """
       Selenium IT 1/2:
@@ -441,6 +476,26 @@ class CiBrowserClassesGuardTest {
       .filter(job -> !job.getKey().startsWith(QUARANTINE_JOBS))
       .filter(job -> TEST_TAGS.matcher(job.getValue()).find() || TEST_CLASSES.matcher(job.getValue()).find())
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, second) -> first, LinkedHashMap::new));
+  }
+
+  /**
+   * Merge requests run only the Chromium Playwright suites: the Firefox suites and the job that caches the Firefox browser use the
+   * rules without a merge request rule (develop and master), and the Chromium jobs must keep a merge request rule (not the Firefox one)
+   */
+  private static List<String> firefoxRuleProblems(String pipeline) {
+    List<String> problems = new ArrayList<>();
+    jobs(pipeline).forEach((name, job) -> {
+      boolean firefox = name.equals("Playwright Firefox browser") || extendsOf(job).contains(".playwright-firefox-testing");
+      boolean chromium = extendsOf(job).contains(".playwright-chromium-testing");
+      boolean firefoxRules = job.contains("rules: *rules-playwright-firefox");
+      if (firefox && !firefoxRules) {
+        problems.add(name + " runs Firefox, so it must use *rules-playwright-firefox: Firefox never runs in a merge request");
+      }
+      if (chromium && firefoxRules) {
+        problems.add(name + " runs Chromium, so it must keep a merge request rule (not *rules-playwright-firefox)");
+      }
+    });
+    return problems;
   }
 
   /**

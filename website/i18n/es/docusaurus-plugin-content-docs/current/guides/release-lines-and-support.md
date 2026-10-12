@@ -41,7 +41,7 @@ siempre procede de `support/4.x`, y una etiqueta `v5.y.z` (o posterior) siempre 
 | Compilación, pruebas unitarias/de BD/de frontend, javadoc | sí | sí | sí | sí |
 | Análisis de dependencias | sí | sí | sí | sí |
 | Lint del título de la merge request (bloqueante) y aviso de tamaño | no | no | no | sí |
-| Pruebas de integración de navegador con Playwright | sí | sí | no | sí |
+| Pruebas de integración de navegador con Playwright | sí | sí | no | sí (solo Chromium) |
 | Pruebas de integración de navegador con Selenium | solo pipeline semanal programada | sí | sí | no |
 | Análisis de Sonar (`sonar.branch.name` definido) | sí | sí | sí | sí (análisis de MR) |
 | Generar javadoc y esquemas | sí | sí | sí | no |
@@ -62,7 +62,9 @@ espera agotado).
 
 - **Playwright** (jobs `Playwright IT 1/4` a `Playwright IT 4/4`: Chromium y Firefox, cada uno contra la aplicación
   AngularJS y la aplicación React) es la herramienta de navegador de la pipeline diaria: merge requests con cambios de
-  código, `develop` y `master`. No se ejecuta en `support/*`: `support/4.x` no tiene adaptador de Playwright.
+  código, `develop` y `master`. No se ejecuta en `support/*`: `support/4.x` no tiene adaptador de Playwright. Las merge
+  requests ejecutan solo los jobs de Chromium (`Playwright IT 1/4` y `3/4`); los de Firefox (`2/4` y `4/4`) y su job de
+  caché del navegador se ejecutan en `develop` y `master`.
 - **Selenium** (jobs `Selenium IT 1/4` a `Selenium IT 4/4`: Chrome y Firefox, cada uno contra la aplicación AngularJS y
   la aplicación React) se ejecuta en `master`, en `support/*` y en las pipelines de la **programación de pipeline
   «Weekly Check» en `develop`**. No se ejecuta en merge requests ni en un push ordinario a `develop`. La programación es
@@ -84,11 +86,11 @@ comportan igual tanto si la etiqueta procede de `develop` como de `support/4.x`.
 
 Las pipelines de merge request son selectivas: los jobs se añaden según las rutas que toca la merge request. Un cambio
 limitado a `website/` construye solo el sitio de documentación; un cambio limitado a
-`awe-framework/awe-client-angular/` ejecuta las pruebas unitarias del frontend, las suites de Playwright de AngularJS,
+`awe-framework/awe-client-angular/` ejecuta las pruebas unitarias del frontend, las suites de Playwright de AngularJS en Chromium,
 Sonar y el análisis de dependencias, pero no la matriz de bases de datos ni las suites de Playwright de React; un
 cambio limitado a `awe-framework/awe-client-react/` ejecuta las pruebas unitarias y el lint de React, ambos conjuntos
-de suites de Playwright, Sonar y el análisis de dependencias; un cambio de backend ejecuta la compilación, la matriz de
-bases de datos, ambos conjuntos de suites de Playwright, Sonar, el análisis de dependencias y la comprobación de
+de suites de Playwright en Chromium (AngularJS y React), Sonar y el análisis de dependencias; un cambio de backend ejecuta la compilación, la matriz de
+bases de datos, ambos conjuntos de suites de Playwright en Chromium (AngularJS y React), Sonar, el análisis de dependencias y la comprobación de
 javadoc, pero ni las pruebas unitarias del frontend ni la compilación de la documentación. Un cambio en
 `.gitlab-ci.yml` cuenta como si tocara todo; un cambio en el `pom.xml` raíz cuenta como un cambio de backend. Las
 pipelines de rama en `develop`, `master` y `support/*` ejecutan siempre el conjunto completo, salvo que cada rama

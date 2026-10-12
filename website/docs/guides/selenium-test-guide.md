@@ -913,7 +913,7 @@ evidence (screenshot, page source, console, [trace and video](#playwright-eviden
 in the artifacts of the job like the evidence of the Selenium jobs; the screen recorder of Selenium is off
 (`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
-- **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`. They do not run on
+- **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`; merge requests run only the Chromium jobs (`Playwright IT 1/4` and `3/4`), and the Firefox jobs (`2/4` and `4/4`) and `Playwright Firefox browser` run on `develop` and `master`. They do not run on
   `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium IT 1/4` to `4/4`) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
   requests or ordinary pushes.
 - **They gate the pipeline.** A failing Playwright job fails the pipeline, stops `Launch Sonar` and the release jobs, and

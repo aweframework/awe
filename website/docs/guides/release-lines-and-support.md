@@ -43,7 +43,7 @@ from `develop`/`master`.
 | Build, unit/DB/frontend tests, javadoc | yes | yes | yes | yes |
 | Dependency scanning | yes | yes | yes | yes |
 | Merge request title lint (blocking) and size warning | no | no | no | yes |
-| Playwright browser integration tests | yes | yes | no | yes |
+| Playwright browser integration tests | yes | yes | no | yes (Chromium only) |
 | Selenium browser integration tests | weekly scheduled pipeline only | yes | yes | no |
 | Sonar analysis (`sonar.branch.name` set) | yes | yes | yes | yes (MR analysis) |
 | Generate javadoc & schemas | yes | yes | yes | no |
@@ -64,7 +64,8 @@ fails the job, and a job is retried only when the runner fails (not on a test fa
 - **Playwright** (jobs `Playwright IT 1/4` to `Playwright IT 4/4`: Chromium and Firefox, each one
   against the AngularJS and the React application) is the browser tool of the everyday pipeline: merge
   requests with code changes, `develop` and `master`. It does not run on `support/*`: `support/4.x`
-  has no Playwright adapter.
+  has no Playwright adapter. Merge requests run only the Chromium jobs (`Playwright IT 1/4` and
+  `3/4`); the Firefox jobs (`2/4` and `4/4`) and their browser cache job run on `develop` and `master`.
 - **Selenium** (jobs `Selenium IT 1/4` to `Selenium IT 4/4`: Chrome and Firefox, each one against
   the AngularJS and the React application) runs on
   `master`, on `support/*` and in the pipelines of the **"Weekly Check" pipeline schedule on
@@ -88,10 +89,10 @@ they behave the same whether the tag came from `develop` or from `support/4.x`.
 Merge-request pipelines are selective: jobs are added according to the paths the merge
 request touches. A change limited to `website/` builds only the documentation site; a change
 limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the AngularJS
-Playwright suites, Sonar and dependency scanning but not the database matrix nor the React
+Chromium Playwright suites, Sonar and dependency scanning but not the database matrix nor the React
 Playwright suites; a change limited to `awe-framework/awe-client-react/` runs the React unit
-tests and lint, both sets of Playwright suites, Sonar and dependency scanning; a backend change
-runs the build, the database matrix, both sets of Playwright suites, Sonar, dependency scanning
+tests and lint, both Chromium sets of Playwright suites (AngularJS and React), Sonar and dependency scanning; a backend change
+runs the build, the database matrix, both Chromium sets of Playwright suites (AngularJS and React), Sonar, dependency scanning
 and the javadoc check, but neither the frontend unit tests nor the documentation build. A change to
 `.gitlab-ci.yml` counts as touching everything; a change to the root `pom.xml` counts as a
 backend change. Branch pipelines on `develop`, `master` and `support/*` always run the
