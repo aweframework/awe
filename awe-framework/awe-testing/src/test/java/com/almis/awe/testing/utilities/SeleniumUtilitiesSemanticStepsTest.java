@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
@@ -1071,6 +1072,139 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldAlwaysClickTheRowWhenTheClientDoesNotKeepItsSelection() {
     assertThat(instructions.findGridSelectedRow("Grd", "abc")).isNull();
     assertThrows(AssertionFailedError.class, () -> utilities.clickRowContents("Grd", "abc"));
+  }
+
+  @Test
+  void shouldCheckThatATabAndAWizardStepAreMarkedInvalidOrNot() {
+    assertThatCode(() -> {
+      utilities.checkTabInvalid("Tabs", false);
+      utilities.checkWizardStepInvalid("Wiz", false);
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkTabInvalid("Tabs", true));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkWizardStepInvalid("Wiz", true));
+
+    show(instructions.getInvalidTab("Tabs"), "Second");
+    show(instructions.getInvalidWizardStep("Wiz"), "2");
+
+    assertThatCode(() -> {
+      utilities.checkTabInvalid("Tabs", true);
+      utilities.checkWizardStepInvalid("Wiz", true);
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkTabInvalid("Tabs", false));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkWizardStepInvalid("Wiz", false));
+  }
+
+  @Test
+  void shouldCheckThatTheFocusIsOnACriterion() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(anyString(), any(Object[].class))).thenReturn(false, true);
+
+    assertThatCode(() -> utilities.checkCriterionFocused("Req")).doesNotThrowAnyException();
+
+    verify(executor, atLeast(2)).executeScript(argThat((String script) -> script.contains("activeElement")),
+      eq(instructions.getCriterionCss("Req")));
+  }
+
+  @Test
+  void shouldCheckTheDatesAndThePresetsOfADateRange() {
+    WebElement from = show(instructions.getDateRangeFrom("Rng"), "");
+    WebElement to = show(instructions.getDateRangeTo("Rng"), "");
+    when(from.getAttribute("value")).thenReturn("01/01/2026");
+    when(to.getAttribute("value")).thenReturn("31/01/2026");
+    show(instructions.getDateRangePresets("Rng"), "1M");
+    show(instructions.getDateRangePreset("Rng", "1M"), "1M");
+    show(instructions.getDateRangePresetActive("Rng", "1M"), "1M");
+
+    assertThatCode(() -> {
+      utilities.checkDateRange("Rng", "01/01/2026", "31/01/2026");
+      utilities.checkDateRangePresetCount("Rng", 1);
+      utilities.clickDateRangePreset("Rng", "1M");
+      utilities.checkDateRangePresetActive("Rng", "1M");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkDateRange("Rng", "", ""));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkDateRangePresetCount("Rng", 2));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickDateRangePreset("Rng", "YTD"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkDateRangePresetActive("Rng", "YTD"));
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
+  void shouldCheckThatADateRangeIsDisabledAndClearItsStartDate() {
+    WebElement from = show(instructions.getDateRangeFrom("Rng"), "");
+    WebElement to = show(instructions.getDateRangeTo("Rng"), "");
+    when(from.isEnabled()).thenReturn(false);
+    when(to.isEnabled()).thenReturn(false);
+    when(from.getAttribute("value")).thenReturn("");
+
+    assertThatCode(() -> utilities.checkDateRangeDisabled("Rng")).doesNotThrowAnyException();
+    assertThatCode(() -> utilities.clearDateRangeFrom("Rng")).doesNotThrowAnyException();
+
+    when(to.isEnabled()).thenReturn(true);
+    assertThrows(AssertionFailedError.class, () -> utilities.checkDateRangeDisabled("Rng"));
+  }
+
+  @Test
+  void shouldDropAFileOnTheDropZoneOfAnUploader() {
+    show(instructions.getUploaderDropZone("Upl"), "");
+
+    utilities.dropFile("Upl", "pixel.png", "image/png", "iVBORw0KGgo=");
+
+    verify((JavascriptExecutor) driver).executeScript(argThat((String script) -> script.contains("DragEvent")
+      && script.contains("dragenter") && script.contains("drop")), any(Object[].class));
+    assertThrows(AssertionFailedError.class, () -> utilities.dropFile("Missing", "pixel.png", "image/png", "AA=="));
+  }
+
+  @Test
+  void shouldCheckThatAnUploaderOffersTheCameraButtonOrNot() {
+    show(instructions.getUploaderCapture("Cam"), "Take photo");
+
+    assertThatCode(() -> {
+      utilities.checkUploadCaptureButton("Cam", true);
+      utilities.checkUploadCaptureButton("Plain", false);
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkUploadCaptureButton("Plain", true));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkUploadCaptureButton("Cam", false));
+  }
+
+  @Test
+  void shouldChooseAFileWithTheCameraInputOfAnUploader() {
+    WebElement input = show(instructions.getUploaderCaptureInput("Cam"), "");
+
+    utilities.chooseCapturedFile("Cam", "/tmp/photo.png");
+
+    verify(input).sendKeys("/tmp/photo.png");
+    assertThrows(AssertionFailedError.class, () -> utilities.chooseCapturedFile("Missing", "/tmp/photo.png"));
+  }
+
+  @Test
+  void shouldCheckTheFileTheClearButtonAndThePreviewOfAnUploader() {
+    WebElement filename = show(instructions.getUploaderFilename("Upl"), "pixel.png");
+    WebElement preview = show(instructions.getUploaderPreview("Upl"), "");
+    when(preview.getAttribute("src")).thenReturn("blob:http://localhost/1234");
+    show(instructions.getUploaderClear("Upl"), "Clear");
+
+    assertThatCode(() -> {
+      utilities.checkUploadedFile("Upl", "pixel.png");
+      utilities.checkUploadPreview("Upl");
+      utilities.clearUpload("Upl");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkUploadedFile("Upl", "other.pdf"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkNoUploadedFile("Upl"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkNoUploadPreview("Upl"));
+
+    // A client that shows the name in the value of an input, with nothing after the clear
+    when(filename.getText()).thenReturn("");
+    when(filename.getAttribute("value")).thenReturn("pixel.png");
+    assertThatCode(() -> utilities.checkUploadedFile("Upl", "pixel.png")).doesNotThrowAnyException();
+    when(filename.getAttribute("value")).thenReturn("");
+    when(preview.isDisplayed()).thenReturn(false);
+    assertThatCode(() -> {
+      utilities.checkNoUploadedFile("Upl");
+      utilities.checkNoUploadPreview("Upl");
+    }).doesNotThrowAnyException();
+    when(preview.isDisplayed()).thenReturn(true);
+    when(preview.getAttribute("src")).thenReturn("http://localhost/other.png");
+    assertThrows(AssertionFailedError.class, () -> utilities.checkUploadPreview("Upl"));
   }
 
   @Test

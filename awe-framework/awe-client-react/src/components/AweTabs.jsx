@@ -6,7 +6,7 @@ import { classNames } from "../utilities/components";
 import "./AweTabs.less";
 import { Badge } from "primereact/badge";
 import { useTranslation } from "react-i18next";
-import { usePanelable } from "../hooks/usePanelable";
+import { useInvalidValues, usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
@@ -20,6 +20,7 @@ function AweTabs(props) {
   const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
+  const invalid = useInvalidValues(id);
 
   const titleRenderer = (title) => title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
   const labelRenderer = (label) => label ? <span className={`p-tab-title`} {...testHook(TestIds.tabLabel)}>{translateLabel(label, t)}</span> : null;
@@ -52,7 +53,7 @@ function AweTabs(props) {
       template: (item) => itemRenderer(item, index)
     }))}
       activeIndex={activeIndex}
-      pt={tabMenuPassThrough(values, activeIndex, globalDisabled || disabled)}
+      pt={tabMenuPassThrough(values, activeIndex, globalDisabled || disabled, invalid)}
       onTabChange={onChange} />
     {elementList
       .filter(item => item.elementType === "TabContainer")

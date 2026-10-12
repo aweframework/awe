@@ -4,7 +4,7 @@ import { Components } from "../utilities/structure";
 import './AweSteps.less';
 import { getIconCode, translateLabel } from "../utilities";
 import { useTranslation } from "react-i18next";
-import { usePanelable } from "../hooks/usePanelable";
+import { useInvalidValues, usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
@@ -16,6 +16,7 @@ function AweSteps(props) {
   const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
+  const invalid = useInvalidValues(id);
 
   const titleRenderer = (title) => title ? <span className={`p-steps-supertitle`}>{translateLabel(title, t)}</span> : null;
   const labelRenderer = (label) => label ? <span className={`p-steps-title`}>{translateLabel(label, t)}</span> : null;
@@ -29,6 +30,7 @@ function AweSteps(props) {
   const itemRenderer = (item, itemIndex) => {
     let icon = item.icon;
     let stepClass = "p-step-pending";
+    const isInvalid = invalid.includes(item.value);
 
     if (activeIndex === itemIndex) {
       stepClass = "p-step-current";
@@ -38,9 +40,9 @@ function AweSteps(props) {
     }
 
     return (
-      <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}
+      <button className={`p-menuitem-link ${stepClass}${isInvalid ? " p-step-invalid" : ""}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}
         {...testHook(TestIds.wizardStep, {
-          active: activeIndex === itemIndex, completed: activeIndex > itemIndex, attributes: { "option-id": item.value, [TestAttributes.stepNumber]: String(itemIndex + 1) }
+          active: activeIndex === itemIndex, completed: activeIndex > itemIndex, invalid: isInvalid, attributes: { "option-id": item.value, [TestAttributes.stepNumber]: String(itemIndex + 1) }
         })}>
         <span className="p-steps-number" {...testHook(TestIds.wizardStepNumber)}>{iconRenderer(icon, itemIndex + 1)}</span>
         <div className={`p-steps-text`}>

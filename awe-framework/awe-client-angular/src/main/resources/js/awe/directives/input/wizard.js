@@ -11,7 +11,7 @@ const template =
  <div class="{{::criterionClass}} expand expandible-vertical">
   <div class="wizard-wrapper">
     <ul class="wizard-steps" ng-class="{disabled:isDisabled()}">
-      <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)" data-testid="${TestIds.wizardStep}" ng-attr-data-active="{{model.selectedIndex === $index}}" ng-attr-data-completed="{{model.selectedIndex > $index}}">
+      <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index, 'step-invalid':invalidPanels[wizard.value]}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)" data-testid="${TestIds.wizardStep}" ng-attr-data-active="{{model.selectedIndex === $index}}" ng-attr-data-completed="{{model.selectedIndex > $index}}" ng-attr-data-invalid="{{!!invalidPanels[wizard.value]}}">
         <span class="wizard-step-number">{{$index + 1}}</span>
         <span class="wizard-step-caption">
           <span translate-multiple="{{::controller.label}}"></span> {{$index + 1}}
@@ -72,6 +72,18 @@ aweApplication
        * @returns {*|boolean}
        */
       $ctrl.isActive = (id) => component.isActive(id);
+
+      // Steps that hold invalid fields
+      $scope.invalidPanels = {};
+
+      /**
+       * Mark a step that holds invalid fields (or clear its mark)
+       * @param {string} id Step identifier
+       * @param {boolean} invalid Step holds invalid fields
+       */
+      $ctrl.setInvalid = (id, invalid) => {
+        $scope.invalidPanels[id] = invalid;
+      };
 
       /******************************************************************************
        * SCOPE METHODS

@@ -67,6 +67,7 @@ import "./column/color";
 
 import "./input/date";
 import "./input/filteredCalendar";
+import "./input/dateRange";
 import "./input/time";
 import "./column/date";
 import "./column/filteredCalendar";

@@ -5,6 +5,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+
 /**
  * Criteria of the test screens: every criterion type, their dependencies and the reset of the criteria.
  * Every test opens its own screen, so each one can run on its own. The login and the module selection are checked
@@ -13,6 +18,23 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
 class CriteriaTestsIT extends AbstractSessionTests {
+
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  private static final String DATE_RANGE_SCREEN = "criteria-date-range";
+  private static final String DATE_RANGE = "DatRng";
+  private static final String DATE_RANGE_REQUIRED = "DatRngReq";
+  private static final String DATE_RANGE_READONLY = "DatRngRea";
+  private static final String DATE_RANGE_SEARCH = "ButSea";
+  private static final String REQUIRED_FROM = "01/01/2026";
+  private static final String REQUIRED_TO = "31/01/2026";
+  private static final String UPLOADER_SCREEN = "criteria-uploader";
+  private static final String UPLOADER_DROP = "UplDrop";
+  private static final String UPLOADER_CAMERA = "UplCam";
+  private static final String UPLOADER_READONLY = "UplDropRea";
+  private static final String PNG = "image/png";
+  private static final String PIXEL_FILE = "pixel.png";
+  // A 1x1 pixel png
+  private static final String PIXEL_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
   CriteriaTestsIT() {
     super(Session.TEST_MODULE);
@@ -477,5 +499,98 @@ class CriteriaTestsIT extends AbstractSessionTests {
 
     // Check text
     checkCriterionContents("CrtTstTxtHid", "RstTst");
+  }
+
+  /**
+   * Date range criterion: default dates, read-only range, presets, the dates the search sends and the required range
+   */
+  @Test
+  void t030_criteriaDateRange() {
+    // Title
+    setTestTitle("Date range criterion: defaults, presets and search");
+
+    // Go to screen
+    gotoScreen("test", "criteria", DATE_RANGE_SCREEN);
+
+    // Wait for button
+    waitForButton(DATE_RANGE_SEARCH);
+
+    // Check the default dates: none, the ones of the required range and the ones of the read-only range
+    checkDateRange(DATE_RANGE, "", "");
+    checkDateRange(DATE_RANGE_REQUIRED, REQUIRED_FROM, REQUIRED_TO);
+    checkDateRange(DATE_RANGE_READONLY, "01/02/2026", "28/02/2026");
+
+    // The read-only range cannot be edited and the range without presets offers none
+    checkDateRangeDisabled(DATE_RANGE_READONLY);
+    checkDateRangePresetCount("DatRngNoPre", 0);
+    checkDateRangePresetCount(DATE_RANGE, 6);
+
+    // Click on the preset of the last month: the end is today, the start is one month before and the preset is active
+    LocalDate today = LocalDate.now();
+    clickDateRangePreset(DATE_RANGE, "1M");
+    checkDateRange(DATE_RANGE, today.minusMonths(1).format(DATE_FORMAT), today.format(DATE_FORMAT));
+    checkDateRangePresetActive(DATE_RANGE, "1M");
+
+    // Search: the dates of the range reach the server as two parameters
+    clickButton(DATE_RANGE_SEARCH);
+    checkRowContents(today.minusMonths(1).format(DATE_FORMAT), today.format(DATE_FORMAT), REQUIRED_FROM, REQUIRED_TO);
+
+    // Click on the preset of the year to date
+    clickDateRangePreset(DATE_RANGE, "YTD");
+    checkDateRange(DATE_RANGE, today.withDayOfYear(1).format(DATE_FORMAT), today.format(DATE_FORMAT));
+    checkDateRangePresetActive(DATE_RANGE, "YTD");
+
+    // Click on the preset that clears the range
+    clickDateRangePreset(DATE_RANGE, "ALL");
+    checkDateRange(DATE_RANGE, "", "");
+    checkDateRangePresetActive(DATE_RANGE, "ALL");
+
+    // Clear the start of the required range and search: the validation fails
+    clearDateRangeFrom(DATE_RANGE_REQUIRED);
+    clickButton(DATE_RANGE_SEARCH);
+    checkValidationErrorVisible();
+  }
+
+  /**
+   * Uploader criterion: drop zone, preview of an image, read-only drop zone and camera capture
+   */
+  @Test
+  void t032_criteriaUploader() {
+    // Title
+    setTestTitle("Uploader criterion: drop zone and camera capture");
+
+    // Go to screen
+    gotoScreen("test", "criteria", UPLOADER_SCREEN);
+
+    // Nothing is uploaded yet
+    checkNoUploadedFile(UPLOADER_DROP);
+
+    // Drop an image: its name and a preview of it are shown
+    dropFile(UPLOADER_DROP, PIXEL_FILE, PNG, PIXEL_PNG);
+    checkUploadedFile(UPLOADER_DROP, PIXEL_FILE);
+    checkUploadPreview(UPLOADER_DROP);
+
+    // Clear the file: the name and the preview disappear
+    clearUpload(UPLOADER_DROP);
+    checkNoUploadedFile(UPLOADER_DROP);
+    checkNoUploadPreview(UPLOADER_DROP);
+
+    // Drop a document: its name is shown but there is no preview
+    dropFile(UPLOADER_DROP, "document.pdf", "application/pdf",
+      Base64.getEncoder().encodeToString("%PDF-1.4".getBytes(StandardCharsets.UTF_8)));
+    checkUploadedFile(UPLOADER_DROP, "document.pdf");
+    checkNoUploadPreview(UPLOADER_DROP);
+    clearUpload(UPLOADER_DROP);
+    checkNoUploadedFile(UPLOADER_DROP);
+
+    // A read-only uploader ignores what is dropped on it
+    dropFile(UPLOADER_READONLY, PIXEL_FILE, PNG, PIXEL_PNG);
+    pause(1000);
+    checkNoUploadedFile(UPLOADER_READONLY);
+    checkNoUploadPreview(UPLOADER_READONLY);
+
+    // The uploader with a capture offers the camera button, the one with a drop zone only does not
+    checkUploadCaptureButton(UPLOADER_CAMERA, true);
+    checkUploadCaptureButton(UPLOADER_DROP, false);
   }
 }

@@ -11,7 +11,7 @@ const template =
     <awe-context-menu ng-cloak></awe-context-menu>
     <div class="{{::criterionClass}} expand expandible-vertical">
       <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}" data-testid="${TestIds.tabList}" ng-attr-data-disabled="{{!!isDisabled()}}">
-          <li ng-class="{'active':$parent.model.selected === tab.value}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}" data-testid="${TestIds.tab}" ng-attr-data-active="{{$parent.model.selected === tab.value}}">
+          <li ng-class="{'active':$parent.model.selected === tab.value, 'tab-invalid':invalidPanels[tab.value]}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}" data-testid="${TestIds.tab}" ng-attr-data-active="{{$parent.model.selected === tab.value}}" ng-attr-data-invalid="{{!!invalidPanels[tab.value]}}">
           <a ng-click="clickTab(tab.value)" data-testid="${TestIds.tabLink}">
             ${getIconTemplate("panel-title-icon")}
             <span translate-multiple="{{tab.label}}" data-testid="${TestIds.tabLabel}"></span>
@@ -67,12 +67,22 @@ aweApplication
       */
       $ctrl.isActive = (id) => component.isActive(id);
 
+      /**
+       * Mark a tab that holds invalid fields (or clear its mark)
+       * @param {string} id Tab identifier
+       * @param {boolean} invalid Tab holds invalid fields
+       */
+      $ctrl.setInvalid = (id, invalid) => {
+        $scope.invalidPanels[id] = invalid;
+      };
+
       /******************************************************************************
       * COMPONENT METHODS
       *****************************************************************************/
 
       // Controller variables
       component.scope.isExpandible = true;
+      $scope.invalidPanels = {};
       component.expandDirection = "vertical";
 
       /******************************************************************************

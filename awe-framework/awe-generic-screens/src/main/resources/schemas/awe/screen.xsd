@@ -624,6 +624,25 @@
         <xs:documentation xml:lang="en">Uploader only. Folder where the uploaded files are stored.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="drop-zone" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Shows a drop area where files can be dragged and dropped, plus a preview of the selected image. Default is false</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="capture" type="captureEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Adds a button to take a photo with the device camera (user: front camera, environment: rear camera). Devices without a camera fall back to the file dialog</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="presets" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Quick presets of a date-range criterion, as a list of codes separated by commas or
+          spaces. Each code is shown as a button that fills the range from the current date: TODAY, YTD (year to date), ALL
+          (clears both dates) or a period back from today, a number followed by D (days), W (weeks), M (months) or Y (years),
+          for instance 7D, 1M, 3M, 12M, 3Y. The label of each preset is the locale DATE_RANGE_PRESET_ plus the code. The
+          active preset is cleared when the dates are edited. Only used by date-range criteria.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Help text shown in a tooltip next to the label. It is a localization key that is translated.</xs:documentation>
@@ -1703,6 +1722,13 @@
   </xs:simpleType>
 
   <!-- View Mode Enumeration  -->
+  <xs:simpleType name="captureEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="user" />
+      <xs:enumeration value="environment" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="viewModeEnum">
     <xs:annotation>
       <xs:documentation xml:lang="en">Smallest view of a date calendar: days, months or years.</xs:documentation>
@@ -1869,6 +1895,14 @@
       <xs:enumeration value="select-multiple" />
       <xs:enumeration value="picklist" />
       <xs:enumeration value="date" />
+      <xs:enumeration value="date-range">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">A pair of dates (start and end of a period) in one criterion. The end cannot be
+            before the start, and quick presets can be configured with the presets attribute. The criterion sends two
+            parameters, "id.from" and "id.to" (null when empty), both as dd/mm/yyyy dates. The default value is a list of two
+            dates separated by a comma ("01/01/2026,31/01/2026").</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />
       <xs:enumeration value="color" />

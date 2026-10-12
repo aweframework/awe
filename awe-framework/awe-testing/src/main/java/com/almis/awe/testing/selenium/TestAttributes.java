@@ -22,6 +22,10 @@ public final class TestAttributes {
    */
   public static final String DELETED = "data-deleted";
   public static final String ACTIVE = "data-active";
+  /**
+   * A tab, a wizard step or an accordion item holds fields that failed the validation
+   */
+  public static final String INVALID = "data-invalid";
   public static final String DISABLED = "data-disabled";
   public static final String OUTSIDE_MONTH = "data-outside-month";
   public static final String OPEN = "data-open";

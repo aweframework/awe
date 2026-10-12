@@ -35,6 +35,16 @@
     <option label="ENUM_MATRIX_GRID_DEPENDENCIES" value="DepMat" />
   </group>
 
+  <!-- REVEAL INVALID FIELD TEST -->
+  <group id="RevTabs">
+    <option label="ENUM_REVEAL_FIRST" value="RevTabOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevTabTwo" />
+  </group>
+  <group id="RevSteps">
+    <option label="ENUM_REVEAL_FIRST" value="RevStepOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevStepTwo" />
+  </group>
+
   <!-- WIZARD TEST STEPS -->
   <group id="WizTst">
     <option label="ENUM_STEP_1" value="WizardStep1" />

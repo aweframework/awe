@@ -120,4 +120,18 @@ describe("components/tab.js", () => {
 
     expect(refs.$utilities.publishFromScope).toHaveBeenCalledWith("resize-action", {}, scope);
   });
+
+  it("marks the tab that holds invalid fields and clears the mark when they are fixed", () => {
+    const {element, controllerApi} = compileTab(createPanelModel("1"));
+    const tabs = () => [...element[0].querySelectorAll("li[data-testid='tab']")];
+
+    controllerApi.setInvalid("2", true);
+    refs.$rootScope.$digest();
+    expect(tabs().map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "true", "false"]);
+    expect(tabs()[1].classList.contains("tab-invalid")).toBe(true);
+
+    controllerApi.setInvalid("2", false);
+    refs.$rootScope.$digest();
+    expect(tabs().map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "false", "false"]);
+  });
 });

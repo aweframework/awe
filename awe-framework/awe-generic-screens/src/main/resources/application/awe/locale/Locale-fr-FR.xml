@@ -20,6 +20,7 @@
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Retourner"/>
   <locale name="BUTTON_CANCEL" value="Annuler"/>
+  <locale name="BUTTON_CAPTURE" value="Prendre une photo"/>
   <locale name="BUTTON_CHOOSE" value="Choisir"/>
   <locale name="BUTTON_CLEAR" value="Supprimer"/>
   <locale name="BUTTON_CLOSE" value="Fermer"/>
@@ -617,6 +618,7 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Erreur dans lecture du fichier"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Erreur dans le fichier télécharger"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Vérification des erreurs du fichier télécharger"/>
+  <locale name="UPLOADER_DROP_HINT" value="Glissez un fichier ici ou choisissez-en un"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Vous avez dépassé la taille du nom du fichier"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Erreur en train de remplir la liste des variables"/>
   <locale name="ERROR_TITLE_FORMAT_DATA" value="Erreur de formatage des données"/>
@@ -1324,6 +1326,18 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="VALIDATOR_MESSAGE_EQUAL" value="Veuillez entrer la même valeur"/>
   <locale name="VALIDATOR_MESSAGE_EQUAL_LENGTH" value="Veuillez entrer une valeur de taille égale à {value2} caractères"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_OR_EQUAL" value="Veuillez entrer une valeur supérieure ou égale à {value2}"/>
+  <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="La date de fin ne peut pas être antérieure à la date de début"/>
+  <locale name="DATE_RANGE_FROM" value="Du"/>
+  <locale name="DATE_RANGE_TO" value="Au"/>
+  <locale name="DATE_RANGE_PRESET_TODAY" value="Aujourd'hui"/>
+  <locale name="DATE_RANGE_PRESET_1W" value="1 semaine"/>
+  <locale name="DATE_RANGE_PRESET_1M" value="1 mois"/>
+  <locale name="DATE_RANGE_PRESET_3M" value="3 mois"/>
+  <locale name="DATE_RANGE_PRESET_6M" value="6 mois"/>
+  <locale name="DATE_RANGE_PRESET_YTD" value="Depuis le début de l'année"/>
+  <locale name="DATE_RANGE_PRESET_12M" value="12 mois"/>
+  <locale name="DATE_RANGE_PRESET_3Y" value="3 ans"/>
+  <locale name="DATE_RANGE_PRESET_ALL" value="Tout"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_THAN" value="Veuillez entrer une valeur supérieure à {value2}"/>
   <locale name="VALIDATOR_MESSAGE_INTEGER" value="Veuillez entrer un entier valide numéro"/>
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Veuillez entrer une valeur inférieure ou égale à {value2}"/>

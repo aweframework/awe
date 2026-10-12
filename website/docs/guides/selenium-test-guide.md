@@ -487,6 +487,26 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `getTodayDay()` | Returns today's day of the month |
 | `getTomorrowDay()` | Returns tomorrow's day of the month |
 
+### Criteria: date range and uploader
+
+| Step | What it does |
+|---|---|
+| `checkCriterionFocused(String criterionName)` | Checks that the keyboard focus is on a criterion (for instance after a failed validation revealed it) |
+| `checkDateRange(String criterionName, String from, String to)` | Checks the two dates of a date range criterion (`dd/MM/yyyy`, empty when there is none) |
+| `checkDateRangeDisabled(String criterionName)` | Checks that the two dates of a date range criterion cannot be edited |
+| `checkDateRangePresetCount(String criterionName, int count)` | Checks how many quick presets a date range criterion offers |
+| `clickDateRangePreset(String criterionName, String presetCode)` | Clicks a quick preset (`1M`, `YTD`, `ALL`...) |
+| `checkDateRangePresetActive(String criterionName, String presetCode)` | Checks that a preset is the active one (the dates are the ones it set) |
+| `clearDateRangeFrom(String criterionName)` | Clears the start date of a date range criterion |
+| `dropFile(String criterionName, String fileName, String mimeType, String base64Content)` | Drops a file on the drop zone of an uploader criterion, as a user dragging it from the desktop |
+| `checkUploadCaptureButton(String criterionName, boolean shown)` | Checks that an uploader criterion offers the button that opens the camera (`true`), or that it does not (`false`) |
+| `chooseCapturedFile(String criterionName, String filePath)` | Chooses a file with the camera input (the one that captures an image) of an uploader criterion. **React only**: AngularJS creates its file input when the camera button is clicked, so there is no input to give the file to |
+| `checkUploadedFile(String criterionName, String fileName)` | Checks the name of the file that an uploader criterion holds |
+| `checkNoUploadedFile(String criterionName)` | Checks that an uploader criterion holds no file |
+| `checkUploadPreview(String criterionName)` | Checks that an uploader criterion shows the preview of the image it holds (a `blob:` address) |
+| `checkNoUploadPreview(String criterionName)` | Checks that an uploader criterion shows no preview |
+| `clearUpload(String criterionName)` | Clicks the button that clears the file of an uploader criterion |
+
 ### Criteria: select and suggest
 
 | Step | What it does |
@@ -606,6 +626,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `clickTab(String tabName, String tabLabel)` | Clicks a tab of a tab criterion. The label is the locale key (AngularJS) or the translated text (React) |
 | `checkActiveWizardStep(String number)` | Checks the number of the active step of a wizard |
 | `checkTagListContains(String tagListId, String text)` | Checks that a tag list (text view) contains a text |
+| `checkTabInvalid(String tabId, boolean invalid)` | Checks that a tab criterion marks a tab as holding fields that failed the validation (`true`), or that it marks none (`false`) |
+| `checkWizardStepInvalid(String wizardId, boolean invalid)` | The same for the steps of a wizard |
 | `checkChartVisible(String chartId)` | Checks that a chart is displayed (the chart has been drawn) |
 | `zoomChart(String chartId)` | Zooms a chart in with the mouse wheel over its center |
 | `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
@@ -681,6 +703,7 @@ so a test can tell which component opened them.
 | `datepicker` | The open date popup | End of `<body>`, with `data-testid-owner` |
 | `datepicker-day`, `datepicker-month`, `datepicker-year` | Day, month and year cells of the popup | Inside the popup, with `data-testid-owner` |
 | `upload-filename`, `upload-clear` | Name of the uploaded file and the button that clears it | Inside `[criterion-id='X']`, or inside the grid cell |
+| `upload-drop-zone`, `upload-preview`, `upload-capture` | Drop area (only with `drop-zone="true"`), image preview of the chosen file and the camera button (only with `capture`) | Inside `[criterion-id='X']` |
 | `loader` | Loader of a criterion or any other component | Inside the component |
 | `select-trigger` | The arrow that opens the panel of a select. Click it rather than the middle of a short select, where the clear icon can be. **React only** | Inside `[criterion-id='X']` |
 | `criterion-unit` | The unit addon of a criterion (the text after the input, such as `EUR`). **React only** | Inside `[criterion-id='X']` |
@@ -715,10 +738,10 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 | `data-testid` | Element | Where to find it |
 |---|---|---|
 | `tab-list` | The tab headers of a tab criterion. `data-disabled` | Inside `[criterion-id='X']` |
-| `tab`, `tab-link`, `tab-label` | A tab header (`li` with the `tab-<value>` id and `data-active`), the link to click and the label | Inside the tab list, or inside the `tabdrop-menu` when the tab does not fit |
+| `tab`, `tab-link`, `tab-label` | A tab header (`li` with the `tab-<value>` id, `data-active` and `data-invalid`), the link to click and the label | Inside the tab list, or inside the `tabdrop-menu` when the tab does not fit |
 | `tab-pane` | Content of a tab, with the pane `id`. `data-active` | Inside `[criterion-id='X']` |
 | `tabdrop`, `tabdrop-toggle`, `tabdrop-menu` | The "more" dropdown that holds the tabs that do not fit, the button that opens it and its menu. AngularJS only: the React tab list has no "more" menu | Inside the tab list |
-| `wizard-step`, `wizard-pane` | A step header (`data-active` and `data-completed`) and a content pane (`data-active`) | Inside `[criterion-id='X']` |
+| `wizard-step`, `wizard-pane` | A step header (`data-active`, `data-completed` and `data-invalid`) and a content pane (`data-active`) | Inside `[criterion-id='X']` |
 | `wizard-step-number` | The number shown by a step. **React only**: the step shows an icon instead of the number when it has one, and then `data-step-number` on the `wizard-step` carries the number | Inside the step |
 
 ### Buttons, menus and info
@@ -769,6 +792,7 @@ or `"false"`, except `data-type`, `data-container`, `data-icon`, `data-value` an
 | `data-open` | Menu option or submenu that is open; help popover that is displayed; dialog that is open. A dialog is `false` again only when its backdrop has been removed, so the screen is interactive |
 | `data-expanded`, `data-loading` | Tree row that is expanded, or that is loading its children |
 | `data-completed` | Wizard step that is already done |
+| `data-invalid` | Tab, wizard step or accordion item (AngularJS: the `panel` of the item) that holds fields which failed the validation |
 | `data-outside-month` | Datepicker day that belongs to the previous or next month |
 | `data-type` | Type of a message |
 | `data-container` | Container of a grid viewport: `body`, `left` or `right` |

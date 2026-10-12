@@ -8,6 +8,7 @@ import AweInputNumeric from "./AweInputNumeric";
 import AweInputDate from "./AweInputDate";
 import AweInputTime from "./AweInputTime";
 import AweInputFilteredDate from "./AweInputFilteredDate";
+import AweInputDateRange from "./AweInputDateRange";
 import AweInputColor from "./AweInputColor";
 import AweSelectMultiple from "./AweSelectMultiple";
 import AweSuggestMultiple from "./AweSuggestMultiple";
@@ -31,6 +32,7 @@ export const CriteriaList = {
   "date": AweInputDate,
   "time": AweInputTime,
   "filtered-calendar": AweInputFilteredDate,
+  "date-range": AweInputDateRange,
   "color": AweInputColor,
   "select-multiple": AweSelectMultiple,
   "suggest-multiple": AweSuggestMultiple,

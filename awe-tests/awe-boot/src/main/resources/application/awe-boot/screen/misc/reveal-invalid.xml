@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : reveal-invalid.xml
+    Description: Validation of required fields that sit in a hidden tab, a collapsed accordion item and a wizard step
+                 that is not the current one. The validation has to open the container, focus the field and mark the
+                 tab, the item and the step that hold errors.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="SCREEN_TITLE_REVEAL_INVALID">
+  <tag source="buttons">
+    <button label="BUTTON_ACCEPT" icon="check" id="ButRevealValidate" style="btn-primary">
+      <button-action type="validate"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="expand" expandible="vertical">
+      <tab id="RevTabs" initial-load="enum" target-action="RevTabs">
+        <tabcontainer id="RevTabOne">
+          <tag type="div" style="panel-body">
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevTabFirst"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </tabcontainer>
+        <tabcontainer id="RevTabTwo">
+          <tag type="div" style="panel-body">
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevTabRequired" validation="required"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </tabcontainer>
+      </tab>
+    </tag>
+    <tag type="div" style="expand" expandible="vertical">
+      <accordion id="RevAccordion" selected="RevAccOne">
+        <accordion-item label="First item" id="RevAccOne">
+          <tag>
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevAccFirst"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </accordion-item>
+        <accordion-item label="Second item" id="RevAccTwo">
+          <tag>
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevAccRequired" validation="required"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </accordion-item>
+      </accordion>
+    </tag>
+    <tag type="div" style="expand" expandible="vertical">
+      <wizard id="RevWizard" initial-load="enum" target-action="RevSteps" label="SCREEN_TEXT_STEP">
+        <wizard-panel id="RevStepOne">
+          <tag type="div" style="panel-body">
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevStepFirst"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </wizard-panel>
+        <wizard-panel id="RevStepTwo">
+          <tag type="div" style="panel-body">
+            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevStepRequired" validation="required"
+                      style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+        </wizard-panel>
+      </wizard>
+    </tag>
+  </tag>
+</screen>

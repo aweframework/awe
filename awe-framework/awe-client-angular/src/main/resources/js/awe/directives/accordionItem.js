@@ -2,8 +2,8 @@ import {aweApplication} from "../awe";
 
 // Accordion item
 aweApplication.directive('aweAccordionItem',
-  ['ServerData', 'Component',
-    function (serverData, Component) {
+  ['ServerData', 'Component', 'Panel',
+    function (serverData, Component, Panel) {
       return {
         restrict: 'E',
         replace: true,
@@ -45,6 +45,13 @@ aweApplication.directive('aweAccordionItem',
               if(scope.isSelected && element.length !== 0 && element[0].getElementsByClassName("collapse").length !== 0){
                   element[0].getElementsByClassName("collapse")[0].style.height = "";
               }
+          });
+
+          // Reveal the item when a field inside it fails the validation, and mark it while it holds invalid fields
+          component.listeners = component.listeners || {};
+          component.listeners["revealItem"] = Panel.revealOn(scope, () => scope.isSelected, () => scope.onClick(scope.itemId));
+          component.listeners["trackInvalid"] = Panel.trackInvalid(scope, function (invalid) {
+            scope.hasInvalid = invalid;
           });
 
           // Click handler

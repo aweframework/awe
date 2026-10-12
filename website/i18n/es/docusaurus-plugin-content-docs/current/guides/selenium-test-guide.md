@@ -487,6 +487,26 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `getTodayDay()` | Devuelve el día del mes de hoy |
 | `getTomorrowDay()` | Devuelve el día del mes de mañana |
 
+### Criterios: rango de fechas y cargador {#criteria-date-range-and-uploader}
+
+| Paso | Qué hace |
+|---|---|
+| `checkCriterionFocused(String criterionName)` | Comprueba que el foco del teclado está en un criterio (por ejemplo, después de que una validación fallida lo haya mostrado) |
+| `checkDateRange(String criterionName, String from, String to)` | Comprueba las dos fechas de un criterio de rango de fechas (`dd/MM/yyyy`, vacío cuando no hay) |
+| `checkDateRangeDisabled(String criterionName)` | Comprueba que las dos fechas de un criterio de rango de fechas no se pueden editar |
+| `checkDateRangePresetCount(String criterionName, int count)` | Comprueba cuántos preajustes rápidos ofrece un criterio de rango de fechas |
+| `clickDateRangePreset(String criterionName, String presetCode)` | Hace clic en un preajuste rápido (`1M`, `YTD`, `ALL`...) |
+| `checkDateRangePresetActive(String criterionName, String presetCode)` | Comprueba que un preajuste es el activo (las fechas son las que ha establecido) |
+| `clearDateRangeFrom(String criterionName)` | Borra la fecha de inicio de un criterio de rango de fechas |
+| `dropFile(String criterionName, String fileName, String mimeType, String base64Content)` | Suelta un archivo en la zona de arrastre de un criterio cargador, como un usuario que lo arrastra desde el escritorio |
+| `checkUploadCaptureButton(String criterionName, boolean shown)` | Comprueba que un criterio cargador ofrece el botón que abre la cámara (`true`), o que no lo ofrece (`false`) |
+| `chooseCapturedFile(String criterionName, String filePath)` | Elige un archivo con el campo de cámara (el que captura una imagen) de un criterio cargador. **Solo React**: AngularJS crea su campo de archivo al hacer clic en el botón de la cámara, así que no hay un campo al que dar el archivo |
+| `checkUploadedFile(String criterionName, String fileName)` | Comprueba el nombre del archivo que contiene un criterio cargador |
+| `checkNoUploadedFile(String criterionName)` | Comprueba que un criterio cargador no contiene ningún archivo |
+| `checkUploadPreview(String criterionName)` | Comprueba que un criterio cargador muestra la vista previa de la imagen que contiene (una dirección `blob:`) |
+| `checkNoUploadPreview(String criterionName)` | Comprueba que un criterio cargador no muestra ninguna vista previa |
+| `clearUpload(String criterionName)` | Hace clic en el botón que borra el archivo de un criterio cargador |
+
 ### Criterios: select y suggest {#criteria-select-and-suggest}
 
 | Paso | Qué hace |
@@ -606,6 +626,8 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `clickTab(String tabName, String tabLabel)` | Hace clic en una pestaña de un criterio de pestañas. La etiqueta es la clave de locale (AngularJS) o el texto traducido (React) |
 | `checkActiveWizardStep(String number)` | Comprueba el número del paso activo de un asistente |
 | `checkTagListContains(String tagListId, String text)` | Comprueba que una lista de etiquetas (vista de texto) contiene un texto |
+| `checkTabInvalid(String tabId, boolean invalid)` | Comprueba que un criterio de pestañas marca una pestaña como que contiene campos que han fallado la validación (`true`), o que no marca ninguna (`false`) |
+| `checkWizardStepInvalid(String wizardId, boolean invalid)` | Lo mismo para los pasos de un asistente |
 | `checkChartVisible(String chartId)` | Comprueba que un gráfico se muestra (el gráfico se ha dibujado) |
 | `zoomChart(String chartId)` | Hace zoom en un gráfico con la rueda del ratón sobre su centro |
 | `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
@@ -681,6 +703,7 @@ para que una prueba pueda saber qué componente los abrió.
 | `datepicker` | El popup de fecha abierto | Final de `<body>`, con `data-testid-owner` |
 | `datepicker-day`, `datepicker-month`, `datepicker-year` | Celdas de día, mes y año del popup | Dentro del popup, con `data-testid-owner` |
 | `upload-filename`, `upload-clear` | Nombre del archivo subido y botón que lo borra | Dentro de `[criterion-id='X']`, o dentro de la celda del grid |
+| `upload-drop-zone`, `upload-preview`, `upload-capture` | Área de arrastre (solo con `drop-zone="true"`), vista previa de la imagen del archivo elegido y botón de la cámara (solo con `capture`) | Dentro de `[criterion-id='X']` |
 | `loader` | Cargador de un criterio o de cualquier otro componente | Dentro del componente |
 | `select-trigger` | La flecha que abre el panel de un select. Haz clic en ella en lugar de en el medio de un select corto, donde puede estar el icono de borrar. **Solo React** | Dentro de `[criterion-id='X']` |
 | `criterion-unit` | El complemento de unidad de un criterio (el texto tras el input, como `EUR`). **Solo React** | Dentro de `[criterion-id='X']` |
@@ -715,10 +738,10 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 | `data-testid` | Elemento | Dónde encontrarlo |
 |---|---|---|
 | `tab-list` | Las cabeceras de pestañas de un criterio de pestañas. `data-disabled` | Dentro de `[criterion-id='X']` |
-| `tab`, `tab-link`, `tab-label` | Una cabecera de pestaña (`li` con el id `tab-<value>` y `data-active`), el enlace en el que hacer clic y la etiqueta | Dentro de la lista de pestañas, o dentro del `tabdrop-menu` cuando la pestaña no cabe |
+| `tab`, `tab-link`, `tab-label` | Una cabecera de pestaña (`li` con el id `tab-<value>`, `data-active` y `data-invalid`), el enlace en el que hacer clic y la etiqueta | Dentro de la lista de pestañas, o dentro del `tabdrop-menu` cuando la pestaña no cabe |
 | `tab-pane` | Contenido de una pestaña, con el `id` del panel. `data-active` | Dentro de `[criterion-id='X']` |
 | `tabdrop`, `tabdrop-toggle`, `tabdrop-menu` | El desplegable "más" que contiene las pestañas que no caben, el botón que lo abre y su menú. Solo AngularJS: la lista de pestañas de React no tiene menú "más" | Dentro de la lista de pestañas |
-| `wizard-step`, `wizard-pane` | Una cabecera de paso (`data-active` y `data-completed`) y un panel de contenido (`data-active`) | Dentro de `[criterion-id='X']` |
+| `wizard-step`, `wizard-pane` | Una cabecera de paso (`data-active`, `data-completed` y `data-invalid`) y un panel de contenido (`data-active`) | Dentro de `[criterion-id='X']` |
 | `wizard-step-number` | El número que muestra un paso. **Solo React**: el paso muestra un icono en lugar del número cuando tiene uno, y entonces `data-step-number` en el `wizard-step` lleva el número | Dentro del paso |
 
 ### Botones, menús e info {#buttons-menus-and-info-1}
@@ -769,6 +792,7 @@ o `"false"`, excepto `data-type`, `data-container`, `data-icon`, `data-value` y 
 | `data-open` | Opción de menú o submenú que está abierto; popover de ayuda que se muestra; diálogo que está abierto. Un diálogo vuelve a ser `false` solo cuando se ha eliminado su fondo (backdrop), de modo que la pantalla es interactiva |
 | `data-expanded`, `data-loading` | Fila de árbol que está expandida, o que está cargando sus hijos |
 | `data-completed` | Paso de asistente que ya está hecho |
+| `data-invalid` | Pestaña, paso de asistente o elemento de acordeón (AngularJS: el `panel` del elemento) que contiene campos que han fallado la validación |
 | `data-outside-month` | Día del selector de fechas que pertenece al mes anterior o siguiente |
 | `data-type` | Tipo de un mensaje |
 | `data-container` | Contenedor del viewport de un grid: `body`, `left` o `right` |

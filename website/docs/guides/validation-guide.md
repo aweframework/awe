@@ -99,6 +99,18 @@ If you want to combine simple rules with complex rules, you need to define it as
 {required:true, maxlength:{value:6, type:"integer"}}
 ```
 
+## Fields in hidden content
+
+A criterion can sit in content the user does not see: a tab that is not the active one, a step of a wizard that is not the current one, or an accordion item that is collapsed. When a `validate` action fails, both clients (AngularJS and React) validate every criterion of the screen, hidden or not, and then bring the **first** invalid one into view:
+
+1. The tabs, wizard steps and accordion items that hide the field are opened, from the outer container to the inner one. A container that already shows the field is left as it is, and an accordion that allows several open items keeps the others open.
+2. The field is focused and scrolled into view.
+3. The tab header, the wizard step and the accordion item that hold invalid fields are marked with an error indicator (a red title with an exclamation mark, and a red number in a wizard step). The mark goes away when the fields are fixed.
+
+The first invalid field is the first one in the order of the screen definition. Screens without hidden content keep working as they did: the error message is shown next to the field.
+
+For automated tests, the marked tab, step or item carries the attribute `data-invalid="true"` (and `"false"` otherwise), next to `data-active` and `data-completed`. The test screen `reveal-invalid` of the test applications has a required field in a second tab, in a collapsed accordion item and in the second step of a wizard.
+
 ## Examples
 
 ### Standard criteria with validation action

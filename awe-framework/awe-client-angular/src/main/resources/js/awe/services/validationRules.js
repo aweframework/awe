@@ -1,6 +1,7 @@
 import {aweApplication} from "../awe";
 import moment from "moment";
 import _ from "lodash";
+import {isDateRangeValid} from "./dateRange";
 
 // Validation rules service
 aweApplication.factory('ValidationRules',
@@ -54,6 +55,9 @@ aweApplication.factory('ValidationRules',
             requiredValue = value;
           }
           // Retrieve list values (for multiple)
+        } else if (controller.component === "date-range") {
+          // A date range requires both of its dates
+          requiredValue = $utilities.asArray(value).filter(date => !$utilities.isEmpty(date)).length === 2 ? value : null;
         } else if (angular.isArray(value)) {
           if (value.length !== 0) {
             requiredValue = value;
@@ -316,6 +320,15 @@ aweApplication.factory('ValidationRules',
           };
           let passed = parameters.values.value1 >= parameters.values.value2;
           return $utilities.isEmpty(parameters.values.value1) || $utilities.isEmpty(parameters.values.value2) || passed ? null : error;
+        },
+        dateRange: function (parameters) {
+          let [from, to] = $utilities.asArray(parameters.values.value1);
+          parameters.values.from = from;
+          parameters.values.to = to;
+          let error = {
+            message: formatMessage(parameters.message || "VALIDATOR_MESSAGE_DATE_RANGE", parameters)
+          };
+          return isDateRangeValid(from, to) ? null : error;
         },
         mod: function (parameters) {
           let error = {

@@ -1,4 +1,4 @@
-<div class="panel {{::controller.style}}">
+<div class="panel {{::controller.style}}" ng-class="{'panel-invalid': hasInvalid}" ng-attr-data-invalid="{{!!hasInvalid}}">
     <div class="panel-heading">
         <a class="accordion-toggle" data-toggle="collapse" data-parent="#{{::autocollapse ? accordionId : ''}}"
            href="#{{::itemId}}" aria-expanded="{{isSelected}}" ng-click="onClick(itemId)" translate-multiple="{{controller.label}}"></a>

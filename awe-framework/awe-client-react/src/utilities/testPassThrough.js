@@ -210,14 +210,19 @@ export function selectionColumnPassThrough() {
  * @param {object[]} values Values of the tab component
  * @param {number} activeIndex Index of the active tab
  * @param {boolean} disabled The tab list is disabled
+ * @param {string[]} invalid Values of the tabs that hold invalid fields
  * @returns {object} TabMenu pt
  */
-export function tabMenuPassThrough(values, activeIndex, disabled) {
+export function tabMenuPassThrough(values, activeIndex, disabled, invalid = []) {
   return {
     menu: testHook(TestIds.tabList, { disabled: !!disabled }),
-    menuitem: ({ context }) => testHook(TestIds.tab, {
-      active: context.index === activeIndex,
-      attributes: { "option-id": values[context.index]?.value }
+    menuitem: ({ context }) => ({
+      ...testHook(TestIds.tab, {
+        active: context.index === activeIndex,
+        invalid: invalid.includes(values[context.index]?.value),
+        attributes: { "option-id": values[context.index]?.value }
+      }),
+      className: invalid.includes(values[context.index]?.value) ? "p-tab-invalid" : undefined
     })
   };
 }

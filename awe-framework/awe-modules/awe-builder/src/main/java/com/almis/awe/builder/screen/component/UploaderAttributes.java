@@ -12,6 +12,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UploaderAttributes<B extends AbstractCriteriaBuilder> extends AbstractAttributes<B> {
   private String destination;
+  private Boolean dropZone;
+  private String capture;
 
   public UploaderAttributes(B builder) {
     super(builder);
@@ -26,6 +28,8 @@ public class UploaderAttributes<B extends AbstractCriteriaBuilder> extends Abstr
    */
   public <E extends AbstractCriteria> E asUploader(E element) {
     return (E) element
-      .setDestination(getDestination());
+      .setDestination(getDestination())
+      .setDropZone(getDropZone())
+      .setCapture(getCapture());
   }
 }

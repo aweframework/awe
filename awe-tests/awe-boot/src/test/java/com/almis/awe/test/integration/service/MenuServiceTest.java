@@ -78,6 +78,6 @@ class MenuServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   @WithMockUser(username = "test", password = "test")
   void getAllScreenList() {
-    assertEquals(139, menuService.getAllScreenList("").getDataList().getRecords());
+    assertEquals(142, menuService.getAllScreenList("").getDataList().getRecords());
   }
 }

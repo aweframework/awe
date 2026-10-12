@@ -60,6 +60,16 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final String TEXT_VALUE = " text: '";
+  // Tells whether the element that has the focus is inside the element that the selector (first argument) finds
+  private static final String FOCUS_INSIDE_SCRIPT = "var active = document.activeElement;"
+    + " return !!active && !!active.closest(arguments[0]);";
+  // Drops a file (name, media type and base64 content are the arguments after the drop zone) the way a browser does
+  private static final String DROP_FILE_SCRIPT = "var zone = arguments[0];"
+    + " var bytes = Uint8Array.from(atob(arguments[3]), function (c) { return c.charCodeAt(0); });"
+    + " var transfer = new DataTransfer();"
+    + " transfer.items.add(new File([bytes], arguments[1], {type: arguments[2]}));"
+    + " ['dragenter', 'dragover', 'drop'].forEach(function (type) {"
+    + " zone.dispatchEvent(new DragEvent(type, {bubbles: true, cancelable: true, dataTransfer: transfer})); });";
   private static final int DIALOG_WIDTH_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
@@ -4141,5 +4151,208 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Click selector
     selectResult(match);
+  }
+
+  /**
+   * Check that a tab criterion marks a tab as holding fields that failed the validation, or that it marks none
+   *
+   * @param tabId   Tab criterion identifier
+   * @param invalid Expected state: true when a tab is marked invalid, false when none is
+   */
+  protected void checkTabInvalid(String tabId, boolean invalid) {
+    checkMarkedInvalid(frontEndInstructions.getInvalidTab(tabId), invalid);
+  }
+
+  /**
+   * Check that a wizard marks a step as holding fields that failed the validation, or that it marks none
+   *
+   * @param wizardId Wizard criterion identifier
+   * @param invalid  Expected state: true when a step is marked invalid, false when none is
+   */
+  protected void checkWizardStepInvalid(String wizardId, boolean invalid) {
+    checkMarkedInvalid(frontEndInstructions.getInvalidWizardStep(wizardId), invalid);
+  }
+
+  private void checkMarkedInvalid(By marked, boolean invalid) {
+    BrowserCondition isMarked = BrowserCondition.present(locator(marked));
+    waitUntil(invalid ? isMarked : BrowserCondition.not(isMarked));
+  }
+
+  /**
+   * Check that the focus is on a criterion (the keyboard focus is on the control of the criterion)
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkCriterionFocused(String criterionName) {
+    String criterionCss = frontEndInstructions.getCriterionCss(criterionName);
+    waitUntil(BrowserCondition.of("focus to be on criterion " + criterionName,
+      browser -> Boolean.TRUE.equals(browser.executeScript(FOCUS_INSIDE_SCRIPT, criterionCss))));
+  }
+
+  /**
+   * Check the dates of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param from          Expected start date (empty when there is none)
+   * @param to            Expected end date (empty when there is none)
+   */
+  protected void checkDateRange(String criterionName, String from, String to) {
+    Locator fromInput = locator(frontEndInstructions.getDateRangeFrom(criterionName));
+    Locator toInput = locator(frontEndInstructions.getDateRangeTo(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to be " + from + " - " + to,
+      browser -> from.equals(valueOf(browser, fromInput)) && to.equals(valueOf(browser, toInput))));
+  }
+
+  private static String valueOf(BrowserDriver browser, Locator input) {
+    String value = browser.attribute(input, "value");
+    return value == null ? "" : value;
+  }
+
+  /**
+   * Check that a date range criterion cannot be edited: its two dates are disabled
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkDateRangeDisabled(String criterionName) {
+    Locator fromInput = locator(frontEndInstructions.getDateRangeFrom(criterionName));
+    Locator toInput = locator(frontEndInstructions.getDateRangeTo(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to be disabled",
+      browser -> browser.exists(fromInput) && !browser.isEnabled(fromInput) && browser.exists(toInput) && !browser.isEnabled(toInput)));
+  }
+
+  /**
+   * Check how many quick presets a date range criterion offers
+   *
+   * @param criterionName Criterion identifier
+   * @param count         Expected number of presets
+   */
+  protected void checkDateRangePresetCount(String criterionName, int count) {
+    Locator presets = locator(frontEndInstructions.getDateRangePresets(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to offer " + count + " presets",
+      browser -> browser.count(presets) == count));
+  }
+
+  /**
+   * Click on a quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as 1M
+   */
+  protected void clickDateRangePreset(String criterionName, String presetCode) {
+    clickSelector(frontEndInstructions.getDateRangePreset(criterionName, presetCode));
+  }
+
+  /**
+   * Check that a quick preset of a date range criterion is the active one (the dates are the ones it set)
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as 1M
+   */
+  protected void checkDateRangePresetActive(String criterionName, String presetCode) {
+    checkVisible(locator(frontEndInstructions.getDateRangePresetActive(criterionName, presetCode)));
+  }
+
+  /**
+   * Clear the start date of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void clearDateRangeFrom(String criterionName) {
+    By fromInput = frontEndInstructions.getDateRangeFrom(criterionName);
+    waitUntil(toBeVisible(fromInput));
+    clearText(fromInput);
+    moveMouseOutOfCriterion();
+  }
+
+  /**
+   * Drop a file on the drop zone of an uploader criterion, as a user does when dragging it from the desktop
+   *
+   * @param criterionName Criterion identifier
+   * @param fileName      Name of the file
+   * @param mimeType      Media type of the file, such as image/png
+   * @param base64Content Content of the file, base64 encoded
+   */
+  protected void dropFile(String criterionName, String fileName, String mimeType, String base64Content) {
+    Locator dropZone = locator(frontEndInstructions.getUploaderDropZone(criterionName));
+    waitUntil(BrowserCondition.visible(dropZone));
+    getBrowser().executeScriptOn(dropZone, DROP_FILE_SCRIPT, fileName, mimeType, base64Content);
+  }
+
+  /**
+   * Check that an uploader criterion offers the button that opens the camera, or that it does not
+   *
+   * @param criterionName Criterion identifier
+   * @param shown         Expected state: true when the camera button is displayed, false when it is not
+   */
+  protected void checkUploadCaptureButton(String criterionName, boolean shown) {
+    Locator capture = locator(frontEndInstructions.getUploaderCapture(criterionName));
+    waitUntil(shown ? BrowserCondition.visible(capture) : BrowserCondition.invisible(capture));
+  }
+
+  /**
+   * Choose a file with the camera input of an uploader criterion (the input that captures an image). Only the React
+   * client renders that input: AngularJS creates it when the camera button is clicked
+   *
+   * @param criterionName Criterion identifier
+   * @param filePath      Path of the file that the camera returns
+   */
+  protected void chooseCapturedFile(String criterionName, String filePath) {
+    Locator captureInput = locator(frontEndInstructions.getUploaderCaptureInput(criterionName));
+    waitUntil(BrowserCondition.present(captureInput));
+    getBrowser().sendKeys(captureInput, filePath);
+  }
+
+  /**
+   * Check the name of the file that an uploader criterion holds
+   *
+   * @param criterionName Criterion identifier
+   * @param fileName      Expected name of the file (it may be part of what the criterion shows)
+   */
+  protected void checkUploadedFile(String criterionName, String fileName) {
+    Locator filename = locator(frontEndInstructions.getUploaderFilename(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to hold the file " + fileName,
+      browser -> browser.exists(filename) && (String.valueOf(browser.text(filename)).contains(fileName)
+        || valueOf(browser, filename).contains(fileName))));
+  }
+
+  /**
+   * Check that an uploader criterion holds no file
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkNoUploadedFile(String criterionName) {
+    Locator filename = locator(frontEndInstructions.getUploaderFilename(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to hold no file",
+      browser -> !browser.exists(filename) || (String.valueOf(browser.text(filename)).isBlank()
+        && valueOf(browser, filename).isBlank())));
+  }
+
+  /**
+   * Check that an uploader criterion shows the preview of the image that it holds (a blob address)
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkUploadPreview(String criterionName) {
+    Locator preview = locator(frontEndInstructions.getUploaderPreview(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to show an image preview",
+      browser -> browser.isVisible(preview) && String.valueOf(browser.attribute(preview, "src")).startsWith("blob:")));
+  }
+
+  /**
+   * Check that an uploader criterion shows no image preview
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkNoUploadPreview(String criterionName) {
+    checkNotVisible(locator(frontEndInstructions.getUploaderPreview(criterionName)));
+  }
+
+  /**
+   * Click on the button that clears the file of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void clearUpload(String criterionName) {
+    clickSelector(frontEndInstructions.getUploaderClear(criterionName));
   }
 }

@@ -6,8 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { useTranslation } from "react-i18next";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
-import { usePanelable } from "../hooks/usePanelable";
+import { useInvalidValues, usePanelable } from "../hooks/usePanelable";
 import PropTypes from "prop-types";
+import { TestAttributes } from "../utilities/testIds";
+import "./AweAccordion.less";
 
 function AweAccordion(props) {
   const { id, elementList = [] } = props;
@@ -34,6 +36,8 @@ function AweAccordion(props) {
     defaultFirst: autocollapse !== false
   });
 
+  const invalid = useInvalidValues(id);
+
   const onChange = (e) => {
     selectIndex(e.index);
   };
@@ -53,6 +57,8 @@ function AweAccordion(props) {
     {elementList
       .filter(node => node.elementType === "AccordionItem")
       .map((node, index) => <AccordionTab key={node.id || `accordion-${index}`} header={getHeader(node)}
+        headerClassName={invalid.includes(node.id) ? "p-accordion-invalid" : undefined}
+        pt={{ header: { [TestAttributes.invalid]: String(invalid.includes(node.id)) } }}
         children={node.elementList.map((subnode, subindex) => Components(subnode, subindex))} />)}
   </Accordion> : <></>;
 }

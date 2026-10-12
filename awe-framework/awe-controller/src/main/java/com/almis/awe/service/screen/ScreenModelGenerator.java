@@ -430,7 +430,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @return True when the criteria accepts multiple values
    */
   private boolean isMultipleValueCriteria(AbstractCriteria criteria) {
-    return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX), criteria.getComponentType());
+    return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX, DATE_RANGE), criteria.getComponentType());
   }
 
   /**

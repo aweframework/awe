@@ -85,3 +85,13 @@
     font-size: @font-size-large;
   }
 }
+// A tab that holds fields which failed the validation
+.nav-tabs > li.tab-invalid > a {
+  color: @danger-color;
+
+  &::after {
+    content: "!";
+    margin-left: 5px;
+    font-weight: bold;
+  }
+}

@@ -82,3 +82,16 @@
     .opacity(1);
   }
 }
+
+// A step that holds fields which failed the validation
+.wizard-steps > li.step-invalid {
+  .wizard-step-number {
+    background: @danger-color;
+    border-color: @danger-color;
+    color: #fff;
+  }
+
+  .wizard-step-caption {
+    color: @danger-color;
+  }
+}

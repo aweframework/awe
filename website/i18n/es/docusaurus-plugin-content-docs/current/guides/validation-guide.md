@@ -99,6 +99,18 @@ Si quieres combinar reglas simples con reglas complejas, debes definirla tambié
 {required:true, maxlength:{value:6, type:"integer"}}
 ```
 
+## Campos en contenido oculto {#fields-in-hidden-content}
+
+Un criterio puede estar en contenido que el usuario no ve: una pestaña que no es la activa, un paso de un asistente que no es el actual o un elemento de acordeón que está contraído. Cuando falla una acción `validate`, ambos clientes (AngularJS y React) validan todos los criterios de la pantalla, estén ocultos o no, y después muestran el **primero** que no es válido:
+
+1. Se abren las pestañas, los pasos de asistente y los elementos de acordeón que ocultan el campo, del contenedor exterior al interior. Un contenedor que ya muestra el campo se deja como está, y un acordeón que permite varios elementos abiertos mantiene abiertos los demás.
+2. Se da el foco al campo y se desplaza hasta que queda a la vista.
+3. La cabecera de pestaña, el paso de asistente y el elemento de acordeón que contienen campos no válidos se marcan con un indicador de error (un título en rojo con un signo de exclamación, y un número en rojo en un paso de asistente). La marca desaparece cuando se corrigen los campos.
+
+El primer campo no válido es el primero según el orden de la definición de la pantalla. Las pantallas sin contenido oculto siguen funcionando como antes: el mensaje de error se muestra junto al campo.
+
+Para las pruebas automatizadas, la pestaña, el paso o el elemento marcado lleva el atributo `data-invalid="true"` (y `"false"` en caso contrario), junto a `data-active` y `data-completed`. La pantalla de prueba `reveal-invalid` de las aplicaciones de prueba tiene un campo obligatorio en una segunda pestaña, en un elemento de acordeón contraído y en el segundo paso de un asistente.
+
 ## Ejemplos {#examples}
 
 ### Criterios estándar con acción de validación {#standard-criteria-with-validation-action}

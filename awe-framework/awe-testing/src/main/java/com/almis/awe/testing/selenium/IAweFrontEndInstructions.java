@@ -802,6 +802,141 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the tabs of a tab criterion that hold fields which failed the validation
+   *
+   * @param tabId Tab criterion identifier
+   * @return Invalid tabs selector
+   */
+  default By getInvalidTab(String tabId) {
+    return By.cssSelector(getCriterionCss(tabId) + " " + TestIds.css(TestIds.TAB) + TestAttributes.css(TestAttributes.INVALID, true));
+  }
+
+  /**
+   * Get the steps of a wizard that hold fields which failed the validation
+   *
+   * @param wizardId Wizard criterion identifier
+   * @return Invalid wizard steps selector
+   */
+  default By getInvalidWizardStep(String wizardId) {
+    return By.cssSelector(getCriterionCss(wizardId) + " " + TestIds.css(TestIds.WIZARD_STEP)
+      + TestAttributes.css(TestAttributes.INVALID, true));
+  }
+
+  /**
+   * Get the start input of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Start input selector
+   */
+  default By getDateRangeFrom(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_FROM));
+  }
+
+  /**
+   * Get the end input of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return End input selector
+   */
+  default By getDateRangeTo(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_TO));
+  }
+
+  /**
+   * Get every quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Presets selector
+   */
+  default By getDateRangePresets(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET));
+  }
+
+  /**
+   * Get a quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as {@code 1M}
+   * @return Preset selector
+   */
+  default By getDateRangePreset(String criterionName, String presetCode) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET)
+      + "[option-id='" + presetCode + "']");
+  }
+
+  /**
+   * Get a quick preset of a date range criterion that is active (the dates are the ones of the preset)
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as {@code 1M}
+   * @return Active preset selector
+   */
+  default By getDateRangePresetActive(String criterionName, String presetCode) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET)
+      + "[option-id='" + presetCode + "']" + TestAttributes.css(TestAttributes.ACTIVE, true));
+  }
+
+  /**
+   * Get the drop zone of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Drop zone selector
+   */
+  default By getUploaderDropZone(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_DROP_ZONE));
+  }
+
+  /**
+   * Get the element that shows the name of the file that an uploader criterion holds
+   *
+   * @param criterionName Criterion identifier
+   * @return File name selector
+   */
+  default By getUploaderFilename(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_FILENAME));
+  }
+
+  /**
+   * Get the image preview of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Preview selector
+   */
+  default By getUploaderPreview(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_PREVIEW));
+  }
+
+  /**
+   * Get the button that clears the file of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Clear button selector
+   */
+  default By getUploaderClear(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_CLEAR));
+  }
+
+  /**
+   * Get the button that opens the camera of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Camera button selector
+   */
+  default By getUploaderCapture(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_CAPTURE));
+  }
+
+  /**
+   * Get the file input that the camera capture of an uploader criterion opens
+   *
+   * @param criterionName Criterion identifier
+   * @return Capture file input selector
+   */
+  default By getUploaderCaptureInput(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " input[type='file'][capture][accept='image/*']");
+  }
+
+  /**
    * Get a chart
    *
    * @param chartId Chart identifier

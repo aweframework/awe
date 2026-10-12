@@ -188,3 +188,13 @@
 .panel-padding-r {
   padding-right: @panel-body-padding;
 }
+// An accordion item that holds fields which failed the validation
+.panel.panel-invalid > .panel-heading .accordion-toggle {
+  color: @danger-color;
+
+  &::before {
+    content: "!";
+    margin-right: 5px;
+    font-weight: bold;
+  }
+}

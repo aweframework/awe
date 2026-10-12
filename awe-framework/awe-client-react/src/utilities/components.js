@@ -5,7 +5,9 @@ import {
   getDataDependingOnList, translateLabel
 } from "./index";
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
-import {ComponentType, getFirstDefinedAndNotNullValue, isEmpty} from "./general";
+import {
+  ComponentType, DATE_RANGE_FROM_SUFFIX, DATE_RANGE_TO_SUFFIX, getFirstDefinedAndNotNullValue, isEmpty
+} from "./general";
 import {extractCellModel, getGridData, getGridIdentifier} from "./grid";
 import {getChartImage, getPrintOrientation} from "./chartRegistry";
 
@@ -52,6 +54,7 @@ const {
   COMPONENT_GRID,
   COMPONENT_TAB,
   COMPONENT_CHECKBOX,
+  COMPONENT_DATE_RANGE,
   COMPONENT_NUMERIC,
   COMPONENT_TIME,
   COMPONENT_PICKLIST,
@@ -230,6 +233,21 @@ function getAllFormValues(props, forPrinting) {
 }
 
 /**
+ * Get the value of a component to compare (a date range sends two parameters, so it is compared as a whole)
+ * @param {object} component Component
+ * @param {object} values Component data
+ * @return {*} Value to compare
+ */
+function getComparableValue(component, values) {
+  const {id, component: type} = component.attributes;
+  if (type !== COMPONENT_DATE_RANGE) {
+    return values[id];
+  }
+  const [from, to] = [values[`${id}${DATE_RANGE_FROM_SUFFIX}`], values[`${id}${DATE_RANGE_TO_SUFFIX}`]].map(value => value || "");
+  return from || to ? `${from}|${to}` : "";
+}
+
+/**
  * Check if model is empty
  * @param {object} props  Properties
  * @return {object} Form values
@@ -246,7 +264,7 @@ function checkModelEmpty(props) {
     .filter(([, component]) => component.attributes.checkEmpty)
     .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
-      return result && isEmpty(values[component.attributes.id]);
+      return result && isEmpty(getComparableValue(component, values));
     }, true);
 }
 
@@ -267,7 +285,7 @@ function checkModelUpdated(props) {
     .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
-      return result || values[component.attributes.id] !== storedValues[component.attributes.id];
+      return result || getComparableValue(component, values) !== getComparableValue(component, storedValues);
     }, false);
 }
 
@@ -288,7 +306,7 @@ function checkModelUnchanged(props) {
     .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
-      return result && values[component.attributes.id] === storedValues[component.attributes.id];
+      return result && getComparableValue(component, values) === getComparableValue(component, storedValues);
     }, true);
 }
 
@@ -372,6 +390,26 @@ export function getCriterionDataAsList(criterion, model, props, forPrinting) {
     // An empty criterion is sent with a null value (as the AngularJS client does), services read it as empty
     ...(attributes.id !== undefined ? {[attributes.id]: value ?? null} : {}),
     ...forPrinting ? getCriterionPrintData(criterion, model, props) : {},
+  };
+}
+
+/**
+ * Retrieve the date range criterion data: the start and the end of the range are sent as two parameters
+ * ("id.from" and "id.to"), null when empty
+ * @param {Object} criterion Criterion data
+ * @param {Object} model Criterion model
+ * @param {Object} props Properties
+ * @param {boolean} forPrinting Data is for printing
+ * @returns {object} model data
+ * @memberOf Components
+ */
+export function getDateRangeData(criterion, model, props, forPrinting) {
+  const {attributes = {}} = criterion;
+  const [from, to] = getSelectedValues(model);
+  return {
+    [`${attributes.id}${DATE_RANGE_FROM_SUFFIX}`]: from || null,
+    [`${attributes.id}${DATE_RANGE_TO_SUFFIX}`]: to || null,
+    ...forPrinting ? {[`${attributes.id}.data`]: {text: [from, to].filter(value => !isEmpty(value)).join(" - ")}} : {},
   };
 }
 
@@ -481,6 +519,8 @@ export function getComponentData(component, props, forPrinting, model = "model")
     case COMPONENT_SELECT_MULTIPLE:
     case COMPONENT_SUGGEST_MULTIPLE:
       return getCriterionDataAsList(component, component[model], props, forPrinting);
+    case COMPONENT_DATE_RANGE:
+      return getDateRangeData(component, component[model], props, forPrinting);
     case COMPONENT_TAB:
       return getTabData(component, component[model], props, forPrinting);
     case COMPONENT_CHECKBOX:

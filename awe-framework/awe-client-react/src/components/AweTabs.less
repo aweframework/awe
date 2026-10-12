@@ -77,3 +77,13 @@
     }
   }
 }
+// A tab that holds fields which failed the validation
+.p-tabmenu-container .p-tabmenu .p-tabmenuitem.p-tab-invalid .p-menuitem-link {
+  color: var(--red-600, #d9342b);
+
+  &::after {
+    content: "!";
+    margin-left: 0.5rem;
+    font-weight: bold;
+  }
+}
