@@ -19,12 +19,18 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
@@ -101,6 +107,30 @@ class AuthenticationWithSSOConfigTest {
 					Assertions.assertThat(context).doesNotHaveBean("authFailureHandler");
 					Assertions.assertThat(ReflectionTestUtils.getField(context.getBean("authSuccessHandler"), "failureHandler"))
 							.isSameAs(context.getBean("customFailureHandler"));
+				});
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testRolesAreReadFromTheConfiguredClaims() {
+		runner.withPropertyValues("awe.security.sso.enabled=true", "awe.security.sso.roles-claims=roles,realm_access.roles")
+				.run(context -> {
+					Converter<Map<String, Object>, Collection<GrantedAuthority>> converter = context.getBean("realmRolesAuthoritiesConverter", Converter.class);
+					Map<String, Object> claims = Map.of("roles", List.of("role_manager"), "realm_access", Map.of("roles", List.of("role_operator")));
+					Assertions.assertThat(converter.convert(claims)).extracting(GrantedAuthority::getAuthority)
+							.containsExactly("role_manager", "role_operator");
+				});
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testRolesAreReadFromKeycloakRealmRolesByDefault() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.run(context -> {
+					Converter<Map<String, Object>, Collection<GrantedAuthority>> converter = context.getBean("realmRolesAuthoritiesConverter", Converter.class);
+					Map<String, Object> claims = Map.of("roles", List.of("role_manager"), "realm_access", Map.of("roles", List.of("role_operator")));
+					Assertions.assertThat(converter.convert(claims)).extracting(GrantedAuthority::getAuthority)
+							.containsExactly("role_operator");
 				});
 	}
 

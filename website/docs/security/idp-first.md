@@ -32,7 +32,7 @@ LDAP, in-memory or custom providers) or with an IdP, and the profile is selected
 | --- | --- | --- |
 | Authentication (password, MFA, federation, brute-force lockout) | IdP | OIDC authorization code flow handled by Spring Security `oauth2Login`, configured in `AweWebSecurityConfig` |
 | Account state at the provider (disabled, locked, deleted) | IdP | The provider refuses to authenticate the user |
-| Role claim sent to the application | IdP | `AweWebSecurityConfig.realmRolesAuthoritiesConverter` reads `realm_access.roles` |
+| Role claim sent to the application | IdP | `AweWebSecurityConfig.realmRolesAuthoritiesConverter` reads the claims in `awe.security.sso.roles-claims` (default `realm_access.roles`) |
 | Which AWE profile a role maps to | AWE | `AweUserDetailService.mapGrantedAuthorityProfile` and `AccessService` role synchronization |
 | Screen and option authorization (profiles, restrictions) | **AWE** | `MenuService` and `ScreenRestrictionGenerator`, driven by the profile and the user restrictions loaded at login |
 | Theme, language and initial screen | AWE | `AweUserDetailService.getAweUserDetails`, stored in the session by `AweSessionDetails.storeUserDetails` |
@@ -62,7 +62,7 @@ Both sides can block a user, by decision:
 
 | Blocked at | Effect | Notes |
 | --- | --- | --- |
-| IdP | The user cannot authenticate. | Existing AWE sessions are not touched until they end (see below). |
+| IdP | The user cannot authenticate. | Existing AWE sessions end at once with back-channel logout when the provider ends the user's sessions; otherwise they live until they end (see below). |
 | AWE (`enabled` / locked flags in the user record) | The user is rejected after a successful IdP login. | Current behaviour since AWE 5.0.0: the SSO login checks both flags and shows an error page; no session is created. AWE 4.x and earlier did not check them on the SSO path, so there an AWE-disabled or AWE-locked user could still sign in through the provider — block such users in the provider too. |
 
 Block a user in the provider when the user must lose access everywhere; block in AWE when the user must lose
@@ -74,41 +74,46 @@ After login, the AWE session is a regular HTTP session (see [Session config](../
 restrictions, language, theme and initial screen are loaded into it at login (`AweSessionDetails`). AWE does not
 call the provider again while the session lives, so:
 
-- Disabling or deleting the user in the IdP does **not** end an open AWE session; it ends when it expires or when
-  the user logs out.
+- Without back-channel logout, disabling or deleting the user in the IdP does **not** end an open AWE session; it
+  ends when it expires or when the user logs out.
+- With `awe.security.sso.back-channel-logout.enabled=true` (since AWE 5, off by default), the provider ends AWE
+  sessions directly: when the provider session of the user ends (logout elsewhere, an administrator signs the user
+  out), it posts a logout token and AWE ends the matching sessions, including the AWE state kept for them (session
+  data and websocket connections). Disabling a user in the provider ends AWE sessions only when the provider also
+  ends the user's provider sessions and sends the logout; check the provider's behaviour. Details and caveats
+  (internal call, cookie name, clusters) are in [Single sign-on](authentication-sso.md#back-channel-logout).
 - A role or profile change only takes effect at the next login.
 - Keep the session timeout of the application short enough to match your revocation requirements.
-
-**Planned in AWE 5:** OIDC back-channel logout, so the provider can end AWE sessions when a user is revoked or
-signs out elsewhere.
 
 ### Logout
 
 Logout is **RP-initiated** today: `/action/logout` clears the AWE session and, when SSO is enabled, redirects the
 browser to the provider's end-session endpoint through `OidcClientInitiatedLogoutSuccessHandler`, which ends the
-provider session too. This requires the browser to complete the redirect; nothing happens in AWE if the user is
-logged out at the provider by another channel. Back-channel logout is the planned complement.
+provider session too. This requires the browser to complete the redirect. A logout at the provider by another channel only reaches AWE
+with back-channel logout enabled (see above).
 
 ### Role mapping
 
 - Authorities from the provider are filtered by `awe.security.sso.filter-authority-prefix`: only authorities that
   start with the prefix are considered and the prefix is stripped to obtain the AWE profile name. With an empty
   prefix, the whole authority is used.
-- The **first** matching authority wins. The converted authorities are collected into a set, so when a user
-  carries several matching roles the choice is not guaranteed to be stable. Send exactly one role carrying the
-  prefix per user until deterministic selection is available (planned, see below).
+- Since AWE 5, when a user carries several matching roles, the **first name in alphabetical order that exists as an
+  AWE profile** wins, whatever the order of the roles in the token (the first name in alphabetical order when none
+  exists). AWE 4.x took the first role of an unordered set, so the choice was not stable.
 - A role that does not exist as an AWE profile is ignored for existing users (their profile is kept) and replaced
-  by the default role for newly provisioned users.
-- The default converter only understands the Keycloak `realm_access.roles` claim. Entra ID sends `roles` (app
-  roles) or `groups`, which are not read by default; today they must be mapped by the provider (Keycloak
-  brokering, see [Single sign-on](authentication-sso.md#mappers)) or by overriding the
-  `realmRolesAuthoritiesConverter` bean in the application.
+  by the default role for newly provisioned users, unless a role is required (see below).
+- Since AWE 5, the claims are configurable with `awe.security.sso.roles-claims` (default `realm_access.roles`):
+  `resource_access.<client-id>.roles` for Keycloak client roles, `roles` for Entra ID app roles, or several of them.
+  Details in [Single sign-on](authentication-sso.md#roles-claim).
 
 ### Provisioning and the default role
 
 Property names below are the ones in `SecurityConfigProperties.Sso` and `BaseConfigProperties`.
 
-| Situation | Behaviour today |
+When a role is required (`awe.security.sso.require-role`, required by default in IdP-first, see below), a login
+whose provider roles map to no existing AWE profile is refused before any of these rows apply.
+
+| Situation | Behaviour when no role is required |
 | --- | --- |
 | Unknown user, `awe.security.sso.auto-provision-user=true` (default) | A user record is created with the mapped role, or with `awe.application.default-role` (default `operator`) when no role maps. |
 | Unknown user, `auto-provision-user=false` | No record is created, but the login still proceeds with a session built from the token claims and the same role fallback. Turning this flag off does not by itself deny unknown users. |
@@ -118,8 +123,15 @@ Property names below are the ones in `SecurityConfigProperties.Sso` and `BaseCon
 New users take their login name from the `preferred_username` claim, while existing users are looked up with
 `awe.security.sso.user-name-attribute` (default `preferred_username`). Keep both aligned.
 
-**Planned in AWE 5:** in IdP-first mode a login with no mappable role is **denied** (fail closed). The default-role
-fallback becomes an explicit opt-in, so it can never grant access by accident.
+### Fail-closed role mapping
+
+Since AWE 5, in IdP-first mode (`awe.security.sso.local-login=false`) a login with no mappable role is **denied**
+(fail closed): neither the stored profile nor the default role is used, and the user sees a localized error page.
+This applies to **existing users too**: the profile stored in AWE is not a fallback. With local login on, the
+previous behaviour stays unless `require-role=true` is set.
+The default-role fallback is an explicit opt-in with `awe.security.sso.require-role=false`, so it can never grant
+access by accident. `awe.security.sso.require-role=true` requires a role in any SSO setup. Details in
+[Single sign-on](authentication-sso.md#requiring-a-role-fail-closed).
 
 ### Multi-tenant registrations
 
@@ -170,6 +182,8 @@ awe.security.sso.enabled=true
 awe.security.sso.local-login=false
 # Optional. Empty by default: nobody can sign in locally.
 awe.security.sso.break-glass-users=admin
+# Not needed: with local-login=false a role that maps to an AWE profile is required by default.
+# awe.security.sso.require-role=true
 ```
 
 | Aspect | Behaviour |
@@ -182,23 +196,31 @@ awe.security.sso.break-glass-users=admin
 | Audit | Each break-glass login attempt is logged at `WARN` with the `[break-glass]` tag and the sanitized user name; refusals are logged at `WARN` without the tag. Passwords and tokens are never logged. |
 | What it does not cover | OIDC login, the REST `oauth2-resource-server` mode and any authentication the application adds outside the AWE authentication manager. |
 
+### Back-channel logout
+
+Since AWE 5, the provider can end AWE sessions (off by default). Details in
+[Single sign-on](authentication-sso.md#back-channel-logout).
+
+```properties title="Let the provider end AWE sessions"
+awe.security.sso.back-channel-logout.enabled=true
+# Only when the public address is not reachable from the server itself
+awe.security.sso.back-channel-logout.logout-uri=http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}
+```
+
 ### Planned in AWE 5
 
 | Item | Intent |
 | --- | --- |
-| Back-channel logout | OIDC back-channel logout plus a session registry, so provider-side revocation ends AWE sessions. |
-| Configurable roles claim | Reading the roles from a configurable claim so Entra ID works directly, in addition to Keycloak brokering. Includes deterministic profile selection when several roles match. |
-| Fail-closed role mapping | In IdP-first, deny the login when no role maps; the default-role fallback becomes opt-in. |
 | Keycloak integration test | An automated end-to-end test against a real Keycloak (login, profile mapping, back-channel logout, disabled user). |
 
 ## Residual risks and recommendations
 
 | Risk | Recommendation |
 | --- | --- |
-| Open AWE sessions survive IdP revocation until expiry. | Use a short session timeout; adopt back-channel logout when available. |
+| Open AWE sessions survive IdP revocation until expiry. | Enable back-channel logout (`awe.security.sso.back-channel-logout.enabled=true`) and keep a short session timeout as a second line, for providers or events that send no logout. |
 | Local login stays active under SSO (default). | Set `awe.security.sso.local-login=false` and treat every break-glass login in the log as a monitored exception. |
-| Default role can grant access to users with no role. | Keep `awe.application.default-role` **unprivileged** (never an administrative profile); prefer fail-closed mapping when available. |
-| Ambiguous mapping when several roles carry the prefix. | Send a single prefixed role per user; do not rely on the order. |
+| Default role can grant access to users with no role. | Keep `awe.application.default-role` **unprivileged** (never an administrative profile); keep the fail-closed default of IdP-first, or set `awe.security.sso.require-role=true`. |
+| Several roles carry the prefix. | The first name in alphabetical order that exists as an AWE profile wins; send a single prefixed role per user when the choice matters. |
 | Client secrets in configuration files. | Inject them from environment variables or a secret vault; if you use `ENC(...)` encrypted properties, replace the default `awe.security.master-key`. Never commit secrets. |
 | Wrong or spoofed provider. | Set `issuer-uri` explicitly and over HTTPS; Spring Security validates the issuer, audience, expiry and nonce of the ID token. For Entra ID prefer a single-tenant app registration. Keep redirect URIs exact (no wildcards in production). |
 | Open tenant resolution. | Declare explicit `tenant-mappings`; keep user names unique across tenants. |

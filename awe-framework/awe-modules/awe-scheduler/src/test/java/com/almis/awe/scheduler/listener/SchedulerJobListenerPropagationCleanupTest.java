@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -76,6 +78,22 @@ class SchedulerJobListenerPropagationCleanupTest {
   /** Returns a populated ObjectNode with a single key for use as a propagated overlay. */
   private ObjectNode overlayWith(String key, String value) {
     return JsonNodeFactory.instance.objectNode().put(key, value);
+  }
+
+  /**
+   * The started event is published once the execution is stored (JobService#startTask), not before the job body runs:
+   * the task screen reloads its executions when it receives it, and the new execution must already be there (#815).
+   */
+  @Test
+  void jobToBeExecuted_doesNotPublishTheStartedEvent() {
+    JobDetail jobDetail = mock(JobDetail.class);
+    lenient().when(jobDetail.getJobDataMap()).thenReturn(new JobDataMap());
+    lenient().when(context.getJobInstance()).thenReturn(mock(SchedulerJob.class));
+    lenient().when(context.getJobDetail()).thenReturn(jobDetail);
+
+    listener.jobToBeExecuted(context);
+
+    verifyNoInteractions(eventPublisher);
   }
 
   // ── Core regression tests ────────────────────────────────────────────────────

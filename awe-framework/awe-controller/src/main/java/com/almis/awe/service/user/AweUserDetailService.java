@@ -99,15 +99,19 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
    * If the collection is null or empty, an empty {@link Optional} is returned.
    * If a filter authority prefix is specified, only authorities matching the prefix are considered.
    * The authority prefix is removed from the authority string before returning the mapped profile.
-   * An empty {@link Optional} is also returned when no authority matches the prefix, or when the
+   * An empty {@link Optional} is also returned when no authority matches the prefix, or when every
    * matching authority is not longer than the prefix itself (i.e. it carries no role name).
+   * When several authorities map to a profile name, the first name in alphabetical order that exists as an AWE profile
+   * is returned (the first name in alphabetical order when none exists), so the result does not depend on the order in
+   * which the provider sends the roles and a valid role is never hidden by one without a profile.
    * Callers decide how to handle the "no role from provider" case (e.g. keep the current profile or
    * fall back to the application default role).
    *
    * @param authorities a collection of granted authorities which represent user permissions
    * @return the user profile mapped from the provider authorities, or empty if none was found
+   * @throws AWException error checking whether a profile exists
    */
-  public Optional<String> mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) {
+  public Optional<String> mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) throws AWException {
     // Validate authority
     if (authorities == null || authorities.isEmpty()) {
       return Optional.empty();
@@ -116,17 +120,26 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
     // Get profile from grantedAuthority
     String filterAuthorityPrefix = securityConfigProperties.getSso().getFilterAuthorityPrefix();
 
-    if (log.isDebugEnabled()) {
-    log.debug("Mapping authorities {} with prefix {}", authorities.stream().map(GrantedAuthority::getAuthority).toList(),
-        filterAuthorityPrefix);
-    }
-    return authorities.stream()
+    List<String> profiles = authorities.stream()
         .map(GrantedAuthority::getAuthority)
-        .filter(Objects::nonNull) // Filtrar null authorities
+        .filter(Objects::nonNull)
         .filter(authority -> StringUtils.isEmpty(filterAuthorityPrefix) ||
             authority.startsWith(filterAuthorityPrefix))
-        .findFirst()
-        .flatMap(mapAuthority(filterAuthorityPrefix));
+        .map(mapAuthority(filterAuthorityPrefix))
+        .flatMap(Optional::stream)
+        .distinct()
+        .sorted()
+        .toList();
+    // Role values are not logged: only how many of them map to a profile
+    log.debug("{} of {} authorities map to a profile with prefix {}", profiles.size(), authorities.size(), filterAuthorityPrefix);
+    if (profiles.size() > 1) {
+      for (String profile : profiles) {
+        if (existRole(profile)) {
+          return Optional.of(profile);
+        }
+      }
+    }
+    return profiles.stream().findFirst();
   }
 
   @NotNull

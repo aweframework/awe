@@ -520,10 +520,9 @@ Spanish docs lint:
       - website-npm-develop
     paths:
       - website/.npm
+  # Merge requests only: on develop and master "Build website with i18n" builds the Spanish site in full
   rules:
     - <<: *if-mr-website
-    - <<: *if-develop
-    - <<: *if-master
 
 Build website with i18n:
   extends: .build-website

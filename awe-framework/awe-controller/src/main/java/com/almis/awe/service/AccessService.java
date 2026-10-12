@@ -13,6 +13,7 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -199,12 +200,36 @@ public class AccessService extends ServiceConfig {
 	 */
 	private AweUserDetails getUserDetails(OAuth2AuthenticationToken oauth2Token) throws AWException {
 		Map<String, Object> attributes = oauth2Token.getPrincipal().getAttributes();
-		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token));
+		// Attribute values may be personal or sensitive: only their names are logged
+		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token).keySet());
 
 		String userName = mapUsernameFromOauthToken(attributes);
 		Optional<String> roleFromOAuth = userDetailsService.mapGrantedAuthorityProfile(oauth2Token.getAuthorities());
+		checkRequiredRole(userName, roleFromOAuth.orElse(null));
 
 		return loadUserDetailsWithRoleSync(userName, roleFromOAuth, oauth2Token);
+	}
+
+	/**
+	 * Refuses the login when a role is required ({@code awe.security.sso.require-role}, or local login switched off) and
+	 * no role sent by the provider maps to an existing AWE profile. Neither the stored profile nor the default role is
+	 * used in that case (fail closed).
+	 *
+	 * @param userName      user name taken from the token
+	 * @param roleFromOAuth profile mapped from the provider roles, null if none
+	 * @throws AWException                AWE exception checking the profile
+	 * @throws SsoRoleNotMappedException if a role is required and none maps to an AWE profile
+	 */
+	private void checkRequiredRole(String userName, String roleFromOAuth) throws AWException {
+		if (!securityConfigProperties.getSso().isRoleRequired()) {
+			return;
+		}
+		boolean mapped = roleFromOAuth != null && userDetailsService.existRole(roleFromOAuth);
+		if (!mapped) {
+			log.warn("SSO login rejected: no role from the identity provider maps to an AWE profile for user {}",
+				userName.replaceAll("\\p{Cntrl}", "_"));
+			throw new SsoRoleNotMappedException(getLocale("ERROR_MESSAGE_SSO_NO_ROLE"));
+		}
 	}
 
 	/**

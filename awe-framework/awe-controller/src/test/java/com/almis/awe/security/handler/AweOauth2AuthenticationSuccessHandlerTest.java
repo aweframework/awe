@@ -1,5 +1,6 @@
 package com.almis.awe.security.handler;
 
+import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.AccessService;
 import com.almis.awe.service.ErrorPageService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -94,6 +95,19 @@ class AweOauth2AuthenticationSuccessHandlerTest {
 
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     assertTrue(session.isInvalid());
+    verify(failureHandler).onAuthenticationFailure(request, response, exception);
+  }
+
+  @Test
+  void givenNoMappedRole_onAuthenticationSuccess_dropsAuthenticationAndDelegatesToFailureHandler() throws Exception {
+    SsoRoleNotMappedException exception = new SsoRoleNotMappedException("no role message");
+    when(accessService.onAuthenticationSuccess(token)).thenThrow(exception);
+
+    handler.onAuthenticationSuccess(request, response, token);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertTrue(session.isInvalid());
+    assertNull(response.getRedirectedUrl());
     verify(failureHandler).onAuthenticationFailure(request, response, exception);
   }
 

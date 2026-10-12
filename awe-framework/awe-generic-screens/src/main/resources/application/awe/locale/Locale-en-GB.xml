@@ -479,6 +479,7 @@
   <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="The new password must be different from the expired one. Sign in again to set a new password."/>
   <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Your user is disabled in the application. Contact your system administrator."/>
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Your user is locked in the application. Contact your system administrator."/>
+  <locale name="ERROR_MESSAGE_SSO_NO_ROLE" value="Your identity provider account has no role allowed in this application. Contact your system administrator."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="SUBSTRING operation requires 2 or 3 operands (source, beginIndex) or (source, beginIndex, endIndex), but got {0}"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="SUBSTRING operand {0} must be an integer-compatible constant or variable, but got: {1}"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Cast {2} of field {1} in query {0} is not supported"/>
