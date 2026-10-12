@@ -1125,6 +1125,19 @@
     <variable id="Grp" type="STRING" name="SelMul"/>
   </query>
 
+  <!-- DATE RANGE CRITERION TEST: echoes the two parameters each date range sends -->
+  <query id="DatRngPrm">
+    <table id="ope" alias="awe"/>
+    <field variable="from" alias="DatFrm"/>
+    <field variable="to" alias="DatTo"/>
+    <field variable="reqFrom" alias="ReqFrm"/>
+    <field variable="reqTo" alias="ReqTo"/>
+    <variable id="from" type="STRING" name="DatRng.from"/>
+    <variable id="to" type="STRING" name="DatRng.to"/>
+    <variable id="reqFrom" type="STRING" name="DatRngReq.from"/>
+    <variable id="reqTo" type="STRING" name="DatRngReq.to"/>
+  </query>
+
   <!-- TEST HAVING -->
   <query id="HavTst" public="true">
     <table id="TST_CUSTOMER" alias="customers"/>

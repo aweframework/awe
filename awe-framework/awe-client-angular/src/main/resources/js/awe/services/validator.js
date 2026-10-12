@@ -16,6 +16,9 @@ aweApplication.factory('Validator',
       // CONSTANTS
       const ERROR_CONTAINER = '.error-container';
       const FORM_GROUP = '.form-group';
+      const FOCUSABLE = "input:not([type='hidden']), textarea, select, button";
+      // Milliseconds to wait before focusing a control that was not displayed yet
+      const REVEAL_FOCUS_DELAY = 100;
 
       /**
        * Validate each view
@@ -124,13 +127,15 @@ aweApplication.factory('Validator',
             $log.info("[VALIDATION] '" + error.id + "' - " + scope.validationMessage);
             scope.showValidation = true;
 
-            // Scroll to element
-            let scrollable = $window;
-            let scrollableNodes = $element.parentsUntil(".scrollable");
-            if (scrollableNodes.length > 0) {
-              scrollable = scrollableNodes[0];
+            // Focus and scroll to element
+            if (!Validator.revealElement($element)) {
+              let scrollable = $window;
+              let scrollableNodes = $element.parentsUntil(".scrollable");
+              if (scrollableNodes.length > 0) {
+                scrollable = scrollableNodes[0];
+              }
+              scrollable.scrollTo(targetPosition.left, targetPosition.top - target.height());
             }
-            scrollable.scrollTo(targetPosition.left, targetPosition.to - target.height());
 
             // Hide validation after timeout seconds (if not equals to 0)
             if ($settings.get("messageTimeout").validate > 0) {
@@ -139,6 +144,25 @@ aweApplication.factory('Validator',
               }, $settings.get("messageTimeout").validate);
             }
           });
+        },
+        /**
+         * Focus the control of a criterion and scroll it into view
+         * @param {Object} $element Criterion element (jQuery)
+         * @return {boolean} The element has been scrolled into view
+         */
+        revealElement: function ($element) {
+          let node = $element[0];
+          if (!node || typeof node.scrollIntoView !== "function") {
+            return false;
+          }
+          const control = $element.find(FOCUSABLE).first();
+          control.trigger("focus");
+          if (control.length > 0 && document.activeElement !== control[0]) {
+            // The tab, accordion item or step that holds the control may still be opening: focus it once it is displayed
+            $utilities.timeout(() => control.trigger("focus"), REVEAL_FOCUS_DELAY);
+          }
+          node.scrollIntoView({block: "center", behavior: "smooth"});
+          return true;
         },
         /**
          * Retrieve the validation nodes

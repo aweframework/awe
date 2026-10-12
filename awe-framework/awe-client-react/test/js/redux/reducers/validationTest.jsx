@@ -495,4 +495,38 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
   it('should launch a invalid validation active', function() {
     testValidation("{invalid: {message: \"Invalid validation for {value1}\"}}", "test", {message: "Invalid validation for {value1}"});
   });
+
+  describe('date range', function() {
+    const validateRange = (values, validationRules = {}) => {
+      const component = {
+        address: {component: 'range', view: 'base'},
+        attributes: {component: 'date-range'},
+        model: {values: values.map(value => ({value, selected: true}))},
+        validationRules
+      };
+      return validateComponent({range: component}, component, state.settings).range.attributes.error;
+    };
+
+    it('accepts a range whose end is not before its start', function() {
+      expect(validateRange(["01/01/2026", "31/01/2026"])).toBeNull();
+    });
+
+    it('accepts a range with the same day as start and end', function() {
+      expect(validateRange(["15/01/2026", "15/01/2026"])).toBeNull();
+    });
+
+    it('accepts a range with an open end', function() {
+      expect([validateRange(["", "31/01/2026"]), validateRange(["01/01/2026", ""]), validateRange(["", ""])]).toEqual([null, null, null]);
+    });
+
+    it('rejects a range whose end is before its start', function() {
+      expect(validateRange(["15/01/2026", "14/01/2026"])).toEqual(expect.objectContaining({message: "VALIDATOR_MESSAGE_DATE_RANGE"}));
+    });
+
+    it('requires both dates when the criterion is required', function() {
+      const required = {required: {value: true}};
+      expect(validateRange(["", "31/01/2026"], required)).toEqual(expect.objectContaining({message: "VALIDATOR_MESSAGE_REQUIRED"}));
+      expect(validateRange(["01/01/2026", "31/01/2026"], required)).toBeNull();
+    });
+  });
 });

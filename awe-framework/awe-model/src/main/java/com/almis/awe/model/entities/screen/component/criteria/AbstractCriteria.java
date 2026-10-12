@@ -170,6 +170,16 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String destination;
 
+  // Uploader drop zone with image preview
+  @XStreamAlias("drop-zone")
+  @XStreamAsAttribute
+  private Boolean dropZone;
+
+  // Uploader camera capture (user or environment)
+  @XStreamAlias("capture")
+  @XStreamAsAttribute
+  private String capture;
+
   // Show weekends in Date criteria
   @XStreamAlias("show-weekends")
   @XStreamAsAttribute
@@ -194,6 +204,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAlias("date-view-mode")
   @XStreamAsAttribute
   private String dateViewMode;
+
+  // Quick presets of a date range criteria (list of codes: TODAY, YTD, ALL, nD, nW, nM, nY)
+  @XStreamAlias("presets")
+  @XStreamAsAttribute
+  private String presets;
 
   // Put label at left and give it a size
   @XStreamAlias("left-label")

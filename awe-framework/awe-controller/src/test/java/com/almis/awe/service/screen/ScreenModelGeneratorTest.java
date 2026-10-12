@@ -266,6 +266,49 @@ class ScreenModelGeneratorTest {
     assertEquals("2", parameters.get("MultiSelect").get(1).asText());
   }
 
+  @Test
+  void shouldOverrideRequestParameterWithArrayForDateRangeCriterionWithASingleDate() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.put("Period", "raw-value");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("Period", "date-range", List.of("01/01/2026"));
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertTrue(parameters.get("Period").isArray(), "A date range criterion should be overridden with an array value");
+    assertEquals(1, parameters.get("Period").size());
+    assertEquals("01/01/2026", parameters.get("Period").get(0).asText());
+  }
+
+  @Test
+  void shouldSplitDateRangeDefaultValueIntoStartAndEnd() {
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(mock(InitialLoadDao.class), buildRequest(JsonNodeFactory.instance.objectNode()));
+    Criteria controller = Criteria.builder().id("Period").componentType("date-range").value("01/01/2026, 31/01/2026").build();
+    ScreenComponent screenComponent = new ScreenComponent().setId("Period").setController(controller).setModel(new ComponentModel());
+
+    generator.generateScreenCriterionModel(controller, screenComponent, JsonNodeFactory.instance.objectNode());
+
+    assertEquals(List.of(new CellData("01/01/2026"), new CellData("31/01/2026")), screenComponent.getModel().getSelected());
+    assertEquals(List.of(new CellData("01/01/2026"), new CellData("31/01/2026")), screenComponent.getModel().getDefaultValues());
+  }
+
+  @Test
+  void shouldKeepAnOpenStartOfDateRangeDefaultValue() {
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(mock(InitialLoadDao.class), buildRequest(JsonNodeFactory.instance.objectNode()));
+    Criteria controller = Criteria.builder().id("Period").componentType("date-range").value(",31/01/2026").build();
+    ScreenComponent screenComponent = new ScreenComponent().setId("Period").setController(controller).setModel(new ComponentModel());
+
+    generator.generateScreenCriterionModel(controller, screenComponent, JsonNodeFactory.instance.objectNode());
+
+    assertEquals(List.of(new CellData(""), new CellData("31/01/2026")), screenComponent.getModel().getSelected());
+  }
+
   private ScreenComponent buildScreenComponent(String componentType, String initialLoad, String value) {
     Criteria controller = Criteria.builder()
       .componentType(componentType)

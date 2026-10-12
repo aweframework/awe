@@ -89,11 +89,14 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 | group                  | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion) | String  | Group of the criterion (for validation and management purposes)                |                                                                                                                                                      |
 | show-slider            | [Numeric](#numeric-criterion)                                     | Boolean | Used to show the graphic component slider                                      | **Note:** Only apply in numeric criteria                                                                                                             |
 | destination            | [Uploader](#uploader-criterion)                                   | String  | Destination relative folder to upload the file                                 |                                                                                                                                                      |
+| drop-zone              | [Uploader](#uploader-criterion)                                   | Boolean | Shows a drop area to drag and drop the file, and a preview of images           | Default value is `false`                                                                                                                             |
+| capture                | [Uploader](#uploader-criterion)                                   | String  | Adds a button to take a photo with the device camera                           | `user` (front camera) or `environment` (rear camera)                                                                                                 |
 | show-weekends          | [Date](#date-criterion)                                           | Boolean | For enable or disable the weekend days                                         | Default value is `true`                                                                                                                              |
 | show-future-dates      | [Date](#date-criterion)                                           | Boolean | For enable or disable the future days after date value selected                | Default value is `true`                                                                                                                              |
 | date-format            | [Date](#date-criterion)                                           | String  | To set the format of the date you want to show                                 | Default value is `dd/MM/yyyy`. **Note:** See the format in the following [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
 | date-show-today-button | [Date](#date-criterion)                                           | Boolean | To show or not the button to select today date                                 | Default value is `true`                                                                                                                              |
 | date-view-mode         | [Date](#date-criterion)                                           | String  | Select 'days', 'months' or 'years' to set the minimum magnitude to be shown    | Default value is `days`                                                                                                                              |
+| presets                | [Date range](#date-range-criterion)                               | String  | Quick presets shown under the range, separated by commas or spaces             | `TODAY`, `YTD`, `ALL` or a period back from today (`7D`, `2W`, `1M`, `3M`, `12M`, `3Y`...). By default no preset is shown                            |
 
 ## Components
 
@@ -167,6 +170,57 @@ Allows to select a date with a calendar.
 Allows to select a time with a time picker.
 
 <img alt="TimeCriterion" src={require('@docusaurus/useBaseUrl').default('img/TimeCriterion.png')} />
+
+### Date range criterion
+
+Allows to select a period (a start date and an end date) in one criterion. The end date cannot be before the start date
+(an open end is allowed unless the criterion is `required`, which needs both dates). The user can type the dates, pick
+them in the calendar or click one of the quick presets.
+
+```xml
+<criteria id="Period" component="date-range" label="PERIOD" presets="1M,3M,YTD,12M,3Y,ALL"/>
+```
+
+The criterion sends **two parameters** to the server, named after the criterion identifier with the suffixes `.from`
+and `.to`. Both are dates in `dd/MM/yyyy` format (a `null` when the date is empty), so a criterion with identifier
+`Period` sends `Period.from` and `Period.to`, and a query reads them as any other parameter:
+
+```xml
+<query id="OrdersByPeriod">
+  <table id="Orders"/>
+  <field id="OrderDate"/>
+  <where>
+    <and>
+      <filter left-field="OrderDate" condition="ge" right-variable="PeriodFrom"/>
+      <filter left-field="OrderDate" condition="le" right-variable="PeriodTo"/>
+    </and>
+  </where>
+  <variable id="PeriodFrom" type="DATE" name="Period.from"/>
+  <variable id="PeriodTo" type="DATE" name="Period.to"/>
+</query>
+```
+
+The **[value](#general-attributes)** attribute is a list of the two default dates separated by a comma
+(`value="01/01/2026,31/01/2026"`); an empty first date (`value=",31/01/2026"`) leaves the start open.
+
+The **[presets](#specific-attributes)** attribute defines the quick presets. Each code is shown as a button which fills
+both dates from the current date, and the active preset is cleared as soon as one of the dates is edited:
+
+| Preset                 | Range                                            |
+|------------------------|--------------------------------------------------|
+| `TODAY`                | Today                                            |
+| `YTD`                  | From January 1st of the current year to today    |
+| `ALL`                  | Clears both dates (no period filter)             |
+| `<n>D`, `<n>W`         | The last `n` days or weeks until today           |
+| `<n>M`, `<n>Y`         | The last `n` months or years until today (`1M`, `3M`, `12M`, `3Y`...) |
+
+The label of a preset is the [locale](i18n-internationalization.md) `DATE_RANGE_PRESET_` followed by its code
+(`DATE_RANGE_PRESET_YTD`), which AWE provides for `TODAY`, `1W`, `1M`, `3M`, `6M`, `YTD`, `12M`, `3Y` and `ALL`; any
+other code shows the code itself unless you define its locale. The `DATE_RANGE_FROM` and `DATE_RANGE_TO` locales are
+the placeholders of the two inputs, and `VALIDATOR_MESSAGE_DATE_RANGE` the validation message.
+
+> **Note**: The dates are always `dd/MM/yyyy`: the `date-format`, `show-weekends`, `show-future-dates` and
+> `date-view-mode` attributes of the [date criterion](#date-criterion) do not apply to the date range.
 
 ### Filtered date criterion
 
@@ -282,6 +336,19 @@ Criterion useful to send files to the server. Once uploaded, the files can be ma
 
 <img alt="UploaderCriterion" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion.png')} />
 
+The uploader has two optional attributes, available in both the AngularJS and the React clients:
+
+- `drop-zone="true"` shows a dashed drop area with a hint. The user can drop a file on it (the file dialog keeps working,
+  and the **Choose** button stays reachable with the keyboard). When the file is a raster image (PNG, JPEG, GIF, WebP,
+  BMP or AVIF) a preview is shown. Other files, SVG images included, are uploaded without preview.
+- `capture="user|environment"` adds a **Take photo** button that opens the device camera on mobile browsers (`user` for
+  the front camera, `environment` for the rear one) and previews the photo. Browsers without a camera fall back to the
+  regular file dialog.
+
+Both options send the file through the same upload request as the **Choose** button, so the server keeps validating the
+file type and size (`uploadMaxSize`). The preview is generated in the browser from the selected file and is released
+when the file is cleared or replaced, or the screen is closed. The attributes are ignored in a read-only uploader.
+
 ### Text view criterion
 
 This criterion simply shows a text, which can be retrieved from a variable, a parameter, a query or even loaded with dependencies.
@@ -348,3 +415,10 @@ This criterion simply shows a text, which can be retrieved from a variable, a pa
 ```
 
 <img alt="UploaderCriterion2" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion2.png')} />
+
+### Uploader with drop zone and camera capture
+
+```xml
+<criteria label="PARAMETER_UPLOADER" id="Photo" component="uploader" destination="photos"
+          style="col-xs-12 col-sm-6 col-lg-4" drop-zone="true" capture="environment"/>
+```

@@ -21,6 +21,7 @@ public enum InputType {
   SUGGEST_MULTIPLE,
   DATE,
   FILTERED_CALENDAR,
+  DATE_RANGE,
   TIME,
   HIDDEN,
   PASSWORD,

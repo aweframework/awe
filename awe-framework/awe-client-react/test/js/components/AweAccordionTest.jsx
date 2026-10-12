@@ -90,4 +90,33 @@ describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
 
     expect(await screen.findByText("lo de dentro")).toBeDefined();
   });
+
+  it('marks the item that contains an invalid field', () => {
+    const state = {
+      settings: DEFAULT_SETTINGS,
+      components: {
+        accordion: {
+          address: {component: 'accordion', view: 'report'},
+          model: {values: [{value: 'acc1', selected: true}, {value: 'acc2', selected: false}]},
+          attributes: {},
+          specificAttributes: {sort: []}
+        },
+        field: {
+          address: {component: 'field', view: 'report'},
+          context: {view: 'report', source: ['accordion', 'acc2', 'field']},
+          model: {values: []},
+          attributes: {error: {message: 'Required'}},
+          validationRules: {}
+        }
+      }
+    };
+    renderWithProviders(<AweAccordion id="accordion" elementList={[
+      {elementType: "AccordionItem", id: "acc1", label: "first", elementList: []},
+      {elementType: "AccordionItem", id: "acc2", label: "second", elementList: []}
+    ]}/>, {preloadedState: state});
+
+    const headers = [...document.querySelectorAll(".p-accordion-header")];
+    expect(headers.map(header => header.classList.contains("p-accordion-invalid"))).toEqual([false, true]);
+    expect(headers.map(header => header.getAttribute("data-invalid"))).toEqual(["false", "true"]);
+  });
 });

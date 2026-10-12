@@ -1,10 +1,10 @@
 // Retrieve default settings
 import {getComponentValue, getGroupSelectedValues, getSelectedValues} from "../../utilities";
-import {toDate} from "../../utilities/dates";
+import {isDateRangeValid, toDate} from "../../utilities/dates";
 import validateDate from "validate-date";
 import {getComponentId} from "../../utilities/components";
 import {extractCellValue, getCellModel, getGridIdentifier} from "../../utilities/grid";
-import {isEmpty, isMultipleComponent} from "../../utilities/general";
+import {ComponentType, isEmpty, isMultipleComponent} from "../../utilities/general";
 import ComponentRegistry from '../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../utilities/mergeUtils';
 
@@ -39,6 +39,15 @@ function retrieveExternalParameters(rule, components, settings) {
 }
 
 /**
+ * Check if a component is a date range criterion
+ * @param {object} component Component
+ * @return {boolean} Component is a date range
+ */
+function isDateRange(component) {
+  return component?.attributes?.component === ComponentType.COMPONENT_DATE_RANGE;
+}
+
+/**
  * Retrieve a value or null if it is not valid
  * @return {object} Group name
  * @param {object} component
@@ -53,6 +62,9 @@ function getRequiredValue(component, value, components) {
   if (group) {
     // Retrieve group values (for radio buttons)
     requiredValue = getGroupSelectedValues(component, components);
+  } else if (isDateRange(component)) {
+    // A date range requires both of its dates
+    requiredValue = getSelectedValues(component).filter(date => !isEmpty(date)).length === 2 ? value : null;
   } else if (Array.isArray(value)) {
     // Retrieve list values (for multiple)
     if (value.length !== 0) {
@@ -167,6 +179,9 @@ function resolveSpecificMethodParameters(method, component, value, components, p
       parameters.values.value1 = component.attributes?.group ?
         getGroupSelectedValues(component, components).length :
         getSelectedValues(component).length;
+      return true;
+    case "dateRange":
+      [parameters.values.from, parameters.values.to] = getSelectedValues(component);
       return true;
     case "equallength":
     case "maxlength":
@@ -299,6 +314,10 @@ const ValidationRules = {
     let passed = parameters.values.value1 >= parameters.values.value2;
     return isEmpty(parameters.values.value1) || passed ? null : error;
   },
+  dateRange: function (parameters) {
+    let error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_DATE_RANGE" };
+    return isDateRangeValid(parameters.values.from, parameters.values.to) ? null : error;
+  },
   invalid: function (parameters) {
     return { values: parameters.values, message: parameters.message || "" };
   }
@@ -307,7 +326,10 @@ const ValidationRules = {
 function checkIfValid(component, value, components, settings) {
   const { validate } = ValidationRules;
 
-  return Object.entries(component?.validationRules || {})
+  // The end of a date range cannot be before its start
+  const rules = isDateRange(component) ? { ...component?.validationRules, dateRange: true } : component?.validationRules;
+
+  return Object.entries(rules || {})
     .reduce((errorMessage, [ruleMethod, rule]) => errorMessage === null ? validate(ruleMethod, rule, component, value, components, settings) : errorMessage, null);
 }
 

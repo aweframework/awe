@@ -41,6 +41,7 @@ module.exports = {
     '**/utilities/menuSearchTest.{js,jsx}',
     '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
+    '**/utilities/revealTest.{js,jsx}',
     '**/utilities/chartRegistryTest.{js,jsx}',
     '**/utilities/chartFormatTest.{js,jsx}',
     '**/i18n/chartLocalesTest.{js,jsx}',

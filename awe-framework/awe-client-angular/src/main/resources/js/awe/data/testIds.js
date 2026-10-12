@@ -21,9 +21,18 @@ export const TestIds = Object.freeze({
   datepickerDay: "datepicker-day",
   datepickerMonth: "datepicker-month",
   datepickerYear: "datepicker-year",
+  // Date range criterion: the start and the end inputs and a quick preset button (the element that carries
+  // "option-id" with the preset code; it is active while the dates are the ones of the preset)
+  dateRangeFrom: "date-range-from",
+  dateRangeTo: "date-range-to",
+  dateRangePreset: "date-range-preset",
   // Uploader criterion: name of the uploaded file and clear action
   uploadFilename: "upload-filename",
   uploadClear: "upload-clear",
+  // Uploader criterion with drop zone / camera capture: drop area, image preview and camera button
+  uploadDropZone: "upload-drop-zone",
+  uploadPreview: "upload-preview",
+  uploadCapture: "upload-capture",
   // Grids (ui-grid and tree grids): the instance is identified by "grid-id" / "tree-grid-id", "row-id" and "column-id".
   // A cell hook goes on the element that carries the "column-id", whatever the cell renders (value, editor, checkbox).
   grid: "grid",
@@ -123,6 +132,8 @@ export const TestAttributes = Object.freeze({
   expanded: "data-expanded",
   loading: "data-loading",
   completed: "data-completed",
+  // Tabs, wizard steps and accordion items that hold fields which failed the validation
+  invalid: "data-invalid",
   // Message type (success, info, warning, danger) and the grid container a viewport belongs to (body, left, right)
   type: "data-type",
   container: "data-container",

@@ -372,6 +372,51 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Reveal the first invalid field: the validation opens the tab, the accordion item or the wizard step that holds it,
+   * focuses it and marks the tabs and steps that hold fields with errors
+   */
+  @Test
+  void t065_revealInvalidField() {
+    // Title
+    setTestTitle("Reveal invalid field: Test to reveal the invalid fields of tabs, accordions and wizards");
+
+    // Go to screen
+    gotoScreen("test", "reveal-invalid-test");
+
+    // Wait for button
+    waitForButton("ButRevealValidate");
+
+    // Validate with the three required fields empty: the second tab opens, its field is focused and the tab is marked
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevTabRequired");
+    checkCriterionFocused("RevTabRequired");
+    checkTabInvalid("RevTabs", true);
+
+    // The step of the wizard that holds an empty required field is marked too
+    checkWizardStepInvalid("RevWizard", true);
+
+    // Fill the field of the tab and validate again: the tab is not marked anymore and the accordion item opens
+    writeText("RevTabRequired", "tab");
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevAccRequired");
+    checkCriterionFocused("RevAccRequired");
+    checkTabInvalid("RevTabs", false);
+
+    // Fill the field of the accordion item and validate again: the second step of the wizard opens
+    writeText("RevAccRequired", "accordion");
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevStepRequired");
+    checkCriterionFocused("RevStepRequired");
+    checkWizardStepInvalid("RevWizard", true);
+
+    // Fill the last required field and validate: there is nothing left to reveal and nothing is marked
+    writeText("RevStepRequired", "step");
+    clickButton("ButRevealValidate");
+    checkTabInvalid("RevTabs", false);
+    checkWizardStepInvalid("RevWizard", false);
+  }
+
+  /**
    * SQL extractor engine test
    */
   @Test

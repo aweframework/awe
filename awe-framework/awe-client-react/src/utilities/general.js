@@ -14,6 +14,7 @@ export const ComponentType = {
   COMPONENT_SUGGEST_MULTIPLE: 'suggest-multiple',
   COMPONENT_DATE: 'date',
   COMPONENT_FILTERED_CALENDAR: 'filtered-calendar',
+  COMPONENT_DATE_RANGE: 'date-range',
   COMPONENT_TIME: 'time',
   COMPONENT_HIDDEN: 'hidden',
   COMPONENT_PASSWORD: 'password',
@@ -38,6 +39,12 @@ export const ComponentType = {
   COMPONENT_WIZARD: 'wizard',
   COMPONENT_PICKLIST: 'picklist',
 };
+
+/**
+ * Suffixes of the two parameters a date range criterion sends (start and end of the range)
+ */
+export const DATE_RANGE_FROM_SUFFIX = '.from';
+export const DATE_RANGE_TO_SUFFIX = '.to';
 
 /**
  * Check if a component type supports multiple selection

@@ -1099,6 +1099,76 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     expect(result).toEqual({ criterionId: [] });
   });
 
+  describe('date range criterion data', () => {
+    const dateRange = (values, extraAttributes = {}) => ({
+      address: {component: 'period', view: 'report'},
+      model: {values},
+      attributes: {id: 'period', component: 'date-range', ...extraAttributes}
+    });
+
+    it('sends the start and the end of the range as two parameters', () => {
+      const component = dateRange([
+        {value: '01/01/2026', selected: true}, {value: '31/01/2026', selected: true}
+      ]);
+
+      expect(getComponentData(component, {}, false)).toEqual({'period.from': '01/01/2026', 'period.to': '31/01/2026'});
+    });
+
+    it('sends null for an open end', () => {
+      const component = dateRange([{value: '', selected: true}, {value: '31/01/2026', selected: true}]);
+
+      expect(getComponentData(component, {}, false)).toEqual({'period.from': null, 'period.to': '31/01/2026'});
+    });
+
+    it('sends both parameters as null when the range is empty', () => {
+      expect(getComponentData(dateRange([]), {}, false)).toEqual({'period.from': null, 'period.to': null});
+    });
+
+    it('adds the text of the range when it is printed', () => {
+      const component = dateRange([
+        {value: '01/01/2026', selected: true}, {value: '31/01/2026', selected: true}
+      ]);
+
+      const data = getComponentData(component, {t: (text) => text}, true);
+
+      expect(data['period.data']).toEqual({text: '01/01/2026 - 31/01/2026'});
+    });
+
+    describe('model checks', () => {
+      const withRange = (values, storedValues) => ({
+        ...dateRange(values, {checkEmpty: true}),
+        storedModel: {values: storedValues}
+      });
+      const range = (from, to) => [{value: from, selected: true}, {value: to, selected: true}];
+      const check = (check, component) => check({components: {period: component}, settings: {}});
+
+      it('detects an empty range and a filled one', () => {
+        expect(check(checkModelIsEmpty, withRange(range("", ""), []))).toBe(true);
+        expect(check(checkModelIsEmpty, withRange(range("01/01/2026", ""), []))).toBe(false);
+      });
+
+      it('detects that the range changed from the stored one', () => {
+        const changed = withRange(range("01/01/2026", "31/01/2026"), range("01/01/2026", "28/02/2026"));
+        const same = withRange(range("01/01/2026", "31/01/2026"), range("01/01/2026", "31/01/2026"));
+
+        expect([check(checkModelIsUpdated, changed), check(checkModelIsUnchanged, changed)]).toEqual([true, false]);
+        expect([check(checkModelIsUpdated, same), check(checkModelIsUnchanged, same)]).toEqual([false, true]);
+      });
+
+      it('tells apart the same date used as start and as end', () => {
+        const swapped = withRange(range("01/01/2026", ""), range("", "01/01/2026"));
+
+        expect(check(checkModelIsUpdated, swapped)).toBe(true);
+      });
+    });
+
+    it('adds no separator to the printed text of a range with an open end', () => {
+      const component = dateRange([{value: '', selected: true}, {value: '31/01/2026', selected: true}]);
+
+      expect(getComponentData(component, {t: (text) => text}, true)['period.data']).toEqual({text: '31/01/2026'});
+    });
+  });
+
   // Tests for clickDropdown
   it('should handle click on dropdown', () => {
     const dropdown = {

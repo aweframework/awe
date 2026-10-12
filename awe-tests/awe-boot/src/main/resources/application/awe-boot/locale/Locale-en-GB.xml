@@ -48,6 +48,8 @@
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE" value="Editable tree"/>
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="Editable multioperation tree"/>
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Loading tree"/>
+  <locale name="ENUM_REVEAL_FIRST" value="First"/>
+  <locale name="ENUM_REVEAL_SECOND" value="Second"/>
   <locale name="ENUM_STEP_1" value="Message for step 1"/>
   <locale name="ENUM_STEP_2" value="Message for step 2"/>
   <locale name="ENUM_STEP_3" value="Message for step 3"/>
@@ -83,8 +85,11 @@
   <locale name="MENU_TEST_CHARTS" value="Charts"/>
   <locale name="MENU_TEST_CRITERIA" value="Criteria"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criteria Reset"/>
+  <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Criteria Uploader"/>
   <locale name="MENU_TEST_FILEMANAGER" value="File Manager"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Event Calendar"/>
+  <locale name="MENU_TEST_REVEAL_INVALID" value="Reveal invalid field"/>
+  <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Reveal invalid field"/>
   <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Move rows"/>
   <locale name="SCREEN_TITLE_MOVE_ROWS" value="Move rows (Alt+Up, Alt+Down, Alt+Home, Alt+End)"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="New event"/>
@@ -178,6 +183,16 @@
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Criteria test"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Matrix test"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Wizard"/>
+  <locale name="SCREEN_TITLE_DATE_RANGE_TEST" value="Date range criteria test"/>
+  <locale name="MENU_TEST_DATE_RANGE" value="Date range"/>
+  <locale name="PARAMETER_DATE_RANGE" value="Period with presets"/>
+  <locale name="PARAMETER_DATE_RANGE_REQUIRED" value="Period (required, with default)"/>
+  <locale name="PARAMETER_DATE_RANGE_READONLY" value="Period (read)"/>
+  <locale name="PARAMETER_DATE_RANGE_NO_PRESETS" value="Period without presets"/>
+  <locale name="COLUMN_DATE_RANGE_FROM" value="From"/>
+  <locale name="COLUMN_DATE_RANGE_TO" value="To"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_FROM" value="Required from"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_TO" value="Required to"/>
   <locale name="COLUMN_RADIO_OPTION_A" value="Option A"/>
   <locale name="COLUMN_RADIO_OPTION_B" value="Option B"/>
   <locale name="COLUMN_RADIO_OPTION_C" value="Option C"/>

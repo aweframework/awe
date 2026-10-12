@@ -205,6 +205,60 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
     });
   });
 
+  describe('revealFirstInvalidAction', () => {
+    const tabsComponent = (selected) => ({
+      address: {view: 'base', component: 'tabs'},
+      context: {view: 'base', source: ['tabs']},
+      attributes: {},
+      model: {values: [{value: 'one', selected: selected === 'one'}, {value: 'two', selected: selected === 'two'}]}
+    });
+    const hiddenField = {
+      address: {view: 'base', component: 'field'},
+      context: {view: 'base', source: ['tabs', 'two', 'field']},
+      attributes: {id: 'field', error: {message: 'Required'}},
+      model: {values: []}
+    };
+
+    it('abre la pestana que contiene el primer campo invalido y lo enfoca', () => {
+      document.body.innerHTML = '<div criterion-id="field"><input id="field-input"/></div>';
+      mockState = {components: {tabs: tabsComponent('one'), field: hiddenField}, settings: {}};
+      getState = jest.fn(() => mockState);
+
+      validationThunks.revealFirstInvalidAction()(dispatch, getState);
+
+      expect(dispatch).toHaveBeenCalledTimes(1);
+      const [[updateThunk]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      updateThunk(innerDispatch, getState);
+      const [[updateModel]] = innerDispatch.mock.calls;
+      expect(updateModel.type).toBe('UPDATE_MODEL');
+      expect(updateModel.address.component).toBe('tabs');
+      expect(updateModel.data.values.map(item => item.selected)).toEqual([false, true]);
+      expect(document.activeElement.id).toBe('field-input');
+      document.body.innerHTML = '';
+    });
+
+    it('no abre nada cuando todos los componentes son validos', () => {
+      mockState = {components: {tabs: tabsComponent('one')}, settings: {}};
+      getState = jest.fn(() => mockState);
+
+      validationThunks.revealFirstInvalidAction()(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('se lanza al rechazar la validacion', () => {
+      mockState = {components: {tabs: tabsComponent('one'), field: hiddenField}, settings: {}};
+      getState = jest.fn(() => mockState);
+
+      validationThunks.verifyValidationAction({type: 'verify-validation'})(dispatch, getState);
+
+      const [[rejectAction], [revealThunk]] = dispatch.mock.calls;
+      expect(rejectAction.type).toBe('REJECT_ACTION');
+      expect(typeof revealThunk).toBe('function');
+    });
+  });
+
   describe('setValidAction', () => {
     it('debería limpiar el error del componente', () => {
       const action = {

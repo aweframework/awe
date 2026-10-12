@@ -305,11 +305,23 @@ aweApplication.factory('Criterion',
           component.updateClasses = function () {
             component.scope.criterionClass = getCriterionClass();
             component.scope.classes = getClass();
+            reportValidity(false);
           };
 
           /******************************************************************************
            * PRIVATE METHODS
            *****************************************************************************/
+
+          /**
+           * Tell the containers (tabs, wizard steps, accordion items) when the criterion becomes invalid or valid
+           * @param {boolean} invalid Criterion is invalid
+           */
+          function reportValidity(invalid) {
+            if ((component.reportedInvalid === true) !== invalid) {
+              component.reportedInvalid = invalid;
+              component.scope.$emit("criterion-validity", {id: component.id, invalid: invalid});
+            }
+          }
 
           /**
            * Retrieve input classes (validation and input size)
@@ -499,6 +511,7 @@ aweApplication.factory('Criterion',
               if (validation !== null) {
                 // Add validation error class
                 component.scope.criterionClass += " has-error dark";
+                reportValidity(true);
                 if (!errorsDetected) {
                   // Select the tab of the element (if it's in a tab)
                   component.scope.$emit("select-current-tab");

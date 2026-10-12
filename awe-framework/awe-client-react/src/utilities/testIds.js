@@ -31,9 +31,18 @@ export const TestIds = Object.freeze({
   datepickerDay: "datepicker-day",
   datepickerMonth: "datepicker-month",
   datepickerYear: "datepicker-year",
+  // Date range criterion: the start and the end inputs and a quick preset button (the element that carries
+  // "option-id" with the preset code; it is active while the dates are the ones of the preset)
+  dateRangeFrom: "date-range-from",
+  dateRangeTo: "date-range-to",
+  dateRangePreset: "date-range-preset",
   // Uploader criterion: name of the uploaded file and clear action
   uploadFilename: "upload-filename",
   uploadClear: "upload-clear",
+  // Uploader criterion with drop zone / camera capture: drop area, image preview and camera button
+  uploadDropZone: "upload-drop-zone",
+  uploadPreview: "upload-preview",
+  uploadCapture: "upload-capture",
   // Grids and tree grids: the instance is identified by "grid-id" / "tree-grid-id", "row-id" and "column-id"
   grid: "grid",
   gridViewport: "grid-viewport",
@@ -143,6 +152,8 @@ export const TestAttributes = Object.freeze({
   expanded: "data-expanded",
   loading: "data-loading",
   completed: "data-completed",
+  // A tab, wizard step or accordion item holds fields that failed the validation
+  invalid: "data-invalid",
   // React only: the component drew its content (a chart)
   rendered: "data-rendered",
   // React only: the chart is zoomed (shows a part of its range)
@@ -171,6 +182,7 @@ const STATE_ATTRIBUTES = {
   expanded: TestAttributes.expanded,
   loading: TestAttributes.loading,
   completed: TestAttributes.completed,
+  invalid: TestAttributes.invalid,
   rendered: TestAttributes.rendered,
   zoomed: TestAttributes.zoomed
 };
@@ -181,7 +193,7 @@ const STATE_ATTRIBUTES = {
  * @param {object} [options] Hook options
  * @param {string} [options.owner] Id of the component that owns an overlay rendered outside of it
  * @param {boolean} [options.selected] Boolean states (selected, active, disabled, outsideMonth, open, expanded,
- * loading, completed, rendered, zoomed, editing, deleted): rendered as "true"/"false" and skipped when undefined
+ * loading, completed, invalid, rendered, zoomed, editing, deleted): rendered as "true"/"false" and skipped when undefined
  * @param {string} [options.type] Message type
  * @param {string} [options.container] Container of a grid viewport
  * @param {object} [options.attributes] Extra attributes (AWE identifiers such as "row-id")

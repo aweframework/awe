@@ -1,6 +1,7 @@
 # Release notes for AWE 5 (unreleased)
 
 ✨ Features:
+- New `date-range` criterion in both web engines: a start and an end date in one criterion (the end cannot be before the start), sent to the server as two parameters (`<id>.from` and `<id>.to`), with configurable quick presets (`presets="1M,3M,YTD,12M,3Y,ALL"`) that are translated and cleared when a date is edited (#839).
 - Client actions `move-row-top`, `move-row-up`, `move-row-down` and `move-row-bottom` move the selected row of an editable grid in both web engines, with `Alt+ArrowUp`, `Alt+ArrowDown`, `Alt+Home` and `Alt+End` as keyboard shortcuts. The moved rows keep their order in the data the grid sends on save, and the `MoveRowActionBuilder` builds the actions on the server (#842).
 - Integration tests of MySQL, PostgreSQL, SQL Server and Oracle (and their Flyway variants) run their database in a Testcontainers container, locally and in CI, with the image of each engine pinned in `awe-testing-images.properties` (#764). Docker is the only requirement; no database server or connection settings are needed.
 - `awe-testing` ships `@AweDatabaseTest` and `TestDatabase` to choose the database of a Spring test class.

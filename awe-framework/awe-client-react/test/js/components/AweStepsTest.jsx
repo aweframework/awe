@@ -50,4 +50,36 @@ describe('awe-react-client/test/js/components/AweStepsTest.jsx', () => {
     const steps = [...document.querySelectorAll("[data-testid='wizard-step']")];
     expect(steps.map(step => step.getAttribute("data-step-number"))).toEqual(["1", "2"]);
   });
+
+  const withInvalidField = (error) => ({
+    ...preloadedState,
+    components: {
+      steps: {
+        ...preloadedState.components.steps,
+        model: {values: [{label: 'one', value: 'one', selected: true}, {label: 'two', value: 'two'}]}
+      },
+      field: {
+        address: {component: 'field', view: 'report'},
+        context: {view: 'report', source: ['steps', 'two', 'field']},
+        model: {values: []},
+        attributes: {error: error},
+        validationRules: {}
+      }
+    }
+  });
+
+  it('marks the step that contains an invalid field', () => {
+    renderWithProviders(<AweSteps id="steps"/>, {preloadedState: withInvalidField({message: 'Required'})});
+
+    const steps = [...document.querySelectorAll("[data-testid='wizard-step']")];
+    expect(steps.map(step => step.getAttribute("data-invalid"))).toEqual(["false", "true"]);
+    expect(steps[1].classList.contains("p-step-invalid")).toBe(true);
+  });
+
+  it('does not mark any step when every field is valid', () => {
+    renderWithProviders(<AweSteps id="steps"/>, {preloadedState: withInvalidField(null)});
+
+    const steps = [...document.querySelectorAll("[data-testid='wizard-step']")];
+    expect(steps.map(step => step.getAttribute("data-invalid"))).toEqual(["false", "false"]);
+  });
 });

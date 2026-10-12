@@ -89,11 +89,14 @@ Los valores **seleccionados** pueden ser completados de varias maneras. Esta es 
 | group                   | [Caja de verificación](#checkbox-criterion), [Radio](#radio-button-criterion) | String  | Grupo del criterio (para fines de validación y gestión)                              |                                                                                                                                                                   |
 | show-slider      | [Numeric](#numeric-criterion)                                                 | Boolean | Se utiliza para mostrar el deslizador gráfico del componente                         | **Nota:** Sólo aplicar en criterios numéricos                                                                                                                     |
 | destination             | [Cargador](#uploader-criterion)                                               | String  | Carpeta relativa de destino para subir el archivo                                    |                                                                                                                                                                   |
+| drop-zone               | [Cargador](#uploader-criterion) | Boolean | Muestra un área para arrastrar y soltar el archivo, y una vista previa de las imágenes | El valor predeterminado es `false` |
+| capture                 | [Cargador](#uploader-criterion) | String  | Añade un botón para hacer una foto con la cámara del dispositivo | `user` (cámara frontal) o `environment` (cámara trasera) |
 | show-weekends           | [Date](#date-criterion)                                                       | Boolean | Para activar o desactivar los días de fin de semana                                  | El valor predeterminado es `true`                                                                                                                            |
 | show-future-dates        | [Date](#date-criterion)                                                       | Boolean | Para activar o desactivar los días futuros después del valor de fecha seleccionado   | El valor predeterminado es `true`                                                                                                                            |
 | date-format             | [Date](#date-criterion)                                                       | String  | Para establecer el formato de la fecha que desea mostrar                             | El valor predeterminado es `dd/MM/yyyy`. **Nota:** Ver el formato en el siguiente enlace [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
 | date-show-today-button | [Date](#date-criterion)                                                       | Boolean | Para mostrar o no el botón para seleccionar la fecha de hoy                          | El valor predeterminado es `true`                                                                                                                            |
 | date-view-mode        | [Date](#date-criterion)                                                       | String  | Selecciona 'days', 'months' o 'years' para establecer la magnitud mínima a mostrar     | El valor predeterminado es `days`                                                                                                                                 |
+| presets                 | [Rango de fechas](#date-range-criterion) | String  | Preajustes rápidos que se muestran bajo el rango, separados por comas o espacios | `TODAY`, `YTD`, `ALL` o un periodo hacia atrás desde hoy (`7D`, `2W`, `1M`, `3M`, `12M`, `3Y`...). Por defecto no se muestra ningún preajuste |
 
 ## Componentes {#components}
 
@@ -167,6 +170,57 @@ Permite seleccionar una fecha con un calendario.
 Permite seleccionar una hora con un selector de tiempo.
 
 <img alt="TimeCriterion" src={require('@docusaurus/useBaseUrl').default('img/TimeCriterion.png')} />
+
+### Criterio de rango de fechas {#date-range-criterion}
+
+Permite seleccionar un periodo (una fecha de inicio y una fecha de fin) en un solo criterio. La fecha de fin no puede ser
+anterior a la de inicio (se permite un fin abierto salvo que el criterio sea `required`, que exige ambas fechas). El
+usuario puede escribir las fechas, elegirlas en el calendario o hacer clic en uno de los preajustes rápidos.
+
+```xml
+<criteria id="Period" component="date-range" label="PERIOD" presets="1M,3M,YTD,12M,3Y,ALL"/>
+```
+
+El criterio envía **dos parámetros** al servidor, con el nombre del identificador del criterio y los sufijos `.from`
+y `.to`. Ambos son fechas en formato `dd/MM/yyyy` (un `null` cuando la fecha está vacía), de modo que un criterio con
+identificador `Period` envía `Period.from` y `Period.to`, y una query los lee como cualquier otro parámetro:
+
+```xml
+<query id="OrdersByPeriod">
+  <table id="Orders"/>
+  <field id="OrderDate"/>
+  <where>
+    <and>
+      <filter left-field="OrderDate" condition="ge" right-variable="PeriodFrom"/>
+      <filter left-field="OrderDate" condition="le" right-variable="PeriodTo"/>
+    </and>
+  </where>
+  <variable id="PeriodFrom" type="DATE" name="Period.from"/>
+  <variable id="PeriodTo" type="DATE" name="Period.to"/>
+</query>
+```
+
+El atributo **[value](#general-attributes)** es una lista de las dos fechas por defecto separadas por una coma
+(`value="01/01/2026,31/01/2026"`); una primera fecha vacía (`value=",31/01/2026"`) deja abierto el inicio.
+
+El atributo **[presets](#specific-attributes)** define los preajustes rápidos. Cada código se muestra como un botón que
+rellena ambas fechas a partir de la fecha actual, y el preajuste activo se desactiva en cuanto se edita una de las fechas:
+
+| Preajuste              | Rango                                            |
+|------------------------|--------------------------------------------------|
+| `TODAY`                | Hoy                                              |
+| `YTD`                  | Desde el 1 de enero del año actual hasta hoy     |
+| `ALL`                  | Borra ambas fechas (sin filtro de periodo)       |
+| `<n>D`, `<n>W`         | Los últimos `n` días o semanas hasta hoy         |
+| `<n>M`, `<n>Y`         | Los últimos `n` meses o años hasta hoy (`1M`, `3M`, `12M`, `3Y`...) |
+
+La etiqueta de un preajuste es el [locale](i18n-internationalization.md) `DATE_RANGE_PRESET_` seguido de su código
+(`DATE_RANGE_PRESET_YTD`), que AWE proporciona para `TODAY`, `1W`, `1M`, `3M`, `6M`, `YTD`, `12M`, `3Y` y `ALL`; cualquier
+otro código muestra el propio código salvo que definas su locale. Los locales `DATE_RANGE_FROM` y `DATE_RANGE_TO` son
+los marcadores de posición de los dos campos, y `VALIDATOR_MESSAGE_DATE_RANGE` el mensaje de validación.
+
+> **Nota**: Las fechas son siempre `dd/MM/yyyy`: los atributos `date-format`, `show-weekends`, `show-future-dates` y
+> `date-view-mode` del [criterio de fecha](#date-criterion) no se aplican al rango de fechas.
 
 ### Criterio de fecha filtrado {#filtered-date-criterion}
 
@@ -276,6 +330,21 @@ Criterio útil para enviar archivos al servidor. Una vez subidos, los archivos p
 
 <img alt="Criterio de subida" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion.png')} />
 
+El cargador tiene dos atributos opcionales, disponibles tanto en el cliente AngularJS como en el de React:
+
+- `drop-zone="true"` muestra un área de arrastre con borde discontinuo y una pista. El usuario puede soltar un archivo
+  sobre ella (el diálogo de archivos sigue funcionando, y el botón **Elegir** sigue siendo accesible con el teclado).
+  Cuando el archivo es una imagen raster (PNG, JPEG, GIF, WebP, BMP o AVIF) se muestra una vista previa. Los demás
+  archivos, incluidas las imágenes SVG, se suben sin vista previa.
+- `capture="user|environment"` añade un botón **Hacer foto** que abre la cámara del dispositivo en los navegadores
+  móviles (`user` para la cámara frontal, `environment` para la trasera) y muestra una vista previa de la foto. Los
+  navegadores sin cámara recurren al diálogo de archivos habitual.
+
+Ambas opciones envían el archivo con la misma petición de subida que el botón **Elegir**, de modo que el servidor sigue
+validando el tipo y el tamaño del archivo (`uploadMaxSize`). La vista previa se genera en el navegador a partir del
+archivo seleccionado y se libera cuando se borra o se sustituye el archivo, o se cierra la pantalla. Los atributos se
+ignoran en un cargador de solo lectura.
+
 ### Criterio de vista de texto {#text-view-criterion}
 
 Este criterio simplemente muestra un texto, que puede ser recuperado de una variable, un parámetro, una consulta o incluso cargado de dependencias.
@@ -342,3 +411,10 @@ Este criterio simplemente muestra un texto, que puede ser recuperado de una vari
 ```
 
 <img alt="Criterio del cargador2" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion2.png')} />
+
+### Cargador con zona de arrastre y captura de cámara {#uploader-with-drop-zone-and-camera-capture}
+
+```xml
+<criteria label="PARAMETER_UPLOADER" id="Photo" component="uploader" destination="photos"
+          style="col-xs-12 col-sm-6 col-lg-4" drop-zone="true" capture="environment"/>
+```

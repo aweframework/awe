@@ -48,6 +48,8 @@
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE" value="Arbre editable"/>
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="Arbre editable multichoice"/>
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Arbre de charge"/>
+  <locale name="ENUM_REVEAL_FIRST" value="Premier"/>
+  <locale name="ENUM_REVEAL_SECOND" value="Deuxième"/>
   <locale name="ENUM_STEP_1" value="Message pour l&apos;étape 1"/>
   <locale name="ENUM_STEP_2" value="Message pour étape 2"/>
   <locale name="ENUM_STEP_3" value="Message pour étape 3"/>
@@ -83,8 +85,11 @@
   <locale name="MENU_TEST_CHARTS" value="Graphiques"/>
   <locale name="MENU_TEST_CRITERIA" value="Critères"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Critères Reset"/>
+  <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Critères Uploader"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestionnaire de fichiers"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendrier d'événements"/>
+  <locale name="MENU_TEST_REVEAL_INVALID" value="Afficher le champ invalide"/>
+  <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Afficher le champ invalide"/>
   <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Déplacer les lignes"/>
   <locale name="SCREEN_TITLE_MOVE_ROWS" value="Déplacer les lignes (Alt+Haut, Alt+Bas, Alt+Début, Alt+Fin)"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="Nouvel événement"/>
@@ -178,6 +183,16 @@
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Assistant"/>
+  <locale name="SCREEN_TITLE_DATE_RANGE_TEST" value="Test du critère de plage de dates"/>
+  <locale name="MENU_TEST_DATE_RANGE" value="Plage de dates"/>
+  <locale name="PARAMETER_DATE_RANGE" value="Période avec raccourcis"/>
+  <locale name="PARAMETER_DATE_RANGE_REQUIRED" value="Période (obligatoire, avec valeur par défaut)"/>
+  <locale name="PARAMETER_DATE_RANGE_READONLY" value="Période (lecture)"/>
+  <locale name="PARAMETER_DATE_RANGE_NO_PRESETS" value="Période sans raccourcis"/>
+  <locale name="COLUMN_DATE_RANGE_FROM" value="Du"/>
+  <locale name="COLUMN_DATE_RANGE_TO" value="Au"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_FROM" value="Obligatoire du"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_TO" value="Obligatoire au"/>
   <locale name="COLUMN_RADIO_OPTION_A" value="Option A"/>
   <locale name="COLUMN_RADIO_OPTION_B" value="Option B"/>
   <locale name="COLUMN_RADIO_OPTION_C" value="Option C"/>

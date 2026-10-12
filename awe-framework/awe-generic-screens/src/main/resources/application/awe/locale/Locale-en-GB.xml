@@ -20,6 +20,7 @@
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Back"/>
   <locale name="BUTTON_CANCEL" value="Cancel"/>
+  <locale name="BUTTON_CAPTURE" value="Take photo"/>
   <locale name="BUTTON_CHOOSE" value="Choose"/>
   <locale name="BUTTON_CLEAR" value="Clear"/>
   <locale name="BUTTON_CLOSE" value="Close"/>
@@ -617,6 +618,7 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="File access error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="File upload error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error checking the file upload"/>
+  <locale name="UPLOADER_DROP_HINT" value="Drag a file here or choose one"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="You have exceeded the filename size"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error filling variable list"/>
   <locale name="ERROR_TITLE_FORMAT_DATA" value="Error formatting data"/>
@@ -1324,6 +1326,18 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_EQUAL" value="Please enter the same value again"/>
   <locale name="VALIDATOR_MESSAGE_EQUAL_LENGTH" value="Please enter a value size equal to {value2} characters"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_OR_EQUAL" value="Please enter a value higher or equal to {value2}"/>
+  <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="The end date cannot be before the start date"/>
+  <locale name="DATE_RANGE_FROM" value="From"/>
+  <locale name="DATE_RANGE_TO" value="To"/>
+  <locale name="DATE_RANGE_PRESET_TODAY" value="Today"/>
+  <locale name="DATE_RANGE_PRESET_1W" value="1 week"/>
+  <locale name="DATE_RANGE_PRESET_1M" value="1 month"/>
+  <locale name="DATE_RANGE_PRESET_3M" value="3 months"/>
+  <locale name="DATE_RANGE_PRESET_6M" value="6 months"/>
+  <locale name="DATE_RANGE_PRESET_YTD" value="Year to date"/>
+  <locale name="DATE_RANGE_PRESET_12M" value="12 months"/>
+  <locale name="DATE_RANGE_PRESET_3Y" value="3 years"/>
+  <locale name="DATE_RANGE_PRESET_ALL" value="All"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_THAN" value="Please enter a value higher than {value2}"/>
   <locale name="VALIDATOR_MESSAGE_INTEGER" value="Please enter a valid integer number"/>
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Please enter a value lower or equal to {value2}"/>

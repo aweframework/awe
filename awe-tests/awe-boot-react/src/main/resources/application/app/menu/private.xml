@@ -74,7 +74,9 @@
     <option name="criteria" label="MENU_TEST_CRITERIA" icon="object-group">
       <option name="criteria-test" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
       <option name="criteria-test-left" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+      <option name="criteria-date-range" label="MENU_TEST_DATE_RANGE" screen="CrtDatRng" icon="calendar"/>
       <option name="criteria-reset" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+      <option name="criteria-uploader" label="MENU_TEST_CRITERIA_UPLOADER" screen="UplTst" icon="upload"/>
     </option>
     <option name="button-test" label="MENU_TEST_BUTTONS" screen="ButTst" icon="check"/>
     <option name="matrix" label="MENU_TEST_MATRIX" icon="table">
@@ -139,6 +141,7 @@
     <option name="wizard-vertical" label="MENU_TEST_WIZARD_VERTICAL" screen="wizard-vertical" icon="mdi:auto_fix_high"/>
     <option name="tabs-vertical" label="MENU_TEST_TABS_VERTICAL" screen="tabs-vertical" icon="mdi:vertical_split"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
+    <option name="reveal-invalid-test" label="MENU_TEST_REVEAL_INVALID" screen="reveal-invalid" icon="exclamation-circle"/>
     <option name="carousel-test" label="MENU_TEST_CAROUSEL" screen="carousel" icon="mdi:view_carousel" />
     <option name="event-calendar-test" label="MENU_TEST_EVENT_CALENDAR" screen="event-calendar-test" icon="calendar" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>

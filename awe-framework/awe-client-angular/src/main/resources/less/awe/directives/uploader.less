@@ -27,6 +27,36 @@
     }
   }
 
+  // DROP ZONE, PREVIEW AND CAPTURE
+  .upload-drop-zone {
+    padding: 6px;
+    border: 2px dashed @input-border;
+    border-radius: 4px;
+
+    &.upload-drop-zone-active {
+      border-color: @primary-color;
+    }
+
+    .upload-drop-hint {
+      margin-bottom: 4px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  }
+
+  .pfi-capture {
+    margin-top: 4px;
+  }
+
+  .upload-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 12rem;
+    margin-top: 4px;
+    border-radius: 4px;
+    object-fit: contain;
+  }
+
   // READONLY
   .pixel-file-input[disabled] {
     cursor: @cursor-disabled;

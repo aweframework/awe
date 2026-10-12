@@ -9,6 +9,26 @@ import {
 } from "../../utilities";
 import { getModelValidation } from "../selectors/modelValidation";
 import { getAllComponents } from "../selectors/componentSelectors";
+import { updateModelWithDependencies } from "./components";
+import ViewRegistry from "../registry/ViewRegistry";
+import { findFirstInvalid, focusComponent, getRevealSelections, getStructureOrder } from "../../utilities/reveal";
+
+/**
+ * Bring the first invalid field into view: open the tabs, wizard steps and accordion items that hide it,
+ * focus it and scroll to it
+ */
+export function revealFirstInvalidAction() {
+  return (dispatch, getState) => {
+    const components = getAllComponents(getState());
+    const order = getStructureOrder(ViewRegistry.get(ViewRegistry.getCurrentView())?.structure);
+    const target = findFirstInvalid(components, order);
+    if (target) {
+      getRevealSelections(components, target)
+        .forEach(({ address, values }) => dispatch(updateModelWithDependencies(address, { values })));
+      focusComponent(target.address.component);
+    }
+  };
+}
 
 export function validateComponents(componentList) {
   return (dispatch, getState) => {
@@ -60,6 +80,7 @@ export function verifyValidationAction(action) {
     const components = getAllComponents(getState());
     if (Object.values(components).some((component) => component.attributes.error)) {
       dispatch(rejectAction(action));
+      dispatch(revealFirstInvalidAction());
     } else {
       dispatch(acceptAction(action));
     }

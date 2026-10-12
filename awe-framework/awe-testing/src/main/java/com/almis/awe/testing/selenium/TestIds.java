@@ -75,6 +75,18 @@ public final class TestIds {
   // Wizard steps
   public static final String WIZARD_STEP = "wizard-step";
 
+  // Date range criterion: the start and the end inputs and a quick preset button (it carries "option-id", the preset code)
+  public static final String DATE_RANGE_FROM = "date-range-from";
+  public static final String DATE_RANGE_TO = "date-range-to";
+  public static final String DATE_RANGE_PRESET = "date-range-preset";
+
+  // Uploader criterion: name of the uploaded file, clear action, drop zone, image preview and camera button
+  public static final String UPLOAD_FILENAME = "upload-filename";
+  public static final String UPLOAD_CLEAR = "upload-clear";
+  public static final String UPLOAD_DROP_ZONE = "upload-drop-zone";
+  public static final String UPLOAD_PREVIEW = "upload-preview";
+  public static final String UPLOAD_CAPTURE = "upload-capture";
+
   // Context menu
   public static final String CONTEXT_MENU = "context-menu";
   public static final String CONTEXT_MENU_OPTION = "context-menu-option";

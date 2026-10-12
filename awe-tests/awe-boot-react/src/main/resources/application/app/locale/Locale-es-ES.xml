@@ -53,6 +53,8 @@
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE" value="Árbol editable"/>
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="Árbol editable multiopción"/>
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Árbol carga"/>
+  <locale name="ENUM_REVEAL_FIRST" value="Primero"/>
+  <locale name="ENUM_REVEAL_SECOND" value="Segundo"/>
   <locale name="ENUM_STEP_1" value="Mensaje para el paso 1"/>
   <locale name="ENUM_STEP_2" value="Descripción paso 2"/>
   <locale name="ENUM_STEP_3" value="Descripción paso 3"/>
@@ -92,6 +94,7 @@
   <locale name="MENU_TEST_CHARTS" value="Gráficos"/>
   <locale name="MENU_TEST_CRITERIA" value="Criterios"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criterios Reset"/>
+  <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Criterios Uploader"/>
   <locale name="MENU_TEST_EMPTY" value="Pantalla vacía"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendario de eventos"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestor de ficheros"/>
@@ -108,6 +111,7 @@
   <locale name="MENU_TEST_NO_SCREEN" value="Sin pantalla"/>
   <locale name="MENU_TEST_PIVOT" value="Tabla cruzada"/>
   <locale name="MENU_TEST_QUEUES" value="Colas de mensajes"/>
+  <locale name="MENU_TEST_REVEAL_INVALID" value="Mostrar campo inválido"/>
   <locale name="MENU_TEST_TABS_VERTICAL" value="Pestañas verticales"/>
   <locale name="MENU_TEST_WIZARD" value="Asistente"/>
   <locale name="MENU_TEST_WIZARD_VERTICAL" value="Asistente vertical"/>
@@ -197,6 +201,7 @@
   <locale name="SCREEN_TITLE_CHART_ADVANCED" value="Gráficos con opciones avanzadas de Highcharts"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Test de criterios"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Test de matrices"/>
+  <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Mostrar campo inválido"/>
   <locale name="SCREEN_TITLE_MOVE_ROWS" value="Mover filas (Alt+Arriba, Alt+Abajo, Alt+Inicio, Alt+Fin)"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Pestañas verticales"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Asistente"/>
@@ -210,6 +215,16 @@
   <locale name="TEXT_NEW" value="¡NUEVO!"/>
   <locale name="WARNING_MESSAGE_LOGOUT" value="Está a punto de salir de la aplicación. ¿Está seguro?"/>
   <locale name="WARNING_TITLE_LOGOUT" value="Salir de la aplicación"/>
+  <locale name="SCREEN_TITLE_DATE_RANGE_TEST" value="Prueba de criterio de rango de fechas"/>
+  <locale name="MENU_TEST_DATE_RANGE" value="Rango de fechas"/>
+  <locale name="PARAMETER_DATE_RANGE" value="Periodo con atajos"/>
+  <locale name="PARAMETER_DATE_RANGE_REQUIRED" value="Periodo (obligatorio, con valor por defecto)"/>
+  <locale name="PARAMETER_DATE_RANGE_READONLY" value="Periodo (lectura)"/>
+  <locale name="PARAMETER_DATE_RANGE_NO_PRESETS" value="Periodo sin atajos"/>
+  <locale name="COLUMN_DATE_RANGE_FROM" value="Desde"/>
+  <locale name="COLUMN_DATE_RANGE_TO" value="Hasta"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_FROM" value="Obligatorio desde"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_TO" value="Obligatorio hasta"/>
   <locale name="COLUMN_RADIO_OPTION_A" value="Opción A"/>
   <locale name="COLUMN_RADIO_OPTION_B" value="Opción B"/>
   <locale name="COLUMN_RADIO_OPTION_C" value="Opción C"/>

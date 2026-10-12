@@ -126,3 +126,103 @@ export function getMinDate(availableDates) {
   let minDate = _.head(availableDates);
   return minDate ? new Date(minDate.getTime()) : null;
 }
+
+const PRESET_SEPARATOR = /[\s,]+/;
+const PRESET_PERIOD = /^(\d+)([DWMY])$/;
+const PRESET_TODAY = "TODAY";
+const PRESET_YEAR_TO_DATE = "YTD";
+const PRESET_ALL = "ALL";
+
+/**
+ * Transform a date to a dd/mm/yyyy string
+ * @param {Date} date
+ * @returns {string} Date formatted, empty when there is no date
+ * @memberOf Dates
+ */
+export function formatDate(date) {
+  if (!date) {
+    return "";
+  }
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
+/**
+ * Parse the list of presets of a date range criterion
+ * @param {string} presets Presets separated by commas or spaces
+ * @returns {string[]} Preset codes, upper-cased
+ * @memberOf Dates
+ */
+export function parsePresets(presets) {
+  return String(presets || "")
+    .split(PRESET_SEPARATOR)
+    .map(preset => preset.trim().toUpperCase())
+    .filter(preset => preset.length > 0);
+}
+
+/**
+ * Subtract months to a date keeping the last day of the month when the day does not exist
+ * @param {Date} date Date
+ * @param {number} months Months to subtract
+ * @returns {Date} New date
+ */
+function subtractMonths(date, months) {
+  const target = new Date(date.getFullYear(), date.getMonth() - months, 1);
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  return new Date(target.getFullYear(), target.getMonth(), Math.min(date.getDate(), lastDay));
+}
+
+/**
+ * Subtract a period to a date
+ * @param {Date} date Date
+ * @param {number} amount Amount of units
+ * @param {string} unit D (days), W (weeks), M (months) or Y (years)
+ * @returns {Date} New date
+ */
+function subtractPeriod(date, amount, unit) {
+  switch (unit) {
+    case "D":
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() - amount);
+    case "W":
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() - amount * 7);
+    case "M":
+      return subtractMonths(date, amount);
+    default:
+      return subtractMonths(date, amount * 12);
+  }
+}
+
+/**
+ * Resolve the dates of a quick preset of the date range criterion from the current date.
+ * Supported presets: TODAY, YTD (year to date), ALL (no dates) and a period back from today: nD, nW, nM or nY
+ * (days, weeks, months, years; for instance 7D, 1M, 3M, 12M, 3Y)
+ * @param {string} code Preset code
+ * @param {Date} today Current date
+ * @returns {{from: string, to: string}|null} Range as dd/mm/yyyy dates or null when the preset is unknown
+ * @memberOf Dates
+ */
+export function resolvePreset(code, today = new Date()) {
+  const preset = String(code || "").toUpperCase();
+  const period = PRESET_PERIOD.exec(preset);
+  if (preset === PRESET_ALL) {
+    return {from: "", to: ""};
+  } else if (preset === PRESET_TODAY) {
+    return {from: formatDate(today), to: formatDate(today)};
+  } else if (preset === PRESET_YEAR_TO_DATE) {
+    return {from: formatDate(new Date(today.getFullYear(), 0, 1)), to: formatDate(today)};
+  } else if (period) {
+    return {from: formatDate(subtractPeriod(today, Number(period[1]), period[2])), to: formatDate(today)};
+  }
+  return null;
+}
+
+/**
+ * Check that the end of a range is not before its start (an open end is always valid)
+ * @param {string} from Start date as dd/mm/yyyy
+ * @param {string} to End date as dd/mm/yyyy
+ * @returns {boolean} Range is valid
+ * @memberOf Dates
+ */
+export function isDateRangeValid(from, to) {
+  return !from || !to || toDate(to) >= toDate(from);
+}
