@@ -373,6 +373,50 @@ class SeleniumUtilitiesSemanticStepsTest {
     }
   }
 
+  private void showAll(By selector, String... texts) {
+    List<WebElement> elements = new ArrayList<>();
+    for (String text : texts) {
+      WebElement element = mock(WebElement.class);
+      when(element.isDisplayed()).thenReturn(true);
+      when(element.getText()).thenReturn(text);
+      elements.add(element);
+    }
+    By portSelector = Locator.from(selector).toBy();
+    when(driver.findElements(argThat(portSelector::equals))).thenReturn(elements);
+  }
+
+  @Test
+  void shouldAcceptTheRowsOfAGridInTheExpectedOrder() {
+    showAll(instructions.getGridColumnCells("GrdMove", "name"), "Step two", " Step one ", "Step three");
+
+    assertThatCode(() -> utilities.checkGridColumnOrder("GrdMove", "name", "Step two", "Step one", "Step three"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldRejectTheRowsOfAGridInAnotherOrder() {
+    showAll(instructions.getGridColumnCells("GrdMove", "name"), "Step one", "Step two", "Step three");
+
+    assertThrows(AssertionFailedError.class,
+      () -> utilities.checkGridColumnOrder("GrdMove", "name", "Step two", "Step one", "Step three"));
+  }
+
+  @Test
+  void shouldRejectAGridWithMoreRowsThanExpected() {
+    showAll(instructions.getGridColumnCells("GrdMove", "name"), "Step one", "Step two");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnOrder("GrdMove", "name", "Step one"));
+  }
+
+  @Test
+  void shouldLookForTheCellsOfAColumnOfAGridOnBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      String xpath = client.getGridColumnCells("GrdMove", "name").toString();
+
+      assertThat(xpath).contains("'GrdMove'", "@column-id='name'", "grid-id", "tree-grid-id");
+    }
+  }
+
   @Test
   void shouldCheckTheNumberOfResultsOfTheOpenList() {
     show(instructions.getSelectOption(1), "asp");

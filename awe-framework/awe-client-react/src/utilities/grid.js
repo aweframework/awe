@@ -39,6 +39,62 @@ export const RowPositionType = {
 };
 
 /**
+ * Client action that moves the selected row of a grid to each position
+ */
+export const MoveRowActionType = {
+  [RowPositionType.FIRST]: "move-row-top",
+  [RowPositionType.BEFORE]: "move-row-up",
+  [RowPositionType.AFTER]: "move-row-down",
+  [RowPositionType.LAST]: "move-row-bottom"
+};
+
+/**
+ * Keys that move the selected row of an editable grid while the Alt key is held
+ */
+const MOVE_ROW_KEYS = {
+  ArrowUp: RowPositionType.BEFORE,
+  ArrowDown: RowPositionType.AFTER,
+  Home: RowPositionType.FIRST,
+  End: RowPositionType.LAST
+};
+
+/**
+ * Retrieve the position a row moves to for a keyboard event
+ * @param {KeyboardEvent} event Keyboard event
+ * @returns {string|null} Row position (BEFORE, AFTER, FIRST or LAST) or null if the key does not move rows
+ */
+export function getMoveRowKeyPosition(event) {
+  const { key, altKey, ctrlKey, shiftKey, metaKey } = event;
+  return altKey && !ctrlKey && !shiftKey && !metaKey ? MOVE_ROW_KEYS[key] || null : null;
+}
+
+/**
+ * Move a row of a list of values to a new position
+ * @param {Array} values Rows of the grid
+ * @param {string} gridId Row identifier field of the grid
+ * @param {string|number} rowId Identifier of the row to move
+ * @param {string} position Where to move the row: FIRST, BEFORE (one up), AFTER (one down) or LAST
+ * @returns {Array} New list of rows, or the same list when the row does not exist or cannot move that way
+ */
+export function moveRowInValues(values, gridId, rowId, position) {
+  const index = values.findIndex(row => rowId != null && String(row[gridId]) === String(rowId));
+  const lastIndex = values.length - 1;
+  const targets = {
+    [RowPositionType.FIRST]: 0,
+    [RowPositionType.BEFORE]: index - 1,
+    [RowPositionType.AFTER]: index + 1,
+    [RowPositionType.LAST]: lastIndex
+  };
+  const target = targets[position];
+  if (index < 0 || target === undefined || target < 0 || target > lastIndex || target === index) {
+    return values;
+  }
+  const moved = [...values];
+  moved.splice(target, 0, moved.splice(index, 1)[0]);
+  return moved;
+}
+
+/**
  * Operation type
  * @type {{DELETE: string, INSERT: string, UPDATE: string}}
  * @memberOf Grid

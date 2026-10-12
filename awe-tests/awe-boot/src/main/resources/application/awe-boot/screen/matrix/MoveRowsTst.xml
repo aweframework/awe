@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : MoveRowsTst.xml
+    Description: Editable grid whose selected row moves to the top, up, down and to the bottom with the move-row
+                 actions or with Alt+ArrowUp, Alt+ArrowDown, Alt+Home and Alt+End
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_MOVE_ROWS">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_MOVE_ROWS" expandible="vertical">
+      <grid id="GrdMoveRows" style="expand" initial-load="query" server-action="data" target-action="MoveRowTstLst" editable="true" load-all="true" send-all="true" max="10">
+        <column name="value" hidden="true"/>
+        <column label="COLUMN_MOVE_ROW_STEP" name="label" align="left" charlength="20"/>
+        <button label="BUTTON_MOVE_ROW_TOP" icon="angle-double-up" id="ButMoveRowTop">
+          <button-action type="move-row-top" target="GrdMoveRows" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdMoveRows" attribute="selectedRows" condition="eq" value="1"/>
+          </dependency>
+        </button>
+        <button label="BUTTON_MOVE_ROW_UP" icon="angle-up" id="ButMoveRowUp">
+          <button-action type="move-row-up" target="GrdMoveRows" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdMoveRows" attribute="selectedRows" condition="eq" value="1"/>
+          </dependency>
+        </button>
+        <button label="BUTTON_MOVE_ROW_DOWN" icon="angle-down" id="ButMoveRowDown">
+          <button-action type="move-row-down" target="GrdMoveRows" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdMoveRows" attribute="selectedRows" condition="eq" value="1"/>
+          </dependency>
+        </button>
+        <button label="BUTTON_MOVE_ROW_BOTTOM" icon="angle-double-down" id="ButMoveRowBottom">
+          <button-action type="move-row-bottom" target="GrdMoveRows" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdMoveRows" attribute="selectedRows" condition="eq" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

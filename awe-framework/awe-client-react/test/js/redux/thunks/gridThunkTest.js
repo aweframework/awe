@@ -492,4 +492,62 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  describe('moveRowGridAction', () => {
+    const moveRow = (action, position) => {
+      dispatch.mockClear();
+      gridThunks.moveRowGridAction(action, position)(dispatch, getState);
+      return dispatch.mock.calls;
+    };
+
+    const movedValues = (calls) => {
+      const innerDispatch = jest.fn();
+      calls[1][0](innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].data.values;
+    };
+
+    it('moves the selected row and keeps it selected', () => {
+      const calls = moveRow({ parameters: {}, address: mockAddress }, RowPositionType.FIRST);
+
+      expect(calls[0][0].type).toBe('ACCEPT_ACTION');
+      const values = movedValues(calls);
+      expect(values.map(row => row.id)).toEqual([2, 1, 3]);
+      expect(values[0].selected).toBe(true);
+    });
+
+    it('moves the row of the selectedRow parameter instead of the selected one', () => {
+      const values = movedValues(moveRow({ parameters: { selectedRow: 1 }, address: mockAddress }, RowPositionType.LAST));
+
+      expect(values.map(row => row.id)).toEqual([2, 3, 1]);
+    });
+
+    it('moves a row one position up and down', () => {
+      expect(movedValues(moveRow({ parameters: {}, address: mockAddress }, RowPositionType.BEFORE)).map(row => row.id))
+        .toEqual([2, 1, 3]);
+      expect(movedValues(moveRow({ parameters: {}, address: mockAddress }, RowPositionType.AFTER)).map(row => row.id))
+        .toEqual([1, 3, 2]);
+    });
+
+    it('accepts the action without changing the model when the row cannot move', () => {
+      const calls = moveRow({ parameters: { rowId: 1 }, address: mockAddress }, RowPositionType.FIRST);
+
+      expect(calls).toHaveLength(1);
+      expect(calls[0][0].type).toBe('ACCEPT_ACTION');
+    });
+
+    it('accepts the action without moving rows in a tree grid, as the AngularJS engine does', () => {
+      mockComponent.attributes = { ...mockComponent.attributes, treegrid: true, treeParent: 'parent' };
+      const calls = moveRow({ parameters: {}, address: mockAddress }, RowPositionType.FIRST);
+
+      expect(calls).toHaveLength(1);
+      expect(calls[0][0].type).toBe('ACCEPT_ACTION');
+    });
+
+    it('accepts the action without changing the model when no row is selected', () => {
+      mockComponent.model.values = mockComponent.model.values.map(row => ({ ...row, selected: false }));
+      const calls = moveRow({ parameters: {}, address: mockAddress }, RowPositionType.FIRST);
+
+      expect(calls).toHaveLength(1);
+    });
+  });
+
 });

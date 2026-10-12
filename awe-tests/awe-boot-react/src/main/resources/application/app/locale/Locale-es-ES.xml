@@ -12,6 +12,10 @@
   <locale name="BUTTON_CONFIRM_EMPTY" value="Confirmar (comprobar vacio)"/>
   <locale name="BUTTON_FIRST" value="Primero"/>
   <locale name="BUTTON_LAST" value="Último"/>
+  <locale name="BUTTON_MOVE_ROW_BOTTOM" value="Mover abajo del todo"/>
+  <locale name="BUTTON_MOVE_ROW_DOWN" value="Bajar"/>
+  <locale name="BUTTON_MOVE_ROW_TOP" value="Mover arriba del todo"/>
+  <locale name="BUTTON_MOVE_ROW_UP" value="Subir"/>
   <locale name="BUTTON_NEW_CHILD" value="Nodo hijo"/>
   <locale name="BUTTON_NTH" value="N"/>
   <locale name="BUTTON_PAUSE" value="Pausar"/>
@@ -26,6 +30,7 @@
   <locale name="BUTTON_SET_VALUE2" value="Poner &apos;Valor2&apos;"/>
   <locale name="BUTTON_SET_VALUE3" value="Poner &apos;Valor3&apos;"/>
   <locale name="COLUMN_COUNTRY" value="País"/>
+  <locale name="COLUMN_MOVE_ROW_STEP" value="Paso"/>
   <locale name="COLUMN_NUMERIC" value="Numérico (test)"/>
   <locale name="COLUMN_XSS_ESCAPED" value="Escaped text"/>
   <locale name="COLUMN_XSS_EVENT" value="Event handler"/>
@@ -96,6 +101,7 @@
   <locale name="MENU_TEST_MATRIX_ALL" value="Todas las matrices"/>
   <locale name="MENU_TEST_MATRIX_HAVING" value="Test having"/>
   <locale name="MENU_TEST_MATRIX_LOAD_ALL" value="Load all matrix"/>
+  <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Mover filas"/>
   <locale name="MENU_TEST_MATRIX_NUMBERS" value="Matriz con números"/>
   <locale name="MENU_TEST_MATRIX_SUGGEST" value="Matriz con suggest"/>
   <locale name="MENU_TEST_MATRIX_XSS_CELLS" value="Cells with markup"/>
@@ -191,6 +197,7 @@
   <locale name="SCREEN_TITLE_CHART_ADVANCED" value="Gráficos con opciones avanzadas de Highcharts"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Test de criterios"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Test de matrices"/>
+  <locale name="SCREEN_TITLE_MOVE_ROWS" value="Mover filas (Alt+Arriba, Alt+Abajo, Alt+Inicio, Alt+Fin)"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Pestañas verticales"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Asistente"/>
   <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Asistente vertical"/>

@@ -1,6 +1,7 @@
 # Release notes for AWE 5 (unreleased)
 
 ✨ Features:
+- Client actions `move-row-top`, `move-row-up`, `move-row-down` and `move-row-bottom` move the selected row of an editable grid in both web engines, with `Alt+ArrowUp`, `Alt+ArrowDown`, `Alt+Home` and `Alt+End` as keyboard shortcuts. The moved rows keep their order in the data the grid sends on save, and the `MoveRowActionBuilder` builds the actions on the server (#842).
 - Integration tests of MySQL, PostgreSQL, SQL Server and Oracle (and their Flyway variants) run their database in a Testcontainers container, locally and in CI, with the image of each engine pinned in `awe-testing-images.properties` (#764). Docker is the only requirement; no database server or connection settings are needed.
 - `awe-testing` ships `@AweDatabaseTest` and `TestDatabase` to choose the database of a Spring test class.
 - `awe.security.sso.local-login` (default `true`) switches off the local username and password login when SSO is enabled, and `awe.security.sso.break-glass-users` lists the users that can still sign in locally in an emergency from `/screen/public/signin-local`; each use is logged at `WARN`. The sign-in screens of both clients hide the local form, and the three login entry points (`/action/login`, `/api/authenticate`, standard form login) refuse the other users with the same response as a wrong password (#767).

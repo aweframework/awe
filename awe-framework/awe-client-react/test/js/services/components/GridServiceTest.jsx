@@ -74,7 +74,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should get all grid actions', function () {
     setup(preloadedState);
 
-    expect(Object.keys(actions).length).toBe(38);
+    expect(Object.keys(actions).length).toBe(42);
   });
 
   it('should launch an add-row action', async function () {
@@ -168,6 +168,25 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
     }, props));
 
     // Spies
+    await waitFor(() => {
+      expect(store.dispatch).toHaveBeenCalled();
+    });
+  });
+
+  it.each(["move-row-top", "move-row-up", "move-row-down", "move-row-bottom"])('should register and launch a %s action', async function (type) {
+    const { store } = setup({
+      ...preloadedState,
+      components: {
+        grid: {
+          ...preloadedState.components.grid,
+          model: {values: [{id: "1"}, {id: "2", selected: true}, {id: "3"}]}
+        }
+      }
+    });
+
+    expect(typeof actions[type]).toBe("function");
+    act(() => actions[type]({address: {component: "grid", view: "report"}, parameters: {}}, props));
+
     await waitFor(() => {
       expect(store.dispatch).toHaveBeenCalled();
     });

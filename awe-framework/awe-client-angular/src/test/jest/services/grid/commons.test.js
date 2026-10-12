@@ -1367,4 +1367,120 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     // Assert
     expect(spy).toHaveBeenCalledWith('5');
   });
+
+  describe('moving rows', () => {
+    const getMovableComponent = (selected = [3]) => {
+      const component = {
+        ...getDefaultComponent(),
+        model: {values: [{id: 1}, {id: 2}, {id: 3}, {id: 4}], selected},
+        editable: true,
+        hideContextMenu: jest.fn(),
+        updateModelSpecific: jest.fn().mockResolvedValue()
+      };
+      new GridCommons(component).init();
+      component.setSelection = jest.fn();
+      return component;
+    };
+    const ids = (component) => component.model.values.map(row => row.id);
+
+    it.each([
+      ["first", [3, 1, 2, 4]],
+      ["before", [1, 3, 2, 4]],
+      ["after", [1, 2, 4, 3]],
+      ["last", [1, 2, 4, 3]]
+    ])('moves the selected row to the %s position', (position, expected) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position)).toBe(true);
+
+      expect(ids(component)).toEqual(expected);
+      expect(component.updateModelSpecific).toHaveBeenCalledTimes(1);
+    });
+
+    it('moves the row given as parameter instead of the selected one', () => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow("last", "1")).toBe(true);
+
+      expect(ids(component)).toEqual([2, 3, 4, 1]);
+    });
+
+    it('gives the model a new array, as the grid watches the reference of its data (fastWatch)', () => {
+      const component = getMovableComponent();
+      const previousValues = component.model.values;
+
+      component.moveRow("first");
+
+      expect(component.model.values).not.toBe(previousValues);
+      expect(ids(component)).toEqual([3, 1, 2, 4]);
+    });
+
+    it('keeps the moved row selected after the model is updated', async () => {
+      const component = getMovableComponent();
+
+      component.moveRow("first");
+      await Promise.resolve();
+
+      expect(component.setSelection).toHaveBeenCalledWith([3]);
+    });
+
+    it.each([
+      ["first", [1]],
+      ["before", [1]],
+      ["after", [4]],
+      ["last", [4]],
+      ["first", []],
+      ["first", [99]]
+    ])('does nothing when the row cannot move %s (selected %j)', (position, selected) => {
+      const component = getMovableComponent(selected);
+
+      expect(component.moveRow(position)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(component.updateModelSpecific).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [{key: "ArrowUp", altKey: true}, "before"],
+      [{key: "ArrowDown", altKey: true}, "after"],
+      [{key: "Home", altKey: true}, "first"],
+      [{key: "End", altKey: true}, "last"]
+    ])('moves the selected row with the %j key combination', (eventInit, position) => {
+      const component = getMovableComponent();
+      const event = {...eventInit, preventDefault: jest.fn(), stopPropagation: jest.fn()};
+      jest.spyOn(component, "moveRow");
+
+      expect(component.onMoveRowKeyDown(event)).toBe(true);
+
+      expect(component.moveRow).toHaveBeenCalledWith(position);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it.each([
+      [{key: "ArrowUp"}],
+      [{key: "ArrowUp", altKey: true, ctrlKey: true}],
+      [{key: "ArrowUp", altKey: true, shiftKey: true}],
+      [{key: "ArrowUp", altKey: true, metaKey: true}],
+      [{key: "Enter", altKey: true}]
+    ])('ignores the %j key combination', (eventInit) => {
+      const component = getMovableComponent();
+      const event = {...eventInit, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it('ignores the keys on a grid that is not editable', () => {
+      const component = getMovableComponent();
+      component.editable = false;
+      const event = {key: "ArrowUp", altKey: true, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -567,6 +567,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `hasRowContentsGrid(String gridId, String search)` | Same in a given grid |
 | `checkCellContents(String gridId, String rowId, String columnId, String search)` | Checks the content of a cell |
 | `checkGridCellsHaveNoActiveContent(String gridId)` | Checks that the cells of a grid show text and nothing active: no script, frame, image, form, event handler or link to a script url. Use it with a value that carries markup to prove that the grid does not interpret it |
+| `checkGridColumnOrder(String gridId, String columnId, String... expected)` | Checks that the rows of a grid are in a given order, reading the values of one column |
 | `checkGridPresent(String gridId)` | Checks that a grid exists in the screen, even if it is hidden |
 | `checkGridNotVisible(String gridId)` | Checks that a grid is not displayed |
 | `checkGridPageSize(String size)` | Checks the number of rows that a grid shows in each page |

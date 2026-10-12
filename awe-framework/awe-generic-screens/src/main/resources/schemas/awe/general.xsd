@@ -124,6 +124,11 @@
       <xs:enumeration value="copy-row-top" />
       <xs:enumeration value="copy-row-up" />
       <xs:enumeration value="copy-row-down" />
+      <!-- Move the selected row of the target grid to the top, one position up, one position down or to the bottom (Alt+ArrowUp/ArrowDown on a selected row) -->
+      <xs:enumeration value="move-row-top" />
+      <xs:enumeration value="move-row-up" />
+      <xs:enumeration value="move-row-down" />
+      <xs:enumeration value="move-row-bottom" />
       <xs:enumeration value="copy-selected-rows-clipboard" />
       <xs:enumeration value="delete-row" />
       <xs:enumeration value="save-row" />

@@ -517,6 +517,31 @@ class ClientActionBuilderTest {
   }
 
   /**
+   * Build a move-row action with ClientActionBuilder
+   */
+  @Test
+  void testMoveRowAction() {
+    ClientAction action = new MoveRowActionBuilder(null, "testGrid").build();
+    ClientAction actionTop = new MoveRowActionBuilder(RowPosition.TOP, "testGrid").build();
+    ClientAction actionBottom = new MoveRowActionBuilder(RowPosition.BOTTOM, "testGrid").build();
+    ClientAction actionUp = new MoveRowActionBuilder(RowPosition.UP, "testGrid").build();
+    ClientAction actionDown = new MoveRowActionBuilder(RowPosition.DOWN, "testGrid", "rowId").build();
+
+    // Assertions
+    assertEquals("move-row-bottom", action.getType());
+    assertEquals("testGrid", action.getTarget());
+
+    assertEquals("move-row-top", actionTop.getType());
+    assertEquals("move-row-bottom", actionBottom.getType());
+    assertEquals("move-row-up", actionUp.getType());
+    assertEquals("move-row-down", actionDown.getType());
+    assertEquals("testGrid", actionDown.getTarget());
+    assertEquals("rowId", actionDown.getParameters().get("selectedRow"));
+
+    checkSimpleClientActionBuilder("move-row-bottom", new MoveRowActionBuilder(RowPosition.BOTTOM));
+  }
+
+  /**
    * Build an update-row action with ClientActionBuilder
    */
   @Test

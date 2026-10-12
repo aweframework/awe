@@ -292,6 +292,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
     catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
     catalog.put("getGridCells", () -> i.getGridCells(GRID));
+    catalog.put("getGridColumnCells", () -> i.getGridColumnCells(GRID, COLUMN));
     catalog.put("getGridCellsActiveContent", () -> i.getGridCellsActiveContent(GRID));
     catalog.put("getColumnSuccessIcon", () -> i.getColumnSuccessIcon(COLUMN));
     catalog.put("getTreeRow", () -> i.getTreeRow(GRID, ROW));

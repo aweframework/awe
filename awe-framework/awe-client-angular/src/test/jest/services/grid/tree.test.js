@@ -74,6 +74,15 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/tree.js',
       return tree;
     }
 
+    it('should not move the rows of a tree grid', function () {
+      let tree = initTree({...currentModel}, {...currentController});
+      const ids = tree.model.values.map(row => row._ID);
+
+      expect(tree.moveRow("first", "5")).toBe(false);
+
+      expect(tree.model.values.map(row => row._ID)).toEqual(ids);
+    });
+
     it('should keep a loading branch flagged as loading until it is expanded', function () {
       let pending;
       jest.spyOn($utilities, "timeout").mockImplementation(callback => { pending = callback; });

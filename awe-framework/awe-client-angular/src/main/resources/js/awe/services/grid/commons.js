@@ -26,6 +26,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
   function (GridComponents, GridEditable, GridMultioperation, GridEvents, $translate, $settings, Control, Utilities, $log) {
     // Retrieve $settings
 
+    // Keys that move the selected row of an editable grid while the Alt key is held
+    const MOVE_ROW_KEYS = {ArrowUp: "before", ArrowDown: "after", Home: "first", End: "last"};
+
     /**
      * Retrieve number of selected lines in grid
      *
@@ -1232,6 +1235,49 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.addRow = function (position, data, selectedRow) {
           // Add the new row
           component.addRowSpecific(selectedRow, position, data);
+        };
+        /**
+         * Move a row to a new position of the grid. The rows of the model keep the new order, so it is the order
+         * the grid sends to the server when it is saved
+         *
+         * @param {string} position Where to move the row: first, before (one up), after (one down) or last
+         * @param {string} rowId Row identifier (the selected row by default)
+         * @return {boolean} The row has been moved (the rows of a tree grid follow its structure and never move)
+         */
+        component.moveRow = function (position, rowId) {
+          const values = component.model.values;
+          const row = rowId || component.getSelectedRow();
+          const index = row === null || row === undefined ? -1 : Utilities.getRowIndex(values, row, component.constants.ROW_IDENTIFIER);
+          const targets = {first: 0, before: index - 1, after: index + 1, last: values.length - 1};
+          const target = targets[position];
+          if (component.isTree || index < 0 || target === undefined || target < 0 || target >= values.length || target === index) {
+            return false;
+          }
+
+          // Move the row and keep it selected once the grid shows the new order
+          // The grid watches only the reference and the length of its data (fastWatch), so the model gets a new array
+          const selection = component.model.selected;
+          const reordered = [...values];
+          reordered.splice(target, 0, reordered.splice(index, 1)[0]);
+          component.model.values = reordered;
+          component.updateModelSpecific().then(() => component.setSelection(selection));
+          return true;
+        };
+        /**
+         * Move the selected row of an editable grid with the keyboard:
+         * Alt+ArrowUp (up), Alt+ArrowDown (down), Alt+Home (top) and Alt+End (bottom)
+         *
+         * @param {KeyboardEvent} event Keyboard event
+         * @return {boolean} The key combination has been handled
+         */
+        component.onMoveRowKeyDown = function (event) {
+          const position = MOVE_ROW_KEYS[event.key];
+          if (!component.editable || !position || !event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+            return false;
+          }
+          event.preventDefault();
+          component.moveRow(position);
+          return true;
         };
         /**
          * Update the selected row

@@ -17,6 +17,15 @@
     <option label="ENUM_LAN_FR-FR" value="fr-FR" />
   </group>
 
+  <!-- MOVE ROWS TEST -->
+  <group id="MoveRowTst">
+    <option label="Step one" value="1" />
+    <option label="Step two" value="2" />
+    <option label="Step three" value="3" />
+    <option label="Step four" value="4" />
+    <option label="Step five" value="5" />
+  </group>
+
   <!-- MATRIX TEST TYPE -->
   <group id="EnuAweSelMat">
     <option label="ENUM_MATRIX_STATIC" value="StaMat" />

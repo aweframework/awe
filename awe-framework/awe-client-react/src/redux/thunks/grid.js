@@ -9,7 +9,14 @@ import { acceptAction, addActionsTop, rejectAction } from "../actions/actions";
 import { updateAttributes, updateSpecificAttributes } from "../actions/components";
 import { updateModelWithDependencies } from "./components";
 import { compareEqualValues } from "../../utilities/general";
-import { extractCellValue, getGridIdentifier, getRow, OperationType, RowPositionType } from "../../utilities/grid";
+import {
+  extractCellValue,
+  getGridIdentifier,
+  getRow,
+  moveRowInValues,
+  OperationType,
+  RowPositionType
+} from "../../utilities/grid";
 import { validateRow } from "./validate";
 import { getAllComponents } from "../selectors/componentSelectors";
 const { BEFORE, AFTER, FIRST, LAST, CHILD } = RowPositionType;
@@ -376,6 +383,36 @@ export const addRowGridAction = (action, position) => {
       }),
       event: "after-add-row"
     }));
+  };
+};
+
+/**
+ * Move the selected row (or the one of the selectedRow parameter) of a grid to the top, one position up or down, or
+ * to the bottom. The rows of the model keep the new order, so it is the order the grid sends to the server when it
+ * is saved
+ * @param {object} action Action received
+ * @param {string} position Where to move the row: FIRST, BEFORE, AFTER or LAST
+ */
+export const moveRowGridAction = (action, position) => {
+  return (dispatch, getState) => {
+    const components = getAllComponents(getState());
+    const address = getActionAddress(action);
+    const component = getComponent(components, address);
+    // Tree grids keep their rows under their parents: the move does not apply, as in the AngularJS engine
+    if (component.attributes?.treegrid) {
+      dispatch(acceptAction(action));
+      return;
+    }
+    const { values } = component.model;
+    const gridId = getGridIdentifier(component.attributes);
+    const { selectedRow, rowId = selectedRow } = action.parameters || {};
+    const movedRowId = rowId ?? values.find(item => item.selected)?.[gridId];
+    const movedValues = moveRowInValues(values, gridId, movedRowId, position);
+
+    dispatch(acceptAction(action));
+    if (movedValues !== values) {
+      dispatch(updateModelWithDependencies(address, { values: movedValues }));
+    }
   };
 };
 

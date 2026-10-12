@@ -56,4 +56,27 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/events.js
     expect($log.error).toHaveBeenCalledTimes(1);
     expect($log.error).toHaveBeenCalledWith(expect.stringContaining("clipboard"), error);
   });
+
+  it.each([
+    ["onMoveRowTop", "first"],
+    ["onMoveRowBeforeSelected", "before"],
+    ["onMoveRowAfterSelected", "after"],
+    ["onMoveRowBottom", "last"]
+  ])('%s moves the row to the %s position and stores the event', function (method, position) {
+    const scope = {component: {...buildScope().component, moveRow: jest.fn().mockReturnValue(true), storeEvent: jest.fn()}};
+
+    GridEvents[method]({selectedRow: "5"}, scope);
+
+    expect(scope.component.hideContextMenu).toHaveBeenCalled();
+    expect(scope.component.moveRow).toHaveBeenCalledWith(position, "5");
+    expect(scope.component.storeEvent).toHaveBeenCalledWith("move-row");
+  });
+
+  it('does not store the move event when the row did not move', function () {
+    const scope = {component: {...buildScope().component, moveRow: jest.fn().mockReturnValue(false), storeEvent: jest.fn()}};
+
+    GridEvents.onMoveRowTop({}, scope);
+
+    expect(scope.component.storeEvent).not.toHaveBeenCalled();
+  });
 });

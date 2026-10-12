@@ -505,6 +505,38 @@ La estructura de datos **necesita** un identificador **por fila**, y también un
 | -------- | ------- | -------------------------------------- | ---------------------------------- |
 | editable | Boolean | Permite editar las filas de grid | El valor predeterminado es `false` |
 
+### Mover filas {#moving-rows}
+
+Un grid editable puede reordenar sus filas con cuatro acciones de cliente que mueven la fila seleccionada: `move-row-top`,
+`move-row-up`, `move-row-down` y `move-row-bottom`. Consulta la página de [acciones](actions.md). Las filas conservan el nuevo
+orden en el modelo del grid, así que ese es el orden que el grid envía al servidor cuando se guarda (usa
+`send-all="true"` para enviar todas las filas y no solo las seleccionadas). El orden de las filas se guarda en la posición de los
+valores de cada lista de columna, y una aplicación que quiera conservarlo debe guardar esa posición (por ejemplo en una columna
+`order`).
+
+```xml
+<grid id="GrdSteps" editable="true" send-all="true" server-action="data" target-action="StepList">
+  <column name="name" label="COLUMN_NAME" component="text"/>
+  <button label="BUTTON_MOVE_ROW_UP" icon="angle-up" id="ButStepUp">
+    <button-action type="move-row-up" target="GrdSteps" silent="true"/>
+    <dependency target-type="enable" initial="true">
+      <dependency-element id="GrdSteps" attribute="selectedRows" condition="eq" value="1"/>
+    </dependency>
+  </button>
+</grid>
+```
+
+Con una fila seleccionada, ambos motores web también la mueven con el teclado mientras el grid tiene el foco:
+
+| Teclas           | Acción            |
+|------------------|-------------------|
+| `Alt+ArrowUp`    | `move-row-up`     |
+| `Alt+ArrowDown`  | `move-row-down`   |
+| `Alt+Home`       | `move-row-top`    |
+| `Alt+End`        | `move-row-bottom` |
+
+Las acciones se ignoran cuando la fila ya está en esa posición, y los grids en árbol no las soportan.
+
 ## Multiopción de grid {#multioption-grid}
 
 <img alt="Multiopción" src={require('@docusaurus/useBaseUrl').default('img/MultioptionGrid.png')} />
