@@ -34,6 +34,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
@@ -170,7 +172,7 @@ class AweUserDetailServiceTest {
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withAuthoritiesAndPrefix() {
+  void testMapGrantedAuthorityProfile_withAuthoritiesAndPrefix() throws AWException {
     SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
     ssoProperties.setFilterAuthorityPrefix("ROLE_");
     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
@@ -180,20 +182,79 @@ class AweUserDetailServiceTest {
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withNullAuthorities_returnEmpty() {
+  void testMapGrantedAuthorityProfile_withSeveralMatchingRoles_picksTheFirstProfileInAlphabeticalOrder() throws AWException {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+    List<GrantedAuthority> oneOrder = List.of(new SimpleGrantedAuthority("ROLE_operator"),
+      new SimpleGrantedAuthority("offline_access"), new SimpleGrantedAuthority("ROLE_manager"));
+    List<GrantedAuthority> otherOrder = List.of(new SimpleGrantedAuthority("ROLE_manager"),
+      new SimpleGrantedAuthority("ROLE_operator"));
+
+    assertEquals(Optional.of("manager"), userDetailsService.mapGrantedAuthorityProfile(oneOrder));
+    assertEquals(Optional.of("manager"), userDetailsService.mapGrantedAuthorityProfile(otherOrder));
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withSeveralMatchingRoles_picksTheFirstExistingProfile() throws AWException {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+    given(userDAO.existRole("auditor")).willReturn(false);
+    given(userDAO.existRole("manager")).willReturn(true);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_manager"),
+      new SimpleGrantedAuthority("ROLE_auditor"), new SimpleGrantedAuthority("ROLE_operator"));
+
+    assertEquals(Optional.of("manager"), userDetailsService.mapGrantedAuthorityProfile(authorities));
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withSeveralMatchingRolesAndNoProfile_picksTheFirstInAlphabeticalOrder() throws AWException {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+    given(userDAO.existRole(anyString())).willReturn(false);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_operator"),
+      new SimpleGrantedAuthority("ROLE_auditor"));
+
+    assertEquals(Optional.of("auditor"), userDetailsService.mapGrantedAuthorityProfile(authorities));
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withASingleMatchingRole_doesNotLookUpTheProfile() throws AWException {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+
+    assertEquals(Optional.of("operator"), userDetailsService.mapGrantedAuthorityProfile(List.of(new SimpleGrantedAuthority("ROLE_operator"))));
+    verify(userDAO, never()).existRole(anyString());
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_skipsAuthoritiesThatCarryOnlyThePrefix() throws AWException {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"), new SimpleGrantedAuthority("ROLE_operator"));
+
+    assertEquals(Optional.of("operator"), userDetailsService.mapGrantedAuthorityProfile(authorities));
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withNullAuthorities_returnEmpty() throws AWException {
     Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(null);
     assertEquals(Optional.empty(), result);
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withEmptyAuthorities_returnEmpty() {
+  void testMapGrantedAuthorityProfile_withEmptyAuthorities_returnEmpty() throws AWException {
     List<GrantedAuthority> authorities = Collections.emptyList();
     Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
     assertEquals(Optional.empty(), result);
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withNullPrefixFilter_returnFullRole() {
+  void testMapGrantedAuthorityProfile_withNullPrefixFilter_returnFullRole() throws AWException {
     SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
     ssoConfig.setFilterAuthorityPrefix(null);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
@@ -203,7 +264,7 @@ class AweUserDetailServiceTest {
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withNoAuthorityMatchingPrefix_returnEmpty() {
+  void testMapGrantedAuthorityProfile_withNoAuthorityMatchingPrefix_returnEmpty() throws AWException {
     SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
     ssoConfig.setFilterAuthorityPrefix("ROLE_ADMINS");
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
@@ -213,7 +274,7 @@ class AweUserDetailServiceTest {
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withAuthorityEqualToPrefix_returnEmpty() {
+  void testMapGrantedAuthorityProfile_withAuthorityEqualToPrefix_returnEmpty() throws AWException {
     SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
     ssoConfig.setFilterAuthorityPrefix("ROLE_");
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);

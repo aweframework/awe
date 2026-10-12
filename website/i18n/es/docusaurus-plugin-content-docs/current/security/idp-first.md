@@ -32,7 +32,7 @@ LDAP, en memoria o proveedores personalizados) o con un IdP, y el perfil se sele
 | --- | --- | --- |
 | Autenticación (contraseña, MFA, federación, bloqueo por fuerza bruta) | IdP | Flujo de código de autorización OIDC gestionado por `oauth2Login` de Spring Security, configurado en `AweWebSecurityConfig` |
 | Estado de la cuenta en el proveedor (deshabilitada, bloqueada, eliminada) | IdP | El proveedor se niega a autenticar al usuario |
-| Claim de rol enviado a la aplicación | IdP | `AweWebSecurityConfig.realmRolesAuthoritiesConverter` lee `realm_access.roles` |
+| Claim de rol enviado a la aplicación | IdP | `AweWebSecurityConfig.realmRolesAuthoritiesConverter` lee los claims de `awe.security.sso.roles-claims` (por defecto `realm_access.roles`) |
 | A qué perfil de AWE corresponde un rol | AWE | `AweUserDetailService.mapGrantedAuthorityProfile` y la sincronización de roles de `AccessService` |
 | Autorización de pantallas y opciones (perfiles, restricciones) | **AWE** | `MenuService` y `ScreenRestrictionGenerator`, dirigidos por el perfil y las restricciones del usuario cargadas al iniciar sesión |
 | Tema, idioma y pantalla inicial | AWE | `AweUserDetailService.getAweUserDetails`, almacenados en la sesión por `AweSessionDetails.storeUserDetails` |
@@ -62,7 +62,7 @@ Ambas partes pueden bloquear a un usuario, según se decida:
 
 | Bloqueado en | Efecto | Notas |
 | --- | --- | --- |
-| IdP | El usuario no puede autenticarse. | Las sesiones de AWE existentes no se tocan hasta que terminan (ver más abajo). |
+| IdP | El usuario no puede autenticarse. | Las sesiones de AWE existentes terminan de inmediato con el cierre de sesión por canal trasero cuando el proveedor termina las sesiones del usuario; en caso contrario viven hasta que terminan (ver más abajo). |
 | AWE (indicadores `enabled` / bloqueado en el registro de usuario) | El usuario es rechazado tras un inicio de sesión correcto en el IdP. | Comportamiento actual desde AWE 5.0.0: el inicio de sesión SSO comprueba ambos indicadores y muestra una página de error; no se crea ninguna sesión. AWE 4.x y anteriores no los comprobaban en la vía SSO, por lo que allí un usuario deshabilitado o bloqueado en AWE todavía podía iniciar sesión a través del proveedor: bloquea también a esos usuarios en el proveedor. |
 
 Bloquea a un usuario en el proveedor cuando deba perder el acceso en todas partes; bloquéalo en AWE cuando deba perder
@@ -74,41 +74,46 @@ Tras iniciar sesión, la sesión de AWE es una sesión HTTP normal (consulta la 
 las restricciones, el idioma, el tema y la pantalla inicial se cargan en ella al iniciar sesión (`AweSessionDetails`). AWE no
 vuelve a llamar al proveedor mientras la sesión esté viva, por lo que:
 
-- Deshabilitar o eliminar al usuario en el IdP **no** termina una sesión de AWE abierta; termina cuando caduca o cuando
+- Sin el cierre de sesión por canal trasero, deshabilitar o eliminar al usuario en el IdP **no** termina una sesión de AWE abierta; termina cuando caduca o cuando
   el usuario cierra sesión.
+- Con `awe.security.sso.back-channel-logout.enabled=true` (desde AWE 5, desactivado por defecto), el proveedor termina directamente las sesiones de
+  AWE: cuando termina la sesión del usuario en el proveedor (cierre de sesión en otro lugar, un administrador cierra la sesión del
+  usuario), envía un token de cierre de sesión y AWE termina las sesiones correspondientes, incluido el estado de AWE que se guarda para ellas (datos de
+  sesión y conexiones websocket). Deshabilitar a un usuario en el proveedor termina las sesiones de AWE solo cuando el proveedor también
+  termina las sesiones del usuario en el proveedor y envía el cierre de sesión; comprueba el comportamiento del proveedor. Los detalles y advertencias
+  (llamada interna, nombre de la cookie, clústeres) están en [Single sign-on](authentication-sso.md#back-channel-logout).
 - Un cambio de rol o de perfil solo surte efecto en el siguiente inicio de sesión.
 - Mantén el tiempo de espera de sesión de la aplicación lo bastante corto para cumplir tus requisitos de revocación.
-
-**Planificado en AWE 5:** cierre de sesión por canal trasero (back-channel logout) de OIDC, para que el proveedor pueda terminar las sesiones de AWE cuando se revoque a un usuario o
-cierre sesión en otro lugar.
 
 ### Cierre de sesión {#logout}
 
 Hoy el cierre de sesión es **iniciado por la aplicación (RP-initiated)**: `/action/logout` borra la sesión de AWE y, cuando el SSO está habilitado, redirige al
 navegador al endpoint de fin de sesión del proveedor mediante `OidcClientInitiatedLogoutSuccessHandler`, que termina también la
-sesión del proveedor. Esto requiere que el navegador complete la redirección; no ocurre nada en AWE si el usuario
-cierra sesión en el proveedor por otro canal. El cierre de sesión por canal trasero es el complemento planificado.
+sesión del proveedor. Esto requiere que el navegador complete la redirección. Un cierre de sesión en el proveedor por otro canal solo llega a AWE
+con el cierre de sesión por canal trasero habilitado (ver arriba).
 
 ### Mapeo de roles {#role-mapping}
 
 - Las autoridades del proveedor se filtran con `awe.security.sso.filter-authority-prefix`: solo se consideran las autoridades que
   empiezan por el prefijo y este se elimina para obtener el nombre del perfil de AWE. Con un prefijo vacío, se usa la
   autoridad completa.
-- Gana la **primera** autoridad coincidente. Las autoridades convertidas se recopilan en un conjunto, por lo que cuando un usuario
-  lleva varios roles coincidentes no está garantizado que la elección sea estable. Envía exactamente un rol con el
-  prefijo por usuario hasta que esté disponible la selección determinista (planificada, ver más abajo).
+- Desde AWE 5, cuando un usuario lleva varios roles coincidentes, gana el **primer nombre, por orden alfabético, que exista como
+  perfil de AWE**, sea cual sea el orden de los roles en el token (el primer nombre por orden alfabético cuando no
+  existe ninguno). AWE 4.x tomaba el primer rol de un conjunto sin orden, por lo que la elección no era estable.
 - Un rol que no existe como perfil de AWE se ignora para los usuarios existentes (se mantiene su perfil) y se sustituye
-  por el rol por defecto para los usuarios recién aprovisionados.
-- El conversor por defecto solo entiende el claim `realm_access.roles` de Keycloak. Entra ID envía `roles` (roles de
-  aplicación) o `groups`, que no se leen por defecto; hoy deben mapearse en el proveedor (intermediación de Keycloak,
-  consulta [Single sign-on](authentication-sso.md#mappers)) o sobrescribiendo el
-  bean `realmRolesAuthoritiesConverter` en la aplicación.
+  por el rol por defecto para los usuarios recién aprovisionados, salvo que se exija un rol (ver más abajo).
+- Desde AWE 5, los claims se pueden configurar con `awe.security.sso.roles-claims` (por defecto `realm_access.roles`):
+  `resource_access.<client-id>.roles` para los roles de cliente de Keycloak, `roles` para los roles de aplicación de Entra ID, o varios de ellos.
+  Los detalles están en [Single sign-on](authentication-sso.md#roles-claim).
 
 ### Aprovisionamiento y rol por defecto {#provisioning-and-the-default-role}
 
 Los nombres de propiedad siguientes son los de `SecurityConfigProperties.Sso` y `BaseConfigProperties`.
 
-| Situación | Comportamiento hoy |
+Cuando se exige un rol (`awe.security.sso.require-role`, exigido por defecto en IdP-first, ver más abajo), un inicio de sesión
+cuyos roles del proveedor no se mapean a ningún perfil de AWE existente se rechaza antes de que se aplique ninguna de estas filas.
+
+| Situación | Comportamiento cuando no se exige un rol |
 | --- | --- |
 | Usuario desconocido, `awe.security.sso.auto-provision-user=true` (por defecto) | Se crea un registro de usuario con el rol mapeado, o con `awe.application.default-role` (por defecto `operator`) cuando ningún rol se mapea. |
 | Usuario desconocido, `auto-provision-user=false` | No se crea ningún registro, pero el inicio de sesión continúa con una sesión construida a partir de los claims del token y el mismo rol de respaldo. Desactivar este indicador no deniega por sí solo a los usuarios desconocidos. |
@@ -118,8 +123,15 @@ Los nombres de propiedad siguientes son los de `SecurityConfigProperties.Sso` y 
 Los usuarios nuevos toman su nombre de inicio de sesión del claim `preferred_username`, mientras que los usuarios existentes se buscan con
 `awe.security.sso.user-name-attribute` (por defecto `preferred_username`). Mantén ambos alineados.
 
-**Planificado en AWE 5:** en el modo IdP-first un inicio de sesión sin ningún rol mapeable se **deniega** (fallo cerrado). El rol por defecto
-de respaldo pasa a ser una opción explícita, de modo que nunca pueda conceder acceso por accidente.
+### Mapeo de roles con fallo cerrado {#fail-closed-role-mapping}
+
+Desde AWE 5, en el modo IdP-first (`awe.security.sso.local-login=false`) un inicio de sesión sin ningún rol mapeable se **deniega**
+(fallo cerrado): no se usa ni el perfil almacenado ni el rol por defecto, y el usuario ve una página de error localizada.
+Esto se aplica también a los **usuarios existentes**: el perfil almacenado en AWE no es un respaldo. Con el inicio de sesión local activado, se mantiene el
+comportamiento anterior salvo que se establezca `require-role=true`.
+El rol por defecto de respaldo es una opción explícita con `awe.security.sso.require-role=false`, de modo que nunca pueda conceder
+acceso por accidente. `awe.security.sso.require-role=true` exige un rol en cualquier configuración SSO. Los detalles están en
+[Single sign-on](authentication-sso.md#requiring-a-role-fail-closed).
 
 ### Registros multiinquilino {#multi-tenant-registrations}
 
@@ -170,6 +182,8 @@ awe.security.sso.enabled=true
 awe.security.sso.local-login=false
 # Optional. Empty by default: nobody can sign in locally.
 awe.security.sso.break-glass-users=admin
+# Not needed: with local-login=false a role that maps to an AWE profile is required by default.
+# awe.security.sso.require-role=true
 ```
 
 | Aspecto | Comportamiento |
@@ -182,23 +196,31 @@ awe.security.sso.break-glass-users=admin
 | Auditoría | Cada intento de inicio de sesión de emergencia se registra a nivel `WARN` con la etiqueta `[break-glass]` y el nombre de usuario saneado; los rechazos se registran a nivel `WARN` sin la etiqueta. Las contraseñas y los tokens nunca se registran. |
 | Qué no cubre | El inicio de sesión OIDC, el modo REST `oauth2-resource-server` y cualquier autenticación que la aplicación añada fuera del gestor de autenticación de AWE. |
 
+### Cierre de sesión por canal trasero {#back-channel-logout}
+
+Desde AWE 5, el proveedor puede terminar las sesiones de AWE (desactivado por defecto). Los detalles están en
+[Single sign-on](authentication-sso.md#back-channel-logout).
+
+```properties title="Dejar que el proveedor termine las sesiones de AWE"
+awe.security.sso.back-channel-logout.enabled=true
+# Only when the public address is not reachable from the server itself
+awe.security.sso.back-channel-logout.logout-uri=http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}
+```
+
 ### Planificado en AWE 5 {#planned-in-awe-5}
 
 | Elemento | Intención |
 | --- | --- |
-| Cierre de sesión por canal trasero | Cierre de sesión por canal trasero de OIDC más un registro de sesiones, para que la revocación del lado del proveedor termine las sesiones de AWE. |
-| Claim de roles configurable | Lectura de los roles desde un claim configurable para que Entra ID funcione directamente, además de la intermediación de Keycloak. Incluye selección determinista de perfil cuando coinciden varios roles. |
-| Mapeo de roles con fallo cerrado | En IdP-first, denegar el inicio de sesión cuando ningún rol se mapee; el rol por defecto de respaldo pasa a ser opcional. |
 | Prueba de integración con Keycloak | Una prueba automatizada de extremo a extremo contra un Keycloak real (inicio de sesión, mapeo de perfil, cierre de sesión por canal trasero, usuario deshabilitado). |
 
 ## Riesgos residuales y recomendaciones {#residual-risks-and-recommendations}
 
 | Riesgo | Recomendación |
 | --- | --- |
-| Las sesiones de AWE abiertas sobreviven a la revocación en el IdP hasta que caducan. | Usa un tiempo de espera de sesión corto; adopta el cierre de sesión por canal trasero cuando esté disponible. |
+| Las sesiones de AWE abiertas sobreviven a la revocación en el IdP hasta que caducan. | Habilita el cierre de sesión por canal trasero (`awe.security.sso.back-channel-logout.enabled=true`) y mantén un tiempo de espera de sesión corto como segunda línea, para los proveedores o eventos que no envían cierre de sesión. |
 | El inicio de sesión local permanece activo bajo SSO (por defecto). | Define `awe.security.sso.local-login=false` y trata cada inicio de sesión de emergencia del log como una excepción monitorizada. |
-| El rol por defecto puede conceder acceso a usuarios sin rol. | Mantén `awe.application.default-role` **sin privilegios** (nunca un perfil administrativo); prefiere el mapeo con fallo cerrado cuando esté disponible. |
-| Mapeo ambiguo cuando varios roles llevan el prefijo. | Envía un único rol con prefijo por usuario; no dependas del orden. |
+| El rol por defecto puede conceder acceso a usuarios sin rol. | Mantén `awe.application.default-role` **sin privilegios** (nunca un perfil administrativo); mantén el fallo cerrado por defecto de IdP-first, o establece `awe.security.sso.require-role=true`. |
+| Varios roles llevan el prefijo. | Gana el primer nombre, por orden alfabético, que exista como perfil de AWE; envía un único rol con prefijo por usuario cuando la elección importe. |
 | Secretos de cliente en archivos de configuración. | Inyéctalos desde variables de entorno o un almacén de secretos; si usas propiedades cifradas `ENC(...)`, sustituye el valor por defecto de `awe.security.master-key`. Nunca subas secretos al repositorio. |
 | Proveedor incorrecto o suplantado. | Define `issuer-uri` explícitamente y sobre HTTPS; Spring Security valida el emisor, la audiencia, la caducidad y el nonce del token ID. Para Entra ID prefiere un registro de aplicación de un solo inquilino. Mantén los URI de redirección exactos (sin comodines en producción). |
 | Resolución de inquilino abierta. | Declara `tenant-mappings` explícitos; mantén los nombres de usuario únicos entre inquilinos. |

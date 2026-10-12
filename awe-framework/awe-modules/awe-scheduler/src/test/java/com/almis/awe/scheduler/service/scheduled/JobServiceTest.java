@@ -8,6 +8,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.TaskConstants;
@@ -19,6 +20,7 @@ import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -39,9 +41,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -77,6 +81,35 @@ class JobServiceTest {
     jobService.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     return jobService;
+  }
+
+  @Test
+  void startTaskAnnouncesTheStartedTaskOnceItsExecutionIsStored() throws Exception {
+    TestJobService jobService = service();
+    Task task = new Task().setTaskId(8);
+    TaskExecution execution = new TaskExecution().setTaskId(8).setExecutionId(2);
+    doReturn(execution).when(taskDAO).startTask(task);
+
+    TaskExecution started = jobService.startTask(task);
+
+    assertEquals(execution, started);
+    InOrder order = inOrder(taskDAO, eventPublisher);
+    order.verify(taskDAO).startTask(task);
+    order.verify(eventPublisher).publishEvent(any(SchedulerTaskStartedEvent.class));
+  }
+
+  @Test
+  void startTaskStillStartsTheTaskWhenTheStartedAnnouncementFails() throws Exception {
+    TestJobService jobService = service();
+    Task task = new Task().setTaskId(9);
+    TaskExecution execution = new TaskExecution().setTaskId(9).setExecutionId(3);
+    doReturn(execution).when(taskDAO).startTask(task);
+    doThrow(new IllegalStateException("listener failure")).when(eventPublisher).publishEvent(any(SchedulerTaskStartedEvent.class));
+
+    TaskExecution started = jobService.startTask(task);
+
+    assertEquals(execution, started);
+    verify(taskDAO).getAverageTime(9);
   }
 
   @Test

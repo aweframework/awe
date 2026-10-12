@@ -127,6 +127,23 @@ public class SecurityConfigProperties {
      */
     private String filterAuthorityPrefix;
     /**
+     * Claims of the ID token that carry the user's roles, read in order and joined. A dotted name walks nested
+     * objects unless the token has a claim with that exact name. Examples: {@code realm_access.roles} (Keycloak realm
+     * roles, the default), {@code resource_access.my-client.roles} (Keycloak client roles), {@code roles} (Microsoft
+     * Entra ID app roles). When several roles carry the prefix, the first name in alphabetical order that exists as
+     * an AWE profile is used. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean.
+     */
+    private List<String> rolesClaims = new ArrayList<>(List.of("realm_access.roles"));
+    /**
+     * Require a role from the identity provider that maps to an existing AWE profile (fail closed). When required and
+     * no role maps, the SSO login is refused with an error page, for new and existing users alike, and the stored
+     * profile and {@code awe.application.default-role} are not used. Not set by default, which means required when
+     * {@code awe.security.sso.local-login} is {@code false} (IdP-first) and not required otherwise. Set it to
+     * {@code false} to opt in to the default role fallback in IdP-first, or to {@code true} to require a role in any
+     * SSO setup.
+     */
+    private Boolean requireRole;
+    /**
      * When {@code false} (default), an existing user's profile is kept as-is and not overwritten
      * with the application default role ({@code awe.application.default-role}) when the SSO
      * provider claim carries no role (or none of the granted authorities match
@@ -152,6 +169,54 @@ public class SecurityConfigProperties {
 		 * Enable the Generic SSO button. Used in signin screen
 		 */
 		private boolean enableGenericSsoButton = false;
+
+		/**
+		 * OIDC back-channel logout: lets the identity provider end AWE sessions
+		 */
+		@NestedConfigurationProperty
+		private BackChannelLogout backChannelLogout = new BackChannelLogout();
+
+		/**
+		 * Whether an SSO login needs a provider role that maps to an AWE profile: the value of
+		 * {@code awe.security.sso.require-role} when set, otherwise {@code true} only when local login is off (IdP-first)
+		 *
+		 * @return true if the login is refused when no provider role maps to an AWE profile
+		 */
+		public boolean isRoleRequired() {
+			return requireRole != null ? requireRole : !localLogin;
+		}
+	}
+
+	/**
+	 * OIDC back-channel logout configuration properties
+	 */
+	@Data
+	public static class BackChannelLogout {
+		/**
+		 * Enable OIDC back-channel logout when SSO is enabled. The identity provider calls
+		 * {@code /logout/connect/back-channel/{registrationId}} with a signed logout token and AWE ends the matching
+		 * sessions (web session and the AWE state kept for it, such as websocket connections). Off by default.
+		 */
+		private boolean enabled = false;
+		/**
+		 * Address AWE calls on itself to end each session named by a logout token, sending the session cookie. Placeholders
+		 * {@code {baseUrl}}, {@code {baseScheme}}, {@code {baseHost}}, {@code {basePort}}, {@code {basePath}} and
+		 * {@code {registrationId}} are resolved from the provider request. Empty by default, which uses
+		 * {@code {baseUrl}/logout/connect/back-channel/{registrationId}}. Set it when the public address is not reachable
+		 * from the server itself, for example
+		 * {@code http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}}.
+		 */
+		private String logoutUri;
+		/**
+		 * Connection timeout of the internal logout call made for each session named by a logout token. Keeps the
+		 * provider request from hanging when the logout address cannot be reached. Default 2 seconds.
+		 */
+		private Duration connectTimeout = Duration.ofSeconds(2);
+		/**
+		 * Read timeout of the internal logout call made for each session named by a logout token. A session whose call
+		 * times out is reported to the provider as not ended. Default 5 seconds.
+		 */
+		private Duration readTimeout = Duration.ofSeconds(5);
 	}
 
   /**

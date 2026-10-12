@@ -13,6 +13,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
+import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -665,6 +666,85 @@ class AccessServiceTest {
     // Then
     assertNotNull(initialUrl);
     verify(aweSessionDetails, times(1)).onLoginSuccess(any());
+  }
+
+  private static final String NO_ROLE_KEY = "ERROR_MESSAGE_SSO_NO_ROLE";
+  private static final String NO_ROLE_MESSAGE = "no role message";
+
+  private SecurityConfigProperties.Sso roleRequiredSso() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setRequireRole(true);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    return ssoConfig;
+  }
+
+  private void stubNoRoleMessage() {
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage(NO_ROLE_KEY, "en-GB")).thenReturn(NO_ROLE_MESSAGE);
+  }
+
+  private void assertRefusedWithoutRole(OAuth2AuthenticationToken token) throws AWException {
+    SsoRoleNotMappedException exception = assertThrows(SsoRoleNotMappedException.class, () -> accessService.onAuthenticationSuccess(token));
+    assertEquals(NO_ROLE_MESSAGE, exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void roleRequired_existingUser_noRoleFromProvider_isRefused() throws AWException {
+    // Given - the stored profile is not used when a role is required
+    roleRequiredSso();
+    stubNoRoleMessage();
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+
+    // Then
+    assertRefusedWithoutRole(getTokenWithRole("offline_access"));
+    verify(aweUserDetailService, never()).loadUserByUsername(anyString());
+  }
+
+  @Test
+  void roleRequired_roleWithoutAweProfile_isRefused() throws AWException {
+    // Given
+    roleRequiredSso();
+    stubNoRoleMessage();
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("unknown"));
+    when(aweUserDetailService.existRole("unknown")).thenReturn(false);
+
+    // Then
+    assertRefusedWithoutRole(getTokenWithRole("unknown"));
+    verify(aweUserDetailService, never()).loadUserByRole(any());
+  }
+
+  @Test
+  void roleRequired_mappedRole_logsIn() throws AWException {
+    // Given
+    roleRequiredSso();
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("operator"));
+    when(aweUserDetailService.existRole("operator")).thenReturn(true);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName("operator"));
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // Then
+    assertNotNull(accessService.onAuthenticationSuccess(getTokenWithRole("operator")));
+    verify(aweSessionDetails, times(1)).onLoginSuccess(any());
+  }
+
+  @Test
+  void roleRequired_followsTheLocalLoginSwitchUnlessSet() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    assertFalse(ssoConfig.isRoleRequired(), "Local login on (default): the default role fallback is kept");
+    ssoConfig.setLocalLogin(false);
+    assertTrue(ssoConfig.isRoleRequired(), "IdP-first (local login off): a mapped role is required");
+    ssoConfig.setRequireRole(false);
+    assertFalse(ssoConfig.isRoleRequired(), "Explicit opt-in to the default role fallback");
+    ssoConfig.setLocalLogin(true);
+    ssoConfig.setRequireRole(true);
+    assertTrue(ssoConfig.isRoleRequired(), "Explicit requirement with local login on");
   }
 
   private static OAuth2AuthenticationToken getTokenWithRole(String role) {

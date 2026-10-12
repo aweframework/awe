@@ -106,10 +106,109 @@ awe.security.sso.break-glass-users=admin
   alertar sobre ello. Los rechazos también se registran a nivel `WARN`, sin la etiqueta.
 - Mantén la lista corta, usa contraseñas robustas y trata cada entrada `[break-glass]` del log como un evento que revisar.
 
+## Cierre de sesión por canal trasero {#back-channel-logout}
+
+Por defecto una sesión de AWE vive hasta que caduca o el usuario cierra sesión en AWE: terminar la sesión en el proveedor de
+identidad (un administrador cierra la sesión del usuario, el usuario se deshabilita o cierra sesión en otra aplicación)
+no llega a AWE. Con el [cierre de sesión por canal trasero de OpenID Connect](https://openid.net/specs/openid-connect-backchannel-1_0.html)
+el proveedor avisa directamente a AWE, de servidor a servidor, y AWE termina de inmediato las sesiones correspondientes.
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.back-channel-logout.enabled=true
+```
+
+| Propiedad | Por defecto | Significado |
+| --- | --- | --- |
+| `awe.security.sso.back-channel-logout.enabled` | `false` | Registra el endpoint de cierre de sesión por canal trasero. Se ignora cuando el SSO está deshabilitado. |
+| `awe.security.sso.back-channel-logout.logout-uri` | vacío (`{baseUrl}/logout/connect/back-channel/{registrationId}`) | Dirección a la que AWE se llama a sí mismo para terminar cada sesión (ver más abajo). |
+| `awe.security.sso.back-channel-logout.connect-timeout` | `2s` | Tiempo de espera de conexión de esa llamada interna. |
+| `awe.security.sso.back-channel-logout.read-timeout` | `5s` | Tiempo de espera de lectura de esa llamada interna. |
+
+Cómo funciona:
+
+- En cada inicio de sesión SSO, AWE registra la sesión del proveedor (claim `sid`) y el usuario (claim `sub`) del token ID
+  junto con el id de la sesión de AWE, en un registro de sesiones OIDC.
+- El proveedor envía por POST un token de cierre de sesión firmado a `/logout/connect/back-channel/{registrationId}`, donde
+  `{registrationId}` es el registro de cliente de Spring (por ejemplo
+  `/logout/connect/back-channel/keycloak` para `spring.security.oauth2.client.registration.keycloak.*`). AWE valida
+  el token con las claves del proveedor (firma, emisor, audiencia y el evento de cierre de sesión por canal trasero) y responde
+  `400` cuando no es válido.
+- Por cada sesión de AWE de esa sesión del proveedor (o de ese usuario, cuando el token no lleva `sid`), AWE envía una
+  petición interna de cierre de sesión a `logout-uri` con la cookie de sesión. Ejecuta los mismos gestores de cierre de sesión que un cierre
+  de sesión del usuario: se borran los datos de la sesión de AWE, las pestañas del navegador de esa sesión reciben un mensaje de cierre de sesión por el
+  websocket y se liberan sus conexiones, y se invalida la sesión HTTP. La siguiente petición del navegador
+  va al flujo de inicio de sesión.
+- La llamada interna está acotada por `connect-timeout` y `read-timeout`, de modo que un `logout-uri` inaccesible no puede dejar colgada la
+  petición del proveedor. Una sesión cuya llamada falla o agota el tiempo se mantiene registrada y el proveedor recibe una respuesta de error.
+- El endpoint se excluye de la comprobación CSRF, ya que el proveedor no puede enviar un token CSRF.
+
+Configura el proveedor para que llame al endpoint:
+
+- **Keycloak:** en los ajustes del cliente, define **Backchannel logout URL** como
+  `https://{hostname}/logout/connect/back-channel/{registrationId}` y mantén **Backchannel logout session required**
+  activado, para que el token de cierre de sesión lleve el `sid` de la sesión.
+- **Microsoft Entra ID:** Entra ID solo admite el cierre de sesión por canal frontal, por lo que el cierre de sesión por canal trasero no puede usarse con él
+  directamente. Intermedia Entra ID a través de Keycloak para obtenerlo, o mantén un tiempo de espera de sesión corto.
+
+:::caution Cosas que comprobar antes de habilitarlo
+- **La petición interna de cierre de sesión debe llegar a este mismo nodo.** Por defecto va a la dirección que usó el proveedor
+  (`{baseUrl}`). Cuando esa dirección pública no es accesible desde el servidor (un proxy, un balanceador de carga o un cortafuegos
+  de por medio), define `logout-uri`, por ejemplo
+  `http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}`. Marcadores: `{baseUrl}`,
+  `{baseScheme}`, `{baseHost}`, `{basePort}`, `{basePath}` y `{registrationId}`.
+- **Nombre de la cookie de sesión.** La petición interna envía la cookie indicada por `session.cookie.name` (por defecto
+  `JSESSIONID`), la misma que AWE elimina al cerrar sesión. Mantenla igual al nombre real de la cookie de sesión.
+- **Tamaño del registro.** Una entrada sale del registro cuando el proveedor termina su sesión, y también cuando la
+  sesión HTTP caduca o se invalida (cierre de sesión del usuario, tiempo de espera) y cuando su id cambia al iniciar sesión: AWE registra un
+  `HttpSessionEventPublisher` y Spring Security escucha sus eventos de sesión. Si la aplicación sustituye ese
+  publicador o su almacén de sesiones no genera eventos de sesión HTTP, se conservan las entradas de las sesiones caducadas.
+- **Varios nodos.** El registro por defecto se mantiene en memoria y solo conoce las sesiones creadas en el nodo que
+  recibe el token de cierre de sesión. En un clúster, declara un bean `OidcSessionRegistry` compartido (AWE lo usará entonces) y asegúrate de que
+  la petición interna llegue al nodo que contiene la sesión, o de que las sesiones se compartan.
+- **Spring Session.** Si la aplicación almacena las sesiones con Spring Session y su serializador de cookies codifica el
+  id de sesión en Base64 (el valor por defecto de Spring Session), el id de sesión en bruto que envía la petición interna no se
+  reconoce. Desactiva la codificación Base64 del serializador de cookies, o declara un bean que extienda
+  `AweOidcBackChannelLogoutHandler` y sobrescriba `sessionCookieValue(String)` para codificar el id del mismo modo.
+:::
+
 ## Mapeo de roles y sincronización de perfiles {#role-mapping-and-profile-synchronization}
 
 En cada inicio de sesión SSO, AWE mapea las autoridades concedidas procedentes del proveedor de identidad a un perfil, usando
 `awe.security.sso.filter-authority-prefix` para seleccionar y quitar el prefijo del claim de rol (ver arriba).
+
+### Claim de roles {#roles-claim}
+
+Los roles se leen de los claims del token ID indicados en `awe.security.sso.roles-claims`, en orden (por defecto
+`realm_access.roles`, los roles de realm de Keycloak). Un nombre con puntos recorre objetos anidados, salvo que el token tenga un claim con
+exactamente ese nombre (así funcionan los nombres de claim en forma de URI). Un claim puede contener una lista de roles o un único rol de texto.
+
+| Proveedor | Claim | Propiedad |
+| --- | --- | --- |
+| Keycloak, roles de realm | `realm_access.roles` | por defecto, no hay que definir nada |
+| Keycloak, roles de cliente | `resource_access.<client-id>.roles` | `awe.security.sso.roles-claims=resource_access.my-app.roles` |
+| Microsoft Entra ID, roles de aplicación | `roles` | `awe.security.sso.roles-claims=roles` |
+| Varias fuentes | todas, combinadas | `awe.security.sso.roles-claims=roles,realm_access.roles` |
+
+- Los claims deben estar en el **token ID**: en Keycloak, mantén activado **Add to ID token** en los mappers de roles; en Entra ID,
+  los roles de aplicación asignados al usuario se envían en el claim `roles` del token ID.
+- El claim `groups` de Entra ID contiene ids de objeto de grupo, no nombres; prefiere los roles de aplicación.
+- Solo se registran (a nivel `DEBUG`) los nombres de los claims y el número de roles, nunca los valores de los roles.
+- Una aplicación que declare su propio bean `realmRolesAuthoritiesConverter` conserva el control total y
+  `roles-claims` se ignora.
+
+### Varios roles: qué perfil gana {#several-roles-which-profile-wins}
+
+Todos los roles que llevan el prefijo se convierten en nombres de perfil (se elimina el prefijo; los roles iguales al prefijo se
+ignoran). Cuando queda más de uno, AWE usa el **primer nombre, por orden alfabético, que exista como perfil de
+AWE**, de modo que el resultado nunca depende del orden en que el proveedor envía los roles, y un rol sin
+perfil nunca oculta a uno válido. Cuando ninguno existe como perfil, se toma el primer nombre por orden alfabético
+(y se trata entonces como un rol sin perfil, ver más abajo). Por ejemplo, con el prefijo `role_` y los roles
+`role_operator`, `role_manager` y `role_auditor`, donde `auditor` no es un perfil de AWE, el perfil es `manager`.
+Para controlar el resultado, envía un único rol con prefijo por usuario, o nombra los perfiles de modo que el preferido quede
+primero en el orden alfabético.
+
+### Sincronización con el perfil almacenado {#synchronization-with-the-stored-profile}
 
 - Si el proveedor envía un rol que coincide con el prefijo, y difiere del perfil almacenado del usuario, el
   perfil se sincroniza (solo cuando el rol existe en la aplicación).
@@ -118,6 +217,8 @@ En cada inicio de sesión SSO, AWE mapea las autoridades concedidas procedentes 
   - Los **usuarios nuevos, aprovisionados automáticamente**, se crean siempre con `awe.application.default-role`.
   - Los **usuarios existentes** conservan intacto su perfil actual de la base de datos, de modo que un perfil asignado manualmente en AWE
     no se restablece silenciosamente en el siguiente inicio de sesión.
+
+Cuando se exige un rol (ver más abajo), ninguno de estos respaldos se aplica.
 
 ```yaml title="Restore the default role on missing SSO roles"
 awe:
@@ -132,6 +233,28 @@ Antes de la 4.12.9, un usuario existente sin un rol SSO coincidente se degradaba
 mantiene por defecto el perfil existente. Establece `awe.security.sso.overwrite-profile-with-default-role=true` para restaurar
 el comportamiento anterior.
 :::
+
+### Exigir un rol (fallo cerrado) {#requiring-a-role-fail-closed}
+
+Cuando se exige un rol, un inicio de sesión SSO se **rechaza** si ningún rol enviado por el proveedor se mapea a un perfil
+de AWE existente: el usuario ve una página de error con un mensaje localizado ("Your identity provider account has no role allowed
+in this application..."), no se crea ninguna sesión de AWE, no se aprovisiona nada y no se usa `awe.application.default-role`.
+El rechazo se registra a nivel `WARN` con el nombre de usuario.
+
+- **Solo en IdP-first por defecto.** Un rol se exige por defecto solo cuando el inicio de sesión local está desactivado
+  (`awe.security.sso.local-login=false`). Con el inicio de sesión local activado (por defecto), se mantiene el comportamiento anterior salvo que
+  se establezca `awe.security.sso.require-role=true`. Un `require-role` explícito siempre prevalece.
+- **Los usuarios existentes también se rechazan.** Un usuario de AWE que ya existe se rechaza del mismo modo: el perfil almacenado
+  en AWE **no** se usa como respaldo cuando el proveedor no envía ningún rol que se mapee a un perfil.
+
+| `local-login` | `require-role` | Resultado cuando ningún rol se mapea |
+| --- | --- | --- |
+| `true` (por defecto) | sin definir (por defecto) | Comportamiento anterior: se mantiene el perfil almacenado, o el rol por defecto para los usuarios nuevos (ver arriba). |
+| `false` (IdP-first) | sin definir (por defecto) | **Rechazado.** |
+| cualquiera | `true` | Rechazado. |
+| cualquiera | `false` | Comportamiento anterior (aceptación explícita del respaldo del rol por defecto). |
+
+Un rol se "mapea" cuando, tras el prefijo y la regla alfabética anterior, el nombre resultante existe como perfil de AWE.
 
 ## Keycloak {#keycloak}
 

@@ -479,6 +479,7 @@
   <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="Le nouveau mot de passe doit être différent de celui qui a expiré. Connectez-vous à nouveau pour définir un nouveau mot de passe."/>
   <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Votre utilisateur est désactivé dans l&apos;application. Contactez votre administrateur système."/>
   <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Votre utilisateur est verrouillé dans l&apos;application. Contactez votre administrateur système."/>
+  <locale name="ERROR_MESSAGE_SSO_NO_ROLE" value="Votre compte du fournisseur d&apos;identité n&apos;a aucun rôle autorisé dans l&apos;application. Contactez votre administrateur système."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="L'opération SUBSTRING nécessite 2 ou 3 opérandes (source, beginIndex) ou (source, beginIndex, endIndex), mais {0} ont été fournis"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="L'opérande {0} de SUBSTRING doit être une constante ou variable compatible avec un entier, mais reçu: {1}"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Le cast {2} du champ {1} de la requête {0} n'est pas supporté"/>

@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
+import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.TaskConstants;
@@ -140,6 +141,14 @@ public abstract class JobService extends ServiceConfig {
   public TaskExecution startTask(Task task) throws AWException {
     // Mark tasks as started
     TaskExecution execution = taskDAO.startTask(task);
+
+    // Announce the started task once its execution is stored, so the task screen reloads executions that include it.
+    // The announcement only refreshes screens: a failing listener must not stop the task
+    try {
+      eventPublisher.publishEvent(new SchedulerTaskStartedEvent(this, task));
+    } catch (RuntimeException exc) {
+      log.warn("[SCHEDULER] Could not announce the start of task {}", task.getTaskId(), exc);
+    }
 
     // Start task progress
     startProgressThread(execution, taskDAO.getAverageTime(task.getTaskId()));

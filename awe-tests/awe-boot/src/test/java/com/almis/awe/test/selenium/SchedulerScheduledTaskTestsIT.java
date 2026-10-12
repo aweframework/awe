@@ -339,7 +339,8 @@ class SchedulerScheduledTaskTestsIT extends AbstractSchedulerTests {
     // Wait 5 seconds to finish the task
     pause(5000);
 
-    // Check success execution
+    // Check success execution: nothing reloads the executions grid after the launch, so the icon is the live update
+    // that the scheduler pushes when the task ends (#815)
     checkColumnSuccessIcon("ExeStaIco");
   }
 

@@ -106,10 +106,109 @@ awe.security.sso.break-glass-users=admin
   alert on it. Refusals are logged at `WARN` too, without the tag.
 - Keep the list short, use strong passwords and treat every `[break-glass]` entry in the log as an event to review.
 
+## Back-channel logout
+
+By default an AWE session lives until it expires or the user logs out of AWE: ending the session at the identity
+provider (an administrator signs the user out, the user is disabled, or the user logs out of another application)
+does not reach AWE. With [OpenID Connect back-channel logout](https://openid.net/specs/openid-connect-backchannel-1_0.html)
+the provider tells AWE directly, server to server, and AWE ends the matching sessions at once.
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.back-channel-logout.enabled=true
+```
+
+| Property | Default | Meaning |
+| --- | --- | --- |
+| `awe.security.sso.back-channel-logout.enabled` | `false` | Registers the back-channel logout endpoint. Ignored when SSO is disabled. |
+| `awe.security.sso.back-channel-logout.logout-uri` | empty (`{baseUrl}/logout/connect/back-channel/{registrationId}`) | Address AWE calls on itself to end each session (see below). |
+| `awe.security.sso.back-channel-logout.connect-timeout` | `2s` | Connection timeout of that internal call. |
+| `awe.security.sso.back-channel-logout.read-timeout` | `5s` | Read timeout of that internal call. |
+
+How it works:
+
+- At every SSO login AWE records the provider session (`sid` claim) and the user (`sub` claim) of the ID token
+  together with the AWE session id, in an OIDC session registry.
+- The provider posts a signed logout token to `/logout/connect/back-channel/{registrationId}`, where
+  `{registrationId}` is the Spring client registration (for example
+  `/logout/connect/back-channel/keycloak` for `spring.security.oauth2.client.registration.keycloak.*`). AWE validates
+  the token with the provider keys (signature, issuer, audience and the back-channel logout event) and answers
+  `400` when it is not valid.
+- For each AWE session of that provider session (or of that user, when the token carries no `sid`), AWE sends an
+  internal logout request to the `logout-uri` with the session cookie. It runs the same logout handlers as a user
+  logout: the AWE session data is cleared, the browser tabs of that session receive a logout message through the
+  websocket and their connections are released, and the HTTP session is invalidated. The next request of the browser
+  goes to the sign-in flow.
+- The internal call is bounded by `connect-timeout` and `read-timeout`, so an unreachable `logout-uri` cannot hang the
+  provider request. A session whose call fails or times out stays registered and the provider gets an error answer.
+- The endpoint is excluded from the CSRF check, as the provider cannot send a CSRF token.
+
+Configure the provider to call the endpoint:
+
+- **Keycloak:** in the client settings, set **Backchannel logout URL** to
+  `https://{hostname}/logout/connect/back-channel/{registrationId}` and keep **Backchannel logout session required**
+  on, so the logout token carries the `sid` of the session.
+- **Microsoft Entra ID:** Entra ID only supports front-channel logout, so back-channel logout cannot be used with it
+  directly. Broker Entra ID through Keycloak to get it, or keep a short session timeout.
+
+:::caution Things to check before enabling it
+- **The internal logout request must reach this same node.** By default it goes to the address the provider used
+  (`{baseUrl}`). When that public address is not reachable from the server (a proxy, a load balancer or a firewall in
+  between), set `logout-uri`, for example
+  `http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}`. Placeholders: `{baseUrl}`,
+  `{baseScheme}`, `{baseHost}`, `{basePort}`, `{basePath}` and `{registrationId}`.
+- **Session cookie name.** The internal request sends the cookie named by `session.cookie.name` (default
+  `JSESSIONID`), the same one AWE deletes on logout. Keep it equal to the real session cookie name.
+- **Registry size.** An entry leaves the registry when its session is ended by the provider, and also when the
+  HTTP session expires or is invalidated (user logout, timeout) and when its id changes at login: AWE registers an
+  `HttpSessionEventPublisher` and Spring Security listens to its session events. If the application replaces that
+  publisher or its session store does not raise HTTP session events, entries of expired sessions are kept.
+- **Several nodes.** The default registry is kept in memory and only knows the sessions created in the node that
+  receives the logout token. In a cluster, declare a shared `OidcSessionRegistry` bean (AWE then uses it) and make sure
+  the internal request reaches the node that holds the session, or that sessions are shared.
+- **Spring Session.** If the application stores sessions with Spring Session and its cookie serializer encodes the
+  session id in Base64 (the Spring Session default), the raw session id sent by the internal request is not
+  recognized. Turn off the Base64 encoding of the cookie serializer, or declare a bean that extends
+  `AweOidcBackChannelLogoutHandler` and overrides `sessionCookieValue(String)` to encode the id the same way.
+:::
+
 ## Role mapping and profile synchronization
 
 On every SSO login, AWE maps the granted authorities coming from the identity provider to a profile, using
 `awe.security.sso.filter-authority-prefix` to select and strip the role claim (see above).
+
+### Roles claim
+
+The roles are read from the ID token claims listed in `awe.security.sso.roles-claims`, in order (default
+`realm_access.roles`, the Keycloak realm roles). A dotted name walks nested objects, unless the token has a claim with
+that exact name (so URI claim names work). A claim can hold a list of roles or a single text role.
+
+| Provider | Claim | Property |
+| --- | --- | --- |
+| Keycloak, realm roles | `realm_access.roles` | default, nothing to set |
+| Keycloak, client roles | `resource_access.<client-id>.roles` | `awe.security.sso.roles-claims=resource_access.my-app.roles` |
+| Microsoft Entra ID, app roles | `roles` | `awe.security.sso.roles-claims=roles` |
+| Several sources | all of them, joined | `awe.security.sso.roles-claims=roles,realm_access.roles` |
+
+- The claims must be in the **ID token**: in Keycloak, keep **Add to ID token** on in the roles mappers; in Entra ID,
+  app roles assigned to the user are sent in the `roles` claim of the ID token.
+- Entra ID `groups` carries group object ids, not names; prefer app roles.
+- Only claim names and role counts are logged (at `DEBUG`), never role values.
+- An application that declares its own `realmRolesAuthoritiesConverter` bean keeps full control and
+  `roles-claims` is ignored.
+
+### Several roles: which profile wins
+
+All roles that carry the prefix are turned into profile names (the prefix is stripped, roles equal to the prefix are
+ignored). When more than one remains, AWE uses the **first name in alphabetical order that exists as an AWE
+profile**, so the result never depends on the order in which the provider sends the roles, and a role without a
+profile never hides a valid one. When none of them exists as a profile, the first name in alphabetical order is
+taken (and then handled as a role without profile, see below). For example, with the prefix `role_` and the roles
+`role_operator`, `role_manager` and `role_auditor`, where `auditor` is not an AWE profile, the profile is `manager`.
+To control the result, send a single prefixed role per user, or name the profiles so that the preferred one sorts
+first.
+
+### Synchronization with the stored profile
 
 - If the provider sends a role that matches the prefix, and it differs from the user's stored profile, the
   profile is synchronized (only when the role exists in the application).
@@ -118,6 +217,8 @@ On every SSO login, AWE maps the granted authorities coming from the identity pr
   - **New, auto-provisioned users** are always created with `awe.application.default-role`.
   - **Existing users** keep their current database profile untouched, so a profile assigned manually in AWE
     is not silently reset on the next login.
+
+When a role is required (below), none of these fallbacks apply.
 
 ```yaml title="Restore the default role on missing SSO roles"
 awe:
@@ -132,6 +233,28 @@ Prior to 4.12.9, an existing user without a matching SSO role was always downgra
 existing profile is kept by default. Set `awe.security.sso.overwrite-profile-with-default-role=true` to restore
 the previous behaviour.
 :::
+
+### Requiring a role (fail closed)
+
+When a role is required, an SSO login is **refused** when no role sent by the provider maps to an existing AWE
+profile: the user sees an error page with a localized message ("Your identity provider account has no role allowed
+in this application..."), no AWE session is created, nothing is provisioned, and `awe.application.default-role` is
+not used. The refusal is logged at `WARN` with the user name.
+
+- **Only in IdP-first by default.** A role is required by default only when local login is switched off
+  (`awe.security.sso.local-login=false`). With local login on (the default), the previous behaviour stays unless
+  `awe.security.sso.require-role=true` is set. An explicit `require-role` always wins.
+- **Existing users are refused too.** An AWE user that already exists is refused in the same way: the profile stored
+  in AWE is **not** used as a fallback when the provider sends no role that maps to a profile.
+
+| `local-login` | `require-role` | Result when no role maps |
+| --- | --- | --- |
+| `true` (default) | not set (default) | Previous behaviour: stored profile kept, or default role for new users (see above). |
+| `false` (IdP-first) | not set (default) | **Refused.** |
+| any | `true` | Refused. |
+| any | `false` | Previous behaviour (explicit opt-in to the default role fallback). |
+
+A role "maps" when, after the prefix and the alphabetical rule above, the resulting name exists as an AWE profile.
 
 ## Keycloak
 

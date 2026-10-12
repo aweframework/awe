@@ -10,6 +10,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.security.authentication.ClaimRolesAuthoritiesConverter;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
@@ -56,9 +57,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -248,6 +250,19 @@ public class AweWebSecurityConfig {
 			oauth2.successHandler(context.getBean(AweOauth2AuthenticationSuccessHandler.class));
 			oauth2.failureHandler(context.getBean(AweOauth2AuthenticationFailureHandler.class));
 		});
+
+		// OIDC back-channel logout: the provider posts a logout token and the matching sessions are ended. Each session is
+		// ended by an internal request that carries its session cookie, so it runs the same logout handlers as a user logout
+		// (AWE session state, websocket connections, security context and HTTP session)
+		if (isBackChannelLogoutEnabled()) {
+			log.info("OIDC back-channel logout is enabled");
+			AweOidcBackChannelLogoutHandler logoutHandler = context.getBean(AweOidcBackChannelLogoutHandler.class);
+			http.oidcLogout(logout -> logout.backChannel(backChannel -> backChannel.logoutHandler(logoutHandler)));
+		}
+	}
+
+	private boolean isBackChannelLogoutEnabled() {
+		return securityConfigProperties.getSso().getBackChannelLogout().isEnabled();
 	}
 
 	/**
@@ -380,21 +395,44 @@ public class AweWebSecurityConfig {
 		);
 	}
 
+	/**
+	 * Registry of the OIDC sessions that the provider can end through back-channel logout. It is kept in memory, so it
+	 * only knows the sessions created in this node: applications running several nodes provide a shared registry bean.
+	 *
+	 * @return OIDC session registry
+	 */
+	@Bean
+	@ConditionalOnProperty(prefix = "awe.security.sso", name = {"enabled", "back-channel-logout.enabled"}, havingValue = "true")
+	@ConditionalOnMissingBean
+	public OidcSessionRegistry oidcSessionRegistry() {
+		return new InMemoryOidcSessionRegistry();
+	}
+
+	/**
+	 * Back-channel logout handler: ends each session named by the logout token through an internal logout request that
+	 * carries the AWE session cookie
+	 *
+	 * @param oidcSessionRegistry OIDC session registry
+	 * @return back-channel logout handler
+	 */
+	@Bean
+	@ConditionalOnProperty(prefix = "awe.security.sso", name = {"enabled", "back-channel-logout.enabled"}, havingValue = "true")
+	@ConditionalOnMissingBean
+	public AweOidcBackChannelLogoutHandler oidcBackChannelLogoutHandler(OidcSessionRegistry oidcSessionRegistry) {
+		SecurityConfigProperties.BackChannelLogout backChannelLogout = securityConfigProperties.getSso().getBackChannelLogout();
+		String logoutUri = StringUtils.hasText(backChannelLogout.getLogoutUri())
+			? backChannelLogout.getLogoutUri() : AweOidcBackChannelLogoutHandler.DEFAULT_LOGOUT_URI;
+		return new AweOidcBackChannelLogoutHandler(oidcSessionRegistry,
+			AweOidcBackChannelLogoutHandler.restOperations(backChannelLogout.getConnectTimeout(), backChannelLogout.getReadTimeout()),
+			cookieName, logoutUri);
+	}
+
 	@Bean
 	@ConditionalOnProperty(prefix = "awe.security.sso", name = "enabled", havingValue = "true")
 	@ConditionalOnMissingBean(name = "realmRolesAuthoritiesConverter")
 	AuthoritiesConverter realmRolesAuthoritiesConverter() {
-		return claims -> {
-			@SuppressWarnings("unchecked") var realmAccess = Optional.ofNullable((Map<String, Object>) claims.get("realm_access"));
-			@SuppressWarnings("unchecked") var roles = realmAccess.flatMap(map -> Optional.ofNullable((List<String>) map.get("roles")));
-			return roles.stream().flatMap(Collection::stream)
-					.map(SimpleGrantedAuthority::new)
-					.map(grantedAuthority -> {
-						log.debug("Granted authority {} converted", (grantedAuthority));
-						return (GrantedAuthority) grantedAuthority;
-					})
-					.toList();
-		};
+		// Roles are read from the configured claims (awe.security.sso.roles-claims, Keycloak realm roles by default)
+		return new ClaimRolesAuthoritiesConverter(securityConfigProperties.getSso().getRolesClaims())::convert;
 	}
 
 	@Bean
