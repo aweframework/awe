@@ -7,9 +7,10 @@ import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.scheduler.dao.ServerDAO;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,8 @@ import org.springframework.context.ApplicationContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,14 +73,31 @@ class ServerConnectionServiceTest {
   @TempDir
   Path tempDir;
 
+  /**
+   * Key material is generated once, before any server or connection exists. Generating it inside a test or lazily on the
+   * server's first handshake (what SimpleGeneratorHostKeyProvider does for every new server) is random-length CPU work
+   * (EC P-521 took ~0.5 s per server on CI, RSA-2048 anywhere from tens of ms to seconds) that happens while the client is
+   * already waiting on the handshake, so a loaded runner turned it into the only timing-dependent part of the suite
+   */
+  private static KeyPair hostKey;
+  private static String clientPrivateKeyPem;
+
   private SshServer sshServer;
   private int port;
+
+  @BeforeAll
+  static void generateKeyMaterial() throws Exception {
+    KeyPairGenerator hostKeyGenerator = KeyPairGenerator.getInstance("EC");
+    hostKeyGenerator.initialize(256);
+    hostKey = hostKeyGenerator.generateKeyPair();
+    clientPrivateKeyPem = generatePrivateKeyPem();
+  }
 
   @BeforeEach
   void startEmbeddedServer() throws IOException {
     sshServer = SshServer.setUpDefaultServer();
     sshServer.setPort(0);
-    sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(tempDir.resolve("host-key.ser")));
+    sshServer.setKeyPairProvider(KeyPairProvider.wrap(hostKey));
     sshServer.setPasswordAuthenticator((username, password, session) -> TEST_USER.equals(username) && TEST_PASSWORD.equals(password));
     sshServer.start();
     port = sshServer.getPort();
@@ -111,7 +131,7 @@ class ServerConnectionServiceTest {
     sshServer.setPublickeyAuthenticator((username, key, session) -> TEST_USER.equals(username));
     ServerConnectionService service = service(SshHostKeyPolicy.ACCEPT_ALL);
 
-    ServiceData result = service.checkServerConnection("ssh", "127.0.0.1", port, TEST_USER, null, privateKeyPem(), null, null);
+    ServiceData result = service.checkServerConnection("ssh", "127.0.0.1", port, TEST_USER, null, clientPrivateKeyPem, null, null);
 
     assertSuccess(result);
   }
@@ -371,6 +391,8 @@ class ServerConnectionServiceTest {
   }
 
   private void assertSuccess(ServiceData result) {
+    // Name the reported diagnosis when it is not a success, so a failure shows its cause instead of "expected false"
+    assertEquals("", result.getMessage(),"The connection check reported a failure");
     assertNoMessageAction(result);
     assertIconRestored(result);
     assertStateClass(result, "btn-success p-button-success");
@@ -436,8 +458,8 @@ class ServerConnectionServiceTest {
     when(aweElements.getLocaleWithLanguage(anyString(), anyString())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
-  private String privateKeyPem() throws Exception {
-    java.security.KeyPairGenerator generator = java.security.KeyPairGenerator.getInstance("RSA");
+  private static String generatePrivateKeyPem() throws Exception {
+    KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
     generator.initialize(2048);
     java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
     org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyPairResourceWriter.INSTANCE

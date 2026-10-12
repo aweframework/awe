@@ -1340,6 +1340,19 @@ The rules of a quarantine:
 4. **Quarantine the smallest thing that fails.** A method before a class. Products can use the same annotation and the same
    guard (`BrowserTestDeclarationsGuard.scan(...)`) in their own browser tests.
 
+#### CI guard tests
+
+Three unit tests keep the rules above from drifting. They read sources, compiled classes or `.gitlab-ci.yml`, need no
+browser and run with the unit tests (`All UT`):
+
+| Test | Module | Fails on |
+|---|---|---|
+| `BrowserTestDeclarationsGuardTest` | `awe-boot`, `awe-boot-react` | A `@Quarantine` without an issue or a reason, a hand-written `@Tag("quarantine")`, a badly declared `@DependentChain` |
+| `BrowserTestSourcesGuardTest` | `awe-boot`, `awe-boot-react` | Selectors or automation-tool types in the browser test sources (see [Keeping browser tests free of selectors](#keeping-browser-tests-free-of-selectors)) |
+| `CiBrowserClassesGuardTest` | `awe-boot-react` | `.gitlab-ci.yml` drifting from the sources: a class listed in `TEST_CLASSES` that does not exist, a quarantine job that could block the pipeline, a job retried on a test failure, a chain job without `.chain-retry`, a browser job that does not gate `Launch Sonar` |
+
+Run one from the repository root, for instance `mvn test -pl awe-tests/awe-boot-react -Dtest=CiBrowserClassesGuardTest -Dskip.frontend=true`.
+
 ### Reproduce a failure of the CI browser
 
 A test that passes with `headless-chrome` can fail in CI because CI runs the browser from a Selenoid container image, on a

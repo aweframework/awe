@@ -143,6 +143,72 @@ The pipeline runs the same profiles in the `MySQL Tests`, `PostgreSQL Tests`, `S
 Docker-in-Docker. H2 and HSQLDB run embedded. The
 [`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, CI setup).
 
+Where the pieces are: the annotation `@AweDatabaseTest` and the enum `TestDatabase` live in `awe-framework/awe-testing`
+(`com.almis.awe.testing.database`), and the pinned images in
+`awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`. The
+[Testing against each database](website/docs/supported-databases.md#testing-against-each-database) page of the docs shows the
+annotation and the image table; the skill above has the CI setup of the `.database-containers` template.
+
+## Browser tests: flaky tests, quarantine and guards
+
+The browser suites (Playwright and Selenium, against `awe-tests/awe-boot` and `awe-tests/awe-boot-react`) block the pipeline,
+so a flaky test is handled in three steps, all described in
+[Flaky tests: rerun, chains and quarantine](website/docs/guides/selenium-test-guide.md#flaky-tests-rerun-chains-and-quarantine):
+
+1. **Rerun**: a failed test of an independent class runs once more alone (failsafe `rerunFailingTestsCount`, Maven property
+   `it.rerun-count`). If it passes it is reported as flaky: look for `Flakes:` in the job log and open an issue.
+2. **Quarantine**: put `@Quarantine(issue = "#812", reason = "...")` (`com.almis.awe.testing.annotations`) on the test method.
+   The blocking jobs leave it out (`it.excluded-groups`) and the jobs `Quarantine Playwright IT` and `Quarantine Selenium IT` run
+   it with `allow_failure: true`, so a failure there is a warning and its report is in the job artifacts.
+3. **Get it out**: fix the cause, delete the annotation and close the issue in the same merge request; the merge request
+   pipeline then runs the test as a blocking one.
+
+To reproduce locally what the quarantine jobs run, add `-Dgroups=quarantine -Dit.excluded-groups= -Dit.rerun-count=0` to the
+Selenium command of the `awe-integration-tests` skill.
+
+Guard tests keep these rules from rotting (`BrowserTestDeclarationsGuardTest`, `BrowserTestSourcesGuardTest`,
+`CiBrowserClassesGuardTest`); see [CI guard tests](website/docs/guides/selenium-test-guide.md#ci-guard-tests). Run one with
+`mvn test -pl awe-tests/awe-boot-react -Dtest=CiBrowserClassesGuardTest -Dskip.frontend=true`.
+
+## Merge request checks
+
+Merge requests get fast jobs in the `build` stage, before anything is built. Blocking ones fail the pipeline; warnings end
+with exit code 64, which is allowed to fail, so the pipeline shows an orange warning and the merge is never blocked.
+
+| Job | Blocks? | Checks | Run it locally |
+|---|---|---|---|
+| `MR title lint` | yes | Title follows Conventional Commits (`type(scope): description (#issue Ttask)`) | `bin/lint-mr-title.sh "feat: x (#1)"` (Node 22.12+) |
+| `MR size warning` | warning | More than 400 changed lines (lockfiles, generated files, `website/docs`, `website/i18n` and binaries excluded) | `bin/mr-size.sh origin/develop` |
+| `MR docs warning` | warning | Code changed with no docs change and neither "Docs updated" nor "No docs needed because: ..." ticked in the description | `CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop` |
+| `MR translation drift warning` | warning | An English page changed whose Spanish translation in `website/i18n/es` did not | `bin/mr-translations.sh origin/develop` |
+| `MR checks tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
+| `Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
+| `Lint frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
+| `Build website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
+
+Run the website check as CI does (the build log is read by the anchors script; the `bin/website-maintenance-docs.sh` step of
+CI, which injects the 4.x docs, is optional locally):
+
+```bash
+npm --prefix website ci
+npm --prefix website run test:scripts
+npm --prefix website run build > website-build.log 2>&1
+bin/check-website-anchors.sh website-build.log
+```
+
+The title rules, the size exclusions, the docs and translation checks and the frontend lint are explained in
+[Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size) and
+[Frontend lint](website/docs/guides/release-lines-and-support.md#frontend-lint-blocking). Which jobs a merge request gets
+depends on the paths it touches (see
+[What runs in CI on each branch](website/docs/guides/release-lines-and-support.md#what-runs-in-ci-on-each-branch)).
+
+## XSD checks
+
+Changes to the XSDs are protected by a catalog consistency unit test, the build validation of the application XML and the
+unit tests of the XSD reference generator (`npm --prefix website run test:scripts`, already part of `Build website`). What each
+one checks and how to run it is in
+[Checks when you change a schema](website/docs/guides/xsd-tooling.md#checks-when-you-change-a-schema).
+
 ## Definition of done
 
 A merge request is done when all of this is true:
