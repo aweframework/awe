@@ -21,11 +21,11 @@ A resizable can contain any screen element: [tags](tags.md), [windows](window.md
 
 | Attribute  | Use          | Type   | Description                                              | Values / default                                                                                  |
 | ---------- | ------------ | ------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| directions | Optional (set it) | String | Sides of the container that can be dragged        | `right`, `left`, `top`, `bottom`. In the AngularJS engine you can set several, separated by spaces |
+| directions | Optional (set it) | String | Sides of the container that can be dragged        | `right`, `left`, `top`, `bottom`. You can set several, separated by spaces |
 | style      | Optional     | String | CSS classes of the container                             | See [size and responsive styles](#size-and-responsive-styles)                                     |
 | id         | Optional     | String | Identifier of the resizable. For reference purposes      |                                                                                                   |
 
-The schema does not force `directions`, but without it the AngularJS engine draws no grabber, so the resizable cannot be
+The schema does not force `directions`, but without it no engine draws a grabber, so the resizable cannot be
 resized. Set it always.
 
 The `screen.xsd` schema also declares `icon`, `label` and `expandible` for the resizable, but neither client uses
@@ -82,7 +82,7 @@ resizable.
 
 ## Size and responsive styles
 
-In the AngularJS engine the resizable has a minimum size of 160 px and it cannot grow over 99% of its parent. These
+The resizable has a minimum size of 160 px and it cannot grow over 99% of its parent. These
 styles turn the grabber off when the screen is narrow, so on a phone the container uses its normal size:
 
 | Style             | The resizable stops being resizable when the screen is      |
@@ -97,19 +97,21 @@ new size.
 
 ## AngularJS and React engines
 
-The two engines do not draw the resizable in the same way:
+Both engines draw the resizable in the same way: the container itself is resized by dragging the sides listed in
+`directions`, and its children are stacked inside it. The `no-resizable-*` styles turn the handles off in both.
 
-| Feature                      | AngularJS engine                                                                | React engine                                                                                     |
-| ---------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| What is dragged              | The sides listed in `directions` of the container itself                        | The border **between** the children: each direct child of the resizable becomes a panel          |
-| Several directions           | Allowed (`directions="right bottom"`)                                           | Not used: `top` and `bottom` split the children vertically, any other value splits them horizontally |
-| One child                    | The container is resizable                                                      | There is nothing to drag: the border only exists between two or more children                     |
-| `no-resizable-*` styles      | Applied                                                                         | Ignored                                                                                          |
-| Library                      | Own directive                                                                   | [PrimeReact Splitter](https://primereact.org/splitter/)                                          |
+| Feature                 | AngularJS engine                                      | React engine                                          |
+| ----------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
+| What is dragged         | The sides listed in `directions` of the container     | The same                                              |
+| Several directions      | Allowed (`directions="right bottom"`)                 | Allowed                                               |
+| One or several children | The children are stacked inside the container         | The same: the children are **not** split in panels    |
+| `no-resizable-*` styles | Applied                                               | Applied                                               |
+| Implementation          | Own directive                                         | Own component, same stylesheet rules                  |
 
-If a screen must resize in both engines, put in the resizable **two or more children** that share the space: the React
-engine splits them, and in the AngularJS engine they are stacked inside the container that the grabber resizes. Check
-the result in both engines before you rely on it.
+The React engine used to split the children with a [PrimeReact Splitter](https://primereact.org/splitter/), so it had no
+handle with a single child and it ignored `no-resizable-*`. It now behaves as the AngularJS engine. A screen that
+relied on the splitter between two children (a drag border between two grids) must wrap each of them in its own
+resizable.
 
 ## Related pages
 

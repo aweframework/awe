@@ -19,3 +19,22 @@
   .expandible-horizontal;
   .flex(1);
 }
+
+// A maximized window fills its template container; only the content marked as expand-maximize takes the free space
+// .maximize-target marks the template container that a maximized window covers (see AweWindow.jsx)
+
+.p-panel.maximized {
+  // Placed by the component over the maximize target (position, top, left, width and height)
+  z-index: 100;
+  margin: 0 !important;
+  .flex(0);
+
+  > .p-toggleable-content > .p-panel-content > .expand-maximize {
+    .flex(1);
+  }
+}
+
+.p-panel .maximize-button {
+  cursor: pointer;
+  margin-left: 0.5rem;
+}

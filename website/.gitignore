@@ -41,3 +41,6 @@ yarn-error.log*
 
 # Properties reference, generated from the Spring configuration metadata by scripts/properties-reference/generate.js before every start/build
 /docs/properties.md
+
+# REST API reference, generated from the OpenAPI snapshot by scripts/rest-reference/generate.js before every start/build
+/docs/rest-api.md

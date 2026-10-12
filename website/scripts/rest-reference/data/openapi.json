@@ -1,0 +1,636 @@
+{
+  "components" : {
+    "schemas" : {
+      "AweRestResponse" : {
+        "properties" : {
+          "code" : {
+            "description" : "Error code that tells apart the cause of an authentication error (for example PASSWORD_EXPIRED)",
+            "type" : "string"
+          },
+          "dataList" : {
+            "$ref" : "#/components/schemas/DataList"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "resultDetails" : {
+            "items" : {
+              "$ref" : "#/components/schemas/MaintainResultDetails"
+            },
+            "type" : "array"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [
+              "error",
+              "ok",
+              "warning",
+              "info"
+            ],
+            "type" : "string"
+          }
+        },
+        "title" : "AWE rest response model",
+        "type" : "object"
+      },
+      "DataList" : {
+        "properties" : {
+          "page" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "records" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "rows" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "JsonNode" : { },
+      "LoginRequest" : {
+        "properties" : {
+          "password" : {
+            "example" : "too",
+            "minLength" : 1,
+            "title" : "User password",
+            "type" : "string"
+          },
+          "username" : {
+            "example" : "foo",
+            "minLength" : 1,
+            "title" : "User name",
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "password",
+          "username"
+        ],
+        "type" : "object"
+      },
+      "LoginResponse" : {
+        "properties" : {
+          "expiresAt" : {
+            "example" : "2021-04-26T16:16:18.000+00:00",
+            "format" : "date-time",
+            "title" : "JWT expiration token",
+            "type" : "string"
+          },
+          "issuer" : {
+            "example" : "AWE issuer",
+            "title" : "Issuer of authentication token",
+            "type" : "string"
+          },
+          "token" : {
+            "example" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0IiwiaXNzIjoiQVdFIElTU1VFUiIsImV4cCI6MT",
+            "title" : "JWT Token",
+            "type" : "string"
+          },
+          "username" : {
+            "example" : "foo",
+            "title" : "User name",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "MaintainResultDetails" : {
+        "properties" : {
+          "operationType" : {
+            "enum" : [
+              "A",
+              "C",
+              "D",
+              "E",
+              "I",
+              "M",
+              "N",
+              "S",
+              "Q",
+              "U",
+              "T",
+              "G"
+            ],
+            "type" : "string"
+          },
+          "parameterMap" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/JsonNode"
+            },
+            "type" : "object"
+          },
+          "rowsAffected" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "RequestParameter" : {
+        "description" : "Query parameters",
+        "properties" : {
+          "parameters" : {
+            "additionalProperties" : { },
+            "description" : "Parameter values can be a list",
+            "example" : {
+              "parName1" : "value1",
+              "parName2" : "value2",
+              "parName3" : [
+                "valueList1",
+                "valueList2",
+                "valueList3"
+              ]
+            },
+            "title" : "Parameters map in Json format",
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "bearerFormat" : "JWT",
+        "description" : "AWE local JWT token obtained from /api/authenticate.",
+        "name" : "bearerAuth",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  },
+  "externalDocs" : { },
+  "info" : {
+    "contact" : { },
+    "description" : "Rest API to access AWE services",
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "title" : "AWE Rest API",
+    "version" : "v1.0.0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/authenticate" : {
+      "post" : {
+        "description" : "Provides a JWT token to be sent as http header in services that require authentication.",
+        "operationId" : "authenticate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            },
+            "description" : "Success. Authorized OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found, invalid credentials or expired password (code PASSWORD_EXPIRED: the password has to be changed in the web application)"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "summary" : "Authentication service.",
+        "tags" : [
+          "Authentication API"
+        ]
+      }
+    },
+    "/api/data/{queryId}" : {
+      "post" : {
+        "description" : "Launch a query given query id and parameters.",
+        "operationId" : "launchQuery",
+        "parameters" : [
+          {
+            "description" : "Query ID",
+            "in" : "path",
+            "name" : "queryId",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Success. Query launched OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request. Query not defined"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "security" : [
+          {
+            "bearerAuth" : [ ]
+          }
+        ],
+        "summary" : "Query service.",
+        "tags" : [
+          "Protected API"
+        ]
+      }
+    },
+    "/api/maintain/async/{maintainId}" : {
+      "post" : {
+        "description" : "Launch a maintain given maintain id and parameters, and launch a callback function on maintain end",
+        "operationId" : "launchMaintainMono",
+        "parameters" : [
+          {
+            "in" : "path",
+            "name" : "maintainId",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Success. Maintain launched OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request. Maintain not defined"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "security" : [
+          {
+            "bearerAuth" : [ ]
+          }
+        ],
+        "summary" : "Maintain service.",
+        "tags" : [
+          "Protected API"
+        ]
+      }
+    },
+    "/api/maintain/{maintainId}" : {
+      "post" : {
+        "description" : "Launch a maintain given maintain id and parameters.",
+        "operationId" : "launchMaintain",
+        "parameters" : [
+          {
+            "in" : "path",
+            "name" : "maintainId",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Success. Maintain launched OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request. Maintain not defined"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "security" : [
+          {
+            "bearerAuth" : [ ]
+          }
+        ],
+        "summary" : "Maintain service.",
+        "tags" : [
+          "Protected API"
+        ]
+      }
+    },
+    "/api/public/data/{queryId}" : {
+      "post" : {
+        "description" : "Launch a public query given query id and parameters.",
+        "operationId" : "launchPublicQuery",
+        "parameters" : [
+          {
+            "description" : "Query ID",
+            "in" : "path",
+            "name" : "queryId",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Success. Query launched OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request. Query not defined"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "summary" : "Public Query service.",
+        "tags" : [
+          "Public API"
+        ]
+      }
+    },
+    "/api/public/maintain/{maintainId}" : {
+      "post" : {
+        "description" : "Launch a public maintain given maintain id and parameters.",
+        "operationId" : "launchPublicMaintain",
+        "parameters" : [
+          {
+            "in" : "path",
+            "name" : "maintainId",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Success. Maintain launched OK"
+          },
+          "400" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Bad request. Maintain not defined"
+          },
+          "401" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "500" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Internal error"
+          }
+        },
+        "summary" : "Maintain service.",
+        "tags" : [
+          "Public API"
+        ]
+      }
+    }
+  },
+  "tags" : [
+    {
+      "description" : "Authentication service",
+      "name" : "Authentication API"
+    },
+    {
+      "description" : "Protected admin interface to launch AWE services",
+      "name" : "Protected API"
+    },
+    {
+      "description" : "Public admin interface to launch AWE services",
+      "name" : "Public API"
+    }
+  ]
+}

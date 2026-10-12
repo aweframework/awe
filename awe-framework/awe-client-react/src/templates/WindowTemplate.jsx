@@ -1,5 +1,5 @@
 import React from "react";
-import {getSource, getSourceChildren} from "../utilities/structure";
+import {getSource, getSourceChildren, getSourceStyle} from "../utilities/structure";
 import {BreadCrumb} from "primereact/breadcrumb";
 
 import "./WindowTemplate.css";
@@ -20,10 +20,10 @@ function WindowTemplate(props) {
     <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
       <div className="breadcrumb-buttons p-breadcrumb-container">
         <BreadCrumb model={breadcrumbs.items} home={home}/>
-        <div className={`window-buttons ${sourceButtons?.style ?? ""}`}>{getSourceChildren(sourceButtons)}</div>
+        <div className={`window-buttons ${getSourceStyle(sourceButtons)}`}>{getSourceChildren(sourceButtons)}</div>
       </div>
-      <div className={`expand expandible-vertical ${sourceCenter?.style ?? ""}`}>{getSourceChildren(sourceCenter)}</div>
-      <div style={{position: 'absolute'}} className={sourceModal?.style ?? ""}>{getSourceChildren(sourceModal)}</div>
+      <div className={`expand expandible-vertical maximize-target ${getSourceStyle(sourceCenter)}`}>{getSourceChildren(sourceCenter)}</div>
+      <div style={{position: 'absolute'}} className={getSourceStyle(sourceModal)}>{getSourceChildren(sourceModal)}</div>
       <div style={{display: 'none'}}>{getSourceChildren(sourceHidden)}</div>
     </div>
   );

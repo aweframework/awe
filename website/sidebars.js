@@ -49,6 +49,7 @@ module.exports = {
 								"developer-tools",
 								"builder",
 								"rest",
+								"rest-api",
 								"scheduler",
 								"notifier",
 								"supported-databases",

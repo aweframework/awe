@@ -100,4 +100,38 @@ describe('awe-react-client/test/js/templates/WindowTemplateTest.jsx', () => {
     // Verify the breadcrumb is rendered
     expect(container.querySelector('.p-breadcrumb')).not.toBeNull();
   });
+
+  describe('source tags with type and expandible, as in the AngularJS engine', () => {
+    const sources = (center) => [
+      center,
+      { source: 'modal', elementList: [] },
+      { source: 'hidden', elementList: [] },
+      { source: 'buttons', elementList: [] }
+    ];
+    const child = {elementType: 'Tag', type: 'span', id: 'inner', label: 'Inner', elementList: []};
+    const preloadedState = {screen: {breadcrumbs: {items: []}}};
+
+    it('generates the element of a source tag with its style and expandible direction', () => {
+      const { container } = renderWithProviders(
+        <WindowTemplate elementList={sources({source: 'center', type: 'section', id: 'centre', style: 'expand wide', expand: 'horizontal', elementList: [child]})} />,
+        { preloadedState }
+      );
+
+      const element = container.querySelector('section#centre');
+      expect(element).not.toBeNull();
+      expect(element.className).toBe('expandible-horizontal expand wide');
+      expect(element.querySelector('span#inner')).not.toBeNull();
+      expect(container.querySelector('.expand.expandible-vertical.wide')).toBeNull();
+    });
+
+    it('keeps the children directly in the template when the source tag has no type', () => {
+      const { container } = renderWithProviders(
+        <WindowTemplate elementList={sources({source: 'center', expand: 'horizontal', elementList: [child]})} />,
+        { preloadedState }
+      );
+
+      expect(container.querySelector('.expand.expandible-vertical > span#inner')).not.toBeNull();
+      expect(container.querySelector('.expandible-horizontal')).toBeNull();
+    });
+  });
 });

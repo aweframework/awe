@@ -16,12 +16,15 @@ function Tag(props) {
     return React.createElement(type, {id: id, className: classes});
   }
 
-  return React.createElement(type || "div", {
-    id: id,
-    className: classes,
-    ...(elementList.length > 0 ? {children: [...[renderSafeHtml(translateLabel(label, t)), value], ...(elementList.map((node, index) => Components(node, index)))]} :
-      {children: [renderSafeHtml(translateLabel(label, t)), value]})
-  });
+  // Same precedence as the AngularJS engine: the label, else the value, else the children
+  const content = label ? renderSafeHtml(translateLabel(label, t)) : (value ?? elementList.map((node, index) => Components(node, index)));
+
+  // A tag without type generates no element: its content goes straight to the parent
+  if (!type) {
+    return <>{content}</>;
+  }
+
+  return React.createElement(type, {id: id, className: classes}, content);
 }
 
 Tag.propTypes = {

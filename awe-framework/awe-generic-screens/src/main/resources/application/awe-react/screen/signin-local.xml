@@ -24,7 +24,7 @@
         <tag type="div" style="signin-form">
           <criteria label="SCREEN_TEXT_USER" placeholder="SCREEN_TEXT_INSERT_USER" component="text" id="cod_usr" validation="required"/>
           <criteria label="SCREEN_TEXT_PASS" placeholder="SCREEN_TEXT_INSERT_PASS" component="password" id="pwd_usr" validation="required"/>
-          <tag style="p-2 mt-5">
+          <tag type="div" style="p-2 mt-5">
             <button button-type="submit" label="BUTTON_LOGIN" id="ButLogIn" style="m-0 col-12">
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>
