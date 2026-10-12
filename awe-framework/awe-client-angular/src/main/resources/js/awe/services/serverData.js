@@ -105,6 +105,11 @@ aweApplication.factory('ServerData',
               fixedModel[attribute] = value;
             });
 
+            // A list sent with the screen (query already run, even with no rows) is a list whose data has arrived
+            if ("records" in component.model) {
+              fixedModel.loaded = true;
+            }
+
             // Get selected values as list or single value
             if ("selected" in component.model) {
               fixedModel.selected = Control.formatDataList(component.model.selected);

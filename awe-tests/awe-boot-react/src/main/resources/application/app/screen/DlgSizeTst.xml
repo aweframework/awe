@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : DlgSizeTst.xml
+    Description: Dialogs with the modal-sm and modal-lg size classes
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DIALOG_SIZE">
+  <tag source="buttons">
+    <button id="ButDlgSmall" label="BUTTON_DIALOG_SMALL" icon="compress">
+      <button-action type="dialog" target="DlgSmall"/>
+    </button>
+    <button id="ButDlgLarge" label="BUTTON_DIALOG_LARGE" icon="expand">
+      <button-action type="dialog" target="DlgLarge"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_DIALOG_SIZE" expandible="vertical">
+      <tag type="div" style="panel-body"/>
+    </window>
+
+    <dialog id="DlgSmall" label="DIALOG_TITLE_SMALL" modal="true" style="modal-sm">
+      <tag type="div" style="modal-footer">
+        <button id="ButDlgSmallClose" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close" target="DlgSmall"/>
+        </button>
+      </tag>
+    </dialog>
+
+    <dialog id="DlgLarge" label="DIALOG_TITLE_LARGE" modal="true" style="modal-lg">
+      <tag type="div" style="modal-footer">
+        <button id="ButDlgLargeClose" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close" target="DlgLarge"/>
+        </button>
+      </tag>
+    </dialog>
+  </tag>
+</screen>

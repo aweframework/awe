@@ -9,6 +9,21 @@ import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 import { dialogPassThrough } from "../utilities/testPassThrough";
 
+const DEFAULT_SIZE = { minWidth: "40vw", maxWidth: "90vw" };
+const MAX_WIDTH = "90vw";
+// Same widths as the AngularJS engine (Bootstrap modal sizes)
+const SIZE_CLASSES = { "modal-sm": "300px", "modal-md": "600px", "modal-lg": "900px" };
+
+/**
+ * Get the dialog size for the size class found in the style (modal-sm, modal-md, modal-lg)
+ * @param {string} style Dialog style classes
+ * @returns {object} Dialog size style
+ */
+const getDialogSize = (style) => {
+  const sizeClass = String(style ?? "").split(/\s+/).find((name) => name in SIZE_CLASSES);
+  return sizeClass ? { width: SIZE_CLASSES[sizeClass], maxWidth: MAX_WIDTH } : DEFAULT_SIZE;
+};
+
 function AweDialog(props) {
   const { id, elementList = [] } = props;
   const { address, attributes } = useComponentState(id);
@@ -31,12 +46,12 @@ function AweDialog(props) {
     <Dialog
       id={id}
       className={style}
-      style={{ minWidth: "40vw", maxWidth: "90vw" }}
+      style={getDialogSize(style)}
       header={translateLabel(label, t)}
       visible={attributes?.isShowing}
       onHide={hide}
       focusOnShow={false}
-      pt={dialogPassThrough(id)}
+      pt={dialogPassThrough(id, !!attributes?.isShowing)}
     >
       {elementList.map((node, index) => Components(node, index))}
     </Dialog>

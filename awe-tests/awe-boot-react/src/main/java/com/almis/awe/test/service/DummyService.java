@@ -53,6 +53,9 @@ import static java.lang.Thread.sleep;
 @Service
 public class DummyService extends ServiceConfig {
 
+  // Echo of a radio group without choice
+  private static final String NO_CHOICE = "-";
+
   public static final String PROFILE_VALUE = "profileValue";
   public static final String PROFILE_NAME = "profileName";
 
@@ -251,6 +254,32 @@ public class DummyService extends ServiceConfig {
     out.setMessage("The selected maintain operation has been successfully performed");
 
     return out;
+  }
+
+  /**
+   * Echoes the choices that the radio and button-radio columns of a grid send, one per row: "id:choice/mode" for the rows
+   * that have one of them, separated by semicolons, with a dash for the column without choice
+   *
+   * @param id     Row identifiers
+   * @param choice Chosen value of the choice column in each row
+   * @param mode   Chosen value of the mode column in each row
+   * @return ServiceData
+   */
+  public ServiceData returnRadioChoices(List<String> id, List<String> choice, List<String> mode) {
+    List<String> rows = new ArrayList<>();
+    for (int row = 0; row < (id == null ? 0 : id.size()); row++) {
+      String chosen = getChoice(choice, row);
+      String chosenMode = getChoice(mode, row);
+      if (!NO_CHOICE.equals(chosen) || !NO_CHOICE.equals(chosenMode)) {
+        rows.add(id.get(row) + ":" + chosen + "/" + chosenMode);
+      }
+    }
+    return returnMaintainOkMessageParam(String.join(";", rows));
+  }
+
+  private String getChoice(List<String> choices, int row) {
+    String value = choices != null && row < choices.size() ? choices.get(row) : null;
+    return value == null || value.isEmpty() || "null".equals(value) ? NO_CHOICE : value;
   }
 
   /**

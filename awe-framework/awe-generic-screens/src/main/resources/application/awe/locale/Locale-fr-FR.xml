@@ -1185,6 +1185,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Erreur inconnue"/>
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="Le processus n&apos;a pas pu être terminé :"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Les filtres"/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="Aucun enregistrement à afficher. Essayez de modifier les critères de recherche."/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="Aucun enregistrement trouvé"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="Première"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Dernier"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Suivant"/>

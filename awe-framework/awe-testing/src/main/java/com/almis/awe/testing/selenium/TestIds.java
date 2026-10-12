@@ -54,6 +54,12 @@ public final class TestIds {
   // React only: button that starts the edition of a row
   public static final String GRID_ROW_EDIT = "grid-row-edit";
   public static final String GRID_PAGE_SIZE = "grid-page-size";
+  public static final String GRID_PAGE_NEXT = "grid-page-next";
+  public static final String GRID_PAGINATION_INFO = "grid-pagination-info";
+  public static final String GRID_EMPTY = "grid-empty";
+  public static final String GRID_EMPTY_TITLE = "grid-empty-title";
+  public static final String GRID_EMPTY_TEXT = "grid-empty-text";
+  public static final String GRID_EMPTY_ACTION = "grid-empty-action";
   public static final String GRID_LOADER = "grid-loader";
   public static final String TREE_ICON = "tree-icon";
   public static final String COLUMN_ICON = "column-icon";

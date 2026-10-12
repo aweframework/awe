@@ -172,4 +172,56 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     expect(data.tags).toEqual([["a", "b"]]);
   });
 
+  describe('radio and button-radio columns', () => {
+    const values = [{value: 'A', label: 'Option A'}, {value: 'B', label: 'Option B'}, {value: 'C', label: 'Option C'}];
+    const columnModel = [
+      {name: 'name', sendable: true},
+      {name: 'choice', component: 'radio', sendable: true, model: {values}},
+      {name: 'mode', component: 'button-radio', sendable: true, model: {values}}
+    ];
+    const grid = {address: {component: 'grid', view: 'base'}, attributes: {id: 'id', sendAll: true, columnModel}};
+    const model = {
+      values: [
+        {id: 1, name: 'one', choice: {value: 'B', label: 'Option B'}, mode: {value: 'A'}},
+        {id: 2, name: 'two', choice: {value: null}},
+        {id: 3, name: 'three', choice: 'C', mode: {value: 'C'}}
+      ]
+    };
+
+    it('should send the value of every row like a select column does', () => {
+      const data = getGridData(grid, model, {}, false);
+
+      expect(data.choice).toEqual(['B', null, 'C']);
+      expect(data.mode).toEqual(['A', undefined, 'C']);
+      expect(data.name).toEqual(['one', 'two', 'three']);
+    });
+
+    it('should send the choice of the selected rows as the selected value of the column', () => {
+      const selectedModel = {values: model.values.map(row => ({...row, selected: row.id === 3}))};
+
+      const data = getGridData(grid, selectedModel, {}, false);
+
+      expect(data['choice.selected']).toBe('C');
+    });
+
+    it('should send the choice of the editing rows of an editable grid as the editing value of the column', () => {
+      const editable = {...grid, attributes: {...grid.attributes, editable: true}};
+      const editingModel = {values: model.values.map(row => ({...row, $row: {editing: row.id === 3}}))};
+
+      const data = getGridData(editable, editingModel, {}, false);
+
+      expect(data['choice.editing']).toBe('C');
+      expect(data['mode.editing']).toBe('C');
+    });
+
+    it('should not send the editing value when the grid is not editable', () => {
+      expect(getGridData(grid, model, {}, false)).not.toHaveProperty('choice.editing');
+    });
+
+    it('should send only the sendable columns', () => {
+      const notSendable = {...grid, attributes: {...grid.attributes, columnModel: columnModel.map(column => ({...column, sendable: false}))}};
+
+      expect(getGridData(notSendable, model, {}, false)).not.toHaveProperty('choice');
+    });
+  });
 });

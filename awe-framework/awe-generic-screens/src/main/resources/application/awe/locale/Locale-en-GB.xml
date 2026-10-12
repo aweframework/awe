@@ -1185,6 +1185,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops something went wrong"/>
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The process could not be completed:"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filters"/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="There are no records to show. Try changing the search criteria."/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="No records found"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="First"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Last"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Next"/>

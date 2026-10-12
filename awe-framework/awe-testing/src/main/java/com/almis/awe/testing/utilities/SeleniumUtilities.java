@@ -58,6 +58,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final String TEXT_VALUE = " text: '";
+  private static final int DIALOG_WIDTH_TOLERANCE = 2;
+  private static final int GRID_TOP_TOLERANCE = 2;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
   private static final By LOGIN_FORM_CONTROLS = By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input");
 
@@ -3715,6 +3717,183 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check the text of the paginator of a grid that tells the range of rows shown and the total (for instance
+   * {@code View 1 - 10 of 25})
+   *
+   * @param text Expected text
+   */
+  protected void checkGridPaginationInfo(String text) {
+    checkText(frontEndInstructions.getGridPaginationInfo(), text);
+  }
+
+  /**
+   * Go to the next page of a grid with its paginator and wait for the grid to load. The AngularJS client has a hook for
+   * it in its compact pager only
+   */
+  protected void clickGridNextPage() {
+    click(frontEndInstructions.getGridPageNext());
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Check that an option of the radio of a cell of a grid (a radio or a button-radio column) is the chosen one
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   */
+  protected void checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, optionId, true)));
+  }
+
+  /**
+   * Check that no option of the radio of a cell of a grid is chosen
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridRadioNoChoice(String gridId, String rowId, String columnId) {
+    waitUntil(BrowserCondition.allOf(
+      toBePresent(frontEndInstructions.getGridRadioInput(gridId, rowId, columnId)),
+      BrowserCondition.not(toBePresent(frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, null, true)))));
+  }
+
+  /**
+   * Choose an option of the radio of a cell of a grid (a radio or a button-radio column) with a click
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   */
+  protected void selectGridRadioOption(String gridId, String rowId, String columnId, String optionId) {
+    By selector = frontEndInstructions.getGridRadioOption(gridId, rowId, columnId, optionId);
+    waitUntil(toBePresent(selector));
+    click(selector);
+  }
+
+  /**
+   * Move the choice of a grid cell to the next option with the right arrow key, from the chosen option of the cell
+   * (or from its first one when there is none). It works the same in a radio column and in a button-radio column
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridRadioChoiceNext(String gridId, String rowId, String columnId) {
+    pressKeyOnGridRadio(gridId, rowId, columnId, Key.ARROW_RIGHT);
+  }
+
+  /**
+   * Move the choice of a grid cell to the previous option with the left arrow key, from the chosen option of the cell
+   * (or from its first one when there is none). It works the same in a radio column and in a button-radio column
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridRadioChoicePrevious(String gridId, String rowId, String columnId) {
+    pressKeyOnGridRadio(gridId, rowId, columnId, Key.ARROW_LEFT);
+  }
+
+  /**
+   * Press a key on the radio of a cell of a grid: the chosen option (or the first one) gets the focus, as when the user
+   * tabs to it, and the key goes to it. A click would not do, because the input of a radio is hidden behind its own look
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param key      Key to press
+   */
+  private void pressKeyOnGridRadio(String gridId, String rowId, String columnId, Key key) {
+    By chosen = frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, null, true);
+    By selector = getBrowser().count(locator(chosen)) > 0 ? chosen : frontEndInstructions.getGridRadioInput(gridId, rowId, columnId);
+    waitUntil(toBePresent(selector));
+    getBrowser().executeScriptOn(locator(selector), "arguments[0].focus();");
+    getBrowser().press(key);
+  }
+
+  /**
+   * Check that a grid without rows shows its empty state with a title and a text
+   *
+   * @param title Text that the title contains
+   * @param text  Text that the text contains
+   */
+  protected void checkGridEmptyState(String title, String text) {
+    checkVisible(locator(frontEndInstructions.getGridEmpty()));
+    checkTextContains(frontEndInstructions.getGridEmptyTitle(), title);
+    checkTextContains(frontEndInstructions.getGridEmptyText(), text);
+  }
+
+  /**
+   * Check that no grid shows its empty state
+   */
+  protected void checkGridEmptyStateNotVisible() {
+    checkNotVisible(locator(frontEndInstructions.getGridEmpty()));
+  }
+
+  /**
+   * Click the button that the empty state of a grid offers
+   */
+  protected void clickGridEmptyAction() {
+    click(frontEndInstructions.getGridEmptyAction());
+  }
+
+  /**
+   * Check that the header of a column of a grid is displayed
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridHeaderVisible(String gridId, String columnId) {
+    checkVisible(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+  }
+
+  /**
+   * Check that the header of a column of a grid is not displayed (a grid with the {@code grid-no-header} class)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridHeaderNotVisible(String gridId, String columnId) {
+    checkNotVisible(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+  }
+
+  /**
+   * Check that the first row of a grid starts right under the top of the grid, so a grid without header
+   * (the {@code grid-no-header} class) leaves no empty space where the header was, give or take two pixels
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Identifier of the first row
+   * @param columnId Identifier of any column of that row
+   */
+  protected void checkGridFirstRowAtTop(String gridId, String rowId, String columnId) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(toBeVisible(cell));
+    String script = "return arguments[0].getBoundingClientRect().top;";
+    Object cellTop = getBrowser().executeScriptOn(locator(cell), script);
+    Object gridTop = getBrowser().executeScriptOn(locator(frontEndInstructions.getGrid(gridId)), script);
+    double gap = cellTop instanceof Number c && gridTop instanceof Number g ? c.doubleValue() - g.doubleValue() : Double.NaN;
+    Object measured = gap;
+    assertWithScreenshot("The first row of the grid " + gridId + " starts " + measured + "px under its top, not at it",
+      Math.abs(gap) <= GRID_TOP_TOLERANCE);
+  }
+
+  /**
+   * Check that a cell of a grid has a style class (for instance the {@code scale-seq-3} that a query assigns to colour it)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cssClass Style class
+   */
+  protected void checkCellHasClass(String gridId, String rowId, String columnId, String cssClass) {
+    waitUntil(toBePresent(frontEndInstructions.getGridCellWithClass(gridId, rowId, columnId, cssClass)));
+  }
+
+  /**
    * Check that the icon that a column of a grid shows is displayed
    *
    * @param gridId   Grid identifier
@@ -3810,6 +3989,22 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkDialogClosed(String dialogId) {
     checkNotVisible(locator(frontEndInstructions.getOpenDialog(dialogId)));
+  }
+
+  /**
+   * Check the width of an open dialog, give or take two pixels. It is the layout width, so the transition that opens the
+   * dialog (it grows from a smaller scale) does not change it
+   *
+   * @param dialogId Dialog identifier
+   * @param width    Expected width in pixels
+   */
+  protected void checkDialogWidth(String dialogId, int width) {
+    By selector = frontEndInstructions.getDialogPanel(dialogId);
+    waitUntil(toBeVisible(selector));
+    Object measured = getBrowser().executeScriptOn(locator(selector), "return arguments[0].offsetWidth;");
+    double shown = measured instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The width of the dialog " + dialogId + " is " + measured + "px, not " + width + "px",
+      Math.abs(shown - width) <= DIALOG_WIDTH_TOLERANCE);
   }
 
   /**

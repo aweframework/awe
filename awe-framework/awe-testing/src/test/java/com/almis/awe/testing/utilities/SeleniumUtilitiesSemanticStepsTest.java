@@ -14,6 +14,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -26,7 +27,6 @@ import org.openqa.selenium.interactions.Sequence;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -1008,6 +1008,150 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldAlwaysClickTheRowWhenTheClientDoesNotKeepItsSelection() {
     assertThat(instructions.findGridSelectedRow("Grd", "abc")).isNull();
     assertThrows(AssertionFailedError.class, () -> utilities.clickRowContents("Grd", "abc"));
+  }
+
+  @Test
+  void shouldCheckTheRangeAndTheTotalOfTheGridPaginator() {
+    show(instructions.getGridPaginationInfo(), "View 1 - 10 of 25");
+
+    assertThatCode(() -> utilities.checkGridPaginationInfo("View 1 - 10 of 25")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridPaginationInfo("View 11 - 20 of 25"));
+  }
+
+  @Test
+  void shouldMeasureTheDialogWithItsLayoutWidthSoTheOpeningTransitionDoesNotChangeIt() {
+    show(instructions.getDialogPanel("Dlg"), "");
+    when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(300L);
+
+    utilities.checkDialogWidth("Dlg", 300);
+
+    ArgumentCaptor<String> script = ArgumentCaptor.forClass(String.class);
+    verify((JavascriptExecutor) driver).executeScript(script.capture(), any());
+    assertThat(script.getValue()).contains("offsetWidth").doesNotContain("getBoundingClientRect");
+  }
+
+  @Test
+  void shouldGoToTheNextPageOfAGrid() {
+    show(instructions.getGridPageNext(), "");
+
+    assertThatCode(() -> utilities.clickGridNextPage()).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldCheckAndChooseTheOptionsOfTheRadioOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      // Row 1 has the option B chosen, row 2 has none
+      show(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", true), "");
+      show(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true), "");
+      show(instructions.getGridRadioInput("Grd", "2", "Rad"), "");
+      show(instructions.getGridRadioOption("Grd", "2", "Rad", "A"), "");
+
+      assertThatCode(() -> {
+        utilities.checkGridRadioChoice("Grd", "1", "Rad", "B");
+        utilities.checkGridRadioNoChoice("Grd", "2", "Rad");
+        utilities.selectGridRadioOption("Grd", "2", "Rad", "A");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRadioChoice("Grd", "1", "Rad", "C"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRadioNoChoice("Grd", "1", "Rad"));
+      assertThrows(AssertionFailedError.class, () -> utilities.selectGridRadioOption("Grd", "2", "Rad", "Missing"));
+    }
+  }
+
+  @Test
+  void shouldMoveTheChoiceOfAGridRowWithTheArrowKeysInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      // The choice of the cell moves from the option that is chosen, or from the first one when there is none
+      show(instructions.getGridRadioInput("Grd", "1", "Rad"), "");
+      show(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true), "");
+      List<Object> keysPressed = new ArrayList<>();
+      doAnswer(invocation -> {
+        ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+          ((List<Map<String, Object>>) sequence.toJson().get("actions")).stream()
+            .filter(action -> "keyDown".equals(action.get("type"))).forEach(action -> keysPressed.add(action.get("value"))));
+        return null;
+      }).when((Interactive) driver).perform(any());
+
+      assertThatCode(() -> {
+        utilities.moveGridRadioChoiceNext("Grd", "1", "Rad");
+        utilities.moveGridRadioChoicePrevious("Grd", "1", "Rad");
+      }).doesNotThrowAnyException();
+
+      // The next option is reached with the right arrow and the previous one with the left arrow
+      assertThat(keysPressed).containsExactly(Keys.ARROW_RIGHT.toString(), Keys.ARROW_LEFT.toString());
+      assertThat(instructions.getGridRadioInput("Grd", "1", "Rad").toString()).endsWith("input[type='radio']");
+    }
+  }
+
+  @Test
+  void shouldCheckAndUseTheEmptyStateOfAGrid() {
+    show(instructions.getGridEmpty(), "");
+    show(instructions.getGridEmptyTitle(), "No records found");
+    show(instructions.getGridEmptyText(), "Nothing to show here");
+    show(instructions.getGridEmptyAction(), "Clear");
+
+    assertThatCode(() -> {
+      utilities.checkGridEmptyState("No records found", "Nothing to show here");
+      utilities.clickGridEmptyAction();
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridEmptyState("Other title", "Nothing to show here"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridEmptyStateNotVisible());
+  }
+
+  @Test
+  void shouldCheckThatTheEmptyStateIsNotShown() {
+    assertThatCode(() -> utilities.checkGridEmptyStateNotVisible()).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldCheckTheHeaderOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridHeader("Grd", "Col"), "Column");
+
+      assertThatCode(() -> utilities.checkGridHeaderVisible("Grd", "Col")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridHeaderNotVisible("Grd", "Col"));
+      assertThatCode(() -> utilities.checkGridHeaderNotVisible("Grd", "Other")).doesNotThrowAnyException();
+    }
+  }
+
+  @Test
+  void shouldCheckTheFirstRowOfAGridStartsAtTheTopOfTheGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "1", "Col"), "7");
+      show(instructions.getGrid("Grd"), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(100.0, 100.5);
+
+      assertThatCode(() -> utilities.checkGridFirstRowAtTop("Grd", "1", "Col")).doesNotThrowAnyException();
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(126.0, 100.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridFirstRowAtTop("Grd", "1", "Col"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheStyleClassOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCellWithClass("Grd", "1", "Col", "scale-seq-3"), "7");
+
+      assertThatCode(() -> utilities.checkCellHasClass("Grd", "1", "Col", "scale-seq-3")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCellHasClass("Grd", "1", "Col", "scale-neg-1"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheWidthOfAnOpenDialogInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getDialogPanel("Dlg"), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(900.4);
+
+      assertThatCode(() -> utilities.checkDialogWidth("Dlg", 900)).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkDialogWidth("Dlg", 300));
+    }
   }
 
   private WebElement option(String text, boolean selected) {

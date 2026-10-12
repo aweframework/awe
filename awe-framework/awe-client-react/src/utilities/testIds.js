@@ -50,6 +50,11 @@ export const TestIds = Object.freeze({
   gridPagePrevious: "grid-page-previous",
   gridPageNext: "grid-page-next",
   gridPageSize: "grid-page-size",
+  gridPaginationInfo: "grid-pagination-info",
+  gridEmpty: "grid-empty",
+  gridEmptyTitle: "grid-empty-title",
+  gridEmptyText: "grid-empty-text",
+  gridEmptyAction: "grid-empty-action",
   gridLoader: "grid-loader",
   // Tree grids: expand/collapse icon of a row
   treeIcon: "tree-icon",

@@ -447,6 +447,17 @@ export const updateCellGridAction = (action) => {
     // Accept action
     dispatch(acceptAction(action));
 
+    // A load of the grid which is still pending was requested before this pushed change, so its rows come from a
+    // query that may not have seen it (or may not even have the row yet): remember the cell to put it back
+    // once the rows arrive (see fillAction)
+    const gridAddress = { view: address.view, component: address.component };
+    const component = getComponent(getAllComponents(getState()), gridAddress);
+    if (component?.attributes?.loading) {
+      dispatch(updateAttributes(gridAddress, {
+        pendingCellUpdates: [...(component.attributes.pendingCellUpdates || []), { row: address.row, column: address.column, data }]
+      }));
+    }
+
     // Update selected rows
     dispatch(updateModelWithDependencies(address, { values: data }));
   };

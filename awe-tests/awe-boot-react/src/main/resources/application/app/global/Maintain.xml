@@ -835,4 +835,13 @@
     <serve service="updateCell"/>
   </target>
 
+  <!-- Echoes the choices sent by the radio columns of the GrdRadioTst screen -->
+  <target name="RadioChoicesEcho">
+    <serve service="returnRadioChoices">
+      <variable id="id" type="STRING" name="id"/>
+      <variable id="choice" type="STRING" name="choice"/>
+      <variable id="mode" type="STRING" name="mode"/>
+    </serve>
+  </target>
+
 </maintain>

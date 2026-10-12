@@ -895,11 +895,16 @@ aweApplication.factory('GridBase',
            * @param {type} data
            */
           component.api.updateModelValues = function (data) {
+            // The grid is known to be empty only once its data has arrived
+            component.loaded = true;
             if (component.model) {
               _.assign(component.model, data);
               refreshModel();
             }
           };
+
+          // A grid without initial load has nothing to wait for, and one whose data came with the screen already has it
+          component.loaded = !component.controller.initialLoad || component.model.loaded === true;
 
           // Initialize common functions
           if (!this.commons.init()) {

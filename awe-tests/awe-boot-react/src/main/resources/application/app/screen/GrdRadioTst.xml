@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdRadioTst.xml
+    Description: Grid with a radio column and a button-radio column: each cell shows the options of the list of its column
+                 (an enumerated, like a select column) and the cell value is the chosen option; the button sends the
+                 chosen values to the server
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_RADIO">
+  <tag source="buttons">
+    <button id="ButRadioSend" label="BUTTON_RADIO_SEND" icon="paper-plane">
+      <button-action type="server" server-action="maintain" target-action="RadioChoicesEcho"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_RADIO" expandible="vertical">
+      <grid id="GrdRadioTst" style="expand" initial-load="query" server-action="data" target-action="RadioColumnTst" max="30" load-all="true" send-all="true">
+        <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+        <column label="COLUMN_RADIO_THEME" name="name" align="left" charlength="30"/>
+        <column label="COLUMN_RADIO_CHOICE" name="choice" component="radio" initial-load="enum" target-action="RadioChoiceTst" align="center" charlength="40"/>
+        <column label="COLUMN_RADIO_MODE" name="mode" component="button-radio" initial-load="enum" target-action="RadioModeTst" align="center" charlength="30"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

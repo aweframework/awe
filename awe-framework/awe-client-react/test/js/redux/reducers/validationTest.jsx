@@ -219,6 +219,43 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
     });
   });
 
+  describe('radio columns', function() {
+    const options = {values: [{value: 'A', label: 'A'}, {value: 'B', label: 'B'}]};
+    const radioColumns = [
+      {name: 'name', component: 'text'},
+      {name: 'choice', component: 'radio', model: options, validationRules: {required: {value: true}}},
+      {name: 'mode', component: 'button-radio', model: options, validationRules: {required: {value: true}}}
+    ];
+    const radioGrid = (values) => ({
+      grid: {
+        address: {component: 'grid', view: 'base'},
+        attributes: {id: 'id', columnModel: radioColumns},
+        model: {values}
+      }
+    });
+    const error = (state, column) => state.grid.model.values[0].$attrs?.[column]?.error?.message ?? null;
+
+    it('should flag a row without choice when the column is required', function() {
+      const result = validateRow(radioGrid([{id: '1', choice: {value: null}, mode: {value: null}}]), {component: 'grid', view: 'base', row: '1'}, {});
+
+      expect(error(result, 'choice')).toBe('VALIDATOR_MESSAGE_REQUIRED');
+      expect(error(result, 'mode')).toBe('VALIDATOR_MESSAGE_REQUIRED');
+    });
+
+    it('should flag a row where the choice is missing from the data', function() {
+      const result = validateRow(radioGrid([{id: '1'}]), {component: 'grid', view: 'base', row: '1'}, {});
+
+      expect(error(result, 'choice')).toBe('VALIDATOR_MESSAGE_REQUIRED');
+    });
+
+    it('should accept a row with a choice', function() {
+      const result = validateRow(radioGrid([{id: '1', choice: {value: 'B', label: 'B'}, mode: {value: 'A'}}]), {component: 'grid', view: 'base', row: '1'}, {});
+
+      expect(error(result, 'choice')).toBeNull();
+      expect(error(result, 'mode')).toBeNull();
+    });
+  });
+
   // Email validation
   it('should launch a email validation OK', function() {
     testValidation("email", "test@awe.com", null);

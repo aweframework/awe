@@ -12,6 +12,16 @@
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
     </div>
+    <div ng-if="component.loaded && !controller.loading && !model.values.length" class="grid-empty-state" data-testid="grid-empty" ng-cloak>
+      <span ng-if="emptyState.icon.family == 'fa'" class="grid-empty-icon fa fa-{{emptyState.icon.name}}"></span>
+      <span ng-if="emptyState.icon.family == 'mdi'" class="grid-empty-icon material-icons">{{emptyState.icon.name}}</span>
+      <div class="grid-empty-title" data-testid="grid-empty-title" translate-multiple="{{emptyState.title}}"></div>
+      <div class="grid-empty-text" data-testid="grid-empty-text" translate-multiple="{{emptyState.text}}"></div>
+      <button ng-if="emptyState.button" type="button" class="btn-awe btn-default grid-empty-action" data-testid="grid-empty-action" ng-click="onEmptyAction()">
+        <i ng-if="emptyState.button.icon" class="fa fa-{{emptyState.button.icon}}"></i>
+        <span class="button-text" translate-multiple="{{emptyState.button.label}}"></span>
+      </button>
+    </div>
     <div ng-attr-id="grid-{{::gridId}}" ui-grid="gridOptions" ui-grid-selection ui-grid-pagination ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning class="ag-awe grid-node no-border-hr"></div>
   </div>
   <div class="table-footer" ng-cloak>
@@ -27,7 +37,7 @@
           <input ng-if="model.total > 1" class="pagination-goto" data-testid="grid-goto-page" placeholder="..." type="number" ng-blur="onGoToPageChanged($event)" ng-keypress="onGoToPageChanged($event)" />
         </div>
         <div class="hidden-xs col-sm-4 text-right pagination-content">
-          {{component.paginationText}}
+          <span data-testid="grid-pagination-info">{{component.paginationText}}</span>
           <div ng-if="::controller.pagerValues.length" class="pagination-pager">
             <select class="grid-pager input input-group-{{::size}}" data-testid="grid-page-size" ng-options="value as value for value in controller.pagerValues" ng-model="controller.max" ng-change="component.updateRowsByPage()"></select>
           </div>

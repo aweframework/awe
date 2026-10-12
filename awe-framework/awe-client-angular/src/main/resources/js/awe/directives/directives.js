@@ -44,6 +44,8 @@ import "./input/buttonRadio";
 import "./column/checkbox";
 
 import "./column/progress";
+import "./column/radio";
+import "./column/buttonRadio";
 
 import "./input/password";
 import "./column/password";

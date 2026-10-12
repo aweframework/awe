@@ -375,4 +375,21 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getSelectOption(1)).hasToString(
       "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[1]");
   }
+
+  @Test
+  void shouldLocateThePaginatorInfoTheEmptyStateTheRadiosTheCellClassesAndTheDialogPanel() {
+    assertThat(instructions.getGridPaginationInfo()).hasToString("By.cssSelector: [data-testid='grid-pagination-info']");
+    assertThat(instructions.getGridEmptyAction()).hasToString("By.cssSelector: [data-testid='grid-empty-action']");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true).toString())
+      .endsWith("[data-testid='criterion-input'][data-selected='true']");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", true).toString())
+      .endsWith("[data-testid='criterion-input'][option-id='B'][data-selected='true']");
+    assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", false).toString())
+      .endsWith("[data-testid='criterion-input'][option-id='B'][data-selected='false']");
+    assertThat(instructions.getGridRadioOption("Grd", "1", "Rad", "B").toString()).endsWith("[option-id='B']");
+    assertThat(instructions.getGridCellWithClass("Grd", "1", "Col", "scale-seq-3").toString())
+      .endsWith("/descendant-or-self::*[contains(concat(' ', normalize-space(@class), ' '), ' scale-seq-3 ')]");
+    assertThat(instructions.getDialogPanel("Dlg")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='Dlg'][data-open='true']");
+  }
 }

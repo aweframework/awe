@@ -452,6 +452,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkMessageText(String messageType, String text)` | Comprueba el texto de un mensaje |
 | `checkMessageMissing(String messageType)` | Comprueba que no se muestra ningún mensaje del tipo |
 | `checkDialogClosed(String dialogId)` | Comprueba que se ha cerrado un diálogo modal |
+| `checkDialogWidth(String dialogId, int width)` | Comprueba el ancho en píxeles de un diálogo abierto, con dos de margen. Úsalo para comprobar las clases de tamaño `modal-sm`, `modal-md` y `modal-lg` |
 | `checkValidationErrorVisible()` | Comprueba que la pantalla muestra errores de validación |
 
 ### Criterios: escribir y leer {#criteria-writing-and-reading}
@@ -569,6 +570,20 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridPresent(String gridId)` | Comprueba que un grid existe en la pantalla, aunque esté oculta |
 | `checkGridNotVisible(String gridId)` | Comprueba que un grid no se muestra |
 | `checkGridPageSize(String size)` | Comprueba el número de filas que un grid muestra en cada página |
+| `checkGridPaginationInfo(String text)` | Comprueba el texto del paginador que indica el rango de filas mostrado y el total (`View 1 - 10 of 25`) |
+| `clickGridNextPage()` | Va a la página siguiente de un grid con su paginador y espera a la carga. En AngularJS solo funciona con el paginador compacto: el paginador ancho no tiene hook para sus enlaces de página |
+| `checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId)` | Comprueba que una opción del radio o del button-radio de una celda es la elegida. La opción se identifica por su valor |
+| `checkGridRadioNoChoice(String gridId, String rowId, String columnId)` | Comprueba que ninguna opción del radio o del button-radio de una celda está elegida |
+| `selectGridRadioOption(String gridId, String rowId, String columnId, String optionId)` | Elige una opción del radio o del button-radio de una celda con un clic. La opción se identifica por su valor |
+| `moveGridRadioChoiceNext(String gridId, String rowId, String columnId)` | Mueve la elección de una celda del grid a la siguiente opción con la flecha derecha, desde la opción elegida (o la primera si no hay ninguna) |
+| `moveGridRadioChoicePrevious(String gridId, String rowId, String columnId)` | Mueve la elección de una celda del grid a la opción anterior con la flecha izquierda, desde la opción elegida (o la primera si no hay ninguna) |
+| `checkGridEmptyState(String title, String text)` | Comprueba que un grid sin filas muestra su estado vacío, con un título y un texto que contienen los indicados |
+| `checkGridEmptyStateNotVisible()` | Comprueba que ningún grid muestra su estado vacío |
+| `clickGridEmptyAction()` | Pulsa el botón que ofrece el estado vacío |
+| `checkGridHeaderVisible(String gridId, String columnId)` | Comprueba que se muestra la cabecera de una columna |
+| `checkGridHeaderNotVisible(String gridId, String columnId)` | Comprueba que no se muestra la cabecera de una columna (grid con la clase `grid-no-header`) |
+| `checkGridFirstRowAtTop(String gridId, String rowId, String columnId)` | Comprueba que la primera fila empieza justo bajo el borde superior del grid, con dos píxeles de margen: un grid sin cabecera (clase `grid-no-header`) no deja hueco donde estaba la cabecera |
+| `checkCellHasClass(String gridId, String rowId, String columnId, String cssClass)` | Comprueba que una celda tiene una clase de estilo, como la `scale-seq-3` que asigna una consulta para colorearla |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 
@@ -684,8 +699,9 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 | `grid-cell` | Una celda: el elemento que lleva `column-id`, sea lo que sea lo que renderice (valor, editor, checkbox, icono de árbol) | Dentro de una fila, con `column-id` |
 | `grid-row-checkbox` | Etiqueta del checkbox de selección de una fila. `data-selected` | Dentro de la celda |
 | `grid-row-save`, `grid-row-cancel` | Botones de guardar y cancelar de un grid editable | Dentro del grid |
-| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size` | Paginación del pie, sus flechas anterior/siguiente (`data-disabled`) del paginador compacto, el input "ir a la página" (solo AngularJS) y el select del tamaño de página. En React el tamaño de página lleva además `data-value`, porque el desplegable repite el texto | Dentro del grid |
+| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size`, `grid-pagination-info` | Paginación del pie, sus flechas anterior/siguiente (`data-disabled`) del paginador compacto, el input "ir a la página" (solo AngularJS) y el select del tamaño de página. En React el tamaño de página lleva además `data-value`, porque el desplegable repite el texto | Dentro del grid |
 | `grid-loader` | Cargador del grid (también de la tabla dinámica) | Dentro del grid |
+| `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | El estado vacío de un grid sin filas, su título, su texto y el botón que ofrece | Dentro del grid |
 | `tree-icon` | Icono de expandir/contraer de una fila de árbol. `data-expanded` y `data-loading` | Dentro de la celda |
 | `tree-header-icon` | Icono de expandir/contraer todo de la cabecera. Solo AngularJS | Dentro del grid |
 | `column-icon` | El icono de una columna de iconos. `data-icon` lleva el icono del valor de la celda (por ejemplo `fa-plus` en un grid de multioperación) | Dentro de la celda |

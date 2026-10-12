@@ -103,4 +103,17 @@
     <option label="Operations" value="Operations" />
   </group>
 
+  <!-- OPTIONS OF THE RADIO AND BUTTON-RADIO COLUMNS OF THE GRID WITH RADIO COLUMNS (GrdRadioTst screen) -->
+  <group id="RadioChoiceTst">
+    <option label="COLUMN_RADIO_OPTION_A" value="A" />
+    <option label="COLUMN_RADIO_OPTION_B" value="B" />
+    <option label="COLUMN_RADIO_OPTION_C" value="C" />
+  </group>
+
+  <group id="RadioModeTst">
+    <option label="COLUMN_RADIO_MODE_LOW" value="1" />
+    <option label="COLUMN_RADIO_MODE_MID" value="2" />
+    <option label="COLUMN_RADIO_MODE_HIGH" value="3" />
+  </group>
+
 </enumerated>
