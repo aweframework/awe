@@ -217,6 +217,7 @@ class AngularAweInstructionsTest {
       "By.cssSelector: [criterion-id='Opt1'] .input label,[criterion-id='Opt1']");
     assertThat(instructions.getTagList("tags")).hasToString("By.cssSelector: [awe-tag-list='tags'] span");
     assertThat(instructions.getChart("Chr")).hasToString("By.cssSelector: [chart-id='Chr'] svg");
+    assertThat(instructions.getChartZoomed("Chr")).hasToString("By.cssSelector: [chart-id='Chr'] .highcharts-reset-zoom");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getEmbeddedFrame()).hasToString("By.cssSelector: iframe");
     assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(

@@ -424,6 +424,16 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   }
 
   @Override
+  public void wheel(Locator locator, int deltaY) {
+    act(locator, handle -> {
+      runScript(handle, SCROLL_NEAREST);
+      pointAt(locator, handle);
+      mouse().wheel(0, deltaY);
+      pause(CLICK_PAUSE_MILLIS);
+    });
+  }
+
+  @Override
   public void hover(Locator locator) {
     act(locator, handle -> {
       runScript(handle, SCROLL_NEAREST);

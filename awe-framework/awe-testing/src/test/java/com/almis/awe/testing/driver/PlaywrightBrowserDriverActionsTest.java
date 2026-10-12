@@ -80,6 +80,16 @@ class PlaywrightBrowserDriverActionsTest extends AbstractPlaywrightBrowserTest {
   }
 
   @Test
+  void shouldTurnTheWheelOverTheElement() {
+    show("<script>window.wheeled = 0; document.addEventListener('wheel', function(e) { window.wheeled += e.deltaY; }, true);</script>"
+      + "<div id='item' style='margin:100px;width:80px;height:40px'>Zoom</div>");
+
+    browser.wheel(ITEM, -300);
+
+    assertThat(((Number) eval("window.wheeled")).intValue()).isEqualTo(-300);
+  }
+
+  @Test
   void shouldHoverWithoutClicking() {
     show(RECORDER + "<button id='item' style='width:80px;height:40px'>Go</button>");
 

@@ -1883,7 +1883,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       const calls = dispatch.mock.calls;
       const hasChartOptionsUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
-        action.componentList.some(item => item.data.chartModel)
+        action.componentList.some(item => item.data.chartOptions)
       );
       expect(hasChartOptionsUpdate).toBe(true);
     });

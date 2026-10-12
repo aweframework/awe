@@ -77,6 +77,34 @@ export function updateModelWithDependencies(address, data) {
   };
 }
 
+/**
+ * Update the attributes of a component and check the dependencies that read them. When the data has an event, the
+ * event is raised while the dependencies are checked (the chart events, which write attributes such as x or xMin)
+ * @param {object} address Component address
+ * @param {object} data Attributes to update, and the optional event to raise
+ * @returns {function} Thunk
+ */
+export function updateAttributesWithDependencies(address, data) {
+  return (dispatch, getState) => {
+    const { event, ...attributes } = data;
+    const { settings } = getState();
+    dispatch({ ...updateAttributes(address, attributes), settings });
+
+    if (!event) {
+      checkDependencies(getState(), dispatch);
+      return;
+    }
+
+    dispatch(setRuntimeEvent(address, event));
+    try {
+      checkDependencies(getState(), dispatch);
+    } finally {
+      // The event must not stay raised for later checks, even when a dependency throws
+      dispatch(clearRuntimeEvent());
+    }
+  };
+}
+
 export function restoreModelWithDependencies(address, data) {
   return (dispatch, getState) => {
     const { settings } = getState();

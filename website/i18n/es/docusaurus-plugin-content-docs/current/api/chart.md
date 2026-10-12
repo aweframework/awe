@@ -739,7 +739,22 @@ Una dependencia con `target-type="chart-options"` cambia las opciones de un grá
 </dependency>
 ```
 
-El resultado de la fórmula es un objeto de opciones de **Highcharts**, por lo que solo lo aplica el motor AngularJS. El motor React no lo aplica: el cliente registra una advertencia en la consola del navegador (`The 'chart-options' dependency is not applied to charts drawn with ECharts`) y deja el gráfico como está. Las demás dependencias de un gráfico (visibilidad, atributos, `reload`...) funcionan en ambos motores. Véase [dependencias](dependencies.md).
+El resultado de la fórmula es un objeto de opciones (o su texto JSON). Ambos motores aplican el **zoom** (`{zoom: {x: {min, max}, y: {min, max}}}`): el motor AngularJS fija los extremos de los ejes de Highcharts, y el motor React hace zoom en los componentes de zoom de datos de los ejes de ECharts. Un rango `null` vuelve a mostrar el eje completo. El gráfico no vuelve a hacer zoom al rango que ya tiene, así que dos gráficos enlazados por la misma dependencia no se disparan entre sí en bucle.
+
+El resto de las opciones son opciones de Highcharts y el motor React las ignora: con ECharts solo se admite el zoom. Las demás dependencias de un gráfico (visibilidad, atributos, `reload`...) funcionan en ambos motores. Véase [dependencias](dependencies.md).
+
+### Eventos y atributos {#events-and-attributes}
+
+Ambos motores emiten los mismos eventos y escriben los mismos atributos, por lo que las dependencias de un gráfico funcionan en los dos:
+
+| Evento         | Cuándo                                          | Atributos que escribe          |
+| -------------- | ----------------------------------------------- | ------------------------------ |
+| `click`        | El usuario hace clic en un punto                | `x`, `y` del punto             |
+| `double-click` | El usuario hace doble clic en un punto          | `x`, `y` del punto             |
+| `context-menu` | El usuario hace clic derecho en un punto        | `x`, `y` del punto             |
+| `zoom`         | El usuario hace zoom en el gráfico o lo restablece | `xMin`, `xMax`, `yMin`, `yMax` |
+
+`x` e `y` son las coordenadas del punto (el nombre y el valor de un sector de un gráfico circular). `xMin`, `xMax`, `yMin` e `yMax` son el rango visible de cada eje, y valen `null` mientras se muestra el eje completo. Un zoom que viene de una dependencia `chart-options` escribe los atributos pero no vuelve a emitir el evento `zoom`. En el motor React el zoom se hace con la rueda del ratón o con el deslizador del gráfico (un `dataZoom` del modelo del gráfico), y el gráfico indica en su atributo de prueba `data-zoomed` que tiene zoom. El motor React todavía no muestra el menú contextual de los botones del gráfico con `context-menu` (incidencia #801).
 
 ## Diferencias entre los motores {#differences-between-the-engines}
 
@@ -747,7 +762,7 @@ El resultado de la fórmula es un objeto de opciones de **Highcharts**, por lo q
 | -------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
 | Tipos 3D (`column_3d`, `pie_3d`, `donut_3d`) | Dibujado **plano**                                                                      | Dibujado en 3D                                     |
 | Opciones de `chart-parameter`                    | Solo las [opciones traducidas](chart-parameters.md); el resto se ignoran y se registran | Cualquier opción de la API de Highcharts                |
-| Dependencia `chart-options`                   | No se aplica (advertencia en la consola)                                                | Se aplica                                         |
+| Dependencia `chart-options`                   | Solo se aplica el zoom, las demás opciones se ignoran                                   | Se aplica                                         |
 | Atributo `theme` (temas de Highcharts)        | Se ignora. El aspecto proviene del tema de la aplicación                           | Se aplica                                         |
 | Paleta por defecto                              | La paleta de Highcharts 11, para las series sin color                             | La paleta de Highcharts, o la del tema |
 | Modo oscuro                                    | Los gráficos siguen el tema de la aplicación (véase más abajo)                          | Temas de Highcharts (atributo `theme`)           |
@@ -927,7 +942,7 @@ El XML del gráfico no cambia. El servidor traduce el gráfico, sus ejes, series
 * **Paleta.** Las series sin color propio mantienen la paleta por defecto de Highcharts 11. Establezca `color` en la serie o el parámetro `colors` en el gráfico para cambiarla.
 * **Temas de Highcharts.** El motor React ignora el atributo `theme`. Si un tema daba colores o fuentes a sus gráficos, establézcalos en el XML.
 * **Gráficos 3D** (`column_3d`, `pie_3d`, `donut_3d`): se dibujan planos.
-* **Dependencia `chart-options`.** Su resultado es un objeto de opciones de Highcharts. No se aplica a los gráficos dibujados con ECharts y el cliente registra una advertencia en la consola del navegador.
+* **Dependencia `chart-options`.** Su resultado es un objeto de opciones de Highcharts. El motor React solo aplica su `zoom` (para enlazar el zoom de gráficos) e ignora las demás opciones.
 * **Formatos.** Las cadenas de formato de Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, los patrones de fecha como `%Y-%m-%d`...) funcionan como antes, véase [formatos de gráficos](chart-format.md). Las especificaciones numéricas distintas de `.Nf` y `,.Nf` se escriben como el valor sin procesar, y los valores nunca se redondean salvo que un formato lo pida.
 * **Impresión.** Los gráficos se imprimen a partir de una imagen dibujada por ECharts. Un gráfico con drilldown imprime su nivel superior.
 * **Textos del gráfico.** Los archivos de idioma de los textos del gráfico son `src/i18n/charts/charts-<language>.json` en el cliente React, y solo contienen los textos que usan los gráficos: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`, `months`, `shortMonths` y `weekdays`. Copie sus personalizaciones a esos archivos.

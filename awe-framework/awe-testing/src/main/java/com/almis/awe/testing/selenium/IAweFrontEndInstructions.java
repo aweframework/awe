@@ -812,6 +812,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a chart that is zoomed
+   *
+   * @param chartId Chart identifier
+   * @return Selector of the chart once it shows a part of its range (AngularJS: its reset zoom button)
+   */
+  default By getChartZoomed(String chartId) {
+    return By.cssSelector("[chart-id='" + chartId + "'] .highcharts-reset-zoom");
+  }
+
+  /**
    * Get the element that holds the text of the log viewer
    *
    * @return Log viewer selector

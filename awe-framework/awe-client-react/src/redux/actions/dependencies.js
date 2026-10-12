@@ -626,10 +626,8 @@ function applyTarget(dependency, component, value, result) {
       return { updateAttributes: { address, data: { [target]: value } } };
 
     case "chart-options-true":
-      // The chart options are Highcharts options and the charts are drawn with ECharts: the result is stored but it
-      // does not change the chart
-      console.warn("[WARNING] The 'chart-options' dependency is not applied to charts drawn with ECharts");
-      return { updateAttributes: { address, data: { chartModel: value } } };
+      // The chart applies the options it understands (the zoom) once they are stored
+      return { updateAttributes: { address, data: { chartOptions: value } } };
 
     case "attribute-true":
       return { updateAttributes: { address, data: { [dependency.query]: value } } };

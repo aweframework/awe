@@ -284,6 +284,25 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Charts linked by zoom: zooming one of them zooms the other one through its dependency on xMin and xMax
+   */
+  @Test
+  void t052_linkedChartZoomTest() {
+    // Title
+    setTestTitle("Linked chart zoom test");
+
+    // Go to screen
+    gotoScreen("test", "chart", "chart-test");
+    checkChartVisible("ChrLinTst");
+    checkChartVisible("ChrStockTst");
+
+    // Zoom the line chart: the stock chart follows it
+    zoomChart("ChrLinTst");
+    checkChartZoomed("ChrLinTst");
+    checkChartZoomed("ChrStockTst");
+  }
+
+  /**
    * Wizard test
    */
   @Test

@@ -145,6 +145,8 @@ export const TestAttributes = Object.freeze({
   completed: "data-completed",
   // React only: the component drew its content (a chart)
   rendered: "data-rendered",
+  // React only: the chart is zoomed (shows a part of its range)
+  zoomed: "data-zoomed",
   // React only: number of a wizard step (the step shows an icon instead of its number when it has one)
   stepNumber: "data-step-number",
   type: "data-type",
@@ -169,7 +171,8 @@ const STATE_ATTRIBUTES = {
   expanded: TestAttributes.expanded,
   loading: TestAttributes.loading,
   completed: TestAttributes.completed,
-  rendered: TestAttributes.rendered
+  rendered: TestAttributes.rendered,
+  zoomed: TestAttributes.zoomed
 };
 
 /**
@@ -178,7 +181,7 @@ const STATE_ATTRIBUTES = {
  * @param {object} [options] Hook options
  * @param {string} [options.owner] Id of the component that owns an overlay rendered outside of it
  * @param {boolean} [options.selected] Boolean states (selected, active, disabled, outsideMonth, open, expanded,
- * loading, completed, rendered, editing, deleted): rendered as "true"/"false" and skipped when undefined
+ * loading, completed, rendered, zoomed, editing, deleted): rendered as "true"/"false" and skipped when undefined
  * @param {string} [options.type] Message type
  * @param {string} [options.container] Container of a grid viewport
  * @param {object} [options.attributes] Extra attributes (AWE identifiers such as "row-id")

@@ -259,6 +259,25 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldZoomAChartWithTheWheelAndCheckThatItIsZoomed() {
+    use(new ReactAweInstructions());
+    WebElement chart = show(instructions.getChart("ChrLinTst"), "");
+    show(instructions.getChartZoomed("ChrLinTst"), "");
+
+    assertThatCode(() -> utilities.zoomChart("ChrLinTst")).doesNotThrowAnyException();
+    assertThatCode(() -> utilities.checkChartZoomed("ChrLinTst")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkChartZoomed("Missing"));
+    assertThat(chart).isNotNull();
+  }
+
+  @Test
+  void shouldFailToZoomAChartThatIsNotThere() {
+    use(new ReactAweInstructions());
+
+    assertThrows(AssertionFailedError.class, () -> utilities.zoomChart("Missing"));
+  }
+
+  @Test
   void shouldCheckTheGridsTheTreeRowsAndTheirIcons() {
     show(instructions.getGrid("Grd"), "");
     show(instructions.getGridHeaderCheckboxSelected("Grd"), "");

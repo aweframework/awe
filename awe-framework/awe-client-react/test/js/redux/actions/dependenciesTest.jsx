@@ -142,8 +142,9 @@ describe('awe-react-client/test/js/redux/actions/dependenciesTest.jsx', function
     expect(dispatch).toHaveBeenCalled();
   });
 
-  it('should warn that a chart-options dependency is not applied to ECharts charts', function () {
+  it('should store the result of a chart-options dependency as the chart options, without warnings', function () {
     const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    dispatch = jest.fn();
     state = {...state,
       components: {
         ...state.components,
@@ -159,7 +160,10 @@ describe('awe-react-client/test/js/redux/actions/dependenciesTest.jsx', function
     initializeDependencies('base', state, dispatch);
     checkDependencies(state, dispatch);
 
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("chart-options"));
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("chart-options"));
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      componentList: [expect.objectContaining({data: {chartOptions: {test: 1}}})]
+    }));
     warn.mockRestore();
   });
 

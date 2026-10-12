@@ -268,6 +268,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getActiveWizardStep", () -> i.getActiveWizardStep("2"));
     catalog.put("getTagList", () -> i.getTagList("Tags"));
     catalog.put("getChart", () -> i.getChart("Chr"));
+    catalog.put("getChartZoomed", () -> i.getChartZoomed("Chr"));
     catalog.put("getLogViewer", i::getLogViewer);
     catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
     catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));

@@ -47,6 +47,8 @@ public class SeleniumUtilities implements IAweInstructions {
   // Constants
   private static final Integer RETRY_COUNT = 10;
   private static final int STALE_RETRY_COUNT = 3;
+  // Turn of the mouse wheel that zooms a chart in (negative: up)
+  private static final int CHART_ZOOM_WHEEL = -600;
   // How often, and for how long at most, the options of a list are looked at to see that they stopped changing
   private static final Duration OPTIONS_SETTLE_INTERVAL = Duration.ofMillis(200);
   private static final Duration OPTIONS_SETTLE_TIMEOUT = Duration.ofSeconds(3);
@@ -3577,6 +3579,30 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkChartVisible(String chartId) {
     checkVisible(locator(frontEndInstructions.getChart(chartId)));
+  }
+
+  /**
+   * Zoom a chart in with the mouse wheel over its center
+   *
+   * @param chartId Chart identifier
+   */
+  protected void zoomChart(String chartId) {
+    By selector = frontEndInstructions.getChart(chartId);
+    checkVisible(locator(selector));
+    try {
+      getBrowser().wheel(locator(selector), CHART_ZOOM_WHEEL);
+    } catch (Exception exc) {
+      assertWithScreenshot("Zooming the chart: " + chartId + "\n" + exc.getMessage(), false, exc);
+    }
+  }
+
+  /**
+   * Check that a chart is zoomed (it shows a part of its range)
+   *
+   * @param chartId Chart identifier
+   */
+  protected void checkChartZoomed(String chartId) {
+    checkVisible(locator(frontEndInstructions.getChartZoomed(chartId)));
   }
 
   /**

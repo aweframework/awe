@@ -86,8 +86,9 @@ class TestIdsVocabularyTest {
     assertThat(react).containsEntry("editing", TestAttributes.EDITING)
       .containsEntry("deleted", TestAttributes.DELETED)
       .containsEntry("rendered", TestAttributes.RENDERED)
+      .containsEntry("zoomed", TestAttributes.ZOOMED)
       .containsEntry("stepNumber", TestAttributes.STEP_NUMBER);
-    assertThat(angular).doesNotContainKeys("editing", "deleted", "rendered", "stepNumber");
+    assertThat(angular).doesNotContainKeys("editing", "deleted", "rendered", "zoomed", "stepNumber");
   }
 
   @Test
