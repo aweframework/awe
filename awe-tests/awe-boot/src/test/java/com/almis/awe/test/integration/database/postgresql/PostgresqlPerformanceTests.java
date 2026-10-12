@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.database.postgresql;
 
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import com.almis.awe.test.integration.LoadTestWarmUpExtension;
 import com.almis.awe.testing.database.AweDatabaseTest;
 import com.almis.awe.testing.database.TestDatabase;
 import org.jsmart.zerocode.core.domain.LoadWith;
@@ -13,7 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith({ParallelLoadExtension.class})
+@ExtendWith({LoadTestWarmUpExtension.class, ParallelLoadExtension.class})
 @Tag("Postgresql")
 @AweDatabaseTest(TestDatabase.POSTGRESQL)
 @TestPropertySource("classpath:postgresql.properties")
