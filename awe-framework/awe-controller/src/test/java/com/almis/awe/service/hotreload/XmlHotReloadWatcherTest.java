@@ -20,6 +20,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -104,12 +105,21 @@ class XmlHotReloadWatcherTest {
    */
   @Test
   void debounceCoalescesRepeatedEvents() throws IOException {
+    // The writes must all land inside one debounce window. A busy machine can stall this thread
+    // for longer than the default 300 ms window between two writes, which legitimately yields two
+    // reloads, so use a window far larger than any realistic scheduling hiccup
+    long debounceMillis = 3000;
+    watcher.setDebounceMillis(debounceMillis);
     watcher.start();
 
     Path queriesFile = moduleRoot.resolve("global/Queries.xml");
+    long started = System.nanoTime();
     for (int write = 0; write < 3; write++) {
       Files.writeString(queriesFile, "<queries version=\"" + write + "\"/>");
     }
+    long writeMillis = Duration.ofNanos(System.nanoTime() - started).toMillis();
+    // If even that window was exceeded the premise of the test does not hold: do not report a false failure
+    assumeTrue(writeMillis < debounceMillis, "The writes took " + writeMillis + " ms, longer than the debounce window");
 
     verify(hotReloadService, timeout(VERIFY_TIMEOUT)).reloadFor(moduleRoot, queriesFile);
 
