@@ -1,8 +1,9 @@
 import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiDateRange";
-import moment from "moment";
+import dayjs from "dayjs";
 import {getIconTemplate} from "./component";
+import {parseDate} from "./dateUtils";
 
 // Format of the dates of the criterion (the one the server reads)
 export const DATE_RANGE_FORMAT = "DD/MM/YYYY";
@@ -40,17 +41,17 @@ export function parsePresets(presets) {
 export function resolvePreset(code, today = new Date()) {
   const preset = String(code || "").toUpperCase();
   const period = PRESET_PERIOD.exec(preset);
-  const end = moment(today).startOf("day");
+  const end = dayjs(today).startOf("day");
   let range = null;
   if (preset === PRESET_ALL) {
     range = {from: "", to: ""};
   } else if (preset === PRESET_TODAY) {
     range = {from: end.format(DATE_RANGE_FORMAT), to: end.format(DATE_RANGE_FORMAT)};
   } else if (preset === PRESET_YEAR_TO_DATE) {
-    range = {from: moment(end).startOf("year").format(DATE_RANGE_FORMAT), to: end.format(DATE_RANGE_FORMAT)};
+    range = {from: dayjs(end).startOf("year").format(DATE_RANGE_FORMAT), to: end.format(DATE_RANGE_FORMAT)};
   } else if (period) {
     range = {
-      from: moment(end).subtract(Number(period[1]), PERIOD_UNITS[period[2]]).format(DATE_RANGE_FORMAT),
+      from: dayjs(end).subtract(Number(period[1]), PERIOD_UNITS[period[2]]).format(DATE_RANGE_FORMAT),
       to: end.format(DATE_RANGE_FORMAT)
     };
   }
@@ -67,8 +68,8 @@ export function isDateRangeValid(from, to) {
   if (!from || !to) {
     return true;
   }
-  const start = moment(from, DATE_RANGE_FORMAT, true);
-  const end = moment(to, DATE_RANGE_FORMAT, true);
+  const start = parseDate(from, true);
+  const end = parseDate(to, true);
   return start.isValid() && end.isValid() && !end.isBefore(start);
 }
 

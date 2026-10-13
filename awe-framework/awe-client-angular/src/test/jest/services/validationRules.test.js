@@ -80,4 +80,45 @@ describe("ValidationRules Jest logging contract", () => {
       expect($rules.email({values: {value1: ""}})).toBeNull();
     });
   });
+
+  describe("date", () => {
+    it.each(["01/01/2020", "29/02/2020", "1/2/2020", "31/12/1999"])("accepts %s", (date) => {
+      expect($rules.date({values: {value1: date}})).toBeNull();
+    });
+
+    it.each(["31/02/2020", "29/02/2021", "00/01/2020", "15/13/2020", "2020-01-01"])("rejects %s", (date) => {
+      expect($rules.date({values: {value1: date}})).not.toBeNull();
+    });
+
+    it("does not validate an empty value", () => {
+      expect($rules.date({values: {value1: ""}})).toBeNull();
+    });
+
+    it.each([
+      ["lt", "01/01/2020", "02/01/2020", true],
+      ["lt", "02/01/2020", "01/01/2020", false],
+      ["gt", "02/01/2020", "01/01/2020", true],
+      ["gt", "01/01/2020", "02/01/2020", false],
+      ["le", "01/01/2020", "01/01/2020", true],
+      ["ge", "01/01/2020", "02/01/2020", false]
+    ])("compares dates with %s: %s vs %s", (method, value, other, passes) => {
+      const result = $rules.validate(method, value, {type: "date", value: other}, {view: "base", component: "date"});
+      expect(result === null).toBe(passes);
+    });
+
+    it.each([
+      ["lt", "01/01/2020", "02/01/20", true],
+      ["gt", "01/01/2021", "02/01/20", true],
+      ["lt", "01/01/2021", "02/01/20", false]
+    ])("compares against a two digit year parameter with %s: %s vs %s", (method, value, other, passes) => {
+      const result = $rules.validate(method, value, {type: "date", value: other}, {view: "base", component: "date"});
+      expect(result === null).toBe(passes);
+    });
+
+    it("formats the compared dates in the validation message", () => {
+      const result = $rules.validate("lt", "05/01/2020", {type: "date", value: "02/01/2020", message: "Less than {value2}"},
+        {view: "base", component: "date"});
+      expect(result.message).toBe("Less than 02/01/2020");
+    });
+  });
 });

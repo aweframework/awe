@@ -37,7 +37,6 @@ const browserGlobals = {
   $: 'readonly',
   jQuery: 'readonly',
   _: 'readonly',
-  moment: 'readonly',
   Highcharts: 'readonly',
   module: 'readonly',
   require: 'readonly',

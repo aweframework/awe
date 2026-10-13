@@ -18,30 +18,6 @@
     }]
   ],
   "env": {
-    "development": {
-      "compact": false,
-      "plugins": [
-        ["istanbul", {
-          "exclude": [
-            "**/test/",
-            "**/node_modules/",
-            "**/lib/"
-          ]
-        }]
-      ]
-    },
-    "test": {
-      "compact": false,
-      "plugins": [
-        ["istanbul", {
-          "exclude": [
-            "**/test/",
-            "**/node_modules/",
-            "**/lib/"
-          ]
-        }]
-      ]
-    },
     "jest": {
       "compact": false,
       "plugins": []
