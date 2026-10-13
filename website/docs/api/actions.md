@@ -214,10 +214,20 @@ These actions are dispatched by the framework itself as part of the screen and c
 | `file-downloaded`  | Notify a downloader component that the file download has finished                             |
 | `locals-retrieved` | Store the translations retrieved from the server for a language                               |
 | `log-delta`        | Append new log lines to a log viewer component and scroll it down                             |
-| `after-add-row`    | Launched after a row has been added to a grid                                                 |
-| `after-delete-row` | Launched after a row has been deleted from a grid                                             |
-| `after-save-row`   | Launched after a row has been saved on an editable grid                                       |
-| `after-cancel-row` | Launched after the edition of a row has been cancelled on an editable grid                    |
+| `after-add-row` | Notification launched after a row has been added to a grid. Raises the `after-add-row` event of the grid, so its dependencies run. Does not change the selection |
+| `after-delete-row` | Notification launched after a row has been deleted from a grid. Raises the `after-delete-row` event of the grid. Does not change the selection |
+| `after-save-row` | Notification launched after a row has been saved on an editable grid. Raises the `after-save-row` event of the grid and unselects all its rows |
+| `after-cancel-row` | Notification launched after the edition of a row has been cancelled on an editable grid. Raises the `after-cancel-row` event of the grid and unselects all its rows |
+
+#### Grid `after-*` notifications {#grid-after-notifications}
+
+`after-add-row`, `after-delete-row`, `after-save-row` and `after-cancel-row` behave the same in the AngularJS and React engines. The grid launches them itself when the operation finishes, but a screen or a server response can also send them in the action list, and in both cases they run as follows:
+
+- They only notify: they do not add, delete, save or cancel any row.
+- Each one raises the event with its own name on the grid, so any dependency with `event="after-save-row"` (or the matching name) is checked.
+- `after-save-row` and `after-cancel-row` also unselect all the rows of the grid, which raises the `select-row` event.
+- `after-add-row` and `after-delete-row` keep the selection as it is.
+- The action is always accepted, so it never blocks the action queue.
 
 ## Server actions
  

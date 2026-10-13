@@ -4,6 +4,8 @@ import {renderWithProviders} from "../../test-utils";
 import {MemoryRouter} from "react-router";
 import {act, waitFor} from "@testing-library/react";
 import {DEFAULT_SETTINGS} from "../../../../src/redux/actions/settings";
+import {configureStore} from "@reduxjs/toolkit";
+import createRootReducer from "../../../../src/redux/reducers";
 import ComponentRegistry from "../../../../src/redux/registry/ComponentRegistry";
 
 describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', function () {
@@ -74,7 +76,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should get all grid actions', function () {
     setup(preloadedState);
 
-    expect(Object.keys(actions).length).toBe(42);
+    expect(Object.keys(actions).length).toBe(46);
   });
 
   it('should launch an add-row action', async function () {
@@ -1110,6 +1112,148 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
      // Spies
      await waitFor(() => {
        expect(store.dispatch).toHaveBeenCalled();
+     });
+   });
+
+   describe('after-* grid notifications (#802)', () => {
+     const address = {component: "grid", view: "report"};
+     const gridState = {
+       ...preloadedState, components: {
+         grid: {
+           ...preloadedState.components.grid,
+           attributes: {editable: true, columnModel: [{name: "col1", label: "Column 1"}]},
+           model: {values: [{id: "1", col1: "a", selected: true}, {id: "2", col1: "b", selected: true}]}
+         }
+       }
+     };
+     let recorded;
+     const setupRecorded = (state) => {
+       recorded = [];
+       const recorder = () => (next) => (action) => {
+         recorded.push(action);
+         return next(action);
+       };
+       const store = configureStore({
+         reducer: createRootReducer({}),
+         preloadedState: state,
+         middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false}).concat(recorder)
+       });
+       return renderWithProviders(<MemoryRouter initialEntries={["/"]}><TestHarness /></MemoryRouter>, {store});
+     };
+     const raisedEvents = () => recorded.filter(({type}) => type === "SET_RUNTIME_EVENT").map(({event}) => event);
+     const accepted = (action) => recorded.some(({type, payload}) => type === "ACCEPT_ACTION" && payload === action);
+     const selection = (store) => store.getState().components.grid.model.values.map(({selected}) => selected);
+
+     it.each(["after-add-row", "after-delete-row"])('%s accepts the action and raises the event', async (name) => {
+       const { store } = setupRecorded(gridState);
+       const action = {type: name, address};
+
+       act(() => actions[name](action, props));
+
+       await waitFor(() => expect(accepted(action)).toBe(true));
+       expect(raisedEvents()).toEqual([name]);
+       expect(selection(store)).toEqual([true, true]);
+     });
+
+     it('cancel-row raises after-cancel-row once the edition is cancelled, like AngularJS', async () => {
+       const editing = {
+         ...gridState,
+         components: {
+           grid: {
+             ...gridState.components.grid,
+             model: {
+               values: [
+                 {id: "1", col1: "new", selected: true, $row: {editing: true, editingRow: {id: "1", col1: "a"}}},
+                 {id: "2", col1: "b", selected: false}
+               ]
+             }
+           }
+         }
+       };
+       const { store } = setupRecorded(editing);
+
+       act(() => actions["cancel-row"]({type: "cancel-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toEqual(["cancel-row", "after-cancel-row", "select-row"]));
+       expect(selection(store)).toEqual([false, false]);
+     });
+
+     it('save-row ends like the AngularJS after-save-row: event once and no row selected', async () => {
+       const editing = {
+         ...gridState,
+         components: {
+           grid: {
+             ...gridState.components.grid,
+             attributes: {editable: true, validateOnSave: false, columnModel: [{name: "col1", label: "Column 1"}]},
+             model: {
+               values: [
+                 {id: "1", col1: "new", selected: true, $row: {editing: true, editingRow: {id: "1", col1: "a"}}},
+                 {id: "2", col1: "b", selected: true}
+               ]
+             }
+           }
+         }
+       };
+       const { store } = setupRecorded(editing);
+
+       act(() => actions["save-row"]({type: "save-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("after-save-row"));
+       expect(raisedEvents().filter((event) => event === "after-save-row")).toHaveLength(1);
+       expect(selection(store)).toEqual([false, false]);
+     });
+
+     it.each([true, false])('delete-row ends like the AngularJS after-delete-row (multioperation %s)', async (multioperation) => {
+       const deleting = {
+         ...gridState,
+         components: {
+           grid: {
+             ...gridState.components.grid,
+             attributes: {multioperation, columnModel: [{name: "col1", label: "Column 1"}]},
+             model: {values: [{id: "1", col1: "a", selected: true}, {id: "2", col1: "b", selected: false}, {id: "3", col1: "c", selected: true}]}
+           }
+         }
+       };
+       const { store } = setupRecorded(deleting);
+
+       act(() => actions["delete-row"]({type: "delete-row", address, parameters: {rowId: "1"}}, props));
+
+       await waitFor(() => expect(raisedEvents()).toEqual(["after-delete-row"]));
+       expect(selection(store).filter(Boolean)).toEqual([]);
+     });
+
+     it('add-row raises after-add-row once and keeps the selection, like AngularJS', async () => {
+       const { store } = setupRecorded(gridState);
+
+       act(() => actions["add-row"]({type: "add-row", address, parameters: {row: {id: "new", col1: "x"}}}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("after-add-row"));
+       expect(raisedEvents().filter((event) => event === "after-add-row")).toHaveLength(1);
+       // Only the new row, which add-row selects itself: the notification does not unselect it
+       expect(selection(store).filter(Boolean)).toHaveLength(1);
+     });
+
+     it.each([
+       ["a component that is not on screen", {...gridState, components: {}}],
+       ["a model without values", {...gridState, components: {grid: {...gridState.components.grid, model: {}}}}]
+     ])('after-save-row accepts the action for %s', async (_, state) => {
+       setupRecorded(state);
+       const action = {type: "after-save-row", address};
+
+       act(() => actions["after-save-row"](action, props));
+
+       await waitFor(() => expect(accepted(action)).toBe(true));
+     });
+
+     it.each(["after-save-row", "after-cancel-row"])('%s accepts the action, raises the event and unselects the rows', async (name) => {
+       const { store } = setupRecorded(gridState);
+       const action = {type: name, address};
+
+       act(() => actions[name](action, props));
+
+       await waitFor(() => expect(accepted(action)).toBe(true));
+       expect(raisedEvents()).toEqual([name, "select-row"]);
+       expect(selection(store)).toEqual([false, false]);
      });
    });
 });

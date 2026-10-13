@@ -5,7 +5,6 @@ import {ClientActions} from "../../../../awe-client-angular/src/main/resources/j
 import useClientActions from "../../../src/services/ClientActionsService";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 
-const NO_HANDLER = "Planned in #802: React emits the event but has no handler";
 const NOT_IN_REACT = "Not carried over on purpose (odd/ROADMAP.md, user decision)";
 
 /**
@@ -29,11 +28,7 @@ const NOT_PORTED = {
   "copy-criterion-value-clipboard": NOT_IN_REACT,
   "screen-data": "Not a client action in React: the screen data is requested by the screen thunks",
   "target-message": "Open question: React registers it as targetMessage, so the server name is never dispatched",
-  "fill-suggest": "Planned in #804: React will support it as fill with the selected rows",
-  "after-add-row": NO_HANDLER,
-  "after-delete-row": NO_HANDLER,
-  "after-save-row": NO_HANDLER,
-  "after-cancel-row": NO_HANDLER
+  "fill-suggest": "Planned in #804: React will support it as fill with the selected rows"
 };
 
 /**
@@ -106,6 +101,12 @@ describe('awe-react-client/test/js/services/actionParityTest.jsx', () => {
     expect(reactNames.has("resize")).toBe(true);
     expect(reactNames.has("screen-print")).toBe(false);
     expect(classify(["print"], reactNames)).toEqual([{name: "print", status: "implemented"}]);
+  });
+
+  it('implements the after-* grid notifications of #802', () => {
+    ["after-add-row", "after-delete-row", "after-save-row", "after-cancel-row"].forEach((name) => {
+      expect(classify([name], reactNames)).toEqual([{name, status: "implemented"}]);
+    });
   });
 
   it('points every alias to an action that React registers', () => {

@@ -214,10 +214,20 @@ Estas acciones las lanza el propio framework como parte del ciclo de vida de las
 | `file-downloaded`      | Notificar a un componente de descarga que ha terminado la descarga del archivo                             |
 | `locals-retrieved`     | Almacenar las traducciones obtenidas del servidor para un idioma                               |
 | `log-delta`            | Añadir nuevas líneas de registro a un visor de registros y desplazarlo hacia abajo                             |
-| `after-add-row`      | Se lanza después de añadir una fila a un grid                                                 |
-| `after-delete-row`    | Se lanza después de eliminar una fila de un grid                                             |
-| `after-save-row` | Se lanza después de guardar una fila en un grid editable                                       |
-| `after-cancel-row`    | Se lanza después de cancelar la edición de una fila en un grid editable                    |
+| `after-add-row` | Notificación que se lanza después de añadir una fila a un grid. Lanza el evento `after-add-row` del grid, por lo que se ejecutan sus dependencias. No cambia la selección |
+| `after-delete-row` | Notificación que se lanza después de eliminar una fila de un grid. Lanza el evento `after-delete-row` del grid. No cambia la selección |
+| `after-save-row` | Notificación que se lanza después de guardar una fila en un grid editable. Lanza el evento `after-save-row` del grid y deselecciona todas sus filas |
+| `after-cancel-row` | Notificación que se lanza después de cancelar la edición de una fila en un grid editable. Lanza el evento `after-cancel-row` del grid y deselecciona todas sus filas |
+
+#### Notificaciones `after-*` del grid {#grid-after-notifications}
+
+`after-add-row`, `after-delete-row`, `after-save-row` y `after-cancel-row` se comportan igual en los motores AngularJS y React. El propio grid las lanza al terminar la operación, pero una pantalla o una respuesta del servidor también pueden enviarlas en la lista de acciones, y en ambos casos se ejecutan así:
+
+- Solo notifican: no añaden, eliminan, guardan ni cancelan ninguna fila.
+- Cada una lanza en el grid el evento con su propio nombre, así que se comprueba cualquier dependencia con `event="after-save-row"` (o el nombre correspondiente).
+- `after-save-row` y `after-cancel-row` además deseleccionan todas las filas del grid, lo que lanza el evento `select-row`.
+- `after-add-row` y `after-delete-row` mantienen la selección tal como está.
+- La acción siempre se acepta, por lo que nunca bloquea la cola de acciones.
 
 ## Acciones del servidor {#server-actions}
 

@@ -22,7 +22,7 @@ const COMPONENT_ACTIONS = new Set([
   "check-records-saved", "delete-row", "add-row", "add-row-top", "add-row-bottom", "add-row-down", "add-row-up",
   "update-row", "copy-row", "copy-row-top", "copy-row-bottom", "copy-row-down", "copy-row-up", "add-columns",
   "move-row-top", "move-row-up", "move-row-down", "move-row-bottom", "replace-columns", "update-cell", "show-columns", "hide-columns", "change-column-label", "save-row",
-  "cancel-row", "edit-row", "change-page", "change-sort", "change-filter", "copy-selected-rows-clipboard",
+  "cancel-row", "after-add-row", "after-delete-row", "after-save-row", "after-cancel-row", "edit-row", "change-page", "change-sort", "change-filter", "copy-selected-rows-clipboard",
   "validate-row", "verify-row-validation", "tree-branch"
 ]);
 

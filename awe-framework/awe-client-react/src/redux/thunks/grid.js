@@ -176,6 +176,46 @@ export const unselectAllRowsGridAction = (action) => {
   };
 };
 
+/**
+ * Raise the notification event of a grid and, when asked, unselect all its rows, like the AngularJS client does when
+ * it runs its after-* actions. A grid that is not on screen or has no rows is only notified.
+ * @param {function} dispatch Dispatch function
+ * @param {function} getState Get state function
+ * @param {Object} address Address of the grid
+ * @param {string} event Name of the notification, which is also the event raised
+ * @param {boolean} unselect Whether the rows of the grid are unselected after the notification
+ */
+const notifyAfterRow = (dispatch, getState, address, event, unselect) => {
+  dispatch(updateModelWithDependencies(address, { event }));
+
+  const values = getComponent(getAllComponents(getState()), address)?.model?.values;
+  if (unselect && Array.isArray(values)) {
+    dispatch(updateModelWithDependencies(address, {
+      event: "select-row",
+      values: values.map((row) => ({ ...row, selected: false }))
+    }));
+  }
+};
+
+/**
+ * Notification launched after a row was added, deleted, saved or cancelled. It accepts the action and notifies the
+ * grid. After saving or cancelling a row the selection is cleared too.
+ * @param {string} event Name of the notification, which is also the event raised
+ * @param {boolean} unselect Whether the rows of the grid are unselected after the notification
+ * @return {function(Action): function} Thunk factory for the action
+ */
+const afterRowGridAction = (event, unselect) => (action) => {
+  return (dispatch, getState) => {
+    dispatch(acceptAction(action));
+    notifyAfterRow(dispatch, getState, getActionAddress(action), event, unselect);
+  };
+};
+
+export const afterAddRowGridAction = afterRowGridAction("after-add-row", false);
+export const afterDeleteRowGridAction = afterRowGridAction("after-delete-row", false);
+export const afterSaveRowGridAction = afterRowGridAction("after-save-row", true);
+export const afterCancelRowGridAction = afterRowGridAction("after-cancel-row", true);
+
 export const checkOneSelectedGridAction = (action, t) => {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
@@ -261,28 +301,25 @@ export const deleteRowGridAction = (action) => {
 
     dispatch(acceptAction(action));
 
-    let deleteRow = true;
-    if (multioperation) {
-      const { operation } = selectedRow.$row || {};
-      if (operation !== INSERT) {
-        deleteRow = false;
-        dispatch(updateModelWithDependencies(address, {
-          values: values.map((item) => ({
-            ...item,
-            $row: {
-              ...(item.$row || {}),
-              operation: compareEqualValues(item[gridId], selectedRow[gridId]) ? DELETE : item?.$row?.operation
-            }
-          })),
-          event: "after-delete-row"
-        }));
-      }
+    let newValues;
+    if (multioperation && (selectedRow.$row || {}).operation !== INSERT) {
+      newValues = values.map((item) => ({
+        ...item,
+        $row: {
+          ...(item.$row || {}),
+          operation: compareEqualValues(item[gridId], selectedRow[gridId]) ? DELETE : item?.$row?.operation
+        }
+      }));
+    } else {
+      newValues = values.filter((item) => !compareEqualValues(item[gridId], selectedRow[gridId]));
     }
 
-    if (deleteRow) {
-      let filteredValues = values.filter((item) => !compareEqualValues(item[gridId], selectedRow[gridId]));
-      dispatch(updateModelWithDependencies(address, { values: filteredValues, records: filteredValues.length }));
-    }
+    // Like AngularJS, no row stays selected and the after-delete-row notification is raised
+    dispatch(updateModelWithDependencies(address, {
+      values: newValues.map((item) => ({ ...item, selected: false })),
+      ...(newValues.length === values.length ? {} : { records: newValues.length })
+    }));
+    notifyAfterRow(dispatch, getState, address, "after-delete-row", false);
   };
 };
 
@@ -631,6 +668,9 @@ export const cancelRowGridAction = (action) => {
           selected: false
         }) : ({ ...item }))
       }));
+
+      // After cancel row, as the AngularJS client launches it: event and no row selected
+      notifyAfterRow(dispatch, getState, address, "after-cancel-row", true);
     }
   };
 };

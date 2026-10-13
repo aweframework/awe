@@ -3,6 +3,10 @@ import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {
   addColumnsGridAction,
+  afterAddRowGridAction,
+  afterCancelRowGridAction,
+  afterDeleteRowGridAction,
+  afterSaveRowGridAction,
   addRowGridAction,
   cancelRowGridAction,
   changeColumnLabelGridAction,
@@ -249,6 +253,30 @@ const useGridService = () => {
   const onGridCancelRow = (action) => dispatch(cancelRowGridAction(action));
 
   /**
+   * Launch when a row was added
+   * @param {Action} action Action received
+   */
+  const onGridAfterAddRow = (action) => dispatch(afterAddRowGridAction(action));
+
+  /**
+   * Launch when a row was deleted
+   * @param {Action} action Action received
+   */
+  const onGridAfterDeleteRow = (action) => dispatch(afterDeleteRowGridAction(action));
+
+  /**
+   * Launch when a row was saved
+   * @param {Action} action Action received
+   */
+  const onGridAfterSaveRow = (action) => dispatch(afterSaveRowGridAction(action));
+
+  /**
+   * Launch when a row edition was cancelled
+   * @param {Action} action Action received
+   */
+  const onGridAfterCancelRow = (action) => dispatch(afterCancelRowGridAction(action));
+
+  /**
    * Launch when changing the page
    * @param {Action} action Action received
    */
@@ -325,6 +353,10 @@ const useGridService = () => {
     "change-column-label": onGridChangeColumnLabel,
     "save-row": onGridSaveRow,
     "cancel-row": onGridCancelRow,
+    "after-add-row": onGridAfterAddRow,
+    "after-delete-row": onGridAfterDeleteRow,
+    "after-save-row": onGridAfterSaveRow,
+    "after-cancel-row": onGridAfterCancelRow,
     "edit-row": onGridEditRow,
     "change-page": onGridChangePage,
     "change-sort": onGridChangeSort,
