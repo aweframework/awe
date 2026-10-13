@@ -55,6 +55,16 @@
       "enabled": false
     },
     {
+      "description": "The React test application (awe-tests/awe-boot-react) depends on the built React client (file:../../awe-framework/awe-client-react/dist), so Renovate cannot regenerate its package-lock.json without building the client (artifact update failure, !926). Its own npm dependencies are updated by hand, together with the React client ones; the client itself stays under Renovate.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-tests/awe-boot-react/package.json"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Reactor artifacts are versioned by the release tooling, never by the bot.",
       "matchPackageNames": [
         "com.almis.awe:**"
@@ -62,14 +72,14 @@
       "enabled": false
     },
     {
-      "description": "The Highcharts licence covers versions up to 7; never propose 8 or later (the OSV fix for GHSA-8j65-4pcq-xq95 needs 9, so it stays visible on the dashboard as unfixable).",
+      "description": "The Highcharts licence covers versions up to 7; never propose 8 or later. Note: this rule does not stop vulnerability-alert merge requests (Renovate forces the fixed version over packageRules), and the fix for GHSA-8j65-4pcq-xq95 needs 9: those merge requests are closed by hand, which makes Renovate ignore that major. Accepted risk: AWE 5 replaces Highcharts with ECharts (#775).",
       "matchPackageNames": [
         "highcharts"
       ],
       "allowedVersions": "<8"
     },
     {
-      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client and its test application (awe-tests/awe-boot-react) are not held back. Security fixes are not held back (vulnerability alerts disable the approval step).",
+      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client and its test application (awe-tests/awe-boot-react) are not held back. Vulnerability alerts bypass this rule (Renovate forces the fixed version): a security fix that needs a new major of a legacy library (Bootstrap 4, jQuery 3, Highcharts 9, marked 4 on support/4.x) would break the client, so its merge request is closed by hand, which makes Renovate ignore that major. Accepted risk until AWE 5 replaces them (#755 Bootstrap, #772 jQuery-based components, #775 Highcharts).",
       "matchManagers": [
         "npm"
       ],
@@ -85,7 +95,7 @@
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Maintenance line: patch, pin, digest and security fixes only.",
+      "description": "Maintenance line: patch, pin, digest and security fixes only. Security fixes that need a new major version are proposed anyway (vulnerability alerts bypass packageRules) and are closed by hand when they would break the line.",
       "matchBaseBranches": [
         "support/4.x"
       ],
