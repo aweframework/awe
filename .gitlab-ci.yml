@@ -223,11 +223,18 @@ stages:
   - <<: *if-mr-backend
   - <<: *if-mr-angular-templates
   - <<: *if-branches
-# Browser suites (#812). Two tools run the same suites and both block the pipeline wherever they run:
-#   - Playwright (the "Playwright ... IT" jobs) is the tool of the everyday pipeline: merge requests with code changes, develop
+# Browser suites (#812). Every suite is its own job, not a parallel matrix (GitLab names a matrix job after the values of its
+# variables, which hides what it runs). The names read "<engine> · <suite>" for the Chromium suites that run in merge requests,
+# "<engine> · Firefox · <suite>" for the Playwright Firefox suites, "<engine> · Chrome · <suite>" and
+# "<engine> · Firefox (Selenium) · <suite>" for the Selenium suites, and "Quarantine · <engine>" (plus " · Chrome" for Selenium)
+# for the quarantine jobs. The engine is AngularJS or React; a name never repeats. Each group of suites (tool, engine, browser) has
+# a hidden template that sets TARGET (and the rules of the Playwright groups; the Selenium jobs take .rules-selenium from
+# .browser-testing); the job adds the selection (TEST_TAGS or TEST_CLASSES), TEST_PORT and TEST_NAME.
+# Two tools run the same suites and both block the pipeline wherever they run:
+#   - Playwright (the jobs named "<engine> · <suite>" and "<engine> · Firefox · <suite>") is the tool of the everyday pipeline: merge requests with code changes, develop
 #     and master. It has no support/* rule: support/4.x has no Playwright adapter. Merge requests run only the Chromium suites
-#     (jobs 1/4 and 3/4); the Firefox suites (jobs 2/4 and 4/4) run on develop and master only;
-#   - Selenium (the "Selenium IT" jobs) is the reference tool and runs less often: master, support/*, and the
+#     (the ones without a browser in their name); the Firefox suites run on develop and master only;
+#   - Selenium (the jobs named "<engine> · Chrome · <suite>" and "<engine> · Firefox (Selenium) · <suite>") is the reference tool and runs less often: master, support/*, and the
 #     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
 #     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
 # A pipeline where both tools run (master, the weekly schedule on develop) gates "Launch Sonar" with both.
@@ -882,8 +889,8 @@ Rewrite dry-run:
   variables:
     # Test application that runs the suites: awe-tests/awe-boot (AngularJS) or awe-tests/awe-boot-react
     IT_APP_MODULE: awe-tests/awe-boot
-    # What the job runs: the JUnit tag group of the matrix entry (TEST_TAGS) by default; the React jobs
-    # run the IT classes of their matrix entry (TEST_CLASSES) instead
+    # What the job runs: the JUnit tag group of the job (TEST_TAGS) by default; the React jobs
+    # run the IT classes of the job (TEST_CLASSES) instead
     IT_SELECTION: -Dgroups=${TEST_TAGS}
     # Extra options that choose the automation tool: empty for the Selenium jobs, the Playwright jobs set them
     IT_TOOL_OPTS: ""
@@ -949,7 +956,7 @@ Rewrite dry-run:
 # split into independent classes), so no job extends this template and every browser job retries only on runner failures
 # (.browser-testing). It stays so that a chain that appears again has its retry: a chain is never rerun test by test (the rerun of
 # one step would find the data of the failed attempt), so a flaky step is absorbed by running the job again in a new container,
-# with a clean database. GitLab retries a job, not an entry of its matrix, so such a job retries as a whole. CiBrowserClassesGuardTest
+# with a clean database. A job retries as a whole. CiBrowserClassesGuardTest
 # derives the jobs that need it from the sources: a job that runs a @DependentChain class must extend this template and a job that
 # does not must not.
 # Order in "extends": list it AFTER the template that brings .browser-testing (.chrome-testing, .firefox-testing,
@@ -963,57 +970,81 @@ Rewrite dry-run:
       - script_failure
       - runner_system_failure
 
-Selenium IT 2/4:
+.selenium-angularjs-firefox:
   extends:
     - .firefox-testing
-  parallel:
-    matrix:
-      - TARGET: firefox-angularjs
-        TEST_TAGS: ApplicationIntegrationIT
-        TEST_PORT: "6301"
-        TEST_NAME: firefox-application-integration
-      - TARGET: firefox-angularjs
-        TEST_TAGS: CRUDCriteriaMatrixIT
-        TEST_PORT: "6302"
-        TEST_NAME: firefox-crud-criteria-matrix
-      - TARGET: firefox-angularjs
-        TEST_TAGS: RegressionWebsocketPrintIT
-        TEST_PORT: "6303"
-        TEST_NAME: firefox-regression-websocket-print
-      - TARGET: firefox-angularjs
-        TEST_TAGS: SchedulerIT
-        TEST_PORT: "6304"
-        TEST_NAME: firefox-scheduler
+  variables:
+    TARGET: firefox-angularjs
 
-Selenium IT 1/4:
+AngularJS · Firefox (Selenium) · Application and integration:
+  extends: .selenium-angularjs-firefox
+  variables:
+    TEST_TAGS: ApplicationIntegrationIT
+    TEST_PORT: "6301"
+    TEST_NAME: firefox-application-integration
+
+AngularJS · Firefox (Selenium) · CRUD, criteria and grids:
+  extends: .selenium-angularjs-firefox
+  variables:
+    TEST_TAGS: CRUDCriteriaMatrixIT
+    TEST_PORT: "6302"
+    TEST_NAME: firefox-crud-criteria-matrix
+
+AngularJS · Firefox (Selenium) · Regression, websocket and print:
+  extends: .selenium-angularjs-firefox
+  variables:
+    TEST_TAGS: RegressionWebsocketPrintIT
+    TEST_PORT: "6303"
+    TEST_NAME: firefox-regression-websocket-print
+
+AngularJS · Firefox (Selenium) · Scheduler:
+  extends: .selenium-angularjs-firefox
+  variables:
+    TEST_TAGS: SchedulerIT
+    TEST_PORT: "6304"
+    TEST_NAME: firefox-scheduler
+
+.selenium-angularjs-chrome:
   extends:
     - .chrome-testing
-  parallel:
-    matrix:
-      - TARGET: chrome-angularjs
-        TEST_TAGS: ApplicationIntegrationIT
-        TEST_PORT: "6305"
-        TEST_NAME: chrome-application-integration
-      - TARGET: chrome-angularjs
-        TEST_TAGS: CRUDCriteriaMatrixIT
-        TEST_PORT: "6306"
-        TEST_NAME: chrome-crud-criteria-matrix
-      - TARGET: chrome-angularjs
-        TEST_TAGS: RegressionWebsocketPrintIT
-        TEST_PORT: "6307"
-        TEST_NAME: chrome-regression-websocket-print
-      - TARGET: chrome-angularjs
-        TEST_TAGS: SchedulerIT
-        TEST_PORT: "6308"
-        TEST_NAME: chrome-scheduler
+  variables:
+    TARGET: chrome-angularjs
+
+AngularJS · Chrome · Application and integration:
+  extends: .selenium-angularjs-chrome
+  variables:
+    TEST_TAGS: ApplicationIntegrationIT
+    TEST_PORT: "6305"
+    TEST_NAME: chrome-application-integration
+
+AngularJS · Chrome · CRUD, criteria and grids:
+  extends: .selenium-angularjs-chrome
+  variables:
+    TEST_TAGS: CRUDCriteriaMatrixIT
+    TEST_PORT: "6306"
+    TEST_NAME: chrome-crud-criteria-matrix
+
+AngularJS · Chrome · Regression, websocket and print:
+  extends: .selenium-angularjs-chrome
+  variables:
+    TEST_TAGS: RegressionWebsocketPrintIT
+    TEST_PORT: "6307"
+    TEST_NAME: chrome-regression-websocket-print
+
+AngularJS · Chrome · Scheduler:
+  extends: .selenium-angularjs-chrome
+  variables:
+    TEST_TAGS: SchedulerIT
+    TEST_PORT: "6308"
+    TEST_NAME: chrome-scheduler
 
 # The browser suites against the React engine test application. Selenium runs them where it runs at all (see
 # .rules-selenium); Playwright runs them on a merge request only when the backend or the React client changes, and a change
 # limited to the AngularJS client does not select them.
 # The React test application has its own IT classes, and they are migrated one by one to the semantic
-# steps of SeleniumUtilities (#812): a React job runs only the classes listed in TEST_CLASSES (comma
+# steps of SeleniumUtilities (#812): a React job runs only the classes listed in its TEST_CLASSES (comma
 # separated, as -Dit.test takes them), never a whole JUnit tag group, which would also run the classes
-# that are not migrated yet. Add a class to the entry of its group when it is migrated, or add an entry
+# that are not migrated yet. Add a class to the TEST_CLASSES of its group (in the four React jobs of the suite) when it is migrated, or add a job
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
 #                             IntegrationTestsIT                                (port 6309 / 6313)
@@ -1024,57 +1055,81 @@ Selenium IT 1/4:
 #                SchedulerFileTaskTestsIT, SchedulerManagementTestsIT       (port 6312 / 6316)
 # List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
 # would bring back the AngularJS test application. It sets no rules: the Selenium jobs take .rules-selenium from
-# .browser-testing and the Playwright React jobs set .rules-playwright-react themselves.
+# .browser-testing and the Playwright React group templates set .rules-playwright-react themselves.
 .react-testing:
   variables:
     IT_APP_MODULE: awe-tests/awe-boot-react
     IT_SELECTION: -Dit.test=${TEST_CLASSES}
 
-Selenium IT 4/4:
+.selenium-react-firefox:
   extends:
     - .firefox-testing
     - .react-testing
-  parallel:
-    matrix:
-      - TARGET: firefox-react
-        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
-        TEST_PORT: "6309"
-        TEST_NAME: react-firefox-application-integration
-      - TARGET: firefox-react
-        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
-        TEST_PORT: "6310"
-        TEST_NAME: react-firefox-crud-criteria-matrix
-      - TARGET: firefox-react
-        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
-        TEST_PORT: "6311"
-        TEST_NAME: react-firefox-regression-websocket-print
-      - TARGET: firefox-react
-        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
-        TEST_PORT: "6312"
-        TEST_NAME: react-firefox-scheduler
+  variables:
+    TARGET: firefox-react
 
-Selenium IT 3/4:
+React · Firefox (Selenium) · Application and integration:
+  extends: .selenium-react-firefox
+  variables:
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_PORT: "6309"
+    TEST_NAME: react-firefox-application-integration
+
+React · Firefox (Selenium) · CRUD, criteria and grids:
+  extends: .selenium-react-firefox
+  variables:
+    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+    TEST_PORT: "6310"
+    TEST_NAME: react-firefox-crud-criteria-matrix
+
+React · Firefox (Selenium) · Regression, websocket and print:
+  extends: .selenium-react-firefox
+  variables:
+    TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+    TEST_PORT: "6311"
+    TEST_NAME: react-firefox-regression-websocket-print
+
+React · Firefox (Selenium) · Scheduler:
+  extends: .selenium-react-firefox
+  variables:
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_PORT: "6312"
+    TEST_NAME: react-firefox-scheduler
+
+.selenium-react-chrome:
   extends:
     - .chrome-testing
     - .react-testing
-  parallel:
-    matrix:
-      - TARGET: chrome-react
-        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
-        TEST_PORT: "6313"
-        TEST_NAME: react-chrome-application-integration
-      - TARGET: chrome-react
-        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
-        TEST_PORT: "6314"
-        TEST_NAME: react-chrome-crud-criteria-matrix
-      - TARGET: chrome-react
-        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
-        TEST_PORT: "6315"
-        TEST_NAME: react-chrome-regression-websocket-print
-      - TARGET: chrome-react
-        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
-        TEST_PORT: "6316"
-        TEST_NAME: react-chrome-scheduler
+  variables:
+    TARGET: chrome-react
+
+React · Chrome · Application and integration:
+  extends: .selenium-react-chrome
+  variables:
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_PORT: "6313"
+    TEST_NAME: react-chrome-application-integration
+
+React · Chrome · CRUD, criteria and grids:
+  extends: .selenium-react-chrome
+  variables:
+    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+    TEST_PORT: "6314"
+    TEST_NAME: react-chrome-crud-criteria-matrix
+
+React · Chrome · Regression, websocket and print:
+  extends: .selenium-react-chrome
+  variables:
+    TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+    TEST_PORT: "6315"
+    TEST_NAME: react-chrome-regression-websocket-print
+
+React · Chrome · Scheduler:
+  extends: .selenium-react-chrome
+  variables:
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_PORT: "6316"
+    TEST_NAME: react-chrome-scheduler
 
 # Playwright browser suites (#812): the same suites as the Selenium jobs above, run with awe.test.tool=playwright in a local
 # headless browser that the job installs next to the application it starts (Playwright has no service or remote browsers).
@@ -1082,7 +1137,7 @@ Selenium IT 3/4:
 #   - block the pipeline, with the per-test rerun and the job retry of .browser-testing (#766), like the
 #     Selenium jobs;
 #   - are needed by "Launch Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
-#   - run automatically on every merge request with code changes (Chromium only: the Firefox jobs 2/4 and 4/4 skip merge
+#   - run automatically on every merge request with code changes (Chromium only: the Firefox jobs skip merge
 #     requests), on develop and on master, and never on support/*;
 #   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
 #     failure, the Playwright trace of the failed test and the page video of a class with a failure. The screen recorder of
@@ -1118,99 +1173,147 @@ Selenium IT 3/4:
     BROWSER: headless-firefox
 
 
-Playwright IT 1/4:
+.playwright-angularjs-chromium:
   extends:
     - .playwright-chromium-testing
   rules: *rules-playwright
-  parallel:
-    matrix:
-      - TARGET: chromium-angularjs
-        TEST_TAGS: ApplicationIntegrationIT
-        TEST_PORT: "6317"
-        TEST_NAME: playwright-chromium-application-integration
-      - TARGET: chromium-angularjs
-        TEST_TAGS: CRUDCriteriaMatrixIT
-        TEST_PORT: "6318"
-        TEST_NAME: playwright-chromium-crud-criteria-matrix
-      - TARGET: chromium-angularjs
-        TEST_TAGS: RegressionWebsocketPrintIT
-        TEST_PORT: "6319"
-        TEST_NAME: playwright-chromium-regression-websocket-print
-      - TARGET: chromium-angularjs
-        TEST_TAGS: SchedulerIT
-        TEST_PORT: "6320"
-        TEST_NAME: playwright-chromium-scheduler
+  variables:
+    TARGET: chromium-angularjs
 
-Playwright IT 2/4:
+AngularJS · Application and integration:
+  extends: .playwright-angularjs-chromium
+  variables:
+    TEST_TAGS: ApplicationIntegrationIT
+    TEST_PORT: "6317"
+    TEST_NAME: playwright-chromium-application-integration
+
+AngularJS · CRUD, criteria and grids:
+  extends: .playwright-angularjs-chromium
+  variables:
+    TEST_TAGS: CRUDCriteriaMatrixIT
+    TEST_PORT: "6318"
+    TEST_NAME: playwright-chromium-crud-criteria-matrix
+
+AngularJS · Regression, websocket and print:
+  extends: .playwright-angularjs-chromium
+  variables:
+    TEST_TAGS: RegressionWebsocketPrintIT
+    TEST_PORT: "6319"
+    TEST_NAME: playwright-chromium-regression-websocket-print
+
+AngularJS · Scheduler:
+  extends: .playwright-angularjs-chromium
+  variables:
+    TEST_TAGS: SchedulerIT
+    TEST_PORT: "6320"
+    TEST_NAME: playwright-chromium-scheduler
+
+.playwright-angularjs-firefox:
   extends:
     - .playwright-firefox-testing
   rules: *rules-playwright-firefox   # not in merge requests
-  parallel:
-    matrix:
-      - TARGET: firefox-angularjs
-        TEST_TAGS: ApplicationIntegrationIT
-        TEST_PORT: "6321"
-        TEST_NAME: playwright-firefox-application-integration
-      - TARGET: firefox-angularjs
-        TEST_TAGS: CRUDCriteriaMatrixIT
-        TEST_PORT: "6322"
-        TEST_NAME: playwright-firefox-crud-criteria-matrix
-      - TARGET: firefox-angularjs
-        TEST_TAGS: RegressionWebsocketPrintIT
-        TEST_PORT: "6323"
-        TEST_NAME: playwright-firefox-regression-websocket-print
-      - TARGET: firefox-angularjs
-        TEST_TAGS: SchedulerIT
-        TEST_PORT: "6324"
-        TEST_NAME: playwright-firefox-scheduler
+  variables:
+    TARGET: firefox-angularjs
 
-Playwright IT 3/4:
+AngularJS · Firefox · Application and integration:
+  extends: .playwright-angularjs-firefox
+  variables:
+    TEST_TAGS: ApplicationIntegrationIT
+    TEST_PORT: "6321"
+    TEST_NAME: playwright-firefox-application-integration
+
+AngularJS · Firefox · CRUD, criteria and grids:
+  extends: .playwright-angularjs-firefox
+  variables:
+    TEST_TAGS: CRUDCriteriaMatrixIT
+    TEST_PORT: "6322"
+    TEST_NAME: playwright-firefox-crud-criteria-matrix
+
+AngularJS · Firefox · Regression, websocket and print:
+  extends: .playwright-angularjs-firefox
+  variables:
+    TEST_TAGS: RegressionWebsocketPrintIT
+    TEST_PORT: "6323"
+    TEST_NAME: playwright-firefox-regression-websocket-print
+
+AngularJS · Firefox · Scheduler:
+  extends: .playwright-angularjs-firefox
+  variables:
+    TEST_TAGS: SchedulerIT
+    TEST_PORT: "6324"
+    TEST_NAME: playwright-firefox-scheduler
+
+.playwright-react-chromium:
   extends:
     - .playwright-chromium-testing
     - .react-testing
   rules: *rules-playwright-react
-  parallel:
-    matrix:
-      - TARGET: chromium-react
-        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
-        TEST_PORT: "6325"
-        TEST_NAME: playwright-react-chromium-application-integration
-      - TARGET: chromium-react
-        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
-        TEST_PORT: "6326"
-        TEST_NAME: playwright-react-chromium-crud-criteria-matrix
-      - TARGET: chromium-react
-        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
-        TEST_PORT: "6327"
-        TEST_NAME: playwright-react-chromium-regression-websocket-print
-      - TARGET: chromium-react
-        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
-        TEST_PORT: "6328"
-        TEST_NAME: playwright-react-chromium-scheduler
+  variables:
+    TARGET: chromium-react
 
-Playwright IT 4/4:
+React · Application and integration:
+  extends: .playwright-react-chromium
+  variables:
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_PORT: "6325"
+    TEST_NAME: playwright-react-chromium-application-integration
+
+React · CRUD, criteria and grids:
+  extends: .playwright-react-chromium
+  variables:
+    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+    TEST_PORT: "6326"
+    TEST_NAME: playwright-react-chromium-crud-criteria-matrix
+
+React · Regression, websocket and print:
+  extends: .playwright-react-chromium
+  variables:
+    TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+    TEST_PORT: "6327"
+    TEST_NAME: playwright-react-chromium-regression-websocket-print
+
+React · Scheduler:
+  extends: .playwright-react-chromium
+  variables:
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_PORT: "6328"
+    TEST_NAME: playwright-react-chromium-scheduler
+
+.playwright-react-firefox:
   extends:
     - .playwright-firefox-testing
     - .react-testing
   rules: *rules-playwright-firefox   # not in merge requests
-  parallel:
-    matrix:
-      - TARGET: firefox-react
-        TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
-        TEST_PORT: "6329"
-        TEST_NAME: playwright-react-firefox-application-integration
-      - TARGET: firefox-react
-        TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
-        TEST_PORT: "6330"
-        TEST_NAME: playwright-react-firefox-crud-criteria-matrix
-      - TARGET: firefox-react
-        TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
-        TEST_PORT: "6331"
-        TEST_NAME: playwright-react-firefox-regression-websocket-print
-      - TARGET: firefox-react
-        TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
-        TEST_PORT: "6332"
-        TEST_NAME: playwright-react-firefox-scheduler
+  variables:
+    TARGET: firefox-react
+
+React · Firefox · Application and integration:
+  extends: .playwright-react-firefox
+  variables:
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_PORT: "6329"
+    TEST_NAME: playwright-react-firefox-application-integration
+
+React · Firefox · CRUD, criteria and grids:
+  extends: .playwright-react-firefox
+  variables:
+    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
+    TEST_PORT: "6330"
+    TEST_NAME: playwright-react-firefox-crud-criteria-matrix
+
+React · Firefox · Regression, websocket and print:
+  extends: .playwright-react-firefox
+  variables:
+    TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
+    TEST_PORT: "6331"
+    TEST_NAME: playwright-react-firefox-regression-websocket-print
+
+React · Firefox · Scheduler:
+  extends: .playwright-react-firefox
+  variables:
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_PORT: "6332"
+    TEST_NAME: playwright-react-firefox-scheduler
 
 # Quarantine (#766): a flaky browser test is quarantined with @Quarantine(issue = "#123", reason = "..."), a class or a method
 # (awe-testing). The blocking jobs above leave the "quarantine" JUnit tag out (it.excluded-groups of the test applications), and
@@ -1241,33 +1344,45 @@ Playwright IT 4/4:
       fi
     - !reference [.browser-testing, script]
 
-Quarantine Playwright IT:
+Quarantine · AngularJS:
   extends:
     - .playwright-chromium-testing
     - .quarantine-testing
   rules: *rules-playwright
-  parallel:
-    matrix:
-      - IT_APP_MODULE: awe-tests/awe-boot
-        TEST_PORT: "6333"
-        TEST_NAME: quarantine-playwright-chromium-angular
-      - IT_APP_MODULE: awe-tests/awe-boot-react
-        TEST_PORT: "6334"
-        TEST_NAME: quarantine-playwright-chromium-react
+  variables:
+    IT_APP_MODULE: awe-tests/awe-boot
+    TEST_PORT: "6333"
+    TEST_NAME: quarantine-playwright-chromium-angular
 
-Quarantine Selenium IT:
+Quarantine · React:
+  extends:
+    - .playwright-chromium-testing
+    - .quarantine-testing
+  rules: *rules-playwright
+  variables:
+    IT_APP_MODULE: awe-tests/awe-boot-react
+    TEST_PORT: "6334"
+    TEST_NAME: quarantine-playwright-chromium-react
+
+Quarantine · AngularJS · Chrome:
   extends:
     - .chrome-testing
     - .quarantine-testing
   rules: *rules-selenium   # explicit: the same rules as the Selenium suites that leave the quarantined tests out
-  parallel:
-    matrix:
-      - IT_APP_MODULE: awe-tests/awe-boot
-        TEST_PORT: "6335"
-        TEST_NAME: quarantine-chrome-angular
-      - IT_APP_MODULE: awe-tests/awe-boot-react
-        TEST_PORT: "6336"
-        TEST_NAME: quarantine-chrome-react
+  variables:
+    IT_APP_MODULE: awe-tests/awe-boot
+    TEST_PORT: "6335"
+    TEST_NAME: quarantine-chrome-angular
+
+Quarantine · React · Chrome:
+  extends:
+    - .chrome-testing
+    - .quarantine-testing
+  rules: *rules-selenium   # explicit: the same rules as the Selenium suites that leave the quarantined tests out
+  variables:
+    IT_APP_MODULE: awe-tests/awe-boot-react
+    TEST_PORT: "6336"
+    TEST_NAME: quarantine-chrome-react
 
 
 # The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Dependency scanning"
@@ -1344,21 +1459,69 @@ Launch Sonar:
     # .rules-playwright and .rules-selenium together must cover every pipeline that runs this job, or Sonar and the
     # releases go ahead with no browser suite. Their IT coverage reaches Sonar as before: the *.exec files of both tools
     # have different names (jacoco-${TEST_NAME}-it.exec), so both sets are kept when both tools ran.
-    - job: Playwright IT 1/4
+    - job: AngularJS · Firefox (Selenium) · Application and integration
       optional: true
-    - job: Playwright IT 2/4
+    - job: AngularJS · Firefox (Selenium) · CRUD, criteria and grids
       optional: true
-    - job: Playwright IT 3/4
+    - job: AngularJS · Firefox (Selenium) · Regression, websocket and print
       optional: true
-    - job: Playwright IT 4/4
+    - job: AngularJS · Firefox (Selenium) · Scheduler
       optional: true
-    - job: Selenium IT 2/4
+    - job: AngularJS · Chrome · Application and integration
       optional: true
-    - job: Selenium IT 1/4
+    - job: AngularJS · Chrome · CRUD, criteria and grids
       optional: true
-    - job: Selenium IT 4/4
+    - job: AngularJS · Chrome · Regression, websocket and print
       optional: true
-    - job: Selenium IT 3/4
+    - job: AngularJS · Chrome · Scheduler
+      optional: true
+    - job: React · Firefox (Selenium) · Application and integration
+      optional: true
+    - job: React · Firefox (Selenium) · CRUD, criteria and grids
+      optional: true
+    - job: React · Firefox (Selenium) · Regression, websocket and print
+      optional: true
+    - job: React · Firefox (Selenium) · Scheduler
+      optional: true
+    - job: React · Chrome · Application and integration
+      optional: true
+    - job: React · Chrome · CRUD, criteria and grids
+      optional: true
+    - job: React · Chrome · Regression, websocket and print
+      optional: true
+    - job: React · Chrome · Scheduler
+      optional: true
+    - job: AngularJS · Application and integration
+      optional: true
+    - job: AngularJS · CRUD, criteria and grids
+      optional: true
+    - job: AngularJS · Regression, websocket and print
+      optional: true
+    - job: AngularJS · Scheduler
+      optional: true
+    - job: AngularJS · Firefox · Application and integration
+      optional: true
+    - job: AngularJS · Firefox · CRUD, criteria and grids
+      optional: true
+    - job: AngularJS · Firefox · Regression, websocket and print
+      optional: true
+    - job: AngularJS · Firefox · Scheduler
+      optional: true
+    - job: React · Application and integration
+      optional: true
+    - job: React · CRUD, criteria and grids
+      optional: true
+    - job: React · Regression, websocket and print
+      optional: true
+    - job: React · Scheduler
+      optional: true
+    - job: React · Firefox · Application and integration
+      optional: true
+    - job: React · Firefox · CRUD, criteria and grids
+      optional: true
+    - job: React · Firefox · Regression, websocket and print
+      optional: true
+    - job: React · Firefox · Scheduler
       optional: true
   cache:
     - key: ${CI_COMMIT_REF_SLUG}

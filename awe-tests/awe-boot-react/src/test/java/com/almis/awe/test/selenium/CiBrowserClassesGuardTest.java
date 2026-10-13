@@ -9,15 +9,16 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,14 +50,18 @@ class CiBrowserClassesGuardTest {
   private static final Path ANGULAR_TESTS = BASEDIR.resolve("../awe-boot/src/test/java/com/almis/awe/test/selenium").normalize();
   private static final String CHAIN_RETRY_TEMPLATE = ".chain-retry";
   private static final String SONAR_JOB = "Launch Sonar";
-  private static final Pattern BROWSER_JOB_NAME = Pattern.compile("(Selenium|Playwright) IT (\\d++)/(\\d++)");
+  private static final Pattern BROWSER_JOB_NAME = Pattern.compile("(AngularJS|React) · (?:(Chrome|Firefox(?: \\(Selenium\\))?) · )?(\\S.*+)");
+  private static final Pattern TARGET = Pattern.compile("^[ \\t]*+TARGET:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
+  private static final Pattern TEST_PORT = Pattern.compile("^[ \\t]*+TEST_PORT:[ \\t]*+\"?([^\\s\"#]++)", Pattern.MULTILINE);
+  private static final Pattern TEST_NAME = Pattern.compile("^[ \\t]*+TEST_NAME:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
+  private static final Pattern RULES = Pattern.compile("^ {2}rules:[ \\t]*+([^\\s#][^\\s]*+)", Pattern.MULTILINE);
   private static final Pattern TAG = Pattern.compile("@Tag\\(\"([^\"]+)\"\\)");
   private static final Pattern TEST_TAGS = Pattern.compile("^[ \\t]*+(?:-[ \\t]*+)?TEST_TAGS:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
   private static final Pattern EMPTY_EXCLUDED_GROUPS = Pattern.compile("-Dit\\.excluded-groups=(?:\\s|$)");
   private static final Pattern EXTENDS_KEY = Pattern.compile("^ {2}extends:[ \\t]*+(.*+)$");
   private static final Pattern LIST_ITEM = Pattern.compile("^ {4}-[ \\t]++(\\S.*+)$");
   private static final Pattern QUARANTINE_GREP = Pattern.compile("grep -rqE --include='([^']++)' \"\\$QUARANTINE_ANNOTATION\"");
-  private static final Pattern MATRIX_ENTRY = Pattern.compile("^[ \\t]*+-[ \\t]*+(\\w++):", Pattern.MULTILINE);
+  private static final Pattern MATRIX = Pattern.compile("^ {2}parallel:", Pattern.MULTILINE);
   private static final Pattern QUARANTINE_ANNOTATION = Pattern.compile("QUARANTINE_ANNOTATION:[ \\t]*+'([^']++)'");
   private static final Pattern JOB =Pattern.compile("^([^\\s#][^\\n]*):\\s*$", Pattern.MULTILINE);
   private static final Pattern TEST_CLASSES = Pattern.compile("^[ \\t]*+(?:-[ \\t]*+)?TEST_CLASSES:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
@@ -65,13 +70,14 @@ class CiBrowserClassesGuardTest {
   void shouldListClassesOnlyInReactJobs() throws IOException {
     assumeTrue(Files.isRegularFile(PIPELINE), PIPELINE + " is not reachable from this module: CI classes check skipped");
 
-    Map<String, String> jobsWithClasses = jobs(Files.readString(PIPELINE)).entrySet().stream()
+    Map<String, String> allJobs = jobs(Files.readString(PIPELINE));
+    Map<String, String> jobsWithClasses = allJobs.entrySet().stream()
       .filter(job -> TEST_CLASSES.matcher(job.getValue()).find())
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, second) -> first, LinkedHashMap::new));
     assertThat(jobsWithClasses).as("Jobs of %s that list TEST_CLASSES", PIPELINE).isNotEmpty();
 
     List<String> notReact = jobsWithClasses.entrySet().stream()
-      .filter(job -> !extendsOf(job.getValue()).contains(REACT_TEMPLATE))
+      .filter(job -> !allExtends(allJobs, job.getKey()).contains(REACT_TEMPLATE))
       .map(Map.Entry::getKey)
       .toList();
     assertThat(notReact)
@@ -328,12 +334,12 @@ class CiBrowserClassesGuardTest {
   }
 
   @Test
-  void shouldNameTheBrowserJobsSoThatEachToolIsOneGroupAndGateSonarWithEveryOne() throws IOException {
+  void shouldNameTheBrowserJobsByTheirSuiteAndGateSonarWithEveryOne() throws IOException {
     assumeTrue(Files.isRegularFile(PIPELINE), PIPELINE + " is not reachable from this module: CI job names check skipped");
 
     String pipeline = Files.readString(PIPELINE);
 
-    assertThat(browserJobs(pipeline)).as("Browser jobs of %s", PIPELINE).hasSize(8);
+    assertThat(browserJobs(pipeline)).as("Browser jobs of %s", PIPELINE).hasSize(32);
     assertThat(browserJobProblems(pipeline)).isEmpty();
   }
 
@@ -344,7 +350,7 @@ class CiBrowserClassesGuardTest {
     String pipeline = Files.readString(PIPELINE);
 
     assertThat(firefoxRuleProblems(pipeline)).isEmpty();
-    assertThat(jobs(pipeline).keySet()).contains("Playwright Firefox browser", "Playwright IT 2/4", "Playwright IT 4/4");
+    assertThat(jobs(pipeline).keySet()).contains("Playwright Firefox browser", "AngularJS · Firefox · Scheduler", "React · Firefox · Scheduler");
   }
 
   @Test
@@ -352,75 +358,142 @@ class CiBrowserClassesGuardTest {
     String pipeline = """
       Playwright Firefox browser:
         rules: *rules-playwright
-      Playwright IT 2/2:
+      .group-firefox:
         extends:
           - .playwright-firefox-testing
         rules: *rules-playwright-firefox
-      Playwright IT 1/2:
+      .group-chromium:
         extends:
           - .playwright-chromium-testing
         rules: *rules-playwright-firefox
-      Playwright IT 3/3:
+      .group-firefox-react:
         extends:
           - .playwright-firefox-testing
         rules: *rules-playwright-react
+      Firefox ok:
+        extends: .group-firefox
+      Chromium job:
+        extends: .group-chromium
+      Firefox in merge requests:
+        extends: .group-firefox-react
       """;
 
-    assertThat(firefoxRuleProblems(pipeline)).hasSize(3)
-      .anyMatch(problem -> problem.contains("Playwright Firefox browser"))
-      .anyMatch(problem -> problem.contains("Playwright IT 1/2"))
-      .anyMatch(problem -> problem.contains("Playwright IT 3/3"));
+    assertThat(firefoxRuleProblems(pipeline))
+      .anyMatch(problem -> problem.startsWith("Playwright Firefox browser"))
+      .anyMatch(problem -> problem.startsWith("Chromium job"))
+      .anyMatch(problem -> problem.startsWith("Firefox in merge requests"))
+      .noneMatch(problem -> problem.startsWith("Firefox ok"));
   }
 
   @Test
-  void shouldReportBrowserJobsThatDoNotGroupOrDoNotGateSonar() {
+  void shouldReportBrowserJobsThatAreNotReadableOrDoNotGateSonar() {
     String pipeline = """
+      .selenium-chrome:
+        extends: .chrome-testing
+        variables:
+          TARGET: chrome-angularjs
       Selenium IT 1/2:
+        extends: .selenium-chrome
+        variables:
+          TEST_TAGS: A
+          TEST_PORT: "1"
+          TEST_NAME: a
+      AngularJS · Chrome · Matrix job:
         extends: .chrome-testing
         parallel:
           matrix:
             - TARGET: chrome-angularjs
-              TEST_TAGS: A
-      Chrome IT:
-        extends: .firefox-testing
-        parallel:
-          matrix:
-            - TARGET: chrome-angularjs
               TEST_TAGS: B
-      Playwright IT 1/1:
-        extends: .playwright-chromium-testing
-        parallel:
-          matrix:
-            - TARGET: chrome-angularjs
-              TEST_TAGS: C
+      AngularJS · Scheduler:
+        extends: .selenium-chrome
+        variables:
+          TEST_TAGS: C
+          TEST_PORT: "1"
+          TEST_NAME: c
       Launch Sonar:
         needs:
           - job: Selenium IT 1/2
       """;
 
-    assertThat(browserJobProblems(pipeline)).hasSize(3)
-      .anyMatch(problem -> problem.contains("Chrome IT") && problem.contains("must be named"))
-      .anyMatch(problem -> problem.contains("Selenium IT") && problem.contains("1/2"))
-      .anyMatch(problem -> problem.contains("Playwright IT 1/1") && problem.contains(SONAR_JOB));
+    assertThat(browserJobProblems(pipeline))
+      .anyMatch(problem -> problem.contains("Selenium IT 1/2") && problem.contains("must be named"))
+      .anyMatch(problem -> problem.contains("Matrix job") && problem.contains("parallel"))
+      .anyMatch(problem -> problem.contains("AngularJS · Scheduler") && problem.contains("must be named"))
+      .anyMatch(problem -> problem.contains("AngularJS · Scheduler") && problem.contains(SONAR_JOB))
+      .anyMatch(problem -> problem.contains("TEST_PORT") && problem.contains("share"));
   }
 
   @Test
-  void shouldReportAMatrixEntryThatDoesNotStartWithTheTarget() {
+  void shouldNotTakeAQuarantineJobForANeedOfSonarBecauseOfItsPrefix() {
     String pipeline = """
-      Selenium IT 1/1:
-        extends: .chrome-testing
-        parallel:
-          matrix:
-            - TARGET: chrome-angularjs
-              TEST_TAGS: A
-            - TEST_TAGS: B
+      Quarantine · React:
+        extends:
+          - .chrome-testing
+          - .quarantine-testing
+        variables:
+          TEST_PORT: "1"
+          TEST_NAME: a
       Launch Sonar:
         needs:
-          - job: Selenium IT 1/1
+          - job: Quarantine · React · Chrome
       """;
 
-    assertThat(browserJobProblems(pipeline)).singleElement().asString()
-      .contains("Selenium IT 1/1").contains("TARGET");
+    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Quarantine · React")).isFalse();
+    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Quarantine · React · Chrome")).isTrue();
+    assertThat(browserJobProblems(pipeline)).isEmpty();
+  }
+
+  @Test
+  void shouldAcceptReadableBrowserJobsThatGateSonar() {
+    String pipeline = """
+      .playwright-react-firefox:
+        extends:
+          - .playwright-firefox-testing
+          - .react-testing
+        rules: *rules-playwright-firefox
+        variables:
+          TARGET: firefox-react
+      React · Firefox · Scheduler:
+        extends: .playwright-react-firefox
+        variables:
+          TEST_CLASSES: SchedulerTestsIT
+          TEST_PORT: "6332"
+          TEST_NAME: playwright-react-firefox-scheduler
+      Quarantine · React:
+        extends:
+          - .playwright-chromium-testing
+          - .quarantine-testing
+        variables:
+          TEST_PORT: "6334"
+          TEST_NAME: quarantine
+      Launch Sonar:
+        needs:
+          - job: React · Firefox · Scheduler
+      """;
+
+    assertThat(browserJobProblems(pipeline)).isEmpty();
+  }
+
+  @Test
+  void shouldReportAJobWhoseNameContradictsItsBrowserOrEngine() {
+    String pipeline = """
+      .group:
+        extends:
+          - .playwright-firefox-testing
+        variables:
+          TARGET: firefox-angularjs
+      React · Scheduler:
+        extends: .group
+        variables:
+          TEST_TAGS: SchedulerIT
+          TEST_PORT: "1"
+          TEST_NAME: a
+      Launch Sonar:
+        needs:
+          - job: React · Scheduler
+      """;
+
+    assertThat(browserJobProblems(pipeline)).singleElement().asString().contains("React · Scheduler").contains("must be named");
   }
 
   @Test
@@ -480,14 +553,17 @@ class CiBrowserClassesGuardTest {
 
   /**
    * Merge requests run only the Chromium Playwright suites: the Firefox suites and the job that caches the Firefox browser use the
-   * rules without a merge request rule (develop and master), and the Chromium jobs must keep a merge request rule (not the Firefox one)
+   * rules without a merge request rule (develop and master), and the Chromium jobs must keep a merge request rule (not the Firefox one).
+   * The jobs take their rules from their group template, so the templates they extend are followed.
    */
   private static List<String> firefoxRuleProblems(String pipeline) {
     List<String> problems = new ArrayList<>();
-    jobs(pipeline).forEach((name, job) -> {
-      boolean firefox = name.equals("Playwright Firefox browser") || extendsOf(job).contains(".playwright-firefox-testing");
-      boolean chromium = extendsOf(job).contains(".playwright-chromium-testing");
-      boolean firefoxRules = job.contains("rules: *rules-playwright-firefox");
+    Map<String, String> jobs = jobs(pipeline);
+    jobs.forEach((name, job) -> {
+      Set<String> templates = allExtends(jobs, name);
+      boolean firefox = name.equals("Playwright Firefox browser") || templates.contains(".playwright-firefox-testing");
+      boolean chromium = templates.contains(".playwright-chromium-testing");
+      boolean firefoxRules = effective(jobs, name, RULES).filter("*rules-playwright-firefox"::equals).isPresent();
       if (firefox && !firefoxRules) {
         problems.add(name + " runs Firefox, so it must use *rules-playwright-firefox: Firefox never runs in a merge request");
       }
@@ -499,44 +575,105 @@ class CiBrowserClassesGuardTest {
   }
 
   /**
-   * GitLab shows jobs whose names end in a number over a total, or in the variables of a matrix, as one group named by the rest
-   * of the name. The browser jobs of a tool are named "Selenium IT n/m" or "Playwright IT n/m" (n from 1 to m, m the number of
-   * jobs of the tool), so each tool is one group in the pipeline graph, and "Launch Sonar" waits for each one of them.
+   * Every template that a job extends, directly or through the templates it extends
+   */
+  private static Set<String> allExtends(Map<String, String> jobs, String name) {
+    Set<String> all = new TreeSet<>();
+    for (String template : extendsOf(jobs.getOrDefault(name, ""))) {
+      if (all.add(template)) {
+        all.addAll(allExtends(jobs, template));
+      }
+    }
+    return all;
+  }
+
+  /**
+   * The value that a job ends up with: its own definition, or the one of the last template that sets it, as GitLab merges them
+   */
+  private static Optional<String> effective(Map<String, String> jobs, String name, Pattern key) {
+    String job = jobs.getOrDefault(name, "");
+    Matcher own = key.matcher(job);
+    if (own.find()) {
+      return Optional.of(own.group(1));
+    }
+    List<String> templates = new ArrayList<>(extendsOf(job));
+    Collections.reverse(templates);
+    return templates.stream().map(template -> effective(jobs, template, key)).flatMap(Optional::stream).findFirst();
+  }
+
+  /**
+   * Browser jobs are explicit jobs (no parallel matrix, whose name GitLab builds from the values of its variables) with a readable
+   * name: "engine · suite" for the Chromium suites of Playwright, "engine · Firefox · suite" for its Firefox suites,
+   * "engine · Chrome · suite" and "engine · Firefox (Selenium) · suite" for the Selenium ones. Each one gates "Launch Sonar", and the
+   * quarantine jobs do not. The ports and the test names (which name the coverage and evidence files) are never shared.
    */
   private static List<String> browserJobProblems(String pipeline) {
     List<String> problems = new ArrayList<>();
     Map<String, String> jobs = jobs(pipeline);
     String sonar = jobs.getOrDefault(SONAR_JOB, "");
-    Map<String, List<Matcher>> byTool = new LinkedHashMap<>();
+    Map<String, String> ports = new LinkedHashMap<>();
+    Map<String, String> testNames = new LinkedHashMap<>();
     browserJobs(pipeline).forEach((name, job) -> {
-      Matcher entries = MATRIX_ENTRY.matcher(job);
-      while (entries.find()) {
-        if (!"TARGET".equals(entries.group(1))) {
-          problems.add(name + ": every matrix entry must start with TARGET (browser and engine), so that a failed job reads \"" + name + ": [chromium-angularjs, ...]\"");
-          break;
-        }
+      if (MATRIX.matcher(job).find()) {
+        problems.add(name + " must not use parallel: one job per suite, so that its name says what it runs");
       }
-      String tool = job.contains("playwright") ? "Playwright" : "Selenium";
+      Set<String> templates = allExtends(jobs, name);
+      String engine = templates.contains(REACT_TEMPLATE) ? "React" : "AngularJS";
+      String browser = browserOf(templates);
       Matcher matcher = BROWSER_JOB_NAME.matcher(name);
-      if (!matcher.matches() || !matcher.group(1).equals(tool)) {
-        problems.add(name + " must be named \"" + tool + " IT n/m\", so that the " + tool + " jobs are one group of the pipeline graph");
-        return;
+      if (!matcher.matches() || !matcher.group(1).equals(engine) || !Optional.ofNullable(matcher.group(2)).orElse("").equals(browser)) {
+        problems.add(name + " must be named \"" + engine + " · " + (browser.isEmpty() ? "" : browser + " · ") + "<suite>\" (the Chromium suites"
+          + " of Playwright carry no browser, the others carry theirs)");
       }
-      byTool.computeIfAbsent(tool, key -> new ArrayList<>()).add(matcher);
-      if (!sonar.contains("- job: " + name)) {
+      Optional<String> target = effective(jobs, name, TARGET);
+      if (target.isEmpty() || !target.get().endsWith("-" + engine.toLowerCase())) {
+        problems.add(name + " must set TARGET (browser and engine) ending in -" + engine.toLowerCase() + ", found " + target.orElse("none"));
+      }
+      if (!needsJob(sonar, name)) {
         problems.add(name + " must be listed in the needs of " + SONAR_JOB + ": it gates Sonar and the release jobs");
       }
+      collect(ports, name, effective(jobs, name, TEST_PORT), "TEST_PORT", problems);
+      collect(testNames, name, effective(jobs, name, TEST_NAME), "TEST_NAME", problems);
     });
-    byTool.forEach((tool, names) -> {
-      Set<String> numbers = names.stream().map(matcher -> matcher.group(2)).collect(Collectors.toCollection(TreeSet::new));
-      Set<String> totals = names.stream().map(matcher -> matcher.group(3)).collect(Collectors.toCollection(TreeSet::new));
-      Set<String> expected = IntStream.rangeClosed(1, names.size()).mapToObj(String::valueOf).collect(Collectors.toCollection(TreeSet::new));
-      if (!numbers.equals(expected) || !totals.equals(Set.of(String.valueOf(names.size())))) {
-        problems.add(tool + " IT jobs must be numbered 1/" + names.size() + " to " + names.size() + "/" + names.size()
-          + " (found " + names.stream().map(matcher -> matcher.group(0)).toList() + ")");
+    quarantineJobs(pipeline).forEach((name, job) -> {
+      collect(ports, name, effective(jobs, name, TEST_PORT), "TEST_PORT", problems);
+      collect(testNames, name, effective(jobs, name, TEST_NAME), "TEST_NAME", problems);
+      if (needsJob(sonar, name)) {
+        problems.add(name + " must not be listed in the needs of " + SONAR_JOB + ": a quarantine job never gates anything");
       }
     });
     return problems;
+  }
+
+  /**
+   * Whether the needs of a job list exactly this job (a whole line, so a name that is the prefix of another does not match it)
+   */
+  private static boolean needsJob(String job, String name) {
+    return Pattern.compile("^ {4}- job: " + Pattern.quote(name) + "[ \\t]*+$", Pattern.MULTILINE).matcher(job).find();
+  }
+
+  private static String browserOf(Set<String> templates) {
+    if (templates.contains(".playwright-firefox-testing")) {
+      return "Firefox";
+    }
+    if (templates.contains(".playwright-chromium-testing")) {
+      return "";
+    }
+    if (templates.contains(".firefox-testing")) {
+      return "Firefox (Selenium)";
+    }
+    return templates.contains(".chrome-testing") ? "Chrome" : "?";
+  }
+
+  private static void collect(Map<String, String> seen, String job, Optional<String> value, String variable, List<String> problems) {
+    if (value.isEmpty()) {
+      problems.add(job + " must set " + variable);
+      return;
+    }
+    String previous = seen.putIfAbsent(value.get(), job);
+    if (previous != null) {
+      problems.add(job + " and " + previous + " share " + variable + " " + value.get() + ": each job needs its own");
+    }
   }
 
   /**

@@ -942,24 +942,24 @@ suites de Playwright siguientes ejecutan Chromium y Firefox. Para comprobar el F
 instalado la omite).
 
 **Jobs de Playwright en el pipeline de AWE.** El pipeline de AWE ejecuta las mismas suites que los jobs de Selenium con
-`awe.test.tool=playwright`: 4 jobs (`Playwright IT 1/4` a `Playwright IT 4/4`), cada uno una matriz de los 4 grupos de suites de
-su homólogo de Selenium, lo que hace **16 jobs**. Los dos primeros (Chromium y Firefox) ejecutan la aplicación AngularJS
-(`awe-tests/awe-boot`, los mismos grupos que `Selenium IT 1/4` y `2/4`) y los otros dos la aplicación React
-(`awe-tests/awe-boot-react`, las clases de `Selenium IT 3/4` y `4/4`). Los nombres terminan en `n/4` para que el grafo del pipeline
-muestre cada herramienta como un grupo (GitLab agrupa los jobs cuyos nombres terminan en un número sobre un total, y los jobs de una matriz, por el
-resto del nombre); la primera variable de cada entrada de la matriz es `TARGET` (navegador y motor), de modo que un job fallido se lee
-`Playwright IT 3/4: [chromium-react, ..., playwright-react-chromium-scheduler]`. Los
-cuatro jobs de una herramienta no pueden ser un solo job con el navegador y el motor como variables de matriz: los jobs de React tienen sus propias
-`rules` (se ejecutan en una merge request solo cuando cambia el backend o el cliente React) y las reglas de un job no ven las
-variables de la matriz. Los jobs de Selenium tienen cada uno un servicio de navegador distinto.
+`awe.test.tool=playwright`, como **16 jobs**: uno por cada combinación de motor (AngularJS o React), navegador (Chromium o
+Firefox) y suite (aplicación e integración, CRUD, criterios y rejillas, regresión, websocket e impresión, y planificador). Los
+jobs de AngularJS ejecutan la aplicación `awe-tests/awe-boot` y los de React `awe-tests/awe-boot-react`. Cada job se llama como lo que
+ejecuta, `<motor> · <suite>` para Chromium (por ejemplo `React · CRUD, criteria and grids`) y `<motor> · Firefox · <suite>` para Firefox
+(por ejemplo `AngularJS · Firefox · Scheduler`); los jobs de Selenium llevan su propio navegador (`React · Chrome · Scheduler`,
+`React · Firefox (Selenium) · Scheduler`), de modo que ningún nombre se repite. Son jobs explícitos, no una `parallel: matrix`: GitLab
+nombra un job de matriz con los valores de sus variables, y los jobs de React tienen sus propias `rules` (se ejecutan en una merge
+request solo cuando cambia el backend o el cliente React), que una matriz no dejaría fijar a cada entrada. Una plantilla oculta por motor
+y navegador fija las `rules` y el `TARGET` (navegador y motor); el job añade sus pruebas, su puerto y su nombre. Los jobs de Selenium
+tienen cada uno un servicio de navegador distinto.
 Dos jobs pequeños, `Playwright Chromium browser` y `Playwright Firefox browser`, descargan y cachean los navegadores para ellos.
 Cada job instala solo el navegador headless que necesita, lo ejecuta junto a la aplicación que arranca y escribe su evidencia
 de fallos (captura de pantalla, código fuente de la página, consola, [trace y vídeo](#playwright-evidence)) en `browser-evidence/`, que encuentras
 en los artefactos del job como la evidencia de los jobs de Selenium; el grabador de pantalla de Selenium está desactivado
 (`awe.test.allowed-recording=false`), ya que Playwright graba la propia página.
 
-- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (`Playwright IT 1/4` y `3/4`), y los de Firefox (`2/4` y `4/4`) y `Playwright Firefox browser` se ejecutan en `develop` y `master`. No se ejecutan en
-  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium IT 1/4` a `4/4`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
+- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (los que no llevan navegador en el nombre), y los de Firefox (`<motor> · Firefox · <suite>`) y `Playwright Firefox browser` se ejecutan en `develop` y `master`. No se ejecutan en
+  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`<motor> · Chrome · <suite>` y `<motor> · Firefox (Selenium) · <suite>`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
   requests ni en pushes ordinarios.
 - **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Launch Sonar` y los jobs de publicación, e
   impide que Renovate haga automerge, exactamente igual que un job de Selenium. Tienen la misma [reejecución por prueba](#a-failed-test-is-rerun-alone)
@@ -1361,7 +1361,8 @@ la prueba como `quarantine` para JUnit, y entonces:
 - **Los jobs bloqueantes la dejan fuera.** Las aplicaciones de test excluyen la etiqueta `quarantine` de su ejecución de integración (la
   propiedad de Maven `it.excluded-groups` de `awe-tests/awe-boot` y `awe-tests/awe-boot-react`), de modo que ni los jobs de Playwright ni los de
   Selenium la ejecutan.
-- **La ejecuta un job que nunca bloquea.** `Quarantine Playwright IT` y `Quarantine Selenium IT` ejecutan las pruebas en cuarentena de
+- **La ejecuta un job que nunca bloquea.** `Quarantine · AngularJS` y `Quarantine · React` (Playwright) y `Quarantine · AngularJS · Chrome` y
+  `Quarantine · React · Chrome` (Selenium) ejecutan las pruebas en cuarentena de
   ambas aplicaciones (AngularJS y React), con Chromium. Tienen `allow_failure: true`, ningún reintento de job ni reejecución por prueba (`-Dit.rerun-count=0`, de modo que una prueba inestable se muestra como el fallo que
   fue), y no son
   necesarios para `Launch Sonar` ni para los jobs de publicación, de modo que una prueba en cuarentena que falla muestra una advertencia en el pipeline y nada
