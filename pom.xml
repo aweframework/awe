@@ -66,7 +66,7 @@
     <plugin-info-reports.version>2.9</plugin-info-reports.version>
     <plugin-dependency.version>3.11.0</plugin-dependency.version>
     <plugin-jacoco.version>0.8.15</plugin-jacoco.version>
-    <plugin-spotless.version>3.10.3</plugin-spotless.version>
+    <plugin-spotless.version>3.10.4</plugin-spotless.version>
     <plugin-rewrite.version>6.46.1</plugin-rewrite.version>
     <rewrite-migrate-java.version>3.42.1</rewrite-migrate-java.version>
     <rewrite-spring.version>6.37.1</rewrite-spring.version>
