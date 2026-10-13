@@ -732,6 +732,26 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the description (secondary line) of a card of a launcher page
+   *
+   * @param option Option name of the card
+   * @return Card description selector
+   */
+  default By getLauncherCardDescription(String option) {
+    // AWE gives the id "[option]-description" to the description of the card
+    return By.cssSelector("#" + option + "-description");
+  }
+
+  /**
+   * Get the breadcrumb of the page
+   *
+   * @return Breadcrumb selector
+   */
+  default By getBreadcrumb() {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB));
+  }
+
+  /**
    * Get the label of a criterion
    *
    * @param criterionName Criterion name

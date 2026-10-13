@@ -99,6 +99,18 @@
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendrier des événements"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestionnaire de fichiers"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
+  <locale name="MENU_TEST_LAUNCHER" value="Lanceur"/>
+  <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Pages lanceur dans des pages lanceur"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES" value="Ventes"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" value="Commandes et rapports de ventes"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS" value="Rapports"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" value="Ventes mensuelles et annuelles"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY" value="Rapport mensuel"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" value="Ventes regroupées par mois"/>
+  <locale name="MENU_TEST_LAUNCHER_YEARLY" value="Rapport annuel"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS" value="Commandes"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" value="Consulter les commandes d'un client"/>
+  <locale name="MENU_TEST_LAUNCHER_PLAIN" value="Option simple"/>
   <locale name="MENU_TEST_LAYOUT" value="Layout"/>
   <locale name="MENU_TEST_MATRIX" value="Tableaux"/>
   <locale name="MENU_TEST_MATRIX_ALL" value="Toutes les tableaux"/>

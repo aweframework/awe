@@ -3,6 +3,7 @@ package com.almis.awe.model.entities.menu;
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.xstream.XStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -45,6 +46,34 @@ class OptionTest {
       EXPECTED_FIELDS.forEach(field -> assertTrue(option.has(field), "Missing field " + field + " in " + option.get("name")));
     }
     assertEquals("grandchild", json.get("options").get(0).get("options").get(0).get("name").asText());
+  }
+
+  /**
+   * The description is serialized as a key, next to the label
+   */
+  @Test
+  void serializeDescription() {
+    Option option = buildOption("described").setDescription("DESC_described");
+
+    JsonNode json = new ObjectMapper().valueToTree(option);
+
+    assertEquals("DESC_described", json.get("description").asText());
+  }
+
+  /**
+   * The description attribute is read from the menu XML
+   */
+  @Test
+  void parseDescriptionAttribute() {
+    XStream xStream = new XStream();
+    xStream.autodetectAnnotations(true);
+    xStream.processAnnotations(Option.class);
+    xStream.allowTypesByWildcard(new String[]{"com.almis.awe.model.entities.**"});
+    xStream.aliasSystemAttribute(null, "class");
+
+    Option option = (Option) xStream.fromXML("<option name=\"opt\" label=\"L\" description=\"DESC_opt\"/>");
+
+    assertEquals("DESC_opt", option.getDescription());
   }
 
   private Option buildOption(String name) {

@@ -6,7 +6,8 @@
  * with their translated breadcrumb path, and matches them against a query.
  *
  * Translation and allowance are injected as dependencies (translate, isAllowed)
- * so this module stays free of React and trivially unit-testable.
+ * so this module stays free of any UI framework and trivially unit-testable. The AngularJS client keeps an
+ * identical copy (checked by menuSearchParity.jest.spec.js there).
  */
 
 /**
@@ -29,6 +30,16 @@ export function normalizeText(text) {
  */
 function optionLabel(option, translate) {
   return translate(option.label != null ? option.label : (option.name || ""));
+}
+
+/**
+ * Resolve the translated description of an option (empty when it has none).
+ * @param {object} option Menu option
+ * @param {function} translate Translation function (key -> visible text)
+ * @returns {string} Translated description
+ */
+function optionDescription(option, translate) {
+  return option.description ? translate(option.description) : "";
 }
 
 /**
@@ -82,7 +93,7 @@ export function flattenMenuOptions(options, { translate, isAllowed = () => true 
  *
  * Matching is case- and accent-insensitive, token-based (every whitespace
  * separated token must appear), and runs against both the translated
- * breadcrumb path and the option name. A blank query returns no results.
+ * breadcrumb path, the option name and the translated option description. A blank query returns no results.
  *
  * @param {Array} options Option list (tree root)
  * @param {string} query Search query
@@ -99,7 +110,7 @@ export function searchOptions(options, query, { translate, isAllowed = () => tru
 
   const tokens = normalizedQuery.split(/\s+/);
   return flattenMenuOptions(options, { translate, isAllowed }).filter(({ option, path }) => {
-    const haystack = normalizeText(path.join(" ") + " " + (option.name || ""));
+    const haystack = normalizeText(path.join(" ") + " " + (option.name || "") + " " + optionDescription(option, translate));
     return tokens.every(token => haystack.includes(token));
   });
 }

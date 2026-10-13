@@ -5,6 +5,7 @@ import {BreadCrumb} from "primereact/breadcrumb";
 import "./WindowTemplate.css";
 import {useMenuBreadcrumbs} from "../hooks/useMenuRegistry";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function WindowTemplate(props) {
 
@@ -19,7 +20,7 @@ function WindowTemplate(props) {
   return (
     <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
       <div className="breadcrumb-buttons p-breadcrumb-container">
-        <BreadCrumb model={breadcrumbs.items} home={home}/>
+        <BreadCrumb model={breadcrumbs.items} home={home} pt={{root: testHook(TestIds.breadcrumb)}}/>
         <div className={`window-buttons ${getSourceStyle(sourceButtons)}`}>{getSourceChildren(sourceButtons)}</div>
       </div>
       <div className={`expand expandible-vertical maximize-target ${getSourceStyle(sourceCenter)}`}>{getSourceChildren(sourceCenter)}</div>

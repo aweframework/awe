@@ -91,6 +91,7 @@ export const TestIds = Object.freeze({
   // level dropdown and the nested submenus
   menu: "menu",
   menuOption: "menu-option",
+  breadcrumb: "breadcrumb",
   menuLink: "menu-link",
   menuDropdown: "menu-dropdown",
   menuSubmenu: "menu-submenu",

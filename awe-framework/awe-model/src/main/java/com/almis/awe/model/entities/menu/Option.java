@@ -60,6 +60,11 @@ public class Option extends AbstractAction {
   @XStreamAsAttribute
   private String icon;
 
+  // Option description (i18n key). Shown as the secondary line of launcher cards and as a hint in the menu
+  @XStreamAlias("description")
+  @XStreamAsAttribute
+  private String description;
+
   // Option screen
   @XStreamAlias("screen")
   @XStreamAsAttribute

@@ -98,6 +98,43 @@ describe("components/menu.js", () => {
     expect(element.text()).not.toContain("Option 2");
   });
 
+  it("shows the description of an option as the hint of its link", () => {
+    const {element} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "Shown on hover", visible: true},
+      {id: "plain", name: "plain", label: "Plain", visible: true}
+    ]});
+
+    expect(element.find("a[name='described']").attr("title")).toBe("Shown on hover");
+    expect(element.find("a[name='plain']").attr("title")).toBeFalsy();
+  });
+
+  const translateWith = (dictionary) => jest.spyOn(getService("$translate"), "instant")
+    .mockImplementation(key => dictionary[key] || key);
+
+  it("shows the translated description as the hint of the option link", () => {
+    translateWith({MENU_DESC: "Translated hint"});
+    const {element} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "MENU_DESC", visible: true}
+    ]});
+
+    expect(element.find("a[name='described']").attr("title")).toBe("Translated hint");
+  });
+
+  it("matches the search against the translated description, not its key", () => {
+    translateWith({MENU_DESC: "Quarterly figures"});
+    const {scope} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "MENU_DESC", visible: true, actions: [{type: "screen"}]}
+    ]});
+
+    scope.search.query = "quarterly";
+    scope.onSearchChange();
+    expect(scope.search.results).toHaveLength(1);
+
+    scope.search.query = "menu_desc";
+    scope.onSearchChange();
+    expect(scope.search.results).toHaveLength(0);
+  });
+
   it("toggles a visible menu back to minimized state", () => {
     const {scope} = compileMenu({style: "vertical"});
 

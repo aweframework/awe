@@ -72,13 +72,14 @@ function getExpandedKeys(optionList) {
  */
 function optionToItem(option, props) {
   const { t, deleteStack, addActionsTop, currentOption, disabled } = props;
-  const { separator, name, label, icon, options, actions } = option;
+  const { separator, name, label, description, icon, options, actions } = option;
   let children = optionsToItems(options, props);
   return separator ? getSeparatorModel(option, t) : {
     name, disabled,
     key: name,
     active: name === currentOption.option,
     label: translateLabel(label, t),
+    ...(description ? { title: translateLabel(description, t) } : {}),
     display: true,
     className: name + (name === currentOption.option ? " p-menuitem-active" : ""),
     icon: getIconCode(icon, "p-menuitem-icon"),

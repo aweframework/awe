@@ -129,6 +129,19 @@
         <option name="button-option-14" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
       </option>
     </option>
+    <option name="launcher-menu" label="MENU_TEST_LAUNCHER" description="MENU_TEST_LAUNCHER_DESCRIPTION" icon="th-large"
+            menu-screen="true" screen="test-launcher-screen">
+      <option name="launcher-sales" label="MENU_TEST_LAUNCHER_SALES" description="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" icon="mdi:storefront"
+              menu-screen="true" screen="test-launcher-sales-screen">
+        <option name="launcher-reports" label="MENU_TEST_LAUNCHER_REPORTS" description="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" icon="mdi:insights"
+                menu-screen="true" screen="test-launcher-reports-screen">
+          <option name="launcher-monthly" label="MENU_TEST_LAUNCHER_MONTHLY" description="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" screen="CrtTst" icon="mdi:calendar_month"/>
+          <option name="launcher-yearly" label="MENU_TEST_LAUNCHER_YEARLY" screen="CrtTstLeft" icon="mdi:calendar_today"/>
+        </option>
+        <option name="launcher-orders" label="MENU_TEST_LAUNCHER_ORDERS" description="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" screen="CrtTst" icon="mdi:receipt_long"/>
+      </option>
+      <option name="launcher-plain" label="MENU_TEST_LAUNCHER_PLAIN" screen="RstTst" icon="refresh"/>
+    </option>
     <option name="dynamic-screen" label="MENU_TEST_DYNAMIC_SCREEN" icon="mdi:developer_board"
             dynamic-screen="true" dynamic-screen-service="dynamicScreen"/>
     <option name="dynamic-subscreen" label="MENU_TEST_DYNAMIC_SUB_SCREEN" invisible="true"

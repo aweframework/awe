@@ -8,7 +8,8 @@ const dictionary = {
   "INVOICE_LIST": "Listado de facturas",
   "PURCHASES": "Compras",
   "BILLING": "Facturación",
-  "RECEIVED_INVOICES": "Facturas recibidas"
+  "RECEIVED_INVOICES": "Facturas recibidas",
+  "INVOICE_LIST_DESCRIPTION": "Consulta de comprobantes emitidos"
 };
 const translate = (key) => dictionary[String(key || "")] || String(key || "");
 
@@ -22,7 +23,7 @@ const menu = [
       {
         name: "invoices", label: "INVOICES", visible: true, options: [
           { name: "newInvoice", label: "NEW_INVOICE", visible: true, actions: [{ type: "screen" }] },
-          { name: "invoiceList", label: "INVOICE_LIST", visible: true, actions: [{ type: "screen" }] }
+          { name: "invoiceList", label: "INVOICE_LIST", description: "INVOICE_LIST_DESCRIPTION", visible: true, actions: [{ type: "screen" }] }
         ]
       }
     ]
@@ -145,6 +146,23 @@ describe('utilities/menuSearch.js', () => {
       const result = searchOptions(menu, "ventas", { translate, isAllowed });
 
       expect(result.map(r => r.option.name)).toEqual(["newInvoice", "invoiceList"]);
+    });
+
+    it('should match by the translated description of an option', () => {
+      const result = searchOptions(menu, "comprobantes emitidos", { translate, isAllowed });
+
+      expect(result.map(r => r.option.name)).toEqual(["invoiceList"]);
+    });
+
+    it('should not match descriptions of other options', () => {
+      expect(searchOptions(menu, "comprobantes", { translate, isAllowed }).map(r => r.option.name)).toEqual(["invoiceList"]);
+      expect(searchOptions(menu, "comprobantes", { translate, isAllowed })).toHaveLength(1);
+    });
+
+    it('should not search the description when the option has none', () => {
+      const result = searchOptions(menu, "undefined", { translate, isAllowed });
+
+      expect(result).toEqual([]);
     });
 
     it('should default isAllowed to allow-all when the predicate is omitted', () => {

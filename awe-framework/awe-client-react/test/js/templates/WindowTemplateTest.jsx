@@ -34,6 +34,7 @@ describe('awe-react-client/test/js/templates/WindowTemplateTest.jsx', () => {
     // Verify the rendered output contains the expected elements
     expect(container.querySelector('.window-buttons')).not.toBeNull();
     expect(container.querySelector('.p-breadcrumb')).not.toBeNull();
+    expect(container.querySelector('[data-testid="breadcrumb"]')).toBe(container.querySelector('.p-breadcrumb'));
     expect(container.querySelector('.expand.expandible-vertical.center-style')).not.toBeNull();
   });
 

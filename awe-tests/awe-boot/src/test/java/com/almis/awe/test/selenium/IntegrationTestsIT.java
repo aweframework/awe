@@ -389,6 +389,39 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Launcher pages: the cards show the description of the options, a launcher card opens another launcher (3 levels) and
+   * the breadcrumb follows the levels. The option without description renders as before (card without description line)
+   */
+  @Test
+  void t085_launcherPages() {
+    // Title
+    setTestTitle("Launcher pages with descriptions and nested launchers");
+
+    // First level: the card of the nested launcher shows its description, the plain option has none
+    gotoScreen("test", "launcher-menu");
+    checkLauncherCardDescription("launcher-sales", "Orders and sales reports");
+    checkButtonVisible("launcher-plain");
+    checkLauncherCardWithoutDescription("launcher-plain");
+
+    // Second level
+    clickButton("launcher-sales", true);
+    checkLauncherCardDescription("launcher-reports", "Monthly and yearly sales");
+    checkLauncherCardDescription("launcher-orders", "Look up the orders of a customer");
+    checkBreadcrumbContains("Launcher");
+
+    // Third level
+    clickButton("launcher-reports", true);
+    checkLauncherCardDescription("launcher-monthly", "Sales grouped by month");
+    checkButtonVisible("launcher-yearly");
+    checkLauncherCardWithoutDescription("launcher-yearly");
+    checkBreadcrumbContains("Sales");
+
+    // Open a screen from the last launcher
+    clickButton("launcher-monthly", true);
+    checkBreadcrumbContains("Reports");
+  }
+
+  /**
    * Remove the screen configuration of the databases screen for the test user that t010 stores
    */
   private void removeScreenConfiguration() {

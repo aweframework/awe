@@ -42,7 +42,7 @@ aweApplication.directive('aweMenu',
               </div>
             </div>
             <awe-option ng-repeat="option in options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}"
-                        close-first-level="closeFirstLevel()" first-level="true" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}"
+                        close-first-level="closeFirstLevel()" first-level="true" selected-option="selectedOption" option-title="{{::option.description || option.title}}" option-name="{{::option.name}}"
                         option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
           </ul>`,
         scope: {

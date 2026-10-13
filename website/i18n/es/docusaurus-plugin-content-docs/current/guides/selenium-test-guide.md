@@ -395,6 +395,9 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `gotoScreen(String... menuOptions)` | Hace clic en las opciones de menú en orden para abrir una pantalla, y espera a que el menú surta efecto |
 | `waitForMenuOption(String option)` | Espera hasta que el clic en una opción de menú haya surtido efecto. `gotoScreen` ya lo llama |
 | `checkMenuOption(String option, String text)` | Comprueba que una opción de menú es visible y contiene un texto |
+| `checkLauncherCardDescription(String option, String text)` | Comprueba que una tarjeta de una página lanzadora muestra una descripción (su línea secundaria) |
+| `checkLauncherCardWithoutDescription(String option)` | Comprueba que una tarjeta de una página lanzadora no tiene descripción |
+| `checkBreadcrumbContains(String text)` | Comprueba que la ruta de navegación de la página es visible y contiene un texto |
 | `selectModule(String moduleName)` | Abre el menú de ajustes (`ButSetTog`) y selecciona un módulo en el selector `module` |
 | `ensureModule(String moduleName, String menuOption)` | No hace nada cuando la opción de menú que solo muestra ese módulo ya es visible; selecciona el módulo (`selectModule`) cuando no lo es |
 | `broadcastMessageToUser(String user, String text)` | Va a la pantalla `tools > broadcast-messages` de las aplicaciones de test de AWE, envía un texto a un usuario y cierra los mensajes `success` e `info` |
