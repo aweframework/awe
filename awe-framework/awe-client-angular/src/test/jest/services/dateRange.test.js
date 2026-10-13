@@ -36,6 +36,12 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/dateRange.js',
       expect(resolvePreset(code, TODAY)).toEqual({from, to});
     });
 
+    it.each([
+      ["1D", "11/10/2026"], ["1W", "05/10/2026"], ["1M", "12/09/2026"], ["1Y", "12/10/2025"]
+    ])('subtracts one unit of the period %s (days, weeks, months and years)', function (code, from) {
+      expect(resolvePreset(code, TODAY)).toEqual({from, to: "12/10/2026"});
+    });
+
     it('keeps the last day of a shorter month when subtracting months', function () {
       expect(resolvePreset("1M", new Date(2026, 2, 31))).toEqual({from: "28/02/2026", to: "31/03/2026"});
     });

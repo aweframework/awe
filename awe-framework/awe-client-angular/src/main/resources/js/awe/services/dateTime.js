@@ -2,8 +2,8 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiDate";
 import "../directives/plugins/uiTime";
-import moment from "moment";
 import {getIconTemplate} from "./component";
+import {formatDate, parseDate} from "./dateUtils";
 
 export const calendarInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies"
@@ -217,14 +217,14 @@ aweApplication.factory('DateTime',
                 return;
               }
 
-              let momentDate = moment(date.value, "DD/MM/YYYY", true);
-              if (!momentDate.isValid()) {
+              let parsedDate = parseDate(date.value, true);
+              if (!parsedDate.isValid()) {
                 return;
               }
 
               dateTime.validDates[date.value] = true;
-              dateTime.validMonths[momentDate.format('MMYYYY')] = true;
-              dateTime.validYears[momentDate.format('YYYY')] = true;
+              dateTime.validMonths[parsedDate.format('MMYYYY')] = true;
+              dateTime.validYears[parsedDate.format('YYYY')] = true;
             });
           };
 
@@ -236,7 +236,7 @@ aweApplication.factory('DateTime',
            * @returns {boolean}
            */
           let filterDates = function (date, format, filteredSet) {
-            return moment(date).format(format) in filteredSet;
+            return formatDate(date, format) in filteredSet;
           };
 
           // Set filtered dates in dates with a day value

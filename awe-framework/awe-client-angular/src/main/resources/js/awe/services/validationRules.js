@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
-import moment from "moment";
+import dayjs from "dayjs";
+import {parseDate} from "./dateUtils";
 import _ from "lodash";
 import {isDateRangeValid} from "./dateRange";
 
@@ -163,7 +164,7 @@ aweApplication.factory('ValidationRules',
             break;
           case "date":
             _.each(parameters.values, function (value, valueId) {
-              parameters.values[valueId] = !$utilities.isEmpty(value) ? moment(value, "DD/MM/YYYY") : null;
+              parameters.values[valueId] = !$utilities.isEmpty(value) ? parseDate(value) : null;
             });
             break;
           default:
@@ -198,7 +199,7 @@ aweApplication.factory('ValidationRules',
         let messageFormatted = $translate.instant(message || "");
         _.each(parameters.values, function (value, key) {
           let formattedValue = value;
-          if (!$utilities.isEmpty(value) && value._isAMomentObject) {
+          if (!$utilities.isEmpty(value) && dayjs.isDayjs(value)) {
             formattedValue = formattedValue.format("DD/MM/YYYY");
           }
           messageFormatted = messageFormatted.replace("{" + key + "}", formattedValue);
@@ -267,7 +268,7 @@ aweApplication.factory('ValidationRules',
           };
           let passed = new RegExp(patterns.DATE).test(String(parameters.values.value1));
           if (passed) {
-            let d = moment(parameters.values.value1, 'DD/MM/YYYY');
+            let d = parseDate(parameters.values.value1);
             passed = d.isValid();
           }
           return $utilities.isEmpty(parameters.values.value1) || passed ? null : error;

@@ -61,6 +61,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Beans del manejador SSO | Su propio código llama a `AweWebSecurityConfig.authSuccessHandler()` (ahora recibe como parámetro el bean `AweOauth2AuthenticationFailureHandler`), o construye `AweOauth2AuthenticationSuccessHandler` con un argumento (obsoleto y pendiente de eliminación). | Pase el manejador de fallos: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Los beans de manejador propios ahora se respetan en el inicio de sesión SSO. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
 | Base de datos del planificador | Flyway falla con un error de checksum en `SCHEDULER_V1.0.5`, o no se puede construir una base de datos nueva desde cero. | Ejecute el paso de migración descrito más abajo. | MR !843 |
 | Carpetas por defecto (módulo de desarrollador, logs del planificador) | La ruta del módulo de desarrollador y los logs de ejecución del planificador están ahora en una carpeta sin la `}` sobrante con la que terminaba el valor por defecto (`<user.home>/awe-developer` en lugar de `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` en lugar de `.../scheduler}`). Solo aplica si no definió `awe.developer.path` ni `awe.scheduler.execution-log-path`. | Mueva sus archivos existentes de la carpeta antigua a la nueva si los necesita, o defina la propiedad con la ruta antigua. | MR !889 |
+| Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 
 ### jsoup en el sanitizador de parámetros de entrada {#jsoup-in-the-input-parameter-sanitizer}
 
@@ -132,6 +133,25 @@ Qué hacer:
   en su propia migración.
 - **Aplicaciones con scripts propios:** no dependa de las columnas de credenciales de las tablas de lanzadores, están
   obsoletas. Almacene las credenciales en el servidor (`AweSchSrv`).
+
+### Dependencias de los clientes {#client-dependencies}
+
+La incidencia #769 limpió las dependencias npm de ambos clientes:
+
+- **`moment` se sustituye por `day.js`** en el cliente AngularJS. Las fechas mantienen el formato `dd/mm/yyyy` que lee el
+  servidor y las reglas de validación se comportan como antes (las fechas imposibles, como `31/02/2020`, se siguen
+  rechazando). `moment` estaba empaquetado dentro del bundle de AWE y nunca fue una variable global, por lo que solo
+  afecta al código que lo importa desde el paquete `awe-client-angular`. **Obsolescencia:** no confíe en que `moment` o
+  `lodash` vengan con AWE; añádalos a su propio `package.json` si los usa. AWE puede cambiarlos o retirarlos de nuevo
+  sin una versión mayor.
+- **Se eliminaron paquetes sin uso** de ambos clientes (consulte la fila de la tabla). El cliente React sigue instalando
+  `react-transition-group` a través de `primereact`, pero impórtelo solo si lo declara usted mismo.
+- **Los restos de Karma han desaparecido** del cliente AngularJS (specs de Jasmine que nadie ejecutaba, los entornos
+  Babel de Istanbul y los paquetes `babel-plugin-istanbul`, `exports-loader` y `@babel/types`). La cobertura la
+  proporciona Jest.
+- Las actualizaciones mayores que requieren su propia migración no forman parte de esta limpieza: AngularJS 1.5,
+  `angular-ui-router` 0.4, `angular-ui-grid` (la 4.12.7 cambia el punto de entrada del paquete), Highcharts y
+  jQuery/Bootstrap (#755, #772), Redux Toolkit 2 (#807) y React 19.
 
 ## Próximamente en AWE 5 {#coming-in-awe-5}
 

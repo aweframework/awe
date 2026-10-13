@@ -61,6 +61,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | SSO handler beans | Your own code calls `AweWebSecurityConfig.authSuccessHandler()` (it now takes the `AweOauth2AuthenticationFailureHandler` bean as a parameter), or builds `AweOauth2AuthenticationSuccessHandler` with one argument (deprecated for removal). | Pass the failure handler: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Handler beans of your own are now honoured by the SSO login. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
 | Scheduler database | Flyway fails with a checksum mismatch on `SCHEDULER_V1.0.5`, or a new database cannot be built from scratch. | Run the migration step described below. | MR !843 |
 | Default folders (developer module, scheduler logs) | The developer module path and the scheduler execution logs are now in a folder without the stray `}` that the default value used to end with (`<user.home>/awe-developer` instead of `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` instead of `.../scheduler}`). Only applies if you did not set `awe.developer.path` or `awe.scheduler.execution-log-path`. | Move your existing files from the old folder to the new one if you need them, or set the property to the old path. | MR !889 |
+| Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 
 ### jsoup in the input parameter sanitizer
 
@@ -127,6 +128,23 @@ What to do:
   the old script dropped are not restored: if your own scripts insert them, add them back in your own migration.
 - **Applications with their own scripts:** do not rely on the credential columns of the launcher tables, they are
   deprecated. Store the credentials in the server (`AweSchSrv`).
+
+### Client dependencies
+
+Issue #769 cleaned up the npm dependencies of both clients:
+
+- **`moment` is replaced by `day.js`** in the AngularJS client. The dates keep the `dd/mm/yyyy` format that the server
+  reads and the validation rules behave as before (impossible dates such as `31/02/2020` are still rejected).
+  `moment` was bundled inside the AWE bundle and was never a global, so only code that imports it from the
+  `awe-client-angular` package is affected. **Deprecation:** do not rely on `moment` or `lodash` coming with AWE; add
+  them to your own `package.json` if you use them. AWE may change or drop them again without a major version.
+- **Unused packages were removed** from both clients (see the table row). The React client still installs
+  `react-transition-group` through `primereact`, but import it only if you declare it yourself.
+- **Karma leftovers are gone** from the AngularJS client (Jasmine specs nobody ran, the Istanbul Babel environments and
+  the `babel-plugin-istanbul`, `exports-loader` and `@babel/types` packages). Coverage comes from Jest.
+- Major upgrades that need their own migration are not part of this clean-up: AngularJS 1.5, `angular-ui-router` 0.4,
+  `angular-ui-grid` (4.12.7 changes the package entry point), Highcharts and jQuery/Bootstrap (#755, #772), Redux Toolkit 2
+  (#807) and React 19.
 
 ## Coming in AWE 5
 

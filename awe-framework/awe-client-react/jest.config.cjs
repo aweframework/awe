@@ -19,6 +19,7 @@ module.exports = {
     '**/packaging/packageVersionTest.{js,jsx}',
     '**/packaging/packageLicenseTest.{js,jsx}',
     '**/packaging/babelConfigTest.{js,jsx}',
+    '**/packaging/dependenciesTest.{js,jsx}',
     '**/packaging/helpTemplatesTest.{js,jsx}',
     '**/packaging/textUtilitiesTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',

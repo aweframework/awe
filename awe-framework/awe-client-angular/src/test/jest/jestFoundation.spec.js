@@ -90,6 +90,25 @@ describe("Jest foundation configuration", () => {
     expect(rootPomXml).not.toContain("target/reports/karma/");
   });
 
+  it("does not keep unused build dependencies or Karma-era coverage instrumentation", () => {
+    const dependencyNames = [
+      ...Object.keys(packageConfig.dependencies || {}),
+      ...Object.keys(packageConfig.devDependencies || {})
+    ];
+
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["exports-loader"]));
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["@babel/types"]));
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["babel-plugin-istanbul"]));
+    expect(Object.keys(babelConfig.env)).toEqual(["jest", "production"]);
+  });
+
+  it("does not depend on moment and uses the lighter day.js instead", () => {
+    const dependencyNames = Object.keys(packageConfig.dependencies || {});
+
+    expect(dependencyNames).not.toContain("moment");
+    expect(dependencyNames).toContain("dayjs");
+  });
+
   it("discovers source-traceable Jest specs instead of relying on npm bucket scripts", () => {
     expect(jestConfig.testMatch).toEqual(expect.arrayContaining([
       "<rootDir>/src/test/jest/**/*.spec.js",
@@ -118,14 +137,20 @@ describe("Jest foundation configuration", () => {
     });
   });
 
-  it("keeps migrated browser-selection tests declared in their Jest spec", () => {
-    const browserSelectionEntrypoint = fs.readFileSync(
-      path.join(__dirname, "karma", "browserSelection.jest.spec.js"),
-      "utf8"
-    );
+  it("keeps no Karma browser selection helpers or Jasmine-only specs outside the Jest owners", () => {
+    const legacyDir = path.join(__dirname, "..", "js");
+    const jestSources = fs.readdirSync(__dirname, {recursive: true})
+      .filter(file => String(file).endsWith(".js"))
+      .map(file => fs.readFileSync(path.join(__dirname, String(file)), "utf8"))
+      .join("\n");
+    const legacySpecs = fs.readdirSync(legacyDir, {recursive: true})
+      .filter(file => String(file).endsWith(".js"))
+      .map(String);
 
-    expect(browserSelectionEntrypoint).toContain('describe("karma browser selection"');
-    expect(browserSelectionEntrypoint).not.toContain("browserSelection.spec.js");
+    expect(legacySpecs).not.toContain(path.join("karma", "browserSelection.js"));
+    legacySpecs.filter(file => file !== "utils.js").forEach(file => {
+      expect(jestSources).toContain(file.split(path.sep).join("/"));
+    });
   });
 
   it("keeps Jest setup free of Jasmine compatibility bridge APIs", () => {

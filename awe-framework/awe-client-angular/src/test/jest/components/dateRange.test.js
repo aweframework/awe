@@ -1,6 +1,6 @@
 import "./lightComponentTestUtils";
 
-import moment from "moment";
+import dayjs from "dayjs";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import {dateRangeInputTemplate} from "../../../main/resources/js/awe/services/dateRange";
 
@@ -83,7 +83,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/dateRange.js
 
   it('fills both inputs and the model when a preset is clicked', function () {
     const element = render([], {presets: "ALL, TODAY"});
-    const today = moment().format("DD/MM/YYYY");
+    const today = dayjs().format("DD/MM/YYYY");
 
     presets(element).eq(1).click();
     $rootScope.$digest();
