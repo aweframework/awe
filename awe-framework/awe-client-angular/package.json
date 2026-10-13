@@ -43,7 +43,7 @@
     "babel-plugin-transform-object-entries": "^1.0.0",
     "bootstrap": "^3.3.7",
     "bootstrap-datepicker": "^1.9.0",
-    "bootstrap-markdown": "2.9.0",
+    "bootstrap-markdown": "2.10.0",
     "bootstrap-slider": "^8.0.0",
     "bootstrap-timepicker": "^0.5.2",
     "css-loader": "^3.4.2",
