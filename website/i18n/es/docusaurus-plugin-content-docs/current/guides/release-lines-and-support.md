@@ -60,13 +60,14 @@ automerge. Una prueba inestable se vuelve a ejecutar sola una vez y se informa c
 veces hace fallar el job, y un job solo se reintenta cuando falla el runner (no ante un fallo de prueba ni un tiempo de
 espera agotado).
 
-- **Playwright** (jobs `Playwright IT 1/4` a `Playwright IT 4/4`: Chromium y Firefox, cada uno contra la aplicación
+- **Playwright** (jobs llamados `<motor> · <suite>` para Chromium, como `React · Scheduler`, y
+  `<motor> · Firefox · <suite>` para Firefox, como `AngularJS · Firefox · Scheduler`, cada uno contra la aplicación
   AngularJS y la aplicación React) es la herramienta de navegador de la pipeline diaria: merge requests con cambios de
   código, `develop` y `master`. No se ejecuta en `support/*`: `support/4.x` no tiene adaptador de Playwright. Las merge
-  requests ejecutan solo los jobs de Chromium (`Playwright IT 1/4` y `3/4`); los de Firefox (`2/4` y `4/4`) y su job de
+  requests ejecutan solo los jobs de Chromium (los que no llevan navegador en el nombre); los de Firefox y su job de
   caché del navegador se ejecutan en `develop` y `master`.
-- **Selenium** (jobs `Selenium IT 1/4` a `Selenium IT 4/4`: Chrome y Firefox, cada uno contra la aplicación AngularJS y
-  la aplicación React) se ejecuta en `master`, en `support/*` y en las pipelines de la **programación de pipeline
+- **Selenium** (jobs llamados `<motor> · Chrome · <suite>` y `<motor> · Firefox (Selenium) · <suite>`, cada uno contra la
+  aplicación AngularJS y la aplicación React) se ejecuta en `master`, en `support/*` y en las pipelines de la **programación de pipeline
   «Weekly Check» en `develop`**. No se ejecuta en merge requests ni en un push ordinario a `develop`. La programación es
   un ajuste del proyecto en GitLab (CI/CD, Schedules), no un archivo del repositorio; la programación «Renovate»
   ejecuta solo el job de Renovate.

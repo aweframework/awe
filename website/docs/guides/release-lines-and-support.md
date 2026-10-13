@@ -61,13 +61,14 @@ fails the pipeline, stops `Launch Sonar` (and with it the release jobs), and pre
 from automerging. A flaky test is rerun alone once and reported as flaky; a test that fails twice
 fails the job, and a job is retried only when the runner fails (not on a test failure or a timeout).
 
-- **Playwright** (jobs `Playwright IT 1/4` to `Playwright IT 4/4`: Chromium and Firefox, each one
+- **Playwright** (jobs named `<engine> · <suite>` for Chromium, such as `React · Scheduler`, and
+  `<engine> · Firefox · <suite>` for Firefox, such as `AngularJS · Firefox · Scheduler`, each one
   against the AngularJS and the React application) is the browser tool of the everyday pipeline: merge
   requests with code changes, `develop` and `master`. It does not run on `support/*`: `support/4.x`
-  has no Playwright adapter. Merge requests run only the Chromium jobs (`Playwright IT 1/4` and
-  `3/4`); the Firefox jobs (`2/4` and `4/4`) and their browser cache job run on `develop` and `master`.
-- **Selenium** (jobs `Selenium IT 1/4` to `Selenium IT 4/4`: Chrome and Firefox, each one against
-  the AngularJS and the React application) runs on
+  has no Playwright adapter. Merge requests run only the Chromium jobs (the ones without a browser in their
+  name); the Firefox jobs and their browser cache job run on `develop` and `master`.
+- **Selenium** (jobs named `<engine> · Chrome · <suite>` and `<engine> · Firefox (Selenium) · <suite>`,
+  each one against the AngularJS and the React application) runs on
   `master`, on `support/*` and in the pipelines of the **"Weekly Check" pipeline schedule on
   `develop`**. It does not run on merge requests or on an ordinary push to `develop`. The schedule
   is a project setting in GitLab (CI/CD, Schedules), not a file of the repository; the "Renovate"

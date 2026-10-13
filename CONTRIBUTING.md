@@ -158,7 +158,8 @@ so a flaky test is handled in three steps, all described in
 1. **Rerun**: a failed test of an independent class runs once more alone (failsafe `rerunFailingTestsCount`, Maven property
    `it.rerun-count`). If it passes it is reported as flaky: look for `Flakes:` in the job log and open an issue.
 2. **Quarantine**: put `@Quarantine(issue = "#812", reason = "...")` (`com.almis.awe.testing.annotations`) on the test method.
-   The blocking jobs leave it out (`it.excluded-groups`) and the jobs `Quarantine Playwright IT` and `Quarantine Selenium IT` run
+   The blocking jobs leave it out (`it.excluded-groups`) and the jobs `Quarantine · AngularJS`, `Quarantine · React` and, for Selenium, `Quarantine · AngularJS · Chrome` and
+   `Quarantine · React · Chrome` run
    it with `allow_failure: true`, so a failure there is a warning and its report is in the job artifacts.
 3. **Get it out**: fix the cause, delete the annotation and close the issue in the same merge request; the merge request
    pipeline then runs the test as a blocking one.
