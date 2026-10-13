@@ -17,10 +17,10 @@ class TotpDependencyMetadataTest {
     String dependencyManagementPom = Files.readString(MODULE_ROOT.resolve("../awe-dependencies/pom.xml").normalize());
 
     assertThat(dependencyManagementPom)
-      .contains("<otp-java.version>2.1.0</otp-java.version>")
-      .contains("<commons-codec.version>1.18.0</commons-codec.version>")
-      .contains("<artifactId>otp-java</artifactId>")
-      .contains("<artifactId>commons-codec</artifactId>")
+      .containsPattern("<otp-java\\.version>\\d+\\.\\d+\\.\\d+</otp-java\\.version>")
+      .containsPattern("<commons-codec\\.version>\\d+\\.\\d+(\\.\\d+)?</commons-codec\\.version>")
+      .containsPattern("(?s)<artifactId>otp-java</artifactId>\\s*<version>\\$\\{otp-java\\.version}</version>")
+      .containsPattern("(?s)<artifactId>commons-codec</artifactId>\\s*<version>\\$\\{commons-codec\\.version}</version>")
       .doesNotContain("samstevens");
   }
 

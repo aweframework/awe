@@ -296,6 +296,28 @@
         <artifactId>js-scriptengine</artifactId>
         <version>${graalvm.version}</version>
       </dependency>
+      <!-- Keep the whole GraalVM stack on one version: imported BOMs (e.g. Spring Cloud GCP) manage newer
+           graal-sdk/nativeimage versions that make Truffle reject the polyglot runtime at startup -->
+      <dependency>
+        <groupId>org.graalvm.sdk</groupId>
+        <artifactId>graal-sdk</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.sdk</groupId>
+        <artifactId>nativeimage</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.truffle</groupId>
+        <artifactId>truffle-api</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.regex</groupId>
+        <artifactId>regex</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.google.zxing</groupId>
         <artifactId>javase</artifactId>
