@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
@@ -416,4 +417,52 @@ class MenuServiceTest {
     assertEquals(13, menu.getElementsByType(Option.class).size());
     assertEquals(9, menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).count());
   }
- }
+
+  private Option launcherOption(String name, Option... children) {
+    Option option = new Option().setMenuScreen(true).setScreen(name + "-screen");
+    option.setName(name);
+    option.setLabel("LABEL_" + name);
+    for (Option child : children) {
+      option.addElement(child);
+    }
+    return option;
+  }
+
+  private Menu threeLevelLauncherMenu() {
+    Option leaf = new Option().setScreen("leaf-screen");
+    leaf.setName("level3-leaf");
+    Menu menu = new Menu().addElement(
+      launcherOption("level1", launcherOption("level2", launcherOption("level3", leaf))));
+    menu.defineRelationship();
+    return menu;
+  }
+
+  private void mockAvailableOptions(Menu menu) throws AWException {
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweSession.isAuthenticated()).thenReturn(false);
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(aweElements.getMenu(anyString())).thenReturn(menu);
+  }
+
+  @Test
+  void nestedLaunchersAreGeneratedAtEveryLevel() throws AWException {
+    Menu menu = threeLevelLauncherMenu();
+    mockAvailableOptions(menu);
+
+    for (String level : List.of("level1", "level2", "level3")) {
+      assertEquals(level + "-screen", menuService.getAvailableOptionScreen(level, menu).getId());
+    }
+  }
+
+  @Test
+  void restrictedNestedLauncherCannotBeOpened() throws AWException {
+    Menu menu = threeLevelLauncherMenu();
+    menu.getOptionByName("level2").setRestricted(true);
+    mockAvailableOptions(menu);
+
+    assertEquals("level1-screen", menuService.getAvailableOptionScreen("level1", menu).getId());
+    assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level2", menu));
+    assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level3", menu));
+  }
+}

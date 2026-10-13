@@ -95,6 +95,8 @@ public final class TestIds {
   // Application menu and info dropdowns
   public static final String MENU = "menu";
   public static final String MENU_OPTION = "menu-option";
+  // Breadcrumb of the page (the path of menu options that leads to the screen)
+  public static final String BREADCRUMB = "breadcrumb";
   public static final String MENU_LINK = "menu-link";
   public static final String MENU_DROPDOWN = "menu-dropdown";
   public static final String MENU_SUBMENU = "menu-submenu";

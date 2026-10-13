@@ -6,6 +6,7 @@ import { renderWithProviders } from "../test-utils";
 import AweMenuSearch from "../../../src/components/AweMenuSearch";
 import AweMenu from "../../../src/components/AweMenu";
 import MenuRegistry from "../../../src/redux/registry/MenuRegistry";
+import ViewRegistry from "../../../src/redux/registry/ViewRegistry";
 
 // Allowance predicate mirroring the menu filter (visible and not restricted)
 const isAllowed = (option) => option.visible !== false && !option.restricted;
@@ -257,5 +258,77 @@ describe('components/AweMenu.jsx menu search gating', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "ADD_ACTIONS_TOP" }));
     // Panel closes after launching
     expect(screen.queryByRole("textbox")).toBeNull();
+  });
+});
+
+const leafOption = (name, label, description) => ({
+  name, label, ...(description ? { description } : {}), visible: true, restricted: false, separator: false,
+  menuScreen: false, actions: [{ type: "screen" }], options: []
+});
+
+// Menu with a described option, a plain option and a launcher nested in another launcher (3 levels)
+const describedMenuOptions = [
+  {
+    name: "launcher", label: "Launcher", description: "LAUNCHER_DESCRIPTION", visible: true, restricted: false,
+    separator: false, menuScreen: true, actions: [{ type: "screen" }], options: [
+      {
+        name: "nested", label: "Nested", description: "NESTED_DESCRIPTION", visible: true, restricted: false,
+        separator: false, menuScreen: true, actions: [{ type: "screen" }], options: [
+          leafOption("deep", "Deep", "DEEP_DESCRIPTION")
+        ]
+      }
+    ]
+  },
+  leafOption("described", "Described", "DESCRIBED_DESCRIPTION"),
+  leafOption("plain", "Plain")
+];
+
+describe('components/AweMenu.jsx option descriptions', () => {
+
+  // The view registry is global: leave it as it was after every test
+  afterEach(() => ViewRegistry.setView("report", { loading: true }));
+
+  const renderMenu = (style) => {
+    MenuRegistry.setOptions(describedMenuOptions);
+    renderWithProviders(<AweMenu id="menu" style={style} />, {
+      preloadedState: {
+        settings: DEFAULT_SETTINGS,
+        screen: { view: "report", size: { width: 100, height: 100 }, report: { option: "plain", title: "Plain" } },
+        menu: { options: describedMenuOptions },
+        components: {
+          menu: {
+            address: { component: 'grid', view: 'report' },
+            screen: { breadcrumbs: [], report: { name: "opcion", option: "opcion" } },
+            model: { values: [] },
+            attributes: {}
+          }
+        }
+      }
+    });
+  };
+
+  it.each(["vertical", "horizontal"])('shows the description of an option as the hint of its link (%s menu)', (style) => {
+    renderMenu(style);
+
+    expect(document.querySelector("a[name='described']")).toHaveAttribute("title", "DESCRIBED_DESCRIPTION");
+  });
+
+  it('shows the description as the hint of a launcher option', () => {
+    renderMenu("vertical");
+
+    expect(document.querySelector("a[name='launcher']")).toHaveAttribute("title", "LAUNCHER_DESCRIPTION");
+  });
+
+  it('generates the breadcrumbs of an option inside nested launchers (3 levels)', () => {
+    ViewRegistry.setView("report", { option: "deep", title: "Deep" });
+    renderMenu("vertical");
+
+    expect(MenuRegistry.getBreadcrumbs().items.map(item => item.name)).toEqual(["launcher", "nested", "deep"]);
+  });
+
+  it('adds no hint to an option without description', () => {
+    renderMenu("vertical");
+
+    expect(document.querySelector("a[name='plain']")).not.toHaveAttribute("title");
   });
 });

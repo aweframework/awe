@@ -81,6 +81,7 @@ Inside the tools option there are a set of options, some of them are 'invisible'
 | name        | **Required** | String  | Is the option name, which is used in the profile files and AweScrRes to restrict an option access. If a parent option is restricted, all children are restricted too   |                                                                                                  |
 | screen      | Optional     | String  | Describes the screen that will be accessed when the user clicks on the option                                                                                          |                                                                                                  |
 | label       | Optional     | String  | Is a literal which contains the option name                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                       |
+| description | Optional     | String  | Short explanation of the option (an [i18n](i18n-internationalization.md) key). It is shown as the secondary line of the launcher cards, as a hint on the menu option and it is matched by the [menu search](#menu-option-search-new) | See [descriptions](#menu-screen-descriptions)                                                    |
 | module      | Optional     | String  | Defines the module name. Now you can set different menu options for each module                                                                                        | These module names must be configured in table AweMod and it must be the session variable module |
 | separator   | Optional     | Boolean | If set to true, the option is converted into a separator line                                                                                                          | Default value is `false`                                                                         |
 | icon        | Optional     | String  | Defines an icon which will be shown before the option label                                                                                                            | You can view the whole icon list [here](http://fortawesome.github.io/Font-Awesome/icons/)        |
@@ -128,6 +129,45 @@ Which generates a screen like:
 
 Each button links to the correspondent option defined inside the `menu-screen` option. 
 There is also a grouping level (only one) which generates a header to group some options inside
+
+### Descriptions {#menu-screen-descriptions}
+
+Any option can have an optional `description` with a short explanation of what it does. The value is a literal, so
+it can be translated with the [i18n](i18n-internationalization.md) files like the label:
+
+```xml
+<option name="invoices" label="MENU_INVOICES" description="MENU_INVOICES_DESCRIPTION" screen="Inv" icon="file-text-o"/>
+```
+
+The description is used in three places:
+
+* **Launcher cards:** it is shown as the secondary line under the button of the option.
+* **Menu:** it is the hint (tooltip) shown when the mouse is over the option.
+* **Menu search:** the [menu search](#menu-option-search-new) also matches the translated description.
+
+An option without `description` is rendered exactly as before: a button without a secondary line and a menu option
+without a hint.
+
+### Nested launchers {#menu-screen-nested}
+
+A `menu-screen` option placed inside another `menu-screen` option is a card which opens its own launcher page. The
+nesting can have any depth, and the cards are generated at every level:
+
+```xml
+<option name="launcher" label="MENU_LAUNCHER" icon="th-large" menu-screen="true" screen="launcher-screen">
+  <option name="sales" label="MENU_SALES" description="MENU_SALES_DESCRIPTION" icon="shopping-cart" menu-screen="true" screen="sales-screen">
+    <option name="reports" label="MENU_REPORTS" description="MENU_REPORTS_DESCRIPTION" icon="bar-chart" menu-screen="true" screen="reports-screen">
+      <option name="monthly" label="MENU_MONTHLY" description="MENU_MONTHLY_DESCRIPTION" screen="MonRep" icon="calendar"/>
+    </option>
+    <option name="orders" label="MENU_ORDERS" screen="Ord" icon="list"/>
+  </option>
+</option>
+```
+
+* The breadcrumb of every launcher page follows its parents (`Launcher > Sales > Reports`).
+* The access restrictions are applied at every level: a restricted card is not shown, a restricted launcher cannot be
+  opened (also by its address) and a nested launcher whose options are all restricted is not shown.
+* A `menu-screen` option inside a group header is also a card which opens its launcher.
 
 ## Examples
 
@@ -198,7 +238,7 @@ can locate an option without navigating the tree. Selecting a result launches th
 exactly as if it had been clicked in the menu.
 
 Matching is case- and accent-insensitive, token based (every typed word must match), and
-runs against the **translated** option labels as well as the breadcrumb path. Use the arrow
+runs against the **translated** option labels and [descriptions](#menu-screen-descriptions) as well as the breadcrumb path. Use the arrow
 keys to move through the results, `Enter` to open the highlighted one and `Escape` (or a
 click outside) to close the panel.
 

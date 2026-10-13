@@ -88,6 +88,18 @@
   <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Criterios Uploader"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestor de ficheros"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendario de eventos"/>
+  <locale name="MENU_TEST_LAUNCHER" value="Lanzador"/>
+  <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Páginas lanzadoras dentro de páginas lanzadoras"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES" value="Ventas"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" value="Pedidos e informes de ventas"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS" value="Informes"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" value="Ventas mensuales y anuales"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY" value="Informe mensual"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" value="Ventas agrupadas por mes"/>
+  <locale name="MENU_TEST_LAUNCHER_YEARLY" value="Informe anual"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS" value="Pedidos"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" value="Consulta los pedidos de un cliente"/>
+  <locale name="MENU_TEST_LAUNCHER_PLAIN" value="Opción simple"/>
   <locale name="MENU_TEST_REVEAL_INVALID" value="Mostrar campo inválido"/>
   <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Mostrar campo inválido"/>
   <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Mover filas"/>

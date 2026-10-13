@@ -395,6 +395,9 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `gotoScreen(String... menuOptions)` | Clicks the menu options in order to open a screen, and waits for the menu to take effect |
 | `waitForMenuOption(String option)` | Waits until the click on a menu option has taken effect. `gotoScreen` already calls it |
 | `checkMenuOption(String option, String text)` | Checks that a menu option is visible and contains a text |
+| `checkLauncherCardDescription(String option, String text)` | Checks that a card of a launcher page shows a description (its secondary line) |
+| `checkLauncherCardWithoutDescription(String option)` | Checks that a card of a launcher page has no description |
+| `checkBreadcrumbContains(String text)` | Checks that the breadcrumb of the page is visible and contains a text |
 | `selectModule(String moduleName)` | Opens the settings menu (`ButSetTog`) and selects a module in the `module` selector |
 | `ensureModule(String moduleName, String menuOption)` | Does nothing when the menu option that only that module shows is already visible; selects the module (`selectModule`) when it is not |
 | `broadcastMessageToUser(String user, String text)` | Goes to the `tools > broadcast-messages` screen of the AWE test applications, sends a text to a user and closes the `success` and `info` messages |

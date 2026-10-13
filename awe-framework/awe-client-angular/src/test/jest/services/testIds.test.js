@@ -78,6 +78,7 @@ describe("test id vocabulary", () => {
       contextSubmenu: "context-submenu",
       menu: "menu",
       menuOption: "menu-option",
+      breadcrumb: "breadcrumb",
       menuLink: "menu-link",
       menuDropdown: "menu-dropdown",
       menuSubmenu: "menu-submenu",

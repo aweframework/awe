@@ -3809,10 +3809,30 @@ body a {
   justify-content: space-around;
   width: 12rem;
   display: inline-grid;
+  vertical-align: top;
 }
 
 .menu-screen-button > .p-button-icon {
   font-size: 2.5rem;
+}
+
+/* Launcher card: the button and its description (secondary line), one block as wide as the button */
+.menu-screen-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  vertical-align: top;
+}
+
+.menu-screen-description {
+  box-sizing: border-box;
+  width: 12rem;
+  max-width: 100%;
+  margin: 0.25rem 0.5rem 0.5rem 0;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-color-secondary, #6c757d);
 }
 
 .topbar-start {

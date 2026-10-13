@@ -13,6 +13,7 @@
   font-size: 16px;
   width: 6vw;
   margin-bottom: 6px;
+  vertical-align: top;
   border: 0;
   background: transparent !important;
   > .button-icon {
@@ -31,6 +32,25 @@
     display: inline-block;
     height: 40px;
   }
+}
+
+// Launcher card: the button and its description (secondary line). The description never widens the card
+.menu-screen-card {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.menu-screen-description {
+  box-sizing: border-box;
+  display: block;
+  width: 0;
+  min-width: 100%;
+  margin: -16px 0 6px;
+  padding: 0 4px;
+  font-size: small;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-color-secondary, #6c757d);
 }
 
 @media (min-width: 2001px) {

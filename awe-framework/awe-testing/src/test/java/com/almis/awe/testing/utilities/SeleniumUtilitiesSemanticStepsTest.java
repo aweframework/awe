@@ -260,6 +260,24 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckTheDescriptionOfALauncherCard() {
+    show(instructions.getLauncherCardDescription("sales"), "Orders and sales reports");
+
+    assertThatCode(() -> utilities.checkLauncherCardDescription("sales", "Orders and sales reports")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkLauncherCardDescription("sales", "Other text"));
+    assertThatCode(() -> utilities.checkLauncherCardWithoutDescription("plain")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkLauncherCardWithoutDescription("sales"));
+  }
+
+  @Test
+  void shouldCheckTheBreadcrumbOfThePage() {
+    show(instructions.getBreadcrumb(), "Tests Launcher Sales");
+
+    assertThatCode(() -> utilities.checkBreadcrumbContains("Launcher")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkBreadcrumbContains("Missing"));
+  }
+
+  @Test
   void shouldZoomAChartWithTheWheelAndCheckThatItIsZoomed() {
     use(new ReactAweInstructions());
     WebElement chart = show(instructions.getChart("ChrLinTst"), "");

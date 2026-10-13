@@ -99,6 +99,18 @@
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Event calendar"/>
   <locale name="MENU_TEST_FILEMANAGER" value="File Manager"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
+  <locale name="MENU_TEST_LAUNCHER" value="Launcher"/>
+  <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Launcher pages inside launcher pages"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES" value="Sales"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" value="Orders and sales reports"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS" value="Reports"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" value="Monthly and yearly sales"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY" value="Monthly report"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" value="Sales grouped by month"/>
+  <locale name="MENU_TEST_LAUNCHER_YEARLY" value="Yearly report"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS" value="Orders"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" value="Look up the orders of a customer"/>
+  <locale name="MENU_TEST_LAUNCHER_PLAIN" value="Plain option"/>
   <locale name="MENU_TEST_LAYOUT" value="Layout"/>
   <locale name="MENU_TEST_MATRIX" value="Matrix"/>
   <locale name="MENU_TEST_MATRIX_ALL" value="All matrix"/>

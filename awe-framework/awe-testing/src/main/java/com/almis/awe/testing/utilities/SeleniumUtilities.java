@@ -3524,6 +3524,38 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check the description (secondary line) that a card of a launcher page shows
+   *
+   * @param option Option name of the card
+   * @param text   Expected description
+   */
+  protected void checkLauncherCardDescription(String option, String text) {
+    By selector = frontEndInstructions.getLauncherCardDescription(option);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check that a card of a launcher page has no description
+   *
+   * @param option Option name of the card
+   */
+  protected void checkLauncherCardWithoutDescription(String option) {
+    checkNotVisible(locator(frontEndInstructions.getLauncherCardDescription(option)));
+  }
+
+  /**
+   * Check that the breadcrumb of the page is visible and contains a text
+   *
+   * @param text Text that the breadcrumb contains
+   */
+  protected void checkBreadcrumbContains(String text) {
+    By selector = frontEndInstructions.getBreadcrumb();
+    checkVisible(locator(selector));
+    waitForText(locator(selector), text);
+  }
+
+  /**
    * Check the label of a criterion
    *
    * @param criterionName Criterion name

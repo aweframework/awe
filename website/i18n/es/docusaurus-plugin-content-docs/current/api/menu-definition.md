@@ -81,6 +81,7 @@ Dentro de la opción de herramientas hay un conjunto de opciones, algunas de ell
 | name        | **Obligatorio** | String  | Es el nombre de la opción, que se utiliza en los archivos de perfil y en la tabla AweScrRes para restringir el acceso a una opción. Si una opción padre está restringida, todas las opciones hijas también están restringidas |                                                                                                                            |
 | screen      | Opcional        | String  | Define la pantalla a la que se accederá cuando el usuario haga clic en la opción                                                                                                                                              |                                                                                                                            |
 | label       | Opcional        | String  | Es un literal que contiene el nombre de la opción                                                                                                                                                                             | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                       |
+| description | Opcional        | String  | Explicación breve de la opción (una clave de [i18n](i18n-internationalization.md)). Se muestra como línea secundaria de las tarjetas de la ventana de opciones, como ayuda emergente de la opción del menú y se tiene en cuenta en la [búsqueda de opciones de menú](#menu-option-search-new) | Ver [descripciones](#menu-screen-descriptions)                                                                              |
 | module      | Opcional        | String  | Define el nombre del módulo. Se pueden definir varias opciones de menú por cada módulo                                                                                                                                        | Estos nombres de módulos deben configurarse en la tabla AweMod y debe haber definida una variable de sesión para el módulo |
 | separator   | Opcional        | Boolean | Si se establece en true, la opción se convierte en una línea separadora                                                                                                                                                       | El valor predeterminado es `false`                                                                                         |
 | icon        | Opcional        | String  | Define un icono que se mostrará antes del texto de la opción                                                                                                                                                                  | Puedes ver toda la lista de iconos [aquí](http://fortawesome.github.io/Font-Awesome/icons/)                                |
@@ -125,6 +126,47 @@ Lo que genera una pantalla como:
 <img alt="Ventana de opciones" src={require('@docusaurus/useBaseUrl').default('img/MenuScreen.png')} />
 
 Cada botón enlaza a la opción correspondiente definida dentro de la opción de tipo `menu-screen`. También hay un nivel de agrupación (sólo uno) que genera una cabecera para agrupar algunas opciones dentro.
+
+### Descripciones {#menu-screen-descriptions}
+
+Cualquier opción puede tener un atributo opcional `description` con una explicación breve de lo que hace. El valor es
+un literal, por lo que se puede traducir con los archivos de [i18n](i18n-internationalization.md) igual que la
+etiqueta:
+
+```xml
+<option name="invoices" label="MENU_INVOICES" description="MENU_INVOICES_DESCRIPTION" screen="Inv" icon="file-text-o"/>
+```
+
+La descripción se usa en tres sitios:
+
+* **Tarjetas de la ventana de opciones:** se muestra como línea secundaria bajo el botón de la opción.
+* **Menú:** es la ayuda emergente (tooltip) que aparece al situar el ratón sobre la opción.
+* **Búsqueda de opciones de menú:** la [búsqueda](#menu-option-search-new) también tiene en cuenta la descripción traducida.
+
+Una opción sin `description` se muestra exactamente igual que antes: un botón sin línea secundaria y una opción de
+menú sin ayuda emergente.
+
+### Ventanas de opciones anidadas {#menu-screen-nested}
+
+Una opción `menu-screen` situada dentro de otra opción `menu-screen` es una tarjeta que abre su propia ventana de
+opciones. El anidamiento puede tener cualquier profundidad y las tarjetas se generan en todos los niveles:
+
+```xml
+<option name="launcher" label="MENU_LAUNCHER" icon="th-large" menu-screen="true" screen="launcher-screen">
+  <option name="sales" label="MENU_SALES" description="MENU_SALES_DESCRIPTION" icon="shopping-cart" menu-screen="true" screen="sales-screen">
+    <option name="reports" label="MENU_REPORTS" description="MENU_REPORTS_DESCRIPTION" icon="bar-chart" menu-screen="true" screen="reports-screen">
+      <option name="monthly" label="MENU_MONTHLY" description="MENU_MONTHLY_DESCRIPTION" screen="MonRep" icon="calendar"/>
+    </option>
+    <option name="orders" label="MENU_ORDERS" screen="Ord" icon="list"/>
+  </option>
+</option>
+```
+
+* La ruta de navegación (breadcrumb) de cada ventana de opciones sigue a sus padres (`Launcher > Sales > Reports`).
+* Las restricciones de acceso se aplican en todos los niveles: una tarjeta restringida no se muestra, una ventana de
+  opciones restringida no se puede abrir (tampoco por su dirección) y una ventana anidada cuyas opciones están todas
+  restringidas no se muestra.
+* Una opción `menu-screen` dentro de una cabecera de grupo también es una tarjeta que abre su ventana de opciones.
 
 ## Ejemplos {#examples}
 
@@ -184,7 +226,7 @@ El menú incluye un **cuadro de búsqueda** para encontrar rápidamente cualquie
 
 Al hacer clic en el icono aparece un campo de texto. Mientras escribe, el menú muestra una **lista plana de las opciones coincidentes** junto con su ruta de navegación (`Parent › Child › Option`), de modo que puede localizar una opción sin recorrer el árbol. Al seleccionar un resultado se lanza esa opción exactamente igual que si se hubiera pulsado en el menú.
 
-La coincidencia no distingue mayúsculas ni acentos, se basa en palabras (cada palabra escrita debe coincidir) y se aplica sobre las etiquetas **traducidas** de las opciones, así como sobre la ruta de navegación. Use las teclas de flecha para moverse por los resultados, `Enter` para abrir el resultado resaltado y `Escape` (o un clic fuera) para cerrar el panel.
+La coincidencia no distingue mayúsculas ni acentos, se basa en palabras (cada palabra escrita debe coincidir) y se aplica sobre las etiquetas y [descripciones](#menu-screen-descriptions) **traducidas** de las opciones, así como sobre la ruta de navegación. Use las teclas de flecha para moverse por los resultados, `Enter` para abrir el resultado resaltado y `Escape` (o un clic fuera) para cerrar el panel.
 
 La búsqueda está habilitada por defecto. Para ocultarla, establezca la propiedad [`awe.application.menu-search-enabled`](../properties.md#awe.application.menu-search-enabled) en `false`:
 

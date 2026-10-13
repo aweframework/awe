@@ -83,6 +83,7 @@ export const TestIds = Object.freeze({
   // and the nested submenus
   menu: "menu",
   menuOption: "menu-option",
+  breadcrumb: "breadcrumb",
   menuLink: "menu-link",
   menuDropdown: "menu-dropdown",
   menuSubmenu: "menu-submenu",

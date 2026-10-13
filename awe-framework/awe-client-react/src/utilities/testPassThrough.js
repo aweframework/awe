@@ -235,12 +235,22 @@ export function tabMenuPassThrough(values, activeIndex, disabled, invalid = []) 
 const optionName = (item) => (item?.name ? { "option-name": item.name } : {});
 
 /**
+ * Attributes of the link of a menu option: its name and, when it has a description, the hint
+ * @param {object} item Menu item
+ * @returns {object} Link attributes
+ */
+const optionLink = (item) => ({
+  ...(item?.name ? { name: item.name } : {}),
+  ...(item?.title ? { title: item.title } : {})
+});
+
+/**
  * Pass-through of the vertical application menu (PanelMenu). The top level options are panels, the nested ones items.
  * @param {object[]} model Menu items of the first level
  * @returns {object} PanelMenu pt
  */
 export function panelMenuPassThrough(model) {
-  const link = (item) => testHook(TestIds.menuLink, { attributes: item?.name ? { name: item.name } : {} });
+  const link = (item) => testHook(TestIds.menuLink, { attributes: optionLink(item) });
   return {
     root: testHook(TestIds.menu),
     panel: ({ context }) => testHook(TestIds.menuOption, {
@@ -273,7 +283,7 @@ export function menubarPassThrough() {
       open: options.context?.active,
       attributes: optionName(item(options))
     }),
-    action: (options) => testHook(TestIds.menuLink, { attributes: item(options)?.name ? { name: item(options).name } : {} }),
+    action: (options) => testHook(TestIds.menuLink, { attributes: optionLink(item(options)) }),
     submenu: testHook(TestIds.menuSubmenu)
   };
 }
