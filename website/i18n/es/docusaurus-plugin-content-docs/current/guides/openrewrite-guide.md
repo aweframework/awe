@@ -26,8 +26,8 @@ Añada `-pl <module>` para probar un solo módulo, por ejemplo `-pl awe-framewor
 descarga los jars de las recetas. Los módulos del reactor deben poder resolverse (instalados en el repositorio local, o
 construidos en el mismo comando).
 
-El job `Rewrite dry-run` de la pipeline hace lo mismo bajo demanda: es manual y nunca bloquea una merge request.
-Inícielo y descargue el parche de los artefactos del job.
+La pipeline no tiene un job para esto: ejecútelo en su máquina, donde `mvn -Prewrite rewrite:dryRun` escribe el parche
+en `target/rewrite/rewrite.patch`.
 
 ## Receta activa y otras {#active-recipe-and-others}
 
