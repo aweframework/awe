@@ -118,6 +118,31 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private String dialog;
 
+  // Sparkline TYPE (line, bar or area)
+  @XStreamAlias("sparkline-type")
+  @XStreamAsAttribute
+  private String sparklineType;
+
+  // Sparkline series COLOR
+  @XStreamAlias("sparkline-color")
+  @XStreamAsAttribute
+  private String sparklineColor;
+
+  // Sparkline COLOR of the negative values
+  @XStreamAlias("sparkline-negative-color")
+  @XStreamAsAttribute
+  private String sparklineNegativeColor;
+
+  // Sparkline highlights the LAST POINT
+  @XStreamAlias("sparkline-last-point")
+  @XStreamAsAttribute
+  private Boolean sparklineLastPoint;
+
+  // Sparkline marks the MINIMUM and MAXIMUM points
+  @XStreamAlias("sparkline-min-max")
+  @XStreamAsAttribute
+  private Boolean sparklineMinMax;
+
   // Sort by this column
   @XStreamOmitField
   private String sortColumn;

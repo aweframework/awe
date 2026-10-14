@@ -400,4 +400,10 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getDialogPanel("Dlg")).hasToString(
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='Dlg'][data-open='true']");
   }
+
+  @Test
+  void shouldLocateTheSparklineOfAGridCell() {
+    assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).endsWith(" svg.awe-sparkline");
+    assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).contains("Grd").contains("1").contains("Col");
+  }
 }

@@ -582,6 +582,41 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Sparkline columns test: the series of every row is drawn as a small chart, whatever the type, and the series that
+   * cannot be drawn leave the cell empty
+   */
+  @Test
+  void t097_gridSparklineColumnsDrawTheSeriesOfEachRow() {
+    // Title
+    setTestTitle("Grid sparkline columns: the series of each row as a small chart");
+
+    // Go to screen
+    openMatrixOption("matrix-test-sparkline");
+
+    // The same series is drawn as a line, as bars and as an area, with a tooltip value per point
+    checkGridSparkline("GrdSparklineTst", "1", "line", "line", "1,2,3,5,8,13");
+    checkGridSparkline("GrdSparklineTst", "1", "bar", "bar", "1,2,3,5,8,13");
+    checkGridSparkline("GrdSparklineTst", "1", "area", "area", "1,2,3,5,8,13");
+
+    // Negative values are drawn too, and a series with a single value is one point
+    checkGridSparkline("GrdSparklineTst", "3", "bar", "bar", "3,5,-1,8,-4,2");
+    checkGridSparkline("GrdSparklineTst", "4", "line", "line", "-3,-5,-1,-8");
+    checkGridSparkline("GrdSparklineTst", "5", "line", "line", "7");
+    checkGridSparkline("GrdSparklineTst", "5", "bar", "bar", "7");
+
+    // The lowest, highest and last points are marked only in the column that asks for it
+    checkGridSparklineMarkers("GrdSparklineTst", "3", "marks", 3);
+    checkGridSparklineMarkers("GrdSparklineTst", "3", "line", 0);
+
+    // An empty series and a value that is not a series leave the cell empty, with no error
+    checkGridSparklineEmpty("GrdSparklineTst", "6", "line");
+    checkGridSparklineEmpty("GrdSparklineTst", "7", "bar");
+
+    // The chart does not take the keyboard focus, so the navigation of the grid is not affected
+    checkGridSparklineNotFocusable("GrdSparklineTst", "3", "line");
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

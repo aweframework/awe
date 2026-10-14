@@ -167,6 +167,21 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
   });
 
+  // The tag that the grid emits for a sparkline column is the one of the directive
+  it('should emit the tag of the sparkline directive for a sparkline column', function () {
+    let component = getDefaultComponent();
+    let column = {id: "trend", component: "sparkline", charlength: 14};
+    new GridCommons(component).init();
+
+    component.fixColumn(column);
+
+    expect(column.cellTemplate).toContain("<awe-column-sparkline cell-address=");
+    inject(["$injector", function ($injector) {
+      expect($injector.has("aweColumnSparklineDirective")).toBe(true);
+      expect($injector.has("aweColumnSparkLineDirective")).toBe(false);
+    }]);
+  });
+
   // Set selection
   it('should select a list of rows in a grid', function () {
     // Mock

@@ -52,6 +52,7 @@ module.exports = {
     '**/utilities/echartsEventsTest.{js,jsx}',
     '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',
     '**/utilities/classChangesTest.{js,jsx}',
+    '**/utilities/sparklineTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',

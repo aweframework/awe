@@ -44,6 +44,7 @@ import "./input/buttonRadio";
 import "./column/checkbox";
 
 import "./column/progress";
+import "./column/sparkline";
 import "./column/radio";
 import "./column/buttonRadio";
 

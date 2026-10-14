@@ -1424,6 +1424,72 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThrows(IllegalArgumentException.class, () -> utilities.checkDesignToken("color-primary", "#000000"));
   }
 
+  @Test
+  void shouldCheckTheTypeAndThePointsOfTheSparklineOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridSparkline("Grd", "1", "Col"), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn("bar|3,5,-1,8");
+
+      assertThatCode(() -> utilities.checkGridSparkline("Grd", "1", "Col", "bar", "3,5,-1,8")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparkline("Grd", "1", "Col", "line", "3,5,-1,8"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparkline("Grd", "1", "Col", "bar", "3,5,-1"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheSparklineOfAGridCellIsEmptyInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "6", "Col"), "");
+      show(instructions.getGridCell("Grd", "1", "Col"), "");
+      show(instructions.getGridSparkline("Grd", "1", "Col"), "");
+
+      assertThatCode(() -> utilities.checkGridSparklineEmpty("Grd", "6", "Col")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparklineEmpty("Grd", "1", "Col"));
+    }
+  }
+
+  @Test
+  void shouldNotCheckTheEmptySparklineWhileTheGridIsStillLoadingInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "6", "Col"), "");
+      // The grid loader is still shown: the row may not be drawn yet, so the empty cell proves nothing
+      show(instructions.getGridLoaderSelector(), "");
+
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparklineEmpty("Grd", "6", "Col"));
+    }
+  }
+
+  @Test
+  void shouldCountTheMarkersOfTheSparklineOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridSparkline("Grd", "1", "Col"), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(3L);
+
+      assertThatCode(() -> utilities.checkGridSparklineMarkers("Grd", "1", "Col", 3)).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparklineMarkers("Grd", "1", "Col", 2));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheSparklineOfAGridCellDoesNotTakeTheFocusInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridSparkline("Grd", "1", "Col"), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn("false|0");
+
+      assertThatCode(() -> utilities.checkGridSparklineNotFocusable("Grd", "1", "Col")).doesNotThrowAnyException();
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn("false|1");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparklineNotFocusable("Grd", "1", "Col"));
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn("true|0");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSparklineNotFocusable("Grd", "1", "Col"));
+    }
+  }
+
   private WebElement option(String text, boolean selected) {
     WebElement option = mock(WebElement.class);
     when(option.getText()).thenReturn(text);

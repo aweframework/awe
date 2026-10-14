@@ -179,7 +179,7 @@ Tenga en cuenta lo siguiente:
 | image               | Componente de columna de imagen. Utilícelo para mostrar imágenes en una columna.                                      |
 | button               | Componente que permite al usuario hacer clic en un botón que lanza un conjunto de `button-action`                      |
 | progress             | Componente de columna de progreso. Útil para mostrar una barra de progreso en una columna. Ver [progreso](#progress-column-component) |
-| sparkline            | Nombre reservado. No está implementado en ninguno de los dos motores de cliente: la columna no muestra nada útil. |
+| sparkline            | Componente de columna sparkline: un pequeño gráfico de línea, barras o área de una serie de números. Ver [componente de columna sparkline](#sparkline-column-component) |
 | link                 | Componente de enlace HTML. Abre una URL en una página nueva                                                                       |
 
 
@@ -429,6 +429,41 @@ El componente de progreso es muy útil para mostrar el estado de un trabajo, o u
 | label    | Texto a mostrar en la barra de progreso (es decir, porcentaje)                                                            |
 | title    | Texto a mostrar cuando mueve el ratón sobre el botón. Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
 | style    | Clase CSS para formatear el contenido                                                                                     |
+
+#### Componente de columna sparkline {#sparkline-column-component}
+
+Un sparkline dibuja un pequeño gráfico de una serie de números dentro de la celda, de modo que se puede ver una
+tendencia por fila (ventas por mes, carga por día) sin abrir un gráfico. El valor de la celda es un **array JSON de
+números**, por ejemplo `[3, 5, -1, 8]`. La consulta puede devolverlo como texto o como una lista ya interpretada.
+
+```xml
+<column label="LOAD" name="load" component="sparkline" sparkline-type="bar" sparkline-negative-color="#d64550" charlength="14"/>
+```
+
+| Atributo                 | Descripción                                                                                                                  | Valores                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| sparkline-type           | Dibujo de la serie: una línea continua, una barra por valor, o una línea con el área inferior rellena                          | `line` (por defecto), `bar` o `area`      |
+| sparkline-color          | Color de la serie. Un valor que no sea un color simple se ignora                                                              | Cualquier color CSS, p. ej.: `#3b82f6`    |
+| sparkline-negative-color | Color de los valores negativos: las barras por debajo de cero, o los tramos de la línea y del área que pasan por debajo de cero. Sin él, los valores negativos usan el color de la serie | Cualquier color CSS                       |
+| sparkline-last-point     | Resalta el último punto de la serie: un punto en líneas y áreas, un contorno oscuro en barras                                  | `true` o `false` (por defecto)            |
+| sparkline-min-max        | Marca con un punto el valor más bajo (rojo) y el más alto (verde) de la serie                                                  | `true` o `false` (por defecto)            |
+
+Cómo se dibuja la serie:
+
+* El gráfico es un SVG de 100 por 24 píxeles, dibujado igual por **los dos motores de cliente**. Da a la columna
+  anchura suficiente (`charlength="14"` o más); la alineación de la celda (`align`) coloca el gráfico dentro de ella.
+* **Barras** y **valores negativos**: las barras parten de la línea de cero, así que las negativas cuelgan por debajo.
+  Las líneas y las áreas se escalan entre el valor más bajo y el más alto; se dibuja una fina línea gris de cero siempre
+  que la serie tenga algún valor negativo.
+* **Tooltip**: al pasar el ratón sobre un punto se ve su valor. Cada punto tiene una zona sensible tan ancha como su
+  parte del gráfico.
+* **Un solo valor**: las líneas y las áreas dibujan un punto, las barras dibujan una barra.
+* **Serie vacía o no válida**: la celda queda vacía, sin error. Es el caso de un valor vacío, `[]`, un texto que no es
+  JSON, un valor que no es una lista y una lista con algún elemento que no es un número.
+* La celda es un componente de visualización: no es editable y no es una parada del tabulador (el gráfico no es
+  enfocable), así que no interfiere con la navegación por teclado del grid.
+* Se ha eliminado el antiguo plugin jQuery sparkline del cliente AngularJS; las aplicaciones que usaran sus clases CSS
+  (`jqstooltip`, `stats-sparklines`) deben aportar las suyas.
 
 ## Estructura de cabecera de grupo {#group-header-structure}
 

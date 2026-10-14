@@ -616,6 +616,10 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Comprueba que no se muestra la cabecera de una columna (grid con la clase `grid-no-header`) |
 | `checkGridFirstRowAtTop(String gridId, String rowId, String columnId)` | Comprueba que la primera fila empieza justo bajo el borde superior del grid, con dos píxeles de margen: un grid sin cabecera (clase `grid-no-header`) no deja hueco donde estaba la cabecera |
 | `checkCellHasClass(String gridId, String rowId, String columnId, String cssClass)` | Comprueba que una celda tiene una clase de estilo, como la `scale-seq-3` que asigna una consulta para colorearla |
+| `checkGridSparkline(String gridId, String rowId, String columnId, String type, String values)` | Comprueba el sparkline que dibuja una columna sparkline en una celda: su tipo (`line`, `bar` o `area`) y el valor de cada punto, que es su tooltip, separados por comas (`3,5,-1,8`) |
+| `checkGridSparklineEmpty(String gridId, String rowId, String columnId)` | Comprueba que una celda no tiene sparkline porque su valor no es una serie válida de números, mientras la celda sigue visible |
+| `checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers)` | Comprueba cuántos marcadores (puntos del valor más bajo, el más alto y el último) tiene el sparkline de una celda |
+| `checkGridSparklineNotFocusable(String gridId, String rowId, String columnId)` | Comprueba que el sparkline de una celda no toma el foco del teclado: no es enfocable y nada dentro de él es una parada del tabulador |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 

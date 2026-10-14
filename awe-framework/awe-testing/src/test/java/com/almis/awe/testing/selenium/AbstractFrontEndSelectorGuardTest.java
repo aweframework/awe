@@ -304,6 +304,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridRadioChecked", () -> i.getGridRadioChecked(GRID, ROW, COLUMN, "B", true));
     catalog.put("getGridRadioOption", () -> i.getGridRadioOption(GRID, ROW, COLUMN, "B"));
     catalog.put("getGridRadioInput", () -> i.getGridRadioInput(GRID, ROW, COLUMN));
+    catalog.put("getGridSparkline", () -> i.getGridSparkline(GRID, ROW, COLUMN));
     catalog.put("getGridCellWithClass", () -> i.getGridCellWithClass(GRID, ROW, COLUMN, "scale-seq-1"));
     catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
     catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
