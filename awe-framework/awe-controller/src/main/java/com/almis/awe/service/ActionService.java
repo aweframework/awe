@@ -11,17 +11,33 @@ import com.almis.awe.model.entities.actions.Answer;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.service.observation.ExecutionObserver;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manage application action calls
  */
 @Slf4j
 public class ActionService extends ServiceConfig {
+
+  // Observer of the executions (metrics, traces...). Optional: without one the execution just runs
+  private ExecutionObserver executionObserver = ExecutionObserver.NONE;
+
+  /**
+   * Set the observer of the executions
+   *
+   * @param executionObserver Execution observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setExecutionObserver(ExecutionObserver executionObserver) {
+    this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
+  }
 
   // Autowired services
   private final LauncherService launcherService;
@@ -89,6 +105,21 @@ public class ActionService extends ServiceConfig {
    * @throws AWException Action error
    */
   public List<ClientAction> launchAction(Action action) throws AWException {
+    // The action returns client actions: the answer type of its service is what tells an error answer
+    AtomicReference<AnswerType> answerType = new AtomicReference<>();
+    return executionObserver.observe(ExecutionObserver.ExecutionType.ACTION, action.getId(), Map.of(),
+      () -> launchObservedAction(action, answerType), result -> answerType.get());
+  }
+
+  /**
+   * Launch the action once it is being observed
+   *
+   * @param action     Action to be launched
+   * @param answerType Receives the answer type of the service
+   * @return Client action list
+   * @throws AWException Action error
+   */
+  private List<ClientAction> launchObservedAction(Action action, AtomicReference<AnswerType> answerType) throws AWException {
     // Get service
     ServiceData serviceData;
 
@@ -97,6 +128,7 @@ public class ActionService extends ServiceConfig {
 
     // Launch service
     serviceData = launcherService.callService(serviceId, null);
+    answerType.set(serviceData == null ? null : serviceData.getType());
 
     // Get answer and set it into output actions
     Answer answer = (serviceData == null) ? action.getAnswer(AnswerType.OK) : action.getAnswer(serviceData.getType());

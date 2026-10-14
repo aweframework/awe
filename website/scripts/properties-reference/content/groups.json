@@ -85,6 +85,12 @@
       "intro": "These are the Notifier module configuration properties for AWE projects. They have the prefix `awe.notifier`."
     },
     {
+      "id": "awe-observability-properties",
+      "title": "AWE Observability Properties",
+      "prefix": "awe.observability",
+      "intro": "These are the configuration properties of the observability starter (`awe-observability-spring-boot-starter`), which adds health checks, metrics and traces. They have the prefix `awe.observability`. See the [Observability guide](guides/observability-guide.md)."
+    },
+    {
       "id": "awe-test-properties",
       "title": "AWE Test Properties",
       "prefix": "awe.test",

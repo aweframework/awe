@@ -148,8 +148,8 @@ test('normalize prefers the metadata default over the legacy sentence', () => {
 	assert.equal(entry.defaultValue, 'new');
 });
 
-test('metadataFiles finds the target/classes metadata of the 8 modules', () => {
-	assert.equal(MODULES.length, 8);
+test('metadataFiles finds the target/classes metadata of the 9 modules', () => {
+	assert.equal(MODULES.length, 9);
 	const root = tempDir();
 	for (const module of MODULES) {
 		const dir = path.join(root, module, 'target', 'classes', 'META-INF');
@@ -157,7 +157,7 @@ test('metadataFiles finds the target/classes metadata of the 8 modules', () => {
 		fs.writeFileSync(path.join(dir, 'spring-configuration-metadata.json'), '{}');
 	}
 	const {files, missing} = metadataFiles(root);
-	assert.equal(files.length, 8);
+	assert.equal(files.length, 9);
 	assert.deepEqual(missing, []);
 	fs.rmSync(path.join(root, MODULES[0], 'target'), {recursive: true});
 	assert.deepEqual(metadataFiles(root).missing, [MODULES[0]]);

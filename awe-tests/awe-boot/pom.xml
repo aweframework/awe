@@ -98,15 +98,10 @@
       <artifactId>awe-client-angular</artifactId>
     </dependency>
 
-    <!--  Observability and metrics -->
-    <!--  prometheus -->
+    <!--  Observability: health checks, metrics and traces of AWE (brings the Prometheus registry and the tracing bridge) -->
     <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-registry-prometheus</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-observability-spring-boot-starter</artifactId>
     </dependency>
     <!-- Dependencies for jacoco coverage tests -->
     <dependency>

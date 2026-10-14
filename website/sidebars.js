@@ -74,6 +74,7 @@ module.exports = {
 				"guides/project-structure",
 				"guides/scheduler",
 				"guides/notifier",
+				"guides/observability",
 				"guides/selenium-testing",
 				"guides/print-engine",
 				"guides/debugging",
