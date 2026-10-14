@@ -25,8 +25,8 @@ git apply target/rewrite/rewrite.patch
 Add `-pl <module>` to try a single module, for example `-pl awe-framework/awe-model`. The first run downloads the recipe
 jars. The modules of the reactor must be resolvable (installed in the local repository, or built in the same command).
 
-The `Rewrite dry-run` job of the pipeline does the same on demand: it is manual and never blocks a merge request. Start
-it and download the patch from the artifacts of the job.
+The pipeline has no job for it: run it on your machine, where `mvn -Prewrite rewrite:dryRun` writes the patch to
+`target/rewrite/rewrite.patch`.
 
 ## Active recipe and others
 

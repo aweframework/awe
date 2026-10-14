@@ -112,7 +112,7 @@ empty Docker login and a `401 Unauthorized` from the Maven repository.
 
 ## Merge request title and size
 
-The `build` stage runs fast jobs on every merge request pipeline, before anything is built: `MR docs warning`
+The `lint` stage runs fast jobs on every merge request pipeline, in parallel with the build: `MR docs warning`
 (see [Docs warning](#docs-warning-not-blocking)) and, for the merge requests that change a client,
 [`Lint frontend`](#frontend-lint-blocking). The title, size and translation drift checks are **not** pipeline jobs: they
 are scripts you can run locally, described below.
@@ -225,7 +225,7 @@ Run it locally with `npm --prefix website run check:translations`, optionally fo
 ## Frontend lint (blocking)
 
 The job `Lint frontend` runs [ESLint](https://eslint.org/) on both front-end engines, the AngularJS
-client (`awe-client-angular`) and the React client (`awe-client-react`), in the `build` stage, so a
+client (`awe-client-angular`) and the React client (`awe-client-react`), in the `lint` stage, so a
 failure shows in about a minute, before the unit tests start. It runs in the merge requests that
 change a client and on `develop`, `master` and `support/*`.
 

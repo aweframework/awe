@@ -9,7 +9,7 @@ include:
   - template: Secret-Detection.gitlab-ci.yml
   - template: Container-Scanning.gitlab-ci.yml
 
-# A new commit cancels the interruptible jobs (build, tests, analysis) of the older pipelines of the same ref: on merge
+# A new commit cancels the interruptible jobs (lint, build, tests, analysis) of the older pipelines of the same ref: on merge
 # request and feature branches, and on develop pushes, where merges often come in a row and only the newest commit matters.
 # A job that publishes, deploys or must see every commit (secret detection) sets interruptible: false and always finishes;
 # a job whose needs were cancelled does not start. Never cancelled: scheduled pipelines (the weekly develop pipeline runs
@@ -89,6 +89,7 @@ cache:
       - .m2/repository/
 
 stages:
+  - lint
   - build
   - test
   - integration test
@@ -257,8 +258,163 @@ stages:
   - <<: *if-develop-schedule
 
 ##############################
+# Lint stage
+##############################
+
+# Checks that read the sources and need no compiled build: they start at once (needs: []), in parallel with the build jobs,
+# so a style or secret failure shows in about a minute instead of after the build.
+
+# Merge request checks (#762): fast, with no build behind them, in merge-request pipelines only. They run in the image
+# of the website build, which has Node.js 24, npm and git.
+.mr-checks:
+  tags: [ light ]
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
+  stage: lint
+  needs: [ ]
+  cache: { }
+  timeout: 5m
+  before_script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+  rules:
+    - <<: *if-merge-request
+
+# Non-blocking (#784). Warns when a merge request changes code but no documentation and its description does not tick the
+# "Docs updated" or "No docs needed because: <reason>" item of the merge request template. Exit code 64 is allowed to fail.
+MR docs warning:
+  extends: .mr-checks
+  script:
+    - bin/mr-docs.sh
+  allow_failure:
+    exit_codes: 64
+
+# Tests of the merge request check scripts and of the broken anchors check of the website build; only when something they use
+# changes. The title, size and translation scripts are no longer pipeline jobs, but their tests still run here.
+MR checks tests:
+  extends: .mr-checks
+  script:
+    - sh bin/test-mr-checks.sh
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - .gitlab-ci.yml
+        - bin/lint-mr-title.sh
+        - bin/mr-size.sh
+        - bin/mr-docs.sh
+        - bin/mr-translations.sh
+        - bin/check-website-anchors.sh
+        - bin/test-mr-checks.sh
+        - bin/test-fixtures/**/*
+        - .gitlab/commitlint/**/*
+
+# Blocking (#762): ESLint of the two front-end engines (AngularJS and React), in a job of its own so a lint failure shows
+# in about a minute, before the unit tests start. Each client has a "lint:ci" script (package.json) with --max-warnings set
+# to its current number of warnings: errors fail, and so does any new warning. The number only goes down: when a merge request
+# fixes warnings, lower it in the same change (npm run lint prints the new count). It runs in merge requests that change a
+# client and on develop, master and support/*, and replaces the "lint" execution of the two client poms in CI: the unit test
+# jobs skip it (-Dskip.lint=true in MAVEN_CLI_OPTS), so lint runs once per pipeline. Local "mvn test" still runs it (lint:ci).
+# The CI variable NODE_ENV=production makes npm skip devDependencies, and ESLint is one: --include=dev installs them.
+# --ignore-scripts: lint needs no install scripts, and nothing from a dependency runs in the job.
+Lint frontend:
+  extends: .mr-checks
+  timeout: 10m
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/.npm-lint"
+  script:
+    - npm --prefix awe-framework/awe-client-angular ci --include=dev --ignore-scripts --no-audit --no-fund
+    - npm --prefix awe-framework/awe-client-react ci --include=dev --ignore-scripts --no-audit --no-fund
+    # Both lints always run, so one failure does not hide the other
+    - |
+      status=0
+      npm --prefix awe-framework/awe-client-angular run lint:ci || status=1
+      npm --prefix awe-framework/awe-client-react run lint:ci || status=1
+      exit $status
+  cache:
+    key: lint-frontend-npm-${CI_COMMIT_REF_SLUG}
+    fallback_keys:
+      - lint-frontend-npm-develop
+    paths:
+      - .npm-lint
+  rules:
+    - <<: *if-mr-frontend
+    - <<: *if-mr-frontend-react
+    - <<: *if-branches
+
+# Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
+# Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
+Spotless:
+  stage: lint
+  tags: [ medium ]
+  needs: [ ]
+  timeout: 10m
+  script:
+    - mvn $MAVEN_CLI_OPTS spotless:check -Dspotless.ratchetFrom=$CI_MERGE_REQUEST_DIFF_BASE_SHA
+  rules:
+    - <<: *if-mr-code
+
+# Merge requests build the English site only ("Build website"), so a broken Spanish page would reach develop unnoticed. This
+# lints the Spanish translation in a few seconds without building the site: MDX syntax, parity with the English page
+# (heading anchors, code blocks, front matter id and slug) and relative links. develop and master build every locale.
+Spanish docs lint:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
+  stage: lint
+  tags: [ light ]
+  needs: [ ]
+  timeout: 10m
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/website/.npm"
+  script:
+    - npm --prefix website ci
+    - npm --prefix website run check:translations
+  cache:
+    key: website-npm-${CI_COMMIT_REF_SLUG}
+    fallback_keys:
+      - website-npm-develop
+    paths:
+      - website/.npm
+  # Merge requests only: on develop and master "Build website with i18n" builds the Spanish site in full
+  rules:
+    - <<: *if-mr-website
+
+# Validates renovate.json (repository config, strict) on merge requests that change it.
+Validate renovate config:
+  extends: .renovate-image
+  tags: [ light ]
+  stage: lint
+  needs: []
+  timeout: 10m
+  script:
+    - renovate-config-validator --strict
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - renovate.json
+
+# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Secret detection"
+# below extends it and carries the settings, so the pipeline shows a readable job title.
+secret_detection:
+  rules:
+    - when: never
+
+# Runs on every merge request that touches code or the website, and on every branch pipeline.
+Secret detection:
+  extends: secret_detection
+  stage: lint
+  tags: [ light ]
+  needs: [ ]
+  timeout: 15m
+  # Never auto-cancelled, on any ref (see workflow): on develop a newer pipeline does not scan the commits of an older one;
+  # on a merge request the cost is this short job finishing in a superseded pipeline
+  interruptible: false
+  rules:
+    - <<: *if-mr-code
+    - <<: *if-mr-website
+    - <<: *if-branches
+
+##############################
 # Build stage
 ##############################
+
+# Build jobs have needs: [ ], so they start together with the lint jobs and never wait for the lint stage.
 
 .build:
   stage: build
@@ -339,95 +495,6 @@ Renovate:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $RENOVATE_RUN == "true"'
 
-# Validates renovate.json (repository config, strict) on merge requests that change it.
-Validate renovate config:
-  extends: .renovate-image
-  tags: [ light ]
-  stage: build
-  needs: []
-  timeout: 10m
-  script:
-    - renovate-config-validator --strict
-  rules:
-    - if: '$CI_MERGE_REQUEST_IID'
-      changes:
-        - renovate.json
-
-# Merge request checks (#762): fast, with no build behind them, in merge-request pipelines only. They run in the image
-# of the website build, which has Node.js 24, npm and git.
-.mr-checks:
-  tags: [ light ]
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
-  stage: build
-  needs: [ ]
-  cache: { }
-  timeout: 5m
-  before_script:
-    - git config --global --add safe.directory "$CI_PROJECT_DIR"
-  rules:
-    - <<: *if-merge-request
-
-# Non-blocking (#784). Warns when a merge request changes code but no documentation and its description does not tick the
-# "Docs updated" or "No docs needed because: <reason>" item of the merge request template. Exit code 64 is allowed to fail.
-MR docs warning:
-  extends: .mr-checks
-  script:
-    - bin/mr-docs.sh
-  allow_failure:
-    exit_codes: 64
-
-# Tests of the merge request check scripts and of the broken anchors check of the website build; only when something they use
-# changes. The title, size and translation scripts are no longer pipeline jobs, but their tests still run here.
-MR checks tests:
-  extends: .mr-checks
-  script:
-    - sh bin/test-mr-checks.sh
-  rules:
-    - if: '$CI_MERGE_REQUEST_IID'
-      changes:
-        - .gitlab-ci.yml
-        - bin/lint-mr-title.sh
-        - bin/mr-size.sh
-        - bin/mr-docs.sh
-        - bin/mr-translations.sh
-        - bin/check-website-anchors.sh
-        - bin/test-mr-checks.sh
-        - bin/test-fixtures/**/*
-        - .gitlab/commitlint/**/*
-
-# Blocking (#762): ESLint of the two front-end engines (AngularJS and React), in a job of its own so a lint failure shows
-# in about a minute, before the unit tests start. Each client has a "lint:ci" script (package.json) with --max-warnings set
-# to its current number of warnings: errors fail, and so does any new warning. The number only goes down: when a merge request
-# fixes warnings, lower it in the same change (npm run lint prints the new count). It runs in merge requests that change a
-# client and on develop, master and support/*, and replaces the "lint" execution of the two client poms in CI: the unit test
-# jobs skip it (-Dskip.lint=true in MAVEN_CLI_OPTS), so lint runs once per pipeline. Local "mvn test" still runs it (lint:ci).
-# The CI variable NODE_ENV=production makes npm skip devDependencies, and ESLint is one: --include=dev installs them.
-# --ignore-scripts: lint needs no install scripts, and nothing from a dependency runs in the job.
-Lint frontend:
-  extends: .mr-checks
-  timeout: 10m
-  variables:
-    npm_config_cache: "$CI_PROJECT_DIR/.npm-lint"
-  script:
-    - npm --prefix awe-framework/awe-client-angular ci --include=dev --ignore-scripts --no-audit --no-fund
-    - npm --prefix awe-framework/awe-client-react ci --include=dev --ignore-scripts --no-audit --no-fund
-    # Both lints always run, so one failure does not hide the other
-    - |
-      status=0
-      npm --prefix awe-framework/awe-client-angular run lint:ci || status=1
-      npm --prefix awe-framework/awe-client-react run lint:ci || status=1
-      exit $status
-  cache:
-    key: lint-frontend-npm-${CI_COMMIT_REF_SLUG}
-    fallback_keys:
-      - lint-frontend-npm-develop
-    paths:
-      - .npm-lint
-  rules:
-    - <<: *if-mr-frontend
-    - <<: *if-mr-frontend-react
-    - <<: *if-branches
-
 Build project:
   extends: .build
   tags: [ large, shared-cache ]   # it fills the Maven cache that Javadoc test and Launch Sonar read
@@ -479,18 +546,6 @@ Build project:jdk 21:
   variables:
     SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
 
-# Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
-# Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
-Spotless:
-  stage: build
-  tags: [ medium ]
-  needs: [ ]
-  timeout: 10m
-  script:
-    - mvn $MAVEN_CLI_OPTS spotless:check -Dspotless.ratchetFrom=$CI_MERGE_REQUEST_DIFF_BASE_SHA
-  rules:
-    - <<: *if-mr-code
-
 Build website:
   extends: .build-website
   script:
@@ -512,30 +567,6 @@ Build website:
       build_status=$(cat "$CI_PROJECT_DIR/website-build.status")
       [ "$build_status" -eq 0 ] || exit "$build_status"
     - bin/check-website-anchors.sh "$CI_PROJECT_DIR/website-build.log"
-  rules:
-    - <<: *if-mr-website
-
-# Merge requests build the English site only ("Build website"), so a broken Spanish page would reach develop unnoticed. This
-# lints the Spanish translation in a few seconds without building the site: MDX syntax, parity with the English page
-# (heading anchors, code blocks, front matter id and slug) and relative links. develop and master build every locale.
-Spanish docs lint:
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
-  stage: build
-  tags: [ light ]
-  needs: [ ]
-  timeout: 10m
-  variables:
-    npm_config_cache: "$CI_PROJECT_DIR/website/.npm"
-  script:
-    - npm --prefix website ci
-    - npm --prefix website run check:translations
-  cache:
-    key: website-npm-${CI_COMMIT_REF_SLUG}
-    fallback_keys:
-      - website-npm-develop
-    paths:
-      - website/.npm
-  # Merge requests only: on develop and master "Build website with i18n" builds the Spanish site in full
   rules:
     - <<: *if-mr-website
 
@@ -840,28 +871,6 @@ Javadoc test:
     expire_in: 1 day
   rules:
     - <<: *if-mr-backend
-
-# Manual (#762): shows what the OpenRewrite recipes of rewrite.yml would change, without touching the code. Download the
-# patch from the job artifacts and apply it with "git apply". See website/docs/guides/openrewrite-guide.md.
-Rewrite dry-run:
-  stage: test
-  timeout: 20m
-  needs:
-    - job: Build project
-      artifacts: true
-      optional: true
-  script:
-    - mvn $MAVEN_CLI_OPTS -Prewrite rewrite:dryRun
-  artifacts:
-    paths:
-      - target/rewrite/rewrite.patch
-    expire_in: 1 week
-  allow_failure: true
-  rules:
-    - <<: *if-mr-code
-      when: manual
-    - <<: *if-branches
-      when: manual
 
 ##############################
 # Integration testing stage
@@ -1404,26 +1413,6 @@ Dependency scanning:
     - job: Build project
   variables:
     MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
-
-# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Secret detection"
-# below extends it and carries the settings, so the pipeline shows a readable job title.
-secret_detection:
-  rules:
-    - when: never
-
-# Runs on every merge request that touches code or the website, and on every branch pipeline.
-Secret detection:
-  extends: secret_detection
-  tags: [ light ]
-  needs: [ ]
-  timeout: 15m
-  # Never auto-cancelled, on any ref (see workflow): on develop a newer pipeline does not scan the commits of an older one;
-  # on a merge request the cost is this short job finishing in a superseded pipeline
-  interruptible: false
-  rules:
-    - <<: *if-mr-code
-    - <<: *if-mr-website
-    - <<: *if-branches
 
 ##############################
 # Analysis stage

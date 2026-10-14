@@ -109,7 +109,7 @@ vacío y un `401 Unauthorized` del repositorio Maven.
 
 ## Título y tamaño de la merge request {#merge-request-title-and-size}
 
-La etapa `build` ejecuta jobs rápidos en cada pipeline de merge request, antes de construir nada: `MR docs warning`
+La etapa `lint` ejecuta jobs rápidos en cada pipeline de merge request, en paralelo con la construcción: `MR docs warning`
 (véase [Aviso de documentación](#docs-warning-not-blocking)) y, en las merge requests que modifican un cliente,
 [`Lint frontend`](#frontend-lint-blocking). Las comprobaciones de título, tamaño y desfase de traducción **no** son jobs
 de la pipeline: son scripts que se pueden ejecutar en local, descritos a continuación.
@@ -220,7 +220,7 @@ Ejecútelo en local con `npm --prefix website run check:translations`, seguido o
 ## Lint del frontend (bloqueante) {#frontend-lint-blocking}
 
 El job `Lint frontend` ejecuta [ESLint](https://eslint.org/) en ambos motores de frontend, el cliente AngularJS
-(`awe-client-angular`) y el cliente React (`awe-client-react`), en la etapa `build`, de modo que un fallo se muestra en
+(`awe-client-angular`) y el cliente React (`awe-client-react`), en la etapa `lint`, de modo que un fallo se muestra en
 alrededor de un minuto, antes de que empiecen las pruebas unitarias. Se ejecuta en las merge requests que cambian un
 cliente y en `develop`, `master` y `support/*`.
 

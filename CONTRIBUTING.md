@@ -173,7 +173,7 @@ Guard tests keep these rules from rotting (`BrowserTestDeclarationsGuardTest`, `
 
 ## Merge request checks
 
-Merge requests get fast jobs in the `build` stage, before anything is built. Blocking ones fail the pipeline; warnings end
+Merge requests get fast jobs in the `lint` stage, which runs in parallel with the build instead of waiting for it. Blocking ones fail the pipeline; warnings end
 with exit code 64, which is allowed to fail, so the pipeline shows an orange warning and the merge is never blocked.
 
 Three checks are **not** pipeline jobs, only local commands you can run before you open the merge request: the title, the size
