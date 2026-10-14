@@ -324,7 +324,7 @@ templates.
 
 | Branch | Updates opened | Automerge |
 |---|---|---|
-| `develop` | Everything: major, minor, patch, pin, digest, lock file and security | Patch releases of direct Maven and npm dependencies, 3 days after release, only when the merge-request pipeline passes (the approval rule is lifted for those merge requests only). Digests, pins, CI images, the Dockerfile, compose files and lock-file maintenance wait for a human |
+| `develop` | Everything: major, minor, patch, pin, digest, lock file and security | Patch releases of direct Maven and npm dependencies, once they are old enough (see below), only when the merge-request pipeline passes (the approval rule is lifted for those merge requests only). Digests, pins, CI images, the Dockerfile, compose files and lock-file maintenance wait for a human |
 | `support/4.x` | Patch, pin, digest and security fixes (OSV) | None: a maintainer merges |
 
 Related updates are grouped into one merge request: Spring Boot, Spring Cloud, Selenium
@@ -337,6 +337,11 @@ open and blocked updates; major updates of the legacy AngularJS client
 (`awe-client-angular`, `awe-tools` and the `awe-tests` applications) are only opened after
 someone ticks them there, since that client is being replaced in AWE 5. Security alerts come from the OSV database and cover direct
 dependencies only.
+
+Renovate does not propose a version as soon as it is published: every update waits until its version is 14 days
+old, and major updates wait 30 days, so other projects find the broken releases first. When the newest version is
+still too recent, Renovate proposes the newest one that is old enough (`internalChecksFilter: strict`); the waiting
+versions are listed on the Dependency Dashboard. Security fixes, digests, pins and lock-file maintenance do not wait, nor do image tags whose registry gives no release date.
 
 Bot merge requests go through the selective merge-request pipeline: a `pom.xml` change
 runs the backend and Selenium jobs, an npm change under the client runs the frontend jobs,

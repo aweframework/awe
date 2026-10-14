@@ -314,7 +314,7 @@ arquetipos.
 
 | Rama | Actualizaciones abiertas | Automerge |
 |---|---|---|
-| `develop` | Todo: mayor, menor, parche, fijado, digest, archivo de bloqueo y seguridad | Versiones de parche de dependencias directas de Maven y npm, 3 días después de su publicación, solo cuando la pipeline de la merge request pasa (la regla de aprobación se levanta únicamente para esas merge requests). Los digests, fijados, imágenes de CI, el Dockerfile, los archivos compose y el mantenimiento de archivos de bloqueo esperan a una persona |
+| `develop` | Todo: mayor, menor, parche, fijado, digest, archivo de bloqueo y seguridad | Versiones de parche de dependencias directas de Maven y npm, cuando tienen la antigüedad mínima (ver más abajo), solo cuando la pipeline de la merge request pasa (la regla de aprobación se levanta únicamente para esas merge requests). Los digests, fijados, imágenes de CI, el Dockerfile, los archivos compose y el mantenimiento de archivos de bloqueo esperan a una persona |
 | `support/4.x` | Parches, fijados, digests y correcciones de seguridad (OSV) | Ninguno: un mantenedor integra |
 
 Las actualizaciones relacionadas se agrupan en una merge request: Spring Boot, Spring Cloud, Selenium (con el gestor de
@@ -326,6 +326,12 @@ demás casos. Una incidencia «Dependency Dashboard» lista las actualizaciones 
 actualizaciones mayores del cliente AngularJS heredado (`awe-client-angular`, `awe-tools` y las aplicaciones de
 `awe-tests`) solo se abren después de que alguien las marque allí, ya que ese cliente se sustituye en AWE 5. Las
 alertas de seguridad proceden de la base de datos OSV y cubren solo las dependencias directas.
+
+Renovate no propone una versión en cuanto se publica: cada actualización espera a que su versión tenga 14 días, y
+las actualizaciones mayores esperan 30 días, para que otros proyectos encuentren antes las versiones defectuosas. Si la
+versión más reciente aún es demasiado nueva, Renovate propone la más reciente que ya tiene esa antigüedad
+(`internalChecksFilter: strict`); las versiones en espera aparecen en el Dependency Dashboard. Las correcciones de
+seguridad, los digests, los fijados, el mantenimiento de archivos de bloqueo y las etiquetas de imagen cuyo registro no da fecha de publicación no esperan.
 
 Las merge requests del bot pasan por la pipeline selectiva de merge request: un cambio en `pom.xml` ejecuta los jobs de
 backend y Selenium, un cambio de npm bajo el cliente ejecuta los jobs de frontend, un cambio en `website/` ejecuta la
