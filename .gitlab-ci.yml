@@ -856,6 +856,11 @@ Frontend UT React:
     - <<: *if-mr-frontend-react
     - <<: *if-branches
 
+# Javadoc of the merge request on the same sources as "Generate javadoc & schemas" (develop): the delombok output. Lombok copies the
+# Javadoc of a private field onto the getter and setter it generates, so a bad tag in a field comment only fails there; on
+# src/main/java it passes in the merge request and breaks develop. javadoc:javadoc@delombok-javadoc (profile test-javadoc)
+# forks generate-sources, which runs delombok, and documents each module's target/delombok with show=public like the site
+# report. The aggregate keeps checking the overview and the links between modules.
 Javadoc test:
   stage: test
   tags: [ medium, shared-cache ]
@@ -864,7 +869,7 @@ Javadoc test:
     - job: Build project
       artifacts: false
   script:
-    - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
+    - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:javadoc@delombok-javadoc javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
     paths:
       - awe-framework/target/reports/apidocs

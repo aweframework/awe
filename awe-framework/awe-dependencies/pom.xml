@@ -822,18 +822,32 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok-maven-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-          <plugin>
             <groupId>com.github.eirslett</groupId>
             <artifactId>frontend-maven-plugin</artifactId>
             <configuration>
               <skip>true</skip>
             </configuration>
+          </plugin>
+          <!-- Javadoc of each module on its delombok sources with the options of the site report of awe-framework/pom.xml
+               (the "Generate javadoc & schemas" job): run it as javadoc:javadoc@delombok-javadoc -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>delombok-javadoc</id>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+                <phase>none</phase>
+                <configuration>
+                  <show>public</show>
+                  <sourcepath>${project.build.directory}/delombok</sourcepath>
+                  <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                  <detectOfflineLinks>false</detectOfflineLinks>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
