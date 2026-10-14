@@ -885,6 +885,18 @@
       "defaultValue": "."
     },
     {
+      "name": "awe.observability.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable the observability starter (health checks, metrics and traces). Set it to false to switch everything it contributes off without removing the dependency.",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.observability.health-timeout",
+      "type": "java.time.Duration",
+      "description": "Maximum time a health check waits for a database or queue connection to answer before it reports the connector as down.",
+      "defaultValue": "2s"
+    },
+    {
       "name": "awe.rest.api.auth.mode",
       "type": "com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode",
       "description": "REST authentication mode. \"local-jwt\" authenticates with a token issued by AWE (/api/authenticate); \"oauth2-resource-server\" validates access tokens issued by an external OAuth2/OIDC provider.",

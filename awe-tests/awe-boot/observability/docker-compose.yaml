@@ -42,6 +42,8 @@ services:
     volumes:
       - ./grafana/grafana-data:/var/lib/grafana
       - ./grafana/dashboards:/etc/grafana/dashboards
+      # Reference dashboard of the observability starter (single source: it is the file the starter ships)
+      - ../../../awe-framework/awe-starters/awe-observability-spring-boot-starter/src/main/resources/awe-observability/grafana/awe-observability-dashboard.json:/etc/grafana/dashboards/awe-observability-dashboard.json:ro
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true

@@ -18,6 +18,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
+import com.almis.awe.service.observation.ExecutionObserver;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,6 +27,7 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
@@ -41,6 +43,19 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public class MaintainService extends ServiceConfig {
+
+  // Observer of the executions (metrics, traces...). Optional: without one the execution just runs
+  private ExecutionObserver executionObserver = ExecutionObserver.NONE;
+
+  /**
+   * Set the observer of the executions
+   *
+   * @param executionObserver Execution observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setExecutionObserver(ExecutionObserver executionObserver) {
+    this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
+  }
 
   // Constants
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
@@ -324,6 +339,21 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error launching maintain
    */
   public ServiceData launchMaintain(Target maintainTarget, ObjectNode parameters, DatabaseConnection databaseConnection, boolean keepAliveConnection) throws AWException {
+    return executionObserver.observe(ExecutionObserver.ExecutionType.MAINTAIN, maintainTarget.getName(), Map.of(),
+      () -> launchObservedMaintain(maintainTarget, parameters, databaseConnection, keepAliveConnection), data -> data == null ? null : data.getType());
+  }
+
+  /**
+   * Launches a maintain once it is being observed
+   *
+   * @param maintainTarget      Maintain target
+   * @param parameters          Parameters
+   * @param databaseConnection  Database connection
+   * @param keepAliveConnection Keep alive connection (for treatments)
+   * @return Service output
+   * @throws AWException Error launching maintain
+   */
+  private ServiceData launchObservedMaintain(Target maintainTarget, ObjectNode parameters, DatabaseConnection databaseConnection, boolean keepAliveConnection) throws AWException {
     String statementList = "";
     boolean manageConnection = !keepAliveConnection;
 

@@ -17,6 +17,7 @@ const MODULES = [
 	'awe-framework/awe-testing',
 	'awe-framework/awe-starters/awe-spring-boot-starter',
 	'awe-framework/awe-starters/awe-notifier-spring-boot-starter',
+	'awe-framework/awe-starters/awe-observability-spring-boot-starter',
 	'awe-framework/awe-starters/awe-scheduler-spring-boot-starter',
 	'awe-framework/awe-starters/awe-rest-spring-boot-starter',
 	'awe-framework/awe-starters/awe-developer-spring-boot-starter',
