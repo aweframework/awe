@@ -15,6 +15,7 @@ import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
 import com.almis.awe.testing.selenium.TestAttributes;
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
@@ -24,10 +25,8 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.*;
@@ -40,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Utilities suite for selenium testing
  */
 @Slf4j
+// SpringExtension must be registered first: it injects the properties that SeleniumExtension needs in setSeleniumModel
 @ExtendWith({SpringExtension.class, SeleniumExtension.class})
 @ContextConfiguration(classes = TestConfig.class, initializers = ConfigDataApplicationContextInitializer.class)
 public class SeleniumUtilities implements IAweInstructions {
@@ -276,7 +276,7 @@ public class SeleniumUtilities implements IAweInstructions {
       Optional<byte[]> screenshot = takeScreenshot(browser);
       String screenshotName = failureEvidence.buildName(getClass().getSimpleName(),
         seleniumModel.getCurrentOption(), message, true);
-      Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
+      Path path = Path.of(properties.getScreenshotPath(), screenshotName + ".png");
       log.error(message, (Object) throwable);
 
       screenshot.ifPresent(image -> {

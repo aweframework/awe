@@ -13,12 +13,12 @@ import com.almis.awe.model.rest.ServiceDetails;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.util.*;
 

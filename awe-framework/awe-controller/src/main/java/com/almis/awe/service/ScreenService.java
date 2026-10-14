@@ -24,11 +24,11 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -18,7 +18,6 @@ import org.springframework.scheduling.annotation.Async;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -110,7 +109,7 @@ public class AweElementsDao {
    * @param filePath  File path
    */
   public <T extends XMLFile, N extends XMLNode> String readModuleFile(Class<T> rootClass, Map<String, N> storage, String filePath) {
-    Path logPath = Paths.get(filePath);
+    Path logPath = Path.of(filePath);
     long startTime = clockMillis();
     // Unmarshall XML (if it exists)
     Resource resource = new ClassPathResource(filePath);
@@ -252,7 +251,7 @@ public class AweElementsDao {
   private <T> T readModuleXmlFile(Class<T> clazz, String filePath, List<String> messageList) {
     T file = null;
     long startTime = clockMillis();
-    Path logFilePath = Paths.get(filePath);
+    Path logFilePath = Path.of(filePath);
 
     // Unmarshall XML
     Resource resource = new ClassPathResource(filePath);
@@ -282,7 +281,7 @@ public class AweElementsDao {
    */
   @Async("contextLessTaskExecutor")
   public <T> Future<Map<String, T>> readModuleFolderXmlFile(Class<T> clazz, String path) {
-    Path logPath = Paths.get(path);
+    Path logPath = Path.of(path);
     Map<String, T> storage = new ConcurrentHashMap<>();
     try {
       // Check resource path
@@ -338,7 +337,7 @@ public class AweElementsDao {
         }
         String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
         storage.put(fileName, file);
-        String logFilePath = Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
+        String logFilePath = Path.of(basePath, Optional.ofNullable(resource.getURL().getPath())
           .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString();
         long elapsedTime = elapsedMillisSince(startTime);
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {

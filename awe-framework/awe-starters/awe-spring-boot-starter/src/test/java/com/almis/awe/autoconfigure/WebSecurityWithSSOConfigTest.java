@@ -11,7 +11,6 @@ import com.almis.awe.security.handler.AweOauth2AuthenticationFailureHandler;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -27,6 +26,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +68,7 @@ class AuthenticationWithSSOConfigTest {
 		@Bean public AweSessionDetails aweSessionDetails() { return mock(AweSessionDetails.class); }
 		@Bean public ErrorPageService errorPageService() { return mock(ErrorPageService.class); }
 		@Bean public MultiTenantFilter multiTenantFilter() { return mock(MultiTenantFilter.class); }
-		@Bean public ObjectMapper objectMapper() { return new ObjectMapper(); }
+		@Bean public ObjectMapper objectMapper() { return new JsonMapper(); }
 		@Bean public AccessService accessService() { return mock(AccessService.class); }
 		@Bean public XStreamSerializer xStreamSerializer() { return mock(XStreamSerializer.class); }
 		@Bean public TemplateService templateService() { return mock(TemplateService.class); }

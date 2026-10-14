@@ -18,6 +18,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import java.util.List;
 public class Column extends AbstractCriteria {
 
   // Serial UID
+  @Serial
   private static final long serialVersionUID = 1L;
 
   // Column FIELD name to sort
@@ -290,8 +292,8 @@ public class Column extends AbstractCriteria {
     List<ButtonAction> actionList = new ArrayList<>();
 
     for (Element element : getElementList()) {
-      if (element instanceof ButtonAction) {
-        actionList.add((ButtonAction) element);
+      if (element instanceof ButtonAction action) {
+        actionList.add(action);
       }
     }
 

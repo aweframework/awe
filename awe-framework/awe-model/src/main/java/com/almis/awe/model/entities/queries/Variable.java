@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Variable Class
  *
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("variable")
 public class Variable implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 7027384293892109171L;
 
   // Variable identifier

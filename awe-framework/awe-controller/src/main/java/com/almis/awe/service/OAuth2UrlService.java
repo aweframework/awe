@@ -21,7 +21,6 @@ public class OAuth2UrlService {
 	private final MultiTenantOAuth2Config multiTenantConfig;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	@Autowired
 	public OAuth2UrlService(
 			@Autowired(required = false) MultiTenantOAuth2Config multiTenantConfig,
 			ClientRegistrationRepository clientRegistrationRepository) {

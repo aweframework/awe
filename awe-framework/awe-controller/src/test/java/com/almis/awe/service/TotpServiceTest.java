@@ -1,29 +1,29 @@
 package com.almis.awe.service;
 
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.exception.AWException;
 import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
 import com.almis.awe.service.totp.ZxingQrPngGenerator;
 import com.bastiaanjansen.otp.HMACAlgorithm;
 import com.bastiaanjansen.otp.TOTPGenerator;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -31,8 +31,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -110,7 +110,9 @@ class TotpServiceTest {
 
     assertEquals(1, serviceData.getDataList().getRows().size());
     assertEquals("generated-secret", ((CellData) serviceData.getDataList().getRows().get(0).get("secretCode")).getStringValue());
-    assertTrue(((CellData) serviceData.getDataList().getRows().get(0).get("random")).getDoubleValue() >= 0d);
+    assertThat(((CellData) serviceData.getDataList().getRows().get(0).get("random")).getDoubleValue())
+      .isGreaterThanOrEqualTo(0d)
+      .isLessThan(10000d);
     verify(totpOperations).generateSecret();
     verify(maintainService).launchPrivateMaintain(eq("store2faSecret"), any(ObjectNode.class));
   }

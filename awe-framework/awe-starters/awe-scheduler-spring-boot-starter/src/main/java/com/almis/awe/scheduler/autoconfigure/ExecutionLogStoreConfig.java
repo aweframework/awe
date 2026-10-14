@@ -13,8 +13,8 @@ import com.almis.awe.service.QueryService;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -128,7 +128,7 @@ public class ExecutionLogStoreConfig {
 
     FilterRegistrationBean<ExecutionCallbackLogFilter> registration = new FilterRegistrationBean<>(filter);
     registration.addUrlPatterns("/api/maintain/*");
-    registration.setOrder(SecurityProperties.DEFAULT_FILTER_ORDER + 1);
+    registration.setOrder(SecurityFilterProperties.DEFAULT_FILTER_ORDER + 1);
     return registration;
   }
 

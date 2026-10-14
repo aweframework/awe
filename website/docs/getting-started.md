@@ -8,7 +8,7 @@ Start here if you want the fastest path from zero to a running AWE application. 
 
 ## Quick path
 
-1. Install Java 17+ and Maven 3.x.
+1. Install Java 21+ and Maven 3.x.
 2. Choose the AngularJS or React archetype.
 3. Generate your project with Maven.
 4. Run the app with Spring Boot.
@@ -16,7 +16,7 @@ Start here if you want the fastest path from zero to a running AWE application. 
 
 ## Prerequisites
 
-- JDK 17 or higher
+- JDK 21 or higher
 - Maven 3.x or higher
 - Your preferred IDE or editor
 

@@ -34,8 +34,11 @@ Solo se lista lo que el repositorio declara hoy. Los elementos marcados como *pr
 
 | Componente | AWE 4 (`support/4.x`) | AWE 5 (`develop`) | Notas |
 |---|---|---|---|
-| Java (destino de compilación) | 17 | 17 | La integración continua compila con JDK 21 pero genera código para 17 (`java.version` en `awe-dependencies`). Java 21 como base está *previsto* ([#783](https://gitlab.com/aweframework/awe/-/issues/783)). |
-| Spring Boot | 3.5.16 | 3.5.16 | Spring Boot 4 está *previsto* ([#783](https://gitlab.com/aweframework/awe/-/issues/783)). |
+| Java (destino de compilación y ejecución) | 17 | **21** | `java.version` en `awe-dependencies` y en los arquetipos. Se necesita un JDK 21 para compilar y para ejecutar. Consulte [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41). |
+| Spring Boot | 3.5.16 | **4.1.1** | Spring Framework 7.0, Spring Security 7.0, JUnit 6, Flyway 11. |
+| Spring Cloud | 2025.0.3 | **2025.1.3** | |
+| Jackson | 2.x (`com.fasterxml.jackson`) | **3.2.1** (`tools.jackson`) | Las anotaciones siguen en `com.fasterxml.jackson.annotation`. Consulte [Jackson 3](#jackson-3). |
+| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.5.0 / 3.0.3 | |
 | Node.js usado por la compilación del frontend con Maven | v24.14.0 | v24.14.0 | `node.version` en `awe-dependencies`. Las aplicaciones que compilan el cliente React con su propio Node deberían usar la misma versión mayor. |
 | Cliente React (`awe-react-client`) | `2.x`, línea de versiones propia | Misma versión que el framework (`5.y.z`) | Consulte [Actualización del cliente React](react-client-upgrade.md). React 18.3.1. |
 | Gráficos, motor React | Highcharts | Apache ECharts 6.1.0 | Consulte [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5). |
@@ -61,6 +64,14 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Beans del manejador SSO | Su propio código llama a `AweWebSecurityConfig.authSuccessHandler()` (ahora recibe como parámetro el bean `AweOauth2AuthenticationFailureHandler`), o construye `AweOauth2AuthenticationSuccessHandler` con un argumento (obsoleto y pendiente de eliminación). | Pase el manejador de fallos: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Los beans de manejador propios ahora se respetan en el inicio de sesión SSO. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
 | Base de datos del planificador | Flyway falla con un error de checksum en `SCHEDULER_V1.0.5`, o no se puede construir una base de datos nueva desde cero. | Ejecute el paso de migración descrito más abajo. | MR !843 |
 | Carpetas por defecto (módulo de desarrollador, logs del planificador) | La ruta del módulo de desarrollador y los logs de ejecución del planificador están ahora en una carpeta sin la `}` sobrante con la que terminaba el valor por defecto (`<user.home>/awe-developer` en lugar de `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` en lugar de `.../scheduler}`). Solo aplica si no definió `awe.developer.path` ni `awe.scheduler.execution-log-path`. | Mueva sus archivos existentes de la carpeta antigua a la nueva si los necesita, o defina la propiedad con la ruta antigua. | MR !889 |
+| JDK y Spring Boot (#783) | La aplicación no arranca ni compila con JDK 17; Maven no reconoce starters como `spring-boot-starter-web` o `spring-boot-starter-aop`; `@MockBean` no compila. | Compile y ejecute con JDK 21, establezca `java.version` a 21 y pase a los starters y anotaciones de prueba de Spring Boot 4.1. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Jackson 3 (#783) | Su código no compila porque un método de AWE recibe o devuelve ahora `tools.jackson.databind.node.ObjectNode` (o `JsonNode`, `ArrayNode`, `ObjectMapper`); `asText()` o `asInt()` lanza `JsonNodeException`. | Cambie los imports a `tools.jackson.*`, use las sobrecargas con valor por defecto (`asString("")`, `asInt(0)`...) y sustituya `JsonProcessingException` por `JacksonException`. | [Jackson 3](#jackson-3), [API pública con Jackson 3](#jackson-3-public-api) |
+| Peticiones JSON con contenido sobrante (#783) | Un cliente recibe HTTP 400 para un cuerpo como `{...},` o `{...}}` que AWE 4 aceptaba. | Corrija el cliente: AWE 5 rechaza el contenido que sigue al valor JSON raíz. El resto del formato JSON es el de AWE 4. | [Contrato JSON](#json-contract) |
+| Clientes de AWE con Jackson 3 (#783) | Un cliente construido con los valores por defecto de Spring 7 / Jackson 3 falla con `Cannot deserialize value of type AnswerType from String "OK"`. | Configure el cliente con el mapper de AWE: `MessageConverterUtil.withJsonMapper(restTemplate, DataListUtil.getMapper())`. | [Contrato JSON](#json-contract) |
+| Configuración de Logback (#783) | La aplicación falla al arrancar con `Logback configuration error detected` tras la actualización. | Elimine la regla de conversión `applicationName` de su propio `logback-spring.xml`; use `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}`. | [Logging, base de datos y web](#logging-database-and-web) |
+| Redirecciones del inicio de sesión (#783) | Una petición de navegador sin autenticar se redirige a `Location: /` en lugar de a una URL absoluta. | Nada, salvo que algo analice la URL absoluta: acepte una relativa. Las implementaciones propias de `AuthorizationManager` deben recibir `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
+| Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
 
@@ -154,6 +165,492 @@ La incidencia #769 limpió las dependencias npm de ambos clientes:
   `angular-ui-router` 0.4, `angular-ui-grid` (la 4.12.7 cambia el punto de entrada del paquete), Highcharts y
   jQuery/Bootstrap (#755, #772), Redux Toolkit 2 (#807) y React 19.
 
+### Java 21 y Spring Boot 4.1 {#java-21-and-spring-boot-41}
+
+La incidencia #783 lleva AWE 5 a Java 21, Spring Boot 4.1.1 (Spring Framework 7.0, Spring Security 7.0) y Jackson 3.
+
+- **Se necesita JDK 21** para compilar y ejecutar. Establezca `java.version` a 21 en su `pom.xml` (los arquetipos de
+  AWE 5 ya lo hacen). El build también debe ejecutarse con un JDK 21: con un JDK anterior la compilación falla.
+- **Spring Boot 4.1 elimina todo lo que la 4.0 marcó como obsoleto**: los nombres antiguos de starters
+  (`spring-boot-starter-web`, `-aop`, `-oauth2-*`), `@MockBean`/`@SpyBean` y `spring-boot-jackson2`. Use los starters
+  modulares (`spring-boot-starter-webmvc`, `-aspectj`, `-security-oauth2-*`) y los starters de prueba explícitos. Las
+  recetas `UpgradeSpringBoot_4_0` y `SpringBootProperties_4_1` de [OpenRewrite](https://docs.openrewrite.org) hacen
+  la mayor parte del trabajo; revise su resultado.
+- Clases que Spring Boot 4 movió y que las aplicaciones pueden usar directamente: `ErrorController`
+  (`org.springframework.boot.webmvc.error`), la autoconfiguración de JMS (`org.springframework.boot.jms.autoconfigure`),
+  la autoconfiguración del servidor de recursos OAuth2 (dividida en `OAuth2ResourceServerAutoConfiguration` y
+  `OAuth2ResourceServerWebSecurityAutoConfiguration`) y `TestRestTemplate` (`org.springframework.boot.resttestclient`).
+- `awe-spring-boot-starter` aporta ahora `spring-boot-starter-cache` y `spring-boot-jms`, y `awe-controller` aporta
+  `spring-boot-starter-webmvc`, de modo que las aplicaciones que dependían de ellos de forma transitiva siguen
+  funcionando.
+- **Pruebas.** `@SpringBootTest` ya no proporciona MockMvc ni `TestRestTemplate`: añada `@AutoConfigureMockMvc` o
+  `@AutoConfigureTestRestTemplate`. Los campos `@Mock` de Mockito en pruebas de Spring ya no se inicializan (Spring Boot 4
+  eliminó `MockitoTestExecutionListener`) y quedan a `null`: añada `@ExtendWith(MockitoExtension.class)`, con
+  `@MockitoSettings(strictness = Strictness.LENIENT)` para mantener los stubs permisivos. Con JUnit 6, una prueba que
+  importa con comodín `org.junit.jupiter.api.*` y `org.springframework.http.*` ya no compila
+  (`reference to MediaType is ambiguous`): importe `org.springframework.http.MediaType` de forma explícita.
+- **Selenium** sigue el BOM de Spring Boot (4.43.0 con Spring Boot 4.1.1) en lugar de la 4.18.1 que fijaba AWE, y
+  `awe-dependencies` ya no gestiona `selenium-server`.
+- **`lombok-maven-plugin` desaparece.** AWE ejecutaba delombok (las fuentes del Javadoc) con este plugin abandonado.
+  Ahora usa la ejecución `delombok` de `maven-antrun-plugin`, gestionada en `awe-dependencies`, con la versión de
+  Lombok del BOM de Spring Boot. La propiedad `skip.delombok` sigue funcionando. Si su `pom.xml` declaraba
+  `lombok-maven-plugin`, declare `maven-antrun-plugin` en su lugar (hereda la ejecución `delombok`) o elimínelo.
+- Los constructores de `TaskConfig` y `SchedulerTaskConfig` reciben ahora también el `Environment`. Solo importa si su
+  código crea estas clases de configuración por su cuenta.
+
+### Jackson 3 {#jackson-3}
+
+- **Cambio de paquete.** `com.fasterxml.jackson.core` y `com.fasterxml.jackson.databind` pasan a ser `tools.jackson.core`
+  y `tools.jackson.databind`. Las anotaciones siguen en `com.fasterxml.jackson.annotation`. Todo método de AWE que recibe
+  o devuelve `ObjectNode`, `JsonNode`, `ArrayNode` u `ObjectMapper` usa ahora el tipo de Jackson 3, así que el código que
+  lo llama debe cambiar sus imports. La lista completa está en [API pública con Jackson 3](#jackson-3-public-api).
+- `JsonProcessingException` pasa a ser `JacksonException`, que no es comprobada (*unchecked*).
+- **Jackson 3 lanza una excepción donde Jackson 2 devolvía un valor por defecto** (medido con jackson-databind 3.2.1):
+
+  | Llamada | Jackson 2 | Jackson 3 |
+  |---|---|---|
+  | `asText()` / `asString()` sobre un nodo array, objeto o POJO | `""` | lanza `JsonNodeException` |
+  | `asText()` / `asString()` sobre `NullNode` | `"null"` | `""` |
+  | `asInt()` / `asLong()` / `asDouble()` sobre un array o un texto no numérico | `0` | lanza excepción |
+  | `asBoolean()` sobre un array o un texto no booleano | `false` | lanza excepción |
+  | `intValue()` sobre un nodo no numérico | `0` | lanza excepción |
+
+  AWE llama a las sobrecargas con valor por defecto (`asString("")`, `asInt(0)`, `asLong(0L)`, `asDouble(0.0)`,
+  `asBoolean(false)`), que dan los resultados de Jackson 2 salvo el texto de `NullNode` (`""` en lugar de `"null"`).
+  Haga lo mismo en su propio código o gestione la excepción.
+- `ObjectMapper.writer(PrettyPrinter)` se eliminó: use `writer().with(prettyPrinter)`. `MappingJackson2HttpMessageConverter`
+  pasa a ser `JacksonJsonHttpMessageConverter`. El soporte de java.time forma parte de Jackson 3, así que ya no se
+  registra `JavaTimeModule`.
+- Spring Boot 4 autoconfigura un `JsonMapper`. Para sustituirlo, defina un bean `JsonMapper` (un bean `ObjectMapper` ya
+  no basta). Spring Boot 4 registra además todos los módulos de Jackson del classpath; defina
+  `spring.jackson.find-and-add-modules=false` para evitarlo.
+- java-jwt 4 sigue dependiendo de Jackson 2, de modo que Jackson 2 permanece en el classpath. No pase tipos de Jackson 2
+  a las API de AWE.
+
+### Contrato JSON {#json-contract}
+
+AWE 5 mantiene el **formato JSON de AWE 4** sobre Jackson 3 y pasa a ser estricto con el contenido sobrante. AWE aplica
+su contrato al `JsonMapper` de Spring Boot mediante un `JsonMapperBuilderCustomizer` (`DataListUtil.applyAweJsonContract`,
+que también usa el mapper de `DataListUtil`), así que la capa HTTP y el mapper inyectado lo usan.
+
+| Comportamiento | Por defecto en Jackson 3 | AWE 5 |
+|---|---|---|
+| Enumerados | se escriben y leen con `toString()` (`MaintainType.INSERT` -> `"I"`) | **por nombre** (`"INSERT"`), como en AWE 4 |
+| Orden de las propiedades | alfabético | **orden de declaración**, como en AWE 4 |
+| `null` para un campo primitivo | error | **se acepta** (valor por defecto), como en AWE 4 |
+| Fechas, duraciones, propiedades desconocidas, inclusión de vistas | valores por defecto de Jackson 3 | comportamiento de Spring Boot 3 mediante `spring.jackson.use-jackson2-defaults=true` (definido en el `base.properties` de AWE) |
+| Contenido tras el valor JSON raíz (`{...},`) | se rechaza | **se rechaza con HTTP 400** (AWE 4 lo ignoraba) |
+
+- **Los clientes que envían contenido sobrante** tras el cuerpo JSON reciben ahora HTTP 400 y deben corregirse.
+- **Clientes de AWE con Jackson 3.** El formato no cambió, así que los clientes con Jackson 2 siguen funcionando. Un
+  cliente con los valores por defecto de Jackson 3 (por ejemplo un `new RestTemplate()` sin configurar con Spring 7) lee
+  los enumerados con `toString()` y falla con `Cannot deserialize value of type AnswerType from String "OK"`.
+  Configúrelo con el mapper de AWE: `MessageConverterUtil.withJsonMapper(restTemplate, DataListUtil.getMapper())`, o
+  desactive `EnumFeature.READ_ENUMS_USING_TO_STRING`. `spring.jackson.use-jackson2-defaults` no ayuda aquí, porque un
+  `RestTemplate` sin configurar no usa el mapper de Spring Boot. Los conectores REST y de microservicios de AWE ya lo
+  hacen.
+- Para cambiar el contrato, añada su propio `JsonMapperBuilderCustomizer` o propiedades `spring.jackson.*`; un
+  customizer que se ejecuta después del de AWE lo sobrescribe.
+- El documento OpenAPI de la API REST de AWE no cambia (AWE mantiene el esquema de `JsonNode` como `{}` para springdoc).
+
+### Spring Security 7 {#spring-security-7}
+
+- **Las redirecciones del inicio de sesión son relativas.** Una petición de navegador sin autenticar recibe
+  `Location: /` en lugar de `Location: http://host/` (valor por defecto de Spring Security 7). Los proxies inversos que
+  reescriben cabeceras `Location` absolutas no se ven afectados; lo que analizara la URL absoluta debe aceptar una
+  relativa.
+- `AuthorizationManager.authorize` recibe un `Supplier<? extends Authentication>`; actualice sus propias
+  implementaciones.
+- `DaoAuthenticationProvider` exige el `UserDetailsService` en su constructor.
+- Spring Boot 4 movió la seguridad web de servlets a `ServletWebSecurityAutoConfiguration`; las pruebas que enumeran
+  explícitamente las autoconfiguraciones de seguridad (por ejemplo con `ApplicationContextRunner`) deben añadirla.
+
+### Logging, base de datos y web {#logging-database-and-web}
+
+- **Logback.** Spring Boot 4 eliminó `org.springframework.boot.logging.logback.ApplicationNameConverter`. Una
+  configuración de Logback que todavía declara `<conversionRule conversionWord="applicationName" .../>` detiene la
+  aplicación al arrancar. `awe-log.xml` y `scheduler-log.xml` de AWE usan `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}`
+  (misma salida); un `logback-spring.xml` copiado de AWE 4 o de Spring Boot 3 debe hacer lo mismo.
+- **Límites de distribución de las métricas.** Un `management.metrics.distribution.maximum-expected-value.http.server.requests`
+  inferior a 2 minutos, definido sin `minimum-expected-value`, hace ahora que **todas las peticiones HTTP fallen con 500**
+  (`InvalidConfigurationException: maximumExpectedValue ... must be equal to or greater than minimumExpectedValue`): el
+  prefijo también alcanza al long task timer `http.server.requests.active`, cuyo mínimo por defecto es de 2 minutos.
+  Defina ambos límites, por ejemplo `minimum-expected-value.http.server.requests=1ms`.
+- **H2 2.4 rechaza el tipo `DATETIME`** (Spring Boot 4.1 gestiona H2 2.4). El script H2 de AWE
+  `AWE_V1.0.0__Init_awe_schema.sql` declara ahora `HISAweAppPar.HISdat` como `TIMESTAMP`, por lo que cambia su checksum de
+  Flyway: vuelva a crear su base de datos H2 local (o ejecute `flyway repair`). H2 solo está pensada para desarrollo local y
+  pruebas. Sus propios scripts H2 que usen `DATETIME` deben usar `TIMESTAMP`.
+- **Flyway 11 eliminó `cleanOnValidationError`**: `spring.flyway.clean-on-validation-error` no tiene efecto.
+- La subida de ficheros usa `commons-fileupload2-jakarta-servlet6` (paquete
+  `org.apache.commons.fileupload2.jakarta.servlet6`).
+- En despliegues war en un contenedor externo, `server.forward-headers-strategy` no tiene efecto (Spring Boot 4); defina un
+  bean `ForwardedHeaderFilter` si lo necesita.
+- **jasypt-spring-boot 3.0.5** sigue descifrando las propiedades `ENC(...)`, pero todavía no declara soporte de Spring
+  Boot 4: compruébelo cuando lo actualice.
+
+### API pública con Jackson 3 {#jackson-3-public-api}
+
+Los miembros públicos y protegidos de los módulos del framework de AWE 5 cuya firma usa un tipo de Jackson 3
+(`tools.jackson.core` o `tools.jackson.databind`). El código que llama a uno de ellos, lo sobrescribe o extiende su clase
+con tipos de Jackson 2 debe pasar a los de Jackson 3. Los tipos se muestran por su nombre simple; la lista se obtuvo de
+las clases compiladas, por lo que incluye los getters y setters que genera Lombok.
+
+<details>
+<summary>Mostrar la lista (204 miembros)</summary>
+
+**`awe-controller`**
+
+```java
+// com.almis.awe.controller.ActionController
+  List<ClientAction> launchAction(String, ObjectNode)
+  List<ClientAction> launchAction(String, String, ObjectNode)
+// com.almis.awe.controller.FileController
+  ResponseEntity<String> getFileAsText(ObjectNode)
+  ResponseEntity<FileSystemResource> getFileAsStream(ObjectNode)
+  ResponseEntity<FileSystemResource> getFileAsStreamPOST(ObjectNode, String)
+  ResponseEntity<byte[]> downloadFile(ObjectNode)
+  ResponseEntity<byte[]> downloadFileMaintain(ObjectNode, String)
+  ServiceData deleteFile(ObjectNode)
+// com.almis.awe.controller.ScreenDataController
+  ScreenData getDefaultScreenData(ObjectNode)
+  ScreenData getOptionScreenData(String, ObjectNode)
+// com.almis.awe.controller.UploadController
+  UploadController(FileService, BroadcastService, ObjectMapper, BaseConfigProperties)
+// com.almis.awe.security.authentication.filter.JsonAuthenticationFilter
+  JsonAuthenticationFilter(AweElements, ObjectMapper)
+// com.almis.awe.service.ChartService
+  ChartService(ObjectMapper, BaseConfigProperties)
+// com.almis.awe.service.EmailService
+  Future<ServiceData> sendEmail(String, ObjectNode)
+// com.almis.awe.service.MaintainService
+  ServiceData launchMaintain(String, ObjectNode)
+  ServiceData launchMaintain(String, ObjectNode, DatabaseConnection, boolean)
+  ServiceData launchPrivateMaintain(String, ObjectNode)
+  ServiceData launchPrivateMaintain(String, ObjectNode, DatabaseConnection, boolean)
+  DatabaseConnection getDatabaseConnection(ObjectNode)
+  ServiceData launchMaintain(Target, ObjectNode, DatabaseConnection, boolean)
+// com.almis.awe.service.QueryService
+  ServiceData launchQuery(String, ObjectNode)
+  ServiceData launchQuery(String, ObjectNode, boolean)
+  ServiceData launchPrivateQuery(String, ObjectNode)
+// com.almis.awe.service.connector.AbstractRestConnector
+  protected AbstractRestConnector(ClientHttpRequestFactory, ObjectMapper)
+// com.almis.awe.service.connector.JavaConnector
+  JavaConnector(ObjectMapper)
+// com.almis.awe.service.connector.MicroserviceConnector
+  MicroserviceConnector(ClientHttpRequestFactory, QueryUtil, ObjectMapper, RestConfigProperties)
+// com.almis.awe.service.connector.RestConnector
+  RestConnector(ClientHttpRequestFactory, ObjectMapper, RestConfigProperties)
+// com.almis.awe.service.data.builder.AbstractQueryBuilder
+  protected ObjectNode parameters
+  protected void addComponentSort(ArrayNode)
+  protected String getVariableAsString(JsonNode)
+  ObjectNode getParameters()
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.EnumBuilder
+  ArrayNode getEnumeratedAsJson()
+  ArrayNode getOptionListAsJson(EnumeratedGroup)
+  ObjectNode getJsonRow(Global)
+// com.almis.awe.service.data.builder.QueueBuilder
+  QueueBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.SQLMaintainBuilder
+  SQLMaintainBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.SQLQueryBuilder
+  SQLQueryBuilder setComponentSort(ArrayNode)
+  SQLQueryBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.XMLEmailBuilder
+  ObjectNode getParameters()
+  XMLEmailBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.connector.maintain.EmailMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.MaintainConnector
+  abstract <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.MaintainLauncher
+  ServiceData launchMaintain(MaintainQuery, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.QueueMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.SQLMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.query.AbstractQueryConnector
+  protected AbstractQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.service.data.connector.query.EnumQueryConnector
+  EnumQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData launchEnum(String, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueryConnector
+  abstract ServiceData launch(Query, ObjectNode)
+  abstract ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueryLauncher
+  ServiceData launchQuery(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueueQueryConnector
+  QueueQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.SQLQueryConnector
+  SQLQueryConnector(AweDatabaseContextHolder, QueryUtil, javax.sql.DataSource, BaseConfigProperties, AweElements, NumericService, EncodeService, DatabaseConfigProperties, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.ServiceQueryConnector
+  ServiceQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.processor.CompoundColumnProcessor
+  CompoundColumnProcessor(AweElements, BaseConfigProperties, Compound, Map<String, QueryParameter>, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.service.report.ReportDesigner
+  ReportDesigner(QueryService, ObjectMapper, BaseConfigProperties)
+  com.almis.ade.api.bean.input.PrintBean getPrintDesign(List<Element>, ObjectNode)
+  com.almis.ade.api.bean.input.PrintBean getPrintDesign(List<Element>, ObjectNode, boolean)
+  boolean hasSpreadsheetOnlyColumns(List<Element>, ObjectNode)
+// com.almis.awe.service.report.ReportDesigner$1
+  type: extends TypeReference<List<PrintColumnData>>
+// com.almis.awe.service.report.ReportDesigner$2
+  type: extends TypeReference<Map<String, Object>>
+// com.almis.awe.service.report.ReportGenerator
+  FileData generateReportFormat(com.almis.ade.api.fluid.engine.generic.TemplateExporterBuilder, String, String, String, ObjectNode)
+// com.almis.awe.service.report.ReportGenerator$GeneratedScreenReportContext
+  ReportGenerator$GeneratedScreenReportContext(List<FileData>, ObjectNode)
+  ObjectNode parameters()
+// com.almis.awe.service.screen.ScreenComponentGenerator
+  Map<String, ScreenComponent> generateComponentMap(Screen, ScreenData, Menu, ObjectNode)
+```
+
+**`awe-model`**
+
+```java
+// com.almis.awe.config.ServiceConfig
+  ObjectNode getRequestParameters()
+  ObjectNode getMutableRequestParameters()
+  JsonNode getRequestParameter(String)
+  JsonNode getRequestParameter(String, ObjectNode)
+  String getRequestParameterAsString(String, ObjectNode)
+  void putRequestParameter(ObjectNode, String, JsonNode)
+  void putRequestParameter(ObjectNode, String, String)
+  void putPropagatedRequestParameter(String, JsonNode)
+  void mergePropagatedRequestParameters(ObjectNode)
+// com.almis.awe.model.component.AweRequest
+  AweRequest(HttpServletRequest, HttpServletResponse, ObjectMapper)
+  void setParameterList(ObjectNode)
+  JsonNode getParameter(String)
+  ObjectNode getParameterList()
+  ObjectNode getParametersSafe()
+  List<CellData> getParameterAsCellDataList(JsonNode)
+  CellData getParameterAsCellData(JsonNode)
+  ObjectNode getParameters()
+  ObjectMapper getMapper()
+  AweRequest setParameters(ObjectNode)
+// com.almis.awe.model.component.PrototypeRequestBeanHolder
+  ObjectNode getRequestDataSnapshot()
+  void mergeRequestData(ObjectNode)
+  ObjectNode getPendingPropagationSnapshot()
+// com.almis.awe.model.component.RequestDataHolder
+  ObjectNode getRequestData()
+  void setRequestData(ObjectNode)
+// com.almis.awe.model.dto.FilterColumn
+  FilterColumn(ObjectNode)
+// com.almis.awe.model.dto.QueryData
+  ObjectNode getParameters()
+  QueryData setParameters(ObjectNode)
+// com.almis.awe.model.dto.QueryParameter
+  QueryParameter(JsonNode)
+  QueryParameter(JsonNode, boolean, ParameterType)
+  JsonNode getValue()
+  void setValue(JsonNode)
+// com.almis.awe.model.dto.SortColumn
+  SortColumn(ObjectNode)
+// com.almis.awe.model.entities.Element
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.actions.ComponentAddress
+  static ComponentAddress fromJson(JsonNode)
+// com.almis.awe.model.entities.queries.Query
+  String getQueryKeys(ObjectNode)
+// com.almis.awe.model.entities.screen.Screen
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.Dialog
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.Window
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.chart.Chart
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint
+  List<JsonNode> getPositionPoint()
+  void setPositionPoint(List<JsonNode>)
+// com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.grid.AbstractGrid
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.panelable.Panelable
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.pivottable.PivotSorter
+  void addSorter(String, JsonNode)
+  Map<String, JsonNode> getSorterMap()
+  void setSorterMap(Map<String, JsonNode>)
+  PivotSorter(Map<String, JsonNode>)
+// com.almis.awe.model.entities.screen.data.AweThreadInitialization
+  ObjectNode getParameters()
+  AweThreadInitialization setParameters(ObjectNode)
+// com.almis.awe.model.util.data.DataListUtil
+  static JsonMapper$Builder applyAweJsonContract(JsonMapper$Builder)
+  static ObjectMapper getMapper()
+  static ArrayNode getColumnAsArrayNode(DataList, String)
+// com.almis.awe.model.util.data.QueryUtil
+  QueryUtil(BaseConfigProperties, DatabaseConfigProperties, ObjectMapper, PrototypeRequestBeanHolder)
+  List<SortColumn> getSortList(ArrayNode)
+  Map<String, QueryParameter> getDefaultVariableMap(ObjectNode)
+  Map<String, QueryParameter> getVariableMap(List<Variable>, ObjectNode, Integer)
+  Map<String, QueryParameter> getVariableMap(Query, ObjectNode)
+  void addToVariableMap(Map<String, QueryParameter>, Query, ObjectNode)
+  void addDataListToRequestParameters(DataList, ObjectNode)
+  Map<String, QueryParameter> getVariableMap(MaintainQuery, ObjectNode)
+  Map<String, QueryParameter> getVariableMap(MaintainQuery, ObjectNode, List<ServiceInputParameter>)
+  ObjectNode getParameters()
+  ObjectNode getParameters(ObjectNode)
+  <T> ObjectNode getParameters(T)
+  ObjectNode getParameters(String, String, String)
+  ObjectNode getParameters(String)
+  ObjectNode getParameters(ObjectNode, String, String, String)
+  JsonNode getParameter(Variable, ObjectNode)
+  JsonNode getParameter(String, JsonNode, ParameterType, String)
+  JsonNode getRequestParameter(String, ObjectNode)
+  JsonNode getRequestParameter(String)
+  boolean variableIsList(Variable, ObjectNode)
+  boolean isEmptyVariable(JsonNode)
+  boolean isNullVariable(JsonNode)
+// com.almis.awe.model.util.data.StringUtil
+  static ArrayNode toArrayNode(String, String)
+  static List<String> asList(JsonNode)
+// com.almis.awe.model.util.web.MessageConverterUtil
+  static RestTemplate withJsonMapper(RestTemplate, ObjectMapper)
+```
+
+**`awe-builder`**
+
+```java
+// com.almis.awe.builder.client.grid.AddRowActionBuilder
+  AddRowActionBuilder(RowPosition, String, ObjectNode)
+// com.almis.awe.builder.client.grid.RowsActionBuilder
+  RowsActionBuilder(String, RowPosition, String, ObjectNode)
+// com.almis.awe.builder.client.grid.UpdateCellActionBuilder
+  UpdateCellActionBuilder(ComponentAddress, JsonNode)
+// com.almis.awe.builder.client.grid.UpdateRowActionBuilder
+  UpdateRowActionBuilder(String, ObjectNode)
+  UpdateRowActionBuilder(String, String, ObjectNode)
+```
+
+**`awe-notifier`**
+
+```java
+// com.almis.awe.notifier.service.NotifierService
+  NotifierService(QueryService, MaintainService, BroadcastService, ObjectMapper)
+```
+
+**`awe-rest`**
+
+```java
+// com.almis.awe.rest.controller.AweRestController
+  AweRestController(QueryService, MaintainService, AweRequest, JWTTokenService, org.modelmapper.ModelMapper, ObjectMapper)
+// com.almis.awe.rest.security.JWTAuthenticationEntryPoint
+  JWTAuthenticationEntryPoint(ObjectMapper)
+// com.almis.awe.rest.security.JWTAuthenticationFilter
+  JWTAuthenticationFilter(AuthenticationManager, ObjectMapper, JWTTokenService)
+  JWTAuthenticationFilter(AuthenticationManager, ObjectMapper, JWTTokenService, AweElements)
+```
+
+**`awe-scheduler`**
+
+```java
+// com.almis.awe.scheduler.dao.CalendarDAO
+  CalendarDAO(org.quartz.Scheduler, QueryService, QueryUtil, ObjectMapper)
+// com.almis.awe.scheduler.dao.TaskDAO
+  ObjectNode getProgressNode(long)
+  ObjectNode getStatusIcon(TaskExecution)
+  ServiceData loadExecutionScreen(String, ObjectNode)
+// com.almis.awe.scheduler.log.DatabaseExecutionLogStore
+  ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.log.ExecutionLogStore
+  abstract ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.log.FileExecutionLogStore
+  ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.service.RemoteSchedulerService
+  RemoteSchedulerService(SchedulerService, RemoteScheduler, ObjectMapper, boolean)
+// com.almis.awe.scheduler.service.RemoteSchedulerService$1
+  type: extends TypeReference<List<String>>
+// com.almis.awe.scheduler.service.SchedulerService
+  ServiceData loadExecutionScreen(String, JsonNode)
+// com.almis.awe.scheduler.service.report.SchedulerEmailReportService
+  SchedulerEmailReportService(QueryUtil, MaintainService, QueryService, ObjectMapper)
+// com.almis.awe.scheduler.service.scheduled.MaintainJobService
+  MaintainJobService(ExecutionService, MaintainService, QueryUtil, TaskDAO, ApplicationEventPublisher, ObjectMapper, ExecutionLogStore, java.time.Duration, boolean, java.net.URI, boolean, String, String, RestTemplate)
+// com.almis.awe.scheduler.service.scheduled.MaintainJobService$1
+  type: extends TypeReference<Map<String, Object>>
+```
+
+**`awe-tools`**
+
+```java
+// com.almis.awe.tools.controller.FileManagerController
+  FileManagerController(FileManagerService, ServletContext, ObjectMapper)
+// com.almis.awe.tools.service.FileManagerService
+  JsonNode uploadFile(String, List<MultipartFile>)
+  JsonNode fileOperation(ObjectNode)
+  JsonNode error(Exception)
+```
+
+**`awe-notifier-spring-boot-starter`**
+
+```java
+// com.almis.awe.notifier.autoconfigure.NotifierConfig
+  NotifierService notifierService(QueryService, MaintainService, BroadcastService, ObjectMapper)
+```
+
+**`awe-rest-spring-boot-starter`**
+
+```java
+// com.almis.awe.rest.autoconfigure.RestSecurityConfiguration
+  RestSecurityConfiguration(PublicQueryMaintainAuthorization, AuthenticationManager, AuthenticationManager, UserDetailsService, ObjectMapper, AweRestConfigProperties, BaseConfigProperties, SecurityConfigProperties)
+```
+
+**`awe-scheduler-spring-boot-starter`**
+
+```java
+// com.almis.awe.scheduler.autoconfigure.SchedulerConfig
+  RemoteSchedulerService remoteSchedulerService(SchedulerService, RemoteScheduler, ObjectMapper)
+  MaintainJobService maintainJobService(ExecutionService, MaintainService, QueryUtil, TaskDAO, ApplicationEventPublisher, ObjectMapper, ExecutionLogStore, RestTemplate)
+  SchedulerEmailReportService emailReportService(QueryUtil, MaintainService, QueryService, ObjectMapper)
+  CalendarDAO calendarDAO(org.quartz.Scheduler, QueryService, QueryUtil, ObjectMapper)
+```
+
+**`awe-spring-boot-starter`**
+
+```java
+// com.almis.awe.autoconfigure.AweAutoConfiguration
+  AweRequest aweRequest(HttpServletRequest, HttpServletResponse, ObjectMapper)
+  ObjectMapper objectMapper()
+  QueryUtil queryUtil(BaseConfigProperties, DatabaseConfigProperties, ObjectMapper, PrototypeRequestBeanHolder)
+  ChartService chartService(ObjectMapper, BaseConfigProperties)
+  ReportDesigner reportDesigner(QueryService, ObjectMapper, BaseConfigProperties)
+  JavaConnector javaConnector(ObjectMapper)
+  MicroserviceConnector microserviceConnector(ClientHttpRequestFactory, QueryUtil, ObjectMapper, RestConfigProperties)
+  RestConnector restConnector(ClientHttpRequestFactory, ObjectMapper, RestConfigProperties)
+  EnumQueryConnector enumQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceQueryConnector serviceQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.autoconfigure.AweWebSecurityConfig
+  AweWebSecurityConfig(ApplicationContext, BaseConfigProperties, SecurityConfigProperties, AweSessionDetails, AweElements, ActionService, ObjectMapper, AccessService, ErrorPageService, MultiTenantOAuth2Config, MultiTenantFilter)
+  JsonAuthenticationFilter jsonAuthenticationFilter(BaseConfigProperties, AweElements, ActionService, ObjectMapper)
+// com.almis.awe.autoconfigure.JmsConfig
+  QueueQueryConnector queueQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.autoconfigure.SQLConfig
+  SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder, QueryUtil, javax.sql.DataSource, BaseConfigProperties, AweElements, NumericService, EncodeService, DatabaseConfigProperties, ObjectMapper)
+```
+
+</details>
+
 ## Próximamente en AWE 5 {#coming-in-awe-5}
 
 Estas iniciativas están abiertas, etiquetadas para el hito 5.0.0 y se espera que requieran acciones por parte de las
@@ -165,7 +662,6 @@ aplicaciones. Se listan para que pueda planificar; cada una añadirá su propia 
 | [#775](https://gitlab.com/aweframework/awe/-/issues/775) | Migrar los gráficos de Highcharts a Apache ECharts con renderizado en el servidor |
 | [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de *grid* moderno |
 | [#778](https://gitlab.com/aweframework/awe/-/issues/778) | Imponer un hash de contraseñas moderno y una clave maestra obligatoria |
-| [#783](https://gitlab.com/aweframework/awe/-/issues/783) | Actualizar la plataforma base a Java 21 y Spring Boot 4 |
 | [#823](https://gitlab.com/aweframework/awe/-/issues/823) | Alinear los nombres de acciones del constructor y los valores muertos del XSD con el contrato del cliente |
 | [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de grid en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
 
@@ -184,6 +680,11 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Custom clients do not read `elementList` from the menu JSON
 - [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
 - [ ] Browser tests compile; the `By` overloads and `getDriver()` were moved to `Locator` and `getBrowser()`
+- [ ] The application builds and runs on JDK 21 with `java.version` 21
+- [ ] Spring Boot 4.1 starters and test annotations replace the removed ones (`spring-boot-starter-web`, `@MockBean`...)
+- [ ] Jackson imports moved to `tools.jackson.*`; `asText()`/`asInt()`/`asBoolean()` calls use the default-value overloads
+- [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
+- [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * WizardPanel Class
  *
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("wizard-panel")
 public class WizardPanel extends Container {
 
+  @Serial
   private static final long serialVersionUID = 3530144017985374473L;
 
   @Override

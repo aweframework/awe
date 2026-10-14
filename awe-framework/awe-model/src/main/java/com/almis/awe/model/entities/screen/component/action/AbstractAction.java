@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,7 @@ import java.util.Optional;
 @XStreamInclude({ButtonAction.class, DependencyAction.class, Option.class})
 public abstract class AbstractAction extends Element {
 
+  @Serial
   private static final long serialVersionUID = -4350464649844679396L;
 
   // Target frame (for navigation)

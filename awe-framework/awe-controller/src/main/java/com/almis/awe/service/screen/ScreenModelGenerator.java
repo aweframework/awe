@@ -24,10 +24,10 @@ import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -396,7 +396,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   private void overrideParametersWithCriteriaModels(ObjectNode parameters, Map<String, ScreenComponent> componentMap) {
     Set<String> originalKeys = new HashSet<>();
-    parameters.fieldNames().forEachRemaining(originalKeys::add);
+    parameters.propertyNames().iterator().forEachRemaining(originalKeys::add);
     Set<String> writtenKeys = new HashSet<>();
     for (ScreenComponent screenComponent : componentMap.values()) {
       if (!(screenComponent.getController() instanceof AbstractCriteria criteria)) {

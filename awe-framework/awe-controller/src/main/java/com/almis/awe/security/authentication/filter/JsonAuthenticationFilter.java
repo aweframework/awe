@@ -2,8 +2,6 @@ package com.almis.awe.security.authentication.filter;
 
 import com.almis.awe.component.AweHttpServletRequestWrapper;
 import com.almis.awe.model.component.AweElements;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -16,6 +14,9 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 
@@ -72,9 +73,9 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
       // Fill username and password authentication token with the right values
       return new UsernamePasswordAuthenticationToken(
-        parameters.get(getUsernameParameter()).asText(),
-        parameters.get(getPasswordParameter()).asText());
-    } catch (IOException exc) {
+        parameters.get(getUsernameParameter()).asString(""),
+        parameters.get(getPasswordParameter()).asString(""));
+    } catch (JacksonException exc) {
       throw new InternalAuthenticationServiceException(elements.getLocaleWithLanguage("ERROR_MESSAGE_INVALID_ARGUMENTS", elements.getLanguage()));
     }
   }

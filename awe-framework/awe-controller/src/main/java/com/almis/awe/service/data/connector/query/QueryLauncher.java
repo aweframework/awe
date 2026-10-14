@@ -7,11 +7,11 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.service.observation.ExecutionObserver;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Map;
 

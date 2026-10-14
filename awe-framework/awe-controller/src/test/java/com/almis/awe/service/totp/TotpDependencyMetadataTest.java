@@ -13,14 +13,15 @@ class TotpDependencyMetadataTest {
   private static final Path MODULE_ROOT = Path.of("");
 
   @Test
-  void dependencyManagementControlsOtpJavaAndCommonsCodecWithoutSamStevens() throws IOException {
+  void dependencyManagementControlsOtpJavaAndInheritsCommonsCodecWithoutSamStevens() throws IOException {
     String dependencyManagementPom = Files.readString(MODULE_ROOT.resolve("../awe-dependencies/pom.xml").normalize());
 
+    // commons-codec is managed by the Spring Boot BOM; an AWE pin would downgrade it
     assertThat(dependencyManagementPom)
       .containsPattern("<otp-java\\.version>\\d+\\.\\d+\\.\\d+</otp-java\\.version>")
-      .containsPattern("<commons-codec\\.version>\\d+\\.\\d+(\\.\\d+)?</commons-codec\\.version>")
       .containsPattern("(?s)<artifactId>otp-java</artifactId>\\s*<version>\\$\\{otp-java\\.version}</version>")
-      .containsPattern("(?s)<artifactId>commons-codec</artifactId>\\s*<version>\\$\\{commons-codec\\.version}</version>")
+      .doesNotContain("<commons-codec.version>")
+      .doesNotContain("<artifactId>commons-codec</artifactId>")
       .doesNotContain("samstevens");
   }
 

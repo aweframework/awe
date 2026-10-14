@@ -1,8 +1,8 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,9 +21,9 @@ class WindowTest {
     window.setId("ExecutionsWindow");
 
     // Run
-    JsonNode json = new ObjectMapper().valueToTree(window);
+    JsonNode json = new JsonMapper().valueToTree(window);
 
     // Assert
-    assertEquals("ExecutionsWindow", json.get("id").asText());
+    assertEquals("ExecutionsWindow", json.get("id").asString());
   }
 }

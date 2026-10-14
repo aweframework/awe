@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * TotalizeBy Class
  * Used to parse the files Queries.xml and Maintain.xml with XStream
@@ -22,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("totalize-by")
 public class TotalizeBy implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -5294879694115446878L;
 
   // Field to totalize

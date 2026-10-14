@@ -20,7 +20,6 @@ import org.springframework.cache.CacheManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +105,7 @@ class XmlHotReloadServiceTest {
   @Test
   void classifiesByFirstSegmentUnderModuleRoot() {
     // Module literally named 'screen'
-    Path moduleRoot = Paths.get("/app/target/classes/application/screen");
+    Path moduleRoot = Path.of("/app/target/classes/application/screen");
 
     assertEquals(MENU, hotReloadService.classify(moduleRoot, moduleRoot.resolve("menu/public.xml")));
     assertEquals(SCREEN, hotReloadService.classify(moduleRoot, moduleRoot.resolve("screen/home.xml")));
@@ -120,7 +119,7 @@ class XmlHotReloadServiceTest {
     // Non-XML files are ignored
     assertEquals(NONE, hotReloadService.classify(moduleRoot, moduleRoot.resolve("screen/home.txt")));
     // Without a module root the path-based classification is used
-    assertEquals(MENU, hotReloadService.classify(null, Paths.get("/app/target/classes/application/module-one/menu/public.xml")));
+    assertEquals(MENU, hotReloadService.classify(null, Path.of("/app/target/classes/application/module-one/menu/public.xml")));
   }
 
   /**
@@ -140,7 +139,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void screenChangeReloadsScreens() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/sub/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/sub/home.xml"));
 
     verify(aweElements).reloadScreens();
     verifyNoMoreInteractions(aweElements);
@@ -152,7 +151,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void menuChangeReloadsMenus() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/menu/private.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/menu/private.xml"));
 
     verify(aweElements).reloadMenus();
     verifyNoMoreInteractions(aweElements);
@@ -163,7 +162,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void localeChangeReloadsLocales() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/locale/Locale-en-GB.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/locale/Locale-en-GB.xml"));
 
     verify(aweElements).reloadLocales();
     verifyNoMoreInteractions(aweElements);
@@ -174,7 +173,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void profileChangeReloadsProfiles() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/profile/general.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/profile/general.xml"));
 
     verify(aweElements).reloadProfiles();
     verifyNoMoreInteractions(aweElements);
@@ -185,7 +184,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void queriesChangeReloadsQueriesAndEvictsCache() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queries.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Queries.xml"));
 
     verify(aweElements).reloadQueries();
     verify(queryDataCache).clear();
@@ -197,7 +196,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void maintainChangeReloadsMaintainsAndEvictsCache() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Maintain.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Maintain.xml"));
 
     verify(aweElements).reloadMaintains();
     verify(queryDataCache).clear();
@@ -209,11 +208,11 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void globalChangesReloadTheirTypeWithoutCacheEviction() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Services.xml"));
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Enumerated.xml"));
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queues.xml"));
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Email.xml"));
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Actions.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Services.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Enumerated.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Queues.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Email.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Actions.xml"));
 
     verify(aweElements).reloadServices();
     verify(aweElements).reloadEnumerated();
@@ -229,8 +228,8 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void unknownFilesAreIgnored() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.txt"));
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/other/file.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.txt"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/other/file.xml"));
 
     verifyNoInteractions(aweElements);
     verifyNoInteractions(cacheManager);
@@ -243,7 +242,7 @@ class XmlHotReloadServiceTest {
   void missingCacheManagerIsTolerated() {
     XmlHotReloadService serviceWithoutCache = new XmlHotReloadService(aweElements, baseConfigProperties, null, schemaValidator, broadcastService, List.of());
 
-    serviceWithoutCache.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queries.xml"));
+    serviceWithoutCache.reloadFor(Path.of("/app/target/classes/application/module-one/global/Queries.xml"));
 
     verify(aweElements).reloadQueries();
   }
@@ -253,7 +252,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void successfulReloadBroadcastsReloadPage() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     ArgumentCaptor<ClientAction> captor = ArgumentCaptor.forClass(ClientAction.class);
     verify(broadcastService).broadcastMessage(captor.capture());
@@ -280,7 +279,7 @@ class XmlHotReloadServiceTest {
     when(schemaValidator.validate(any()))
       .thenReturn(ValidationResult.validated(List.of(new ValidationError(4, 12, "boom"))));
 
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     verifyNoInteractions(broadcastService);
   }
@@ -290,7 +289,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void ignoredFileDoesNotBroadcast() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Whatever.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Whatever.xml"));
 
     verifyNoInteractions(broadcastService);
   }
@@ -317,7 +316,7 @@ class XmlHotReloadServiceTest {
     XmlHotReloadService serviceWithoutBroadcast =
       new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, null, List.of());
 
-    serviceWithoutBroadcast.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    serviceWithoutBroadcast.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     verify(aweElements).reloadScreens();
   }
@@ -331,7 +330,7 @@ class XmlHotReloadServiceTest {
     when(schemaValidator.validate(any()))
       .thenReturn(ValidationResult.validated(List.of(new ValidationError(4, 12, "boom"))));
 
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     verifyNoInteractions(aweElements);
     verifyNoInteractions(queryDataCache);
@@ -344,7 +343,7 @@ class XmlHotReloadServiceTest {
   void validDefinitionReloads() {
     when(schemaValidator.validate(any())).thenReturn(ValidationResult.validated(List.of()));
 
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     verify(aweElements).reloadScreens();
   }
@@ -356,7 +355,7 @@ class XmlHotReloadServiceTest {
   void unvalidatedDefinitionFailsOpenAndReloads() {
     when(schemaValidator.validate(any())).thenReturn(ValidationResult.notValidated());
 
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/screen/home.xml"));
 
     verify(aweElements).reloadScreens();
   }
@@ -366,7 +365,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void unknownFilesAreNotValidated() {
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Whatever.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Whatever.xml"));
 
     verifyNoInteractions(schemaValidator);
     verifyNoInteractions(aweElements);
@@ -379,7 +378,7 @@ class XmlHotReloadServiceTest {
   void missingQueryCacheIsTolerated() {
     when(cacheManager.getCache("queryData")).thenReturn(null);
 
-    hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queries.xml"));
+    hotReloadService.reloadFor(Path.of("/app/target/classes/application/module-one/global/Queries.xml"));
 
     verify(aweElements).reloadQueries();
   }
@@ -390,7 +389,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void builtInClassifiedFileBypassesHandlerDispatch() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     XmlHotReloadService serviceWithHandler =
       new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
 
@@ -406,7 +405,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void noneClassifiedFileWithNoHandlersIsNoOp() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
 
     assertDoesNotThrow(() -> hotReloadService.reloadFor(moduleRoot, moduleRoot.resolve("global/Treatments.xml")));
 
@@ -420,7 +419,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void noneClassifiedFileWithMatchingHandlerReloadsAndBroadcasts() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     Path changedFile = moduleRoot.resolve("global/Treatments.xml");
     when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
     when(handler1.reload(moduleRoot, changedFile)).thenReturn(HANDLED);
@@ -441,7 +440,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void multipleMatchingHandlersOnlyLowestOrderInvoked() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     Path changedFile = moduleRoot.resolve("global/Treatments.xml");
     when(handler1.order()).thenReturn(-1);
     when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
@@ -463,7 +462,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void handlerResultInvalidDoesNotBroadcast() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     Path changedFile = moduleRoot.resolve("global/Treatments.xml");
     when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
     when(handler1.reload(moduleRoot, changedFile)).thenReturn(INVALID);
@@ -481,7 +480,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void handlerResultSkippedDoesNotBroadcast() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     Path changedFile = moduleRoot.resolve("global/Treatments.xml");
     when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
     when(handler1.reload(moduleRoot, changedFile)).thenReturn(SKIPPED);
@@ -500,7 +499,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void handlerThrowsIsCaughtAndSubsequentEventsStillProcessed() {
-    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
     Path throwingFile = moduleRoot.resolve("global/Treatments.xml");
     Path nextFile = moduleRoot.resolve("global/Kuts.xml");
     when(handler1.supports(moduleRoot, throwingFile)).thenReturn(true);

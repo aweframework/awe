@@ -11,18 +11,13 @@ import com.almis.awe.builder.screen.chart.ChartBuilder;
 import com.almis.awe.builder.screen.criteria.TextCriteriaBuilder;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.builder.screen.grid.TextColumnBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.service.QueryService;
-import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.PrintColumnData;
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +25,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -80,7 +81,7 @@ class ReportDesignTest {
             new PrintColumnData().setName("bigIntegerColumn").setLabel("bigIntegerColumn")
     );
 
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -119,7 +120,7 @@ class ReportDesignTest {
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("stringColumn").setLabel("stringColumn")
     );
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(mapper.convertValue(any(ObjectNode.class), any(TypeReference.class)))
       .thenReturn(new HashMap<>(Map.of("value", "converted")));
@@ -163,7 +164,7 @@ class ReportDesignTest {
 
   @Test
   void getPrintDesignWithPaginatedQueryGridLiftsGridPaginationToTheQuery() throws Exception {
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
@@ -194,12 +195,12 @@ class ReportDesignTest {
     ObjectNode rootParameters = queryParameters.getValue();
     assertEquals(10, rootParameters.get("max").asInt(), "grid page size must reach the query root");
     assertEquals(3, rootParameters.get("page").asInt(), "grid current page must reach the query root");
-    assertEquals("name", rootParameters.get("sort").get(0).get("id").asText());
+    assertEquals("name", rootParameters.get("sort").get(0).get("id").asString());
   }
 
   @Test
   void getPrintDesignWithQueryGridWithoutClientPaginationLeavesQueryDefaults() throws Exception {
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
@@ -233,7 +234,7 @@ class ReportDesignTest {
   void getPrintDesignWithLabelledGridSetsStyledTitle() throws Exception {
     List<PrintColumnData> columnDataList = Collections.singletonList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     doReturn("Grid title").when(reportDesigner).getLocale(anyString());
 
@@ -342,7 +343,7 @@ class ReportDesignTest {
       new PrintColumnData().setName("Excel header").setLabel("Excel header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("onlyExcelInHeader").setLabel("onlyExcelInHeader").setPrintable("excel")))
     );
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -396,7 +397,7 @@ class ReportDesignTest {
     List<PrintColumnData> columnDataList = Arrays.asList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -423,7 +424,7 @@ class ReportDesignTest {
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"))));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
@@ -439,7 +440,7 @@ class ReportDesignTest {
   void hasSpreadsheetOnlyColumnsIsFalseWithoutExcelColumnsOrWithoutGridData() throws Exception {
     List<PrintColumnData> columnDataList = Collections.singletonList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn").setPrintable("true"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
@@ -461,5 +462,14 @@ class ReportDesignTest {
     assertFalse(ReportDesigner.isSpreadsheetFormat("TEXT"));
     assertFalse(ReportDesigner.isSpreadsheetFormat("unknown"));
     assertFalse(ReportDesigner.isSpreadsheetFormat(null));
+  }
+
+  /**
+   * Match the visible-columns node only, so row cells (ObjectNode) keep their own conversion stub
+   *
+   * @return matcher
+   */
+  private static JsonNode visibleColumnsNode() {
+    return argThat(node -> node == null || !node.isObject());
   }
 }

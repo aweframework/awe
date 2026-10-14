@@ -1,7 +1,7 @@
 package com.almis.awe.model.component;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Holder for a prototype-scoped request data bean shared across async threads.

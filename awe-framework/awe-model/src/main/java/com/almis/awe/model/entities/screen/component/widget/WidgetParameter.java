@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Map;
 @XStreamAlias("widget-parameter")
 public class WidgetParameter extends AbstractWidget {
 
+  @Serial
   private static final long serialVersionUID = 5567676802546395551L;
 
   // Parameter value
@@ -108,8 +110,7 @@ public class WidgetParameter extends AbstractWidget {
 
     // Get elements (columns)
     for (Element element : getElementList()) {
-      if (element instanceof WidgetParameter) {
-        WidgetParameter parameter = (WidgetParameter) element;
+      if (element instanceof WidgetParameter parameter) {
         Map<String, Object> parameterMap = new HashMap<>();
         if (parameter.getName() != null) {
           parameterMap.put(parameter.getName(), parameter.getParameterValue());

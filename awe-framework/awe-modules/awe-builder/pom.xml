@@ -52,8 +52,8 @@
     <plugins>
       <!-- Lombok plugin -->
       <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

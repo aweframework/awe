@@ -8,7 +8,6 @@ import com.almis.awe.model.settings.WebSettings;
 import com.almis.awe.service.InitService;
 import com.almis.awe.service.MenuService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +30,6 @@ public class SettingsController extends ServiceConfig {
    * @param initService Init service
    * @param baseConfigProperties Base properties
    */
-  @Autowired
   public SettingsController(MenuService menuService, InitService initService, BaseConfigProperties baseConfigProperties) {
     this.menuService = menuService;
     this.initService = initService;

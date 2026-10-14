@@ -5,14 +5,14 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -211,7 +211,7 @@ class ExecutionLogWriterTest {
     verify(maintainService, timeout(2000).times(2)).launchPrivateMaintain(eq("insertExecutionLogLines"), captor.capture());
     ObjectNode markerFlush = captor.getAllValues().get(1);
     assertEquals("[\"... 10 lines dropped (queue saturated) ...\"]", markerFlush.get("lineText").toString());
-    long markerLogDateMillis = parseLogDateMillis(markerFlush.get("logDate").get(0).asText());
+    long markerLogDateMillis = parseLogDateMillis(markerFlush.get("logDate").get(0).asString());
     assertTrue(markerLogDateMillis > 2_000L,
       "Expected the drop marker's logDate to be newer than the prior lines, was " + markerLogDateMillis);
   }
@@ -333,7 +333,7 @@ class ExecutionLogWriterTest {
   private List<String> textValuesOf(ObjectNode parameters) {
     List<String> texts = new ArrayList<>();
     if (parameters.has("lineText") && parameters.get("lineText").isArray()) {
-      parameters.get("lineText").forEach(node -> texts.add(node.asText()));
+      parameters.get("lineText").forEach(node -> texts.add(node.asString()));
     }
     return texts;
   }

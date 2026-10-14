@@ -4,8 +4,8 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,26 +26,26 @@ class ChartSeriesActionPayloadTest {
   void addChartSeriesCarriesTheEChartsSeries() {
     JsonNode json = payload(new AddChartSeriesActionBuilder("chart", serie).build());
 
-    assertEquals("serie1", json.at("/id").asText());
-    assertEquals("column", json.at("/type").asText());
-    assertEquals("bar", json.at("/echarts/type").asText());
-    assertEquals("amount", json.at("/echarts/awe/yValue").asText());
+    assertEquals("serie1", json.at("/id").asString());
+    assertEquals("column", json.at("/type").asString());
+    assertEquals("bar", json.at("/echarts/type").asString());
+    assertEquals("amount", json.at("/echarts/awe/yValue").asString());
   }
 
   @Test
   void replaceChartSeriesCarriesTheEChartsSeries() {
     JsonNode json = payload(new ReplaceChartSeriesActionBuilder("chart", serie).build());
 
-    assertEquals("bar", json.at("/echarts/type").asText());
-    assertEquals("dates", json.at("/echarts/awe/xValue").asText());
+    assertEquals("bar", json.at("/echarts/type").asString());
+    assertEquals("dates", json.at("/echarts/awe/xValue").asString());
   }
 
   @Test
   void removeChartSeriesCarriesTheSerieIdentifier() {
     JsonNode json = payload(new RemoveChartSeriesActionBuilder("chart", serie).build());
 
-    assertEquals("serie1", json.at("/id").asText());
-    assertEquals("serie1", json.at("/echarts/id").asText());
+    assertEquals("serie1", json.at("/id").asString());
+    assertEquals("serie1", json.at("/echarts/id").asString());
   }
 
   @Test

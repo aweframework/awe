@@ -11,18 +11,17 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.FileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload2.core.FileUploadException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 
@@ -50,7 +49,6 @@ public class UploadController extends ServiceConfig {
    * @param mapper               Object mapper
    * @param baseConfigProperties Base config properties
    */
-  @Autowired
   public UploadController(FileService fileService, BroadcastService broadcastService, ObjectMapper mapper, BaseConfigProperties baseConfigProperties) {
     this.fileService = fileService;
     this.broadcastService = broadcastService;
@@ -86,7 +84,7 @@ public class UploadController extends ServiceConfig {
     aweRequest.setParameterList(parameters);
 
     // Upload the file
-    FileData fileData = fileService.uploadFile(file, parameters.get(AweConstants.PARAMETER_DESTINATION).asText());
+    FileData fileData = fileService.uploadFile(file, parameters.get(AweConstants.PARAMETER_DESTINATION).asString(""));
 
     // Broadcast file uploaded
     broadcastService.broadcastMessageToUID(token, new ClientAction("file-uploaded")

@@ -3,7 +3,7 @@ package com.almis.awe.scheduler.log;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
 import java.util.Set;

@@ -244,7 +244,7 @@ CREATE UNIQUE INDEX AweKeyI1 ON AweKey (KeyNam);
 --  - HISdat Date of audit
 --  - HISact Action made: (I) Insert, (U) Update, (D) Delete
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-CREATE TABLE IF NOT EXISTS HISAweAppPar (HISope varchar(20) not NULL, HISdat datetime not NULL, HISact varchar(1) not NULL, IdeAweAppPar int NULL, ParNam varchar(40) NULL, ParVal varchar(60) NULL, Cat int NULL, Des varchar(250) NULL, Act int DEFAULT 1 NULL);
+CREATE TABLE IF NOT EXISTS HISAweAppPar (HISope varchar(20) not NULL, HISdat timestamp not NULL, HISact varchar(1) not NULL, IdeAweAppPar int NULL, ParNam varchar(40) NULL, ParVal varchar(60) NULL, Cat int NULL, Des varchar(250) NULL, Act int DEFAULT 1 NULL);
 CREATE INDEX HISAweAppParI1 ON HISAweAppPar (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAweThm (HISope varchar(20) not NULL, HISdat date not NULL, HISact varchar(1) not NULL, IdeThm int NULL, Nam varchar(100) NULL, Act int NULL);
 CREATE INDEX HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);

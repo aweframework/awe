@@ -5,11 +5,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,8 +64,8 @@ class ChartEchartsModelSerializationTest {
 
     assertThat(json.has("chartModel")).isTrue();
     assertThat(json.has("echartsModel")).isTrue();
-    assertThat(json.at("/chartModel/series/0/id").asText()).isEqualTo("serie");
-    assertThat(json.at("/echartsModel/series/0/id").asText()).isEqualTo("serie");
+    assertThat(json.at("/chartModel/series/0/id").asString()).isEqualTo("serie");
+    assertThat(json.at("/echartsModel/series/0/id").asString()).isEqualTo("serie");
   }
 
   @Test
@@ -79,9 +79,9 @@ class ChartEchartsModelSerializationTest {
     JsonNode json = DataListUtil.getMapper().valueToTree(chart);
 
     assertThat(json.has("chartModel")).isTrue();
-    assertThat(json.at("/chartModel/series/0/id").asText()).isEqualTo("serie");
+    assertThat(json.at("/chartModel/series/0/id").asString()).isEqualTo("serie");
     assertThat(json.has("echartsModel")).isFalse();
-    assertThat(json.at("/id").asText()).isEqualTo("chartId");
+    assertThat(json.at("/id").asString()).isEqualTo("chartId");
   }
 
   @Test

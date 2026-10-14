@@ -1,7 +1,7 @@
 package com.almis.awe.model.entities.screen.component.pivottable;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
+import tools.jackson.databind.JsonNode;
 
 import java.util.HashMap;
 import java.util.Map;

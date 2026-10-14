@@ -7,7 +7,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 

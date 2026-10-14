@@ -10,8 +10,6 @@ import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -98,11 +98,6 @@ class MaintainServiceConnectionTest {
     when(databaseConnection.getConnection()).thenReturn(connection);
     when(databaseConnection.hasConnection()).thenReturn(true);
     when(databaseConnection.getDatabaseAlias()).thenReturn("default");
-
-    // connection.setAutoCommit / commit / rollback — do nothing by default
-    doNothing().when(connection).setAutoCommit(false);
-    doNothing().when(connection).commit();
-    doNothing().when(connection).rollback();
   }
 
   // -----------------------------------------------------------------------

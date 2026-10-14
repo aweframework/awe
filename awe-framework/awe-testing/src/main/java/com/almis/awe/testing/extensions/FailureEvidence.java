@@ -15,7 +15,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -146,7 +145,7 @@ public class FailureEvidence {
         return Optional.empty();
       }
 
-      Path target = Paths.get(model.getProperties().getScreenshotPath(),
+      Path target = Path.of(model.getProperties().getScreenshotPath(),
         buildName(testClass, model.getCurrentOption(), model.getTestTitle(), true) + ".png");
       storeScreenshot(model, screenshot.get(), target);
       log.error("Test failed. Screenshot stored at: {}", target);
@@ -315,7 +314,7 @@ public class FailureEvidence {
       return Optional.empty();
     }
 
-    Path root = Paths.get(projectDir).toAbsolutePath().normalize();
+    Path root = Path.of(projectDir).toAbsolutePath().normalize();
     Path absolute = file.toAbsolutePath().normalize();
     if (!absolute.startsWith(root) || absolute.equals(root)) {
       return Optional.empty();

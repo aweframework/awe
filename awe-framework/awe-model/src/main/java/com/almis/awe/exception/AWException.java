@@ -7,6 +7,8 @@ import com.almis.awe.model.type.AnswerType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
+
 /**
  * Specific AWE Exception class
  * Formatted exception to show a title and a description of the thrown ERROR
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace", "suppressed", "variables"})
 public class AWException extends Exception {
 
+  @Serial
   private static final long serialVersionUID = 7702204335666608962L;
 
   // Exception title

@@ -6,12 +6,6 @@ import com.almis.awe.rest.controller.AweRestController;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -20,14 +14,21 @@ import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springdoc.webmvc.core.configuration.MultipleOpenApiSupportConfiguration;
 import org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +57,7 @@ class OpenApiSnapshotTest {
   static final Path SNAPSHOT = Path.of(System.getProperty("basedir", System.getProperty("user.dir")))
     .resolve(Path.of("..", "..", "..", "website", "scripts", "rest-reference", "data", "openapi.json")).normalize();
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER = new JsonMapper();
 
   private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
     .withConfiguration(AutoConfigurations.of(
@@ -83,10 +84,10 @@ class OpenApiSnapshotTest {
 
       if (Boolean.getBoolean(REFRESH_PROPERTY)) {
         Files.createDirectories(SNAPSHOT.getParent());
-        Files.writeString(SNAPSHOT, current, StandardCharsets.UTF_8);
+        Files.writeString(SNAPSHOT, current);
       }
       assertThat(SNAPSHOT).as("OpenAPI snapshot (create it with -D%s=true)", REFRESH_PROPERTY).exists();
-      assertThat(withUnixLineEndings(Files.readString(SNAPSHOT, StandardCharsets.UTF_8)))
+      assertThat(withUnixLineEndings(Files.readString(SNAPSHOT)))
         .as("The REST API changed: refresh the snapshot with -D%s=true and commit it", REFRESH_PROPERTY)
         .isEqualTo(current);
     });
@@ -124,7 +125,7 @@ class OpenApiSnapshotTest {
     DefaultPrettyPrinter printer = new DefaultPrettyPrinter();
     printer.indentObjectsWith(new DefaultIndenter("  ", "\n"));
     printer.indentArraysWith(new DefaultIndenter("  ", "\n"));
-    return MAPPER.writer(printer).writeValueAsString(withSortedTags(sorted(root))) + "\n";
+    return MAPPER.writer().with(printer).writeValueAsString(withSortedTags(sorted(root))) + "\n";
   }
 
   /** Springdoc collects the tags in a set, so their order is not stable between runs. */
@@ -132,7 +133,7 @@ class OpenApiSnapshotTest {
     if (root.path("tags") instanceof ArrayNode tags) {
       List<JsonNode> items = new ArrayList<>();
       tags.forEach(items::add);
-      items.sort(Comparator.comparing((JsonNode tag) -> tag.path("name").asText()).thenComparing(JsonNode::toString));
+      items.sort(Comparator.comparing((JsonNode tag) -> tag.path("name").asString()).thenComparing(JsonNode::toString));
       ((ObjectNode) root).set("tags", MAPPER.createArrayNode().addAll(items));
     }
     return root;
@@ -141,7 +142,7 @@ class OpenApiSnapshotTest {
   private static JsonNode sorted(JsonNode node) {
     if (node.isObject()) {
       List<String> names = new ArrayList<>();
-      for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+      for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
         names.add(it.next());
       }
       names.sort(String::compareTo);

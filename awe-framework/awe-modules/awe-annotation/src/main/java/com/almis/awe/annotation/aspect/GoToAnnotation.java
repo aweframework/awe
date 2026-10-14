@@ -46,8 +46,8 @@ public class GoToAnnotation {
     Object result = proceedingJoinPoint.proceed();
     if (goToAnnotation != null && !goToAnnotation.screenName().isEmpty()) {
       ScreenActionBuilder actionBuilder = new ScreenActionBuilder(goToAnnotation.screenName());
-      if (result instanceof ServiceData) {
-        return ((ServiceData) result).addClientAction(actionBuilder.build());
+      if (result instanceof ServiceData data) {
+        return data.addClientAction(actionBuilder.build());
       } else if (result instanceof ClientAction) {
         return actionBuilder.build();
       }

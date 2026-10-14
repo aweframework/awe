@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +72,7 @@ public class DockerFFMpegWrapper {
 
   private File getTempFile() {
     try {
-      return Files.createTempFile(Paths.get(VideoRecorder.conf().folder()), TEM_FILE_NAME, getVideoFormat()).toFile();
+      return Files.createTempFile(Path.of(VideoRecorder.conf().folder()), TEM_FILE_NAME, getVideoFormat()).toFile();
     } catch (Exception exc) {
       return getFileName(TEM_FILE_NAME + "-" + UUID.randomUUID());
     }
@@ -84,7 +84,7 @@ public class DockerFFMpegWrapper {
 
   private File getFileName(String filename) {
     String movieFolder = VideoRecorder.conf().folder();
-    return Paths.get(movieFolder, filename + getVideoFormat()).toFile();
+    return Path.of(movieFolder, filename + getVideoFormat()).toFile();
   }
 
   private String killDockerFFmpeg() {

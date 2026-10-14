@@ -7,19 +7,14 @@ import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.maintain.Update;
 import com.almis.awe.model.entities.queries.Field;
-import com.almis.awe.model.entities.queries.Table;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.model.entities.queries.Table;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.HSQLDBTemplates;
 import com.querydsl.sql.SQLQueryFactory;
@@ -32,6 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ class SQLMaintainBuilderOptionalFieldTest {
     // filters already use — instead of a stub. Only addToVariableMap is neutralised: it resolves
     // default variables from the live request, which no unit test has, and the variable map is
     // supplied directly by each test.
-    queryUtil = new QueryUtil(new BaseConfigProperties(), auditProperties(), new ObjectMapper(), null) {
+    queryUtil = new QueryUtil(new BaseConfigProperties(), auditProperties(), new JsonMapper(), null) {
       @Override
       public void addToVariableMap(Map<String, QueryParameter> variableMap, Query query, ObjectNode parameters) {
         // Variables are provided by the test fixture

@@ -24,7 +24,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +70,7 @@ public class FileService extends ServiceConfig {
     String fileContent;
 
     try {
-      fileContent = new String(Files.readAllBytes(Paths.get(path)));
+      fileContent = new String(Files.readAllBytes(Path.of(path)));
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR, path), exc);
     }
@@ -95,9 +94,9 @@ public class FileService extends ServiceConfig {
     List<String> content = new ArrayList<>();
     // Get path and offset
     String path = encodeService.decodeSymmetric(getRequest().getParameterAsString("path"));
-    int offset = getRequest().getParameter("offset").asInt();
+    int offset = getRequest().getParameter("offset").asInt(0);
 
-    if (Paths.get(path).toFile().exists()) {
+    if (Path.of(path).toFile().exists()) {
       try (FileInputStream file = new FileInputStream(path);
            InputStreamReader fileReader = new InputStreamReader(file, StandardCharsets.UTF_8);
            BufferedReader bufferedReader = new BufferedReader(fileReader)) {
@@ -217,7 +216,7 @@ public class FileService extends ServiceConfig {
         String fullPath = getFullPath(fileData, true);
 
         // Save file on upload path
-        Path destinationFile = Paths.get(fullPath, fileData.getFileName());
+        Path destinationFile = Path.of(fullPath, fileData.getFileName());
 
         // Log saving file
         log.debug("Saving file on {}", destinationFile);

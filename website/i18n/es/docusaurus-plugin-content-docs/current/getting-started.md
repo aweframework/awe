@@ -8,7 +8,7 @@ Comience aquí si quiere el camino más rápido desde cero hasta una aplicación
 
 ## Ruta rápida {#quick-path}
 
-1. Instale Java 17+ y Maven 3.x.
+1. Instale Java 21+ y Maven 3.x.
 2. Elija el arquetipo de AngularJS o de React.
 3. Genere su proyecto con Maven.
 4. Ejecute la aplicación con Spring Boot.
@@ -16,7 +16,7 @@ Comience aquí si quiere el camino más rápido desde cero hasta una aplicación
 
 ## Requisitos previos {#prerequisites}
 
-- JDK 17 o superior
+- JDK 21 o superior
 - Maven 3.x o superior
 - Su IDE o editor preferido
 

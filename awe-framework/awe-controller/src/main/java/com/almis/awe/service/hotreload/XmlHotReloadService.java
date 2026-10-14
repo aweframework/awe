@@ -11,7 +11,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -301,7 +300,7 @@ public class XmlHotReloadService {
    * @return Whether the reload must be skipped because the definition is invalid
    */
   private boolean isInvalidAgainstSchema(String changedFile) {
-    ValidationResult validation = schemaValidator.validate(Paths.get(changedFile));
+    ValidationResult validation = schemaValidator.validate(Path.of(changedFile));
     if (validation.isValidated() && !validation.isValid()) {
       log.warn("XML hot reload: '{}' is not valid against its schema; keeping the previous version and skipping reload:\n{}",
         changedFile, formatErrors(validation.getErrors()));
@@ -335,8 +334,11 @@ public class XmlHotReloadService {
       handlerCatalog -> new XmlSchemaValidator(List.of(XmlSchemaValidator.AWE_BASE_CATALOG, handlerCatalog)));
     ValidationResult validation = validator.validate(changedFile);
     if (validation.isValidated() && !validation.isValid()) {
-      log.warn("XML hot reload: '{}' is not valid against handler '{}' schema catalog '{}'; keeping the previous version"
-          + " and skipping reload:\n{}",
+      log.warn("""
+          XML hot reload: '{}' is not valid against handler '{}' schema catalog '{}'; keeping the previous version\
+           and skipping reload:
+          {}\
+          """,
         changedFile, handler.getClass().getSimpleName(), catalog.get(), formatErrors(validation.getErrors()));
       return true;
     }

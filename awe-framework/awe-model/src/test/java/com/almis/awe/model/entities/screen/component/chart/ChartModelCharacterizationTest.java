@@ -1,9 +1,10 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ChartModelCharacterizationTest {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper()
-    .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+  private static final ObjectMapper MAPPER = JsonMapper.builder()
+    .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+    .build();
 
   @Test
   void chrTstChartModelsAreUnchanged() throws IOException {

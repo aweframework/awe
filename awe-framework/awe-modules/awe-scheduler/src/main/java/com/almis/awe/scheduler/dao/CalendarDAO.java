@@ -15,12 +15,12 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.builder.cron.PatternBuilder;
 import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.OperableTrigger;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Date;
 import java.util.HashMap;

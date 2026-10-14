@@ -37,7 +37,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -538,7 +538,7 @@ public class AweElements {
         .stream()
         .flatMap(language -> {
           Map<String, Future<Map<String, String>>> languageMap = new ConcurrentHashMap<>();
-          languageMap.put(language, elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
+          languageMap.put(language, elementsDao.readLocaleModuleAsync(Path.of(baseConfigProperties.getPaths().getApplication(),
               module,
               baseConfigProperties.getPaths().getLocale() +
                 baseConfigProperties.getFiles().getLocale() +

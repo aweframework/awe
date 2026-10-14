@@ -1,10 +1,10 @@
 package com.almis.awe.model.component;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +69,7 @@ class PrototypeRequestBeanHolderTest {
     ObjectNode snapshot = holder.getRequestDataSnapshot();
 
     assertNotNull(snapshot);
-    assertEquals("v", snapshot.get("k").asText());
+    assertEquals("v", snapshot.get("k").asString());
     assertNotSame(data, snapshot);   // deep copy, not the same reference
   }
 
@@ -85,8 +85,8 @@ class PrototypeRequestBeanHolderTest {
     holder.mergeRequestData(update);
 
     ObjectNode result = rdh.getRequestData();
-    assertEquals("yes", result.get("existing").asText());
-    assertEquals("value", result.get("new").asText());
+    assertEquals("yes", result.get("existing").asString());
+    assertEquals("value", result.get("new").asString());
   }
 
   @Test
@@ -98,7 +98,7 @@ class PrototypeRequestBeanHolderTest {
     holder.mergeRequestData(JsonNodeFactory.instance.objectNode().put("k", "v"));
 
     assertNotNull(rdh.getRequestData());
-    assertEquals("v", rdh.getRequestData().get("k").asText());
+    assertEquals("v", rdh.getRequestData().get("k").asString());
   }
 
   @Test
@@ -123,7 +123,7 @@ class PrototypeRequestBeanHolderTest {
 
     ObjectNode pending = holder.getPendingPropagationSnapshot();
     assertNotNull(pending);
-    assertEquals("hello", pending.get("seed").asText());
+    assertEquals("hello", pending.get("seed").asString());
     // getPendingPropagationSnapshot returns a deep copy — the overlay is still there
     assertNotNull(holder.getPendingPropagationSnapshot());
   }
@@ -135,8 +135,8 @@ class PrototypeRequestBeanHolderTest {
 
     ObjectNode pending = holder.getPendingPropagationSnapshot();
     assertNotNull(pending);
-    assertEquals("1", pending.get("a").asText());
-    assertEquals("2", pending.get("b").asText());
+    assertEquals("1", pending.get("a").asString());
+    assertEquals("2", pending.get("b").asString());
   }
 
   @Test
@@ -146,7 +146,7 @@ class PrototypeRequestBeanHolderTest {
 
     ObjectNode pending = holder.getPendingPropagationSnapshot();
     assertNotNull(pending);
-    assertEquals("second", pending.get("x").asText());
+    assertEquals("second", pending.get("x").asString());
   }
 
   // ─── getPendingPropagationSnapshot ────────────────────────────────────────

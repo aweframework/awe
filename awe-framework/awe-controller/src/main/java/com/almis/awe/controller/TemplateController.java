@@ -5,12 +5,11 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.service.HelpService;
 import com.almis.awe.service.TemplateService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Manage template request
@@ -32,7 +31,6 @@ public class TemplateController {
    * @param helpService          Help service
    * @param baseConfigProperties Base config properties
    */
-  @Autowired
   public TemplateController(TemplateService templateService, HelpService helpService, BaseConfigProperties baseConfigProperties) {
     this.templateService = templateService;
     this.helpService = helpService;
@@ -47,7 +45,7 @@ public class TemplateController {
    */
   @GetMapping("/angular/{template}")
   public String getAngularTemplate(@PathVariable String template) {
-    return Paths.get(baseConfigProperties.getPaths().getTemplatesAngular(), template).toString();
+    return Path.of(baseConfigProperties.getPaths().getTemplatesAngular(), template).toString();
   }
 
   /**
@@ -59,7 +57,7 @@ public class TemplateController {
    */
   @GetMapping("/angular/{module}/{template}")
   public String getAngularSubTemplate(@PathVariable String module, @PathVariable String template) {
-    return Paths.get(baseConfigProperties.getPaths().getTemplatesAngular(), module, template).toString();
+    return Path.of(baseConfigProperties.getPaths().getTemplatesAngular(), module, template).toString();
   }
 
   /**

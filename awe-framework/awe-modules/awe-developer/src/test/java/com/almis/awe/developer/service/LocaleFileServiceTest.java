@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -148,7 +148,7 @@ class LocaleFileServiceTest {
    */
   @Test
   void givenAddHeaderFlagAsFalse_testPrintHeader() throws IOException {
-    File file = Paths.get(tempFolder.getPath() , "dummy.xml").toFile();
+    File file = Path.of(tempFolder.getPath() , "dummy.xml").toFile();
     FileWriter out = new FileWriter(file);
     localeFileService.printHeader(out, "document", "dummy description", false);
     out.close();
@@ -158,7 +158,7 @@ class LocaleFileServiceTest {
   private static void createLocaleFiles(File tempFolder, @NotNull List<String> languageList) {
     languageList.forEach(lang -> {
       try {
-        Files.createFile(Paths.get(tempFolder.getAbsolutePath(), "Locale-" + lang + ".xml"));
+        Files.createFile(Path.of(tempFolder.getAbsolutePath(), "Locale-" + lang + ".xml"));
       } catch (IOException ex) {
         ex.printStackTrace();
       }

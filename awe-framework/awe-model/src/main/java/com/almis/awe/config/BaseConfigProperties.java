@@ -2,6 +2,7 @@ package com.almis.awe.config;
 
 import com.almis.awe.model.type.MenuType;
 import com.almis.awe.model.type.XStreamDriverType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -86,6 +87,7 @@ public class BaseConfigProperties {
   /**
    * Menu position layout type
    */
+  @Valid
   private MenuType menuType = MenuType.HORIZONTAL;
 
   /**
@@ -159,6 +161,7 @@ public class BaseConfigProperties {
   /**
    * XStream driver
    */
+  @Valid
   private XStreamDriverType xstreamDriverType = XStreamDriverType.DOM;
 
   /**
@@ -172,42 +175,49 @@ public class BaseConfigProperties {
    * Application Xml files definitions.
    */
   @NestedConfigurationProperty
+  @Valid
   private Files files = new Files();
 
   /**
    * Application paths configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Paths paths = new Paths();
 
   /**
    * Application parameters configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Parameter parameter = new Parameter();
 
   /**
    * Jms engine configuration properties.
    */
   @NestedConfigurationProperty
+  @Valid
   private Jms jms = new Jms();
 
   /**
    * Screen names configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Screen screen = new Screen();
 
   /**
    * AWE components configuration parameters.
    */
   @NestedConfigurationProperty
+  @Valid
   private Component component = new Component();
 
   /**
    * Application AWE file manager parameters configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Filemanager filemanager = new Filemanager();
 
   /**
@@ -486,6 +496,7 @@ public class BaseConfigProperties {
      * Component size
      * Default value md (Medium)
      */
+    @Valid
     private ComponentSize size = ComponentSize.MD;
     /**
      * Suffix of data parameter send from client
@@ -540,6 +551,7 @@ public class BaseConfigProperties {
      * Default value 100MB
      */
     @DataSizeUnit(DataUnit.MEGABYTES)
+    @Valid
     private DataSize uploadMaxFileSize = DataSize.ofMegabytes(100);
     /**
      * Max elements per folder

@@ -11,6 +11,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * OutputField Class
  *
@@ -28,6 +30,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamInclude({SqlField.class, Computed.class, Compound.class})
 public abstract class OutputField implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -5029397784962648558L;
 
   // Field alias

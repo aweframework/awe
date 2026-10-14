@@ -10,7 +10,6 @@ import com.almis.awe.model.entities.screen.data.ScreenColumn;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
@@ -23,7 +22,9 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 @XStreamInclude({Grid.class, PivotTable.class})
 public abstract class AbstractGrid extends AbstractCriteria {
 
+  @Serial
   private static final long serialVersionUID = 3775377158422655923L;
 
   // Send all data of the grid or only selected rows

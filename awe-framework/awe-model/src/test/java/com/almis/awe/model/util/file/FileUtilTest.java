@@ -2,7 +2,7 @@ package com.almis.awe.model.util.file;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,8 +19,8 @@ class FileUtilTest {
 
   @Test
   void fixUntrustedPath() {
-    assertEquals(Paths.get("allala", "tutu.zip").toString(), FileUtil.fixUntrustedPath("allala/..\\tutu.zip"));
-    assertEquals(Paths.get("allala", "tutu", "alalal", "asdaas", "epa.txt").toString(), FileUtil.fixUntrustedPath("allala/../tutu\\../../", "/alalal\\../asdaas/../epa.txt"));
+    assertEquals(Path.of("allala", "tutu.zip").toString(), FileUtil.fixUntrustedPath("allala/..\\tutu.zip"));
+    assertEquals(Path.of("allala", "tutu", "alalal", "asdaas", "epa.txt").toString(), FileUtil.fixUntrustedPath("allala/../tutu\\../../", "/alalal\\../asdaas/../epa.txt"));
     assertEquals("", FileUtil.fixUntrustedPath());
   }
 }

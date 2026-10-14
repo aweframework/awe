@@ -3,10 +3,6 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +10,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ class RemoteSchedulerServiceScheduleTest {
   @Mock
   private AweRequest request;
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new JsonMapper();
   private RemoteSchedulerService service;
   private ObjectNode parameters;
 
@@ -52,7 +53,7 @@ class RemoteSchedulerServiceScheduleTest {
     when(request.getParameter(anyString())).thenAnswer(call -> parameters.get(call.<String>getArgument(0)));
     lenient().when(request.getParameterAsString(anyString())).thenAnswer(call -> {
       JsonNode parameter = parameters.get(call.<String>getArgument(0));
-      return parameter == null || parameter.isNull() ? null : parameter.asText();
+      return parameter == null || parameter.isNull() ? null : parameter.asString();
     });
     when(context.getBean(AweRequest.class)).thenReturn(request);
     service = new RemoteSchedulerService(schedulerService, remoteScheduler, mapper, false);

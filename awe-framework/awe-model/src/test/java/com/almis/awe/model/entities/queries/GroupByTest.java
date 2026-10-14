@@ -10,36 +10,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GroupByTest {
 
-  private static final String GROUP_BY_WITH_CASE = "" +
-    "<query id=\"testGroupByWithCase\">\n" +
-    "    <table id=\"ope\" alias=\"o\"/>\n" +
-    "    <field id=\"l1_nom\" table=\"o\" alias=\"Nam\"/>\n" +
-    "    <case alias=\"theme\">\n" +
-    "      <when left-field=\"IdeThm\" condition=\"eq\" right-variable=\"1\">\n" +
-    "        <then>\n" +
-    "          <constant value=\"SUNSET\"/>\n" +
-    "        </then>\n" +
-    "      </when>\n" +
-    "      <else>\n" +
-    "        <constant value=\"OTHER\" />\n" +
-    "      </else>\n" +
-    "    </case>\n" +
-    "    <order-by field=\"l1_nom\" table=\"o\" type=\"ASC\" nulls=\"FIRST\"/>\n" +
-    "    <group-by field=\"l1_nom\"/>\n" +
-    "    <group-by>\n" +
-    "      <case alias=\"theme\">\n" +
-    "        <when left-field=\"IdeThm\" condition=\"eq\" right-variable=\"1\">\n" +
-    "          <then>\n" +
-    "            <constant value=\"SUNSET\"/>\n" +
-    "          </then>\n" +
-    "        </when>\n" +
-    "        <else>\n" +
-    "          <constant value=\"OTHER\" />\n" +
-    "        </else>\n" +
-    "      </case>\n" +
-    "    </group-by>\n" +
-    "    <variable id=\"1\" type=\"INTEGER\" value=\"1\"/>\n" +
-    "  </query>";
+  private static final String GROUP_BY_WITH_CASE = """
+    <query id="testGroupByWithCase">
+        <table id="ope" alias="o"/>
+        <field id="l1_nom" table="o" alias="Nam"/>
+        <case alias="theme">
+          <when left-field="IdeThm" condition="eq" right-variable="1">
+            <then>
+              <constant value="SUNSET"/>
+            </then>
+          </when>
+          <else>
+            <constant value="OTHER" />
+          </else>
+        </case>
+        <order-by field="l1_nom" table="o" type="ASC" nulls="FIRST"/>
+        <group-by field="l1_nom"/>
+        <group-by>
+          <case alias="theme">
+            <when left-field="IdeThm" condition="eq" right-variable="1">
+              <then>
+                <constant value="SUNSET"/>
+              </then>
+            </when>
+            <else>
+              <constant value="OTHER" />
+            </else>
+          </case>
+        </group-by>
+        <variable id="1" type="INTEGER" value="1"/>
+      </query>""";
 
   private static XStream xStreamMarshaller;
 

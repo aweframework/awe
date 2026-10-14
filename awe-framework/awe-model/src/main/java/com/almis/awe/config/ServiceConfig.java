@@ -5,12 +5,12 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Optional;
 
@@ -138,7 +138,7 @@ public abstract class ServiceConfig implements ApplicationContextAware {
   public String getRequestParameterAsString(String name) {
     return Optional.ofNullable(getRequestParameter(name))
       .filter(parameter -> !parameter.isNull())
-      .map(JsonNode::asText)
+      .map(JsonNode::asString)
       .orElse(null);
   }
 
@@ -152,7 +152,7 @@ public abstract class ServiceConfig implements ApplicationContextAware {
   public String getRequestParameterAsString(String name, ObjectNode parameters) {
     return Optional.ofNullable(getRequestParameter(name, parameters))
       .filter(parameter -> !parameter.isNull())
-      .map(JsonNode::asText)
+      .map(JsonNode::asString)
       .orElse(null);
   }
 

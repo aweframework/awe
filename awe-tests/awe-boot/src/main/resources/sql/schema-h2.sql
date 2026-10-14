@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS ope
     l1_opr  varchar(6),                            --  unused
     l1_dat  DATE,                               --  Last connection date
     imp_nom varchar(32) DEFAULT 'none',
-    dat_mod datetime,                           --  User update date
-    l1_psd  datetime,                           --  Date of password expiration
+    dat_mod timestamp,                           --  User update date
+    l1_psd  timestamp,                           --  Date of password expiration
     l1_lan  varchar(3),                            --  User language
     l1_sgn  int,                                --  User signed
     PcPrn   varchar(255),                       --  User printer
@@ -278,7 +278,7 @@ CREATE TABLE IF NOT EXISTS AweKey
 CREATE TABLE IF NOT EXISTS HISAweAppPar
 (
     HISope       varchar(20)   not NULL,
-    HISdat       datetime      not NULL,
+    HISdat       timestamp     not NULL,
     HISact       varchar(1)    not NULL,
     IdeAweAppPar int           NULL,
     ParNam       varchar(40)   NULL,

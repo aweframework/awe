@@ -1,8 +1,8 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,13 +26,13 @@ class GridEmptyStateTest {
     grid.setEmptyAction("ClearFilters");
 
     // Run
-    JsonNode json = new ObjectMapper().valueToTree(grid);
+    JsonNode json = new JsonMapper().valueToTree(grid);
 
     // Assert
-    assertEquals("filter", json.get("emptyIcon").asText());
-    assertEquals("EMPTY_TITLE", json.get("emptyTitle").asText());
-    assertEquals("EMPTY_TEXT", json.get("emptyText").asText());
-    assertEquals("ClearFilters", json.get("emptyAction").asText());
+    assertEquals("filter", json.get("emptyIcon").asString());
+    assertEquals("EMPTY_TITLE", json.get("emptyTitle").asString());
+    assertEquals("EMPTY_TEXT", json.get("emptyText").asString());
+    assertEquals("ClearFilters", json.get("emptyAction").asString());
   }
 
   /**
@@ -41,7 +41,7 @@ class GridEmptyStateTest {
   @Test
   void serializeGridWithoutEmptyState() {
     // Run
-    JsonNode json = new ObjectMapper().valueToTree(new Grid());
+    JsonNode json = new JsonMapper().valueToTree(new Grid());
 
     // Assert
     assertTrue(json.get("emptyTitle") == null || json.get("emptyTitle").isNull());

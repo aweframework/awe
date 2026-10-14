@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ButtonAction Class
  *
@@ -26,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("button-action")
 public class ButtonAction extends AbstractAction {
 
+  @Serial
   private static final long serialVersionUID = -7768601748285062450L;
 
   @Override

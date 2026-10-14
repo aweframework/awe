@@ -9,8 +9,6 @@ import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +21,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,7 +79,7 @@ class FileControllerTest {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     when(fileService.getFileStream(any(), any())).thenReturn(ResponseEntity.ok(new FileSystemResource("test")));
 
-    // Call method under test 
+    // Call method under test
     ResponseEntity<FileSystemResource> response = fileController.getFileAsStream(parameters);
 
     // Assert expected response based on parameter

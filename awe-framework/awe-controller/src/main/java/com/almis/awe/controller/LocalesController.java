@@ -1,7 +1,6 @@
 package com.almis.awe.controller;
 
 import com.almis.awe.service.LocaleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,6 @@ public class LocalesController {
    *
    * @param localeService Locale service
    */
-  @Autowired
   public LocalesController(LocaleService localeService) {
     this.localeService = localeService;
   }

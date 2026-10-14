@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ import java.util.List;
 @XStreamAlias("group-header")
 public class GroupHeader extends Element {
 
+  @Serial
   private static final long serialVersionUID = 5469384624049029571L;
 
   // Position of GROUP header in the grid

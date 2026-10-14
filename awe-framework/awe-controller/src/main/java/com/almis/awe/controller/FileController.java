@@ -8,13 +8,12 @@ import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Manage template request
@@ -36,7 +35,6 @@ public class FileController extends ServiceConfig {
    * @param maintainService Maintain service
    * @param encodeService   Encode service
    */
-  @Autowired
   public FileController(FileService fileService, MaintainService maintainService, EncodeService encodeService) {
     this.fileService = fileService;
     this.maintainService = maintainService;
@@ -117,7 +115,7 @@ public class FileController extends ServiceConfig {
     getRequest().setParameterList(parameters);
 
     // Retrieve file
-    return fileService.downloadFile(FileUtil.stringToFileData(getRequest().getParameterAsString("filename")), getRequest().getParameter("d").asInt());
+    return fileService.downloadFile(FileUtil.stringToFileData(getRequest().getParameterAsString("filename")), getRequest().getParameter("d").asInt(0));
   }
 
   /**
@@ -139,7 +137,7 @@ public class FileController extends ServiceConfig {
     ServiceData serviceData = maintainService.launchMaintain(targetId);
 
     // Retrieve file
-    return fileService.downloadFile((FileData) serviceData.getData(), getRequest().getParameter("d").asInt());
+    return fileService.downloadFile((FileData) serviceData.getData(), getRequest().getParameter("d").asInt(0));
   }
 
   /**

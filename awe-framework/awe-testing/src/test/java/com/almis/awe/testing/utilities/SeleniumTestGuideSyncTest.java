@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ class SeleniumTestGuideSyncTest {
   void shouldDocumentEveryPublicOrProtectedStepInTheSeleniumTestGuide() throws IOException {
     Path guide = locateGuide();
     assumeTrue(guide != null, GUIDE_FILE + " is not reachable from this module: guide sync check skipped");
-    String content = Files.readString(guide, StandardCharsets.UTF_8);
+    String content = Files.readString(guide);
 
     Set<String> undocumented = new TreeSet<>();
     for (String step : steps()) {

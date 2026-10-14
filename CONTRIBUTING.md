@@ -125,7 +125,7 @@ Without `-Dspotless.ratchetFrom` the goals run over every Java file. Spotless is
 ## Database integration tests
 
 The PostgreSQL, MySQL, SQL Server and Oracle tests of `awe-tests/awe-boot` (and their Flyway variants) start their database in a
-[Testcontainers](https://testcontainers.com) container, so all you need is a running Docker (Docker Desktop, Colima or similar) and JDK 17 or 21; no database server to install and no
+[Testcontainers](https://testcontainers.com) container, so all you need is a running Docker (Docker Desktop, Colima or similar) and JDK 21; no database server to install and no
 connection settings to change.
 Install the modules once, then run a profile of the database you changed:
 

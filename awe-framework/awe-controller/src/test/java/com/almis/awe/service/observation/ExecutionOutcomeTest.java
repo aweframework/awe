@@ -18,10 +18,10 @@ import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.SQLQueryConnector;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;

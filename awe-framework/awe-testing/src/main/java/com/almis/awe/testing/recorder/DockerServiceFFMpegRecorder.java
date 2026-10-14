@@ -47,7 +47,7 @@ public class DockerServiceFFMpegRecorder extends VideoRecorder {
    */
   public File stopAndSave(String filename) {
     Optional<File> video = this.getFfmpegWrapper().retrieveVideo(filename);
-    if (!video.isPresent()) {
+    if (video.isEmpty()) {
       log.warn("Video recording {} could not be retrieved. The test result is not affected", filename);
       return null;
     }

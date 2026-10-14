@@ -11,6 +11,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Global Class
  *
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamConverter(value = ToAttributedValueConverter.class, strings = {"markdown"})
 public class Global implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 5073568362212574171L;
 
   // Name of the element

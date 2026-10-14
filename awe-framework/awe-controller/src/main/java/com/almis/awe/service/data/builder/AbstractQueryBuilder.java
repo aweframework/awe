@@ -8,12 +8,12 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,9 +104,9 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
     if (varValue == null || varValue.isNull()) {
       val = null;
     } else if (varValue.isValueNode()) {
-      val = varValue.asText();
-    } else if (varValue.isTextual()) {
-      val = varValue.textValue();
+      val = varValue.asString("");
+    } else if (varValue.isString()) {
+      val = varValue.stringValue();
     } else {
       val = varValue.toString();
     }
@@ -170,30 +170,30 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
       if (node.isNumber()) {
         switch (parameter.getType()) {
           case INTEGER:
-            return node.asInt();
+            return node.asInt(0);
           case LONG:
-            return node.asLong();
+            return node.asLong(0L);
           case FLOAT:
-            return (float) node.asDouble();
+            return (float) node.asDouble(0.0);
           case DOUBLE:
-            return node.asDouble();
+            return node.asDouble(0.0);
           default:
-            return node.asText();
+            return node.asString("");
         }
       } else {
         switch (parameter.getType()) {
           case BOOLEAN:
-            return node.asBoolean();
+            return node.asBoolean(false);
           case OBJECT:
             return node;
           case DATE:
-            return DateUtil.web2Date(node.asText());
+            return DateUtil.web2Date(node.asString(""));
           case TIME:
-            return DateUtil.web2Time(node.asText());
+            return DateUtil.web2Time(node.asString(""));
           case TIMESTAMP:
-            return DateUtil.web2Timestamp(node.asText());
+            return DateUtil.web2Timestamp(node.asString(""));
           default:
-            return node.asText();
+            return node.asString("");
         }
       }
     }

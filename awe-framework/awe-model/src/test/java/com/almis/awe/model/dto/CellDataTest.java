@@ -2,11 +2,11 @@ package com.almis.awe.model.dto;
 
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.util.data.DateUtil;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.SerializationUtils;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

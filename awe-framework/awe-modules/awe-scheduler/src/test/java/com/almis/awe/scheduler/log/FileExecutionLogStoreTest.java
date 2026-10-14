@@ -2,11 +2,10 @@ package com.almis.awe.scheduler.log;
 
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.node.ObjectNode;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,11 +31,11 @@ class FileExecutionLogStoreTest {
 
     ObjectNode node = store.locatorNode(new ExecutionKey(12, 34));
 
-    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asText());
-    assertEquals("no-btn", node.get("style").asText());
-    assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asText());
-    assertEquals("file-text-o text-info", node.get("icon").asText());
-    assertEquals("", node.get("label").asText());
+    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asString());
+    assertEquals("no-btn", node.get("style").asString());
+    assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asString());
+    assertEquals("file-text-o text-info", node.get("icon").asString());
+    assertEquals("", node.get("label").asString());
   }
 
   @Test
@@ -46,7 +45,7 @@ class FileExecutionLogStoreTest {
 
     ObjectNode node = store.locatorNode(new ExecutionKey(1, 2));
 
-    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asText());
+    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asString());
   }
 
   @Test
@@ -67,7 +66,7 @@ class FileExecutionLogStoreTest {
 
   @Test
   void readReturnsLinesFromOffsetMatchingTheCurrentFileServiceLoop() throws Exception {
-    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("line0", "line1", "line2", "line3"), StandardCharsets.UTF_8);
+    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("line0", "line1", "line2", "line3"));
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
 
     ExecutionLogPage page = store.read(new ExecutionKey(5, 9), 2, null);
@@ -79,7 +78,7 @@ class FileExecutionLogStoreTest {
 
   @Test
   void readFromZeroOffsetReturnsEveryLine() throws Exception {
-    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("a", "b"), StandardCharsets.UTF_8);
+    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("a", "b"));
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
 
     ExecutionLogPage page = store.read(new ExecutionKey(5, 9), 0, null);

@@ -1,10 +1,10 @@
 package com.almis.awe.testing.database;
 
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
+import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.oracle.OracleContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.Connection;
@@ -72,13 +72,13 @@ public final class DatabaseContainers {
   static JdbcDatabaseContainer<?> createContainer(TestDatabase database) {
     DockerImageName image = DockerImageName.parse(TestDatabaseImages.imageFor(database));
     return switch (database) {
-      case POSTGRESQL -> new PostgreSQLContainer<>(image.asCompatibleSubstituteFor("postgres"))
+      case POSTGRESQL -> new PostgreSQLContainer(image.asCompatibleSubstituteFor("postgres"))
         .withDatabaseName(DATABASE_NAME).withUsername("postgres").withPassword(PASSWORD);
-      case MYSQL -> new MySQLContainer<>(image.asCompatibleSubstituteFor("mysql"))
+      case MYSQL -> new MySQLContainer(image.asCompatibleSubstituteFor("mysql"))
         .withDatabaseName(DATABASE_NAME).withUsername("root").withPassword(PASSWORD);
       case ORACLE -> new OracleContainer(image.asCompatibleSubstituteFor("gvenzl/oracle-free"))
         .withUsername("awe").withPassword(PASSWORD);
-      case SQLSERVER -> new MSSQLServerContainer<>(image.asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server"))
+      case SQLSERVER -> new MSSQLServerContainer(image.asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server"))
         .acceptLicense().withPassword(PASSWORD);
       default -> throw new IllegalArgumentException(database + " is an embedded database and has no container");
     };

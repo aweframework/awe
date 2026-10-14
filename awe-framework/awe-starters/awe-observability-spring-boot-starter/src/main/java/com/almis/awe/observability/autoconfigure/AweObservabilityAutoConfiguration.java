@@ -8,13 +8,13 @@ import com.almis.awe.service.observation.ExecutionObserver;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.jms.ConnectionFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.health.autoconfigure.contributor.ConditionalOnEnabledHealthIndicator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,14 +27,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @AutoConfiguration(
   afterName = {
-    "org.springframework.boot.actuate.autoconfigure.observation.ObservationAutoConfiguration",
+    "org.springframework.boot.micrometer.observation.autoconfigure.ObservationAutoConfiguration",
     "com.almis.awe.autoconfigure.AweAutoConfiguration",
     "com.almis.awe.autoconfigure.SQLConfig",
     "com.almis.awe.autoconfigure.JmsConfig",
-    "org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration",
-    "org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration",
-    "org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration",
-    "org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration"
+    "org.springframework.boot.jms.autoconfigure.JmsAutoConfiguration",
+    "org.springframework.boot.jms.autoconfigure.JndiConnectionFactoryAutoConfiguration",
+    "org.springframework.boot.activemq.autoconfigure.ActiveMQAutoConfiguration",
+    "org.springframework.boot.artemis.autoconfigure.ArtemisAutoConfiguration"
   })
 @ConditionalOnProperty(prefix = "awe.observability", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnBean(ObservationRegistry.class)

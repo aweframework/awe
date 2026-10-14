@@ -7,15 +7,16 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.web.OAuth2ResourceServerWebSecurityAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -33,6 +34,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -51,8 +54,10 @@ class RestSecurityConfigurationModeTest {
     .withConfiguration(AutoConfigurations.of(
       SecurityAutoConfiguration.class,
       SecurityFilterAutoConfiguration.class,
+      ServletWebSecurityAutoConfiguration.class,
       UserDetailsServiceAutoConfiguration.class,
       OAuth2ResourceServerAutoConfiguration.class,
+      OAuth2ResourceServerWebSecurityAutoConfiguration.class,
       WebMvcAutoConfiguration.class
     ))
     .withUserConfiguration(RestSecurityConfiguration.class, LocalLoginConfig.class, TestConfig.class);
@@ -215,13 +220,13 @@ class RestSecurityConfigurationModeTest {
 
     @Bean
     ObjectMapper objectMapper() {
-      return new ObjectMapper();
+      return new JsonMapper();
     }
 
     @Bean
     PublicQueryMaintainAuthorization publicQueryMaintainAuthorization() {
       PublicQueryMaintainAuthorization authorization = mock(PublicQueryMaintainAuthorization.class);
-      when(authorization.check(any(), any())).thenReturn(new AuthorizationDecision(true));
+      when(authorization.authorize(any(), any())).thenReturn(new AuthorizationDecision(true));
       return authorization;
     }
 

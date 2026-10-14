@@ -19,16 +19,16 @@ import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.observation.ExecutionObserver;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -275,7 +275,7 @@ public class MaintainService extends ServiceConfig {
    */
   public DatabaseConnection getDatabaseConnection(ObjectNode parameters) throws AWException {
     JsonNode database = queryUtil.getRequestParameter(databaseConfigProperties.getParameterName(), parameters);
-    return getSafeDatabaseConnection(Optional.ofNullable(database).orElse(JsonNodeFactory.instance.nullNode()).textValue());
+    return getSafeDatabaseConnection(Optional.ofNullable(database).orElse(JsonNodeFactory.instance.nullNode()).stringValue());
   }
 
   /**
@@ -532,13 +532,13 @@ public class MaintainService extends ServiceConfig {
 
     // Get Extra Maintain Query Statements
     for (MaintainQuery maintainQuery : maintainTarget.getQueryList()) {
-      if (maintainQuery instanceof Multiple) {
+      if (maintainQuery instanceof Multiple multiple) {
         // Add all individual statements to Query List
-        finalQueryList.addAll(extractQueryList((Multiple) maintainQuery));
-      } else if (maintainQuery instanceof IncludeTarget) {
+        finalQueryList.addAll(extractQueryList(multiple));
+      } else if (maintainQuery instanceof IncludeTarget target) {
         // Add current target before including a new one (to avoid cyclic dependencies)
         includedTargets.add(maintainTarget.getName());
-        String targetToInclude = ((IncludeTarget) maintainQuery).getName();
+        String targetToInclude = target.getName();
         if (!includedTargets.contains(targetToInclude)) {
           finalQueryList.addAll(getMaintainQueryList(prepareMaintain(targetToInclude, false), includedTargets));
         }
@@ -660,7 +660,7 @@ public class MaintainService extends ServiceConfig {
     // Generate
     for (int i = 0; i < rowTypeList.size(); i++) {
       // Get Parameters
-      typ = rowTypeList.get(i).asText();
+      typ = rowTypeList.get(i).asString("");
       MaintainQuery query;
 
       switch (RowType.valueOf(typ)) {

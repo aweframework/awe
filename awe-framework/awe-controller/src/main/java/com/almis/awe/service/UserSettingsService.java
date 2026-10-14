@@ -10,8 +10,8 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.file.FileUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

@@ -17,10 +17,6 @@ import com.almis.awe.model.rest.ServiceAuth;
 import com.almis.awe.model.rest.ServiceDetails;
 import com.almis.awe.model.type.ServiceAuthType;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +25,11 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class MicroserviceConnectorTest {
 
@@ -64,7 +65,7 @@ class MicroserviceConnectorTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new JsonMapper();
     connector = new TestableMicroserviceConnector(requestFactory, queryUtil, objectMapper, restConfigProperties);
     connector.setTestSession(aweSession);
     connector.setTestRequest(null); // default null unless needed in tests

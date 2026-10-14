@@ -25,15 +25,12 @@ import com.almis.awe.service.ActionService;
 import com.almis.awe.service.ErrorPageService;
 import com.almis.awe.service.user.PasswordChangeService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -77,6 +74,9 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.*;
@@ -120,7 +120,6 @@ public class AweWebSecurityConfig {
 	/**
 	 * Unified security config constructor.
 	 */
-	@Autowired
 	public AweWebSecurityConfig(
 			ApplicationContext context,
 			BaseConfigProperties baseConfigProperties,
@@ -500,7 +499,7 @@ public class AweWebSecurityConfig {
 		try {
 			String body = ((AweHttpServletRequestWrapper) request).getBody();
 			context.getBean(AweRequest.class).setParameterList((ObjectNode) objectMapper.readTree(body));
-		} catch (IOException exc) {
+		} catch (JacksonException exc) {
 			log.error("Error reading request body in initialization process", exc);
 		}
 	}

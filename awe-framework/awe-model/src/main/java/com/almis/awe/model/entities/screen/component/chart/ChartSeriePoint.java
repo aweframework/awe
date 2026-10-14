@@ -3,7 +3,7 @@ package com.almis.awe.model.entities.screen.component.chart;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;

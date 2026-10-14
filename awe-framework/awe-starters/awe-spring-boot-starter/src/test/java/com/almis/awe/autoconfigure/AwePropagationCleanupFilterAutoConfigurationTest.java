@@ -2,12 +2,12 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AwePropagationCleanupFilter;
 import com.almis.awe.config.*;
-import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.model.component.*;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.service.connector.JavaConnector;
 import com.almis.awe.service.connector.MicroserviceConnector;
@@ -22,7 +22,6 @@ import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -31,6 +30,7 @@ import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ReflectionUtils;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Field;
 

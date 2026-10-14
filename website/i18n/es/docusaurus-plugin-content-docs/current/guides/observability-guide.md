@@ -102,7 +102,7 @@ El starter crea los spans, pero no decide adónde enviarlos. Por defecto Spring 
 ```
 
 ```properties
-management.otlp.tracing.endpoint=http://tempo:4318/v1/traces
+management.opentelemetry.tracing.export.otlp.endpoint=http://tempo:4318/v1/traces
 management.tracing.sampling.probability=1.0
 ```
 

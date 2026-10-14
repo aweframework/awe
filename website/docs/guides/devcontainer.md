@@ -12,7 +12,7 @@ installing anything on your machine except Docker and an editor that supports de
 
 | Tool | Version | Notes |
 | --- | --- | --- |
-| JDK | Temurin 21 | The CI builds on 21; the framework still targets Java 17 |
+| JDK | Temurin 21 | The CI builds on 21 and the framework targets Java 21 |
 | Maven | 3.10.0 | Configured with the repository `.m2/settings.xml`, as the CI does |
 | Node.js | 24.14.0 | The version the frontend-maven-plugin downloads for the build |
 | Docker | docker-in-docker | Testcontainers and the Selenium docker browsers need a Docker daemon |

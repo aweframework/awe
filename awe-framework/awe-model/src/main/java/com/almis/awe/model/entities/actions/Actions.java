@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import java.util.List;
 @XStreamAlias("actions")
 public class Actions implements XMLFile {
 
+  @Serial
   private static final long serialVersionUID = -6519438900878392915L;
   // Action list
   @XStreamImplicit(itemFieldName = "action")

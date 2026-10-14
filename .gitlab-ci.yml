@@ -500,8 +500,7 @@ Build project:
   tags: [ large, shared-cache ]   # it fills the Maven cache that Javadoc test and Launch Sonar read
   script:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
-    # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it; the jdk 21
-    # variant builds the same reactor and would only duplicate the report).
+    # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it).
     - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
@@ -540,11 +539,17 @@ Build project:
       paths:
         - .m2/repository/
 
-Build project:jdk 21:
-  extends: .build
-  image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
-  variables:
-    SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
+# Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
+# Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
+Spotless:
+  stage: build
+  tags: [ medium ]
+  needs: [ ]
+  timeout: 10m
+  script:
+    - mvn $MAVEN_CLI_OPTS spotless:check -Dspotless.ratchetFrom=$CI_MERGE_REQUEST_DIFF_BASE_SHA
+  rules:
+    - <<: *if-mr-code
 
 Build website:
   extends: .build-website

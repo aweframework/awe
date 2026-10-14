@@ -1,7 +1,6 @@
 package com.almis.awe.testing.guard;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -178,7 +177,7 @@ public final class BrowserTestSourceGuard {
       throw new IllegalArgumentException("A baseline needs a reason: " + baseline);
     }
     Map<String, Integer> entries = new LinkedHashMap<>();
-    for (String line : Files.readAllLines(baseline, StandardCharsets.UTF_8)) {
+    for (String line : Files.readAllLines(baseline)) {
       String entry = line.trim();
       if (entry.isEmpty() || entry.startsWith("#")) {
         continue;
@@ -216,7 +215,7 @@ public final class BrowserTestSourceGuard {
     }
     for (Path file : files) {
       String relative = directory.relativize(file).toString().replace('\\', '/');
-      scanSource(relative, Files.readString(file, StandardCharsets.UTF_8), found);
+      scanSource(relative, Files.readString(file), found);
     }
     found.sort(Comparator.comparing(Violation::file).thenComparingInt(Violation::line).thenComparing(Violation::rule));
 

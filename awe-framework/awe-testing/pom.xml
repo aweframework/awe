@@ -20,7 +20,6 @@
     <java.version>17</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
-    <log4j-over-slf4j.version>1.7.36</log4j-over-slf4j.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
     <!-- API compatibility baseline: last published release whose public/protected API must stay
@@ -36,8 +35,14 @@
       <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-test</artifactId>
+    </dependency>
+    <!-- Runs a browser test class in a test to check how its extensions are wired -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -46,6 +51,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-restclient</artifactId>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -84,37 +93,28 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
-      <version>${log4j-over-slf4j.version}</version>
     </dependency>
     <!-- Database containers for the integration tests (versions managed by the Spring Boot BOM).
          They carry no JDBC driver: the consuming test module adds the driver of the database it tests. -->
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>mysql</artifactId>
+      <artifactId>testcontainers-mysql</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
+      <artifactId>testcontainers-postgresql</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>mssqlserver</artifactId>
+      <artifactId>testcontainers-mssqlserver</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>oracle-free</artifactId>
-    </dependency>
-    <!-- Testcontainers 1.x brings JUnit 4 (junit:junit), and with it Surefire adds the Vintage engine itself, resolved with a
-         JUnit Platform launcher that does not match the Jupiter engine of the consumers that pin surefire-junit-platform
-         (awe-boot): discovery then finds no test at all and the build still passes. Declaring the engine here puts the
-         whole JUnit Platform on one version (managed by the Spring Boot BOM) in every module that uses awe-testing. -->
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
+      <artifactId>testcontainers-oracle-free</artifactId>
     </dependency>
     <!-- Drivers used only by the utility's own tests -->
     <dependency>
@@ -133,8 +133,8 @@
     <plugins>
       <!-- Delombok plugin -->
       <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
       </plugin>
       <!-- API compatibility check against the last published release (see the baseline property) -->
       <plugin>

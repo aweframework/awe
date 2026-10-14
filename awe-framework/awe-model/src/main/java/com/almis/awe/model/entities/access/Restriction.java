@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Restriction Class
  * <p>
@@ -22,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("restriction")
 public class Restriction implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 6237956002557950701L;
 
   // Option to restrict

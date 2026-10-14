@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * DependencyAction Class
  *
@@ -23,6 +25,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @XStreamAlias("dependency-action")
 public class DependencyAction extends AbstractAction {
+  @Serial
   private static final long serialVersionUID = -8550175354070722535L;
 
   @Override

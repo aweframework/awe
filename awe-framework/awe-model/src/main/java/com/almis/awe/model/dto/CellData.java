@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -169,8 +169,9 @@ public class CellData implements Comparable<CellData>, Copyable {
       case LONG -> Optional.ofNullable(getObjectValue()).map(Long.class::cast).map(Long::intValue).orElse(null);
       // Get long value as double
       case DECIMAL -> Optional.ofNullable(getObjectValue()).map(BigDecimal.class::cast).map(BigDecimal::intValue).orElse(null);
-      // Get integer value from json node
-      case JSON -> Optional.ofNullable(getObjectValue()).map(JsonNode.class::cast).map(JsonNode::intValue).orElse(null);
+      // Get integer value from json node (Jackson 3 intValue() throws on non numeric nodes; keep the Jackson 2 result of 0)
+      case JSON -> Optional.ofNullable(getObjectValue()).map(JsonNode.class::cast)
+        .map(node -> node.isNumber() ? node.intValue() : 0).orElse(null);
       // If default, set to null
       default -> null;
     };

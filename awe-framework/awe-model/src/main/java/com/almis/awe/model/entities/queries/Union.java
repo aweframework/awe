@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Union Class
  * Used to parse the files Queries.xml with XStream
@@ -22,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("union")
 public class Union implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 336661745474056448L;
 
   // query name

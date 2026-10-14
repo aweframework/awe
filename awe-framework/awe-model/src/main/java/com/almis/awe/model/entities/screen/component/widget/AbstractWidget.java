@@ -37,8 +37,7 @@ public abstract class AbstractWidget extends Component {
 
     // Get elements (columns)
     for (Element element : getElementList()) {
-      if (element instanceof WidgetParameter) {
-        WidgetParameter param = (WidgetParameter) element;
+      if (element instanceof WidgetParameter param) {
         if (param.getName() != null) {
           parameterMap.put(param.getName(), param.getParameterValue());
         }

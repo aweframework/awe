@@ -1,8 +1,6 @@
 package com.almis.awe.model.util.data;
 
 import com.almis.awe.model.entities.Global;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -11,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -487,12 +487,12 @@ public final class StringUtil {
   public static List<String> asList(JsonNode parameter) {
     List<String> parameterAsList = new ArrayList<>();
     if (parameter != null) {
-      if (parameter.isTextual()) {
-        parameterAsList.add(parameter.asText());
+      if (parameter.isString()) {
+        parameterAsList.add(parameter.asString(""));
       } else if (parameter.isArray()) {
         ArrayNode parameterList = (ArrayNode) parameter;
         for (JsonNode parameterValue : parameterList) {
-          parameterAsList.add(parameterValue.asText());
+          parameterAsList.add(parameterValue.asString(""));
         }
       }
     }

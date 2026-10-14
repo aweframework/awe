@@ -2,6 +2,7 @@ package com.almis.awe.scheduler.autoconfigure.config;
 
 import com.almis.awe.scheduler.enums.ExecutionLogStoreType;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,7 @@ import org.springframework.boot.convert.DurationUnit;
 import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -61,6 +62,7 @@ public class SchedulerConfigProperties {
    * {@code database} (opt-in, persists to the shared scheduler datasource). An unrecognized
    * value fails application context startup instead of silently falling back.
    */
+  @Valid
   private ExecutionLogStoreType executionLogStore = ExecutionLogStoreType.FILE;
 
   /**
@@ -153,13 +155,14 @@ public class SchedulerConfigProperties {
    * SSH host-key verification policy for remote command execution.
    * Default value ACCEPT_ON_FIRST_USE (trust-on-first-use)
    */
+  @Valid
   private SshHostKeyPolicy sshHostKeyPolicy = SshHostKeyPolicy.ACCEPT_ON_FIRST_USE;
 
   /**
    * Path to the known_hosts file used to persist/read trusted SSH host keys.
    * Default value ${user.home}/.ssh/known_hosts
    */
-  private String sshKnownHostsPath = Paths.get(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
+  private String sshKnownHostsPath = Path.of(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
 
   /**
    * SSH connect and authentication timeout in seconds

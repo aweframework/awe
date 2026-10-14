@@ -4,7 +4,6 @@ import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.EqualsAndHashCode;
@@ -13,7 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ import java.util.List;
 @XStreamAlias("window")
 public class Window extends Component {
 
+  @Serial
   private static final long serialVersionUID = 5159433149044786985L;
   // Window can be maximized or not
   @XStreamAlias("maximize")

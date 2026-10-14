@@ -20,10 +20,6 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -33,8 +29,11 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -73,7 +72,6 @@ public class SQLQueryConnector extends AbstractQueryConnector {
    * @param databaseConfigProperties Database configuration properties
    * @param mapper                   Object mapper
    */
-  @Autowired
   public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource,
                            BaseConfigProperties baseConfigProperties, AweElements elements,
                            NumericService numericService, EncodeService encodeService,
@@ -121,7 +119,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       }
 
       // Get pagination
-      long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
+      long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L);
 
       // Only manage pagination by default if there is no totalization and elements per page is greater than zero
       boolean paginate = (query.getPaginationManaged() == null || query.isPaginationManaged()) &&
@@ -142,7 +140,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       long records;
 
       if (paginate) {
-        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
+        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L);
         queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
       }
       String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
@@ -212,7 +210,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
 
     // Check if call refers to a specific database
     String database = Optional.ofNullable(getQueryUtil().getRequestParameter(databaseConfigProperties.getParameterName(), parameters))
-      .orElse(JsonNodeFactory.instance.nullNode()).textValue();
+      .orElse(JsonNodeFactory.instance.nullNode()).stringValue();
     if (database != null) {
       databaseConnection = contextHolder.getDatabaseConnection(database);
       currentDataSource = databaseConnection.getDataSource();
@@ -261,8 +259,8 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     builder.setQueryProjection(projection)
       .setQueryResult(results)
       .setRecords(records)
-      .setMax(variableMap.get(AweConstants.QUERY_MAX).getValue().asLong())
-      .setPage(variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
+      .setMax(variableMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
+      .setPage(variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L))
       .paginate(!query.isPaginationManaged())
       .generateIdentifiers();
 

@@ -5,8 +5,10 @@ import com.almis.awe.scheduler.autoconfigure.config.SchedulerTaskConfigPropertie
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.thread.Threading;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -17,10 +19,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class SchedulerTaskConfig {
 
   private final SchedulerTaskConfigProperties schedulerTaskConfigProperties;
+  private final boolean virtualThreads;
 
+  /**
+   * Scheduler task config constructor
+   * @param schedulerTaskConfigProperties Scheduler task pool configuration properties
+   * @param environment Environment, used to read {@code spring.threads.virtual.enabled}
+   */
   @Autowired
-  public SchedulerTaskConfig(SchedulerTaskConfigProperties schedulerTaskConfigProperties) {
+  public SchedulerTaskConfig(SchedulerTaskConfigProperties schedulerTaskConfigProperties, Environment environment) {
     this.schedulerTaskConfigProperties = schedulerTaskConfigProperties;
+    this.virtualThreads = Threading.VIRTUAL.isActive(environment);
   }
 
   /**
@@ -36,6 +45,7 @@ public class SchedulerTaskConfig {
     executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerTaskPool");
+    executor.setVirtualThreads(virtualThreads);
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
@@ -53,6 +63,7 @@ public class SchedulerTaskConfig {
     executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerJobPool");
+    executor.setVirtualThreads(virtualThreads);
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
@@ -70,6 +81,7 @@ public class SchedulerTaskConfig {
     executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerTimeoutPool");
+    executor.setVirtualThreads(virtualThreads);
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }

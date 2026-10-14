@@ -10,4 +10,5 @@ spring:
 # Logging
 logging:
   file:
-    path: /logs
+    name:
+      path: /logs

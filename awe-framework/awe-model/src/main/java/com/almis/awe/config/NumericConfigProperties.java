@@ -2,6 +2,7 @@ package com.almis.awe.config;
 
 import com.almis.awe.model.type.NumericFormatType;
 import com.almis.awe.model.type.RoundingType;
+import jakarta.validation.Valid;
 import lombok.Data;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,12 +20,14 @@ public class NumericConfigProperties {
    * Number format separator for input numeric.
    * Default value NumericFormatType.EUR (eur)
    */
+  @Valid
   private NumericFormatType format = NumericFormatType.EUR;
 
   /**
    * Rounding type for numeric operations.
    * Default value Half Up Symmetric (S)
    */
+  @Valid
   private RoundingType roundType = RoundingType.HALF_UP_SYMMETRIC;
 
   /**

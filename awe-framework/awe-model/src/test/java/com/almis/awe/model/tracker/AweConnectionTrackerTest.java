@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEvent;
 
@@ -32,7 +31,6 @@ class AweConnectionTrackerTest {
    */
   @BeforeEach
   public void initBeans() throws Exception {
-    MockitoAnnotations.openMocks(this);
 
     // Initialize
     connectionTracker.getAllConnections().clear();

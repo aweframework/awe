@@ -7,7 +7,6 @@ import com.microsoft.playwright.Video;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -185,7 +184,7 @@ class PlaywrightEvidence {
       Files.createDirectories(evidenceDir);
       Path target = evidenceDir.resolve(name + VIDEO_EXTENSION);
       video.saveAs(target);
-      Files.write(evidenceDir.resolve(name + TIMES_EXTENSION), times(), StandardCharsets.UTF_8);
+      Files.write(evidenceDir.resolve(name + TIMES_EXTENSION), times());
       log.info("Playwright video stored at {}", target);
       listener.stored(failed ? "Failure video" : "Video", target, false);
     } catch (IOException | RuntimeException exc) {

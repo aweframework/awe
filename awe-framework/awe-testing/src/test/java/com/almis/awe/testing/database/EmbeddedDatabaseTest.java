@@ -1,12 +1,10 @@
 package com.almis.awe.testing.database;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Real wiring without Docker: the annotation configures a Spring context that can open a connection.
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = EmbeddedDatabaseTest.EmptyConfiguration.class)
+@SpringJUnitConfig(classes = EmbeddedDatabaseTest.EmptyConfiguration.class)
 @AweDatabaseTest(TestDatabase.H2)
 class EmbeddedDatabaseTest {
 

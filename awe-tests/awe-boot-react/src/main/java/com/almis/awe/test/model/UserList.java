@@ -6,11 +6,12 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FilterColumn;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.InputStream;
 import java.util.List;
@@ -42,7 +43,7 @@ public class UserList extends ServiceConfig {
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
         // create ObjectMapper instance
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new JsonMapper();
 
         // convert json string to object
         List<User> userList = objectMapper.readValue(resourceInputStream, new TypeReference<>() {
@@ -80,7 +81,7 @@ public class UserList extends ServiceConfig {
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
         // create ObjectMapper instance
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new JsonMapper();
 
         // convert json string to object
         List<TreeData> treeDataList = objectMapper.readValue(resourceInputStream, new TypeReference<>() {});
@@ -113,7 +114,7 @@ public class UserList extends ServiceConfig {
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
         // create ObjectMapper instance
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new JsonMapper();
 
         // convert json string to object
         List<User> userList = objectMapper.readValue(resourceInputStream, new TypeReference<>() {});

@@ -16,17 +16,18 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.ParameterType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.POJONode;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -340,7 +341,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Query parameter map
    */
   public <T> ObjectNode getParameters(T parametersBean) {
-    ObjectNode parameters = new ObjectMapper().convertValue(parametersBean, ObjectNode.class);
+    ObjectNode parameters = new JsonMapper().convertValue(parametersBean, ObjectNode.class);
     return getParameters(Optional.ofNullable(parameters).orElse(JsonNodeFactory.instance.objectNode()), null, null, null);
   }
 
@@ -535,8 +536,8 @@ public class QueryUtil extends ServiceConfig {
     JsonNode output = parameter;
     if (parameter == null) {
       output = generateNumberNode(variableId, stringParameter, type);
-    } else if (!parameter.isNumber() && !parameter.isArray() && parameter.isTextual()) {
-      output = generateNumberNode(variableId, parameter.asText(), type);
+    } else if (!parameter.isNumber() && !parameter.isArray() && parameter.isString()) {
+      output = generateNumberNode(variableId, parameter.asString(""), type);
     }
     return output;
   }
@@ -546,7 +547,7 @@ public class QueryUtil extends ServiceConfig {
     if (parameter == null && stringParameter != null) {
       try {
         output = mapper.reader().readTree(stringParameter);
-      } catch (IOException exc) {
+      } catch (JacksonException exc) {
         throw new AWException(getLocale("ERROR_MESSAGE_PARSING_OBJECT", stringParameter), exc);
       }
     }
@@ -673,7 +674,7 @@ public class QueryUtil extends ServiceConfig {
       }
     }
 
-    if (value.isTextual() && value.asText().isEmpty()) {
+    if (value.isString() && value.asString("").isEmpty()) {
       return value;
     }
 
@@ -737,7 +738,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Variable is empty
    */
   public boolean isEmptyVariable(JsonNode variable) {
-    return isNullVariable(variable) || variable.asText().isEmpty();
+    return isNullVariable(variable) || variable.asString("").isEmpty();
   }
 
   /**
@@ -772,7 +773,7 @@ public class QueryUtil extends ServiceConfig {
 
     // Check if call refers to a specific database
     if (parameters != null && parameters.get(AweConstants.QUERY_DATABASE) != null && parameters.get(AweConstants.QUERY_DATABASE).getValue() != null) {
-      alias = parameters.get(AweConstants.QUERY_DATABASE).getValue().asText();
+      alias = parameters.get(AweConstants.QUERY_DATABASE).getValue().asString("");
     }
 
     // Retrieve alias

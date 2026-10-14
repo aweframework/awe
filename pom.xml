@@ -70,9 +70,6 @@
     <plugin-dependency.version>3.11.0</plugin-dependency.version>
     <plugin-jacoco.version>0.8.15</plugin-jacoco.version>
     <plugin-spotless.version>3.10.4</plugin-spotless.version>
-    <plugin-rewrite.version>6.46.1</plugin-rewrite.version>
-    <rewrite-migrate-java.version>3.42.1</rewrite-migrate-java.version>
-    <rewrite-spring.version>6.37.1</rewrite-spring.version>
     <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
@@ -220,43 +217,6 @@
   </build>
 
   <profiles>
-    <!-- OpenRewrite (#762): never active by default. Run mvn -Prewrite rewrite:dryRun (one aggregate patch in target/rewrite/rewrite.patch
-         of the reactor root) or rewrite:run. Recipes live in rewrite.yml; see website/docs/guides/openrewrite-guide.md -->
-    <profile>
-      <id>rewrite</id>
-      <properties>
-        <!-- Recipe to run; override with -Drewrite.activeRecipes=<name> -->
-        <rewrite.activeRecipes>com.almis.awe.rewrite.Java21Migration</rewrite.activeRecipes>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.openrewrite.maven</groupId>
-            <artifactId>rewrite-maven-plugin</artifactId>
-            <version>${plugin-rewrite.version}</version>
-            <configuration>
-              <configLocation>${session.executionRootDirectory}/rewrite.yml</configLocation>
-              <exclusions>
-                <exclusion>**/node_modules/**</exclusion>
-                <exclusion>**/target/**</exclusion>
-              </exclusions>
-            </configuration>
-            <dependencies>
-              <dependency>
-                <groupId>org.openrewrite.recipe</groupId>
-                <artifactId>rewrite-migrate-java</artifactId>
-                <version>${rewrite-migrate-java.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.openrewrite.recipe</groupId>
-                <artifactId>rewrite-spring</artifactId>
-                <version>${rewrite-spring.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <!-- Coverage report profile -->
     <profile>
       <id>generate-coverage-report</id>

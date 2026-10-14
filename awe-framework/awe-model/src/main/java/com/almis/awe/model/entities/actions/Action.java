@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -30,6 +31,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class Action implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 8303124070775783625L;
 
   // Action id

@@ -16,7 +16,6 @@ import com.almis.awe.model.type.SecondFactorStatusType;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +40,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -488,8 +488,8 @@ class AccessServiceTest {
     // Asserts - maintain launched with the default role for this user
     ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
     verify(maintainService, times(1)).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), parameters.capture());
-    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
-    assertEquals("foo@acme.com", parameters.getValue().get(USERNAME).asText());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asString());
+    assertEquals("foo@acme.com", parameters.getValue().get(USERNAME).asString());
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }
@@ -553,7 +553,7 @@ class AccessServiceTest {
     // Asserts - new user provisioned with the profile coming from loadUserByRole
     ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
     verify(maintainService, times(1)).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), parameters.capture());
-    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asString());
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }

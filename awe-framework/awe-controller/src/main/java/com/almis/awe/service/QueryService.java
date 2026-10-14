@@ -16,10 +16,10 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -459,8 +459,8 @@ public class QueryService extends ServiceConfig {
   public void initDatasourceConnections() {
     try {
       DataSource dataSource = getBean(DataSource.class);
-      if (dataSource instanceof AweRoutingDataSource) {
-        ((AweRoutingDataSource) dataSource).loadDataSources();
+      if (dataSource instanceof AweRoutingDataSource source) {
+        source.loadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");
@@ -473,8 +473,8 @@ public class QueryService extends ServiceConfig {
   public void reloadDatasourceConnections() {
     try {
       DataSource dataSource = getBean(DataSource.class);
-      if (dataSource instanceof AweRoutingDataSource) {
-        ((AweRoutingDataSource) dataSource).reloadDataSources();
+      if (dataSource instanceof AweRoutingDataSource source) {
+        source.reloadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");

@@ -2,9 +2,9 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -257,7 +257,7 @@ class DataListUtilTest {
 
     ObjectNode originalPayload = (ObjectNode) source.getRows().get(0).get("payload").getObjectValue();
     assertAll(
-      () -> assertEquals("Madrid", originalPayload.get("address").get("city").asText()),
+      () -> assertEquals("Madrid", originalPayload.get("address").get("city").asString()),
       () -> assertNotSame(originalPayload.get("address"), mergedPayload.get("address"))
     );
   }

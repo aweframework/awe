@@ -8,7 +8,6 @@ import com.almis.awe.service.HelpService;
 import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.TemplateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +18,7 @@ import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,6 @@ public class TemplateConfig {
    *
    * @param baseConfigProperties Base config properties
    */
-  @Autowired
   public TemplateConfig(BaseConfigProperties baseConfigProperties) {
     this.baseConfigProperties = baseConfigProperties;
   }
@@ -55,7 +53,7 @@ public class TemplateConfig {
     List<STGroupFile> paths = new ArrayList<>();
 
     for (String module : baseConfigProperties.getModuleList()) {
-      String path = Paths.get(baseConfigProperties.getPaths().getTemplates(), module, filePath).toString();
+      String path = Path.of(baseConfigProperties.getPaths().getTemplates(), module, filePath).toString();
       ClassPathResource resource = new ClassPathResource(path);
       if (resource.exists()) {
         paths.add(new STGroupFile(resource.getPath()));

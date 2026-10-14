@@ -1139,8 +1139,8 @@ public final class DateUtil {
    */
   public static LocalDate asLocalDate(java.util.Date date, ZoneId zone) {
 
-    if (date instanceof java.sql.Date)
-      return ((java.sql.Date) date).toLocalDate();
+    if (date instanceof java.sql.Date date1)
+      return date1.toLocalDate();
     else
       return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
   }
@@ -1159,8 +1159,8 @@ public final class DateUtil {
 
     if (date == null)
       return null;
-    else if (date instanceof java.sql.Time)
-      return ((java.sql.Time) date).toLocalTime();
+    else if (date instanceof java.sql.Time time)
+      return time.toLocalTime();
     else
       return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalTime();
   }
@@ -1177,8 +1177,8 @@ public final class DateUtil {
    */
   public static LocalDateTime asLocalDateTime(java.util.Date date, ZoneId zone) {
 
-    if (date instanceof java.sql.Timestamp)
-      return ((java.sql.Timestamp) date).toLocalDateTime();
+    if (date instanceof java.sql.Timestamp timestamp)
+      return timestamp.toLocalDateTime();
     else
       return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDateTime();
   }
@@ -1211,16 +1211,16 @@ public final class DateUtil {
 
     if (date instanceof java.sql.Date || date instanceof java.sql.Timestamp)
       return new java.util.Date(((java.util.Date) date).getTime());
-    if (date instanceof java.util.Date)
-      return (java.util.Date) date;
-    if (date instanceof LocalDate)
-      return java.util.Date.from(((LocalDate) date).atStartOfDay(zone).toInstant());
-    if (date instanceof LocalDateTime)
-      return java.util.Date.from(((LocalDateTime) date).atZone(zone).toInstant());
-    if (date instanceof ZonedDateTime)
-      return java.util.Date.from(((ZonedDateTime) date).toInstant());
-    if (date instanceof Instant)
-      return java.util.Date.from((Instant) date);
+    if (date instanceof java.util.Date date1)
+      return date1;
+    if (date instanceof LocalDate localDate)
+      return java.util.Date.from(localDate.atStartOfDay(zone).toInstant());
+    if (date instanceof LocalDateTime time)
+      return java.util.Date.from(time.atZone(zone).toInstant());
+    if (date instanceof ZonedDateTime time1)
+      return java.util.Date.from(time1.toInstant());
+    if (date instanceof Instant instant)
+      return java.util.Date.from(instant);
 
     throw new UnsupportedOperationException("Don't know hot to convert " + date.getClass().getName() + " to java.util.Date");
   }

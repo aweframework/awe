@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * EmailMessage Class
  * <p>
@@ -22,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 @Accessors(chain = true)
 public class EmailMessage implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 4316195653459469148L;
 
   // Query called

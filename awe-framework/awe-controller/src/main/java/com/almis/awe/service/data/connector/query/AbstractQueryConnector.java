@@ -17,8 +17,8 @@ import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.QueryBuilder;
 import com.almis.awe.service.data.processor.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
 
 import java.util.Map;
 import java.util.Optional;
@@ -141,21 +141,21 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
         query.getFieldList().forEach(field -> DataListUtil.copyColumn(serviceFieldsDataList, Optional.ofNullable(field.getAlias()).orElse(field.getId()), serviceDataList, field.getId()));
         builder.setDataList(serviceFieldsDataList)
           .setFieldList(query.getSqlFieldList())
-          .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong())
-          .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
+          .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
+          .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L))
           .setRecords(serviceDataList.getRecords());
       } else {
         builder.setDataList(serviceDataList)
-          .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong())
-          .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
+          .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
+          .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L))
           .setRecords(serviceDataList.getRecords());
       }
     } else {
       // As string array
       builder.setServiceQueryResult((String[]) serviceData.getData())
         .setFieldList(query.getSqlFieldList())
-        .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong())
-        .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong());
+        .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
+        .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L));
     }
 
     // Add transformations & translations

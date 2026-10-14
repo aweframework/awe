@@ -34,12 +34,12 @@ import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.scheduling.annotation.Async;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -932,7 +932,7 @@ public class TaskDAO extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
 
     // Refresh execution screen
-    String[] executionAddress = address.get("row").asText().split(TASK_SEPARATOR);
+    String[] executionAddress = address.get("row").asString("").split(TASK_SEPARATOR);
     ExecutionKey key = new ExecutionKey(Integer.parseInt(executionAddress[0]), Integer.parseInt(executionAddress[1]));
     executionLogStore.applyViewerSelection(path, key, serviceData);
 

@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Video Tag Class
  *
@@ -30,6 +32,7 @@ import lombok.experimental.SuperBuilder;
 @Accessors(chain = true)
 public class Video extends Component {
 
+  @Serial
   private static final long serialVersionUID = 8799204817655283841L;
 
   // Tag loop attribute

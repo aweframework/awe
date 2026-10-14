@@ -12,8 +12,6 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -289,7 +289,7 @@ class MenuServiceTest {
     // Assert
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(12, serviceData.getDataList().getRecords());
-    assertEquals("R", ((ObjectNode) serviceData.getDataList().getRows().get(1).get("restriction").getObjectValue()).get("value").asText());
+    assertEquals("R", ((ObjectNode) serviceData.getDataList().getRows().get(1).get("restriction").getObjectValue()).get("value").asString());
   }
 
   @Test

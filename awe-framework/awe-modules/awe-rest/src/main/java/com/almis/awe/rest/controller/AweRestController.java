@@ -12,7 +12,6 @@ import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,13 +25,13 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +64,6 @@ public class AweRestController {
    * @param jwtTokenService JWT Token service
    * @param modelMapper     the model mapper
    */
-  @Autowired
   public AweRestController(QueryService queryService, MaintainService maintainService, AweRequest request,
                            JWTTokenService jwtTokenService, ModelMapper modelMapper, ObjectMapper objectMapper) {
     this.queryService = queryService;

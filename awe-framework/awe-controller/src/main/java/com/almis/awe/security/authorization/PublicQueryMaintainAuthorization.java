@@ -52,7 +52,7 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
   }
 
   @Override
-  public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext authorizationContext) {
+  public AuthorizationDecision authorize(Supplier<? extends Authentication> authentication, RequestAuthorizationContext authorizationContext) {
     HttpServletRequest request = authorizationContext.getRequest();
     if (isQueryAction(request)) {
       return new AuthorizationDecision( isAuthenticated(authentication.get()) || isPublicQuery(request));

@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.Optional;
 @JsonIgnoreProperties({"invisible", "screen", "context", "silent", "async", "type", "target", "parameters", "value", "elementList"})
 public class Option extends AbstractAction {
 
+  @Serial
   private static final long serialVersionUID = 2874594460515726127L;
 
   // Module of option
