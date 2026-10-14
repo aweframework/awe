@@ -1,7 +1,13 @@
+import download from 'downloadjs';
 import * as screenThunks from '../../../../src/redux/thunks/screen';
 import { ADD_ACTIONS_TOP } from '../../../../src/redux/actions/actions';
 import { navigationActions } from '../../../../src/redux/actions/navigation';
 import { clearClassChanges, rememberClassChange } from '../../../../src/utilities/classChanges';
+
+// downloadjs removes its anchor from the body in a timer (66 ms) that outlives the test: when the next test
+// cleans the body first, that removal throws NotFoundError in jsdom. The thunk only needs to know that the
+// download was requested, so the library is replaced by a mock
+jest.mock('downloadjs', () => jest.fn());
 
 describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
   let dispatch;
@@ -366,13 +372,31 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
         headers: { get: () => 'file.txt' },
         blob: () => Promise.resolve(new Blob(['content']))
       });
-      window.URL.createObjectURL = jest.fn().mockReturnValue('blob:file');
-      jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
       screenThunks.getFileAction(action)(dispatch, getState);
       await flushPromises();
 
+      expect(download).toHaveBeenCalledWith(expect.any(Blob), 'file.txt');
       expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'ACCEPT_ACTION' }));
+    });
+
+    it('does not touch the DOM after the test has finished', async () => {
+      const errors = [];
+      const onError = (event) => { errors.push(event.message); event.preventDefault(); };
+      window.addEventListener('error', onError);
+      global.fetch.mockResolvedValue({
+        headers: { get: () => 'file.txt' },
+        blob: () => Promise.resolve(new Blob(['content']))
+      });
+
+      screenThunks.getFileAction({ type: 'get-file', parameters: {} })(dispatch, getState);
+      await flushPromises();
+      // What the next test's beforeEach does
+      document.body.innerHTML = '';
+      await new Promise(resolve => setTimeout(resolve, 150));
+      window.removeEventListener('error', onError);
+
+      expect(errors).toEqual([]);
     });
 
     it('logs the error and does not accept the action when the download fails', async () => {
