@@ -298,7 +298,7 @@ stages:
 
 .renovate-image:
   image:
-    name: ghcr.io/renovatebot/renovate:44@sha256:93e8dc64410276bb44854b4f6fce2306f8fe24c87301d558a920381130b30851   # major pin + digest; Renovate updates its own pin
+    name: ghcr.io/renovatebot/renovate:44@sha256:1b1d9d1137dc0f71e06d8ca830f783af5138113b57e684693a47a37be578ff04   # major pin + digest; Renovate updates its own pin
     entrypoint: [""]
 
 # Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
