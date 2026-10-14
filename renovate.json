@@ -6,6 +6,8 @@
   ],
   "semanticCommits": "enabled",
   "semanticCommitScope": "deps",
+  "minimumReleaseAge": "14 days",
+  "internalChecksFilter": "strict",
   "baseBranchPatterns": [
     "develop",
     "support/4.x"
@@ -47,6 +49,30 @@
     "**/archetype-resources/**"
   ],
   "packageRules": [
+    {
+      "description": "Major updates wait 30 days since their release instead of the general 14 (top-level minimumReleaseAge): let other projects find the bad releases first. internalChecksFilter strict proposes the newest version that is old enough, not the newest one. Security fixes do not wait (Renovate bypasses minimumReleaseAge for vulnerability alerts).",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "30 days"
+    },
+    {
+      "description": "Digest, pin and lock-file maintenance updates carry no release date (Renovate 42 treats a missing date as not old enough), so they do not wait.",
+      "matchUpdateTypes": [
+        "digest",
+        "pin",
+        "pinDigest",
+        "lockFileMaintenance"
+      ],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Some image registries (for example ghcr.io and mcr.microsoft.com) give no release date for a tag; Renovate 42 would then never find it old enough. For images, a tag without a date is proposed as before, and a tag with a date still waits.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
     {
       "description": "The root package.json is an unused leftover; ignorePaths cannot target it without matching every package.json, so it is disabled here.",
       "matchFileNames": [
@@ -203,7 +229,7 @@
       "allowedVersions": "/^2022-CU\\d+-ubuntu-22\\.04$/"
     },
     {
-      "description": "Patch releases of direct Maven and npm dependencies merge by themselves on develop once the merge-request pipeline passes; everything else (digests, pins, CI images, Dockerfile, compose files, lock-file maintenance) waits for a human.",
+      "description": "Patch releases of direct Maven and npm dependencies merge by themselves on develop once the merge-request pipeline passes; everything else (digests, pins, CI images, Dockerfile, compose files, lock-file maintenance) waits for a human. Patches wait the general 14 days since their release like every other update.",
       "matchBaseBranches": [
         "develop"
       ],
@@ -217,8 +243,7 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true,
-      "gitLabIgnoreApprovals": true,
-      "minimumReleaseAge": "3 days"
+      "gitLabIgnoreApprovals": true
     },
     {
       "description": "Node releases: odd majors are unstable and are skipped. The Node of the build (awe-dependencies) and the one of the development container use the same datasource, package name and versioning, so this rule groups both in one merge request.",
