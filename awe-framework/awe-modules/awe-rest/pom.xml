@@ -24,7 +24,7 @@
     <performancetest.path/>
     <skip.delombok>false</skip.delombok>
     <!-- Version properties -->
-    <java-jwt.version>3.18.2</java-jwt.version>
+    <java-jwt.version>3.19.4</java-jwt.version>
   </properties>
 
   <dependencies>
