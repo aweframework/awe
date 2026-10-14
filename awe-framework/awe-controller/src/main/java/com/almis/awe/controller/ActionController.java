@@ -3,10 +3,9 @@ package com.almis.awe.controller;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.service.ActionService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.opentelemetry.api.trace.Span;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
@@ -27,7 +26,6 @@ public class ActionController {
    * @param actionService Action service
    * @param aweRequest    Awe request
    */
-  @Autowired
   public ActionController(ActionService actionService, AweRequest aweRequest) {
     this.actionService = actionService;
     this.request = aweRequest;

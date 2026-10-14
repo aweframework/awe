@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * TabContainer Class
  *
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("tabcontainer")
 public class TabContainer extends Container {
 
+  @Serial
   private static final long serialVersionUID = 485344960889412732L;
 
   @Override

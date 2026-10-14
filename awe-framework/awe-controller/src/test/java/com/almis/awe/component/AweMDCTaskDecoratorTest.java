@@ -3,8 +3,6 @@ package com.almis.awe.component;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +13,9 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -107,7 +106,7 @@ class AweMDCTaskDecoratorTest {
     assertDoesNotThrow(decoratedRunnable::run);
 
     assertNotNull(seenSnapshot.get());
-    assertEquals("bar", seenSnapshot.get().get("foo").asText());
+    assertEquals("bar", seenSnapshot.get().get("foo").asString());
     assertTrue(seenSnapshot.get().size() > 0);
     assertNotNull(seenHolder.get());
     assertNotSame(ancestorHolder, seenHolder.get());
@@ -149,13 +148,13 @@ class AweMDCTaskDecoratorTest {
 
     assertNotNull(seenSnapshot.get());
     // Ancestor wins on conflict — this is the fix for the grandchild null-propagation bug
-    assertEquals("ancestor", seenSnapshot.get().get("foo").asText(),
+    assertEquals("ancestor", seenSnapshot.get().get("foo").asString(),
         "Ancestor snapshot must win over stale live request on key conflict");
     // Live-only params are still present (live request provides base defaults)
-    assertEquals("from-live", seenSnapshot.get().get("live-only").asText(),
+    assertEquals("from-live", seenSnapshot.get().get("live-only").asString(),
         "Live-only params must still be visible as base defaults");
     // Ancestor-only params are present
-    assertEquals("from-ancestor", seenSnapshot.get().get("ancestor-only").asText(),
+    assertEquals("from-ancestor", seenSnapshot.get().get("ancestor-only").asString(),
         "Ancestor-only params must be visible");
   }
 
@@ -191,7 +190,7 @@ class AweMDCTaskDecoratorTest {
     assertNotNull(parentSnapshot.get());
     assertEquals(parentSnapshot.get(), childSnapshot.get());
     assertEquals(childSnapshot.get(), grandchildSnapshot.get());
-    assertEquals("live", grandchildSnapshot.get().get("foo").asText());
+    assertEquals("live", grandchildSnapshot.get().get("foo").asString());
   }
 
   @Test
@@ -213,7 +212,7 @@ class AweMDCTaskDecoratorTest {
     firstDecorated.run();
 
     assertNotNull(firstSnapshot.get());
-    assertEquals("first", firstSnapshot.get().get("foo").asText());
+    assertEquals("first", firstSnapshot.get().get("foo").asString());
     assertEquals("first-run", firstMdc.get());
     assertNull(prototypeRequestBeanHolder.getPrototypeBean());
     assertNull(MDC.getCopyOfContextMap());
@@ -289,14 +288,14 @@ class AweMDCTaskDecoratorTest {
       RequestDataHolder childHolder = prototypeRequestBeanHolder.getPrototypeBean();
       assertNotNull(childHolder);
       ObjectNode childParams = childHolder.getRequestData();
-      childSeed.set(childParams != null && childParams.has("seed") ? childParams.get("seed").asText() : null);
+      childSeed.set(childParams != null && childParams.has("seed") ? childParams.get("seed").asString() : null);
 
       // Child decorates a grandchild runnable
       grandchildDecorated.set(decorator.decorate(() -> {
         RequestDataHolder grandchildHolder = prototypeRequestBeanHolder.getPrototypeBean();
         assertNotNull(grandchildHolder);
         ObjectNode grandchildParams = grandchildHolder.getRequestData();
-        grandchildSeed.set(grandchildParams != null && grandchildParams.has("seed") ? grandchildParams.get("seed").asText() : null);
+        grandchildSeed.set(grandchildParams != null && grandchildParams.has("seed") ? grandchildParams.get("seed").asString() : null);
       }));
     });
 
@@ -349,11 +348,11 @@ class AweMDCTaskDecoratorTest {
 
     assertNotNull(childParams.get());
     // Original live parameter preserved
-    assertEquals("from-request", childParams.get().get("req-param").asText());
+    assertEquals("from-request", childParams.get().get("req-param").asString());
     // New propagated parameter visible
-    assertEquals("propagated", childParams.get().get("seed").asText());
+    assertEquals("propagated", childParams.get().get("seed").asString());
     // Overlay wins when key conflicts
-    assertEquals("from-propagated", childParams.get().get("shared").asText());
+    assertEquals("from-propagated", childParams.get().get("shared").asString());
   }
 
   // ─── Regression: cross-request leakage when no async task is submitted ────────
@@ -402,7 +401,7 @@ class AweMDCTaskDecoratorTest {
     assertNotNull(taskBParams.get());
     assertNull(taskBParams.get().get("secret"),
       "Request B must NOT inherit the stale param written by Request A — cross-request leakage must be prevented");
-    assertEquals("from-request-b", taskBParams.get().get("req-b").asText(),
+    assertEquals("from-request-b", taskBParams.get().get("req-b").asString(),
       "Request B must see its own live request params");
   }
 
@@ -455,14 +454,14 @@ class AweMDCTaskDecoratorTest {
     executeInSingleThread(secondDecorated);
 
     // Both tasks must see the propagated parameter — sibling semantics
-    assertEquals("shared-by-all-siblings", firstTaskParams.get().get("seed").asText(),
+    assertEquals("shared-by-all-siblings", firstTaskParams.get().get("seed").asString(),
       "First sibling task must see the propagated parameter");
-    assertEquals("shared-by-all-siblings", secondTaskParams.get().get("seed").asText(),
+    assertEquals("shared-by-all-siblings", secondTaskParams.get().get("seed").asString(),
       "Second sibling task must also see the propagated parameter — overlay is request-scoped");
 
     // Both tasks also retain the base live-request param
-    assertEquals("x", firstTaskParams.get().get("req-param").asText());
-    assertEquals("x", secondTaskParams.get().get("req-param").asText());
+    assertEquals("x", firstTaskParams.get().get("req-param").asString());
+    assertEquals("x", secondTaskParams.get().get("req-param").asString());
   }
 
   // ─── Regression: worker-thread authoritative cleanup (pendingPropagation) ──
@@ -494,7 +493,7 @@ class AweMDCTaskDecoratorTest {
       Runnable taskBDecorated = decorator.decorate(() -> {
         ObjectNode snapshot = prototypeRequestBeanHolder.getPendingPropagationSnapshot();
         taskBOverlay.set(snapshot != null && snapshot.has("task-a-secret")
-            ? snapshot.get("task-a-secret").asText() : null);
+            ? snapshot.get("task-a-secret").asString() : null);
       });
 
       // Run both tasks on the same single-thread pool (Task A then Task B)
@@ -548,7 +547,7 @@ class AweMDCTaskDecoratorTest {
         assertNotNull(h);
         ObjectNode params = h.getRequestData();
         grandchildValue.set(params != null && params.has("propagated")
-            ? params.get("propagated").asText() : null);
+            ? params.get("propagated").asString() : null);
       }));
     });
 
@@ -592,7 +591,7 @@ class AweMDCTaskDecoratorTest {
           job2OverlayClean.set(true);
           job2SawFromJob1.set(null);
         } else {
-          job2SawFromJob1.set(snapshot.get("job1-report-id").asText());
+          job2SawFromJob1.set(snapshot.get("job1-report-id").asString());
         }
       });
 

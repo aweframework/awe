@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import java.util.List;
 @XStreamAlias("service")
 public class Service implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 2296142713995556697L;
 
   // Service identifier

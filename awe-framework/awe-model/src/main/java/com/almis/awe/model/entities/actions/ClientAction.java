@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ClientAction implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -6543304075077162963L;
 
   // Client action type

@@ -1,5 +1,6 @@
 package com.almis.awe.rest.autoconfigure.config;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -70,15 +71,19 @@ public class AweRestConfigProperties {
   private String docExternalUrl;
 
   @NestedConfigurationProperty
+  @Valid
   private Auth auth = new Auth();
 
   @NestedConfigurationProperty
+  @Valid
   private Oauth2ResourceServer oauth2ResourceServer = new Oauth2ResourceServer();
 
   @NestedConfigurationProperty
+  @Valid
   private Openapi openapi = new Openapi();
 
   @NestedConfigurationProperty
+  @Valid
   private JWTProperties jwt = new JWTProperties();
 
   /**
@@ -120,6 +125,7 @@ public class AweRestConfigProperties {
      * REST authentication mode. "local-jwt" authenticates with a token issued by AWE (/api/authenticate);
      * "oauth2-resource-server" validates access tokens issued by an external OAuth2/OIDC provider.
      */
+    @Valid
     private RestAuthenticationMode mode = RestAuthenticationMode.LOCAL_JWT;
   }
 
@@ -128,7 +134,9 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Oauth2ResourceServer {
+    @Valid
     private Jwt jwt = new Jwt();
+    @Valid
     private Principal principal = new Principal();
   }
 
@@ -205,6 +213,7 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Openapi {
+    @Valid
     private Oauth2 oauth2 = new Oauth2();
   }
 

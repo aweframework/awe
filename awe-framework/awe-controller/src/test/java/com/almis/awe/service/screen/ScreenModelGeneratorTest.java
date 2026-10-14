@@ -11,11 +11,11 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -70,8 +70,8 @@ class ScreenModelGeneratorTest {
     ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
     verify(initialLoadDao).launchInitialLoad(captor.capture());
     assertEquals("CheckSuggest", captor.getValue().getTarget());
-    assertEquals("3", captor.getValue().getParameters().get("suggest").asText());
-    assertEquals("test-screen", captor.getValue().getParameters().get("screen").asText());
+    assertEquals("3", captor.getValue().getParameters().get("suggest").asString());
+    assertEquals("test-screen", captor.getValue().getParameters().get("screen").asString());
     assertEquals(List.of(new CellData("3")), screenComponent.getModel().getSelected());
     assertEquals(1, screenComponent.getModel().getValues().size());
     assertEquals("3", screenComponent.getModel().getValues().get(0).get("value").getStringValue());
@@ -146,10 +146,10 @@ class ScreenModelGeneratorTest {
     ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
     verify(initialLoadDao).launchInitialLoad(captor.capture());
     var parameters = captor.getValue().getParameters();
-    assertTrue(parameters.get("Als").isTextual(), "Colliding parameter should be overridden with the criterion scalar value");
-    assertEquals("criterion-value", parameters.get("Als").asText());
-    assertEquals("raw-value", parameters.get("OtherParam").asText());
-    assertEquals("3", parameters.get("suggest").asText());
+    assertTrue(parameters.get("Als").isString(), "Colliding parameter should be overridden with the criterion scalar value");
+    assertEquals("criterion-value", parameters.get("Als").asString());
+    assertEquals("raw-value", parameters.get("OtherParam").asString());
+    assertEquals("3", parameters.get("suggest").asString());
   }
 
   @Test
@@ -167,8 +167,8 @@ class ScreenModelGeneratorTest {
     ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
     verify(initialLoadDao).launchInitialLoad(captor.capture());
     var parameters = captor.getValue().getParameters();
-    assertTrue(parameters.get("Prd").isTextual(), "Empty criterion should shadow the colliding request parameter");
-    assertEquals("", parameters.get("Prd").asText());
+    assertTrue(parameters.get("Prd").isString(), "Empty criterion should shadow the colliding request parameter");
+    assertEquals("", parameters.get("Prd").asString());
   }
 
   @Test
@@ -187,8 +187,8 @@ class ScreenModelGeneratorTest {
     verify(initialLoadDao).launchInitialLoad(captor.capture());
     var parameters = captor.getValue().getParameters();
     assertTrue(parameters.hasNonNull("SugNum"), "Override should land on the criterion variable key");
-    assertEquals("criterion-value", parameters.get("SugNum").asText());
-    assertEquals("raw-id-value", parameters.get("SugNumReq").asText(), "Criterion id key should keep its original request value");
+    assertEquals("criterion-value", parameters.get("SugNum").asString());
+    assertEquals("raw-id-value", parameters.get("SugNumReq").asString(), "Criterion id key should keep its original request value");
   }
 
   @Test
@@ -211,14 +211,14 @@ class ScreenModelGeneratorTest {
   void shouldKeepNonEmptySiblingValueWhenEmptyCriterionWithSameVariableIteratesLater() throws Exception {
     ObjectNode parameters = captureHydrationParametersForSharedVariableSiblings(true);
 
-    assertEquals("v", parameters.get("SugNum").asText(), "Empty sibling should not wipe the value written by a non-empty sibling");
+    assertEquals("v", parameters.get("SugNum").asString(), "Empty sibling should not wipe the value written by a non-empty sibling");
   }
 
   @Test
   void shouldKeepNonEmptySiblingValueWhenEmptyCriterionWithSameVariableIteratesFirst() throws Exception {
     ObjectNode parameters = captureHydrationParametersForSharedVariableSiblings(false);
 
-    assertEquals("v", parameters.get("SugNum").asText(), "Non-empty sibling should win over an earlier empty sibling");
+    assertEquals("v", parameters.get("SugNum").asString(), "Non-empty sibling should win over an earlier empty sibling");
   }
 
   private ObjectNode captureHydrationParametersForSharedVariableSiblings(boolean nonEmptyFirst) throws Exception {
@@ -262,8 +262,8 @@ class ScreenModelGeneratorTest {
     var parameters = captor.getValue().getParameters();
     assertTrue(parameters.get("MultiSelect").isArray(), "Multiple selection criterion should be overridden with an array value");
     assertEquals(2, parameters.get("MultiSelect").size());
-    assertEquals("1", parameters.get("MultiSelect").get(0).asText());
-    assertEquals("2", parameters.get("MultiSelect").get(1).asText());
+    assertEquals("1", parameters.get("MultiSelect").get(0).asString());
+    assertEquals("2", parameters.get("MultiSelect").get(1).asString());
   }
 
   @Test
@@ -283,7 +283,7 @@ class ScreenModelGeneratorTest {
     var parameters = captor.getValue().getParameters();
     assertTrue(parameters.get("Period").isArray(), "A date range criterion should be overridden with an array value");
     assertEquals(1, parameters.get("Period").size());
-    assertEquals("01/01/2026", parameters.get("Period").get(0).asText());
+    assertEquals("01/01/2026", parameters.get("Period").get(0).asString());
   }
 
   @Test
@@ -361,7 +361,7 @@ class ScreenModelGeneratorTest {
   }
 
   private AweRequest buildRequest(ObjectNode parameters) {
-    AweRequest request = new AweRequest(mock(jakarta.servlet.http.HttpServletRequest.class), mock(jakarta.servlet.http.HttpServletResponse.class), new ObjectMapper());
+    AweRequest request = new AweRequest(mock(jakarta.servlet.http.HttpServletRequest.class), mock(jakarta.servlet.http.HttpServletResponse.class), new JsonMapper());
     request.setParameterList(parameters);
     return request;
   }

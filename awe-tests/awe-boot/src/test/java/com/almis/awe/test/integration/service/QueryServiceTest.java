@@ -6,14 +6,14 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 

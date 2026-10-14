@@ -1,8 +1,9 @@
 package com.almis.awe.model.entities.screen.component.chart.echarts;
 
 import com.almis.awe.model.entities.screen.component.chart.Chart;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  */
 final class EChartsTestSupport {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER = new JsonMapper();
 
   private EChartsTestSupport() {
   }
@@ -53,7 +54,7 @@ final class EChartsTestSupport {
 
   private static void collect(JsonNode node, String path, String name, List<String> paths) {
     if (node.isObject()) {
-      node.fields().forEachRemaining(entry -> {
+      node.properties().iterator().forEachRemaining(entry -> {
         String child = path + "/" + entry.getKey();
         if (entry.getKey().equals(name)) {
           paths.add(child);

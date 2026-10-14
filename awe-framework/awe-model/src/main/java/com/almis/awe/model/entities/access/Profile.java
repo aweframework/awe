@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ import java.util.List;
 @XStreamAlias("profile")
 public class Profile implements Copyable, XMLNode {
 
+  @Serial
   private static final long serialVersionUID = -7990480714029113566L;
 
   // Restriction List

@@ -8,11 +8,11 @@ import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.util.Arrays;
 import java.util.Collections;

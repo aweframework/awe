@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import java.util.List;
@@ -72,7 +72,7 @@ class MessageConverterConfigurationTest extends AbstractSpringFixedEnvironmentIT
   @DisplayName("The served converter list still carries the JSON converter")
   void servedConvertersKeepJson() {
     assertTrue(requestMappingHandlerAdapter.getMessageConverters().stream()
-        .anyMatch(MappingJackson2HttpMessageConverter.class::isInstance),
+        .anyMatch(JacksonJsonHttpMessageConverter.class::isInstance),
       "The JSON message converter is missing from the served list");
   }
 }

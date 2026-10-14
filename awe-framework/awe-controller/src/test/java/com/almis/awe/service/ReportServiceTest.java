@@ -10,20 +10,17 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,7 +78,7 @@ class ReportServiceTest {
   @Test
   void viewPdfFile() throws AWException, IOException {
     // Mock
-    final Path file = Files.createFile(Paths.get(tempFolder.getAbsolutePath(), "dummy.pdf"));
+    final Path file = Files.createFile(Path.of(tempFolder.getAbsolutePath(), "dummy.pdf"));
 
     // Test
     ServiceData serviceData = reportService.viewPdfFile(file.toString());

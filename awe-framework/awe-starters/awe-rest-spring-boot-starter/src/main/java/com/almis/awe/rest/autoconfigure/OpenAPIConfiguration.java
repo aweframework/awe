@@ -8,14 +8,16 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.Scopes;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springdoc.core.properties.SwaggerUiOAuthProperties;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,7 @@ import org.springframework.util.StringUtils;
 public class OpenAPIConfiguration {
 
   private static final String BEARER_AUTH = "bearerAuth";
+  private static final String JSON_NODE_SCHEMA = "JsonNode";
 
   /**
    * Configures AWE API Rest documentation with Open API.
@@ -65,6 +68,23 @@ public class OpenAPIConfiguration {
       .externalDocs(new ExternalDocumentation()
         .description(restConfigProperties.getDocExternalDescription())
         .url(restConfigProperties.getDocExternalUrl()));
+  }
+
+  /**
+   * Keep JsonNode documented as free-form JSON. Jackson 3 JsonNode is otherwise introspected as a bean,
+   * leaking its is*() type-check getters as schema properties.
+   *
+   * @return Customizer applied to every OpenAPI group
+   */
+  @Bean
+  public GlobalOpenApiCustomizer jsonNodeSchemaCustomizer() {
+    return openApi -> {
+      Components components = openApi.getComponents();
+      if (components != null && components.getSchemas() != null
+        && components.getSchemas().containsKey(JSON_NODE_SCHEMA)) {
+        components.getSchemas().put(JSON_NODE_SCHEMA, new Schema<>());
+      }
+    };
   }
 
   /**

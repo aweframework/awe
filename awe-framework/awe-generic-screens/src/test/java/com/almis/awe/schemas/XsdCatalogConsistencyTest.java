@@ -11,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ class XsdCatalogConsistencyTest {
 
   @BeforeAll
   static void loadCatalog() throws Exception {
-    schemasDir = Paths.get(XsdCatalogConsistencyTest.class.getResource("/schemas/awe/catalog.xml").toURI()).getParent();
+    schemasDir = Path.of(XsdCatalogConsistencyTest.class.getResource("/schemas/awe/catalog.xml").toURI()).getParent();
     catalog = new TreeMap<>();
     systemIds = new ArrayList<>();
     Element root = parse(schemasDir.resolve("catalog.xml")).getDocumentElement();
@@ -127,7 +126,7 @@ class XsdCatalogConsistencyTest {
   }
 
   private static String fileName(String uri) {
-    return Paths.get(uri).getFileName().toString();
+    return Path.of(uri).getFileName().toString();
   }
 
   private static Document parse(Path file) throws Exception {

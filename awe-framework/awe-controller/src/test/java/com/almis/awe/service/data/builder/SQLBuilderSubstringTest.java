@@ -7,7 +7,6 @@ import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

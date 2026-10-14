@@ -8,19 +8,23 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.test.context.support.WithMockUser;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 
@@ -28,6 +32,8 @@ import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 
 @Tag("integration")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Email service Tests")
 @WithMockUser(username = "test", password = "test")
 class EmailServiceTest extends AbstractSpringAppIntegrationTest {

@@ -28,13 +28,12 @@ import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +46,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * AWE Autoconfiguration
@@ -68,7 +68,6 @@ public class AweAutoConfiguration {
    *
    * @param context Context
    */
-  @Autowired
   public AweAutoConfiguration(WebApplicationContext context) {
     this.context = context;
   }
@@ -315,6 +314,7 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
+  @DependsOnDatabaseInitialization
   public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
     return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
   }

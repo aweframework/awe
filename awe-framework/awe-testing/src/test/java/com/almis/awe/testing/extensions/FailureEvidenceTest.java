@@ -10,12 +10,12 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.UnsupportedCommandException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.Logs;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -376,7 +376,7 @@ class FailureEvidenceTest {
 
     Path expected = tempDir.resolve("shots").resolve("failure.html");
     assertThat(stored).contains(expected);
-    assertThat(Files.readString(expected, StandardCharsets.UTF_8)).isEqualTo("<html><body>café</body></html>");
+    assertThat(Files.readString(expected)).isEqualTo("<html><body>café</body></html>");
     assertThat(output()).contains(
       "Failure page source: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/failure.html");
   }
@@ -441,7 +441,7 @@ class FailureEvidenceTest {
 
     Path expected = tempDir.resolve("shots").resolve("failure.console.log");
     assertThat(stored).contains(expected);
-    assertThat(Files.readString(expected, StandardCharsets.UTF_8))
+    assertThat(Files.readString(expected))
       .contains("SEVERE").contains("Uncaught TypeError: x is undefined").contains("deprecated call");
     assertThat(output()).contains(
       "Failure browser console: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/failure.console.log");
@@ -490,7 +490,7 @@ class FailureEvidenceTest {
 
     Path expected = tempDir.resolve("shots").resolve("failure.console.log");
     assertThat(stored).contains(expected);
-    assertThat(Files.readString(expected, StandardCharsets.UTF_8)).hasLineCount(2)
+    assertThat(Files.readString(expected)).hasLineCount(2)
       .contains("[SEVERE] Uncaught TypeError: x is undefined").contains("[INFO] just information");
     assertThat(output()).contains("Browser console SEVERE: Uncaught TypeError: x is undefined")
       .doesNotContain("Browser console INFO");

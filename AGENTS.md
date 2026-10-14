@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-AWE is a Java 17 + Spring Boot + AngularJS multi-module Maven project. It consists of:
+AWE is a Java 21 + Spring Boot + AngularJS multi-module Maven project. It consists of:
 - `awe-framework/` - Core framework (Java + AngularJS frontend)
 - `awe-tests/` - Integration and Selenium tests
 - `awe-samples/` - Sample applications

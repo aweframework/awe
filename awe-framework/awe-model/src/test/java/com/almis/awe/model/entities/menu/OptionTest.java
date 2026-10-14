@@ -1,10 +1,10 @@
 package com.almis.awe.model.entities.menu;
 
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStream;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ class OptionTest {
     root.addElement(child);
 
     // Run
-    JsonNode json = new ObjectMapper().valueToTree(root);
+    JsonNode json = new JsonMapper().valueToTree(root);
 
     // Assert
     List<JsonNode> serializedOptions = new ArrayList<>();
@@ -45,7 +45,7 @@ class OptionTest {
       assertFalse(option.has("elementList"), "Option must not serialize elementList: " + option.get("name"));
       EXPECTED_FIELDS.forEach(field -> assertTrue(option.has(field), "Missing field " + field + " in " + option.get("name")));
     }
-    assertEquals("grandchild", json.get("options").get(0).get("options").get(0).get("name").asText());
+    assertEquals("grandchild", json.get("options").get(0).get("options").get(0).get("name").asString());
   }
 
   /**
@@ -55,9 +55,9 @@ class OptionTest {
   void serializeDescription() {
     Option option = buildOption("described").setDescription("DESC_described");
 
-    JsonNode json = new ObjectMapper().valueToTree(option);
+    JsonNode json = new JsonMapper().valueToTree(option);
 
-    assertEquals("DESC_described", json.get("description").asText());
+    assertEquals("DESC_described", json.get("description").asString());
   }
 
   /**

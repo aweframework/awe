@@ -6,7 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,8 +66,8 @@ class ZipFileUtilTest {
    */
   private void zipFileTest(String path) throws IOException {
     List<String> files = new ArrayList<>();
-    files.add(Files.createFile(Paths.get(tempDir.getPath(), "Dummy.txt")).toString());
-    files.add(Files.createDirectory(Paths.get(tempDir.getPath(), "DummyFolder")).toString());
+    files.add(Files.createFile(Path.of(tempDir.getPath(), "Dummy.txt")).toString());
+    files.add(Files.createDirectory(Path.of(tempDir.getPath(), "DummyFolder")).toString());
     ZipFileUtil.zip(path, files);
   }
 }

@@ -91,6 +91,26 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-demo.jar"]
 ```
 
+## Hilos virtuales {#virtual-threads}
+Las aplicaciones AWE se ejecutan sobre Java 21, por lo que pueden usar hilos virtuales. Se activan con la propiedad estándar de Spring Boot, sin cambios de código:
+
+```properties
+spring.threads.virtual.enabled=true
+```
+
+Además de los componentes de Spring Boot (servidor web embebido y los valores por defecto de `@Async` y de la planificación), la propiedad cambia a hilos virtuales los ejecutores de tareas de AWE:
+
+| Bean del ejecutor | Starter | Propiedades del pool |
+|---|---|---|
+| `threadPoolTaskExecutor`, `threadHelpPoolTaskExecutor`, `contextLessTaskExecutor` | `awe-spring-boot-starter` | `awe.application.task.pool.*` |
+| `schedulerTaskPool`, `schedulerJobPool`, `schedulerTimeoutPool` | `awe-scheduler-spring-boot-starter` | `awe.scheduler.task-pool.*` |
+
+Los ejecutores conservan el tamaño del pool, la capacidad de la cola, el prefijo de nombre de los hilos y, cuando ya la tenían, la propagación de contexto (datos de la petición, contexto de seguridad y MDC), así que las propiedades del pool siguen limitando la concurrencia. La propiedad está desactivada por defecto y, en ese caso, los ejecutores usan hilos de plataforma como hasta ahora.
+
+:::caution
+El código que mantiene un bloqueo (`synchronized`) mientras espera una operación de E/S puede bloquear el hilo portador en Java 21. Pruebe su propio código bloqueante antes de activar los hilos virtuales en producción. El propio AWE lee sus descriptores XML dentro de un bloque `synchronized` en `contextLessTaskExecutor`, por lo que, mientras se cargan durante el arranque, pueden quedar bloqueados hasta `awe.application.task.pool.max-size` hilos portadores (por defecto, uno por núcleo de CPU).
+:::
+
 ## Despliegue en la NUBE {#deploying-in-the-cloud}
 Las aplicaciones AWE, al igual que los jars ejecutables de Spring Boot, están listas para los proveedores de PaaS (Platform-as-a-Service) en la nube más populares. Estos proveedores suelen exigir que "traiga su propio contenedor". Gestionan procesos de aplicación (no aplicaciones Java en concreto), por lo que necesitan una capa intermedia que adapte su aplicación a la noción de proceso en ejecución de la nube.
 

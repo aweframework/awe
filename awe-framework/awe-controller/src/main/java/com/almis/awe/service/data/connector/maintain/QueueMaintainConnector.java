@@ -10,8 +10,8 @@ import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queues.Queue;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.QueueBuilder;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 

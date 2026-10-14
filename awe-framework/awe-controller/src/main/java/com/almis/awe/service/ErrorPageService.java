@@ -1,7 +1,6 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -21,7 +20,6 @@ public class ErrorPageService extends ServiceConfig {
 	// Autowired dependencies
 	private final SpringTemplateEngine templateEngine;
 
-	@Autowired
 	public ErrorPageService(SpringTemplateEngine springTemplateEngine) {
 		this.templateEngine = springTemplateEngine;
 	}

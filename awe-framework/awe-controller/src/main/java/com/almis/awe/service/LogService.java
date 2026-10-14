@@ -8,11 +8,11 @@ import com.almis.awe.model.dto.*;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.ArrayNode;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -108,7 +108,7 @@ public class LogService extends ServiceConfig {
     String logPath = getLogPath();
 
     // Check flag user home path
-    File baseLogDirectory = Paths.get(logPath).normalize().toFile();
+    File baseLogDirectory = Path.of(logPath).normalize().toFile();
 
     // Get base log directory
     if (baseLogDirectory.isDirectory()) {

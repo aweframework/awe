@@ -11,14 +11,14 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.Map;

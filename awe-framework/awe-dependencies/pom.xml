@@ -19,39 +19,35 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>3.0.3</ade.version>
-    <spring-boot.version>3.5.16</spring-boot.version>
-    <spring-cloud.version>2025.0.3</spring-cloud.version>
+    <spring-boot.version>4.1.1</spring-boot.version>
+    <spring-cloud.version>2025.1.3</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v24.21.0</node.version>
     <npm.version>11.21.0</npm.version>
     <st.version>4.3.4</st.version>
     <flexmark.version>0.62.2</flexmark.version>
-    <mail.version>1.4.7</mail.version>
+    <mail.version>2.1.5</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
     <commons-io.version>2.17.0</commons-io.version>
     <commons-text.version>1.12.0</commons-text.version>
-    <commons-fileupload.version>2.0.0-M1</commons-fileupload.version>
-    <annotation-api.version>1.3.2</annotation-api.version>
-    <aspectjweaver.version>1.9.25</aspectjweaver.version>
+    <commons-fileupload.version>2.0.0-M4</commons-fileupload.version>
     <xtream.version>1.4.21</xtream.version>
     <graalvm.version>23.0.6</graalvm.version>
-    <selenium.version>4.18.1</selenium.version>
     <webdrivermanager.version>6.1.0</webdrivermanager.version>
     <playwright.version>1.63.0</playwright.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <janino.version>3.1.12</janino.version>
     <otp-java.version>2.1.0</otp-java.version>
     <javase.version>3.5.4</javase.version>
-    <commons-codec.version>1.18.0</commons-codec.version>
     <guava.version>33.3.0-jre</guava.version>
-    <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
+    <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
     <sshd.version>2.13.2</sshd.version>
     <commons-net.version>3.11.1</commons-net.version>
     <mockwebserver3.version>5.5.0</mockwebserver3.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
 
     <!-- plugin versions -->
     <plugin-spring-boot.version>${spring-boot.version}</plugin-spring-boot.version>
@@ -66,12 +62,7 @@
     <plugin-flatten-maven.version>1.8.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.5.0</plugin-resources.version>
-    <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
     <plugin-japicmp.version>0.26.3</plugin-japicmp.version>
-    <!-- Lombok engine bundled inside lombok-maven-plugin 1.18.20.0 predates JDK 17+ and breaks
-         delombok on newer JDKs (NoSuchFieldError JCImport.qualid). Override it with a JDK 21+
-         compatible Lombok. Keep aligned with the version managed by the Spring Boot BOM. -->
-    <delombok-lombok.version>1.18.48</delombok-lombok.version>
     <plugin-maven-archetype.version>3.4.1</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.2.0</plugin-maven-install.version>
     <!-- Skip configuration -->
@@ -262,8 +253,8 @@
         <version>${flexmark.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
+        <groupId>jakarta.mail</groupId>
+        <artifactId>jakarta.mail-api</artifactId>
         <version>${mail.version}</version>
       </dependency>
       <dependency>
@@ -278,13 +269,8 @@
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
-        <artifactId>commons-fileupload2-jakarta</artifactId>
+        <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
         <version>${commons-fileupload.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>${annotation-api.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.activation</groupId>
@@ -356,32 +342,12 @@
         <artifactId>otp-java</artifactId>
         <version>${otp-java.version}</version>
       </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
 
       <!-- Aspects -->
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>${aspectjweaver.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.codehaus.janino</groupId>
         <artifactId>janino</artifactId>
         <version>${janino.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-server</artifactId>
-        <version>${selenium.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-java</artifactId>
-        <version>${selenium.version}</version>
       </dependency>
       <dependency>
         <groupId>io.github.bonigarcia</groupId>
@@ -429,34 +395,6 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${plugin-spring-boot.version}</version>
-        </plugin>
-        <!-- Lombok -->
-        <plugin>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok-maven-plugin</artifactId>
-          <version>${plugin-lombok.version}</version>
-          <configuration>
-            <skip>${skip.delombok}</skip>
-            <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-            <outputDirectory>${project.build.directory}/delombok</outputDirectory>
-            <addOutputDirectory>false</addOutputDirectory>
-          </configuration>
-          <dependencies>
-            <!-- Force a JDK 21+ compatible Lombok engine; the one bundled in the plugin is too old. -->
-            <dependency>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${delombok-lombok.version}</version>
-            </dependency>
-          </dependencies>
-          <executions>
-            <execution>
-              <phase>generate-sources</phase>
-              <goals>
-                <goal>delombok</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <!-- Frontend -->
         <plugin>
@@ -535,9 +473,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${plugin-compiler.version}</version>
           <configuration>
-            <source>${java.version}</source>
-            <target>${java.version}</target>
             <parameters>true</parameters>
+            <release>${java.version}</release>
           </configuration>
         </plugin>
         <plugin>
@@ -563,11 +500,39 @@
           <artifactId>maven-resources-plugin</artifactId>
           <version>${plugin-resources.version}</version>
         </plugin>
-        <!-- Ant plugin -->
+        <!-- Ant plugin. Modules that declare it get the delombok execution: Lombok-generated members end up in
+          ${project.build.directory}/delombok, the Javadoc sourcepath. It runs the Lombok of the compile classpath
+          (managed by the Spring Boot BOM) and is skipped unless the module sets skip.delombok=false -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
           <version>${plugin-ant.version}</version>
+          <executions>
+            <execution>
+              <id>delombok</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <skip>${skip.delombok}</skip>
+                <target>
+                  <property name="delombok.classpath" refid="maven.compile.classpath"/>
+                  <java classname="lombok.launch.Main" classpathref="maven.compile.classpath" fork="true"
+                        failonerror="true">
+                    <arg value="delombok"/>
+                    <arg value="--encoding"/>
+                    <arg value="${project.build.sourceEncoding}"/>
+                    <arg value="--classpath"/>
+                    <arg value="${delombok.classpath}"/>
+                    <arg value="${project.basedir}/src/main/java"/>
+                    <arg value="-d"/>
+                    <arg value="${project.build.directory}/delombok"/>
+                  </java>
+                </target>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

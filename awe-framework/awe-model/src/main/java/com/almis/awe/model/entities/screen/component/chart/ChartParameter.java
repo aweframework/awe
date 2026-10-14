@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.*;
 
 /**
@@ -32,6 +33,7 @@ import java.util.*;
 @XStreamAlias("chart-parameter")
 public class ChartParameter extends AbstractChart {
 
+  @Serial
   private static final long serialVersionUID = -7098280839924260785L;
 
   // Parameter name

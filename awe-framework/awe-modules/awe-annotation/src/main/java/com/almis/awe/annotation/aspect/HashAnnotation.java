@@ -83,8 +83,8 @@ public class HashAnnotation {
           Object arg = proceedingJoinPoint.getArgs()[paramIndex];
 
           // Apply processors
-          if (annotation instanceof Hash) {
-            arg = hashProcessor.processHashing(((Hash) annotation), (String) arg);
+          if (annotation instanceof Hash hash) {
+            arg = hashProcessor.processHashing(hash, (String) arg);
           }
 
           // Save value

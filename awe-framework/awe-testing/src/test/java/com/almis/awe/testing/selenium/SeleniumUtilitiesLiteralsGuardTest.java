@@ -3,7 +3,6 @@ package com.almis.awe.testing.selenium;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ class SeleniumUtilitiesLiteralsGuardTest {
     Path source = Path.of(System.getProperty("basedir", System.getProperty("user.dir"))).resolve(SOURCE);
     assumeTrue(Files.isRegularFile(source), "Assumption: the sources of awe-testing are available at " + source);
 
-    Matcher literal = LOCATOR_LITERAL.matcher(Files.readString(source, StandardCharsets.UTF_8));
+    Matcher literal = LOCATOR_LITERAL.matcher(Files.readString(source));
     List<String> literals = new ArrayList<>();
     List<String> violations = new ArrayList<>();
     while (literal.find()) {

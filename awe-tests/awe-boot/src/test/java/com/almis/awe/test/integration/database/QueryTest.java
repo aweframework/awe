@@ -3,9 +3,6 @@ package com.almis.awe.test.integration.database;
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,12 +15,15 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -176,7 +176,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       assertEquals(12, component.get("Cnt").asInt());
       assertEquals(3, component.get("CntDst").asInt());
       assertEquals(60, component.get("Min").asInt());
-      assertEquals("as as  daef", component.get("Trim").asText());
+      assertEquals("as as  daef", component.get("Trim").asString());
       assertEquals(4, component.get("StrLength").asInt());
       logger.debug(component.toString());
     }
@@ -810,11 +810,11 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultJson(queryName, result, 1);
     for (JsonNode element : rows) {
       ObjectNode row = (ObjectNode) element;
-      assertEquals("World", row.get("substringResult").asText(),
+      assertEquals("World", row.get("substringResult").asString(),
         "SUBSTRING('Hello World', 6, 11) should return 'World'");
-      assertEquals("te", row.get("substringShort").asText(),
+      assertEquals("te", row.get("substringShort").asString(),
         "SUBSTRING('test', 0, 2) should return 'te'");
-      assertEquals("test", row.get("name").asText());
+      assertEquals("test", row.get("name").asString());
     }
   }
 
@@ -831,9 +831,9 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultJson(queryName, result, 1);
     for (JsonNode element : rows) {
       ObjectNode row = (ObjectNode) element;
-      assertEquals("World", row.get("substringFromIndex").asText(),
+      assertEquals("World", row.get("substringFromIndex").asString(),
         "SUBSTRING('Hello World', 6) should return 'World'");
-      assertEquals("test", row.get("name").asText());
+      assertEquals("test", row.get("name").asString());
     }
   }
 
@@ -918,7 +918,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -929,7 +929,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(5, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -955,7 +955,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -966,7 +966,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(30, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -992,7 +992,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1003,7 +1003,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(10, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1029,7 +1029,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1040,7 +1040,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(10, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1548,7 +1548,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private void assertQueryResultJson(String queryName, String result, int expectedRows) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1559,7 +1559,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1772,8 +1772,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ObjectNode expectedRow2 = (ObjectNode) expectedRows.get(4);
     ObjectNode resultRow2 = (ObjectNode) resultRows.get(4);
 
-    assertEquals(expectedRow1.get("fecha").textValue().toUpperCase(), resultRow1.get("fecha").textValue().toUpperCase());
-    assertEquals(expectedRow2.get("fecha").textValue().toUpperCase(), resultRow2.get("fecha").textValue().toUpperCase());
+    assertEquals(expectedRow1.get("fecha").stringValue().toUpperCase(), resultRow1.get("fecha").stringValue().toUpperCase());
+    assertEquals(expectedRow2.get("fecha").stringValue().toUpperCase(), resultRow2.get("fecha").stringValue().toUpperCase());
   }
 
   /**
@@ -2211,7 +2211,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortOneFieldAsc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2226,7 +2226,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortOneFieldDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2241,7 +2241,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortTwoFieldsAscDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2256,7 +2256,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortTwoFieldsDescDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2271,7 +2271,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortThreeFieldsAscDescDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"database\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"database\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2294,7 +2294,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ArrayNode assertResultVariablesJson(String queryName, String result, int expectedRows) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -2305,7 +2305,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -2344,7 +2344,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("", row.get("string").asText());
+    assertEquals("", row.get("string").asString());
     assertTrue(row.get("stringN").isNull());
   }
 
@@ -2357,8 +2357,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("", row.get("string").asText());
-    assertEquals("", row.get("stringN").asText());
+    assertEquals("", row.get("string").asString());
+    assertEquals("", row.get("stringN").asString());
   }
 
   @Test
@@ -2415,8 +2415,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("22/10/3100", row.get("dateValue").asText());
-    assertEquals("23/10/1978 15:03:01", row.get("timestampValue").asText());
+    assertEquals("22/10/3100", row.get("dateValue").asString());
+    assertEquals("23/10/1978 15:03:01", row.get("timestampValue").asString());
   }
 
   @Test
@@ -2512,9 +2512,9 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     // Retrieve output values
     ObjectNode firstRow = (ObjectNode) data.get(0);
-    String date = firstRow.get("date").asText();
-    String time = firstRow.get("time").asText();
-    String timestamp = firstRow.get("timestamp").asText();
+    String date = firstRow.get("date").asString();
+    String time = firstRow.get("time").asString();
+    String timestamp = firstRow.get("timestamp").asString();
 
     // Check current date vs retrieved date
     Date currentDate = new Date();
@@ -2683,7 +2683,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 2);
 
     Set<String> actualNames = StreamSupport.stream(rows.spliterator(), false)
-      .map(row -> row.get("l1_nom").asText())
+      .map(row -> row.get("l1_nom").asString())
       .collect(Collectors.toSet());
 
     assertEquals(Set.of("test", "jorgito"), actualNames);
@@ -2746,7 +2746,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ArrayNode assertResultServiceJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -2757,7 +2757,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     logger.debug("--------------------------------------------------------------------------------------");
     logger.debug("There are " + dataListRows.size() + " rows as a result of launching query " + queryName);
@@ -2773,15 +2773,15 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private void assertQueryErrorMessage(String result, String expectedTitle, String expectedMessageFragment) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode endLoad = (ObjectNode) resultList.get(0);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     ObjectNode messageAction = (ObjectNode) resultList.get(1);
-    assertEquals("message", messageAction.get("type").textValue());
+    assertEquals("message", messageAction.get("type").stringValue());
 
     ObjectNode parameters = (ObjectNode) messageAction.get("parameters");
-    assertEquals("error", parameters.get("type").asText());
-    assertEquals(expectedTitle, parameters.get("title").asText());
-    assertTrue(parameters.get("message").asText().contains(expectedMessageFragment));
+    assertEquals("error", parameters.get("type").asString());
+    assertEquals(expectedTitle, parameters.get("title").asString());
+    assertTrue(parameters.get("message").asString().contains(expectedMessageFragment));
   }
 
   /**
@@ -3161,13 +3161,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(5, screenDataComponents.size());
-    assertEquals("TestInitialLoad", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-load", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialLoad", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-load", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3201,13 +3201,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
-    assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValues", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3241,13 +3241,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
-    assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValues", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3280,23 +3280,23 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(10, screenDataComponents.size());
-    assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values-load", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values-load", screenData.get("screen").get("option").stringValue());
 
     ObjectNode hydratedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitial");
-    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asString());
     assertEquals(1, hydratedSuggest.get("model").get("values").size());
-    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asText());
-    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asText().isBlank());
+    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asString());
+    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asString().isBlank());
 
     ObjectNode unresolvedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitialMissing");
-    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asString());
     assertEquals(0, unresolvedSuggest.get("model").get("values").size());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3308,7 +3308,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ObjectNode findScreenComponent(ArrayNode screenDataComponents, String componentId) {
     return StreamSupport.stream(screenDataComponents.spliterator(), false)
       .map(ObjectNode.class::cast)
-      .filter(component -> componentId.equals(component.get("id").asText()))
+      .filter(component -> componentId.equals(component.get("id").asString()))
       .findFirst()
       .orElseThrow(() -> new AssertionError("Missing component " + componentId));
   }
@@ -3338,13 +3338,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(27, screenDataComponents.size());
-    assertEquals("GrdChrPrn", screenData.get("screen").get("name").textValue());
-    assertEquals("grid-and-chart", screenData.get("screen").get("option").textValue());
+    assertEquals("GrdChrPrn", screenData.get("screen").get("name").stringValue());
+    assertEquals("grid-and-chart", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3727,7 +3727,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   public ArrayNode assertResultSecurityJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -3742,7 +3742,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     }
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     return dataListRows;
   }
@@ -3775,7 +3775,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   public ArrayNode assertResultJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -3790,7 +3790,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     }
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     logger.debug("--------------------------------------------------------------------------------------");
     logger.debug("There are " + dataListRows.size() + " rows as a result of launching query " + queryName);

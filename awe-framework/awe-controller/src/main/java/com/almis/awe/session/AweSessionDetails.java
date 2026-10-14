@@ -21,7 +21,6 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -58,7 +57,6 @@ public class AweSessionDetails extends ServiceConfig {
    * @param sessionConfigProperties  Session properties
    * @param securityConfigProperties Security properties
    */
-  @Autowired
   public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
 													 AweConnectionTracker connectionTracker, BroadcastService broadcastService,  MenuService menuService, SessionConfigProperties sessionConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.clientTracker = aweClientTracker;

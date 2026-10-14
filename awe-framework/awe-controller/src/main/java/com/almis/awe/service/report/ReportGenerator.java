@@ -16,15 +16,15 @@ import com.almis.awe.model.type.OutputFormatType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.file.FileUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import org.springframework.http.MediaType;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -188,32 +188,32 @@ public class ReportGenerator extends ServiceConfig {
           builderService.toXlsx();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".xlsx";
-          putRequestParameter(parameters, "XlsNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "XlsNam", Path.of(basePath, fullFileName).toString());
           break;
         case CSV:
           builderService.toCsv();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".csv";
-          putRequestParameter(parameters, "CsvNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "CsvNam", Path.of(basePath, fullFileName).toString());
           break;
         case DOCX:
           builderService.toDocx();
           mimeType = AweConstants.APPLICATION_WORD;
           fullFileName += ".docx";
-          putRequestParameter(parameters, "DocNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "DocNam", Path.of(basePath, fullFileName).toString());
           break;
         case TEXT:
           builderService.toText();
           mimeType = MediaType.TEXT_PLAIN_VALUE;
           fullFileName += ".txt";
-          putRequestParameter(parameters, "TxtNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "TxtNam", Path.of(basePath, fullFileName).toString());
           break;
         case PDF:
         default:
           builderService.toPDF();
           mimeType = MediaType.APPLICATION_PDF_VALUE;
           fullFileName += ".pdf";
-          putRequestParameter(parameters, "PdfNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "PdfNam", Path.of(basePath, fullFileName).toString());
           break;
       }
     } catch (Exception exc) {
@@ -245,10 +245,10 @@ public class ReportGenerator extends ServiceConfig {
     String reportDateFormatted = DateUtil.dat2SqlDateString(reportDate);
 
     // Generate historic directory
-    File historicPath = Paths.get(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReportsHistoric(), baseConfigProperties.getPaths().getBase()), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
+    File historicPath = Path.of(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReportsHistoric(), baseConfigProperties.getPaths().getBase()), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
     try {
       Files.createDirectories(historicPath.toPath());
-      Files.copy(reportFile.toPath(), Paths.get(historicPath.getAbsolutePath(), reportFile.getName()));
+      Files.copy(reportFile.toPath(), Path.of(historicPath.getAbsolutePath(), reportFile.getName()));
     } catch (IOException exc) {
       // Log report
       log.error("Historic report file ({}) NOT generated on {}", reportFile.getAbsolutePath(), historicPath.getAbsolutePath(), exc);

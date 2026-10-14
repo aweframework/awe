@@ -13,8 +13,6 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 /**
  * QueryService Class
@@ -77,7 +75,7 @@ public class ReportService extends ServiceConfig {
    */
   public ServiceData viewPdfFile(String filePath) throws AWException {
     ServiceData serviceData = new ServiceData();
-    Path path = Paths.get(filePath);
+    Path path = Path.of(filePath);
     Resource resource = new FileSystemResource(path);
     try {
       FileData fileData = null;

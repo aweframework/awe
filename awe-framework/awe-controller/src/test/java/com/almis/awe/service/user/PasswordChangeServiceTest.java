@@ -12,7 +12,6 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -116,7 +116,7 @@ class PasswordChangeServiceTest {
     verify(maintainService).launchPrivateMaintain(eq(PasswordChangeService.UPDATE_MAINTAIN), parameters.capture());
     // The user is not a parameter: it is a server-side session parameter that only lives during the update
     assertFalse(parameters.getValue().has("Usr"));
-    assertEquals("newpass1", parameters.getValue().get("Pas").asText());
+    assertEquals("newpass1", parameters.getValue().get("Pas").asString());
     InOrder order = inOrder(aweSession, maintainService);
     order.verify(aweSession).setParameter(PasswordChangeService.UPDATE_USER_SESSION_PARAMETER, USER);
     order.verify(maintainService).launchPrivateMaintain(eq(PasswordChangeService.UPDATE_MAINTAIN), any(ObjectNode.class));

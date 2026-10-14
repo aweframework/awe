@@ -17,9 +17,9 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.EnumBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;
@@ -147,8 +147,8 @@ public class EnumQueryConnector extends AbstractQueryConnector {
     boolean paginate = query == null || !query.isPaginationManaged();
     builder.setEnumQueryResult(results)
       .setRecords(records)
-      .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
-      .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong())
+      .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L))
+      .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
       .paginate(paginate)
       .generateIdentifiers();
 

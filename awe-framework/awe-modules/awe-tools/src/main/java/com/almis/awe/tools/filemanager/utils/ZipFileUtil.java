@@ -34,7 +34,7 @@ public class ZipFileUtil {
   private static FileSystem createZipFileSystem(String zipFilename, boolean create) throws IOException {
 
     // convert the filename to a URI
-    final Path path = Paths.get(zipFilename);
+    final Path path = Path.of(zipFilename);
     final URI uri = URI.create("jar:file:" + path.toUri().getPath());
 
     final Map<String, Object> env = new HashMap<>();
@@ -61,7 +61,7 @@ public class ZipFileUtil {
 
       // iterate over the files we need to add
       for (String filename : filenames) {
-        final Path src = Paths.get(filename);
+        final Path src = Path.of(filename);
 
         // add a file to the zip file system
         if (!src.toFile().isDirectory()) {
@@ -110,7 +110,7 @@ public class ZipFileUtil {
    */
   public static void unzip(String zipFilename, String destDirname) throws IOException {
 
-    final Path destDir = Paths.get(destDirname);
+    final Path destDir = Path.of(destDirname);
     // if the destination doesn't exist, create it
     if (!destDir.toFile().exists()) {
       log.debug("{} does not exist. Creating...", destDir);
@@ -124,7 +124,7 @@ public class ZipFileUtil {
       Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          final Path destFile = Paths.get(destDir.toString(), file.toString());
+          final Path destFile = Path.of(destDir.toString(), file.toString());
           log.debug("Extracting file {} to {}\n", file, destFile);
           Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
           return FileVisitResult.CONTINUE;
@@ -132,7 +132,7 @@ public class ZipFileUtil {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-          final Path dirToCreate = Paths.get(destDir.toString(), dir.toString());
+          final Path dirToCreate = Path.of(destDir.toString(), dir.toString());
           if (!dirToCreate.toFile().exists()) {
             log.debug(CREATING_DIRECTORY, dirToCreate);
             Files.createDirectory(dirToCreate);

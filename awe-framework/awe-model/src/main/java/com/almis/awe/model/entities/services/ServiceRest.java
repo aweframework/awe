@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ServiceRest Class
  *
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("rest")
 public class ServiceRest extends AbstractServiceRest {
 
+  @Serial
   private static final long serialVersionUID = 7493053120314893763L;
 
   // Service server

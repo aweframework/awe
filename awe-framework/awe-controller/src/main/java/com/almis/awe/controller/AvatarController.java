@@ -6,7 +6,6 @@ import com.almis.awe.model.dto.FileData;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.UserSettingsService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +46,6 @@ public class AvatarController extends ServiceConfig {
    * @param userSettingsService User settings service
    * @param fileService         File service
    */
-  @Autowired
   public AvatarController(UserSettingsService userSettingsService, FileService fileService) {
     this.userSettingsService = userSettingsService;
     this.fileService = fileService;

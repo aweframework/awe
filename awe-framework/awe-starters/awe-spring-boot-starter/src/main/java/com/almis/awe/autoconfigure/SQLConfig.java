@@ -20,15 +20,16 @@ import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedPostgreSQLTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
 
@@ -52,6 +53,7 @@ public class SQLConfig {
   @Bean
   @ConditionalOnMissingBean
   @ConfigurationProperties("spring.datasource.hikari")
+  @DependsOnDatabaseInitialization
   public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties, DatabaseConfigProperties databaseConfigProperties) {
     return new AweDatabaseContextHolder(elements, queryService, sessionService, dataSourceProperties, databaseConfigProperties);
   }
@@ -76,6 +78,7 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
+  @DependsOnDatabaseInitialization
   public RoutingDatasourceInitializer routingDatasourceInitializer(DataSource dataSource) {
     return new RoutingDatasourceInitializer(dataSource);
   }
@@ -190,6 +193,7 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnMissingBean
+  @DependsOnDatabaseInitialization
   public SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil,
                                              DataSource dataSource, BaseConfigProperties baseConfigProperties,
                                              AweElements elements, NumericService numericService,

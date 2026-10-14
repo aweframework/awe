@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
 @XStreamInclude({FilterAnd.class, FilterOr.class})
 public abstract class FilterGroup implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 2852710192340831798L;
 
   /* Filter group */

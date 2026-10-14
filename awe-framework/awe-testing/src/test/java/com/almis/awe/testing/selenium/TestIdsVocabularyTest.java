@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -132,7 +131,7 @@ class TestIdsVocabularyTest {
    */
   static Map<String, String> readJavaScriptConstant(String vocabularyFile, String name) throws IOException {
     Path file = locateVocabulary(vocabularyFile);
-    String source = Files.readString(file, StandardCharsets.UTF_8)
+    String source = Files.readString(file)
       .replaceAll("(?s)/\\*.*?\\*/", "")
       .replaceAll("(?m)^\\s*//.*$", "");
 

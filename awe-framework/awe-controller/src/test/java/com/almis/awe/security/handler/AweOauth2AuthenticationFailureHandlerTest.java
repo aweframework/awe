@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -243,7 +242,7 @@ class AweOauth2AuthenticationFailureHandlerTest {
   void testConstructor() {
     // Create a new mock that won't have the setUp stubbing
     ErrorPageService mockErrorPageService = mock(ErrorPageService.class);
-    
+
     // When
     AweOauth2AuthenticationFailureHandler newHandler = new AweOauth2AuthenticationFailureHandler(mockErrorPageService);
 

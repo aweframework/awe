@@ -24,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,7 @@ import java.util.List;
 @JsonPropertyOrder(alphabetic = true)
 public abstract class Component extends Element {
 
+  @Serial
   private static final long serialVersionUID = 7408027548839969343L;
 
   // Component name (identifier)

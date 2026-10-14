@@ -16,14 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 class QueryTest {
 
-  String expectedQuery = "SQL QUERY:\n" +
-          "SELECT variable(fieldVariable) as alias1, fieldTable.fieldId, CONCAT(\"tutu\", \"lala\", ADD(field, 1), \"lolo\") as alias3, " +
-          "CASE WHEN (\"lala\" eq variable(lala)) THEN 1 WHEN (function(fieldTable.fieldId) eq \"lolo\") THEN 2 ELSE 0 as alias4, " +
-          "MAX(ADD(tablex.fieldx, 2)) OVER (PARTITION BY fieldPartition ORDER BY fieldOrder) as alias5 LEFT JOIN tableSchema.tableId joinTable " +
-          "ON ((fieldTable.fieldId like variable(lala)) <- [ignorecase, trim]) UNION all unionQuery " +
-          "WHERE ((CONCAT(\"tutu\", \"lala\", ADD(field, 1), \"lolo\") gt CASE WHEN (\"lala\" eq variable(lala)) THEN 1 " +
-          "WHEN (function(fieldTable.fieldId) eq \"lolo\") THEN 2 ELSE 0) and (fieldTable.fieldId like variable(lala)) <- [ignorecase, trim] " +
-          "and (min(leftTable.leftField) is not null ) <- [optional]) ORDER BY tableSort.fieldSort ASC GROUP BY tableGroup.fieldGroup";
+  String expectedQuery = """
+          SQL QUERY:
+          SELECT variable(fieldVariable) as alias1, fieldTable.fieldId, CONCAT("tutu", "lala", ADD(field, 1), "lolo") as alias3, \
+          CASE WHEN ("lala" eq variable(lala)) THEN 1 WHEN (function(fieldTable.fieldId) eq "lolo") THEN 2 ELSE 0 as alias4, \
+          MAX(ADD(tablex.fieldx, 2)) OVER (PARTITION BY fieldPartition ORDER BY fieldOrder) as alias5 LEFT JOIN tableSchema.tableId joinTable \
+          ON ((fieldTable.fieldId like variable(lala)) <- [ignorecase, trim]) UNION all unionQuery \
+          WHERE ((CONCAT("tutu", "lala", ADD(field, 1), "lolo") gt CASE WHEN ("lala" eq variable(lala)) THEN 1 \
+          WHEN (function(fieldTable.fieldId) eq "lolo") THEN 2 ELSE 0) and (fieldTable.fieldId like variable(lala)) <- [ignorecase, trim] \
+          and (min(leftTable.leftField) is not null ) <- [optional]) ORDER BY tableSort.fieldSort ASC GROUP BY tableGroup.fieldGroup""";
 
   Operation concatOperation = new Operation()
     .setOperator("CONCAT")
@@ -176,124 +177,125 @@ class QueryTest {
   void testConvertQueryToXML() {
     // Prepare
     String expected =
-            "<query id=\"query\">\n" +
-                    "  <table id=\"tableId\" schema=\"tableSchema\" alias=\"tableAlias\"/>\n" +
-                    "  <field alias=\"alias1\" variable=\"fieldVariable\"/>\n" +
-                    "  <field id=\"fieldId\" table=\"fieldTable\"/>\n" +
-                    "  <operation alias=\"alias3\" operator=\"CONCAT\">\n" +
-                    "    <constant type=\"STRING\" value=\"tutu\"/>\n" +
-                    "    <constant value=\"lala\"/>\n" +
-                    "    <operation operator=\"ADD\">\n" +
-        "      <field id=\"field\"/>\n" +
-        "      <constant type=\"INTEGER\" value=\"1\"/>\n" +
-        "    </operation>\n" +
-        "    <constant type=\"STRING\" value=\"lolo\"/>\n" +
-        "  </operation>\n" +
-        "  <case alias=\"alias4\">\n" +
-        "    <when condition=\"eq\">\n" +
-        "      <left-operand>\n" +
-        "        <constant type=\"STRING\" value=\"lala\"/>\n" +
-        "      </left-operand>\n" +
-        "      <right-operand>\n" +
-        "        <field variable=\"lala\"/>\n" +
-        "      </right-operand>\n" +
-        "      <then>\n" +
-        "        <constant type=\"INTEGER\" value=\"1\"/>\n" +
-        "      </then>\n" +
-        "    </when>\n" +
-        "    <when condition=\"eq\">\n" +
-        "      <left-operand>\n" +
-        "        <field id=\"fieldId\" table=\"fieldTable\" function=\"function\"/>\n" +
-        "      </left-operand>\n" +
-        "      <right-operand>\n" +
-        "        <constant value=\"lolo\"/>\n" +
-        "      </right-operand>\n" +
-        "      <then>\n" +
-        "        <constant type=\"INTEGER\" value=\"2\"/>\n" +
-        "      </then>\n" +
-        "    </when>\n" +
-        "    <else>\n" +
-        "      <constant type=\"INTEGER\" value=\"0\"/>\n" +
-        "    </else>\n" +
-        "  </case>\n" +
-        "  <over alias=\"alias5\">\n" +
-        "    <operation function=\"MAX\" operator=\"ADD\">\n" +
-        "      <field id=\"fieldx\" table=\"tablex\"/>\n" +
-        "      <constant type=\"INTEGER\" value=\"2\"/>\n" +
-        "    </operation>\n" +
-        "    <partition-by field=\"fieldPartition\"/>\n" +
-        "    <order-by field=\"fieldOrder\"/>\n" +
-        "  </over>\n" +
-        "  <join type=\"left\">\n" +
-        "    <table id=\"tableId\" schema=\"tableSchema\" alias=\"joinTable\"/>\n" +
-        "    <or>\n" +
-        "      <filter condition=\"like\" ignorecase=\"true\" trim=\"true\">\n" +
-        "        <left-operand>\n" +
-        "          <field id=\"fieldId\" table=\"fieldTable\"/>\n" +
-        "        </left-operand>\n" +
-        "        <right-operand>\n" +
-        "          <field variable=\"lala\"/>\n" +
-        "        </right-operand>\n" +
-        "      </filter>\n" +
-        "    </or>\n" +
-        "  </join>\n" +
-        "  <union query=\"unionQuery\" type=\"all\"/>\n" +
-        "  <order-by field=\"fieldSort\" table=\"tableSort\" type=\"ASC\"/>\n" +
-        "  <group-by field=\"fieldGroup\" table=\"tableGroup\"/>\n" +
-        "  <where>\n" +
-        "    <filter condition=\"gt\">\n" +
-        "      <left-operand>\n" +
-        "        <operation operator=\"CONCAT\">\n" +
-        "          <constant type=\"STRING\" value=\"tutu\"/>\n" +
-        "          <constant value=\"lala\"/>\n" +
-        "          <operation operator=\"ADD\">\n" +
-        "            <field id=\"field\"/>\n" +
-        "            <constant type=\"INTEGER\" value=\"1\"/>\n" +
-        "          </operation>\n" +
-        "          <constant type=\"STRING\" value=\"lolo\"/>\n" +
-        "        </operation>\n" +
-        "      </left-operand>\n" +
-        "      <right-operand>\n" +
-        "        <case>\n" +
-        "          <when condition=\"eq\">\n" +
-        "            <left-operand>\n" +
-        "              <constant type=\"STRING\" value=\"lala\"/>\n" +
-        "            </left-operand>\n" +
-        "            <right-operand>\n" +
-        "              <field variable=\"lala\"/>\n" +
-        "            </right-operand>\n" +
-        "            <then>\n" +
-        "              <constant type=\"INTEGER\" value=\"1\"/>\n" +
-        "            </then>\n" +
-        "          </when>\n" +
-        "          <when condition=\"eq\">\n" +
-        "            <left-operand>\n" +
-        "              <field id=\"fieldId\" table=\"fieldTable\" function=\"function\"/>\n" +
-        "            </left-operand>\n" +
-        "            <right-operand>\n" +
-        "              <constant value=\"lolo\"/>\n" +
-        "            </right-operand>\n" +
-        "            <then>\n" +
-        "              <constant type=\"INTEGER\" value=\"2\"/>\n" +
-        "            </then>\n" +
-        "          </when>\n" +
-        "          <else>\n" +
-        "            <constant type=\"INTEGER\" value=\"0\"/>\n" +
-        "          </else>\n" +
-        "        </case>\n" +
-        "      </right-operand>\n" +
-        "    </filter>\n" +
-        "    <filter condition=\"like\" ignorecase=\"true\" trim=\"true\">\n" +
-        "      <left-operand>\n" +
-        "        <field id=\"fieldId\" table=\"fieldTable\"/>\n" +
-        "      </left-operand>\n" +
-        "      <right-operand>\n" +
-        "        <field variable=\"lala\"/>\n" +
-        "      </right-operand>\n" +
-        "    </filter>\n" +
-        "    <filter left-field=\"leftField\" left-table=\"leftTable\" left-function=\"MIN\" condition=\"is not null\" optional=\"true\"/>\n" +
-        "  </where>\n" +
-        "</query>";
+            """
+        <query id="query">
+          <table id="tableId" schema="tableSchema" alias="tableAlias"/>
+          <field alias="alias1" variable="fieldVariable"/>
+          <field id="fieldId" table="fieldTable"/>
+          <operation alias="alias3" operator="CONCAT">
+            <constant type="STRING" value="tutu"/>
+            <constant value="lala"/>
+            <operation operator="ADD">
+              <field id="field"/>
+              <constant type="INTEGER" value="1"/>
+            </operation>
+            <constant type="STRING" value="lolo"/>
+          </operation>
+          <case alias="alias4">
+            <when condition="eq">
+              <left-operand>
+                <constant type="STRING" value="lala"/>
+              </left-operand>
+              <right-operand>
+                <field variable="lala"/>
+              </right-operand>
+              <then>
+                <constant type="INTEGER" value="1"/>
+              </then>
+            </when>
+            <when condition="eq">
+              <left-operand>
+                <field id="fieldId" table="fieldTable" function="function"/>
+              </left-operand>
+              <right-operand>
+                <constant value="lolo"/>
+              </right-operand>
+              <then>
+                <constant type="INTEGER" value="2"/>
+              </then>
+            </when>
+            <else>
+              <constant type="INTEGER" value="0"/>
+            </else>
+          </case>
+          <over alias="alias5">
+            <operation function="MAX" operator="ADD">
+              <field id="fieldx" table="tablex"/>
+              <constant type="INTEGER" value="2"/>
+            </operation>
+            <partition-by field="fieldPartition"/>
+            <order-by field="fieldOrder"/>
+          </over>
+          <join type="left">
+            <table id="tableId" schema="tableSchema" alias="joinTable"/>
+            <or>
+              <filter condition="like" ignorecase="true" trim="true">
+                <left-operand>
+                  <field id="fieldId" table="fieldTable"/>
+                </left-operand>
+                <right-operand>
+                  <field variable="lala"/>
+                </right-operand>
+              </filter>
+            </or>
+          </join>
+          <union query="unionQuery" type="all"/>
+          <order-by field="fieldSort" table="tableSort" type="ASC"/>
+          <group-by field="fieldGroup" table="tableGroup"/>
+          <where>
+            <filter condition="gt">
+              <left-operand>
+                <operation operator="CONCAT">
+                  <constant type="STRING" value="tutu"/>
+                  <constant value="lala"/>
+                  <operation operator="ADD">
+                    <field id="field"/>
+                    <constant type="INTEGER" value="1"/>
+                  </operation>
+                  <constant type="STRING" value="lolo"/>
+                </operation>
+              </left-operand>
+              <right-operand>
+                <case>
+                  <when condition="eq">
+                    <left-operand>
+                      <constant type="STRING" value="lala"/>
+                    </left-operand>
+                    <right-operand>
+                      <field variable="lala"/>
+                    </right-operand>
+                    <then>
+                      <constant type="INTEGER" value="1"/>
+                    </then>
+                  </when>
+                  <when condition="eq">
+                    <left-operand>
+                      <field id="fieldId" table="fieldTable" function="function"/>
+                    </left-operand>
+                    <right-operand>
+                      <constant value="lolo"/>
+                    </right-operand>
+                    <then>
+                      <constant type="INTEGER" value="2"/>
+                    </then>
+                  </when>
+                  <else>
+                    <constant type="INTEGER" value="0"/>
+                  </else>
+                </case>
+              </right-operand>
+            </filter>
+            <filter condition="like" ignorecase="true" trim="true">
+              <left-operand>
+                <field id="fieldId" table="fieldTable"/>
+              </left-operand>
+              <right-operand>
+                <field variable="lala"/>
+              </right-operand>
+            </filter>
+            <filter left-field="leftField" left-table="leftTable" left-function="MIN" condition="is not null" optional="true"/>
+          </where>
+        </query>""";
 
     // Run
     XStream streamMarshaller = new XStream();
@@ -345,11 +347,12 @@ class QueryTest {
     substringOp.setAlias("result");
 
     String expectedXml =
-      "<operation alias=\"result\" operator=\"SUBSTRING\">\n" +
-      "  <constant type=\"STRING\" value=\"Hello World\"/>\n" +
-      "  <constant type=\"INTEGER\" value=\"6\"/>\n" +
-      "  <constant type=\"INTEGER\" value=\"11\"/>\n" +
-      "</operation>";
+      """
+      <operation alias="result" operator="SUBSTRING">
+        <constant type="STRING" value="Hello World"/>
+        <constant type="INTEGER" value="6"/>
+        <constant type="INTEGER" value="11"/>
+      </operation>""";
 
     XStream streamMarshaller = new XStream();
     streamMarshaller.autodetectAnnotations(true);
@@ -390,10 +393,11 @@ class QueryTest {
     substringOp.setAlias("result");
 
     String expectedXml =
-      "<operation alias=\"result\" operator=\"SUBSTRING\">\n" +
-      "  <constant type=\"STRING\" value=\"Hello World\"/>\n" +
-      "  <constant type=\"INTEGER\" value=\"6\"/>\n" +
-      "</operation>";
+      """
+      <operation alias="result" operator="SUBSTRING">
+        <constant type="STRING" value="Hello World"/>
+        <constant type="INTEGER" value="6"/>
+      </operation>""";
 
     XStream streamMarshaller = new XStream();
     streamMarshaller.autodetectAnnotations(true);

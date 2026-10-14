@@ -15,9 +15,7 @@ import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +36,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * REST security configuration
@@ -65,7 +64,6 @@ public class RestSecurityConfiguration extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
 
-  @Autowired
   public RestSecurityConfiguration(PublicQueryMaintainAuthorization publicQueryMaintainAuthorization,
                                    AuthenticationManager authenticationManager,
                                    @Qualifier("localLoginAuthenticationManager") AuthenticationManager localLoginAuthenticationManager,

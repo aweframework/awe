@@ -91,6 +91,26 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-demo.jar"]
 ```
 
+## Virtual threads
+AWE applications run on Java 21, so they can use virtual threads. Enable them with the standard Spring Boot property, without code changes:
+
+```properties
+spring.threads.virtual.enabled=true
+```
+
+Besides the Spring Boot components (embedded web server, `@Async` and scheduling defaults), the property switches the AWE task executors to virtual threads:
+
+| Executor bean | Starter | Pool properties |
+|---|---|---|
+| `threadPoolTaskExecutor`, `threadHelpPoolTaskExecutor`, `contextLessTaskExecutor` | `awe-spring-boot-starter` | `awe.application.task.pool.*` |
+| `schedulerTaskPool`, `schedulerJobPool`, `schedulerTimeoutPool` | `awe-scheduler-spring-boot-starter` | `awe.scheduler.task-pool.*` |
+
+The executors keep their pool size, queue capacity, thread name prefix and, where they had it, context propagation (request data, security context and MDC), so the pool properties still bound the concurrency. The property is disabled by default, and the executors then use platform threads as before.
+
+:::caution
+Code that holds a lock (`synchronized`) while blocking on I/O can pin the carrier thread on Java 21. Test your own blocking code before enabling virtual threads in production. AWE itself reads its XML descriptors inside a `synchronized` block on `contextLessTaskExecutor`, so while they load at startup up to `awe.application.task.pool.max-size` carrier threads (by default, one per CPU core) can be pinned.
+:::
+
 ## Deploying in the CLOUD
 Awe apps same as Spring Boot’s executable jars are ready-made for most popular cloud PaaS (Platform-as-a-Service) providers. These providers tend to require that you “bring your own container”. They manage application processes (not Java applications specifically), so they need an intermediary layer that adapts your application to the cloud’s notion of a running process.
 

@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ServiceMicroservice Class
  * Used to parse the tag 'microservice' in file Services.xml with XStream
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("microservice")
 public class ServiceMicroservice extends AbstractServiceRest {
 
+  @Serial
   private static final long serialVersionUID = 7493053120314893763L;
 
   // Service name

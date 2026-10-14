@@ -13,9 +13,9 @@ import com.almis.awe.notifier.dto.NotificationDto;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 

@@ -242,7 +242,8 @@ class LocalLoginSecurityTest {
       String redirect = mockMvc(context).perform(get("/some/protected/page").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE))
         .andReturn().getResponse().getRedirectedUrl();
 
-      assertThat(redirect).isEqualTo("http://localhost/");
+      // Spring Security 7 favors relative login redirects (Location: /) over absolute ones
+      assertThat(redirect).isEqualTo("/");
     });
   }
 

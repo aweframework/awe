@@ -2,14 +2,15 @@ package com.almis.awe.model.entities.actions;
 
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -24,6 +25,7 @@ import java.io.Serializable;
 @Slf4j
 public class ComponentAddress implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 5241963594540611025L;
 
   private String application;

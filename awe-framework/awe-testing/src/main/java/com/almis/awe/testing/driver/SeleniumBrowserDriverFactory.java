@@ -25,7 +25,7 @@ import org.openqa.selenium.safari.SafariOptions;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -196,7 +196,7 @@ public class SeleniumBrowserDriverFactory implements BrowserDriverFactory {
   private WebDriver getDockerDriver(WebDriverManager driverManager, SeleniumModel model, String name, Capabilities capabilities) {
     final AweTestConfigProperties properties = model.getProperties();
     driverManager
-      .browserInDocker().enableRecording().dockerRecordingOutput(Paths.get(properties.getScreenshotPath()))
+      .browserInDocker().enableRecording().dockerRecordingOutput(Path.of(properties.getScreenshotPath()))
       .dockerRecordingPrefix(name + "-")
       .capabilities(capabilities)
       .dockerScreenResolution(properties.getBrowserWidth() + "x" + properties.getBrowserHeight() + "x24");

@@ -17,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.Map;
 @XStreamAlias("chart-serie")
 public class ChartSerie extends AbstractChart {
 
+  @Serial
   private static final long serialVersionUID = -3249310197282122907L;
 
   // Color of serie

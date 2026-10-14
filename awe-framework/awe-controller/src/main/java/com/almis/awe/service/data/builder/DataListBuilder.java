@@ -552,8 +552,8 @@ public class DataListBuilder extends ServiceConfig {
     List<String> columnNames = new ArrayList<>();
     List<Expression<?>> columns = ((QTuple) projection).getArgs();
     for (Expression<?> columnOperation : columns) {
-      if (columnOperation instanceof SimpleOperation) {
-        List<Expression<?>> columnData = ((SimpleOperation<?>) columnOperation).getArgs();
+      if (columnOperation instanceof SimpleOperation<?> operation) {
+        List<Expression<?>> columnData = operation.getArgs();
         columnNames.add(columnData.get(columnData.size() - 1).toString());
       } else {
         columnNames.add(columnOperation.toString());

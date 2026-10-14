@@ -146,9 +146,9 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
    * if this attribute should be ignored.
    */
   private GrantedAuthority createAuthority(Object role) {
-    if (role instanceof String) {
+    if (role instanceof String string) {
       if (convertToUpperCase) {
-        role = ((String) role).toUpperCase();
+        role = string.toUpperCase();
       }
       return new SimpleGrantedAuthority(rolePrefix + role);
     }

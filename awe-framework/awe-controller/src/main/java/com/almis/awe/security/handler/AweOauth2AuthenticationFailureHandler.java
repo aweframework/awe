@@ -4,7 +4,6 @@ import com.almis.awe.service.ErrorPageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -25,7 +24,6 @@ public class AweOauth2AuthenticationFailureHandler implements AuthenticationFail
 
   private final ErrorPageService errorPageService;
 
-  @Autowired
   public AweOauth2AuthenticationFailureHandler(ErrorPageService errorPageService) {
 		this.errorPageService = errorPageService;
   }

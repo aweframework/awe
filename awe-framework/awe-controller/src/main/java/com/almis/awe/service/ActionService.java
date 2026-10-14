@@ -12,10 +12,10 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.service.observation.ExecutionObserver;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -310,7 +310,7 @@ public class ActionService extends ServiceConfig {
       String password = getScalarParameterValueAsString(parameterList.get(baseConfigProperties.getParameter().getPassword()));
 
       // Remove nonsense values from parameter list
-      Iterator<String> fieldNames = parameterList.fieldNames();
+      Iterator<String> fieldNames = parameterList.propertyNames().iterator();
       while (fieldNames.hasNext()) {
         String key = fieldNames.next();
         String value = getParameterValueAsString(parameterList.get(key));
@@ -335,10 +335,10 @@ public class ActionService extends ServiceConfig {
       return null;
     } else if (parameter.isArray() || parameter.isObject()) {
       return parameter.toString();
-    } else if (parameter.isTextual()) {
+    } else if (parameter.isString()) {
       return parameter.toString();
     } else {
-      return parameter.asText();
+      return parameter.asString("");
     }
   }
 
@@ -352,7 +352,7 @@ public class ActionService extends ServiceConfig {
     if (parameter == null || parameter.isNull() || parameter.isArray() || parameter.isObject()) {
       return null;
     }
-    return parameter.asText();
+    return parameter.asString("");
   }
 
   /**

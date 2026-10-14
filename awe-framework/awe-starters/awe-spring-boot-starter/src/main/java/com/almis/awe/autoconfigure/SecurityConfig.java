@@ -42,7 +42,6 @@ public class SecurityConfig extends ServiceConfig {
    *
    * @param securityConfigProperties Security configuration properties
    */
-  @Autowired
   public SecurityConfig(SecurityConfigProperties securityConfigProperties) {
     this.securityConfigProperties = securityConfigProperties;
   }

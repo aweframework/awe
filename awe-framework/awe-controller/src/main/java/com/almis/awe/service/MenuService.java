@@ -27,10 +27,10 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -190,7 +190,7 @@ public class MenuService extends ServiceConfig {
     // Apply restrictions if logged in
     if (getSession().isAuthenticated()) {
       String module = Optional.ofNullable(getRequest().getParameter(SESSION_MODULE))
-              .map(JsonNode::textValue)
+              .map(JsonNode::stringValue)
               .orElse(getSession().getParameter(String.class, AweConstants.SESSION_MODULE));
 
       // Apply module restrictions

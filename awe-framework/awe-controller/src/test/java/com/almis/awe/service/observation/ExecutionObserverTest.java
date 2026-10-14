@@ -21,14 +21,14 @@ import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
 import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;

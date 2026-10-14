@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * OrderBy Class
  * Used to parse the files Queries.xml with XStream
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("order-by")
 public class OrderBy implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -1686732994427665136L;
 
   // Field name

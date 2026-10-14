@@ -7,14 +7,14 @@ import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.service.report.SchedulerMaintainReportService;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;

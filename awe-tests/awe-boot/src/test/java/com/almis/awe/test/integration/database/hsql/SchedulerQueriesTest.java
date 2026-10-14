@@ -1,14 +1,14 @@
 package com.almis.awe.test.integration.database.hsql;
 
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,7 +39,7 @@ class SchedulerQueriesTest extends AbstractSpringAppIntegrationTest {
   public void assertResultJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -54,7 +54,7 @@ class SchedulerQueriesTest extends AbstractSpringAppIntegrationTest {
     }
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     logger.debug("--------------------------------------------------------------------------------------");
     logger.debug("There are " + dataListRows.size() + " rows as a result of launching query " + queryName);
@@ -154,7 +154,7 @@ class SchedulerQueriesTest extends AbstractSpringAppIntegrationTest {
   private ArrayNode extractRows(String result) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode dataList = (ObjectNode) ((ObjectNode) fillAction.get("parameters")).get("datalist");
     return (ArrayNode) dataList.get("rows");
   }

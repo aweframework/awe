@@ -10,11 +10,11 @@ import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.sql.*;
+import tools.jackson.databind.JsonNode;
 
 import java.sql.Clob;
 import java.util.ArrayList;
@@ -284,10 +284,10 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @throws AWException if the operand is not integer-compatible
    */
   private void validateIntegerCompatibleOperand(SqlField operand, int position) throws AWException {
-    if (operand instanceof Constant) {
-      validateConstantIntegerOperand((Constant) operand, position);
-    } else if (operand instanceof Field) {
-      validateFieldIntegerOperand((Field) operand, position);
+    if (operand instanceof Constant constant) {
+      validateConstantIntegerOperand(constant, position);
+    } else if (operand instanceof Field field) {
+      validateFieldIntegerOperand(field, position);
       // A Field referencing a database column (e.g. an integer column) is allowed through
     } else {
       throw new AWException(
@@ -427,16 +427,16 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    */
   protected Expression getOperandExpression(SqlField operand) throws AWException {
     Expression expression;
-    if (operand instanceof Constant) {
-      expression = getConstantExpression((Constant) operand);
-    } else if (operand instanceof Field) {
-      expression = getFieldExpression((Field) operand);
-    } else if (operand instanceof Operation) {
-      expression = getOperationExpression((Operation) operand);
-    } else if (operand instanceof Over) {
-      expression = getOverExpression((Over) operand);
-    } else if (operand instanceof Case) {
-      expression = getCaseExpression((Case) operand);
+    if (operand instanceof Constant constant) {
+      expression = getConstantExpression(constant);
+    } else if (operand instanceof Field field) {
+      expression = getFieldExpression(field);
+    } else if (operand instanceof Operation operation) {
+      expression = getOperationExpression(operation);
+    } else if (operand instanceof Over over) {
+      expression = getOverExpression(over);
+    } else if (operand instanceof Case case1) {
+      expression = getCaseExpression(case1);
     } else {
       return null;
     }
@@ -620,13 +620,13 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       operand = field;
     }
 
-    if (operand instanceof Field && operand.getVariable() != null) {
-      operandExpression = getOperandVariableExpression(filter, (Field) operand);
+    if (operand instanceof Field field && operand.getVariable() != null) {
+      operandExpression = getOperandVariableExpression(filter, field);
       if (operandExpression == null) {
         return null;
       }
-    } else if (operand instanceof Constant) {
-      operandExpression = getOperandConstantExpression(filter, (Constant) operand);
+    } else if (operand instanceof Constant constant) {
+      operandExpression = getOperandConstantExpression(filter, constant);
       if (operandExpression == null) {
         return null;
       }
@@ -1174,10 +1174,10 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         expressionList.add(getVariableAsExpression(variableValue.get(i), type));
       }
       // One value NOT empty (in array)
-    } else if (variableValuesLength == 1 && variableValue.isArray() && !(variableValue.get(0).asText().isEmpty())) {
+    } else if (variableValuesLength == 1 && variableValue.isArray() && !(variableValue.get(0).asString("").isEmpty())) {
       expressionList.add(getVariableAsExpression(variableValue.get(0), type));
       // One value NOT empty
-    } else if (variableValuesLength == 1 && !(variableValue.asText().isEmpty())) {
+    } else if (variableValuesLength == 1 && !(variableValue.asString("").isEmpty())) {
       expressionList.add(getVariableAsExpression(variableValue, type));
       // OPTIONAL in, add nothing
     } else if (filter.isOptional()) {

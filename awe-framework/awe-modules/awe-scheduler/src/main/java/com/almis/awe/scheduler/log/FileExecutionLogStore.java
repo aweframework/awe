@@ -7,16 +7,14 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -79,7 +77,7 @@ public class FileExecutionLogStore implements ExecutionLogStore {
 
     List<String> content = new ArrayList<>();
     int totalLines = 0;
-    try (BufferedReader reader = Files.newBufferedReader(logFilePath, StandardCharsets.UTF_8)) {
+    try (BufferedReader reader = Files.newBufferedReader(logFilePath)) {
       String lineString;
       while ((lineString = reader.readLine()) != null) {
         if (offset <= totalLines) {
@@ -134,7 +132,7 @@ public class FileExecutionLogStore implements ExecutionLogStore {
       .map(key -> "execution_" + key.taskId() + TASK_SEPARATOR + key.executionId() + ".log")
       .collect(Collectors.toSet());
 
-    Path logPath = Paths.get(executionLogPath);
+    Path logPath = Path.of(executionLogPath);
     if (logPath.toFile().exists()) {
       try (Stream<Path> pathStream = Files.list(logPath)) {
         pathStream.forEach(path -> {
@@ -161,6 +159,6 @@ public class FileExecutionLogStore implements ExecutionLogStore {
    * @return Log file path
    */
   private Path getExecutionLogFilePath(Integer taskId, Integer executionId) {
-    return Paths.get(executionLogPath, "execution_" + taskId + TASK_SEPARATOR + executionId + ".log");
+    return Path.of(executionLogPath, "execution_" + taskId + TASK_SEPARATOR + executionId + ".log");
   }
 }

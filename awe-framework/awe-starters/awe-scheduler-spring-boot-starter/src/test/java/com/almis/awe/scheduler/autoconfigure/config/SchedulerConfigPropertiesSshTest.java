@@ -3,7 +3,7 @@ package com.almis.awe.scheduler.autoconfigure.config;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +33,7 @@ class SchedulerConfigPropertiesSshTest {
   void sshKnownHostsPathDefaultsUnderUserHome() {
     SchedulerConfigProperties properties = new SchedulerConfigProperties();
 
-    String expected = Paths.get(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
+    String expected = Path.of(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
     assertEquals(expected, properties.getSshKnownHostsPath());
   }
 

@@ -13,7 +13,7 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -85,7 +85,7 @@ class WebMvcConfigTest {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
       converters.add(new StringHttpMessageConverter());
-      converters.add(new MappingJackson2HttpMessageConverter());
+      converters.add(new JacksonJsonHttpMessageConverter());
     }
 
     @Override
@@ -128,7 +128,7 @@ class WebMvcConfigTest {
     converters.add(new ResourceHttpMessageConverter());
     converters.add(new SourceHttpMessageConverter<>());
     converters.add(new SuffixXmlConverter());
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     return converters;
   }
 
@@ -171,7 +171,7 @@ class WebMvcConfigTest {
 
     assertThat(converters)
       .hasSize(4)
-      .anyMatch(MappingJackson2HttpMessageConverter.class::isInstance)
+      .anyMatch(JacksonJsonHttpMessageConverter.class::isInstance)
       .anyMatch(ByteArrayHttpMessageConverter.class::isInstance)
       .anyMatch(StringHttpMessageConverter.class::isInstance)
       .anyMatch(ResourceHttpMessageConverter.class::isInstance);
@@ -182,7 +182,7 @@ class WebMvcConfigTest {
   void extendMessageConverters_withoutXmlConverters_leavesListUntouched() {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new StringHttpMessageConverter());
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
 
     config.extendMessageConverters(converters);
 
@@ -202,7 +202,7 @@ class WebMvcConfigTest {
   void servedConverters_whenXmlConfigurerSortsFirst_carryNoXml() {
     assertThat(servedConverters(new HigherPrecedenceXmlAddingConfigurer()))
       .noneMatch(SourceHttpMessageConverter.class::isInstance)
-      .anyMatch(MappingJackson2HttpMessageConverter.class::isInstance);
+      .anyMatch(JacksonJsonHttpMessageConverter.class::isInstance);
   }
 
   /**
@@ -220,7 +220,7 @@ class WebMvcConfigTest {
   void servedConverters_whenUnorderedXmlConfigurerIsRegisteredLast_stillCarryXml() {
     assertThat(servedConverters(new XmlAddingConfigurer()))
       .anyMatch(SourceHttpMessageConverter.class::isInstance)
-      .anyMatch(MappingJackson2HttpMessageConverter.class::isInstance);
+      .anyMatch(JacksonJsonHttpMessageConverter.class::isInstance);
   }
 
   @Test

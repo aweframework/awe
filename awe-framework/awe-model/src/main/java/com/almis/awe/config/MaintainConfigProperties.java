@@ -1,5 +1,6 @@
 package com.almis.awe.config;
 
+import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -17,6 +18,7 @@ public class MaintainConfigProperties {
    * Multiple maintain configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Multiple multiple = new Multiple();
 
   /**
@@ -33,6 +35,7 @@ public class MaintainConfigProperties {
      * </ul>
      * Default value strict
      */
+    @Valid
     private MaintainValidationMode validationMode = MaintainValidationMode.STRICT;
   }
 }

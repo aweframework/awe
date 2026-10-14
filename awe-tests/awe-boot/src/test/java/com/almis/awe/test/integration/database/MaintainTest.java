@@ -5,9 +5,6 @@ import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -19,6 +16,9 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -947,7 +947,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     for (JsonNode resultDetail : resultDetails) {
       ObjectNode resultNode = (ObjectNode) resultDetail;
       ObjectNode parameterMap = (ObjectNode) resultNode.get("parameterMap");
-      keys.add(parameterMap.get("varKey").asText());
+      keys.add(parameterMap.get("varKey").asString());
     }
 
     maintainName = "GridMultiple";
@@ -1025,7 +1025,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
       "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"Des\":\"AWEBOOT-TEST-CONTRACT-SINGLE\"}]}}},{\"type\":\"end-load\"}]");
     ArrayNode queryRows = extractQueryRows(queryResult);
     assertEquals(1, queryRows.size());
-    assertEquals("AWEBOOT-TEST-CONTRACT-SINGLE", queryRows.get(0).get("Des").asText());
+    assertEquals("AWEBOOT-TEST-CONTRACT-SINGLE", queryRows.get(0).get("Des").asString());
   }
 
   @Test
@@ -1044,8 +1044,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
       "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"Nam\":\"AWEBOOT-TEST-CONTRACT-LIST-0\"},{\"Nam\":\"AWEBOOT-TEST-CONTRACT-LIST-1\"}]}}},{\"type\":\"end-load\"}]");
     ArrayNode queryRows = extractQueryRows(queryResult);
     assertEquals(2, queryRows.size());
-    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-0", queryRows.get(0).get("Nam").asText());
-    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-1", queryRows.get(1).get("Nam").asText());
+    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-0", queryRows.get(0).get("Nam").asString());
+    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-1", queryRows.get(1).get("Nam").asString());
   }
 
   private ArrayNode extractQueryRows(String queryResult) throws Exception {
@@ -1069,7 +1069,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, auditRows.size());
     for (int i = 0; i < expectedRows; i++) {
       assertEquals(baseRows.get(i).get("IdeThm").asInt(), auditRows.get(i).get("IdeThm").asInt());
-      assertEquals(baseRows.get(i).get("Nam").asText(), auditRows.get(i).get("Nam").asText());
+      assertEquals(baseRows.get(i).get("Nam").asString(), auditRows.get(i).get("Nam").asString());
       assertEquals(baseRows.get(i).get("Act").asInt(), auditRows.get(i).get("Act").asInt());
     }
 
@@ -1108,8 +1108,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     for (int i = 0; i < expectedRows; i++) {
       assertEquals(sourceRows.get(i).get("IdeThm").asInt(), baseRows.get(i).get("IdeThm").asInt());
       assertEquals(sourceRows.get(i).get("IdeThm").asInt(), auditRows.get(i).get("IdeThm").asInt());
-      assertEquals(expectedNames[i], baseRows.get(i).get("Nam").asText());
-      assertEquals(expectedNames[i], auditRows.get(i).get("Nam").asText());
+      assertEquals(expectedNames[i], baseRows.get(i).get("Nam").asString());
+      assertEquals(expectedNames[i], auditRows.get(i).get("Nam").asString());
       assertEquals(expectedActValues[i], baseRows.get(i).get("Act").asInt());
       assertEquals(expectedActValues[i], auditRows.get(i).get("Act").asInt());
     }

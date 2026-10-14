@@ -53,7 +53,7 @@ public abstract class AbstractButton extends AbstractCriteria {
   @XStreamAlias("button-type")
   @XStreamAsAttribute
   private String buttonType;
-  
+
   // Cancel queue or not (default true)
   @XStreamAlias("cancel")
   @XStreamAsAttribute
@@ -95,8 +95,8 @@ public abstract class AbstractButton extends AbstractCriteria {
     List<ButtonAction> actionList = new ArrayList<>();
 
     for (Element element : getElementList()) {
-      if (element instanceof ButtonAction) {
-        actionList.add((ButtonAction) element);
+      if (element instanceof ButtonAction action) {
+        actionList.add(action);
       }
     }
 

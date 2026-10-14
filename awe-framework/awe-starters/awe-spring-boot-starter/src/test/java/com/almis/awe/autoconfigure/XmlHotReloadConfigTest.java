@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -86,7 +85,7 @@ class XmlHotReloadConfigTest {
    */
   @Test
   void hotReloadServiceIsNoOpWithoutHandlerBeans() {
-    Path moduleRoot = Paths.get("/tmp/module-one");
+    Path moduleRoot = Path.of("/tmp/module-one");
 
     contextRunner
       .withPropertyValues("awe.application.xml-hot-reload=true")
@@ -104,7 +103,7 @@ class XmlHotReloadConfigTest {
   @Test
   void registeredHandlerBeanIsWiredIntoTheService() {
     XmlReloadHandler handler = mock(XmlReloadHandler.class);
-    Path moduleRoot = Paths.get("/tmp/module-one");
+    Path moduleRoot = Path.of("/tmp/module-one");
     Path changedFile = moduleRoot.resolve("global/Treatments.xml");
     when(handler.supports(moduleRoot, changedFile)).thenReturn(true);
     when(handler.reload(moduleRoot, changedFile)).thenReturn(XmlReloadHandler.ReloadResult.HANDLED);

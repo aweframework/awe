@@ -20,8 +20,6 @@ import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.log.FileExecutionLogStore;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +32,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +45,6 @@ import java.util.Map;
 import static com.almis.awe.scheduler.constant.QueryConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 

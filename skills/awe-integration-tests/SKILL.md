@@ -51,7 +51,7 @@ Selenium is skipped by default (`-Dskip.selenium=true`); these run only the JUni
 `awe-testing` ships a Testcontainers utility (`com.almis.awe.testing.database`). **PostgreSQL, MySQL, SQL Server and Oracle use it**: their `-Ppostgresql`, `-Pmysql`, `-Psqlserver`, `-Poracle` profiles and the `-flyway` variants of each start the database in a container, locally and in CI, with no external server. H2 and HSQLDB are embedded.
 
 ```bash
-# Docker running (Docker Desktop, Colima...); the first run pulls the pinned image. Run Maven on JDK 17 or 21 (Lombok does not
+# Docker running (Docker Desktop, Colima...); the first run pulls the pinned image. Run Maven on JDK 21 (Lombok does not
 # work on JDK 25). -Dskip.frontend=true saves the Node build.
 mvn install -DskipTests -Dskip.frontend=true -pl awe-tests/awe-boot -am     # once, so awe-boot sees your modules
 mvn -pl awe-tests/awe-boot -Ppostgresql test -Dskip.frontend=true          # or postgresql-flyway, mysql, mysql-flyway, oracle, oracle-flyway

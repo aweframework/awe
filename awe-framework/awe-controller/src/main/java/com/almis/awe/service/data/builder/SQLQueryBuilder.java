@@ -7,8 +7,6 @@ import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.type.JoinType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
@@ -18,6 +16,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;

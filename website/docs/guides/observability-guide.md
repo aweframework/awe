@@ -102,7 +102,7 @@ The starter creates the spans, but it does not decide where to send them. By def
 ```
 
 ```properties
-management.otlp.tracing.endpoint=http://tempo:4318/v1/traces
+management.opentelemetry.tracing.export.otlp.endpoint=http://tempo:4318/v1/traces
 management.tracing.sampling.probability=1.0
 ```
 

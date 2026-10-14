@@ -23,11 +23,11 @@ import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.data.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.concurrent.Future;

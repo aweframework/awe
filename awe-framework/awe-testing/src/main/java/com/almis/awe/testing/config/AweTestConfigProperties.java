@@ -2,10 +2,11 @@ package com.almis.awe.testing.config;
 
 import com.almis.awe.testing.model.types.BrowserTool;
 import com.almis.awe.testing.model.types.BrowserType;
-import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.model.types.EvidenceMode;
+import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.model.types.RecordingSaveType;
 import com.almis.awe.testing.model.types.VideoFormatType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -25,14 +26,17 @@ public class AweTestConfigProperties {
    * Browser automation tool that runs the tests: selenium or playwright (pilot: local Chromium and Firefox only). An
    * unknown tool stops the tests at startup. The Selenium driver (getDriver()) is only available with the selenium tool
    */
+  @Valid
   private BrowserTool tool = BrowserTool.SELENIUM;
   /**
    * Options of the Playwright tool (pilot)
    */
+  @Valid
   private PlaywrightProperties playwright = new PlaywrightProperties();
   /**
    * Selenium browser type
    */
+  @Valid
   private BrowserType browser = BrowserType.CHROME;
   /**
    * Selenium browser width size
@@ -49,10 +53,12 @@ public class AweTestConfigProperties {
   /**
    * Video format type
    */
+  @Valid
   private VideoFormatType videoFormat = VideoFormatType.WEBM;
   /**
    * Recording save mode
    */
+  @Valid
   private RecordingSaveType videoSave = RecordingSaveType.FAILED;
   /**
    * Enable recording test video
@@ -111,6 +117,7 @@ public class AweTestConfigProperties {
   /**
    * Frontend type for tests
    */
+  @Valid
   private FrontendType frontend = FrontendType.ANGULAR;
 
   /**
@@ -129,6 +136,7 @@ public class AweTestConfigProperties {
      * {@code off}, {@code on-failure} (a trace for each failed test, the default) or {@code always}. The trace has the
      * screenshots of every action, which cost next to nothing
      */
+    @Valid
     private EvidenceMode trace = EvidenceMode.ON_FAILURE;
     /**
      * Whether the trace also takes the DOM snapshots of every action, which the Trace Viewer shows as the page you can
@@ -142,6 +150,7 @@ public class AweTestConfigProperties {
      * test of the class failed, the default) or {@code always}. It is independent of {@code awe.test.allowed-recording},
      * which belongs to the screen recorder of the Selenium tool
      */
+    @Valid
     private EvidenceMode video = EvidenceMode.ON_FAILURE;
   }
 }

@@ -10,7 +10,6 @@ import com.almis.awe.model.entities.queries.Table;
 import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,7 +42,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SQLMaintainBuilderTest {

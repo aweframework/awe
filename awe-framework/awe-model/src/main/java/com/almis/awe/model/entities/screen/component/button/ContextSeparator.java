@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ContextSeparator Class
  *
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("context-separator")
 public class ContextSeparator extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = 5664473708570111319L;
 
   @Override

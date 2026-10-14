@@ -1,12 +1,10 @@
 package com.almis.awe.testing.database;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Connection;
@@ -21,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * the annotation writes. Skipped when Docker is not available.
  */
 @Testcontainers(disabledWithoutDocker = true)
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = PostgresContainerSmokeTest.EmptyConfiguration.class)
+@SpringJUnitConfig(classes = PostgresContainerSmokeTest.EmptyConfiguration.class)
 @AweDatabaseTest(TestDatabase.POSTGRESQL)
 class PostgresContainerSmokeTest {
 

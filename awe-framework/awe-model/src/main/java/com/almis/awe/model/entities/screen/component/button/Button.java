@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Button Class
  *
@@ -31,6 +33,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Button extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = 4537762712903982049L;
 
   @Override

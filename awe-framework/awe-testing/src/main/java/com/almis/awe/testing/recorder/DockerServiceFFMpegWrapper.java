@@ -7,13 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -138,7 +137,7 @@ public class DockerServiceFFMpegWrapper {
 
   private File getFileName(String filename) {
     String movieFolder = VideoRecorder.conf().folder();
-    return Paths.get(movieFolder, filename + getVideoFormat()).toFile();
+    return Path.of(movieFolder, filename + getVideoFormat()).toFile();
   }
 
   private String getDockerScreenSize() {

@@ -9,9 +9,7 @@ import com.almis.awe.model.entities.screen.component.chart.Chart;
 import com.almis.awe.model.entities.screen.component.chart.ChartParameter;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -36,7 +35,6 @@ public class ChartService extends ServiceConfig {
    * @param mapper               Object mapper
    * @param baseConfigProperties Base configuration properties
    */
-  @Autowired
   public ChartService(ObjectMapper mapper, BaseConfigProperties baseConfigProperties) {
     this.mapper = mapper;
     this.baseConfigProperties = baseConfigProperties;

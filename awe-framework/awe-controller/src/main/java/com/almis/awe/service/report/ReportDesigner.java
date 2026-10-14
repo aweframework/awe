@@ -1,8 +1,8 @@
 package com.almis.awe.service.report;
 
 
-import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.*;
+import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.grid.GridHeader;
 import com.almis.ade.api.bean.component.grid.ReportColumn;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
@@ -11,9 +11,12 @@ import com.almis.ade.api.bean.input.DataBean;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.ade.api.bean.section.PageFooter;
 import com.almis.ade.api.bean.section.PageHeader;
+import com.almis.ade.api.bean.style.AdeStyle;
 import com.almis.ade.api.bean.style.StyleTemplate;
 import com.almis.ade.api.enumerate.ColumnType;
+import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.ade.api.enumerate.LayoutType;
+import com.almis.ade.api.enumerate.PageOrientation;
 import com.almis.ade.api.enumerate.PagingType;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
@@ -30,16 +33,13 @@ import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.type.OutputFormatType;
 import com.almis.awe.model.type.TotalizeStyleType;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.almis.ade.api.bean.style.AdeStyle;
-import com.almis.ade.api.enumerate.HorizontalTextAlignment;
-import com.almis.ade.api.enumerate.PageOrientation;
 import lombok.extern.log4j.Log4j2;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.awt.*;
 import java.io.IOException;
@@ -115,20 +115,20 @@ public class ReportDesigner extends ServiceConfig {
 
     // Set orientation if defined
     if (parameters.has(AweConstants.PRINT_ORIENTATION) && !parameters.get(AweConstants.PRINT_ORIENTATION).isNull()) {
-      printBean.setOrientation(PageOrientation.valueOf(parameters.get(AweConstants.PRINT_ORIENTATION).asText()));
+      printBean.setOrientation(PageOrientation.valueOf(parameters.get(AweConstants.PRINT_ORIENTATION).asString("")));
     }
 
     // For each element, generate report bean
     for (Element element : reportStructure) {
-      if (element instanceof Screen) {
-        getElementDesign(printBean, (Screen) element);
-      } else if (element instanceof Grid) {
-        getElementDesign(printBean, (Grid) element, parameters, includeSpreadsheetOnlyColumns);
-      } else if (element instanceof Chart) {
-        getElementDesign(printBean, (Chart) element, parameters);
-      } else if (element instanceof Criteria) {
+      if (element instanceof Screen screen) {
+        getElementDesign(printBean, screen);
+      } else if (element instanceof Grid grid) {
+        getElementDesign(printBean, grid, parameters, includeSpreadsheetOnlyColumns);
+      } else if (element instanceof Chart chart) {
+        getElementDesign(printBean, chart, parameters);
+      } else if (element instanceof Criteria criteria) {
         initializeCriteriaLayout(layout);
-        getElementDesign(printBean, (Criteria) element, parameters);
+        getElementDesign(printBean, criteria, parameters);
       } else {
         getElementDesign(printBean, element);
       }
@@ -282,7 +282,7 @@ public class ReportDesigner extends ServiceConfig {
           element.getId(), AweConstants.JSON_TEXT_PARAMETER, data.getNodeType());
         return;
       }
-      String criterionValue = criterionText.asText();
+      String criterionValue = criterionText.asString("");
       if (criterionValue != null && !criterionValue.isEmpty()) {
         // Configure criterion label
         String criterionLabel = null;
@@ -357,11 +357,9 @@ public class ReportDesigner extends ServiceConfig {
   private Integer getGridWidth(ReportGrid reportGrid) {
     int gridWidth = 0;
     for (GridHeader header : reportGrid.getGridHeaders()) {
-      if (header instanceof ReportColumn) {
-        ReportColumn reportColumn = (ReportColumn) header;
+      if (header instanceof ReportColumn reportColumn) {
         gridWidth += reportColumn.getWidth() == null ? 0 : reportColumn.getWidth();
-      } else if (header instanceof ReportHeader) {
-        ReportHeader reportHeader = (ReportHeader) header;
+      } else if (header instanceof ReportHeader reportHeader) {
         for (ReportColumn column : reportHeader.getColumns()) {
           gridWidth += column.getWidth() == null ? 0 : column.getWidth();
         }
@@ -400,7 +398,7 @@ public class ReportDesigner extends ServiceConfig {
    * @return Visible columns
    */
   private List<PrintColumnData> getVisibleColumns(Grid grid, ObjectNode parameters) throws IOException {
-    return mapper.readValue(parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.JSON_VISIBLE_COLUMNS).traverse(), new TypeReference<List<PrintColumnData>>(){});
+    return mapper.convertValue(parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.JSON_VISIBLE_COLUMNS), new TypeReference<List<PrintColumnData>>(){});
   }
 
   /**
@@ -694,10 +692,9 @@ public class ReportDesigner extends ServiceConfig {
    */
   private void updateColumnType(ReportGrid reportGrid, String field, ColumnType type) {
     for (GridHeader gridHeader : reportGrid.getGridHeaders()) {
-      if (gridHeader instanceof ReportColumn) {
-        updateType((ReportColumn) gridHeader, field, type);
-      } else if (gridHeader instanceof ReportHeader) {
-        ReportHeader header = (ReportHeader) gridHeader;
+      if (gridHeader instanceof ReportColumn column1) {
+        updateType(column1, field, type);
+      } else if (gridHeader instanceof ReportHeader header) {
         for (ReportColumn column : header.getColumns()) {
           updateType(column, field, type);
         }
@@ -782,7 +779,7 @@ public class ReportDesigner extends ServiceConfig {
     layout.addElement(chartLayout);
 
     // Get chart data
-    String image = parameters.get(element.getId()).get(AweConstants.JSON_IMAGE_PARAMETER).asText();
+    String image = parameters.get(element.getId()).get(AweConstants.JSON_IMAGE_PARAMETER).asString("");
 
     // Configure chart
     chartElement.setSVGImage(image)

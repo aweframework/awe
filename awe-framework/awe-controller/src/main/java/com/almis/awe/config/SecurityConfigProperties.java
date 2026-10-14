@@ -65,6 +65,7 @@ public class SecurityConfigProperties {
    * Authentication mode
    * Default value BBDD (Database)
    */
+  @Valid
   private AuthType authMode = AuthType.BBDD;
 
   /**
@@ -170,11 +171,12 @@ public class SecurityConfigProperties {
 		 */
 		private boolean enableGenericSsoButton = false;
 
-		/**
-		 * OIDC back-channel logout: lets the identity provider end AWE sessions
-		 */
-		@NestedConfigurationProperty
-		private BackChannelLogout backChannelLogout = new BackChannelLogout();
+    /**
+     * OIDC back-channel logout: lets the identity provider end AWE sessions
+     */
+    @NestedConfigurationProperty
+    @Valid
+    private BackChannelLogout backChannelLogout = new BackChannelLogout();
 
 		/**
 		 * Whether an SSO login needs a provider role that maps to an AWE profile: the value of

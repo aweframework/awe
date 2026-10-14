@@ -3,7 +3,7 @@ package com.almis.awe.builder.client.grid;
 import com.almis.awe.builder.client.ClientActionBuilder;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Update cell action builder

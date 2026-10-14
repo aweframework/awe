@@ -17,7 +17,6 @@ import com.almis.awe.service.TotpService;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.service.user.PasswordChangeService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
@@ -31,6 +30,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -88,7 +89,7 @@ class SecurityConfigPasswordChangeTest {
     ActionService actionService = mock(ActionService.class);
     ClientAction message = new ClientAction("message");
     when(actionService.launchError(anyString(), any(AWException.class))).thenReturn(List.of(message));
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new JsonMapper();
 
     AweWebSecurityConfig config = new AweWebSecurityConfig(context, new BaseConfigProperties(), new SecurityConfigProperties(),
       mock(AweSessionDetails.class), elements, actionService, objectMapper, mock(AccessService.class),

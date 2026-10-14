@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import java.util.List;
 @XStreamAlias("filter")
 public class Filter implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 4901754004253786690L;
 
   // Field to compare (left side)

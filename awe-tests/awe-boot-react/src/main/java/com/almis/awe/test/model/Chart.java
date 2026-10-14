@@ -8,8 +8,8 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;

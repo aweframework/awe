@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import java.util.List;
 @XStreamAlias("enumerated")
 public class Enumerated implements XMLFile {
 
+  @Serial
   private static final long serialVersionUID = -5779427444052366131L;
 
   // Enumerated group list

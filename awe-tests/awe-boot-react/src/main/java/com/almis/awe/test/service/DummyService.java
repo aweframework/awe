@@ -24,15 +24,14 @@ import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.test.bean.Planet;
 import com.almis.awe.test.bean.Planets;
 import com.almis.awe.test.model.ProfileModel;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
@@ -72,7 +71,6 @@ public class DummyService extends ServiceConfig {
    *
    * @param context Context
    */
-  @Autowired
   public DummyService(WebApplicationContext context, QueryService queryService) {
     this.context = context;
     this.queryService = queryService;

@@ -6,7 +6,6 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.actions.Action;
 import com.almis.awe.model.entities.actions.Answer;
 import com.almis.awe.model.entities.actions.ClientAction;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ class ActionServiceTest {
 
   @BeforeEach
   void setUp() {
-    request = new AweRequest(mock(HttpServletRequest.class), mock(HttpServletResponse.class), new ObjectMapper());
+    request = new AweRequest(mock(HttpServletRequest.class), mock(HttpServletResponse.class), new JsonMapper());
     actionService = new TestableActionService(launcherService, new BaseConfigProperties());
     actionService.setTestRequest(request);
   }

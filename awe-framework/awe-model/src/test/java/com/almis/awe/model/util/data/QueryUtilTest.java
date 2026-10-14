@@ -7,12 +7,12 @@ import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.maintain.Serve;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.POJONode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ class QueryUtilTest {
 
   @BeforeEach
   void setUp() {
-    queryUtil = new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), new ObjectMapper(), new PrototypeRequestBeanHolder());
+    queryUtil = new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), new JsonMapper(), new PrototypeRequestBeanHolder());
   }
 
   /**

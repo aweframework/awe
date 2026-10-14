@@ -2,13 +2,15 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.autoconfigure.config.TaskConfigProperties;
 import com.almis.awe.component.AweMDCTaskDecorator;
+import com.almis.awe.executor.ContextAwarePoolExecutor;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
-import com.almis.awe.executor.ContextAwarePoolExecutor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.thread.Threading;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -22,13 +24,16 @@ public class TaskConfig {
 
   // Autowired beans
   private final TaskConfigProperties properties;
+  private final boolean virtualThreads;
 
   /**
    * Executor task config constructor
    * @param properties Task executor configuration properties
+   * @param environment Environment, used to read {@code spring.threads.virtual.enabled}
    */
-  public TaskConfig(TaskConfigProperties properties) {
+  public TaskConfig(TaskConfigProperties properties, Environment environment) {
     this.properties = properties;
+    this.virtualThreads = Threading.VIRTUAL.isActive(environment);
   }
 
   /**
@@ -44,6 +49,7 @@ public class TaskConfig {
     executor.setQueueCapacity(properties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
     executor.setThreadNamePrefix(properties.getThreadPrefix());
+    executor.setVirtualThreads(virtualThreads);
     executor.setTaskDecorator(aweMDCTaskDecorator);
     executor.initialize();
     return executor;
@@ -62,6 +68,7 @@ public class TaskConfig {
     executor.setQueueCapacity(properties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
     executor.setThreadNamePrefix(properties.getHelpThreadPrefix());
+    executor.setVirtualThreads(virtualThreads);
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
@@ -78,6 +85,7 @@ public class TaskConfig {
     executor.setQueueCapacity(properties.getQueueSize());
     executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
     executor.setThreadNamePrefix(properties.getContextlessThreadPrefix());
+    executor.setVirtualThreads(virtualThreads);
     return executor;
   }
 

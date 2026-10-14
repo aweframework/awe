@@ -13,15 +13,15 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -193,14 +193,14 @@ public class XMLEmailBuilder extends EmailBuilder {
         if (emailAddressJson.isArray()) {
           for (int i = 0, t = emailAddressJson.size(); i < t; i++) {
             InternetAddress address = new InternetAddress();
-            address.setPersonal(emailNameJson.get(i).asText());
-            address.setAddress(emailAddressJson.get(i).asText());
+            address.setPersonal(emailNameJson.get(i).asString(""));
+            address.setAddress(emailAddressJson.get(i).asString(""));
             addresses.add(address);
           }
         } else {
           InternetAddress address = new InternetAddress();
-          address.setAddress(emailAddressJson.asText());
-          address.setPersonal(emailNameJson.asText());
+          address.setAddress(emailAddressJson.asString(""));
+          address.setPersonal(emailNameJson.asString(""));
           addresses.add(address);
         }
       }
@@ -397,6 +397,6 @@ public class XMLEmailBuilder extends EmailBuilder {
   }
 
   private String getVariableAsString(Variable variable) {
-    return getVariable(variable).asText();
+    return getVariable(variable).asString("");
   }
 }

@@ -2,8 +2,8 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.Copyable;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.serialization.ValidatingObjectInputStream;
+import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

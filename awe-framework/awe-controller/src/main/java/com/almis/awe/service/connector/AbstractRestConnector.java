@@ -10,14 +10,9 @@ import com.almis.awe.model.entities.services.AbstractServiceRest;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.RestContentType;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.model.util.web.MessageConverterUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.util.Assert;
@@ -26,6 +21,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +79,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
     } else {
       restTemplate = new RestTemplate(requestFactory);
     }
+    MessageConverterUtil.withJsonMapper(restTemplate, objectMapper);
 
     // Define request object
     HttpEntity request;
@@ -102,7 +104,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
     // Create request using headers and parameters defined previously
     try {
       request = generateRequest(service, uriBuilder, urlParameters, paramsMapFromRequest);
-    } catch (JsonProcessingException exc) {
+    } catch (JacksonException exc) {
       throw new AWException("Error processing parameters", exc);
     }
 
@@ -143,9 +145,9 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    * @param urlParameters        Url parameters
    * @param paramsMapFromRequest Request parameters
    * @return Request
-   * @throws com.fasterxml.jackson.core.JsonProcessingException See {@link JsonProcessingException}
+   * @throws tools.jackson.core.JacksonException See {@link JacksonException}
    */
-  protected HttpEntity generateRequest(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) throws JsonProcessingException {
+  protected HttpEntity generateRequest(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) {
     // Define request headers
     HttpHeaders headers = new HttpHeaders();
 
@@ -217,12 +219,12 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
     JsonNode nodeValue = objectMapper.valueToTree(paramsMapFromRequest.get(paramName));
     if (param.isList()) {
       for (JsonNode value : nodeValue) {
-        requestParametersMap.add(paramName, value.asText());
+        requestParametersMap.add(paramName, value.asString(""));
       }
     } else if (nodeValue == null) {
       requestParametersMap.set(paramName, null);
     } else {
-      requestParametersMap.set(paramName, nodeValue.asText());
+      requestParametersMap.set(paramName, nodeValue.asString(""));
     }
   }
 
@@ -234,9 +236,9 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    * @param urlParameters        URL parameters
    * @param paramsMapFromRequest Parameters from request
    * @return Entity
-   * @throws JsonProcessingException Error processing JSON
+   * @throws JacksonException Error processing JSON
    */
-  private String getParametersJson(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) throws JsonProcessingException {
+  private String getParametersJson(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) {
     JsonNode requestParametersJson = JsonNodeFactory.instance.objectNode();
     if (rest.getParameterList() != null) {
       for (ServiceInputParameter param : rest.getParameterList()) {
@@ -275,7 +277,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
         for (JsonNode value : nodeValue) {
           list.add(value);
         }
-      } else if (!nodeValue.isNull() && !nodeValue.asText().isEmpty()) {
+      } else if (!nodeValue.isNull() && !nodeValue.asString("").isEmpty()) {
         list.add(nodeValue);
       }
       nodeValue = list;

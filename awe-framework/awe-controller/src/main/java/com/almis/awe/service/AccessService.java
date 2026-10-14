@@ -16,8 +16,6 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -31,6 +29,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 

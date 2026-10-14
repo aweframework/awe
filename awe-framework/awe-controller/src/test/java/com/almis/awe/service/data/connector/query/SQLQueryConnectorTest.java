@@ -16,9 +16,6 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
@@ -38,6 +35,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -47,7 +47,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -178,8 +177,8 @@ class SQLQueryConnectorTest {
 
   private Map<String, QueryParameter> buildVariableMap(long max, long page) {
     Map<String, QueryParameter> map = new HashMap<>();
-    map.put(AweConstants.QUERY_MAX,  new QueryParameter(com.fasterxml.jackson.databind.node.LongNode.valueOf(max)));
-    map.put(AweConstants.QUERY_PAGE, new QueryParameter(com.fasterxml.jackson.databind.node.LongNode.valueOf(page)));
+    map.put(AweConstants.QUERY_MAX,  new QueryParameter(tools.jackson.databind.node.LongNode.valueOf(max)));
+    map.put(AweConstants.QUERY_PAGE, new QueryParameter(tools.jackson.databind.node.LongNode.valueOf(page)));
     return map;
   }
 
@@ -494,18 +493,3 @@ class SQLQueryConnectorTest {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

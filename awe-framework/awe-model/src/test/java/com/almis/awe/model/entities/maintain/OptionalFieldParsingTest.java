@@ -20,16 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class OptionalFieldParsingTest {
 
-  private static final String UPDATE_WITH_OPTIONAL_FIELD = ""
-    + "<update audit=\"HISAweThm\">\n"
-    + "  <table id=\"AweThm\"/>\n"
-    + "  <field id=\"IdeThm\" table=\"AweThm\" variable=\"themeId\"/>\n"
-    + "  <field id=\"Nam\" table=\"AweThm\" variable=\"themeName\" optional=\"true\"/>\n"
-    + "  <field id=\"Act\" table=\"AweThm\" variable=\"themeActive\" optional=\"false\"/>\n"
-    + "  <variable id=\"themeId\" type=\"INTEGER\" name=\"themeId\"/>\n"
-    + "  <variable id=\"themeName\" type=\"STRING\" name=\"themeName\"/>\n"
-    + "  <variable id=\"themeActive\" type=\"INTEGER\" name=\"themeActive\"/>\n"
-    + "</update>";
+  private static final String UPDATE_WITH_OPTIONAL_FIELD = """
+    <update audit="HISAweThm">
+      <table id="AweThm"/>
+      <field id="IdeThm" table="AweThm" variable="themeId"/>
+      <field id="Nam" table="AweThm" variable="themeName" optional="true"/>
+      <field id="Act" table="AweThm" variable="themeActive" optional="false"/>
+      <variable id="themeId" type="INTEGER" name="themeId"/>
+      <variable id="themeName" type="STRING" name="themeName"/>
+      <variable id="themeActive" type="INTEGER" name="themeActive"/>
+    </update>""";
 
   private static XStream xStreamMarshaller;
 

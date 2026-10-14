@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Tab Class
  * Used to parse a tab with XStream
@@ -26,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("tab")
 public class Tab extends Panelable {
 
+  @Serial
   private static final long serialVersionUID = 6498566666548618060L;
   // Tab can be maximized or not
   @XStreamAlias("maximize")

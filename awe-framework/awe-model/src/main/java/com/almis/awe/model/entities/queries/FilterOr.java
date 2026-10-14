@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * FilterOr Class
  * Used to parse the files Queries.xml and Maintain.xml with XStream
@@ -26,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("or")
 public class FilterOr extends FilterGroup {
 
+  @Serial
   private static final long serialVersionUID = -4696818779067777019L;
 
   @Override

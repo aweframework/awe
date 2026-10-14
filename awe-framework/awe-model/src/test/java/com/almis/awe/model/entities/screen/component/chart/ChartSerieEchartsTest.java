@@ -1,8 +1,8 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Arrays;
 
@@ -22,12 +22,12 @@ class ChartSerieEchartsTest {
     JsonNode json = json(ChartSerie.builder().id("serie1").label("Serie 1").type("column").xValue("dates")
       .yValue("amount").color("#A8E0A6").build());
 
-    assertThat(json.at("/id").asText()).isEqualTo("serie1");
-    assertThat(json.at("/label").asText()).isEqualTo("Serie 1");
-    assertThat(json.at("/type").asText()).isEqualTo("column");
-    assertThat(json.at("/xValue").asText()).isEqualTo("dates");
-    assertThat(json.at("/yValue").asText()).isEqualTo("amount");
-    assertThat(json.at("/color").asText()).isEqualTo("#A8E0A6");
+    assertThat(json.at("/id").asString()).isEqualTo("serie1");
+    assertThat(json.at("/label").asString()).isEqualTo("Serie 1");
+    assertThat(json.at("/type").asString()).isEqualTo("column");
+    assertThat(json.at("/xValue").asString()).isEqualTo("dates");
+    assertThat(json.at("/yValue").asString()).isEqualTo("amount");
+    assertThat(json.at("/color").asString()).isEqualTo("#A8E0A6");
   }
 
   @Test
@@ -35,28 +35,28 @@ class ChartSerieEchartsTest {
     JsonNode json = json(ChartSerie.builder().id("serie1").label("Serie 1").type("column").xValue("dates")
       .yValue("amount").color("#A8E0A6").yAxis("1").build());
 
-    assertThat(json.at("/echarts/id").asText()).isEqualTo("serie1");
-    assertThat(json.at("/echarts/name").asText()).isEqualTo("Serie 1");
-    assertThat(json.at("/echarts/type").asText()).isEqualTo("bar");
+    assertThat(json.at("/echarts/id").asString()).isEqualTo("serie1");
+    assertThat(json.at("/echarts/name").asString()).isEqualTo("Serie 1");
+    assertThat(json.at("/echarts/type").asString()).isEqualTo("bar");
     assertThat(json.at("/echarts/yAxisIndex").asInt()).isEqualTo(1);
-    assertThat(json.at("/echarts/itemStyle/color").asText()).isEqualTo("#A8E0A6");
-    assertThat(json.at("/echarts/awe/type").asText()).isEqualTo("column");
-    assertThat(json.at("/echarts/awe/xValue").asText()).isEqualTo("dates");
-    assertThat(json.at("/echarts/awe/yValue").asText()).isEqualTo("amount");
+    assertThat(json.at("/echarts/itemStyle/color").asString()).isEqualTo("#A8E0A6");
+    assertThat(json.at("/echarts/awe/type").asString()).isEqualTo("column");
+    assertThat(json.at("/echarts/awe/xValue").asString()).isEqualTo("dates");
+    assertThat(json.at("/echarts/awe/yValue").asString()).isEqualTo("amount");
   }
 
   @Test
   void aSerieWithoutTypeIsAChartLine() {
     JsonNode json = json(ChartSerie.builder().id("serie1").xValue("x").yValue("y").build());
 
-    assertThat(json.at("/echarts/type").asText()).isEqualTo("line");
+    assertThat(json.at("/echarts/type").asString()).isEqualTo("line");
   }
 
   @Test
   void aSplineSerieIsASmoothLine() {
     JsonNode json = json(ChartSerie.builder().id("serie1").type("spline").xValue("x").yValue("y").build());
 
-    assertThat(json.at("/echarts/type").asText()).isEqualTo("line");
+    assertThat(json.at("/echarts/type").asString()).isEqualTo("line");
     assertThat(json.at("/echarts/smooth").asBoolean()).isTrue();
   }
 
@@ -64,8 +64,8 @@ class ChartSerieEchartsTest {
   void aPieSerieIsAPie() {
     JsonNode json = json(ChartSerie.builder().id("serie1").type("pie").xValue("name").yValue("y").build());
 
-    assertThat(json.at("/echarts/type").asText()).isEqualTo("pie");
-    assertThat(json.at("/echarts/awe/type").asText()).isEqualTo("pie");
+    assertThat(json.at("/echarts/type").asString()).isEqualTo("pie");
+    assertThat(json.at("/echarts/awe/type").asString()).isEqualTo("pie");
   }
 
   @Test
@@ -86,6 +86,6 @@ class ChartSerieEchartsTest {
     JsonNode json = json(broken);
 
     assertThat(json.has("echarts")).isFalse();
-    assertThat(json.at("/id").asText()).isEqualTo("broken");
+    assertThat(json.at("/id").asString()).isEqualTo("broken");
   }
 }

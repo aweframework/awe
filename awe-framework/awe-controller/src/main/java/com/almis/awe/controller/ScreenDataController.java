@@ -7,12 +7,11 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.ScreenService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Optional;
 
@@ -34,7 +33,6 @@ public class ScreenDataController {
    * @param screenService Screen service
    * @param aweRequest    Awe request
    */
-  @Autowired
   public ScreenDataController(ScreenService screenService, AweRequest aweRequest) {
     this.screenService = screenService;
     this.request = aweRequest;

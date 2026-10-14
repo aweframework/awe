@@ -6,13 +6,13 @@ import com.almis.awe.model.dto.Favourite;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 

@@ -3,7 +3,6 @@ package com.almis.awe.model.entities.screen;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
@@ -13,7 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Screen extends Element {
 
+  @Serial
   private static final long serialVersionUID = -7723166098377367572L;
 
   // Template of the screen

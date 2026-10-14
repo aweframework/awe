@@ -16,15 +16,15 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.type.QueueMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.processor.QueueProcessor;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.DeliveryMode;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.transaction.PlatformTransactionManager;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Map;
 import java.util.Optional;
@@ -247,7 +247,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
       // Read timeouts
       long requestTimeout = Optional.ofNullable(queue.getRequest().getTimeout()).map(Long::parseLong).orElse(baseConfigProperties.getJms().getServiceTimeout().toMillis());
 
-      template.setDeliveryMode(JmsProperties.DeliveryMode.NON_PERSISTENT.getValue());
+      template.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
       template.setTimeToLive(baseConfigProperties.getJms().getMessageTimeToLive().toMillis());
       template.setReceiveTimeout(requestTimeout);
 

@@ -7,7 +7,6 @@ import com.almis.awe.rest.dto.JwtTokenInfo;
 import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.security.authentication.LocalLoginDisabledException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             loginRequest.getPassword(),
             new ArrayList<>())
         );
-    } catch (IOException ex) {
+    } catch (JacksonException | IOException ex) {
       log.error("Error retrieving request input data", ex);
       throw new UsernameNotFoundException("There was a problem retrieving user credentials from request");
     }

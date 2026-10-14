@@ -7,7 +7,6 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

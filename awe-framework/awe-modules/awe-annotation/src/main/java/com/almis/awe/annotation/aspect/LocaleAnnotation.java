@@ -85,8 +85,8 @@ public class LocaleAnnotation {
           Object arg = proceedingJoinPoint.getArgs()[paramIndex];
 
           /* Apply processors */
-          if (annotation instanceof Locale) {
-            arg = localeProcessor.processLocale((Locale) annotation, (String) arg);
+          if (annotation instanceof Locale locale) {
+            arg = localeProcessor.processLocale(locale, (String) arg);
           }
 
           /* Save value */

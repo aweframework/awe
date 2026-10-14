@@ -8,10 +8,12 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.totp.AweTotpOperations;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import tools.jackson.databind.node.JsonNodeFactory;
+
+import java.security.SecureRandom;
 
 /**
  * Manage application accesses
@@ -21,6 +23,7 @@ public class TotpService extends ServiceConfig {
 
   private static final String ERROR_TITLE_ACCESS_DENIED = "ERROR_TITLE_ACCESS_DENIED";
   private static final String ERROR_MESSAGE_FORBIDDEN_ACCESS = "ERROR_MESSAGE_FORBIDDEN_ACCESS";
+  private static final SecureRandom RANDOM = new SecureRandom();
 
   // Autowire
   private final AweTotpOperations totpOperations;
@@ -141,7 +144,7 @@ public class TotpService extends ServiceConfig {
       // Generate retrieval codes
       DataList qrCode = new DataList();
       DataListUtil.addColumnWithOneRow(qrCode, "secretCode", userDetails.getSecret2fa());
-      DataListUtil.addColumnWithOneRow(qrCode, "random", Math.random() * 10000);
+      DataListUtil.addColumnWithOneRow(qrCode, "random", RANDOM.nextDouble() * 10000);
 
       return serviceData.setDataList(qrCode);
     }

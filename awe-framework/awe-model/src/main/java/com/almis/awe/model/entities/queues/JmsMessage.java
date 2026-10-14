@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ import java.util.List;
 @XStreamInclude({RequestMessage.class, ResponseMessage.class})
 public abstract class JmsMessage implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -3391576372405613241L;
 
   // JmsMessage destination

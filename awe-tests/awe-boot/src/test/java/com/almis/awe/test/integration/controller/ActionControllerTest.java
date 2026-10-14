@@ -5,9 +5,6 @@ import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.almis.awe.test.integration.util.TestUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
@@ -17,6 +14,9 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -151,12 +151,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(0, screenData.get("messages").size());
       ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
       assertEquals(9, screenDataComponents.size());
-      assertEquals("signin", screenData.get("screen").get("name").textValue());
+      assertEquals("signin", screenData.get("screen").get("name").stringValue());
 
       // Test all keys
       for (JsonNode element : screenDataComponents) {
         ObjectNode component = (ObjectNode) element;
-        String key = component.get("id").asText();
+        String key = component.get("id").asString();
         logger.debug(key + ": " + component.get("model").get("selected").toString());
       }
 
@@ -211,10 +211,10 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
 
       ObjectNode endLoad = (ObjectNode) resultList.get(0);
-      assertEquals("end-load", endLoad.get("type").textValue());
+      assertEquals("end-load", endLoad.get("type").stringValue());
 
       ObjectNode localsRetrievedActionES = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionES.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionES.get("type").stringValue());
       ObjectNode localsRetrievedParametersES = (ObjectNode) localsRetrievedActionES.get("parameters");
       assertEquals(2, localsRetrievedParametersES.size());
       ObjectNode translationsES = (ObjectNode) localsRetrievedParametersES.get("translations");
@@ -229,7 +229,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
         .andReturn();
 
       ObjectNode localsRetrievedActionEN = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionEN.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionEN.get("type").stringValue());
       ObjectNode localsRetrievedParametersEN = (ObjectNode) localsRetrievedActionEN.get("parameters");
       assertEquals(2, localsRetrievedParametersEN.size());
       ObjectNode translationsEN = (ObjectNode) localsRetrievedParametersEN.get("translations");
@@ -244,7 +244,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
         .andReturn();
 
       ObjectNode localsRetrievedActionFR = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionFR.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionFR.get("type").stringValue());
       ObjectNode localsRetrievedParametersFR = (ObjectNode) localsRetrievedActionFR.get("parameters");
       assertEquals(2, localsRetrievedParametersFR.size());
       ObjectNode translationsFR = (ObjectNode) localsRetrievedParametersFR.get("translations");
@@ -359,7 +359,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     private void restrictOption(ObjectNode option, String optionName, boolean restrict) {
       String searchFor = optionName;
-      if (option.has("name") && optionName.equalsIgnoreCase(option.get("name").textValue()) ||
+      if (option.has("name") && optionName.equalsIgnoreCase(option.get("name").stringValue()) ||
         "*".equalsIgnoreCase(optionName)) {
         option.put("restricted", restrict);
         searchFor = "*";

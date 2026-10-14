@@ -10,9 +10,9 @@ import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -396,7 +396,7 @@ public class SchedulerService extends ServiceConfig {
    */
   private Integer readRequestInteger(String name) {
     JsonNode parameter = getRequest().getParameter(name);
-    return parameter == null || parameter.isNull() ? null : parameter.asInt();
+    return parameter == null || parameter.isNull() ? null : parameter.asInt(0);
   }
 
   /**
@@ -407,7 +407,7 @@ public class SchedulerService extends ServiceConfig {
    */
   private String readRequestString(String name) {
     JsonNode parameter = getRequest().getParameter(name);
-    return parameter == null || parameter.isNull() ? null : parameter.asText();
+    return parameter == null || parameter.isNull() ? null : parameter.asString("");
   }
 
   /**

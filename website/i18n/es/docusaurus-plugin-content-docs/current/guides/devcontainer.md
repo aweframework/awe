@@ -12,7 +12,7 @@ instalar nada en su máquina salvo Docker y un editor que admita contenedores de
 
 | Herramienta | Versión | Notas |
 | --- | --- | --- |
-| JDK | Temurin 21 | La CI compila con 21; el framework sigue apuntando a Java 17 |
+| JDK | Temurin 21 | La CI compila con 21 y el framework apunta a Java 21 |
 | Maven | 3.10.0 | Configurado con el `.m2/settings.xml` del repositorio, como hace la CI |
 | Node.js | 24.14.0 | La versión que descarga el frontend-maven-plugin para la compilación |
 | Docker | docker-in-docker | Testcontainers y los navegadores docker de Selenium necesitan un demonio de Docker |

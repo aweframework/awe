@@ -4,8 +4,6 @@ import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,8 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
