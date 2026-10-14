@@ -616,6 +616,10 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Checks that the header of a column is not displayed (grid with the `grid-no-header` class) |
 | `checkGridFirstRowAtTop(String gridId, String rowId, String columnId)` | Checks that the first row starts right under the top of the grid, give or take two pixels: a grid without header (`grid-no-header` class) leaves no empty space where the header was |
 | `checkCellHasClass(String gridId, String rowId, String columnId, String cssClass)` | Checks that a cell has a style class, such as the `scale-seq-3` that a query assigns to colour it |
+| `checkGridSparkline(String gridId, String rowId, String columnId, String type, String values)` | Checks the sparkline that a sparkline column draws in a cell: its type (`line`, `bar` or `area`) and the value of every point, which is its tooltip, separated by commas (`3,5,-1,8`) |
+| `checkGridSparklineEmpty(String gridId, String rowId, String columnId)` | Checks that a cell has no sparkline because its value is not a valid series of numbers, while the cell is still shown |
+| `checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers)` | Checks how many markers (dots of the lowest, highest and last points) the sparkline of a cell has |
+| `checkGridSparklineNotFocusable(String gridId, String rowId, String columnId)` | Checks that the sparkline of a cell does not take the keyboard focus: it is not focusable and nothing in it is a tab stop |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Checks that the icon of an icon column is displayed (`plus`, without the library prefix) |
 | `checkColumnSuccessIcon(String columnId)` | Checks that a column shows a success icon |
 

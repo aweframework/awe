@@ -17,6 +17,7 @@ public enum Component {
   NUMERIC("numeric"),
   PASSWORD("password"),
   PROGRESS("progress"),
+  SPARKLINE("sparkline"),
   ICON("icon"),
   IMAGE("image"),
   RADIO("radio"),

@@ -996,7 +996,7 @@
     </xs:attribute>
     <xs:attribute name="component" type="columnComponentType">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component only exists in React; progress, image, icon, text-view, button, formatted-text and sparkline are display components; sparkline is not implemented by any engine. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
+        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component only exists in React; progress, image, icon, text-view, button, formatted-text and sparkline are display components. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon" type="xs:string">
@@ -1117,6 +1117,31 @@
     <xs:attribute name="pagebreak" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-type" type="sparklineTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Drawing of the series of a sparkline column: line, bar or area. Only the sparkline component reads it. Default: line.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-color" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS colour of the series of a sparkline column (for example #3b82f6 or rgb(59, 130, 246)). A value that is not a plain colour is ignored. Default: blue.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-negative-color" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS colour used for the negative values of a sparkline column: the bars below zero, or the parts of the line and the area that go below zero. Without it negative values use the colour of the series.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-last-point" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Highlights the last point of the series of a sparkline column with a dot (line and area) or a dark outline (bar). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-min-max" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Marks the lowest (red) and highest (green) points of the series of a sparkline column. Default: false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="printable" type="printableEnum">
@@ -1922,7 +1947,7 @@
   <!-- Column component attribute values -->
   <xs:simpleType name="columnComponentType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing; radio and button-radio columns show the options of their list in every cell, like a select column. link is React only; sparkline is reserved and not implemented by any engine; formatted-text renders sanitized HTML.</xs:documentation>
+      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing; radio and button-radio columns show the options of their list in every cell, like a select column. link is React only; formatted-text renders sanitized HTML.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="text" />
@@ -1951,7 +1976,11 @@
       </xs:enumeration>
       <xs:enumeration value="image" />
       <xs:enumeration value="icon" />
-      <xs:enumeration value="sparkline" />
+      <xs:enumeration value="sparkline">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Small chart of a series of numbers, drawn inside the cell. The value of the cell is a JSON array of numbers, for example [3, 5, -1, 8], either as text or as an already parsed list; any other value (empty, not a list, or a list with something that is not a number) leaves the cell empty. The drawing is chosen with sparkline-type, and sparkline-color, sparkline-negative-color, sparkline-last-point and sparkline-min-max adjust it. Hovering a point shows its value in a tooltip. Both client engines draw the same SVG, which is 100 by 24 pixels. The cell is not editable.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="password" />
       <xs:enumeration value="text-view" />
       <xs:enumeration value="button" />
@@ -2074,6 +2103,18 @@
       <xs:enumeration value="array" />
       <xs:enumeration value="object" />
       <xs:enumeration value="null" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Sparkline column type -->
+  <xs:simpleType name="sparklineTypeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Drawing of a sparkline column: a connected line, one bar per value (negative values go below the zero line) or a line with the area under it filled.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="line" />
+      <xs:enumeration value="bar" />
+      <xs:enumeration value="area" />
     </xs:restriction>
   </xs:simpleType>
 

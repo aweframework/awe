@@ -5,7 +5,7 @@ import {classNames, getComponentId} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
 import {renderSafeHtml} from "./sanitizeHtml";
 import {extractCellModel} from "./grid";
-import {getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
+import {ComponentType, getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
 
 /**
  * Retrieves the first element from the provided list that matches the specified source.
@@ -48,6 +48,16 @@ export function getSourceChildren(node= {elementList: []}) {
  */
 export function getSourceStyle(node) {
   return node && !node.type && node.style ? node.style : "";
+}
+
+/**
+ * Checks if the cell of a sparkline column is an already parsed series (a list of numbers, not a list of options)
+ * @param {string} component Column component
+ * @param {*} data Cell data
+ * @return {boolean} The cell is a series
+ */
+function isSparklineSeries(component, data) {
+  return component === ComponentType.COMPONENT_SPARKLINE && Array.isArray(data) && !data.some(item => item !== null && typeof item === "object");
 }
 
 /**
@@ -99,7 +109,7 @@ export const Criteria = (node, index) => {
 export const Columns = (node, data = {}, attrs = {}, editing = false) => {
   const {component} = node;
   const isMultiple = isMultipleComponent(component);
-  let fixedData = isMultiple ? data : extractCellModel(data);
+  let fixedData = isMultiple ? data : extractCellModel(isSparklineSeries(component, data) ? {value: data} : data);
   if (editing && typeof Editor[component] !== "undefined") {
     return React.createElement(Editor[component], {
       ...node,

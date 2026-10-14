@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdSparklineTst.xml
+    Description: Grid with sparkline columns: the value of the cell is a JSON array of numbers drawn as a small chart (a line,
+                 bars and an area, with negative values, a highlighted last point and the lowest and highest points marked).
+                 The grid has a hundred rows to time the rendering of a page, and some rows to test an empty series, a single
+                 value and a value that is not a series
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_SPARKLINE">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_SPARKLINE" expandible="vertical">
+      <grid id="GrdSparklineTst" style="expand" initial-load="query" server-action="data" target-action="SparklineTst" max="100" load-all="true">
+        <column label="PARAMETER_ID" name="id" align="center" charlength="6"/>
+        <column label="COLUMN_SPARKLINE_CASE" name="name" align="left" charlength="18"/>
+        <column label="COLUMN_SPARKLINE_LINE" name="line" component="sparkline" align="center" charlength="14"/>
+        <column label="COLUMN_SPARKLINE_BAR" name="bar" component="sparkline" sparkline-type="bar" sparkline-negative-color="#d64550" align="center" charlength="14"/>
+        <column label="COLUMN_SPARKLINE_AREA" name="area" component="sparkline" sparkline-type="area" sparkline-color="#2e9e5b" sparkline-negative-color="#d64550" align="center" charlength="14"/>
+        <column label="COLUMN_SPARKLINE_MARKS" name="marks" component="sparkline" sparkline-last-point="true" sparkline-min-max="true" align="center" charlength="14"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

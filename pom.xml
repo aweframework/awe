@@ -52,7 +52,7 @@
     <sonar.exclusions>**/fonts/**</sonar.exclusions>
     <!-- Framework-agnostic modules mirrored in both web clients. The AngularJS copy is left out of the duplication
          analysis; a Jest parity test in awe-client-angular keeps it identical to the React copy. -->
-    <sonar.cpd.exclusions>**/js/awe/data/menuSearch.js</sonar.cpd.exclusions>
+    <sonar.cpd.exclusions>**/js/awe/data/menuSearch.js,**/js/awe/services/chart/sparkline.js</sonar.cpd.exclusions>
 
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>

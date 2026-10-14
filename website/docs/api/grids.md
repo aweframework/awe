@@ -185,7 +185,7 @@ Keep in mind:
 | image            | Image column component. Use it for showing images in a column.                                              |
 | button           | Component which allows the user to click a button which launches a set of `button-action`                   |
 | progress         | Progress column component. Useful for showing a progress bar in a column. See [progress](#progress-column-component) |
-| sparkline        | Reserved name. Not implemented in either client engine: the column renders nothing useful. |
+| sparkline        | Sparkline column component: a small line, bar or area chart of a series of numbers. See [sparkline column component](#sparkline-column-component) |
 | link             | HTML Link component. Opens an URL in a new page                                                             |
 
 
@@ -433,6 +433,39 @@ The progress component is very useful to show the status of a job, or a task.
 | label     | Text to show in the progress bar (ie percentage)                                                                       |
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
 | style     | CSS class to format the contents                                                                                       |
+
+#### Sparkline column component
+
+A sparkline draws a small chart of a series of numbers inside the cell, so a trend per row (sales per month, load per
+day) can be seen without opening a chart. The value of the cell is a **JSON array of numbers**, for example
+`[3, 5, -1, 8]`. The query can return it as text or as an already parsed list.
+
+```xml
+<column label="LOAD" name="load" component="sparkline" sparkline-type="bar" sparkline-negative-color="#d64550" charlength="14"/>
+```
+
+| Attribute               | Description                                                                                                                  | Values                                    |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| sparkline-type          | Drawing of the series: a connected line, one bar per value, or a line with the area under it filled                           | `line` (default), `bar` or `area`         |
+| sparkline-color         | Colour of the series. A value that is not a plain colour is ignored                                                           | Any CSS colour, ex.: `#3b82f6`            |
+| sparkline-negative-color | Colour of the negative values: the bars below zero, or the parts of the line and the area that go below zero. Without it the negative values use the colour of the series | Any CSS colour                            |
+| sparkline-last-point    | Highlights the last point of the series: a dot on lines and areas, a dark outline on bars                                     | `true` or `false` (default)               |
+| sparkline-min-max       | Marks the lowest point (red) and the highest point (green) of the series with a dot                                           | `true` or `false` (default)               |
+
+How the series is drawn:
+
+* The chart is an SVG of 100 by 24 pixels, drawn in the same way by **both client engines**. Give the column enough
+  width (`charlength="14"` or more); the cell alignment (`align`) places the chart inside the cell.
+* **Bars** and **negative values**: bars start at the zero line, so the negative ones hang below it. Lines and areas
+  are scaled to the lowest and highest values; a thin grey zero line is drawn whenever the series has a negative value.
+* **Tooltip**: hover a point to see its value. Each point has a hit area as wide as its share of the chart.
+* **Single value**: lines and areas draw one dot, bars draw one bar.
+* **Empty or invalid series**: the cell is left empty, with no error. That is the case of an empty value, `[]`, a text
+  that is not JSON, a value that is not a list, and a list with any item that is not a number.
+* The cell is a display component: it is not editable and not a tab stop (the chart is not focusable), so it does not
+  get in the way of the keyboard navigation of the grid.
+* The legacy jQuery sparkline plugin of the AngularJS client has been removed; applications that used its CSS classes
+  (`jqstooltip`, `stats-sparklines`) must provide their own.
 
 ## Group header structure
 

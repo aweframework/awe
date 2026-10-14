@@ -3295,4 +3295,15 @@
     <variable id="noTheme" type="INTEGER" value="-1"/>
   </query>
 
+
+  <!-- JSON arrays of numbers for the sparkline columns, one row per case and up to a hundred rows (GrdSparklineTst screen) -->
+  <query id="SparklineTst" service="sparklineSeries">
+    <field id="id" alias="id"/>
+    <field id="name" alias="name"/>
+    <field id="line" alias="line"/>
+    <field id="bar" alias="bar"/>
+    <field id="area" alias="area"/>
+    <field id="marks" alias="marks"/>
+  </query>
+
 </queries>

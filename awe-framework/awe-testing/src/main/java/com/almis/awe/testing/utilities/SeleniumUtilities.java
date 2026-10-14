@@ -70,6 +70,10 @@ public class SeleniumUtilities implements IAweInstructions {
     + " transfer.items.add(new File([bytes], arguments[1], {type: arguments[2]}));"
     + " ['dragenter', 'dragover', 'drop'].forEach(function (type) {"
     + " zone.dispatchEvent(new DragEvent(type, {bubbles: true, cancelable: true, dataTransfer: transfer})); });";
+  private static final String SPARKLINE_SUMMARY_SCRIPT = "return arguments[0].getAttribute('data-type') + '|' + "
+    + "Array.prototype.map.call(arguments[0].querySelectorAll('title'), function (title) { return title.textContent; }).join(',');";
+  private static final String SPARKLINE_FOCUS_SCRIPT = "return arguments[0].getAttribute('focusable') + '|' + "
+    + "arguments[0].querySelectorAll('[tabindex]').length;";
   private static final int DIALOG_WIDTH_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
@@ -4058,6 +4062,72 @@ public class SeleniumUtilities implements IAweInstructions {
     Object measured = gap;
     assertWithScreenshot("The first row of the grid " + gridId + " starts " + measured + "px under its top, not at it",
       Math.abs(gap) <= GRID_TOP_TOLERANCE);
+  }
+
+  /**
+   * Check the sparkline that a sparkline column draws in a cell of a grid: the type of the drawing (line, bar or area)
+   * and the value of every point, which is its tooltip, in order
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param type     Expected type
+   * @param values   Expected values of the points, separated by commas
+   */
+  protected void checkGridSparkline(String gridId, String rowId, String columnId, String type, String values) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), SPARKLINE_SUMMARY_SCRIPT);
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " is '" + shown + "', not '" + type + "|" + values + "'",
+      (type + "|" + values).equals(shown));
+  }
+
+  /**
+   * Check that a cell of a grid has no sparkline because its value is not a valid series of numbers, while the cell is
+   * still shown
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridSparklineEmpty(String gridId, String rowId, String columnId) {
+    // The row can be drawn after the grid loads: an empty cell only proves something once the grid has finished loading
+    waitForLoadingGrid();
+    waitUntil(BrowserCondition.allOf(
+      toBePresent(frontEndInstructions.getGridCell(gridId, rowId, columnId)),
+      BrowserCondition.not(toBePresent(frontEndInstructions.getGridSparkline(gridId, rowId, columnId)))));
+  }
+
+  /**
+   * Check how many markers (dots of the lowest, highest and last points) the sparkline of a cell of a grid has
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param markers  Expected number of markers
+   */
+  protected void checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), "return arguments[0].querySelectorAll('circle').length;");
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " has " + shown + " markers, not " + markers,
+      shown instanceof Number number && number.intValue() == markers);
+  }
+
+  /**
+   * Check that the sparkline of a cell of a grid does not take the keyboard focus (it is not focusable and nothing in it
+   * is a tab stop), so it does not get in the way of the keyboard navigation of the grid
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridSparklineNotFocusable(String gridId, String rowId, String columnId) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), SPARKLINE_FOCUS_SCRIPT);
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " takes the focus: '" + shown + "'",
+      "false|0".equals(shown));
   }
 
   /**

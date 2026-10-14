@@ -1,7 +1,6 @@
 import {aweApplication} from "../../awe";
 import "../../directives/plugins/uiChart";
 import "./events";
-import "./sparkLine";
 
 // Chart service
 aweApplication.factory('Chart',

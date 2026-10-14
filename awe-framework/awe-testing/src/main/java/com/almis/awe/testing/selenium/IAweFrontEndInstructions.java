@@ -1254,6 +1254,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the sparkline (the SVG chart) that a sparkline column draws in a cell of a grid. The cell has none when its
+   * value is not a valid series of numbers
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Sparkline selector
+   */
+  default By getGridSparkline(String gridId, String rowId, String columnId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " svg.awe-sparkline");
+  }
+
+  /**
    * Get a cell of a grid (or the content it renders) that has a style class, as the query assigns it to the cell
    *
    * @param gridId   Grid identifier
