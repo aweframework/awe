@@ -181,7 +181,7 @@ never blocks the merge.
 To clear it, update the docs in the merge request, or tick one of the two items of the merge
 request template: **Docs updated**, or **No docs needed because:** with the reason written after
 it (the `…` of the template is not a reason). A merge request whose title is a dependency update
-(`chore(deps)` or `build(deps)`) is not checked. The job reads the description through the CI
+(`chore(deps)`, `build(deps)` or `fix(deps)`, which Renovate uses for runtime dependencies) is not checked. The job reads the description through the CI
 variable `CI_MERGE_REQUEST_DESCRIPTION`; when GitLab truncates a long description (it keeps 2700
 characters) the items cannot be read and the job does not warn. The check is advisory: when it
 cannot do its work (no base to compare with, a base commit missing from a shallow clone) it prints a

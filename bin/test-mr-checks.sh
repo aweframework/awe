@@ -303,6 +303,8 @@ docs_case "a ticked No docs needed without a reason still warns" 64 "MR docs war
 docs_case "an unticked No docs needed with a reason warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [ ] No docs needed because: internal refactor"
 docs_case "a dependency update passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=chore(deps): update dependency foo to v2"
 docs_case "a Draft dependency update passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=Draft: build(deps): bump foo"
+docs_case "a runtime dependency update (fix(deps), as Renovate titles it) passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=fix(deps): update dependency com.github.bastiaanjansen:otp-java to v2.2.0 (develop)"
+docs_case "a Draft runtime dependency update passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=Draft: fix(deps): update dependency foo to v2"
 docs_case "a truncated description is not judged" 0 "cannot be read" env CI_MERGE_REQUEST_DESCRIPTION_IS_TRUNCATED=true
 docs_case "a truncated description with a reason still passes" 0 "gives a reason" env CI_MERGE_REQUEST_DESCRIPTION_IS_TRUNCATED=true "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: tooling"
 

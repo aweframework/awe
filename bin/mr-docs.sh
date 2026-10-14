@@ -60,7 +60,7 @@ TITLE=${CI_MERGE_REQUEST_TITLE:-}
 DESCRIPTION=${CI_MERGE_REQUEST_DESCRIPTION:-}
 
 case "$TITLE" in
-  "chore(deps"*|"build(deps"*|"Draft: chore(deps"*|"Draft: build(deps"*|"[Draft] chore(deps"*|"[Draft] build(deps"*)
+  "chore(deps"*|"build(deps"*|"fix(deps"*|"Draft: chore(deps"*|"Draft: build(deps"*|"Draft: fix(deps"*|"[Draft] chore(deps"*|"[Draft] build(deps"*|"[Draft] fix(deps"*)
     echo "MR docs: a dependency update, no docs expected."
     exit 0
     ;;

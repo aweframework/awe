@@ -176,8 +176,7 @@ tiene permitido fallar, por lo que la pipeline muestra un aviso y nunca bloquea 
 
 Para eliminarlo, actualice la documentación en la merge request, o marque uno de los dos elementos de la plantilla de
 merge request: **Docs updated**, o **No docs needed because:** con el motivo escrito a continuación (los `…` de la
-plantilla no son un motivo). Una merge request cuyo título sea una actualización de dependencias (`chore(deps)` o
-`build(deps)`) no se comprueba. El job lee la descripción a través de la variable de CI `CI_MERGE_REQUEST_DESCRIPTION`;
+plantilla no son un motivo). Una merge request cuyo título sea una actualización de dependencias (`chore(deps)`, `build(deps)` o `fix(deps)`, que Renovate usa para las dependencias de ejecución) no se comprueba. El job lee la descripción a través de la variable de CI `CI_MERGE_REQUEST_DESCRIPTION`;
 cuando GitLab trunca una descripción larga (conserva 2700 caracteres) los elementos no se pueden leer y el job no
 avisa. La comprobación es solo informativa: cuando no puede hacer su trabajo (sin base con la que comparar, un commit
 base ausente en un clon superficial) imprime un aviso y termina con 0. Ejecútelo en local contra la rama de destino
