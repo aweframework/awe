@@ -1,5 +1,6 @@
 package com.almis.awe.controller;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.Theme;
@@ -26,11 +27,15 @@ class StaticResourcesControllerTest {
   @Mock
   private QueryService queryService;
 
+  @Mock
+  private BaseConfigProperties baseConfigProperties;
+
   @Test
   void getThemeVariables() throws Exception {
     // Mock
     DataList dataList = DataListUtil.fromBeanList(List.of(new Theme().setName("test"), new Theme().setName("test").setDark(true)));
     when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
+    when(baseConfigProperties.isThemeFollowOsColorScheme()).thenReturn(true);
 
     // Do
     String result = staticResourcesController.getThemeVariables("xxx");
@@ -40,6 +45,28 @@ class StaticResourcesControllerTest {
       .theme-test {
       }
 
+      .theme-test.dark {
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .theme-test:not(.light):not(.dark) {
+        }
+      }
+      """, result);
+  }
+
+  @Test
+  void getThemeVariablesWithoutFollowingTheOperatingSystem() throws Exception {
+    // Mock
+    DataList dataList = DataListUtil.fromBeanList(List.of(new Theme().setName("test").setDark(true)));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
+    when(baseConfigProperties.isThemeFollowOsColorScheme()).thenReturn(false);
+
+    // Do
+    String result = staticResourcesController.getThemeVariables("xxx");
+
+    // Verify
+    assertEquals("""
       .theme-test.dark {
       }
       """, result);

@@ -1781,6 +1781,96 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Open the user menu unless it is already open (its theme selector is shown), so a menu that is already open is not
+   * closed
+   */
+  private void openUserMenuIfClosed() {
+    if (!isVisibleNow(locator(By.cssSelector(frontEndInstructions.getCriterionCss("theme"))))) {
+      openUserMenu();
+    }
+  }
+
+  /**
+   * Open or close the user menu (the avatar of the logged user), where the theme, the color mode and the language are
+   */
+  protected void openUserMenu() {
+    clickSelector(frontEndInstructions.getLoggedUser());
+  }
+
+  /**
+   * Click an option of the user menu, which has to be open
+   *
+   * @param optionId Option identifier (dark-mode, light-mode)
+   */
+  protected void clickUserMenuOption(String optionId) {
+    clickSelector(frontEndInstructions.getUserMenuOption(optionId));
+  }
+
+  /**
+   * Choose the dark mode in the user menu, as a user does
+   */
+  protected void switchToDarkMode() {
+    openUserMenuIfClosed();
+    clickUserMenuOption("dark-mode");
+  }
+
+  /**
+   * Choose the light mode in the user menu, as a user does
+   */
+  protected void switchToLightMode() {
+    openUserMenuIfClosed();
+    clickUserMenuOption("light-mode");
+  }
+
+  /**
+   * Choose a theme in the user menu, as a user does
+   *
+   * @param themeName Theme name
+   */
+  protected void selectTheme(String themeName) {
+    openUserMenuIfClosed();
+    selectContain("theme", themeName);
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that a theme is applied to the page
+   *
+   * @param themeName Theme name
+   */
+  protected void checkThemeApplied(String themeName) {
+    waitUntil(BrowserCondition.present(locator(frontEndInstructions.getThemedPage(themeName))));
+  }
+
+  /**
+   * Check that the user chose the light mode or the dark mode (the page carries the mode that the user chose, which wins over the operating system)
+   *
+   * @param mode Color mode: dark or light
+   */
+  protected void checkColorMode(String mode) {
+    if (!"dark".equals(mode) && !"light".equals(mode)) {
+      throw new IllegalArgumentException("The color mode is dark or light, not " + mode);
+    }
+    waitUntil(BrowserCondition.present(locator(frontEndInstructions.getColorModePage(mode))));
+  }
+
+  /**
+   * Check the value a design token (a --awe-* CSS custom property) has on the page, which is the value the theme and
+   * the mode that are applied give it. The case and the spaces around the value are ignored
+   *
+   * @param token Design token name, as in the design tokens guide (--awe-color-primary)
+   * @param value Expected value (#1d89cf)
+   */
+  protected void checkDesignToken(String token, String value) {
+    if (token == null || !token.startsWith("--awe-")) {
+      throw new IllegalArgumentException("A design token starts with --awe-, not " + token);
+    }
+    waitUntil(BrowserCondition.of("design token " + token + " to be " + value, browser ->
+      value.trim().equalsIgnoreCase(String.valueOf(browser.executeScript(
+        "return getComputedStyle(document.body).getPropertyValue(arguments[0]).trim();", token)).trim())));
+  }
+
+  /**
    * Click on tree button
    *
    * @param gridId Grid id

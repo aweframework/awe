@@ -438,6 +438,13 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkButtonNotVisible(String buttonId)` | Checks that a button is not displayed |
 | `checkButtonDisabled(String buttonId)` | Checks that a button is displayed and disabled |
 | `clickInfoButton(String infoButtonName)` | Clicks an info button (the user menu, the module list...) |
+| `openUserMenu()` | Opens or closes the user menu (the avatar of the logged user), where the theme, the color mode and the language are |
+| `clickUserMenuOption(String optionId)` | Clicks an option of the open user menu (`dark-mode`, `light-mode`). AngularJS only |
+| `switchToDarkMode()`, `switchToLightMode()` | Opens the user menu (unless it is already open) and chooses the dark or the light mode. AngularJS only |
+| `selectTheme(String themeName)` | Opens the user menu (unless it is already open), chooses a theme and waits for the screen to load. AngularJS only |
+| `checkThemeApplied(String themeName)` | Checks that a theme is applied to the page. AngularJS only |
+| `checkColorMode(String mode)` | Checks that the user chose the `dark` or the `light` mode (it wins over the operating system, so it also proves the choice reached the page). AngularJS only |
+| `checkDesignToken(String token, String value)` | Checks the value of a [design token](design-tokens-guide.md) (`--awe-color-primary`) on the page, ignoring case and spaces. It is what the theme and the mode applied give it. AngularJS only |
 | `clickContextButton(String... contextButtonOptionList)` | Clicks the options of a context menu in order |
 | `closeContextMenu()` | Closes the open context menu without choosing an option |
 | `checkContextMenuNotVisible()` | Checks that no context menu is displayed |

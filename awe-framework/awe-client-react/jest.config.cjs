@@ -22,6 +22,7 @@ module.exports = {
     '**/packaging/dependenciesTest.{js,jsx}',
     '**/packaging/helpTemplatesTest.{js,jsx}',
     '**/packaging/textUtilitiesTest.{js,jsx}',
+    '**/packaging/designTokensTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
     '**/redux/thunks/gridCellLoadRaceThunkTest.{js,jsx}',

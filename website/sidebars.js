@@ -86,6 +86,7 @@ module.exports = {
 				"guides/default-screens",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
+				"guides/design-tokens",
 				"guides/react-client-upgrade",
 				"guides/release-lines-and-support",
 				"guides/openrewrite",

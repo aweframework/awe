@@ -438,6 +438,13 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkButtonNotVisible(String buttonId)` | Comprueba que un botón no se muestra |
 | `checkButtonDisabled(String buttonId)` | Comprueba que un botón se muestra y está deshabilitado |
 | `clickInfoButton(String infoButtonName)` | Hace clic en un botón de info (el menú de usuario, la lista de módulos...) |
+| `openUserMenu()` | Abre o cierra el menú de usuario (el avatar del usuario conectado), donde están el tema, el modo de color y el idioma |
+| `clickUserMenuOption(String optionId)` | Hace clic en una opción del menú de usuario abierto (`dark-mode`, `light-mode`). Solo AngularJS |
+| `switchToDarkMode()`, `switchToLightMode()` | Abre el menú de usuario (salvo que ya esté abierto) y elige el modo oscuro o el claro. Solo AngularJS |
+| `selectTheme(String themeName)` | Abre el menú de usuario (salvo que ya esté abierto), elige un tema y espera a que la pantalla cargue. Solo AngularJS |
+| `checkThemeApplied(String themeName)` | Comprueba que un tema está aplicado a la página. Solo AngularJS |
+| `checkColorMode(String mode)` | Comprueba que el usuario eligió el modo `dark` o `light` (gana al sistema operativo, así que también prueba que la elección llegó a la página). Solo AngularJS |
+| `checkDesignToken(String token, String value)` | Comprueba el valor de un [design token](design-tokens-guide.md) (`--awe-color-primary`) en la página, sin distinguir mayúsculas ni espacios. Es el que le dan el tema y el modo aplicados. Solo AngularJS |
 | `clickContextButton(String... contextButtonOptionList)` | Hace clic en las opciones de un menú contextual en orden |
 | `closeContextMenu()` | Cierra el menú contextual abierto sin elegir una opción |
 | `checkContextMenuNotVisible()` | Comprueba que no se muestra ningún menú contextual |

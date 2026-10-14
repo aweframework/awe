@@ -30,39 +30,41 @@
   --loading-bar-color: #fff;
   --border-color: #f27149;
 
-  &.dark {
-    --theme-color: #de4110;
-    --text-color: #fff;
-    --primary-color: #805230;
-    --secondary-color: #f38361;
-    --primary-text-color: #fff;
-    --secondary-text-color: #fff;
-    --primary-background-color: #21150c;
-    --secondary-background-color: #000;
-    --primary-menu-color: #F05E31;
-    --secondary-menu-color: #fff;
-    --menu-text-color: #fce0d7;
-    --primary-navbar-color: #482e1b;
-    --secondary-navbar-color: #5b3a22;
-    --navbar-text-color: #fff;
-    --navbar-dropdown-color: #333;
-    --panel-background-color: #131313;
-    --panel-header-color: #462b23;
-    --panel-border-color: #411f14;
-    --panel-text-color: #d3d3d3;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #411f14;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #603901;
-    --loading-bar-color: #fff;
-  }
-
   // Main navbar text shadow
   @navbar-text-shadow: 0 -1px 0 rgba(0,0,0,.2);
 
   // Mixins
   .awe-navbar(@navbar-start-color, @navbar-end-color, @navbar-text-color, @navbar-text-shadow, @navbar-end-color, @navbar-end-color);
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-orange-dark: {
+  --theme-color: #de4110;
+  --text-color: #fff;
+  --primary-color: #805230;
+  --secondary-color: #f38361;
+  --primary-text-color: #fff;
+  --secondary-text-color: #fff;
+  --primary-background-color: #21150c;
+  --secondary-background-color: #000;
+  --primary-menu-color: #F05E31;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #fce0d7;
+  --primary-navbar-color: #482e1b;
+  --secondary-navbar-color: #5b3a22;
+  --navbar-text-color: #fff;
+  --navbar-dropdown-color: #333;
+  --panel-background-color: #131313;
+  --panel-header-color: #462b23;
+  --panel-border-color: #411f14;
+  --panel-text-color: #d3d3d3;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #411f14;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #603901;
+  --loading-bar-color: #fff;
+};
+.awe-theme-dark(orange; @theme-orange-dark);

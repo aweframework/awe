@@ -9,6 +9,22 @@
 
   --animate-duration: 200ms;
   --animate-delay: 0.0s;
+
+  /* AWE design tokens (--awe-*, see the design tokens guide): the ones that have a PrimeReact equivalent, so a page
+     reads the same name in the AngularJS and in the React client. The PrimeReact theme provides the values. */
+  --awe-color-primary: var(--primary-color);
+  --awe-color-on-primary: var(--primary-color-text);
+  --awe-color-text: var(--text-color);
+  --awe-color-background: var(--surface-ground);
+  --awe-color-surface: var(--surface-card);
+  --awe-color-panel: var(--surface-card);
+  --awe-color-border: var(--surface-border);
+  --awe-color-danger: var(--danger-color);
+  --awe-color-warning: var(--warning-color);
+  --awe-color-success: var(--success-color);
+  --awe-color-info: var(--info-color);
+  --awe-font-family-base: var(--font-family);
+  --awe-radius: var(--border-radius);
 }
 
 html {

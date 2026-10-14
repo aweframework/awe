@@ -62,6 +62,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Scheduler database | Flyway fails with a checksum mismatch on `SCHEDULER_V1.0.5`, or a new database cannot be built from scratch. | Run the migration step described below. | MR !843 |
 | Default folders (developer module, scheduler logs) | The developer module path and the scheduler execution logs are now in a folder without the stray `}` that the default value used to end with (`<user.home>/awe-developer` instead of `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` instead of `.../scheduler}`). Only applies if you did not set `awe.developer.path` or `awe.scheduler.execution-log-path`. | Move your existing files from the old folder to the new one if you need them, or set the property to the old path. | MR !889 |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
+| Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
 
 ### jsoup in the input parameter sanitizer
 
@@ -175,6 +176,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] If the application sets `PwdExp`, the value and the users with an old or empty password change date were reviewed
 - [ ] Custom clients do not read `elementList` from the menu JSON
 - [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
+- [ ] The decision about the dark mode that follows the operating system was taken (`@awe-follow-os-color-scheme`)
 - [ ] Browser tests compile; the `By` overloads and `getDriver()` were moved to `Locator` and `getBrowser()`
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```

@@ -70,7 +70,6 @@ public class StaticResourcesController {
     DataList dataList = queryService.launchPrivateQuery("themeVariables").getDataList();
     List<Theme> themeList = DataListUtil.asBeanList(dataList, Theme.class);
 
-    return themeList.stream().map(Theme::toString).collect(Collectors.joining("\n"));
+    return themeList.stream().map(theme -> theme.toCss(baseConfigProperties.isThemeFollowOsColorScheme())).collect(Collectors.joining("\n"));
   }
 }
-

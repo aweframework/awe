@@ -316,6 +316,10 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getDeletedTreeRow", () -> i.getDeletedTreeRow(GRID, ROW));
     catalog.put("getSelectOption", () -> i.getSelectOption(2));
     catalog.put("getSelectOptions", i::getSelectOptions);
+    catalog.put("getUserMenuOption", () -> i.getUserMenuOption("dark-mode"));
+    catalog.put("getThemedPage", () -> i.getThemedPage("sunset"));
+    catalog.put("getColorModePage(dark)", () -> i.getColorModePage("dark"));
+    catalog.put("getColorModePage(light)", () -> i.getColorModePage("light"));
     return catalog;
   }
 

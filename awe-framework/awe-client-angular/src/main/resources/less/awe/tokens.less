@@ -1,0 +1,113 @@
+//
+// Design tokens
+// --------------------------------------------------
+// The single source of the --awe-* CSS custom properties. See website/docs/guides/design-tokens-guide.md.
+//
+// A theme (a LESS file, a row of the database themes or a product stylesheet) overrides the theme variables
+// (--primary-color, --panel-background-color...) on `.theme-<name>` and `.theme-<name>.dark`. The tokens are declared
+// on the body (`.base-theme`) so they resolve the variables of the active theme and mode, and they are also declared
+// on the root element so what is outside the body has a value. They are what the components, Tailwind (@theme) and any
+// new client read: never rename them.
+//
+// Colors read the LESS variables defined in base.less (@primary-color is `var(--primary-color, <fallback>`) so a
+// product that overrides a LESS variable keeps working and every token has a fallback.
+
+@awe-follow-os-color-scheme: true;
+
+:root,
+.base-theme {
+  // ### Color: brand and text
+  --awe-color-theme: @theme-color;
+  --awe-color-text: @text-color;
+  --awe-color-primary: @primary-color;
+  --awe-color-on-primary: @primary-text-color;
+  --awe-color-secondary: @secondary-color;
+  --awe-color-on-secondary: @secondary-text-color;
+
+  // ### Color: page
+  --awe-color-background: @primary-background-color;
+  --awe-color-surface: @secondary-background-color;
+  --awe-color-border: @border-color;
+  --awe-color-shadow: var(--shadow-color, rgba(0, 0, 0, 0.2));
+
+  // ### Color: main menu
+  --awe-color-menu: @primary-menu-color;
+  --awe-color-menu-accent: @secondary-menu-color;
+  --awe-color-menu-text: @menu-text-color;
+
+  // ### Color: navbar
+  --awe-color-navbar: @primary-navbar-color;
+  --awe-color-navbar-accent: @secondary-navbar-color;
+  --awe-color-navbar-text: @navbar-text-color;
+  --awe-color-navbar-dropdown: @navbar-dropdown-color;
+
+  // ### Color: panels and grids
+  --awe-color-panel: @panel-background-color;
+  --awe-color-panel-header: @panel-header-color;
+  --awe-color-panel-border: @panel-border-color;
+  --awe-color-panel-text: @panel-text-color;
+  --awe-color-grid-header: @grid-header-color;
+  --awe-color-grid-border: @grid-border-color;
+
+  // ### Color: states
+  --awe-color-disabled: @disabled-color;
+  --awe-color-disabled-border: @disabled-border-color;
+  --awe-color-disabled-text: @disabled-text-color;
+  --awe-color-required: @required-color;
+  --awe-color-loading-bar: @loading-bar-color;
+  --awe-color-danger: @danger-color;
+  --awe-color-warning: @warning-color;
+  --awe-color-success: @success-color;
+  --awe-color-info: @info-color;
+
+  // ### Typography
+  --awe-font-family-base: @font-family-base;
+  --awe-font-family-monospace: @font-family-monospace;
+  --awe-font-size-base: @primary-font-size;
+  --awe-font-size-small: @secondary-font-size;
+  --awe-line-height-base: @line-height-base;
+  --awe-font-weight-normal: 400;
+  --awe-font-weight-bold: 700;
+
+  // ### Spacing (the panel margins are 10, 15 and 20)
+  --awe-space-2xs: 2px;
+  --awe-space-xs: 5px;
+  --awe-space-sm: @panel-margin-sm;
+  --awe-space-md: @panel-margin-md;
+  --awe-space-lg: @panel-margin-lg;
+  --awe-space-xl: 30px;
+
+  // ### Radius
+  --awe-radius: @border-radius;
+  --awe-radius-sm: calc(var(--awe-radius) / 2);
+  --awe-radius-lg: calc(var(--awe-radius) * 2);
+  --awe-radius-full: 9999px;
+
+  // ### Shadow
+  --awe-shadow-sm: 0 1px 2px var(--awe-color-shadow);
+  --awe-shadow-md: 0 2px 5px var(--awe-color-shadow);
+  --awe-shadow-lg: 0 4px 12px var(--awe-color-shadow);
+
+  // ### Size
+  --awe-size-header-height: @main-navbar-height;
+  --awe-size-menu-width: @main-menu-width;
+}
+
+// Dark variant of a theme: the variables a theme overrides in the dark mode.
+//
+// The dark mode is selected by the user (the `dark` class of the body) or, while the user did not choose
+// (neither `dark` nor `light`), by the operating system through prefers-color-scheme. A product that must not follow
+// the operating system sets `@awe-follow-os-color-scheme: false`.
+.awe-theme-dark(@name; @variables) {
+  .theme-@{name}.dark {
+    @variables();
+  }
+
+  & when (@awe-follow-os-color-scheme = true) {
+    @media (prefers-color-scheme: dark) {
+      .theme-@{name}:not(.light):not(.dark) {
+        @variables();
+      }
+    }
+  }
+}
