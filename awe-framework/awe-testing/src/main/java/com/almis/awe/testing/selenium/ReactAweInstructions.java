@@ -314,6 +314,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
       css(TestIds.INFO_DROPDOWN), buttonId, css(TestIds.AVATAR), buttonId));
   }
 
+  @Override
+  public By getUserMenuOption(String optionId) {
+    // The info button is the option, there is no inner link
+    return By.cssSelector(String.format("%s#%s", css(TestIds.INFO_BUTTON), optionId));
+  }
+
   public By getTreeButton(String gridId, String rowId) {
     // The rows of a tree grid have no hook: the icon carries the row identifier
     return By.cssSelector(String.format("[tree-grid-id='%s'] %s[row-id='%s']", gridId, css(TestIds.TREE_ICON), rowId));

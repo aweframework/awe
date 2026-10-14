@@ -105,6 +105,8 @@ public final class TestIds {
   // Info dropdown (the element that carries the id) and info button
   public static final String INFO_DROPDOWN = "info-dropdown";
   public static final String INFO_BUTTON = "info-button";
+  /** AngularJS only */
+  public static final String INFO_BUTTON_LINK = "info-button-link";
   // React only: avatar of the logged user (it carries the id and the user name as title) and the name shown next to it
   public static final String AVATAR = "avatar";
   public static final String AVATAR_NAME = "avatar-name";

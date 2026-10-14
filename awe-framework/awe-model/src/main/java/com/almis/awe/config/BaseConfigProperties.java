@@ -59,6 +59,14 @@ public class BaseConfigProperties {
   private String theme = "sky";
 
   /**
+   * Dark themes of the database follow the dark color scheme of the operating system while the user did not choose the
+   * light or the dark mode. Set to false to ignore the operating system (the LESS counterpart is
+   * @awe-follow-os-color-scheme).
+   * Default value true
+   */
+  private boolean themeFollowOsColorScheme = true;
+
+  /**
    * Application acronym (in lowercase).
    * Default value awe
    */

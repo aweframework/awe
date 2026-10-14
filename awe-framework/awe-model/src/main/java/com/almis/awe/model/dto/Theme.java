@@ -51,15 +51,44 @@ public class Theme {
     private String requiredColor;
     private boolean dark;
 
+    /**
+     * Generate the CSS of the theme. The variables of a dark theme apply to the dark mode chosen by the user (.dark) and,
+     * while the user did not choose a mode (neither dark nor light), when the operating system prefers a dark color scheme
+     *
+     * @return CSS rules
+     */
     @Override
     public String toString() {
-        ConfigurablePropertyAccessor parameterBeanAccessor = PropertyAccessorFactory.forBeanPropertyAccess(this);
+        return toCss(true);
+    }
 
-        return ".theme-" + getName() + (isDark() ? ".dark" : "") + " {\n" +
-                Arrays.stream(getClass().getDeclaredFields()).sequential()
-                        .filter(f -> !Arrays.asList("name", "dark").contains(f.getName()))
-                        .map(f -> getCssVariable(f.getName(), (String) parameterBeanAccessor.getPropertyValue(f.getName())))
-                        .collect(Collectors.joining()) +
+    /**
+     * Generate the CSS of the theme
+     *
+     * @param followOsColorScheme A dark theme also applies when the operating system prefers dark and the user did not choose
+     * @return CSS rules
+     */
+    public String toCss(boolean followOsColorScheme) {
+        ConfigurablePropertyAccessor parameterBeanAccessor = PropertyAccessorFactory.forBeanPropertyAccess(this);
+        String variables = Arrays.stream(getClass().getDeclaredFields()).sequential()
+                .filter(f -> !Arrays.asList("name", "dark").contains(f.getName()))
+                .map(f -> getCssVariable(f.getName(), (String) parameterBeanAccessor.getPropertyValue(f.getName())))
+                .collect(Collectors.joining());
+        String selector = ".theme-" + getName();
+
+        if (!isDark()) {
+            return selector + " {\n" + variables + "}\n";
+        }
+
+        if (!followOsColorScheme) {
+            return selector + ".dark {\n" + variables + "}\n";
+        }
+
+        return selector + ".dark {\n" + variables + "}\n\n" +
+                "@media (prefers-color-scheme: dark) {\n" +
+                "  " + selector + ":not(.light):not(.dark) {\n" +
+                variables.lines().map(line -> "  " + line + "\n").collect(Collectors.joining()) +
+                "  }\n" +
                 "}\n";
     }
 

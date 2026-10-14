@@ -21,35 +21,6 @@
   --panel-border-color: #5b6662;
   --loading-bar-color: #64bed8;
 
-  &.dark {
-    --theme-color: #64bed8;
-    --text-color: #eee;
-    --primary-color: #417a8a;
-    --secondary-color: #2a2f1f;
-    --primary-text-color: #fff;
-    --secondary-text-color: #e9f5d5;
-    --primary-background-color: #060606;
-    --secondary-background-color: #222222;
-    --primary-menu-color: #434B48;
-    --secondary-menu-color: #a1cc3d;
-    --menu-text-color: #9ba6a2;
-    --primary-navbar-color: #a1cc3d;
-    --secondary-navbar-color: #6a8c2c;
-    --navbar-text-color: #ffffff;
-    --navbar-dropdown-color: #222222;
-    --panel-background-color: #131313;
-    --panel-header-color: #4b5451;
-    --panel-border-color: #5b6662;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #444;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #060;
-    --loading-bar-color: #a5d0dc;
-  }
-
   // Define navbar specific backgrounds
   #main-navbar,
   #main-navbar .navbar-header,
@@ -58,3 +29,34 @@
     background-repeat: repeat-x !important;
   }
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-grass-dark: {
+  --theme-color: #64bed8;
+  --text-color: #eee;
+  --primary-color: #417a8a;
+  --secondary-color: #2a2f1f;
+  --primary-text-color: #fff;
+  --secondary-text-color: #e9f5d5;
+  --primary-background-color: #060606;
+  --secondary-background-color: #222222;
+  --primary-menu-color: #434B48;
+  --secondary-menu-color: #a1cc3d;
+  --menu-text-color: #9ba6a2;
+  --primary-navbar-color: #a1cc3d;
+  --secondary-navbar-color: #6a8c2c;
+  --navbar-text-color: #ffffff;
+  --navbar-dropdown-color: #222222;
+  --panel-background-color: #131313;
+  --panel-header-color: #4b5451;
+  --panel-border-color: #5b6662;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #444;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #060;
+  --loading-bar-color: #a5d0dc;
+};
+.awe-theme-dark(grass; @theme-grass-dark);

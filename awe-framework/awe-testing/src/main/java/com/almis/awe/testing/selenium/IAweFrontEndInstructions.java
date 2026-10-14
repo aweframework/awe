@@ -672,6 +672,37 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the link of an option of the user menu (the dark mode, the light mode...). AngularJS: the link of the info button
+   *
+   * @param optionId Option identifier
+   * @return Option link selector
+   */
+  default By getUserMenuOption(String optionId) {
+    return By.cssSelector(TestIds.css(TestIds.INFO_BUTTON) + String.format("[info-button-id='%s'] ", optionId)
+      + TestIds.css(TestIds.INFO_BUTTON_LINK));
+  }
+
+  /**
+   * Get the page with a theme applied (AngularJS: the body carries the class of the theme)
+   *
+   * @param theme Theme name
+   * @return Themed page selector
+   */
+  default By getThemedPage(String theme) {
+    return By.cssSelector("body.base-theme.theme-" + theme);
+  }
+
+  /**
+   * Get the page in a color mode the user chose (AngularJS: the body carries the class dark or the class light, never both)
+   *
+   * @param mode Color mode: dark or light
+   * @return Page selector in that mode
+   */
+  default By getColorModePage(String mode) {
+    return By.cssSelector("dark".equals(mode) ? "body.base-theme.dark:not(.light)" : "body.base-theme.light:not(.dark)");
+  }
+
+  /**
    * Tell whether the application asks for a confirmation before it logs the user out
    *
    * @return true when the logout must be confirmed. By default it is false

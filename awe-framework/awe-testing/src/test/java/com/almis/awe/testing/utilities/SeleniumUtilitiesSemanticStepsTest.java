@@ -1379,6 +1379,51 @@ class SeleniumUtilitiesSemanticStepsTest {
     }
   }
 
+  @Test
+  void shouldOpenTheUserMenuToSwitchTheColorMode() {
+    utilities.switchToDarkMode();
+    utilities.switchToLightMode();
+
+    assertThat(utilities.events).containsExactly("user-menu", "option:dark-mode", "user-menu", "option:light-mode");
+  }
+
+  @Test
+  void shouldNotCloseTheUserMenuThatIsAlreadyOpenWhenSwitchingTheColorMode() {
+    show(By.cssSelector(instructions.getCriterionCss("theme")), "Theme");
+
+    utilities.switchToLightMode();
+
+    assertThat(utilities.events).containsExactly("option:light-mode");
+  }
+
+  @Test
+  void shouldSelectAThemeFromTheUserMenu() {
+    utilities.selectTheme("sunset");
+
+    assertThat(utilities.events).containsExactly("user-menu", "select:theme:sunset");
+  }
+
+  @Test
+  void shouldCheckThatAThemeAndAColorModeAreApplied() {
+    show(instructions.getThemedPage("sunset"), "");
+    show(instructions.getColorModePage("dark"), "");
+
+    assertThatCode(() -> utilities.checkThemeApplied("sunset")).doesNotThrowAnyException();
+    assertThatCode(() -> utilities.checkColorMode("dark")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkThemeApplied("sky"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkColorMode("light"));
+    assertThrows(IllegalArgumentException.class, () -> utilities.checkColorMode("blue"));
+  }
+
+  @Test
+  void shouldCheckTheValueOfADesignTokenIgnoringCaseAndSpaces() {
+    when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(" #9D4444 ");
+
+    assertThatCode(() -> utilities.checkDesignToken("--awe-color-primary", "#9d4444")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkDesignToken("--awe-color-primary", "#000000"));
+    assertThrows(IllegalArgumentException.class, () -> utilities.checkDesignToken("color-primary", "#000000"));
+  }
+
   private WebElement option(String text, boolean selected) {
     WebElement option = mock(WebElement.class);
     when(option.getText()).thenReturn(text);
@@ -1433,6 +1478,21 @@ class SeleniumUtilitiesSemanticStepsTest {
     @Override
     protected void clickInfoButton(String infoButtonName) {
       events.add("menu:" + infoButtonName);
+    }
+
+    @Override
+    protected void clickUserMenuOption(String optionId) {
+      events.add("option:" + optionId);
+    }
+
+    @Override
+    protected void openUserMenu() {
+      events.add("user-menu");
+    }
+
+    @Override
+    protected void selectContain(String criterionName, String label) {
+      events.add("select:" + criterionName + ":" + label);
     }
   }
 }

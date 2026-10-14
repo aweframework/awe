@@ -28,33 +28,36 @@
   --required-color: #e8e4f0;
   --loading-bar-color: #7a6f6f;
 
-  &.dark {
-    --theme-color: #7860a4;
-    --text-color: #eee;
-    --primary-color: #857198;
-    --secondary-color: #39373d;
-    --primary-text-color: #fff;
-    --secondary-text-color: #ccc;
-    --primary-background-color: #060606;
-    --secondary-background-color: #222222;
-    --primary-menu-color: #3c3e49;
-    --secondary-menu-color: #9577CC;
-    --menu-text-color: #a0a3b1;
-    --primary-navbar-color: #2e313e;
-    --secondary-navbar-color: #a48ad4;
-    --navbar-text-color: #abafc0;
-    --navbar-dropdown-color: #000;
-    --panel-background-color: #131313;
-    --panel-header-color: #1e1e1e;
-    --panel-border-color: #3f3f3f;
-    --panel-text-color: #d3d3d3;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #444;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #3b2f51;
-    --loading-bar-color: #9277cc;
-  }
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-purple-hills-dark: {
+  --theme-color: #7860a4;
+  --text-color: #eee;
+  --primary-color: #857198;
+  --secondary-color: #39373d;
+  --primary-text-color: #fff;
+  --secondary-text-color: #ccc;
+  --primary-background-color: #060606;
+  --secondary-background-color: #222222;
+  --primary-menu-color: #3c3e49;
+  --secondary-menu-color: #9577CC;
+  --menu-text-color: #a0a3b1;
+  --primary-navbar-color: #2e313e;
+  --secondary-navbar-color: #a48ad4;
+  --navbar-text-color: #abafc0;
+  --navbar-dropdown-color: #000;
+  --panel-background-color: #131313;
+  --panel-header-color: #1e1e1e;
+  --panel-border-color: #3f3f3f;
+  --panel-text-color: #d3d3d3;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #444;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #3b2f51;
+  --loading-bar-color: #9277cc;
+};
+.awe-theme-dark(purple-hills; @theme-purple-hills-dark);

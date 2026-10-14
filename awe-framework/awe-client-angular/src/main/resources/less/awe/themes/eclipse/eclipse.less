@@ -22,32 +22,35 @@
   --loading-bar-color: #1d89cf;
   --required-color: #b5c7d3;
 
-  &.dark {
-    --theme-color: #666;
-    --text-color: #eee;
-    --primary-color: #666;
-    --secondary-color: #333;
-    --primary-text-color: #fff;
-    --secondary-text-color: #eee;
-    --primary-background-color: #060606;
-    --secondary-background-color: #222222;
-    --primary-menu-color: #666;
-    --secondary-menu-color: #80a3bb;
-    --menu-text-color: #dfb5b5;
-    --primary-navbar-color: #252525;
-    --secondary-navbar-color: #f8f8f8;
-    --navbar-text-color: #ccc;
-    --navbar-dropdown-color: #222222;
-    --panel-background-color: #131313;
-    --panel-header-color: #1a7ab9;
-    --panel-border-color: #1a7ab9;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #444;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #0e3d5d;
-    --loading-bar-color: #6596be;
-  }
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-eclipse-dark: {
+  --theme-color: #666;
+  --text-color: #eee;
+  --primary-color: #666;
+  --secondary-color: #333;
+  --primary-text-color: #fff;
+  --secondary-text-color: #eee;
+  --primary-background-color: #060606;
+  --secondary-background-color: #222222;
+  --primary-menu-color: #666;
+  --secondary-menu-color: #80a3bb;
+  --menu-text-color: #dfb5b5;
+  --primary-navbar-color: #252525;
+  --secondary-navbar-color: #f8f8f8;
+  --navbar-text-color: #ccc;
+  --navbar-dropdown-color: #222222;
+  --panel-background-color: #131313;
+  --panel-header-color: #1a7ab9;
+  --panel-border-color: #1a7ab9;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #444;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #0e3d5d;
+  --loading-bar-color: #6596be;
+};
+.awe-theme-dark(eclipse; @theme-eclipse-dark);

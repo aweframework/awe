@@ -30,37 +30,39 @@
   --loading-bar-color: #fff;
   --border-color: #d6d6d6;
 
-  &.dark {
-    --theme-color: #CF010B;
-    --text-color: #eff;
-    --primary-color: #ef3340;
-    --secondary-color: #313131;
-    --primary-text-color: #fff;
-    --secondary-text-color: #ccc;
-    --primary-background-color: #000;
-    --secondary-background-color: #000;
-    --primary-menu-color: #ef3340;
-    --secondary-menu-color: #fff;
-    --menu-text-color: #fcd9db;
-    --primary-navbar-color: #000;
-    --secondary-navbar-color: #000;
-    --navbar-text-color: #b3b3b3;
-    --navbar-dropdown-color: #333;
-    --panel-background-color: #131313;
-    --panel-header-color: #5b595a;
-    --panel-border-color: #3f3f3f;
-    --panel-text-color: #d3d3d3;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #444;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #173d47;
-    --loading-bar-color: #fff;
-  }
-
   #main-navbar #main-menu-toggle {
     background-color: var(--theme-color);
   }
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-ferrari-dark: {
+  --theme-color: #CF010B;
+  --text-color: #eff;
+  --primary-color: #ef3340;
+  --secondary-color: #313131;
+  --primary-text-color: #fff;
+  --secondary-text-color: #ccc;
+  --primary-background-color: #000;
+  --secondary-background-color: #000;
+  --primary-menu-color: #ef3340;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #fcd9db;
+  --primary-navbar-color: #000;
+  --secondary-navbar-color: #000;
+  --navbar-text-color: #b3b3b3;
+  --navbar-dropdown-color: #333;
+  --panel-background-color: #131313;
+  --panel-header-color: #5b595a;
+  --panel-border-color: #3f3f3f;
+  --panel-text-color: #d3d3d3;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #444;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #173d47;
+  --loading-bar-color: #fff;
+};
+.awe-theme-dark(ferrari; @theme-ferrari-dark);

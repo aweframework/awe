@@ -30,33 +30,36 @@
   --loading-bar-color: #fff;
   --border-color: #d6d6d6;
 
-  &.dark {
-    --theme-color: #35ae98;
-    --text-color: #eee;
-    --primary-color: #52bdb4;
-    --secondary-color: #33373d;
-    --primary-text-color: #fff;
-    --secondary-text-color: #ccc;
-    --primary-background-color: #000;
-    --secondary-background-color: #000;
-    --primary-menu-color: #515151;
-    --secondary-menu-color: #fff;
-    --menu-text-color: #aaa;
-    --primary-navbar-color: #333;
-    --secondary-navbar-color: #3bc2a9;
-    --navbar-text-color: #b3b3b3;
-    --navbar-dropdown-color: #333;
-    --panel-background-color: #131313;
-    --panel-header-color: #1e1e1e;
-    --panel-border-color: #3f3f3f;
-    --panel-text-color: #d3d3d3;
-    --grid-header-color: #333;
-    --grid-border-color: #444;
-    --border-color: #444;
-    --disabled-border-color: #565656;
-    --disabled-color: #333;
-    --disabled-text-color: #666;
-    --required-color: #173d47;
-    --loading-bar-color: #fff;
-  }
 }
+
+// Dark mode: chosen by the user (.dark) or, when not chosen, by the OS (prefers-color-scheme)
+@theme-asphalt-dark: {
+  --theme-color: #35ae98;
+  --text-color: #eee;
+  --primary-color: #52bdb4;
+  --secondary-color: #33373d;
+  --primary-text-color: #fff;
+  --secondary-text-color: #ccc;
+  --primary-background-color: #000;
+  --secondary-background-color: #000;
+  --primary-menu-color: #515151;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #aaa;
+  --primary-navbar-color: #333;
+  --secondary-navbar-color: #3bc2a9;
+  --navbar-text-color: #b3b3b3;
+  --navbar-dropdown-color: #333;
+  --panel-background-color: #131313;
+  --panel-header-color: #1e1e1e;
+  --panel-border-color: #3f3f3f;
+  --panel-text-color: #d3d3d3;
+  --grid-header-color: #333;
+  --grid-border-color: #444;
+  --border-color: #444;
+  --disabled-border-color: #565656;
+  --disabled-color: #333;
+  --disabled-text-color: #666;
+  --required-color: #173d47;
+  --loading-bar-color: #fff;
+};
+.awe-theme-dark(asphalt; @theme-asphalt-dark);
