@@ -324,6 +324,10 @@ deprecated methods return a `java.sql.Timestamp` or `java.sql.Time` declared as 
 One behavior is fixed: the elapsed time (`DateUtil.elapsedTime`, `dateSince` and the `ELAPSED_TIME` and `DATE_SINCE` transforms)
 now counts hours on a 24-hour clock. AWE 4 showed 13 hours as "1 hour" and 12 hours in milliseconds.
 
+In the scheduler, `TaskDAO` keeps its methods and delegates to the classes of `com.almis.awe.scheduler.dao.task`.
+`TaskDAO.getProgress(Date, long)` and `TaskDAO.getElapsedTime(Date)` are deprecated in favour of their `Instant`
+overloads; a call with a literal `null` now needs a cast.
+
 ### Jackson 3 public API
 
 The public and protected members of the AWE 5 framework modules whose signature uses a Jackson 3 type

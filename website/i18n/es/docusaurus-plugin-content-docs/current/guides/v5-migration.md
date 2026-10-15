@@ -340,6 +340,10 @@ Se corrige un comportamiento: el tiempo transcurrido (`DateUtil.elapsedTime`, `d
 `ELAPSED_TIME` y `DATE_SINCE`) cuenta ahora las horas en formato de 24 horas. AWE 4 mostraba 13 horas como "1 hora" y 12 horas
 en milisegundos.
 
+En el planificador, `TaskDAO` mantiene sus métodos y delega en las clases de `com.almis.awe.scheduler.dao.task`.
+`TaskDAO.getProgress(Date, long)` y `TaskDAO.getElapsedTime(Date)` están deprecados en favor de sus sobrecargas con
+`Instant`; una llamada con un `null` literal necesita ahora un cast.
+
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
 Los miembros públicos y protegidos de los módulos del framework de AWE 5 cuya firma usa un tipo de Jackson 3
