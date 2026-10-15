@@ -72,6 +72,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Redirecciones del inicio de sesión (#783) | Una petición de navegador sin autenticar se redirige a `Location: /` en lugar de a una URL absoluta. | Nada, salvo que algo analice la URL absoluta: acepte una relativa. Las implementaciones propias de `AuthorizationManager` deben recibir `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
+| Utilidades de fecha (#782) | El compilador avisa de que los métodos de `DateUtil` que reciben o devuelven `java.util.Date` o `Calendar` están deprecados. | Nada obligatorio: mantienen su comportamiento y no se eliminan antes de la 6.0. Pase a los métodos `java.time` de `com.almis.awe.model.util.data.date`. | [Utilidades de fecha](#date-utilities) |
 | Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
@@ -313,6 +314,32 @@ La incidencia #781 ejecuta cada maintain dentro de una transacción de su dataso
 
 Defina `awe.maintain.transaction.enabled=false` para recuperar el comportamiento de AWE 4. Consulte
 [Transacciones](../api/maintain-definition.md#transactions).
+
+### Utilidades de fecha {#date-utilities}
+
+La incidencia #782 divide `DateUtil` por responsabilidades en el paquete `com.almis.awe.model.util.data.date`, que
+trabaja con `java.time`. `DateUtil` se mantiene como fachada con los mismos métodos, resultados y clases en tiempo de
+ejecución que en AWE 4.
+
+| Clase | Responsabilidad |
+|---|---|
+| `DateFormats` | Los formatos de fecha y hora (las constantes de `DateUtil` apuntan a ellos). |
+| `DateTimeParser` | Texto a `LocalDate`, `LocalTime` y `LocalDateTime`; `parseAnyFormat` detecta el formato. |
+| `DateTimeFormatting` | Valores `java.time` a texto. |
+| `DateTextConverter` | Texto de un formato a otro (tolerante: una entrada no válida se devuelve sin cambios). |
+| `DateFormatDetector` | En qué formato está escrito un texto. |
+| `ElapsedTimeFormatter` | Tiempo transcurrido legible ("hace 3 días"). |
+| `LegacyDateConverter` | Tipos `java.util.Date` y `java.sql` a y desde `java.time`. |
+
+Los métodos de `DateUtil` cuya firma usa `java.util.Date` o `Calendar` están deprecados; su Javadoc indica el
+reemplazo. Los métodos que usan tipos `java.sql` (`web2SqlDate`, `sqlDat2WebDate`...) se mantienen para el código
+JDBC. Algunos métodos deprecados devuelven un `java.sql.Timestamp` o `java.sql.Time` declarado como `Date`
+(`web2Timestamp`, `web2Time`, `sql2JavaDate`, `jsonDate`, `getDateWithTimeFromCriteria`, `addTimeToDate`); lo siguen
+haciendo.
+
+Se corrige un comportamiento: el tiempo transcurrido (`DateUtil.elapsedTime`, `dateSince` y las transformaciones
+`ELAPSED_TIME` y `DATE_SINCE`) cuenta ahora las horas en formato de 24 horas. AWE 4 mostraba 13 horas como "1 hora" y 12 horas
+en milisegundos.
 
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
