@@ -2,11 +2,15 @@ package com.almis.awe.model.entities.queries;
 
 import com.thoughtworks.xstream.XStream;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
@@ -405,5 +409,30 @@ class QueryTest {
     streamMarshaller.aliasSystemAttribute(null, "class");
 
     assertEquals(expectedXml, streamMarshaller.toXML(substringOp));
+  }
+
+  @Test
+  void testQueryKeysIncludeSessionVariableValues() {
+    Query sessionQuery = new Query()
+      .setId("sessionQuery")
+      .setVariableDefinitionList(List.of(new Variable().setId("Usr").setType("STRING").setSession("user")));
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+
+    String testKey = sessionQuery.getQueryKeys(parameters, name -> "user".equals(name) ? "test" : null);
+    String donaldKey = sessionQuery.getQueryKeys(parameters, name -> "user".equals(name) ? "donald" : null);
+
+    assertNotEquals(testKey, donaldKey);
+    assertEquals(testKey, sessionQuery.getQueryKeys(parameters, name -> "user".equals(name) ? "test" : null));
+  }
+
+  @Test
+  void testQueryKeysWithoutSessionVariablesAreUnchanged() {
+    Query requestQuery = new Query()
+      .setId("requestQuery")
+      .setVariableDefinitionList(List.of(new Variable().setId("filter").setType("STRING").setName("filter")));
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode().put("filter", "value").put("ignored", "other");
+
+    assertEquals("requestQuery|{\"filter\":\"value\"}", requestQuery.getQueryKeys(parameters, name -> "anything"));
+    assertEquals("requestQuery|{\"filter\":\"value\"}", requestQuery.getQueryKeys(parameters));
   }
 }

@@ -726,6 +726,9 @@
     <field id="user"/>
     <field id="profile"/>
     <variable id="restriction" type="STRING" session="restriction"/>
+    <!-- Not used by the service: the user and profile filter the database restrictions it reads, so they must key the cache -->
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="profile" type="STRING" session="profile"/>
   </query>
 
   <!-- OPTION ACCESS RESTRICTIONS -->
@@ -781,6 +784,11 @@
     <field id="value"/>
     <field id="label"/>
     <variable id="screen" type="STRING" name="suggest" />
+    <!-- Not used by the service: the screens it lists depend on the user restrictions and the module, so they must key the cache -->
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="profile" type="STRING" session="profile"/>
+    <variable id="restriction" type="STRING" session="restriction"/>
+    <variable id="module" type="STRING" name="module" session="module"/>
   </query>
 
   <!-- ALL XML SCREEN SUGGEST (Service getAllScreenList) -->

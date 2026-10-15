@@ -121,14 +121,41 @@ The *query* element has the following attributes:
 
 ### Query cache and trace logging
 
-If `cacheable="true"`, the query result is cached using the query id plus the resolved parameters as the cache key.
-This avoids re-executing the same query with the same inputs during the cache lifetime.
+If `cacheable="true"`, the query result is cached and reused while the same inputs repeat during the cache lifetime.
+The cache key holds everything that changes the result:
+
+- the query id
+- the request parameters named after the query variables, plus `page`, `max` and `sort`
+- the current value of every variable declared with `session="..."`
+- the language the results are translated to (request `lang`, otherwise the session language)
+- the database the query runs on (request `_database_`, otherwise the session database)
+
+A cached result is therefore never shared between users, languages or databases through these inputs.
+
+:::caution Service queries
+
+The cache only knows the variables the query declares. When a cacheable [service query](#service-query) returns data that
+depends on the session (the user, the profile, the module...) without receiving it as a variable, declare those session
+values as variables of the query, even if the service does not use them. Otherwise every user shares the first cached
+result.
+
+```xml
+<query id="getScreenList" service="getScreenList" cacheable="true">
+  <field id="value"/>
+  <field id="label"/>
+  <variable id="screen" type="STRING" name="suggest" />
+  <variable id="user" type="STRING" session="user"/>
+  <variable id="profile" type="STRING" session="profile"/>
+</query>
+```
+
+:::
 
 To see cache hits in logs, set the logger `com.almis.awe.cache.LoggingCache` to `trace`.
 When enabled, you will see entries like:
 
 ```log
-Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}
+Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}|language=en-GB|database=null
 ```
 
 Example configuration in `application.properties`:
