@@ -25,7 +25,7 @@
     <node.version>v24.21.0</node.version>
     <npm.version>11.21.0</npm.version>
     <st.version>4.3.4</st.version>
-    <flexmark.version>0.62.2</flexmark.version>
+    <flexmark.version>0.64.8</flexmark.version>
     <mail.version>2.1.5</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
     <commons-io.version>2.17.0</commons-io.version>
