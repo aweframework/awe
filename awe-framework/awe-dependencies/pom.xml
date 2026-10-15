@@ -28,7 +28,7 @@
     <flexmark.version>0.62.2</flexmark.version>
     <mail.version>2.1.5</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
-    <commons-io.version>2.17.0</commons-io.version>
+    <commons-io.version>2.22.0</commons-io.version>
     <commons-text.version>1.12.0</commons-text.version>
     <commons-fileupload.version>2.0.0-M5</commons-fileupload.version>
     <xtream.version>1.4.21</xtream.version>
