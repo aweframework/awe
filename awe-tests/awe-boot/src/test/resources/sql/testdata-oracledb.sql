@@ -168,6 +168,7 @@ values ('SchTskLch', (select coalesce(max(Ide), 0) + 1 from AweSchTskLch));
 Insert into AweKey (KeyNam, KeyVal)
 values ('SchTskPar', (select coalesce(max(Ide), 0) + 1 from AweSchTskPar));
 
+TRUNCATE TABLE HISAweDbs;
 INSERT INTO HISAweDbs
 VALUES ('test', to_date('20081012 00:00:00', 'yyyymmdd hh24:mi:ss'), 'I', NULL, 'Theme test', NULL, NULL, NULL,
         NULL, NULL, NULL, NULL, NULL, 1);
