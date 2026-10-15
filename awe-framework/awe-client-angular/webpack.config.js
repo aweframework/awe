@@ -9,7 +9,8 @@ const styleDir = path.resolve(__dirname, "src", "main", "resources", "less");
 const srcPath = path.resolve(__dirname, "src", "main", "resources", "js", "awe");
 const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib");
 
-const autoprefixerBrowsers = ['last 2 versions', '> 1%', 'opera 12.1', 'bb 10', 'android 4', 'IE 10'];
+// Modern browsers only: no Internet Explorer nor legacy mobile browsers
+const autoprefixerBrowsers = ['last 2 versions', '> 0.5%', 'not dead', 'not ie > 0', 'not op_mini all'];
 const validModes = new Set(["development", "production"]);
 
 const resolveMode = (env = {}, argv = {}) => {
@@ -66,8 +67,8 @@ module.exports = (env = {}, argv = {}) => {
         { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
             loader: "less-loader", options: { lessOptions: { plugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ] }, sourceMap: false }}]},
         { test : /\.(jpg|gif|png)$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './images/[hash][ext][query]' }},
-        { test : /\.woff[2]*?(\?v=\d+\.\d+\.\d+)?$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './fonts/[hash][ext][query]', dataUrl: content => `data:application/font-woff;base64,${content.toString('base64')}` }},
-        { test : /\.(ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: { filename: './fonts/[hash][ext][query]' }},
+        // Fonts are separate files (never inlined into styles.css): the browser downloads only the formats it uses
+        { test : /\.(woff2?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: { filename: './fonts/[hash][ext][query]' }},
       ]
     },
     resolve: {

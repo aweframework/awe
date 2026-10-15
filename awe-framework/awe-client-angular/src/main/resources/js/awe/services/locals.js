@@ -18,9 +18,12 @@ aweApplication.factory('AweLocals',
         // Retrieve language
         let  language = $settings.getLanguage();
 
-        // Create script tag and add it to HTML
-        let  url = Connection.getRawUrl() + "/js/locals-" + language + ".js";
-        let  script = $("<script type='text/javascript' id='localeFunctions' src='" + url + "'></script>");
+        // Create script tag and add it to HTML. The page publishes the versioned URL of each language script
+        // (content hash when static resource versioning is on), so a deploy never serves a stale one
+        // The language is compared, never built into the selector: any value is safe
+        let  versionedUrl = $("meta[name^='awe-locals-']").filter((_index, meta) => meta.name === "awe-locals-" + language).attr("content");
+        let  url = versionedUrl || Connection.getRawUrl() + "/js/locals-" + language + ".js";
+        let  script = $("<script>", {type: "text/javascript", id: "localeFunctions", src: url});
 
         // Append localeFunctions (and replace old)
         let  oldLocaleFunctions = $("#localeFunctions");
