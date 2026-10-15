@@ -1,74 +1,68 @@
 package com.almis.awe.scheduler.dao;
 
-import com.almis.awe.builder.client.SelectActionBuilder;
-import com.almis.awe.builder.client.UpdateControllerActionBuilder;
-import com.almis.awe.builder.client.css.AddCssClassActionBuilder;
-import com.almis.awe.builder.client.css.RemoveCssClassActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.dto.CellData;
-import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.entities.maintain.MaintainQuery;
-import com.almis.awe.model.entities.maintain.Target;
-import com.almis.awe.model.entities.queries.Variable;
-import com.almis.awe.model.util.data.DataListUtil;
-import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.model.util.data.TimeUtil;
-import com.almis.awe.scheduler.bean.calendar.Schedule;
-import com.almis.awe.scheduler.bean.file.File;
-import com.almis.awe.scheduler.bean.report.Report;
-import com.almis.awe.scheduler.bean.task.*;
-import com.almis.awe.scheduler.builder.task.TaskBuilder;
+import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.constant.ParameterConstants;
-import com.almis.awe.scheduler.enums.TaskLaunchType;
+import com.almis.awe.scheduler.dao.task.TaskExecutionPresenter;
+import com.almis.awe.scheduler.dao.task.TaskExecutionRepository;
+import com.almis.awe.scheduler.dao.task.TaskImmediateLauncher;
+import com.almis.awe.scheduler.dao.task.TaskListPresenter;
+import com.almis.awe.scheduler.dao.task.TaskParameterOverrides;
+import com.almis.awe.scheduler.dao.task.TaskRepository;
+import com.almis.awe.scheduler.dao.task.TaskScheduling;
 import com.almis.awe.scheduler.enums.TaskStatus;
-import com.almis.awe.scheduler.enums.TriggerType;
-import com.almis.awe.scheduler.factory.TaskFactory;
-import com.almis.awe.scheduler.factory.TriggerFactory;
 import com.almis.awe.scheduler.filechecker.FileChecker;
-import com.almis.awe.scheduler.log.ExecutionKey;
-import com.almis.awe.scheduler.log.ExecutionLogPage;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
-import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.springframework.scheduling.annotation.Async;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
-import static com.almis.awe.model.constant.AweConstants.*;
-import static com.almis.awe.scheduler.constant.JobConstants.*;
-import static com.almis.awe.scheduler.constant.MaintainConstants.*;
-import static com.almis.awe.scheduler.constant.QueryConstants.*;
-import static com.almis.awe.scheduler.constant.TaskConstants.*;
+import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 
+/**
+ * Scheduler task facade. Every responsibility lives in a collaborator of the
+ * {@code com.almis.awe.scheduler.dao.task} package; this class keeps the public API and delegates:
+ * <ul>
+ *   <li>{@link TaskRepository}: task loading and file modification table</li>
+ *   <li>{@link TaskExecutionRepository}: execution persistence and purge</li>
+ *   <li>{@link TaskScheduling}: Quartz jobs and triggers</li>
+ *   <li>{@link TaskListPresenter}: task list and maintain variables screens</li>
+ *   <li>{@link TaskExecutionPresenter}: execution list, execution screen and progress widgets</li>
+ *   <li>{@link TaskImmediateLauncher} and {@link TaskParameterOverrides}: immediate launches, parameter
+ *   overrides and dependencies</li>
+ * </ul>
+ * Immediate launches are handed to the scheduler through {@link #addTaskToScheduler(Task)}.
+ */
 @Slf4j
 public class TaskDAO extends ServiceConfig {
 
-  // locales
-  private static final String TITLE_SCHEDULER_NEW_TASK = "TITLE_SCHEDULER_NEW_TASK";
-  private static final String MESSAGE_SCHEDULER_NEW_TASK = "MESSAGE_SCHEDULER_NEW_TASK";
-  private static final String WARNING_MESSAGE_TASK_DEPENDENCY_ERROR = "WARNING_MESSAGE_TASK_DEPENDENCY_ERROR";
-  // Autowired services
-  private final QueryService queryService;
-  private final MaintainService maintainService;
-  private final Scheduler scheduler;
-  private final QueryUtil queryUtil;
-  private final CalendarDAO calendarDAO;
-  private final ServerDAO serverDAO;
-  private final FileChecker fileChecker;
-  private final ExecutionLogStore executionLogStore;
-  private final int defaultStoredExecutions;
+  private final TaskRepository taskRepository;
+  private final TaskExecutionRepository executionRepository;
+  private final TaskScheduling taskScheduling;
+  private final TaskListPresenter taskListPresenter;
+  private final TaskExecutionPresenter executionPresenter;
+  private final TaskParameterOverrides parameterOverrides;
+  private final TaskImmediateLauncher immediateLauncher;
 
   /**
    * Autowired constructor
@@ -85,15 +79,17 @@ public class TaskDAO extends ServiceConfig {
    */
   public TaskDAO(Scheduler scheduler, int storedExecutions, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
                  CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker, ExecutionLogStore executionLogStore) {
-    this.scheduler = scheduler;
-    this.defaultStoredExecutions = storedExecutions;
-    this.queryService = queryService;
-    this.maintainService = maintainService;
-    this.queryUtil = queryUtil;
-    this.calendarDAO = calendarDAO;
-    this.serverDAO = serverDAO;
-    this.fileChecker = fileChecker;
-    this.executionLogStore = executionLogStore;
+    this.taskRepository = new TaskRepository(scheduler, queryService, maintainService, queryUtil, calendarDAO,
+      serverDAO, this);
+    this.executionRepository = new TaskExecutionRepository(queryService, maintainService, queryUtil,
+      executionLogStore, storedExecutions);
+    this.taskScheduling = new TaskScheduling(scheduler, fileChecker, taskRepository, executionRepository, this);
+    this.taskListPresenter = new TaskListPresenter(scheduler, queryService, queryUtil, taskScheduling, this);
+    this.executionPresenter = new TaskExecutionPresenter(queryService, queryUtil, executionLogStore,
+      executionRepository, this);
+    this.parameterOverrides = new TaskParameterOverrides(this::getProperty);
+    this.immediateLauncher = new TaskImmediateLauncher(taskRepository, executionRepository, parameterOverrides,
+      this);
   }
 
   /**
@@ -125,82 +121,7 @@ public class TaskDAO extends ServiceConfig {
    */
   @Async("schedulerTaskPool")
   public Future<Task> getTask(Integer taskId) throws AWException {
-    return CompletableFuture.completedFuture(loadTask(taskId));
-  }
-
-  /**
-   * Load task from task id (synchronous)
-   *
-   * @param taskId Task id
-   * @return Generated task
-   * @throws AWException Error retrieving task
-   */
-  private Task loadTask(Integer taskId) throws AWException {
-
-    // Retrieve task data
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    ServiceData taskParameters = queryService.launchPrivateQuery(SCHEDULER_TASK_QUERY, parameters);
-    TaskBuilder taskBuilder = TaskFactory.getInstance(generateTask(taskParameters), generateFile(taskParameters), scheduler);
-
-    // Set task parameters
-    taskBuilder.setParameters(DataListUtil.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_PARAMETERS_QUERY, parameters).getDataList(), TaskParameter.class));
-
-    // Retrieve task dependencies
-    taskBuilder.setDependencies(DataListUtil.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_DEPENDENCIES_QUERY, parameters).getDataList(), TaskDependency.class));
-
-    // Retrieve task calendar
-    if (taskBuilder.getCalendarId() != null) {
-      taskBuilder.setCalendar(calendarDAO.getCalendar(taskBuilder.getCalendarId()));
-    }
-
-    // Fill file if defined
-    if (taskBuilder.getFile() != null) {
-      // Generate server if file is defined
-      taskBuilder.setFileServer(serverDAO.findServer(taskBuilder.getFile().getFileServerId()));
-
-      // Generate file modifications if defined
-      setFileModificationsFromDb(taskBuilder.getTask());
-    }
-
-    // Retrieve task
-    return taskBuilder.build();
-  }
-
-  private Task generateTask(ServiceData taskParameters) throws AWException {
-    return DataListUtil.asBeanList(taskParameters.getDataList(), Task.class)
-      .stream().findFirst()
-      .orElseThrow(() -> new AWException("No task data found"))
-      .setSchedule(DataListUtil.asBeanList(taskParameters.getDataList(), Schedule.class).stream().findFirst().orElse(new Schedule()))
-      .setReport(DataListUtil.asBeanList(taskParameters.getDataList(), Report.class).stream().findFirst().orElse(new Report()));
-  }
-
-  private File generateFile(ServiceData taskParameters) {
-    return DataListUtil.asBeanList(taskParameters.getDataList(), File.class).stream().findFirst().orElse(null);
-  }
-
-
-  /**
-   * load file modification hashmap from database
-   *
-   * @param task Task
-   * @throws AWException Error loading modification hashmap
-   */
-  private void setFileModificationsFromDb(Task task) throws AWException {
-    // Set server ip to the context
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_IDE, task.getTaskId());
-    DataList modificationsDataList = queryService.launchPrivateQuery(SCHEDULER_FILE_MODIFICATIONS_QUERY, parameters).getDataList();
-    log.debug("[File] Last modification files loaded from database on task #{}", task.getTaskId());
-
-    Map<String, Date> modifications = new HashMap<>();
-
-    // Fill modifications hashmap
-    for (Map<String, CellData> row : modificationsDataList.getRows()) {
-      modifications.put(row.get(FILE_PATH).getStringValue(), row.get(UPDATE_DATE).getDateValue());
-    }
-
-    task.getFile().setFileModifications(modifications);
+    return CompletableFuture.completedFuture(taskRepository.loadTask(taskId));
   }
 
   /**
@@ -210,17 +131,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task is allowed
    */
   public boolean isTaskExecutionAllowed(Task task) {
-    if (task != null && TaskLaunchType.FILE_TRACKING.getValue().equals(task.getLaunchType())) {
-      // Check if file has been updated
-      String file = fileChecker.checkFile(task);
-
-      // Put launcher in job detail
-      task.setLauncher(file);
-
-      // Veto if file has not been updated
-      return file != null;
-    }
-    return true;
+    return taskScheduling.isTaskExecutionAllowed(task);
   }
 
   /**
@@ -230,22 +141,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task execution
    */
   public TaskExecution startTask(Task task) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters();
-    parameters.put(TASK_ID, task.getTaskId());
-    parameters.put(TASK_GROUP, task.getGroup());
-    parameters.put(TASK_LAUNCHER, task.getLauncher());
-    parameters.put("executions", task.getStoredExecutions() != null ? task.getStoredExecutions() : defaultStoredExecutions);
-    maintainService.launchPrivateMaintain(TASK_START, parameters);
-
-    // Retrieve task execution
-    TaskExecution execution = getLastExecutionFromDB(task, task.getTrigger().getKey().getGroup());
-
-    // Set parent execution if defined
-    if (execution != null) {
-      execution.setParentExecution(task.getParentExecution());
-    }
-
-    return execution;
+    return executionRepository.startTask(task);
   }
 
   /**
@@ -256,19 +152,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task execution
    */
   public TaskExecution endTask(Task task, TaskExecution execution) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters();
-    parameters.put(TASK_ID, task.getTaskId());
-    parameters.put(TASK_JOB_EXECUTION, execution.getExecutionId());
-    parameters.put("status", task.getStatus().getValue());
-    parameters.put("taskDescription", execution.getDescription());
-    maintainService.launchPrivateMaintain(TASK_END, parameters);
-
-    // Retrieve updated task execution from database
-    execution = getTaskExecution(task, execution.getExecutionId());
-    execution.setParentExecution(task.getParentExecution());
-
-    // Retrieve task execution
-    return execution;
+    return executionRepository.endTask(task, execution);
   }
 
   /**
@@ -280,19 +164,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving executions to be purged
    */
   public ServiceData getExecutionsToPurge(Integer taskId, Integer executions) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    ServiceData serviceData = queryService.launchPrivateQuery(GET_ALL_EXECUTIONS_WITH_DATES, parameters);
-    DataList dataList = serviceData.getDataList();
-
-    // Filter rows
-    dataList.setRows(serviceData.getDataList().getRows().stream().skip(executions).toList());
-    dataList.getRows().forEach(row -> row.remove("id"));
-
-    // Set records
-    dataList.setRecords(serviceData.getDataList().getRows().size());
-
-    return serviceData;
+    return executionRepository.getExecutionsToPurge(taskId, executions);
   }
 
   /**
@@ -302,23 +174,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error on purge
    */
   public ServiceData purgeExecutionLogFiles(Integer taskId, Integer executions) throws AWException {
-    ArrayNode executionsToPurge = JsonNodeFactory.instance.arrayNode();
-    DataList dataList = getExecutionsToPurge(taskId, executions).getDataList();
-    List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
-    List<Integer> executionIds = taskExecutionList.stream().map(TaskExecution::getExecutionId).toList();
-    executionIds.forEach(executionsToPurge::add);
-
-    executionLogStore.purge(taskId, executionIds);
-
-    // Add executions id to parameters
-    ObjectNode parameters = queryUtil.getParameters();
-    parameters.set("executionId", executionsToPurge);
-    parameters.put(TASK_ID, taskId);
-    if (!executionsToPurge.isEmpty()) {
-      return maintainService.launchPrivateMaintain(PURGE_EXECUTION_LOGS, parameters);
-    } else {
-      return new ServiceData();
-    }
+    return executionRepository.purgeExecutionLogFiles(taskId, executions);
   }
 
   /**
@@ -327,19 +183,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error on purge
    */
   public ServiceData purgeExecutionsAtStart() throws AWException {
-    log.info("===== Deleting old execution logs =====");
-
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    DataList dataList = queryService.launchPrivateQuery(GET_ALL_EXECUTIONS, parameters).getDataList();
-    List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
-    Set<ExecutionKey> validExecutions = taskExecutionList
-      .stream()
-      .map(e -> new ExecutionKey(e.getTaskId(), e.getExecutionId()))
-      .collect(Collectors.toSet());
-
-    executionLogStore.purgeOrphans(validExecutions);
-
-    return new ServiceData();
+    return executionRepository.purgeExecutionsAtStart();
   }
 
   /**
@@ -348,7 +192,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Interrupt task status
    */
   public ServiceData updateInterruptedTasks() throws AWException {
-    return maintainService.launchPrivateMaintain(UPDATE_INTERRUPTED_TASKS);
+    return executionRepository.updateInterruptedTasks();
   }
 
   /**
@@ -359,17 +203,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Change status
    */
   public ServiceData changeStatus(Task task, TaskExecution execution, TaskStatus status, String reason) throws AWException {
-    // Set execution status
-    execution.setStatus(status.getValue());
-    execution.setDescription(reason);
-
-    // Update execution status
-    ObjectNode parameters = queryUtil.getParameters();
-    parameters.put(TASK_ID, execution.getTaskId());
-    parameters.put(TASK_JOB_EXECUTION, execution.getExecutionId());
-    parameters.put("status", status.getValue());
-    parameters.put("description", reason);
-    return maintainService.launchPrivateMaintain(TASK_UPDATE_STATUS, parameters);
+    return executionRepository.changeStatus(execution, status, reason);
   }
 
   /**
@@ -379,17 +213,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error adding task to scheduler
    */
   public void addTaskToScheduler(Task task) throws AWException {
-    // Add new scheduled job to the scheduler
-    try {
-      scheduleTask(task);
-      log.debug("New task added to the scheduler: #{}", task.getTaskId());
-
-      if (!task.isActive()) {
-        scheduler.pauseTrigger(task.getTrigger().getKey());
-      }
-    } catch (Exception exc) {
-      throw new AWException("Error adding scheduler task: #" + task.getTaskId(), exc);
-    }
+    taskScheduling.addTaskToScheduler(task);
   }
 
   /**
@@ -400,32 +224,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error inserting task
    */
   public ServiceData insertTask(Integer taskId) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    try {
-      Task task = loadTask(taskId);
-
-      // Clear file modification table from database
-      if (TaskLaunchType.FILE_TRACKING.getValue().equals(task.getLaunchType())) {
-        clearFileModificationTable(taskId);
-        log.debug("[SCHEDULERS][TASK {}] The modification table has been cleared", taskId);
-      }
-
-      task.setGroup(TaskUtil.getGroupForLaunchType(task.getLaunchType()));
-
-      // Add task to scheduler if not manual
-      if (task.getLaunchType() != 0) {
-        addTaskToScheduler(task);
-      }
-
-      log.info("[SCHEDULER][TASK {}] The task has been added", taskId);
-      serviceData
-        .setTitle(getLocale(TITLE_SCHEDULER_NEW_TASK))
-        .setMessage(getLocale(MESSAGE_SCHEDULER_NEW_TASK));
-    } catch (Exception exc) {
-      throw new AWException("Error inserting new task: " + taskId, exc);
-    }
-
-    return serviceData;
+    return taskScheduling.insertTask(taskId);
   }
 
   /**
@@ -469,30 +268,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error deleting task
    */
   public ServiceData deleteTask(Integer ideTsk) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    String taskId = ideTsk.toString();
-    try {
-      // Purge log files
-      purgeExecutionLogFiles(ideTsk, 0);
-
-      // Check if the job exists
-      for (String group : scheduler.getTriggerGroupNames()) {
-        TriggerKey triggerKey = new TriggerKey(taskId, group);
-        if (checkTrigger(triggerKey)) {
-
-          // Delete job
-          scheduler.deleteJob(scheduler.getTrigger(triggerKey).getJobKey());
-          log.info("[SCHEDULER][TASK {}] The task has been deleted", triggerKey);
-
-          // Clear file modification table from database
-          clearFileModificationTable(ideTsk);
-        }
-      }
-
-    } catch (Exception exc) {
-      throw new AWException("[SCHEDULER] Error deleting task: " + taskId, exc);
-    }
-    return serviceData;
+    return taskScheduling.deleteTask(ideTsk);
   }
 
   /**
@@ -503,20 +279,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error updating execution time
    */
   public ServiceData updateExecutionTime(Integer taskId, Integer executionId) throws AWException {
-    // Get task execution
-    ObjectNode parameters = queryUtil.getParameters();
-    parameters.put(TASK_ID, taskId);
-    parameters.put(TASK_JOB_EXECUTION, executionId);
-    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_TASK_EXECUTION, parameters);
-
-    // Get dates
-    DataList dataList = serviceData.getDataList();
-    Date initialDate = DataListUtil.getCellData(dataList, 0, "initialDate").getDateValue();
-    Date endDate = DataListUtil.getCellData(dataList, 0, "endDate").getDateValue();
-
-    // Update time in execution
-    parameters.put("executionTime", endDate.getTime() - initialDate.getTime());
-    return maintainService.launchPrivateMaintain("updateExecutionTime", parameters);
+    return executionRepository.updateExecutionTime(taskId, executionId);
   }
 
   /**
@@ -527,39 +290,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving task execution list
    */
   public ServiceData getTaskExecutionList(Integer taskId) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    ServiceData serviceData = queryService.launchPrivateQuery("getTaskExecutionList", parameters);
-    long averageExecution = getAverageTime(taskId);
-
-    DataList dataList = serviceData.getDataList();
-    for (Map<String, CellData> row : dataList.getRows()) {
-      CellData progress = new CellData();
-      CellData averageTime = new CellData();
-      Integer executionId = row.get(TASK_EXECUTION_ID).getIntegerValue();
-
-      // Calculate progress
-      CellData status = row.get("Sta");
-      CellData executionTime = row.get(TASK_EXECUTION_TIME);
-      CellData launchType = row.get(TASK_LAUNCH_TYPE_LIST);
-      CellData launchedBy = new CellData(getLaunchedByText(launchType.getStringValue(), row.get(TASK_LAUNCHED_BY_LIST).getStringValue()));
-      CellData executionLogPathCell = new CellData(executionLogStore.locatorNode(new ExecutionKey(taskId, executionId)));
-      Date initialDate = row.get("ExeLstTim").getDateValue();
-
-      if (TaskStatus.JOB_RUNNING.equals(TaskStatus.valueOf(status.getIntegerValue()))) {
-        progress = new CellData(getProgressNode(getProgress(initialDate, averageExecution)));
-        averageTime = new CellData(TimeUtil.formatTime(getElapsedTime(initialDate), false));
-      } else if (executionTime != null && executionTime.getIntegerValue() != null) {
-        averageTime = new CellData(TimeUtil.formatTime(executionTime.getIntegerValue()));
-      }
-
-      row.put(TASK_EXECUTION_PROGRESS, progress);
-      row.put(TASK_EXECUTION_TIME, averageTime);
-      row.put(TASK_LAUNCHED_BY_LIST, launchedBy);
-      row.put(TASK_EXECUTION_LOG_PATH, executionLogPathCell);
-    }
-
-    return serviceData;
+    return executionPresenter.getTaskExecutionList(taskId);
   }
 
   /**
@@ -569,16 +300,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Progress node
    */
   public ObjectNode getProgressNode(long percentage) {
-    ObjectNode progressBar = JsonNodeFactory.instance.objectNode();
-    if (percentage > 100L) {
-      progressBar.put(JSON_VALUE_PARAMETER, 100);
-      progressBar.put(JSON_STYLE_PARAMETER, "progress-bar-danger");
-      progressBar.put(JSON_LABEL_PARAMETER, "");
-    } else {
-      progressBar.put(JSON_VALUE_PARAMETER, percentage);
-      progressBar.put(JSON_LABEL_PARAMETER, percentage + "%");
-    }
-    return progressBar;
+    return executionPresenter.getProgressNode(percentage);
   }
 
   /**
@@ -588,16 +310,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Status icon
    */
   public ObjectNode getStatusIcon(TaskExecution execution) {
-    ObjectNode statusIcon = JsonNodeFactory.instance.objectNode();
-    statusIcon.put(JSON_VALUE_PARAMETER, execution.getStatus());
-    try {
-      statusIcon.put(JSON_LABEL_PARAMETER, queryService.findLabel("StaTyp", execution.getStatus().toString()));
-      statusIcon.put(JSON_ICON_PARAMETER, queryService.findLabel("StaIco", execution.getStatus().toString()));
-      statusIcon.put(JSON_STYLE_PARAMETER, queryService.findLabel("StaSty", execution.getStatus().toString()));
-    } catch (AWException exc) {
-      log.error("Error finding icon labels", exc);
-    }
-    return statusIcon;
+    return executionPresenter.getStatusIcon(execution);
   }
 
   /**
@@ -606,10 +319,22 @@ public class TaskDAO extends ServiceConfig {
    * @param initialDate      Initial date
    * @param averageExecution Average execution
    * @return Progress
+   * @deprecated use {@link #getProgress(Instant, long)}
    */
+  @Deprecated(since = "5.0.0")
   public long getProgress(Date initialDate, long averageExecution) {
-    long currentExecution = new Date().getTime() - initialDate.getTime();
-    return averageExecution == 0 ? 101L : (currentExecution * 100) / averageExecution;
+    return getProgress(Instant.ofEpochMilli(initialDate.getTime()), averageExecution);
+  }
+
+  /**
+   * Retrieve the progress of a running execution as a percentage of the average execution time
+   *
+   * @param initialDate      Execution start
+   * @param averageExecution Average execution time in milliseconds
+   * @return Progress percentage, 101 when there is no average execution time
+   */
+  public long getProgress(Instant initialDate, long averageExecution) {
+    return executionPresenter.getProgress(initialDate, averageExecution);
   }
 
   /**
@@ -617,9 +342,21 @@ public class TaskDAO extends ServiceConfig {
    *
    * @param startDate Start date
    * @return Elapsed time
+   * @deprecated use {@link #getElapsedTime(Instant)}
    */
+  @Deprecated(since = "5.0.0")
   public Integer getElapsedTime(Date startDate) {
-    return (int) (new Date().getTime() - startDate.getTime());
+    return getElapsedTime(Instant.ofEpochMilli(startDate.getTime()));
+  }
+
+  /**
+   * Retrieve elapsed time from a start instant
+   *
+   * @param startDate Start instant
+   * @return Elapsed time in milliseconds
+   */
+  public Integer getElapsedTime(Instant startDate) {
+    return executionPresenter.getElapsedTime(startDate);
   }
 
   /**
@@ -644,11 +381,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error executing immediate task
    */
   public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
-    // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.MANUAL, user, null, variables);
-
-    // Log launched task
-    log.info("Task launched manually: {}", taskId);
+    immediateLauncher.launchNow(taskId, user, variables, this::addTaskToScheduler);
 
     // Return ok service data
     return new ServiceData();
@@ -663,7 +396,7 @@ public class TaskDAO extends ServiceConfig {
    * @param variables Supplied values (parameter name -&gt; value); null or empty is a no-op
    */
   void applyOperatorValues(Task task, Map<String, String> variables) {
-    applyOperatorValues(task, variables, Set.of(String.valueOf(ParameterConstants.VARIABLE)));
+    applyOperatorValues(task, variables, TaskParameterOverrides.VARIABLE_SOURCES);
   }
 
   /**
@@ -676,15 +409,7 @@ public class TaskDAO extends ServiceConfig {
    * @param overridableSources  Parameter sources the supplied values may override
    */
   void applyOperatorValues(Task task, Map<String, String> variables, Set<String> overridableSources) {
-    if (variables == null || variables.isEmpty() || task.getParameterList() == null) {
-      return;
-    }
-
-    for (TaskParameter parameter : task.getParameterList()) {
-      if (overridableSources.contains(parameter.getSource()) && variables.containsKey(parameter.getName())) {
-        parameter.setValue(variables.get(parameter.getName()));
-      }
-    }
+    parameterOverrides.apply(task, variables, overridableSources);
   }
 
   /**
@@ -698,36 +423,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error loading the task
    */
   public List<String> findUnresolvedProperties(Integer taskId, Map<String, String> variables) throws AWException {
-    Task task = loadTask(taskId);
-    applyOperatorValues(task, variables, overridableSources(TriggerType.MANUAL));
-
-    if (task.getParameterList() == null) {
-      return Collections.emptyList();
-    }
-
-    return task.getParameterList().stream()
-      .filter(parameter -> String.valueOf(ParameterConstants.PROPERTY).equals(parameter.getSource()))
-      .map(TaskParameter::getValue)
-      .filter(key -> key == null || key.isBlank() || getProperty(key) == null)
-      .map(key -> key == null ? "" : key)
-      .toList();
-  }
-
-  /**
-   * Parameter sources a launch of the given type may override. An operator launching by hand may
-   * adjust any parameter, whatever its source; every other trigger type, dependency propagation
-   * included, may only override VARIABLE parameters.
-   *
-   * @param triggerType Trigger type of the launch
-   * @return Overridable parameter sources
-   */
-  private Set<String> overridableSources(TriggerType triggerType) {
-    if (TriggerType.MANUAL.equals(triggerType)) {
-      return Set.of(String.valueOf(ParameterConstants.VALUE),
-        String.valueOf(ParameterConstants.VARIABLE),
-        String.valueOf(ParameterConstants.PROPERTY));
-    }
-    return Set.of(String.valueOf(ParameterConstants.VARIABLE));
+    return immediateLauncher.findUnresolvedProperties(taskId, variables);
   }
 
   /**
@@ -752,49 +448,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error executing dependency task
    */
   public void executeDependency(Integer taskId, TaskExecution parentExecution, Map<String, String> variables) throws AWException {
-    // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution, variables);
-
-    // Log launched task
-    log.info("Task #{} launched as dependency from task #{}", taskId, parentExecution.getTaskId());
-  }
-
-  /**
-   * Execute immediately a task
-   *
-   * @param taskId      Task id
-   * @param triggerType Trigger type
-   * @param launcher    Task launcher
-   * @param parent      Parent execution
-   * @param variables   Operator supplied values for variable parameters (null when not applicable)
-   * @throws AWException Error executing immediate task
-   */
-  private void executeImmediateTask(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent, Map<String, String> variables) throws AWException {
-    try {
-      Task task = loadTask(taskId);
-      task.setLauncher(launcher);
-      task.setParentExecution(parent);
-
-      // Override variable parameters with the operator supplied values
-      applyOperatorValues(task, variables, overridableSources(triggerType));
-
-      JobDataMap dataMap = new JobDataMap();
-      dataMap.put(TASK, task);
-
-      // Add a new trigger to task
-      task.setTrigger(TriggerFactory.getInstance(triggerType, dataMap));
-
-      // Set launcher to job data
-      task.setJob(task.getJob()
-        .getJobBuilder()
-        .withIdentity(task.getTrigger().getKey().getName(), task.getTrigger().getKey().getGroup())
-        .build());
-
-      // Schedule task
-      addTaskToScheduler(task);
-    } catch (Exception exc) {
-      throw new AWException("Error launching immediate task: " + taskId, exc);
-    }
+    immediateLauncher.launchDependency(taskId, parentExecution, variables, this::addTaskToScheduler);
   }
 
   /**
@@ -805,13 +459,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws SchedulerException Error pausing task
    */
   public ServiceData pauseTask(Task task) throws SchedulerException {
-    TriggerKey key = new TriggerKey(String.valueOf(task.getTaskId()), task.getGroup());
-    // Pause trigger in scheduler
-    if (checkTrigger(key)) {
-      scheduler.pauseTrigger(key);
-      log.info("[SCHEDULER][TASK_QUERY {}] Task paused", key);
-    }
-    return new ServiceData();
+    return taskScheduling.pauseTask(task);
   }
 
   /**
@@ -822,38 +470,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error resuming task
    */
   public ServiceData resumeTask(Task task) throws AWException {
-    if (task.getLaunchType() != 0) {
-      scheduleTask(task);
-    }
-    return new ServiceData();
-  }
-
-  /**
-   * Schedule a task
-   *
-   * @param task Task to schedule
-   * @throws AWException Error scheduling task
-   */
-  private void scheduleTask(Task task) throws AWException {
-    try {
-      TriggerKey triggerKey = task.getTrigger().getKey();
-
-      if (checkTrigger(triggerKey)) {
-        Trigger oldTrigger = scheduler.getTrigger(triggerKey);
-        TriggerBuilder<? extends Trigger> triggerBuilder = oldTrigger.getTriggerBuilder();
-
-        // Create new trigger from old trigger builder
-        Trigger newTrigger = triggerBuilder.build();
-
-        // Reschedule Job with the new trigger and the old trigger key
-        scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
-        log.info("[SCHEDULER][TASK_QUERY {}] Task resumed", triggerKey);
-      } else {
-        scheduler.scheduleJob(task.getJob(), task.getTrigger());
-      }
-    } catch (Exception exc) {
-      throw new AWException("Error scheduling task: " + task.getTaskId(), exc);
-    }
+    return taskScheduling.resumeTask(task);
   }
 
   /**
@@ -863,16 +480,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving task list
    */
   public ServiceData getTaskList(TaskListCriteria taskListCriteria) throws AWException {
-    // Get task list details
-    ObjectNode parameters = queryUtil.getParameters(queryUtil.getParameters(taskListCriteria), null, "1", "0");
-    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters);
-    DataList filtered = new DataList();
-    for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
-      // Add other parameters from the scheduler to the datalist
-      filtered.addRow(addSchedulerParameters(row));
-    }
-
-    return serviceData.setDataList(filtered);
+    return taskListPresenter.getTaskList(taskListCriteria);
   }
 
   /**
@@ -883,42 +491,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error loading maintain variables
    */
   public ServiceData loadMaintainVariables(String maintainStr) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    // Get the selected maintain
-    Target maintain = getElements().getMaintain(maintainStr);
-    // Get the maintain query list
-    List<MaintainQuery> queryList = maintain.getQueryList();
-    DataList dataList = new DataList();
-    // Create a variables hashmap without duplicate variable names
-    Map<String, Variable> variables = new HashMap<>();
-
-    // Fill hashmap
-    for (MaintainQuery query : queryList) {
-      List<Variable> variableList = new ArrayList<>();
-      List<Variable> tmpLst = query.getVariableDefinitionList();
-      if (tmpLst != null) {
-        variableList.addAll(tmpLst);
-      }
-      for (Variable variable : variableList) {
-        // check if the variable already exist in the hasmap
-        if (variable.getName() != null && !variables.containsKey(variable.getName())) {
-          variables.put(variable.getName(), variable);
-        }
-      }
-    }
-    // Get hashmap keys
-    Set<String> keys = variables.keySet();
-    for (String key : keys) {
-      // fill datalist rows with each variable data
-      Map<String, CellData> row = new HashMap<>();
-      Variable variable = variables.get(key);
-      row.put(TASK_PARAMETER_NAME, new CellData(variable.getName()));
-      row.put(TASK_PARAMETER_SOURCE, new CellData("1"));
-      row.put(TASK_PARAMETER_TYPE, new CellData(variable.getType()));
-      row.put(TASK_PARAMETER_VALUE, new CellData(""));
-      dataList.getRows().add(row);
-    }
-    return serviceData.setDataList(dataList);
+    return taskListPresenter.loadMaintainVariables(maintainStr);
   }
 
   /**
@@ -929,28 +502,11 @@ public class TaskDAO extends ServiceConfig {
    * @return ServiceData
    */
   public ServiceData loadExecutionScreen(String path, ObjectNode address) throws AWException {
-    ServiceData serviceData = new ServiceData();
-
-    // Refresh execution screen
-    String[] executionAddress = address.get("row").asString("").split(TASK_SEPARATOR);
-    ExecutionKey key = new ExecutionKey(Integer.parseInt(executionAddress[0]), Integer.parseInt(executionAddress[1]));
-    executionLogStore.applyViewerSelection(path, key, serviceData);
-
-    TaskExecution taskExecution = getTaskExecution(key.taskId(), key.executionId());
-    if (taskExecution != null) {
-      refreshExecutionScreen(taskExecution, serviceData);
-    }
-
-    return serviceData;
+    return executionPresenter.loadExecutionScreen(path, address);
   }
 
   /**
    * Retrieve the database-mode execution log window from a line offset (get-execution-log action).
-   * Unreachable in file mode: the widget polls get-log-file, served by FileService, unchanged.
-   * <p>
-   * Single-response delivery: the store's lines always land in {@code LOG_CONTENT}, paired with
-   * {@code LOG_CONTENT_REPLACE} telling the widget whether to append them or atomically replace
-   * its current content, never a separate reset/filter round trip.
    *
    * @param taskId        Task identifier
    * @param executionId   Execution identifier
@@ -959,16 +515,10 @@ public class TaskDAO extends ServiceConfig {
    *                      {@code LOG_CONTENT_VERSION}; {@code null} when absent
    * @return ServiceData
    * @throws AWException Error reading the execution log
+   * @see TaskExecutionPresenter#getExecutionLog(Integer, Integer, Integer, String)
    */
   public ServiceData getExecutionLog(Integer taskId, Integer executionId, Integer offset, String clientVersion) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    ExecutionLogPage page = executionLogStore.read(new ExecutionKey(taskId, executionId), offset, clientVersion);
-
-    serviceData.addVariable("LOG_CONTENT", new CellData(page.lines()));
-    serviceData.addVariable("LOG_CONTENT_REPLACE", new CellData(page.replace()));
-    serviceData.addVariable("LOG_CONTENT_VERSION", new CellData(page.version()));
-
-    return serviceData;
+    return executionPresenter.getExecutionLog(taskId, executionId, offset, clientVersion);
   }
 
   /**
@@ -980,110 +530,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error reloading execution screen
    */
   public ServiceData reloadExecutionScreen(Integer taskId, Integer executionId) throws AWException {
-    ServiceData serviceData = new ServiceData();
-
-    // Refresh execution screen
-    if (taskId != null && executionId != null) {
-      TaskExecution taskExecution = getTaskExecution(taskId, executionId);
-      if (taskExecution != null) {
-        refreshExecutionScreen(taskExecution, serviceData);
-      }
-    }
-
-    return serviceData;
-  }
-
-  /**
-   * Refresh execution screen data
-   *
-   * @param taskExecution Task execution
-   * @param serviceData   Service data
-   */
-  private void refreshExecutionScreen(TaskExecution taskExecution, ServiceData serviceData) throws AWException {
-    serviceData.addClientAction(new SelectActionBuilder("task-id", taskExecution.getName()).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-id", taskExecution.getExecutionId()).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-start-time", DateUtil.dat2WebTimestampMs(taskExecution.getInitialDate())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-end-time", taskExecution.getEndDate() == null ? "" : DateUtil.dat2WebTimestampMs(taskExecution.getEndDate())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-time", taskExecution.getExecutionTime() == null ? "" : TimeUtil.formatTime(taskExecution.getExecutionTime())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-information", taskExecution.getDescription()).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-title", getLocale(queryService.findLabel("StaTit", taskExecution.getStatus().toString()))).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-launched-by", getLaunchedByText(taskExecution.getGroupId(), taskExecution.getLaunchedBy())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new UpdateControllerActionBuilder("execution-launched-by", "icon", queryService.findLabel("LchTxtIcoNam", taskExecution.getGroupId())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new RemoveCssClassActionBuilder("#execution-header,#execution-icon,[criterion-id='execution-launched-by'] .text-icon,[criterion-id='execution-information'] .input",
-      "bg-success", "bg-danger", "bg-warning", "bg-info",
-      "fa-check", "fa-times", "fa-exclamation-triangle", "fa-chain-broken", "fa-refresh", "fa-spin",
-      "text-danger", "text-info", "text-success", "text-light-gray", "input-sm").setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new AddCssClassActionBuilder("#execution-header", queryService.findLabel("StaBg", taskExecution.getStatus().toString())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new AddCssClassActionBuilder("#execution-icon", queryService.findLabel("StaIco", taskExecution.getStatus().toString())).setAsync(true).setSilent(true).build());
-    serviceData.addClientAction(new AddCssClassActionBuilder("[criterion-id='execution-launched-by'] .text-icon", queryService.findLabel("LchTxtSty", taskExecution.getGroupId())).setAsync(true).setSilent(true).build());
-  }
-
-  /**
-   * Retrieve launchedBy text
-   *
-   * @param launchType Launch type
-   * @param launchedBy Launched by
-   * @return Launched by text
-   */
-  private String getLaunchedByText(String launchType, String launchedBy) {
-    return DEPENDENCY_GROUP.equalsIgnoreCase(launchType) ? getLocale("PARAMETER_TASK") + " " + launchedBy : launchedBy;
-  }
-
-  /**
-   * Add parameters from the scheduler to the task list
-   *
-   * @param row Parameters row
-   * @return Parameters row
-   * @throws AWException Error adding scheduler parameters
-   */
-  private Map<String, CellData> addSchedulerParameters(Map<String, CellData> row) throws AWException {
-    Integer ide;
-
-    // Get trigger identifier
-    ide = row.get(TASK_IDE_LIST).getIntegerValue();
-    String group = TaskUtil.getGroupForLaunchType(Integer.valueOf(row.get(TASK_LAUNCH_TYPE_LIST).getStringValue()));
-
-    try {
-      // Check if the trigger exists
-      TriggerKey triggerKey = new TriggerKey(ide.toString(), group);
-      if (checkTrigger(triggerKey)) {
-
-        Trigger trigger = scheduler.getTrigger(triggerKey);
-
-        // get next execution time
-        Date nextTime = null;
-
-        // Get trigger current state from scheduler
-        Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
-
-        // If the trigger state is normal the set previous and next execution
-        // times.
-        if (triggerState == Trigger.TriggerState.NORMAL) {
-          nextTime = trigger.getNextFireTime();
-        }
-        // get the job associated to the trigger
-        JobDetail job = scheduler.getJobDetail(trigger.getJobKey());
-        row.put(TASK_STATUS, new CellData(isJobRunning(job) ? TaskStatus.JOB_RUNNING.getValue() : TaskStatus.JOB_OK.getValue()));
-
-        // fill row data from scheduler parameters
-        row.put(TASK_NEXT_EXECUTION, new CellData(nextTime != null ? DateUtil.dat2WebTimestamp(nextTime) : " - "));
-      } else {
-        // Initialize job status to OK if it's not currently running on the
-        // scheduler
-        row.put(TASK_STATUS, new CellData(TaskStatus.JOB_OK.getValue()));
-
-        // If the trigger does not exist, try to load last execution from the
-        // database
-        row.put(TASK_NEXT_EXECUTION, new CellData(" - "));
-      }
-
-      // Get the maximum number of stored executions
-      row.put(TASK_AVERAGE_TIME, new CellData(TimeUtil.formatTime(row.get("averageTime").getIntegerValue())));
-    } catch (Exception exc) {
-      throw new AWException("Error adding scheduler parameters to the task datalist: {}", new TriggerKey(ide.toString(), group).toString(), exc);
-    }
-
-    return row;
+    return executionPresenter.reloadExecutionScreen(taskId, executionId);
   }
 
   /**
@@ -1093,15 +540,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task execution from trigger
    */
   public TaskExecution getTaskExecution(Trigger trigger) {
-    String[] splittedTriggerId = trigger.getKey().getName().split(TASK_SEPARATOR);
-    if (splittedTriggerId.length > 1) {
-      return new TaskExecution()
-        .setTaskId(Integer.valueOf(splittedTriggerId[0]))
-        .setExecutionId(Integer.valueOf(splittedTriggerId[1]))
-        .setGroupId(trigger.getKey().getGroup());
-    } else {
-      return null;
-    }
+    return taskScheduling.getTaskExecution(trigger);
   }
 
   /**
@@ -1113,12 +552,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving task execution from database
    */
   public TaskExecution getTaskExecution(Integer taskId, Integer executionId) throws AWException {
-    // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    parameters.put(TASK_JOB_EXECUTION, executionId);
-
-    return getTaskExecution(SCHEDULER_TASK_EXECUTION, parameters);
+    return executionRepository.getTaskExecution(taskId, executionId);
   }
 
   /**
@@ -1134,38 +568,6 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Get last execution from Database
-   *
-   * @param task      Task
-   * @param taskGroup Task group
-   * @return Task execution
-   * @throws AWException Error retrieving last task execution from database
-   */
-  private TaskExecution getLastExecutionFromDB(Task task, String taskGroup) throws AWException {
-    // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, task.getTaskId());
-    parameters.put(TASK_GROUP, taskGroup);
-
-    return getTaskExecution(SCHEDULER_LAST_TASK_EXECUTION, parameters);
-  }
-
-  /**
-   * Launch a query and retrieve the first task execution from it
-   *
-   * @param query      Query
-   * @param parameters Parameters
-   * @return Task execution
-   * @throws AWException Error retrieving task execution from database
-   */
-  private TaskExecution getTaskExecution(String query, ObjectNode parameters) throws AWException {
-    // Get task average time datalist
-    ServiceData serviceData = queryService.launchPrivateQuery(query, parameters);
-    List<TaskExecution> executionList = DataListUtil.asBeanList(serviceData.getDataList(), TaskExecution.class);
-    return executionList.isEmpty() ? null : executionList.get(0);
-  }
-
-  /**
    * Get the average time as string
    *
    * @param taskId Task identifier
@@ -1173,50 +575,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving average time
    */
   public Integer getAverageTime(Integer taskId) throws AWException {
-    // Get task average time datalist
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_AVERAGE_TIME_QUERY, parameters);
-    CellData cellData = DataListUtil.getCellData(serviceData.getDataList(), 0, "averageTime");
-    return cellData == null || cellData.isEmpty() ? 0 : cellData.getIntegerValue();
-  }
-
-  /**
-   * Check if the job is running
-   *
-   * @param job Job detail
-   * @return boolean Job is running
-   * @throws SchedulerException Error checking if job is running
-   */
-  private boolean isJobRunning(JobDetail job) throws SchedulerException {
-    // check if the job is in the scheduler currently executing job list
-    for (JobExecutionContext jobExeContext : scheduler.getCurrentlyExecutingJobs()) {
-      if (jobExeContext.getJobDetail().equals(job)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Clear the file modification table from database
-   *
-   * @param taskId Task identifier
-   */
-  private void clearFileModificationTable(Integer taskId) throws AWException {
-    getRequest().setParameter(TASK_IDE_TASK, JsonNodeFactory.instance.numberNode(taskId));
-    maintainService.launchPrivateMaintain(FILE_DELETE_MODIFICATION_QUERY);
-  }
-
-  /**
-   * Check if trigger exists
-   *
-   * @param triggerKey Trigger key
-   * @return Trigger exists
-   * @throws SchedulerException Error checking trigger
-   */
-  private boolean checkTrigger(TriggerKey triggerKey) throws SchedulerException {
-    return scheduler.checkExists(triggerKey);
+    return executionRepository.getAverageTime(taskId);
   }
 
   /**
@@ -1226,102 +585,6 @@ public class TaskDAO extends ServiceConfig {
    * @param execution Task execution
    */
   public void onFinishTask(Task task, TaskExecution execution) throws AWException {
-    // Update parent status if failed
-    updateParentStatus(execution);
-
-    // Check if the dependencies have to be executed
-    if (checkDependencyExecution(task, execution)) {
-      executeDependencies(task, execution);
-    }
-  }
-
-  /**
-   * Set task status checking dependencies status and task configuration
-   *
-   * @param execution Task execution
-   */
-  private void updateParentStatus(TaskExecution execution) throws AWException {
-    if (execution.getParentExecution() != null) {
-      try {
-        Task parentTask = loadTask(execution.getParentExecution().getTaskId());
-        if (TaskStatus.JOB_ERROR.equals(TaskStatus.valueOf(execution.getStatus())) && parentTask.isSetTaskOnWarningIfDependencyError()) {
-          changeStatus(parentTask, execution.getParentExecution(), TaskStatus.JOB_WARNING,
-            getLocale(WARNING_MESSAGE_TASK_DEPENDENCY_ERROR, execution.getTaskId().toString(), execution.getExecutionId().toString()));
-        }
-      } catch (Exception exc) {
-        throw new AWException("Error setting task status", exc);
-      }
-    }
-  }
-
-  /**
-   * Check if the task has to execute dependencies depending on its
-   * configuration
-   *
-   * @param task      Task
-   * @param execution Task execution
-   * @return boolean
-   */
-  private boolean checkDependencyExecution(Task task, TaskExecution execution) {
-    // Check if the dependencies have to be launched
-      return switch (TaskStatus.valueOf(execution.getStatus())) {
-          case JOB_OK -> true;
-          case JOB_WARNING -> task.isLaunchDependenciesOnWarning();
-          case JOB_ERROR -> task.isLaunchDependenciesOnError();
-          default -> false;
-      };
-  }
-
-  /**
-   * Executes the dependencies for the given task
-   *
-   * @param task      Task to execute dependencies
-   * @param execution Task execution
-   */
-  private void executeDependencies(Task task, TaskExecution execution) throws AWException {
-    // Propagate the parent parameter values to each dependent child (#724). The child decides which
-    // apply: applyOperatorValues only overrides the child's VARIABLE parameters whose name matches.
-    // Building the map from all parent parameters keeps the origin (value/property/variable)
-    // irrelevant — the contract is defined by the child. Cascading is automatic: the child's mutated
-    // task travels in the JobDataMap, so its own dependents inherit the accumulated values.
-    Map<String, String> parentValues = getParameterValues(task);
-
-    // Iterate dependencies and create a new task for each.
-    for (TaskDependency dependency : task.getDependencyList()) {
-      // Execute task dependency
-      executeDependency(dependency.getTaskId(), execution, parentValues);
-    }
-  }
-
-  /**
-   * Build a name -&gt; value map from a task's parameter list. PROPERTY-source ({@link ParameterConstants#PROPERTY})
-   * parameters store the property KEY rather than the value; resolution normally happens at consumption
-   * (see MaintainJobService), so such parameters are resolved here via {@link #getProperty(String)} and the
-   * RESOLVED value is propagated. Any other source propagates its stored value verbatim.
-   * A parameter with a null name or a null value is treated as "not supplied" and skipped, so it never
-   * overrides a child's stored default (the child keeps its own value as the fallback); a PROPERTY parameter
-   * whose key resolves to null is likewise treated as "not supplied".
-   *
-   * @param task Task holding the parameters
-   * @return Ordered map of parameter name to value; empty when the task has no parameters
-   */
-  private Map<String, String> getParameterValues(Task task) {
-    Map<String, String> values = new LinkedHashMap<>();
-    if (task.getParameterList() != null) {
-      for (TaskParameter parameter : task.getParameterList()) {
-        if (parameter.getName() != null && parameter.getValue() != null) {
-          String value = parameter.getValue();
-          // PROPERTY-source parameters hold the property KEY; resolve it to the actual value so the
-          // child receives the resolved value instead of the raw key.
-          if (String.valueOf(ParameterConstants.PROPERTY).equals(parameter.getSource())) {
-            value = getProperty(parameter.getValue());
-          }
-          if (value != null) {
-            values.put(parameter.getName(), value);
-          }
-        }
-      }
-    }
-    return values;
+    immediateLauncher.onFinishTask(task, execution, this::addTaskToScheduler);
   }
 }

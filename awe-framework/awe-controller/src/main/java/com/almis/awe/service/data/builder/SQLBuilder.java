@@ -6,10 +6,16 @@ import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.entities.queries.Constant;
 import com.almis.awe.model.entities.queries.Operation;
 import com.almis.awe.model.type.ParameterType;
-import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.data.builder.sql.SqlDateValues;
+import com.almis.awe.service.data.builder.sql.SqlFieldFunctions;
+import com.almis.awe.service.data.builder.sql.SqlFilterConditions;
+import com.almis.awe.service.data.builder.sql.SqlListValues;
+import com.almis.awe.service.data.builder.sql.SqlOperations;
+import com.almis.awe.service.data.builder.sql.SqlPaths;
+import com.almis.awe.service.data.builder.sql.SubstringValidator;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
@@ -17,29 +23,30 @@ import com.querydsl.sql.*;
 import tools.jackson.databind.JsonNode;
 
 import java.sql.Clob;
+import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static com.almis.awe.model.type.ParameterType.LIST_TO_STRING;
 
 /**
  * Generates sql codes
+ * <p>
+ * The protected methods are the extension points of the project subclasses, and they keep calling each other as
+ * they always did. The pure pieces that call no overridable method live in
+ * {@code com.almis.awe.service.data.builder.sql}.
  */
 public abstract class SQLBuilder extends AbstractQueryBuilder {
 
   private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
   private static final String ERROR_TITLE_LAUNCHING_SQL_QUERY = "ERROR_TITLE_LAUNCHING_SQL_QUERY";
-  private static final String ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE = "ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE";
   private static final String ERROR_MESSAGE_UNSUPPORTED_FUNCTION = "ERROR_MESSAGE_UNSUPPORTED_FUNCTION";
   private static final String ERROR_MESSAGE_UNSUPPORTED_CAST = "ERROR_MESSAGE_UNSUPPORTED_CAST";
-  private static final String TYPE_INTEGER = "INTEGER";
-  private static final String TYPE_LONG = "LONG";
 
   private SQLQueryFactory factory;
   private final EncodeService encodeService;
+  private final Clock clock = Clock.systemDefaultZone();
 
   /**
    * Autowired constructor
@@ -242,103 +249,18 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   }
 
   /**
-   * Validate a SUBSTRING operation.
-   * <p>
-   * Accepted operand counts:
-   * <ul>
-   *   <li>2 operands — {@code SUBSTRING(source, beginIndex)}: extracts from {@code beginIndex} to end of string.
-   *       Delegates to QueryDSL {@code Ops.SUBSTR_1ARG}.</li>
-   *   <li>3 operands — {@code SUBSTRING(source, beginIndex, endIndex)}: extracts {@code [beginIndex, endIndex)}.
-   *       Delegates to QueryDSL {@code Ops.SUBSTR_2ARGS}.</li>
-   * </ul>
-   * Both forms follow Java/QueryDSL semantics: {@code beginIndex} is 0-based and inclusive;
-   * {@code endIndex} is exclusive. This differs from SQL {@code SUBSTRING(str, start, length)} convention.
+   * Validate a SUBSTRING operation (see {@link SubstringValidator})
    *
    * @param operation SUBSTRING operation to validate
    * @throws AWException if the operand count is not 2 or 3, or if an index operand is not integer-compatible
    */
   private void validateSubstringOperation(Operation operation) throws AWException {
-    List<SqlField> operandList = operation.getOperandList();
-    int count = operandList.size();
-    if (count != 2 && count != 3) {
+    Optional<SubstringValidator.Violation> violation = SubstringValidator.validate(operation.getOperandList(),
+      variable -> getQuery().getVariableDefinition(variable));
+    if (violation.isPresent()) {
       throw new AWException(
         getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
-        getLocale("ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT", String.valueOf(count)));
-    }
-    validateIntegerCompatibleOperand(operandList.get(1), 2);
-    if (count == 3) {
-      validateIntegerCompatibleOperand(operandList.get(2), 3);
-    }
-  }
-
-  /**
-   * Check that a single SUBSTRING index operand is integer-compatible.
-   * Accepted forms:
-   * <ul>
-   *   <li>A {@link Constant} whose type is {@code INTEGER} or {@code LONG}</li>
-   *   <li>A {@link Field} that references a variable of type {@code INTEGER} or {@code LONG}</li>
-   * </ul>
-   *
-   * @param operand  The operand to validate (position 2 or 3 in SUBSTRING)
-   * @param position Human-readable position label used in the error message (2 or 3)
-   * @throws AWException if the operand is not integer-compatible
-   */
-  private void validateIntegerCompatibleOperand(SqlField operand, int position) throws AWException {
-    if (operand instanceof Constant constant) {
-      validateConstantIntegerOperand(constant, position);
-    } else if (operand instanceof Field field) {
-      validateFieldIntegerOperand(field, position);
-      // A Field referencing a database column (e.g. an integer column) is allowed through
-    } else {
-      throw new AWException(
-        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
-        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position),
-          operand == null ? "null" : operand.getClass().getSimpleName()));
-    }
-  }
-
-  /**
-   * Validate that a Constant operand used as a SUBSTRING index has an integer-compatible type.
-   *
-   * @param operand  Constant operand
-   * @param position Human-readable position (2 or 3) for the error message
-   * @throws AWException if the constant type is not {@code INTEGER} or {@code LONG}
-   */
-  private void validateConstantIntegerOperand(Constant operand, int position) throws AWException {
-    String type = operand.getType();
-    if (!TYPE_INTEGER.equals(type) && !TYPE_LONG.equals(type)) {
-      throw new AWException(
-        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
-        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position),
-          type == null ? "STRING (no type)" : type));
-    }
-  }
-
-  /**
-   * Validate that a Field operand used as a SUBSTRING index references a variable of integer-compatible type.
-   * <p>
-   * If the field does not reference a variable, or the variable definition is not available at
-   * validation time (runtime parameter), the check is skipped — type enforcement happens at
-   * expression build time.
-   *
-   * @param operand  Field operand
-   * @param position Human-readable position (2 or 3) for the error message
-   * @throws AWException if the referenced variable type is not {@code INTEGER} or {@code LONG}
-   */
-  private void validateFieldIntegerOperand(Field operand, int position) throws AWException {
-    if (operand.getVariable() == null) {
-      return;
-    }
-    Variable varDef = getQuery().getVariableDefinition(operand.getVariable());
-    if (varDef == null) {
-      // Variable may be a runtime parameter; allow through
-      return;
-    }
-    String type = varDef.getType();
-    if (!TYPE_INTEGER.equals(type) && !TYPE_LONG.equals(type)) {
-      throw new AWException(
-        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
-        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position), type));
+        getLocale(violation.get().messageKey(), violation.get().arguments().toArray(new String[0])));
     }
   }
 
@@ -350,73 +272,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @return Operation expression
    */
   protected Expression generateOperationExpression(Operation operation, Expression... operands) {
-    Expression substractExpression = Expressions.constant(-1);
-    Expression result;
-    switch (operation.getOperator()) {
-      case "CONCAT":
-        result = null;
-        for (Expression operand : operands) {
-          result = result == null ? operand : Expressions.stringOperation(Ops.CONCAT, result, operand);
-        }
-        return result;
-      case "REPLACE":
-        return Expressions.stringTemplate("replace({0},{1},{2})", operands[0], operands[1], operands[2]);
-      case "SUBSTRING":
-        // Uses QueryDSL native substring ops — semantics match Java String.substring().
-        // 2-arg form: SUBSTRING(source, beginIndex)         → Ops.SUBSTR_1ARG
-        // 3-arg form: SUBSTRING(source, beginIndex, endIndex) → Ops.SUBSTR_2ARGS
-        // Both are 0-based, beginIndex inclusive, endIndex exclusive.
-        if (operands.length == 2) {
-          return Expressions.stringOperation(Ops.SUBSTR_1ARG, operands[0], operands[1]);
-        }
-        return Expressions.stringOperation(Ops.SUBSTR_2ARGS, operands[0], operands[1], operands[2]);
-      case "NULLIF":
-        return Expressions.simpleOperation(Object.class, Ops.NULLIF, operands);
-      case "COALESCE":
-        return new Coalesce(operands);
-      case "ADD":
-      case "SUB":
-      case "MULT":
-      case "DIV":
-      case "MOD":
-        result = null;
-        for (Expression operand : operands) {
-          result = result == null ? operand : Expressions.numberOperation(Long.class, Ops.valueOf(operation.getOperator()), result, operand);
-        }
-        return result;
-      case "ADD_SECONDS":
-      case "ADD_MINUTES":
-      case "ADD_HOURS":
-      case "ADD_DAYS":
-      case "ADD_WEEKS":
-      case "ADD_MONTHS":
-      case "ADD_YEARS":
-        return Expressions.dateOperation(Date.class, Ops.DateTimeOps.valueOf(operation.getOperator()), operands);
-      case "DIFF_SECONDS":
-      case "DIFF_MINUTES":
-      case "DIFF_HOURS":
-      case "DIFF_DAYS":
-      case "DIFF_WEEKS":
-      case "DIFF_MONTHS":
-      case "DIFF_YEARS":
-        return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.valueOf(operation.getOperator()), operands);
-      case "SUB_SECONDS":
-      case "SUB_MINUTES":
-      case "SUB_HOURS":
-      case "SUB_DAYS":
-      case "SUB_WEEKS":
-      case "SUB_MONTHS":
-      case "SUB_YEARS":
-        String operator = operation.getOperator().replace("SUB", "ADD");
-        return Expressions.dateOperation(Date.class, Ops.DateTimeOps.valueOf(operator), operands[0], Expressions.numberOperation(Integer.class, Ops.MULT, operands[1], substractExpression));
-      case "ROUND":
-        Operator roundType = operands.length == 1 ? Ops.MathOps.ROUND : Ops.MathOps.ROUND2;
-        return Expressions.numberOperation(Long.class, roundType, operands);
-      case "POWER":
-        return Expressions.numberOperation(Long.class, Ops.MathOps.valueOf(operation.getOperator()), operands);
-      default:
-        return null;
-    }
+    return SqlOperations.operation(operation.getOperator(), operands);
   }
 
   /**
@@ -695,7 +551,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case SYSTEM_DATE:
         return Expressions.currentDate();
       case SYSTEM_TIME:
-        return getStringExpression(DateUtil.dat2WebTime(new Date()));
+        return getStringExpression(SqlDateValues.currentTime(clock));
       case SYSTEM_TIMESTAMP:
         return Expressions.currentTimestamp();
       case STRING:
@@ -764,7 +620,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case DATE:
         return Expressions.asDate(DateUtil.web2SqlDate(value));
       case TIMESTAMP:
-        return Expressions.asDateTime(DateUtil.web2Timestamp(value));
+        return Expressions.asDateTime(SqlDateValues.timestamp(value));
       case FLOAT:
         return Expressions.asNumber(Float.valueOf(value));
       case DOUBLE:
@@ -807,53 +663,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @throws AWEQueryException The function is not supported
    */
   protected Expression getExpressionFunction(Expression fieldExpression, String function, String fieldName) throws AWEQueryException {
-    switch (function.toUpperCase(Locale.ROOT)) {
-      case "ABS":
-        // The field expression may be null when it could not be resolved (buildPath returns null for a
-        // null node), so fall back to the same default type as an untyped expression instead of
-        // dereferencing it; the aggregate branches below already accept a null expression
-        Class expressionClass = fieldExpression == null || fieldExpression.getType().equals(Object.class)
-          ? Integer.class : fieldExpression.getType();
-        return Expressions.numberOperation(expressionClass, Ops.MathOps.ABS, fieldExpression);
-      case "AVG":
-        return new WindowOver<>(Double.class, Ops.AggOps.AVG_AGG, fieldExpression);
-      case "CNT":
-        return new WindowOver<>(Long.class, Ops.AggOps.COUNT_AGG, fieldExpression);
-      case "CNT_DISTINCT":
-        return new WindowOver<>(Long.class, Ops.AggOps.COUNT_DISTINCT_AGG, fieldExpression);
-      case "LAG":
-        return SQLExpressions.lag(fieldExpression);
-      case "MAX":
-        return new WindowOver<>(Long.class, Ops.AggOps.MAX_AGG, fieldExpression);
-      case "MIN":
-        return new WindowOver<>(Long.class, Ops.AggOps.MIN_AGG, fieldExpression);
-      case "FIRST_VALUE":
-        return SQLExpressions.firstValue(fieldExpression);
-      case "LAST_VALUE":
-        return SQLExpressions.lastValue(fieldExpression);
-      case "TRIM":
-        return StringExpressions.ltrim(StringExpressions.rtrim(fieldExpression));
-      case "TRUNCDATE":
-        return Expressions.dateOperation(Date.class, Ops.DateTimeOps.DATE, fieldExpression);
-      case "LENGTH":
-        return new WindowOver<>(Integer.class, Ops.STRING_LENGTH, fieldExpression);
-      case "SECOND":
-      case "MINUTE":
-      case "HOUR":
-      case "MONTH":
-      case "YEAR":
-        return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.valueOf(function.toUpperCase(Locale.ROOT)), fieldExpression);
-      case "DAY":
-        return Expressions.dateOperation(Integer.class, Ops.DateTimeOps.DAY_OF_MONTH, fieldExpression);
-      case "ROW_NUMBER":
-        return SQLExpressions.rowNumber();
-      case "RANK":
-        return SQLExpressions.rank();
-      case "SUM":
-        return new WindowOver<>(Long.class, Ops.AggOps.SUM_AGG, fieldExpression);
-      default:
-        throw getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_FUNCTION, fieldName, function);
-    }
+    return SqlFieldFunctions.function(fieldExpression, function)
+      .orElseThrow(() -> getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_FUNCTION, fieldName, function));
   }
 
   /**
@@ -880,20 +691,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @throws AWEQueryException The cast is not supported
    */
   protected Expression getExpressionCast(Expression fieldExpression, String cast, String fieldName) throws AWEQueryException {
-    switch (cast.toUpperCase(Locale.ROOT)) {
-      case "STRING":
-        return Expressions.stringOperation(Ops.STRING_CAST, fieldExpression);
-      case "LONG":
-        return Expressions.asString(fieldExpression).castToNum(Long.class);
-      case "FLOAT":
-        return Expressions.asString(fieldExpression).castToNum(Float.class);
-      case "DOUBLE":
-        return Expressions.asString(fieldExpression).castToNum(Double.class);
-      case TYPE_INTEGER:
-        return Expressions.asString(fieldExpression).castToNum(Integer.class);
-      default:
-        throw getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_CAST, fieldName, cast);
-    }
+    return SqlFieldFunctions.cast(fieldExpression, cast)
+      .orElseThrow(() -> getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_CAST, fieldName, cast));
   }
 
   /**
@@ -925,24 +724,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     }
 
     // Evaluate all expressions added to the list
-    return getBooleanExpressionResults(groupExpressions, group);
-  }
-
-  private BooleanExpression getBooleanExpressionResults(List<BooleanExpression> list, FilterGroup group) {
-    BooleanExpression result = null;
-    for (BooleanExpression booleanExpression : list) {
-      if (result == null) {
-        result = booleanExpression;
-      } else {
-        // To join all expressions AND and OR commands can be used
-        if (UnionType.AND.toString().equalsIgnoreCase(group.getUnion())) {
-          result = result.and(booleanExpression);
-        } else {
-          result = result.or(booleanExpression);
-        }
-      }
-    }
-    return result;
+    return SqlFilterConditions.join(groupExpressions, group.getUnion());
   }
 
   /**
@@ -965,117 +747,14 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       }
 
       // Create the condition for the comparison and execute
-      return applyFilterCondition(filter.getCondition().toLowerCase(), filter.isIgnoreCase(), firstOperand, secondOperand);
+      return SqlFilterConditions.condition(filter.getCondition().toLowerCase(), filter.isIgnoreCase(), firstOperand,
+        secondOperand);
     } catch (AWException exc) {
       throw exc;
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_GENERATING_FILTER),
         getLocale("ERROR_MESSAGE_GENERATING_FILTER", filter.toString()), exc);
     }
-  }
-
-  /**
-   * Get filter condition method
-   *
-   * @param filterCondition Filter condition
-   * @param ignoreCase      is ignoreCase
-   * @param secondOperand   Second operand (to check whether is null)
-   * @return Filter condition
-   */
-  private BooleanOperation applyFilterCondition(String filterCondition, boolean ignoreCase, Expression firstOperand, Expression secondOperand) {
-    boolean inCondition = secondOperand instanceof SimpleOperation || secondOperand instanceof SQLQuery;
-    switch (filterCondition) {
-      case "ge":
-        return Expressions.booleanOperation(Ops.GOE, firstOperand, secondOperand);
-      case "le":
-        return Expressions.booleanOperation(Ops.LOE, firstOperand, secondOperand);
-      case "in":
-        return getFilterIn(inCondition, firstOperand, secondOperand);
-      case "not in":
-        return Expressions.booleanOperation(Ops.NOT, getFilterIn(inCondition, firstOperand, secondOperand));
-      case "is null":
-        return Expressions.booleanOperation(Ops.IS_NULL, firstOperand);
-      case "is not null":
-        return Expressions.booleanOperation(Ops.IS_NOT_NULL, firstOperand);
-      case "like":
-        return getFilterLike(ignoreCase, firstOperand, secondOperand);
-      case "not like":
-        return Expressions.booleanOperation(Ops.NOT, getFilterLike(ignoreCase, firstOperand, secondOperand));
-      case "exists":
-        return getFilterExists(firstOperand, secondOperand);
-      case "not exists":
-        return Expressions.booleanOperation(Ops.NOT, getFilterExists(firstOperand, secondOperand));
-      case "eq":
-        return getFilterEq(ignoreCase, firstOperand, secondOperand);
-      case "ne":
-        return Expressions.booleanOperation(Ops.NOT, getFilterEq(ignoreCase, firstOperand, secondOperand));
-      default:
-        return Expressions.booleanOperation(Ops.valueOf(filterCondition.toUpperCase()), firstOperand, secondOperand);
-    }
-  }
-
-  /**
-   * Get filter EQ
-   *
-   * @param ignoreCase    Ignore cases
-   * @param firstOperand  First operand
-   * @param secondOperand Second operand
-   * @return Boolean operation
-   */
-  private BooleanOperation getFilterEq(boolean ignoreCase, Expression firstOperand, Expression secondOperand) {
-    if (secondOperand instanceof NullExpression) {
-      return Expressions.booleanOperation(Ops.IS_NULL, firstOperand);
-    } else if (ignoreCase) {
-      return Expressions.booleanOperation(Ops.EQ_IGNORE_CASE, firstOperand, secondOperand);
-    } else {
-      return Expressions.booleanOperation(Ops.EQ, firstOperand, secondOperand);
-    }
-  }
-
-  /**
-   * Get filter IN
-   *
-   * @param inCondition   In condition
-   * @param firstOperand  First operand
-   * @param secondOperand Second operand
-   * @return Boolean operation
-   */
-  private BooleanOperation getFilterIn(boolean inCondition, Expression firstOperand, Expression secondOperand) {
-    if (secondOperand instanceof NullExpression) {
-      return Expressions.booleanOperation(Ops.IS_NULL, firstOperand);
-    } else if (inCondition) {
-      return Expressions.booleanOperation(Ops.IN, firstOperand, secondOperand);
-    } else {
-      return Expressions.booleanOperation(Ops.EQ, firstOperand, secondOperand);
-    }
-  }
-
-  /**
-   * Get filter LIKE
-   *
-   * @param ignoreCase    Ignore cases
-   * @param firstOperand  First operand
-   * @param secondOperand Second operand
-   * @return Boolean operation
-   */
-  private BooleanOperation getFilterLike(boolean ignoreCase, Expression firstOperand, Expression secondOperand) {
-    if (ignoreCase) {
-      return Expressions.booleanOperation(Ops.LIKE_IC, firstOperand, secondOperand);
-    } else {
-      return Expressions.booleanOperation(Ops.LIKE, firstOperand, secondOperand);
-    }
-  }
-
-  /**
-   * Get filter EXISTS
-   *
-   * @param firstOperand  First operand
-   * @param secondOperand Second operand
-   * @return Boolean operation
-   */
-  private BooleanOperation getFilterExists(Expression firstOperand, Expression secondOperand) {
-    Expression operand = firstOperand instanceof SQLQuery ? firstOperand : secondOperand;
-    return Expressions.booleanOperation(Ops.EXISTS, operand);
   }
 
   /**
@@ -1166,28 +845,19 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @throws AWException Error converting variable list to expression
    */
   private Expression convertVariableListToExpression(List<Expression> expressionList, JsonNode variableValue, ParameterType type, Filter filter) throws AWException {
-    int variableValuesLength = variableValue.size();
-    // If variable has more than 1 element, generate a sequence of (?, ?, ...)
-    if (variableValuesLength > 1) {
-      // For each value, add a ? to the statement
-      for (int i = 0; i < variableValuesLength; i++) {
-        expressionList.add(getVariableAsExpression(variableValue.get(i), type));
-      }
-      // One value NOT empty (in array)
-    } else if (variableValuesLength == 1 && variableValue.isArray() && !(variableValue.get(0).asString("").isEmpty())) {
-      expressionList.add(getVariableAsExpression(variableValue.get(0), type));
-      // One value NOT empty
-    } else if (variableValuesLength == 1 && !(variableValue.asString("").isEmpty())) {
-      expressionList.add(getVariableAsExpression(variableValue, type));
-      // OPTIONAL in, add nothing
+    for (JsonNode value : SqlListValues.valuesToBind(variableValue)) {
+      expressionList.add(getVariableAsExpression(value, type));
+    }
+    if (!expressionList.isEmpty()) {
+      return Expressions.list(expressionList.toArray(new Expression[0]));
     } else if (filter.isOptional()) {
+      // OPTIONAL in, add nothing
       return Expressions.TRUE;
-      // NON OPTIONAL in, add a check with NULL
     } else {
+      // NON OPTIONAL in, fail
       throw new AWException(getLocale(ERROR_TITLE_GENERATING_FILTER),
         getLocale("ERROR_MESSAGE_EMPTY_LIST_OPTIONAL", filter.toString()));
     }
-    return Expressions.list(expressionList.toArray(new Expression[0]));
   }
 
   /**
@@ -1232,35 +902,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @return String expression with quotes
    */
   private Expression getListAsStringExpression(JsonNode valueList) {
-    List<String> stringValues = new ArrayList<>();
-    if (valueList != null) {
-      if (valueList.isArray()) {
-        for (JsonNode value : valueList) {
-          addStringToListIfValid(stringValues, value);
-        }
-      } else {
-        addStringToListIfValid(stringValues, valueList);
-      }
-
-      // Join list
-      String stringValue = String.join(",", stringValues);
-      return stringValue.isEmpty() ? Expressions.nullExpression() : getStringExpression(stringValue);
-    } else {
-      return Expressions.nullExpression();
-    }
-  }
-
-  /**
-   * Avoid null or empty values in list
-   *
-   * @param list List to add value
-   * @param node Node to check
-   */
-  private void addStringToListIfValid(List<String> list, JsonNode node) {
-    String text = getVariableAsString(node);
-    if (text != null && !text.isEmpty()) {
-      list.add(text);
-    }
+    String stringValue = SqlListValues.join(valueList, this::getVariableAsString);
+    return stringValue.isEmpty() ? Expressions.nullExpression() : getStringExpression(stringValue);
   }
 
   /**
@@ -1307,10 +950,6 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @return path
    */
   protected PathBuilder<Object> buildPath(String node) {
-    PathBuilder<Object> target = null;
-    if (node != null) {
-      target = new PathBuilder<>(Object.class, node);
-    }
-    return target;
+    return SqlPaths.path(node);
   }
 }
