@@ -96,7 +96,7 @@ class MenuServiceDelegationTest {
       MenuService.class.getMethod("removeRestriction", Integer.class, Integer.class, String.class),
       MenuService.class.getMethod("refreshMenu"));
 
-    assertThat(methods).allSatisfy(method -> {
+    assertThat(methods).hasSize(12).allSatisfy(method -> {
       assertThat(method.getDeclaringClass()).isEqualTo(MenuService.class);
       assertThat(method.getReturnType()).isEqualTo(ServiceData.class);
     });
