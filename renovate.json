@@ -112,6 +112,32 @@
       "allowedVersions": "<=4.12.0"
     },
     {
+      "description": "AngularJS stays on 1.5: 1.6 removes $http success/error and changes the route hash prefix, and 1.7 drops pre-assigned bindings before $onInit, so 1.8 breaks the AngularJS client (closed !985). The client is being replaced in AWE 5; vulnerability alerts still bypass this rule.",
+      "matchPackageNames": [
+        "angular",
+        "angular-animate",
+        "angular-aria",
+        "angular-cookies",
+        "angular-messages",
+        "angular-mocks",
+        "angular-resource",
+        "angular-route",
+        "angular-sanitize",
+        "angular-touch"
+      ],
+      "allowedVersions": "<1.6.0"
+    },
+    {
+      "description": "The website stays on webpack 5.104.1: webpack 5.111.1 rejects the ProgressPlugin options that Docusaurus 3.8.1 passes, so Build website fails (closed !984). Lift this when Docusaurus supports a newer webpack.",
+      "matchFileNames": [
+        "website/package.json"
+      ],
+      "matchPackageNames": [
+        "webpack"
+      ],
+      "allowedVersions": "<=5.104.1"
+    },
+    {
       "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client and its test application (awe-tests/awe-boot-react) are not held back. Vulnerability alerts bypass this rule (Renovate forces the fixed version): a security fix that needs a new major of a legacy library (Bootstrap 4, jQuery 3, Highcharts 9, marked 4 on support/4.x) would break the client, so its merge request is closed by hand, which makes Renovate ignore that major. Accepted risk until AWE 5 replaces them (#755 Bootstrap, #772 jQuery-based components, #775 Highcharts).",
       "matchManagers": [
         "npm"
