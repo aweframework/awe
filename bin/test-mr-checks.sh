@@ -9,6 +9,7 @@ set -eu
 #   - bin/mr-size.sh         (local check, not a pipeline job)
 #   - bin/mr-docs.sh         (job "MR docs warning", non-blocking)
 #   - bin/mr-translations.sh (local check, not a pipeline job)
+# and, through bin/test-local-ci.sh, the job selection, coverage and summary logic of bin/local-ci.sh.
 #
 # Run it from anywhere: sh bin/test-mr-checks.sh
 # The title tests install commitlint on first use (npm ci in .gitlab/commitlint), so they need
@@ -575,6 +576,17 @@ OUT=$("$ANCHORS" "$WORK/does-not-exist.log" 2>&1)
 RC=$?
 set -e
 if [ "$RC" -eq 2 ]; then pass "anchors: a missing log is a usage error (exit 2)"; else fail "anchors: missing log" "$OUT"; fi
+
+# ------------------------------------------------------------
+# Local pipeline (bin/local-ci.sh): the tests of its pure logic
+# ------------------------------------------------------------
+
+run sh "$BIN_DIR/test-local-ci.sh"
+if [ "$RC" -eq 0 ]; then
+  pass "local CI: $(printf '%s\n' "$OUT" | tail -1) (bin/test-local-ci.sh)"
+else
+  fail "local CI: bin/test-local-ci.sh failed" "$(printf '%s\n' "$OUT" | grep -v '^ok')"
+fi
 
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]

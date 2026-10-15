@@ -36,6 +36,7 @@
     <browser>headless-chrome</browser>
     <skip.main>false</skip.main>
     <skip.selenium>true</skip.selenium>
+    <awe.test.jmx-port>9001</awe.test.jmx-port>
     <skip.junit>false</skip.junit>
     <test.tags>integration</test.tags>
     <!-- Browser tests (failsafe). The independent classes run in one execution that leaves out the quarantined tests
@@ -493,6 +494,8 @@
           <profiles>
             <profile>gitlab-ci</profile>
           </profiles>
+          <!-- JMX port of the start and stop goals (the default of the plugin; bin/local-ci.sh picks a free one per run) -->
+          <jmxPort>${awe.test.jmx-port}</jmxPort>
         </configuration>
         <executions>
           <execution>

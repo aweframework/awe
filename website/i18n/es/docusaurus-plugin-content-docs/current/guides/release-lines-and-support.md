@@ -237,6 +237,26 @@ La compilación de Maven ejecuta el mismo `lint:ci` antes de las pruebas unitari
 con el mismo límite. La CI omite ese paso de Maven (`-Dskip.lint=true`, definido en `MAVEN_CLI_OPTS`), porque
 `Lint frontend` ya lo ejecutó: el lint se ejecuta una vez por pipeline.
 
+## Ejecutar la pipeline en local {#run-the-pipeline-locally}
+
+`bin/local-ci.sh` ejecuta en tu equipo los jobs que la pipeline de la merge request ejecutaría para tu rama. Los elige con
+las `rules:changes` de `.gitlab-ci.yml` y añade la puerta de cobertura de SonarCloud (80 % de las líneas nuevas) y un aviso
+para algunas reglas de Sonar. `bin/local-ci.sh --list` muestra qué lanzan tus cambios y por qué. Las suites de navegador se
+ejecutan en Chromium, como en una merge request (`--browsers firefox` añade las suites de Firefox de `develop`).
+
+Los jobs de pruebas unitarias (All UT, Embedded DB Tests y los de bases de datos) se ejecutan de tres en tres, cada uno en un
+clon de tu checkout (`LOCAL_CI_DB_PARALLEL`, 3 por defecto; `1` los ejecuta uno tras otro). El contexto de pruebas de `awe-boot`
+escucha en un puerto aleatorio y cada suite de navegador elige puertos libres para su aplicación, así que las ejecuciones de
+distintos checkouts no se esperan entre sí; en la máquina solo corre un contenedor de Oracle, y `LOCAL_CI_BROWSER_PARALLEL`
+aplicaciones de navegador (2 por defecto), a la vez. `--fast` (o `LOCAL_CI_SCOPE=affected`) es un alcance opcional más estrecho
+que la pipeline: omite los jobs de bases de datos cuando no cambia ningún módulo del framework ni `awe-boot`, las suites de
+navegador del motor que el cambio no toca y los jobs pesados cuando solo cambia `.gitlab-ci.yml`. Un resultado correcto con
+`--fast` no predice que pasen los jobs que omite; ejecútalo sin él antes de subir.
+
+Funciona en macOS, Linux y Windows mediante WSL2 (Ubuntu), no en Git Bash. En WSL2, clona el repositorio dentro del home
+de WSL, no bajo `/mnt/c`, donde las compilaciones son mucho más lentas. Los requisitos y la configuración de WSL2 están en
+[`CONTRIBUTING.md`](https://gitlab.com/aweframework/awe/-/blob/develop/CONTRIBUTING.md#run-the-pipeline-locally-before-pushing).
+
 ## Cadena de suministro {#supply-chain}
 
 Cada imagen y servicio referenciado en `.gitlab-ci.yml` está fijado (los jobs que provienen de las plantillas de

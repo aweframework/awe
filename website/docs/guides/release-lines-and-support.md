@@ -243,6 +243,26 @@ The Maven build runs the same `lint:ci` before the unit tests, so `mvn test` fai
 same limit. CI skips that Maven step (`-Dskip.lint=true`, set in `MAVEN_CLI_OPTS`), because
 `Lint frontend` already ran it: lint runs once per pipeline.
 
+## Run the pipeline locally {#run-the-pipeline-locally}
+
+`bin/local-ci.sh` runs on your machine the jobs that the merge request pipeline would run for your branch. It reads the
+`rules:changes` of `.gitlab-ci.yml` to choose them, and adds the SonarCloud coverage gate (80% of the new lines) and a
+warning for a few Sonar rules. `bin/local-ci.sh --list` shows what your changes trigger and why. The browser suites run in
+Chromium, as in a merge request (`--browsers firefox` adds the Firefox suites of `develop`).
+
+The unit-testing jobs (All UT, Embedded DB Tests and the database jobs) run three at a time, each in a clone of your checkout
+(`LOCAL_CI_DB_PARALLEL`, default 3; `1` runs them one after another). The `awe-boot` test context listens on a random port and
+every browser suite picks free ports for its application, so runs of different checkouts do not wait for each other; only one
+Oracle container, and `LOCAL_CI_BROWSER_PARALLEL` browser applications (default 2), run at a time on the machine. `--fast`
+(or `LOCAL_CI_SCOPE=affected`) is an opt-in scope narrower than the pipeline: it leaves out the database jobs when no
+framework module or `awe-boot` changed, the browser suites of the engine the change does not touch, and the heavy jobs for a
+change of `.gitlab-ci.yml` alone. A pass with `--fast` does not predict a pass of the jobs it drops; run without it before
+pushing.
+
+It works on macOS, Linux and Windows through WSL2 (Ubuntu), not in Git Bash. Under WSL2, clone the repository inside the
+WSL home, not under `/mnt/c`, where builds are many times slower. The prerequisites and the WSL2 setup are in
+[`CONTRIBUTING.md`](https://gitlab.com/aweframework/awe/-/blob/develop/CONTRIBUTING.md#run-the-pipeline-locally-before-pushing).
+
 ## Supply chain
 
 Every image and service referenced in `.gitlab-ci.yml` is pinned (jobs that come from

@@ -304,6 +304,9 @@ MR checks tests:
         - bin/check-website-anchors.sh
         - bin/test-mr-checks.sh
         - bin/test-fixtures/**/*
+        - bin/local-ci*.sh
+        - bin/local-ci-tool.mjs
+        - bin/test-local-ci.sh
         - .gitlab/commitlint/**/*
 
 # Blocking (#762): ESLint of the two front-end engines (AngularJS and React), in a job of its own so a lint failure shows
