@@ -209,6 +209,76 @@ The title rules, the size exclusions, the docs and translation checks and the fr
 depends on the paths it touches (see
 [What runs in CI on each branch](website/docs/guides/release-lines-and-support.md#what-runs-in-ci-on-each-branch)).
 
+## Run the pipeline locally before pushing
+
+Pipeline minutes are limited: run `bin/local-ci.sh` before you push. It runs the jobs that the merge request pipeline would
+run for your branch, selected with the `rules:changes` globs read from `.gitlab-ci.yml`, and adds what SonarCloud would fail:
+the coverage of the new lines (lines and conditions, 80% like the quality gate, from the JaCoCo and Jest reports) and a
+warning for a few Sonar rules (S1192, S125, S5778, S1130) in the changed lines.
+
+```bash
+bin/local-ci.sh --list                                    # which jobs your changes trigger, and why
+bin/local-ci.sh --title "feat(awe-model): x (#123 T1)"    # everything they trigger
+bin/local-ci.sh --no-browser --no-db-containers           # without the Playwright suites and the Docker databases
+bin/local-ci.sh --only all-ut,coverage                    # some jobs only (ids from --list)
+bin/local-ci.sh --only playwright-react --suites scheduler                      # one browser suite
+bin/local-ci.sh --only playwright-angular --browsers chromium,firefox            # also the Firefox suites of develop
+```
+
+It runs on macOS, Linux and Windows through WSL2. It needs git, Node.js 22.12+ with npm, Maven and the JDK of the build, 21 (found under
+`~/Library/Java/JavaVirtualMachines`, `/Library/Java/JavaVirtualMachines`, `/usr/lib/jvm`, `~/.sdkman` or `~/.jdks`, or set
+`LOCAL_CI_JDK21`), Docker for the database jobs, `lsof` or `ss` (iproute2) to check the ports of the browser suites, and on
+Linux the system libraries of the Playwright browsers; it names what is missing and how to install it. The browser suites
+run in Chromium, as in a merge request. Every JVM runs headless and everything it starts is stopped at the end, also on Ctrl-C.
+One run per checkout is allowed. Runs of different checkouts no longer wait for each other for ports: the `awe-boot` test
+context listens on a random port, and every browser suite starts its application, its JMX port (`spring-boot:start`) and its
+JaCoCo port on free ports that the script picks at that moment (never 8080). The machine only limits two things, with locks
+shared by all checkouts: one Oracle container at a time (`${TMPDIR:-/tmp}/awe-local-ci-oracle.lock`, or `LOCAL_CI_ORACLE_LOCK`)
+and `LOCAL_CI_BROWSER_PARALLEL` browser applications at a time (default 2, about 2 GB each; slot locks
+`${TMPDIR:-/tmp}/awe-local-ci-browser.<n>.lock`, or `LOCAL_CI_BROWSER_LOCK`). Both waits last at most `LOCAL_CI_PORTS_WAIT`
+seconds (default 7200), polling every `LOCAL_CI_PORTS_POLL` seconds (default 10); once the Oracle wait times out in one job, the other
+Oracle jobs of that run (even those running at the same time) fail at once with the same reason, shared through a file of the run. A live holder is never taken over. When a run is interrupted, its workers get `LOCAL_CI_POOL_GRACE` seconds (default 25) to stop their Maven runs; whatever is left is killed. Logs and the summary go to
+`target/local-ci/<timestamp>/`. It exits with 1 when a blocking job fails; warnings (exit code 64 in CI) do not fail it. It
+does not replace SonarCloud or dependency scanning, which only run in GitLab; secret detection is mirrored, as a warning, only
+when [gitleaks](https://github.com/gitleaks/gitleaks) is installed (the analyzer of GitLab's job).
+
+### Faster runs
+
+- **Parallel unit-testing jobs.** All UT, the three Embedded DB profiles and the eight database profiles (12 rows) used to run one
+  after another, 4-6 minutes each. They now run `LOCAL_CI_DB_PARALLEL` at a time (default 3; `1` restores one after another in
+  your checkout). Three fits a 24 GB laptop: each job is a Maven JVM with the Spring test contexts (about 2 GB) plus, for the
+  database jobs, a container (MySQL and PostgreSQL are small, SQL Server and Oracle take 2 GB or more), and Docker needs room
+  of its own; raise it on more memory, lower it if the machine swaps. The default is the same set of jobs as the pipeline, only
+  concurrent. Each job runs in a clone of your checkout (`target/local-ci/<timestamp>/work/<job>`; a clone that passed is
+  deleted, a failed one is kept until the next run) so they never share a `target/` directory or the embedded HSQLDB, and brings its JaCoCo data
+  back for the coverage job. The clones share the Maven repository of the checkout (read only), and the clones need
+  `rsync` (it is on macOS and most Linux): without it the jobs run one at a time, in your checkout, with a warning. Oracle rows still queue on the Oracle lock. The summary keeps the order of
+  the jobs. The browser suites stay one after another inside a run: they share the embedded database and `target/`.
+- **`--fast` (`LOCAL_CI_SCOPE=affected`).** Opt-in and narrower than the pipeline, so a pass no longer predicts a pass of the jobs
+  it drops. The default is exactly what the merge request pipeline creates. With `--fast`: a change of `.gitlab-ci.yml` alone
+  does not trigger the heavy jobs (the pipeline runs them, because the file is in every `rules:changes` list); the database jobs
+  run only when a framework module or `awe-boot` changed, and then only the `awe-boot` module (the rest ran in All UT); the
+  AngularJS browser suites are left out for a change only in the React client, and the React suites for a change only in the
+  AngularJS client or `awe-boot`. Use it while iterating, and run without it before you push. `--list --fast` shows what it
+  drops and why.
+
+### Windows (WSL2)
+
+Run it in Ubuntu on WSL2, not in Git Bash, PowerShell or Cygwin (the script stops there):
+
+1. Install Ubuntu: `wsl --install -d Ubuntu` in an administrator PowerShell, then open the Ubuntu terminal.
+2. Install the tools: `sudo apt update && sudo apt install -y git openjdk-21-jdk maven lsof iproute2`, and Node.js 22.12 or
+   later through [nvm](https://github.com/nvm-sh/nvm) or the NodeSource packages (the Ubuntu `nodejs` package is older).
+3. Install the libraries of the Playwright browsers once. After the first build, the script compares the packages that
+   Playwright's own `install-deps` would install for the selected browsers with the installed ones, and prints the exact
+   command when some are missing: `sudo "<java>" -cp "<playwright jars>" com.microsoft.playwright.CLI install-deps chromium`
+   (the CLI of the pinned Playwright version, as CI runs it). The check only advises; a step fails only if a browser cannot
+   start, and its summary then repeats the command.
+4. For the database jobs, install Docker Desktop on Windows and turn on its WSL integration for the Ubuntu distribution
+   (Settings > Resources > WSL integration); otherwise pass `--no-db-containers`.
+5. Clone the repository inside the WSL home (`~/IdeaProjects/awe`), not under `/mnt/c`: builds on the Windows drive are many
+   times slower, and the script warns about it.
+
 ## XSD checks
 
 Changes to the XSDs are protected by a catalog consistency unit test, the build validation of the application XML and the

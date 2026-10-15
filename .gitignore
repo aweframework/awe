@@ -155,3 +155,6 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 
 # npm cache of the "Lint frontend" CI job
 /.npm-lint/
+
+# The private Maven repository of a checkout (bin/local-ci.sh and the CI jobs: -Dmaven.repo.local=.m2/repository)
+/.m2/repository/

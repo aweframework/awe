@@ -34,6 +34,9 @@ yarn-error.log*
 # maintenance branch's docs swapped in; always removed again by that script's own cleanup.
 /.docs-current/
 /.sidebars-current.js
+# The owner (pid, start time) of a swap, written by bin/website-maintenance-docs.sh with its own pid and removed when the
+# swap is put back
+/.local-ci-swap
 
 # versions.json is only ever modified inside a CI checkout, by bin/website-maintenance-docs.sh,
 # to temporarily prepend a maintenance-line label (e.g. "4.x"). It must never be committed

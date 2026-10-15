@@ -359,7 +359,7 @@
   </service>
 
   <service id="testComplexRestPostParametersListGetParameters">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/parameterListGetParameters">
+    <rest method="POST" server="local" endpoint="/testapi/complex/parameterListGetParameters">
       <service-parameter type="INTEGER" name="integerList" list="true"/>
       <service-parameter type="STRING" name="stringList" list="true"/>
       <service-parameter type="DATE" name="dateList" list="true"/>
@@ -387,14 +387,14 @@
   </service>
 
   <service id="TestComplexRestParametersPOJO">
-    <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
+    <rest method="PUT" server="local" endpoint="/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
       <service-parameter type="STRING" name="tutu"/>
       <service-parameter type="OBJECT" name="concert" bean-class="com.almis.awe.model.Concert"/>
     </rest>
   </service>
 
   <service id="TestComplexRestParametersPOJOList">
-    <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSONList" content-type="JSON">
+    <rest method="PUT" server="local" endpoint="/testapi/complex/pojoJSONList" content-type="JSON">
       <service-parameter type="OBJECT" name="concertList" bean-class="com.almis.awe.model.Concert" list="true"/>
     </rest>
   </service>

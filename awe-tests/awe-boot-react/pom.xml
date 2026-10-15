@@ -18,6 +18,7 @@
     <properties>
         <!-- Application maven properties -->
         <java.version>21</java.version>
+        <awe.test.jmx-port>9001</awe.test.jmx-port>
         <application.acronym>awe-react</application.acronym>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -313,6 +314,8 @@
                     <profiles>
                         <profile>gitlab-ci</profile>
                     </profiles>
+                    <!-- JMX port of the start and stop goals (the default of the plugin; bin/local-ci.sh picks a free one per run) -->
+                    <jmxPort>${awe.test.jmx-port}</jmxPort>
                 </configuration>
                 <executions>
                     <execution>

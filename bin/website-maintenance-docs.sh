@@ -137,8 +137,11 @@ git fetch --depth=1 origin "$BRANCH" || fail "could not fetch origin/$BRANCH."
 # ============================================================
 
 EXPORT_DIR=$(mktemp -d)
-DOCS_BACKUP="website/.docs-current"
-SIDEBARS_BACKUP="website/.sidebars-current.js"
+# The backup names are shared with bin/local-ci.sh, which heals a swap left by a killed run
+# shellcheck source=bin/website-swap-paths.sh
+. "$(dirname "$0")/website-swap-paths.sh"
+DOCS_BACKUP="$WEBSITE_DOCS_BACKUP"
+SIDEBARS_BACKUP="$WEBSITE_SIDEBARS_BACKUP"
 SWAPPED=0
 
 restore() {
@@ -149,6 +152,7 @@ restore() {
     rm -f website/sidebars.js
     mv "$DOCS_BACKUP" website/docs
     mv "$SIDEBARS_BACKUP" website/sidebars.js
+    rm -f "$WEBSITE_SWAP_MARKER"
   fi
   rm -rf "$EXPORT_DIR"
   exit "$status"
@@ -212,8 +216,13 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "DRY-RUN: AWE_SKIP_PROPERTIES_REFERENCE=1 AWE_SKIP_REST_REFERENCE=1 npm --prefix website run docusaurus -- docs:version $LABEL"
   echo "DRY-RUN: restore develop's website/docs and website/sidebars.js"
 else
-  rm -rf "$DOCS_BACKUP" "$SIDEBARS_BACKUP"
+  # A backup left by a killed earlier run holds develop's docs: never overwrite it
+  if [[ -e "$DOCS_BACKUP" || -e "$SIDEBARS_BACKUP" ]]; then
+    fail "$DOCS_BACKUP or $SIDEBARS_BACKUP already exists (left by an interrupted run): it may hold your docs. Move website/docs and website/sidebars.js aside, then: mv $DOCS_BACKUP website/docs && mv $SIDEBARS_BACKUP website/sidebars.js"
+  fi
 
+  # The marker names this process as the owner of the swap while it lasts; the restore trap removes it
+  website_swap_mark "$$"
   echo "+ mv website/docs $DOCS_BACKUP"
   mv website/docs "$DOCS_BACKUP"
   echo "+ mv website/sidebars.js $SIDEBARS_BACKUP"
