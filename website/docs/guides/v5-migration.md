@@ -72,6 +72,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Login redirects (#783) | An unauthenticated browser request is redirected to `Location: /` instead of an absolute URL. | Nothing, unless something parses the absolute URL: accept a relative one. Custom `AuthorizationManager` implementations must take `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
+| Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
@@ -299,6 +300,26 @@ default). Compared with AWE 4:
   should not be `@Transactional`.
 
 Set `awe.maintain.transaction.enabled=false` to get the AWE 4 behavior. See [Transactions](../api/maintain-definition.md#transactions).
+
+### Date utilities
+
+Issue #782 splits `DateUtil` by responsibility into the `com.almis.awe.model.util.data.date` package, which works with
+`java.time`. `DateUtil` stays as a facade with the same methods, results and runtime classes as in AWE 4.
+
+| Class | Responsibility |
+|---|---|
+| `DateFormats` | The date and time formats (the `DateUtil` constants point to them). |
+| `DateTimeParser` | Text to `LocalDate`, `LocalTime` and `LocalDateTime`; `parseAnyFormat` detects the format. |
+| `DateTimeFormatting` | `java.time` values to text. |
+| `DateTextConverter` | Text from one format to another (lenient: invalid input is returned unchanged). |
+| `DateFormatDetector` | Which format a text is written in. |
+| `ElapsedTimeFormatter` | Human-readable elapsed time ("3 days ago"). |
+| `LegacyDateConverter` | `java.util.Date` and `java.sql` types to and from `java.time`. |
+
+The `DateUtil` methods whose signature uses `java.util.Date` or `Calendar` are deprecated; their Javadoc names the
+replacement. Methods that use `java.sql` types (`web2SqlDate`, `sqlDat2WebDate`...) are kept for JDBC code. Some
+deprecated methods return a `java.sql.Timestamp` or `java.sql.Time` declared as `Date` (`web2Timestamp`, `web2Time`,
+`sql2JavaDate`, `jsonDate`, `getDateWithTimeFromCriteria`, `addTimeToDate`); they still do.
 
 ### Jackson 3 public API
 
