@@ -4,7 +4,6 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.model.util.data.date.LegacyDateConverter;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
@@ -324,7 +323,7 @@ public class TaskDAO extends ServiceConfig {
    */
   @Deprecated(since = "5.0.0")
   public long getProgress(Date initialDate, long averageExecution) {
-    return getProgress(LegacyDateConverter.asInstant(initialDate), averageExecution);
+    return getProgress(Instant.ofEpochMilli(initialDate.getTime()), averageExecution);
   }
 
   /**
@@ -347,7 +346,7 @@ public class TaskDAO extends ServiceConfig {
    */
   @Deprecated(since = "5.0.0")
   public Integer getElapsedTime(Date startDate) {
-    return getElapsedTime(LegacyDateConverter.asInstant(startDate));
+    return getElapsedTime(Instant.ofEpochMilli(startDate.getTime()));
   }
 
   /**
