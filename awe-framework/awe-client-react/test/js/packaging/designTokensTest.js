@@ -23,7 +23,7 @@ describe('design tokens', () => {
     expect(Object.keys(react).filter(name => !(name in angular))).toEqual([]);
   });
 
-  it('maps the 13 tokens that have a PrimeReact equivalent, and no others', () => {
+  it('maps the 13 tokens that have a PrimeReact equivalent and the 2 skeleton tokens, and no others', () => {
     expect(react).toEqual({
       '--awe-color-primary': 'var(--primary-color)',
       '--awe-color-on-primary': 'var(--primary-color-text)',
@@ -37,7 +37,9 @@ describe('design tokens', () => {
       '--awe-color-success': 'var(--success-color)',
       '--awe-color-info': 'var(--info-color)',
       '--awe-radius': 'var(--border-radius)',
-      '--awe-font-family-base': 'var(--font-family)'
+      '--awe-font-family-base': 'var(--font-family)',
+      '--awe-color-skeleton': 'var(--surface-c, #dbdbdb)',
+      '--awe-color-skeleton-highlight': 'var(--surface-b, #ebebeb)'
     });
   });
 });

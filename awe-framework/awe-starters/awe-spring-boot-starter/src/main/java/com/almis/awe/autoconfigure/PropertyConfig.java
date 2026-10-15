@@ -109,6 +109,7 @@ public class PropertyConfig {
             .recordsPerPage(baseConfigProperties.getComponent().getGridRowsPerPage())
             .recordsPerPageOnCriteria(baseConfigProperties.getComponent().getCriteriaRowsPerPage())
             .pixelsPerCharacter(baseConfigProperties.getComponent().getGridPixelsPerCharacter())
+            .gridIconLoading(baseConfigProperties.getComponent().getGridIconLoading())
             .suggestTimeout(baseConfigProperties.getComponent().getSuggestTimeout().toMillis())
             .defaultComponentSize(baseConfigProperties.getComponent().getSize().toString().toLowerCase())
             .reloadCurrentScreen(baseConfigProperties.isReloadCurrentScreen())

@@ -3,8 +3,9 @@ import {DefaultGridOptions, DefaultSpin} from "../data/options";
 import {TestIds} from "../data/testIds";
 import "./../services/grid/base";
 import "./gridHeader";
+import "./gridSkeleton";
 
-export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
+export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
@@ -64,7 +65,8 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
       </div>
     </div>
   </div>
-  <awe-loader class="loader grid-loader" data-testid="${TestIds.gridLoader}" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader grid-loader" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && iconLoader !== 'skeleton'" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-grid-skeleton class="grid-skeleton" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && iconLoader === 'skeleton'" ng-cloak></awe-grid-skeleton>
 </div>`;
 
 // Grid directive

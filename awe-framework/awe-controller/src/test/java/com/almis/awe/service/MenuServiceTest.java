@@ -12,14 +12,22 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -416,6 +424,82 @@ class MenuServiceTest {
 
     assertEquals(13, menu.getElementsByType(Option.class).size());
     assertEquals(9, menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).count());
+  }
+
+  @Nested
+  class ScreenRestrictionsInARequest {
+
+    private final List<ScreenRestriction> restrictions = List.of(
+      new ScreenRestriction().setOption("test").setRestricted(true),
+      new ScreenRestriction().setOption("test2").setRestricted(true).setUser("test"));
+
+    @BeforeEach
+    void setUpRequest() throws AWException {
+      RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
+      when(context.getBean(AweSession.class)).thenReturn(aweSession);
+      when(aweSession.isAuthenticated()).thenReturn(true);
+      lenient().when(aweSession.getParameter(String.class, AweConstants.SESSION_USER)).thenReturn("test");
+      when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0"))
+        .thenAnswer(invocation -> new ServiceData().setDataList(DataListUtil.fromBeanList(restrictions)));
+    }
+
+    @AfterEach
+    void tearDownRequest() {
+      RequestContextHolder.resetRequestAttributes();
+    }
+
+    @Test
+    void areReadFromTheDatabaseOncePerRequest() throws AWException {
+      Menu first = menuService.getMenuWithRestrictions(restrictableMenu());
+      Menu second = menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(1)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+      assertEquals(List.of("test", "test2"), restrictedNames(first));
+      assertEquals(List.of("test", "test2"), restrictedNames(second));
+    }
+
+    @Test
+    void areReadAgainOutsideARequest() throws AWException {
+      RequestContextHolder.resetRequestAttributes();
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {AweConstants.SESSION_USER, AweConstants.SESSION_PROFILE, AweConstants.SESSION_RESTRICTION,
+      AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE})
+    void areReadAgainWhenTheSessionChanges(String sessionParameter) throws AWException {
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      lenient().when(aweSession.getParameter(String.class, sessionParameter)).thenReturn("changed");
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+    }
+
+    @Test
+    void areReadAgainAfterAMaintain() throws AWException {
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      ScreenRestrictionRequestCache.clear();
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+    }
+
+    private Menu restrictableMenu() {
+      return new Menu()
+        .addElement(new Option().setName("test"))
+        .addElement(new Option().setName("test2"))
+        .addElement(new Option().setName("test3"));
+    }
+
+    private List<String> restrictedNames(Menu menu) {
+      return menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).map(Option::getName).toList();
+    }
   }
 
   private Option launcherOption(String name, Option... children) {

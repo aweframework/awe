@@ -15,6 +15,7 @@ import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import AweLoader from "./AweLoader";
+import AweGridSkeleton, {getGridIconLoading, SKELETON} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -192,11 +193,18 @@ function AweTreeGrid(props) {
   const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
   const { first = 0, rows = max } = specificAttributes;
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
+  const loadingIcon = getGridIconLoading(iconLoading, settings);
+  // The skeleton replaces the rows in the body instead of masking them (see AweGrid)
+  const showSkeleton = loading && loadingIcon === SKELETON;
+  let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
+  if (showSkeleton) {
+    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows || settings.recordsPerPage} />;
+  }
 
-  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu}>
+  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu} loading={loading}>
     <TreeTable
       id={address?.component}
-      value={nodes} expandedKeys={expandedKeys} selectionKeys={selectionKeys} onToggle={() => null}
+      value={showSkeleton ? [] : nodes} expandedKeys={expandedKeys} selectionKeys={selectionKeys} onToggle={() => null}
       className={styles}
       selectionMode="single"
       onSelectionChange={onSelectTree}
@@ -204,15 +212,15 @@ function AweTreeGrid(props) {
       onContextMenuSelectionChange={onSelectTree}
       headerColumnGroup={headerTemplate()}
       footerColumnGroup={footerTemplate()}
-      paginator lazy={!loadAll}
-      loading={loading}
+      paginator lazy={!loadAll || showSkeleton}
+      loading={loading && !showSkeleton}
       paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
-      emptyMessage={loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />}
+      emptyMessage={emptyMessage}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
-      loadingIcon={<AweLoader icon={iconLoading} rootProps={testHook(TestIds.gridLoader)} />}
+      loadingIcon={<AweLoader icon={loadingIcon} rootProps={testHook(TestIds.gridLoader)} />}
       rowClassName={rowClassName}
       pt={passThrough}
     >

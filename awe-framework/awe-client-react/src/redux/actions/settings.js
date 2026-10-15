@@ -47,6 +47,7 @@ export const DEFAULT_SETTINGS = {
   dataSuffix: ".data",
   homeScreen: "home",
   recordsPerPage: 30,
+  gridIconLoading: "skeleton",
   pixelsPerCharacter: 7,
   defaultComponentSize: "md",
   shareSessionInTabs: false,
