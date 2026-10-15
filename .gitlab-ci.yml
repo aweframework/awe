@@ -41,9 +41,9 @@ default:
 # - light: the merge request checks, Lint frontend, Spanish docs lint, secret detection, the release API jobs.
 # - medium: Spotless, Frontend UT (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate.
 # - large and shared-cache are not requested by any job: Build project and Launch Sonar run untagged, Javadoc test on
-#   medium and the Playwright browser downloads on light, so any online runner can take them. Javadoc test and Launch
-#   Sonar read the SNAPSHOT jars that Build project leaves in the Maven cache; on a runner outside the shared S3 cache
-#   that cache may be empty.
+#   medium and the Playwright browser downloads on light, so any online runner can take them. Javadoc test gets the
+#   AWE SNAPSHOT jars as Build project artifacts. Launch Sonar reads the ones Build project leaves in the Maven cache; on
+#   a runner outside the shared S3 cache that cache may be empty.
 # - untagged: Maven builds other than Build project, database, Selenium, Playwright and package jobs, the website build and
 #   the React Jest suite (it times out on the slow medium runner). They do not need the shared cache: they build what they
 #   need or get the jars as Build project artifacts, and the Playwright jobs download their browser when the cache does not
@@ -865,13 +865,17 @@ Frontend UT React:
 # src/main/java it passes in the merge request and breaks develop. javadoc:javadoc@delombok-javadoc (profile test-javadoc)
 # forks generate-sources, which runs delombok, and documents each module's target/delombok with show=public like the site
 # report. The aggregate keeps checking the overview and the links between modules.
+# The goals do not compile the modules, so each module reads the AWE SNAPSHOT jars of the modules it depends on from
+# .m2/repository. They come from the Build project artifacts: the Maven cache of a medium runner does not hold the cache
+# of a new branch (Build project may run on another runner) and falls back to the develop one, whose jars miss the
+# classes the merge request adds.
 Javadoc test:
   stage: test
   tags: [ medium ]
   timeout: 20m
   needs:
     - job: Build project
-      artifacts: false
+      artifacts: true
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:javadoc@delombok-javadoc javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
