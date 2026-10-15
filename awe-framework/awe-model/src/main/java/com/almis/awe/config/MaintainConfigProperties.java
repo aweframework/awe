@@ -22,6 +22,13 @@ public class MaintainConfigProperties {
   private Multiple multiple = new Multiple();
 
   /**
+   * Maintain transaction configuration.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private Transaction transaction = new Transaction();
+
+  /**
    * Multiple maintain configuration properties
    */
   @Data
@@ -37,5 +44,19 @@ public class MaintainConfigProperties {
      */
     @Valid
     private MaintainValidationMode validationMode = MaintainValidationMode.STRICT;
+  }
+
+  /**
+   * Maintain transaction configuration properties
+   */
+  @Data
+  public static class Transaction {
+    /**
+     * Run each maintain inside a transaction of its DataSource. Nested maintains and retrieve-data steps on the same
+     * DataSource join it, and any failure or ERROR result rolls the whole maintain back. Disable it to keep the
+     * previous behavior: each maintain commits its own connection independently.
+     * Default value true
+     */
+    private boolean enabled = true;
   }
 }

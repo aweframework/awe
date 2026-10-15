@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.component.AweRoutingDataSource;
+import com.almis.awe.component.MaintainTransactionManagerProvider;
 import com.almis.awe.component.RoutingDatasourceInitializer;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
@@ -81,6 +82,17 @@ public class SQLConfig {
   @DependsOnDatabaseInitialization
   public RoutingDatasourceInitializer routingDatasourceInitializer(DataSource dataSource) {
     return new RoutingDatasourceInitializer(dataSource);
+  }
+
+  /**
+   * Transaction managers used to delimit each maintain (one per DataSource)
+   *
+   * @return Maintain transaction manager provider bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MaintainTransactionManagerProvider maintainTransactionManagerProvider() {
+    return new MaintainTransactionManagerProvider();
   }
 
   /**

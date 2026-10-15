@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -35,12 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Class used for testing maintain operations
+ * Class used for testing maintain operations.
+ * Not transactional: the tests and their clean-up check what the maintains commit, and a test-managed transaction would
+ * be joined by the maintains (see the maintain transaction tests).
  */
 @DisplayName("Maintain tests")
 @Slf4j
 @WithMockUser
-@Transactional
 public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired

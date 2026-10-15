@@ -654,7 +654,7 @@ Las auditorías las gestiona AWE automáticamente, pero las tablas de auditoría
 
 ### **Commit** {#commit}
 
-La etiqueta `<commit/>` se usa dentro de los targets de maintain para forzar que los **datos se guarden** en la base de datos. Normalmente se usa entre distintas operaciones de mantenimiento para asegurar que los datos son correctos antes de pasar al siguiente paso.
+La etiqueta `<commit/>` se usa dentro de los targets de maintain para forzar que los **datos se guarden** en la base de datos. Normalmente se usa entre distintas operaciones de mantenimiento para asegurar que los datos son correctos antes de pasar al siguiente paso. Consulte [Transacciones](#transactions) para ver cómo funciona con la transacción del maintain.
 
 #### **Ejemplo de commit** {#commit-example}
 
@@ -697,6 +697,91 @@ La etiqueta `<commit/>` se usa dentro de los targets de maintain para forzar que
   <serve service="RelDbsCon"/>
 </target>
 ```
+
+## Transacciones {#transactions}
+
+Cada maintain se ejecuta dentro de una transacción de base de datos de su datasource. Si el maintain termina sin
+error, la transacción se confirma; si una sentencia falla, o un paso devuelve un resultado `ERROR`, se deshace el
+maintain completo. Lo controla `awe.maintain.transaction.enabled` (`true` por defecto, nuevo en AWE 5).
+
+```properties
+# Valor por defecto. Póngalo a false para recuperar el comportamiento de AWE 4 descrito más abajo
+awe.maintain.transaction.enabled=true
+```
+
+### Qué cubre la transacción {#what-the-transaction-covers}
+
+La transacción pertenece al datasource del maintain: el datasource por defecto, o el que se elige con el parámetro de
+base de datos cuando `awe.database.multidatabase-enable=true`. Todo lo que se ejecuta sobre ese datasource mientras
+dura el maintain se une a ella (`PROPAGATION_REQUIRED` de Spring):
+
+| Paso del maintain | Con la transacción (por defecto) |
+|---|---|
+| `insert`, `update`, `delete`, `multiple`, auditorías (tablas `HIS*`), `include-target` | La misma transacción. Un fallo deshace todas las sentencias anteriores del maintain. |
+| `retrieve-data` | Se une a la transacción, así que **ve las filas que el mismo maintain escribió antes**. |
+| `serve` con un servicio Java que lanza otro maintain sobre el mismo datasource | El maintain anidado **se une al exterior**: se confirma o se deshace con él. |
+| Un paso que devuelve un `ServiceData` de tipo `ERROR` sin lanzar excepción | Se deshace el maintain y se devuelve la respuesta de error tal cual. |
+| `<commit/>` | Confirma la transacción **a mitad** del maintain, como antes: lo anterior se mantiene aunque falle un paso posterior. |
+| Un maintain lanzado dentro de un método `@Transactional` (o un `TransactionTemplate`) de la aplicación sobre el mismo datasource | **Se une a la transacción de la aplicación**: se confirma o se deshace con ella. |
+| Un maintain sobre otro datasource | Se ejecuta en su propia transacción de ese datasource. |
+| Pasos `queue` (JMS) y `email` | No son transaccionales: un rollback no deshace un mensaje o un correo ya enviados. |
+| Llamadas REST y de microservicio (`serve` con un servicio REST o de microservicio) | No son transaccionales: el lado remoto no se deshace. |
+
+Tenga en cuenta:
+
+- **Un fallo silenciado también deshace.** Si un servicio Java captura la excepción de un maintain anidado, o ignora
+  su resultado `ERROR`, y devuelve `OK`, el maintain exterior falla al confirmar con el error genérico de maintain y
+  se deshace todo. Deje que el error se propague en lugar de ocultarlo.
+- **Dentro de una transacción de la aplicación, un maintain que falla solo la marca para deshacer.** Sus filas se
+  deshacen cuando termina la transacción de la aplicación, no antes: hasta entonces esa misma transacción las sigue
+  viendo, y confirmarla falla con la `UnexpectedRollbackException` de Spring.
+- **`<commit/>` en un maintain anidado confirma también el trabajo del exterior**, porque ambos comparten la conexión.
+- El código Java que llama a las sobrecargas de `launchMaintain` o `launchPrivateMaintain` que reciben el
+  identificador del maintain y un `DatabaseConnection` es dueño de esa conexión: AWE no abre una transacción para ella
+  y mantiene el comportamiento de AWE 4 (confirmar y liberar al final, o nada con `keepAliveConnection=true`). La
+  sobrecarga `launchMaintain(Target, ...)` sí abre la transacción cuando el `DatabaseConnection` aún no ha obtenido su
+  conexión.
+- **Para unirse hace falta el mismo objeto `DataSource`.** Con `awe.database.multidatabase-enable=true`, un maintain
+  sin el parámetro de base de datos usa el datasource de enrutado, y uno con un alias explícito usa el pool de ese
+  alias. No se unen entre sí aunque ambos apunten a la misma base de datos física.
+- **Listeners JMS.** El contenedor de listeners JMS de AWE usa el gestor de transacciones de Spring Boot, así que un
+  maintain lanzado desde un listener de cola se une a la transacción del listener (en AWE 4 confirmaba por su cuenta).
+- **Broadcasts antes del commit.** Un broadcast de notificación (notifier) enviado desde un paso de un maintain largo
+  puede llegar al cliente antes de que el maintain confirme, así que el cliente quizá aún no vea la fila.
+
+### Desactivarla (comportamiento de AWE 4) {#disabling-it-awe-4-behavior}
+
+Con `awe.maintain.transaction.enabled=false` los maintains se comportan como en AWE 4:
+
+- Cada maintain desactiva el auto-commit de su propia conexión, confirma al final y deshace sus propias sentencias si
+  hay una excepción.
+- `retrieve-data` y los maintains anidados lanzados desde servicios Java usan **otras conexiones**: un maintain anidado
+  confirma por su cuenta, así que sigue confirmado aunque el exterior falle después, y `retrieve-data` no ve las filas
+  sin confirmar del maintain.
+- Un paso que devuelve un resultado `ERROR` sin excepción no deshace nada: el maintain se confirma.
+- Un maintain lanzado dentro de una transacción de la aplicación confirma en su propia conexión.
+
+Desactívela solo si una aplicación depende de estas confirmaciones parciales, por ejemplo un servicio Java que debe
+conservar las filas de un maintain anidado aunque el exterior falle. En ese caso, es preferible mover ese trabajo a su
+propio maintain, lanzado después del exterior.
+
+### Ciclo de vida de la conexión por conector {#connection-lifecycle-by-connector}
+
+Auditoría de cómo obtiene y libera cada conector su conexión (incidencia #781):
+
+| Conector | Conexión | Commit y rollback |
+|---|---|---|
+| `SQLMaintainConnector` / `SQLMaintainBuilder` (`insert`, `update`, `delete`, `multiple`, auditorías, lotes) | La conexión del maintain, que le pasa `MaintainService`. | No tiene propios: los gestiona `MaintainService` (o la transacción). Los errores se propagan como `AWEQueryException`. |
+| `SQLQueryConnector` (`retrieve-data`, queries) | `DataSourceUtils.getConnection` sobre el datasource, liberada tras la query. | Ninguno. Se une a la transacción del maintain si la hay; si no, es una conexión aparte. |
+| `ServiceMaintainConnector` → `JavaConnector`, `RestConnector`, `MicroserviceConnector` | No se pasa ninguna conexión al servicio. Los maintains que lanza un servicio Java toman la conexión de la transacción activa de su datasource, o una nueva. | Servicios Java: los de los maintains que lanzan. REST y microservicio: remotos, no transaccionales. Un servicio Java que devuelve `ERROR` sin excepción solo provoca rollback con la transacción activada. |
+| `QueueMaintainConnector` / `QueueBuilder` | Ninguna conexión JDBC (`JmsTemplate`). | Los mensajes se envían al momento; un rollback no los deshace. |
+| `EmailMaintainConnector` / `EmailService` | Sus queries usan `QueryService` (ver `SQLQueryConnector`). | Los correos se envían al momento; un rollback no los deshace. |
+| `MaintainService.getNextSequenceValue` | La conexión que recibe (o una nueva), que siempre libera al final. | Ninguno. |
+
+Otros hallazgos de la auditoría: `DatabaseConnection.getConnection()` devuelve `null` cuando el datasource no puede
+dar una conexión (con la transacción activada el maintain falla en cambio al empezar la transacción); en el camino de
+AWE 4 no se restaura el auto-commit antes de liberar la conexión (Hikari lo restaura al devolverla al pool); y un
+rollback que falla oculta el error original en ambos caminos.
 
 ## Maintain de servicio {#service-maintain}
 

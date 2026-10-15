@@ -71,6 +71,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Logback configuration (#783) | The application fails at startup with `Logback configuration error detected` after the upgrade. | Remove the `applicationName` conversion rule from your own `logback-spring.xml`; use `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}`. | [Logging, database and web](#logging-database-and-web) |
 | Login redirects (#783) | An unauthenticated browser request is redirected to `Location: /` instead of an absolute URL. | Nothing, unless something parses the absolute URL: accept a relative one. Custom `AuthorizationManager` implementations must take `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
@@ -275,6 +276,29 @@ by the `DataListUtil` mapper), so the HTTP layer and the injected mapper use it.
   `ForwardedHeaderFilter` bean if you need it.
 - **jasypt-spring-boot 3.0.5** keeps decrypting `ENC(...)` properties, but it does not declare Spring Boot 4 support
   yet: check it when you upgrade it.
+
+### Maintain transactions
+
+Issue #781 runs each maintain inside one transaction of its datasource (`awe.maintain.transaction.enabled`, `true` by
+default). Compared with AWE 4:
+
+- A failing statement, or a step that returns an `ERROR` result without throwing, rolls back the **whole** maintain.
+  In AWE 4 an `ERROR` result without an exception was committed.
+- Maintains launched from a Java service (`serve`) and `retrieve-data` on the same datasource **join** the outer
+  maintain. In AWE 4 they used other connections: a nested maintain stayed committed when the outer one failed, and
+  `retrieve-data` did not see the rows the maintain had just written.
+- A maintain launched inside a Spring transaction of the application (`@Transactional`, `TransactionTemplate`) on the
+  same datasource **joins it**. In AWE 4 it always committed on its own connection.
+- A Java service that catches the failure of a nested maintain and returns `OK` now makes the outer maintain fail
+  with the generic maintain error, and everything is rolled back.
+- `<commit/>` still commits in the middle of the maintain.
+- **Tests.** In a `@Transactional` test the maintains now join the test transaction and are rolled back with it. A
+  test that reads or cleans with its own connection (`dataSource.getConnection()`) does not see their rows, and on
+  HSQLDB it waits forever on the lock. Read through the transaction: `JdbcTemplate`, or
+  `new TransactionAwareDataSourceProxy(dataSource).getConnection()`. A test that must check what a maintain commits
+  should not be `@Transactional`.
+
+Set `awe.maintain.transaction.enabled=false` to get the AWE 4 behavior. See [Transactions](../api/maintain-definition.md#transactions).
 
 ### Jackson 3 public API
 
@@ -674,6 +698,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Jackson imports moved to `tools.jackson.*`; `asText()`/`asInt()`/`asBoolean()` calls use the default-value overloads
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
+- [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

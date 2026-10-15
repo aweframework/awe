@@ -47,6 +47,29 @@
     <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
   </query>
 
+  <!-- Maintain transaction tests: rows whose description / name starts with a prefix -->
+  <query id="TxCheckHISAweDbs">
+    <table id="HISAweDbs"/>
+    <field id="HISope"/>
+    <where>
+      <and>
+        <filter left-field="Des" condition="like" right-variable="prefix"/>
+      </and>
+    </where>
+    <variable type="STRINGR" id="prefix" name="prefix"/>
+  </query>
+
+  <query id="TxCheckHISAweThm">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="prefix"/>
+      </and>
+    </where>
+    <variable type="STRINGR" id="prefix" name="prefix"/>
+  </query>
+
   <query id="SimpleGetManyRecords">
     <table id="HISAweSit" alias="awe"/>
     <field id="IdeSit" table="awe" alias="id"/>

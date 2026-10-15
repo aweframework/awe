@@ -71,6 +71,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Configuración de Logback (#783) | La aplicación falla al arrancar con `Logback configuration error detected` tras la actualización. | Elimine la regla de conversión `applicationName` de su propio `logback-spring.xml`; use `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}`. | [Logging, base de datos y web](#logging-database-and-web) |
 | Redirecciones del inicio de sesión (#783) | Una petición de navegador sin autenticar se redirige a `Location: /` en lugar de a una URL absoluta. | Nada, salvo que algo analice la URL absoluta: acepte una relativa. Las implementaciones propias de `AuthorizationManager` deben recibir `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
 | Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
@@ -287,6 +288,30 @@ que también usa el mapper de `DataListUtil`), así que la capa HTTP y el mapper
   bean `ForwardedHeaderFilter` si lo necesita.
 - **jasypt-spring-boot 3.0.5** sigue descifrando las propiedades `ENC(...)`, pero todavía no declara soporte de Spring
   Boot 4: compruébelo cuando lo actualice.
+
+### Transacciones de maintain {#maintain-transactions}
+
+La incidencia #781 ejecuta cada maintain dentro de una transacción de su datasource (`awe.maintain.transaction.enabled`,
+`true` por defecto). Respecto a AWE 4:
+
+- Una sentencia que falla, o un paso que devuelve un resultado `ERROR` sin lanzar excepción, deshace el maintain
+  **completo**. En AWE 4 un resultado `ERROR` sin excepción se confirmaba.
+- Los maintains lanzados desde un servicio Java (`serve`) y `retrieve-data` sobre el mismo datasource **se unen** al
+  maintain exterior. En AWE 4 usaban otras conexiones: un maintain anidado seguía confirmado cuando el exterior
+  fallaba, y `retrieve-data` no veía las filas que el maintain acababa de escribir.
+- Un maintain lanzado dentro de una transacción de Spring de la aplicación (`@Transactional`, `TransactionTemplate`)
+  sobre el mismo datasource **se une a ella**. En AWE 4 siempre confirmaba en su propia conexión.
+- Un servicio Java que captura el fallo de un maintain anidado y devuelve `OK` hace ahora que el maintain exterior
+  falle con el error genérico de maintain, y se deshace todo.
+- `<commit/>` sigue confirmando a mitad del maintain.
+- **Tests.** En un test `@Transactional` los maintains se unen ahora a la transacción del test y se deshacen con ella.
+  Un test que lee o limpia con su propia conexión (`dataSource.getConnection()`) no ve sus filas, y en HSQLDB espera
+  indefinidamente al bloqueo. Lea a través de la transacción: `JdbcTemplate`, o
+  `new TransactionAwareDataSourceProxy(dataSource).getConnection()`. Un test que deba comprobar lo que confirma un
+  maintain no debe ser `@Transactional`.
+
+Defina `awe.maintain.transaction.enabled=false` para recuperar el comportamiento de AWE 4. Consulte
+[Transacciones](../api/maintain-definition.md#transactions).
 
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
@@ -685,6 +710,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Jackson imports moved to `tools.jackson.*`; `asText()`/`asInt()`/`asBoolean()` calls use the default-value overloads
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
+- [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 
