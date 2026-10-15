@@ -43,7 +43,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -711,7 +710,7 @@ class MenuServiceCharacterizationTest {
 
     assertThat(result).isSameAs(menu);
     assertThat(result.getElementsByType(Option.class).stream().filter(Option::isRestricted).map(Option::getName)
-      .collect(Collectors.toList())).containsExactlyInAnyOrder("other", "other-child", "profile-restricted");
+      .toList()).containsExactlyInAnyOrder("other", "other-child", "profile-restricted");
     // The session module is read eagerly (Optional.orElse) even when the request provides one
     verify(aweSession).getParameter(String.class, AweConstants.SESSION_MODULE);
   }

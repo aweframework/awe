@@ -11,6 +11,7 @@ import com.almis.awe.model.entities.menu.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.PRIVATE_MENU;
 
@@ -243,14 +244,8 @@ public class MenuOptionLookup extends ServiceConfig {
    * @return Option list filtered
    */
   private List<Option> filterRestrictedOptions(List<Option> optionList) {
-    // Get options
-    List<Option> availableOptionList = new ArrayList<>();
-    for (Option option : optionList) {
-      if (!option.isRestricted()) {
-        availableOptionList.add(option);
-      }
-    }
-
-    return availableOptionList;
+    return optionList.stream()
+      .filter(option -> !option.isRestricted())
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 }
