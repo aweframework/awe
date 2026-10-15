@@ -20,6 +20,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serial;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -289,6 +290,32 @@ public class Query implements XMLNode, Copyable {
    * @return Cache key string
    */
   public String getQueryKeys(ObjectNode parameters) {
+    return getQueryKeys(parameters, sessionName -> null);
+  }
+
+  /**
+   * Builds the cache key based on query id, allowed parameters and the session values the query depends on.
+   * Session variables never come from the request, so their resolved values must be part of the key:
+   * otherwise every user shares the same cached result.
+   *
+   * @param parameters    Parameters
+   * @param sessionValues Resolves a session parameter name to its current value
+   * @return Cache key string
+   */
+  public String getQueryKeys(ObjectNode parameters, Function<String, Object> sessionValues) {
+    String key = getRequestQueryKeys(parameters);
+    Map<String, String> sessionKeys = new TreeMap<>();
+    if (getVariableDefinitionList() != null) {
+      for (Variable variable : getVariableDefinitionList()) {
+        if (variable.getSession() != null) {
+          sessionKeys.put(variable.getSession(), Objects.toString(sessionValues.apply(variable.getSession()), null));
+        }
+      }
+    }
+    return sessionKeys.isEmpty() ? key : key + "|" + sessionKeys;
+  }
+
+  private String getRequestQueryKeys(ObjectNode parameters) {
     ObjectNode safeParameters = parameters == null ? JsonNodeFactory.instance.objectNode() : parameters;
     ObjectNode filteredParameters = JsonNodeFactory.instance.objectNode();
     for (String parameterKey : getCacheKeyParamNames()) {

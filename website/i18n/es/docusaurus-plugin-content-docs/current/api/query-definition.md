@@ -121,14 +121,41 @@ El elemento *query* tiene los siguientes atributos:
 
 ### Caché de consultas y trazas de log {#query-cache-and-trace-logging}
 
-Si `cacheable="true"`, el resultado de la consulta se almacena en caché usando como clave de caché el id de la consulta más los parámetros resueltos.
-Esto evita volver a ejecutar la misma consulta con las mismas entradas durante la vida de la caché.
+Si `cacheable="true"`, el resultado de la consulta se almacena en caché y se reutiliza mientras se repitan las mismas entradas durante la vida de la caché.
+La clave de caché contiene todo lo que cambia el resultado:
+
+- el id de la consulta
+- los parámetros de la petición con el nombre de las variables de la consulta, más `page`, `max` y `sort`
+- el valor actual de cada variable declarada con `session="..."`
+- el idioma al que se traducen los resultados (`lang` de la petición o, si no, el idioma de la sesión)
+- la base de datos en la que se ejecuta la consulta (`_database_` de la petición o, si no, la base de datos de la sesión)
+
+Por eso un resultado cacheado nunca se comparte entre usuarios, idiomas o bases de datos a través de estas entradas.
+
+:::caution Consultas de servicio
+
+La caché solo conoce las variables que declara la consulta. Cuando una [consulta de servicio](#service-query) cacheable
+devuelve datos que dependen de la sesión (el usuario, el perfil, el módulo...) sin recibirlos como variable, declara esos
+valores de sesión como variables de la consulta, aunque el servicio no los use. Si no, todos los usuarios comparten el
+primer resultado cacheado.
+
+```xml
+<query id="getScreenList" service="getScreenList" cacheable="true">
+  <field id="value"/>
+  <field id="label"/>
+  <variable id="screen" type="STRING" name="suggest" />
+  <variable id="user" type="STRING" session="user"/>
+  <variable id="profile" type="STRING" session="profile"/>
+</query>
+```
+
+:::
 
 Para ver los aciertos de caché en los logs, establece el logger `com.almis.awe.cache.LoggingCache` a `trace`.
 Cuando está habilitado, verás entradas como:
 
 ```log
-Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}
+Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}|language=en-GB|database=null
 ```
 
 Ejemplo de configuración en `application.properties`:
