@@ -23,6 +23,11 @@ import com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
+import com.almis.awe.service.menu.MenuOptionLookup;
+import com.almis.awe.service.menu.MenuProvider;
+import com.almis.awe.service.menu.MenuRestrictionTreeService;
+import com.almis.awe.service.menu.MenuScreenResolver;
+import com.almis.awe.service.menu.MenuSuggestionLists;
 import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
@@ -320,25 +325,101 @@ public class AweAutoConfiguration {
   }
 
   /**
-   * Menu service
+   * Menu provider
    *
    * @param queryService             Query service
    * @param screenComponentGenerator Screen component generator
-   * @param initialLoadDao           Initial load service
    * @param baseConfigProperties     Base configuration properties
-   * @param securityConfigProperties Security configuration properties
    * @param favouriteService         Favourite service
-   * @param launcherService          Launcher service
+   * @return Menu provider bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuProvider menuProvider(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
+                                   BaseConfigProperties baseConfigProperties, FavouriteService favouriteService) {
+    return new MenuProvider(queryService, screenComponentGenerator, baseConfigProperties, favouriteService);
+  }
+
+  /**
+   * Menu option lookup
+   *
+   * @param menuProvider         Menu provider
+   * @param baseConfigProperties Base configuration properties
+   * @return Menu option lookup bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    return new MenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+
+  /**
+   * Menu screen resolver
+   *
+   * @param menuProvider         Menu provider
+   * @param menuOptionLookup     Menu option lookup
+   * @param initialLoadDao       Initial load service
+   * @param launcherService      Launcher service
+   * @param baseConfigProperties Base configuration properties
+   * @return Menu screen resolver bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuScreenResolver menuScreenResolver(MenuProvider menuProvider, MenuOptionLookup menuOptionLookup,
+                                               InitialLoadDao initialLoadDao, LauncherService launcherService,
+                                               BaseConfigProperties baseConfigProperties) {
+    return new MenuScreenResolver(menuProvider, menuOptionLookup, initialLoadDao, launcherService, baseConfigProperties);
+  }
+
+  /**
+   * Menu suggestion lists
+   *
+   * @param menuOptionLookup   Menu option lookup
+   * @param menuScreenResolver Menu screen resolver
+   * @return Menu suggestion lists bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuSuggestionLists menuSuggestionLists(MenuOptionLookup menuOptionLookup,
+                                                 MenuScreenResolver menuScreenResolver) {
+    return new MenuSuggestionLists(menuOptionLookup, menuScreenResolver);
+  }
+
+  /**
+   * Menu restriction tree service
+   *
+   * @param menuProvider             Menu provider
+   * @param menuScreenResolver       Menu screen resolver
+   * @param queryService             Query service
+   * @param securityConfigProperties Security configuration properties
+   * @return Menu restriction tree service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuRestrictionTreeService menuRestrictionTreeService(MenuProvider menuProvider,
+                                                               MenuScreenResolver menuScreenResolver,
+                                                               QueryService queryService,
+                                                               SecurityConfigProperties securityConfigProperties) {
+    return new MenuRestrictionTreeService(menuProvider, menuScreenResolver, queryService, securityConfigProperties);
+  }
+
+  /**
+   * Menu service
+   *
+   * @param menuProvider               Menu provider
+   * @param menuScreenResolver         Menu screen resolver
+   * @param menuOptionLookup           Menu option lookup
+   * @param menuSuggestionLists        Menu suggestion lists
+   * @param menuRestrictionTreeService Menu restriction tree service
    * @return Menu service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MenuService menuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
-                                 InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
-                                 LauncherService launcherService) {
-    return new MenuService(queryService, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties, favouriteService, launcherService);
+  public MenuService menuService(MenuProvider menuProvider, MenuScreenResolver menuScreenResolver,
+                                 MenuOptionLookup menuOptionLookup, MenuSuggestionLists menuSuggestionLists,
+                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new MenuService(menuProvider, menuScreenResolver, menuOptionLookup, menuSuggestionLists,
+      menuRestrictionTreeService);
   }
 
   /**

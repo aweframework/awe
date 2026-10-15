@@ -73,6 +73,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
 | Utilidades de fecha (#782) | El compilador avisa de que los métodos de `DateUtil` que reciben o devuelven `java.util.Date` o `Calendar` están deprecados. | Nada obligatorio: mantienen su comportamiento y no se eliminan antes de la 6.0. Pase a los métodos `java.time` de `com.almis.awe.model.util.data.date`. | [Utilidades de fecha](#date-utilities) |
+| MenuService (#782) | Solo para proyectos que extienden `MenuService`: un método que sobrescriba ya no lo llaman los demás métodos de `MenuService` (por ejemplo, sobrescribir `getOptionByName` ya no cambia `getOptionScreen`). El compilador avisa de que el constructor de siete argumentos de `MenuService` está deprecado. | Nada si solo llama a `MenuService`. Si lo extiende, lleve la personalización a su propio bean del colaborador que contiene el método. | [MenuService](#menuservice) |
 | Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
@@ -343,6 +344,43 @@ en milisegundos.
 En el planificador, `TaskDAO` mantiene sus métodos y delega en las clases de `com.almis.awe.scheduler.dao.task`.
 `TaskDAO.getProgress(Date, long)` y `TaskDAO.getElapsedTime(Date)` están deprecados en favor de sus sobrecargas con
 `Instant`; una llamada con un `null` literal necesita ahora un cast.
+
+### MenuService {#menuservice}
+
+La incidencia #782 divide `MenuService` por responsabilidades en el paquete `com.almis.awe.service.menu`.
+`MenuService` mantiene sus 33 métodos públicos, con las mismas firmas y resultados, y delega cada uno en un
+colaborador. Los métodos que `Services.xml` invoca por nombre (`getNameOptionList`, `getModuleList`, `refreshMenu`,
+los servicios del árbol de restricciones...) siguen en `MenuService`.
+
+| Colaborador | Responsabilidad | Métodos de `MenuService` que delegan en él |
+|---|---|---|
+| `MenuProvider` | Cargar los menús y aplicarles restricciones y favoritos. | `getMenu`, `getMenuWithRestrictions`, `getMenuWithAllRestrictions`, `refreshMenu` |
+| `MenuOptionLookup` | Buscar opciones y comprobar si están disponibles. | `getOptionByName`, `getAvailableOptionByName`, `checkOptionAddress`, `isAvailableOption` |
+| `MenuScreenResolver` | Resolver la pantalla de un menú u opción y lanzar sus cargas iniciales. | `getDefaultScreen`, `getOptionScreen`, `getAvailableOptionScreen`, `getScreen` |
+| `MenuSuggestionLists` | Listas de sugerencias de pantallas, opciones y módulos. | `getAvailableScreenList`, `getAllScreenList`, `getNameOptionList`, `getModuleList` |
+| `MenuRestrictionTreeService` | Restricciones de perfil y árbol de restricciones por usuario o perfil. | `getScreenRestrictions`, `getMenuOptionTree`, `getMenuOptionTreeByModule`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction` |
+
+Notas para los proyectos que extienden `MenuService`:
+
+- **Un override solo afecta a quien llama directamente.** En AWE 4 los métodos de `MenuService` se llamaban entre
+  sí, de modo que sobrescribir `getOptionByName` cambiaba también `getOptionScreen`, y sobrescribir `getScreen`
+  cambiaba las listas de sugerencias. Ahora los colaboradores se llaman entre sí, no a `MenuService`: su override lo
+  usa el código que llama directamente a `MenuService` (controladores, `Services.xml`, sus propios servicios), pero
+  no los demás métodos de `MenuService`.
+- **Personalice el colaborador.** Cada colaborador es un bean declarado con `@ConditionalOnMissingBean`. Declare su
+  propio bean del mismo tipo (normalmente una subclase) y AWE lo usa en todas partes, también en `MenuService`:
+
+  ```java
+  @Bean
+  public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    return new MyMenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+  ```
+
+- **Constructores.** El constructor de siete argumentos (`QueryService`, `ScreenComponentGenerator`...) está
+  deprecado pero sigue funcionando: construye sus propios colaboradores por defecto, que comparten el contexto de
+  aplicación de su `MenuService`, por lo que no ven los beans de colaborador que usted declare. Pase las subclases de
+  `MenuService` al constructor que recibe los cinco colaboradores. No se elimina nada antes de la 6.0.
 
 ### API pública con Jackson 3 {#jackson-3-public-api}
 

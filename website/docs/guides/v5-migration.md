@@ -73,6 +73,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
+| MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
@@ -327,6 +328,42 @@ now counts hours on a 24-hour clock. AWE 4 showed 13 hours as "1 hour" and 12 ho
 In the scheduler, `TaskDAO` keeps its methods and delegates to the classes of `com.almis.awe.scheduler.dao.task`.
 `TaskDAO.getProgress(Date, long)` and `TaskDAO.getElapsedTime(Date)` are deprecated in favour of their `Instant`
 overloads; a call with a literal `null` now needs a cast.
+
+### MenuService
+
+Issue #782 splits `MenuService` by responsibility into the `com.almis.awe.service.menu` package. `MenuService` keeps
+its 33 public methods, with the same signatures and results, and delegates each one to a collaborator. The methods
+that `Services.xml` calls by name (`getNameOptionList`, `getModuleList`, `refreshMenu`, the restriction tree
+services...) stay on `MenuService`.
+
+| Collaborator | Responsibility | `MenuService` methods that delegate to it |
+|---|---|---|
+| `MenuProvider` | Load the menus and apply restrictions and favourites. | `getMenu`, `getMenuWithRestrictions`, `getMenuWithAllRestrictions`, `refreshMenu` |
+| `MenuOptionLookup` | Find options and check whether they are available. | `getOptionByName`, `getAvailableOptionByName`, `checkOptionAddress`, `isAvailableOption` |
+| `MenuScreenResolver` | Resolve the screen of a menu or option and run its initial loads. | `getDefaultScreen`, `getOptionScreen`, `getAvailableOptionScreen`, `getScreen` |
+| `MenuSuggestionLists` | Suggestion lists of screens, options and modules. | `getAvailableScreenList`, `getAllScreenList`, `getNameOptionList`, `getModuleList` |
+| `MenuRestrictionTreeService` | Profile restrictions and the restriction tree by user or profile. | `getScreenRestrictions`, `getMenuOptionTree`, `getMenuOptionTreeByModule`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction` |
+
+Notes for projects that extend `MenuService`:
+
+- **An override only affects direct callers.** In AWE 4 the methods of `MenuService` called each other, so overriding
+  `getOptionByName` also changed `getOptionScreen`, and overriding `getScreen` changed the suggestion lists. Now the collaborators call each other, not `MenuService`: your override is used by the code that calls
+  `MenuService` directly (controllers, `Services.xml`, your own services), but not by the other `MenuService`
+  methods.
+- **Customize the collaborator instead.** Every collaborator is a bean declared with `@ConditionalOnMissingBean`.
+  Declare your own bean of the same type (usually a subclass) and AWE uses it everywhere, `MenuService` included:
+
+  ```java
+  @Bean
+  public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    return new MyMenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+  ```
+
+- **Constructors.** The seven-argument constructor (`QueryService`, `ScreenComponentGenerator`, ...) is deprecated
+  but still works: it builds its own default collaborators, which share the application context of your
+  `MenuService`, so they do not see the collaborator beans you declare. Move a `MenuService` subclass to the
+  constructor that takes the five collaborators. Nothing is removed before 6.0.
 
 ### Jackson 3 public API
 
