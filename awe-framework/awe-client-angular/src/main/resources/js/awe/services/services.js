@@ -1,6 +1,7 @@
 import "./control";
 import "./load";
 import "./loadingBar";
+import "./screenSkeleton";
 import "./locals";
 import "./position";
 import "./serverData";

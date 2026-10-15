@@ -1,9 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {ProgressSpinner} from "primereact/progressspinner";
+import {Skeleton} from "primereact/skeleton";
 import "./AweLoader.less";
 
 const SPINNER = "spinner";
+const SKELETON = "skeleton";
 const withCubeClass = (items) => items.map(item => `sk-cube ${item}`);
 
 /**
@@ -22,7 +24,7 @@ const CSS_LOADERS = {
   custom: []
 };
 
-export const LOADER_ICONS = [SPINNER, "none", "icon", ...Object.keys(CSS_LOADERS)];
+export const LOADER_ICONS = [SPINNER, "none", "icon", SKELETON, ...Object.keys(CSS_LOADERS)];
 
 /**
  * Component loading icon
@@ -34,6 +36,12 @@ export const LOADER_ICONS = [SPINNER, "none", "icon", ...Object.keys(CSS_LOADERS
 function AweLoader({icon, rootProps = {}}) {
   if (!LOADER_ICONS.includes(icon) || icon === SPINNER) {
     return <ProgressSpinner pt={{root: rootProps}} />;
+  }
+
+  if (icon === SKELETON) {
+    return <div className="awe-loader awe-loader-skeleton" aria-hidden="true" {...rootProps}>
+      <Skeleton width="100%" height="100%" />
+    </div>;
   }
 
   let content = null;

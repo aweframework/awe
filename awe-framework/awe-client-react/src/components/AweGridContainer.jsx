@@ -9,7 +9,7 @@ import {getMoveRowKeyPosition} from "../utilities/grid";
  * @subcategory Grid
  */
 function AweGridContainer(props) {
-  const { onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, children } = props;
+  const { onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, children } = props;
   const containerRef = useRef(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const screenSize = useScreenSize();
@@ -53,7 +53,7 @@ function AweGridContainer(props) {
   }, [containerHeight]);
 
   return (
-    <div className="grid-container expand expandible-vertical" ref={containerRef}>
+    <div className="grid-container expand expandible-vertical" ref={containerRef} aria-busy={loading ? "true" : undefined}>
       <div
         className="grid-contents expand expandible-vertical"
         role="grid-container"
@@ -68,6 +68,7 @@ function AweGridContainer(props) {
 
 AweGridContainer.propTypes = {
   children: PropTypes.node,
+  loading: PropTypes.bool,
   onContextMenu: PropTypes.any,
   onKeyCancelRow: PropTypes.any,
   onKeyMoveRow: PropTypes.any,

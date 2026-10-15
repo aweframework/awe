@@ -1,0 +1,127 @@
+/*******************************************************************************
+ LOADING SKELETONS
+ Placeholders drawn while a screen or the rows of a grid load. Colors come from the
+ --awe-color-skeleton tokens, so every theme and mode paints them.
+*******************************************************************************/
+
+@keyframes awe-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--awe-radius-sm);
+  background: linear-gradient(90deg, var(--awe-color-skeleton) 25%, var(--awe-color-skeleton-highlight) 50%, var(--awe-color-skeleton) 75%);
+  background-size: 200% 100%;
+  animation: awe-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+// Loader with icon-loading="skeleton" (criteria, charts...): a block over the component
+.loader.skeleton-loader {
+  display: block;
+  &.ng-animate {
+    display: block !important;
+  }
+  .skeleton-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: var(--awe-space-2xs);
+    background-color: var(--awe-color-panel);
+  }
+}
+
+// Grid rows: one row per record of the page and one bar per visible column, below the header
+.grid-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 10;
+  .grid-skeleton-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background-color: var(--awe-color-panel);
+  }
+  .grid-skeleton-row {
+    display: flex;
+    align-items: center;
+    height: 27px;
+    border-bottom: 1px solid var(--awe-color-grid-border);
+  }
+  .grid-skeleton-cell {
+    flex: none;
+    height: 100%;
+    padding: 8px 6px;
+    overflow: hidden;
+  }
+}
+
+// Screen: a title bar, a row of criteria and a grid over the view that is loading
+.screen-skeleton {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-md);
+  padding: var(--awe-space-md);
+  overflow: hidden;
+  background-color: var(--awe-color-background);
+  .screen-skeleton-title {
+    height: 28px;
+    width: 30%;
+  }
+  .screen-skeleton-criteria {
+    display: flex;
+    gap: var(--awe-space-md);
+    height: 34px;
+    .skeleton-bar {
+      flex: 1 1 0;
+    }
+  }
+  .screen-skeleton-grid {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid var(--awe-color-grid-border);
+    border-radius: var(--awe-radius);
+    background-color: var(--awe-color-panel);
+  }
+  .screen-skeleton-grid-header {
+    height: 32px;
+    padding: 8px;
+    background-color: var(--awe-color-grid-header);
+  }
+  .screen-skeleton-grid-row {
+    height: 32px;
+    padding: 10px 8px;
+    border-top: 1px solid var(--awe-color-grid-border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-bar {
+    animation: none;
+  }
+}

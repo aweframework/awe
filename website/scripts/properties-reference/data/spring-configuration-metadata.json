@@ -43,6 +43,12 @@
       "defaultValue": "d"
     },
     {
+      "name": "awe.application.component.grid-icon-loading",
+      "type": "java.lang.String",
+      "description": "Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns) or any other icon-loading value (spinner, dots...) Default value skeleton",
+      "defaultValue": "skeleton"
+    },
+    {
       "name": "awe.application.component.grid-pixels-per-character",
       "type": "java.lang.Integer",
       "description": "Pixels per char in grids Default value 8",

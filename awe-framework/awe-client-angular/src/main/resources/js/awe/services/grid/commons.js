@@ -417,6 +417,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         // Initialize common methods
         let  component = this.component;
 
+        // Loading indicator: the icon-loading of the grid wins over the application default
+        component.scope.iconLoader = component.controller.iconLoading || $settings.get("gridIconLoading") || "spinner";
+
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();
 

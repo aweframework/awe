@@ -13,6 +13,7 @@ import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import AweLoader from "./AweLoader";
+import AweGridSkeleton, {getGridIconLoading, SKELETON} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -160,9 +161,17 @@ function AweGrid(props) {
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
   const selectedValues = values.filter(item => item.selected);
+  const loadingIcon = getGridIconLoading(iconLoading, settings);
+  // The skeleton replaces the rows in the body instead of masking them. While it is shown the grid is kept lazy with
+  // its known total, so a client-side paginated grid does not jump back to the first page when its rows disappear
+  const showSkeleton = loading && loadingIcon === SKELETON;
+  let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
+  if (showSkeleton) {
+    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows} />;
+  }
 
   return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
-                    onContextMenu={onContextMenu}>
+                    onContextMenu={onContextMenu} loading={loading}>
     <DataTable
       selection={selectedValues}
       selectionMode={multiselect ? null : "single"}
@@ -171,18 +180,18 @@ function AweGrid(props) {
       contextMenuSelection={selectedValues}
       onContextMenuSelectionChange={onSelect}
       id={address?.component}
-      value={values} className={classes}
+      value={showSkeleton ? [] : values} className={classes}
       headerColumnGroup={headerTemplate()}
       footerColumnGroup={footerTemplate()}
       rowClassName={rowClassName}
       dataKey="id"
-      emptyMessage={loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />}
-      paginator lazy={!loadAll}
-      loading={loading}
+      emptyMessage={emptyMessage}
+      paginator lazy={!loadAll || showSkeleton}
+      loading={loading && !showSkeleton}
       paginatorTemplate={disablePagination ? "" : PAGINATOR_TEMPLATE}
       currentPageReportTemplate={`${t("SCREEN_TEXT_GRID_VIEW")} {first} - {last} ${t("SCREEN_TEXT_GRID_OF")} {totalRecords}`}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={onPage}
-      paginatorRight={<span>&nbsp;</span>} totalRecords={records} rowsPerPageOptions={rowsPerPageOptions}
+      paginatorRight={<span>&nbsp;</span>} totalRecords={showSkeleton ? Math.max(records, values.length) : records} rowsPerPageOptions={rowsPerPageOptions}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable scrollHeight={"flex"}
       editMode="row"
@@ -191,7 +200,7 @@ function AweGrid(props) {
       onSort={onSort}
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
-      loadingIcon={<AweLoader icon={iconLoading} rootProps={testHook(TestIds.gridLoader)} />}
+      loadingIcon={<AweLoader icon={loadingIcon} rootProps={testHook(TestIds.gridLoader)} />}
       pt={gridPassThrough({
         gridId: address?.component,
         getRowId: () => renderingRowId.current,

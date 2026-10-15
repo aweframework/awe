@@ -27,6 +27,7 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -155,9 +156,13 @@ public class MenuService extends ServiceConfig {
 
     // Apply restrictions if logged in
     if (getSession().isAuthenticated()) {
-      // Get restrictions
-      ServiceData queryOutput = queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
-      List<ScreenRestriction> screenRestrictions = DataListUtil.asBeanList(queryOutput.getDataList(), ScreenRestriction.class);
+      // Get restrictions (read once per request for the same session values they depend on)
+      String restrictionKey = Stream.of(AweConstants.SESSION_USER, AweConstants.SESSION_PROFILE, AweConstants.SESSION_RESTRICTION,
+          AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE)
+        .map(name -> String.valueOf(getSession().getParameter(String.class, name)))
+        .collect(Collectors.joining("|"));
+      List<ScreenRestriction> screenRestrictions = ScreenRestrictionRequestCache.get(restrictionKey, () ->
+        DataListUtil.asBeanList(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0").getDataList(), ScreenRestriction.class));
 
       // Apply restrictions
       new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menu);

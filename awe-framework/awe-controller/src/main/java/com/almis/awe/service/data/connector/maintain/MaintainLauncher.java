@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.maintain.Queue;
 import com.almis.awe.model.entities.maintain.Serve;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
+import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import tools.jackson.databind.node.ObjectNode;
@@ -38,7 +39,12 @@ public class MaintainLauncher extends ServiceConfig {
       log.error(exc.getMessage(), exc);
       return new ServiceData();
     }
-    return maintainLauncher.launch(maintain, connection, parameters);
+    try {
+      return maintainLauncher.launch(maintain, connection, parameters);
+    } finally {
+      // A maintain may change the screen restrictions: read them again in the rest of the request
+      ScreenRestrictionRequestCache.clear();
+    }
   }
 
   /**

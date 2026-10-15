@@ -32,6 +32,8 @@ export const DefaultSettings = {
   recordsPerPageOnCriteria: 100,
   pixelsPerCharacter: 7,
   defaultComponentSize: "md",
+  // Loading indicator of the grids that do not set icon-loading
+  gridIconLoading: "skeleton",
   reloadCurrentScreen: false,
   suggestTimeout: 200,
   // Connection
