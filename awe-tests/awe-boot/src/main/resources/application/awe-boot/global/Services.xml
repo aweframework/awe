@@ -506,4 +506,13 @@
     <java classname="com.almis.awe.service.SlowTraceService" method="traceSlowly"/>
   </service>
 
+  <!-- Maintain transaction tests -->
+  <service id="TxLaunchNestedMaintain">
+    <java classname="com.almis.awe.test.MaintainTransaction" method="launchNestedMaintain"/>
+  </service>
+
+  <service id="TxReturnError">
+    <java classname="com.almis.awe.test.MaintainTransaction" method="returnError"/>
+  </service>
+
 </services>

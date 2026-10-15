@@ -1,7 +1,9 @@
 package com.almis.awe.service;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
+import com.almis.awe.component.MaintainTransactionManagerProvider;
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.config.MaintainConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -11,6 +13,7 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.*;
 import com.almis.awe.model.entities.queries.*;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.RowType;
 import com.almis.awe.model.util.data.ListUtil;
@@ -25,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -57,9 +63,34 @@ public class MaintainService extends ServiceConfig {
     this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
   }
 
+  // Maintain transaction boundaries. Optional: without them each maintain commits its own connection
+  private MaintainConfigProperties maintainConfigProperties;
+  private MaintainTransactionManagerProvider maintainTransactionManagerProvider;
+
+  /**
+   * Set the maintain configuration properties
+   *
+   * @param maintainConfigProperties Maintain configuration properties
+   */
+  @Autowired(required = false)
+  public void setMaintainConfigProperties(MaintainConfigProperties maintainConfigProperties) {
+    this.maintainConfigProperties = maintainConfigProperties;
+  }
+
+  /**
+   * Set the provider of the transaction managers used to delimit each maintain
+   *
+   * @param maintainTransactionManagerProvider Maintain transaction manager provider (defined with the database configuration)
+   */
+  @Autowired(required = false)
+  public void setMaintainTransactionManagerProvider(MaintainTransactionManagerProvider maintainTransactionManagerProvider) {
+    this.maintainTransactionManagerProvider = maintainTransactionManagerProvider;
+  }
+
   // Constants
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
   private static final String ERROR_MESSAGE_MAINTAIN_NOT_FOUND = "ERROR_MESSAGE_MAINTAIN_NOT_FOUND";
+  private static final String ERROR_MESSAGE_DURING_MAINTAIN = "ERROR_MESSAGE_DURING_MAINTAIN";
   public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN";
 
   // Autowired services
@@ -354,6 +385,10 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error launching maintain
    */
   private ServiceData launchObservedMaintain(Target maintainTarget, ObjectNode parameters, DatabaseConnection databaseConnection, boolean keepAliveConnection) throws AWException {
+    if (isTransactional(databaseConnection, keepAliveConnection)) {
+      return launchTransactionalMaintain(maintainTarget, parameters, databaseConnection);
+    }
+
     String statementList = "";
     boolean manageConnection = !keepAliveConnection;
 
@@ -368,17 +403,105 @@ public class MaintainService extends ServiceConfig {
       }
 
       // Manage maintain queries
-      return manageMaintainQueries(maintainTarget, parameters, getMaintainQueryList(maintainTarget, new HashSet<>()), databaseConnection, manageConnection);
+      return manageMaintainQueries(maintainTarget, parameters, getMaintainQueryList(maintainTarget, new HashSet<>()), databaseConnection,
+        manageConnection, manageConnection, () -> {});
     } catch (AWException exc) {
       doRollback(databaseConnection, statementList, manageConnection);
       throw exc;
     } catch (Exception exc) {
       doRollback(databaseConnection, statementList, manageConnection);
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), exc);
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_DURING_MAINTAIN), exc);
     } finally {
       if (manageConnection && databaseConnection.hasConnection()) {
         DataSourceUtils.releaseConnection(databaseConnection.getConnection(), databaseConnection.getDataSource());
       }
+    }
+  }
+
+  /**
+   * Check if the maintain must run inside a transaction of its DataSource. Only when the transaction boundaries are
+   * enabled and the maintain owns its connection: when the caller keeps the connection alive or supplies an already
+   * opened one, the caller manages it as before.
+   *
+   * @param databaseConnection  Database connection
+   * @param keepAliveConnection Keep alive connection (for treatments)
+   * @return Maintain must be transactional
+   */
+  private boolean isTransactional(DatabaseConnection databaseConnection, boolean keepAliveConnection) {
+    return !keepAliveConnection
+      && maintainTransactionManagerProvider != null
+      && maintainConfigProperties != null && maintainConfigProperties.getTransaction().isEnabled()
+      && databaseConnection != null && databaseConnection.getDataSource() != null
+      && !databaseConnection.hasConnection();
+  }
+
+  /**
+   * Launches a maintain inside a transaction of its DataSource (joining the current one if it exists).
+   * Any exception or ERROR result rolls the transaction back.
+   *
+   * @param maintainTarget     Maintain target
+   * @param parameters         Parameters
+   * @param databaseConnection Database connection (without connection yet)
+   * @return Service output
+   * @throws AWException Error launching maintain
+   */
+  private ServiceData launchTransactionalMaintain(Target maintainTarget, ObjectNode parameters, DatabaseConnection databaseConnection) throws AWException {
+    TransactionTemplate transactionTemplate = new TransactionTemplate(maintainTransactionManagerProvider.getTransactionManager(databaseConnection.getDataSource()));
+    transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+    try {
+      return transactionTemplate.execute(status -> launchMaintainInTransaction(maintainTarget, parameters, databaseConnection, status));
+    } catch (MaintainFailure failure) {
+      throw failure.getFailure();
+    } catch (RuntimeException exc) {
+      // Transaction failures: begin, commit or a nested maintain that marked the transaction as rollback-only
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_DURING_MAINTAIN), exc);
+    } finally {
+      // The connection has been returned by the transaction manager: do not keep it
+      databaseConnection.setConnection(null);
+    }
+  }
+
+  /**
+   * Launches the maintain queries on the transaction-bound connection
+   *
+   * @param maintainTarget     Maintain target
+   * @param parameters         Parameters
+   * @param databaseConnection Database connection
+   * @param status             Transaction status
+   * @return Service output
+   */
+  private ServiceData launchMaintainInTransaction(Target maintainTarget, ObjectNode parameters, DatabaseConnection databaseConnection, TransactionStatus status) {
+    DataSource dataSource = databaseConnection.getDataSource();
+    Connection connection = DataSourceUtils.getConnection(dataSource);
+    databaseConnection.setConnection(connection);
+    MDC.put(AweConstants.SESSION_DATABASE, databaseConnection.getDatabaseAlias());
+
+    try {
+      // The transaction manager commits at the end; <commit/> still commits in the middle
+      return manageMaintainQueries(maintainTarget, parameters, getMaintainQueryList(maintainTarget, new HashSet<>()), databaseConnection,
+        true, false, status::setRollbackOnly);
+    } catch (AWException exc) {
+      throw new MaintainFailure(exc);
+    } catch (Exception exc) {
+      throw new MaintainFailure(new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_DURING_MAINTAIN), exc));
+    } finally {
+      DataSourceUtils.releaseConnection(connection, dataSource);
+    }
+  }
+
+  /**
+   * Carries a maintain failure out of the transaction callback, so the transaction is rolled back
+   */
+  private static final class MaintainFailure extends RuntimeException {
+    private final AWException failure;
+
+    MaintainFailure(AWException failure) {
+      super(failure.getMessage(), failure, false, false);
+      this.failure = failure;
+    }
+
+    AWException getFailure() {
+      return failure;
     }
   }
 
@@ -426,7 +549,7 @@ public class MaintainService extends ServiceConfig {
     } catch (AWException exc) {
       throw exc;
     } catch (Exception exc) {
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), exc);
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_DURING_MAINTAIN), exc);
     } finally {
       // Release connection
       if (databaseConnection != null && databaseConnection.hasConnection()) {
@@ -473,12 +596,15 @@ public class MaintainService extends ServiceConfig {
    * @param maintainTarget     Target
    * @param queryList          Query list
    * @param databaseConnection Database connection
-   * @param manageConnection   Manage connection
+   * @param commitStep         Commit the connection on {@code <commit/>} steps
+   * @param commitAtEnd        Commit the connection after the last step
+   * @param onErrorResult      Called when a step returns an ERROR result
    * @return Service data
    * @throws AWException  Error in maintain query
    * @throws SQLException Error with database execution
    */
-  private ServiceData manageMaintainQueries(Target maintainTarget, ObjectNode parameters, List<MaintainQuery> queryList, DatabaseConnection databaseConnection, boolean manageConnection) throws AWException, SQLException {
+  private ServiceData manageMaintainQueries(Target maintainTarget, ObjectNode parameters, List<MaintainQuery> queryList, DatabaseConnection databaseConnection,
+                                            boolean commitStep, boolean commitAtEnd, Runnable onErrorResult) throws AWException, SQLException {
     ServiceData result = new ServiceData();
     List<MaintainResultDetails> resultDetails = new ArrayList<>();
     StringBuilder messageBuilder = new StringBuilder();
@@ -488,7 +614,7 @@ public class MaintainService extends ServiceConfig {
       maintainQuery.setOperationId(maintainTarget.getName() + "-" + operationNumber++);
       if (maintainQuery instanceof Commit) {
         // If is a commit, launch it
-        if (manageConnection) {
+        if (commitStep) {
           databaseConnection.getConnection().commit();
         }
       } else if (maintainQuery instanceof RetrieveData) {
@@ -507,12 +633,16 @@ public class MaintainService extends ServiceConfig {
         }
       }
 
+      if (result.getType() == AnswerType.ERROR) {
+        onErrorResult.run();
+      }
+
       // Generate result message
       generateResultMessage(messageBuilder, result.getMessage(), maintainQuery.getLabel());
     }
 
     // Commit transaction if connection is not null
-    if (manageConnection) {
+    if (commitAtEnd) {
       databaseConnection.getConnection().commit();
     }
 

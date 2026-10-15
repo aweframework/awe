@@ -797,6 +797,12 @@
       "defaultValue": "strict"
     },
     {
+      "name": "awe.maintain.transaction.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Run each maintain inside a transaction of its DataSource. Nested maintains and retrieve-data steps on the same DataSource join it, and any failure or ERROR result rolls the whole maintain back. Disable it to keep the previous behavior: each maintain commits its own connection independently. Default value true",
+      "defaultValue": true
+    },
+    {
       "name": "awe.notifier.from-email",
       "type": "java.lang.String",
       "description": "Notification email: From field email value"
@@ -1797,7 +1803,7 @@
     },
     {
       "name": "spring.datasource.hikari.properties",
-      "type": "org.springframework.boot.autoconfigure.jdbc.DataSourceProperties",
+      "type": "org.springframework.boot.jdbc.autoconfigure.DataSourceProperties",
       "description": "Internal runtime state: datasource properties of the connection being built. It is exposed by the binder but is not a setting; configure spring.datasource.* instead."
     }
   ]

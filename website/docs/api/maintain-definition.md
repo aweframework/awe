@@ -654,7 +654,7 @@ Audits are managed automatically with AWE, but the audit tables must be created 
 
 ### **Commit**
 
-The tag `<commit/>` is used into maintain targets to force the **data stored** in the database. Usually, used between different maintenance operations to ensure that the data are correct before proceeding to the next step.
+The tag `<commit/>` is used into maintain targets to force the **data stored** in the database. Usually, used between different maintenance operations to ensure that the data are correct before proceeding to the next step. See [Transactions](#transactions) for how it works with the maintain transaction.
 
 #### **Commit example**
 
@@ -697,6 +697,90 @@ The tag `<commit/>` is used into maintain targets to force the **data stored** i
   <serve service="RelDbsCon"/>
 </target>
 ```
+
+## Transactions
+
+Each maintain runs inside one database transaction of its datasource. When the maintain ends without error the
+transaction is committed; when a statement fails, or a step returns an `ERROR` result, the whole maintain is rolled
+back. This is controlled by `awe.maintain.transaction.enabled` (`true` by default, new in AWE 5).
+
+```properties
+# Default. Set to false to get the AWE 4 behavior described below
+awe.maintain.transaction.enabled=true
+```
+
+### What the transaction covers
+
+The transaction belongs to the datasource of the maintain: the default datasource, or the one selected with the
+database parameter when `awe.database.multidatabase-enable=true`. Everything that runs on that datasource while the
+maintain runs joins it (Spring `PROPAGATION_REQUIRED`):
+
+| Step of the maintain | With the transaction (default) |
+|---|---|
+| `insert`, `update`, `delete`, `multiple`, audits (`HIS*` tables), `include-target` | Same transaction. A failure rolls back every previous statement of the maintain. |
+| `retrieve-data` | Joins the transaction, so it **sees the rows written before it** by the same maintain. |
+| `serve` with a Java service that launches another maintain on the same datasource | The nested maintain **joins the outer one**: it is committed or rolled back with it. |
+| A step that returns a `ServiceData` of type `ERROR` without throwing | The maintain is rolled back and the error response is returned as it is. |
+| `<commit/>` | Commits the transaction **in the middle** of the maintain, as before: the work before it stays even if a later step fails. |
+| A maintain launched inside a Spring `@Transactional` method (or a `TransactionTemplate`) of the application on the same datasource | **Joins the application transaction**: it is committed or rolled back with it. |
+| A maintain on a different datasource | Runs in its own transaction of that datasource. |
+| `queue` (JMS) and `email` steps | Not transactional: a message or an email that was sent is not undone by a rollback. |
+| REST and microservice calls (`serve` with a REST or microservice service) | Not transactional: the remote side is not rolled back. |
+
+Points to keep in mind:
+
+- **A swallowed failure still rolls back.** If a Java service catches the exception of a nested maintain, or ignores
+  its `ERROR` result, and returns `OK`, the outer maintain fails at commit time with the generic maintain error and
+  everything is rolled back. Let the error propagate instead of hiding it.
+- **Inside an application transaction, a failing maintain only marks it for rollback.** Its rows are undone when the
+  application transaction ends, not before: until then the same transaction still sees them, and committing it fails
+  with Spring's `UnexpectedRollbackException`.
+- **`<commit/>` in a nested maintain commits the outer work too**, because both share the same connection.
+- Java code that calls the `launchMaintain` or `launchPrivateMaintain` overloads that take a maintain id and a
+  `DatabaseConnection` owns that connection: AWE does not open a transaction for it and keeps the AWE 4 behavior
+  (commit and release at the end, or nothing with `keepAliveConnection=true`). The `launchMaintain(Target, ...)`
+  overload opens the transaction when the `DatabaseConnection` has not acquired its connection yet.
+- **Joining needs the same `DataSource` object.** With `awe.database.multidatabase-enable=true`, a maintain without the
+  database parameter uses the routing datasource, and one with an explicit alias uses the pool of that alias. They do
+  not join each other even when both point to the same physical database.
+- **JMS listeners.** AWE's JMS listener container uses the Spring Boot transaction manager, so a maintain launched
+  from a queue listener joins the listener transaction (in AWE 4 it committed on its own).
+- **Broadcasts before the commit.** A notification broadcast (notifier) sent from a step of a long maintain can reach
+  the client before the maintain commits, so the client may not see the row yet.
+
+### Disabling it (AWE 4 behavior)
+
+With `awe.maintain.transaction.enabled=false` the maintains behave as in AWE 4:
+
+- Each maintain disables the auto-commit of its own connection, commits at the end and rolls back its own statements
+  on an exception.
+- `retrieve-data` and nested maintains launched from Java services use **other connections**: a nested maintain
+  commits on its own, so it stays committed when the outer maintain fails afterwards, and `retrieve-data` does not see
+  the uncommitted rows of the maintain.
+- A step that returns an `ERROR` result without an exception does not roll back: the maintain is committed.
+- A maintain launched inside an application transaction commits on its own connection.
+
+Disable it only if an application depends on these partial commits, for example a Java service that must keep the
+rows of a nested maintain even when the outer maintain fails. In that case, prefer moving that nested work to its own
+maintain launched after the outer one.
+
+### Connection lifecycle by connector
+
+Audit of how each connector gets and releases its connection (issue #781):
+
+| Connector | Connection | Commit and rollback |
+|---|---|---|
+| `SQLMaintainConnector` / `SQLMaintainBuilder` (`insert`, `update`, `delete`, `multiple`, audits, batches) | The connection of the maintain, passed by `MaintainService`. | None of its own: `MaintainService` (or the transaction) owns them. Errors propagate as `AWEQueryException`. |
+| `SQLQueryConnector` (`retrieve-data`, queries) | `DataSourceUtils.getConnection` on the datasource, released after the query. | None. Joins the maintain transaction when there is one; otherwise it is a separate connection. |
+| `ServiceMaintainConnector` → `JavaConnector`, `RestConnector`, `MicroserviceConnector` | No connection is passed to the service. Maintains launched by a Java service get the connection of the active transaction of their datasource, or a new one. | Java services: as the maintains they launch. REST and microservice: remote, not transactional. A Java service that returns `ERROR` without an exception rolls back only with the transaction enabled. |
+| `QueueMaintainConnector` / `QueueBuilder` | No JDBC connection (`JmsTemplate`). | Messages are sent at once; a rollback does not undo them. |
+| `EmailMaintainConnector` / `EmailService` | Its queries use `QueryService` (see `SQLQueryConnector`). | Emails are sent at once; a rollback does not undo them. |
+| `MaintainService.getNextSequenceValue` | The connection it receives (or a new one), always released at the end. | None. |
+
+Other findings of the audit: `DatabaseConnection.getConnection()` returns `null` when the datasource cannot give a
+connection (with the transaction enabled the maintain fails when the transaction begins instead); the auto-commit
+flag is not restored before releasing the connection in the AWE 4 path (Hikari restores it when the connection
+returns to the pool); and a rollback that fails hides the original error in both paths.
 
 ## Service maintain
 

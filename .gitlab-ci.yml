@@ -40,14 +40,14 @@ default:
 # A runner takes a job only if it has every tag the job asks for, and untagged jobs only if it runs untagged jobs.
 # - light: the merge request checks, Lint frontend, Spanish docs lint, secret detection, the release API jobs.
 # - medium: Spotless, Frontend UT (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate.
-# - shared-cache, because they fill or read what other jobs find in the shared cache: Build project (large; it fills the
-#   Maven cache with the SNAPSHOT jars), Javadoc test (medium) and Launch Sonar (large, for its memory) read those jars, and
-#   the Playwright browser downloads (light) fill the browser cache of the Playwright jobs.
+# - large and shared-cache are not requested by any job: Build project and Launch Sonar run untagged, Javadoc test on
+#   medium and the Playwright browser downloads on light, so any online runner can take them. Javadoc test and Launch
+#   Sonar read the SNAPSHOT jars that Build project leaves in the Maven cache; on a runner outside the shared S3 cache
+#   that cache may be empty.
 # - untagged: Maven builds other than Build project, database, Selenium, Playwright and package jobs, the website build and
 #   the React Jest suite (it times out on the slow medium runner). They do not need the shared cache: they build what they
 #   need or get the jars as Build project artifacts, and the Playwright jobs download their browser when the cache does not
 #   have it. Runners outside the shared cache can take all of these.
-# Build project and Launch Sonar need a runner with both large and shared-cache; if none is online the pipeline waits.
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
 
@@ -497,7 +497,6 @@ Renovate:
 
 Build project:
   extends: .build
-  tags: [ large, shared-cache ]   # it fills the Maven cache that Javadoc test and Launch Sonar read
   script:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
     # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it).
@@ -654,7 +653,7 @@ Build website with i18n:
 
 .playwright-browser-cache:
   extends: .playwright-install
-  tags: [ light, shared-cache ]
+  tags: [ light ]
   stage: build
   needs: [ ]
   timeout: 10m
@@ -868,7 +867,7 @@ Frontend UT React:
 # report. The aggregate keeps checking the overview and the links between modules.
 Javadoc test:
   stage: test
-  tags: [ medium, shared-cache ]
+  tags: [ medium ]
   timeout: 20m
   needs:
     - job: Build project
@@ -1429,7 +1428,6 @@ Dependency scanning:
 ##############################
 
 Launch Sonar:
-  tags: [ large, shared-cache ]
   image: registry.gitlab.com/aweframework/docker-tools/sonar:latest@sha256:8fb0e07eaf7c9f935c461599bcde7ac7714ac8a9cc3def02ee97195094316c0c
   stage: analysis
   timeout: 20m

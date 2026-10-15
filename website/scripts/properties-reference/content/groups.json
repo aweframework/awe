@@ -27,7 +27,7 @@
       "id": "awe-maintain-properties",
       "title": "AWE Maintain Properties",
       "prefix": "awe.maintain",
-      "intro": "These are the maintain configuration properties for AWE projects. They have the prefix `awe.maintain`. The multiple-maintain validation mode applies only to SQL-backed multiple maintain targets; service-delegated (`serve`), queue and email maintains are not affected."
+      "intro": "These are the maintain configuration properties for AWE projects. They have the prefix `awe.maintain`. The multiple-maintain validation mode applies only to SQL-backed multiple maintain targets; service-delegated (`serve`), queue and email maintains are not affected. The transaction boundary of each maintain is described in [Transactions](api/maintain-definition.md#transactions)."
     },
     {
       "id": "awe-security-properties",

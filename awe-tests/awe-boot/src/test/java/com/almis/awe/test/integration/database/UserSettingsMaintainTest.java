@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
@@ -104,7 +105,7 @@ class UserSettingsMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   private int countUserSettingsRows(String user) throws Exception {
-    try (Connection connection = dataSource.getConnection();
+    try (Connection connection = new TransactionAwareDataSourceProxy(dataSource).getConnection();
          PreparedStatement statement = connection.prepareStatement(
            "SELECT COUNT(*) FROM AweUserSettings WHERE Ope = ?")) {
       statement.setString(1, user);
@@ -116,7 +117,7 @@ class UserSettingsMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   private String getAvatarImage(String user) throws Exception {
-    try (Connection connection = dataSource.getConnection();
+    try (Connection connection = new TransactionAwareDataSourceProxy(dataSource).getConnection();
          PreparedStatement statement = connection.prepareStatement(
            "SELECT AvatarImage FROM AweUserSettings WHERE Ope = ?")) {
       statement.setString(1, user);
@@ -128,7 +129,7 @@ class UserSettingsMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   private void deleteUserSettingsRow(String user) throws Exception {
-    try (Connection connection = dataSource.getConnection();
+    try (Connection connection = new TransactionAwareDataSourceProxy(dataSource).getConnection();
          PreparedStatement statement = connection.prepareStatement(
            "DELETE FROM AweUserSettings WHERE Ope = ?")) {
       statement.setString(1, user);
