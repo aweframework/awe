@@ -159,6 +159,7 @@ insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord)
 values (74, 28, 3, null);
 
 -- Insert HISAweDbs
+TRUNCATE TABLE HISAweDbs;
 INSERT INTO HISAweDbs
 VALUES ('test', '20081012 00:00:00', 'I', NULL, 'Theme test', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1);
 INSERT INTO HISAweDbs
