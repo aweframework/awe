@@ -321,6 +321,9 @@ replacement. Methods that use `java.sql` types (`web2SqlDate`, `sqlDat2WebDate`.
 deprecated methods return a `java.sql.Timestamp` or `java.sql.Time` declared as `Date` (`web2Timestamp`, `web2Time`,
 `sql2JavaDate`, `jsonDate`, `getDateWithTimeFromCriteria`, `addTimeToDate`); they still do.
 
+One behavior is fixed: the elapsed time (`DateUtil.elapsedTime`, `dateSince` and the `ELAPSED_TIME` and `DATE_SINCE` transforms)
+now counts hours on a 24-hour clock. AWE 4 showed 13 hours as "1 hour" and 12 hours in milliseconds.
+
 ### Jackson 3 public API
 
 The public and protected members of the AWE 5 framework modules whose signature uses a Jackson 3 type

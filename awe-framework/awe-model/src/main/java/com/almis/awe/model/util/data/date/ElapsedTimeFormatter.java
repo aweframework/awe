@@ -7,7 +7,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 
 /**
  * Describes an elapsed time in the largest relevant unit ("3 days", "2 months"), using the AWE locales
@@ -34,7 +33,7 @@ public final class ElapsedTimeFormatter {
     int years = fields.getYear() - 1970;
     int months = fields.getMonthValue() - 1;
     int days = fields.getDayOfMonth() - 1;
-    int hours = fields.get(ChronoField.HOUR_OF_AMPM);
+    int hours = fields.getHour();
 
     if (years > 1) {
       return locale(elements, "YEARS", years);

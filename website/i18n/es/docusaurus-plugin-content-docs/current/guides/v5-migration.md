@@ -336,6 +336,10 @@ JDBC. Algunos métodos deprecados devuelven un `java.sql.Timestamp` o `java.sql.
 (`web2Timestamp`, `web2Time`, `sql2JavaDate`, `jsonDate`, `getDateWithTimeFromCriteria`, `addTimeToDate`); lo siguen
 haciendo.
 
+Se corrige un comportamiento: el tiempo transcurrido (`DateUtil.elapsedTime`, `dateSince` y las transformaciones
+`ELAPSED_TIME` y `DATE_SINCE`) cuenta ahora las horas en formato de 24 horas. AWE 4 mostraba 13 horas como "1 hora" y 12 horas
+en milisegundos.
+
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
 Los miembros públicos y protegidos de los módulos del framework de AWE 5 cuya firma usa un tipo de Jackson 3

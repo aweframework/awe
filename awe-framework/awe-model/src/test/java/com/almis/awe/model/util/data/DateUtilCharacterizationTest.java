@@ -370,9 +370,11 @@ class DateUtilCharacterizationTest {
   }
 
   @Test
-  void elapsedTimeReadsHoursOnATwelveHourClock() {
-    assertThat(elapsed(Duration.ofHours(13))).isEqualTo("HOURS[1]");
-    assertThat(elapsed(Duration.ofHours(12))).isEqualTo("MILLISECONDS[43200000]");
+  void elapsedTimeReadsHoursOnATwentyFourHourClock() {
+    assertThat(elapsed(Duration.ofHours(12))).isEqualTo("HOURS[12]");
+    assertThat(elapsed(Duration.ofHours(13))).isEqualTo("HOURS[13]");
+    assertThat(elapsed(Duration.ofHours(23).plusMinutes(59))).isEqualTo("HOURS[23]");
+    assertThat(elapsed(Duration.ofHours(24))).isEqualTo("DAYS[1]");
   }
 
   @Test
