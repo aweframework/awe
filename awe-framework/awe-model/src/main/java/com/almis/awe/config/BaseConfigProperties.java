@@ -514,6 +514,12 @@ public class BaseConfigProperties {
      */
     private int gridPixelsPerCharacter = 8;
     /**
+     * Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns)
+     * or any other icon-loading value (spinner, dots...)
+     * Default value skeleton
+     */
+    private String gridIconLoading = "skeleton";
+    /**
      * Rows per page in criteria component (Set to 0 to avoid pagination)
      * Default value 100
      */

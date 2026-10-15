@@ -1,4 +1,4 @@
-<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="grid" class="grid expandible-vertical table-light {{::component.gridStyle}}" ui-dependency="dependencies" ng-cloak>
+<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="grid" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
@@ -58,5 +58,6 @@
       </div>
     </div>
   </div>
-  <awe-loader class="loader grid-loader" data-testid="grid-loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader grid-loader" data-testid="grid-loader" ng-if="controller.loading && iconLoader !== 'skeleton'" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-grid-skeleton class="grid-skeleton" data-testid="grid-loader" ng-if="controller.loading && iconLoader === 'skeleton'" ng-cloak></awe-grid-skeleton>
 </div>

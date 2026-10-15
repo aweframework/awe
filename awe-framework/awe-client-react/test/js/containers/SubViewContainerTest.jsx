@@ -49,8 +49,8 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
       }));
     renderSubViewContainer();
 
-    // fails
-    expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
+    // The screen skeleton is shown while the screen loads
+    expect(document.querySelector("[data-testid='loading-spinner'] .p-skeleton")).not.toBeNull();
   });
 
   it('renders a SubView container unauthorized', () => {
@@ -68,8 +68,8 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
 
     renderSubViewContainer();
 
-    // fails
-    expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
+    // The screen skeleton is shown while the screen loads
+    expect(document.querySelector("[data-testid='loading-spinner'] .p-skeleton")).not.toBeNull();
   });
 
   it('renders a SubView container with structure', () => {
@@ -93,7 +93,7 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
 
     renderSubViewContainer();
 
-    // fails
-    expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
+    // The screen skeleton is shown while the screen loads
+    expect(document.querySelector("[data-testid='loading-spinner'] .p-skeleton")).not.toBeNull();
   });
 });

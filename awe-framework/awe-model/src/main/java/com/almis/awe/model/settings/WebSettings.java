@@ -29,6 +29,7 @@ public class WebSettings {
   private Integer recordsPerPage;
   private Integer recordsPerPageOnCriteria;
   private Integer pixelsPerCharacter;
+  private String gridIconLoading;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
   private Boolean menuSearchEnabled;

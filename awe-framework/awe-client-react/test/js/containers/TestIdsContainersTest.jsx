@@ -107,12 +107,12 @@ describe("awe-react-client/test/js/containers/TestIdsContainersTest.jsx", () => 
     it.each([
       ["ViewContainer", ViewContainer],
       ["SubViewContainer", SubViewContainer]
-    ])("exposes the spinner while %s is loading", (_name, Container) => {
+    ])("exposes the screen skeleton while %s is loading", (_name, Container) => {
       const { container } = renderInRouter(Container);
 
-      const spinner = container.querySelector(hook("loading-spinner"));
-      expect(spinner).not.toBeNull();
-      expect(spinner.classList.contains("p-progress-spinner")).toBe(true);
+      const skeleton = container.querySelector(hook("loading-spinner"));
+      expect(skeleton).not.toBeNull();
+      expect(skeleton.classList.contains("screen-skeleton")).toBe(true);
     });
   });
 });

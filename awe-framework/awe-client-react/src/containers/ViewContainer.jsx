@@ -9,8 +9,7 @@ import {useTranslation} from 'react-i18next';
 import {useLocation, useParams} from "react-router";
 import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
-import {ProgressSpinner} from "primereact/progressspinner";
-import {TestIds, testHook} from "../utilities/testIds";
+import AweScreenSkeleton from "../components/AweScreenSkeleton";
 import {translateLabel} from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -72,8 +71,7 @@ function ViewContainer() {
     dispatch(loadScreen(VIEW, screenId, t));
   }, [dispatch, screenId, screenReloadToken]);
 
-  return view.loading ?
-    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center" pt={{root: testHook(TestIds.loadingSpinner)}}/></div>: (
+  return view.loading ? <AweScreenSkeleton /> : (
     <ErrorBoundary scope="view" resetKey={`${screenId}-${screenReloadToken}`}>
       <div className={"expand expandible-vertical"}>
         <Helmet>

@@ -25,6 +25,17 @@
   --awe-color-info: var(--info-color);
   --awe-font-family-base: var(--font-family);
   --awe-radius: var(--border-radius);
+  /* Loading skeletons, as in the AngularJS client: the placeholder takes the grid border color (row separator of the
+     PrimeReact grids) and its shimmer the grid header color */
+  --awe-color-skeleton: var(--surface-c, #dbdbdb);
+  --awe-color-skeleton-highlight: var(--surface-b, #ebebeb);
+}
+
+/* The loading skeletons stay still when the user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .p-skeleton::after {
+    animation: none;
+  }
 }
 
 html {

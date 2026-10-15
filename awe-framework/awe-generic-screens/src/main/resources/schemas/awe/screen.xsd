@@ -857,9 +857,9 @@
         <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of an expanded node. Default: minus-square. AngularJS only.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="icon-loading" type="loadingIconEnum" default="spinner">
+    <xs:attribute name="icon-loading" type="loadingIconEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. Default: spinner. AngularJS only; React always shows its own spinner.</xs:documentation>
+        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. skeleton shows placeholder rows with the grid columns. Default: the awe.application.component.grid-icon-loading property (skeleton). Set another value (spinner...) to disable the skeleton on this grid.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="initial-level" type="xs:integer">
@@ -2268,6 +2268,7 @@
       <xs:enumeration value="icon" />
       <xs:enumeration value="custom" />
       <xs:enumeration value="none" />
+      <xs:enumeration value="skeleton" />
     </xs:restriction>
   </xs:simpleType>
 

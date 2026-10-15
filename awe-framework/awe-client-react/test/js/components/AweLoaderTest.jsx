@@ -20,10 +20,10 @@ describe("awe-react-client/test/js/components/AweLoaderTest.jsx", () => {
     custom: "custom-loader"
   };
 
-  it("offers the same 12 loading icons as the AngularJS engine", () => {
+  it("offers the same 13 loading icons as the AngularJS engine", () => {
     expect([...LOADER_ICONS].sort()).toEqual([
-      "carpet", "circlebar", "circles", "cubes", "custom", "dots", "folding", "icon", "none", "spinner",
-      "square", "squarebar"
+      "carpet", "circlebar", "circles", "cubes", "custom", "dots", "folding", "icon", "none", "skeleton",
+      "spinner", "square", "squarebar"
     ]);
   });
 

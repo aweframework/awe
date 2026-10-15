@@ -111,6 +111,8 @@ Los nombres de los tokens son un contrato: no cambian entre versiones de la lín
 | `--awe-color-panel-text` | Texto sobre la cabecera del panel | `--panel-text-color` | `@panel-text-color` |
 | `--awe-color-grid-header` | Cabecera de la grid | `--grid-header-color` | `@grid-header-color` |
 | `--awe-color-grid-border` | Bordes de la grid | `--grid-border-color` | `@grid-border-color` |
+| `--awe-color-skeleton` | Relleno de los esqueletos de carga (derivado del borde de la grid) | | |
+| `--awe-color-skeleton-highlight` | Brillo animado de los esqueletos de carga | | |
 | `--awe-color-disabled` | Fondo de un control deshabilitado | `--disabled-color` | `@disabled-color` |
 | `--awe-color-disabled-border` | Borde de un control deshabilitado | `--disabled-border-color` | `@disabled-border-color` |
 | `--awe-color-disabled-text` | Texto de un control deshabilitado | `--disabled-text-color` | `@disabled-text-color` |
@@ -203,6 +205,7 @@ nombres, declara en `awe-client-react/src/main.css` los tokens que tienen un equ
 | `--awe-color-background` | `--surface-ground` |
 | `--awe-color-surface`, `--awe-color-panel` | `--surface-card` |
 | `--awe-color-border` | `--surface-border` |
+| `--awe-color-skeleton`, `--awe-color-skeleton-highlight` | Fondo y brillo de `.p-skeleton` (temas sky y sunset) |
 | `--awe-color-danger`, `--awe-color-warning`, `--awe-color-success`, `--awe-color-info` | `--danger-color`, `--warning-color`, `--success-color`, `--info-color` |
 | `--awe-font-family-base` | `--font-family` |
 | `--awe-radius` | `--border-radius` |

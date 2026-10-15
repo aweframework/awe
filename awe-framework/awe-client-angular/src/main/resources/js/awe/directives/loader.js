@@ -14,6 +14,9 @@ aweApplication.directive('aweLoader',
     function (ServerData, $compile, $templateCache, Utilities) {
       // Action Controller methods
       let TEMPLATE_LOADING = "--LOADING--";
+      // The skeleton is drawn by the client: a block placeholder over the component that is loading
+      const SKELETON = "skeleton";
+      const SKELETON_TEMPLATE = `<div class="skeleton-block"><span class="skeleton-bar"></span></div>`;
       return {
         restrict: 'E',
         link: function (scope, elem, attrs) {
@@ -54,6 +57,13 @@ aweApplication.directive('aweLoader',
            * @param {String} iconLoader
            */
           function initLoader(iconLoader) {
+            if (iconLoader === SKELETON) {
+              elem.addClass("skeleton-loader");
+              compileTemplate(SKELETON_TEMPLATE);
+              initWatch();
+              return;
+            }
+
             // Add action
             let templateName = "loader/" + (iconLoader || "spinner");
 

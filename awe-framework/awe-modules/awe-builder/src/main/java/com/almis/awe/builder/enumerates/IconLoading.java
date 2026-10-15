@@ -13,6 +13,7 @@ public enum IconLoading {
   FOLDING("folding"),
   ICON("icon"),
   NONE("none"),
+  SKELETON("skeleton"),
   SPINNER("spinner"),
   SQUARE("square"),
   SQUAREBAR("squarebar");

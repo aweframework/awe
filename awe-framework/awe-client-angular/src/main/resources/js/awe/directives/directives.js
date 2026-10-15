@@ -1,5 +1,6 @@
 import "./form";
 import "./loader";
+import "./screenSkeleton";
 import "./pressEnter";
 import "./rightClick";
 import "./help";

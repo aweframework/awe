@@ -60,6 +60,19 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/loader.js', 
         expect(element[0].tagName).toBe("AWE-LOADER");
     });
 
+    it('renders a block skeleton without requesting a template when the icon is skeleton', function () {
+        jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+        jest.spyOn(ServerData, "preloadAngularTemplate").mockImplementation((a, fn) => fn("TEMPLATE"));
+
+        let element = $compile("<awe-loader icon-loader='skeleton'/>")($rootScope);
+        $rootScope.$digest();
+
+        expect(ServerData.preloadAngularTemplate).not.toHaveBeenCalled();
+        expect(element.hasClass("skeleton-loader")).toBe(true);
+        expect(element.find(".skeleton-block .skeleton-bar").length).toBe(1);
+        expect(element.attr("data-testid")).toBe("loader");
+    });
+
     it('try to initialize with a loaded template', function () {
         // Spy on storage
         jest.spyOn($storage, "get").mockReturnValue({'base': {}});

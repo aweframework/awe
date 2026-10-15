@@ -1,0 +1,17 @@
+/* Placeholder rows shown in the body of a grid while its rows are loading */
+.grid-skeleton {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .grid-skeleton-row {
+    border-bottom: 1px solid var(--surface-c);
+    display: flex;
+  }
+
+  .grid-skeleton-cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.75rem 0.5rem;
+  }
+}

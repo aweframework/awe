@@ -9,7 +9,7 @@ function checkCapsLock($ctrl, event) {
 
 // Application controller
 aweApplication.controller('AppController',
-  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope',
+  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope', 'ScreenSkeleton',
     /**
      * Control the base application behaviour
      * @param {object} $scope
@@ -19,8 +19,11 @@ aweApplication.controller('AppController',
      * @param {object} $storage
      * @param {object} $utilities
      * @param {object} $settings
+     * @param {object} $actionController
+     * @param {object} $root
+     * @param {object} $screenSkeleton Screen loading skeleton
      */
-    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController, $root) {
+    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController, $root, $screenSkeleton) {
       // Define controller
       let $ctrl = this;
 
@@ -140,11 +143,14 @@ aweApplication.controller('AppController',
       };
 
       // Route change start (show loading message)
-      $scope.$on('$stateChangeStart', function (event, toState, _toParams, fromState/*, fromParams*/) {
+      $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
         // Prevent start if settings are still not defined
         if (!$storage.getRoot("cometUID")) {
           return event.preventDefault();
         }
+
+        // Show the screen skeleton over the view that is going to load
+        $screenSkeleton.show($screenSkeleton.getLoadingView(toState, toParams, fromState, fromParams));
 
         let views = _.merge({}, fromState.views, toState.views);
         _.each(views, function (_view, viewName) {
@@ -181,6 +187,7 @@ aweApplication.controller('AppController',
 
       // Route change start (hide loading message)
       $scope.$on('$stateChangeError', function (_event, toState, _toParams, _fromState, _fromParams, error) {
+        $screenSkeleton.hide();
         $ctrl.updateStatus("loading", false);
         $scope.resizing = false;
         $loadingBar.end();
@@ -190,6 +197,7 @@ aweApplication.controller('AppController',
       // Route state not found
       $scope.$on('$stateNotFound', function (_event, current/*, previous, reject*/) {
         //do you work here
+        $screenSkeleton.hide();
         $ctrl.updateStatus("loading", false);
         $loadingBar.end();
         $log.warn("State not found: " + current);
@@ -212,8 +220,12 @@ aweApplication.controller('AppController',
       $scope.$on('cfpLoadingBar:started', initLoading);
       $scope.$on('cfpLoadingBar:completed', endLoading);
 
+      // Route change cancelled (the screen does not change)
+      $scope.$on('$stateChangeCancel', () => $screenSkeleton.hide());
+
       // On loaded screen
       $scope.$on('initialised', function () {
+        $screenSkeleton.hide();
         $utilities.timeout(function () {
           $loadingBar.endTask();
         }, 100);
