@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine@sha256:3c472129dc75a8d1d7a3f2df5b2093a8077e4493deff046754d4764d0371de63
+FROM eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555
 
 # Add fonts package
 RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f
