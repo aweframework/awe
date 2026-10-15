@@ -74,6 +74,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
+| SQLBuilder (#782) | Only for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder` and call removed private methods of `SQLBuilder` by reflection. The protected methods keep their signatures and still call each other in the same order. | Nothing if you only override protected methods. Replace reflective calls to the removed private methods with the protected methods. | [SQLBuilder](#sqlbuilder) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
@@ -364,6 +365,42 @@ Notes for projects that extend `MenuService`:
   but still works: it builds its own default collaborators, which share the application context of your
   `MenuService`, so they do not see the collaborator beans you declare. Move a `MenuService` subclass to the
   constructor that takes the five collaborators. Nothing is removed before 6.0.
+
+### SQLBuilder
+
+Issue #782 moves the pure logic of `SQLBuilder` to the `com.almis.awe.service.data.builder.sql` package. Unlike
+`MenuService`, `SQLBuilder` is split without changing how its methods call each other, because projects replace the
+`SQLQueryBuilder` and `SQLMaintainBuilder` beans with their own subclasses:
+
+- Every public and protected method of `SQLBuilder` keeps its signature, and the protected methods still call each
+  other in the same order. An override of `getOperandExpression`, `getVariableAsExpression`, `getStringExpression`,
+  `buildPath` or any other protected method still applies wherever it did in AWE 4.
+- Only logic that calls no overridable method has moved: the private methods of the filters and the body of a few
+  protected methods. The protected methods are still there and delegate to the helpers.
+- The generated SQL and the classes of the bound values do not change: a `DATE` variable is still bound as
+  `java.sql.Date` and a `TIMESTAMP` variable as `java.sql.Timestamp`. Date operations (`ADD_DAYS`, `SUB_MONTHS`...)
+  and the `TRUNCDATE` function are still typed as `java.util.Date`, which decides how the JDBC driver reads them.
+
+| Helper | Responsibility | Moved from `SQLBuilder` |
+|---|---|---|
+| `SqlFilterConditions` | The condition of a filter (`eq`, `in`, `like`, `exists`...) and the union of a filter group. | Private `applyFilterCondition`, `getFilterEq`, `getFilterIn`, `getFilterLike`, `getFilterExists`, `getBooleanExpressionResults` |
+| `SqlOperations` | The expression of an operation (`CONCAT`, `ADD`, `ADD_DAYS`, `SUBSTRING`...). | Body of protected `generateOperationExpression` |
+| `SqlFieldFunctions` | The functions and casts of a field. | Bodies of protected `getExpressionFunction` and `getExpressionCast`; the unsupported-value error stays in `SQLBuilder` |
+| `SubstringValidator` | The operand count and index types of `SUBSTRING`. | Private `validateIntegerCompatibleOperand`, `validateConstantIntegerOperand`, `validateFieldIntegerOperand`; `validateSubstringOperation` stays and throws the localized error |
+| `SqlListValues` | Which values of a list variable a filter binds, and the `LIST_TO_STRING` join. | Part of private `convertVariableListToExpression` and `getListAsStringExpression`, private `addStringToListIfValid` |
+| `SqlPaths` | The path of a single node. | Body of protected `buildPath(String)` |
+| `SqlDateValues` | The `SYSTEM_TIME` value, read from a `Clock`, and the `TIMESTAMP` value. | Inline code of `getVariableAsExpression` and `getVariableAsExpressionOrNull` |
+
+Notes for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder`:
+
+- **Keep overriding the protected methods.** The helpers are `final` classes with static methods: they are not
+  extension points. To change an operator, a function or a cast, override `generateOperationExpression`,
+  `getExpressionFunction` or `getExpressionCast` as before; a `super` call returns the same expression as in AWE 4.
+- **Review reflective calls.** The private methods listed above no longer exist in `SQLBuilder`. A subclass that
+  calls them through reflection fails with `NoSuchMethodException`; call the protected method that uses them instead
+  (`getFilterGroups` for the filters, `getOperationExpression` for `SUBSTRING`).
+- **Nothing else changes.** The constructors, the bean declarations (`@ConditionalOnMissingBean`, prototype scope)
+  and the reflective join methods of `SQLQueryBuilder` are unchanged.
 
 ### Jackson 3 public API
 

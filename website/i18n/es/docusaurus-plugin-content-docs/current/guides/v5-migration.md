@@ -74,6 +74,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
 | Utilidades de fecha (#782) | El compilador avisa de que los métodos de `DateUtil` que reciben o devuelven `java.util.Date` o `Calendar` están deprecados. | Nada obligatorio: mantienen su comportamiento y no se eliminan antes de la 6.0. Pase a los métodos `java.time` de `com.almis.awe.model.util.data.date`. | [Utilidades de fecha](#date-utilities) |
 | MenuService (#782) | Solo para proyectos que extienden `MenuService`: un método que sobrescriba ya no lo llaman los demás métodos de `MenuService` (por ejemplo, sobrescribir `getOptionByName` ya no cambia `getOptionScreen`). El compilador avisa de que el constructor de siete argumentos de `MenuService` está deprecado. | Nada si solo llama a `MenuService`. Si lo extiende, lleve la personalización a su propio bean del colaborador que contiene el método. | [MenuService](#menuservice) |
+| SQLBuilder (#782) | Solo para proyectos que extienden `SQLQueryBuilder` o `SQLMaintainBuilder` e invocan por reflexión métodos privados eliminados de `SQLBuilder`. Los métodos protegidos mantienen sus firmas y se siguen llamando entre sí en el mismo orden. | Nada si solo sobrescribe métodos protegidos. Sustituya las llamadas por reflexión a los métodos privados eliminados por los métodos protegidos. | [SQLBuilder](#sqlbuilder) |
 | Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
@@ -381,6 +382,44 @@ Notas para los proyectos que extienden `MenuService`:
   deprecado pero sigue funcionando: construye sus propios colaboradores por defecto, que comparten el contexto de
   aplicación de su `MenuService`, por lo que no ven los beans de colaborador que usted declare. Pase las subclases de
   `MenuService` al constructor que recibe los cinco colaboradores. No se elimina nada antes de la 6.0.
+
+### SQLBuilder {#sqlbuilder}
+
+La incidencia #782 traslada la lógica pura de `SQLBuilder` al paquete `com.almis.awe.service.data.builder.sql`. A
+diferencia de `MenuService`, `SQLBuilder` se divide sin cambiar cómo se llaman sus métodos entre sí, porque los
+proyectos sustituyen los beans `SQLQueryBuilder` y `SQLMaintainBuilder` por sus propias subclases:
+
+- Todos los métodos públicos y protegidos de `SQLBuilder` mantienen su firma, y los métodos protegidos se siguen
+  llamando entre sí en el mismo orden. Un override de `getOperandExpression`, `getVariableAsExpression`,
+  `getStringExpression`, `buildPath` o cualquier otro método protegido se sigue aplicando donde se aplicaba en AWE 4.
+- Solo se ha movido lógica que no llama a ningún método sobrescribible: los métodos privados de los filtros y el
+  cuerpo de algunos métodos protegidos. Los métodos protegidos siguen ahí y delegan en las clases auxiliares.
+- El SQL generado y las clases de los valores enlazados no cambian: una variable `DATE` se sigue enlazando como
+  `java.sql.Date` y una variable `TIMESTAMP` como `java.sql.Timestamp`. Las operaciones de fecha (`ADD_DAYS`,
+  `SUB_MONTHS`...) y la función `TRUNCDATE` siguen tipadas como `java.util.Date`, que determina cómo las lee el driver
+  JDBC.
+
+| Clase auxiliar | Responsabilidad | Procedencia en `SQLBuilder` |
+|---|---|---|
+| `SqlFilterConditions` | La condición de un filtro (`eq`, `in`, `like`, `exists`...) y la unión de un grupo de filtros. | Métodos privados `applyFilterCondition`, `getFilterEq`, `getFilterIn`, `getFilterLike`, `getFilterExists`, `getBooleanExpressionResults` |
+| `SqlOperations` | La expresión de una operación (`CONCAT`, `ADD`, `ADD_DAYS`, `SUBSTRING`...). | Cuerpo del método protegido `generateOperationExpression` |
+| `SqlFieldFunctions` | Las funciones y los casts de un campo. | Cuerpos de los métodos protegidos `getExpressionFunction` y `getExpressionCast`; el error de valor no soportado sigue en `SQLBuilder` |
+| `SubstringValidator` | El número de operandos y el tipo de los índices de `SUBSTRING`. | Métodos privados `validateIntegerCompatibleOperand`, `validateConstantIntegerOperand`, `validateFieldIntegerOperand`; `validateSubstringOperation` se mantiene y lanza el error localizado |
+| `SqlListValues` | Qué valores de una variable de lista enlaza un filtro, y la unión de `LIST_TO_STRING`. | Parte de los métodos privados `convertVariableListToExpression` y `getListAsStringExpression`, método privado `addStringToListIfValid` |
+| `SqlPaths` | La ruta de un único nodo. | Cuerpo del método protegido `buildPath(String)` |
+| `SqlDateValues` | El valor de `SYSTEM_TIME`, leído de un `Clock`, y el valor de `TIMESTAMP`. | Código de `getVariableAsExpression` y `getVariableAsExpressionOrNull` |
+
+Notas para los proyectos que extienden `SQLQueryBuilder` o `SQLMaintainBuilder`:
+
+- **Siga sobrescribiendo los métodos protegidos.** Las clases auxiliares son clases `final` con métodos estáticos: no
+  son puntos de extensión. Para cambiar un operador, una función o un cast, sobrescriba `generateOperationExpression`,
+  `getExpressionFunction` o `getExpressionCast` como antes; una llamada a `super` devuelve la misma expresión que en
+  AWE 4.
+- **Revise las llamadas por reflexión.** Los métodos privados de la tabla ya no existen en `SQLBuilder`. Una subclase
+  que los invoque por reflexión falla con `NoSuchMethodException`; llame en su lugar al método protegido que los usa
+  (`getFilterGroups` para los filtros, `getOperationExpression` para `SUBSTRING`).
+- **Nada más cambia.** Los constructores, la declaración de los beans (`@ConditionalOnMissingBean`, ámbito
+  prototype) y los métodos de join que `SQLQueryBuilder` invoca por reflexión no cambian.
 
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
