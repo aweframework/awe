@@ -1022,6 +1022,33 @@ class ScreenBuilderTest {
   }
 
   /**
+   * Build a screen with a deferred dialog and a deferred tab container (#824)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addDeferredDialogAndTabContainer() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addDialog(new DialogBuilder().setLabel("DIALOG_LABEL").setDeferred(true))
+        .addTab(new TabBuilder()
+          .setInitialLoad(InitialLoad.ENUMERATED)
+          .setId("tab1")
+          .addTabContainerList(new TabContainerBuilder().setLabel("LABEL").setDeferred(true))
+          .addTabContainerList(new TabContainerBuilder().setLabel("OTHER"))));
+
+    Screen screen = builder.build();
+    Dialog dialog = (Dialog) screen.getElementList().get(0).getElementList().get(0);
+    Tab tab = (Tab) screen.getElementList().get(0).getElementList().get(1);
+    assertTrue(dialog.isDeferred());
+    assertTrue(((TabContainer) tab.getElementList().get(0)).isDeferred());
+    assertFalse(((TabContainer) tab.getElementList().get(1)).isDeferred());
+  }
+
+  /**
    * Build a single screen with a widget
    *
    * @throws Exception exception

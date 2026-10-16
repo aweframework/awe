@@ -214,6 +214,17 @@ aweApplication.directive('aweForm',
           $actionController.acceptAction(action);
         },
         /**
+         * Set the initial model of a component loaded when its deferred dialog or tab was first opened
+         * @param {object} action Action received
+         */
+        initialModel: function (action) {
+          // Publish the initial model
+          Control.changeInitialModelFromAction(action.attr("callbackTarget"), _.cloneDeep(action.attr("parameters")));
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
          * Fill suggest model with action values
          * @param {object} action Action received
          */

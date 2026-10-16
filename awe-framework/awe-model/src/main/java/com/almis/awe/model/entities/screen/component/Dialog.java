@@ -45,11 +45,36 @@ public class Dialog extends Component {
   @XStreamAsAttribute
   private String onClose;
 
+  // Run the initial load of the dialog components when the dialog is opened for the first time
+  @XStreamAlias("deferred")
+  @XStreamAsAttribute
+  private Boolean deferred;
+
   @Override
   public Dialog copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();
+  }
+
+  /**
+   * Returns if the data of the dialog components is loaded when the dialog is opened for the first time
+   *
+   * @return Dialog is deferred
+   */
+  @JsonGetter("deferred")
+  public Boolean getDeferred() {
+    return deferred;
+  }
+
+  /**
+   * Returns if the data of the components is deferred (helper for the server side, not a separate JSON property)
+   *
+   * @return Deferred
+   */
+  @JsonIgnore
+  public boolean isDeferred() {
+    return Boolean.TRUE.equals(deferred);
   }
 
   /**

@@ -169,6 +169,7 @@ Actions which works over components in the screen.
 | `set-pivot-group-cols`           | Set the fields used as column groups, defined as a comma-separated list on the `cols` parameter          | `pivot`                     |
 | `clear-file`                     | Clear the uploaded file, resetting the uploader component                                                | `uploader`                  |
 | `taglist-data`                   | Load the content of a taglist with the HTML and component data received from the server                  | `taglist`                   |
+| `initial-model`                  | Set the initial model of a component (rows, selected values, defaults) loaded when its [deferred dialog](dialog.md#deferred-loading) or [tab](tab-and-tabcontainer.md#deferred-loading) was first opened, as the screen load does. It is the answer of the `deferred-data` server action | `criteria`, `grid`, `chart` |
 | `polyline`                       | Draw a polyline on a map with the points received on the `rows` parameter (`Lat` and `Lon` fields)       | `map`                       |
 
 
@@ -239,6 +240,7 @@ These actions are dispatched by the framework itself as part of the screen and c
 | `data`                    | Get data from the server. Fills the `values` list of the criterion                                                                   | `targetAction`: Query identifier                                       |
 | `value`                   | Get a value from the server. Fills the `selected` list of the criterion. *In suggests, this action also fills the `values` list*     | `targetAction`: Query identifier                                       |
 | `update-model`            | Get values for some criteria. The query field alias **must** be the criterion id to match. Fills the `selected` list of the criteria | `targetAction`: Query identifier                                       |
+| `deferred-data`           | Run the initial load of the components of a [deferred dialog](dialog.md#deferred-loading) or [tab page](tab-and-tabcontainer.md#deferred-loading) and set their initial model. The clients launch it themselves on the first opening; it is not meant to be written in a screen | `targetAction`: Dialog or tabcontainer identifier                      |
 | `subscribe`               | Subscribe to a query data retrieval. The subscription stores the component request and broadcasts  data to the component address     | `targetAction`: Query identifier                                       |
 | `maintain`                | Launch a maintain process                                                                                                            | `targetAction`: Maintain target identifier                             |
 | `maintain-silent`         | Launch a maintain process without response message                                                                                   | `targetAction`: Maintain target identifier                             |

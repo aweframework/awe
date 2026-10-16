@@ -430,6 +430,51 @@ aweApplication.factory('Control',
           }
         },
         /**
+         * Set the initial model of a component loaded after the screen (a deferred dialog or tab was opened). It does
+         * what the screen load does with the model of each component: the loaded model is also the initial one
+         * (restore-target) and the default values are the ones restore goes back to
+         * @param {Object} address Component address
+         * @param {Object} attributes Model attributes loaded (values, selected, page, total, records)
+         * @param {*} [defaultValues] Default values (restore). When they are not defined, they are not changed
+         */
+        changeInitialModel: function (address, attributes, defaultValues) {
+          let  model = Control.getAddressModel(address);
+          if (model) {
+            Control.changeModelAttribute(address, attributes, true);
+
+            // The loaded model is the initial one
+            _.each(attributes, function (attribute, attributeId) {
+              model[INITIAL + attributeId] = _.cloneDeep(model[attributeId]);
+            });
+            if (SELECTED in attributes) {
+              model[PREVIOUS] = _.cloneDeep(model[SELECTED]);
+            }
+            if (defaultValues !== undefined) {
+              model.defaultValues = Control.formatDataList(defaultValues);
+            }
+            model.loaded = true;
+          }
+        },
+        /**
+         * Set the initial model of a deferred component from the parameters of the initial-model action. Only the
+         * attributes the action brings are set, so the paging state is not wiped by the ones it leaves out
+         * @param {Object} address Component address
+         * @param {Object} parameters Action parameters: datalist, selected and defaultValues
+         */
+        changeInitialModelFromAction: function (address, parameters) {
+          let  data = parameters.datalist || {};
+          let  attributes = {values: data.rows || []};
+          _.each(["page", "total", "records"], function (attribute) {
+            if (data[attribute] !== undefined) {
+              attributes[attribute] = data[attribute];
+            }
+          });
+          if ("selected" in parameters) {
+            attributes.selected = Utilities.formatSelectedValues(parameters.selected);
+          }
+          Control.changeInitialModel(address, attributes, parameters.defaultValues);
+        },
+        /**
          * Restore model value
          * @param {Object} address Component address
          * @param {String} attribute Model attribute

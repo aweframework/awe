@@ -390,6 +390,7 @@
   <locale name="ERROR_MESSAGE_DEFAULT_SESSION_PARAMETERS" value="There has been a problem trying to generate the default session variables. Please try again."/>
   <locale name="ERROR_MESSAGE_DESTINATION_FAILED" value="There has been a problem trying to reach the queue target {0}"/>
   <locale name="ERROR_MESSAGE_DUPLICATED_IDENTIFIER" value="Found a duplicated identifier in screen. Identifier: &apos;&apos;{0}&apos;&apos;, Screen: &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND" value="The deferred container &apos;&apos;{0}&apos;&apos; has not been found in screen &apos;&apos;{1}&apos;&apos;"/>
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="There was a problem during the email generation and sending"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="There was a problem calling a maintain process"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="There was a problem doing the transaction rollback"/>

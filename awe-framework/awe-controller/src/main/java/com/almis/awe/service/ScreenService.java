@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweSession;
@@ -17,23 +18,28 @@ import com.almis.awe.model.entities.screen.Message;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.TagList;
+import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.event.ScreenChangeEvent;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
+import com.almis.awe.service.screen.DeferredComponents;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 
@@ -42,6 +48,10 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
  */
 @Slf4j
 public class ScreenService extends ServiceConfig {
+
+  // Parameters sent by the client when a deferred container is opened: components with data and with a selected value
+  private static final String DEFERRED_LOADED_PARAMETER = "deferredLoaded";
+  private static final String DEFERRED_VALUED_PARAMETER = "deferredValued";
 
   // Autowired services
   private final MenuService menuService;
@@ -89,6 +99,86 @@ public class ScreenService extends ServiceConfig {
     serviceData.addVariable(AweConstants.ACTION_SCREEN_DATA, new CellData(screenData));
 
     return serviceData;
+  }
+
+  /**
+   * Generates the data of a deferred dialog or tab page when it is opened for the first time: it runs the initial
+   * load of its components and returns their models as initial-model client actions.
+   * The container is the target action, the screen is identified by the option parameter.
+   *
+   * @return Client actions which set the initial model of the components of the container
+   * @throws AWException Container not found or error retrieving the data
+   */
+  public ServiceData getDeferredDataAction() throws AWException {
+    String containerId = getRequest().getTargetAction();
+    String optionId = getRequest().getParameterAsString(AweConstants.PARAMETER_OPTION);
+
+    // Get the screen and the deferred container
+    Menu menu = menuService.getMenu();
+    Screen screen = getScreenFromOptionId(optionId, menu);
+    Element container = DeferredComponents.findDeferredContainer(screen, containerId);
+    if (container == null) {
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND", containerId, screen.getId()));
+    }
+
+    // Components which got a value before the first opening keep it
+    Set<String> loaded = getRequestIdentifiers(DEFERRED_LOADED_PARAMETER);
+    Set<String> valued = getRequestIdentifiers(DEFERRED_VALUED_PARAMETER);
+
+    // Run the initial load of the container components
+    ScreenData data = new ScreenData();
+    Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateDeferredComponentMap(screen, container, data, menu, getScreenParameters(optionId), loaded);
+
+    // Generate the actions which apply the loaded models
+    ServiceData serviceData = new ServiceData();
+    for (ScreenComponent component : componentMap.values()) {
+      if (component.getController().getInitialLoad() != null) {
+        addDeferredModelAction(serviceData, component, valued.contains(component.getId()));
+      }
+    }
+    data.getActions().forEach(serviceData::addClientAction);
+    return serviceData;
+  }
+
+  /**
+   * Retrieve a list of component identifiers sent in a request parameter
+   *
+   * @param parameter Parameter name
+   * @return Identifiers
+   */
+  private Set<String> getRequestIdentifiers(String parameter) {
+    Set<String> identifiers = new HashSet<>();
+    JsonNode node = getRequest().getParameter(parameter);
+    if (node != null && node.isArray()) {
+      node.forEach(item -> identifiers.add(item.asText()));
+    }
+    return identifiers;
+  }
+
+  /**
+   * Add the client action which applies the loaded model of a component, as the screen load would have done
+   *
+   * @param serviceData Service data
+   * @param component   Loaded component
+   * @param keepValue   The component already has a selected value, which must not be replaced
+   */
+  private void addDeferredModelAction(ServiceData serviceData, ScreenComponent component, boolean keepValue) {
+    ComponentModel model = component.getModel();
+    DataList dataList = new DataList();
+    dataList.setRows(model.getValues());
+    dataList.setPage(model.getPage());
+    dataList.setTotal(model.getTotal());
+    dataList.setRecords(model.getRecords());
+
+    ClientAction action = new ClientAction("initial-model")
+      .setTarget(component.getId())
+      .addParameter("datalist", dataList)
+      .setAsync(Boolean.TRUE);
+    if (!keepValue) {
+      action.addParameter("selected", new CellData(model.getSelected()))
+        .addParameter("defaultValues", new CellData(model.getDefaultValues()));
+    }
+    serviceData.addClientAction(action);
   }
 
   /**

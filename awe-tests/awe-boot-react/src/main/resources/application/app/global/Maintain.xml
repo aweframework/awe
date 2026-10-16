@@ -844,4 +844,9 @@
     </serve>
   </target>
 
+  <!-- Deferred load test (#824): forget the calls when the screen loads -->
+  <target name="DeferredLoadReset">
+    <serve service="deferredLoadReset"/>
+  </target>
+
 </maintain>

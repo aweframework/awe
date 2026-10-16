@@ -10,6 +10,7 @@ import {
 import { getModelValidation } from "../selectors/modelValidation";
 import { getAllComponents } from "../selectors/componentSelectors";
 import { updateModelWithDependencies } from "./components";
+import { isInPendingDeferredContainer } from "./deferred";
 import ViewRegistry from "../registry/ViewRegistry";
 import { findFirstInvalid, focusComponent, getRevealSelections, getStructureOrder } from "../../utilities/reveal";
 
@@ -68,7 +69,7 @@ export function validateAction(action) {
           component.context,
           address.view,
           getActionSource(action, components)
-        )
+        ) && !isInPendingDeferredContainer(component, components)
       )
     ));
     dispatch(acceptAction(action));

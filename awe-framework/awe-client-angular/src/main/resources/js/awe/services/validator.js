@@ -57,6 +57,10 @@ aweApplication.factory('Validator',
          */
         validateComponent: function (component, errorList, baseNode) {
           let method = "validate";
+          // The content of a deferred dialog or tab which was never opened is not validated
+          if (Validator.isInPendingDeferredContainer(component)) {
+            return;
+          }
           // Get data for component
           if (method in component) {
             let validationData = component[method](baseNode, errorList.length > 0);
@@ -64,6 +68,24 @@ aweApplication.factory('Validator',
               errorList.push(validationData);
             }
           }
+        },
+        /**
+         * Check if a component is inside a deferred dialog or tab which was not opened yet (its content was never
+         * loaded, and the user may not even be able to open it)
+         * @param {Object} component Component api
+         * @return {boolean} The component is inside a pending deferred container
+         */
+        isInPendingDeferredContainer: function (component) {
+          const address = component.address;
+          const element = component.element;
+          if (!address || !element) {
+            return false;
+          }
+          const controllers = Storage.get("controller");
+          return _.some(controllers && controllers[address.view], function (controller, containerId) {
+            return containerId !== address.component && controller && controller.deferred && !controller.deferredLoaded
+              && $("#" + containerId).find(element).length > 0;
+          });
         },
         /**
          * Retrieve the validation nodes

@@ -53,7 +53,7 @@ La lista de pestañas se rellena con los campos `value` y `label` de la consulta
 Un contenedor de pestaña (tabcontainer) es una ventana que se abre al seleccionar una pestaña. Tenga en cuenta que `[tabcontainer-identifier]` debe coincidir con el valor de la consulta o lista enumerada definida en el elemento `Tab`.
 
 ```xml
-<tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]">
+<tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]" deferred="[deferred]">
   ...
 </tabcontainer>
 ```
@@ -67,3 +67,36 @@ Un contenedor de pestaña (tabcontainer) es una ventana que se abre al seleccion
 | style      |    Opcional     | String | Clases CSS del contenedor                                                                          | **Nota:** Aquí puedes usar la clase `expand` para permitir que la ventana se expanda |
 | type       |    Opcional     | String | Tipo de etiqueta HTML del contenedor                                                               | `div`, `span`, `p`, ...                                                              |
 | expandible |    Opcional     | String | Cómo [expandir](layout.md) los elementos del contenedor                                            | `vertical`, `horizontal`                                                             |
+| deferred   |    Opcional     | Booleano | Carga los datos de los componentes del contenedor la primera vez que se selecciona la pestaña, no con la pantalla. Ver [carga diferida](#deferred-loading) | `true`, `false` (por defecto) |
+
+## Carga diferida {#deferred-loading}
+
+Por defecto, el servidor ejecuta las consultas `initial-load` de los componentes de todos los contenedores de pestaña
+cuando genera la pantalla, incluidas las pestañas que no se muestran. Con `deferred="true"` en un contenedor de pestaña,
+los datos de sus componentes se cargan la primera vez que se selecciona la pestaña, de modo que una pantalla con muchas
+pestañas o con pestañas pesadas carga más rápido. Sin el atributo no cambia nada. Los clientes AngularJS y React se
+comportan igual.
+
+```xml
+<tab id="Customer" initial-load="enum" target-action="CustomerTabs">
+  <tabcontainer id="Summary">
+    ...
+  </tabcontainer>
+  <tabcontainer id="Orders" deferred="true">
+    <grid id="OrderGrid" initial-load="query" target-action="OrderList" max="20">
+      ...
+    </grid>
+  </tabcontainer>
+</tab>
+```
+
+Las reglas son las de los [diálogos diferidos](dialog.md#deferred-loading), aplicadas a la pestaña: los componentes del
+contenedor de pestaña están en la pantalla pero vacíos hasta que se selecciona la pestaña por primera vez; entonces una
+acción de servidor `deferred-data` silenciosa los carga (con los valores que tiene la pantalla en ese momento) y la
+pestaña no se vuelve a cargar. Algunos detalles de las pestañas:
+
+- La pestaña seleccionada al mostrar la pantalla también se carga por su cuenta (justo después de la pantalla), porque se ve de inmediato. Difiere primero las páginas que el usuario no ve.
+- En el primer contenedor de pestaña el atributo no aporta ventaja; úsalo en las demás páginas.
+- Un contenedor de pestaña diferido dentro de otro contenedor diferido espera a su propia selección.
+- Un contenedor de pestaña diferido que nunca se ha seleccionado **no se valida**: sus criterios se ignoran en todas las reglas de validación, también en validaciones con destino. Ver [validación de contenedores diferidos](dialog.md#validation-of-deferred-containers).
+- El `initial-load` de la propia `tab` (la lista de páginas) nunca se difiere.

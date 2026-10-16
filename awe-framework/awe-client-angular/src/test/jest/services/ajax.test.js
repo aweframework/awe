@@ -289,6 +289,19 @@ describe("Ajax", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(action);
   });
 
+  it("tells the action that its call failed, so it can undo what it marked (#824)", () => {
+    const action = new Action();
+    action.onError = jest.fn();
+    jest.spyOn($utilities, "manageRestError").mockReturnValue([]);
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    const error = {status: 500};
+
+    $ajax.manageError(error, action);
+
+    expect(action.onError).toHaveBeenCalledWith(error);
+  });
+
   it("passes REST error details and target address to the utilities boundary", () => {
     const action = new Action();
     action.attr("callbackTarget", {view: "dialog", component: "save"});

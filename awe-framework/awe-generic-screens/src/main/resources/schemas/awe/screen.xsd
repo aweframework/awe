@@ -145,7 +145,7 @@
   <xs:element name="tab" type="tabType" />
 
   <!-- Tab Element -->
-  <xs:element name="tabcontainer" type="elementType" />
+  <xs:element name="tabcontainer" type="tabcontainerType" />
 
   <!-- Wizard Element -->
   <xs:element name="wizard" type="wizardType" />
@@ -1302,6 +1302,20 @@
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="on-close" type="onCloseEnum" />
+    <xs:attribute name="deferred" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the initial load of the dialog components does not run with the screen: it runs when the dialog is opened for the first time. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Tab Container (tab page) Attributes -->
+  <xs:attributeGroup name="tabcontainerAttr">
+    <xs:attribute name="deferred" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the initial load of the tab page components does not run with the screen: it runs when the tab page is selected for the first time. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Javascript Attributes -->
@@ -1576,6 +1590,15 @@
       <xs:element ref="button-action" />
     </xs:choice>
     <xs:attributeGroup ref="columnAttr" />
+  </xs:complexType>
+
+  <!-- Tab Container Type -->
+  <xs:complexType name="tabcontainerType">
+    <xs:complexContent>
+      <xs:extension base="elementType">
+        <xs:attributeGroup ref="tabcontainerAttr" />
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <!-- Tab Type -->

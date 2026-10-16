@@ -352,4 +352,57 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     expect(next.c1.model.changed).toBe(true);
     expect(next.c2.model.changed).toBe(true);
   });
+
+  it('KEEP_MODEL of the initial model also stores it as the default one (restore) (#824)', () => {
+    const address = {component: 'comp', view: 'base'};
+    const state = {
+      comp: {
+        address,
+        model: {values: [{value: '1', selected: false}, {value: '2', selected: true}]},
+        storedModel: {values: []},
+        defaultModel: {values: []}
+      }
+    };
+
+    const next = components(state, {type: KEEP_MODEL, address, data: {initial: true}});
+
+    expect(next.comp.storedModel.values).toEqual([{value: '1', selected: false}, {value: '2', selected: true}]);
+    expect(next.comp.defaultModel.values).toEqual([{value: '1', selected: false}, {value: '2', selected: true}]);
+    expect(next.comp.defaultModel.values[1]).not.toBe(state.comp.model.values[1]);
+  });
+
+  it('KEEP_MODEL leaves the default model alone unless it is the initial one', () => {
+    const address = {component: 'comp', view: 'base'};
+    const state = {
+      comp: {
+        address,
+        model: {values: [{value: '2', selected: true}]},
+        storedModel: {values: []},
+        defaultModel: {values: [{value: '9', selected: true}]}
+      }
+    };
+
+    const next = components(state, {type: KEEP_MODEL, address});
+
+    expect(next.comp.storedModel.values).toEqual([{value: '2', selected: true}]);
+    expect(next.comp.defaultModel.values).toEqual([{value: '9', selected: true}]);
+  });
+
+  it('KEEP_MODEL of the initial model stores the default model it is given instead of the current selection (#824)', () => {
+    const address = {component: 'comp', view: 'base'};
+    const state = {
+      comp: {
+        address,
+        model: {values: [{value: '1', selected: true}, {value: '2', selected: false}]},
+        storedModel: {values: []},
+        defaultModel: {values: []}
+      }
+    };
+    const defaultModel = {values: [{value: '1', selected: false}, {value: '2', selected: true}]};
+
+    const next = components(state, {type: KEEP_MODEL, address, data: {initial: true, defaultModel}});
+
+    expect(next.comp.storedModel.values.map(value => value.selected)).toEqual([true, false]);
+    expect(next.comp.defaultModel.values.map(value => value.selected)).toEqual([false, true]);
+  });
 });

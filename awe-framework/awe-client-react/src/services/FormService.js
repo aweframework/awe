@@ -21,6 +21,7 @@ import {
   updateControllerAction
 } from "../redux/thunks/form";
 import {serverAction, serverDownloadAction} from "../redux/thunks/server";
+import {initialModelAction} from "../redux/thunks/deferred";
 
 function useFormService() {
   const dispatch = useDispatch();
@@ -55,6 +56,12 @@ function useFormService() {
    * @param {object} action Action received
    */
   const fill = (action) => dispatch(fillAction(action));
+
+  /**
+   * Set the initial model of a component loaded when its deferred dialog or tab was first shown
+   * @param {object} action Action received
+   */
+  const initialModel = (action) => dispatch(initialModelAction(action));
 
   /**
    * Update controller with action values
@@ -157,6 +164,7 @@ function useFormService() {
       "restore": restore,
       "restore-target": restoreTarget,
       "fill": fill,
+      "initial-model": initialModel,
       "update-controller": updateController,
       "select": select,
       "cancel": cancel,

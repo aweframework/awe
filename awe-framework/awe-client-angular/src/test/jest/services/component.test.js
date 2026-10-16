@@ -236,4 +236,159 @@ describe("Component", () => {
     expect($control.publish).toHaveBeenCalledTimes(1);
     expect($control.publish).toHaveBeenCalledWith("hideHelp");
   });
+
+  describe("deferred loading (#824)", () => {
+    let $storage;
+    let models;
+
+    beforeEach(() => {
+      inject(["Storage", (Storage) => {
+        $storage = Storage;
+      }]);
+      $storage.put("screen", {report: {name: "deferred-screen", option: "DefScr"}});
+      $storage.put("controller", {});
+      $storage.get("controller")["report"] = {comp1: controller, inner: {}, loadedGrid: {}, valuedCriterion: {}, outer: {}};
+      controller.deferred = true;
+      controller.optionId = "DefScr";
+      models = {
+        inner: {selected: null, values: []},
+        loadedGrid: {selected: null, values: [{id: "1"}]},
+        valuedCriterion: {selected: "1", values: [{value: "1", label: "One"}]},
+        outer: {selected: "o", values: [{value: "o"}]}
+      };
+      $control.getAddressModel.mockImplementation((address) => models[address.component] || model);
+      document.body.innerHTML = `<div id="comp1"><div criterion-id="inner"></div><div id="loadedGrid"></div>
+        <div criterion-id="valuedCriterion"></div></div><div criterion-id="outer"></div>`;
+      jest.spyOn($actionController, "addActionList").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    function sentParameters() {
+      const [[actions]] = $actionController.addActionList.mock.calls;
+      return actions[0].attr("parameters");
+    }
+
+    it("sends one deferred-data server action for the container", () => {
+      initializedComponent("comp1").loadDeferred();
+
+      expect($actionController.addActionList).toHaveBeenCalledTimes(1);
+      const [[actions]] = $actionController.addActionList.mock.calls;
+      expect(actions[0].attr("silent")).toBe(true);
+      expect(actions[0].attr("async")).toBe(true);
+      expect(sentParameters()).toMatchObject({serverAction: "deferred-data", targetAction: "comp1", option: "DefScr"});
+    });
+
+    it("marks the container as loaded so it is requested only once", () => {
+      const component = initializedComponent("comp1");
+
+      component.loadDeferred();
+      component.loadDeferred();
+
+      expect(controller.deferredLoaded).toBe(true);
+      expect($actionController.addActionList).toHaveBeenCalledTimes(1);
+    });
+
+    it("does nothing when the container is not deferred", () => {
+      controller.deferred = false;
+
+      initializedComponent("comp1").loadDeferred();
+
+      expect($actionController.addActionList).not.toHaveBeenCalled();
+    });
+
+    it("reports the components inside the container which already have data or a value", () => {
+      initializedComponent("comp1").loadDeferred();
+
+      expect(sentParameters().deferredLoaded).toEqual(["loadedGrid", "valuedCriterion"]);
+      expect(sentParameters().deferredValued).toEqual(["valuedCriterion"]);
+    });
+
+    it("resets the loaded mark if the request fails, so the next opening tries again (#824)", () => {
+      const component = initializedComponent("comp1");
+      component.loadDeferred();
+      const [[actions]] = $actionController.addActionList.mock.calls;
+
+      expect(controller.deferredLoaded).toBe(true);
+      actions[0].onError({status: 500});
+
+      expect(controller.deferredLoaded).toBe(false);
+      component.loadDeferred();
+      expect($actionController.addActionList).toHaveBeenCalledTimes(2);
+    });
+
+    it("leaves the components with autoload out of the request, as they load by themselves (#824)", () => {
+      $storage.get("controller")["report"].autoGrid = {autoload: true};
+      document.body.innerHTML = `<div id="comp1"><div id="autoGrid"></div><div criterion-id="inner"></div></div>`;
+
+    initializedComponent("comp1").loadDeferred();
+
+      expect(sentParameters().deferredLoaded).toContain("autoGrid");
+    });
+
+    describe("autoload", () => {
+      beforeEach(() => {
+        jest.spyOn($utilities, "timeout").mockImplementation(callback => callback());
+        $storage.get("controller")["report"].grid1 = {autoload: true};
+        document.body.innerHTML = `<div id="comp1"><div id="grid1"></div></div><div id="grid2"></div>`;
+        $storage.get("controller")["report"].grid2 = {autoload: true};
+      });
+
+      function gridComponent(id) {
+        const gridController = $storage.get("controller")["report"][id];
+        $control.getAddressController.mockImplementation(address => address.component === id ? gridController : controller);
+        const component = new Component(scope, id);
+        component.reload = jest.fn();
+        component.init();
+        return component;
+      }
+
+      it("waits for the first opening of a deferred container before reloading the component", () => {
+        const grid = gridComponent("grid1");
+
+        expect(grid.reload).not.toHaveBeenCalled();
+      });
+
+      it("reloads the waiting component when its container is opened", () => {
+        const grid = gridComponent("grid1");
+        $control.getAddressController.mockReturnValue(controller);
+
+        initializedComponent("comp1").loadDeferred();
+
+        expect(grid.reload).toHaveBeenCalledTimes(1);
+      });
+
+      it("forgets a waiting component when it is destroyed, so a dead scope is not reloaded (#824)", () => {
+        const grid = gridComponent("grid1");
+        scopedFunctions.$destroy();
+        $control.getAddressController.mockReturnValue(controller);
+
+        initializedComponent("comp1").loadDeferred();
+
+        expect(grid.reload).not.toHaveBeenCalled();
+      });
+
+      it("forgets the waiting components of a container which is destroyed", () => {
+        const grid = gridComponent("grid1");
+        const container = initializedComponent("comp1");
+        scopedFunctions.$destroy();
+        $control.getAddressController.mockReturnValue(controller);
+        scopedFunctions = {};
+
+        const sameContainer = initializedComponent("comp1");
+        sameContainer.loadDeferred();
+
+        expect(grid.reload).not.toHaveBeenCalled();
+        expect(container).not.toBe(sameContainer);
+      });
+
+      it("reloads at once a component which is not inside a deferred container", () => {
+        const grid = gridComponent("grid2");
+
+        expect(grid.reload).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
 });

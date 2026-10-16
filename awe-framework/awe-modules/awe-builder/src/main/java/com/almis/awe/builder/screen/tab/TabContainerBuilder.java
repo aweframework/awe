@@ -16,8 +16,19 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class TabContainerBuilder extends AbstractTagBuilder<TabContainerBuilder, TabContainer> {
+  private boolean deferred;
+
   @Override
   public TabContainer build() {
     return build(new TabContainer());
+  }
+
+  @Override
+  public TabContainer build(TabContainer tabContainer) {
+    TabContainer built = super.build(tabContainer);
+    if (isDeferred()) {
+      built.setDeferred(true);
+    }
+    return built;
   }
 }

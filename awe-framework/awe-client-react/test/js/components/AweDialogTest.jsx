@@ -121,4 +121,41 @@ describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
       expect(dialog.style.maxWidth).toBe("90vw");
     });
   });
+
+  describe('deferred loading (#824)', () => {
+    const renderDialog = (attributes) => renderWithProviders(<AweDialog id="dialog" elementList={[]} />, {
+      preloadedState: {
+        ...preloadedState,
+        components: { dialog: { ...preloadedState.components.dialog, attributes } }
+      }
+    });
+    const deferredLoaded = (store) => store.getState().components.dialog.attributes.deferredLoaded;
+
+    it('asks for the data of a deferred dialog when it is shown', () => {
+      const { store } = renderDialog({ isShowing: true, deferred: true });
+
+      expect(deferredLoaded(store)).toBe(true);
+    });
+
+    it('waits while a deferred dialog is not shown', () => {
+      const { store } = renderDialog({ isShowing: false, deferred: true });
+
+      expect(deferredLoaded(store)).toBeUndefined();
+    });
+
+    it('does not ask for the data of a dialog which is not deferred', () => {
+      const { store } = renderDialog({ isShowing: true });
+
+      expect(deferredLoaded(store)).toBeUndefined();
+    });
+
+    it('asks for the data of a deferred dialog only once', () => {
+      const { store } = renderDialog({ isShowing: true, deferred: true, deferredLoaded: true });
+      const dispatched = jest.spyOn(store, 'dispatch');
+
+      store.dispatch({ type: 'UPDATE_ATTRIBUTES', address: { component: 'dialog', view: 'report' }, data: { isShowing: true } });
+
+      expect(dispatched.mock.calls.filter(([call]) => typeof call === 'function')).toHaveLength(0);
+    });
+  });
 });

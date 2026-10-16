@@ -463,4 +463,73 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       expect(addActionsTopCalls.length).toBe(0);
     });
   });
+  describe('validateAction with deferred containers (#824)', () => {
+    const make = (id, source, attributes = {}) => ({
+      address: { view: 'base', component: id },
+      context: { view: 'base', source },
+      attributes: { id, ...attributes },
+      model: { values: [] }
+    });
+
+    const validated = (action) => {
+      validationThunks.validateAction(action)(dispatch, getState);
+      const [[validateThunk]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      validateThunk(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].componentList.map(component => component.address.component);
+    };
+
+    beforeEach(() => {
+      mockState.components = {
+        Caller: make('Caller', ['home', 'Caller']),
+        Outside: make('Outside', ['home', 'Outside']),
+        Dia: make('Dia', ['home', 'Dia'], { deferred: true }),
+        InDia: make('InDia', ['home', 'Dia', 'InDia']),
+        Page: make('Page', ['home', 'Page']),
+        Dia2: make('Dia2', ['home', 'Page', 'Dia2'], { deferred: true }),
+        InDia2: make('InDia2', ['home', 'Page', 'Dia2', 'InDia2']),
+        Plain: make('Plain', ['home', 'Page', 'Plain']),
+        PlainDia: make('PlainDia', ['home', 'PlainDia']),
+        InPlainDia: make('InPlainDia', ['home', 'PlainDia', 'InPlainDia'])
+      };
+    });
+
+    const open = (id) => { mockState.components[id].attributes.deferredLoaded = true; };
+    const base = { type: 'validate', address: { view: 'base', component: 'Caller' }, target: 'home' };
+
+    it('ignores the components of a deferred container that was not opened', () => {
+      const ids = validated(base);
+
+      expect(ids).not.toContain('InDia');
+      expect(ids).not.toContain('InDia2');
+      expect(ids).toEqual(expect.arrayContaining(['Outside', 'Plain', 'InPlainDia']));
+    });
+
+    it('validates the components once the container was opened', () => {
+      open('Dia');
+
+      expect(validated(base)).toContain('InDia');
+    });
+
+    it('keeps validating a container which is not deferred', () => {
+      expect(validated(base)).toContain('InPlainDia');
+    });
+
+    it('skips the unopened deferred part of a targeted validation of its parent', () => {
+      const ids = validated({ ...base, target: 'Page' });
+
+      expect(ids).toContain('Plain');
+      expect(ids).not.toContain('InDia2');
+    });
+
+    it('passes a targeted validation of an unopened deferred container', () => {
+      expect(validated({ ...base, target: 'Dia' })).toEqual([]);
+    });
+
+    it('validates a targeted container once it was opened', () => {
+      open('Dia');
+
+      expect(validated({ ...base, target: 'Dia' })).toContain('InDia');
+    });
+  });
 });

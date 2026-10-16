@@ -198,6 +198,11 @@ aweApplication.factory('Ajax',
         manageError: function (error, action) {
           let target = action.attr("callbackTarget");
 
+          // Tell the action that its call failed (it may have to undo what it marked)
+          if (typeof action.onError === "function") {
+            action.onError(error);
+          }
+
           // Finish call action (cancel)
           $actionController.closeAllActions();
 

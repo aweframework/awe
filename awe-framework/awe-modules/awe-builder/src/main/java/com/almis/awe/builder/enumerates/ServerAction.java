@@ -26,6 +26,7 @@ public enum ServerAction {
   DATA_TARGET_MESSAGE("data-target-message"),
   DATA_MESSAGE_CENTERED("dataMessageCentered"),
   DATA_TREATMENT("dataTrt"),
+  DEFERRED_DATA("deferred-data"),
   GET_FILE_MAINTAIN("get-file-maintain"),
   GET_SERVER_FILE("get-server-file"),
   HELP("help"),

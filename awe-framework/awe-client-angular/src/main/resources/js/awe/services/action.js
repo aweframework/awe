@@ -22,6 +22,7 @@ aweApplication.factory('Action',
         // Action methods
         this.onReject = null;
         this.onCancel = null;
+        this.onError = null;
 
         // Add parameters to default attributes
         _.merge(this.attributes, parameters);

@@ -194,6 +194,7 @@
       <xs:enumeration value="maintainTrt"/>
       <xs:enumeration value="data-silent" />
       <xs:enumeration value="update-model" />
+      <xs:enumeration value="deferred-data" />
       <xs:enumeration value="application-manual" />
       <xs:enumeration value="view-pdf-file" />
       <xs:enumeration value="get-server-file" />

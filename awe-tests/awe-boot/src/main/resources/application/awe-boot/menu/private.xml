@@ -90,6 +90,8 @@
       <option name="matrix-test-pager" label="MENU_TEST_MATRIX_PAGER" screen="GrdPagerTst" icon="step-forward"/>
       <option name="matrix-test-empty" label="MENU_TEST_MATRIX_EMPTY" screen="GrdEmptyTst" icon="inbox"/>
       <option name="matrix-test-dialog-size" label="MENU_TEST_MATRIX_DIALOG_SIZE" screen="DlgSizeTst" icon="window-maximize"/>
+      <option name="matrix-test-deferred" label="MENU_TEST_MATRIX_DEFERRED" screen="DeferredLoadTst" icon="hourglass-half"/>
+      <option name="matrix-test-deferred-heavy" label="MENU_TEST_MATRIX_DEFERRED_HEAVY" screen="DeferredHeavyTst" icon="hourglass-half"/>
       <option name="matrix-test-tree" label="MENU_TEST_MATRIX_TREE" screen="test-tree" icon="sitemap"/>
       <option name="matrix-test-move-rows" label="MENU_TEST_MATRIX_MOVE_ROWS" screen="MoveRowsTst" icon="sort"/>
     </option>

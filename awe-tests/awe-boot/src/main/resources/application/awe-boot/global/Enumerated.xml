@@ -73,4 +73,15 @@
     <option label="COLUMN_RADIO_MODE_HIGH" value="3" />
   </group>
 
+  <!-- Deferred load test (#824) -->
+  <group id="DeferredTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="DefFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="DefSecond" />
+  </group>
+
+  <group id="DeferredHeavyTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="HeaFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="HeaSecond" />
+  </group>
+
 </enumerated>

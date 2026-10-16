@@ -9,6 +9,7 @@ import AweInfoDropdown from "./AweInfoDropdown";
 import AweInfoButton from "./AweInfoButton";
 import AweInfoCriterion from "./AweInfoCriterion";
 import AweTabs from "./AweTabs";
+import AweTabContainer from "./AweTabContainer";
 import AweSteps from "./AweSteps";
 import AweChart from "./AweChart";
 import AweTagList from "./AweTagList";
@@ -40,7 +41,7 @@ export const ComponentList = {
   "PivotTable": AwePivotTable,
   "Tab": AweTabs,
   "Wizard": AweSteps,
-  "TabContainer": Empty,
+  "TabContainer": AweTabContainer,
   "WizardPanel": Empty,
   "Chart": AweChart,
   "MenuContainer": AweMenu,

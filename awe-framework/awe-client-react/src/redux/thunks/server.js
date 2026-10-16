@@ -1,5 +1,6 @@
 import { fetchAction, fetchFile, getActionAddress, getComponent, getRestUrl } from "../../utilities";
 import { acceptAction, addActionsTop } from "../actions/actions";
+import { updateAttributes } from "../actions/components";
 import { getFormValues } from "../selectors/form";
 import { getAllComponents } from "../selectors/componentSelectors";
 
@@ -33,8 +34,15 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
 
       // Aceptar la acción original
       dispatch(acceptAction(action));
+      return true;
     } catch (error) {
       console.error("Error in server action call:", error);
+
+      // The action can ask to set some attributes on its component when the call fails (i.e. to try again)
+      if (action.errorAttributes) {
+        dispatch(updateAttributes(address, action.errorAttributes));
+      }
+      return false;
     }
   };
 };

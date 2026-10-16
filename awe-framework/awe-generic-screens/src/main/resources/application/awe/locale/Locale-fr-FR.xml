@@ -390,6 +390,7 @@
   <locale name="ERROR_MESSAGE_DEFAULT_SESSION_PARAMETERS" value="Ha habido un problema generando las variables por defecto de la sesión. Por favor, inténtelo de nuevo"/>
   <locale name="ERROR_MESSAGE_DESTINATION_FAILED" value="Il ya eu un problème en essayant de se connecter à la queue {0}"/>
   <locale name="ERROR_MESSAGE_DUPLICATED_IDENTIFIER" value="Trouvé un identifiant dupliqué dans l&apos;écran. Identificateur: &apos;&apos;{0}&apos;&apos;, Écran: &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND" value="Le conteneur différé &apos;&apos;{0}&apos;&apos; est introuvable dans l&apos;écran &apos;&apos;{1}&apos;&apos;"/>
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="Probleme dans l&apos;envoie de mail"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="Probleme dans le process de maintenance"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="Probleme executant le rollback d&apos;une transaction"/>

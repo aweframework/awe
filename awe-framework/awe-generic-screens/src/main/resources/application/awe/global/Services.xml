@@ -102,6 +102,9 @@
   <service id="getScreenData">
     <java classname="com.almis.awe.service.ScreenService" method="getScreenDataAction" />
   </service>
+  <service id="getDeferredData">
+    <java classname="com.almis.awe.service.ScreenService" method="getDeferredDataAction" />
+  </service>
   <service id="getOptionList">
     <java classname="com.almis.awe.service.MenuService" method="getNameOptionList">
       <service-parameter type="STRING" name="option" />
