@@ -37,3 +37,35 @@
 .layout-dark .p-datatable-loading-overlay.p-component-overlay {
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+// Wrapping columns (wrap and max-lines): the text wraps over several lines and the row grows to fit it. A maximum
+// number of lines cuts the text with an ellipsis at that line (the grid shows the full text on hover and on focus).
+.p-datatable .p-cell-text.p-cell-wrap {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  min-height: 0;
+  margin: 9px 0;
+  text-align: inherit;
+}
+
+.p-datatable .p-cell-text.p-cell-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--cell-max-lines);
+  line-clamp: var(--cell-max-lines);
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.grid-cell-tooltip.p-tooltip {
+  position: fixed;
+  z-index: 3000;
+  max-width: 28rem;
+  pointer-events: none;
+}

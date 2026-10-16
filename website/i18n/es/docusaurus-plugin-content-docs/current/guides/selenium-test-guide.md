@@ -620,6 +620,15 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridSparklineEmpty(String gridId, String rowId, String columnId)` | Comprueba que una celda no tiene sparkline porque su valor no es una serie válida de números, mientras la celda sigue visible |
 | `checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers)` | Comprueba cuántos marcadores (puntos del valor más bajo, el más alto y el último) tiene el sparkline de una celda |
 | `checkGridSparklineNotFocusable(String gridId, String rowId, String columnId)` | Comprueba que el sparkline de una celda no toma el foco del teclado: no es enfocable y nada dentro de él es una parada del tabulador |
+| `checkGridCellLines(String gridId, String rowId, String columnId, int lines)` | Comprueba el número de líneas que muestra el texto de una celda (una columna con varias líneas, con o sin `max-lines`) |
+| `checkGridCellLinesAtLeast(String gridId, String rowId, String columnId, int lines)` | Comprueba que el texto de una celda se divide al menos en un número de líneas |
+| `checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut)` | Comprueba que el texto de una celda se muestra completo, o que lo corta su número máximo de líneas |
+| `checkGridRowTaller(String gridId, String rowId, String otherId, String columnId)` | Comprueba que una fila de un grid es más alta que otra |
+| `checkGridRowFitsItsCells(String gridId, String rowId, String columnId)` | Comprueba que ningún texto en varias líneas de una fila se sale de la fila |
+| `checkGridCellTitle(String gridId, String rowId, String columnId, String text)` | Comprueba que el valor completo de una celda se expone como el título (tooltip) de su texto |
+| `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Comprueba que el texto cortado de una celda muestra su valor completo en un tooltip al pasar el ratón y con el foco del teclado, y que desaparece al salir |
+| `checkRowSelected(String gridId, String search)` | Comprueba que la fila de un grid con un texto está seleccionada |
+| `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 

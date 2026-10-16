@@ -59,7 +59,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | help-image        | Opcional        | String  | Imagen de ayuda para el grid                                                                                                              | Esta **debe** ser una ruta de imagen                                                                                                                       |
 | icon-loading        | Opcional        | String  | Establecer el icono de carga                                                                                                                    | `skeleton`, `spinner`, `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none`. Por defecto: la propiedad [`awe.application.component.grid-icon-loading`](../properties#awe.application.component.grid-icon-loading) (`skeleton`). `skeleton` muestra filas de relleno con las columnas del grid; indica otro valor para desactivarlo en este grid |
 | row-numbers        | Opcional        | Boolean | Indica si se muestran los números de fila                                                                                                              | El valor predeterminado es `true`                                                                                                                     |
-| row-height             | Opcional        | Entero  | Establece la altura de la fila en píxeles                                                                                                                    |                                                                                                                                                            |
+| row-height             | Opcional        | Entero  | Establece la altura de la fila en píxeles (mínima si hay columnas con varias líneas)                                                                                                                    |                                                                                                                                                            |
 | validate-on-save       | Opcional        | Boolean | Establezca `false` para evitar validar la fila seleccionada al pulsar el botón `save`                                                                  | El valor predeterminado es `true`                                                                                                                     |
 | empty-icon             | Opcional        | String  | Icono del [estado vacío](#empty-state) del grid                                                                                                        | El valor predeterminado es `inbox`. Consulte [iconos](icons.md)                                                                                       |
 | empty-title            | Opcional        | String  | Título del [estado vacío](#empty-state) del grid                                                                                                       | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un título traducido "No se han encontrado registros"      |
@@ -116,8 +116,47 @@ botón, por lo que puede usarse, por ejemplo, para limpiar los criterios de bús
 | max        | Opcional        | Entero  | Número máximo de registros a recuperar cuando la columna se inicializa con acción de destino                                                           | El valor predeterminado es `30`                                                  |
 | visibility | Opcional        | Boolean | Visibilidad inicial del componente de columna                                                                                                          | El valor predeterminado es `true`                                           |
 | frozen     | Opcional        | Boolean | Mantenga la columna fijada fuera del desplazamiento horizontal. **ADVERTENCIA**: No uses este atributo si el encabezado tiene más de una línea de alto | El valor predeterminado es `false`                                               |
+| wrap       | Opcional        | Booleano | El texto de las celdas se divide en varias líneas y la fila crece para ajustarse. Ver [texto en varias líneas](#wrapping-text) | El valor por defecto es `false`                                                  |
+| max-lines  | Opcional        | Entero  | Número máximo de líneas de una celda con texto en varias líneas; implica `wrap`. Ver [texto en varias líneas](#wrapping-text)   | Un número mayor que `0`                                                          |
 
 > **Nota:** Cuando una columna es editable (tiene un *componente*) todos los atributos de criterios pueden ser usados en la columna. Ver **[criterios atributos](criteria.md#criteria-structure)** para más referencias.
+
+### Texto en varias líneas {#wrapping-text}
+
+Por defecto el texto de una celda ocupa una sola línea y se corta con puntos suspensivos cuando no cabe en el ancho de la
+columna. Una columna puede declarar que su texto se divide en varias líneas, y la fila crece para ajustarse a la celda más
+alta. Funciona en **ambos motores de cliente** y un grid sin estos atributos se muestra exactamente igual que antes.
+
+```xml
+<grid id="GrdComments" style="expand" initial-load="query" server-action="data" target-action="CommentList">
+  <column label="Code" name="code" align="left" charlength="8"/>
+  <column label="Title" name="title" align="left" charlength="16" wrap="true"/>
+  <column label="Description" name="description" align="left" charlength="30" max-lines="3"/>
+</grid>
+```
+
+- `wrap="true"` muestra el texto completo en tantas líneas como necesite.
+- `max-lines="N"` limita el texto a `N` líneas. Si el texto es más largo, la línea `N` termina en puntos suspensivos y el
+  texto completo se muestra en un tooltip al pasar el ratón y al recibir el foco del teclado (se puede llegar a las celdas
+  cortadas con la tecla `Tab` y `Esc` cierra el tooltip). `max-lines` implica `wrap`, salvo que la columna declare
+  `wrap="false"`.
+- El resto de columnas mantienen su única línea. La selección, la ordenación, la edición en línea y los atajos de teclado del
+  grid funcionan como siempre con filas más altas.
+- En el motor AngularJS `row-height` es la altura **mínima** de las filas de un grid con columnas de varias líneas. El motor
+  React ignora `row-height`.
+
+Un texto que no se divide y no cabe en el ancho de su columna siempre expone su valor completo: en el motor React, las
+celdas de texto y las cabeceras lo muestran como tooltip (el motor AngularJS ya lo hacía en las celdas).
+
+:::note Límites
+- Solo se divide el texto de las celdas estándar. Las celdas de columnas con `component` mantienen su propia disposición.
+- El motor AngularJS coloca las filas de un grid con una altura fija, así que un grid con columnas de varias líneas dibuja
+  **todas las filas de su página** en lugar de virtualizarlas (el tamaño de página del grid, ver `max`, acota el coste). Un
+  grid con columnas congeladas (`frozen`) o un grid de árbol mantiene sus filas de una línea en ese motor.
+:::
+
+Las aplicaciones de prueba incluyen las pantallas *Wrapping cells* y *Single-line cells* en el menú de pruebas de la matriz,
+con las mismas 100 filas con y sin varias líneas.
 
 ### Columnas de impresión {#printing-columns}
 

@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {generateServerAction} from "../utilities";
-import {getWidthStyle, OperationType} from "../utilities/grid";
+import {getColumnWrap, getWidthStyle, OperationType} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
@@ -233,7 +233,7 @@ function AweTreeGrid(props) {
               key={name}
               field={sortField || name}
               body={rowData => cellTemplate(rowData, name)}
-              bodyClassName="p-cell-editing"
+              bodyClassName={getColumnWrap(col).wrap ? "p-cell-editing p-cell-wrapping" : "p-cell-editing"}
               bodyStyle={{ ...getWidthStyle(charlength, width), textAlign: align }}
               pt={bodyCellPassThrough(name)}
             />;

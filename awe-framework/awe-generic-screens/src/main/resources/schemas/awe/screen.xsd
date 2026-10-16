@@ -1049,6 +1049,16 @@
         <xs:documentation xml:lang="en">Column width: a number of pixels, or * to share the free space. AngularJS uses it before charlength and also accepts a percentage (for example 20%), which this schema does not allow and which fails when printing. React ignores it and uses charlength. In reports, * is a fixed width.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="wrap" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The text of the cells wraps over several lines and the row grows to fit it, in both client engines. Without it (or with false) the text is one line cut with an ellipsis, as before. In AngularJS the row-height of the grid becomes the minimum row height, and a grid with frozen columns keeps its single-line rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-lines" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of lines of a wrapping cell; it implies wrap unless wrap is false. Line N ends in an ellipsis when the text is longer, and the full text shows on hover and on keyboard focus.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="sort-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Field used to sort the column. Default: the column name.</xs:documentation>

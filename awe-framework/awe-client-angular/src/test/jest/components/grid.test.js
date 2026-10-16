@@ -218,4 +218,41 @@ describe("components/grid.js", () => {
       expect(() => scope.onEmptyAction()).not.toThrow();
     });
   });
+
+  describe("wrapping cells", () => {
+    const compileGrid = (columnModel, rowHeight) => {
+      const controller = {
+        id: "Grid", visible: true, loading: false, targetAction: "getRows", loadAll: false, multiselect: false, editable: false,
+        enableFilters: false, showTotals: false, disablePagination: false, max: 10, pagerValues: [10, 20], rowHeight,
+        columnModel, buttonModel: [], headerModel: []
+      };
+      const model = {page: 1, records: 0, total: 1, selected: [], values: []};
+      jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
+      jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(refs.$control, "getAddressController").mockReturnValue(controller);
+      jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
+      refs.$utilities.timeout.cancel = jest.fn();
+      const element = refs.$compile("<awe-grid grid-id='Grid'></awe-grid>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      return {element, scope: element.isolateScope() || element.scope()};
+    };
+
+    it("renders as today without wrapping columns: virtualized, fixed row height, no wrap class", () => {
+      const {element, scope} = compileGrid([{name: "date", field: "date"}], "30");
+
+      expect(scope.gridOptions.virtualizationThreshold).toBe(50);
+      expect(scope.gridOptions.rowHeight).toBe(30);
+      expect(element.find(".grid-wrap").length + (element.hasClass("grid-wrap") ? 1 : 0)).toBe(0);
+    });
+
+    it("renders every row of the page, with the row height as the minimum, when a column wraps", () => {
+      const {element, scope} = compileGrid([{name: "date", field: "date", wrap: true}], "30");
+
+      expect(scope.gridOptions.virtualizationThreshold).toBeGreaterThanOrEqual(1000);
+      expect(scope.gridOptions.rowHeight).toBe(30);
+      expect(element.find(".grid").addBack(".grid").hasClass("grid-wrap")).toBe(true);
+    });
+  });
 });

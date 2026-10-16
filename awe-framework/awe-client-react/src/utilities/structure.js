@@ -4,7 +4,7 @@ import {CriteriaList} from "../criteria/AweCriteria";
 import {classNames, getComponentId} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
 import {renderSafeHtml} from "./sanitizeHtml";
-import {extractCellModel} from "./grid";
+import {extractCellModel, getColumnWrap} from "./grid";
 import {ComponentType, getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
 
 /**
@@ -97,6 +97,43 @@ export const Criteria = (node, index) => {
   );
 };
 
+const clampStyles = new Map();
+
+/**
+ * Style of a cell that is cut after a maximum number of lines. One object per maximum, so that the rows do not get a
+ * new style on every render
+ * @param {number} maxLines Maximum number of lines
+ * @return {Object} Style
+ */
+function clampStyle(maxLines) {
+  if (!clampStyles.has(maxLines)) {
+    clampStyles.set(maxLines, Object.freeze({"--cell-max-lines": maxLines}));
+  }
+  return clampStyles.get(maxLines);
+}
+
+/**
+ * Text of a cell. It is one line cut with an ellipsis (the full value as tooltip), or it wraps over several lines when
+ * the column declares it, with an optional maximum number of lines that ends in an ellipsis (the full value is then
+ * shown by the grid on hover and on keyboard focus).
+ * @param {string} visibleValue Text of the cell
+ * @param {Object} column Column definition
+ * @param {string} [style] Cell style
+ * @return {React.ReactElement} Text element
+ */
+function textCell(visibleValue, column, style) {
+  const {wrap, maxLines} = getColumnWrap(column);
+  if (!wrap) {
+    const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate", style);
+    return <span className={className} title={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
+  }
+  if (maxLines === null) {
+    return <span className={classNames("p-cell-text", "p-cell-wrap", style)}>{renderSafeHtml(visibleValue)}</span>;
+  }
+  return <span className={classNames("p-cell-text", "p-cell-wrap", "p-cell-clamp", style)}
+    style={clampStyle(maxLines)} tabIndex={0} data-full-text={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
+}
+
 /**
  * Get column
  * @param node
@@ -132,11 +169,9 @@ export const Columns = (node, data = {}, attrs = {}, editing = false) => {
       .map(item => getFirstDefinedAndNotNullValue(item?.label, item?.value, ""))
       .filter(value => value !== "")
       .join(", ");
-    const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate");
-    return <span className={className} title={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
+    return textCell(visibleValue, node);
   }
   const {label, value, style} = fixedData;
   const visibleValue = getFirstDefinedAndNotNullValue(label, value, "");
-  const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate", style);
-  return <span className={className} title={visibleValue}>{renderSafeHtml(visibleValue)}</span>;
+  return textCell(visibleValue, node, style);
 };

@@ -2401,6 +2401,15 @@
   </query>
 
   <!-- Load user Json file -->
+  <!-- Rows with texts of very different lengths (GrdWrapTst and GrdNoWrapTst screens) -->
+  <query id="WrapRowsTst" service="loadWrapRows">
+    <field id="id" alias="id"/>
+    <field id="code" alias="code"/>
+    <field id="title" alias="title"/>
+    <field id="description" alias="description"/>
+    <field id="notes" alias="notes"/>
+  </query>
+
   <query id="QrySrvLoadJsonFile" service="loadUserJsonFile">
     <field id="id" alias="id"/>
     <field id="name" alias="name"/>

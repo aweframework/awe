@@ -160,9 +160,12 @@ export function useGrid(id) {
         {...testHook(TestIds.columnIcon, { attributes: { [TestAttributes.icon]: OperationIconName[rowData?.$row?.operation] } })} />} /> : null
   );
 
+  // The header of a column is cut by its width: it shows its full text as tooltip
+  const headerLabel = (text) => text ? <span className="p-column-title-text" title={text}>{text}</span> : text;
+
   const columnTemplate = (col, rowSpan, enableFilters) => {
     const { name, sortField, label, charlength, width, sortable } = col;
-    return <Column key={name} field={sortField || name} header={translateLabel(label, t)}
+    return <Column key={name} field={sortField || name} header={headerLabel(translateLabel(label, t))}
       style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
       pt={headerCellPassThrough(name)}
       sortable={sortable} rowSpan={rowSpan} filter={enableFilters} />;
@@ -173,7 +176,7 @@ export function useGrid(id) {
     return <Column
       key={startColumnName}
       field={startColumnName}
-      header={translateLabel(label, t)}
+      header={headerLabel(translateLabel(label, t))}
       style={{ textAlign: "center" }}
       colSpan={numberOfColumns}
       pt={headerCellPassThrough(startColumnName)}

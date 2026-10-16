@@ -168,4 +168,26 @@ public abstract class AbstractColumnBuilder<T extends AbstractColumnBuilder, I e
     getColumnAttributes().setWidth(width);
     return (T) this;
   }
+
+  /**
+   * Set the text of the cells to wrap over several lines
+   *
+   * @param wrap Cell text wraps
+   * @return This
+   */
+  public T setWrap(boolean wrap) {
+    getColumnAttributes().setWrap(wrap);
+    return (T) this;
+  }
+
+  /**
+   * Set the maximum number of lines of a wrapping cell (implies wrap)
+   *
+   * @param maxLines Maximum number of lines
+   * @return This
+   */
+  public T setMaxLines(Integer maxLines) {
+    getColumnAttributes().setMaxLines(maxLines);
+    return (T) this;
+  }
 }

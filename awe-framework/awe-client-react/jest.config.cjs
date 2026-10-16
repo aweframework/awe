@@ -106,6 +106,7 @@ module.exports = {
     '**/components/AweLoaderTest.{js,jsx}',
     '**/performance/*Test.{js,jsx}',
     '**/components/AweGridEmptyStateTest.{js,jsx}',
+    '**/components/AweGridWrapTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'
