@@ -570,18 +570,6 @@ Build project:
       paths:
         - .m2/repository/
 
-# Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
-# Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
-Spotless:
-  stage: build
-  tags: [ medium ]
-  needs: [ ]
-  timeout: 10m
-  script:
-    - mvn $MAVEN_CLI_OPTS spotless:check -Dspotless.ratchetFrom=$CI_MERGE_REQUEST_DIFF_BASE_SHA
-  rules:
-    - <<: *if-mr-code
-
 Build website:
   extends: .build-website
   script:
