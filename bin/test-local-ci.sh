@@ -1652,5 +1652,19 @@ summary_case "durations are added up" 0 "1h01m" "a${TAB}A${TAB}PASS${TAB}yes${TA
 b${TAB}B${TAB}PASS${TAB}yes${TAB}65${TAB}"
 summary_case "a duration under an hour" 0 "1m05s" "b${TAB}B${TAB}PASS${TAB}yes${TAB}65${TAB}"
 
+# The browser suites start the test applications on their file HSQLDB (target/db/awe-boot, target/db/awe-react, see the
+# application.properties of the test apps): a run cut halfway leaves its rows there, so the next suite must start without them
+DBT=$(mktemp -d)
+mkdir -p "$DBT/awe-tests/awe-boot/target/db" "$DBT/awe-tests/awe-boot-react/target/db" \
+  "$DBT/awe-tests/awe-boot/target/tests/db" "$DBT/awe-tests/awe-boot-react/target/tests/db"
+OUT=$(cd "$DBT" && bash -c "$(sed -n '/^clean_awe_boot_db()/,/^}/p' "$BIN_DIR/local-ci.sh"); clean_awe_boot_db" 2>&1)
+if [ ! -e "$DBT/awe-tests/awe-boot/target/db" ] && [ ! -e "$DBT/awe-tests/awe-boot-react/target/db" ] \
+  && [ ! -e "$DBT/awe-tests/awe-boot/target/tests/db" ] && [ ! -e "$DBT/awe-tests/awe-boot-react/target/tests/db" ]; then
+  pass "clean db: the HSQLDB files of the test applications and of the tests are removed before a browser suite"
+else
+  fail "clean db: a database of a previous run is left" "$(cd "$DBT" && find . -type d -name db) $OUT"
+fi
+rm -rf "$DBT"
+
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]
