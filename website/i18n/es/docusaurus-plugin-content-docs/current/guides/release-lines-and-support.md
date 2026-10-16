@@ -337,7 +337,7 @@ Renovate siempre lee la rama por defecto, también cuando actualiza `support/4.x
 
 **Qué gestiona.** Maven (propiedades de `pom.xml`, importaciones de BOM y plugins, incluido el BOM en
 `awe-framework/awe-dependencies/pom.xml`), los manifiestos de npm y sus archivos `package-lock.json` (el mantenimiento
-de archivos de bloqueo se ejecuta el lunes a primera hora), el Dockerfile de `awe-boot`, cada entrada `image:` y
+de archivos de bloqueo se ejecuta el viernes por la noche), el Dockerfile de `awe-boot`, cada entrada `image:` y
 `services:` de `.gitlab-ci.yml` (resolviendo de nuevo los digests `latest@sha256` y fijando las etiquetas de versión
 con digests), además de las versiones de Node y npm del frontend-maven-plugin y la coordenada del plugin CycloneDX en
 línea, la pila `docker-compose` de observabilidad bajo `awe-tests` y las imágenes de bases de datos de Testcontainers
@@ -381,9 +381,9 @@ de rama, por lo que sus fijados del Dockerfile los integra una persona.
    Renovate lo necesita para descargar la compilación de Node que usa para refrescar los archivos `package-lock.json` y
    para obtener los registros de cambios. Sin él, el límite de tasa anónimo de GitHub se alcanza en una sola ejecución y
    las merge requests de npm llegan con un archivo de bloqueo obsoleto, que `npm ci` rechaza.
-3. Cree la programación de pipeline «Renovate» en `develop`, por ejemplo `0 5 * * 1-5` en la zona horaria
+3. Cree la programación de pipeline «Renovate» en `develop`, por ejemplo `0 22 * * 5` (los viernes a las 22:00) en la zona horaria
    Europe/Madrid, con la variable `RENOVATE_RUN=true`. El mantenimiento de archivos de bloqueo solo se ejecuta cuando
-   una pipeline de Renovate se produce un lunes entre las 00:00 y las 05:59 de Europe/Madrid
+   una pipeline de Renovate se produce un viernes entre las 22:00 y las 23:59 de Europe/Madrid
    (`lockFileMaintenance.schedule` en `renovate.json`), así que mantenga al menos una ejecución semanal dentro de esa
    ventana.
 4. Ejecútelo primero con una variable de programación adicional `RENOVATE_DRY_RUN=full`, lea el log del job y después

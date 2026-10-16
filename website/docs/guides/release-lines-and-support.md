@@ -346,7 +346,7 @@ branch, also when it updates `support/4.x`.
 
 **What it manages.** Maven (`pom.xml` properties, BOM imports and plugins, including the
 BOM in `awe-framework/awe-dependencies/pom.xml`), npm manifests and their
-`package-lock.json` files (lock-file maintenance runs on Monday early morning), the
+`package-lock.json` files (lock-file maintenance runs on Friday night), the
 `awe-boot` Dockerfile, every `image:` and `services:` entry in `.gitlab-ci.yml`
 (re-resolving `latest@sha256` digests and pinning version tags with digests), plus the
 Node and npm versions of the frontend-maven-plugin and the inline CycloneDX plugin
@@ -393,9 +393,9 @@ pins are merged by a person.
    uses to refresh `package-lock.json` files and to fetch changelogs. Without it GitHub's
    anonymous rate limit is hit within one run and npm merge requests arrive with a stale
    lock file, which `npm ci` rejects.
-3. Create the pipeline schedule "Renovate" on `develop`, for example `0 5 * * 1-5` in the
+3. Create the pipeline schedule "Renovate" on `develop`, for example `0 22 * * 5` (Fridays at 22:00) in the
    Europe/Madrid timezone, with the variable `RENOVATE_RUN=true`. Lock-file maintenance
-   only runs when a Renovate pipeline happens on a Monday between 00:00 and 05:59
+   only runs when a Renovate pipeline happens on a Friday between 22:00 and 23:59
    Europe/Madrid (`lockFileMaintenance.schedule` in `renovate.json`), so keep at least one
    weekly run inside that window.
 4. Run it first with an extra schedule variable `RENOVATE_DRY_RUN=full`, read the job log,
