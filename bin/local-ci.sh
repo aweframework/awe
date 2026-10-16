@@ -39,8 +39,8 @@ set -uo pipefail
 # scope drops the heavy jobs that the change does not affect: a change of .gitlab-ci.yml alone (in every rules:changes list, so
 # the pipeline runs everything) does not trigger them; the database jobs run only for a change in the framework modules or
 # awe-boot; the AngularJS browser suites are left out for a change only in the React client, and the React suites for a change
-# only in the AngularJS client or awe-boot. The database jobs also run only the awe-boot module (the other modules are what All
-# UT already ran). The pipeline would run what the fast scope drops, so use it while iterating and run without it before pushing.
+# only in the AngularJS client or awe-boot. The pipeline would run what the fast scope drops, so use it while iterating and run
+# without it before pushing. The database jobs always run only the awe-boot module, as in the pipeline (#863).
 #
 # Environment rules (fixed): every JVM is headless and never takes the focus on macOS (JAVA_TOOL_OPTIONS, which also sets the
 # locale: -DargLine would stop the JaCoCo agent from attaching), Maven runs on the JDK of the build (java.version) with -s .m2/settings.xml,
@@ -294,7 +294,7 @@ export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Dapple.awt.UIElement=true -D
 MVN=(mvn -s "$ROOT/.m2/settings.xml" "-Dsettings.security=$ROOT/.m2/settings-security.xml" "-Dmaven.repo.local=$MAVEN_REPO"
   '-P!devtools' --batch-mode -Dstyle.color=never -Dskip.lint=true)
 # UT_FLAGS are the flags of every unit-testing run; UT_OPTS (All UT, coverage) add the modules of CI. The unit profiles use UT_FLAGS and
-# choose their modules themselves (unit_modules: CI's, or only awe-boot with --fast)
+# choose their modules themselves (unit_modules: only awe-boot, as CI)
 UT_FLAGS=(-Dskip.frontend=true -DgenerateUnitReport=true)
 UT_OPTS=("${UT_FLAGS[@]}" -pl '!awe-framework/awe-boot-angular-archetype' -pl '!awe-framework/awe-boot-react-archetype')
 
@@ -569,21 +569,16 @@ in_work() {
   return "$rc"
 }
 
-# The Maven modules of the unit-testing jobs: the whole reactor as CI, or only awe-boot with --fast (the other modules ran in All UT
-# and no profile changes them; awe-boot resolves them from the build step's install)
+# The Maven modules of the database rows: only awe-boot, as the database jobs of CI (#863). The database profiles exist only in
+# awe-boot, so the other modules would run the same tests as All UT again; awe-boot resolves them from the build step's install
 unit_modules() {
-  if [ "$FAST" = 1 ]; then
-    printf '%s\n' -pl awe-tests/awe-boot
-  else
-    printf '%s\n' -pl '!awe-framework/awe-boot-angular-archetype' -pl '!awe-framework/awe-boot-react-archetype'
-  fi
+  printf '%s\n' -pl awe-tests/awe-boot
 }
 
 step_all_ut() { in_work all-ut jacoco-all-ut.exec all_ut_maven; }
 
-# The Maven arguments (after "verify") of the unit-testing rows, one per line. They are exactly what the rows ran before the pool
-# existed (bin/test-local-ci.sh pins them): All UT and every database profile run the reactor of CI, without the two archetypes;
-# only --fast narrows the database profiles to awe-boot.
+# The Maven arguments (after "verify") of the unit-testing rows, one per line, the ones of the CI jobs (bin/test-local-ci.sh pins
+# them): All UT runs the reactor of CI, without the two archetypes; every database profile runs only awe-boot.
 all_ut_args() {
   printf '%s\n' "${UT_OPTS[@]}" -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
 }
