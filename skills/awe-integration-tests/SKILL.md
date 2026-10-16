@@ -78,6 +78,13 @@ class MyQueryIT { }
 - **SQL Server EULA**: the container runs only after you accept the Microsoft EULA explicitly: `-Dawe.testing.sqlserver.accept-eula=true` (or env `AWE_TESTING_SQLSERVER_ACCEPT_EULA=true`). Without it the test fails with a message saying so.
 - Images are pinned `name:tag@sha256:digest` in `awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`; Renovate updates that file. Oracle uses `gvenzl/oracle-free` 23 (first start is slow); the container user is `awe`, not `system`. The `oracle` and `oracle-flyway` profiles set `oracle.jdbc.J2EE13Compliant=true` and `oracle.jdbc.timezoneAsRegion=false` for the test JVM (as the CI command did): without them `testDatabaseVariableDate` and `testDatabaseQueryRequestBodyTemporalValues` fail with a `ByteArrayInputStream` serialization error. Expected counts on containers: `sqlserver` 247 tests / 7 skipped, `sqlserver-flyway` 6 / 1, `oracle` 245 / 7, `oracle-flyway` 6 / 1 (the skipped Flyway test is the optional `awe-boot` module, which ships no script for these dialects). SQL Server is amd64-only: on Apple Silicon it runs under Docker Desktop's emulation.
 
+### IdP-first against a real Keycloak (#767)
+`KeycloakIdpFirstTest` (awe-boot, tag `Keycloak`) starts the Keycloak image pinned in `awe-testing-images.properties` with the realm `awe-tests/awe-boot/src/test/resources/keycloak/awe-test-realm.json`, and AWE on a random free port. It needs Docker (skipped without it) and runs only with the `keycloak` profile:
+```bash
+mvn -pl awe-framework/awe-testing,awe-tests/awe-boot -Pkeycloak -Dskip.frontend=true -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false test
+```
+Keycloak reaches AWE for the back-channel call through `host.testcontainers.internal`, or through the host in `AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST` when the test JVM is not on the Docker host (CI job `Keycloak Tests`).
+
 ## Output Contract
 
 Report the exact command run, the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On Selenium failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `browser-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).

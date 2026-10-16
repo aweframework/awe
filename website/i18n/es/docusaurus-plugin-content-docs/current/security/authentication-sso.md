@@ -12,7 +12,7 @@ src={require('@docusaurus/useBaseUrl').default('img/undraw_security-on_btwg.svg'
 # Single sign on {#single-sign-on}
 En las aplicaciones AWE puedes usar el método de autenticación SSO. Esta funcionalidad permite a un usuario utilizar una única cuenta para acceder a distintas aplicaciones (nombre de usuario y contraseña).
 
-Para ejecutar el proveedor de identidad como única vía de inicio de sesión, consulta el [modo de seguridad IdP-first](idp-first.md).
+Para ejecutar el proveedor de identidad como única vía de inicio de sesión, consulta el [modo de seguridad IdP-first](idp-first.md) y, para la configuración paso a paso con Keycloak y Microsoft Entra ID, la [guía IdP-first](idp-first-keycloak-entra.md).
 
 ## Azure EntraID {#azure-entraid}
 AWE proporciona integración con el servicio de autenticación oauth2 de Azure utilizando el nativo `spring-cloud-azure-starter-active-directory`. El uso del Spring Boot Starter para Microsoft Entra ID te permite conectar tu aplicación web a un tenant de Microsoft Entra y proteger tu servidor de recursos con Microsoft Entra ID. Utiliza el protocolo Oauth 2.0 para proteger aplicaciones web y servidores de recursos.

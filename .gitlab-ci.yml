@@ -840,6 +840,37 @@ Oracle Tests:
     matrix:
       - TEST_NAME: [ oracle, oracle-flyway ]
 
+# IdP-first login against a real Keycloak (#767, awe-boot KeycloakIdpFirstTest). Keycloak (quay.io, pinned by digest in
+# awe-testing-images.properties, so the dependency proxy prefix never touches it) runs in the dind daemon like the databases, and
+# AWE runs in the job on a random port. Keycloak has to reach AWE for the back-channel logout call: through the address of the job
+# container, given in AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST (without it the test uses host.docker.internal, which is only
+# right when the test JVM runs on the Docker host). The job runs only this test class (-Dtest): the rest of the reactor has
+# already been tested by "All UT". allow_failure while the runner networking for the back-channel call is unproven; remove it
+# once the job is green on the runners.
+Keycloak Tests:
+  extends:
+    - .unit-testing
+    - .database-containers
+  allow_failure: true
+  script:
+    # Address of the job container on the Docker network that the dind containers share: the source IPv4 of the route to the
+    # Docker daemon (an assumption of the runner layout: the job and the dind service are on the same network). Falls back to
+    # the first address of hostname -i when the route cannot be read
+    - |
+      export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n1)
+      export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=${AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST:-$(hostname -i | cut -d' ' -f1)}
+      echo "Keycloak back-channel host: $AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST"
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
+    # The class is skipped without Docker (disabledWithoutDocker) and failIfNoSpecifiedTests=false hides an empty selection: a
+    # green job must have run the 6 tests, so fail when the report is missing or counts none
+    - |
+      report=$(ls awe-tests/awe-boot/target/surefire-reports/TEST-*KeycloakIdpFirstTest.xml 2>/dev/null | head -n1)
+      [ -n "$report" ] || { echo "No Keycloak test report: the test class did not run"; exit 1; }
+      tests=$(sed -n 's/.*<testsuite [^>]* tests="\([0-9]*\)".*/\1/p' "$report" | head -n1)
+      skipped=$(sed -n 's/.*<testsuite [^>]* skipped="\([0-9]*\)".*/\1/p' "$report" | head -n1)
+      echo "Keycloak tests: ${tests:-0} run, ${skipped:-0} skipped"
+      [ "${tests:-0}" -gt "${skipped:-0}" ] || { echo "The Keycloak tests were all skipped (is Docker available?)"; exit 1; }
+
 Frontend UT:
   stage: test
   tags: [ medium ]
