@@ -794,6 +794,10 @@ estos selectores.
 | `error-boundary`, `error-boundary-title`, `error-boundary-message`, `error-boundary-details`, `error-boundary-retry`, `error-boundary-reload` | **Solo React.** El panel que muestra un error boundary cuando una parte de la aplicación falla al renderizar (`data-scope` es `app` o `view`), su título, el mensaje del error, su pila de componentes y sus botones. Lee el mensaje y la pila del código fuente de la página de la evidencia del fallo para diagnosticar una pantalla en blanco | En lugar de la parte que falló (`view`) o de toda la aplicación (`app`) |
 | `loading-bar`, `loading-spinner` | La barra de carga global (solo AngularJS) y su spinner. React no tiene barra de carga: muestra el spinner mientras se carga una vista. Existen solo mientras la aplicación se está cargando | Final de `<body>` |
 
+:::note
+Los hooks de carga (`loader`, `grid-loader`) están presentes desde el inicio de la carga; solo los esqueletos visuales aparecen tras 150 ms. Sigue esperando con estos hooks. Un grid que se recarga con el cargador skeleton mantiene sus filas, atenuadas, con `aria-busy="true"`.
+:::
+
 ### Estado {#state}
 
 El estado que necesita una prueba se expone como atributos de datos, de modo que no dependa de clases de librería. Son siempre `"true"`

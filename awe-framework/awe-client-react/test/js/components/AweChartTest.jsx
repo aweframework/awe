@@ -601,4 +601,51 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(firstChart.dispatchAction).not.toHaveBeenCalled();
     });
   });
+
+  describe('skeleton', () => {
+    const loader = () => document.querySelector("[data-testid='chart'] .awe-skeleton-chart");
+
+    it('should show a hidden skeleton until the chart is drawn', () => {
+      renderChart(models.ChrBarTst);
+
+      expect(loader()).not.toBeNull();
+      expect(loader().getAttribute("aria-hidden")).toBe("true");
+      expect(loader().classList.contains("awe-skeleton-chart")).toBe(true);
+
+      act(() => lastChart().handlers.finished());
+
+      expect(loader()).toBeNull();
+    });
+
+    it.each([
+      ['bars', models.ChrBarTst],
+      ['trend', models.ChrStockTst],
+      ['pie', models.ChrPieTst]
+    ])('should hint the %s of the chart in its skeleton', (hint, model) => {
+      renderChart(model);
+
+      expect(loader().classList.contains(`awe-skeleton-chart-${hint}`)).toBe(true);
+      expect(loader().querySelectorAll(".p-skeleton").length).toBeGreaterThan(0);
+    });
+
+    it('should not mark the skeleton as a loader, so browser waits do not depend on the chart being drawn', () => {
+      // A chart in a hidden tab is not drawn until it is shown: the chart hook tells whether it is rendered
+      renderChart(models.ChrBarTst);
+
+      expect(loader()).not.toBeNull();
+      expect(document.querySelector("[data-testid='chart'] [data-testid='loader']")).toBeNull();
+    });
+
+    it('should hint bars while the chart model has not arrived', () => {
+      renderChart(undefined);
+
+      expect(loader().classList.contains("awe-skeleton-chart-bars")).toBe(true);
+    });
+
+    it('should show no skeleton in a hidden chart', () => {
+      renderChart(models.ChrBarTst, values, {visible: false});
+
+      expect(loader()).toBeNull();
+    });
+  });
 });

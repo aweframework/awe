@@ -66,7 +66,7 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
       renderWithProviders(<Component id="Grd"/>, {preloadedState: gridState(attributes, {tree, ...options})});
 
     it("shows skeleton rows with the column model while loading without icon-loading", () => {
-      const {container} = renderGrid({loading: true, loadAll: true, max: 3}, {values: rows});
+      const {container} = renderGrid({loading: true, loadAll: true, max: 3});
 
       const loader = container.querySelector(hook("grid-loader"));
       expect(loader).not.toBeNull();
@@ -80,6 +80,32 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
       expect(container.querySelectorAll(hook("grid-header-cell"))).not.toHaveLength(0);
       expect(container.querySelector(hook("grid-cell"))).toBeNull();
     });
+
+    if (!tree) {
+      it.each([
+        ["row numbers", {rowNumbers: true}, ["24px"]],
+        ["selection", {multiselect: true}, ["40px"]],
+        ["selection and row numbers, in the order of the header", {multiselect: true, rowNumbers: true}, ["40px", "24px"]]
+      ])("starts the skeleton rows with a placeholder per pre-column: %s", (_case, attributes, widths) => {
+        const {container} = renderGrid({loading: true, loadAll: true, max: 3, ...attributes});
+
+        const skeletonRows = container.querySelectorAll(`${hook("grid-loader")} .grid-skeleton-row`);
+        expect(skeletonRows).toHaveLength(3);
+        [...skeletonRows].forEach(row => {
+          const cells = [...row.querySelectorAll(".grid-skeleton-cell")];
+          expect(cells).toHaveLength(2 + widths.length);
+          expect(cells.slice(0, widths.length).map(cell => cell.style.width)).toEqual(widths);
+          cells.forEach(cell => expect(cell.querySelector(".p-skeleton")).not.toBeNull());
+        });
+      });
+
+      it("draws no pre-column placeholder without row numbers or selection", () => {
+        const {container} = renderGrid({loading: true, loadAll: true, max: 3});
+
+        [...container.querySelectorAll(".grid-skeleton-row")]
+          .forEach(row => expect(row.querySelectorAll(".grid-skeleton-cell")).toHaveLength(2));
+      });
+    }
 
     it("caps the skeleton rows to ten", () => {
       const {container} = renderGrid({loading: true, loadAll: true, max: 50});
@@ -121,9 +147,9 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
     });
   });
 
-  it("keeps the page of a client-side paginated grid while the skeleton replaces its rows", () => {
+  it("keeps the page of a client-side paginated grid while its rows are dimmed on reload", () => {
     const many = Array.from({length: 25}, (_, index) => ({id: `r${index}`, name: `Row ${index}`, age: index}));
-    const state = gridState({loadAll: true, max: 10}, {values: many});
+    const state = gridState({loadAll: true, max: 10, iconLoading: "skeleton"}, {values: many});
     state.components.Grd.model.records = 25;
     state.components.Grd.specificAttributes = {sort: [], first: 10, rows: 10};
     const {container, store, dispatchSpy} = renderWithProviders(<AweGrid id="Grd"/>, {preloadedState: state, spyDispatch: true});
@@ -132,7 +158,7 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
       store.dispatch(updateAttributes({component: "Grd", view: "report"}, {loading: true}));
     });
 
-    expect(container.querySelector(`${hook("grid-loader")} .grid-skeleton-row`)).not.toBeNull();
+    expect(container.querySelector(".grid-reloading")).not.toBeNull();
     expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
     expect(JSON.stringify(dispatchSpy.mock.calls)).not.toContain("change-page");
   });

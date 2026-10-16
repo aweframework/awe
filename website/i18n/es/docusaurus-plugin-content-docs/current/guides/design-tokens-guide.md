@@ -111,7 +111,7 @@ Los nombres de los tokens son un contrato: no cambian entre versiones de la lín
 | `--awe-color-panel-text` | Texto sobre la cabecera del panel | `--panel-text-color` | `@panel-text-color` |
 | `--awe-color-grid-header` | Cabecera de la grid | `--grid-header-color` | `@grid-header-color` |
 | `--awe-color-grid-border` | Bordes de la grid | `--grid-border-color` | `@grid-border-color` |
-| `--awe-color-skeleton` | Relleno de los esqueletos de carga (derivado del borde de la grid) | | |
+| `--awe-color-skeleton` | Relleno de los esqueletos de carga de grids, criterios, botones y gráficos (derivado del borde de la grid) | | |
 | `--awe-color-skeleton-highlight` | Brillo animado de los esqueletos de carga | | |
 | `--awe-color-disabled` | Fondo de un control deshabilitado | `--disabled-color` | `@disabled-color` |
 | `--awe-color-disabled-border` | Borde de un control deshabilitado | `--disabled-border-color` | `@disabled-border-color` |

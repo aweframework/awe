@@ -107,7 +107,7 @@ The token names are a contract: they do not change between versions of the line.
 | `--awe-color-panel-text` | Text over the panel header | `--panel-text-color` | `@panel-text-color` |
 | `--awe-color-grid-header` | Grid header | `--grid-header-color` | `@grid-header-color` |
 | `--awe-color-grid-border` | Grid borders | `--grid-border-color` | `@grid-border-color` |
-| `--awe-color-skeleton` | Loading skeleton placeholders (derived from the grid border) | | |
+| `--awe-color-skeleton` | Loading skeleton placeholders of grids, criteria, buttons and charts (derived from the grid border) | | |
 | `--awe-color-skeleton-highlight` | Shimmer highlight of the loading skeletons | | |
 | `--awe-color-disabled` | Disabled control background | `--disabled-color` | `@disabled-color` |
 | `--awe-color-disabled-border` | Disabled control border | `--disabled-border-color` | `@disabled-border-color` |

@@ -7,12 +7,12 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { updateModelWithDependencies } from "../redux/thunks/components";
-import { Skeleton } from "primereact/skeleton";
+import { CriterionSkeleton } from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 
 function AwePicklist(props) {
 
-  const { id, style: propsStyle } = props;
+  const { id } = props;
   const { t } = useTranslation();
   const { address, attributes = {}, model = { values: [] } } = useComponentState(id);
   const dispatch = useDispatch();
@@ -49,7 +49,7 @@ function AwePicklist(props) {
 
   // If address is undefined, return skeleton
   if (!address) {
-    return <Skeleton width="100%" height="8rem" style={propsStyle} />;
+    return <CriterionSkeleton attributes={attributes} kind="list" />;
   }
 
   // Paint component

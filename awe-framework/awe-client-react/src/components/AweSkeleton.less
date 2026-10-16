@@ -1,0 +1,143 @@
+/* Visuals of the loading skeletons. The skeleton (or its test hook) is in the page from the start of a load, but its
+   placeholders show after a short delay, so a fast load does not flash. There is no shimmer for reduced motion (main.css) */
+@skeleton-delay: 150ms;
+
+@keyframes awe-skeleton-appear {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes awe-skeleton-dim {
+  from {
+    opacity: 1;
+  }
+}
+
+.skeleton-delayed() {
+  opacity: 0;
+  animation: awe-skeleton-appear 0s linear @skeleton-delay forwards;
+}
+
+// Placeholders of every skeleton: grid rows, screen, component loader, criteria, buttons and charts
+.grid-skeleton .p-skeleton,
+.screen-skeleton-contents,
+.awe-loader-skeleton .p-skeleton,
+.awe-skeleton-criterion .p-skeleton,
+.awe-skeleton-button .p-skeleton,
+.awe-skeleton-chart .p-skeleton {
+  .skeleton-delayed();
+}
+
+// Criterion: the label and a field at the height of the real ones (PrimeReact inputs: 2.5rem, small 2.1rem, large 3.1rem)
+.awe-skeleton-criterion {
+  .awe-skeleton-label {
+    height: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .awe-skeleton-field {
+    height: 2.5rem;
+    width: 100%;
+  }
+
+  &.awe-skeleton-criterion-check {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    .awe-skeleton-label {
+      margin-bottom: 0;
+    }
+  }
+
+  .awe-skeleton-check {
+    flex: none;
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  .awe-skeleton-line {
+    height: 2.25rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.awe-skeleton-sm .awe-skeleton-field {
+  height: 2.1rem;
+}
+
+.awe-skeleton-lg .awe-skeleton-field {
+  height: 3.1rem;
+}
+
+// Button: as wide as its label
+.awe-skeleton-button {
+  display: inline-block;
+  vertical-align: top;
+
+  .p-skeleton {
+    height: 2.5rem;
+  }
+
+  &.awe-skeleton-sm .p-skeleton {
+    height: 2.1rem;
+  }
+
+  &.awe-skeleton-lg .p-skeleton {
+    height: 3.1rem;
+  }
+}
+
+// Chart: the area of the chart with a hint of its type
+.awe-skeleton-chart {
+  align-items: flex-end;
+  bottom: 0;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-around;
+  left: 0;
+  padding: 1rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  .awe-skeleton-bar {
+    flex: 1 1 0;
+  }
+
+  &.awe-skeleton-chart-trend .awe-skeleton-trend {
+    clip-path: polygon(0 80%, 20% 55%, 40% 65%, 60% 30%, 80% 45%, 100% 15%, 100% 100%, 0 100%);
+    height: 100%;
+    width: 100%;
+  }
+
+  &.awe-skeleton-chart-pie {
+    align-items: center;
+    justify-content: center;
+
+    .awe-skeleton-pie {
+      aspect-ratio: 1;
+      height: 70%;
+      width: auto;
+    }
+  }
+}
+
+// Reload of a grid that has rows (default loader): the rows stay, dimmed and not clickable, until the new data arrives.
+// The loader of PrimeReact only holds the loading test hook: it paints no mask and no icon
+.grid-container.grid-reloading {
+  cursor: progress;
+
+  > .grid-contents {
+    animation: awe-skeleton-dim 150ms ease-out @skeleton-delay backwards;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .p-datatable-loading-overlay,
+  .p-treetable-loading-overlay {
+    background: transparent;
+  }
+}

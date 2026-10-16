@@ -4,13 +4,13 @@ import {translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
-import {Skeleton} from "primereact/skeleton";
+import {CriterionSkeleton} from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
 
 function AweSelect(props) {
 
-  const { id, style: propsStyle } = props;
+  const { id } = props;
   const {t, ref, address, model, attributes, validationRules, options, selected, onChange} =
     useSelect({id, multiple: false});
 
@@ -21,9 +21,9 @@ function AweSelect(props) {
     }
   }, [optional, selected, model?.values, onChange]);
 
-  // If address is undefined, return skeleton
-  if (!address) {
-    return <Skeleton width="10rem" height="2rem" style={propsStyle}/>;
+  // If the criterion is not registered yet, return skeleton
+  if (!address?.component) {
+    return <CriterionSkeleton attributes={attributes}/>;
   }
 
   const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });

@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import PropTypes from "prop-types";
-import { Skeleton } from "primereact/skeleton";
+import { ButtonSkeleton } from "./AweSkeleton";
 import { TestIds, testHook } from "../utilities/testIds";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
@@ -28,7 +28,8 @@ const getButtonType = (buttonType) => {
 
 function AweButton(props) {
   const { id, style: propsStyle } = props;
-  const { address = {}, attributes = {}, actions = [] } = useComponentState(id);
+  const state = useComponentState(id);
+  const { address = {}, attributes = {}, actions = [] } = state;
   const settings = useSelector(state => state.settings);
   const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
@@ -46,9 +47,9 @@ function AweButton(props) {
     }
   }, [actions, address, attributes?.buttonType, dispatch]);
 
-  // If address is undefined, return skeleton
-  if (!address) {
-    return <Skeleton width="10rem" height="2rem" className={propsStyle} />;
+  // A button that has no state at all is waiting to register: its skeleton takes its place
+  if (Object.keys(state).length === 0) {
+    return <ButtonSkeleton attributes={attributes} className={propsStyle} />;
   }
 
   const { style, icon, disabled, label, size, visible, help, helpImage, buttonType } = attributes;

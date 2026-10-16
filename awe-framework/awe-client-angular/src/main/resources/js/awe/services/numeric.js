@@ -19,7 +19,7 @@ export const templateNumeric =
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly" ng-press-enter="submit($event)"
              placeholder="{{controller.placeholder| translateMultiple}}" ng-focus="focus()" ng-blur="blur()"
              data-testid="${TestIds.criterionInput}"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
   </div>

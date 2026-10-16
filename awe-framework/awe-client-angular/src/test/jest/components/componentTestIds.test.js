@@ -94,7 +94,9 @@ describe("grid test ids", () => {
 
       expect(root.find(`button.grid-row-save${hook(TestIds.gridRowSave)}[id]`).length).toBe(1);
       expect(root.find(`button.grid-row-cancel${hook(TestIds.gridRowCancel)}[id]`).length).toBe(1);
-      expect(root.find(`awe-loader.grid-loader${hook(TestIds.gridLoader)}`).length).toBe(1);
+      // The icon loader and the dimmed reload of the default loader: one of them shows at a time
+      expect(root.find(`awe-loader.grid-loader${hook(TestIds.gridLoader)}`).length).toBe(2);
+      expect(root.find(`awe-loader.grid-loader[skeleton="reload"]`).length).toBe(1);
     });
 
     it.each([inlineGrid, gridFile])("$name marks the pagination controls", ({template}) => {

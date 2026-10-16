@@ -14,7 +14,7 @@ export const templateButtonCheckbox = `<label ng-show="controller.visible" class
     <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
     {{controller.label| translateMultiple}}
   </span>
-  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
 export const templateButtonRadio = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': component.model.selected === component.value, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
@@ -27,7 +27,7 @@ export const templateButtonRadio = `<label ng-show="controller.visible" class="c
     <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
     {{controller.label| translateMultiple}}
   </span>
-  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
 
 export const templateInputCheckbox = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
@@ -43,7 +43,7 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
           <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
           {{controller.label| translateMultiple}}
         </span>
-        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+        <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       </label>
     </div>
   </div>
@@ -89,7 +89,7 @@ export const templateRadio = `<div ng-show="controller.visible" class="criterion
           <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
           {{controller.label| translateMultiple}}
         </span>
-        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+        <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       </label>
     </div>
   </div>

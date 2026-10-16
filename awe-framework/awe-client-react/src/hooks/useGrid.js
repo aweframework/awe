@@ -3,7 +3,7 @@ import { Column } from "primereact/column";
 import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import { getIconCode, translateLabel } from "../utilities";
-import { getGridIdentifier, getWidthStyle, OperationIcon, OperationIconName } from "../utilities/grid";
+import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH } from "../utilities/grid";
 import { ContextMenu } from "primereact/contextmenu";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
@@ -121,8 +121,7 @@ export function useGrid(id) {
   };
 
   const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers) => {
-    let maxWidth = String((first || 0) + (rows || 0)).length - 2;
-    let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getWidthStyle(maxWidth) };
+    let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getRowNumberWidthStyle(first, rows) };
     if (rowNumbers) {
       return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan}
         body={(_data, options) => options.rowIndex + 1}
@@ -144,7 +143,7 @@ export function useGrid(id) {
       rowSpan={rowSpan}
       pt={selectionColumnPassThrough()}
       footer={null}
-      style={{ textAlign: "center", ...getWidthStyle(null, null, '40px') }}
+      style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
     /> : null
   );
 

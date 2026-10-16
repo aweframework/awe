@@ -8,14 +8,14 @@ import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import { translateLabel } from "../utilities";
 import { getSuggestionLabel, withTextLabels } from "../utilities/suggest";
-import { Skeleton } from "primereact/skeleton";
+import { CriterionSkeleton } from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
 import { Tooltip } from "primereact/tooltip";
 import { autoCompletePassThrough } from "../utilities/testPassThrough";
 
 function AweSuggest(props) {
-  const { id, style: propsStyle } = props;
+  const { id } = props;
   const { t } = useTranslation();
   const { address } = useComponent(id);
   const { model, attributes, validationRules } = useComponentState(id);
@@ -55,9 +55,9 @@ function AweSuggest(props) {
     }
   }, [openPanelOnMount, suggestions.length]);
 
-  // If address is undefined, return skeleton
+  // If the criterion is not registered yet, return skeleton
   if (!address?.component) {
-    return <Skeleton width="10rem" height="2rem" style={propsStyle} />;
+    return <CriterionSkeleton attributes={attributes} />;
   }
 
   let virtualSettings = null;

@@ -35,7 +35,8 @@ describe("grid loading skeleton", () => {
 
   const compileGrid = (controllerOverrides = {}) => {
     const controller = {...baseController, columnModel: baseController.columnModel.map(column => ({...column})), ...controllerOverrides};
-    const model = {page: 1, records: 0, total: 1, selected: [], values: []};
+    const model = {page: 1, records: 0, total: 1, selected: [], values: controllerOverrides.rows || []};
+    delete controller.rows;
     jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
     jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
     jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
@@ -99,6 +100,39 @@ describe("grid loading skeleton", () => {
     expect(cells[1].style.width).toBe(`${10 * scope.charSize}px`);
   });
 
+  describe("pre-columns", () => {
+    const widths = element => [...element.find(".grid-skeleton-row").eq(0).find(".grid-skeleton-cell")].map(cell => cell.style.width);
+
+    it.each([
+      ["row numbers", {rowNumbers: true}, ["30px", "120px"]],
+      ["selection", {multiselect: true}, ["26px", "120px"]],
+      ["row numbers and selection, in the order of the header", {rowNumbers: true, multiselect: true}, ["30px", "26px", "120px"]]
+    ])("starts the rows with a placeholder per shown pre-column: %s", (_case, overrides, expected) => {
+      const {element} = compileGrid({...overrides, columnModel: [{name: "name", label: "Name", width: 120}]});
+
+      const cells = element.find(".grid-skeleton-row").eq(0).find(".grid-skeleton-cell");
+      expect(widths(element)).toEqual(expected);
+      expect(cells.find(".skeleton-bar").length).toBe(expected.length);
+    });
+
+    it("draws the pre-columns once even when the column model already has them", () => {
+      const {element} = compileGrid({rowNumbers: true, multiselect: true});
+
+      expect(element.find(".grid-skeleton-row").eq(0).find(".grid-skeleton-cell").length).toBe(4);
+    });
+
+    it("uses the drawn width of a pre-column when the grid is rendered", () => {
+      const {scope} = compileGrid({rowNumbers: true});
+      scope.$destroy();
+      const drawn = compileGrid({rowNumbers: true, loading: false});
+      drawn.scope.component.grid.api.grid.columns.push({name: "rowNum", drawnWidth: 44});
+      drawn.scope.controller.loading = true;
+      refs.$rootScope.$digest();
+
+      expect(widths(drawn.element)[0]).toBe("44px");
+    });
+  });
+
   it("marks the grid as busy while it loads and removes the skeleton when loading ends", () => {
     const {element, scope} = compileGrid();
     expect(element.attr("aria-busy")).toBe("true");
@@ -141,5 +175,52 @@ describe("grid loading skeleton", () => {
     expect(html).toMatch(/<awe-grid-skeleton[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*iconLoader === 'skeleton'/);
     expect(html).toMatch(/<awe-loader[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*iconLoader !== 'skeleton'/);
     expect(html).toMatch(/ng-attr-aria-busy="\{\{controller\.loading \|\| undefined\}\}"/);
+  });
+
+  describe("reload with rows", () => {
+    const ROWS = [{name: "a", date: "2026-01-01"}, {name: "b", date: "2026-01-02"}];
+
+    it("dims the current rows instead of drawing the skeleton or the spinner when the default loader reloads", () => {
+      const {element} = compileGrid({rows: ROWS});
+
+      const loader = element.find(GRID_LOADER);
+      expect(loader.length).toBe(1);
+      expect(loader[0].tagName).toBe("AWE-LOADER");
+      expect(loader.hasClass("grid-reload")).toBe(true);
+      expect(element.find("awe-grid-skeleton").length).toBe(0);
+      expect(element.hasClass("grid-reloading")).toBe(true);
+      expect(element.attr("aria-busy")).toBe("true");
+    });
+
+    it("restores the rows when the reload ends", () => {
+      const {element, scope} = compileGrid({rows: ROWS});
+
+      scope.controller.loading = false;
+      refs.$rootScope.$digest();
+
+      expect(element.find(GRID_LOADER).length).toBe(0);
+      expect(element.hasClass("grid-reloading")).toBe(false);
+      expect(element.attr("aria-busy")).toBeUndefined();
+    });
+
+    it("still draws the skeleton on the first load, with no rows", () => {
+      const {element} = compileGrid();
+
+      expect(element.find(GRID_LOADER)[0].tagName).toBe("AWE-GRID-SKELETON");
+      expect(element.hasClass("grid-reloading")).toBe(false);
+    });
+
+    it.each(["spinner", "dots"])("keeps the %s icon on the first load and on the reload of a grid with a custom icon-loading", icon => {
+      const first = compileGrid({iconLoading: icon});
+      expect(first.element.find(GRID_LOADER)[0].tagName).toBe("AWE-LOADER");
+      expect(first.element.find("awe-grid-skeleton").length).toBe(0);
+      first.scope.$destroy();
+
+      const reload = compileGrid({iconLoading: icon, rows: ROWS});
+      expect(reload.element.find(GRID_LOADER)[0].tagName).toBe("AWE-LOADER");
+      expect(reload.element.find(GRID_LOADER).hasClass("grid-reload")).toBe(false);
+      expect(reload.element.hasClass("grid-reloading")).toBe(false);
+      expect(reload.element.attr("aria-busy")).toBe("true");
+    });
   });
 });

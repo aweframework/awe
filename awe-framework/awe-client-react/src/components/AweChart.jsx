@@ -14,6 +14,7 @@ import {linkedNames} from "../utilities/echartsLegend";
 import {parseChartOptions, pointOf, zoomOf, zoomRequests} from "../utilities/echartsEvents";
 import {echarts, getEChartsLocale, isDarkTheme, renderSvg} from "../utilities/echartsSetup";
 
+import {ChartSkeleton, chartHintOf} from "./AweSkeleton";
 import "./AweChart.less";
 
 const RESIZE_DELAY = 50;
@@ -227,6 +228,7 @@ function AweChart(props) {
   return <div className={classes} id={id} ref={containerRef}
     {...testHook(TestIds.chart, {rendered, zoomed, attributes: {"chart-id": id}})}>
     <div ref={chartElementRef} style={{position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}/>
+    {!rendered && visible !== false && <ChartSkeleton hint={chartHintOf(echartsModel)}/>}
   </div>;
 }
 

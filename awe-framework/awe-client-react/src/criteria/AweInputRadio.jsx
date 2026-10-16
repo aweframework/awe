@@ -17,7 +17,7 @@ function AweInputRadio(props) {
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
-    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false}>
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check">
       <div className="field-radiobutton">
         <RadioButton
           inputId={address?.component}

@@ -12,8 +12,7 @@ import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
-import AweLoader from "./AweLoader";
-import AweGridSkeleton, {getGridIconLoading, SKELETON} from "./AweGridSkeleton";
+import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, SKELETON} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -164,14 +163,15 @@ function AweGrid(props) {
   const loadingIcon = getGridIconLoading(iconLoading, settings);
   // The skeleton replaces the rows in the body instead of masking them. While it is shown the grid is kept lazy with
   // its known total, so a client-side paginated grid does not jump back to the first page when its rows disappear
-  const showSkeleton = loading && loadingIcon === SKELETON;
+  const reloading = isGridReloading(loading, loadingIcon, values.length);
+  const showSkeleton = loading && !reloading && loadingIcon === SKELETON;
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows} />;
+    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers} first={first} />;
   }
 
   return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
-                    onContextMenu={onContextMenu} loading={loading}>
+                    onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
     <DataTable
       selection={selectedValues}
       selectionMode={multiselect ? null : "single"}
@@ -200,7 +200,7 @@ function AweGrid(props) {
       onSort={onSort}
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
-      loadingIcon={<AweLoader icon={loadingIcon} rootProps={testHook(TestIds.gridLoader)} />}
+      loadingIcon={gridLoadingIcon(reloading, loadingIcon)}
       pt={gridPassThrough({
         gridId: address?.component,
         getRowId: () => renderingRowId.current,

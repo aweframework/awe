@@ -23,7 +23,7 @@ export const calendarInputTemplate =
              ng-model="model.selected" ng-change="component.modelChange()"
              ng-model-options="{updateOn: 'change'}" ng-focus="focus()" ng-blur="blur()"
              ng-press-enter="submit($event)" data-testid="${TestIds.criterionInput}"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
         <i class="fa fa-calendar"></i>
       </span>
@@ -64,7 +64,7 @@ export const timeInputTemplate =
              ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"
              data-testid="${TestIds.criterionInput}"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
         <i class="fa fa-clock-o"></i>
       </span>

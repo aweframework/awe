@@ -2,6 +2,8 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useScreenSize} from "../hooks/useSizeRegistry";
 import PropTypes from "prop-types";
 import {getMoveRowKeyPosition} from "../utilities/grid";
+import {classNames} from "../utilities/components";
+import "./AweSkeleton.less";
 
 /**
  * AWE Grid Container component (functional)
@@ -9,7 +11,7 @@ import {getMoveRowKeyPosition} from "../utilities/grid";
  * @subcategory Grid
  */
 function AweGridContainer(props) {
-  const { onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, children } = props;
+  const { onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, children } = props;
   const containerRef = useRef(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const screenSize = useScreenSize();
@@ -53,7 +55,8 @@ function AweGridContainer(props) {
   }, [containerHeight]);
 
   return (
-    <div className="grid-container expand expandible-vertical" ref={containerRef} aria-busy={loading ? "true" : undefined}>
+    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading})} ref={containerRef}
+         aria-busy={loading ? "true" : undefined}>
       <div
         className="grid-contents expand expandible-vertical"
         role="grid-container"
@@ -70,6 +73,7 @@ AweGridContainer.propTypes = {
   children: PropTypes.node,
   loading: PropTypes.bool,
   onContextMenu: PropTypes.any,
+  reloading: PropTypes.bool,
   onKeyCancelRow: PropTypes.any,
   onKeyMoveRow: PropTypes.any,
   onKeySaveRow: PropTypes.any,

@@ -4,6 +4,49 @@
  --awe-color-skeleton tokens, so every theme and mode paints them.
 *******************************************************************************/
 
+// The skeleton is a test hook from the start of the load, but its visuals show after a short delay (150 ms): a fast load
+// does not flash. The containers stay in place; the placeholders and their backgrounds fade in
+@skeleton-delay: 150ms;
+
+@keyframes awe-skeleton-appear {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes awe-skeleton-panel {
+  to {
+    background-color: var(--awe-color-panel);
+  }
+}
+
+@keyframes awe-skeleton-backdrop {
+  to {
+    background-color: var(--awe-color-background);
+  }
+}
+
+// A label or a button of a component that is loading becomes a placeholder
+@keyframes awe-skeleton-dim {
+  from {
+    opacity: 1;
+  }
+}
+
+@keyframes awe-skeleton-mask {
+  to {
+    color: transparent;
+    background-color: var(--awe-color-skeleton);
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.skeleton-delayed() {
+  opacity: 0;
+  animation: awe-skeleton-appear 0s linear @skeleton-delay forwards;
+}
+
 @keyframes awe-skeleton-shimmer {
   0% {
     background-position: 100% 0;
@@ -20,7 +63,8 @@
   border-radius: var(--awe-radius-sm);
   background: linear-gradient(90deg, var(--awe-color-skeleton) 25%, var(--awe-color-skeleton-highlight) 50%, var(--awe-color-skeleton) 75%);
   background-size: 200% 100%;
-  animation: awe-skeleton-shimmer 1.4s ease-in-out infinite;
+  opacity: 0;
+  animation: awe-skeleton-shimmer 1.4s ease-in-out infinite, awe-skeleton-appear 0s linear @skeleton-delay forwards;
 }
 
 // Loader with icon-loading="skeleton" (criteria, charts...): a block over the component
@@ -36,8 +80,87 @@
     width: 100%;
     height: 100%;
     padding: var(--awe-space-2xs);
-    background-color: var(--awe-color-panel);
+    background-color: transparent;
+    animation: awe-skeleton-panel 0s linear @skeleton-delay forwards;
   }
+  // Checkbox and radio: the box and the label
+  .skeleton-box {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-xs);
+    background-color: transparent;
+    .skeleton-bar {
+      height: 14px;
+    }
+  }
+  .skeleton-check {
+    flex: none;
+    width: 14px;
+    &.skeleton-radio {
+      border-radius: 50%;
+    }
+  }
+  // Chart: the area of the chart with a hint of its type
+  .skeleton-chart {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: var(--awe-space-xs);
+    .skeleton-bar {
+      flex: 1 1 0;
+      height: 100%;
+    }
+  }
+  .skeleton-chart-bars .skeleton-bar {
+    align-self: flex-end;
+  }
+  .skeleton-chart-trend .skeleton-bar {
+    clip-path: polygon(0 80%, 20% 55%, 40% 65%, 60% 30%, 80% 45%, 100% 15%, 100% 100%, 0 100%);
+  }
+  .skeleton-chart-pie {
+    align-items: center;
+    justify-content: center;
+    .skeleton-bar {
+      flex: none;
+      width: auto;
+      height: 70%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+    }
+  }
+}
+
+// Label of the criterion and button that are loading: a placeholder as wide as the label (after the delay)
+.criterion.skeleton-pending {
+  label,
+  .lbl {
+    border-radius: var(--awe-radius-sm);
+    animation: awe-skeleton-mask 0s linear @skeleton-delay forwards;
+  }
+}
+.skeleton-pending button {
+  pointer-events: none;
+  animation: awe-skeleton-mask 0s linear @skeleton-delay forwards;
+}
+// The loader of a button is only the test hook: the button itself is the placeholder
+.loader.skeleton-hook {
+  background-color: transparent;
+  pointer-events: none;
+}
+
+// Reload of a grid that has rows (default loader): the rows stay, dimmed and not clickable, until the new data arrives
+.grid.grid-reloading .grid-container {
+  opacity: 0.5;
+  pointer-events: none;
+  animation: awe-skeleton-dim 150ms ease-out @skeleton-delay backwards;
+}
+.loader.grid-reload {
+  display: block;
+  background-color: transparent;
+  cursor: progress;
 }
 
 // Grid rows: one row per record of the page and one bar per visible column, below the header
@@ -56,9 +179,11 @@
     right: 0;
     bottom: 0;
     overflow: hidden;
-    background-color: var(--awe-color-panel);
+    background-color: transparent;
+    animation: awe-skeleton-panel 0s linear @skeleton-delay forwards;
   }
   .grid-skeleton-row {
+    .skeleton-delayed();
     display: flex;
     align-items: center;
     height: 27px;
@@ -85,7 +210,11 @@
   gap: var(--awe-space-md);
   padding: var(--awe-space-md);
   overflow: hidden;
-  background-color: var(--awe-color-background);
+  background-color: transparent;
+  animation: awe-skeleton-backdrop 0s linear @skeleton-delay forwards;
+  > * {
+    .skeleton-delayed();
+  }
   .screen-skeleton-title {
     height: 28px;
     width: 30%;
@@ -120,8 +249,9 @@
   }
 }
 
+// No shimmer for reduced motion: the placeholders still show after the delay
 @media (prefers-reduced-motion: reduce) {
   .skeleton-bar {
-    animation: none;
+    animation: awe-skeleton-appear 0s linear @skeleton-delay forwards;
   }
 }
