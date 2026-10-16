@@ -1722,7 +1722,7 @@ Build package:
     - DOCKERHUB_IMAGE_DIGEST_REF=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' aweframework/awe-boot:$PROJECT_VERSION | grep '^aweframework/awe-boot@' | head -n1)
     - test -n "$DOCKERHUB_IMAGE_DIGEST_REF" || { echo "Docker Hub digest not found for aweframework/awe-boot:$PROJECT_VERSION"; exit 1; }
     - cosign sign "$DOCKERHUB_IMAGE_DIGEST_REF"
-    # React test application image (awe-boot-react), built, signed and attested like awe-boot. No deploy job uses it.
+    # React test application image (awe-boot-react), built, signed and attested like awe-boot. .k8s_deploy deploys it by PACKAGE_REACT_DIGEST.
     # The digest is read from RepoDigests of the pushed image, so it is exactly the one that was pushed.
     - docker build -t registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION ./awe-tests/awe-boot-react
     - docker push registry.gitlab.com/aweframework/awe/awe-boot-react:$PROJECT_VERSION
@@ -1890,29 +1890,61 @@ Publish npm:
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v([5-9]|[1-9][0-9]+)\./'
 
-# Kubernetes deployment
+# Kubernetes deployment: one job per environment updates both test applications in awe-gke-config with one commit, so
+# awe-boot (AngularJS) and awe-react always run the images built from the same commit:
+#   staging    -> https://staging.aweframework.com  and https://react-staging.aweframework.com
+#   production -> https://demo.aweframework.com     and https://react-demo.aweframework.com
+# Both images are set by the digest that "Build package" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
 .k8s_deploy:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   cache: { }
   interruptible: false
   timeout: 15m
-  variables:
-    GIT_STRATEGY: none
   needs:
     - job: Build project
     - job: Launch Sonar
       artifacts: false
     - job: Build package
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
+    AWE_BOOT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot
+    AWE_REACT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot-react
+    # Image of the former awe-react repository, still referenced by the awe-react manifests until the first deploy from here.
+    AWE_REACT_LEGACY_IMAGE: registry.gitlab.com/aweframework/awe-react/awe-react
   script:
+    # Never write an image reference without a digest: stop before touching awe-gke-config.
+    - |
+      for name in PACKAGE_DIGEST PACKAGE_REACT_DIGEST; do
+        if [ -z "$(printenv "$name")" ]; then
+          echo "$name is empty: the build.env dotenv from Build package was not received"
+          exit 1
+        fi
+      done
     - git clone ${GIT_REPO_AWE_CONFIG}
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
-    - cd awe-gke-config/manifests/${CI_ENVIRONMENT_SLUG}/awe-boot/kustomize
-    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot@${PACKAGE_DIGEST}
-    - kustomize edit set annotation version:${PROJECT_VERSION}
-    - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment ${CI_ENVIRONMENT_SLUG}"
+    - cd awe-gke-config/manifests/${CI_ENVIRONMENT_SLUG}
+    - |
+      (
+        cd awe-boot/kustomize
+        kustomize edit set image ${AWE_BOOT_IMAGE}@${PACKAGE_DIGEST}
+        kustomize edit set annotation version:${PROJECT_VERSION}
+        kustomize build -o awe-boot-deployment.yaml
+      )
+    # "kustomize edit set image" only rewrites images whose name is already in the deployment, so the legacy image
+    # name is first renamed to the image of this repository (and the GitLab app annotation to this project). After
+    # the first deploy from here both seds match nothing.
+    - |
+      (
+        cd awe-react/kustomize
+        sed -i "s#${AWE_REACT_LEGACY_IMAGE}#${AWE_REACT_IMAGE}#" kustomization.yaml awe-react-deployment.yaml
+        sed -i "s#app.gitlab.com/app: aweframework-awe-react#app.gitlab.com/app: ${CI_PROJECT_PATH_SLUG}#" awe-react-deployment.yaml
+        kustomize edit set image ${AWE_REACT_IMAGE}@${PACKAGE_REACT_DIGEST}
+        kustomize edit set annotation version:${PROJECT_VERSION}
+        kustomize build -o awe-react-deployment.yaml
+      )
+    - git commit . -m "Updated awe-boot and awe-react kubernetes deployments ${CI_ENVIRONMENT_SLUG}"
     - git push origin master
 
 Deploy staging:
