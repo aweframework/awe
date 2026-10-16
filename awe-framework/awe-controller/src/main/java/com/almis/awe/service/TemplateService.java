@@ -299,9 +299,15 @@ public class TemplateService extends ServiceConfig {
    * @param screen    Screen
    * @param tagListId Taglist identifier
    * @return Taglist template
+   * @throws AWENotFoundException Taglist is not defined in the screen
    */
-  public TagList getTagList(Screen screen, String tagListId) {
-    return (TagList) (screen.getElementsById(tagListId).get(0));
+  public TagList getTagList(Screen screen, String tagListId) throws AWENotFoundException {
+    List<Element> tagLists = screen.getElementsById(tagListId);
+    if (tagLists.isEmpty()) {
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_NOT_DEFINED", tagListId),
+        getLocale("ERROR_MESSAGE_NOT_DEFINED_IN", tagListId, screen.getId()));
+    }
+    return (TagList) tagLists.get(0);
   }
 
   /**

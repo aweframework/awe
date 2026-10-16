@@ -74,6 +74,8 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
+| Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| `TemplateService.getTagList(Screen, String)` (#861) | Code that calls this method directly does not compile: it now declares `throws AWENotFoundException`. A tag list missing from the screen raises this error instead of an `IndexOutOfBoundsException`. | Catch or propagate `AWENotFoundException` (or `AWException`). | issue #861 |
 | SQLBuilder (#782) | Only for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder` and call removed private methods of `SQLBuilder` by reflection. The protected methods keep their signatures and still call each other in the same order. | Nothing if you only override protected methods. Replace reflective calls to the removed private methods with the protected methods. | [SQLBuilder](#sqlbuilder) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
@@ -193,6 +195,15 @@ Issue #783 moves AWE 5 to Java 21, Spring Boot 4.1.1 (Spring Framework 7.0, Spri
   uses the `delombok` execution of `maven-antrun-plugin`, managed in `awe-dependencies`, with the Lombok version of
   the Spring Boot BOM. The `skip.delombok` property keeps working. If your `pom.xml` declared `lombok-maven-plugin`,
   declare `maven-antrun-plugin` instead (it inherits the `delombok` execution) or remove it.
+- **Spring Session with Redis needs its starter** (#861). Spring Boot 4 moved the Spring Session auto-configuration to
+  its own module: with `spring-session-data-redis` alone the application starts without any error, but the sessions
+  stay in each server and are lost when a request reaches another instance. Depend on
+  `spring-boot-starter-session-data-redis` instead, and rename the `spring.session.redis.*` properties to
+  `spring.session.data.redis.*`. The Redis auto-configuration classes moved too: an exclusion of
+  `org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration` no longer excludes anything. Exclude
+  `org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration` and
+  `org.springframework.boot.session.data.redis.autoconfigure.SessionDataRedisAutoConfiguration` where there is no
+  Redis. With Spring Session active the session cookie is `SESSION`.
 - `TaskConfig` and `SchedulerTaskConfig` constructors now also take the `Environment`. This only matters if your code
   creates these configuration classes itself.
 
@@ -798,6 +809,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Browser tests compile; the `By` overloads and `getDriver()` were moved to `Locator` and `getBrowser()`
 - [ ] The application builds and runs on JDK 21 with `java.version` 21
 - [ ] Spring Boot 4.1 starters and test annotations replace the removed ones (`spring-boot-starter-web`, `@MockBean`...)
+- [ ] Spring Session with Redis uses `spring-boot-starter-session-data-redis` and `spring.session.data.redis.*` properties
 - [ ] Jackson imports moved to `tools.jackson.*`; `asText()`/`asInt()`/`asBoolean()` calls use the default-value overloads
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
