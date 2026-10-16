@@ -8,13 +8,11 @@ sidebar_label: Modo IdP-first
 
 Esta página es el documento de decisión para ejecutar una aplicación AWE con un proveedor de identidad (IdP) externo como
 única forma de iniciar sesión. Está escrita para los equipos de aplicación que configuran AWE y para los mantenedores que lo evolucionan.
-Explica qué decide el IdP, qué conserva AWE, quién puede bloquear a un usuario, y qué partes existen hoy y cuáles están
-planificadas.
+Explica qué decide el IdP, qué conserva AWE, quién puede bloquear a un usuario, y qué configuración controla cada parte. Todas
+las partes descritas aquí existen en el código actual.
 
 :::info Guía de lectura
-Todo lo que no esté marcado como **Planificado** describe el comportamiento del código actual. Los elementos marcados como **Planificado en AWE 5**
-son decisiones ya tomadas pero que todavía no están disponibles; no tienen fecha de entrega y sus nombres de propiedad pueden
-cambiar. Para configurar el propio SSO, empieza por [Single sign-on](authentication-sso.md).
+Todo lo que contiene esta página describe el comportamiento del código actual. Para configurar el propio SSO, empieza por [Single sign-on](authentication-sso.md).
 :::
 
 ## Qué significa "IdP-first" {#what-idp-first-means}
@@ -207,11 +205,11 @@ awe.security.sso.back-channel-logout.enabled=true
 awe.security.sso.back-channel-logout.logout-uri=http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}
 ```
 
-### Planificado en AWE 5 {#planned-in-awe-5}
+### Prueba de integración con Keycloak {#integration-test-with-keycloak}
 
-| Elemento | Intención |
-| --- | --- |
-| Prueba de integración con Keycloak | Una prueba automatizada de extremo a extremo contra un Keycloak real (inicio de sesión, mapeo de perfil, cierre de sesión por canal trasero, usuario deshabilitado). |
+`KeycloakIdpFirstTest` (`awe-tests/awe-boot`) ejecuta el inicio de sesión, el mapeo de perfil desde los claims de roles, el rechazo
+con fallo cerrado, el rechazo de un usuario desactivado en AWE y el cierre de sesión por canal trasero contra un Keycloak real en un contenedor. La
+configuración paso a paso con Keycloak y Entra ID está en la [guía IdP-first](idp-first-keycloak-entra.md).
 
 ## Riesgos residuales y recomendaciones {#residual-risks-and-recommendations}
 

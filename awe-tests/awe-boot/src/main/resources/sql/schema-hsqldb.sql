@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS ope
     imp_nom char(32) DEFAULT 'none',
     dat_mod datetime,                           --- User update date
     l1_psd  datetime,                           --- Date of password expiration
-    l1_lan  char(3),                            --- User language
+    l1_lan  varchar(5),                            --- User language
     l1_sgn  int,                                --- User signed
     PcPrn   varchar(255),                       --- User printer
     EmlSrv  varchar(10),                        --- Email server
@@ -335,7 +335,7 @@ CREATE TABLE IF NOT EXISTS HISope
     imp_nom char(32)     NULL,
     dat_mod date         NULL,
     l1_psd  date         NULL,
-    l1_lan  char(3)      NULL,
+    l1_lan  varchar(5)      NULL,
     l1_sgn  int          NULL,
     PcPrn   varchar(255) NULL,
     EmlSrv  varchar(10)  NULL,

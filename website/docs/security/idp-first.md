@@ -8,13 +8,11 @@ sidebar_label: IdP-first mode
 
 This page is the decision document for running an AWE application with an external identity provider (IdP) as the
 only way to sign in. It is written for application teams that configure AWE and for maintainers that evolve it.
-It explains what the IdP decides, what AWE keeps, who can block a user, and which parts exist today and which are
-planned.
+It explains what the IdP decides, what AWE keeps, who can block a user, and which configuration controls each part. Every
+part described here exists in the current code.
 
 :::info Reading guide
-Everything not marked **Planned** describes the behaviour of the current code. Items marked **Planned in AWE 5**
-are decisions already taken but not available yet; they carry no delivery date and their property names may still
-change. To configure SSO itself, start with [Single sign-on](authentication-sso.md).
+Everything on this page describes the behaviour of the current code. To configure SSO itself, start with [Single sign-on](authentication-sso.md).
 :::
 
 ## What "IdP-first" means
@@ -207,11 +205,11 @@ awe.security.sso.back-channel-logout.enabled=true
 awe.security.sso.back-channel-logout.logout-uri=http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}
 ```
 
-### Planned in AWE 5
+### Integration test with Keycloak
 
-| Item | Intent |
-| --- | --- |
-| Keycloak integration test | An automated end-to-end test against a real Keycloak (login, profile mapping, back-channel logout, disabled user). |
+`KeycloakIdpFirstTest` (`awe-tests/awe-boot`) runs the login, the profile mapping from the roles claims, the fail-closed
+refusal, the refusal of a user disabled in AWE and the back-channel logout against a real Keycloak in a container. The
+step-by-step setup with Keycloak and Entra ID is in the [IdP-first guide](idp-first-keycloak-entra.md).
 
 ## Residual risks and recommendations
 

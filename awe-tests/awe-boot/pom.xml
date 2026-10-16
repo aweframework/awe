@@ -705,6 +705,27 @@
         </plugins>
       </build>
     </profile>
+    <!-- Keycloak profile: the IdP-first login tests against a real Keycloak in a container (#767). They need Docker and are
+         skipped without it; the default profile ("integration") never runs them. Run with -Pkeycloak -Dtest=KeycloakIdpFirstTest -->
+    <profile>
+      <id>keycloak</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <!-- JUnit -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>${skip.junit}</skip>
+              <groups>Keycloak</groups>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- SQLServer profile -->
     <profile>
       <id>sqlserver</id>

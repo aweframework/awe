@@ -6,7 +6,8 @@ import java.io.UncheckedIOException;
 import java.util.Properties;
 
 /**
- * Container images of the test databases, read from {@code awe-testing-images.properties}.
+ * Container images of the test databases (and of the Keycloak server of the identity provider tests, see {@link #keycloak()};
+ * kept under this name to avoid churn), read from {@code awe-testing-images.properties}.
  *
  * <p>Every image is pinned as {@code name:tag@sha256:digest}; Renovate keeps the file up to date.</p>
  */
@@ -29,6 +30,15 @@ public final class TestDatabaseImages {
       throw new IllegalArgumentException(database + " is an embedded database and has no container image");
     }
     return lookup(database.getImageKey());
+  }
+
+  /**
+   * Get the pinned image of the Keycloak server used by the identity provider integration tests (#767)
+   *
+   * @return Image reference
+   */
+  public static String keycloak() {
+    return lookup("keycloak");
   }
 
   static String lookup(String key) {

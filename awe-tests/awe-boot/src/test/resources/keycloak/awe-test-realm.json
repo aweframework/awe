@@ -1,0 +1,226 @@
+{
+  "realm": "awe-test",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "role_administrator"
+      },
+      {
+        "name": "role_general"
+      },
+      {
+        "name": "role_operator"
+      },
+      {
+        "name": "role_unknown_profile"
+      }
+    ],
+    "client": {
+      "awe": [
+        {
+          "name": "role_operator"
+        }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "awe",
+      "name": "AWE test application",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "__CLIENT_SECRET__",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "rootUrl": "http://localhost",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost/*",
+        "backchannel.logout.url": "http://localhost/logout/connect/back-channel/keycloak",
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles in the tokens",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "awe client roles in the tokens",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "resource_access.awe.roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "usermodel.clientRoleMapping.clientId": "awe"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "alice@awe-test.example",
+      "firstName": "Alice",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "role_general"
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "bob",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "bob@awe-test.example",
+      "firstName": "Bob",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "role_administrator"
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "carol",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "carol@awe-test.example",
+      "firstName": "Carol",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "role_unknown_profile"
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "dave",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "dave@awe-test.example",
+      "firstName": "Dave",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "role_general"
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "erin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "erin@awe-test.example",
+      "firstName": "Erin",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [],
+      "requiredActions": []
+    },
+    {
+      "username": "frank",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "frank@awe-test.example",
+      "firstName": "Frank",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [],
+      "requiredActions": [],
+      "clientRoles": {
+        "awe": [
+          "role_operator"
+        ]
+      }
+    },
+    {
+      "username": "grace",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "grace@awe-test.example",
+      "firstName": "Grace",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__USER_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "role_general"
+      ],
+      "requiredActions": []
+    }
+  ]
+}

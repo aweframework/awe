@@ -13,6 +13,8 @@ src={require('@docusaurus/useBaseUrl').default('img/undraw_security-on_btwg.svg'
 Awe lets you choose which authentication and authorization system you want to use, instead of bundling any specific one.
 Awe is fully compatible with the most used security solutions in the Spring Boot ecosystem like `In memory`, `Database`, `LDAP`, `OAuth`, `Oauth2`, ...
 
+To sign in through an identity provider such as Keycloak or Microsoft Entra ID, see [Single sign-on](authentication-sso.md) and the [IdP-first guide](idp-first-keycloak-entra.md).
+
 :::info
 You can visit [this](https://spring.io/guides/topicals/spring-security-architecture) for more info.
 :::

@@ -36,6 +36,15 @@ class TestDatabaseImagesTest {
   }
 
   @Test
+  void theKeycloakImageIsPinnedByTagAndDigestAndComesFromQuay() {
+    String image = TestDatabaseImages.keycloak();
+
+    assertThat(image).matches("quay\\.io/keycloak/keycloak:\\d+\\.\\d+\\.\\d+@sha256:[a-f0-9]{64}");
+    assertThat(DockerImageName.parse(image).getRegistry())
+      .as("Quay images have a registry, so the Docker Hub prefix never touches them").isEqualTo("quay.io");
+  }
+
+  @Test
   void embeddedDatabasesHaveNoImage() {
     assertThatThrownBy(() -> TestDatabaseImages.imageFor(TestDatabase.H2))
       .isInstanceOf(IllegalArgumentException.class)
