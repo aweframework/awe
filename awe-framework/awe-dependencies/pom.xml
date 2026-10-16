@@ -42,7 +42,7 @@
     <guava.version>33.7.2-jre</guava.version>
     <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
     <sshd.version>2.13.2</sshd.version>
-    <commons-net.version>3.11.1</commons-net.version>
+    <commons-net.version>3.13.0</commons-net.version>
     <mockwebserver3.version>5.5.0</mockwebserver3.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
