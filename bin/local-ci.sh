@@ -535,12 +535,15 @@ step_build() {
 # Exec files of the previous runs of the same job would be appended to (JaCoCo append=true)
 clean_exec() { find . -name node_modules -prune -o -path '*/target/jacoco-'"$1"'.exec' -type f -print -exec rm -f {} + 2>/dev/null; }
 
-# awe-boot keeps an HSQLDB file database under target/tests/db: a stale one breaks its tests
-# The tests use target/tests/db; the test applications the browser suites start keep their file HSQLDB in target/db, where a
-# run cut halfway leaves its rows (a scheduler calendar left there breaks the next run with a unique key violation)
+# awe-boot and awe-boot-react keep file HSQLDB databases: their tests in target/tests/db, the test applications the browser
+# suites start in target/db. A stale one breaks the next run: a run cut halfway leaves its rows (a scheduler calendar left in
+# target/db breaks the next run with a unique key violation)
+AWE_BOOT_DB_DIRS=(
+  awe-tests/awe-boot/target/tests/db awe-tests/awe-boot-react/target/tests/db
+  awe-tests/awe-boot/target/db awe-tests/awe-boot-react/target/db
+)
 clean_awe_boot_db() {
-  rm -rf awe-tests/awe-boot/target/tests/db awe-tests/awe-boot-react/target/tests/db \
-    awe-tests/awe-boot/target/db awe-tests/awe-boot-react/target/db
+  rm -rf "${AWE_BOOT_DB_DIRS[@]}"
 }
 
 # The unit-testing jobs (All UT, the embedded DB jobs, the database jobs) run in parallel (run_pool), and the Maven build writes
@@ -1072,7 +1075,7 @@ playwright_suites() { # <job id> <module> <browser name> <awe.test.browser>
 # The browser phase: each suite starts its application on free ports of its own, so no ports lock is needed. The machine limits
 # how many browser applications run at once (LOCAL_CI_BROWSER_PARALLEL, a slot each: about 2 GB each): this run holds one slot from
 # the first suite to the last and waits while the others are held. Its suites run one after another: they share the embedded
-# database of awe-boot (target/tests/db) and target/ (JaCoCo data, failsafe reports) of this checkout.
+# databases of awe-boot (AWE_BOOT_DB_DIRS) and target/ (JaCoCo data, failsafe reports) of this checkout.
 BROWSER_ERROR=
 if { running playwright-angular || running playwright-react; } && [ "$BUILD_OK" = 1 ] && [ "$INTERRUPTED" = 0 ]; then
   if ! lci_browser_acquire "local-ci $(basename "$ROOT")"; then
