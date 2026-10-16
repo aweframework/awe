@@ -54,7 +54,7 @@ A tabcontainer is a window opened when a tab is selected. Note that `[tabcontain
 of the query/enumerated list set at `Tab` element.
 
 ```xml
-<tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]">
+<tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]" deferred="[deferred]">
   ...
 </tabcontainer>
 ```
@@ -68,3 +68,35 @@ of the query/enumerated list set at `Tab` element.
 | style      |   Optional   | String | Tabcontainer CSS classes                                              | **Note:** Here you can use `expand` class to set the window as expandible   |
 | type       |   Optional   | String | Tabcontainer HTML tag type                                            | `div`, `span`, `p`, ...                                                     |
 | expandible |   Optional   | String | How to [expand](layout.md) the tabcontainer children                  | `vertical`, `horizontal`                                                    |
+| deferred   |   Optional   | Boolean | Load the data of the tabcontainer components the first time the tab is selected, not with the screen. See [deferred loading](#deferred-loading) | `true`, `false` (default)                                       |
+
+## Deferred loading {#deferred-loading}
+
+By default the server runs the `initial-load` queries of the components of every tabcontainer when it generates the screen,
+including the tabs which are not shown. With `deferred="true"` in a tabcontainer, the data of its components is loaded
+the first time the tab is selected, so a screen with many or heavy tabs loads faster. Without the attribute nothing changes.
+The AngularJS and the React clients behave the same way.
+
+```xml
+<tab id="Customer" initial-load="enum" target-action="CustomerTabs">
+  <tabcontainer id="Summary">
+    ...
+  </tabcontainer>
+  <tabcontainer id="Orders" deferred="true">
+    <grid id="OrderGrid" initial-load="query" target-action="OrderList" max="20">
+      ...
+    </grid>
+  </tabcontainer>
+</tab>
+```
+
+The rules are the ones of the [deferred dialogs](dialog.md#deferred-loading), applied to the tab: the components of the
+tabcontainer are on the screen but empty until the tab is selected for the first time; then one silent `deferred-data`
+server action loads them (with the values the screen has at that moment) and the tab is not loaded again. Some details
+of the tabs:
+
+- The tab which is selected when the screen is shown also loads on its own (right after the screen), because it is shown at once. Defer the pages the user does not see first.
+- A tabcontainer which is the first one gets no advantage from the attribute; use it in the other pages.
+- A deferred tabcontainer inside another deferred container waits for its own selection.
+- A deferred tabcontainer never selected is **not validated**: its criteria are ignored by every validation rule, also in targeted validations. See [validation of deferred containers](dialog.md#validation-of-deferred-containers).
+- The `initial-load` of the `tab` itself (the list of pages) is never deferred.

@@ -34,6 +34,15 @@ aweApplication.factory('Panel',
             return controller.isActive(identifier);
           };
 
+          // A deferred page loads its data the first time it becomes the active one
+          scope.$watch(function () {
+            return controller.isActive(identifier);
+          }, function (active) {
+            if (active) {
+              component.loadDeferred();
+            }
+          });
+
           /**
            * Event listeners
            */

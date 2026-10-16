@@ -124,4 +124,99 @@ describe("Control", () => {
       {address: {component: "suggest", view: "report"}}
     );
   });
+
+  describe("initial model of a deferred component (#824)", () => {
+    const address = {component: "suggest", view: "report"};
+
+    function prepare(model) {
+      const updateModelValues = jest.fn((data) => Object.assign(model, data));
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn($control, "getAddressApi").mockReturnValue({updateModelValues});
+      jest.spyOn($storage, "get").mockReturnValue({report: "loaded"});
+      return updateModelValues;
+    }
+
+    it("applies the loaded rows and selection as the model of the component", () => {
+      const model = {previous: null, selected: null, values: []};
+      const updateModelValues = prepare(model);
+
+      $control.changeInitialModel(address, {values: [{value: "1"}, {value: "2"}], selected: ["2"], records: 2}, ["2"]);
+
+      expect(updateModelValues).toHaveBeenCalledWith({values: [{value: "1"}, {value: "2"}], selected: ["2"], records: 2});
+      expect(model.values).toHaveLength(2);
+      expect(model.selected).toEqual(["2"]);
+      expect(model.loaded).toBe(true);
+    });
+
+    it("keeps the loaded model as the initial one, as the screen load does (restore goes back to it)", () => {
+      const model = {previous: null, selected: null, values: []};
+      prepare(model);
+
+      $control.changeInitialModel(address, {values: [{value: "1"}], selected: "1"}, "1");
+
+      expect(model["initial-selected"]).toBe("1");
+      expect(model["initial-values"]).toEqual([{value: "1"}]);
+      expect(model.previous).toBe("1");
+      expect(model.defaultValues).toBe("1");
+    });
+
+    it("publishes the model change so dependencies and the component update", () => {
+      const model = {previous: null, selected: null, values: []};
+      prepare(model);
+      jest.spyOn($control, "publishModelChanged");
+
+      $control.changeInitialModel(address, {values: [{value: "1"}]});
+
+      expect($control.publishModelChanged).toHaveBeenCalledWith(address, expect.objectContaining({values: [{value: "1"}]}));
+    });
+
+    it("applies only the paging attributes which the action brings, so the paging state is not wiped (#824)", () => {
+      const model = {previous: null, selected: null, values: [], page: 3, total: 9, records: 90};
+      prepare(model);
+
+      $control.changeInitialModelFromAction(address, {datalist: {rows: [{value: "1"}]}});
+
+      expect(model.page).toBe(3);
+      expect(model.total).toBe(9);
+      expect(model.records).toBe(90);
+      expect(model.values).toEqual([{value: "1"}]);
+    });
+
+    it("applies the paging, the formatted selection and the default values of the action", () => {
+      const model = {previous: null, selected: null, values: []};
+      prepare(model);
+
+      $control.changeInitialModelFromAction(address, {
+        datalist: {rows: [{value: "1"}, {value: "2"}], page: 1, total: 1, records: 2},
+        selected: [{value: "2"}],
+        defaultValues: ["1"]
+      });
+
+      expect(model.page).toBe(1);
+      expect(model.records).toBe(2);
+      expect(model.selected).toEqual(["2"]);
+      expect(model.defaultValues).toBe("1");
+    });
+
+    it("keeps the selection and the default values when the action does not send them", () => {
+      const model = {previous: "x", selected: "x", values: [], defaultValues: "x"};
+      prepare(model);
+
+      $control.changeInitialModelFromAction(address, {datalist: {rows: [{value: "x"}]}});
+
+      expect(model.selected).toBe("x");
+      expect(model.defaultValues).toBe("x");
+    });
+
+    it("leaves the selection and the default values alone when the action brings none", () => {
+      const model = {previous: "x", selected: "x", values: [], defaultValues: "x"};
+      prepare(model);
+
+      $control.changeInitialModel(address, {values: [{value: "1"}, {value: "x"}]});
+
+      expect(model.selected).toBe("x");
+      expect(model.defaultValues).toBe("x");
+      expect("initial-selected" in model).toBe(false);
+    });
+  });
 });

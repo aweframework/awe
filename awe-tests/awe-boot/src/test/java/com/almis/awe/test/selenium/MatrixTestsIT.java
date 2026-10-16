@@ -614,6 +614,167 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Check how many times the query of a component of the deferred load screen has run
+   *
+   * @param component Component whose query is counted
+   * @param calls     Times it has run
+   */
+  private void checkDeferredCalls(String component, String calls) {
+    clickButton("ButDefCalls");
+    checkCellContents("GrdDefCalls", component, "calls", calls);
+  }
+
+  /**
+   * Deferred dialog test: its queries do not run with the screen, they run the first time it is opened (and only then)
+   */
+  @Test
+  void t110_deferredDialogLoadsOnFirstOpening() {
+    // Title
+    setTestTitle("Deferred dialog loads on its first opening");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // The screen load ran the queries of what is not deferred, and none of the deferred dialog
+    checkDeferredCalls("EagSelect", "1");
+    checkDeferredCalls("TabFirstSelect", "1");
+    checkDeferredCalls("DefSelect", "0");
+    checkDeferredCalls("DefRows", "0");
+    checkDeferredCalls("DefText", "0");
+
+    // The first opening loads the data of the dialog
+    clickButton("ButDefDialog");
+    checkRowContentsGrid("GrdDefRows", "3");
+    checkCriterionContents("DefText", "Loaded");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+    checkDeferredCalls("DefSelect", "1");
+    checkDeferredCalls("DefRows", "1");
+    checkDeferredCalls("DefText", "1");
+
+    // The next openings do not load it again
+    clickButton("ButDefDialog");
+    checkRowContentsGrid("GrdDefRows", "3");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+    checkDeferredCalls("DefSelect", "1");
+    checkDeferredCalls("DefRows", "1");
+
+    // A deferred dialog does not make the other ones wait
+    checkDeferredCalls("TabSecondSelect", "0");
+  }
+
+  /**
+   * Control for the deferred dialog: a grid in a dialog which is not deferred shows its rows when the dialog opens
+   */
+  @Test
+  void t109_dialogGridRendersWithoutDeferral() {
+    // Title
+    setTestTitle("Dialog grid renders without deferral");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // The dialog was loaded with the screen
+    clickButton("ButEagDialog");
+    checkRowContentsGrid("GrdEagRows", "E3");
+    clickButton("ButEagClose");
+    checkDialogClosed("DlgEager");
+  }
+
+  /**
+   * Deferred tab test: the queries of a deferred page do not run with the screen, they run the first time it is selected
+   */
+  @Test
+  void t111_deferredTabLoadsOnFirstSelection() {
+    // Title
+    setTestTitle("Deferred tab loads on its first selection");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // The first page was loaded with the screen, the deferred one was not
+    checkDeferredCalls("TabFirstSelect", "1");
+    checkDeferredCalls("TabSecondSelect", "0");
+    checkDeferredCalls("TabSecondRows", "0");
+
+    // The first selection of the deferred page loads its data
+    clickTab("TabDeferred", "ENUM_DEFERRED_SECOND");
+    checkRowContentsGrid("GrdTabRows", "Two");
+    clickTab("TabDeferred", "ENUM_DEFERRED_FIRST");
+    checkDeferredCalls("TabSecondSelect", "1");
+    checkDeferredCalls("TabSecondRows", "1");
+
+    // Going back to it does not load it again
+    clickTab("TabDeferred", "ENUM_DEFERRED_SECOND");
+    checkRowContentsGrid("GrdTabRows", "Two");
+    clickTab("TabDeferred", "ENUM_DEFERRED_FIRST");
+    checkDeferredCalls("TabSecondSelect", "1");
+    checkDeferredCalls("TabSecondRows", "1");
+  }
+
+  /**
+   * Deferred dialog test: a value set before the first opening is kept, the initial load does not replace it
+   */
+  @Test
+  void t112_deferredDialogKeepsTheValueSetBeforeItsFirstOpening() {
+    // Title
+    setTestTitle("Deferred dialog keeps a value set before its first opening");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // An action gives a value to a criterion of the dialog which was not opened yet
+    clickButton("ButDefPreset");
+
+    // The first opening loads the dialog, but the value of the action stays
+    clickButton("ButDefDialog");
+    checkRowContentsGrid("GrdDefRows", "3");
+    checkCriterionContents("DefText", "Preset");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+  }
+
+  /**
+   * Deferred dialog test: the required criteria of a deferred dialog which was never opened do not block the validation
+   */
+  @Test
+  void t113_deferredDialogNeverOpenedDoesNotBlockValidation() {
+    // Title
+    setTestTitle("Deferred dialog never opened does not block validation");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // Its required criteria are ignored: the save goes through without opening the dialog
+    clickButton("ButDefSave");
+    checkCriterionContents("DefSaved", "Saved");
+  }
+
+  /**
+   * Deferred dialog test: once the dialog was opened its required criteria validate as normal
+   */
+  @Test
+  void t114_deferredDialogOpenedValidatesItsRequiredCriteria() {
+    // Title
+    setTestTitle("Deferred dialog opened validates its required criteria");
+
+    // Go to screen
+    openMatrixOption("matrix-test-deferred");
+
+    // Open the dialog (its required criteria load), empty one and close it
+    clickButton("ButDefDialog");
+    checkRowContentsGrid("GrdDefRows", "3");
+    writeText("DefText", "");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+
+    // Now the empty required criterion blocks the validation
+    clickButton("ButDefSave");
+    checkCriterionContents("DefSaved", "");
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

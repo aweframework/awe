@@ -57,6 +57,9 @@ aweApplication.directive('aweDialog',
               // Add new modal action stack
               $actionController.addStack();
 
+              // Load the data of a deferred dialog the first time it is opened
+              component.loadDeferred();
+
               // Load dialog model (if not loaded yet)
               let  actions = [];
               // Launch a resize

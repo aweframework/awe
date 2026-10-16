@@ -26,6 +26,7 @@ public class DialogBuilder extends AbstractTagBuilder<DialogBuilder, Dialog> {
   private OnClose onClose;
   private String icon;
   private String iconSet;
+  private boolean deferred;
 
   @Override
   public Dialog build() {
@@ -36,6 +37,10 @@ public class DialogBuilder extends AbstractTagBuilder<DialogBuilder, Dialog> {
   public Dialog build(Dialog dialog) {
     super.build(dialog)
       .setIcon(getIcon());
+
+    if (isDeferred()) {
+      dialog.setDeferred(true);
+    }
 
     if (getOnClose() != null) {
       dialog.setOnClose(getOnClose().toString());

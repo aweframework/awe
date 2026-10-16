@@ -1568,10 +1568,10 @@ function updateRowModel(state, address, data, settings) {
  * @param {Object} settings Settings
  * @returns {Object} Updated state
  */
-function keepModelComponent(state, componentId, settings) {
+function keepModelComponent(state, componentId, settings, initial = false, defaultModel = null) {
   return {
     ...state,
-    ...getKeepModelComponent(state, componentId, settings)
+    ...getKeepModelComponent(state, componentId, settings, initial, defaultModel)
   };
 }
 
@@ -1580,9 +1580,11 @@ function keepModelComponent(state, componentId, settings) {
  * @param {Object} state Current state
  * @param {string} componentId Component identifier
  * @param {Object} settings Settings
+ * @param {boolean} initial True when the snapshot is the initial model, so it is also the default one (restore)
+ * @param {Object} defaultModel Default model to store with the initial one (the snapshot itself when it is not given)
  * @returns {Object} State diff for the snapshot
  */
-function getKeepModelComponent(state, componentId, settings) {
+function getKeepModelComponent(state, componentId, settings, initial = false, defaultModel = null) {
   const useRegistry = settings?.useComponentRegistry;
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
@@ -1592,6 +1594,10 @@ function getKeepModelComponent(state, componentId, settings) {
         ...currentFull?.model,
         values: (currentFull.model?.values || []).map(value => ({ ...value }))
       };
+      if (initial) {
+        const source = defaultModel || currentFull.storedModel;
+        currentFull.defaultModel = { ...source, values: (source.values || []).map(value => ({ ...value })) };
+      }
       return {
         [componentId]: calculateDeltas(base, currentFull)
       };
@@ -1600,13 +1606,15 @@ function getKeepModelComponent(state, componentId, settings) {
 
   // Legacy behavior
   if (!state[componentId]) return {};
+  const storedModel = {
+    ...state[componentId].model,
+    values: state[componentId].model.values.map(value => ({ ...value }))
+  };
   return {
     [componentId]: {
       ...state[componentId],
-      storedModel: {
-        ...state[componentId].model,
-        values: state[componentId].model.values.map(value => ({ ...value }))
-      }
+      storedModel,
+      ...(initial ? { defaultModel: { ...(defaultModel || storedModel), values: ((defaultModel || storedModel).values || []).map(value => ({ ...value })) } } : {})
     }
   };
 }
@@ -2077,7 +2085,7 @@ const actionHandlers = {
     keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data, action.settings),
 
   [KEEP_MODEL]: (state, action) =>
-    keepModelComponent(state, memoizedGetComponentId(action.address), action.settings),
+    keepModelComponent(state, memoizedGetComponentId(action.address), action.settings, !!action.data?.initial, action.data?.defaultModel),
 
   [KEEP_ROW_MODEL]: (state, action) => keepRowModel(state, action.address, action.settings),
 

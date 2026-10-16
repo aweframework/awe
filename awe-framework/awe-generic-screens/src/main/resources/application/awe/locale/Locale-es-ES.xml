@@ -393,6 +393,7 @@
   <locale name="ERROR_MESSAGE_DEFAULT_SESSION_PARAMETERS" value="Ha habido un problema generando las variables por defecto de la sesión. Por favor, inténtelo de nuevo"/>
   <locale name="ERROR_MESSAGE_DESTINATION_FAILED" value="Ha habido un problema tratando de conectar con la cola {0}"/>
   <locale name="ERROR_MESSAGE_DUPLICATED_IDENTIFIER" value="Se ha encontrado un identificador duplicado en la pantalla. Identificador: &apos;&apos;{0}&apos;&apos;, Pantalla: &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND" value="No se ha encontrado el contenedor diferido &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos;"/>
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="Ha habido un problema enviando el correo"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="Ha habido un problema en el proceso de mantenimiento"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="Ha habido un problema realizando el rollback de la transacción"/>

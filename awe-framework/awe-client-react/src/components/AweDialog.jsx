@@ -5,6 +5,7 @@ import { translateLabel } from "../utilities";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
+import { useDeferredLoad } from "../hooks/useDeferredLoad";
 import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 import { dialogPassThrough } from "../utilities/testPassThrough";
@@ -37,6 +38,9 @@ function AweDialog(props) {
       dispatch(addActionsTop([{ address, type }]));
     }
   }, [dispatch, attributes?.isShowing, attributes?.acceptOnClose, address]);
+
+  // A deferred dialog loads the data of its components when it is shown for the first time
+  useDeferredLoad(address, attributes, !!attributes?.isShowing);
 
   // If address is undefined, return skeleton
   if (!address) {

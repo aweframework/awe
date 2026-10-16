@@ -25,6 +25,22 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
   });
 
   describe('serverAction', () => {
+    it('sets the error attributes of the action on its component when the call fails (#824)', async () => {
+      const failing = {view: 'base', component: 'Dia'};
+      global.fetch.mockRejectedValue(new Error('network down'));
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await serverAction({
+        type: 'server', address: failing, errorAttributes: {deferredLoaded: false},
+        parameters: {serverAction: 'deferred-data', targetAction: 'Dia'}
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      expect(result).toBe(false);
+      const update = dispatch.mock.calls.map(([call]) => call).find(call => call.type === 'UPDATE_ATTRIBUTES');
+      expect(update.address).toEqual(failing);
+      expect(update.data).toEqual({deferredLoaded: false});
+    });
+
     const address = {view: 'base', component: 'GrdTskVar'};
     // Editable send-all grid with a column named "value", like the scheduler launch variables dialog
     const grid = {

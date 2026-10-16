@@ -3306,4 +3306,100 @@
     <field id="marks" alias="marks"/>
   </query>
 
+  <!-- Deferred load test (#824): every query counts its calls -->
+  <query id="DeferredLoadDefSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefSelect"/>
+  </query>
+  <query id="DeferredLoadDefRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefRows"/>
+  </query>
+  <query id="DeferredLoadEagSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="EagSelect"/>
+  </query>
+  <query id="DeferredLoadTabFirstSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabFirstSelect"/>
+  </query>
+  <query id="DeferredLoadTabSecondSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabSecondSelect"/>
+  </query>
+  <query id="DeferredLoadTabSecondRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabSecondRows"/>
+  </query>
+  <query id="DeferredLoadDefText" service="deferredLoadValue" public="true">
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefText"/>
+  </query>
+  <query id="DeferredHeavyFirst" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyFirst"/>
+  </query>
+  <query id="DeferredHeavySecond" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavySecond"/>
+  </query>
+  <query id="DeferredHeavyEagerDialog" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyEagerDialog"/>
+  </query>
+  <query id="DeferredHeavyDeferredDialog" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyDeferredDialog"/>
+  </query>
+  <query id="DeferredLoadEagRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="eag"/>
+    <variable id="component" type="STRING" value="EagRows"/>
+  </query>
+  <query id="DeferredLoadCalls" service="deferredLoadCalls" public="true">
+    <field id="id"/>
+    <field id="calls"/>
+  </query>
+
 </queries>

@@ -8,7 +8,7 @@ export function getIconTemplate(style = "", tag = "span") {
 
 // Component service
 aweApplication.factory('Component',
-  ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log',
+  ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log', 'Storage',
     /**
      * Component generic methods
      * @param {object} Control
@@ -18,8 +18,12 @@ aweApplication.factory('Component',
      * @param {object} $actionController Action controller
      * @param {object} $dependencyController Dependency controller
      * @param {object} $log Log
+     * @param {object} Storage Storage
      */
-    function (Control, $settings, Utilities, ServerData, $actionController, $dependencyController, $log) {
+    function (Control, $settings, Utilities, ServerData, $actionController, $dependencyController, $log, Storage) {
+
+      // Components with autoload waiting for their deferred container to be opened, by view/container
+      const waitingAutoLoads = {};
 
       /**
        * Destroys autorefresh timer
@@ -30,10 +34,27 @@ aweApplication.factory('Component',
       }
 
       /**
+       * Forget the autoload of a component which waits for its deferred container, and the ones waiting for it
+       * @param {object} component
+       */
+      function forgetWaitingAutoLoads(component) {
+        Object.keys(waitingAutoLoads).forEach(key => {
+          waitingAutoLoads[key] = waitingAutoLoads[key].filter(waiting => waiting !== component);
+          if (waitingAutoLoads[key].length === 0) {
+            delete waitingAutoLoads[key];
+          }
+        });
+        if (component.address) {
+          delete waitingAutoLoads[component.address.view + "/" + component.address.component];
+        }
+      }
+
+      /**
        * Destroy component
        * @param {object} component
        */
       function destroy(component) {
+        forgetWaitingAutoLoads(component);
         Object.values(component.helpTargets || {}).forEach(target => {
           target.over = false;
           target.node.off();
@@ -426,9 +447,28 @@ aweApplication.factory('Component',
           if (this.controller.autoload) {
             let  component = this;
             Utilities.timeout(function () {
-              component.reload();
+              // Inside a deferred dialog or tab which was not opened yet, the autoload waits for its first opening
+              const container = component.findPendingDeferredContainer();
+              if (container) {
+                const key = component.address.view + "/" + container;
+                waitingAutoLoads[key] = (waitingAutoLoads[key] || []).concat(component);
+              } else {
+                component.reload();
+              }
             });
           }
+        },
+        /**
+         * Find the deferred container (dialog or tab page) which holds this component and was not opened yet
+         * @return {string} Container identifier, or undefined if there is none
+         */
+        findPendingDeferredContainer: function () {
+          const view = this.address.view;
+          const id = this.address.component;
+          return _.findKey(Storage.get("controller")[view], function (componentController, containerId) {
+            return containerId !== id && componentController.deferred && !componentController.deferredLoaded
+              && $("#" + containerId).find("[criterion-id='" + id + "'], #" + id).length > 0;
+          });
         },
         /**
          * Checks autorefresh timeout
@@ -441,6 +481,57 @@ aweApplication.factory('Component',
               component.reload({silent: true, async: true});
             }, (this.controller.autorefresh * 1000));
           }
+        },
+        /**
+         * Load the data of a deferred container (a dialog or a tab page with the deferred attribute) the first time it
+         * is opened. It sends one silent async server action which asks for the initial load of the components inside
+         * the container. The components which already have data or a selected value are reported, so the server leaves
+         * them as they are
+         */
+        loadDeferred: function () {
+          const controller = this.controller;
+          if (!controller?.deferred || controller.deferredLoaded) {
+            return;
+          }
+          controller.deferredLoaded = true;
+
+          // Find the components which got data or a value before the first opening
+          const view = this.address.view;
+          const $container = $("#" + this.address.component);
+          const loaded = [];
+          const valued = [];
+          _.each(Storage.get("controller")[view], function (componentController, id) {
+            if (id !== this.address.component && $container.find("[criterion-id='" + id + "'], #" + id).length > 0) {
+              const model = Control.getAddressModel({view: view, component: id});
+              // The components with autoload load by themselves when the container opens: not twice
+              if ((model && !Utilities.isEmpty(model.values)) || componentController.autoload) {
+                loaded.push(id);
+              }
+              if (model && !Utilities.isEmpty(model.selected)) {
+                valued.push(id);
+              }
+            }
+          }.bind(this));
+
+          // Generate server action
+          const values = {type: "deferred-data", deferredLoaded: loaded, deferredValued: valued};
+          values[$settings.get("targetActionKey")] = this.address.component;
+          values[$settings.get("optionKey")] = controller.optionId;
+          const actionScope = {address: this.address, context: this.context};
+          const serverAction = $actionController.generateAction(ServerData.getServerAction(this.address, values, true, true), actionScope, true, true);
+
+          // If the call fails, the container is not loaded: the next opening tries again
+          serverAction.onError = function () {
+            controller.deferredLoaded = false;
+          };
+
+          // Send action
+          $actionController.addActionList([serverAction], false, actionScope);
+
+          // Components with autoload which were waiting for the first opening
+          const waiting = waitingAutoLoads[view + "/" + this.address.component] || [];
+          delete waitingAutoLoads[view + "/" + this.address.component];
+          waiting.forEach(component => component.reload());
         },
         /**
          * Reload data from element

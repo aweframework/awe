@@ -515,4 +515,27 @@
     <java classname="com.almis.awe.test.MaintainTransaction" method="returnError"/>
   </service>
 
+  <!-- Deferred load test (#824) -->
+  <service id="deferredLoadList">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadList">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadValue">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadValue">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadHeavy">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadHeavy">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadCalls">
+    <java classname="com.almis.awe.test.DeferredLoad" method="getCalls"/>
+  </service>
+  <service id="deferredLoadReset">
+    <java classname="com.almis.awe.test.DeferredLoad" method="reset"/>
+  </service>
+
 </services>

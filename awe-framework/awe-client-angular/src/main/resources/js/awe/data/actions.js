@@ -46,6 +46,7 @@ export const ClientActions = {
     "copy-criterion-value-clipboard": {method: "copyCriterionValueClipboard"},
 
     "fill": {method: "fill"},
+    "initial-model": {method: "initialModel"},
     "fill-suggest": {method: "fillSuggest"},
     "update-controller": {method: "updateController"},
     "select": {method: "select"},

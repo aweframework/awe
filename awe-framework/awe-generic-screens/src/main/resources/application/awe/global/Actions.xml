@@ -453,6 +453,55 @@
     </answer>
   </action>
 
+  <!-- DEFERRED DATA ACTION: first opening of a deferred dialog or tab page -->
+  <action id="deferred-data" format="JSON">
+    <call service="getDeferredData" />
+    <answer type="ok">
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+    <answer type="warning">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+    </answer>
+    <answer type="info">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" value="error" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+    </answer>
+  </action>
+
   <!-- DATA REQUEST ACTION -->
   <action id="data" format="JSON">
     <call service="launchQuery" />

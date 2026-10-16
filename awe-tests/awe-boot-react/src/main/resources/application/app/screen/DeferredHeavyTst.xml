@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : DeferredHeavyTst.xml
+    Description: Heavy dialogs and tab pages, half of them deferred (#824). Each grid asks for thousands of rows, so the
+                 screen shows how much the screen load saves when the data waits for the first opening
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DEFERRED_HEAVY">
+  <tag source="buttons">
+    <button id="ButHeaEager" label="BUTTON_HEAVY_EAGER" icon="window-maximize">
+      <button-action type="dialog" target="DlgHeaEager"/>
+    </button>
+    <button id="ButHeaDeferred" label="BUTTON_HEAVY_DEFERRED" icon="window-restore">
+      <button-action type="dialog" target="DlgHeaDeferred"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tab id="TabHeavy" initial-load="enum" target-action="DeferredHeavyTabs">
+      <tabcontainer id="HeaFirst">
+        <window style="expand" label="SCREEN_TITLE_DEFERRED_HEAVY" expandible="vertical">
+          <grid id="GrdHeaFirst" style="expand" initial-load="query" server-action="data" target-action="DeferredHeavyFirst" max="30" load-all="true">
+            <column label="PARAMETER_ID" name="id" align="left" charlength="10"/>
+            <column label="PARAMETER_TEXT" name="label" align="left" charlength="20"/>
+          </grid>
+        </window>
+      </tabcontainer>
+      <tabcontainer id="HeaSecond" deferred="true">
+        <window style="expand" label="SCREEN_TITLE_DEFERRED_HEAVY" expandible="vertical">
+          <grid id="GrdHeaSecond" style="expand" initial-load="query" server-action="data" target-action="DeferredHeavySecond" max="30" load-all="true">
+            <column label="PARAMETER_TEXT" name="value" align="left" charlength="10"/>
+            <column label="PARAMETER_TEXT" name="other" align="left" charlength="20"/>
+          </grid>
+        </window>
+      </tabcontainer>
+    </tab>
+
+    <dialog id="DlgHeaEager" label="DIALOG_TITLE_EAGER" modal="true">
+      <tag type="div" style="modal-body">
+        <grid id="GrdHeaEager" style="expand" initial-load="query" server-action="data" target-action="DeferredHeavyEagerDialog" max="30" load-all="true">
+          <column label="PARAMETER_TEXT" name="first" align="left" charlength="10"/>
+          <column label="PARAMETER_TEXT" name="second" align="left" charlength="20"/>
+        </grid>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButHeaEagClose" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close" target="DlgHeaEager"/>
+        </button>
+      </tag>
+    </dialog>
+
+    <dialog id="DlgHeaDeferred" label="DIALOG_TITLE_DEFERRED" modal="true" deferred="true">
+      <tag type="div" style="modal-body">
+        <grid id="GrdHeaDeferred" style="expand" initial-load="query" server-action="data" target-action="DeferredHeavyDeferredDialog" max="30" load-all="true">
+          <column label="PARAMETER_TEXT" name="third" align="left" charlength="10"/>
+          <column label="PARAMETER_TEXT" name="fourth" align="left" charlength="20"/>
+        </grid>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButHeaDefClose" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close" target="DlgHeaDeferred"/>
+        </button>
+      </tag>
+    </dialog>
+  </tag>
+</screen>

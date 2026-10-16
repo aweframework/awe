@@ -141,4 +141,77 @@ describe("Validator", () => {
     expect(element.scrollIntoView).toHaveBeenCalled();
     expect(scope.showValidation).toBe(true);
   });
+  describe("deferred containers that were never opened (#824)", () => {
+    let $storage;
+    let controllers;
+
+    beforeEach(() => {
+      inject(["Storage", (Storage) => {
+        $storage = Storage;
+      }]);
+      controllers = {Dia: {deferred: true, deferredLoaded: false}, Plain: {}};
+      $storage.put("controller", {report: controllers});
+      document.body.innerHTML = `<div id="Dia"><span id="inDia"></span></div><div id="Plain"><span id="inPlain"></span></div>
+        <div id="Page"><div id="Dia2"><span id="inDia2"></span></div></div><span id="outside"></span>`;
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    function api(id, error = {message: "required"}) {
+      return {
+        address: {view: "report", component: id},
+        element: document.getElementById(id),
+        validate: jest.fn(() => error)
+      };
+    }
+
+    function validate(components, baseNode) {
+      $storage.put("api", {report: Object.fromEntries(components.map(c => [c.address.component, c]))});
+      return $validator.validateNode(baseNode || $(document.body));
+    }
+
+    it("ignores the criteria of a deferred dialog that was not opened", () => {
+      const inDia = api("inDia");
+      const outside = api("outside");
+
+      const errors = validate([inDia, outside]);
+
+      expect(inDia.validate).not.toHaveBeenCalled();
+      expect(errors).toHaveLength(1);
+    });
+
+    it("validates the criteria of a deferred dialog once it was opened", () => {
+      controllers.Dia.deferredLoaded = true;
+      const inDia = api("inDia");
+
+      expect(validate([inDia])).toHaveLength(1);
+      expect(inDia.validate).toHaveBeenCalled();
+    });
+
+    it("keeps validating the criteria of a dialog which is not deferred", () => {
+      const inPlain = api("inPlain");
+
+      expect(validate([inPlain])).toHaveLength(1);
+    });
+
+    it("passes a targeted validation of an unopened deferred container", () => {
+      expect(validate([api("inDia")], $("#Dia"))).toEqual([]);
+    });
+
+    it("skips the unopened deferred part of a targeted validation of its parent", () => {
+      controllers.Dia2 = {deferred: true, deferredLoaded: false};
+      const errors = validate([api("inDia2"), api("inPlain")], $(document.body));
+
+      expect(errors).toHaveLength(1);
+      expect(validate([api("inDia2")], $("#Page"))).toEqual([]);
+    });
+
+    it("validates a targeted container once it was opened", () => {
+      controllers.Dia.deferredLoaded = true;
+
+      expect(validate([api("inDia")], $("#Dia"))).toHaveLength(1);
+    });
+  });
 });

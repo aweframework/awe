@@ -10,6 +10,7 @@ describe("Panel", () => {
   let scopedFunctions;
   let scope;
   let panelController;
+  let watchers;
 
   const VALIDITY = "criterion-validity";
   const SELECT_TAB = "select-current-tab";
@@ -23,6 +24,7 @@ describe("Panel", () => {
       Panel = $injector.get("Panel");
 
       scopedFunctions = {};
+      watchers = [];
       scope = {
         view: "report",
         $parent: {$parent: {}},
@@ -30,7 +32,10 @@ describe("Panel", () => {
           scopedFunctions[key] = fn;
           return jest.fn();
         }),
-        $emit: jest.fn()
+        $emit: jest.fn(),
+        $watch: jest.fn((watched, listener) => {
+          watchers.push({watched, listener});
+        })
       };
       panelController = {isActive: jest.fn(), selectTab: jest.fn(), setInvalid: jest.fn()};
 
@@ -104,5 +109,27 @@ describe("Panel", () => {
     scopedFunctions[SELECT_TAB]();
 
     expect(open).not.toHaveBeenCalled();
+  });
+
+  describe("deferred loading (#824)", () => {
+    it("loads the data of a deferred page the first time it becomes the active one", () => {
+      $control.getAddressController.mockReturnValue({visible: true, deferred: true});
+      let loadDeferred;
+      inject(["Component", (Component) => {
+        loadDeferred = jest.spyOn(Component.prototype, "loadDeferred").mockImplementation(() => {});
+      }]);
+      panelController.isActive.mockReturnValue(false);
+      Panel.init(panelController, scope, "page1");
+
+      const [{watched, listener}] = watchers;
+      expect(watched()).toBe(false);
+      listener(false, false);
+      expect(loadDeferred).not.toHaveBeenCalled();
+
+      panelController.isActive.mockReturnValue(true);
+      expect(watched()).toBe(true);
+      listener(true, false);
+      expect(loadDeferred).toHaveBeenCalledTimes(1);
+    });
   });
 });
