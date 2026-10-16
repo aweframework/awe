@@ -536,7 +536,12 @@ step_build() {
 clean_exec() { find . -name node_modules -prune -o -path '*/target/jacoco-'"$1"'.exec' -type f -print -exec rm -f {} + 2>/dev/null; }
 
 # awe-boot keeps an HSQLDB file database under target/tests/db: a stale one breaks its tests
-clean_awe_boot_db() { rm -rf awe-tests/awe-boot/target/tests/db awe-tests/awe-boot-react/target/tests/db; }
+# The tests use target/tests/db; the test applications the browser suites start keep their file HSQLDB in target/db, where a
+# run cut halfway leaves its rows (a scheduler calendar left there breaks the next run with a unique key violation)
+clean_awe_boot_db() {
+  rm -rf awe-tests/awe-boot/target/tests/db awe-tests/awe-boot-react/target/tests/db \
+    awe-tests/awe-boot/target/db awe-tests/awe-boot-react/target/db
+}
 
 # The unit-testing jobs (All UT, the embedded DB jobs, the database jobs) run in parallel (run_pool), and the Maven build writes
 # target/ (classes, reports, JaCoCo data, the embedded HSQLDB of awe-boot). So with more than one at a time each runs in a clone of
