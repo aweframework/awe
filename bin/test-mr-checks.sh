@@ -588,5 +588,11 @@ else
   fail "local CI: bin/test-local-ci.sh failed" "$(printf '%s\n' "$OUT" | grep -v '^ok')"
 fi
 
+# .gitlab-ci.yml: a top-level key defined twice is not an error for YAML or "glab ci lint" (the last one wins), so a
+# merge can silently bring an old copy of a job back (#783 re-added the build-stage Spotless after it moved to lint).
+# The key is the text before the first colon (or the whole quoted key), whatever follows it on the line.
+DUPLICATE_KEYS=$(grep -oE "^(\"[^\"]*\"|'[^']*'|[^[:space:]#\"'][^:]*):" "$BIN_DIR/../.gitlab-ci.yml" | sort | uniq -d)
+if [ -z "$DUPLICATE_KEYS" ]; then pass ".gitlab-ci.yml: no top-level key is defined twice"; else fail ".gitlab-ci.yml: keys defined twice" "$DUPLICATE_KEYS"; fi
+
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]
