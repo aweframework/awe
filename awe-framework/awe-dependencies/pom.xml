@@ -29,7 +29,7 @@
     <mail.version>2.1.5</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
     <commons-io.version>2.22.0</commons-io.version>
-    <commons-text.version>1.12.0</commons-text.version>
+    <commons-text.version>1.15.0</commons-text.version>
     <commons-fileupload.version>2.0.0-M5</commons-fileupload.version>
     <xtream.version>1.4.21</xtream.version>
     <graalvm.version>23.0.6</graalvm.version>
