@@ -1653,18 +1653,39 @@ b${TAB}B${TAB}PASS${TAB}yes${TAB}65${TAB}"
 summary_case "a duration under an hour" 0 "1m05s" "b${TAB}B${TAB}PASS${TAB}yes${TAB}65${TAB}"
 
 # The browser suites start the test applications on their file HSQLDB (target/db/awe-boot, target/db/awe-react, see the
-# application.properties of the test apps): a run cut halfway leaves its rows there, so the next suite must start without them
+# application.properties of the test apps): a run cut halfway leaves its rows there, so the next suite must start without them.
+# The list and the function are run as local-ci.sh defines them; the rest of target/ (classes, reports) must be kept
+clean_db=$(sed -n '/^AWE_BOOT_DB_DIRS=(/,/)$/p;/^clean_awe_boot_db() {/,/^}/p' "$BIN_DIR/local-ci.sh")
 DBT=$(mktemp -d)
-mkdir -p "$DBT/awe-tests/awe-boot/target/db" "$DBT/awe-tests/awe-boot-react/target/db" \
-  "$DBT/awe-tests/awe-boot/target/tests/db" "$DBT/awe-tests/awe-boot-react/target/tests/db"
-OUT=$(cd "$DBT" && bash -c "$(sed -n '/^clean_awe_boot_db()/,/^}/p' "$BIN_DIR/local-ci.sh"); clean_awe_boot_db" 2>&1)
-if [ ! -e "$DBT/awe-tests/awe-boot/target/db" ] && [ ! -e "$DBT/awe-tests/awe-boot-react/target/db" ] \
-  && [ ! -e "$DBT/awe-tests/awe-boot/target/tests/db" ] && [ ! -e "$DBT/awe-tests/awe-boot-react/target/tests/db" ]; then
-  pass "clean db: the HSQLDB files of the test applications and of the tests are removed before a browser suite"
+expected=
+for module in awe-boot awe-boot-react; do
+  for db in target/db target/tests/db; do expected="$expected awe-tests/$module/$db"; done
+  mkdir -p "$DBT/awe-tests/$module/target/classes" "$DBT/awe-tests/$module/target/tests/reports"
+done
+OUT=$(cd "$DBT" && bash -c "$clean_db
+for dir in $expected; do case \" \${AWE_BOOT_DB_DIRS[*]} \" in *\" \$dir \"*) ;; *) echo \"not in AWE_BOOT_DB_DIRS: \$dir\" ;; esac; done
+mkdir -p \"\${AWE_BOOT_DB_DIRS[@]}\" && clean_awe_boot_db" 2>&1) || OUT="exit $? $OUT"
+left=$(cd "$DBT" && find . -type d -name db)
+kept=$(cd "$DBT" && find . -type d \( -name classes -o -name reports \) | wc -l | tr -d ' ')
+case "$clean_db" in *'clean_awe_boot_db() {'*'AWE_BOOT_DB_DIRS'*) found=1 ;; *) found=0 ;; esac
+if [ "$found" = 1 ] && [ -z "$OUT" ] && [ -z "$left" ] && [ "$kept" = 4 ]; then
+  pass "clean db: the HSQLDB files of the test applications and of the tests are removed, the rest of target/ is kept"
 else
-  fail "clean db: a database of a previous run is left" "$(cd "$DBT" && find . -type d -name db) $OUT"
+  fail "clean db: a database of a previous run is left, or more than the databases is removed" \
+    "found=$found left=[$left] kept=$kept $OUT"
 fi
 rm -rf "$DBT"
+# Every suite that starts awe-boot cleans the databases before its Maven run
+clean_first=
+for fn in all_ut_maven unit_profile_maven step_playwright; do
+  sed -n "/^$fn() {/,/^}/p" "$BIN_DIR/local-ci.sh" | awk '/clean_awe_boot_db/ { clean = NR } /MVN\[@\]/ { mvn = NR }
+    END { exit !(clean && mvn && clean < mvn) }' || clean_first="$clean_first $fn"
+done
+if [ -z "$clean_first" ]; then
+  pass "clean db: the unit, embedded database and browser suites clean the databases before Maven starts"
+else
+  fail "clean db: a suite starts Maven without cleaning the databases first" "$clean_first"
+fi
 
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]
