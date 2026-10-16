@@ -852,24 +852,30 @@ Keycloak Tests:
     - .unit-testing
     - .database-containers
   allow_failure: true
+  variables:
+    KEYCLOAK_EXPECTED_TESTS: "6"
   script:
-    # Address of the job container on the Docker network that the dind containers share: the source IPv4 of the route to the
-    # Docker daemon (an assumption of the runner layout: the job and the dind service are on the same network). Falls back to
-    # the first address of hostname -i when the route cannot be read
+    # Address of the job container on the network it shares with the dind service: the source IPv4 of the route to the
+    # "docker" service (the Docker daemon). When that name cannot be resolved, the source of the default route is used, and
+    # then the first address of hostname -i
     - |
-      export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n1)
+      dind_ip=$(getent hosts docker 2>/dev/null | awk '{print $1; exit}')
+      export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=$(ip -4 route get "${dind_ip:-1.1.1.1}" 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n1)
       export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=${AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST:-$(hostname -i | cut -d' ' -f1)}
       echo "Keycloak back-channel host: $AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST"
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
+    # Only awe-boot and the modules it needs: awe-boot-react sets failIfNoTests and has no class matching -Dtest. The options of
+    # UT_OPTS are repeated without its -pl exclusions, which Maven rejects next to an inclusion that does not select them
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -pl awe-tests/awe-boot -am -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
     # The class is skipped without Docker (disabledWithoutDocker) and failIfNoSpecifiedTests=false hides an empty selection: a
-    # green job must have run the 6 tests, so fail when the report is missing or counts none
+    # green job must have run every test of the class (KEYCLOAK_EXPECTED_TESTS, update it when tests are added or removed)
     - |
       report=$(ls awe-tests/awe-boot/target/surefire-reports/TEST-*KeycloakIdpFirstTest.xml 2>/dev/null | head -n1)
       [ -n "$report" ] || { echo "No Keycloak test report: the test class did not run"; exit 1; }
       tests=$(sed -n 's/.*<testsuite [^>]* tests="\([0-9]*\)".*/\1/p' "$report" | head -n1)
       skipped=$(sed -n 's/.*<testsuite [^>]* skipped="\([0-9]*\)".*/\1/p' "$report" | head -n1)
       echo "Keycloak tests: ${tests:-0} run, ${skipped:-0} skipped"
-      [ "${tests:-0}" -gt "${skipped:-0}" ] || { echo "The Keycloak tests were all skipped (is Docker available?)"; exit 1; }
+      ran=$(( ${tests:-0} - ${skipped:-0} ))
+      [ "$ran" -eq "$KEYCLOAK_EXPECTED_TESTS" ] || { echo "Expected $KEYCLOAK_EXPECTED_TESTS Keycloak tests to run, $ran did (is Docker available?)"; exit 1; }
 
 Frontend UT:
   stage: test
