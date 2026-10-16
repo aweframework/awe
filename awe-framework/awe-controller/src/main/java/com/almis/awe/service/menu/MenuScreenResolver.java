@@ -184,6 +184,9 @@ public class MenuScreenResolver extends ServiceConfig {
     // Add screen data
     if (!screen.isInitialized()) {
       initializeScreen(screen);
+
+      // Store an independent copy: the caller goes on changing this one with the user configuration
+      getElements().setScreen(screen.copy());
     }
 
     // Retrieve screen
@@ -226,7 +229,6 @@ public class MenuScreenResolver extends ServiceConfig {
 
     // Set screen as initialized
     screen.setInitialized(true);
-    getElements().setScreen(screen);
   }
 
   /**

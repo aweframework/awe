@@ -10,6 +10,7 @@ import com.almis.awe.model.dto.*;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
+import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +40,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -548,5 +551,35 @@ class MenuServiceTest {
     assertEquals("level1-screen", menuService.getAvailableOptionScreen("level1", menu).getId());
     assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level2", menu));
     assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level3", menu));
+  }
+
+  @Test
+  void getScreenStoresAnInitializedCopyIndependentOfTheReturnedScreen() throws AWException {
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    Screen definition = new Screen();
+    definition.setId("screen");
+    when(aweElements.getScreen("screen")).thenReturn(definition);
+    ArgumentCaptor<Screen> stored = ArgumentCaptor.forClass(Screen.class);
+
+    Screen screen = menuService.getScreen("screen", "option");
+
+    verify(aweElements).setScreen(stored.capture());
+    assertTrue(screen.isInitialized());
+    assertTrue(stored.getValue().isInitialized());
+    assertNotSame(screen, stored.getValue());
+  }
+
+  @Test
+  void getScreenDoesNotStoreAnAlreadyInitializedScreen() throws AWException {
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    Screen definition = new Screen();
+    definition.setId("screen");
+    definition.setInitialized(true);
+    when(aweElements.getScreen("screen")).thenReturn(definition);
+
+    Screen screen = menuService.getScreen("screen", "option");
+
+    assertTrue(screen.isInitialized());
+    verify(aweElements, never()).setScreen(any());
   }
 }
