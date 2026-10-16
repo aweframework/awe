@@ -9,6 +9,7 @@ export const templateButton = `<div ng-show="controller.visible" class="{{::grou
     <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
   </button>
   <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 export const templateColumnButton = `<div ng-show="component.controller.visible" class="column text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>

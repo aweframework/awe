@@ -96,7 +96,7 @@ export const dateRangeInputTemplate =
              ng-attr-id="{{::controller.id}}-to" ng-attr-name="{{::controller.id}}-to" ng-disabled="controller.readonly"
              ng-model="range.to" ng-change="onRangeChange()" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-press-enter="submit($event)" data-testid="${TestIds.dateRangeTo}"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
         <i class="fa fa-calendar"></i>
       </span>

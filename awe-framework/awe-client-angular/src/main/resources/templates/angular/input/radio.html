@@ -10,7 +10,7 @@
           <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
           {{controller.label| translateMultiple}}
         </span>
-        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+        <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       </label>
     </div>
   </div>

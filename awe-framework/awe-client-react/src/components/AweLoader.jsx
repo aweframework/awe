@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {ProgressSpinner} from "primereact/progressspinner";
 import {Skeleton} from "primereact/skeleton";
 import "./AweLoader.less";
+import "./AweSkeleton.less";
 
 const SPINNER = "spinner";
 const SKELETON = "skeleton";

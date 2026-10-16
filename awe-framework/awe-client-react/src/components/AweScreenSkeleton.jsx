@@ -1,6 +1,7 @@
 import React from "react";
 import {Skeleton} from "primereact/skeleton";
 import {TestIds, testHook} from "../utilities/testIds";
+import "./AweSkeleton.less";
 import "./AweScreenSkeleton.less";
 
 const CRITERIA = 4;

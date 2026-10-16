@@ -10,7 +10,7 @@
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" autocomplete="off" ng-press-enter="submit($event)"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
   </div>

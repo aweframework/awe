@@ -4,7 +4,8 @@ import { renderWithProviders } from '../test-utils';
 import { DEFAULT_SETTINGS } from '../../../src/redux/actions/settings';
 import { ADD_ACTIONS_TOP } from '../../../src/redux/actions/actions';
 import { ButtonTypes } from '../../../src/redux/actions/components';
-import {act} from "@testing-library/react";
+import {act, render} from "@testing-library/react";
+import { ButtonSkeleton } from '../../../src/components/AweSkeleton';
 
 function baseState(overrides = {}) {
   const state = {
@@ -179,5 +180,35 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
     expect(btn).toBeTruthy();
     // Should have default outlined button class due to default type
     expect(btn.className).toContain('p-button-outlined');
+  });
+
+  describe('skeleton', () => {
+    const state = (components) => ({ settings: DEFAULT_SETTINGS, actions: { running: false }, components });
+
+    it('shows a hidden skeleton with the loader hook until the button registers', () => {
+      const { container } = renderWithProviders(<AweButton id="btn1" style="my-style" />, { preloadedState: state({}) });
+
+      const skeleton = container.querySelector("[data-testid='loader']");
+      expect(skeleton).not.toBeNull();
+      expect(skeleton.getAttribute('aria-hidden')).toBe('true');
+      expect(skeleton.classList.contains('awe-skeleton-button')).toBe(true);
+      expect(skeleton.classList.contains('my-style')).toBe(true);
+      expect(container.querySelector('button')).toBeNull();
+    });
+
+    it('makes the skeleton as wide as the label and as high as the size of the button', () => {
+      const { container } = render(<ButtonSkeleton attributes={{ label: 'Accept all', size: 'lg' }} />);
+
+      const skeleton = container.querySelector("[data-testid='loader']");
+      expect(skeleton.querySelector('.p-skeleton').style.width).toBe('14ch');
+      expect(skeleton.classList.contains('awe-skeleton-lg')).toBe(true);
+    });
+
+    it('paints the button, and no skeleton, once it is registered', () => {
+      const { container } = renderWithProviders(<AweButton id="btn1" />, { preloadedState: baseState() });
+
+      expect(container.querySelector('button#btn1')).not.toBeNull();
+      expect(container.querySelector("[data-testid='loader']")).toBeNull();
+    });
   });
 });

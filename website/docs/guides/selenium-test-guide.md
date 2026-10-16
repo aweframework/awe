@@ -803,6 +803,10 @@ these selectors.
 | `error-boundary`, `error-boundary-title`, `error-boundary-message`, `error-boundary-details`, `error-boundary-retry`, `error-boundary-reload` | **React only.** The panel an error boundary shows when a part of the application fails to render (`data-scope` is `app` or `view`), its title, the message of the error, its component stack and its buttons. Read the message and the stack from the page source of the failure evidence to diagnose a white screen | Instead of the part that failed (`view`) or of the whole application (`app`) |
 | `loading-bar`, `loading-spinner` | The global loading bar (AngularJS only) and its spinner. React has no loading bar: it shows the spinner while a view loads. They exist only while the application is loading | End of `<body>` |
 
+:::note
+Loading hooks (`loader`, `grid-loader`) are present from the start of the load; only the skeleton visuals appear after 150 ms. Keep waiting on these hooks. A grid reloading with the skeleton loader keeps its rows, dimmed, with `aria-busy="true"`.
+:::
+
 ### State
 
 The state a test needs is exposed as data attributes, so it does not depend on library classes. They are always `"true"`

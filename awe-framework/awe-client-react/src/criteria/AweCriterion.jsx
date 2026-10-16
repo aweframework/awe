@@ -7,10 +7,11 @@ import {selectSettings} from "../redux/selectors/stateSelectors";
 import "./AweCriterion.less";
 import {TestIds, testHook} from "../utilities/testIds";
 import PropTypes from "prop-types";
+import {CriterionSkeleton} from "../components/AweSkeleton";
 
 const AweCriterion = ({children, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
-                        generateUnit = true, groupClass = "p-inputgroup"}) => {
+                        generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field"}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly} = attributes || {};
   const {t} = useTranslation();
   const settings = useSelector(selectSettings);
@@ -69,6 +70,11 @@ const AweCriterion = ({children, address, attributes, validationRules,
     return null;
   };
 
+  // Not registered yet: a skeleton with the shape of the criterion takes its place
+  if (!address?.component) {
+    return <CriterionSkeleton attributes={attributes} kind={skeletonKind} generateLabel={generateLabel}/>;
+  }
+
   // Component classes
   const classes = classNames("field", {
     invisible: attributes.invisible,
@@ -99,7 +105,8 @@ AweCriterion.propTypes = {
   generateLabel: PropTypes.bool,
   generateIcon: PropTypes.bool,
   generateUnit: PropTypes.bool,
-  groupClass: PropTypes.string
+  groupClass: PropTypes.string,
+  skeletonKind: PropTypes.string
 };
 
 export default AweCriterion;

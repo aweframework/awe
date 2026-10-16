@@ -386,6 +386,20 @@ export function getDirection(direction) {
   return direction === "asc" ? 1 : -1;
 }
 
+/** Width of the selection (multiselect) pre-column */
+export const SELECTION_COLUMN_WIDTH = "40px";
+
+/**
+ * Width style of the row number pre-column: it grows with the digits of the last row number
+ * @param {number} [first] Index of the first row of the page
+ * @param {number} [rows] Rows of the page
+ * @return {{}|{width: string, flex: string}}
+ * @memberOf Grid
+ */
+export function getRowNumberWidthStyle(first = 0, rows = 0) {
+  return getWidthStyle(String((first || 0) + (rows || 0)).length - 2);
+}
+
 /**
  * Retrieve width style
  * @param charLength Length in chars

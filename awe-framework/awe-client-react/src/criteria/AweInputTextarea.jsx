@@ -18,7 +18,7 @@ function AweInputTextarea(props) {
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
-                  groupClass="" generateIcon={false} generateUnit={false}>
+                  groupClass="" generateIcon={false} generateUnit={false} skeletonKind="textarea">
       <InputTextarea
         id={address?.component}
         value={value}
