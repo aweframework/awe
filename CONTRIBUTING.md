@@ -140,7 +140,9 @@ so on Apple Silicon it runs under Docker Desktop's x86 emulation (it worked on D
 is large (about 6 GB), so the first run spends most of its time pulling it.
 
 The pipeline runs the same profiles in the `MySQL Tests`, `PostgreSQL Tests`, `SQL Server Tests` and `Oracle Tests` jobs, with
-Docker-in-Docker. H2 and HSQLDB run embedded. The
+Docker-in-Docker. H2 and HSQLDB run embedded. Like the commands above, these jobs run only `awe-tests/awe-boot`, with the AWE modules
+that `Build project` installed: the other modules are tested once, by `All UT`. In a merge request the first failed job cancels
+the rest of the pipeline, so fix it and push again; `develop`, `master` and `support/*` always run every job (#863). The
 [`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, CI setup).
 
 Where the pieces are: the annotation `@AweDatabaseTest` and the enum `TestDatabase` live in `awe-framework/awe-testing`
@@ -258,7 +260,8 @@ when [gitleaks](https://github.com/gitleaks/gitleaks) is installed (the analyzer
 - **`--fast` (`LOCAL_CI_SCOPE=affected`).** Opt-in and narrower than the pipeline, so a pass no longer predicts a pass of the jobs
   it drops. The default is exactly what the merge request pipeline creates. With `--fast`: a change of `.gitlab-ci.yml` alone
   does not trigger the heavy jobs (the pipeline runs them, because the file is in every `rules:changes` list); the database jobs
-  run only when a framework module or `awe-boot` changed, and then only the `awe-boot` module (the rest ran in All UT); the
+  run only when a framework module or `awe-boot` changed (with or without `--fast` they run only the `awe-boot` module, as the
+  pipeline does); the
   AngularJS browser suites are left out for a change only in the React client, and the React suites for a change only in the
   AngularJS client or `awe-boot`. Use it while iterating, and run without it before you push. `--list --fast` shows what it
   drops and why.

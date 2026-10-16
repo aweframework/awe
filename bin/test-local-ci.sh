@@ -1229,8 +1229,8 @@ platform_case "parallel width: the warning names rsync and the serial fallback" 
 if sed -n '/^db_item() {/,/^}/p' "$BIN_DIR/local-ci.sh" | sed -n '/nodocker)/,/;;/p' | grep -q 'after_build'; then pass "db_item: the no-Docker row goes through after_build"; else fail "db_item: nodocker without after_build"; fi
 if ! grep -q 'System.getProperty' "$ROOT/awe-tests/awe-boot/src/test/java/com/almis/awe/config/TestServerPortEnvironmentPostProcessor.java"; then pass "test port: no redundant System.getProperty guard"; else fail "test port: guard still there"; fi
 
-# --- The Maven arguments of the unit-testing rows are the ones of the serial pipeline (CI's module set) ---
-# A row must run exactly the modules and flags it ran before the pool existed: a test count that differs from the serial run is a
+# --- The Maven arguments of the unit-testing rows are the ones of the CI jobs ---
+# All UT runs the reactor of CI and every database row only awe-boot (#863): a test count that differs from the CI job is a
 # regression. The builders are run here as extracted from the script.
 ut_args_with() { # "$1" FAST value, "$2" code
   run bash -c "
@@ -1248,16 +1248,22 @@ else
 fi
 for profile in h2 mysql oracle-flyway sqlserver; do
   ut_args_with 0 "unit_profile_args $profile | tr '\\n' ' '"
-  if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype -P$profile -Djacoco.file.name=jacoco-$profile-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false " ]; then
-    pass "unit rows: the $profile row runs the CI module set with the flags it always had"
+  if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl awe-tests/awe-boot -P$profile -Djacoco.file.name=jacoco-$profile-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false " ]; then
+    pass "unit rows: the $profile row runs only awe-boot, as the database job of CI (#863)"
   else
     fail "unit rows: $profile arguments" "$OUT"
   fi
 done
 ut_args_with 1 'unit_profile_args mysql | tr "\n" " "'
-case "$OUT" in *"-pl awe-tests/awe-boot -Pmysql"*) pass "unit rows: --fast narrows the database rows to awe-boot, and only them" ;; *) fail "unit rows: fast modules" "$OUT" ;; esac
+case "$OUT" in *"-pl awe-tests/awe-boot -Pmysql"*) pass "unit rows: --fast keeps the database rows on awe-boot" ;; *) fail "unit rows: fast modules" "$OUT" ;; esac
 ut_args_with 1 'all_ut_args | tr "\n" " "'
 case "$OUT" in *"-pl !awe-framework/awe-boot-angular-archetype"*) pass "unit rows: --fast leaves All UT on the CI module set" ;; *) fail "unit rows: All UT under fast" "$OUT" ;; esac
+# The database rows mirror the database jobs of .gitlab-ci.yml: they run awe-boot alone, never the reactor
+if grep -q -- '- mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -P$TEST_NAME' "$ROOT/.gitlab-ci.yml"; then
+  pass "unit rows: the database jobs of CI run only awe-boot too"
+else
+  fail "unit rows: the database jobs of .gitlab-ci.yml no longer run only awe-boot"
+fi
 
 # --- Whose process is it: the checkout as a whole path component ---
 OWN_ROOT="$WORK/co-root"

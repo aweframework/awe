@@ -28,6 +28,13 @@ workflow:
     - if: $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_REF_NAME != "develop"
       auto_cancel:
         on_new_commit: none
+    # Merge requests fail fast (#863): the first failed job cancels the jobs still running and the ones not started, so a broken
+    # merge request stops spending runner minutes. Jobs with allow_failure never trigger it. develop, master, support/* and
+    # the schedules (rules above, or the default below) keep running every job to report every failure
+    - if: $CI_MERGE_REQUEST_IID
+      auto_cancel:
+        on_new_commit: interruptible
+        on_job_failure: all
     - when: always
 
 default:
@@ -753,8 +760,20 @@ All UT:
   # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
   rules: *rules-all-ut
 
-Embedded DB Tests:
+# The database jobs (#863): only the awe-boot integration tests of one database profile. The profiles exist only in
+# awe-tests/awe-boot, so every other module would run the same tests as "All UT" again; awe-boot gets the AWE modules of this
+# pipeline from the "Build project" artifacts, as the browser suites do. Their JaCoCo data stays complete: Launch Sonar
+# aggregates the awe-boot *.exec of each job with the "All UT" ones of every module.
+.database-testing:
   extends: .unit-testing
+  needs:
+    - job: Build project
+      artifacts: true
+  script:
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
+
+Embedded DB Tests:
+  extends: .database-testing
   parallel:
     matrix:
       - TEST_NAME: [ h2, h2-flyway, hsql-flyway ]
@@ -792,7 +811,7 @@ Embedded DB Tests:
 
 MySQL Tests:
   extends:
-    - .unit-testing
+    - .database-testing
     - .database-containers
   parallel:
     matrix:
@@ -800,7 +819,7 @@ MySQL Tests:
 
 PostgreSQL Tests:
   extends:
-    - .unit-testing
+    - .database-testing
     - .database-containers
   parallel:
     matrix:
@@ -811,7 +830,7 @@ PostgreSQL Tests:
 # prefix never touches it (Testcontainers only prefixes images without a registry).
 SQL Server Tests:
   extends:
-    - .unit-testing
+    - .database-testing
     - .database-containers
   variables:
     AWE_TESTING_SQLSERVER_ACCEPT_EULA: "true"
@@ -822,7 +841,7 @@ SQL Server Tests:
 # The Oracle image (gvenzl/oracle-free, faststart) is about 6 GB unpacked: the dind service of the job has to hold it.
 Oracle Tests:
   extends:
-    - .unit-testing
+    - .database-testing
     - .database-containers
   parallel:
     matrix:
@@ -832,14 +851,13 @@ Oracle Tests:
 # awe-testing-images.properties, so the dependency proxy prefix never touches it) runs in the dind daemon like the databases, and
 # AWE runs in the job on a random port. Keycloak has to reach AWE for the back-channel logout call: through the address of the job
 # container, given in AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST (without it the test uses host.docker.internal, which is only
-# right when the test JVM runs on the Docker host). The job runs only this test class (-Dtest): the rest of the reactor has
-# already been tested by "All UT". allow_failure while the runner networking for the back-channel call is unproven; remove it
-# once the job is green on the runners.
+# right when the test JVM runs on the Docker host). The job runs only this test class (-Dtest) of awe-boot (#863): the other
+# modules have already been tested by "All UT", and a module without the class failed the job (awe-boot-react fails when it runs
+# no test). It blocks the pipeline: the back-channel networking is proven on the runners (6/6 in the pipelines of !1023).
 Keycloak Tests:
   extends:
-    - .unit-testing
+    - .database-testing
     - .database-containers
-  allow_failure: true
   variables:
     KEYCLOAK_EXPECTED_TESTS: "6"
   script:
@@ -851,9 +869,9 @@ Keycloak Tests:
       export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=$(ip -4 route get "${dind_ip:-1.1.1.1}" 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n1)
       export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=${AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST:-$(hostname -i | cut -d' ' -f1)}
       echo "Keycloak back-channel host: $AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST"
-    # Only awe-boot and the modules it needs: awe-boot-react sets failIfNoTests and has no class matching -Dtest. The options of
-    # UT_OPTS are repeated without its -pl exclusions, which Maven rejects next to an inclusion that does not select them
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -pl awe-tests/awe-boot -am -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
+    # Only awe-boot (#863), with the AWE modules of the "Build project" artifacts: awe-boot-react sets failIfNoTests and has no
+    # class matching -Dtest
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
     # The class is skipped without Docker (disabledWithoutDocker) and failIfNoSpecifiedTests=false hides an empty selection: a
     # green job must have run every test of the class (KEYCLOAK_EXPECTED_TESTS, update it when tests are added or removed)
     - |
