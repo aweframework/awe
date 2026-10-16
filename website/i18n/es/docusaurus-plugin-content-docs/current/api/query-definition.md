@@ -1097,7 +1097,7 @@ Puedes consultar la estructura xml de los enumerados en [esta página](enumerate
 </query>
 ```
 
-> # **Nota:** Todos los enumerados se definen en el archivo `Enumerated.xml` de la **carpeta global**. Consulta la [estructura del proyecto](../guides/project-structure.md#global-folder) para más información.
+> **Nota:** Todos los enumerados se definen en el archivo `Enumerated.xml` de la **carpeta global**. Consulta la [estructura del proyecto](../guides/project-structure.md#global-folder) para más información.
 
 ### Ejemplos de enumerado {#enumerated-examples}
 

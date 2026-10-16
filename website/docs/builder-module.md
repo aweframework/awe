@@ -26,7 +26,7 @@ And there you go!
 
 Client action builders help the developer in the task of sending specific client actions to the frontend. 
 
-####  **`screen` action builder**
+###  **`screen` action builder**
 
 This action makes the application to move to another screen.
 
@@ -38,7 +38,7 @@ serviceData.addClientAction(new ScreenActionBuilder("another-screen-option").bui
 
 This sample creates a client action which will try to navigate to the option defined as `another-screen-option`.
 
-####  **`redirect` action builder**
+###  **`redirect` action builder**
 
 This action makes the application to redirect to another URL.
 
@@ -50,7 +50,7 @@ serviceData.addClientAction(new RedirectActionBuilder("http://go.to.another.url"
 
 This sample creates a client action which will try to navigate to the URL `http://go.to.another.url`.
 
-####  **`redirect-screen` action builder**
+###  **`redirect-screen` action builder**
 
 This action makes the application to redirect a specific screen to another URL.
 
@@ -63,7 +63,7 @@ serviceData.addClientAction(new RedirectScreenActionBuilder("specific-screen", "
 This sample creates a client action which will try to navigate to the URL `http://go.to.another.url` if the
 current screen is `specific-screen` (useful for dynamic-generated screens).
 
-####  **`fill` action builder**
+###  **`fill` action builder**
 
 This action sends a list of data to a component:
 
@@ -77,7 +77,7 @@ serviceData.addClientAction(new FillActionBuilder("my-grid", dataList).build());
 
 This sample sends `dataList` to `"my-grid"` component.
 
-####  **`select` action builder**
+###  **`select` action builder**
 
 This action sends a list of selected values to a component.
 
@@ -97,7 +97,7 @@ serviceData.addClientAction(new SelectActionBuilder("my-select", value1, value2,
 
 This sample sends a list of selected values to `"my-select"` component.
 
-####  **`fill-suggest` action builder**
+###  **`fill-suggest` action builder**
 
 This action sends a list of selected values and labels to a suggest component.
 
@@ -111,7 +111,7 @@ serviceData.addClientAction(new FillSuggestActionBuilder("my-suggest", values).b
 
 This sample sends a list of selected values and labels to `"my-suggest"` component.
 
-####  **`filter` action builder**
+###  **`filter` action builder**
 
 This action calls a component to reload itself:
 
@@ -123,7 +123,7 @@ serviceData.addClientAction(new FilterActionBuilder("my-grid").build());
 
 This sample tells `"my-grid"` component to reload its data.
 
-####  **`update-controller` action builder**
+###  **`update-controller` action builder**
 
 This action triggers a change of attribute inside a component:
 
@@ -136,7 +136,7 @@ serviceData.addClientAction(new UpdateControllerActionBuilder("my-select", "opti
 
 This sample changes the `optional` attribute on `"my-select"` component to `false`.
 
-####  **`message` action builder**
+###  **`message` action builder**
 
 This action allows sending a message to the user. Message type can be one of `OK`, `WARNING`, `ERROR` or `INFO`.
 
@@ -148,7 +148,7 @@ serviceData.addClientAction(new MessageActionBuilder(AnswerType.OK, "message tit
 
 This sample sends a message to the frontend.
 
-####  **`dialog` action builder**
+###  **`dialog` action builder**
 
 This action opens a modal window in the screen.
 
@@ -160,7 +160,7 @@ serviceData.addClientAction(new DialogActionBuilder("my-dialog").build());
 
 This sample opens the modal screen named `"my-dialog"`.
 
-####  **`confirm` action builder**
+###  **`confirm` action builder**
 
 This action opens a modal window with a button to confirm or cancel action.
 
@@ -180,7 +180,7 @@ serviceData.addClientAction(new ConfirmActionBuilder("message title", "message d
 
 Instead of using a defined `message` tag, this action uses the `title` and `description` parameter defined on it.
 
-####  **`get-file` action builder**
+###  **`get-file` action builder**
 
 This action asks a file to be downloaded.
 

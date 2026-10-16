@@ -54,7 +54,7 @@ The xml structure of context menus is the following:
 
 ### Button action attributes
 
-> **Note:** You can see all attributes of `button-action ` [here](button.md#button-actions)
+> **Note:** You can see all attributes of `button-action` [here](button.md#button-actions)
 
 ### Context separator attributes
 

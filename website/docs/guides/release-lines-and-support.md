@@ -113,7 +113,7 @@ empty Docker login and a `401 Unauthorized` from the Maven repository.
 ## Merge request title and size
 
 The `lint` stage runs fast jobs on every merge request pipeline, in parallel with the build: `MR docs warning`
-(see [Docs warning](#docs-warning-not-blocking)) and, for the merge requests that change a client,
+(see [Docs warning](#docs-warning-not-blocking)), [`Markdown lint`](#markdown-lint) and, for the merge requests that change a client,
 [`Lint frontend`](#frontend-lint-blocking). The title, size and translation drift checks are **not** pipeline jobs: they
 are scripts you can run locally, described below.
 
@@ -221,6 +221,18 @@ a few seconds, and fails when a Spanish page under `website/i18n/es/docusaurus-p
 - links to a `.md` page that exists neither in the Spanish nor in the English tree.
 
 Run it locally with `npm --prefix website run check:translations`, optionally followed by the paths of the pages to check.
+
+### Markdown lint (non-blocking) {#markdown-lint}
+
+The job `Markdown lint` runs [markdownlint](https://github.com/DavidAnson/markdownlint) on the English and Spanish pages
+and on the blog, in the merge requests that change a Markdown file under `website/` or its configuration
+(`website/.markdownlint-cli2.jsonc`). It is allowed to fail: the pipeline shows an orange warning and the merge is never
+blocked. The configuration turns off the rules that fight Docusaurus and MDX (line length, inline HTML and JSX, front
+matter before the first heading, list and blank-line style), so what it reports is a real problem: heading levels that
+skip a level, spaces inside emphasis or code spans, broken tables and undefined reference links. Fix what the report
+shows in the pages you changed; do not mass-fix the existing ones in an unrelated merge request.
+
+Run it locally with `npm --prefix website run lint:md`, or check only some pages with `npm --prefix website run lint:md:files -- docs/api/screens.md` (paths relative to `website/`).
 
 ## Frontend lint (blocking)
 

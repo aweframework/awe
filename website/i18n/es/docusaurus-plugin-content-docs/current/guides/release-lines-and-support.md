@@ -110,7 +110,7 @@ vacío y un `401 Unauthorized` del repositorio Maven.
 ## Título y tamaño de la merge request {#merge-request-title-and-size}
 
 La etapa `lint` ejecuta jobs rápidos en cada pipeline de merge request, en paralelo con la construcción: `MR docs warning`
-(véase [Aviso de documentación](#docs-warning-not-blocking)) y, en las merge requests que modifican un cliente,
+(véase [Aviso de documentación](#docs-warning-not-blocking)), [`Markdown lint`](#markdown-lint) y, en las merge requests que modifican un cliente,
 [`Lint frontend`](#frontend-lint-blocking). Las comprobaciones de título, tamaño y desfase de traducción **no** son jobs
 de la pipeline: son scripts que se pueden ejecutar en local, descritos a continuación.
 
@@ -215,6 +215,19 @@ pocos segundos, y falla cuando una página en español bajo `website/i18n/es/doc
 - enlaza a una página `.md` que no existe ni en el árbol en español ni en el inglés.
 
 Ejecútelo en local con `npm --prefix website run check:translations`, seguido opcionalmente de las rutas de las páginas a comprobar.
+
+### Lint de Markdown (no bloqueante) {#markdown-lint}
+
+El job `Markdown lint` ejecuta [markdownlint](https://github.com/DavidAnson/markdownlint) sobre las páginas en inglés y en
+español y sobre el blog, en las merge requests que cambian un archivo Markdown bajo `website/` o su configuración
+(`website/.markdownlint-cli2.jsonc`). Puede fallar sin bloquear: el pipeline muestra un aviso naranja y la merge nunca queda
+bloqueada. La configuración desactiva las reglas que chocan con Docusaurus y MDX (longitud de línea, HTML y JSX en línea,
+front matter antes del primer encabezado, estilo de listas y de líneas en blanco), así que lo que informa es un problema real:
+niveles de encabezado que se saltan uno, espacios dentro de énfasis o de código en línea, tablas rotas y enlaces de referencia
+sin definir. Corrija lo que el informe muestre en las páginas que cambie; no corrija en masa las existentes en una merge request
+que no tenga relación.
+
+Ejecútelo en local con `npm --prefix website run lint:md`, o compruebe solo algunas páginas con `npm --prefix website run lint:md:files -- docs/api/screens.md` (rutas relativas a `website/`).
 
 ## Lint del frontend (bloqueante) {#frontend-lint-blocking}
 

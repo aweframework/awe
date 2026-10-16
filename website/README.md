@@ -67,6 +67,10 @@ Spanish version of `docs/api/button.md` is `i18n/es/docusaurus-plugin-content-do
   page compiles as MDX, has the heading anchors, code blocks and front matter `id`/`slug` of its English page, and its
   relative links point to existing pages. It runs in merge requests (job `Spanish docs lint`), which build the English
   site only. Pass file paths to check only some pages.
+- `npm --prefix website run lint:md` runs markdownlint on the pages (job `Markdown lint`, allowed to fail; configuration in
+  `.markdownlint-cli2.jsonc`).
+- The page *Documentation audit* (`docs/guides/docs-audit.md`, English and Spanish) is generated at every start and build by
+  `scripts/docs-audit/generate.js` and git-ignored. Record a substantive review of a page in `scripts/docs-audit/reviews.json`.
 - The pipeline job `Build website with i18n` builds all locales from the repository on `develop` and `master`. Locally,
   `npm --prefix website run build` does the same and `npm --prefix website start` serves English only; to see Spanish
   run `npm --prefix website start -- --locale es`.

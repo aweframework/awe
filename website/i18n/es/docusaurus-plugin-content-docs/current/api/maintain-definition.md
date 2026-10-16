@@ -809,7 +809,7 @@ El elemento serve en los maintains tiene los siguientes atributos:
 | service   | **Obligatorio** | String  | Identificador del servicio                                 | **Nota:** El id del servicio debe existir en el archivo `Services.xml`      |
 | label     | Opcional     | String  | Se usa para establecer el mensaje de salida tras ejecutar el mantenimiento | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)  | 
 
-#### **Ejemplos de maintain de servicio** {#service-maintain-examples}
+### **Ejemplos de maintain de servicio** {#service-maintain-examples}
 
 ```xml
 <!-- Serve example -->
@@ -855,7 +855,7 @@ El elemento queue en los maintains tiene los siguientes atributos:
 | name      | **Obligatorio** | String   | Identificador de la cola                                   | **Nota:** El id de la cola debe existir en el archivo `Queues.xml`          |
 | label     | Opcional     | String   | Se usa para establecer el mensaje de salida tras ejecutar el mantenimiento | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)  | 
 
-#### **Ejemplos de maintain de cola** {#queue-maintain-examples}
+### **Ejemplos de maintain de cola** {#queue-maintain-examples}
 
 ```xml
 <!-- Test queues -->
@@ -891,7 +891,7 @@ El elemento email en los maintains tiene los siguientes atributos:
 | id        | **Obligatorio** | String  | Identificador del email                                    | **Nota:** El id del email debe existir en el archivo `Email.xml`            |
 | label     | Opcional     | String  | Se usa para establecer el mensaje de salida tras ejecutar el mantenimiento | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)  | 
 
-#### **Ejemplos de maintain de email** {#email-maintain-examples}
+### **Ejemplos de maintain de email** {#email-maintain-examples}
 
 ```xml
 <!-- Send reports by e-mail -->
@@ -920,7 +920,7 @@ Include target tiene los siguientes atributos:
 |-----------|---------------|----------|--------------------|---------------------------------------------------------------|
 | name      | **Obligatorio** | String   | Identificador del target | **Nota:** El nombre del target debe existir en el archivo `Maintain.xml` |
 
-#### **Ejemplos de include target** {#include-target-examples}
+### **Ejemplos de include target** {#include-target-examples}
 
 ```xml
 <!-- Test insert -->
@@ -1015,7 +1015,7 @@ almacenará como un parámetro con el nombre del alias del campo.
 > **NOTA:** Si estás usando secuencias de AWE, deberías considerar priorizar esta forma de 
 recuperar datos para insertarlos en lugar de las sentencias `INSERT INTO SELECT`.
 
-#### **Ejemplos de retrieve data** {#retrieve-data-examples}
+### **Ejemplos de retrieve data** {#retrieve-data-examples}
 
 ```xml
 <target name="testRetrieveDataAndInsertAfter">

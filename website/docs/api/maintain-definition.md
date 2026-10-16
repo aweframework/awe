@@ -64,7 +64,7 @@ For easier development of maintain, not all elements are required.
 | [insert](#insert)               | Optional      | Yes                 | Is used to do insert operations in database                                                 |
 | [update](#update)               | Optional      | Yes                 | Is used to do update operations in database                                                 |
 | [delete](#delete)               | Optional      | Yes                 | Is used to do delete operations in database                                                 |
-| [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once **      |
+| [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once**      |
 | [commit](#commit)               | Optional      | Yes                 | Is used to do commit in database and store the changes                                      |
 | [serve](#service-maintain)      | Optional      | Yes                 | Is used to do operations with services (Java or Web services)                               |
 | [queue](#queue-maintain)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
@@ -808,7 +808,7 @@ Serve element in maintains has the following attributes:
 | service   | **Required** | String  | Service identifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Service maintain examples**
+### **Service maintain examples**
 
 ```xml
 <!-- Serve example -->
@@ -854,7 +854,7 @@ Queue element in maintains has the following attributes:
 | name      | **Required** | String   | Queue identifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
 | label     | Optional     | String   | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Queue maintain examples**
+### **Queue maintain examples**
 
 ```xml
 <!-- Test queues -->
@@ -890,7 +890,7 @@ Email element in maintains has the following attributes:
 | id        | **Required** | String  | Email identifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Email maintain examples**
+### **Email maintain examples**
 
 ```xml
 <!-- Send reports by e-mail -->
@@ -919,7 +919,7 @@ Include target has the following attributes:
 |-----------|---------------|----------|--------------------|---------------------------------------------------------------|
 | name      | **Required**  | String   | Target identifier  | **Note:** The target name must exist in `Maintain.xml` file   |
 
-#### **Include target examples**
+### **Include target examples**
 
 ```xml
 <!-- Test insert -->
@@ -1014,7 +1014,7 @@ stored as a parameter named as the column field alias.
 > **NOTE:** If you are using AWE sequences, you should consider to prioritize this way of 
 retrieving data for inserting it rather to `INSERT INTO SELECT` statements.
 
-#### **Retrieve data examples**
+### **Retrieve data examples**
 
 ```xml
 <target name="testRetrieveDataAndInsertAfter">
