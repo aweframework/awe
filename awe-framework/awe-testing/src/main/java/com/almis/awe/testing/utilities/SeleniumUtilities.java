@@ -4143,6 +4143,211 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Script that finds the text block of a cell of a grid that wraps over several lines (the cell or the text it holds)
+   */
+  private static final String WRAPPED_TEXT_OF_CELL = "const cell = arguments[0];"
+    + " const text = cell.matches('.p-cell-wrap, .cell-wrap') ? cell : (cell.querySelector('.p-cell-wrap, .cell-wrap') || cell);";
+
+  /**
+   * Read a number of a cell of a grid with a script that starts with the text block of the cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param script   Script that returns the number, once it has the text block in {@code text}
+   * @return Number
+   */
+  private double readWrappedCell(String gridId, String rowId, String columnId, String script) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object value = getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + script);
+    return value instanceof Number number ? number.doubleValue() : Double.NaN;
+  }
+
+  /**
+   * Check the number of lines that the text of a cell of a grid shows (a column that wraps, with or without a maximum)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param lines    Expected number of lines
+   */
+  protected void checkGridCellLines(String gridId, String rowId, String columnId, int lines) {
+    double shown = readCellLines(gridId, rowId, columnId);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows " + shown
+      + " lines, not " + lines, shown == lines);
+  }
+
+  /**
+   * Check that the text of a cell of a grid wraps over at least some lines
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param lines    Minimum number of lines
+   */
+  protected void checkGridCellLinesAtLeast(String gridId, String rowId, String columnId, int lines) {
+    double shown = readCellLines(gridId, rowId, columnId);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows " + shown
+      + " lines, fewer than " + lines, shown >= lines);
+  }
+
+  private double readCellLines(String gridId, String rowId, String columnId) {
+    return readWrappedCell(gridId, rowId, columnId, " const style = getComputedStyle(text);"
+      + " return Math.round((text.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom))"
+      + " / parseFloat(style.lineHeight));");
+  }
+
+  /**
+   * Check that the text of a cell of a grid is shown whole, or that it is cut (a column with a maximum number of lines
+   * whose text is longer)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cut      The text is expected to be cut
+   */
+  protected void checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut) {
+    double hidden = readWrappedCell(gridId, rowId, columnId, " return text.scrollHeight - text.clientHeight;");
+    assertWithScreenshot("The text of the cell " + columnId + " of the row " + rowId + " of the grid " + gridId
+      + (cut ? " is not cut" : " is cut (" + hidden + "px hidden)"), (hidden > 1) == cut);
+  }
+
+  /**
+   * Check that the row of a grid is taller than another one
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row that is expected to be taller
+   * @param otherId  Other row
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowTaller(String gridId, String rowId, String otherId, String columnId) {
+    String script = "return arguments[0].closest('[data-testid=\"grid-row\"]').getBoundingClientRect().height;";
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    By otherCell = frontEndInstructions.getGridCell(gridId, otherId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), toBeVisible(otherCell), checkIfGridLoaderIsNotVisible()));
+    Object height = getBrowser().executeScriptOn(locator(cell), script);
+    Object otherHeight = getBrowser().executeScriptOn(locator(otherCell), script);
+    assertWithScreenshot("The row " + rowId + " (" + height + "px) of the grid " + gridId + " is not taller than the row "
+      + otherId + " (" + otherHeight + "px)",
+      height instanceof Number h && otherHeight instanceof Number o && h.doubleValue() > o.doubleValue() + 1);
+  }
+
+  /**
+   * Check that the row of a grid is tall enough for all its cells: no cell of the row has text that overflows it
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowFitsItsCells(String gridId, String rowId, String columnId) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object overflow = getBrowser().executeScriptOn(locator(cell), "const row = arguments[0].closest('[data-testid=\"grid-row\"]');"
+      + " const bottom = row.getBoundingClientRect().bottom + 1;"
+      + " return Array.from(row.querySelectorAll('.p-cell-wrap, .cell-wrap')).filter(e => e.getBoundingClientRect().bottom > bottom).length;");
+    assertWithScreenshot("The row " + rowId + " of the grid " + gridId + " is shorter than the text of " + overflow + " of its cells",
+      overflow instanceof Number n && n.intValue() == 0);
+  }
+
+  /**
+   * Check that the whole value of a cell of a grid is exposed as the tooltip of its text (when the text is cut by the
+   * width of the column)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text that the title contains
+   */
+  protected void checkGridCellTitle(String gridId, String rowId, String columnId, String text) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object title = getBrowser().executeScriptOn(locator(cell), "const e = arguments[0].matches('[title]') ? arguments[0]"
+      + " : arguments[0].querySelector('[title]'); return e ? e.getAttribute('title') : '';");
+    assertWithScreenshot("The title of the cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " is '" + title
+      + "', it does not contain '" + text + "'", title instanceof String s && s.contains(text));
+  }
+
+  /**
+   * Check that the cut text of a cell of a grid shows its whole value in a tooltip on hover and on keyboard focus, and
+   * that the tooltip goes away when the pointer or the focus leaves
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text that the tooltip contains
+   */
+  protected void checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    String tooltip = "const t = document.querySelector('.grid-cell-tooltip'); return t ? t.textContent : '';";
+    String textOfCell = WRAPPED_TEXT_OF_CELL + " return text;";
+
+    // On hover
+    getBrowser().hover(locator(cell));
+    waitUntil(BrowserCondition.of("the tooltip of the cell " + columnId + " to show '" + text + "' on hover",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.contains(text)));
+
+    // The pointer leaves
+    getBrowser().hover(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+    waitUntil(BrowserCondition.of("the tooltip to go away when the pointer leaves",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.isEmpty()));
+
+    // On keyboard focus: the cut text is reachable with the keyboard
+    getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " text.focus();");
+    waitUntil(BrowserCondition.of("the tooltip of the cell " + columnId + " to show '" + text + "' on focus",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.contains(text)));
+    assertWithScreenshot("The cut text of the cell " + columnId + " is not reachable with the keyboard",
+      getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " return text.tabIndex >= 0 && document.activeElement === text;")
+        instanceof Boolean reachable && reachable);
+
+    // The focus leaves
+    getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " text.blur();");
+    waitUntil(BrowserCondition.of("the tooltip to go away when the focus leaves",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.isEmpty()));
+  }
+
+  /**
+   * Check that a row of a grid is selected
+   *
+   * @param gridId Grid identifier
+   * @param search Text of the row
+   */
+  protected void checkRowSelected(String gridId, String search) {
+    waitUntil(toBePresent(frontEndInstructions.findSelectedGridRow(gridId, search)));
+  }
+
+  /**
+   * Sort a client-side grid with a click on the header of a column and measure how long it takes to render its rows:
+   * from the click to the last change of the rows, with the layout of each change included
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Milliseconds
+   */
+  protected double measureGridSortRender(String gridId, String columnId) {
+    By header = frontEndInstructions.getGridHeader(gridId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(header), checkIfGridLoaderIsNotVisible()));
+
+    // The time starts with the click event and ends with the last change of the rows, once the page is quiet for 250 ms.
+    // The click is a real one on the header, as the one of a user: the sort of some clients listens to an element inside it
+    getBrowser().executeScriptOn(locator(header), "const root = document.querySelector('[grid-id=\"' + arguments[1] + '\"]');"
+      + " const state = window.__gridRender = {done: false, ms: 0, start: null, quiet: null};"
+      + " document.addEventListener('click', function () { state.start = performance.now(); }, {capture: true, once: true});"
+      + " new MutationObserver(function (changes, observer) {"
+      + "   if (state.start === null) { return; }"
+      + "   void root.offsetHeight; state.ms = performance.now() - state.start;"
+      + "   clearTimeout(state.quiet);"
+      + "   state.quiet = setTimeout(function () { observer.disconnect(); state.done = true; }, 250);"
+      + " }).observe(root, {childList: true, subtree: true, attributes: true, characterData: true});", gridId);
+    click(header);
+    waitUntil(BrowserCondition.of("the grid " + gridId + " to render the sort",
+      browser -> browser.executeScript("return window.__gridRender.done;") instanceof Boolean done && done));
+    Object ms = getBrowser().executeScript("return window.__gridRender.ms;");
+    return ms instanceof Number number ? number.doubleValue() : Double.NaN;
+  }
+
+  /**
    * Check that the icon that a column of a grid shows is displayed
    *
    * @param gridId   Grid identifier

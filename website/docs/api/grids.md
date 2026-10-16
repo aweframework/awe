@@ -59,7 +59,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | help-image          | Optional     | String  | Help image for the grid                                                                                                   | This **must** be a image path                                                                                                      |
 | icon-loading        | Optional     | String  | Set the loading icon                                                                                                      | `skeleton`, `spinner`, `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none`. Default: the [`awe.application.component.grid-icon-loading`](../properties#awe.application.component.grid-icon-loading) property (`skeleton`). `skeleton` shows placeholder rows with the grid columns; set another value to disable it on this grid |
 | row-numbers         | Optional     | Boolean | Whether to show row numbers or not                                                                                        | Default value is `true`                                                                                                            |                                                                                                          
-| row-height          | Optional     | Integer | Set the row height in pixels                                                                                              |                                                                                                                                    |
+| row-height          | Optional     | Integer | Set the row height in pixels (the minimum when columns wrap)                                                                                              |                                                                                                                                    |
 | validate-on-save    | Optional     | Boolean | Set `false` to avoid validate the selected row when clicking the `save` button                                            | Default value is `true`                                                                                                            |
 | empty-icon          | Optional     | String  | Icon of the [empty state](#empty-state) of the grid                                                                       | Default value is `inbox`. Check [icons](icons.md)                                                                                  |
 | empty-title         | Optional     | String  | Title of the [empty state](#empty-state) of the grid                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated "No records found" title         |
@@ -116,8 +116,46 @@ can be used, for example, to clear the search criteria.
 | max        | Optional     | Integer | Max number of records to retrieve when the column is initialized with target-action                                               | Default value is `30`                                                            |
 | visibility | Optional     | Boolean | Initial visibility of the column component                                                                                        | Default value is `true`                                                          |
 | frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height | Default value is `false`                                                         |
+| wrap       | Optional     | Boolean | The text of the cells wraps over several lines and the row grows to fit it. See [wrapping text](#wrapping-text)                | Default value is `false`                                                         |
+| max-lines  | Optional     | Integer | Maximum number of lines of a wrapping cell, it implies `wrap`. See [wrapping text](#wrapping-text)                              | A number greater than `0`                                                        |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
+
+### Wrapping text
+
+By default the text of a cell is one line, cut with an ellipsis when it does not fit in the width of the column. A column
+can declare that its text wraps over several lines, and the row grows to fit the tallest cell of the row. It works in
+**both client engines** and a grid without these attributes renders exactly as before.
+
+```xml
+<grid id="GrdComments" style="expand" initial-load="query" server-action="data" target-action="CommentList">
+  <column label="Code" name="code" align="left" charlength="8"/>
+  <column label="Title" name="title" align="left" charlength="16" wrap="true"/>
+  <column label="Description" name="description" align="left" charlength="30" max-lines="3"/>
+</grid>
+```
+
+- `wrap="true"` shows the whole text over as many lines as it needs.
+- `max-lines="N"` limits the text to `N` lines. When the text is longer, line `N` ends in an ellipsis, and the full text
+  shows in a tooltip on hover and on keyboard focus (the cut cells can be reached with the `Tab` key, and `Esc` closes
+  the tooltip). `max-lines` implies `wrap`, unless the column declares `wrap="false"`.
+- The rest of the columns keep their single line. Selection, sorting, inline editing and the keyboard shortcuts of the
+  grid work as usual with taller rows.
+- In the AngularJS engine `row-height` is the **minimum** height of the rows of a grid with wrapping columns. The React
+  engine ignores `row-height`.
+
+A text that does not wrap and does not fit in the width of its column always exposes its whole value: in the React
+engine, text cells and headers show it as a tooltip (the AngularJS engine already did it for cells).
+
+:::note Limits
+- Only the text of standard cells wraps. The cells of columns with a `component` keep their own layout.
+- The AngularJS engine places the rows of a grid by a fixed height, so a grid with wrapping columns renders **every row
+  of its page** instead of virtualizing them (the page size of the grid, see `max`, bounds the cost). A grid with frozen
+  columns (`frozen`) or a tree grid keeps its single-line rows in that engine.
+:::
+
+The test applications include the screens *Wrapping cells* and *Single-line cells* in the matrix test menu, with the same
+100 rows with and without wrapping.
 
 ### Printing columns
 

@@ -197,6 +197,14 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
       getGridXpath(gridId), xpath(TestIds.GRID_ROW), xpath(TestIds.GRID_CELL), XpathLiterals.of(search)));
   }
 
+  public By findSelectedGridRow(String gridId, String search) {
+    // The row of a click that selects it is edited at once and its texts are in inputs, so the value of an input counts too
+    String literal = XpathLiterals.of(search);
+    return By.xpath(String.format("%s//*[%s and %s][.//*[%s and contains(normalize-space(.),%s)] or .//input[@value=%s]]",
+      getGridXpath(gridId), xpath(TestIds.GRID_ROW), stateXpath(TestAttributes.SELECTED, true), xpath(TestIds.GRID_CELL),
+      literal, literal));
+  }
+
   public RowEditBehavior getRowEditBehavior() {
     return RowEditBehavior.SINGLE_CLICK;
   }

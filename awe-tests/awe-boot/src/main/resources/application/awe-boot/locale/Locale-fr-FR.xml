@@ -239,6 +239,14 @@
   <locale name="MENU_TEST_MATRIX_PAGER" value="Grid pager"/>
   <locale name="SCREEN_TITLE_GRID_PAGER" value="Grid pager"/>
   <locale name="MENU_TEST_MATRIX_EMPTY" value="Empty grid"/>
+  <locale name="MENU_TEST_MATRIX_WRAP" value="Wrapping cells"/>
+  <locale name="MENU_TEST_MATRIX_NOWRAP" value="Single-line cells"/>
+  <locale name="SCREEN_TITLE_GRID_WRAP" value="Wrapping cells"/>
+  <locale name="SCREEN_TITLE_GRID_NOWRAP" value="Single-line cells"/>
+  <locale name="COLUMN_WRAP_CODE" value="Code"/>
+  <locale name="COLUMN_WRAP_TITLE" value="Title (wraps)"/>
+  <locale name="COLUMN_WRAP_DESCRIPTION" value="Description (3 lines)"/>
+  <locale name="COLUMN_WRAP_NOTES" value="Notes (one line)"/>
   <locale name="SCREEN_TITLE_GRID_EMPTY" value="Empty grid"/>
   <locale name="GRID_EMPTY_TITLE_TST" value="No themes found"/>
   <locale name="GRID_EMPTY_TEXT_TST" value="Clear the search to see the themes again"/>

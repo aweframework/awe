@@ -29,6 +29,37 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     // Keys that move the selected row of an editable grid while the Alt key is held
     const MOVE_ROW_KEYS = {ArrowUp: "before", ArrowDown: "after", Home: "first", End: "last"};
 
+    // Selector of the cells whose text is cut by their maximum number of lines
+    const CLAMPED_CELL = ".cell-clamp";
+
+    /**
+     * Retrieve how many lines the text of a column wraps over. A column wraps when it declares wrap, or a maximum
+     * number of lines (which implies it) unless wrap is explicitly false.
+     *
+     * @param {object} column Column model
+     * @returns {{wrap: boolean, maxLines: (number|null)}} Wrap flag and maximum number of lines (null when unlimited)
+     */
+    const getColumnWrap = function (column) {
+      const maxLines = parseInt(column.maxLines, 10);
+      const limit = maxLines > 0 ? maxLines : null;
+      if (column.wrap === false || (column.wrap !== true && limit === null)) {
+        return {wrap: false, maxLines: null};
+      }
+      return {wrap: true, maxLines: limit};
+    };
+
+    /**
+     * Cell template of a text column that wraps over several lines
+     *
+     * @param {{wrap: boolean, maxLines: (number|null)}} wrapping Column wrapping
+     * @returns {string} Cell template
+     */
+    const getWrapCellTemplate = function (wrapping) {
+      const clamp = wrapping.maxLines === null ? "" : " cell-clamp\" style=\"--cell-max-lines: " + wrapping.maxLines;
+      return "<div class=\"no-animate ui-grid-cell-contents cell-wrap" + clamp + " {{col.grid.appScope.component.getCellStyle(COL_FIELD)}}\"" +
+        " column-id=\"{{col.name}}\" data-testid=\"grid-cell\" ng-bind-html=\"col.grid.appScope.component.getCellValue(COL_FIELD)\"></div>";
+    };
+
     /**
      * Retrieve number of selected lines in grid
      *
@@ -422,6 +453,63 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();
+
+        // Wrapping cells: they need rows of different heights, which a grid with frozen columns (a second container
+        // of rows) or a tree cannot keep aligned, so those keep their single-line rows
+        component.wrapsText = !component.hasFrozen && _.some(component.controller.columnModel, (column) => getColumnWrap(column).wrap);
+
+        /**
+         * Mark the cells whose text is cut as reachable with the keyboard, so their full text shows on focus
+         */
+        component.markCutCells = function () {
+          component.element.find(CLAMPED_CELL).each(function () {
+            if (this.scrollHeight > this.clientHeight + 1) {
+              this.setAttribute("tabindex", "0");
+            } else {
+              this.removeAttribute("tabindex");
+            }
+          });
+        };
+
+        /**
+         * Initialize the wrapping cells: the minimum row height and the tooltip with the full text of the cut cells
+         * (one listener for the whole grid, on hover and on keyboard focus)
+         */
+        component.initWrapCells = function () {
+          const element = component.element;
+          const rowHeight = parseInt(component.controller.rowHeight, 10) || 27;
+          element[0].style.setProperty("--grid-row-height", rowHeight + "px");
+          let tooltip = null;
+          const hide = function () {
+            if (tooltip) {
+              tooltip.remove();
+              tooltip = null;
+            }
+          };
+          const show = function (event) {
+            const cell = event.currentTarget;
+            hide();
+            if (cell.scrollHeight > cell.clientHeight + 1) {
+              const rect = cell.getBoundingClientRect();
+              tooltip = $("<div class=\"tooltip bottom in grid-cell-tooltip\" role=\"tooltip\"><div class=\"tooltip-arrow\"></div><div class=\"tooltip-inner\"></div></div>");
+              tooltip.find(".tooltip-inner").text($(cell).text());
+              tooltip.css({top: rect.bottom, left: rect.left}).appendTo(document.body);
+            }
+          };
+          element.off(".wrapCells")
+            .on("mouseover.wrapCells focusin.wrapCells", CLAMPED_CELL, show)
+            .on("mouseout.wrapCells focusout.wrapCells", CLAMPED_CELL, hide)
+            // The handler returns nothing: jQuery treats a returned false as preventDefault, which would swallow the keys typed in the inputs of the grid
+            .on("keydown.wrapCells", (event) => {
+              if (event.key === "Escape") {
+                hide();
+              }
+            });
+          component.scope.$on("$destroy", () => {
+            hide();
+            element.off(".wrapCells");
+          });
+        };
 
         /**
          * Custom scroll management
@@ -1483,6 +1571,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           column.cellTemplate = column.cellTemplate || "grid/cell";
           column.footerCellTemplate = column.footerCellTemplate || "grid/footer";
           column.filterHeaderTemplate = column.filterHeaderTemplate || "grid/headerFilter";
+
+          // Text that wraps over several lines
+          if (component.wrapsText && !("component" in column) && column.cellTemplate === "grid/cell") {
+            const wrapping = getColumnWrap(column);
+            if (wrapping.wrap) {
+              column.cellTemplate = getWrapCellTemplate(wrapping);
+            }
+          }
 
           column.sortingAlgorithm = component.sortingAlgorithm;
 

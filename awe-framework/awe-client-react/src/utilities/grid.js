@@ -422,6 +422,22 @@ export function getWidth(charLength = null, width = null) {
 }
 
 /**
+ * Retrieve how the text of the cells of a column wraps. A column wraps when it declares wrap, or a maximum number of
+ * lines (which implies it) unless wrap is explicitly false.
+ * @param {{wrap: (boolean|undefined), maxLines: (number|undefined)}} column Column definition
+ * @return {{wrap: boolean, maxLines: (number|null)}} Wrap flag and maximum number of lines (null when unlimited)
+ * @memberOf Grid
+ */
+export function getColumnWrap(column = {}) {
+  const {wrap, maxLines} = column;
+  const limit = isNumber(maxLines) && maxLines > 0 ? Math.floor(maxLines) : null;
+  if (wrap === false || (wrap !== true && limit === null)) {
+    return {wrap: false, maxLines: null};
+  }
+  return {wrap: true, maxLines: limit};
+}
+
+/**
  * Calculate footer value
  * @param {Object} column Column to calculate
  * @param {Object[]} values Value list

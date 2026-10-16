@@ -130,6 +130,11 @@ aweApplication.factory('GridBase',
             };
             // Broadcast rows rendered
             grid.api.core.on.rowsRendered(grid.scope, () => onRowsRendered(grid));
+            // Wrapping cells: tooltip with the full text of the cut ones and keyboard access to them
+            if (component.wrapsText) {
+              component.initWrapCells();
+              grid.api.core.on.rowsRendered(grid.scope, () => Utilities.timeout(component.markCutCells));
+            }
 
             // Manage on cell select events
             grid.api.selection.on.rowSelectionChanged(grid.scope, onSelectRow);

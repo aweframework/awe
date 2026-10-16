@@ -26,6 +26,8 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
   private boolean sortable;
   private Integer charLength;
   private String width;
+  private Boolean wrap;
+  private Integer maxLines;
 
   public ColumnAttributes(B builder) {
     super(builder);
@@ -50,7 +52,9 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
       .setSendable(isSendable())
       .setSortable(isSortable())
       .setCharLength(getCharLength())
-      .setWidth(getWidth());
+      .setWidth(getWidth())
+      .setWrap(getWrap())
+      .setMaxLines(getMaxLines());
 
     if (getAlign() != null) {
       column.setAlign(getAlign().toString());

@@ -620,6 +620,15 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridSparklineEmpty(String gridId, String rowId, String columnId)` | Checks that a cell has no sparkline because its value is not a valid series of numbers, while the cell is still shown |
 | `checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers)` | Checks how many markers (dots of the lowest, highest and last points) the sparkline of a cell has |
 | `checkGridSparklineNotFocusable(String gridId, String rowId, String columnId)` | Checks that the sparkline of a cell does not take the keyboard focus: it is not focusable and nothing in it is a tab stop |
+| `checkGridCellLines(String gridId, String rowId, String columnId, int lines)` | Checks the number of lines that the text of a cell shows (a column that wraps, with or without `max-lines`) |
+| `checkGridCellLinesAtLeast(String gridId, String rowId, String columnId, int lines)` | Checks that the text of a cell wraps over at least some lines |
+| `checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut)` | Checks that the text of a cell is shown whole, or that it is cut by its maximum number of lines |
+| `checkGridRowTaller(String gridId, String rowId, String otherId, String columnId)` | Checks that a row of a grid is taller than another one |
+| `checkGridRowFitsItsCells(String gridId, String rowId, String columnId)` | Checks that no wrapping text of a row overflows the row |
+| `checkGridCellTitle(String gridId, String rowId, String columnId, String text)` | Checks that the whole value of a cell is exposed as the title (tooltip) of its text |
+| `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Checks that the cut text of a cell shows its whole value in a tooltip on hover and on keyboard focus, and that it goes away when they leave |
+| `checkRowSelected(String gridId, String search)` | Checks that the row of a grid with a text is selected |
+| `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Checks that the icon of an icon column is displayed (`plus`, without the library prefix) |
 | `checkColumnSuccessIcon(String columnId)` | Checks that a column shows a success icon |
 

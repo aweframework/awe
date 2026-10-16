@@ -66,6 +66,11 @@ class AngularAweInstructionsTest {
       + "//*[@data-testid='grid-row']//*[@data-testid='grid-cell']//text()[contains(.,'abc')]/..");
     // A row is selected by clicking on its cell
     assertThat(instructions.findGridRowSelection("Grd", "abc")).isEqualTo(instructions.findGridCell("Grd", "abc"));
+    // A selected row is edited at once, so its text may be the value of an input
+    assertThat(instructions.findSelectedGridRow("Grd", "abc")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @data-selected='true']"
+      + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')] or .//input[@value='abc']]");
+    assertThat(instructions.findGridSelectedRow("Grd", "abc")).isNull();
     assertThat(instructions.getGridSaveButton()).hasToString("By.cssSelector: [data-testid='grid-row-save']:not([disabled])");
     assertThat(instructions.getGridSaveButton("Grd")).hasToString("By.cssSelector: #Grd-grid-row-save:not([disabled])");
     assertThat(instructions.getGridLoaderSelector()).hasToString("By.cssSelector: [data-testid='grid-loader']");

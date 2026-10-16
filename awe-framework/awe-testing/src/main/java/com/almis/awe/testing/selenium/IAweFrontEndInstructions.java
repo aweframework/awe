@@ -393,6 +393,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Find the row that contains a text when it is selected, to check that a click selected it. Unlike
+   * {@link #findGridSelectedRow} it does not decide whether a row is clicked again, so a client that toggles nothing
+   * can return it too. By default it is the row that {@link #findGridSelectedRow} returns.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the selected row, or null if the client cannot tell it
+   */
+  default By findSelectedGridRow(String gridId, String search) {
+    return findGridSelectedRow(gridId, search);
+  }
+
+  /**
    * Find the row that contains an element of a grid cell, relative to that element. A client whose rows are edited with
    * a double click returns it, together with {@link #getGridEditingRow}, so that a double click that did not start the
    * edition of the row can be repeated. By default the row is not identified.

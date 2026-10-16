@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useScreenSize} from "../hooks/useSizeRegistry";
 import PropTypes from "prop-types";
+import AweGridCellTooltip from "./AweGridCellTooltip";
 import {getMoveRowKeyPosition} from "../utilities/grid";
 
 /**
@@ -62,6 +63,7 @@ function AweGridContainer(props) {
       >
         {children}
       </div>
+      <AweGridCellTooltip containerRef={containerRef} />
     </div>
   );
 }

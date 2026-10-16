@@ -115,6 +115,16 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean pagebreak;
 
+  // Cell text wraps over several lines
+  @XStreamAlias("wrap")
+  @XStreamAsAttribute
+  private Boolean wrap;
+
+  // Maximum number of lines of a wrapping cell
+  @XStreamAlias("max-lines")
+  @XStreamAsAttribute
+  private Integer maxLines;
+
   // Dialog to open
   @XStreamAlias("dialog")
   @XStreamAsAttribute
@@ -167,6 +177,20 @@ public class Column extends AbstractCriteria {
   @JsonIgnore
   public String getComponentTag() {
     return AweConstants.NO_TAG;
+  }
+
+  /**
+   * Returns if the text of the cells of the column wraps over several lines: the column declares wrap, or a
+   * maximum number of lines (which implies it). An explicit wrap="false" keeps the text in one line.
+   *
+   * @return Column wraps its text
+   */
+  @JsonIgnore
+  public boolean isWrapped() {
+    if (wrap != null) {
+      return wrap;
+    }
+    return maxLines != null && maxLines > 0;
   }
 
   /**

@@ -167,6 +167,11 @@
     <java classname="com.almis.awe.test.model.UserList" method="loadUsersJsonFile" />
   </service>
 
+  <!-- Rows with texts of very different lengths (wrapping columns test screens) -->
+  <service id="loadWrapRows">
+    <java classname="com.almis.awe.test.model.WrapRows" method="loadWrapRows" />
+  </service>
+
   <service id="loadTreeJsonFile">
     <java classname="com.almis.awe.test.model.UserList" method="loadTreeJsonFile" />
   </service>

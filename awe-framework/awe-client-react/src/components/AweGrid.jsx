@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
+import {getColumnWrap, getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
@@ -219,7 +219,7 @@ function AweGrid(props) {
               field={sortField || name}
               sortField={sortField || name}
               body={rowData => cellTemplate(rowData, name)}
-              bodyClassName={`p-cell-editing ${name}`}
+              bodyClassName={`p-cell-editing ${name}${getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`}
               style={{ ...getWidthStyle(charlength, width) }}
               bodyStyle={{ textAlign: align, justifyContent: align }}
               pt={bodyCellPassThrough(name)}
