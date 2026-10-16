@@ -33,7 +33,7 @@
     <commons-fileupload.version>2.0.0-M5</commons-fileupload.version>
     <xtream.version>1.4.21</xtream.version>
     <graalvm.version>23.0.6</graalvm.version>
-    <webdrivermanager.version>6.1.0</webdrivermanager.version>
+    <webdrivermanager.version>6.4.0</webdrivermanager.version>
     <playwright.version>1.63.0</playwright.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <janino.version>3.1.12</janino.version>
