@@ -332,7 +332,7 @@ Se muestran los siguientes elementos:
 - Un separador `---` para distinguir el inicio de los mensajes de log propiamente dichos.
 - Nombre del hilo: Entre corchetes (puede truncarse en la salida por consola).
 - Nombre del logger: Normalmente es el nombre de la clase de origen (a menudo abreviado).
-- Campos del mensaje de log [user][screen][database].
+- Campos del mensaje de log `[user][screen][database]`.
 - El mensaje de log.
 
 Puede personalizar el formato mediante esta propiedad:

@@ -1,0 +1,46 @@
+{
+	"rules": [
+		{
+			"paths": ["api/pivot-table.md", "api/resizable.md", "api/template.md", "api/include.md", "api/layout.md", "api/tags.md"],
+			"reviewed": "2026-10-09",
+			"ref": "#784 T4, b71abffcb",
+			"notes": "Rewritten for AWE 5 from the code. Known React differences from AngularJS are recorded in the issue notes (#817-#823)."
+		},
+		{
+			"paths": ["api/grids.md"],
+			"reviewed": "2026-10-09",
+			"ref": "#784 T3, !904",
+			"notes": "The progress column is available; sparkline is reserved and not implemented."
+		},
+		{
+			"paths": ["api/jms-queues-definition.md"],
+			"reviewed": "2026-10-09",
+			"ref": "#784 T3, !905",
+			"notes": "message-wrapper and message-status documented."
+		},
+		{
+			"paths": ["training/"],
+			"reviewed": "2026-10-12",
+			"ref": "#784 T7, b549cdf1d",
+			"notes": "AWE 101-108 re-run end to end on a project from the current archetype."
+		},
+		{
+			"paths": ["guides/selenium-test-guide.md", "guides/xsd-tooling.md", "guides/release-lines-and-support.md"],
+			"reviewed": "2026-10-12",
+			"ref": "#784 T5, !919",
+			"notes": "Contributor documentation for the AWE 5 checks (Testcontainers, quarantine and rerun, MR checks, XSD tooling)."
+		},
+		{
+			"paths": ["properties.md", "rest-api.md"],
+			"reviewed": "generated",
+			"ref": "built from the sources",
+			"notes": "Generated at every build; never edited by hand."
+		},
+		{
+			"default": true,
+			"reviewed": "2026-10-10",
+			"ref": "#784 T9/T10, !907-!915",
+			"notes": ""
+		}
+	]
+}

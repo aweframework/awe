@@ -378,6 +378,35 @@ Spanish docs lint:
   rules:
     - <<: *if-mr-website
 
+# Markdown lint of the documentation (#784), non-blocking: a signal in the pipeline, never a gate. The rules that fight
+# Docusaurus/MDX or the style of the docs are off in website/.markdownlint-cli2.jsonc. Run it locally with
+# "npm --prefix website run lint:md".
+Markdown lint:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
+  stage: lint
+  tags: [ light ]
+  needs: [ ]
+  timeout: 10m
+  interruptible: true
+  allow_failure: true
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/website/.npm"
+  script:
+    # NODE_ENV=production (CI variable) makes npm skip devDependencies, and markdownlint-cli2 is one
+    - npm --prefix website ci --include=dev
+    - npm --prefix website run lint:md
+  cache:
+    key: website-npm-${CI_COMMIT_REF_SLUG}
+    fallback_keys:
+      - website-npm-develop
+    paths:
+      - website/.npm
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - website/**/*.md
+        - website/.markdownlint-cli2.jsonc
+
 # Validates renovate.json (repository config, strict) on merge requests that change it.
 Validate renovate config:
   extends: .renovate-image

@@ -54,7 +54,7 @@ La estructura xml de los menús contextuales es la siguiente:
 
 ### Atributos de acción del botón {#button-action-attributes}
 
-> **Nota:** Puede ver todos los atributos de `button-action ` [aquí](button.md#button-actions)
+> **Nota:** Puede ver todos los atributos de `button-action` [aquí](button.md#button-actions)
 
 ### Atributos de los separadores de contexto {#context-separator-attributes}
 

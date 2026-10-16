@@ -90,6 +90,7 @@ module.exports = {
 				"guides/design-tokens",
 				"guides/react-client-upgrade",
 				"guides/release-lines-and-support",
+				"guides/docs-audit",
 			],
 		},
 		{

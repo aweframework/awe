@@ -22,7 +22,7 @@ const path = require('path');
 const ES_ROOT = 'i18n/es/docusaurus-plugin-content-docs/current';
 const EN_ROOT = 'docs';
 // Pages generated at build time from the sources: they are not translated by hand
-const GENERATED = new Set(['properties.md', 'rest-api.md']);
+const GENERATED = new Set(['properties.md', 'rest-api.md', 'guides/docs-audit.md']);
 
 const FENCE = /^\s*(`{3,}|~{3,})/;
 

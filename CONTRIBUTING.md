@@ -189,6 +189,7 @@ and the translation drift.
 |---|---|---|---|
 | `MR docs warning` | warning | Code changed with no docs change and neither "Docs updated" nor "No docs needed because: ..." ticked in the description | `CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop` |
 | `MR checks tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above (`bin/lint-mr-title.sh`, `bin/mr-size.sh`, `bin/mr-docs.sh`, `bin/mr-translations.sh`) and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
+| `Markdown lint` | warning (allowed to fail; when a Markdown file under `website/` changes) | markdownlint of the English and Spanish pages and the blog: heading levels, spaces in emphasis or code, broken tables, undefined references (rules that fight Docusaurus/MDX are off) | `npm --prefix website run lint:md` (after `npm --prefix website ci`) |
 | `Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
 | `Lint frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
 | `Build website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
@@ -203,7 +204,7 @@ npm --prefix website run build > website-build.log 2>&1
 bin/check-website-anchors.sh website-build.log
 ```
 
-The title rules, the size exclusions, the docs and translation checks and the frontend lint are explained in
+The title rules, the size exclusions, the docs and translation checks, the markdown lint and the frontend lint are explained in
 [Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size) and
 [Frontend lint](website/docs/guides/release-lines-and-support.md#frontend-lint-blocking). Which jobs a merge request gets
 depends on the paths it touches (see
@@ -297,6 +298,7 @@ A merge request is done when all of this is true:
   code changes and neither happens; it is a warning, not a blocker (see
   [Merge request title and size](website/docs/guides/release-lines-and-support.md#docs-warning-not-blocking)).
   The English pages are the source. Spanish translations live in `website/i18n/es` and are edited in the repository; a page without a translation shows the English one. Run `bin/mr-translations.sh origin/develop` locally to see whether you changed an English page whose translation you did not touch; the pipeline does not check it.
+  When you review a page against the behavior of the code (not for a typo fix), record it in `website/scripts/docs-audit/reviews.json`: it feeds the generated *Documentation audit* page of the site (area, last review, Spanish status and notes of every page).
 - **Migration guide**: a breaking change (a removed or renamed API, property, XML, database script or
   JSON field, or a changed default) has its entry in the
   [AWE 5 migration guide](website/docs/guides/v5-migration.md).

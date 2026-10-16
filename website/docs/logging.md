@@ -332,7 +332,7 @@ The following items are output:
 - A `---` separator o distinguish the start of actual log messages.
 - Thread name: Enclosed in square brackets (maybe truncated for console output).
 - Logger name: This is usually the source class name (often abbreviated).
-- Log message fields [user][screen][database].
+- Log message fields `[user][screen][database]`.
 - The log message.
 
 You can customize the format using this property:

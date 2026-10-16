@@ -957,7 +957,7 @@ instalado la omite).
 
 **Jobs de Playwright en el pipeline de AWE.** El pipeline de AWE ejecuta las mismas suites que los jobs de Selenium con
 `awe.test.tool=playwright`, como **16 jobs**: uno por cada combinación de motor (AngularJS o React), navegador (Chromium o
-Firefox) y suite (aplicación e integración, CRUD, criterios y rejillas, regresión, websocket e impresión, y planificador). Los
+Firefox) y suite (aplicación e integración, CRUD, criterios y grids, regresión, websocket e impresión, y planificador). Los
 jobs de AngularJS ejecutan la aplicación `awe-tests/awe-boot` y los de React `awe-tests/awe-boot-react`. Cada job se llama como lo que
 ejecuta, `<motor> · <suite>` para Chromium (por ejemplo `React · CRUD, criteria and grids`) y `<motor> · Firefox · <suite>` para Firefox
 (por ejemplo `AngularJS · Firefox · Scheduler`); los jobs de Selenium llevan su propio navegador (`React · Chrome · Scheduler`,

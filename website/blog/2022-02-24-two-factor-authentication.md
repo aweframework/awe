@@ -10,7 +10,7 @@ tags: [awe, 2fa, seguridad, novedad]
     src={require('@docusaurus/useBaseUrl').default('img/totp-code.png')}
 />
 
-{/* truncate */}
+<!-- truncate -->
 
 We have added a new security function to our framework: **Two-factor authentication**.
 

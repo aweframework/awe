@@ -514,7 +514,7 @@ El grid de árbol es un grid que se puede expandir como árbol. Se puede definir
 
 La estructura de datos **necesita** un identificador **por fila**, y también un **identificador padre**, sin valor si la fila es una fila raíz (sin padre). El campo identificador debe definirse en el atributo tree-id del grid y el padre debe definirse en el atributo tree-parent.
 
-<img alt="Cuadrícula" src={require('@docusaurus/useBaseUrl').default('img/TreeGrid.png')} />
+<img alt="TreeGrid" src={require('@docusaurus/useBaseUrl').default('img/TreeGrid.png')} />
 
 ### Atributos específicos del grid del árbol {#tree-grid-specific-attributes}
 

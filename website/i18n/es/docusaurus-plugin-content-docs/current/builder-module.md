@@ -26,7 +26,7 @@ Añade la siguiente dependencia en tu archivo `pom.xml` de maven:
 
 Los constructores de acciones de cliente ayudan al desarrollador en la tarea de enviar acciones de cliente específicas al frontend.
 
-####  **Constructor de acción `screen`** {#screen-action-builder}
+###  **Constructor de acción `screen`** {#screen-action-builder}
 
 Esta acción hace que la aplicación se mueva a otra pantalla.
 
@@ -38,7 +38,7 @@ serviceData.addClientAction(new ScreenActionBuilder("another-screen-option").bui
 
 Este ejemplo crea una acción de cliente que intentará navegar a la opción definida como `another-screen-option`.
 
-####  **Constructor de acción `redirect`** {#redirect-action-builder}
+###  **Constructor de acción `redirect`** {#redirect-action-builder}
 
 Esta acción hace que la aplicación redirija a otra URL.
 
@@ -50,7 +50,7 @@ serviceData.addClientAction(new RedirectActionBuilder("http://go.to.another.url"
 
 Este ejemplo crea una acción de cliente que intentará navegar a la URL `http://go.to.another.url`.
 
-####  **Constructor de acción `redirect-screen`** {#redirect-screen-action-builder}
+###  **Constructor de acción `redirect-screen`** {#redirect-screen-action-builder}
 
 Esta acción hace que la aplicación redirija una pantalla específica a otra URL.
 
@@ -63,7 +63,7 @@ serviceData.addClientAction(new RedirectScreenActionBuilder("specific-screen", "
 Este ejemplo crea una acción de cliente que intentará navegar a la URL `http://go.to.another.url` si la
 pantalla actual es `specific-screen` (útil para pantallas generadas dinámicamente).
 
-####  **Constructor de acción `fill`** {#fill-action-builder}
+###  **Constructor de acción `fill`** {#fill-action-builder}
 
 Esta acción envía una lista de datos a un componente:
 
@@ -77,7 +77,7 @@ serviceData.addClientAction(new FillActionBuilder("my-grid", dataList).build());
 
 Este ejemplo envía `dataList` al componente `"my-grid"`.
 
-####  **Constructor de acción `select`** {#select-action-builder}
+###  **Constructor de acción `select`** {#select-action-builder}
 
 Esta acción envía una lista de valores seleccionados a un componente.
 
@@ -97,7 +97,7 @@ serviceData.addClientAction(new SelectActionBuilder("my-select", value1, value2,
 
 Este ejemplo envía una lista de valores seleccionados al componente `"my-select"`.
 
-####  **Constructor de acción `fill-suggest`** {#fill-suggest-action-builder}
+###  **Constructor de acción `fill-suggest`** {#fill-suggest-action-builder}
 
 Esta acción envía una lista de valores seleccionados y etiquetas a un componente suggest.
 
@@ -111,7 +111,7 @@ serviceData.addClientAction(new FillSuggestActionBuilder("my-suggest", values).b
 
 Este ejemplo envía una lista de valores seleccionados y etiquetas al componente `"my-suggest"`.
 
-####  **Constructor de acción `filter`** {#filter-action-builder}
+###  **Constructor de acción `filter`** {#filter-action-builder}
 
 Esta acción hace que un componente se recargue a sí mismo:
 
@@ -123,7 +123,7 @@ serviceData.addClientAction(new FilterActionBuilder("my-grid").build());
 
 Este ejemplo indica al componente `"my-grid"` que recargue sus datos.
 
-####  **Constructor de acción `update-controller`** {#update-controller-action-builder}
+###  **Constructor de acción `update-controller`** {#update-controller-action-builder}
 
 Esta acción provoca un cambio de atributo dentro de un componente:
 
@@ -136,7 +136,7 @@ serviceData.addClientAction(new UpdateControllerActionBuilder("my-select", "opti
 
 Este ejemplo cambia el atributo `optional` del componente `"my-select"` a `false`.
 
-####  **Constructor de acción `message`** {#message-action-builder}
+###  **Constructor de acción `message`** {#message-action-builder}
 
 Esta acción permite enviar un mensaje al usuario. El tipo de mensaje puede ser uno de `OK`, `WARNING`, `ERROR` o `INFO`.
 
@@ -148,7 +148,7 @@ serviceData.addClientAction(new MessageActionBuilder(AnswerType.OK, "message tit
 
 Este ejemplo envía un mensaje al frontend.
 
-####  **Constructor de acción `dialog`** {#dialog-action-builder}
+###  **Constructor de acción `dialog`** {#dialog-action-builder}
 
 Esta acción abre una ventana modal en la pantalla.
 
@@ -160,7 +160,7 @@ serviceData.addClientAction(new DialogActionBuilder("my-dialog").build());
 
 Este ejemplo abre la pantalla modal llamada `"my-dialog"`.
 
-####  **Constructor de acción `confirm`** {#confirm-action-builder}
+###  **Constructor de acción `confirm`** {#confirm-action-builder}
 
 Esta acción abre una ventana modal con un botón para confirmar o cancelar la acción.
 
@@ -180,7 +180,7 @@ serviceData.addClientAction(new ConfirmActionBuilder("message title", "message d
 
 En lugar de usar una etiqueta `message` definida, esta acción usa los parámetros `title` y `description` definidos en ella.
 
-####  **Constructor de acción `get-file`** {#get-file-action-builder}
+###  **Constructor de acción `get-file`** {#get-file-action-builder}
 
 Esta acción solicita la descarga de un archivo.
 

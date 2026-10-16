@@ -1,0 +1,43 @@
+// Markdown lint of the documentation (#784). A signal, not a gate: the job "Markdown lint" is allowed to fail.
+// The rules below are off because they fight Docusaurus/MDX or the way the docs are written, not because the style is wrong.
+{
+  "config": {
+    "default": true,
+    "MD013": false, // line length: paragraphs are one line, tables and code are long
+    "MD033": false, // inline HTML and JSX: admonitions, tabs and components are MDX
+    "MD041": false, // first line a heading: pages start with front matter
+    "MD003": false, // heading style
+    "MD004": false, // list marker (* or -): both are used all over the docs
+    "MD005": false, // list indentation consistency
+    "MD007": false, // unordered list indentation
+    "MD009": false, // trailing spaces
+    "MD010": false, // hard tabs inside code and tables
+    "MD012": false, // multiple blank lines
+    "MD014": false, // dollar signs in shell blocks
+    "MD019": false, // spaces after the heading hash
+    "MD022": false, // blank lines around headings
+    "MD024": { "siblings_only": true }, // the same heading under different sections is normal in the API pages
+    "MD025": false, // front matter "title" plus an H1 is the Docusaurus pattern
+    "MD026": false, // trailing punctuation in headings
+    "MD028": false, // blank line between blockquotes: consecutive notes
+    "MD029": false, // ordered list numbering: a numbered list continues after code blocks
+    "MD030": false, // spaces after list markers
+    "MD031": false, // blank lines around fences
+    "MD032": false, // blank lines around lists
+    "MD034": false, // bare URLs
+    "MD036": false, // bold text as a heading, used in the guides
+    "MD040": false, // fenced code language: many XML/shell blocks have none
+    "MD046": false, // indented code inside lists and MDX
+    "MD047": false, // final newline
+    "MD049": false, // emphasis style (asterisk or underscore)
+    "MD050": false, // strong style
+    "MD051": false, // link fragments: the build checks anchors (Anchor component, explicit {#ids})
+    "MD059": false, // descriptive link text
+    "MD060": false // table column style
+  },
+  "globs": ["docs/**/*.md", "i18n/es/docusaurus-plugin-content-docs/current/**/*.md", "blog/**/*.md", "README.md"],
+  "ignores": ["docs/properties.md", "docs/rest-api.md", "docs/guides/docs-audit.md",
+    "i18n/es/docusaurus-plugin-content-docs/current/properties.md",
+    "i18n/es/docusaurus-plugin-content-docs/current/rest-api.md",
+    "i18n/es/docusaurus-plugin-content-docs/current/guides/docs-audit.md", "**/node_modules/**"]
+}

@@ -10,7 +10,7 @@ tags: [awe, spring, spring boot 3, novedad]
     src={require('@docusaurus/useBaseUrl').default('img/blog/spring-boot-3.png')}
 />
 
-{/* truncate */}
+<!-- truncate -->
 
 The AWE framework team is pleased to announce that starting with version 4.7.1, 
 AWE will use the Spring Boot 3 and Spring 6 version as a base image. 

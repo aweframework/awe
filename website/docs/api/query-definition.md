@@ -1102,7 +1102,7 @@ You can check out enumerate xml structure in [this page](enumerate-definition.md
 </query>
 ```
 
-> # **Note:** All enumerated are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
+> **Note:** All enumerated are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
 
 ### Enumerated examples
 
