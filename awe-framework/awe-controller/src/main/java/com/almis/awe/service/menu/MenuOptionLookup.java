@@ -8,6 +8,10 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.security.audit.SecurityAuditService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +22,7 @@ import static com.almis.awe.model.constant.AweConstants.PRIVATE_MENU;
 /**
  * Finds menu options and checks whether they are available for the current user
  */
+@Slf4j
 public class MenuOptionLookup extends ServiceConfig {
 
   private static final String ERROR_TITLE_OPTION_NOT_DEFINED = "ERROR_TITLE_OPTION_NOT_DEFINED";
@@ -105,12 +110,29 @@ public class MenuOptionLookup extends ServiceConfig {
 
     // Check if option is defined
     if (option == null) {
+      auditRestrictedOption(optionId, menu);
       throw new AWENotFoundException(getLocale(ERROR_TITLE_OPTION_NOT_DEFINED),
         getLocale(ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED, optionId));
     }
 
     // Retrieve option
     return option;
+  }
+
+  /**
+   * An option that exists in the menu but is not available (restricted for the user profile) is a denied access
+   */
+  private void auditRestrictedOption(String optionId, Menu menu) {
+    try {
+      SecurityAuditService securityAuditService = getApplicationContext() == null ? null
+        : getApplicationContext().getBeanProvider(SecurityAuditService.class).getIfAvailable();
+      if (securityAuditService != null && securityAuditService.isEnabled() && optionId != null
+        && menu.getOptionByName(optionId) != null) {
+        securityAuditService.failure(SecurityAuditEventType.ACCESS_DENIED, null, SecurityAuditCause.RESTRICTED, "option: " + optionId);
+      }
+    } catch (RuntimeException exc) {
+      log.debug("Denied access to option {} could not be audited", optionId, exc);
+    }
   }
 
   /**

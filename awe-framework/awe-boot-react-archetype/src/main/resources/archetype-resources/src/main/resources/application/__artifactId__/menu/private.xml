@@ -60,6 +60,9 @@
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
       <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash" />
       <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock" />
+      <option name="security-audit" label="MENU_TOOLS_SECURITY_AUDIT" screen="SecAud" icon="shield">
+        <option name="view-security-audit-event" screen="SecAudViw" invisible="true" />
+      </option>
     </option>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop" />
   </option>

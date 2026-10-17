@@ -339,6 +339,45 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Access denied"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Account locked"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Account unlocked"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="Account expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="By an administrator"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="Wrong user or password"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="Password expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="Account disabled"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="Error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="Session expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="Requested by the user"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="Forbidden"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="Wrong code"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="Invalid token"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Local login disabled"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Account locked"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Too many failed attempts"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="Requested by the identity provider"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Identity provider error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Restricted option"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="Role not mapped"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="Token expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="REST API"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="System"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="Web"/>
+  <locale name="ENUM_SECURITY_AUDIT_FAILURE" value="Failure"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGIN" value="Login"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGOUT" value="Logout"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="Password change"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="Password reset"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="SSO profile synchronization"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="SSO user provisioning"/>
+  <locale name="ENUM_SECURITY_AUDIT_SUCCESS" value="Success"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="REST token issued"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="REST token rejected"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Second factor enrollment"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Second factor reset"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Second factor check"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrupted"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -619,6 +658,27 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="File access error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="File upload error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error checking the file upload"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Browse the security events recorded by the application: logins, logouts, account locks, password and second factor changes, denied accesses and REST tokens. Filter by date, event, result, channel, user or address; select an event and press View to see all its data"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
+  <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Channel"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CORRELATION" value="Correlation identifier"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_DETAIL" value="Detail"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_EVENT" value="Event"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_ID" value="Identifier"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_IP" value="IP address"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_OUTCOME" value="Result"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="User agent"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activity per day"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistics"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Failures by cause"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Request"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Security audit"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Security event"/>
   <locale name="UPLOADER_DROP_HINT" value="Drag a file here or choose one"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="You have exceeded the filename size"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error filling variable list"/>

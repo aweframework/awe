@@ -1,11 +1,13 @@
 package com.almis.awe.rest.security;
 
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.dto.JwtTokenInfo;
 import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.service.JWTTokenService;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authentication.LocalLoginDisabledException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,18 @@ import java.util.ArrayList;
  */
 @Slf4j
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+
+  /**
+   * Record the issued tokens in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
+  }
+
 
   /**
    * Error code of an authentication rejected because the password has expired
@@ -94,6 +108,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                           Authentication auth) throws IOException {
     // Provide JWT token
     JwtTokenInfo tokenInfo = jwtTokenService.generateToken(auth, response);
+    securityAuditService.success(SecurityAuditEventType.TOKEN_ISSUED, auth.getName(), null);
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write(objectMapper.writeValueAsString(tokenInfo));

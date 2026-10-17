@@ -1,8 +1,10 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.SecurityConfigProperties;
+import com.almis.awe.security.audit.LoginAuditor;
 import com.almis.awe.security.authentication.LocalLoginAuthenticationManager;
 import com.almis.awe.security.authentication.LocalLoginPolicy;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +38,16 @@ public class LocalLoginConfig {
    *
    * @param authenticationManager Shared (undecorated) authentication manager
    * @param localLoginPolicy      Local login policy
+   * @param loginAuditor          Security audit of the logins (optional)
    * @return Authentication manager of the login entry points
    */
   @Bean
   public AuthenticationManager localLoginAuthenticationManager(@Qualifier("authenticationManager") AuthenticationManager authenticationManager,
-                                                               LocalLoginPolicy localLoginPolicy) {
-    return new LocalLoginAuthenticationManager(authenticationManager, localLoginPolicy);
+                                                               LocalLoginPolicy localLoginPolicy,
+                                                               ObjectProvider<LoginAuditor> loginAuditor) {
+    LocalLoginAuthenticationManager manager = new LocalLoginAuthenticationManager(authenticationManager, localLoginPolicy);
+    // Security audit of the logins and automatic lockout
+    manager.setLoginAuditor(loginAuditor.getIfAvailable());
+    return manager;
   }
 }

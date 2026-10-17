@@ -2,6 +2,7 @@ package com.almis.awe.test.integration.database;
 
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -112,6 +113,47 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
          Statement statement = connection.createStatement();
          ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweUserSettings")) {
       assertTrue(result.next(), "AweUserSettings, created by AWE_V1.2.2, answers a query");
+    }
+  }
+
+  @Test
+  @DisplayName("The security audit events table is migrated")
+  void testSecurityAuditTableIsMigrated() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.3.0"), "The AWE security audit migration is shipped for " + dialect());
+
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweSecAudEvt")) {
+      assertTrue(result.next(), "AweSecAudEvt, created by AWE_V1.3.0, answers a query");
+    }
+  }
+
+  @Test
+  @DisplayName("The security audit migration can be applied again over the existing objects")
+  void testSecurityAuditMigrationCanBeAppliedAgain() throws Exception {
+    // Forget that 1.3.0 was applied: Flyway runs the script again over the table and indexes it already created
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      String quote = connection.getMetaData().getIdentifierQuoteString();
+      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.3.0'");
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
+
+    Flyway.configure()
+      .dataSource(dataSource)
+      .locations("classpath:db/migration/" + dialect())
+      .sqlMigrationPrefix("AWE_V")
+      .table("flyway_schema_AWE")
+      .outOfOrder(true)
+      .load()
+      .migrate();
+
+    assertTrue(appliedVersions("AWE").contains("1.3.0"), "AWE_V1.3.0 applied again successfully on " + dialect());
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweSecAudEvt")) {
+      assertTrue(result.next(), "AweSecAudEvt still answers a query");
     }
   }
 

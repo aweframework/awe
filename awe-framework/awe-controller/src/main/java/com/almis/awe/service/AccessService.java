@@ -11,8 +11,14 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditChannel;
+import com.almis.awe.model.security.audit.SecurityAuditEvent;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
@@ -21,7 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +37,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -57,6 +67,10 @@ public class AccessService extends ServiceConfig {
 
   public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
   public static final String UPDATE_OAUTH_ROLE = "UpdateOauthUserProfile";
+  /** Request attribute holding the user name of an SSO login refused by AWE, for the security audit */
+  public static final String SSO_REJECTED_USERNAME_ATTRIBUTE = AccessService.class.getName() + ".ssoRejectedUsername";
+
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
 
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
@@ -102,6 +116,16 @@ public class AccessService extends ServiceConfig {
     this.totpConfigProperties = totpConfigProperties;
     this.userDetailsService = aweUserDetailService;
     this.maintainService = maintainService;
+  }
+
+  /**
+   * Record the SSO logins, user provisioning, profile synchronization and second factor checks in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  @Autowired(required = false)
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
   }
 
   /**
@@ -173,7 +197,18 @@ public class AccessService extends ServiceConfig {
   public String onAuthenticationSuccess(OAuth2AuthenticationToken oAuth2Token) throws AWException {
 
     // Get user details
-    AweUserDetails userDetails = getUserDetails(oAuth2Token);
+    AweUserDetails userDetails;
+    try {
+      userDetails = getUserDetails(oAuth2Token);
+    } catch (AccountStatusException exc) {
+      // Recorded by the failure handler, which receives the refusal
+      rememberRejectedSsoUser(oAuth2Token);
+      throw exc;
+    } catch (AWException exc) {
+      auditSso(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.FAILURE, SecurityAuditCause.ERROR, ssoUsername(oAuth2Token), exc.getTitle());
+      throw exc;
+    }
+    auditSso(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(), null);
 
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
@@ -342,6 +377,8 @@ public class AccessService extends ServiceConfig {
       parameters.put(USERNAME, userDetails.getUsername());
       parameters.put(PROFILE, role);
       maintainService.launchPrivateMaintain(UPDATE_OAUTH_ROLE, parameters);
+      auditSso(SecurityAuditEventType.SSO_PROFILE_SYNC, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(),
+        userDetails.getProfileName() + " -> " + role);
     }
   }
 
@@ -355,6 +392,34 @@ public class AccessService extends ServiceConfig {
       parameters.put(PROFILE, userDetails.getProfile());
       parameters.put(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault());
       maintainService.launchPrivateMaintain(PROVISIONING_NEW_USER, parameters);
+      auditSso(SecurityAuditEventType.SSO_PROVISIONING, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(),
+        userDetails.getProfile());
+    }
+  }
+
+  private void auditSso(SecurityAuditEventType type, SecurityAuditOutcome outcome, SecurityAuditCause cause, String username, String detail) {
+    securityAuditService.publish(SecurityAuditEvent.builder()
+      .type(type)
+      .outcome(outcome)
+      .cause(cause)
+      .channel(SecurityAuditChannel.SSO)
+      .username(username)
+      .detail(detail)
+      .build());
+  }
+
+  /**
+   * User name of an SSO login for the security audit: the configured user name attribute, or the token name
+   */
+  private String ssoUsername(OAuth2AuthenticationToken oauth2Token) {
+    Object attribute = oauth2Token.getPrincipal().getAttributes().get(securityConfigProperties.getSso().getUserNameAttribute());
+    return attribute == null || attribute.toString().isEmpty() ? oauth2Token.getName() : attribute.toString();
+  }
+
+  private void rememberRejectedSsoUser(OAuth2AuthenticationToken oauth2Token) {
+    RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+    if (attributes != null) {
+      attributes.setAttribute(SSO_REJECTED_USERNAME_ATTRIBUTE, ssoUsername(oauth2Token), RequestAttributes.SCOPE_REQUEST);
     }
   }
 
@@ -429,8 +494,10 @@ public class AccessService extends ServiceConfig {
   public ServiceData verify2faCode(String code) throws AWException {
     AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     if (totpService.verify2faCode(code)) {
+      securityAuditService.success(SecurityAuditEventType.TOTP_VERIFICATION, userDetails.getUsername(), null);
       return goToHomeScreen(userDetails);
     } else {
+      securityAuditService.failure(SecurityAuditEventType.TOTP_VERIFICATION, userDetails.getUsername(), SecurityAuditCause.INVALID_CODE, null);
       throw new AWException(getLocale("ERROR_TITLE_INVALID_2FA_CODE"), getLocale("ERROR_MESSAGE_INVALID_2FA_CODE"), AnswerType.WARNING);
     }
   }

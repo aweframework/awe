@@ -259,6 +259,29 @@
   <service id="generate-2fa-secret">
     <java classname="com.almis.awe.service.TotpService" method="generate2faSecret"/>
   </service>
+  <!-- Security audit screen -->
+  <service id="SecAudDefFro">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getDefaultDateFrom" />
+  </service>
+  <!-- Security audit of user account changes -->
+  <service id="audit-user-update">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditUserUpdate">
+      <service-parameter type="INTEGER" name="userId" />
+      <service-parameter type="INTEGER" name="locked" />
+      <service-parameter type="INTEGER" name="passwordUpdate" />
+    </java>
+  </service>
+  <service id="audit-password-change">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditPasswordChange">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
+  <service id="audit-totp-reset">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditTotpReset">
+      <service-parameter type="INTEGER" name="userIds" list="true" />
+    </java>
+  </service>
   <service id="update-2fa-status">
     <java classname="com.almis.awe.service.TotpService" method="update2faStatus">
       <service-parameter type="INTEGER" name="enable" />

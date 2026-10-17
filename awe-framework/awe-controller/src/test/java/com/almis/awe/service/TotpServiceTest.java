@@ -5,6 +5,10 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
+import com.almis.awe.security.audit.RecordingSecurityAudit;
 import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
 import com.almis.awe.service.totp.ZxingQrPngGenerator;
@@ -31,6 +35,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -548,5 +553,32 @@ class TotpServiceTest {
       .withPeriod(Duration.ofSeconds(30))
       .build();
     return generator.now(fixedClock);
+  }
+
+  @Test
+  void enrollmentsAndRefusedEnrollmentsAreAudited() throws Exception {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    totpService.setSecurityAuditService(audit.service());
+    aweUserDetails.setUsername("jdoe");
+    aweUserDetails.setPendingTotpEnrollment(true);
+    when(totpOperations.generateSecret()).thenReturn("generated-secret");
+    when(applicationContext.getBean(MaintainService.class)).thenReturn(maintainService);
+    when(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData());
+
+    totpService.generate2faSecret();
+
+    // Enrolled and only partially authenticated: rotating the secret is refused
+    aweUserDetails.setPendingTotpEnrollment(false);
+    aweUserDetails.setFullyAuthenticated(false);
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    assertThrows(AWException.class, () -> totpService.getQRCodeList(true));
+
+    totpService.update2faStatus(0);
+
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "username").containsExactly(
+      tuple(SecurityAuditEventType.TOTP_ENROLLMENT, SecurityAuditOutcome.SUCCESS, null, "jdoe"),
+      tuple(SecurityAuditEventType.TOTP_ENROLLMENT, SecurityAuditOutcome.FAILURE, SecurityAuditCause.FORBIDDEN, "jdoe"),
+      tuple(SecurityAuditEventType.TOTP_RESET, SecurityAuditOutcome.SUCCESS, null, "jdoe"));
   }
 }

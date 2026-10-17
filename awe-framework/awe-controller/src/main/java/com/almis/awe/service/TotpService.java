@@ -5,10 +5,14 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.service.totp.AweTotpOperations;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -20,6 +24,19 @@ import java.security.SecureRandom;
  */
 @Slf4j
 public class TotpService extends ServiceConfig {
+
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+
+  /**
+   * Record the second factor enrollments and resets in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  @Autowired(required = false)
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
+  }
+
 
   private static final String ERROR_TITLE_ACCESS_DENIED = "ERROR_TITLE_ACCESS_DENIED";
   private static final String ERROR_MESSAGE_FORBIDDEN_ACCESS = "ERROR_MESSAGE_FORBIDDEN_ACCESS";
@@ -176,6 +193,7 @@ public class TotpService extends ServiceConfig {
   private void enforceGenerateAccess(AweUserDetails userDetails) throws AWException {
     if (!userDetails.isAwaitingTotpEnrollment() && !userDetails.isFullyAuthenticated()) {
       // Partially authenticated enrolled session: deny secret rotation before TOTP verification.
+      securityAuditService.failure(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), SecurityAuditCause.FORBIDDEN, null);
       log.warn("Secret generation denied for user '{}': session is not in an allowed enrollment state "
           + "(pendingTotpEnrollment={}, fullyAuthenticated={})",
         userDetails.getUsername(), userDetails.isAwaitingTotpEnrollment(), userDetails.isFullyAuthenticated());
@@ -215,6 +233,7 @@ public class TotpService extends ServiceConfig {
       );
     } catch (Exception e) {
       log.error("TOTP secret storage failed for user '{}': {}", userDetails.getUsername(), e.getMessage(), e);
+      securityAuditService.failure(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), SecurityAuditCause.ERROR, null);
       if (e instanceof AWException aw) {
         throw aw;
       }
@@ -234,6 +253,7 @@ public class TotpService extends ServiceConfig {
     }
     userDetails.setFullyAuthenticated(wasFullyAuthenticated
       || preserveAuthenticatedSession && !was2faEnabled && wasSpringAuthenticated);
+    securityAuditService.success(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), null);
     return serviceData;
   }
 
@@ -247,6 +267,9 @@ public class TotpService extends ServiceConfig {
 
     // Update enabled status on user details
     userDetails.setEnabled2fa(enabled == 1);
+    if (enabled != 1) {
+      securityAuditService.success(SecurityAuditEventType.TOTP_RESET, userDetails.getUsername(), null);
+    }
 
     return new ServiceData();
   }

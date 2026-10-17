@@ -81,6 +81,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
 | Loading indicators (both clients) | A grid or tree grid without `icon-loading` shows placeholder rows shaped like its columns while its rows load, instead of the spinner. A screen shows a placeholder layout while it opens. Criteria show a placeholder with their shape (label and field, textarea rows, checkbox or radio, picklist options), buttons one as wide as their label, and charts their area with a hint of the chart type. Skeleton visuals appear only after 150 ms, so fast loads show nothing, and the shimmer stops with `prefers-reduced-motion: reduce`. A grid reload with rows on screen keeps them dimmed instead of replacing them. Criteria, buttons and charts with a custom `icon-loading` keep their icon. The `data-testid` values of the loaders do not change, so browser test waits keep working. | Nothing. To keep the spinner in one grid, set `icon-loading="spinner"` on it; to keep it in every grid, set `awe.application.component.grid-icon-loading=spinner`. | [Grid attributes](../api/grids.md#general-attributes), [Properties](../properties#awe.application.component.grid-icon-loading) (issues #774, #856) |
+| Security audit (#779, new) | Flyway applies `AWE_V1.3.0__Security_audit_events.sql` and creates the `AweSecAudEvt` table; security events are recorded in it and in the `awe.security.audit` logger; the **Security audit** option appears in the security menu. | Nothing. To switch the audit off set `awe.security.audit.enabled=false`; restrict the new option to the profiles that may see it. See the note below the table. | [Security audit](#security-audit), [Security audit page](../security/security-audit.md) |
 
 ### jsoup in the input parameter sanitizer
 
@@ -413,6 +414,24 @@ Notes for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder`:
   (`getFilterGroups` for the filters, `getOperationExpression` for `SUBSTRING`).
 - **Nothing else changes.** The constructors, the bean declarations (`@ConditionalOnMissingBean`, prototype scope)
   and the reflective join methods of `SQLQueryBuilder` are unchanged.
+
+### Security audit
+
+AWE 5 records the security events of the application (issue #779): logins, logouts, locks, password and second factor
+changes, SSO provisioning, denied accesses and REST tokens. See [Security audit](../security/security-audit.md).
+
+- **New table.** The migration `AWE_V1.3.0__Security_audit_events.sql` creates `AweSecAudEvt` in every database that
+  Flyway migrates. Applications that build their schema with their own scripts must add the table.
+- **On by default.** Events go to the table, to the JSON log (logger `awe.security.audit`) and, with the observability
+  starter, to the `awe.security.audit.events` counter. `awe.security.audit.enabled=false` switches the whole feature
+  off; `awe.security.audit.database.enabled=false` keeps the log only. Events older than 365 days are purged every day
+  at 03:00 (`awe.security.audit.database.retention-days`, `awe.security.audit.database.purge-cron`).
+- **Automatic lockout off by default.** `awe.security.lockout.max-attempts` stays `0`. When an application sets a
+  value, `ope.NumLog` is used as the counter of consecutive failed logins (wrong password): a successful login resets
+  it, and the account is locked (`ope.PwdLck`) when it reaches the limit. Code of your own that writes `NumLog` for
+  other purposes would interfere with the lockout.
+- **New menu option.** `security-audit` (screen `SecAud`) is added under Settings > Security access in the `private` menu.
+  Applications that replace the whole menu do not get it unless they add it.
 
 ### Jackson 3 public API
 
@@ -814,6 +833,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
+- [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

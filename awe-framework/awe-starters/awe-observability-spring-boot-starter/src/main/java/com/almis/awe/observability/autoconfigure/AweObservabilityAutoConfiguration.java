@@ -4,7 +4,9 @@ import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.observability.health.AweDatabasesHealthIndicator;
 import com.almis.awe.observability.health.AweQueueHealthIndicator;
 import com.almis.awe.observability.instrumentation.MicrometerExecutionObserver;
+import com.almis.awe.observability.instrumentation.MicrometerSecurityAuditSink;
 import com.almis.awe.service.observation.ExecutionObserver;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.jms.ConnectionFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -52,6 +54,20 @@ public class AweObservabilityAutoConfiguration {
   @ConditionalOnMissingBean(ExecutionObserver.class)
   MicrometerExecutionObserver aweExecutionObserver(ObjectProvider<ObservationRegistry> registry) {
     return new MicrometerExecutionObserver(registry::getIfAvailable);
+  }
+
+  /**
+   * Micrometer sink of the security audit: counts the events on {@code awe.security.audit.events}
+   * ({@code awe.security.audit.metrics.enabled}, on by default)
+   *
+   * @param registry Meter registry provider
+   * @return Security audit metrics sink
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty(prefix = "awe.security.audit", name = {"enabled", "metrics.enabled"}, havingValue = "true", matchIfMissing = true)
+  MicrometerSecurityAuditSink aweSecurityAuditMetricsSink(ObjectProvider<MeterRegistry> registry) {
+    return new MicrometerSecurityAuditSink(registry::getIfAvailable);
   }
 
   /**

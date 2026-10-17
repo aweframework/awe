@@ -14,6 +14,7 @@ import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -131,8 +132,14 @@ public class RestSecurityConfiguration extends ServiceConfig {
   }
 
   private void configureLocalJwtMode(HttpSecurity httpSecurity) {
-    httpSecurity.addFilterBefore(new JWTAuthenticationFilter(localLoginAuthenticationManager, objectMapper, getBean(JWTTokenService.class), getApplicationContext().getBeanProvider(AweElements.class).getIfAvailable()), UsernamePasswordAuthenticationFilter.class);
-    httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
+    SecurityAuditService securityAuditService = getApplicationContext().getBeanProvider(SecurityAuditService.class)
+      .getIfAvailable(SecurityAuditService::disabled);
+    JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(localLoginAuthenticationManager, objectMapper, getBean(JWTTokenService.class), getApplicationContext().getBeanProvider(AweElements.class).getIfAvailable());
+    authenticationFilter.setSecurityAuditService(securityAuditService);
+    JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class));
+    authorizationFilter.setSecurityAuditService(securityAuditService);
+    httpSecurity.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
   private void configureOauth2Mode(HttpSecurity httpSecurity) throws Exception {

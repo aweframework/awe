@@ -310,4 +310,93 @@
     <option label="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="CONFIGURATION" />
     <option label="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="UNKNOWN" />
   </group>
+
+  <!-- Security audit -->
+  <group id="SecAudEvtTyp">
+    <option label="ENUM_SECURITY_AUDIT_LOGIN" value="LOGIN"/>
+    <option label="ENUM_SECURITY_AUDIT_LOGOUT" value="LOGOUT"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="ACCOUNT_LOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="ACCOUNT_UNLOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="PASSWORD_CHANGE"/>
+    <option label="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="PASSWORD_RESET"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="TOTP_ENROLLMENT"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="TOTP_VERIFICATION"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_RESET" value="TOTP_RESET"/>
+    <option label="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="SSO_PROVISIONING"/>
+    <option label="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="SSO_PROFILE_SYNC"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="ACCESS_DENIED"/>
+    <option label="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="TOKEN_ISSUED"/>
+    <option label="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudEvtIco">
+    <option label="fa-sign-in" value="LOGIN"/>
+    <option label="fa-sign-out" value="LOGOUT"/>
+    <option label="fa-lock" value="ACCOUNT_LOCKED"/>
+    <option label="fa-unlock" value="ACCOUNT_UNLOCKED"/>
+    <option label="fa-key" value="PASSWORD_CHANGE"/>
+    <option label="fa-refresh" value="PASSWORD_RESET"/>
+    <option label="fa-mobile" value="TOTP_ENROLLMENT"/>
+    <option label="fa-shield" value="TOTP_VERIFICATION"/>
+    <option label="fa-eraser" value="TOTP_RESET"/>
+    <option label="fa-user-plus" value="SSO_PROVISIONING"/>
+    <option label="fa-exchange" value="SSO_PROFILE_SYNC"/>
+    <option label="fa-ban" value="ACCESS_DENIED"/>
+    <option label="fa-ticket" value="TOKEN_ISSUED"/>
+    <option label="fa-ticket" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudEvtSty">
+    <option label="text-primary" value="LOGIN"/>
+    <option label="text-muted" value="LOGOUT"/>
+    <option label="text-danger" value="ACCOUNT_LOCKED"/>
+    <option label="text-success" value="ACCOUNT_UNLOCKED"/>
+    <option label="text-warning" value="PASSWORD_CHANGE"/>
+    <option label="text-warning" value="PASSWORD_RESET"/>
+    <option label="text-info" value="TOTP_ENROLLMENT"/>
+    <option label="text-info" value="TOTP_VERIFICATION"/>
+    <option label="text-warning" value="TOTP_RESET"/>
+    <option label="text-primary" value="SSO_PROVISIONING"/>
+    <option label="text-primary" value="SSO_PROFILE_SYNC"/>
+    <option label="text-danger" value="ACCESS_DENIED"/>
+    <option label="text-info" value="TOKEN_ISSUED"/>
+    <option label="text-danger" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudRes">
+    <option label="ENUM_SECURITY_AUDIT_SUCCESS" value="SUCCESS"/>
+    <option label="ENUM_SECURITY_AUDIT_FAILURE" value="FAILURE"/>
+  </group>
+  <group id="SecAudResIco">
+    <option label="fa-check-circle" value="SUCCESS"/>
+    <option label="fa-times-circle" value="FAILURE"/>
+  </group>
+  <group id="SecAudResSty">
+    <option label="text-success" value="SUCCESS"/>
+    <option label="text-danger" value="FAILURE"/>
+  </group>
+  <group id="SecAudChn">
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="WEB"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="REST"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="SYSTEM"/>
+  </group>
+  <group id="SecAudCau">
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="BAD_CREDENTIALS"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="LOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="DISABLED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="ACCOUNT_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="CREDENTIALS_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="LOCAL_LOGIN_DISABLED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="ROLE_NOT_MAPPED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="PROVIDER_ERROR"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="MAX_ATTEMPTS"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="ADMINISTRATOR"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="EXPLICIT"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="PROVIDER"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="INVALID_CODE"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="INVALID_TOKEN"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="TOKEN_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="RESTRICTED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="FORBIDDEN"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="ERROR"/>
+  </group>
 </enumerated>

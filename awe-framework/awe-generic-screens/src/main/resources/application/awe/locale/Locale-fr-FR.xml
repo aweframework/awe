@@ -339,6 +339,45 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Accès refusé"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Compte verrouillé"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Compte déverrouillé"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="Compte expiré"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="Par un administrateur"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="Utilisateur ou mot de passe incorrect"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="Mot de passe expiré"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="Compte désactivé"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="Erreur"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="Session expirée"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="À la demande de l&apos;utilisateur"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="Interdit"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="Code incorrect"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="Jeton invalide"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Connexion locale désactivée"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Compte verrouillé"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Trop de tentatives échouées"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="À la demande du fournisseur d&apos;identité"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Erreur du fournisseur d&apos;identité"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Option restreinte"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="Rôle non associé"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="Jeton expiré"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="API REST"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="Système"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="Web"/>
+  <locale name="ENUM_SECURITY_AUDIT_FAILURE" value="Échec"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGIN" value="Connexion"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGOUT" value="Déconnexion"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="Changement de mot de passe"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="Réinitialisation du mot de passe"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="Synchronisation du profil SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="Création d&apos;utilisateur SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SUCCESS" value="Réussi"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="Jeton REST émis"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="Jeton REST refusé"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Enrôlement du second facteur"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Réinitialisation du second facteur"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Vérification du second facteur"/>
   <locale name="ENUM_STATUS_ERROR" value="Erreur"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrompu"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -619,6 +658,27 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Erreur dans lecture du fichier"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Erreur dans le fichier télécharger"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Vérification des erreurs du fichier télécharger"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consultez les événements de sécurité enregistrés par l&apos;application : connexions, déconnexions, verrouillages de compte, changements de mot de passe et de second facteur, accès refusés et jetons REST. Filtrez par date, événement, résultat, canal, utilisateur ou adresse ; sélectionnez un événement et cliquez sur Voir pour afficher toutes ses données"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Toutes les données enregistrées pour un événement de sécurité"/>
+  <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Audit de sécurité"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CORRELATION" value="Identifiant de corrélation"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_DETAIL" value="Détail"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_EVENT" value="Événement"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_ID" value="Identifiant"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_IP" value="Adresse IP"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_OUTCOME" value="Résultat"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Locataire"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agent utilisateur"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activité par jour"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistiques"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Événements"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Échecs par cause"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Requête"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Audit de sécurité"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Événement de sécurité"/>
   <locale name="UPLOADER_DROP_HINT" value="Glissez un fichier ici ou choisissez-en un"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Vous avez dépassé la taille du nom du fichier"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Erreur en train de remplir la liste des variables"/>

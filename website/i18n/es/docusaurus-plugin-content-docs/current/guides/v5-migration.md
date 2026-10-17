@@ -81,6 +81,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
 | Indicadores de carga (ambos clientes) | Un grid o un grid en árbol sin `icon-loading` muestra filas de relleno con la forma de sus columnas mientras cargan sus filas, en lugar del spinner. Una pantalla muestra una estructura de relleno mientras se abre. Los criterios muestran un relleno con su forma (etiqueta y campo, filas del textarea, checkbox o radio, opciones del picklist), los botones uno tan ancho como su etiqueta y los gráficos su área con una pista del tipo de gráfico. Los esqueletos solo aparecen tras 150 ms, así que las cargas rápidas no muestran nada, y el brillo se detiene con `prefers-reduced-motion: reduce`. Una recarga de grid con filas en pantalla las mantiene atenuadas en lugar de sustituirlas. Los criterios, botones y gráficos con un `icon-loading` propio conservan su icono. Los valores `data-testid` de los indicadores no cambian, así que las esperas de los tests de navegador siguen funcionando. | Nada. Para mantener el spinner en un grid, defina `icon-loading="spinner"` en él; para mantenerlo en todos los grids, defina `awe.application.component.grid-icon-loading=spinner`. | [Atributos del grid](../api/grids.md#general-attributes), [Propiedades](../properties#awe.application.component.grid-icon-loading) (issues #774, #856) |
+| Auditoría de seguridad (#779, nuevo) | Flyway aplica `AWE_V1.3.0__Security_audit_events.sql` y crea la tabla `AweSecAudEvt`; los eventos de seguridad se registran en ella y en el logger `awe.security.audit`; aparece la opción **Auditoría de seguridad** en el menú de seguridad. | Nada. Para desactivar la auditoría, establezca `awe.security.audit.enabled=false`; restrinja la nueva opción a los perfiles que puedan verla. Consulte la nota bajo la tabla. | [Auditoría de seguridad](#security-audit), [Página de auditoría de seguridad](../security/security-audit.md) |
 
 ### jsoup en el sanitizador de parámetros de entrada {#jsoup-in-the-input-parameter-sanitizer}
 
@@ -432,6 +433,26 @@ Notas para los proyectos que extienden `SQLQueryBuilder` o `SQLMaintainBuilder`:
   (`getFilterGroups` para los filtros, `getOperationExpression` para `SUBSTRING`).
 - **Nada más cambia.** Los constructores, la declaración de los beans (`@ConditionalOnMissingBean`, ámbito
   prototype) y los métodos de join que `SQLQueryBuilder` invoca por reflexión no cambian.
+
+### Auditoría de seguridad {#security-audit}
+
+AWE 5 registra los eventos de seguridad de la aplicación (issue #779): inicios y cierres de sesión, bloqueos, cambios
+de contraseña y de segundo factor, aprovisionamiento SSO, accesos denegados y tokens REST. Consulte
+[Auditoría de seguridad](../security/security-audit.md).
+
+- **Tabla nueva.** La migración `AWE_V1.3.0__Security_audit_events.sql` crea `AweSecAudEvt` en todas las bases de
+  datos que migra Flyway. Las aplicaciones que construyen su esquema con scripts propios deben añadir la tabla.
+- **Activada por defecto.** Los eventos van a la tabla, al log JSON (logger `awe.security.audit`) y, con el starter de
+  observabilidad, al contador `awe.security.audit.events`. `awe.security.audit.enabled=false` desactiva toda la
+  funcionalidad; `awe.security.audit.database.enabled=false` mantiene solo el log. Los eventos con más de 365 días se
+  purgan todos los días a las 03:00 (`awe.security.audit.database.retention-days`,
+  `awe.security.audit.database.purge-cron`).
+- **Bloqueo automático desactivado por defecto.** `awe.security.lockout.max-attempts` sigue en `0`. Cuando una
+  aplicación establece un valor, `ope.NumLog` se usa como contador de inicios de sesión fallidos consecutivos
+  (contraseña incorrecta): un inicio de sesión correcto lo pone a cero y la cuenta se bloquea (`ope.PwdLck`) al llegar
+  al límite. Si su propio código escribe `NumLog` con otros fines, interferirá con el bloqueo.
+- **Opción de menú nueva.** `security-audit` (pantalla `SecAud`) se añade en Configuración > Seguridad del menú
+  `private`. Las aplicaciones que sustituyen el menú completo no la tienen salvo que la añadan.
 
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
@@ -832,6 +853,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
+- [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

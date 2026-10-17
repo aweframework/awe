@@ -342,6 +342,45 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Acceso denegado"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Cuenta bloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Cuenta desbloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="Cuenta caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="Por un administrador"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="Usuario o contraseña incorrectos"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="Contraseña caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="Cuenta deshabilitada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="Error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="Sesión caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="A petición del usuario"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="Prohibido"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="Código incorrecto"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="Token no válido"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Acceso local deshabilitado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Cuenta bloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Demasiados intentos fallidos"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="A petición del proveedor de identidad"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Error del proveedor de identidad"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Opción restringida"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="Rol no asignado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="Token caducado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="API REST"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="Sistema"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="Web"/>
+  <locale name="ENUM_SECURITY_AUDIT_FAILURE" value="Fallido"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGIN" value="Inicio de sesión"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGOUT" value="Cierre de sesión"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="Cambio de contraseña"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="Restablecimiento de contraseña"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="Sincronización de perfil por SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="Alta de usuario por SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SUCCESS" value="Correcto"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="Token REST emitido"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="Token REST rechazado"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Alta del segundo factor"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Baja del segundo factor"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Verificación del segundo factor"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrumpido"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -622,6 +661,27 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Error de lectura de fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Error en la subida del fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error comprobando la subida del fichero"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consulta los eventos de seguridad registrados por la aplicación: accesos, cierres de sesión, bloqueos de cuenta, cambios de contraseña y de segundo factor, accesos denegados y tokens REST. Filtra por fecha, evento, resultado, canal, usuario o dirección; selecciona un evento y pulsa Ver para consultar todos sus datos"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
+  <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Auditoría de seguridad"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Causa"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CORRELATION" value="Identificador de correlación"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_DETAIL" value="Detalle"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_EVENT" value="Evento"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_ID" value="Identificador"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_IP" value="Dirección IP"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_OUTCOME" value="Resultado"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Sesión (SHA-256)"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agente de usuario"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Actividad por día"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Estadísticas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Fallos por causa"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Petición"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Auditoría de seguridad"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Evento de seguridad"/>
   <locale name="UPLOADER_DROP_HINT" value="Arrastra un archivo aquí o selecciónalo"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Se ha superado el tamaño de nombre de fichero"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error rellenando la lista de variables"/>

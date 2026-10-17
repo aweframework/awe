@@ -8,12 +8,18 @@ import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEvent;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.service.MaintainService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.util.WebUtils;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -42,6 +48,19 @@ import static com.almis.awe.model.constant.AweConstants.SESSION_CONNECTION_TOKEN
  */
 @Slf4j
 public class PasswordChangeService extends ServiceConfig {
+
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+
+  /**
+   * Record the expired password changes in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  @Autowired(required = false)
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
+  }
+
 
   /**
    * HTTP session attribute that keeps the pending password change
@@ -203,6 +222,12 @@ public class PasswordChangeService extends ServiceConfig {
       aweSession.removeParameter(UPDATE_USER_SESSION_PARAMETER);
     }
     log.info("[PASSWORD CHANGE] The expired password of user {} has been changed", user.getUsername());
+    securityAuditService.publish(SecurityAuditEvent.builder()
+      .type(SecurityAuditEventType.PASSWORD_CHANGE)
+      .outcome(SecurityAuditOutcome.SUCCESS)
+      .cause(SecurityAuditCause.CREDENTIALS_EXPIRED)
+      .username(user.getUsername())
+      .build());
 
     return new ServiceData()
       .setType(AnswerType.OK)

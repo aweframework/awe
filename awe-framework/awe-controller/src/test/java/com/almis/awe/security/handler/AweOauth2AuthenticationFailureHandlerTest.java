@@ -1,5 +1,11 @@
 package com.almis.awe.security.handler;
 
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditChannel;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
+import com.almis.awe.security.audit.RecordingSecurityAudit;
+import com.almis.awe.service.AccessService;
 import com.almis.awe.service.ErrorPageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -17,6 +24,8 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -248,5 +257,25 @@ class AweOauth2AuthenticationFailureHandlerTest {
 
     // Then
     assertNotNull(newHandler);
+  }
+
+  @Test
+  void refusedSsoLoginsAreRecordedWithTheirCause() throws IOException {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    handler.setSecurityAuditService(audit.service());
+    when(request.getAttribute(AccessService.SSO_REJECTED_USERNAME_ATTRIBUTE)).thenReturn("jdoe");
+
+    handler.onAuthenticationFailure(request, response, new LockedException("locked"));
+    handler.onAuthenticationFailure(request, response, new OAuth2AuthenticationException(
+      new OAuth2Error("invalid_grant")));
+
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "channel", "username", "detail")
+      .containsExactly(
+        tuple(SecurityAuditEventType.LOGIN,
+          SecurityAuditOutcome.FAILURE, SecurityAuditCause.LOCKED,
+          SecurityAuditChannel.SSO, "jdoe", null),
+        tuple(SecurityAuditEventType.LOGIN,
+          SecurityAuditOutcome.FAILURE, SecurityAuditCause.PROVIDER_ERROR,
+          SecurityAuditChannel.SSO, "jdoe", "invalid_grant"));
   }
 }
