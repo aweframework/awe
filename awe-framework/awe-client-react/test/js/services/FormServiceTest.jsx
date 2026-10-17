@@ -22,7 +22,8 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
   });
 
   it('should get all form actions', () => {
-    expect(Object.keys(actions).length).toBe(24);
+    expect(Object.keys(actions).length).toBe(25);
+    expect(Object.keys(actions)).toContain('fill-suggest');
     expect(Object.keys(actions)).toContain('initial-model');
   });
 

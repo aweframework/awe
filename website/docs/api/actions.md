@@ -121,7 +121,7 @@ Actions which works over components in the screen.
 | `validate`                       | Launch a validation on the criterion or criteria inside the `target` tag                                 | `tag`, `criteria`           |
 | `set-valid`                      | Set a criterion as valid, clearing its previous validation error                                         | `criteria`                  |
 | `set-invalid`                    | Set a criterion as invalid, showing the message defined on the `message` parameter                       | `criteria`                  |
-| `fill-suggest`                   | Fill the available and selected values of a suggest criterion with the `values` parameter                | `criteria`                  |
+| `fill-suggest`                   | **Deprecated**: use `fill` and `select`. Fill the available and selected values of a suggest criterion with the `values` parameter | `criteria`                  |
 | `update-controller`              | Update the controller attribute defined on the `attribute` parameter with the value received             | Any component               |
 | `dialog`                         | Opens a modal dialog                                                                                     | `dialog`                    |
 | `close`                          | Closes a dialog                                                                                          | `dialog`                    |
@@ -400,7 +400,7 @@ public ServiceData togglePanel() {
 |---------------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | `select`            | Fill a criterion selected values                              | `values` - Datalist with criteria value                                                                                 |
 | `fill`              | Fill a criterion list of available values                     | `rows` -  rows of datalist (at least must have `value` and `label` fields)                                              |
-| `fill-suggest`      | Fill the available and selected values of a suggest criterion | `values` - List of suggest values (with `value` and `label` fields)                                                     |
+| `fill-suggest`      | **Deprecated**: use `fill` and `select`. Fill the available and selected values of a suggest criterion | `values` - List of suggest values (with `value` and `label` fields)                                                     |
 | `update-controller` | Update an attribute of a component controller                 | `attribute` - Controller attribute to update, `value` - Value to set (or `datalist` - DataList whose first row `value` field is used) |
 
 **select**
@@ -426,7 +426,24 @@ ServiceData setCriteriaValue() {
 }
 ``` 
 
-**fill-suggest**
+**fill-suggest** (deprecated)
+
+`FillSuggestActionBuilder` is deprecated since 5.0.0. Send a `fill` action with the values and their labels, followed
+by a `select` action with the values to select:
+
+```java
+public ServiceData fillSuggestValues() {
+  DataList dataList = new DataList();
+  DataListUtil.addColumn(dataList, "value", List.of("TR001", "TR002"));
+  DataListUtil.addColumn(dataList, "label", List.of("Transaction 001", "Transaction 002"));
+  return new ServiceData()
+    .addClientAction(new FillActionBuilder("SuggestCriterion", dataList).build())
+    .addClientAction(new SelectActionBuilder("SuggestCriterion", "TR001", "TR002").build());
+}
+```
+
+When the suggest can resolve the labels through its `check-target` or `target-action`, the `select` action alone is
+enough. The deprecated builder still works:
 
 ```java
 public ServiceData fillSuggestValues() {
