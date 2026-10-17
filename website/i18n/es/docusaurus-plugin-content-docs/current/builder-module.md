@@ -97,9 +97,24 @@ serviceData.addClientAction(new SelectActionBuilder("my-select", value1, value2,
 
 Este ejemplo envía una lista de valores seleccionados al componente `"my-select"`.
 
-###  **Constructor de acción `fill-suggest`** {#fill-suggest-action-builder}
+###  **Constructor de acción `fill-suggest` (obsoleto)** {#fill-suggest-action-builder}
 
 Esta acción envía una lista de valores seleccionados y etiquetas a un componente suggest.
+
+> **Obsoleto desde la 5.0.0:** `FillSuggestActionBuilder` se eliminará. Rellene el suggest con los valores y sus
+> etiquetas mediante una acción `fill` y selecciónelos después con una acción `select`:
+>
+> ```java
+> DataList dataList = new DataList();
+> DataListUtil.addColumn(dataList, "value", List.of("aaa", "bbb"));
+> DataListUtil.addColumn(dataList, "label", List.of("Label aaa", "Label bbb"));
+> serviceData
+>   .addClientAction(new FillActionBuilder("my-suggest", dataList).build())
+>   .addClientAction(new SelectActionBuilder("my-suggest", "aaa", "bbb").build());
+> ```
+>
+> Cuando el suggest puede resolver las etiquetas mediante su `check-target` o su `target-action`, basta con la acción
+> `select`.
 
 Uso:
 

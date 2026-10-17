@@ -270,6 +270,7 @@ class ClientActionBuilderTest {
    * Build a fill-suggest action with ClientActionBuilder
    */
   @Test
+  @SuppressWarnings("deprecation")
   void testFillSuggestAction() throws Exception {
     ObjectMapper mapper = DataListUtil.getMapper();
     List<SuggestValue> values = Arrays.asList(
@@ -306,6 +307,27 @@ class ClientActionBuilderTest {
     assertEquals(mapper.valueToTree(values), mapper.valueToTree(addressedActionWithList.getParameters().get("values")));
 
     checkSimpleClientActionBuilder("fill-suggest", new FillSuggestActionBuilder());
+  }
+
+  /**
+   * The replacement of the deprecated fill-suggest action: a fill with the values and a select of them
+   */
+  @Test
+  void testFillSuggestReplacement() {
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "value", List.of("aaa", "bbb"));
+    DataListUtil.addColumn(dataList, "label", List.of("Label aaa", "Label bbb"));
+    ClientAction fill = new FillActionBuilder("my-suggest", dataList).build();
+    ClientAction select = new SelectActionBuilder("my-suggest", "aaa", "bbb").build();
+
+    // Assertions
+    assertTrue(FillSuggestActionBuilder.class.isAnnotationPresent(Deprecated.class));
+    assertEquals("fill", fill.getType());
+    assertEquals("my-suggest", fill.getTarget());
+    assertEquals("Label bbb", dataList.getRows().get(1).get("label").getStringValue());
+    assertEquals("select", select.getType());
+    assertEquals("my-suggest", select.getTarget());
+    assertArrayEquals(new Object[]{"aaa", "bbb"}, (Object[]) select.getParameters().get("values"));
   }
 
   /**

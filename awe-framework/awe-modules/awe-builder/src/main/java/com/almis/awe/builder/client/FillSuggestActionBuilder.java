@@ -9,7 +9,20 @@ import java.util.List;
  * Fill suggest action builder
  *
  * @author pgarcia
+ * @deprecated the {@code fill-suggest} action duplicates {@code fill} and {@code select}. Fill the suggest with the
+ * values (with their labels) using {@link FillActionBuilder} and select them with {@link SelectActionBuilder}:
+ * <pre>{@code
+ * DataList dataList = new DataList();
+ * DataListUtil.addColumn(dataList, "value", List.of("aaa", "bbb"));
+ * DataListUtil.addColumn(dataList, "label", List.of("Label aaa", "Label bbb"));
+ * serviceData
+ *   .addClientAction(new FillActionBuilder("my-suggest", dataList).build())
+ *   .addClientAction(new SelectActionBuilder("my-suggest", "aaa", "bbb").build());
+ * }</pre>
+ * Use only {@link SelectActionBuilder} when the suggest can resolve the labels through its {@code check-target} or
+ * {@code target-action}.
  */
+@Deprecated(since = "5.0.0")
 public class FillSuggestActionBuilder extends ClientActionBuilder<FillSuggestActionBuilder> {
 
   private static final String TYPE = "fill-suggest";

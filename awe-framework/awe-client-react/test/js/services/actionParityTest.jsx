@@ -27,8 +27,7 @@ const NOT_PORTED = {
   "end-dependency": NOT_IN_REACT,
   "copy-criterion-value-clipboard": NOT_IN_REACT,
   "screen-data": "Not a client action in React: the screen data is requested by the screen thunks",
-  "target-message": "Open question: React registers it as targetMessage, so the server name is never dispatched",
-  "fill-suggest": "Planned in #804: React will support it as fill with the selected rows"
+  "target-message": "Open question: React registers it as targetMessage, so the server name is never dispatched"
 };
 
 /**
@@ -107,6 +106,10 @@ describe('awe-react-client/test/js/services/actionParityTest.jsx', () => {
     ["after-add-row", "after-delete-row", "after-save-row", "after-cancel-row"].forEach((name) => {
       expect(classify([name], reactNames)).toEqual([{name, status: "implemented"}]);
     });
+  });
+
+  it('implements fill-suggest, still sent by products through the deprecated builder of #804', () => {
+    expect(classify(["fill-suggest"], reactNames)).toEqual([{name: "fill-suggest", status: "implemented"}]);
   });
 
   it('points every alias to an action that React registers', () => {

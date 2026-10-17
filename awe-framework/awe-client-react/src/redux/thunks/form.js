@@ -175,6 +175,17 @@ export function fillAction(action) {
   };
 }
 
+/**
+ * Fill a suggest with the values of a fill-suggest action (FillSuggestActionBuilder) and select all of them.
+ * It runs as a fill with every value marked as selected, so the labels are kept and no request is sent.
+ * The builder that sends it (FillSuggestActionBuilder) is deprecated: new code sends a fill and a select instead.
+ * @param {object} action Action received, with the suggest values (value and label) in parameters.values
+ */
+export function fillSuggestAction(action) {
+  const rows = asArray(action.parameters?.values).map((value) => ({ ...value, selected: true }));
+  return fillAction({ ...action, parameters: { ...action.parameters, datalist: { rows } } });
+}
+
 export function updateControllerAction(action) {
   return (dispatch) => {
     // Get values

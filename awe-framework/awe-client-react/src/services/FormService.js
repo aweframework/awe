@@ -14,6 +14,7 @@ import {useTranslation} from "react-i18next";
 import {
   endLoadAction,
   fillAction,
+  fillSuggestAction,
   filterAction, keepAction,
   resetAction,
   restoreAction, restoreTargetAction, selectAction, startLoadAction,
@@ -56,6 +57,12 @@ function useFormService() {
    * @param {object} action Action received
    */
   const fill = (action) => dispatch(fillAction(action));
+
+  /**
+   * Fill a suggest with action values and select all of them (deprecated fill-suggest action)
+   * @param {object} action Action received
+   */
+  const fillSuggest = (action) => dispatch(fillSuggestAction(action));
 
   /**
    * Set the initial model of a component loaded when its deferred dialog or tab was first shown
@@ -164,6 +171,7 @@ function useFormService() {
       "restore": restore,
       "restore-target": restoreTarget,
       "fill": fill,
+      "fill-suggest": fillSuggest,
       "initial-model": initialModel,
       "update-controller": updateController,
       "select": select,

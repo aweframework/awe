@@ -121,7 +121,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `validate`                       | Inicia una validación sobre el criterio o criterios dentro de la etiqueta `target`                       | `tag`, `criteria`           |
 | `set-valid`                      | Establecer un criterio como válido, eliminando su error de validación anterior                                         | `criteria`                  |
 | `set-invalid`                    | Establecer un criterio como no válido, mostrando el mensaje definido en el parámetro `message`                       | `criteria`                  |
-| `fill-suggest`                   | Rellenar los valores disponibles y seleccionados de un criterio de sugerencia con el parámetro `values`                | `criteria`                  |
+| `fill-suggest`                   | **Obsoleta**: use `fill` y `select`. Rellenar los valores disponibles y seleccionados de un criterio de sugerencia con el parámetro `values` | `criteria`                  |
 | `update-controller`              | Actualizar el atributo del controlador definido en el parámetro `attribute` con el valor recibido             | Any component               |
 | `dialog`                         | Abre un diálogo modal                                                                                    | `dialog`                    |
 | `close`                          | Cierra un diálogo                                                                                        | `dialog`                    |
@@ -400,7 +400,7 @@ public ServiceData togglePanel() {
 | ------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `select`       | Rellenar los valores seleccionados en un criterio                            | `values` - Lista de datos con los valores de los criterios                                                                            |
 | `fill`              | Rellenar la lista de los valores disponibles para seleccionar en un criterio | `rows` - filas de la lista (al menos deben tener los campos `value` y `label`)                                                         |
-| `fill-suggest`      | Rellenar los valores disponibles y seleccionados de un criterio de sugerencia                | `values` - Lista de valores de sugerencia (con los campos `value` y `label`)                                                                   |
+| `fill-suggest`      | **Obsoleta**: use `fill` y `select`. Rellenar los valores disponibles y seleccionados de un criterio de sugerencia | `values` - Lista de valores de sugerencia (con los campos `value` y `label`)                                                                   |
 | `update-controller` | Actualizar un atributo del controlador de un componente                                | `attribute` - Atributo del controlador a actualizar, `value` - Valor a establecer (o `datalist` - DataList cuyo campo `value` de la primera fila se utiliza) |
 
 **seleccionar**
@@ -426,7 +426,24 @@ ServiceData setCriteriaValue() {
 }
 ``` 
 
-**fill-suggest**
+**fill-suggest** (obsoleta)
+
+`FillSuggestActionBuilder` está obsoleto desde la 5.0.0. Envíe una acción `fill` con los valores y sus etiquetas,
+seguida de una acción `select` con los valores que se deben seleccionar:
+
+```java
+public ServiceData fillSuggestValues() {
+  DataList dataList = new DataList();
+  DataListUtil.addColumn(dataList, "value", List.of("TR001", "TR002"));
+  DataListUtil.addColumn(dataList, "label", List.of("Transaction 001", "Transaction 002"));
+  return new ServiceData()
+    .addClientAction(new FillActionBuilder("SuggestCriterion", dataList).build())
+    .addClientAction(new SelectActionBuilder("SuggestCriterion", "TR001", "TR002").build());
+}
+```
+
+Cuando el suggest puede resolver las etiquetas mediante su `check-target` o su `target-action`, basta con la acción
+`select`. El constructor obsoleto sigue funcionando:
 
 ```java
 public ServiceData fillSuggestValues() {
