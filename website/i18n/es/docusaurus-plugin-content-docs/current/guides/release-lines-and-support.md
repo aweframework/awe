@@ -294,6 +294,9 @@ de GitLab a propósito: la lista de dependencias solo acepta SBOM que llevan las
 y ya la alimenta el job de análisis de dependencias `gemnasium`, que cubre el mismo reactor de Maven. El cliente React
 tiene su propio SBOM CycloneDX, generado por el job `Deploy · npm` (consulte [paquete npm](#npm-package)).
 
+`Package · Docker images` construye ambas imágenes para `linux/amd64`, la plataforma de los nodos de GKE, sea cual sea el
+runner que tome el job (`IMAGE_PLATFORM`), y falla antes de publicar una imagen construida para otra plataforma.
+
 `Package · Docker images` también firma las imágenes `awe-boot` y `awe-boot-react` sin clave, usando la propia identidad OIDC de
 GitLab (`id_tokens: SIGSTORE_ID_TOKEN`) en lugar de una clave privada almacenada: tanto la imagen del registro de
 GitLab como la imagen de Docker Hub se firman por digest, una sola vez, ya que todas las etiquetas flotantes
