@@ -86,6 +86,16 @@ Los histogramas no están activados, porque multiplican el número de series por
 management.metrics.distribution.percentiles-histogram.awe.query=true
 ```
 
+### Eventos de la auditoría de seguridad {#security-audit-events}
+
+El starter también cuenta los eventos de la [auditoría de seguridad](../security/security-audit.md) en el contador `awe.security.audit.events`, con las etiquetas `type` (`LOGIN`, `LOGOUT`, `ACCOUNT_LOCKED`...), `outcome` (`SUCCESS` o `FAILURE`), `channel` (`WEB`, `SSO`, `REST` o `SYSTEM`) y `cause` (`BAD_CREDENTIALS`, `EXPIRED`... o `none`). El usuario y la dirección del cliente nunca son etiquetas. En Prometheus es `awe_security_audit_events_total`; por ejemplo, los inicios de sesión fallidos por causa en cinco minutos:
+
+```text
+sum by (cause) (rate(awe_security_audit_events_total{type="LOGIN",outcome="FAILURE"}[5m]))
+```
+
+Establezca `awe.security.audit.metrics.enabled=false` para dejar de contarlos; `awe.observability.enabled=false` y `awe.security.audit.enabled=false` también lo detienen.
+
 ## Trazas {#traces}
 
 Cada consulta, mantenimiento y acción es un span llamado `awe.query`, `awe.maintain` o `awe.action`, con las mismas etiquetas `id`, `connector` y `outcome` (el id es una etiqueta y no forma parte del nombre, porque Micrometer pasa a minúsculas los nombres de los spans). El span es hijo del span que está activo cuando empieza la ejecución, por ejemplo el que Spring Boot abre para la petición HTTP, de modo que la traza se mantiene desde la petición hasta las consultas que lanza. Una ejecución fallida marca su span con el error.

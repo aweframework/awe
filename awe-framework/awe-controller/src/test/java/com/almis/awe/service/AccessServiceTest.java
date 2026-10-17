@@ -12,7 +12,12 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditChannel;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.SecondFactorStatusType;
+import com.almis.awe.security.audit.RecordingSecurityAudit;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
@@ -40,6 +45,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
@@ -52,6 +59,8 @@ import java.util.UUID;
 import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
 import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ROLE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -848,5 +857,66 @@ class AccessServiceTest {
     verify(maintainService, never()).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
+  }
+
+  @Test
+  void secondFactorChecksAreAudited() throws Exception {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    aweUserDetails.setUsername("jdoe");
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    when(totpService.verify2faCode(anyString())).thenReturn(false);
+
+    assertThrows(AWException.class, () -> accessService.verify2faCode("000000"));
+
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "username")
+      .containsExactly(tuple(SecurityAuditEventType.TOTP_VERIFICATION, SecurityAuditOutcome.FAILURE, SecurityAuditCause.INVALID_CODE, "jdoe"));
+  }
+
+  @Test
+  void ssoLoginsAndProfileSynchronizationAreAudited() throws AWException {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("OLD"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("NEW"));
+    when(aweUserDetailService.existRole("NEW")).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("NEW"));
+
+    assertThat(audit.events()).extracting("type", "outcome", "channel", "username", "detail").containsExactly(
+      tuple(SecurityAuditEventType.SSO_PROFILE_SYNC, SecurityAuditOutcome.SUCCESS, SecurityAuditChannel.SSO, "foo@acme.com", "OLD -> NEW"),
+      tuple(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.SUCCESS, SecurityAuditChannel.SSO, "foo@acme.com", null));
+  }
+
+  @Test
+  void ssoLoginsRefusedByAweLeaveTheUserNameForTheFailureHandler() throws AWException {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    try {
+      SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+      ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+      when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+      when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+      when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setAccountNonLocked(false));
+      when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+      when(aweElements.getLanguage()).thenReturn("en-GB");
+
+      assertThrows(LockedException.class, () -> accessService.onAuthenticationSuccess(getTokenWithRole("DUMMY")));
+
+      assertThat(request.getAttribute(AccessService.SSO_REJECTED_USERNAME_ATTRIBUTE)).isEqualTo("foo@acme.com");
+      assertThat(audit.events()).as("the refusal is recorded by the failure handler").isEmpty();
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+    }
   }
 }

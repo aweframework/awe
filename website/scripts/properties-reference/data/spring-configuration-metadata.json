@@ -1329,6 +1329,48 @@
       ]
     },
     {
+      "name": "awe.security.audit.anonymize-ip",
+      "type": "java.lang.Boolean",
+      "description": "Anonymize the client address of every event: the last octet of IPv4 addresses and everything after the first 48 bits of IPv6 addresses are set to zero. Default value false",
+      "defaultValue": false
+    },
+    {
+      "name": "awe.security.audit.database.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Store the events in the AweSecAudEvt table. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.audit.database.purge-cron",
+      "type": "java.lang.String",
+      "description": "Cron expression (Spring format, server time zone) of the purge of expired events. Default value 0 0 3 * * * (every day at 03:00)",
+      "defaultValue": "0 0 3 * * *"
+    },
+    {
+      "name": "awe.security.audit.database.retention-days",
+      "type": "java.lang.Integer",
+      "description": "Days an event is kept in the AweSecAudEvt table before the purge deletes it. 0 keeps the events forever. Default value 365",
+      "defaultValue": 365
+    },
+    {
+      "name": "awe.security.audit.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Record security events (logins, logouts, locks, password and second factor changes, denied accesses and REST tokens). When disabled no event is recorded by any sink and nothing is purged. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.audit.log.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Write every event as one JSON line on the awe.security.audit logger (INFO level), to be shipped to a SIEM. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.audit.metrics.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Count the events on the awe.security.audit.events Micrometer counter (tags type, outcome, channel and cause). Only applies when the observability starter (or another Micrometer registry) is present. Default value true",
+      "defaultValue": true
+    },
+    {
       "name": "awe.security.auth-custom-providers",
       "type": "java.util.List<java.lang.String>",
       "description": "Authentication custom class providers. Used to implement your custom authentication provider"
@@ -1398,6 +1440,12 @@
       "type": "java.lang.String",
       "description": "Ldap user login property name. Examples of filters: In WINDOWS environment sAMAccountName={0} In UNIX environment uid={0}",
       "defaultValue": "sAMAccountName={0}"
+    },
+    {
+      "name": "awe.security.lockout.max-attempts",
+      "type": "java.lang.Integer",
+      "description": "Consecutive failed local logins (wrong password) after which the account is locked. A successful login resets the count, and an administrator unlocks the account from the user screen. 0 switches the automatic lockout off. Default value 0",
+      "defaultValue": 0
     },
     {
       "name": "awe.security.master-key",

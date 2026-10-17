@@ -3,6 +3,7 @@ package com.almis.awe.observability.autoconfigure;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.observability.instrumentation.MicrometerExecutionObserver;
+import com.almis.awe.observability.instrumentation.MicrometerSecurityAuditSink;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.service.observation.ExecutionObserver;
@@ -100,5 +101,15 @@ class AweObservabilityAutoConfigurationTest {
           .hasLowCardinalityKeyValue("id", "Q1")
           .hasLowCardinalityKeyValue("connector", "sql");
       });
+  }
+
+  @Test
+  @DisplayName("It counts the security audit events unless awe.security.audit.metrics.enabled is false")
+  void securityAuditMetrics() {
+    runner.run(context -> assertThat(context).hasSingleBean(MicrometerSecurityAuditSink.class));
+    runner.withPropertyValues("awe.security.audit.metrics.enabled=false")
+      .run(context -> assertThat(context).doesNotHaveBean(MicrometerSecurityAuditSink.class));
+    runner.withPropertyValues("awe.security.audit.enabled=false")
+      .run(context -> assertThat(context).doesNotHaveBean(MicrometerSecurityAuditSink.class));
   }
 }

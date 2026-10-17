@@ -25,6 +25,7 @@ module.exports = {
 						"security/authentication-sso",
 						"security/idp-first",
 						"security/idp-first-keycloak-entra",
+						"security/security-audit",
 					],
 				},
 			],

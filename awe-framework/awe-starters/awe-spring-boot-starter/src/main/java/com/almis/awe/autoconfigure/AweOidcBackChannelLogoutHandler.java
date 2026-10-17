@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.security.handler.AweLogoutHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +131,8 @@ public class AweOidcBackChannelLogoutHandler implements LogoutHandler {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.COOKIE, sessionCookieName + "=" + sessionCookieValue(session.getSessionId()));
     session.getAuthorities().forEach(headers::add);
+    // Recorded by the security audit as a logout started by the identity provider
+    headers.add(AweLogoutHandler.LOGOUT_ORIGIN_HEADER, AweLogoutHandler.PROVIDER_ORIGIN);
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();

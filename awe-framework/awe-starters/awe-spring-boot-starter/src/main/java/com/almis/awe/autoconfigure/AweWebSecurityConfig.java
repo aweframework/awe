@@ -10,6 +10,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authentication.ClaimRolesAuthoritiesConverter;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
@@ -363,7 +364,9 @@ public class AweWebSecurityConfig {
 
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler() {
-		return new AweAccessDeniedHandler();
+		AweAccessDeniedHandler accessDeniedHandler = new AweAccessDeniedHandler();
+		accessDeniedHandler.setSecurityAuditService(securityAuditService());
+		return accessDeniedHandler;
 	}
 
 	@Bean
@@ -373,7 +376,11 @@ public class AweWebSecurityConfig {
 
 	@Bean
 	public AweLogoutHandler logoutHandler(AweSessionDetails sessionDetails) {
-		return new AweLogoutHandler(sessionDetails);
+		return new AweLogoutHandler(sessionDetails, securityAuditService());
+	}
+
+	private SecurityAuditService securityAuditService() {
+		return context.getBeanProvider(SecurityAuditService.class).getIfAvailable(SecurityAuditService::disabled);
 	}
 
 	@Bean
@@ -458,7 +465,9 @@ public class AweWebSecurityConfig {
 	@ConditionalOnProperty(prefix = "awe.security.sso", name = "enabled", havingValue = "true")
 	@ConditionalOnMissingBean
 	public AweOauth2AuthenticationFailureHandler authFailureHandler() {
-		return new AweOauth2AuthenticationFailureHandler(errorPageService);
+		AweOauth2AuthenticationFailureHandler failureHandler = new AweOauth2AuthenticationFailureHandler(errorPageService);
+		failureHandler.setSecurityAuditService(securityAuditService());
+		return failureHandler;
 	}
 
 	// ============== TRADITIONAL AUTH BEANS ==============

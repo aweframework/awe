@@ -1023,3 +1023,30 @@ CREATE TABLE tst_order_item
     order_quantity NUMBER NOT NULL,
     CONSTRAINT fk_order_item_order FOREIGN KEY (order_id) REFERENCES tst_order (id)
 );
+
+-- ------------------------------------------------------
+--  DDL for Table AweSecAudEvt
+--  Security audit events (append-only): logins, logouts, locks, password and second factor changes,
+--  denied accesses and REST tokens. Rows are only deleted by the retention purge.
+-- ------------------------------------------------------
+CREATE TABLE AweSecAudEvt (
+    IdeSecAud varchar2(36) CONSTRAINT pk_AweSecAudEvt PRIMARY KEY NOT NULL, --  Event identifier (UUID)
+    EvtDat timestamp NOT NULL,                  --  Event date
+    EvtDay date NOT NULL,                  --  Event day (server time zone), for day filters and charts
+    EvtTyp varchar2(40) NOT NULL,              --  Event type (LOGIN, LOGOUT, ACCOUNT_LOCKED...)
+    EvtRes varchar2(10) NOT NULL,              --  Outcome (SUCCESS, FAILURE)
+    EvtCau varchar2(40),                       --  Cause (BAD_CREDENTIALS, LOCKED, EXPIRED...)
+    UsrNam varchar2(255),                      --  User name
+    Ten varchar2(100),                         --  Tenant (SSO tenant or database alias)
+    Chn varchar2(10),                          --  Channel (WEB, SSO, REST, SYSTEM)
+    IpAdr varchar2(45),                        --  Client address
+    UsrAgt varchar2(512),                      --  Client user agent
+    SesHsh varchar2(64),                       --  SHA-256 of the session identifier
+    CorIde varchar2(64),                       --  Correlation identifier
+    Det varchar2(1000)                         --  Detail
+    );
+
+CREATE INDEX AweSecAudEvtI1 ON AweSecAudEvt (EvtDat);
+CREATE INDEX AweSecAudEvtI2 ON AweSecAudEvt (UsrNam, EvtDat);
+CREATE INDEX AweSecAudEvtI3 ON AweSecAudEvt (EvtTyp, EvtDat);
+CREATE INDEX AweSecAudEvtI4 ON AweSecAudEvt (EvtDay);

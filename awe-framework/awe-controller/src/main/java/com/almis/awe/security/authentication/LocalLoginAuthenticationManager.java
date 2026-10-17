@@ -1,5 +1,6 @@
 package com.almis.awe.security.authentication;
 
+import com.almis.awe.security.audit.LoginAuditor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ public class LocalLoginAuthenticationManager implements AuthenticationManager {
 
   private final AuthenticationManager delegate;
   private final LocalLoginPolicy localLoginPolicy;
+  private LoginAuditor loginAuditor;
 
   /**
    * Create the decorator
@@ -47,8 +49,33 @@ public class LocalLoginAuthenticationManager implements AuthenticationManager {
     return localLoginPolicy;
   }
 
+  /**
+   * Record the logins of the entry points in the security audit (and apply the automatic lockout)
+   *
+   * @param loginAuditor Login auditor, null to record nothing
+   */
+  public void setLoginAuditor(LoginAuditor loginAuditor) {
+    this.loginAuditor = loginAuditor;
+  }
+
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    if (loginAuditor == null) {
+      return authenticateWithPolicy(authentication);
+    }
+    String username = authentication.getPrincipal() instanceof String name ? name.trim() : authentication.getName();
+    Authentication result;
+    try {
+      result = authenticateWithPolicy(authentication);
+    } catch (AuthenticationException failure) {
+      loginAuditor.onFailure(username, failure);
+      throw failure;
+    }
+    loginAuditor.onSuccess(result.getName());
+    return result;
+  }
+
+  private Authentication authenticateWithPolicy(Authentication authentication) {
     if (!localLoginPolicy.isActive()
       || !(authentication instanceof UsernamePasswordAuthenticationToken)
       || !(authentication.getPrincipal() instanceof String username)) {

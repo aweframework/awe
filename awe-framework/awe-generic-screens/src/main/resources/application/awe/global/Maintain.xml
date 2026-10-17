@@ -100,6 +100,12 @@
   </target>
 
   <target name="UsrUpd">
+    <!-- Security audit: compares the stored lock flag with the new one before the update -->
+    <serve service="audit-user-update">
+      <variable id="userId" type="INTEGER" name="IdeOpe"/>
+      <variable id="locked" type="INTEGER" name="PwdLck"/>
+      <variable id="passwordUpdate" type="INTEGER" name="FlgPwdUpd"/>
+    </serve>
     <update>
       <table id="ope"/>
       <field id="l1_act" variable="Sta"/>
@@ -213,6 +219,11 @@
       <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
     </update>
+    <!-- Security audit of the password change -->
+    <serve service="audit-password-change">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
   </target>
 
   <!-- Change the expired password of the user who verified it at the login (no session: see PasswordChangeService) -->
@@ -276,6 +287,11 @@
       <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
     </update>
+    <!-- Security audit of the password change (a wrong current password updates nothing) -->
+    <serve service="audit-password-change">
+      <variable id="user" type="STRING" name="Usr"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
   </target>
 
   <!-- Modules -->
@@ -1560,6 +1576,10 @@
       <variable id="disable" type="INTEGER" value="0"/>
       <variable id="nullify" type="NULL"/>
     </update>
+    <!-- Security audit of the second factor reset -->
+    <serve service="audit-totp-reset">
+      <variable id="userIds" type="INTEGER" name="IdeOpe"/>
+    </serve>
   </target>
 
   <!--

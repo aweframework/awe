@@ -86,6 +86,16 @@ Histograms are not enabled, because they multiply the number of series by the nu
 management.metrics.distribution.percentiles-histogram.awe.query=true
 ```
 
+### Security audit events
+
+The starter also counts the [security audit](../security/security-audit.md) events on the `awe.security.audit.events` counter, tagged by `type` (`LOGIN`, `LOGOUT`, `ACCOUNT_LOCKED`...), `outcome` (`SUCCESS` or `FAILURE`), `channel` (`WEB`, `SSO`, `REST` or `SYSTEM`) and `cause` (`BAD_CREDENTIALS`, `EXPIRED`... or `none`). The user and the client address are never tags. In Prometheus it is `awe_security_audit_events_total`; for example, the failed logins per cause over five minutes:
+
+```text
+sum by (cause) (rate(awe_security_audit_events_total{type="LOGIN",outcome="FAILURE"}[5m]))
+```
+
+Set `awe.security.audit.metrics.enabled=false` to stop counting them; `awe.observability.enabled=false` and `awe.security.audit.enabled=false` stop it too.
+
 ## Traces
 
 Each query, maintain and action is a span named `awe.query`, `awe.maintain` or `awe.action` with the same `id`, `connector` and `outcome` as tags (the id is a tag and not part of the name, because Micrometer lower-cases span names). The span is a child of the span that is current when the execution starts, for example the one Spring Boot opens for the HTTP request, so the trace is kept from the request down to the queries it runs. A failed execution marks its span with the error.
