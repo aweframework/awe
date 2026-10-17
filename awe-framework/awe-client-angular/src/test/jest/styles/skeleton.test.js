@@ -42,6 +42,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/skeleton", () =>
     expect(css).not.toMatch(/\.(grid-skeleton|screen-skeleton|skeleton-loader)\s*\{[^}]*opacity:\s*0/);
   });
 
+  it("hides the content of the view that is loading after the delay, so no previous screen paints over the skeleton", () => {
+    expect(css).toMatch(/@keyframes awe-skeleton-hide\s*\{[^}]*\{[^}]*visibility:\s*hidden/);
+    expect(css).toMatch(/\[ui-view\]\[aria-busy="true"\]\s*\{[^}]*awe-skeleton-hide\s+0s\s+linear\s+150ms\s+forwards/);
+    expect(css).not.toMatch(/(^|[\s,}])\[aria-busy="true"\]\s*\{[^}]*awe-skeleton-hide/);
+  });
+
   it("masks the label of a criterion and a button while their skeleton is pending, after the delay", () => {
     expect(css).toMatch(/@keyframes awe-skeleton-mask\s*\{[^}]*color:\s*transparent[^}]*var\(--awe-color-skeleton\)/);
     expect(css).toMatch(/\.criterion\.skeleton-pending[^{]*\{[^}]*awe-skeleton-mask\s+0s\s+linear\s+150ms\s+forwards/);
