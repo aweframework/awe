@@ -362,6 +362,11 @@ coordinate, the `docker-compose` observability stack under `awe-tests`, and the 
 database images pinned in `awe-testing-images.properties`. It does not manage the root `package.json` (an unused leftover) or the archetype
 templates.
 
+Container images stay on their major version: for the Dockerfile base images, the `.gitlab-ci.yml` images and
+services, the compose stack and the Testcontainers images, Renovate proposes digests, patch and minor updates (the
+security rebuilds of the images included), never a new major. Moving to a new Java (for example `eclipse-temurin` 21
+to 25) or tool major is a manual decision.
+
 | Branch | Updates opened | Automerge |
 |---|---|---|
 | `develop` | Everything: major, minor, patch, pin, digest, lock file and security | Patch releases of direct Maven and npm dependencies, once they are old enough (see below), only when the merge-request pipeline passes (the approval rule is lifted for those merge requests only). Digests, pins, CI images, the Dockerfile, compose files and lock-file maintenance wait for a human |
