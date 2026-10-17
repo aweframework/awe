@@ -57,6 +57,16 @@
       "minimumReleaseAge": "30 days"
     },
     {
+      "description": "Container images never move to a new major version by themselves: a new Java (eclipse-temurin 21 to 25) or tool major is a manual decision. Digests, patch and minor updates of the same images are still proposed, so the security rebuilds of the images keep coming.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Digest, pin and lock-file maintenance updates carry no release date (Renovate 42 treats a missing date as not old enough), so they do not wait.",
       "matchUpdateTypes": [
         "digest",

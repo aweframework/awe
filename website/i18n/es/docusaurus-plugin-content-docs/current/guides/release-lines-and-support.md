@@ -351,6 +351,12 @@ línea, la pila `docker-compose` de observabilidad bajo `awe-tests` y las imáge
 fijadas en `awe-testing-images.properties`. No gestiona el `package.json` raíz (un resto sin uso) ni las plantillas de
 arquetipos.
 
+Las imágenes de contenedor se mantienen en su versión mayor: para las imágenes base de los Dockerfile, las imágenes y
+servicios de `.gitlab-ci.yml`, la pila de compose y las imágenes de Testcontainers, Renovate propone digests y
+actualizaciones de parche y menores (incluidas las reconstrucciones de seguridad de las imágenes), nunca una nueva
+versión mayor. Pasar a una nueva versión de Java (por ejemplo, `eclipse-temurin` de 21 a 25) o a una versión mayor de
+una herramienta es una decisión manual.
+
 | Rama | Actualizaciones abiertas | Automerge |
 |---|---|---|
 | `develop` | Todo: mayor, menor, parche, fijado, digest, archivo de bloqueo y seguridad | Versiones de parche de dependencias directas de Maven y npm, cuando tienen la antigüedad mínima (ver más abajo), solo cuando la pipeline de la merge request pasa (la regla de aprobación se levanta únicamente para esas merge requests). Los digests, fijados, imágenes de CI, el Dockerfile, los archivos compose y el mantenimiento de archivos de bloqueo esperan a una persona |
