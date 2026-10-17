@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <p>It is a unit test over the compiled test classes, so it runs with the unit tests and does not need a browser.</p>
  */
-// The surefire run of this module (All UT) selects the "integration" tag (test.tags), so the tag is needed to run this unit test
+// The surefire run of this module (Unit · Java) selects the "integration" tag (test.tags), so the tag is needed to run this unit test
 @Tag("integration")
 class BrowserTestDeclarationsGuardTest {
 

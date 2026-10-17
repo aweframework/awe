@@ -70,8 +70,8 @@ of scope for `support/*` and belong on `develop` instead.
 
 | Branch | CI job | Script | Tag | Milestones |
 |---|---|---|---|---|
-| `develop` | `Start a new release` (manual) | `mvn gitflow:release` (develop -> master) | `vX.Y.Z` (`5.0.0`, `5.1.0`, ...) | `5.Y.Z` |
-| `support/4.x` | `Start a new release` (manual) | `bin/support-release.sh` (hotfix flow, no merge to master/develop) | `vX.Y.Z` (`4.12.10`, `4.13.0`, ...) | `4.13.x` |
+| `develop` | `Release · Start` (manual) | `mvn gitflow:release` (develop -> master) | `vX.Y.Z` (`5.0.0`, `5.1.0`, ...) | `5.Y.Z` |
+| `support/4.x` | `Release · Start` (manual) | `bin/support-release.sh` (hotfix flow, no merge to master/develop) | `vX.Y.Z` (`4.12.10`, `4.13.0`, ...) | `4.13.x` |
 
 After a release of `develop`, bump `awe-testing.api-baseline.version` in `awe-framework/awe-testing/pom.xml` to the
 version just released (it is the API compatibility baseline of `awe-testing`, checked by japicmp in the build; see
@@ -110,7 +110,7 @@ the 5.0 GA release, whichever is later.
 
 ## Code hygiene (Spotless)
 
-Merge requests that change Java code run the `Spotless` job. It checks only the Java files your merge request changes (legacy
+Merge requests that change Java code run the `Lint · Spotless` job. It checks only the Java files your merge request changes (legacy
 files are never flagged) for unused imports, trailing whitespace, a final newline and the import order (other imports, then
 `javax`/`java`, then static imports). It never reformats or wraps code. To fix what it reports:
 
@@ -139,9 +139,10 @@ SQL Server (`-Psqlserver`, `-Psqlserver-flyway`) needs you to accept the Microso
 so on Apple Silicon it runs under Docker Desktop's x86 emulation (it worked on Docker Desktop 27, a bit slower); the Oracle image
 is large (about 6 GB), so the first run spends most of its time pulling it.
 
-The pipeline runs the same profiles in the `MySQL Tests`, `PostgreSQL Tests`, `SQL Server Tests` and `Oracle Tests` jobs, with
-Docker-in-Docker. H2 and HSQLDB run embedded. Like the commands above, these jobs run only `awe-tests/awe-boot`, with the AWE modules
-that `Build project` installed: the other modules are tested once, by `All UT`. In a merge request the first failed job cancels
+The pipeline runs the same profiles in the `Database · MySQL`, `Database · PostgreSQL`, `Database · SQL Server` and `Database · Oracle`
+jobs (each with its `· Flyway` job), with Docker-in-Docker. H2 and HSQLDB run embedded (`Database · H2`, `Database · H2 · Flyway`,
+`Database · HSQL · Flyway`). Like the commands above, these jobs run only `awe-tests/awe-boot`, with the AWE modules
+that `Build · Maven` installed: the other modules are tested once, by `Unit · Java`. In a merge request the first failed job cancels
 the rest of the pipeline, so fix it and push again; `develop`, `master` and `support/*` always run every job (#863). The
 [`awe-integration-tests` skill](skills/awe-integration-tests/SKILL.md) has the details (expected counts, CI setup).
 
@@ -160,8 +161,8 @@ so a flaky test is handled in three steps, all described in
 1. **Rerun**: a failed test of an independent class runs once more alone (failsafe `rerunFailingTestsCount`, Maven property
    `it.rerun-count`). If it passes it is reported as flaky: look for `Flakes:` in the job log and open an issue.
 2. **Quarantine**: put `@Quarantine(issue = "#812", reason = "...")` (`com.almis.awe.testing.annotations`) on the test method.
-   The blocking jobs leave it out (`it.excluded-groups`) and the jobs `Quarantine · AngularJS`, `Quarantine · React` and, for Selenium, `Quarantine · AngularJS · Chrome` and
-   `Quarantine · React · Chrome` run
+   The blocking jobs leave it out (`it.excluded-groups`) and the jobs `E2E quarantine · AngularJS · Chromium`, `E2E quarantine · React · Chromium` and, for Selenium, `Selenium quarantine · AngularJS · Chrome` and
+   `Selenium quarantine · React · Chrome` run
    it with `allow_failure: true`, so a failure there is a warning and its report is in the job artifacts.
 3. **Get it out**: fix the cause, delete the annotation and close the issue in the same merge request; the merge request
    pipeline then runs the test as a blocking one.
@@ -189,12 +190,12 @@ and the translation drift.
 
 | Job | Blocks? | Checks | Run it locally |
 |---|---|---|---|
-| `MR docs warning` | warning | Code changed with no docs change and neither "Docs updated" nor "No docs needed because: ..." ticked in the description | `CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop` |
-| `MR checks tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above (`bin/lint-mr-title.sh`, `bin/mr-size.sh`, `bin/mr-docs.sh`, `bin/mr-translations.sh`) and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
-| `Markdown lint` | warning (allowed to fail; when a Markdown file under `website/` changes) | markdownlint of the English and Spanish pages and the blog: heading levels, spaces in emphasis or code, broken tables, undefined references (rules that fight Docusaurus/MDX are off) | `npm --prefix website run lint:md` (after `npm --prefix website ci`) |
-| `Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
-| `Lint frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
-| `Build website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
+| `MR · Docs warning` | warning | Code changed with no docs change and neither "Docs updated" nor "No docs needed because: ..." ticked in the description | `CI_MERGE_REQUEST_DESCRIPTION="$(cat description.md)" bin/mr-docs.sh origin/develop` |
+| `MR · Script tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above (`bin/lint-mr-title.sh`, `bin/mr-size.sh`, `bin/mr-docs.sh`, `bin/mr-translations.sh`) and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
+| `Lint · Markdown` | warning (allowed to fail; when a Markdown file under `website/` changes) | markdownlint of the English and Spanish pages and the blog: heading levels, spaces in emphasis or code, broken tables, undefined references (rules that fight Docusaurus/MDX are off) | `npm --prefix website run lint:md` (after `npm --prefix website ci`) |
+| `Lint · Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
+| `Lint · Frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
+| `Build · Website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
 
 Run the website check as CI does (the build log is read by the anchors script; the `bin/website-maintenance-docs.sh` step of
 CI, which injects the 4.x docs, is optional locally):
@@ -225,7 +226,7 @@ bin/local-ci.sh --title "feat(awe-model): x (#123 T1)"    # everything they trig
 bin/local-ci.sh --no-browser --no-db-containers           # without the Playwright suites and the Docker databases
 bin/local-ci.sh --only all-ut,coverage                    # some jobs only (ids from --list)
 bin/local-ci.sh --only playwright-react --suites scheduler                      # one browser suite
-bin/local-ci.sh --only playwright-angular --browsers chromium,firefox            # also the Firefox suites of develop
+bin/local-ci.sh --only playwright-angular --browsers chromium,firefox            # also the Firefox suites (nightly on develop)
 ```
 
 It runs on macOS, Linux and Windows through WSL2. It needs git, Node.js 22.12+ with npm, Maven and the JDK of the build, 21 (found under
@@ -247,7 +248,7 @@ when [gitleaks](https://github.com/gitleaks/gitleaks) is installed (the analyzer
 
 ### Faster runs
 
-- **Parallel unit-testing jobs.** All UT, the three Embedded DB profiles and the eight database profiles (12 rows) used to run one
+- **Parallel unit-testing jobs.** Unit · Java, the three embedded database profiles and the eight database profiles (12 rows) used to run one
   after another, 4-6 minutes each. They now run `LOCAL_CI_DB_PARALLEL` at a time (default 3; `1` restores one after another in
   your checkout). Three fits a 24 GB laptop: each job is a Maven JVM with the Spring test contexts (about 2 GB) plus, for the
   database jobs, a container (MySQL and PostgreSQL are small, SQL Server and Oracle take 2 GB or more), and Docker needs room
@@ -286,7 +287,7 @@ Run it in Ubuntu on WSL2, not in Git Bash, PowerShell or Cygwin (the script stop
 ## XSD checks
 
 Changes to the XSDs are protected by a catalog consistency unit test, the build validation of the application XML and the
-unit tests of the XSD reference generator (`npm --prefix website run test:scripts`, already part of `Build website`). What each
+unit tests of the XSD reference generator (`npm --prefix website run test:scripts`, already part of `Build · Website`). What each
 one checks and how to run it is in
 [Checks when you change a schema](website/docs/guides/xsd-tooling.md#checks-when-you-change-a-schema).
 
@@ -297,7 +298,7 @@ A merge request is done when all of this is true:
 - **Tests**: new behavior has unit tests, and a bug fix has a test that failed before and passes now.
   The merge request pipeline is green (check the failed jobs, not only the pipeline colour).
 - **Docs**: the documentation in `website/docs` describes the new or changed behavior in the same merge
-  request, or the description says why no docs are needed. The `MR docs warning` job reminds you when
+  request, or the description says why no docs are needed. The `MR · Docs warning` job reminds you when
   code changes and neither happens; it is a warning, not a blocker (see
   [Merge request title and size](website/docs/guides/release-lines-and-support.md#docs-warning-not-blocking)).
   The English pages are the source. Spanish translations live in `website/i18n/es` and are edited in the repository; a page without a translation shows the English one. Run `bin/mr-translations.sh origin/develop` locally to see whether you changed an English page whose translation you did not touch; the pipeline does not check it.

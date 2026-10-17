@@ -6,7 +6,7 @@ set -eu
 #
 # Tests of the pure logic of bin/local-ci.sh (bin/local-ci-tool.mjs): the job selection from the changed paths and the
 # rules of .gitlab-ci.yml, the coverage of the new lines, the Sonar rules guard and the summary with its exit code.
-# No Maven, Docker or browser: Node.js only. bin/test-mr-checks.sh runs it, so the "MR checks tests" job does too.
+# No Maven, Docker or browser: Node.js only. bin/test-mr-checks.sh runs it, so the "MR · Script tests" job does too.
 #
 # Run it from anywhere: sh bin/test-local-ci.sh
 # ============================================================
@@ -71,7 +71,7 @@ selection_case "a doc page runs the website build, the Spanish lint and no Maven
 selection_case "a nested Java file of the backend runs the Java jobs" "awe-framework/awe-model/src/main/java/com/almis/A.java" \
   "build spotless all-ut embedded-db db-mysql db-postgresql db-sqlserver db-oracle javadoc coverage sonar-rules playwright-angular playwright-react" \
   "frontend-ut frontend-ut-react lint-frontend website"
-selection_case "an AngularJS template runs All UT (templates rule) but no database job" \
+selection_case "an AngularJS template runs Unit · Java (templates rule) but no database job" \
   "awe-framework/awe-client-angular/src/main/resources/templates/grid/grid.html" \
   "all-ut frontend-ut lint-frontend build playwright-angular" "embedded-db db-oracle frontend-ut-react playwright-react javadoc"
 selection_case "a React client file runs the React jobs, not the AngularJS unit tests" "awe-framework/awe-client-react/src/components/A.jsx" \
@@ -83,11 +83,11 @@ selection_case "the local pipeline tests run in CI" "bin/test-local-ci.sh" "mr-c
 selection_case "the commitlint config (nested) runs the check tests" ".gitlab/commitlint/rules/a.mjs" "mr-checks-tests" "build"
 selection_case "a root README runs only the merge request checks" "README.md" "mr-size mr-docs" \
   "build mr-checks-tests website spotless secret-detection"
-selection_case "Secret detection runs for code changes (lint stage)" "awe-framework/awe-model/src/main/java/A.java" \
+selection_case "Security · Secrets runs for code changes (lint stage)" "awe-framework/awe-model/src/main/java/A.java" \
   "secret-detection spotless" ""
-selection_case "Secret detection runs for website changes" "website/docs/a.md" "secret-detection" "spotless"
+selection_case "Security · Secrets runs for website changes" "website/docs/a.md" "secret-detection" "spotless"
 
-# Secret detection is mirrored only with gitleaks, and never blocks (CI runs GitLab's own analyzer)
+# Security · Secrets is mirrored only with gitleaks, and never blocks (CI runs GitLab's own analyzer)
 if [ "$(node "$TOOL" jobs "$CI_FILE" | awk -F '\t' '$1 == "secret-detection" { print $3 "/" $5 }')" = "no/any" ]; then
   pass "secret detection: a local, non-blocking check"
 else
@@ -97,7 +97,7 @@ fi
 # The local order follows the stages: every lint-stage job runs before the build
 order=$(node "$TOOL" jobs "$CI_FILE" | cut -f1 | tr '\n' ' ')
 case "$order" in
-  *spotless*secret-detection*lint-frontend*spanish-docs-lint*build\ *) pass "order: the lint stage (Spotless, secrets, lint, Spanish docs) runs before the build" ;;
+  *spotless*secret-detection*lint-frontend*spanish-docs-lint*build\ *) pass "order: the lint stage (Lint · Spotless, secrets, lint, Spanish docs) runs before the build" ;;
   *) fail "order: lint stage before the build" "$order" ;;
 esac
 selection_case "the CI file runs everything" ".gitlab-ci.yml" \
@@ -136,8 +136,8 @@ maven_parity() { # "$1" CI job, "$2" local step function
     fail "parity: $2 misses$missing of \"$1\"" "$ci_line"
   fi
 }
-maven_parity "Javadoc test" step_javadoc
-maven_parity "Spotless" step_spotless
+maven_parity "Docs · Javadoc check" step_javadoc
+maven_parity "Lint · Spotless" step_spotless
 
 # The browser suites are the CI jobs of the suite templates, split as CI splits them
 run node "$TOOL" suites "$CI_FILE" playwright-react chromium
@@ -147,7 +147,7 @@ else
   fail "suites: React Chromium suites" "$OUT"
 fi
 run node "$TOOL" suites "$CI_FILE" playwright-angular chromium
-if printf '%s\n' "$OUT" | grep -q "^SchedulerIT	-	6320	playwright-chromium-scheduler	AngularJS · Scheduler$"; then
+if printf '%s\n' "$OUT" | grep -q "^SchedulerIT	-	6320	playwright-chromium-scheduler	E2E · AngularJS · Chromium · Scheduler$"; then
   pass "suites: tag, port, name and CI job of an AngularJS suite"
 else
   fail "suites: AngularJS suite" "$OUT"
@@ -163,7 +163,7 @@ for template in .playwright-angularjs-firefox .playwright-react-firefox; do
   rules=$(node "$TOOL" rules "$CI_FILE" "$template" 2>&1 || true)
   case "$rules" in
     *CI_MERGE_REQUEST_IID*) fail "rules: $template should not run in merge requests" "$rules" ;;
-    *CI_COMMIT_REF_NAME*) pass "rules: $template runs on develop/master only, not in merge requests" ;;
+    *'$FIREFOX_NIGHTLY == '*) pass "rules: $template runs in the nightly Firefox schedule of develop and on master, not in merge requests" ;;
     *) fail "rules: $template not found" "$rules" ;;
   esac
 done
@@ -188,14 +188,14 @@ cat > "$WORK/ci.yml" <<'EOF'
   rules:
     - <<: *if-mr-shallow
 
-Spotless:
+Lint · Spotless:
   extends: .template
 
-Build website:
+Build · Website:
   rules:
     - !reference [.rules-deep]
 
-Build project:
+Build · Maven:
   rules:
     - if: '$CI_MERGE_REQUEST_IID'
       changes:
@@ -579,9 +579,9 @@ printf '<project>\n  <properties>\n    <otp-java.version>2.1.0</otp-java.version
 platform_case "the required JDK is the java.version of the build" 0 "21" "lci_required_java '$WORK/javaroot'" "2.1.0"
 platform_case "the real build asks for a JDK too" 0 "" "[ -n \"\$(lci_required_java '$ROOT')\" ]"
 if node "$TOOL" jobs "$CI_FILE" | grep -q '^build-jdk'; then
-  fail "jobs: no local job for a removed CI job (Build project:jdk 21)"
+  fail "jobs: no local job for a removed CI job (the JDK 21 build of Build · Maven)"
 else
-  pass "jobs: no local job for a removed CI job (Build project:jdk 21)"
+  pass "jobs: no local job for a removed CI job (the JDK 21 build of Build · Maven)"
 fi
 
 platform_case "the JDK 17 is found among other JDKs" 0 "$WORK/jvm/openjdk-17" \
@@ -634,7 +634,7 @@ platform_case "playwright: the install command runs Playwright's own install-dep
   "sudo \"/jdk/bin/java\" -cp \"/m2/playwright.jar:/m2/driver.jar:/m2/driver-bundle.jar\" com.microsoft.playwright.CLI install-deps chromium firefox" \
   "lci_playwright_deps_command /jdk/bin/java '/m2/playwright.jar:/m2/driver.jar:/m2/driver-bundle.jar' 'chromium firefox'"
 
-# An inherited SERVER_PORT would move the Spring test contexts of All UT and the database jobs off their ports (23
+# An inherited SERVER_PORT would move the Spring test contexts of Unit · Java and the database jobs off their ports (23
 # RestControllerTest failures with SERVER_PORT=8090): the run drops it, and only the browser steps set it, for their app
 platform_case "environment: an inherited SERVER_PORT is dropped" 0 "after=[none]" \
   "export SERVER_PORT=8090; lci_clean_env >/dev/null; echo \"after=[\${SERVER_PORT-none}]\""
@@ -950,7 +950,7 @@ run_locked_with() {
     $2"
 }
 rm -rf "$ORACLE"
-run_locked_with '' 'run_locked no all-ut all-ut "All UT" 40 step_all_ut; echo rc=$?; [ ! -d "$LOCAL_CI_ORACLE_LOCK" ] && echo no-lock'
+run_locked_with '' 'run_locked no all-ut all-ut "Unit · Java" 40 step_all_ut; echo rc=$?; [ ! -d "$LOCAL_CI_ORACLE_LOCK" ] && echo no-lock'
 case "$OUT" in *"ROW-RAN all-ut (all-ut)"*rc=0*no-lock*) text_ok=1 ;; *) text_ok=0 ;; esac
 if [ "$text_ok" -eq 1 ] && [ ! -s "$WORK/rows.tsv" ]; then pass "run_locked: a row that is not Oracle runs at once, without any lock, even while the Oracle lock is held"; else fail "run_locked: plain row" "$OUT"; fi
 write_lock_owner "$ORACLE" other-oracle "$$" "$LIVE_START"
@@ -973,7 +973,7 @@ fi
 rm -rf "$ORACLE"
 run_locked_with 'DEC=skip' 'run_locked yes db-oracle o1 "O1" 60 s; echo rc=$?; [ ! -d "$LOCAL_CI_ORACLE_LOCK" ] && echo no-lock'
 case "$OUT" in *"ROW-RAN o1"*rc=0*no-lock*) pass "run_locked: an Oracle job that is not selected goes straight to run_row (no lock)" ;; *) fail "run_locked: skipped Oracle" "$OUT" ;; esac
-run_locked_with 'ROWRC=1' 'run_locked no all-ut all-ut "All UT" 40 s; echo rc=$?'
+run_locked_with 'ROWRC=1' 'run_locked no all-ut all-ut "Unit · Java" 40 s; echo rc=$?'
 case "$OUT" in *rc=1*) pass "run_locked: the exit code of run_row is passed on" ;; *) fail "run_locked: exit code" "$OUT" ;; esac
 run_locked_with '' 'run_row() { test -f "$LOCAL_CI_ORACLE_LOCK/owner" && echo HELD; return 0; }; run_locked yes db-oracle o1 "O1" 60 s; echo rc=$?; [ ! -d "$LOCAL_CI_ORACLE_LOCK" ] && echo released'
 case "$OUT" in *HELD*rc=0*released*) pass "run_locked: an Oracle row runs holding the Oracle lock, released after" ;; *) fail "run_locked: held" "$OUT" ;; esac
@@ -1030,7 +1030,7 @@ rm -rf "$CLONE_SRC" "$WORK/clone-dst"
 
 # bin/local-ci.sh wiring
 if grep -q 'run_pool "\$DB_PARALLEL" db_item' "$BIN_DIR/local-ci.sh" && grep -q 'in_work all-ut jacoco-all-ut.exec' "$BIN_DIR/local-ci.sh"; then
-  pass "pool: All UT, the embedded DB jobs and the database jobs run through run_pool, each in its own clone"
+  pass "pool: Unit · Java, the embedded DB jobs and the database jobs run through run_pool, each in its own clone"
 else
   fail "pool: local-ci.sh does not run the unit-testing jobs through run_pool"
 fi
@@ -1230,7 +1230,7 @@ if sed -n '/^db_item() {/,/^}/p' "$BIN_DIR/local-ci.sh" | sed -n '/nodocker)/,/;
 if ! grep -q 'System.getProperty' "$ROOT/awe-tests/awe-boot/src/test/java/com/almis/awe/config/TestServerPortEnvironmentPostProcessor.java"; then pass "test port: no redundant System.getProperty guard"; else fail "test port: guard still there"; fi
 
 # --- The Maven arguments of the unit-testing rows are the ones of the CI jobs ---
-# All UT runs the reactor of CI and every database row only awe-boot (#863): a test count that differs from the CI job is a
+# Unit · Java runs the reactor of CI and every database row only awe-boot (#863): a test count that differs from the CI job is a
 # regression. The builders are run here as extracted from the script.
 ut_args_with() { # "$1" FAST value, "$2" code
   run bash -c "
@@ -1242,9 +1242,9 @@ ut_args_with() { # "$1" FAST value, "$2" code
 }
 ut_args_with 0 'all_ut_args | tr "\n" " "'
 if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true " ]; then
-  pass "unit rows: All UT runs the CI module set (the reactor without the two archetypes) with the flags it always had"
+  pass "unit rows: Unit · Java runs the CI module set (the reactor without the two archetypes) with the flags it always had"
 else
-  fail "unit rows: All UT arguments" "$OUT"
+  fail "unit rows: Unit · Java arguments" "$OUT"
 fi
 for profile in h2 mysql oracle-flyway sqlserver; do
   ut_args_with 0 "unit_profile_args $profile | tr '\\n' ' '"
@@ -1257,7 +1257,7 @@ done
 ut_args_with 1 'unit_profile_args mysql | tr "\n" " "'
 case "$OUT" in *"-pl awe-tests/awe-boot -Pmysql"*) pass "unit rows: --fast keeps the database rows on awe-boot" ;; *) fail "unit rows: fast modules" "$OUT" ;; esac
 ut_args_with 1 'all_ut_args | tr "\n" " "'
-case "$OUT" in *"-pl !awe-framework/awe-boot-angular-archetype"*) pass "unit rows: --fast leaves All UT on the CI module set" ;; *) fail "unit rows: All UT under fast" "$OUT" ;; esac
+case "$OUT" in *"-pl !awe-framework/awe-boot-angular-archetype"*) pass "unit rows: --fast leaves Unit · Java on the CI module set" ;; *) fail "unit rows: Unit · Java under fast" "$OUT" ;; esac
 # The database rows mirror the database jobs of .gitlab-ci.yml: they run awe-boot alone, never the reactor
 if grep -q -- '- mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -P$TEST_NAME' "$ROOT/.gitlab-ci.yml"; then
   pass "unit rows: the database jobs of CI run only awe-boot too"
@@ -1499,8 +1499,8 @@ bin/local-ci.sh
 CONTRIBUTING.md" "embedded-db db-mysql db-oracle build" ""
 selection_case "default: an AngularJS client file runs the AngularJS suites and no React ones" "awe-framework/awe-client-angular/src/main/js/a.js" \
   "playwright-angular" "playwright-react embedded-db"
-selection_case "default: a React-only client change runs the AngularJS browser suites as well (the pipeline does: .rules-playwright)" \
-  "awe-framework/awe-client-react/src/A.jsx" "playwright-angular playwright-react" "embedded-db all-ut"
+selection_case "default: a React-only client change runs the React browser suites and not the AngularJS ones (the pipeline does: .rules-playwright-angularjs)" \
+  "awe-framework/awe-client-react/src/A.jsx" "playwright-react" "playwright-angular embedded-db all-ut"
 selection_case "default: an awe-boot-react test change runs both engines and the databases (awe-tests/**)" \
   "awe-tests/awe-boot-react/src/test/A.java" "playwright-angular playwright-react embedded-db db-mysql" ""
 selection_case "default: a samples change runs the backend jobs" "awe-samples/a/src/main/java/A.java" \
@@ -1564,10 +1564,10 @@ chmod +x "$WORK/stub-mvn/mvn"
 run env PATH="$WORK/stub-mvn:$PATH" LOCAL_CI_JDK_DIRS="$WORK/nojvm/*" LOCAL_CI_LOCK="$WORK/test-checkout.lock" LOCAL_CI_JDK21= LOCAL_CI_JDK17= \
   "$BIN_DIR/local-ci.sh" HEAD --only mr-size,spotless
 case "$OUT" in *"MR size warning"*"PASS"*|*"MR size warning"*"WARN"*) mr_ok=1 ;; *) mr_ok=0 ;; esac
-if [ "$RC" -eq 1 ] && [ "$mr_ok" -eq 1 ] && printf '%s' "$OUT" | grep -q 'Spotless .*FAIL .*no JDK'; then
+if [ "$RC" -eq 1 ] && [ "$mr_ok" -eq 1 ] && printf '%s' "$OUT" | grep -q 'Lint · Spotless .*FAIL .*no JDK'; then
   pass "no JDK: the Maven jobs fail with the reason, the others still run"
 else
-  fail "no JDK: whole run refused or wrong rows (exit $RC)" "$(printf '%s\n' "$OUT" | grep -E 'JDK|Spotless|MR size|RESULT')"
+  fail "no JDK: whole run refused or wrong rows (exit $RC)" "$(printf '%s\n' "$OUT" | grep -E 'JDK|Lint · Spotless|MR size|RESULT')"
 fi
 
 
@@ -1635,7 +1635,7 @@ else
   fail "warnings: exit codes per job" "$(cut -f1,5 "$WORK/jobs.tsv")"
 fi
 
-# The default browsers are those of a merge request: Chromium only (Firefox runs on develop and master)
+# The default browsers are those of a merge request: Chromium only (Firefox runs in the nightly schedule of develop and on master)
 if grep -q '^BROWSERS=chromium$' "$BIN_DIR/local-ci.sh"; then pass "browsers: Chromium only by default, as a merge request"; else fail "browsers: the default should be chromium"; fi
 
 # ------------------------------------------------------------
@@ -1648,10 +1648,10 @@ summary_case() { # name, expected exit, expected text, rows (TSV)
   if [ "$RC" -eq "$2" ] && [ "$text_ok" -eq 1 ]; then pass "summary: $1"; else fail "summary: $1 (exit $RC, expected $2, text '$3')" "$OUT"; fi
 }
 TAB=$(printf '\t')
-summary_case "all passed is exit 0" 0 "RESULT: PASS" "build${TAB}Build project${TAB}PASS${TAB}yes${TAB}754${TAB}
-website${TAB}Build website${TAB}SKIP${TAB}no${TAB}0${TAB}not triggered"
-summary_case "a blocking failure is exit 1 and names the job" 1 "RESULT: FAIL (all-ut)" "build${TAB}Build project${TAB}PASS${TAB}yes${TAB}60${TAB}
-all-ut${TAB}All UT${TAB}FAIL${TAB}yes${TAB}61${TAB}tests 10, failed 1, skipped 0"
+summary_case "all passed is exit 0" 0 "RESULT: PASS" "build${TAB}Build · Maven${TAB}PASS${TAB}yes${TAB}754${TAB}
+website${TAB}Build · Website${TAB}SKIP${TAB}no${TAB}0${TAB}not triggered"
+summary_case "a blocking failure is exit 1 and names the job" 1 "RESULT: FAIL (all-ut)" "build${TAB}Build · Maven${TAB}PASS${TAB}yes${TAB}60${TAB}
+all-ut${TAB}Unit · Java${TAB}FAIL${TAB}yes${TAB}61${TAB}tests 10, failed 1, skipped 0"
 summary_case "a warning does not fail" 0 "1 warnings" "mr-size${TAB}MR size warning${TAB}WARN${TAB}yes${TAB}1${TAB}"
 summary_case "a non-blocking failure shows as a warning" 0 "Sonar rules guard (local)  WARN" "sonar-rules${TAB}Sonar rules guard (local)${TAB}FAIL${TAB}no${TAB}1${TAB}"
 summary_case "durations are added up" 0 "1h01m" "a${TAB}A${TAB}PASS${TAB}yes${TAB}3600${TAB}

@@ -93,7 +93,7 @@ ellas `react-router` (de 7.13.2 a 7.18.2), `i18next-http-backend` (de 2.6.1 a 4.
 (de 10.9.8 a 10.9.9) y `@reduxjs/toolkit` (de 1.9.5 a 1.9.7). Si su aplicación declara alguno de estos paquetes por sí
 misma, alinee las versiones con las del cliente para evitar dos copias en el bundle. Las versiones se listan en el
 `package.json` del paquete publicado, y las dependencias de ejecución publicadas también se listan en el SBOM CycloneDX
-conservado como artefacto del job `Publish npm` de cada etiqueta de publicación (consulte
+conservado como artefacto del job `Deploy · npm` de cada etiqueta de publicación (consulte
 [Líneas de versiones y soporte](release-lines-and-support.md#npm-package)).
 
 ### Otros cambios {#other-changes}

@@ -3,7 +3,7 @@
 // local-ci-tool.mjs
 //
 // The pure logic of bin/local-ci.sh, kept apart so bin/test-local-ci.sh can test it without Maven, Docker or a browser.
-// Node.js only, no dependencies (it runs in the "MR checks tests" job image as well as on a laptop).
+// Node.js only, no dependencies (it runs in the "MR · Script tests" job image as well as on a laptop).
 //
 //   node bin/local-ci-tool.mjs jobs                                  the local jobs: id, label, blocking, CI jobs
 //   node bin/local-ci-tool.mjs rules <ci-file> <ci-job>              the merge-request rules of a CI job, resolved
@@ -29,31 +29,31 @@ import { fileURLToPath } from 'node:url';
 // suites: one CI job per suite). An empty "ci" list is a local check that runs for every merge request (the title, size and
 // translation checks stopped being pipeline jobs, so they never block here either). "warn" lists the exit codes that are a
 // warning, not a failure; without it they come from the allow_failure of the CI job (exit_codes, or "any" for true), as in
-// GitLab. The local checks that only borrow the rules of a CI job ("Launch Sonar") set their own.
+// GitLab. The local checks that only borrow the rules of a CI job ("Analysis · Sonar") set their own.
 // ------------------------------------------------------------
 export const JOBS = [
   { id: 'title', label: 'MR title lint (local)', ci: [], blocking: false, warn: '' },
   { id: 'mr-size', label: 'MR size warning (local)', ci: [], blocking: false, warn: '64' },
-  { id: 'mr-docs', label: 'MR docs warning', ci: ['MR docs warning'], blocking: true },
+  { id: 'mr-docs', label: 'MR · Docs warning', ci: ['MR · Docs warning'], blocking: true },
   { id: 'mr-translations', label: 'MR translation drift (local)', ci: [], blocking: false, warn: '64' },
-  { id: 'mr-checks-tests', label: 'MR checks tests', ci: ['MR checks tests'], blocking: true },
-  { id: 'sonar-rules', label: 'Sonar rules guard (local)', ci: ['Launch Sonar'], blocking: false, warn: '64' },
-  { id: 'spotless', label: 'Spotless', ci: ['Spotless'], blocking: true },
-  { id: 'secret-detection', label: 'Secret detection (gitleaks, local)', ci: ['Secret detection'], blocking: false, warn: 'any' },
-  { id: 'lint-frontend', label: 'Lint frontend', ci: ['Lint frontend'], blocking: true },
-  { id: 'spanish-docs-lint', label: 'Spanish docs lint', ci: ['Spanish docs lint'], blocking: true },
-  { id: 'build', label: 'Build project (JDK 17)', ci: ['Build project'], blocking: true },
-  { id: 'all-ut', label: 'All UT', ci: ['All UT'], blocking: true },
-  { id: 'embedded-db', label: 'Embedded DB Tests', ci: ['Embedded DB Tests'], blocking: true },
-  { id: 'db-mysql', label: 'MySQL Tests', ci: ['MySQL Tests'], blocking: true },
-  { id: 'db-postgresql', label: 'PostgreSQL Tests', ci: ['PostgreSQL Tests'], blocking: true },
-  { id: 'db-sqlserver', label: 'SQL Server Tests', ci: ['SQL Server Tests'], blocking: true },
-  { id: 'db-oracle', label: 'Oracle Tests', ci: ['Oracle Tests'], blocking: true },
-  { id: 'frontend-ut', label: 'Frontend UT', ci: ['Frontend UT'], blocking: true },
-  { id: 'frontend-ut-react', label: 'Frontend UT React', ci: ['Frontend UT React'], blocking: true },
-  { id: 'javadoc', label: 'Javadoc test', ci: ['Javadoc test'], blocking: true },
-  { id: 'coverage', label: 'New-code coverage (Sonar gate)', ci: ['Launch Sonar'], blocking: true, warn: '' },
-  { id: 'website', label: 'Build website (+es, 4.x, anchors)', ci: ['Build website'], blocking: true },
+  { id: 'mr-checks-tests', label: 'MR · Script tests', ci: ['MR · Script tests'], blocking: true },
+  { id: 'sonar-rules', label: 'Sonar rules guard (local)', ci: ['Analysis · Sonar'], blocking: false, warn: '64' },
+  { id: 'spotless', label: 'Lint · Spotless', ci: ['Lint · Spotless'], blocking: true },
+  { id: 'secret-detection', label: 'Security · Secrets (gitleaks, local)', ci: ['Security · Secrets'], blocking: false, warn: 'any' },
+  { id: 'lint-frontend', label: 'Lint · Frontend', ci: ['Lint · Frontend'], blocking: true },
+  { id: 'spanish-docs-lint', label: 'Lint · Spanish docs', ci: ['Lint · Spanish docs'], blocking: true },
+  { id: 'build', label: 'Build · Maven (JDK 17)', ci: ['Build · Maven'], blocking: true },
+  { id: 'all-ut', label: 'Unit · Java', ci: ['Unit · Java'], blocking: true },
+  { id: 'embedded-db', label: 'Database · H2 and HSQL', ci: ['Database · H2', 'Database · H2 · Flyway', 'Database · HSQL · Flyway'], blocking: true },
+  { id: 'db-mysql', label: 'Database · MySQL', ci: ['Database · MySQL', 'Database · MySQL · Flyway'], blocking: true },
+  { id: 'db-postgresql', label: 'Database · PostgreSQL', ci: ['Database · PostgreSQL', 'Database · PostgreSQL · Flyway'], blocking: true },
+  { id: 'db-sqlserver', label: 'Database · SQL Server', ci: ['Database · SQL Server', 'Database · SQL Server · Flyway'], blocking: true },
+  { id: 'db-oracle', label: 'Database · Oracle', ci: ['Database · Oracle', 'Database · Oracle · Flyway'], blocking: true },
+  { id: 'frontend-ut', label: 'Unit · AngularJS', ci: ['Unit · AngularJS'], blocking: true },
+  { id: 'frontend-ut-react', label: 'Unit · React', ci: ['Unit · React'], blocking: true },
+  { id: 'javadoc', label: 'Docs · Javadoc check', ci: ['Docs · Javadoc check'], blocking: true },
+  { id: 'coverage', label: 'New-code coverage (Sonar gate)', ci: ['Analysis · Sonar'], blocking: true, warn: '' },
+  { id: 'website', label: 'Build · Website (+es, 4.x, anchors)', ci: ['Build · Website'], blocking: true },
   { id: 'playwright-angular', label: 'AngularJS browser suites', ci: ['.playwright-angularjs-chromium'], blocking: true },
   { id: 'playwright-react', label: 'React browser suites', ci: ['.playwright-react-chromium'], blocking: true },
 ];
@@ -398,8 +398,9 @@ export function evaluateJob(ci, ciJob, changed, variables = mergeRequestVariable
 // request pipeline runs, so a pass here no longer predicts a pass there for the jobs it drops:
 //  - a change of .gitlab-ci.yml alone does not trigger them (the pipeline does: the file is in every rules:changes list);
 //  - the database jobs run only when a module that their profiles exercise changed (the framework modules and awe-boot);
-//  - the AngularJS browser suites do not run for a change that is only in the React client or awe-boot-react, and the React
-//    suites do not run for a change that is only in the AngularJS client or awe-boot.
+//  - the AngularJS browser suites do not run for a change that is only in awe-boot-react (the pipeline already skips them
+//    for a change that is only in the React client), and the React suites do not run for a change that is only in awe-boot
+//    (the pipeline already skips them for a change that is only in the AngularJS client).
 export const FAST_HEAVY = ['all-ut', 'embedded-db', 'db-mysql', 'db-postgresql', 'db-sqlserver', 'db-oracle', 'javadoc',
   'playwright-angular', 'playwright-react'];
 const FAST_DATABASE = ['embedded-db', 'db-mysql', 'db-postgresql', 'db-sqlserver', 'db-oracle'];

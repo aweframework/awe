@@ -90,7 +90,7 @@ The client installs its own dependencies, and several of them were updated since
 (10.9.8 to 10.9.9) and `@reduxjs/toolkit` (1.9.5 to 1.9.7). If your application declares any of these packages itself,
 align the versions with the ones of the client to avoid two copies in the bundle. The versions are listed in the
 `package.json` of the published package, and the published runtime dependencies are also listed in the CycloneDX SBOM
-kept as an artifact of the `Publish npm` job of each release tag (see
+kept as an artifact of the `Deploy · npm` job of each release tag (see
 [Release Lines and Support](release-lines-and-support.md#npm-package)).
 
 ### Other changes

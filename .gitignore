@@ -153,7 +153,7 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # Playwright browsers installed by the CI job of the unit tests
 .playwright-browsers/
 
-# npm cache of the "Lint frontend" CI job
+# npm cache of the "Lint · Frontend" CI job
 /.npm-lint/
 
 # The private Maven repository of a checkout (bin/local-ci.sh and the CI jobs: -Dmaven.repo.local=.m2/repository)

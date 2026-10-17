@@ -128,7 +128,7 @@
       "allowedVersions": "<1.6.0"
     },
     {
-      "description": "The website stays on webpack 5.104.1: webpack 5.111.1 rejects the ProgressPlugin options that Docusaurus 3.8.1 passes, so Build website fails (closed !984). Lift this when Docusaurus supports a newer webpack.",
+      "description": "The website stays on webpack 5.104.1: webpack 5.111.1 rejects the ProgressPlugin options that Docusaurus 3.8.1 passes, so Build · Website fails (closed !984). Lift this when Docusaurus supports a newer webpack.",
       "matchFileNames": [
         "website/package.json"
       ],

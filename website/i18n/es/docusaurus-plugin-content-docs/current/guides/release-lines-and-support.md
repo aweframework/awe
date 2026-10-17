@@ -39,41 +39,45 @@ siempre procede de `support/4.x`, y una etiqueta `v5.y.z` (o posterior) siempre 
 | Job / área | `develop` | `master` | `support/4.x` | Merge request |
 |---|---|---|---|---|
 | Compilación, pruebas unitarias/de BD/de frontend, javadoc | sí | sí | sí | sí |
-| Análisis de dependencias | sí | sí | sí | sí |
+| `Security · Dependencies` | sí | sí | sí | sí |
 | Lint del título de la merge request (bloqueante) y aviso de tamaño | no | no | no | sí |
-| Pruebas de integración de navegador con Playwright | sí | sí | no | sí (solo Chromium) |
+| Pruebas de integración de navegador con Playwright | sí (Firefox: solo pipeline nocturna programada) | sí | no | sí (solo Chromium, suites del motor modificado) |
 | Pruebas de integración de navegador con Selenium | solo pipeline semanal programada | sí | sí | no |
 | Análisis de Sonar (`sonar.branch.name` definido) | sí | sí | sí | sí (análisis de MR) |
-| Generar javadoc y esquemas | sí | sí | sí | no |
-| Construir paquete (imagen de Docker) | sí | sí | sí | no |
+| `Docs · Javadoc & schemas` | sí | sí | sí | no |
+| `Package · Docker images` (imagen de Docker) | sí | sí | sí | no |
 | Etiquetas flotantes de Docker (`4`, `4.12`) | no | no | sí | no |
-| Desplegar snapshot | sí | no | sí | no |
-| Iniciar una nueva versión (manual) | sí | no | sí | no |
-| Desplegar a preproducción / producción (Kubernetes) | no | sí (prod) | no | no |
+| `Deploy · Maven snapshot` | sí | no | sí | no |
+| `Release · Start` (manual) | sí | no | sí | no |
+| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | no | sí (prod) | no | no |
 | DAST | no | sí | no | no |
 | GitLab Pages (sitio de documentación) | sí | sí | no | no |
 | Pipeline de etiqueta (Maven Central, hitos, notas de versión) | en etiqueta | en etiqueta | en etiqueta | no |
 
 Las suites de navegador se ejecutan con dos herramientas, y ambas son bloqueantes allí donde se ejecutan: una suite
-fallida hace fallar la pipeline, detiene `Launch Sonar` (y con él los jobs de publicación) e impide que Renovate haga
+fallida hace fallar la pipeline, detiene `Analysis · Sonar` (y con él los jobs de publicación) e impide que Renovate haga
 automerge. Una prueba inestable se vuelve a ejecutar sola una vez y se informa como inestable; una prueba que falla dos
 veces hace fallar el job, y un job solo se reintenta cuando falla el runner (no ante un fallo de prueba ni un tiempo de
 espera agotado).
 
-- **Playwright** (jobs llamados `<motor> · <suite>` para Chromium, como `React · Scheduler`, y
-  `<motor> · Firefox · <suite>` para Firefox, como `AngularJS · Firefox · Scheduler`, cada uno contra la aplicación
+- **Playwright** (jobs llamados `E2E · <motor> · Chromium · <suite>`, como `E2E · React · Chromium · Scheduler`, y
+  `E2E · <motor> · Firefox · <suite>`, como `E2E · AngularJS · Firefox · Scheduler`, cada uno contra la aplicación
   AngularJS y la aplicación React) es la herramienta de navegador de la pipeline diaria: merge requests con cambios de
   código, `develop` y `master`. No se ejecuta en `support/*`: `support/4.x` no tiene adaptador de Playwright. Las merge
-  requests ejecutan solo los jobs de Chromium (los que no llevan navegador en el nombre); los de Firefox y su job de
-  caché del navegador se ejecutan en `develop` y `master`.
-- **Selenium** (jobs llamados `<motor> · Chrome · <suite>` y `<motor> · Firefox (Selenium) · <suite>`, cada uno contra la
+  requests ejecutan solo los jobs de Chromium (los que llevan Chromium en el nombre), y solo los del motor cuyo
+  código cambió: una merge request que solo cambia el cliente React (`awe-framework/awe-client-react`) omite los jobs
+  de AngularJS, y una que solo cambia el cliente AngularJS omite los de React. Los jobs de Firefox y su job de caché del
+  navegador se ejecutan en `master` y, en `develop`, solo en las pipelines de la **programación de pipeline «Nightly
+  Firefox»**, que debe definir la variable `FIREFOX_NIGHTLY=true` (CI/CD, Schedules). Esa pipeline ejecuta solo
+  `Build · Maven`, `Build · Firefox cache` y los ocho jobs de Firefox; un push ordinario a `develop` no los ejecuta.
+- **Selenium** (jobs llamados `Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`, cada uno contra la
   aplicación AngularJS y la aplicación React) se ejecuta en `master`, en `support/*` y en las pipelines de la **programación de pipeline
   «Weekly Check» en `develop`**. No se ejecuta en merge requests ni en un push ordinario a `develop`. La programación es
   un ajuste del proyecto en GitLab (CI/CD, Schedules), no un archivo del repositorio; la programación «Renovate»
-  ejecuta solo el job de Renovate.
+  ejecuta solo el job de Renovate, y la programación «Nightly Firefox» solo los jobs de Firefox de Playwright.
 
 Cada herramienta ejecuta los mismos cuatro grupos de suites dos veces: contra la aplicación de pruebas AngularJS
-(`awe-tests/awe-boot`) y contra la aplicación de pruebas del motor React (`awe-tests/awe-boot-react`). `Launch Sonar`
+(`awe-tests/awe-boot`) y contra la aplicación de pruebas del motor React (`awe-tests/awe-boot-react`). `Analysis · Sonar`
 espera a los jobs de navegador que se hayan ejecutado en la pipeline (ambas herramientas en `master` y en la
 programación semanal de `develop`).
 
@@ -88,30 +92,30 @@ comportan igual tanto si la etiqueta procede de `develop` como de `support/4.x`.
 Las pipelines de merge request son selectivas: los jobs se añaden según las rutas que toca la merge request. Un cambio
 limitado a `website/` construye solo el sitio de documentación; un cambio limitado a
 `awe-framework/awe-client-angular/` ejecuta las pruebas unitarias del frontend, las suites de Playwright de AngularJS en Chromium,
-Sonar y el análisis de dependencias, pero no la matriz de bases de datos ni las suites de Playwright de React; un
+Sonar y el análisis de dependencias, pero no los jobs de bases de datos ni las suites de Playwright de React; un
 cambio limitado a `awe-framework/awe-client-react/` ejecuta las pruebas unitarias y el lint de React, ambos conjuntos
-de suites de Playwright en Chromium (AngularJS y React), Sonar y el análisis de dependencias; un cambio de backend ejecuta la compilación, la matriz de
+de suites de Playwright en Chromium (AngularJS y React), Sonar y el análisis de dependencias; un cambio de backend ejecuta la compilación, los jobs de
 bases de datos, ambos conjuntos de suites de Playwright en Chromium (AngularJS y React), Sonar, el análisis de dependencias y la comprobación de
 javadoc, pero ni las pruebas unitarias del frontend ni la compilación de la documentación. Un cambio en
 `.gitlab-ci.yml` cuenta como si tocara todo; un cambio en el `pom.xml` raíz cuenta como un cambio de backend. Las
 pipelines de rama en `develop`, `master` y `support/*` ejecutan siempre el conjunto completo, salvo que cada rama
 ejecuta solo las herramientas de navegador indicadas arriba. Las pipelines de merge request son interrumpibles, por lo
 que un nuevo push cancela automáticamente la pipeline superada; las pipelines de ramas protegidas no se cancelan. Los
-jobs de base de datos y de navegador se generan a partir de definiciones `parallel:matrix` (`Embedded DB Tests`, un job
-por motor de base de datos con y sin Flyway, los jobs de navegador de Playwright y Selenium por suite), y cada job tiene
-un tiempo límite de aproximadamente el doble de su duración observada.
+jobs de base de datos y de navegador son jobs explícitos, no definiciones `parallel:matrix`, de modo que su nombre dice qué
+ejecutan: un job por perfil de base de datos (`Database · H2`, `Database · MySQL · Flyway`, ...) y uno por suite de navegador
+de Playwright o Selenium, y cada job tiene un tiempo límite de aproximadamente el doble de su duración observada.
 
 Las ramas de soporte deben ser **ramas protegidas** en GitLab (el patrón `support/*` se protege con la misma política
-que `develop`). Las credenciales que usan `Build package` (Docker Hub), `Deploy snapshot` (repositorio Maven) y el job
+que `develop`). Las credenciales que usan `Package · Docker images` (Docker Hub), `Deploy · Maven snapshot` (repositorio Maven) y el job
 de publicación (token de API, claves GPG, identidad de git) son variables de CI protegidas, y GitLab solo las inyecta
 en pipelines de referencias protegidas. En una rama de soporte sin proteger esos jobs fallan con un login de Docker
 vacío y un `401 Unauthorized` del repositorio Maven.
 
 ## Título y tamaño de la merge request {#merge-request-title-and-size}
 
-La etapa `lint` ejecuta jobs rápidos en cada pipeline de merge request, en paralelo con la construcción: `MR docs warning`
-(véase [Aviso de documentación](#docs-warning-not-blocking)), [`Markdown lint`](#markdown-lint) y, en las merge requests que modifican un cliente,
-[`Lint frontend`](#frontend-lint-blocking). Las comprobaciones de título, tamaño y desfase de traducción **no** son jobs
+La etapa `lint` ejecuta jobs rápidos en cada pipeline de merge request, en paralelo con la construcción: `MR · Docs warning`
+(véase [Aviso de documentación](#docs-warning-not-blocking)), [`Lint · Markdown`](#markdown-lint) y, en las merge requests que modifican un cliente,
+[`Lint · Frontend`](#frontend-lint-blocking). Las comprobaciones de título, tamaño y desfase de traducción **no** son jobs
 de la pipeline: son scripts que se pueden ejecutar en local, descritos a continuación.
 
 ### Formato del título (comprobación local) {#title-format-blocking}
@@ -168,7 +172,7 @@ bin/mr-size.sh origin/develop   # base to compare with; head is HEAD
 
 ### Aviso de documentación (no bloqueante) {#docs-warning-not-blocking}
 
-El job `MR docs warning` forma parte de la definición de terminado: la documentación cambia junto con el código. Avisa
+El job `MR · Docs warning` forma parte de la definición de terminado: la documentación cambia junto con el código. Avisa
 cuando una merge request cambia código (`awe-framework/`, `awe-samples/`, `bin/` o `pom.xml`, sin fuentes de prueba,
 archivos de bloqueo ni markdown) pero no cambia documentación (`website/`, `CONTRIBUTING.md`, `README.md` o
 `AGENTS.md`) y no dice por qué no hace falta ninguna. Como el aviso de tamaño, termina con código de salida 64, que
@@ -199,12 +203,12 @@ desfasada, o 0. Ejecútelo con:
 bin/mr-translations.sh origin/develop
 ```
 
-`bin/test-mr-checks.sh` prueba los cuatro scripts; el job `MR checks tests` lo ejecuta en las merge requests que los
+`bin/test-mr-checks.sh` prueba los cuatro scripts; el job `MR · Script tests` lo ejecuta en las merge requests que los
 modifican.
 
 ### Lint de la documentación en español (bloqueante) {#spanish-docs-lint}
 
-Las merge requests construyen solo el sitio en inglés, así que el job `Spanish docs lint` comprueba la traducción al español sin
+Las merge requests construyen solo el sitio en inglés, así que el job `Lint · Spanish docs` comprueba la traducción al español sin
 construirla. Ejecuta `npm --prefix website run check:translations` en las merge requests que cambian `website/`, en
 pocos segundos, y falla cuando una página en español bajo `website/i18n/es/docusaurus-plugin-content-docs/current`:
 
@@ -218,7 +222,7 @@ Ejecútelo en local con `npm --prefix website run check:translations`, seguido o
 
 ### Lint de Markdown (no bloqueante) {#markdown-lint}
 
-El job `Markdown lint` ejecuta [markdownlint](https://github.com/DavidAnson/markdownlint) sobre las páginas en inglés y en
+El job `Lint · Markdown` ejecuta [markdownlint](https://github.com/DavidAnson/markdownlint) sobre las páginas en inglés y en
 español y sobre el blog, en las merge requests que cambian un archivo Markdown bajo `website/` o su configuración
 (`website/.markdownlint-cli2.jsonc`). Puede fallar sin bloquear: el pipeline muestra un aviso naranja y la merge nunca queda
 bloqueada. La configuración desactiva las reglas que chocan con Docusaurus y MDX (longitud de línea, HTML y JSX en línea,
@@ -231,7 +235,7 @@ Ejecútelo en local con `npm --prefix website run lint:md`, o compruebe solo alg
 
 ## Lint del frontend (bloqueante) {#frontend-lint-blocking}
 
-El job `Lint frontend` ejecuta [ESLint](https://eslint.org/) en ambos motores de frontend, el cliente AngularJS
+El job `Lint · Frontend` ejecuta [ESLint](https://eslint.org/) en ambos motores de frontend, el cliente AngularJS
 (`awe-client-angular`) y el cliente React (`awe-client-react`), en la etapa `lint`, de modo que un fallo se muestra en
 alrededor de un minuto, antes de que empiecen las pruebas unitarias. Se ejecuta en las merge requests que cambian un
 cliente y en `develop`, `master` y `support/*`.
@@ -248,16 +252,16 @@ npm --prefix awe-framework/awe-client-react run lint:ci
 
 La compilación de Maven ejecuta el mismo `lint:ci` antes de las pruebas unitarias, por lo que `mvn test` falla en local
 con el mismo límite. La CI omite ese paso de Maven (`-Dskip.lint=true`, definido en `MAVEN_CLI_OPTS`), porque
-`Lint frontend` ya lo ejecutó: el lint se ejecuta una vez por pipeline.
+`Lint · Frontend` ya lo ejecutó: el lint se ejecuta una vez por pipeline.
 
 ## Ejecutar la pipeline en local {#run-the-pipeline-locally}
 
 `bin/local-ci.sh` ejecuta en tu equipo los jobs que la pipeline de la merge request ejecutaría para tu rama. Los elige con
 las `rules:changes` de `.gitlab-ci.yml` y añade la puerta de cobertura de SonarCloud (80 % de las líneas nuevas) y un aviso
 para algunas reglas de Sonar. `bin/local-ci.sh --list` muestra qué lanzan tus cambios y por qué. Las suites de navegador se
-ejecutan en Chromium, como en una merge request (`--browsers firefox` añade las suites de Firefox de `develop`).
+ejecutan en Chromium, como en una merge request (`--browsers firefox` añade las suites de Firefox de la programación nocturna).
 
-Los jobs de pruebas unitarias (All UT, Embedded DB Tests y los de bases de datos) se ejecutan de tres en tres, cada uno en un
+Los jobs de pruebas unitarias (Unit · Java y los de bases de datos) se ejecutan de tres en tres, cada uno en un
 clon de tu checkout (`LOCAL_CI_DB_PARALLEL`, 3 por defecto; `1` los ejecuta uno tras otro). El contexto de pruebas de `awe-boot`
 escucha en un puerto aleatorio y cada suite de navegador elige puertos libres para su aplicación, así que las ejecuciones de
 distintos checkouts no se esperan entre sí; en la máquina solo corre un contenedor de Oracle, y `LOCAL_CI_BROWSER_PARALLEL`
@@ -282,15 +286,15 @@ etiqueta flotante `latest`. [Renovate](#dependency-updates) es el responsable de
 estos fijados (incluyendo la resolución de nuevo de los digests), por lo que un fijado nunca se actualiza editando
 `latest` a mano.
 
-`Build project` genera un SBOM CycloneDX (`target/awe-sbom.json`) para todo el reactor de Maven con el
-`cyclonedx-maven-plugin`. Se publica como artefacto de la pipeline, y `Build package` adjunta ese mismo SBOM a la imagen
+`Build · Maven` genera un SBOM CycloneDX (`target/awe-sbom.json`) para todo el reactor de Maven con el
+`cyclonedx-maven-plugin`. Se publica como artefacto de la pipeline, y `Package · Docker images` adjunta ese mismo SBOM a la imagen
 `awe-boot` enviada al registro de GitLab como una atestación de [cosign](https://github.com/sigstore/cosign), de modo
 que el SBOM viaja con la propia imagen, no solo con la ejecución de la pipeline. No se declara como informe `cyclonedx`
 de GitLab a propósito: la lista de dependencias solo acepta SBOM que llevan las propiedades CycloneDX propias de GitLab
 y ya la alimenta el job de análisis de dependencias `gemnasium`, que cubre el mismo reactor de Maven. El cliente React
-tiene su propio SBOM CycloneDX, generado por el job `Publish npm` (consulte [paquete npm](#npm-package)).
+tiene su propio SBOM CycloneDX, generado por el job `Deploy · npm` (consulte [paquete npm](#npm-package)).
 
-`Build package` también firma las imágenes `awe-boot` y `awe-boot-react` sin clave, usando la propia identidad OIDC de
+`Package · Docker images` también firma las imágenes `awe-boot` y `awe-boot-react` sin clave, usando la propia identidad OIDC de
 GitLab (`id_tokens: SIGSTORE_ID_TOKEN`) en lugar de una clave privada almacenada: tanto la imagen del registro de
 GitLab como la imagen de Docker Hub se firman por digest, una sola vez, ya que todas las etiquetas flotantes
 (`$PROJECT_VERSION`, y en las ramas `support/*` los alias mayor/mayor.menor) apuntan a ese mismo digest.
@@ -316,11 +320,11 @@ Los mismos comandos verifican `awe-boot-react`. El SBOM adjunto a ambas imágene
 
 Los escáneres se ejecutan en distintos puntos de la pipeline:
 
-- **El análisis de dependencias** (`Dependency scanning`) se ejecuta en merge requests y en las
+- **El análisis de dependencias** (`Security · Dependencies`) se ejecuta en merge requests y en las
   pipelines de rama `develop`/`master`/`support/*`, como antes.
-- **La detección de secretos** (`Secret detection`) se ejecuta en cada merge request y en cada pipeline de rama.
+- **La detección de secretos** (`Security · Secrets`) se ejecuta en cada merge request y en cada pipeline de rama.
 - **El análisis de contenedores** (`container_scanning`) se ejecuta solo en las pipelines de rama `develop`, `master` y
-  `support/*`, después de que `Build package` haya enviado la imagen; tiene `allow_failure: true` durante las primeras
+  `support/*`, después de que `Package · Docker images` haya enviado la imagen; tiene `allow_failure: true` durante las primeras
   semanas tras su adopción, de modo que los hallazgos aparecen sin bloquear las publicaciones, y se endurecerá una vez
   clasificados.
 
@@ -391,12 +395,12 @@ de rama, por lo que sus fijados del Dockerfile los integra una persona.
    los Developers pueden integrar en `develop`, y «Prevent editing approval rules in merge requests» está desactivado
    (Renovate levanta la regla de aprobación añadiendo una regla de cero aprobaciones a sus propias merge requests). Si
    cualquiera de los dos cambia, las merge requests del bot simplemente permanecen abiertas.
-5. El job `Validate renovate config` se ejecuta en cada merge request que toca `renovate.json`. En local, desde la raíz
+5. El job `Lint · Renovate config` se ejecuta en cada merge request que toca `renovate.json`. En local, desde la raíz
    del repositorio, ejecute `npx --yes --package renovate -- renovate-config-validator --strict`.
 
 ## Publicar desde una rama de soporte {#releasing-from-a-support-branch}
 
-Las publicaciones se lanzan con el job manual `Start a new release` de la pipeline, en una pipeline de push de
+Las publicaciones se lanzan con el job manual `Release · Start` de la pipeline, en una pipeline de push de
 `support/4.x` (no una pipeline de merge request). El job despacha según la rama: `develop` sigue ejecutando
 `mvn gitflow:release`; cualquier rama `support/*` ejecuta en su lugar `bin/support-release.sh`.
 
@@ -453,21 +457,21 @@ explícita o, deliberadamente, uno de estos alias flotantes. La imagen `awe-boot
 
 ## Imagen de la aplicación de pruebas React {#react-test-application-image}
 
-`Build package` construye una segunda imagen, `awe-boot-react`, a partir de `awe-tests/awe-boot-react`: la aplicación de
+`Package · Docker images` construye una segunda imagen, `awe-boot-react`, a partir de `awe-tests/awe-boot-react`: la aplicación de
 pruebas que se ejecuta sobre el motor React, la contraparte de `awe-boot`. Sigue las mismas reglas que `awe-boot`
 (construida en `develop`, `master` y `support/*`, con las mismas etiquetas, registro de GitLab
 `registry.gitlab.com/aweframework/awe/awe-boot-react` y Docker Hub `aweframework/awe-boot-react`, firmada por digest y
-con la atestación del SBOM). Un job aparte, `Build React package`, empaqueta su jar a partir de los módulos y del bundle
-del cliente construido por `Build project`. Ningún job de despliegue usa esta imagen: preproducción y producción
+con la atestación del SBOM). Un job aparte, `Package · React jar`, empaqueta su jar a partir de los módulos y del bundle
+del cliente construido por `Build · Maven`. Ningún job de despliegue usa esta imagen: preproducción y producción
 despliegan solo `awe-boot`.
 
 ## Paquete npm {#npm-package}
 
 El cliente React se publica en npm como [`awe-react-client`](https://www.npmjs.com/package/awe-react-client) mediante el
-job `Publish npm`. No se publica en un repositorio Maven.
+job `Deploy · npm`. No se publica en un repositorio Maven.
 
 - **Cuándo.** Solo en las pipelines de las etiquetas de publicación de la línea 5.x y posteriores (`v5.*`, `v6.*`...),
-  después de que `Deploy Maven Central` haya tenido éxito. Una etiqueta `v4.*` de `support/4.x` nunca lo publica,
+  después de que `Deploy · Maven Central` haya tenido éxito. Una etiqueta `v4.*` de `support/4.x` nunca lo publica,
   porque esa línea no tiene cliente React.
 - **Versión.** La etiqueta sin la `v`: `v5.0.0` publica `awe-react-client@5.0.0`, que es también la versión de Maven del
   commit etiquetado. El job construye el cliente con esa versión y falla si el `dist/package.json` generado no lleva

@@ -101,7 +101,7 @@ if [[ -n "${CI_COMMIT_REF_NAME:-}" ]]; then
   if git rev-parse -q --verify "refs/heads/$SUPPORT_BRANCH" >/dev/null; then
     git merge-base --is-ancestor "origin/$SUPPORT_BRANCH" "refs/heads/$SUPPORT_BRANCH" \
       || fail "local branch $SUPPORT_BRANCH lacks commits of origin/$SUPPORT_BRANCH (the branch moved after the pipeline started, or the workspace holds a leftover branch); start the release from a new pipeline."
-    # The Start a new release job resets the branch to CI_COMMIT_SHA before release.sh, so in CI the
+    # The Release · Start job resets the branch to CI_COMMIT_SHA before release.sh, so in CI the
     # only commit ahead of the pipeline commit is this job's "Generated CHANGELOG". Leftovers from
     # earlier jobs are therefore removed by the job itself; this check catches a missing reset.
     if [[ -n "${CI_COMMIT_SHA:-}" ]]; then

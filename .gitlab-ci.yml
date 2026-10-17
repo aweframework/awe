@@ -13,8 +13,8 @@ include:
 # request and feature branches, and on develop pushes, where merges often come in a row and only the newest commit matters.
 # A job that publishes, deploys or must see every commit (secret detection) sets interruptible: false and always finishes;
 # a job whose needs were cancelled does not start. Never cancelled: scheduled pipelines (the weekly develop pipeline runs
-# the Selenium suites), develop pipelines started from Run pipeline, the API or a trigger, and the other protected
-# branches (master, support/*), where every commit keeps its full pipeline.
+# the Selenium suites, the nightly one the Firefox Playwright suites), develop pipelines started from Run pipeline, the API or
+# a trigger, and the other protected branches (master, support/*), where every commit keeps its full pipeline.
 workflow:
   auto_cancel:
     on_new_commit: interruptible
@@ -45,15 +45,15 @@ default:
 # - light: short checks, about 2 GB of memory. medium: medium jobs on a slow machine with about 4 GB.
 # - large: the big general runners. shared-cache: the runners on the shared S3 cache of the local network.
 # A runner takes a job only if it has every tag the job asks for, and untagged jobs only if it runs untagged jobs.
-# - light: the merge request checks, Lint frontend, Spanish docs lint, secret detection, the release API jobs.
-# - medium: Spotless, Frontend UT (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate.
-# - large and shared-cache are not requested by any job: Build project and Launch Sonar run untagged, Javadoc test on
-#   medium and the Playwright browser downloads on light, so any online runner can take them. Javadoc test gets the
-#   AWE SNAPSHOT jars as Build project artifacts. Launch Sonar reads the ones Build project leaves in the Maven cache; on
+# - light: the merge request checks, Lint · Frontend, Lint · Spanish docs, Security · Secrets, the release API jobs.
+# - medium: Lint · Spotless, Unit · AngularJS (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate.
+# - large and shared-cache are not requested by any job: Build · Maven and Analysis · Sonar run untagged, Docs · Javadoc check on
+#   medium and the Playwright browser downloads on light, so any online runner can take them. Docs · Javadoc check gets the
+#   AWE SNAPSHOT jars as Build · Maven artifacts. Analysis · Sonar reads the ones Build · Maven leaves in the Maven cache; on
 #   a runner outside the shared S3 cache that cache may be empty.
-# - untagged: Maven builds other than Build project, database, Selenium, Playwright and package jobs, the website build and
+# - untagged: Maven builds other than Build · Maven, database, Selenium, Playwright and package jobs, the website build and
 #   the React Jest suite (it times out on the slow medium runner). They do not need the shared cache: they build what they
-#   need or get the jars as Build project artifacts, and the Playwright jobs download their browser when the cache does not
+#   need or get the jars as Build · Maven artifacts, and the Playwright jobs download their browser when the cache does not
 #   have it. Runners outside the shared cache can take all of these.
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
@@ -124,23 +124,28 @@ stages:
 # Pipeline rules
 ##############################
 
-# A pipeline schedule that sets RENOVATE_RUN=true runs only the "Renovate" job. Every other
-# job selects itself through the anchors below and excludes that variable here, so the regular
-# "Weekly Check" schedule (which does not set it) still runs the full pipeline.
+# A pipeline schedule that sets RENOVATE_RUN=true runs only the "Renovate" job, and one that sets FIREFOX_NIGHTLY=true (the
+# "Nightly Firefox" schedule of develop) runs only the Playwright Firefox suites, their browser cache job and "Build · Maven",
+# whose artifacts they need (see .if-firefox-nightly). Every other job selects itself through the anchors below and excludes
+# both variables here, so the regular "Weekly Check" schedule (which sets neither) still runs the full pipeline.
 .if-default: &if-default
-  if: '$RENOVATE_RUN != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\// || $CI_MERGE_REQUEST_IID)'
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\// || $CI_MERGE_REQUEST_IID)'
 .if-master: &if-master
-  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME == "master"'
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && $CI_COMMIT_REF_NAME == "master"'
 .if-develop: &if-develop
-  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME == "develop"'
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && $CI_COMMIT_REF_NAME == "develop"'
 .if-support: &if-support
-  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME =~ /^support\//'
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && $CI_COMMIT_REF_NAME =~ /^support\//'
 .if-merge-request: &if-merge-request
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
 .if-develop-schedule: &if-develop-schedule   # a pipeline schedule on develop (see .rules-selenium)
-  if: '$RENOVATE_RUN != "true" && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "develop"'
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "develop"'
+# The "Nightly Firefox" pipeline schedule of develop (CI/CD > Schedules, a project setting: it must set the variable
+# FIREFOX_NIGHTLY=true). Only the Firefox Playwright suites, their browser cache job and "Build · Maven" select it
+.if-firefox-nightly: &if-firefox-nightly
+  if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "develop" && $FIREFOX_NIGHTLY == "true"'
 
 # Path selection for merge-request pipelines only: rules:changes is only reliable when compared
 # against the MR target branch. Branch pipelines (develop/master/support/*) always run the full
@@ -190,6 +195,23 @@ stages:
   - awe-framework/awe-client-react/**/*
   - awe-tests/**/*
   - awe-samples/**/*
+.paths-angular-it: &paths-angular-it   # .paths-code without the React client: keep the awe-framework directories in step
+  - .gitlab-ci.yml
+  - pom.xml
+  - .m2/**/*
+  - awe-framework/*
+  - awe-framework/awe-boot-angular-archetype/**/*
+  - awe-framework/awe-boot-react-archetype/**/*
+  - awe-framework/awe-client-angular/**/*
+  - awe-framework/awe-controller/**/*
+  - awe-framework/awe-dependencies/**/*
+  - awe-framework/awe-generic-screens/**/*
+  - awe-framework/awe-model/**/*
+  - awe-framework/awe-modules/**/*
+  - awe-framework/awe-starters/**/*
+  - awe-framework/awe-testing/**/*
+  - awe-tests/**/*
+  - awe-samples/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -220,34 +242,47 @@ stages:
 .if-mr-react-it: &if-mr-react-it
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-react-it
+.if-mr-angular-it: &if-mr-angular-it
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-angular-it
 .if-mr-website: &if-mr-website
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
 .if-branches: &if-branches           # develop, master, support/*: always complete
-  if: '$RENOVATE_RUN != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//)'
-# "All UT" (the adapter unit tests, which need the Chromium browser): AngularJS templates are compared by awe-boot unit tests,
+  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//)'
+# "Unit · Java" (the adapter unit tests, which need the Chromium browser): AngularJS templates are compared by awe-boot unit tests,
 # so a frontend-only merge request that changes them can break it
 .rules-all-ut: &rules-all-ut
   - <<: *if-mr-backend
   - <<: *if-mr-angular-templates
   - <<: *if-branches
 # Browser suites (#812). Every suite is its own job, not a parallel matrix (GitLab names a matrix job after the values of its
-# variables, which hides what it runs). The names read "<engine> · <suite>" for the Chromium suites that run in merge requests,
-# "<engine> · Firefox · <suite>" for the Playwright Firefox suites, "<engine> · Chrome · <suite>" and
-# "<engine> · Firefox (Selenium) · <suite>" for the Selenium suites, and "Quarantine · <engine>" (plus " · Chrome" for Selenium)
-# for the quarantine jobs. The engine is AngularJS or React; a name never repeats. Each group of suites (tool, engine, browser) has
+# variables, which hides what it runs). The names read "E2E · <engine> · <Chromium|Firefox> · <suite>" for the Playwright suites,
+# "Selenium · <engine> · <Chrome|Firefox> · <suite>" for the Selenium suites, and "E2E quarantine · <engine> · Chromium" and
+# "Selenium quarantine · <engine> · Chrome" for the quarantine jobs. The engine is AngularJS or React; a name never repeats.
+# The suites: Application (application and integration), CRUD (CRUD, criteria and grids), Regression (regression, websocket
+# and print) and Scheduler. Each group of suites (tool, engine, browser) has
 # a hidden template that sets TARGET (and the rules of the Playwright groups; the Selenium jobs take .rules-selenium from
 # .browser-testing); the job adds the selection (TEST_TAGS or TEST_CLASSES), TEST_PORT and TEST_NAME.
 # Two tools run the same suites and both block the pipeline wherever they run:
-#   - Playwright (the jobs named "<engine> · <suite>" and "<engine> · Firefox · <suite>") is the tool of the everyday pipeline: merge requests with code changes, develop
+#   - Playwright (the jobs named "E2E · <engine> · <Chromium|Firefox> · <suite>") is the tool of the everyday pipeline: merge requests with code changes, develop
 #     and master. It has no support/* rule: support/4.x has no Playwright adapter. Merge requests run only the Chromium suites
-#     (the ones without a browser in their name); the Firefox suites run on develop and master only;
-#   - Selenium (the jobs named "<engine> · Chrome · <suite>" and "<engine> · Firefox (Selenium) · <suite>") is the reference tool and runs less often: master, support/*, and the
+#     (the ones with Chromium in their name), and only those of the engine whose code changed: a change limited to the
+#     React client skips the AngularJS suites and one limited to the AngularJS client skips the React suites. The Firefox
+#     suites run on master and in the "Nightly Firefox" schedule of develop only (never on a develop push);
+#   - Selenium (the jobs named "Selenium · <engine> · <Chrome|Firefox> · <suite>") is the reference tool and runs less often: master, support/*, and the
 #     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
 #     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
-# A pipeline where both tools run (master, the weekly schedule on develop) gates "Launch Sonar" with both.
-.rules-playwright: &rules-playwright
+# The "Nightly Firefox" schedule (CI/CD > Schedules, on develop, with the variable FIREFOX_NIGHTLY=true) runs only "Build · Maven",
+# "Build · Firefox cache" and the Firefox Playwright suites: no Sonar, no package, no deploy. Without that schedule the
+# Firefox suites run on master only.
+# A pipeline where both tools run (master, the weekly schedule on develop) gates "Analysis · Sonar" with both.
+.rules-playwright: &rules-playwright   # "Build · Chromium cache": any code change, for Unit · Java and the suites of both engines
   - <<: *if-mr-code
+  - <<: *if-develop
+  - <<: *if-master
+.rules-playwright-angularjs: &rules-playwright-angularjs   # the AngularJS application: the merge requests that change anything but the React client
+  - <<: *if-mr-angular-it
   - <<: *if-develop
   - <<: *if-master
 .rules-playwright-react: &rules-playwright-react   # the React application: the merge requests that change the backend or the React client
@@ -255,9 +290,9 @@ stages:
   - <<: *if-develop
   - <<: *if-master
 # Firefox suites and their browser cache job: never in merge requests (they only add time to the Chromium result), so there is no
-# merge request rule at all. Same pipelines as the Chromium suites otherwise (develop, master and their schedules or manual runs).
+# merge request rule at all, and never on a develop push either: on develop they run in the "Nightly Firefox" schedule only.
 .rules-playwright-firefox: &rules-playwright-firefox
-  - <<: *if-develop
+  - <<: *if-firefox-nightly
   - <<: *if-master
 .rules-selenium: &rules-selenium
   - <<: *if-master
@@ -287,7 +322,7 @@ stages:
 
 # Non-blocking (#784). Warns when a merge request changes code but no documentation and its description does not tick the
 # "Docs updated" or "No docs needed because: <reason>" item of the merge request template. Exit code 64 is allowed to fail.
-MR docs warning:
+MR · Docs warning:
   extends: .mr-checks
   script:
     - bin/mr-docs.sh
@@ -296,7 +331,7 @@ MR docs warning:
 
 # Tests of the merge request check scripts and of the broken anchors check of the website build; only when something they use
 # changes. The title, size and translation scripts are no longer pipeline jobs, but their tests still run here.
-MR checks tests:
+MR · Script tests:
   extends: .mr-checks
   script:
     - sh bin/test-mr-checks.sh
@@ -324,7 +359,7 @@ MR checks tests:
 # jobs skip it (-Dskip.lint=true in MAVEN_CLI_OPTS), so lint runs once per pipeline. Local "mvn test" still runs it (lint:ci).
 # The CI variable NODE_ENV=production makes npm skip devDependencies, and ESLint is one: --include=dev installs them.
 # --ignore-scripts: lint needs no install scripts, and nothing from a dependency runs in the job.
-Lint frontend:
+Lint · Frontend:
   extends: .mr-checks
   timeout: 10m
   variables:
@@ -351,7 +386,7 @@ Lint frontend:
 
 # Hygiene of the Java files a merge request changes (#762): unused imports, trailing whitespace, final newline, import order.
 # Only the files changed since the merge base are checked (ratchet), so legacy files never fail it. "mvn spotless:apply" fixes it.
-Spotless:
+Lint · Spotless:
   stage: lint
   tags: [ medium ]
   needs: [ ]
@@ -361,10 +396,10 @@ Spotless:
   rules:
     - <<: *if-mr-code
 
-# Merge requests build the English site only ("Build website"), so a broken Spanish page would reach develop unnoticed. This
+# Merge requests build the English site only ("Build · Website"), so a broken Spanish page would reach develop unnoticed. This
 # lints the Spanish translation in a few seconds without building the site: MDX syntax, parity with the English page
 # (heading anchors, code blocks, front matter id and slug) and relative links. develop and master build every locale.
-Spanish docs lint:
+Lint · Spanish docs:
   image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
   stage: lint
   tags: [ light ]
@@ -381,14 +416,14 @@ Spanish docs lint:
       - website-npm-develop
     paths:
       - website/.npm
-  # Merge requests only: on develop and master "Build website with i18n" builds the Spanish site in full
+  # Merge requests only: on develop and master "Build · Website (all locales)" builds the Spanish site in full
   rules:
     - <<: *if-mr-website
 
-# Markdown lint of the documentation (#784), non-blocking: a signal in the pipeline, never a gate. The rules that fight
+# Lint · Markdown: markdownlint of the documentation (#784), non-blocking: a signal in the pipeline, never a gate. The rules that fight
 # Docusaurus/MDX or the style of the docs are off in website/.markdownlint-cli2.jsonc. Run it locally with
 # "npm --prefix website run lint:md".
-Markdown lint:
+Lint · Markdown:
   image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
   stage: lint
   tags: [ light ]
@@ -415,7 +450,7 @@ Markdown lint:
         - website/.markdownlint-cli2.jsonc
 
 # Validates renovate.json (repository config, strict) on merge requests that change it.
-Validate renovate config:
+Lint · Renovate config:
   extends: .renovate-image
   tags: [ light ]
   stage: lint
@@ -428,14 +463,14 @@ Validate renovate config:
       changes:
         - renovate.json
 
-# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Secret detection"
+# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Security · Secrets"
 # below extends it and carries the settings, so the pipeline shows a readable job title.
 secret_detection:
   rules:
     - when: never
 
 # Runs on every merge request that touches code or the website, and on every branch pipeline.
-Secret detection:
+Security · Secrets:
   extends: secret_detection
   stage: lint
   tags: [ light ]
@@ -463,9 +498,11 @@ Secret detection:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
+  # The "Nightly Firefox" schedule too: its Firefox suites take the artifacts of "Build · Maven"
   rules:
     - <<: *if-mr-code
     - <<: *if-branches
+    - <<: *if-firefox-nightly
 
 # docker-tools images are pinned as tag@digest: the registry only publishes a
 # "latest" tag (no immutable version tags), so the digest is what actually
@@ -534,7 +571,7 @@ Renovate:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $RENOVATE_RUN == "true"'
 
-Build project:
+Build · Maven:
   extends: .build
   script:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
@@ -562,7 +599,7 @@ Build project:
       # not from the Maven repository, so the React browser suites need it as an artifact. If it is
       # missing, the "require react client dist" enforcer rule of that module fails at initialize.
       - awe-framework/awe-client-react/dist/
-      # Aggregate SBOM: kept as a plain artifact and attached to the image by "Build package".
+      # Aggregate SBOM: kept as a plain artifact and attached to the image by "Package · Docker images".
       # It is deliberately NOT declared as a "reports: cyclonedx" artifact: GitLab's dependency
       # list requires its own CycloneDX properties (gitlab:meta:schema_version, input_file:path)
       # and flags "Error parsing SBOM reports" otherwise; the gemnasium job already feeds the
@@ -577,7 +614,7 @@ Build project:
       paths:
         - .m2/repository/
 
-Build website:
+Build · Website:
   extends: .build-website
   script:
     - npm --prefix website ci
@@ -591,7 +628,7 @@ Build website:
     # kill still leaves the log. The exit code of the build is saved aside: in a pipe, the code of "tee" would hide it, and
     # "set -o pipefail" does not exist in every sh. Broken anchors (#784) fail the job only in the current docs, never in the
     # frozen versions: Docusaurus has a single onBrokenAnchors setting for the whole site, which stays at "warn".
-    # Merge requests build the English site only, which halves the job; "Build website with i18n" builds every locale on
+    # Merge requests build the English site only, which halves the job; "Build · Website (all locales)" builds every locale on
     # develop and master. A webpack cache was measured at about 1.8 GB, too big to move through the shared cache per job.
     - |
       { npm --prefix website run build -- --locale en 2>&1; echo $? > "$CI_PROJECT_DIR/website-build.status"; } | tee "$CI_PROJECT_DIR/website-build.log"
@@ -601,7 +638,7 @@ Build website:
   rules:
     - <<: *if-mr-website
 
-Build website with i18n:
+Build · Website (all locales):
   extends: .build-website
   interruptible: false
   script:
@@ -622,13 +659,13 @@ Build website with i18n:
 ##############################
 
 # The Playwright adapter of awe-testing (#812) drives a browser that Playwright installs itself. Two kinds of job use it:
-# the unit tests of the adapter ("All UT", Chromium) and the browser suites ("Playwright ... IT", Chromium or
+# the unit tests of the adapter ("Unit · Java", Chromium) and the browser suites ("E2E · <engine> · <browser> · <suite>", Chromium or
 # Firefox). Each one installs only the browser it needs, with the CLI of the same Playwright version as the project, so
 # there is one definition of the install (this one).
 #
 # The browser files are cached per browser. A cache is separated between protected branches and merge requests, so a job
-# of develop cannot fill the cache of a merge request: one small job per pipeline ("Playwright Chromium browser",
-# "Playwright Firefox browser") downloads the browser and pushes it, and the jobs that use the browser only pull it. A
+# of develop cannot fill the cache of a merge request: one small job per pipeline ("Build · Chromium cache",
+# "Build · Firefox cache") downloads the browser and pushes it, and the jobs that use the browser only pull it. A
 # job that finds no browser in the cache downloads it itself, so a cold or failed cache costs time, never a failure. The
 # cache job starts from nothing every time, so it always holds the revision of the current Playwright version and the
 # revisions of older versions never pile up.
@@ -699,10 +736,10 @@ Build website with i18n:
   script:
     - du -sh .playwright-browsers/*
 
-# Chromium: the adapter unit tests ("All UT") and the Chromium suites need it, so the rules are both lists. Both are automatic
+# Chromium: the adapter unit tests ("Unit · Java") and the Chromium suites need it, so the rules are both lists. Both are automatic
 # in every pipeline where a consumer runs (a merge request with code changes, develop, master), so none of them waits for a
 # cache job that does not exist
-Playwright Chromium browser:
+Build · Chromium cache:
   extends:
     - .playwright-browser-cache
     - .playwright-chromium
@@ -710,8 +747,9 @@ Playwright Chromium browser:
     - !reference [.rules-all-ut]
     - !reference [.rules-playwright]
 
-# Firefox: only the Firefox Playwright suites need it, so it follows their rules (develop and master, never a merge request)
-Playwright Firefox browser:
+# Firefox: only the Firefox Playwright suites need it, so it follows their rules (the nightly schedule of develop and master, never
+# a merge request)
+Build · Firefox cache:
   extends:
     - .playwright-browser-cache
     - .playwright-firefox
@@ -727,7 +765,7 @@ Playwright Firefox browser:
   allow_failure: false
   timeout: 20m
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: false
   variables:
     TZ: Europe/Madrid
@@ -747,7 +785,7 @@ Playwright Firefox browser:
       junit:
         - "**/target/surefire-reports/TEST-*.xml"
 
-All UT:
+Unit · Java:
   extends:
     - .unit-testing
     - .playwright-install   # Chromium for the adapter tests of awe-testing: variables, cache (read only) and install
@@ -761,28 +799,37 @@ All UT:
   rules: *rules-all-ut
 
 # The database jobs (#863): only the awe-boot integration tests of one database profile. The profiles exist only in
-# awe-tests/awe-boot, so every other module would run the same tests as "All UT" again; awe-boot gets the AWE modules of this
-# pipeline from the "Build project" artifacts, as the browser suites do. Their JaCoCo data stays complete: Launch Sonar
-# aggregates the awe-boot *.exec of each job with the "All UT" ones of every module.
+# awe-tests/awe-boot, so every other module would run the same tests as "Unit · Java" again; awe-boot gets the AWE modules of this
+# pipeline from the "Build · Maven" artifacts, as the browser suites do. Their JaCoCo data stays complete: Analysis · Sonar
+# aggregates the awe-boot *.exec of each job with the "Unit · Java" ones of every module.
 .database-testing:
   extends: .unit-testing
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: true
   script:
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
 
-Embedded DB Tests:
+Database · H2:
   extends: .database-testing
-  parallel:
-    matrix:
-      - TEST_NAME: [ h2, h2-flyway, hsql-flyway ]
+  variables:
+    TEST_NAME: h2
+
+Database · H2 · Flyway:
+  extends: .database-testing
+  variables:
+    TEST_NAME: h2-flyway
+
+Database · HSQL · Flyway:
+  extends: .database-testing
+  variables:
+    TEST_NAME: hsql-flyway
 
 # The databases of these jobs run in Testcontainers (awe-testing, #764): the test JVM starts the container of its database in the
 # Docker daemon of a docker-in-docker service and connects to it through the service host. Nothing else is needed per database:
 # the image (pinned by digest) is read from awe-testing-images.properties. Ryuk (the container reaper) is off: the daemon dies
 # with the job, so it would only pull one more image from Docker Hub. The dind service is defined once here (anchor) and
-# "Build package" reuses it.
+# "Package · Docker images" reuses it.
 # Docker Hub images (the databases) are pulled through the group dependency proxy when its variables exist, so a Docker Hub
 # rate limit or outage does not stop the pipeline once an image is cached; set DEPENDENCY_PROXY_DISABLED=true to pull from Docker
 # Hub directly. The credentials go to ~/.docker/config.json, where Testcontainers reads them, and are never printed.
@@ -809,52 +856,76 @@ Embedded DB Tests:
         echo "DATABASE IMAGES REGISTRY: Docker Hub (dependency proxy off or its variables are missing)"
       fi
 
-MySQL Tests:
+Database · MySQL:
   extends:
     - .database-testing
     - .database-containers
-  parallel:
-    matrix:
-      - TEST_NAME: [ mysql, mysql-flyway ]
+  variables:
+    TEST_NAME: mysql
 
-PostgreSQL Tests:
+Database · MySQL · Flyway:
   extends:
     - .database-testing
     - .database-containers
-  parallel:
-    matrix:
-      - TEST_NAME: [ postgresql, postgresql-flyway ]
+  variables:
+    TEST_NAME: mysql-flyway
 
-# SQL Server runs in a container only when its licence is accepted explicitly: this job accepts it (the Microsoft EULA, see
+Database · PostgreSQL:
+  extends:
+    - .database-testing
+    - .database-containers
+  variables:
+    TEST_NAME: postgresql
+
+Database · PostgreSQL · Flyway:
+  extends:
+    - .database-testing
+    - .database-containers
+  variables:
+    TEST_NAME: postgresql-flyway
+
+# SQL Server runs in a container only when its licence is accepted explicitly: these jobs accept it (the Microsoft EULA, see
 # DatabaseContainers), nothing else sets it. The image comes from mcr.microsoft.com, not from Docker Hub, so the dependency proxy
 # prefix never touches it (Testcontainers only prefixes images without a registry).
-SQL Server Tests:
+Database · SQL Server:
   extends:
     - .database-testing
     - .database-containers
   variables:
     AWE_TESTING_SQLSERVER_ACCEPT_EULA: "true"
-  parallel:
-    matrix:
-      - TEST_NAME: [ sqlserver, sqlserver-flyway ]
+    TEST_NAME: sqlserver
 
-# The Oracle image (gvenzl/oracle-free, faststart) is about 6 GB unpacked: the dind service of the job has to hold it.
-Oracle Tests:
+Database · SQL Server · Flyway:
   extends:
     - .database-testing
     - .database-containers
-  parallel:
-    matrix:
-      - TEST_NAME: [ oracle, oracle-flyway ]
+  variables:
+    AWE_TESTING_SQLSERVER_ACCEPT_EULA: "true"
+    TEST_NAME: sqlserver-flyway
+
+# The Oracle image (gvenzl/oracle-free, faststart) is about 6 GB unpacked: the dind service of the job has to hold it.
+Database · Oracle:
+  extends:
+    - .database-testing
+    - .database-containers
+  variables:
+    TEST_NAME: oracle
+
+Database · Oracle · Flyway:
+  extends:
+    - .database-testing
+    - .database-containers
+  variables:
+    TEST_NAME: oracle-flyway
 
 # IdP-first login against a real Keycloak (#767, awe-boot KeycloakIdpFirstTest). Keycloak (quay.io, pinned by digest in
 # awe-testing-images.properties, so the dependency proxy prefix never touches it) runs in the dind daemon like the databases, and
 # AWE runs in the job on a random port. Keycloak has to reach AWE for the back-channel logout call: through the address of the job
 # container, given in AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST (without it the test uses host.docker.internal, which is only
 # right when the test JVM runs on the Docker host). The job runs only this test class (-Dtest) of awe-boot (#863): the other
-# modules have already been tested by "All UT", and a module without the class failed the job (awe-boot-react fails when it runs
+# modules have already been tested by "Unit · Java", and a module without the class failed the job (awe-boot-react fails when it runs
 # no test). It blocks the pipeline: the back-channel networking is proven on the runners (6/6 in the pipelines of !1023).
-Keycloak Tests:
+Integration · Keycloak:
   extends:
     - .database-testing
     - .database-containers
@@ -869,7 +940,7 @@ Keycloak Tests:
       export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=$(ip -4 route get "${dind_ip:-1.1.1.1}" 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n1)
       export AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST=${AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST:-$(hostname -i | cut -d' ' -f1)}
       echo "Keycloak back-channel host: $AWE_TESTING_KEYCLOAK_BACK_CHANNEL_HOST"
-    # Only awe-boot (#863), with the AWE modules of the "Build project" artifacts: awe-boot-react sets failIfNoTests and has no
+    # Only awe-boot (#863), with the AWE modules of the "Build · Maven" artifacts: awe-boot-react sets failIfNoTests and has no
     # class matching -Dtest
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -Pkeycloak -Dtest=KeycloakIdpFirstTest -Dsurefire.failIfNoSpecifiedTests=false -Djacoco.file.name=jacoco-keycloak-ut.exec
     # The class is skipped without Docker (disabledWithoutDocker) and failIfNoSpecifiedTests=false hides an empty selection: a
@@ -883,7 +954,7 @@ Keycloak Tests:
       ran=$(( ${tests:-0} - ${skipped:-0} ))
       [ "$ran" -eq "$KEYCLOAK_EXPECTED_TESTS" ] || { echo "Expected $KEYCLOAK_EXPECTED_TESTS Keycloak tests to run, $ran did (is Docker available?)"; exit 1; }
 
-Frontend UT:
+Unit · AngularJS:
   stage: test
   tags: [ medium ]
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest@sha256:611a6928ed5696bccb29fd3ce0b0a6fe0818d26a59119f9b04056dd61c2fa33d
@@ -906,7 +977,7 @@ Frontend UT:
     - <<: *if-mr-frontend
     - <<: *if-branches
 
-Frontend UT React:
+Unit · React:
   stage: test
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest@sha256:611a6928ed5696bccb29fd3ce0b0a6fe0818d26a59119f9b04056dd61c2fa33d
   needs: [ ]
@@ -935,21 +1006,21 @@ Frontend UT React:
     - <<: *if-mr-frontend-react
     - <<: *if-branches
 
-# Javadoc of the merge request on the same sources as "Generate javadoc & schemas" (develop): the delombok output. Lombok copies the
+# Javadoc of the merge request on the same sources as "Docs · Javadoc & schemas" (develop): the delombok output. Lombok copies the
 # Javadoc of a private field onto the getter and setter it generates, so a bad tag in a field comment only fails there; on
 # src/main/java it passes in the merge request and breaks develop. javadoc:javadoc@delombok-javadoc (profile test-javadoc)
 # forks generate-sources, which runs delombok, and documents each module's target/delombok with show=public like the site
 # report. The aggregate keeps checking the overview and the links between modules.
 # The goals do not compile the modules, so each module reads the AWE SNAPSHOT jars of the modules it depends on from
-# .m2/repository. They come from the Build project artifacts: the Maven cache of a medium runner does not hold the cache
-# of a new branch (Build project may run on another runner) and falls back to the develop one, whose jars miss the
+# .m2/repository. They come from the Build · Maven artifacts: the Maven cache of a medium runner does not hold the cache
+# of a new branch (Build · Maven may run on another runner) and falls back to the develop one, whose jars miss the
 # classes the merge request adds.
-Javadoc test:
+Docs · Javadoc check:
   stage: test
   tags: [ medium ]
   timeout: 20m
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: true
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:javadoc@delombok-javadoc javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
@@ -996,7 +1067,7 @@ Javadoc test:
     FF_NETWORK_PER_BUILD: "true"
   # Artifacts provide the AWE snapshot modules built in this pipeline, independently of the cache state
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: true
   # Important! Print/PDF IT tests render server-side and need system fonts.
   # eclipse-temurin is a minimal image, so install fontconfig + fonts here.
@@ -1014,7 +1085,7 @@ Javadoc test:
       fi
   # Failure evidence (screenshots, Playwright traces and videos) is written under browser-evidence/, at the artifact root.
   # It has no expose_as: GitLab does not display it when a path uses a CI variable, and the per-job
-  # jacoco file name (needed by Launch Sonar) requires one.
+  # jacoco file name (needed by Analysis · Sonar) requires one.
   artifacts:
     paths:
       - browser-evidence/
@@ -1026,7 +1097,7 @@ Javadoc test:
       junit:
         - ${IT_APP_MODULE}/target/surefire-reports/TEST-*.xml
     when: always
-  # Selenium rules; the Playwright jobs set their own (see .rules-playwright)
+  # Selenium rules; the Playwright jobs set their own (see .rules-playwright-angularjs, -react and -firefox)
   rules: *rules-selenium
 
 .firefox-testing:
@@ -1073,28 +1144,28 @@ Javadoc test:
   variables:
     TARGET: firefox-angularjs
 
-AngularJS · Firefox (Selenium) · Application and integration:
+Selenium · AngularJS · Firefox · Application:
   extends: .selenium-angularjs-firefox
   variables:
     TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: "6301"
     TEST_NAME: firefox-application-integration
 
-AngularJS · Firefox (Selenium) · CRUD, criteria and grids:
+Selenium · AngularJS · Firefox · CRUD:
   extends: .selenium-angularjs-firefox
   variables:
     TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: "6302"
     TEST_NAME: firefox-crud-criteria-matrix
 
-AngularJS · Firefox (Selenium) · Regression, websocket and print:
+Selenium · AngularJS · Firefox · Regression:
   extends: .selenium-angularjs-firefox
   variables:
     TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: "6303"
     TEST_NAME: firefox-regression-websocket-print
 
-AngularJS · Firefox (Selenium) · Scheduler:
+Selenium · AngularJS · Firefox · Scheduler:
   extends: .selenium-angularjs-firefox
   variables:
     TEST_TAGS: SchedulerIT
@@ -1107,28 +1178,28 @@ AngularJS · Firefox (Selenium) · Scheduler:
   variables:
     TARGET: chrome-angularjs
 
-AngularJS · Chrome · Application and integration:
+Selenium · AngularJS · Chrome · Application:
   extends: .selenium-angularjs-chrome
   variables:
     TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: "6305"
     TEST_NAME: chrome-application-integration
 
-AngularJS · Chrome · CRUD, criteria and grids:
+Selenium · AngularJS · Chrome · CRUD:
   extends: .selenium-angularjs-chrome
   variables:
     TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: "6306"
     TEST_NAME: chrome-crud-criteria-matrix
 
-AngularJS · Chrome · Regression, websocket and print:
+Selenium · AngularJS · Chrome · Regression:
   extends: .selenium-angularjs-chrome
   variables:
     TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: "6307"
     TEST_NAME: chrome-regression-websocket-print
 
-AngularJS · Chrome · Scheduler:
+Selenium · AngularJS · Chrome · Scheduler:
   extends: .selenium-angularjs-chrome
   variables:
     TEST_TAGS: SchedulerIT
@@ -1165,28 +1236,28 @@ AngularJS · Chrome · Scheduler:
   variables:
     TARGET: firefox-react
 
-React · Firefox (Selenium) · Application and integration:
+Selenium · React · Firefox · Application:
   extends: .selenium-react-firefox
   variables:
     TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
     TEST_PORT: "6309"
     TEST_NAME: react-firefox-application-integration
 
-React · Firefox (Selenium) · CRUD, criteria and grids:
+Selenium · React · Firefox · CRUD:
   extends: .selenium-react-firefox
   variables:
     TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
     TEST_PORT: "6310"
     TEST_NAME: react-firefox-crud-criteria-matrix
 
-React · Firefox (Selenium) · Regression, websocket and print:
+Selenium · React · Firefox · Regression:
   extends: .selenium-react-firefox
   variables:
     TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
     TEST_PORT: "6311"
     TEST_NAME: react-firefox-regression-websocket-print
 
-React · Firefox (Selenium) · Scheduler:
+Selenium · React · Firefox · Scheduler:
   extends: .selenium-react-firefox
   variables:
     TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
@@ -1200,28 +1271,28 @@ React · Firefox (Selenium) · Scheduler:
   variables:
     TARGET: chrome-react
 
-React · Chrome · Application and integration:
+Selenium · React · Chrome · Application:
   extends: .selenium-react-chrome
   variables:
     TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
     TEST_PORT: "6313"
     TEST_NAME: react-chrome-application-integration
 
-React · Chrome · CRUD, criteria and grids:
+Selenium · React · Chrome · CRUD:
   extends: .selenium-react-chrome
   variables:
     TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
     TEST_PORT: "6314"
     TEST_NAME: react-chrome-crud-criteria-matrix
 
-React · Chrome · Regression, websocket and print:
+Selenium · React · Chrome · Regression:
   extends: .selenium-react-chrome
   variables:
     TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
     TEST_PORT: "6315"
     TEST_NAME: react-chrome-regression-websocket-print
 
-React · Chrome · Scheduler:
+Selenium · React · Chrome · Scheduler:
   extends: .selenium-react-chrome
   variables:
     TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
@@ -1233,9 +1304,10 @@ React · Chrome · Scheduler:
 # They are the browser suites of the everyday pipeline, and so they:
 #   - block the pipeline, with the per-test rerun and the job retry of .browser-testing (#766), like the
 #     Selenium jobs;
-#   - are needed by "Launch Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
-#   - run automatically on every merge request with code changes (Chromium only: the Firefox jobs skip merge
-#     requests), on develop and on master, and never on support/*;
+#   - are needed by "Analysis · Sonar" (optional: a pipeline that does not run them takes the coverage of the Selenium jobs);
+#   - run automatically on every merge request with code changes of their engine (Chromium only: the Firefox jobs skip merge
+#     requests), on develop and on master, and never on support/*; the Firefox jobs run on master and in the "Nightly Firefox"
+#     schedule of develop instead of every develop pipeline;
 #   - write failure evidence to browser-evidence/ as the Selenium jobs do: the screenshot, page source and console of the
 #     failure, the Playwright trace of the failed test and the page video of a class with a failure. The screen recorder of
 #     the Selenium jobs is off (awe.test.allowed-recording=false): a headless browser has no screen to film.
@@ -1273,32 +1345,32 @@ React · Chrome · Scheduler:
 .playwright-angularjs-chromium:
   extends:
     - .playwright-chromium-testing
-  rules: *rules-playwright
+  rules: *rules-playwright-angularjs
   variables:
     TARGET: chromium-angularjs
 
-AngularJS · Application and integration:
+E2E · AngularJS · Chromium · Application:
   extends: .playwright-angularjs-chromium
   variables:
     TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: "6317"
     TEST_NAME: playwright-chromium-application-integration
 
-AngularJS · CRUD, criteria and grids:
+E2E · AngularJS · Chromium · CRUD:
   extends: .playwright-angularjs-chromium
   variables:
     TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: "6318"
     TEST_NAME: playwright-chromium-crud-criteria-matrix
 
-AngularJS · Regression, websocket and print:
+E2E · AngularJS · Chromium · Regression:
   extends: .playwright-angularjs-chromium
   variables:
     TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: "6319"
     TEST_NAME: playwright-chromium-regression-websocket-print
 
-AngularJS · Scheduler:
+E2E · AngularJS · Chromium · Scheduler:
   extends: .playwright-angularjs-chromium
   variables:
     TEST_TAGS: SchedulerIT
@@ -1312,28 +1384,28 @@ AngularJS · Scheduler:
   variables:
     TARGET: firefox-angularjs
 
-AngularJS · Firefox · Application and integration:
+E2E · AngularJS · Firefox · Application:
   extends: .playwright-angularjs-firefox
   variables:
     TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: "6321"
     TEST_NAME: playwright-firefox-application-integration
 
-AngularJS · Firefox · CRUD, criteria and grids:
+E2E · AngularJS · Firefox · CRUD:
   extends: .playwright-angularjs-firefox
   variables:
     TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: "6322"
     TEST_NAME: playwright-firefox-crud-criteria-matrix
 
-AngularJS · Firefox · Regression, websocket and print:
+E2E · AngularJS · Firefox · Regression:
   extends: .playwright-angularjs-firefox
   variables:
     TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: "6323"
     TEST_NAME: playwright-firefox-regression-websocket-print
 
-AngularJS · Firefox · Scheduler:
+E2E · AngularJS · Firefox · Scheduler:
   extends: .playwright-angularjs-firefox
   variables:
     TEST_TAGS: SchedulerIT
@@ -1348,28 +1420,28 @@ AngularJS · Firefox · Scheduler:
   variables:
     TARGET: chromium-react
 
-React · Application and integration:
+E2E · React · Chromium · Application:
   extends: .playwright-react-chromium
   variables:
     TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
     TEST_PORT: "6325"
     TEST_NAME: playwright-react-chromium-application-integration
 
-React · CRUD, criteria and grids:
+E2E · React · Chromium · CRUD:
   extends: .playwright-react-chromium
   variables:
     TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
     TEST_PORT: "6326"
     TEST_NAME: playwright-react-chromium-crud-criteria-matrix
 
-React · Regression, websocket and print:
+E2E · React · Chromium · Regression:
   extends: .playwright-react-chromium
   variables:
     TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
     TEST_PORT: "6327"
     TEST_NAME: playwright-react-chromium-regression-websocket-print
 
-React · Scheduler:
+E2E · React · Chromium · Scheduler:
   extends: .playwright-react-chromium
   variables:
     TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
@@ -1384,28 +1456,28 @@ React · Scheduler:
   variables:
     TARGET: firefox-react
 
-React · Firefox · Application and integration:
+E2E · React · Firefox · Application:
   extends: .playwright-react-firefox
   variables:
     TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
     TEST_PORT: "6329"
     TEST_NAME: playwright-react-firefox-application-integration
 
-React · Firefox · CRUD, criteria and grids:
+E2E · React · Firefox · CRUD:
   extends: .playwright-react-firefox
   variables:
     TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,MatrixTestsIT
     TEST_PORT: "6330"
     TEST_NAME: playwright-react-firefox-crud-criteria-matrix
 
-React · Firefox · Regression, websocket and print:
+E2E · React · Firefox · Regression:
   extends: .playwright-react-firefox
   variables:
     TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
     TEST_PORT: "6331"
     TEST_NAME: playwright-react-firefox-regression-websocket-print
 
-React · Firefox · Scheduler:
+E2E · React · Firefox · Scheduler:
   extends: .playwright-react-firefox
   variables:
     TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
@@ -1418,9 +1490,9 @@ React · Firefox · Scheduler:
 # job) are not lost. They never block the pipeline (allow_failure) and are not needed by Sonar or the release jobs: a red
 # quarantine job is the signal that the issue of the test is still open. The job without quarantined tests ends at once:
 # it only searches the sources for the annotation (the application of the job is not even started).
-# Rules: the Playwright job runs where the Playwright suites run and the Selenium job where the Selenium suites run. They
-# run with the same tool and browser as the suites that left the test out: a test that is flaky with the other tool is not
-# covered. Ports 6333 to 6336 are free.
+# Rules: the Playwright job runs where the Chromium Playwright suites of its engine run and the Selenium job where the Selenium
+# suites run. They run with the same tool and browser as the suites that left the test out: a test that is flaky with the other
+# tool is not covered. Ports 6333 to 6336 are free.
 .quarantine-testing:
   allow_failure: true
   # The report of one run is what is wanted: no job retry and no per-test rerun (it.rerun-count=0), so a flaky test shows
@@ -1441,27 +1513,27 @@ React · Firefox · Scheduler:
       fi
     - !reference [.browser-testing, script]
 
-Quarantine · AngularJS:
+E2E quarantine · AngularJS · Chromium:
   extends:
     - .playwright-chromium-testing
     - .quarantine-testing
-  rules: *rules-playwright
+  rules: *rules-playwright-angularjs
   variables:
     IT_APP_MODULE: awe-tests/awe-boot
     TEST_PORT: "6333"
     TEST_NAME: quarantine-playwright-chromium-angular
 
-Quarantine · React:
+E2E quarantine · React · Chromium:
   extends:
     - .playwright-chromium-testing
     - .quarantine-testing
-  rules: *rules-playwright
+  rules: *rules-playwright-react
   variables:
     IT_APP_MODULE: awe-tests/awe-boot-react
     TEST_PORT: "6334"
     TEST_NAME: quarantine-playwright-chromium-react
 
-Quarantine · AngularJS · Chrome:
+Selenium quarantine · AngularJS · Chrome:
   extends:
     - .chrome-testing
     - .quarantine-testing
@@ -1471,7 +1543,7 @@ Quarantine · AngularJS · Chrome:
     TEST_PORT: "6335"
     TEST_NAME: quarantine-chrome-angular
 
-Quarantine · React · Chrome:
+Selenium quarantine · React · Chrome:
   extends:
     - .chrome-testing
     - .quarantine-testing
@@ -1482,13 +1554,13 @@ Quarantine · React · Chrome:
     TEST_NAME: quarantine-chrome-react
 
 
-# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Dependency scanning"
+# The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Security · Dependencies"
 # below extends it and carries the settings, so the pipeline shows a readable job title.
 gemnasium-maven-dependency_scanning:
   rules:
     - when: never
 
-Dependency scanning:
+Security · Dependencies:
   extends: gemnasium-maven-dependency_scanning
   tags: [ medium ]
   stage: test
@@ -1496,9 +1568,9 @@ Dependency scanning:
   rules:
     - <<: *if-mr-code
     - <<: *if-branches
-  dependencies: ["Build project"]
+  dependencies: ["Build · Maven"]
   needs:
-    - job: Build project
+    - job: Build · Maven
   variables:
     MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
 
@@ -1506,98 +1578,112 @@ Dependency scanning:
 # Analysis stage
 ##############################
 
-Launch Sonar:
+Analysis · Sonar:
   image: registry.gitlab.com/aweframework/docker-tools/sonar:latest@sha256:8fb0e07eaf7c9f935c461599bcde7ac7714ac8a9cc3def02ee97195094316c0c
   stage: analysis
   timeout: 20m
   # Some needs are optional: a merge-request pipeline may run Sonar (backend or frontend changed)
   # without running the narrower backend-only or frontend-only job groups.
   needs:
-    - job: All UT
+    - job: Unit · Java
       optional: true
-    - job: Embedded DB Tests
+    - job: Database · H2
       optional: true
-    - job: MySQL Tests
+    - job: Database · H2 · Flyway
       optional: true
-    - job: PostgreSQL Tests
+    - job: Database · HSQL · Flyway
       optional: true
-    - job: Oracle Tests
+    - job: Database · MySQL
       optional: true
-    - job: SQL Server Tests
+    - job: Database · MySQL · Flyway
       optional: true
-    - job: Frontend UT
+    - job: Database · PostgreSQL
       optional: true
-    - job: Frontend UT React
+    - job: Database · PostgreSQL · Flyway
       optional: true
-    # The browser suites: Playwright runs on merge requests (Chromium only), develop and master; Selenium on master, support/* and the
-    # pipeline schedule of develop. Each pipeline runs at least one tool (the React jobs of a tool also depend on the
-    # changed paths), so every job is optional; whichever job runs gates Sonar (and the release jobs). Keep it so:
-    # .rules-playwright and .rules-selenium together must cover every pipeline that runs this job, or Sonar and the
-    # releases go ahead with no browser suite. Their IT coverage reaches Sonar as before: the *.exec files of both tools
-    # have different names (jacoco-${TEST_NAME}-it.exec), so both sets are kept when both tools ran.
-    - job: AngularJS · Firefox (Selenium) · Application and integration
+    - job: Database · Oracle
       optional: true
-    - job: AngularJS · Firefox (Selenium) · CRUD, criteria and grids
+    - job: Database · Oracle · Flyway
       optional: true
-    - job: AngularJS · Firefox (Selenium) · Regression, websocket and print
+    - job: Database · SQL Server
       optional: true
-    - job: AngularJS · Firefox (Selenium) · Scheduler
+    - job: Database · SQL Server · Flyway
       optional: true
-    - job: AngularJS · Chrome · Application and integration
+    - job: Unit · AngularJS
       optional: true
-    - job: AngularJS · Chrome · CRUD, criteria and grids
+    - job: Unit · React
       optional: true
-    - job: AngularJS · Chrome · Regression, websocket and print
+    # The browser suites: Playwright runs on merge requests (Chromium only), develop and master (Firefox on master only: on develop
+    # in the "Nightly Firefox" schedule, which does not run this job); Selenium on master, support/* and the pipeline schedule of
+    # develop. Each pipeline runs at least one tool (the Playwright jobs of an engine also depend on the changed paths: a merge
+    # request with code changes runs the suites of at least one engine), so every job is optional; whichever job runs gates Sonar
+    # (and the release jobs). Keep it so: .rules-playwright-angularjs, .rules-playwright-react and .rules-selenium together must
+    # cover every pipeline that runs this job, or Sonar and the releases go ahead with no browser suite. Their IT coverage
+    # reaches Sonar as before: the *.exec files of both tools have different names (jacoco-${TEST_NAME}-it.exec), so both sets
+    # are kept when both tools ran.
+    - job: Selenium · AngularJS · Firefox · Application
       optional: true
-    - job: AngularJS · Chrome · Scheduler
+    - job: Selenium · AngularJS · Firefox · CRUD
       optional: true
-    - job: React · Firefox (Selenium) · Application and integration
+    - job: Selenium · AngularJS · Firefox · Regression
       optional: true
-    - job: React · Firefox (Selenium) · CRUD, criteria and grids
+    - job: Selenium · AngularJS · Firefox · Scheduler
       optional: true
-    - job: React · Firefox (Selenium) · Regression, websocket and print
+    - job: Selenium · AngularJS · Chrome · Application
       optional: true
-    - job: React · Firefox (Selenium) · Scheduler
+    - job: Selenium · AngularJS · Chrome · CRUD
       optional: true
-    - job: React · Chrome · Application and integration
+    - job: Selenium · AngularJS · Chrome · Regression
       optional: true
-    - job: React · Chrome · CRUD, criteria and grids
+    - job: Selenium · AngularJS · Chrome · Scheduler
       optional: true
-    - job: React · Chrome · Regression, websocket and print
+    - job: Selenium · React · Firefox · Application
       optional: true
-    - job: React · Chrome · Scheduler
+    - job: Selenium · React · Firefox · CRUD
       optional: true
-    - job: AngularJS · Application and integration
+    - job: Selenium · React · Firefox · Regression
       optional: true
-    - job: AngularJS · CRUD, criteria and grids
+    - job: Selenium · React · Firefox · Scheduler
       optional: true
-    - job: AngularJS · Regression, websocket and print
+    - job: Selenium · React · Chrome · Application
       optional: true
-    - job: AngularJS · Scheduler
+    - job: Selenium · React · Chrome · CRUD
       optional: true
-    - job: AngularJS · Firefox · Application and integration
+    - job: Selenium · React · Chrome · Regression
       optional: true
-    - job: AngularJS · Firefox · CRUD, criteria and grids
+    - job: Selenium · React · Chrome · Scheduler
       optional: true
-    - job: AngularJS · Firefox · Regression, websocket and print
+    - job: E2E · AngularJS · Chromium · Application
       optional: true
-    - job: AngularJS · Firefox · Scheduler
+    - job: E2E · AngularJS · Chromium · CRUD
       optional: true
-    - job: React · Application and integration
+    - job: E2E · AngularJS · Chromium · Regression
       optional: true
-    - job: React · CRUD, criteria and grids
+    - job: E2E · AngularJS · Chromium · Scheduler
       optional: true
-    - job: React · Regression, websocket and print
+    - job: E2E · AngularJS · Firefox · Application
       optional: true
-    - job: React · Scheduler
+    - job: E2E · AngularJS · Firefox · CRUD
       optional: true
-    - job: React · Firefox · Application and integration
+    - job: E2E · AngularJS · Firefox · Regression
       optional: true
-    - job: React · Firefox · CRUD, criteria and grids
+    - job: E2E · AngularJS · Firefox · Scheduler
       optional: true
-    - job: React · Firefox · Regression, websocket and print
+    - job: E2E · React · Chromium · Application
       optional: true
-    - job: React · Firefox · Scheduler
+    - job: E2E · React · Chromium · CRUD
+      optional: true
+    - job: E2E · React · Chromium · Regression
+      optional: true
+    - job: E2E · React · Chromium · Scheduler
+      optional: true
+    - job: E2E · React · Firefox · Application
+      optional: true
+    - job: E2E · React · Firefox · CRUD
+      optional: true
+    - job: E2E · React · Firefox · Regression
+      optional: true
+    - job: E2E · React · Firefox · Scheduler
       optional: true
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
@@ -1608,7 +1694,7 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
-    # A merge-request pipeline that did not run "Frontend UT" or "Frontend UT React" (backend-only
+    # A merge-request pipeline that did not run "Unit · AngularJS" or "Unit · React" (backend-only
     # change, or a change to only one of the two clients) has no Jest report directory for that
     # client at all, and the Sonar scanner fails on a missing generic test execution report
     # (sonar.testExecutionReportPaths in the root pom and in each client pom). Only in that case
@@ -1644,7 +1730,7 @@ Launch Sonar:
 # Site stage
 ##############################
 
-Generate javadoc & schemas:
+Docs · Javadoc & schemas:
   stage: site
   needs: [ ]
   timeout: 20m
@@ -1667,16 +1753,16 @@ Generate javadoc & schemas:
 # Package stage
 ##############################
 
-# The React test application jar for the "awe-boot-react" image. "Build project" artifacts only the awe-boot jar (every
+# The React test application jar for the "awe-boot-react" image. "Build · Maven" artifacts only the awe-boot jar (every
 # test job downloads that job's artifacts, so a second ~250MB jar would be downloaded dozens of times); this job packages
-# the React application from the modules and the client bundle that "Build project" already built, and runs on the
+# the React application from the modules and the client bundle that "Build · Maven" already built, and runs on the
 # branches that publish images only.
-Build React package:
+Package · React jar:
   stage: package
   interruptible: false
   timeout: 20m
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: true
   script:
     - mvn -f awe-tests/awe-boot-react/pom.xml $MAVEN_CLI_OPTS package $SKIP_TESTS
@@ -1690,7 +1776,7 @@ Build React package:
     - <<: *if-master
     - <<: *if-support
 
-Build package:
+Package · Docker images:
   image: docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
   stage: package
   cache: { }
@@ -1704,11 +1790,11 @@ Build package:
   variables:
     COSIGN_YES: "true"
   needs:
-    - job: Build project
+    - job: Build · Maven
       artifacts: true
-    - job: Launch Sonar
+    - job: Analysis · Sonar
       artifacts: false
-    - job: Build React package
+    - job: Package · React jar
       artifacts: true
   services:
     - *dind-service   # defined in .database-containers
@@ -1722,7 +1808,7 @@ Build package:
     - digest=$(docker images registry.gitlab.com/aweframework/awe/awe-boot --format="{{.Digest}}" --digests)
     - echo "PACKAGE_DIGEST=$digest" >> build.env
     # Sign the image once by digest (every floating tag pushed below shares it) and attest the
-    # SBOM built by "Build project" against the same digest.
+    # SBOM built by "Build · Maven" against the same digest.
     - GITLAB_IMAGE_DIGEST_REF="registry.gitlab.com/aweframework/awe/awe-boot@${digest}"
     - cosign sign "$GITLAB_IMAGE_DIGEST_REF"
     - cosign attest --type cyclonedx --predicate target/awe-sbom.json "$GITLAB_IMAGE_DIGEST_REF"
@@ -1773,26 +1859,26 @@ Build package:
     - <<: *if-master
     - <<: *if-support
 
-# Scans the image just pushed by "Build package". allow_failure is true for the first weeks
+# Scans the image just pushed by "Package · Docker images". allow_failure is true for the first weeks
 # after adoption, so findings are visible without blocking releases; tighten once triaged.
 container_scanning:
   stage: deploy
   timeout: 15m
   allow_failure: true
   needs:
-    - job: Build package
+    - job: Package · Docker images
   # The template sets "dependencies: []", which disables artifact download and therefore the
-  # build.env dotenv from "Build package"; re-enable it so PACKAGE_DIGEST is available.
+  # build.env dotenv from "Package · Docker images"; re-enable it so PACKAGE_DIGEST is available.
   dependencies:
-    - Build package
+    - Package · Docker images
   variables:
     # Scan exactly the image that was pushed and signed: by digest, taken from the build.env
-    # dotenv that "Build package" exports (PACKAGE_DIGEST), never by a floating tag.
+    # dotenv that "Package · Docker images" exports (PACKAGE_DIGEST), never by a floating tag.
     CS_IMAGE: "$CI_REGISTRY_IMAGE/awe-boot@$PACKAGE_DIGEST"
   before_script:
     - |
       if [ -z "$PACKAGE_DIGEST" ]; then
-        echo "PACKAGE_DIGEST is empty: the build.env dotenv from Build package was not received"
+        echo "PACKAGE_DIGEST is empty: the build.env dotenv from Package · Docker images was not received"
         exit 1
       fi
       export CS_IMAGE="$CI_REGISTRY_IMAGE/awe-boot@$PACKAGE_DIGEST"
@@ -1806,19 +1892,19 @@ container_scanning:
 # Deploy stage
 ##############################
 
-Deploy snapshot:
+Deploy · Maven snapshot:
   stage: deploy
   interruptible: false
   timeout: 20m
   needs:
-    - job: Launch Sonar
+    - job: Analysis · Sonar
   script:
     - mvn $MAVEN_CLI_OPTS deploy $DEPLOY_OPTS
   rules:
     - <<: *if-develop
     - <<: *if-support
 
-Deploy Maven Central:
+Deploy · Maven Central:
   stage: deploy
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   interruptible: false
@@ -1839,12 +1925,12 @@ Deploy Maven Central:
 # statement (the job OIDC token, audience "sigstore", is what npm reads on GitLab). NPM_AUTH_TOKEN is a CI variable
 # (protected, masked) that must be visible to tag pipelines. Prerelease versions (e.g. 5.1.0-rc.1) go to the "next" dist-tag, final
 # versions to "latest". npm refuses to republish a version, so a rerun of a tag whose version already exists is a success.
-Publish npm:
+Deploy · npm:
   stage: deploy
   interruptible: false
   timeout: 30m
   needs:
-    - job: Deploy Maven Central
+    - job: Deploy · Maven Central
       artifacts: false
   id_tokens:
     SIGSTORE_ID_TOKEN:
@@ -1906,17 +1992,17 @@ Publish npm:
 # awe-boot (AngularJS) and awe-react always run the images built from the same commit:
 #   staging    -> https://staging.aweframework.com  and https://react-staging.aweframework.com
 #   production -> https://demo.aweframework.com     and https://react-demo.aweframework.com
-# Both images are set by the digest that "Build package" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
+# Both images are set by the digest that "Package · Docker images" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
 .k8s_deploy:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   cache: { }
   interruptible: false
   timeout: 15m
   needs:
-    - job: Build project
-    - job: Launch Sonar
+    - job: Build · Maven
+    - job: Analysis · Sonar
       artifacts: false
-    - job: Build package
+    - job: Package · Docker images
   stage: deploy
   variables:
     GIT_STRATEGY: none
@@ -1929,7 +2015,7 @@ Publish npm:
     - |
       for name in PACKAGE_DIGEST PACKAGE_REACT_DIGEST; do
         if [ -z "$(printenv "$name")" ]; then
-          echo "$name is empty: the build.env dotenv from Build package was not received"
+          echo "$name is empty: the build.env dotenv from Package · Docker images was not received"
           exit 1
         fi
       done
@@ -1959,7 +2045,7 @@ Publish npm:
     - git commit . -m "Updated awe-boot and awe-react kubernetes deployments ${CI_ENVIRONMENT_SLUG}"
     - git push origin master
 
-Deploy staging:
+Deploy · Staging:
   extends: .k8s_deploy
   environment:
     name: staging
@@ -1970,7 +2056,7 @@ Deploy staging:
   rules:
     - <<: *if-develop
 
-Deploy production:
+Deploy · Production:
   extends: .k8s_deploy
   environment:
     name: production
@@ -1989,7 +2075,7 @@ dast:
     - if [ -z "$DAST_WEBSITE$DAST_API_SPECIFICATION" ]; then echo "Either DAST_WEBSITE or DAST_API_SPECIFICATION must be set. See https://docs.gitlab.com/ee/user/application_security/dast/#configuration for more details." && exit 1; fi
     - /analyze
   needs:
-    - job: Deploy staging
+    - job: Deploy · Staging
   # Support branches are intentionally excluded: DAST only runs against the staging deployment.
   rules:
     - <<: *if-develop
@@ -2001,8 +2087,8 @@ pages:
   interruptible: false
   timeout: 15m
   needs:
-    - job: Generate javadoc & schemas
-    - job: Build website with i18n
+    - job: Docs · Javadoc & schemas
+    - job: Build · Website (all locales)
   script:
     - mkdir -p .public/docs/schemas
     - cp -r awe-framework/target/reports/apidocs .public/javadoc-api/
@@ -2018,7 +2104,7 @@ pages:
     - <<: *if-master
     - <<: *if-develop
 
-Generate release notes:
+Release · Notes:
   tags: [ light ]
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   cache: { }
@@ -2039,7 +2125,7 @@ Generate release notes:
 # Release stage
 ##############################
 
-Generate a new milestone:
+Release · Milestone:
   tags: [ light ]
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   stage: release
@@ -2055,7 +2141,7 @@ Generate a new milestone:
   rules:
     - <<: *if-tag
 
-Start a new release:
+Release · Start:
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   cache: { }
   interruptible: false
@@ -2064,11 +2150,11 @@ Start a new release:
   # Release gate: the manual job only becomes available once analysis, packaging and the
   # snapshot deploy of this commit have succeeded (what the stage order guaranteed before).
   needs:
-    - job: Launch Sonar
+    - job: Analysis · Sonar
       artifacts: false
-    - job: Build package
+    - job: Package · Docker images
       artifacts: false
-    - job: Deploy snapshot
+    - job: Deploy · Maven snapshot
   stage: release
   <<: *git_credentials
   script:
@@ -2106,15 +2192,15 @@ Start a new release:
       when: manual
       allow_failure: true
 
-Notify new release:
+Release · Notify:
   tags: [ light ]
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   stage: release
   interruptible: false
   # Only announce a release whose artifacts and GitLab release actually exist.
   needs:
-    - job: Deploy Maven Central
-    - job: Generate gitlab release
+    - job: Deploy · Maven Central
+    - job: Release · GitLab release
   script:
     ## Generate milestone
     - chmod +x ./bin/sendmail.sh
@@ -2124,13 +2210,13 @@ Notify new release:
       when: delayed
       start_in: 20 minutes
 
-Generate gitlab release:
+Release · GitLab release:
   tags: [ light ]
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:v0.24.0@sha256:3f52d526f48e8d10625c722fa6d6423ee82aadeae1b1aa91f07b62551d96dacf
   interruptible: false
   needs:
-    - job: Generate release notes
+    - job: Release · Notes
       artifacts: true
   rules:
     - <<: *if-tag

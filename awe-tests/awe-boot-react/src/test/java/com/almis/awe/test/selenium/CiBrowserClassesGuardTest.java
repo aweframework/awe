@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * <p>It is a unit test over the sources, so it runs with the unit tests and does not need a browser. When the module is
  * built on its own and the pipeline file is not reachable, the test is skipped with an explicit message.</p>
  */
-// The surefire run of this module (All UT) selects the "integration" tag (test.tags), so the tag is needed to run this unit test
+// The surefire run of this module (Unit · Java) selects the "integration" tag (test.tags), so the tag is needed to run this unit test
 @Tag("integration")
 class CiBrowserClassesGuardTest {
 
@@ -46,15 +46,17 @@ class CiBrowserClassesGuardTest {
   private static final String REACT_TEMPLATE = ".react-testing";
   private static final String BROWSER_TEMPLATE = ".browser-testing";
   private static final String QUARANTINE_TEMPLATE = ".quarantine-testing";
-  private static final String QUARANTINE_JOBS = "Quarantine ";
+  private static final Pattern QUARANTINE_JOB = Pattern.compile("(?:E2E|Selenium) quarantine · .*+");
   private static final Path ANGULAR_TESTS = BASEDIR.resolve("../awe-boot/src/test/java/com/almis/awe/test/selenium").normalize();
   private static final String CHAIN_RETRY_TEMPLATE = ".chain-retry";
-  private static final String SONAR_JOB = "Launch Sonar";
-  private static final Pattern BROWSER_JOB_NAME = Pattern.compile("(AngularJS|React) · (?:(Chrome|Firefox(?: \\(Selenium\\))?) · )?(\\S.*+)");
+  private static final String SONAR_JOB = "Analysis · Sonar";
+  private static final String FIREFOX_CACHE_JOB = "Build · Firefox cache";
+  private static final Pattern BROWSER_JOB_NAME = Pattern.compile("(E2E|Selenium) · (AngularJS|React) · (Chromium|Chrome|Firefox) · (\\S.*+)");
   private static final Pattern TARGET = Pattern.compile("^[ \\t]*+TARGET:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
   private static final Pattern TEST_PORT = Pattern.compile("^[ \\t]*+TEST_PORT:[ \\t]*+\"?([^\\s\"#]++)", Pattern.MULTILINE);
   private static final Pattern TEST_NAME = Pattern.compile("^[ \\t]*+TEST_NAME:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
   private static final Pattern RULES = Pattern.compile("^ {2}rules:[ \\t]*+([^\\s#][^\\s]*+)", Pattern.MULTILINE);
+  private static final Pattern IT_APP_MODULE = Pattern.compile("^[ \\t]*+IT_APP_MODULE:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
   private static final Pattern TAG = Pattern.compile("@Tag\\(\"([^\"]+)\"\\)");
   private static final Pattern TEST_TAGS = Pattern.compile("^[ \\t]*+(?:-[ \\t]*+)?TEST_TAGS:[ \\t]*+([^\\s#]++)", Pattern.MULTILINE);
   private static final Pattern EMPTY_EXCLUDED_GROUPS = Pattern.compile("-Dit\\.excluded-groups=(?:\\s|$)");
@@ -152,19 +154,19 @@ class CiBrowserClassesGuardTest {
     String pipeline = """
       .quarantine-testing:
         retry: 0
-      Quarantine Selenium IT:
+      Selenium quarantine · AngularJS · Chrome:
         extends:
           - .chrome-testing
           - .quarantine-testing
-      Quarantine Playwright IT:
+      E2E quarantine · AngularJS · Chromium:
         extends: .playwright-chromium-testing
         allow_failure: false
       """;
 
     assertThat(quarantineProblems(pipeline)).hasSize(3)
       .anyMatch(problem -> problem.contains(QUARANTINE_TEMPLATE) && problem.contains("allow_failure: true"))
-      .anyMatch(problem -> problem.contains("Quarantine Playwright IT") && problem.contains(QUARANTINE_TEMPLATE))
-      .anyMatch(problem -> problem.contains("Quarantine Playwright IT") && problem.contains("allow_failure"));
+      .anyMatch(problem -> problem.contains("E2E quarantine · AngularJS · Chromium") && problem.contains(QUARANTINE_TEMPLATE))
+      .anyMatch(problem -> problem.contains("E2E quarantine · AngularJS · Chromium") && problem.contains("allow_failure"));
   }
 
   @Test
@@ -350,13 +352,63 @@ class CiBrowserClassesGuardTest {
     String pipeline = Files.readString(PIPELINE);
 
     assertThat(firefoxRuleProblems(pipeline)).isEmpty();
-    assertThat(jobs(pipeline).keySet()).contains("Playwright Firefox browser", "AngularJS · Firefox · Scheduler", "React · Firefox · Scheduler");
+    assertThat(jobs(pipeline).keySet()).contains(FIREFOX_CACHE_JOB, "E2E · AngularJS · Firefox · Scheduler", "E2E · React · Firefox · Scheduler");
+  }
+
+  @Test
+  void shouldRunTheChromiumPlaywrightJobsInTheMergeRequestsOfTheirEngine() throws IOException {
+    assumeTrue(Files.isRegularFile(PIPELINE), PIPELINE + " is not reachable from this module: CI rules check skipped");
+
+    String pipeline = Files.readString(PIPELINE);
+
+    assertThat(chromiumRuleProblems(pipeline)).isEmpty();
+    assertThat(jobs(pipeline).keySet()).contains("E2E · AngularJS · Chromium · Scheduler", "E2E · React · Chromium · Scheduler",
+      "E2E quarantine · AngularJS · Chromium", "E2E quarantine · React · Chromium");
+  }
+
+  @Test
+  void shouldReportChromiumPlaywrightJobsThatDoNotFollowTheRulesOfTheirEngine() {
+    String pipeline = """
+      .group-angularjs:
+        extends:
+          - .playwright-chromium-testing
+        rules: *rules-playwright-angularjs
+      .group-angularjs-any-code:
+        extends:
+          - .playwright-chromium-testing
+        rules: *rules-playwright
+      .group-react:
+        extends:
+          - .playwright-chromium-testing
+          - .react-testing
+        rules: *rules-playwright-react
+      AngularJS ok:
+        extends: .group-angularjs
+      React ok:
+        extends: .group-react
+      AngularJS on any code change:
+        extends: .group-angularjs-any-code
+      E2E quarantine · React · Chromium:
+        extends:
+          - .playwright-chromium-testing
+          - .quarantine-testing
+        rules: *rules-playwright-angularjs
+        variables:
+          IT_APP_MODULE: awe-tests/awe-boot-react
+      """;
+
+    assertThat(chromiumRuleProblems(pipeline))
+      .anyMatch(problem -> problem.startsWith("AngularJS on any code change") && problem.contains("*rules-playwright-angularjs"))
+      .anyMatch(problem -> problem.startsWith("E2E quarantine · React · Chromium") && problem.contains("*rules-playwright-react"))
+      .noneMatch(problem -> problem.startsWith("AngularJS ok"))
+      .noneMatch(problem -> problem.startsWith("React ok"))
+      .noneMatch(problem -> problem.startsWith(".group"));
   }
 
   @Test
   void shouldReportFirefoxPlaywrightJobsThatRunInMergeRequestsAndChromiumJobsThatDoNot() {
     String pipeline = """
-      Playwright Firefox browser:
+      Build · Firefox cache:
         rules: *rules-playwright
       .group-firefox:
         extends:
@@ -379,7 +431,7 @@ class CiBrowserClassesGuardTest {
       """;
 
     assertThat(firefoxRuleProblems(pipeline))
-      .anyMatch(problem -> problem.startsWith("Playwright Firefox browser"))
+      .anyMatch(problem -> problem.startsWith(FIREFOX_CACHE_JOB))
       .anyMatch(problem -> problem.startsWith("Chromium job"))
       .anyMatch(problem -> problem.startsWith("Firefox in merge requests"))
       .noneMatch(problem -> problem.startsWith("Firefox ok"));
@@ -398,19 +450,19 @@ class CiBrowserClassesGuardTest {
           TEST_TAGS: A
           TEST_PORT: "1"
           TEST_NAME: a
-      AngularJS · Chrome · Matrix job:
+      Selenium · AngularJS · Chrome · Matrix job:
         extends: .chrome-testing
         parallel:
           matrix:
             - TARGET: chrome-angularjs
               TEST_TAGS: B
-      AngularJS · Scheduler:
+      E2E · AngularJS · Chromium · Scheduler:
         extends: .selenium-chrome
         variables:
           TEST_TAGS: C
           TEST_PORT: "1"
           TEST_NAME: c
-      Launch Sonar:
+      Analysis · Sonar:
         needs:
           - job: Selenium IT 1/2
       """;
@@ -418,28 +470,29 @@ class CiBrowserClassesGuardTest {
     assertThat(browserJobProblems(pipeline))
       .anyMatch(problem -> problem.contains("Selenium IT 1/2") && problem.contains("must be named"))
       .anyMatch(problem -> problem.contains("Matrix job") && problem.contains("parallel"))
-      .anyMatch(problem -> problem.contains("AngularJS · Scheduler") && problem.contains("must be named"))
-      .anyMatch(problem -> problem.contains("AngularJS · Scheduler") && problem.contains(SONAR_JOB))
+      .anyMatch(problem -> problem.startsWith("E2E · AngularJS · Chromium · Scheduler must be named \"Selenium · AngularJS · Chrome · <suite>\""))
+      .anyMatch(problem -> problem.contains("E2E · AngularJS · Chromium · Scheduler") && problem.contains(SONAR_JOB))
       .anyMatch(problem -> problem.contains("TEST_PORT") && problem.contains("share"));
   }
 
   @Test
   void shouldNotTakeAQuarantineJobForANeedOfSonarBecauseOfItsPrefix() {
     String pipeline = """
-      Quarantine · React:
+      Selenium quarantine · React · Chrome:
         extends:
           - .chrome-testing
           - .quarantine-testing
         variables:
+          IT_APP_MODULE: awe-tests/awe-boot-react
           TEST_PORT: "1"
           TEST_NAME: a
-      Launch Sonar:
+      Analysis · Sonar:
         needs:
-          - job: Quarantine · React · Chrome
+          - job: Selenium quarantine · React · Chrome · Scheduler
       """;
 
-    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Quarantine · React")).isFalse();
-    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Quarantine · React · Chrome")).isTrue();
+    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Selenium quarantine · React · Chrome")).isFalse();
+    assertThat(needsJob(jobs(pipeline).get(SONAR_JOB), "Selenium quarantine · React · Chrome · Scheduler")).isTrue();
     assertThat(browserJobProblems(pipeline)).isEmpty();
   }
 
@@ -453,25 +506,52 @@ class CiBrowserClassesGuardTest {
         rules: *rules-playwright-firefox
         variables:
           TARGET: firefox-react
-      React · Firefox · Scheduler:
+      E2E · React · Firefox · Scheduler:
         extends: .playwright-react-firefox
         variables:
           TEST_CLASSES: SchedulerTestsIT
           TEST_PORT: "6332"
           TEST_NAME: playwright-react-firefox-scheduler
+      E2E quarantine · React · Chromium:
+        extends:
+          - .playwright-chromium-testing
+          - .quarantine-testing
+        variables:
+          IT_APP_MODULE: awe-tests/awe-boot-react
+          TEST_PORT: "6334"
+          TEST_NAME: quarantine
+      Analysis · Sonar:
+        needs:
+          - job: E2E · React · Firefox · Scheduler
+      """;
+
+    assertThat(browserJobProblems(pipeline)).isEmpty();
+  }
+
+  @Test
+  void shouldReportAQuarantineJobWhoseNameContradictsItsToolOrEngine() {
+    String pipeline = """
+      E2E quarantine · React · Chromium:
+        extends:
+          - .chrome-testing
+          - .quarantine-testing
+        variables:
+          IT_APP_MODULE: awe-tests/awe-boot
+          TEST_PORT: "1"
+          TEST_NAME: a
       Quarantine · React:
         extends:
           - .playwright-chromium-testing
           - .quarantine-testing
         variables:
-          TEST_PORT: "6334"
-          TEST_NAME: quarantine
-      Launch Sonar:
-        needs:
-          - job: React · Firefox · Scheduler
+          IT_APP_MODULE: awe-tests/awe-boot-react
+          TEST_PORT: "2"
+          TEST_NAME: b
       """;
 
-    assertThat(browserJobProblems(pipeline)).isEmpty();
+    assertThat(browserJobProblems(pipeline)).hasSize(2)
+      .anyMatch(problem -> problem.equals("E2E quarantine · React · Chromium must be named \"Selenium quarantine · AngularJS · Chrome\""))
+      .anyMatch(problem -> problem.equals("Quarantine · React must be named \"E2E quarantine · React · Chromium\""));
   }
 
   @Test
@@ -482,18 +562,19 @@ class CiBrowserClassesGuardTest {
           - .playwright-firefox-testing
         variables:
           TARGET: firefox-angularjs
-      React · Scheduler:
+      E2E · React · Chromium · Scheduler:
         extends: .group
         variables:
           TEST_TAGS: SchedulerIT
           TEST_PORT: "1"
           TEST_NAME: a
-      Launch Sonar:
+      Analysis · Sonar:
         needs:
-          - job: React · Scheduler
+          - job: E2E · React · Chromium · Scheduler
       """;
 
-    assertThat(browserJobProblems(pipeline)).singleElement().asString().contains("React · Scheduler").contains("must be named");
+    assertThat(browserJobProblems(pipeline)).singleElement().asString()
+      .startsWith("E2E · React · Chromium · Scheduler must be named \"E2E · AngularJS · Firefox · <suite>\"");
   }
 
   @Test
@@ -546,14 +627,14 @@ class CiBrowserClassesGuardTest {
    */
   private static Map<String, String> browserJobs(String pipeline) {
     return jobs(pipeline).entrySet().stream()
-      .filter(job -> !job.getKey().startsWith(QUARANTINE_JOBS))
+      .filter(job -> !isQuarantineJob(job.getKey(), job.getValue()))
       .filter(job -> TEST_TAGS.matcher(job.getValue()).find() || TEST_CLASSES.matcher(job.getValue()).find())
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, second) -> first, LinkedHashMap::new));
   }
 
   /**
    * Merge requests run only the Chromium Playwright suites: the Firefox suites and the job that caches the Firefox browser use the
-   * rules without a merge request rule (develop and master), and the Chromium jobs must keep a merge request rule (not the Firefox one).
+   * rules without a merge request rule (the nightly schedule of develop and master), and the Chromium jobs must keep a merge request rule (not the Firefox one).
    * The jobs take their rules from their group template, so the templates they extend are followed.
    */
   private static List<String> firefoxRuleProblems(String pipeline) {
@@ -561,7 +642,7 @@ class CiBrowserClassesGuardTest {
     Map<String, String> jobs = jobs(pipeline);
     jobs.forEach((name, job) -> {
       Set<String> templates = allExtends(jobs, name);
-      boolean firefox = name.equals("Playwright Firefox browser") || templates.contains(".playwright-firefox-testing");
+      boolean firefox = name.equals(FIREFOX_CACHE_JOB) || templates.contains(".playwright-firefox-testing");
       boolean chromium = templates.contains(".playwright-chromium-testing");
       boolean firefoxRules = effective(jobs, name, RULES).filter("*rules-playwright-firefox"::equals).isPresent();
       if (firefox && !firefoxRules) {
@@ -569,6 +650,33 @@ class CiBrowserClassesGuardTest {
       }
       if (chromium && firefoxRules) {
         problems.add(name + " runs Chromium, so it must keep a merge request rule (not *rules-playwright-firefox)");
+      }
+    });
+    return problems;
+  }
+
+  /**
+   * The Chromium Playwright suites run in the merge requests of their engine only: the AngularJS ones (and their quarantine job)
+   * use *rules-playwright-angularjs, which leaves out a change limited to the React client, and the React ones
+   * *rules-playwright-react, which leaves out a change limited to the AngularJS client. The engine of a job is the React test
+   * application (.react-testing, or IT_APP_MODULE for a quarantine job) or else AngularJS. Templates (names that start with a dot)
+   * are only checked through the jobs that extend them.
+   */
+  private static List<String> chromiumRuleProblems(String pipeline) {
+    List<String> problems = new ArrayList<>();
+    Map<String, String> jobs = jobs(pipeline);
+    jobs.forEach((name, job) -> {
+      Set<String> templates = allExtends(jobs, name);
+      if (name.startsWith(".") || !templates.contains(".playwright-chromium-testing")) {
+        return;
+      }
+      boolean react = templates.contains(REACT_TEMPLATE)
+        || effective(jobs, name, IT_APP_MODULE).filter("awe-tests/awe-boot-react"::equals).isPresent();
+      String expected = react ? "*rules-playwright-react" : "*rules-playwright-angularjs";
+      Optional<String> rules = effective(jobs, name, RULES);
+      if (rules.filter(expected::equals).isEmpty()) {
+        problems.add(name + " runs the " + (react ? "React" : "AngularJS") + " suites in Chromium, so it must use " + expected
+          + " (merge requests that change only the other client skip it), found " + rules.orElse("none"));
       }
     });
     return problems;
@@ -603,9 +711,10 @@ class CiBrowserClassesGuardTest {
 
   /**
    * Browser jobs are explicit jobs (no parallel matrix, whose name GitLab builds from the values of its variables) with a readable
-   * name: "engine · suite" for the Chromium suites of Playwright, "engine · Firefox · suite" for its Firefox suites,
-   * "engine · Chrome · suite" and "engine · Firefox (Selenium) · suite" for the Selenium ones. Each one gates "Launch Sonar", and the
-   * quarantine jobs do not. The ports and the test names (which name the coverage and evidence files) are never shared.
+   * name: "E2E · engine · Chromium|Firefox · suite" for the Playwright suites and "Selenium · engine · Chrome|Firefox · suite" for
+   * the Selenium ones. The quarantine jobs are named "E2E quarantine · engine · Chromium" and "Selenium quarantine · engine · Chrome"
+   * (tool, engine and browser of the job). Each browser job gates "Analysis · Sonar", and the quarantine jobs do not. The ports and
+   * the test names (which name the coverage and evidence files) are never shared.
    */
   private static List<String> browserJobProblems(String pipeline) {
     List<String> problems = new ArrayList<>();
@@ -618,12 +727,10 @@ class CiBrowserClassesGuardTest {
         problems.add(name + " must not use parallel: one job per suite, so that its name says what it runs");
       }
       Set<String> templates = allExtends(jobs, name);
-      String engine = templates.contains(REACT_TEMPLATE) ? "React" : "AngularJS";
-      String browser = browserOf(templates);
-      Matcher matcher = BROWSER_JOB_NAME.matcher(name);
-      if (!matcher.matches() || !matcher.group(1).equals(engine) || !Optional.ofNullable(matcher.group(2)).orElse("").equals(browser)) {
-        problems.add(name + " must be named \"" + engine + " · " + (browser.isEmpty() ? "" : browser + " · ") + "<suite>\" (the Chromium suites"
-          + " of Playwright carry no browser, the others carry theirs)");
+      String engine = engineOf(jobs, name, templates);
+      String prefix = toolOf(templates) + " · " + engine + " · " + browserOf(templates) + " · ";
+      if (!BROWSER_JOB_NAME.matcher(name).matches() || !name.startsWith(prefix)) {
+        problems.add(name + " must be named \"" + prefix + "<suite>\" (tool, engine and browser of the job)");
       }
       Optional<String> target = effective(jobs, name, TARGET);
       if (target.isEmpty() || !target.get().endsWith("-" + engine.toLowerCase())) {
@@ -636,6 +743,11 @@ class CiBrowserClassesGuardTest {
       collect(testNames, name, effective(jobs, name, TEST_NAME), "TEST_NAME", problems);
     });
     quarantineJobs(pipeline).forEach((name, job) -> {
+      Set<String> templates = allExtends(jobs, name);
+      String expected = toolOf(templates) + " quarantine · " + engineOf(jobs, name, templates) + " · " + browserOf(templates);
+      if (!name.equals(expected)) {
+        problems.add(name + " must be named \"" + expected + "\"");
+      }
       collect(ports, name, effective(jobs, name, TEST_PORT), "TEST_PORT", problems);
       collect(testNames, name, effective(jobs, name, TEST_NAME), "TEST_NAME", problems);
       if (needsJob(sonar, name)) {
@@ -652,15 +764,31 @@ class CiBrowserClassesGuardTest {
     return Pattern.compile("^ {4}- job: " + Pattern.quote(name) + "[ \\t]*+$", Pattern.MULTILINE).matcher(job).find();
   }
 
+  /**
+   * The engine of a job: React when it runs the React test application (.react-testing, or IT_APP_MODULE for a quarantine job)
+   */
+  private static String engineOf(Map<String, String> jobs, String name, Set<String> templates) {
+    boolean react = templates.contains(REACT_TEMPLATE)
+      || effective(jobs, name, IT_APP_MODULE).filter("awe-tests/awe-boot-react"::equals).isPresent();
+    return react ? "React" : "AngularJS";
+  }
+
+  /**
+   * The tool of a job: E2E for the Playwright jobs, Selenium for the jobs that drive a Selenoid browser
+   */
+  private static String toolOf(Set<String> templates) {
+    if (templates.contains(".playwright-firefox-testing") || templates.contains(".playwright-chromium-testing")) {
+      return "E2E";
+    }
+    return templates.contains(".firefox-testing") || templates.contains(".chrome-testing") ? "Selenium" : "?";
+  }
+
   private static String browserOf(Set<String> templates) {
-    if (templates.contains(".playwright-firefox-testing")) {
+    if (templates.contains(".playwright-firefox-testing") || templates.contains(".firefox-testing")) {
       return "Firefox";
     }
     if (templates.contains(".playwright-chromium-testing")) {
-      return "";
-    }
-    if (templates.contains(".firefox-testing")) {
-      return "Firefox (Selenium)";
+      return "Chromium";
     }
     return templates.contains(".chrome-testing") ? "Chrome" : "?";
   }
@@ -719,12 +847,17 @@ class CiBrowserClassesGuardTest {
   }
 
   /**
-   * The jobs that run the quarantined tests
+   * The jobs that run the quarantined tests: named as one, or extending the quarantine template whatever their name, so that a
+   * job that misses either one is still checked
    */
   private static Map<String, String> quarantineJobs(String pipeline) {
     return jobs(pipeline).entrySet().stream()
-      .filter(job -> job.getKey().startsWith(QUARANTINE_JOBS))
+      .filter(job -> isQuarantineJob(job.getKey(), job.getValue()))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (first, second) -> first, LinkedHashMap::new));
+  }
+
+  private static boolean isQuarantineJob(String name, String job) {
+    return !name.startsWith(".") && (QUARANTINE_JOB.matcher(name).matches() || extendsOf(job).contains(QUARANTINE_TEMPLATE));
   }
 
   /**
@@ -801,7 +934,7 @@ class CiBrowserClassesGuardTest {
         runsChain |= chainTags.contains(tags.group(1));
       }
       boolean selects = TEST_CLASSES.matcher(job).find() || TEST_TAGS.matcher(job).find();
-      if (selects && !name.startsWith(QUARANTINE_JOBS)) {
+      if (selects && !isQuarantineJob(name, job)) {
         boolean retries = extendsOf(job).contains(CHAIN_RETRY_TEMPLATE);
         if (runsChain && !retries) {
           problems.add(name + ": runs a @DependentChain class, so it must extend " + CHAIN_RETRY_TEMPLATE);

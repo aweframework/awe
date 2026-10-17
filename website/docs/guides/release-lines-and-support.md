@@ -41,42 +41,47 @@ from `develop`/`master`.
 | Job / area | `develop` | `master` | `support/4.x` | Merge request |
 |---|---|---|---|---|
 | Build, unit/DB/frontend tests, javadoc | yes | yes | yes | yes |
-| Dependency scanning | yes | yes | yes | yes |
+| `Security · Dependencies` | yes | yes | yes | yes |
 | Merge request title lint (blocking) and size warning | no | no | no | yes |
-| Playwright browser integration tests | yes | yes | no | yes (Chromium only) |
+| Playwright browser integration tests | yes (Firefox: nightly scheduled pipeline only) | yes | no | yes (Chromium only, suites of the changed engine) |
 | Selenium browser integration tests | weekly scheduled pipeline only | yes | yes | no |
 | Sonar analysis (`sonar.branch.name` set) | yes | yes | yes | yes (MR analysis) |
-| Generate javadoc & schemas | yes | yes | yes | no |
-| Build package (Docker image) | yes | yes | yes | no |
+| `Docs · Javadoc & schemas` | yes | yes | yes | no |
+| `Package · Docker images` (Docker image) | yes | yes | yes | no |
 | Docker floating tags (`4`, `4.12`) | no | no | yes | no |
-| Deploy snapshot | yes | no | yes | no |
-| Start a new release (manual) | yes | no | yes | no |
-| Deploy staging / production (Kubernetes) | no | yes (prod) | no | no |
+| `Deploy · Maven snapshot` | yes | no | yes | no |
+| `Release · Start` (manual) | yes | no | yes | no |
+| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | no | yes (prod) | no | no |
 | DAST | no | yes | no | no |
 | GitLab Pages (docs site) | yes | yes | no | no |
 | Tag pipeline (Maven Central, milestones, release notes) | on tag | on tag | on tag | no |
 
 The browser suites run with two tools, and both are blocking wherever they run: a failing suite
-fails the pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Renovate
+fails the pipeline, stops `Analysis · Sonar` (and with it the release jobs), and prevents Renovate
 from automerging. A flaky test is rerun alone once and reported as flaky; a test that fails twice
 fails the job, and a job is retried only when the runner fails (not on a test failure or a timeout).
 
-- **Playwright** (jobs named `<engine> · <suite>` for Chromium, such as `React · Scheduler`, and
-  `<engine> · Firefox · <suite>` for Firefox, such as `AngularJS · Firefox · Scheduler`, each one
+- **Playwright** (jobs named `E2E · <engine> · Chromium · <suite>`, such as `E2E · React · Chromium · Scheduler`, and
+  `E2E · <engine> · Firefox · <suite>`, such as `E2E · AngularJS · Firefox · Scheduler`, each one
   against the AngularJS and the React application) is the browser tool of the everyday pipeline: merge
   requests with code changes, `develop` and `master`. It does not run on `support/*`: `support/4.x`
-  has no Playwright adapter. Merge requests run only the Chromium jobs (the ones without a browser in their
-  name); the Firefox jobs and their browser cache job run on `develop` and `master`.
-- **Selenium** (jobs named `<engine> · Chrome · <suite>` and `<engine> · Firefox (Selenium) · <suite>`,
+  has no Playwright adapter. Merge requests run only the Chromium jobs (the ones with Chromium in their
+  name), and only those of the engine whose code changed: a merge request that changes only the React client
+  (`awe-framework/awe-client-react`) skips the AngularJS jobs, and one that changes only the AngularJS client skips
+  the React jobs. The Firefox jobs and their browser cache job run on `master` and, on `develop`, only in the
+  pipelines of the **"Nightly Firefox" pipeline schedule**, which must set the variable `FIREFOX_NIGHTLY=true`
+  (CI/CD, Schedules). That pipeline runs only `Build · Maven`, `Build · Firefox cache` and the eight
+  Firefox jobs; an ordinary push to `develop` does not run them.
+- **Selenium** (jobs named `Selenium · <engine> · Chrome · <suite>` and `Selenium · <engine> · Firefox · <suite>`,
   each one against the AngularJS and the React application) runs on
   `master`, on `support/*` and in the pipelines of the **"Weekly Check" pipeline schedule on
   `develop`**. It does not run on merge requests or on an ordinary push to `develop`. The schedule
   is a project setting in GitLab (CI/CD, Schedules), not a file of the repository; the "Renovate"
-  schedule runs only the Renovate job.
+  schedule runs only the Renovate job, and the "Nightly Firefox" schedule only the Firefox Playwright jobs.
 
 Each tool runs the same four suite groups twice: against the AngularJS test application
 (`awe-tests/awe-boot`) and against the React engine test application (`awe-tests/awe-boot-react`).
-`Launch Sonar` waits for whichever browser jobs ran in the pipeline (both tools on `master` and in
+`Analysis · Sonar` waits for whichever browser jobs ran in the pipeline (both tools on `master` and in
 the weekly schedule on `develop`).
 
 Only failed tests leave evidence. Open the pipeline **Tests** tab, pick the failed test and use
@@ -90,31 +95,31 @@ they behave the same whether the tag came from `develop` or from `support/4.x`.
 Merge-request pipelines are selective: jobs are added according to the paths the merge
 request touches. A change limited to `website/` builds only the documentation site; a change
 limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the AngularJS
-Chromium Playwright suites, Sonar and dependency scanning but not the database matrix nor the React
+Chromium Playwright suites, Sonar and dependency scanning but not the database jobs nor the React
 Playwright suites; a change limited to `awe-framework/awe-client-react/` runs the React unit
 tests and lint, both Chromium sets of Playwright suites (AngularJS and React), Sonar and dependency scanning; a backend change
-runs the build, the database matrix, both Chromium sets of Playwright suites (AngularJS and React), Sonar, dependency scanning
+runs the build, the database jobs, both Chromium sets of Playwright suites (AngularJS and React), Sonar, dependency scanning
 and the javadoc check, but neither the frontend unit tests nor the documentation build. A change to
 `.gitlab-ci.yml` counts as touching everything; a change to the root `pom.xml` counts as a
 backend change. Branch pipelines on `develop`, `master` and `support/*` always run the
 complete set, except that each branch runs only the browser tools listed above. Merge-request pipelines are interruptible, so a new
 push cancels the superseded pipeline automatically; pipelines on protected branches are not
-cancelled. Database and browser jobs are generated from `parallel:matrix` definitions
-(`Embedded DB Tests`, one job per database engine with and without Flyway, the Playwright and
-Selenium browser jobs per suite), and every job has a timeout of roughly twice its observed duration.
+cancelled. Database and browser jobs are explicit jobs, not `parallel:matrix` definitions, so their names say what they run:
+one job per database profile (`Database · H2`, `Database · MySQL · Flyway`, ...) and one per Playwright or Selenium
+browser suite, and every job has a timeout of roughly twice its observed duration.
 
 Support branches must be **protected branches** in GitLab (the pattern `support/*` is
-protected with the same policy as `develop`). The credentials used by `Build package`
-(Docker Hub), `Deploy snapshot` (Maven repository) and the release job (API token, GPG
+protected with the same policy as `develop`). The credentials used by `Package · Docker images`
+(Docker Hub), `Deploy · Maven snapshot` (Maven repository) and the release job (API token, GPG
 keys, git identity) are protected CI variables, and GitLab only injects them into
 pipelines of protected refs. On an unprotected support branch those jobs fail with an
 empty Docker login and a `401 Unauthorized` from the Maven repository.
 
 ## Merge request title and size
 
-The `lint` stage runs fast jobs on every merge request pipeline, in parallel with the build: `MR docs warning`
-(see [Docs warning](#docs-warning-not-blocking)), [`Markdown lint`](#markdown-lint) and, for the merge requests that change a client,
-[`Lint frontend`](#frontend-lint-blocking). The title, size and translation drift checks are **not** pipeline jobs: they
+The `lint` stage runs fast jobs on every merge request pipeline, in parallel with the build: `MR · Docs warning`
+(see [Docs warning](#docs-warning-not-blocking)), [`Lint · Markdown`](#markdown-lint) and, for the merge requests that change a client,
+[`Lint · Frontend`](#frontend-lint-blocking). The title, size and translation drift checks are **not** pipeline jobs: they
 are scripts you can run locally, described below.
 
 ### Title format (local check) {#title-format-blocking}
@@ -171,7 +176,7 @@ bin/mr-size.sh origin/develop   # base to compare with; head is HEAD
 
 ### Docs warning (not blocking)
 
-The job `MR docs warning` is part of the definition of done: documentation changes with the code.
+The job `MR · Docs warning` is part of the definition of done: documentation changes with the code.
 It warns when a merge request changes code (`awe-framework/`, `awe-samples/`, `bin/` or `pom.xml`,
 without test sources, lockfiles or markdown) but changes no documentation (`website/`,
 `CONTRIBUTING.md`, `README.md` or `AGENTS.md`) and does not say why none is needed. Like the size
@@ -205,12 +210,12 @@ pipeline job (`MR translation drift warning` was removed); it ends with exit cod
 bin/mr-translations.sh origin/develop
 ```
 
-`bin/test-mr-checks.sh` tests the four scripts; the job `MR checks tests` runs it in merge
+`bin/test-mr-checks.sh` tests the four scripts; the job `MR · Script tests` runs it in merge
 requests that change them.
 
-### Spanish docs lint (blocking) {#spanish-docs-lint}
+### Lint · Spanish docs (blocking) {#spanish-docs-lint}
 
-Merge requests build the English site only, so the job `Spanish docs lint` checks the Spanish translation without
+Merge requests build the English site only, so the job `Lint · Spanish docs` checks the Spanish translation without
 building it. It runs `npm --prefix website run check:translations` in the merge requests that change `website/`, in
 a few seconds, and fails when a Spanish page under `website/i18n/es/docusaurus-plugin-content-docs/current`:
 
@@ -222,9 +227,9 @@ a few seconds, and fails when a Spanish page under `website/i18n/es/docusaurus-p
 
 Run it locally with `npm --prefix website run check:translations`, optionally followed by the paths of the pages to check.
 
-### Markdown lint (non-blocking) {#markdown-lint}
+### Lint · Markdown (non-blocking) {#markdown-lint}
 
-The job `Markdown lint` runs [markdownlint](https://github.com/DavidAnson/markdownlint) on the English and Spanish pages
+The job `Lint · Markdown` runs [markdownlint](https://github.com/DavidAnson/markdownlint) on the English and Spanish pages
 and on the blog, in the merge requests that change a Markdown file under `website/` or its configuration
 (`website/.markdownlint-cli2.jsonc`). It is allowed to fail: the pipeline shows an orange warning and the merge is never
 blocked. The configuration turns off the rules that fight Docusaurus and MDX (line length, inline HTML and JSX, front
@@ -236,7 +241,7 @@ Run it locally with `npm --prefix website run lint:md`, or check only some pages
 
 ## Frontend lint (blocking)
 
-The job `Lint frontend` runs [ESLint](https://eslint.org/) on both front-end engines, the AngularJS
+The job `Lint · Frontend` runs [ESLint](https://eslint.org/) on both front-end engines, the AngularJS
 client (`awe-client-angular`) and the React client (`awe-client-react`), in the `lint` stage, so a
 failure shows in about a minute, before the unit tests start. It runs in the merge requests that
 change a client and on `develop`, `master` and `support/*`.
@@ -253,16 +258,16 @@ npm --prefix awe-framework/awe-client-react run lint:ci
 
 The Maven build runs the same `lint:ci` before the unit tests, so `mvn test` fails locally with the
 same limit. CI skips that Maven step (`-Dskip.lint=true`, set in `MAVEN_CLI_OPTS`), because
-`Lint frontend` already ran it: lint runs once per pipeline.
+`Lint · Frontend` already ran it: lint runs once per pipeline.
 
 ## Run the pipeline locally {#run-the-pipeline-locally}
 
 `bin/local-ci.sh` runs on your machine the jobs that the merge request pipeline would run for your branch. It reads the
 `rules:changes` of `.gitlab-ci.yml` to choose them, and adds the SonarCloud coverage gate (80% of the new lines) and a
 warning for a few Sonar rules. `bin/local-ci.sh --list` shows what your changes trigger and why. The browser suites run in
-Chromium, as in a merge request (`--browsers firefox` adds the Firefox suites of `develop`).
+Chromium, as in a merge request (`--browsers firefox` adds the Firefox suites of the nightly schedule).
 
-The unit-testing jobs (All UT, Embedded DB Tests and the database jobs) run three at a time, each in a clone of your checkout
+The unit-testing jobs (Unit · Java and the database jobs) run three at a time, each in a clone of your checkout
 (`LOCAL_CI_DB_PARALLEL`, default 3; `1` runs them one after another). The `awe-boot` test context listens on a random port and
 every browser suite picks free ports for its application, so runs of different checkouts do not wait for each other; only one
 Oracle container, and `LOCAL_CI_BROWSER_PARALLEL` browser applications (default 2), run at a time on the machine. `--fast`
@@ -286,17 +291,17 @@ tracks a floating `latest` tag. [Renovate](#dependency-updates)
 is responsible for opening merge requests that bump these pins (including re-resolving the
 digests), so a pin is never updated by hand-editing `latest`.
 
-`Build project` generates a CycloneDX SBOM (`target/awe-sbom.json`) for the whole Maven
-reactor with the `cyclonedx-maven-plugin`. It is published as a pipeline artifact, and `Build
-package` attaches that same SBOM to the `awe-boot` image pushed to the GitLab registry as
+`Build · Maven` generates a CycloneDX SBOM (`target/awe-sbom.json`) for the whole Maven
+reactor with the `cyclonedx-maven-plugin`. It is published as a pipeline artifact, and
+`Package · Docker images` attaches that same SBOM to the `awe-boot` image pushed to the GitLab registry as
 a [cosign](https://github.com/sigstore/cosign) attestation, so the SBOM travels with the
 image itself, not only with the pipeline run. It is not declared as a GitLab `cyclonedx`
 report on purpose: the dependency list only accepts SBOMs carrying GitLab's own CycloneDX
 properties and is already fed by the `gemnasium` dependency-scanning job, which covers the
-same Maven reactor. The React client has its own CycloneDX SBOM, generated by the `Publish npm` job
+same Maven reactor. The React client has its own CycloneDX SBOM, generated by the `Deploy · npm` job
 (see [npm package](#npm-package)).
 
-`Build package` also signs the `awe-boot` and `awe-boot-react` images keylessly, using GitLab's own OIDC
+`Package · Docker images` also signs the `awe-boot` and `awe-boot-react` images keylessly, using GitLab's own OIDC
 identity (`id_tokens: SIGSTORE_ID_TOKEN`) instead of a stored private key: both the GitLab
 registry image and the Docker Hub image are signed by digest, once, since every floating
 tag (`$PROJECT_VERSION`, and on `support/*` branches the major/major.minor aliases) points
@@ -323,12 +328,12 @@ The same commands verify `awe-boot-react`. The SBOM attached to both images is t
 
 Scanners run at different points in the pipeline:
 
-- **Dependency scanning** (`Dependency scanning`) runs on merge requests
+- **Dependency scanning** (`Security · Dependencies`) runs on merge requests
   and on `develop`/`master`/`support/*` branch pipelines, as before.
-- **Secret detection** (`Secret detection`) runs on every merge request and every branch
+- **Secret detection** (`Security · Secrets`) runs on every merge request and every branch
   pipeline.
 - **Container scanning** (`container_scanning`) runs on `develop`, `master` and
-  `support/*` branch pipelines only, after `Build package` has pushed the image; it has
+  `support/*` branch pipelines only, after `Package · Docker images` has pushed the image; it has
   `allow_failure: true` for the first weeks after adoption, so findings surface without
   blocking releases, and is tightened once triaged.
 
@@ -404,13 +409,13 @@ pins are merged by a person.
    "Prevent editing approval rules in merge requests" is off (Renovate lifts the approval
    rule by adding a zero-approval rule to its own merge requests). If either changes, bot
    merge requests simply stay open.
-5. The `Validate renovate config` job runs on every merge request that touches
+5. The `Lint · Renovate config` job runs on every merge request that touches
    `renovate.json`. Locally, from the repository root, run
    `npx --yes --package renovate -- renovate-config-validator --strict`.
 
 ## Releasing from a support branch
 
-Releases are triggered with the manual `Start a new release` pipeline job, on a push
+Releases are triggered with the manual `Release · Start` pipeline job, on a push
 pipeline for `support/4.x` (not a merge request pipeline). The job dispatches by branch:
 `develop` still runs `mvn gitflow:release`; any `support/*` branch runs
 `bin/support-release.sh` instead.
@@ -475,22 +480,22 @@ line: always pin an explicit version or, deliberately, one of these floating ali
 
 ## React test application image
 
-`Build package` builds a second image, `awe-boot-react`, from `awe-tests/awe-boot-react`: the
+`Package · Docker images` builds a second image, `awe-boot-react`, from `awe-tests/awe-boot-react`: the
 test application that runs on the React engine, the counterpart of `awe-boot`. It follows the
 same rules as `awe-boot` (built on `develop`, `master` and `support/*`, with the same tags, GitLab
 registry `registry.gitlab.com/aweframework/awe/awe-boot-react` and Docker Hub
 `aweframework/awe-boot-react`, signed by digest and carrying the SBOM attestation). A separate job,
-`Build React package`, packages its jar from the modules and the client bundle built by `Build
-project`. No deploy job uses this image: staging and production deploy `awe-boot` only.
+`Package · React jar`, packages its jar from the modules and the client bundle built by
+`Build · Maven`. No deploy job uses this image: staging and production deploy `awe-boot` only.
 
 ## npm package
 
 The React client is published to npm as
-[`awe-react-client`](https://www.npmjs.com/package/awe-react-client) by the `Publish npm` job.
+[`awe-react-client`](https://www.npmjs.com/package/awe-react-client) by the `Deploy · npm` job.
 It is not published to a Maven repository.
 
 - **When.** Only in the pipelines of release tags of the 5.x line and later (`v5.*`, `v6.*`...),
-  after `Deploy Maven Central` has succeeded. A `v4.*` tag from `support/4.x` never publishes
+  after `Deploy · Maven Central` has succeeded. A `v4.*` tag from `support/4.x` never publishes
   it, because that line has no React client.
 - **Version.** The tag without the `v`: `v5.0.0` publishes `awe-react-client@5.0.0`, which is also the
   Maven version of the tagged commit. The job builds the client with that version and fails if the
