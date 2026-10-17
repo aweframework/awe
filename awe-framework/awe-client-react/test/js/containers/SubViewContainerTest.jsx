@@ -4,6 +4,7 @@ import {MemoryRouter, Route, Routes} from "react-router";
 import SubViewContainer from "../../../src/containers/SubViewContainer";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
+import {endInitialLoad} from "../../../src/components/AweScreenSkeleton";
 
 describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
 
@@ -47,6 +48,8 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
         ok: true,
         json: () => Promise.resolve({})
       }));
+    // The first screen of the page shows the splash animation instead (InitialLoadSplashTest)
+    endInitialLoad();
     renderSubViewContainer();
 
     // The screen skeleton is shown while the screen loads
@@ -66,6 +69,8 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
       text: () => Promise.resolve("UNAUTHORIZED")
     }));
 
+    // The first screen of the page shows the splash animation instead (InitialLoadSplashTest)
+    endInitialLoad();
     renderSubViewContainer();
 
     // The screen skeleton is shown while the screen loads
@@ -91,6 +96,8 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
       })
     }));
 
+    // The first screen of the page shows the splash animation instead (InitialLoadSplashTest)
+    endInitialLoad();
     renderSubViewContainer();
 
     // The screen skeleton is shown while the screen loads

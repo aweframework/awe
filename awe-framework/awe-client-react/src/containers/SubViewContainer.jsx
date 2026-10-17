@@ -5,7 +5,7 @@ import Templates from "../templates";
 import {useLocation, useParams} from "react-router";
 import {loadScreen} from "../redux/thunks/screen";
 import {useDispatch} from "react-redux";
-import AweScreenSkeleton from "../components/AweScreenSkeleton";
+import AweScreenSkeleton, {endInitialLoad} from "../components/AweScreenSkeleton";
 import ViewRegistry from "../redux/registry/ViewRegistry";
 import { useView } from "../hooks/useViewRegistry";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -30,7 +30,8 @@ function SubViewContainer() {
   const screenReloadToken = location.state?.screenReloadToken;
 
   useEffect(() => {
-    dispatch(loadScreen(VIEW, subScreenId, t));
+    // The initial load of the page ends with the sub screen, also when it fails
+    Promise.resolve(dispatch(loadScreen(VIEW, subScreenId, t))).then(endInitialLoad, endInitialLoad);
     return () => {
       ViewRegistry.clearView(VIEW);
     };

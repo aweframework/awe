@@ -48,6 +48,34 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
     expect(document.querySelector("div#avatar")).not.toBeNull();
   });
 
+  it("renders the initial of the label and requests no image when the user has no image", () => {
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
+    const state = {
+      ...preloadedState,
+      components: {
+        avatar: {
+          ...preloadedState.components.avatar,
+          model: { values: [{ label: "manager", value: "test", image: null, selected: true }] },
+          attributes: { label: "avatar" },
+        },
+      },
+    };
+
+    renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { preloadedState: state });
+
+    const avatar = document.querySelector("div#avatar");
+    expect(avatar.querySelector("img")).toBeNull();
+    expect(avatar.textContent).toBe("M");
+  });
+
+  it("renders the image of the user under the context path", () => {
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
+
+    renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { preloadedState });
+
+    expect(document.querySelector("div#avatar img").getAttribute("src")).toMatch(/helpImage$/);
+  });
+
   it("renders Avatar component and clicks on it", () => {
     jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
 

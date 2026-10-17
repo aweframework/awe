@@ -3,6 +3,7 @@ import {cleanup} from "@testing-library/react";
 import {MemoryRouter, Route, Routes} from "react-router";
 import ViewContainer from "../../../src/containers/ViewContainer";
 import SubViewContainer from "../../../src/containers/SubViewContainer";
+import {endInitialLoad} from "../../../src/components/AweScreenSkeleton";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 
@@ -20,6 +21,9 @@ describe("awe-react-client/test/js/containers/ScreenSkeletonTest.jsx", () => {
       {preloadedState: {settings: DEFAULT_SETTINGS}}
     );
   }
+
+  // The first screen of the page shows the splash animation instead (InitialLoadSplashTest)
+  beforeAll(endInitialLoad);
 
   beforeEach(() => {
     // The screen never arrives: the view stays loading

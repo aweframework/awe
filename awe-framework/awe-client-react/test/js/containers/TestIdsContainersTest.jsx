@@ -5,6 +5,7 @@ import { renderWithProviders } from "../test-utils";
 import MessageContainer from "../../../src/containers/MessageContainer";
 import SubViewContainer from "../../../src/containers/SubViewContainer";
 import ViewContainer from "../../../src/containers/ViewContainer";
+import { endInitialLoad } from "../../../src/components/AweScreenSkeleton";
 import { MemoryRouter, Route, Routes } from "react-router";
 
 const hook = (testId) => `[data-testid='${testId}']`;
@@ -93,6 +94,9 @@ describe("awe-react-client/test/js/containers/TestIdsContainersTest.jsx", () => 
         { preloadedState: { settings: DEFAULT_SETTINGS } }
       );
     }
+
+    // The first screen of the page shows the splash animation instead (InitialLoadSplashTest)
+    beforeAll(endInitialLoad);
 
     beforeEach(() => {
       global.fetch = jest.fn(() => new Promise(() => {}));
