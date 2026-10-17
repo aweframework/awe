@@ -15,7 +15,7 @@ Run the commands from the repository root, or drop `--prefix website` and run th
 ```bash
 npm --prefix website ci          # install the pinned dependencies (use ci, not install: it keeps package-lock.json untouched)
 npm --prefix website start       # dev server with live reload at http://localhost:3000
-npm --prefix website run build   # production build into website/build (the same step as the CI job "Build website")
+npm --prefix website run build   # production build into website/build (the same step as the CI job "Build · Website")
 npm --prefix website run serve   # serve website/build locally to check the production build
 ```
 
@@ -65,13 +65,13 @@ Spanish version of `docs/api/button.md` is `i18n/es/docusaurus-plugin-content-do
   resolves relative `.md` links from the root of the docs, so keep writing them as usual.
 - `npm --prefix website run check:translations` lints the Spanish pages in a few seconds, without building the site: each
   page compiles as MDX, has the heading anchors, code blocks and front matter `id`/`slug` of its English page, and its
-  relative links point to existing pages. It runs in merge requests (job `Spanish docs lint`), which build the English
+  relative links point to existing pages. It runs in merge requests (job `Lint · Spanish docs`), which build the English
   site only. Pass file paths to check only some pages.
-- `npm --prefix website run lint:md` runs markdownlint on the pages (job `Markdown lint`, allowed to fail; configuration in
+- `npm --prefix website run lint:md` runs markdownlint on the pages (job `Lint · Markdown`, allowed to fail; configuration in
   `.markdownlint-cli2.jsonc`).
 - The page *Documentation audit* (`docs/guides/docs-audit.md`, English and Spanish) is generated at every start and build by
   `scripts/docs-audit/generate.js` and git-ignored. Record a substantive review of a page in `scripts/docs-audit/reviews.json`.
-- The pipeline job `Build website with i18n` builds all locales from the repository on `develop` and `master`. Locally,
+- The pipeline job `Build · Website (all locales)` builds all locales from the repository on `develop` and `master`. Locally,
   `npm --prefix website run build` does the same and `npm --prefix website start` serves English only; to see Spanish
   run `npm --prefix website start -- --locale es`.
 - New interface texts: `npm --prefix website run write-translations -- --locale es` adds the missing keys to the JSON
@@ -94,7 +94,7 @@ To document an attribute, add an `xs:annotation/xs:documentation` to it in the X
 ## Broken anchors
 
 `npm --prefix website run build` prints `Docusaurus found broken anchors!` followed by the pages and anchors that do
-not exist. The CI job `Build website` keeps that log and runs `bin/check-website-anchors.sh` over it, so a merge
+not exist. The CI job `Build · Website` keeps that log and runs `bin/check-website-anchors.sh` over it, so a merge
 request fails when the **current** docs have a broken anchor. Docusaurus has one `onBrokenAnchors` setting for the whole
 site (it stays at `warn`), and the frozen versions (`versioned_docs` and the 4.x maintenance line) have broken anchors
 that must stay as they are, so the script ignores the pages under `/docs/<version>/` (with or without a locale prefix)

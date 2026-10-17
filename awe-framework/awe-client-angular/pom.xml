@@ -76,7 +76,7 @@
         <executions>
           <!-- Lint the AngularJS sources and their Jest tests before the unit tests: lint errors fail the build, and so do
                more warnings than the limit of the lint:ci script (package.json), which only goes down. Declared before "jest" so
-               it runs first within the test phase. CI skips it (-Dskip.lint=true) because the "Lint frontend" job runs lint:ci. -->
+               it runs first within the test phase. CI skips it (-Dskip.lint=true) because the "Lint · Frontend" job runs lint:ci. -->
           <execution>
             <id>lint</id>
             <goals>

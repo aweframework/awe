@@ -192,7 +192,7 @@ lci_port_busy() {
 }
 
 # Drops variables of the environment that would change the steps. SERVER_PORT (often exported for the browser suites of
-# awe-boot) moves every Spring test context of All UT and the database jobs to that port, and their REST and microservice
+# awe-boot) moves every Spring test context of Unit · Java and the database jobs to that port, and their REST and microservice
 # tests then fail; the browser steps of this script set it themselves, for their own application only.
 lci_clean_env() {
   if [ -n "${SERVER_PORT+set}" ]; then

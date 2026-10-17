@@ -5,7 +5,7 @@ set -eu
 # mr-docs.sh
 #
 # Warns when a merge request changes code but neither changes documentation nor says why it is not
-# needed. It is the "MR docs warning" job of the pipeline (#784): the job is allowed to fail with
+# needed. It is the "MR · Docs warning" job of the pipeline (#784): the job is allowed to fail with
 # exit code 64, so a merge request without docs shows a warning in the pipeline, never a failure.
 #
 # It is advisory: it ends with 0 or 64 and nothing else. When it cannot do its job (no base to compare with, a base commit
@@ -124,7 +124,7 @@ if [ "${CI_MERGE_REQUEST_DESCRIPTION_IS_TRUNCATED:-false}" = "true" ]; then
   exit 0
 fi
 
-echo "MR docs warning: this merge request changes code but no documentation, and says nothing about it."
+echo "MR · Docs warning: this merge request changes code but no documentation, and says nothing about it."
 echo
 echo "Code changed ($(printf '%s\n' "$CODE" | wc -l | tr -d ' ') files), for example:"
 printf '%s\n' "$CODE" | head -5 | sed 's/^/  /'

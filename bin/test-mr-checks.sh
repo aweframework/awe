@@ -7,7 +7,7 @@ set -eu
 # Tests of the merge request checks (#762, #784):
 #   - bin/lint-mr-title.sh   (local check, not a pipeline job)
 #   - bin/mr-size.sh         (local check, not a pipeline job)
-#   - bin/mr-docs.sh         (job "MR docs warning", non-blocking)
+#   - bin/mr-docs.sh         (job "MR · Docs warning", non-blocking)
 #   - bin/mr-translations.sh (local check, not a pipeline job)
 # and, through bin/test-local-ci.sh, the job selection, coverage and summary logic of bin/local-ci.sh.
 #
@@ -287,8 +287,8 @@ NODOCS_TEMPLATE='- [ ] No docs needed because: …'
 reset_repo
 lines 20 "$REPO/awe-framework/awe-model/src/main/java/Foo.java"
 commit_all
-docs_case "code without docs or reason warns" 64 "MR docs warning" env
-docs_case "the template as it is warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [ ] Docs updated
+docs_case "code without docs or reason warns" 64 "MR · Docs warning" env
+docs_case "the template as it is warns" 64 "MR · Docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [ ] Docs updated
 $NODOCS_TEMPLATE"
 docs_case "a ticked Docs updated passes" 0 "says the docs are updated" env "CI_MERGE_REQUEST_DESCRIPTION=$DOCS_TICKED"
 docs_case "an uppercase tick passes" 0 "says the docs are updated" env "CI_MERGE_REQUEST_DESCRIPTION=- [X] Docs updated"
@@ -298,10 +298,10 @@ $DOCS_TICKED
 $NODOCS_TEMPLATE
 ### Description"
 docs_case "No docs needed with a reason passes" 0 "gives a reason" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: internal refactor, no behavior change"
-docs_case "a ticked No docs needed with the placeholder still warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: …"
-docs_case "a ticked No docs needed with three dots still warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: ..."
-docs_case "a ticked No docs needed without a reason still warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because:"
-docs_case "an unticked No docs needed with a reason warns" 64 "MR docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [ ] No docs needed because: internal refactor"
+docs_case "a ticked No docs needed with the placeholder still warns" 64 "MR · Docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: …"
+docs_case "a ticked No docs needed with three dots still warns" 64 "MR · Docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because: ..."
+docs_case "a ticked No docs needed without a reason still warns" 64 "MR · Docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [x] No docs needed because:"
+docs_case "an unticked No docs needed with a reason warns" 64 "MR · Docs warning" env "CI_MERGE_REQUEST_DESCRIPTION=- [ ] No docs needed because: internal refactor"
 docs_case "a dependency update passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=chore(deps): update dependency foo to v2"
 docs_case "a Draft dependency update passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=Draft: build(deps): bump foo"
 docs_case "a runtime dependency update (fix(deps), as Renovate titles it) passes" 0 "dependency update" env "CI_MERGE_REQUEST_TITLE=fix(deps): update dependency com.github.bastiaanjansen:otp-java to v2.2.0 (develop)"
@@ -338,12 +338,12 @@ docs_case "a CI-only change is not code" 0 "no code changed" env
 reset_repo
 lines 20 "$REPO/bin/tool.sh"
 commit_all
-docs_case "a script under bin counts as code" 64 "MR docs warning" env
+docs_case "a script under bin counts as code" 64 "MR · Docs warning" env
 
 reset_repo
 lines 5 "$REPO/pom.xml"
 commit_all
-docs_case "pom.xml counts as code" 64 "MR docs warning" env
+docs_case "pom.xml counts as code" 64 "MR · Docs warning" env
 
 # Base from the CI variable
 set +e
@@ -395,7 +395,7 @@ set +e
 OUT=$(cd "$REPO" && "$DOCS" main feature 2>&1)
 RC=$?
 set -e
-case "$OUT" in *"MR docs warning"*) text_ok=1 ;; *) text_ok=0 ;; esac
+case "$OUT" in *"MR · Docs warning"*) text_ok=1 ;; *) text_ok=0 ;; esac
 if [ "$RC" -eq 64 ] && [ "$text_ok" -eq 1 ]; then pass "docs: docs that only the base has do not count"; else fail "docs: moved base, docs (exit $RC)" "$OUT"; fi
 (cd "$REPO" && git branch -q -D feature)
 
@@ -589,7 +589,7 @@ else
 fi
 
 # .gitlab-ci.yml: a top-level key defined twice is not an error for YAML or "glab ci lint" (the last one wins), so a
-# merge can silently bring an old copy of a job back (#783 re-added the build-stage Spotless after it moved to lint).
+# merge can silently bring an old copy of a job back (#783 re-added the build-stage Spotless job after it moved to lint).
 # The key is the text before the first colon (or the whole quoted key), whatever follows it on the line.
 DUPLICATE_KEYS=$(grep -oE "^(\"[^\"]*\"|'[^']*'|[^[:space:]#\"'][^:]*):" "$BIN_DIR/../.gitlab-ci.yml" | sort | uniq -d)
 if [ -z "$DUPLICATE_KEYS" ]; then pass ".gitlab-ci.yml: no top-level key is defined twice"; else fail ".gitlab-ci.yml: keys defined twice" "$DUPLICATE_KEYS"; fi

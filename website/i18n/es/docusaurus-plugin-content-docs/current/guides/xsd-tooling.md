@@ -134,7 +134,7 @@ propio, se ejecutan dentro de los jobs normales de pruebas y compilación:
 |---|---|---|
 | `XsdCatalogConsistencyTest` (prueba unitaria de `awe-generic-screens`) | Los system id del catálogo son únicos y son las URL publicadas, cada XSD tiene una entrada en el catálogo, cada entrada apunta a un archivo existente y cada `schemaLocation` se resuelve a través del catálogo | `mvn test -pl awe-framework/awe-generic-screens -Dtest=XsdCatalogConsistencyTest` |
 | `validate` de `xml-maven-plugin` (fase `compile`) | El XML de aplicación de los módulos que lo configuran (`awe-boot`, `awe-boot-react`, `awe-scheduler-boot`, los módulos de AWE...) es válido frente a los esquemas, resueltos con el catálogo desempaquetado en `target/schemas/awe/` | `mvn compile -pl awe-tests/awe-scheduler-boot -Dskip.frontend=true` |
-| Pruebas unitarias del generador de la referencia XSD (`website/scripts/xsd-reference`) | El generador que produce la [referencia XSD](/reference/) a partir de los esquemas | `npm --prefix website run test:scripts` (también forma parte del job `Build website`) |
+| Pruebas unitarias del generador de la referencia XSD (`website/scripts/xsd-reference`) | El generador que produce la [referencia XSD](/reference/) a partir de los esquemas | `npm --prefix website run test:scripts` (también forma parte del job `Build · Website`) |
 
 Cuando añadas un XSD, añade su entrada a `catalog.xml` (la prueba falla en caso contrario) y su fila a la tabla de
 [esquemas publicados](#published-schemas). El pipeline publica los XSD y el catálogo en el sitio desde `develop` y

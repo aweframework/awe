@@ -221,7 +221,7 @@ async function main() {
 	const siteDir = path.resolve(__dirname, '..');
 	const {errors, checked} = await run({siteDir, files: process.argv.slice(2)});
 	errors.forEach((e) => console.error(`${e.file}:${e.line}  ${e.message}`));
-	console.log(`Spanish docs lint: ${checked} pages checked, ${errors.length} errors`);
+	console.log(`Lint · Spanish docs: ${checked} pages checked, ${errors.length} errors`);
 	process.exit(errors.length ? 1 : 0);
 }
 

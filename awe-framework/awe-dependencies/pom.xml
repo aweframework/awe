@@ -70,7 +70,7 @@
     <skip.main>false</skip.main>
     <skip.frontend>false</skip.frontend>
     <!-- ESLint of the two clients (lint:ci, in their poms): skipped with skip.frontend, or alone with -Dskip.lint=true (CI does
-         it: the "Lint frontend" job runs the same lint:ci scripts) -->
+         it: the "Lint · Frontend" job runs the same lint:ci scripts) -->
     <skip.lint>${skip.frontend}</skip.lint>
     <skip.delombok>true</skip.delombok>
 
@@ -794,7 +794,7 @@
             </configuration>
           </plugin>
           <!-- Javadoc of each module on its delombok sources with the options of the site report of awe-framework/pom.xml
-               (the "Generate javadoc & schemas" job): run it as javadoc:javadoc@delombok-javadoc -->
+               (the "Docs · Javadoc & schemas" job): run it as javadoc:javadoc@delombok-javadoc -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>

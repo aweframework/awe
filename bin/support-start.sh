@@ -169,7 +169,7 @@ trap cleanup EXIT
 
 # Warn before anything is created or pushed: protected CI variables (Docker Hub, Maven
 # repository, GPG, API token) are only injected into pipelines of protected branches, so
-# Build package, Deploy snapshot and the release job fail on an unprotected support branch.
+# Package · Docker images, Deploy · Maven snapshot and the release job fail on an unprotected support branch.
 echo "NOTE: before the first pipeline runs on ${SUPPORT_BRANCH}, the branch pattern 'support/*' must be a"
 echo "      protected branch in GitLab (Settings > Repository > Protected branches, same policy as develop)."
 echo ""

@@ -961,9 +961,9 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 
 Las pruebas unitarias de `awe-testing` que ejecutan un Chromium real mediante Playwright nunca descargan un navegador: usan el que está
 instalado y se **omiten** donde no hay ninguno, de modo que una máquina sin navegadores sigue obteniendo una compilación en verde. El job de CI de las
-pruebas unitarias (`All UT`) instala solo el headless shell de Chromium con sus librerías, lo cachea entre pipelines y pasa
+pruebas unitarias (`Unit · Java`) instala solo el headless shell de Chromium con sus librerías, lo cachea entre pipelines y pasa
 `-Dawe.test.playwright.required=true`, que convierte un navegador ausente en un **fallo** en lugar de una omisión; usa el mismo interruptor
-para asegurarte de que las pruebas se ejecutan en tu máquina. La CI demuestra Chromium en las pruebas del adaptador de `All UT`; las
+para asegurarte de que las pruebas se ejecutan en tu máquina. La CI demuestra Chromium en las pruebas del adaptador de `Unit · Java`; las
 suites de Playwright siguientes ejecutan Chromium y Firefox. Para comprobar el Firefox del adaptador en tu máquina, ejecuta las mismas pruebas unitarias con
 `-Dawe.test.playwright.engine=firefox` (un Firefox que está instalado y falla al arrancar hace fallar la prueba; uno que no está
 instalado la omite).
@@ -972,23 +972,25 @@ instalado la omite).
 `awe.test.tool=playwright`, como **16 jobs**: uno por cada combinación de motor (AngularJS o React), navegador (Chromium o
 Firefox) y suite (aplicación e integración, CRUD, criterios y grids, regresión, websocket e impresión, y planificador). Los
 jobs de AngularJS ejecutan la aplicación `awe-tests/awe-boot` y los de React `awe-tests/awe-boot-react`. Cada job se llama como lo que
-ejecuta, `<motor> · <suite>` para Chromium (por ejemplo `React · CRUD, criteria and grids`) y `<motor> · Firefox · <suite>` para Firefox
-(por ejemplo `AngularJS · Firefox · Scheduler`); los jobs de Selenium llevan su propio navegador (`React · Chrome · Scheduler`,
-`React · Firefox (Selenium) · Scheduler`), de modo que ningún nombre se repite. Son jobs explícitos, no una `parallel: matrix`: GitLab
-nombra un job de matriz con los valores de sus variables, y los jobs de React tienen sus propias `rules` (se ejecutan en una merge
-request solo cuando cambia el backend o el cliente React), que una matriz no dejaría fijar a cada entrada. Una plantilla oculta por motor
+ejecuta, `E2E · <motor> · <navegador> · <suite>` (por ejemplo `E2E · React · Chromium · CRUD` o `E2E · AngularJS · Firefox · Scheduler`);
+los jobs de Selenium se llaman `Selenium · <motor> · <navegador> · <suite>` (`Selenium · React · Chrome · Scheduler`,
+`Selenium · React · Firefox · Scheduler`), de modo que ningún nombre se repite. Los nombres de las suites son cortos: `Application`
+(aplicación e integración), `CRUD` (CRUD, criterios y grids), `Regression` (regresión, websocket e impresión) y `Scheduler`. Son jobs explícitos, no una `parallel: matrix`: GitLab
+nombra un job de matriz con los valores de sus variables, y cada motor tiene sus propias `rules` (en una merge request los jobs de React
+se ejecutan solo cuando cambia el backend o el cliente React, y los de AngularJS cuando cambia cualquier cosa salvo el cliente React), que
+una matriz no dejaría fijar a cada entrada. Una plantilla oculta por motor
 y navegador fija las `rules` y el `TARGET` (navegador y motor); el job añade sus pruebas, su puerto y su nombre. Los jobs de Selenium
 tienen cada uno un servicio de navegador distinto.
-Dos jobs pequeños, `Playwright Chromium browser` y `Playwright Firefox browser`, descargan y cachean los navegadores para ellos.
+Dos jobs pequeños, `Build · Chromium cache` y `Build · Firefox cache`, descargan y cachean los navegadores para ellos.
 Cada job instala solo el navegador headless que necesita, lo ejecuta junto a la aplicación que arranca y escribe su evidencia
 de fallos (captura de pantalla, código fuente de la página, consola, [trace y vídeo](#playwright-evidence)) en `browser-evidence/`, que encuentras
 en los artefactos del job como la evidencia de los jobs de Selenium; el grabador de pantalla de Selenium está desactivado
 (`awe.test.allowed-recording=false`), ya que Playwright graba la propia página.
 
-- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (los que no llevan navegador en el nombre), y los de Firefox (`<motor> · Firefox · <suite>`) y `Playwright Firefox browser` se ejecutan en `develop` y `master`. No se ejecutan en
-  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`<motor> · Chrome · <suite>` y `<motor> · Firefox (Selenium) · <suite>`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
+- **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (los que llevan Chromium en el nombre) del motor cuyo código cambió (un cambio limitado al cliente React omite los jobs de AngularJS, y uno limitado al cliente AngularJS omite los de React). Los de Firefox (`E2E · <motor> · Firefox · <suite>`) y `Build · Firefox cache` se ejecutan en `master` y, en `develop`, solo en la planificación del pipeline "Nightly Firefox" (CI/CD > Schedules, con la variable `FIREFOX_NIGHTLY=true`), cuyo pipeline no ejecuta nada más salvo `Build · Maven`. No se ejecutan en
+  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
   requests ni en pushes ordinarios.
-- **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Launch Sonar` y los jobs de publicación, e
+- **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Analysis · Sonar` y los jobs de publicación, e
   impide que Renovate haga automerge, exactamente igual que un job de Selenium. Tienen la misma [reejecución por prueba](#a-failed-test-is-rerun-alone)
   y el mismo reintento de job (#766), y lo mismo para Firefox que para Chromium. Sus archivos jacoco tienen un nombre distinto por job
   (`jacoco-${TEST_NAME}-it.exec`), de modo que la cobertura de ambas herramientas se conserva cuando se ejecutaron ambas.
@@ -1177,7 +1179,7 @@ En una clase de prueba no uses:
 
 `BrowserTestSourceGuard` (`com.almis.awe.testing.guard`, en `awe-testing`) comprueba esta regla sobre los fuentes Java, sin
 necesitar un navegador ni ninguna clase de Selenium. Por defecto solo analiza las clases de prueba (`*IT.java`), porque las clases
-ayudantes de tu producto son donde pertenecen los locators; `.files("*Page.java")` (cualquier glob sobre el nombre de archivo) analiza otros archivos. AWE lo aplica a sus propias aplicaciones de test en una prueba unitaria (`All UT`), y un
+ayudantes de tu producto son donde pertenecen los locators; `.files("*Page.java")` (cualquier glob sobre el nombre de archivo) analiza otros archivos. AWE lo aplica a sus propias aplicaciones de test en una prueba unitaria (`Unit · Java`), y un
 producto puede hacer lo mismo con una prueba propia:
 
 ```java
@@ -1388,11 +1390,11 @@ la prueba como `quarantine` para JUnit, y entonces:
 - **Los jobs bloqueantes la dejan fuera.** Las aplicaciones de test excluyen la etiqueta `quarantine` de su ejecución de integración (la
   propiedad de Maven `it.excluded-groups` de `awe-tests/awe-boot` y `awe-tests/awe-boot-react`), de modo que ni los jobs de Playwright ni los de
   Selenium la ejecutan.
-- **La ejecuta un job que nunca bloquea.** `Quarantine · AngularJS` y `Quarantine · React` (Playwright) y `Quarantine · AngularJS · Chrome` y
-  `Quarantine · React · Chrome` (Selenium) ejecutan las pruebas en cuarentena de
+- **La ejecuta un job que nunca bloquea.** `E2E quarantine · AngularJS · Chromium` y `E2E quarantine · React · Chromium` (Playwright) y `Selenium quarantine · AngularJS · Chrome` y
+  `Selenium quarantine · React · Chrome` (Selenium) ejecutan las pruebas en cuarentena de
   ambas aplicaciones (AngularJS y React), con Chromium. Tienen `allow_failure: true`, ningún reintento de job ni reejecución por prueba (`-Dit.rerun-count=0`, de modo que una prueba inestable se muestra como el fallo que
   fue), y no son
-  necesarios para `Launch Sonar` ni para los jobs de publicación, de modo que una prueba en cuarentena que falla muestra una advertencia en el pipeline y nada
+  necesarios para `Analysis · Sonar` ni para los jobs de publicación, de modo que una prueba en cuarentena que falla muestra una advertencia en el pipeline y nada
   más. Mantienen el mismo informe y la misma [evidencia de fallos](#failure-evidence) que los demás jobs de navegador, en los
   artefactos del job. Cuando no hay nada en cuarentena, los jobs terminan de inmediato sin arrancar la aplicación.
 - **Ejecútala tú mismo** con `-Dgroups=quarantine -Dit.excluded-groups= -Dit.rerun-count=0` (vacío y cero) añadido al comando de
@@ -1416,13 +1418,13 @@ Las reglas de una cuarentena:
 #### Pruebas guard de la CI {#ci-guard-tests}
 
 Tres pruebas unitarias evitan que las reglas anteriores se desvíen. Leen fuentes, clases compiladas o `.gitlab-ci.yml`, no necesitan
-navegador y se ejecutan con las pruebas unitarias (`All UT`):
+navegador y se ejecutan con las pruebas unitarias (`Unit · Java`):
 
 | Prueba | Módulo | Falla ante |
 |---|---|---|
 | `BrowserTestDeclarationsGuardTest` | `awe-boot`, `awe-boot-react` | Un `@Quarantine` sin incidencia o sin motivo, un `@Tag("quarantine")` escrito a mano, un `@DependentChain` mal declarado |
 | `BrowserTestSourcesGuardTest` | `awe-boot`, `awe-boot-react` | Selectores o tipos de la herramienta de automatización en las fuentes de las pruebas de navegador (consulta [Mantener las pruebas de navegador libres de selectores](#keeping-browser-tests-free-of-selectors)) |
-| `CiBrowserClassesGuardTest` | `awe-boot-react` | Que `.gitlab-ci.yml` se desvíe de las fuentes: una clase listada en `TEST_CLASSES` que no existe, un job de cuarentena que podría bloquear el pipeline, un job reintentado ante un fallo de prueba, un job de cadena sin `.chain-retry`, un job de navegador que no condiciona `Launch Sonar` |
+| `CiBrowserClassesGuardTest` | `awe-boot-react` | Que `.gitlab-ci.yml` se desvíe de las fuentes: una clase listada en `TEST_CLASSES` que no existe, un job de cuarentena que podría bloquear el pipeline, un job reintentado ante un fallo de prueba, un job de cadena sin `.chain-retry`, un job de navegador que no condiciona `Analysis · Sonar` |
 
 Ejecuta una desde la raíz del repositorio, por ejemplo `mvn test -pl awe-tests/awe-boot-react -Dtest=CiBrowserClassesGuardTest -Dskip.frontend=true`.
 

@@ -1,4 +1,4 @@
-// Markdown lint of the documentation (#784). A signal, not a gate: the job "Markdown lint" is allowed to fail.
+// Markdown lint of the documentation (#784). A signal, not a gate: the job "Lint · Markdown" is allowed to fail.
 // The rules below are off because they fight Docusaurus/MDX or the way the docs are written, not because the style is wrong.
 {
   "config": {

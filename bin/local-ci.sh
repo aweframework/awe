@@ -23,7 +23,7 @@ set -uo pipefail
 #   --no-browser              skip the Playwright browser suites
 #   --no-db-containers        skip the MySQL, PostgreSQL, SQL Server and Oracle jobs (Testcontainers, need Docker)
 #   --browsers <list>         browsers of the Playwright suites: chromium (default: what a merge request runs), firefox
-#                             (CI runs it on develop and master only) or chromium,firefox
+#                             (CI runs it on master and in the nightly schedule of develop only) or chromium,firefox
 #   --suites <words>          only the Playwright suites whose TEST_NAME contains one of these (comma separated)
 #   --fast                    opt-in scope narrower than the merge request pipeline (also LOCAL_CI_SCOPE=affected): the heavy
 #                             jobs run only when the change affects them (see "Fast scope" below). A pass no longer predicts a
@@ -38,16 +38,16 @@ set -uo pipefail
 # Fast scope (--fast, LOCAL_CI_SCOPE=affected): by default the jobs are exactly those the merge request pipeline creates. The fast
 # scope drops the heavy jobs that the change does not affect: a change of .gitlab-ci.yml alone (in every rules:changes list, so
 # the pipeline runs everything) does not trigger them; the database jobs run only for a change in the framework modules or
-# awe-boot; the AngularJS browser suites are left out for a change only in the React client, and the React suites for a change
-# only in the AngularJS client or awe-boot. The pipeline would run what the fast scope drops, so use it while iterating and run
-# without it before pushing. The database jobs always run only the awe-boot module, as in the pipeline (#863).
+# awe-boot; the AngularJS browser suites are left out for a change only in the React client or awe-boot-react (the pipeline
+# leaves them out for a change only in the React client), and the React suites for a change only in the AngularJS client or
+# awe-boot. The pipeline would run what the fast scope drops, so use it while iterating and run without it before pushing. The database jobs always run only the awe-boot module, as in the pipeline (#863).
 #
 # Environment rules (fixed): every JVM is headless and never takes the focus on macOS (JAVA_TOOL_OPTIONS, which also sets the
 # locale: -DargLine would stop the JaCoCo agent from attaching), Maven runs on the JDK of the build (java.version) with -s .m2/settings.xml,
 # each browser suite picks free ports (never 8080) for its application, the JMX port of spring-boot:start and JaCoCo, and every
 # process this script starts is stopped at the end, also on Ctrl-C. The awe-boot Spring test context listens on a random port.
 #   LOCAL_CI_JDK<n>   home of the JDK <n> (the java.version of the build, e.g. LOCAL_CI_JDK21) instead of one found
-#   LOCAL_CI_DB_PARALLEL       how many of All UT, the embedded DB jobs and the database jobs run at once (default 3; 1 = one
+#   LOCAL_CI_DB_PARALLEL       how many of Unit · Java, the embedded DB jobs and the database jobs run at once (default 3; 1 = one
 #                              after another, in this checkout). Each runs in a clone of the checkout (target/local-ci/<run>/work)
 #   LOCAL_CI_BROWSER_PARALLEL  how many browser applications at a time on the machine, across runs (default 2: each is about 2 GB)
 #   LOCAL_CI_SCOPE             "affected" is --fast
@@ -86,7 +86,7 @@ TIMEOUT_FACTOR=1
 APP_PORT=
 JMX_PORT=
 JACOCO_PORT=
-# Jobs of the unit-testing phase (All UT, the embedded DB jobs, the database jobs) that run at once
+# Jobs of the unit-testing phase (Unit · Java, the embedded DB jobs, the database jobs) that run at once
 DB_PARALLEL=${LOCAL_CI_DB_PARALLEL:-3}
 case "$DB_PARALLEL" in ''|*[!0-9]*|0) DB_PARALLEL=3 ;; esac
 DB_PARALLEL=$(lci_parallel_width "$DB_PARALLEL")   # without rsync (clones) the jobs run one at a time, with a warning
@@ -274,7 +274,7 @@ PLAYWRIGHT_JARS="$MAVEN_REPO/com/microsoft/playwright"
 PLAYWRIGHT_CP="$PLAYWRIGHT_JARS/playwright/$PLAYWRIGHT_VERSION/playwright-$PLAYWRIGHT_VERSION.jar"
 PLAYWRIGHT_CP="$PLAYWRIGHT_CP:$PLAYWRIGHT_JARS/driver/$PLAYWRIGHT_VERSION/driver-$PLAYWRIGHT_VERSION.jar"
 PLAYWRIGHT_CP="$PLAYWRIGHT_CP:$PLAYWRIGHT_JARS/driver-bundle/$PLAYWRIGHT_VERSION/driver-bundle-$PLAYWRIGHT_VERSION.jar"
-# Chromium always (the adapter tests of All UT use it), plus the browsers of the suites
+# Chromium always (the adapter tests of Unit · Java use it), plus the browsers of the suites
 playwright_browsers() { printf '%s' "chromium,$BROWSERS" | tr ',' '\n' | awk 'NF && !seen[$0]++' | tr '\n' ' ' | sed 's/ $//'; }
 playwright_deps_hint() { lci_playwright_deps_command "${JAVA_HOME:-/usr}/bin/java" "$PLAYWRIGHT_CP" "$(playwright_browsers)"; }
 if [ "$(lci_os)" != mac ] && { running all-ut || running playwright-angular || running playwright-react; } \
@@ -293,7 +293,7 @@ fi
 export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true -Dapple.awt.UIElement=true -Duser.language=en -Duser.country=GB"
 MVN=(mvn -s "$ROOT/.m2/settings.xml" "-Dsettings.security=$ROOT/.m2/settings-security.xml" "-Dmaven.repo.local=$MAVEN_REPO"
   '-P!devtools' --batch-mode -Dstyle.color=never -Dskip.lint=true)
-# UT_FLAGS are the flags of every unit-testing run; UT_OPTS (All UT, coverage) add the modules of CI. The unit profiles use UT_FLAGS and
+# UT_FLAGS are the flags of every unit-testing run; UT_OPTS (Unit · Java, coverage) add the modules of CI. The unit profiles use UT_FLAGS and
 # choose their modules themselves (unit_modules: only awe-boot, as CI)
 UT_FLAGS=(-Dskip.frontend=true -DgenerateUnitReport=true)
 UT_OPTS=("${UT_FLAGS[@]}" -pl '!awe-framework/awe-boot-angular-archetype' -pl '!awe-framework/awe-boot-react-archetype')
@@ -503,7 +503,7 @@ step_sonar_rules() {
   return "$rc"
 }
 
-# "Secret detection" runs GitLab's analyzer, which is gitleaks: the commits of the branch are scanned with the local gitleaks
+# "Security · Secrets" runs GitLab's analyzer, which is gitleaks: the commits of the branch are scanned with the local gitleaks
 # (only when it is installed; a finding is a warning here, the pipeline decides)
 step_secret_detection() {
   gitleaks detect --source . --log-opts "$MERGE_BASE..HEAD" --redact --no-banner
@@ -511,7 +511,7 @@ step_secret_detection() {
 
 step_spotless() { "${MVN[@]}" spotless:check "-Dspotless.ratchetFrom=$MERGE_BASE"; }
 
-# As the "Lint frontend" job: npm ci of both clients, then both lints (one failure does not hide the other)
+# As the "Lint · Frontend" job: npm ci of both clients, then both lints (one failure does not hide the other)
 step_lint_frontend() {
   local client status=0
   for client in awe-framework/awe-client-angular awe-framework/awe-client-react; do
@@ -546,7 +546,7 @@ clean_awe_boot_db() {
   rm -rf "${AWE_BOOT_DB_DIRS[@]}"
 }
 
-# The unit-testing jobs (All UT, the embedded DB jobs, the database jobs) run in parallel (run_pool), and the Maven build writes
+# The unit-testing jobs (Unit · Java, the embedded DB jobs, the database jobs) run in parallel (run_pool), and the Maven build writes
 # target/ (classes, reports, JaCoCo data, the embedded HSQLDB of awe-boot). So with more than one at a time each runs in a clone of
 # the checkout of its own (target/local-ci/<run>/work/<row>: sources and the build output, without .git, node_modules, website/build and website/.docusaurus
 # and the private Maven repository, which stays shared and is only read) and brings its JaCoCo execution file back to the checkout
@@ -570,7 +570,7 @@ in_work() {
 }
 
 # The Maven modules of the database rows: only awe-boot, as the database jobs of CI (#863). The database profiles exist only in
-# awe-boot, so the other modules would run the same tests as All UT again; awe-boot resolves them from the build step's install
+# awe-boot, so the other modules would run the same tests as Unit · Java again; awe-boot resolves them from the build step's install
 unit_modules() {
   printf '%s\n' -pl awe-tests/awe-boot
 }
@@ -578,7 +578,7 @@ unit_modules() {
 step_all_ut() { in_work all-ut jacoco-all-ut.exec all_ut_maven; }
 
 # The Maven arguments (after "verify") of the unit-testing rows, one per line, the ones of the CI jobs (bin/test-local-ci.sh pins
-# them): All UT runs the reactor of CI, without the two archetypes; every database profile runs only awe-boot.
+# them): Unit · Java runs the reactor of CI, without the two archetypes; every database profile runs only awe-boot.
 all_ut_args() {
   printf '%s\n' "${UT_OPTS[@]}" -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
 }
@@ -596,14 +596,14 @@ all_ut_maven() {
   TZ=Europe/Madrid "${MVN[@]}" verify "${args[@]}"
 }
 
-# One profile of the ".unit-testing" jobs (Embedded DB Tests and the database container jobs)
+# One profile of the ".unit-testing" jobs (the embedded database jobs and the database container jobs)
 step_unit_profile() { in_work "$2" "jacoco-$1-ut.exec" unit_profile_maven "$1"; }
 unit_profile_maven() {
   local profile=$1 args=()
   clean_exec "$profile-ut"
   clean_awe_boot_db
   if [ "$profile" = sqlserver ] || [ "$profile" = sqlserver-flyway ]; then
-    export AWE_TESTING_SQLSERVER_ACCEPT_EULA=true   # as the "SQL Server Tests" job (Microsoft EULA)
+    export AWE_TESTING_SQLSERVER_ACCEPT_EULA=true   # as the "Database · SQL Server" jobs (Microsoft EULA)
   fi
   while IFS= read -r arg; do args+=("$arg"); done < <(unit_profile_args "$profile")
   TZ=Europe/Madrid "${MVN[@]}" verify "${args[@]}"
@@ -618,7 +618,7 @@ step_frontend_ut() {
   return 0
 }
 
-# As "Javadoc test": the Javadoc of each module's delombok sources (as develop builds it), then the aggregate
+# As "Docs · Javadoc check": the Javadoc of each module's delombok sources (as develop builds it), then the aggregate
 step_javadoc() {
   "${MVN[@]}" -f awe-framework/pom.xml javadoc:javadoc@delombok-javadoc javadoc:aggregate-no-fork -Dskip.javadoc=false \
     -Ptest-javadoc
@@ -633,9 +633,9 @@ step_coverage() {
   # What Sonar measures among the changed files (the same rules as the coverage itself: local-ci-tool.mjs coverageSource)
   scope=$(node "$TOOL" scope "$CHANGED")
   if printf '%s\n' "$scope" | grep -qx jacoco; then
-    # Only the execution data of All UT of this very run: an earlier run describes other code
+    # Only the execution data of Unit · Java of this very run: an earlier run describes other code
     if [ "$ALL_UT_OK" != 1 ]; then
-      echo "Java sources changed: the coverage needs All UT to run and pass in this run (e.g. --only all-ut,coverage)."
+      echo "Java sources changed: the coverage needs Unit · Java to run and pass in this run (e.g. --only all-ut,coverage)."
       note "Java coverage needs all-ut passing in this run"
       return 1
     fi
@@ -643,7 +643,7 @@ step_coverage() {
     # shellcheck disable=SC2086 # the paths of target/ have no spaces
     fresh_exec=$(lci_fresh "$STARTED_MARKER" $exec_files)
     if [ -z "$fresh_exec" ]; then
-      echo "All UT wrote no JaCoCo execution data in this run (target/jacoco-*.exec): the agent did not attach."
+      echo "Unit · Java wrote no JaCoCo execution data in this run (target/jacoco-*.exec): the agent did not attach."
       note "no JaCoCo data from this run"
       return 1
     fi
@@ -682,15 +682,15 @@ step_coverage() {
   return "$rc"
 }
 
-# "Spanish docs lint": MDX syntax, parity with the English page and relative links of the Spanish translation
+# "Lint · Spanish docs": MDX syntax, parity with the English page and relative links of the Spanish translation
 step_spanish_docs_lint() {
   missing_node_modules website
   npm --prefix website ci || return 1
   npm --prefix website run check:translations
 }
 
-# "Build website" (test:scripts, 4.x injection, anchors) with every locale: a merge request builds English only
-# (--locale en), develop and master build every locale ("Build website with i18n"), so the Spanish site is checked here too
+# "Build · Website" (test:scripts, 4.x injection, anchors) with every locale: a merge request builds English only
+# (--locale en), develop and master build every locale ("Build · Website (all locales)"), so the Spanish site is checked here too
 step_website() {
   local real_git shim status
   missing_node_modules website
@@ -958,16 +958,16 @@ run_job spanish-docs-lint 10 step_spanish_docs_lint
 BUILD_OK=1
 run_job build 30 step_build || BUILD_OK=0
 
-# The test jobs need the build ("needs: Build project" in CI)
+# The test jobs need the build ("needs: Build · Maven" in CI)
 after_build() { # id: false when the build failed and the job would run
   if [ "$BUILD_OK" = 0 ] && [ "$(decision "$1")" = run ]; then
-    skip_step "$1" "$(label_of "$1")" "Build project failed"
+    skip_step "$1" "$(label_of "$1")" "Build · Maven failed"
     return 1
   fi
   return 0
 }
 
-# One item of the unit-testing pool, "<kind>|<job id>|<profile>": All UT, the profiles of the embedded DB jobs and of the database
+# One item of the unit-testing pool, "<kind>|<job id>|<profile>": Unit · Java, the profiles of the embedded DB jobs and of the database
 # jobs, and the rows that only report (a job that is not selected, no Docker). Each item runs in a worker (run_pool) and writes its rows to
 # the results of the worker.
 db_item() {
@@ -982,7 +982,7 @@ db_item() {
       after_build "$job" && record "$job" "$(label_of "$job")" FAIL yes 0 "Docker is not running: start it, or pass --no-db-containers (then this job is NOT verified)" ;;
     embedded)
       row="embedded-db-$profile"
-      after_build embedded-db && run_locked no embedded-db "$row" "Embedded DB Tests: $profile" 40 step_unit_profile "$profile" "$row" ;;
+      after_build embedded-db && run_locked no embedded-db "$row" "$(label_of embedded-db): $profile" 40 step_unit_profile "$profile" "$row" ;;
     database)
       row="$job-$profile"
       minutes=40
@@ -992,7 +992,7 @@ db_item() {
   esac
 }
 
-# The items, in the order of the summary: All UT, the embedded DB profiles, then each database with its flyway profile
+# The items, in the order of the summary: Unit · Java, the embedded DB profiles, then each database with its flyway profile
 DOCKER_OK=0
 docker info >/dev/null 2>&1 && DOCKER_OK=1
 DB_ITEMS=("all-ut||")
