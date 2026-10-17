@@ -32,7 +32,7 @@
     <commons-text.version>1.15.0</commons-text.version>
     <commons-fileupload.version>2.0.0-M5</commons-fileupload.version>
     <xtream.version>1.4.21</xtream.version>
-    <graalvm.version>23.0.6</graalvm.version>
+    <graalvm.version>23.0.13.1.1</graalvm.version>
     <webdrivermanager.version>6.4.0</webdrivermanager.version>
     <playwright.version>1.63.0</playwright.version>
     <modelmapper.version>2.4.5</modelmapper.version>
