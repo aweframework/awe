@@ -31,7 +31,9 @@ function AweAvatar(props) {
   const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, { "hidden": !visible });
 
   const computedLabel = getFirstDefinedValue(values?.[0]?.label, label);
-  const computedImage = `${getContextPath()}${getFirstDefinedValue(values?.[0]?.image, image)}`;
+  const imagePath = getFirstDefinedValue(values?.[0]?.image, image);
+  // Without an image the avatar shows its icon or the initial of its label, never a request to a "null" image
+  const computedImage = imagePath ? `${getContextPath()}${imagePath}` : null;
   const computedIcon = getFirstDefinedValue(values?.[0]?.icon, icon);
   const computedUnit = getFirstDefinedValue(values?.[0]?.unit, unit);
   const unitBadge = computedUnit && <Badge value={computedUnit} />;

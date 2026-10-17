@@ -6,12 +6,13 @@ import Templates from "../templates";
 import SizeRegistry from "../redux/registry/SizeRegistry";
 import {addActionsTop} from "../redux/actions/actions";
 import {useTranslation} from 'react-i18next';
-import {useLocation, useParams} from "react-router";
+import {useLocation, useOutlet, useParams} from "react-router";
 import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
-import AweScreenSkeleton from "../components/AweScreenSkeleton";
+import AweScreenSkeleton, {endInitialLoad} from "../components/AweScreenSkeleton";
 import {translateLabel} from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
+import ViewRegistry from "../redux/registry/ViewRegistry";
 import ErrorBoundary from "../components/ErrorBoundary";
 
 const VIEW = "base";
@@ -35,6 +36,7 @@ function ViewContainer() {
 
   const settings = useSelector(selectSettings);
   const view = useView(VIEW);
+  const hasSubView = Boolean(useOutlet());
   const screenReloadToken = location.state?.screenReloadToken;
 
   const changeLanguage = useCallback((language) => {
@@ -68,7 +70,13 @@ function ViewContainer() {
   }, [settings.token, dispatch]);
 
   useEffect(() => {
-    dispatch(loadScreen(VIEW, screenId, t));
+    // The initial load of the page ends with the screen, or with its sub screen when it has one (unless it fails)
+    const endLoad = () => {
+      if (!hasSubView || ViewRegistry.get(VIEW).loading) {
+        endInitialLoad();
+      }
+    };
+    Promise.resolve(dispatch(loadScreen(VIEW, screenId, t))).then(endLoad, endInitialLoad);
   }, [dispatch, screenId, screenReloadToken]);
 
   return view.loading ? <AweScreenSkeleton /> : (

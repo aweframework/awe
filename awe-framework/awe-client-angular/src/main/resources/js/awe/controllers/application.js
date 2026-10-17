@@ -119,6 +119,15 @@ aweApplication.controller('AppController',
       };
 
       /**
+       * Remove the splash animation shown while the first screen of the page loads
+       */
+      let removeSplash = function () {
+        $("#splash").fadeOut(250, function () {
+          $(this).remove();
+        });
+      };
+
+      /**
        * Check on unload
        * @param {type} screenParameters
        * @param {type} closingTab       */
@@ -149,8 +158,11 @@ aweApplication.controller('AppController',
           return event.preventDefault();
         }
 
-        // Show the screen skeleton over the view that is going to load
-        $screenSkeleton.show($screenSkeleton.getLoadingView(toState, toParams, fromState, fromParams));
+        // Show the screen skeleton over the view that is going to load. The first screen of the page (it comes from the
+        // root state) loads under the splash animation instead
+        if (fromState.name) {
+          $screenSkeleton.show($screenSkeleton.getLoadingView(toState, toParams, fromState, fromParams));
+        }
 
         let views = _.merge({}, fromState.views, toState.views);
         _.each(views, function (_view, viewName) {
@@ -188,6 +200,7 @@ aweApplication.controller('AppController',
       // Route change start (hide loading message)
       $scope.$on('$stateChangeError', function (_event, toState, _toParams, _fromState, _fromParams, error) {
         $screenSkeleton.hide();
+        removeSplash();
         $ctrl.updateStatus("loading", false);
         $scope.resizing = false;
         $loadingBar.end();
@@ -198,6 +211,7 @@ aweApplication.controller('AppController',
       $scope.$on('$stateNotFound', function (_event, current/*, previous, reject*/) {
         //do you work here
         $screenSkeleton.hide();
+        removeSplash();
         $ctrl.updateStatus("loading", false);
         $loadingBar.end();
         $log.warn("State not found: " + current);
@@ -226,13 +240,11 @@ aweApplication.controller('AppController',
       // On loaded screen
       $scope.$on('initialised', function () {
         $screenSkeleton.hide();
+        removeSplash();
         $utilities.timeout(function () {
           $loadingBar.endTask();
         }, 100);
       });
-
-      // Remove splash screen & friends
-      $("#splash").fadeOut(250, () => $(this).remove());
 
       /**
        * Check for unload maintain actions in opened views

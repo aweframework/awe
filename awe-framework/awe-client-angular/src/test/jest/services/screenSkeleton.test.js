@@ -85,7 +85,8 @@ describe("screen loading skeleton", () => {
     });
 
     it("removes the skeleton when the screen is initialised", () => {
-      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+      $rootScope.$broadcast("$stateChangeStart", PRIVATE_SCREEN, {screenId: "main"}, INDEX, {});
+      expect(ScreenSkeleton.isVisible()).toBe(true);
 
       $rootScope.$broadcast("initialised");
 
@@ -93,9 +94,10 @@ describe("screen loading skeleton", () => {
     });
 
     it.each(["$stateChangeError", "$stateNotFound", "$stateChangeCancel"])("removes the skeleton on %s", event => {
-      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+      $rootScope.$broadcast("$stateChangeStart", PRIVATE_SCREEN, {screenId: "main"}, INDEX, {});
+      expect(ScreenSkeleton.isVisible()).toBe(true);
 
-      $rootScope.$broadcast(event, INDEX, {}, {name: ""}, {}, "error");
+      $rootScope.$broadcast(event, PRIVATE_SCREEN, {screenId: "main"}, INDEX, {}, "error");
 
       expect(ScreenSkeleton.isVisible()).toBe(false);
     });
@@ -104,6 +106,74 @@ describe("screen loading skeleton", () => {
       $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
 
       expect(LoadingBar.startTask).toHaveBeenCalled();
+    });
+  });
+
+  describe("initial load", () => {
+    const splash = () => document.getElementById("splash");
+    const isSplashShown = () => splash() !== null && splash().style.display !== "none";
+
+    beforeEach(() => {
+      // Finish the splash animation at once
+      $.fx.off = true;
+      document.body.innerHTML = "<div id='splash'><div id='splashBackground'></div><div class='spinner'></div></div>";
+      jest.spyOn(LoadingBar, "startTask").mockImplementation(() => null);
+      jest.spyOn(LoadingBar, "endTask").mockImplementation(() => null);
+      jest.spyOn(LoadingBar, "end").mockImplementation(() => null);
+      jest.spyOn(console, "warn").mockImplementation(() => null);
+      $controller("AppController", {$scope: $rootScope.$new()});
+      Storage.putRoot("cometUID", "uid");
+    });
+
+    afterEach(() => {
+      $.fx.off = false;
+    });
+
+    it("keeps only the splash animation, and no skeleton, while the first screen loads", () => {
+      expect(isSplashShown()).toBe(true);
+
+      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+
+      expect(isSplashShown()).toBe(true);
+      expect(ScreenSkeleton.isVisible()).toBe(false);
+      expect(LoadingBar.startTask).toHaveBeenCalled();
+    });
+
+    it("removes the splash animation when the first screen is initialised", () => {
+      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+
+      $rootScope.$broadcast("initialised");
+
+      expect(splash()).toBeNull();
+    });
+
+    it.each(["$stateChangeError", "$stateNotFound"])("removes the splash animation when the first screen fails on %s", event => {
+      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+
+      $rootScope.$broadcast(event, INDEX, {}, {name: ""}, {}, "error");
+
+      expect(splash()).toBeNull();
+    });
+
+    it("keeps the splash animation while the first screen waits for the settings", () => {
+      Storage.putRoot("cometUID", null);
+
+      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+      $rootScope.$broadcast("$stateChangeCancel", INDEX, {}, {name: ""}, {});
+
+      expect(isSplashShown()).toBe(true);
+      expect(ScreenSkeleton.isVisible()).toBe(false);
+    });
+
+    it("shows the skeleton, and no splash, when a screen loads after the first one", () => {
+      $rootScope.$broadcast("$stateChangeStart", INDEX, {}, {name: ""}, {});
+      $rootScope.$broadcast("initialised");
+
+      $rootScope.$broadcast("$stateChangeStart", PRIVATE_SCREEN, {screenId: "main"}, INDEX, {});
+
+      expect(ScreenSkeleton.isVisible()).toBe(true);
+      expect(ScreenSkeleton.getView()).toBe("base");
+      expect(splash()).toBeNull();
     });
   });
 
