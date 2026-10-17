@@ -26,6 +26,12 @@
   }
 }
 
+@keyframes awe-skeleton-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
 // A label or a button of a component that is loading becomes a placeholder
 @keyframes awe-skeleton-dim {
   from {
@@ -247,6 +253,12 @@
     padding: 10px 8px;
     border-top: 1px solid var(--awe-color-grid-border);
   }
+}
+
+// The previous screen of the view that is loading hides under the skeleton: content with a higher z-index (the signin
+// container, for instance) does not paint over it
+[ui-view][aria-busy="true"] {
+  animation: awe-skeleton-hide 0s linear @skeleton-delay forwards;
 }
 
 // No shimmer for reduced motion: the placeholders still show after the delay
