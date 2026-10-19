@@ -312,6 +312,20 @@
       <service-parameter type="STRING" name="avatarToken" />
     </java>
   </service>
+  <!-- User grid layouts (the user comes from the session) -->
+  <service id="saveGridLayout">
+    <java classname="com.almis.awe.service.GridLayoutService" method="saveGridLayout">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="gridId" />
+      <service-parameter type="STRING" name="layout" />
+    </java>
+  </service>
+  <service id="resetGridLayout">
+    <java classname="com.almis.awe.service.GridLayoutService" method="resetGridLayout">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="gridId" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">

@@ -29,6 +29,15 @@ public final class TestAttributes {
   public static final String DISABLED = "data-disabled";
   public static final String OUTSIDE_MONTH = "data-outside-month";
   public static final String OPEN = "data-open";
+  /**
+   * A grid fills the window (it is set on the toolbar of the grid)
+   */
+  public static final String MAXIMIZED = "data-maximized";
+  /**
+   * Columns that the Columns dialog of a grid shows as visible, and columns that it lists
+   */
+  public static final String VISIBLE_COUNT = "data-visible";
+  public static final String TOTAL_COUNT = "data-total";
   public static final String LOADING = "data-loading";
   public static final String TYPE = "data-type";
   public static final String CONTAINER = "data-container";

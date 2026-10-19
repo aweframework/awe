@@ -1297,6 +1297,192 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a part of the toolbar of a grid. The toolbar and the Columns dialog name their grid as the owner of the hook
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @return Selector of the part
+   */
+  private By getGridToolbarPart(String gridId, String testId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_TOOLBAR) + TestAttributes.css(TestAttributes.OWNER, gridId) + " " + TestIds.css(testId));
+  }
+
+  /**
+   * Get a part of the Columns dialog of a grid (the dialog has to be open)
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @return Selector of the part
+   */
+  private By getGridColumnsDialogPart(String gridId, String testId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " " + TestIds.css(testId));
+  }
+
+  /**
+   * Css of a column listed in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Css selector
+   */
+  private String getGridColumnsItemCss(String gridId, String columnId) {
+    return TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_COLUMN_ITEM) + "[column-id='" + columnId + "']";
+  }
+
+  /**
+   * Get the button of the toolbar of a grid that opens its Columns dialog
+   *
+   * @param gridId Grid identifier
+   * @return Columns button selector
+   */
+  default By getGridColumnsButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_COLUMNS_BUTTON);
+  }
+
+  /**
+   * Get the button of the toolbar of a grid that maximizes it and restores it
+   *
+   * @param gridId Grid identifier
+   * @return Maximize button selector
+   */
+  default By getGridMaximizeButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_MAXIMIZE_BUTTON);
+  }
+
+  /**
+   * Get the toolbar of a grid in a state: the grid fills the window or it does not
+   *
+   * @param gridId    Grid identifier
+   * @param maximized True for the toolbar of a maximized grid
+   * @return Toolbar selector
+   */
+  default By getGridToolbarMaximized(String gridId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_TOOLBAR) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get the Columns dialog of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Columns dialog selector
+   */
+  default By getGridColumnsDialog(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId));
+  }
+
+  /**
+   * Get the counter of the Columns dialog of a grid ("N of M visible") when it has the given numbers
+   *
+   * @param gridId  Grid identifier
+   * @param visible Columns shown
+   * @param total   Columns listed
+   * @return Counter selector
+   */
+  default By getGridColumnsCounter(String gridId, String visible, String total) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_COLUMNS_COUNTER) + TestAttributes.css(TestAttributes.VISIBLE_COUNT, visible)
+      + TestAttributes.css(TestAttributes.TOTAL_COUNT, total));
+  }
+
+  /**
+   * Get a column listed in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column item selector
+   */
+  default By getGridColumnsItem(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId));
+  }
+
+  /**
+   * Get the checkbox that shows or hides a column in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Checkbox selector
+   */
+  default By getGridColumnsCheckbox(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_CHECKBOX));
+  }
+
+  /**
+   * Get the arrow that moves a column up in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Move up arrow selector
+   */
+  default By getGridColumnsMoveUp(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_UP));
+  }
+
+  /**
+   * Get the arrow that moves a column down in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Move down arrow selector
+   */
+  default By getGridColumnsMoveDown(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_DOWN));
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that shows all the columns
+   *
+   * @param gridId Grid identifier
+   * @return Show all selector
+   */
+  default By getGridColumnsShowAll(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SHOW_ALL);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that goes back to the definition of the screen
+   *
+   * @param gridId Grid identifier
+   * @return Reset selector
+   */
+  default By getGridColumnsReset(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_RESET);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that saves the layout as the default of the user
+   *
+   * @param gridId Grid identifier
+   * @return Save as default selector
+   */
+  default By getGridColumnsSave(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SAVE);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that closes it
+   *
+   * @param gridId Grid identifier
+   * @return Close selector
+   */
+  default By getGridColumnsClose(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_CLOSE);
+  }
+
+  /**
+   * Get a group header of a grid, the second level header that spans over the columns of the group
+   *
+   * @param gridId Grid identifier
+   * @param title  Text that the title contains
+   * @return Group header selector
+   */
+  default By getGridGroupHeader(String gridId, String title) {
+    return By.xpath(String.format("//*[@grid-id=%1$s or @tree-grid-id=%1$s]//*[%2$s and contains(normalize-space(.), %3$s)]",
+      XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_GROUP_HEADER), XpathLiterals.of(title)));
+  }
+
+  /**
    * Get the panel of an open dialog, the element that has the size of the dialog. By default it is the dialog itself
    *
    * @param dialogId Dialog identifier

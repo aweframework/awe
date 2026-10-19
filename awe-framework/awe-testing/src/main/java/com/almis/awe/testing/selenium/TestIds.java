@@ -61,6 +61,23 @@ public final class TestIds {
   public static final String GRID_EMPTY_TEXT = "grid-empty-text";
   public static final String GRID_EMPTY_ACTION = "grid-empty-action";
   public static final String GRID_LOADER = "grid-loader";
+  // Grid toolbar: the toolbar, its Columns and Maximize buttons and the Columns dialog with its parts
+  public static final String GRID_TOOLBAR = "grid-toolbar";
+  public static final String GRID_GROUP_HEADER = "grid-group-header";
+  public static final String GRID_COLUMNS_BUTTON = "grid-columns-button";
+  public static final String GRID_MAXIMIZE_BUTTON = "grid-maximize-button";
+  public static final String GRID_COLUMNS_DIALOG = "grid-columns-dialog";
+  public static final String GRID_COLUMN_GROUP = "grid-column-group";
+  public static final String GRID_COLUMN_ITEM = "grid-column-item";
+  public static final String GRID_COLUMN_CHECKBOX = "grid-column-checkbox";
+  public static final String GRID_COLUMN_HANDLE = "grid-column-handle";
+  public static final String GRID_COLUMN_UP = "grid-column-up";
+  public static final String GRID_COLUMN_DOWN = "grid-column-down";
+  public static final String GRID_COLUMNS_COUNTER = "grid-columns-counter";
+  public static final String GRID_COLUMNS_SHOW_ALL = "grid-columns-show-all";
+  public static final String GRID_COLUMNS_RESET = "grid-columns-reset";
+  public static final String GRID_COLUMNS_SAVE = "grid-columns-save";
+  public static final String GRID_COLUMNS_CLOSE = "grid-columns-close";
   public static final String TREE_ICON = "tree-icon";
   public static final String COLUMN_ICON = "column-icon";
 

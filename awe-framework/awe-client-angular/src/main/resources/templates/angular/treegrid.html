@@ -1,5 +1,6 @@
 <div ng-show="controller.visible" data-testid="grid" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-grid-toolbar ng-if="controller.showToolbar !== false"></awe-grid-toolbar>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button" ng-cloak>

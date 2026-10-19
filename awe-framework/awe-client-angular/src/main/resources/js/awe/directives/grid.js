@@ -4,9 +4,11 @@ import {TestIds} from "../data/testIds";
 import "./../services/grid/base";
 import "./gridHeader";
 import "./gridSkeleton";
+import "./gridToolbar";
 
-export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
+export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-grid-toolbar ng-if="controller.showToolbar !== false"></awe-grid-toolbar>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button">
@@ -72,8 +74,8 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
 
 // Grid directive
 aweApplication.directive('aweGrid',
-  ['ServerData', 'AweSettings', 'GridBase', 'AweUtilities',
-    function (serverData, $settings, GridBase, $utilities) {
+  ['ServerData', 'AweSettings', 'GridBase', 'AweUtilities', 'Maximize',
+    function (serverData, $settings, GridBase, $utilities, Maximize) {
       // Retrieve default $settings
 
       // Set default options
@@ -127,10 +129,14 @@ aweApplication.directive('aweGrid',
                 component.gridPaginationClass = "pagination pagination-" + scope.size;
                 component.enableSorting = !$utilities.isEmpty(component.controller.targetAction) || component.controller.loadAll;
 
+                // The grid has its own maximize state, also when the toolbar is hidden or shown later: it never reads the one of a window
+                // (the animation clone does not copy the content of the grid)
+                Maximize.initMaximize(scope, elem, {contentSelector: ".grid-container"});
+
                 // Fix column model
                 component.fixColumnModel(true);
                 scope.gridOptions = _.assign({}, options, {
-                  columnDefs: component.controller.columnModel,
+                  columnDefs: component.initColumnLayout(),
                   data: [],
                   enableRowSelection: true,
                   enableFullRowSelection: true,

@@ -869,6 +869,7 @@ class ScreenBuilderTest {
           .setTreeId("treeId")
           .setLoadAll(true)
           .setShowTotals(true)
+          .setShowToolbar(false)
           .setTreeLeaf("treeLeaf")
           .addGroupHeader(new GroupHeaderBuilder()
             .setLabel("LABEL1")
@@ -926,6 +927,7 @@ class ScreenBuilderTest {
     assertEquals("treeId", grid.getTreeId());
     assertSame(true, grid.isLoadAll());
     assertSame(true, grid.isShowTotals());
+    assertSame(false, grid.isShowToolbar());
     assertEquals("treeLeaf", grid.getTreeLeaf());
 
     assertEquals("LABEL1", header.getLabel());

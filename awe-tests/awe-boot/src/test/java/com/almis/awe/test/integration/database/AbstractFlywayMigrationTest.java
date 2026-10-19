@@ -157,6 +157,52 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
     }
   }
 
+  @Test
+  @DisplayName("The grid layout table is migrated")
+  void testGridLayoutTableIsMigrated() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.3.1"), "The AWE grid layout migration is shipped for " + dialect());
+
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweUsrGrdCnf WHERE Ope = 'nobody' AND Scr = 'none' AND GrdId = 'none'")) {
+      assertTrue(result.next(), "AweUsrGrdCnf, created by AWE_V1.3.1, answers a query");
+    }
+  }
+
+  @Test
+  @DisplayName("The grid layout migration can be applied again over the existing objects")
+  void testGridLayoutMigrationCanBeAppliedAgain() throws Exception {
+    // Forget that 1.3.1 was applied: Flyway runs the script again over the table and the key it already created
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      String quote = connection.getMetaData().getIdentifierQuoteString();
+      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.3.1'");
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
+
+    Flyway.configure()
+      .dataSource(dataSource)
+      .locations("classpath:db/migration/" + dialect())
+      .sqlMigrationPrefix("AWE_V")
+      .table("flyway_schema_AWE")
+      .outOfOrder(true)
+      .load()
+      .migrate();
+
+    assertTrue(appliedVersions("AWE").contains("1.3.1"), "AWE_V1.3.1 applied again successfully on " + dialect());
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweUsrGrdCnf")) {
+      assertTrue(result.next(), "AweUsrGrdCnf still answers a query");
+    }
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'GrdCnfKey'")) {
+      assertTrue(result.next() && result.getInt(1) == 1, "The GrdCnfKey sequence exists exactly once");
+    }
+  }
+
   private String[] configuredModules() {
     String[] modules = databaseConfigProperties.getMigrationModules();
     return modules == null ? new String[0] : modules;

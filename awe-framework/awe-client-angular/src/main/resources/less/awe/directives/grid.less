@@ -724,3 +724,121 @@
     overflow-wrap: anywhere;
   }
 }
+
+// Grid toolbar (Columns and Maximize)
+.grid-toolbar {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  padding: 2px 0;
+}
+
+// A maximized grid fills the maximize target like a window (see Maximize service)
+.grid {
+  &.maximized {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    position: absolute;
+  }
+
+  // Animation clone
+  &.resizeAnimation {
+    background: #fff;
+    margin: 0;
+    position: absolute;
+    z-index: 1050;
+  }
+}
+
+// Columns dialog
+.grid-columns-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1050;
+}
+
+.grid-columns-dialog {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  left: 50%;
+  max-height: 85vh;
+  max-width: 95vw;
+  overflow: auto;
+  padding: 16px;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 28rem;
+  z-index: 1051;
+
+  .grid-columns-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .grid-columns-counter {
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // The list scrolls inside the dialog, so its actions stay in view with a long list of columns
+  .grid-columns-list {
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+
+  .grid-column-item {
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 8px;
+    padding: 4px 0;
+
+    .grid-column-label {
+      flex: 1;
+    }
+
+    .grid-column-handle {
+      cursor: grab;
+      opacity: 0.6;
+    }
+
+    .grid-column-move[disabled] {
+      cursor: default;
+      opacity: 0.3;
+    }
+  }
+
+  .grid-column-group {
+    border-left: 3px solid #428bca;
+    margin: 8px 0;
+    padding-left: 8px;
+
+    .grid-column-group-title {
+      font-weight: 600;
+      padding: 4px 0;
+    }
+  }
+
+  .grid-columns-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+}

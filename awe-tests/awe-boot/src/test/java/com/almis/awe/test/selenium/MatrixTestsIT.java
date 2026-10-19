@@ -921,6 +921,98 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Grid toolbar test: the user hides and reorders columns with the Columns dialog, group headers stay aligned and
+   * columns never leave their group, the layout is saved for the user and the screen comes back with it, Reset goes back
+   * to the definition of the screen, and Maximize fills the window
+   */
+  @Test
+  void t115_gridToolbarColumnsAndMaximize() {
+    // Title
+    setTestTitle("Grid toolbar: columns dialog, saved layout and maximize");
+
+    // Go to screen, with no layout saved by a previous run: the definition of the screen
+    openMatrixOption("matrix-test-layout");
+    openGridColumns("GrdLayoutTst");
+    clickGridColumnsReset("GrdLayoutTst");
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+
+    // The dialog lists the 26 columns that the screen shows, and not the key that it hides
+    openGridColumns("GrdLayoutTst");
+    checkGridColumnsCounter("GrdLayoutTst", 26, 26);
+    checkGridColumnsListed("GrdLayoutTst", "c01");
+    checkGridColumnsNotListed("GrdLayoutTst", "key");
+
+    // Hiding the first column of a group, and then one inside it, keeps the header over the columns that are left
+    hideGridColumn("GrdLayoutTst", "c03");
+    hideGridColumn("GrdLayoutTst", "c05");
+    checkGridColumnsCounter("GrdLayoutTst", 24, 26);
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnNotShown("GrdLayoutTst", "c03");
+    checkGridColumnNotShown("GrdLayoutTst", "c05");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c06");
+
+    // A group without visible columns has no header
+    openGridColumns("GrdLayoutTst");
+    hideGridColumn("GrdLayoutTst", "c04");
+    hideGridColumn("GrdLayoutTst", "c06");
+    closeGridColumns("GrdLayoutTst");
+    checkGridGroupHeaderNotShown("GrdLayoutTst", "Group A");
+    openGridColumns("GrdLayoutTst");
+    showGridColumn("GrdLayoutTst", "c04");
+    closeGridColumns("GrdLayoutTst");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c04");
+
+    // Columns move among their own siblings only: the ones of a group cannot leave it
+    openGridColumns("GrdLayoutTst");
+    checkGridColumnCannotMoveUp("GrdLayoutTst", "c03");
+    checkGridColumnCannotMoveDown("GrdLayoutTst", "c06");
+    moveGridColumnDown("GrdLayoutTst", "c01");
+    checkGridColumnCannotMoveUp("GrdLayoutTst", "c02");
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04");
+
+    // Save as default: the screen comes back with the layout of the user
+    openGridColumns("GrdLayoutTst");
+    clickGridColumnsSave("GrdLayoutTst");
+    // The layout is stored when the server answers: the screen is opened again only after that
+    checkMessageTitle("success", "Operation successful");
+    closeGridColumns("GrdLayoutTst");
+    openMatrixOption("matrix-test-pager");
+    openMatrixOption("matrix-test-layout");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04", "c07");
+    checkGridColumnNotShown("GrdLayoutTst", "c03");
+    checkGridColumnNotShown("GrdLayoutTst", "c06");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c04");
+
+    // Show all
+    openGridColumns("GrdLayoutTst");
+    checkGridColumnsCounter("GrdLayoutTst", 23, 26);
+    clickGridColumnsShowAll("GrdLayoutTst");
+    checkGridColumnsCounter("GrdLayoutTst", 26, 26);
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c03", "c04", "c05", "c06");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+
+    // Reset goes back to the definition of the screen and removes the layout that was saved
+    openGridColumns("GrdLayoutTst");
+    clickGridColumnsReset("GrdLayoutTst");
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
+    openMatrixOption("matrix-test-pager");
+    openMatrixOption("matrix-test-layout");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
+    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+
+    // Maximize fills the content area of the screen (the header stays visible) and restores the grid
+    maximizeGrid("GrdLayoutTst");
+    checkGridMaximized("GrdLayoutTst");
+    restoreGrid("GrdLayoutTst");
+    checkGridNotMaximized("GrdLayoutTst");
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

@@ -469,6 +469,20 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Grid layout service (per-user column layout of the grids)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @return Grid layout service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public GridLayoutService gridLayoutService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
+    return new GridLayoutService(queryService, queryUtil, maintainService);
+  }
+
+  /**
    * Screen service
    *
    * @param menuService              Menu service
@@ -644,8 +658,9 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public ScreenComponentGenerator screenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                                            InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                                           BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
-    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator);
+                                                           BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
+                                                           GridLayoutService gridLayoutService) {
+    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator, gridLayoutService);
   }
 
   /////////////////////////////////////////////

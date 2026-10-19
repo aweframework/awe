@@ -3208,6 +3208,41 @@
   </query>
 
 
+  <!-- 26 columns for the grid toolbar (GrdLayoutTst screen) -->
+  <query id="GrdLayoutTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="IdeThm" alias="key"/>
+    <computed alias="c01" format="V01"/>
+    <computed alias="c02" format="V02"/>
+    <computed alias="c03" format="V03"/>
+    <computed alias="c04" format="V04"/>
+    <computed alias="c05" format="V05"/>
+    <computed alias="c06" format="V06"/>
+    <computed alias="c07" format="V07"/>
+    <computed alias="c08" format="V08"/>
+    <computed alias="c09" format="V09"/>
+    <computed alias="c10" format="V10"/>
+    <computed alias="c11" format="V11"/>
+    <computed alias="c12" format="V12"/>
+    <computed alias="c13" format="V13"/>
+    <computed alias="c14" format="V14"/>
+    <computed alias="c15" format="V15"/>
+    <computed alias="c16" format="V16"/>
+    <computed alias="c17" format="V17"/>
+    <computed alias="c18" format="V18"/>
+    <computed alias="c19" format="V19"/>
+    <computed alias="c20" format="V20"/>
+    <computed alias="c21" format="V21"/>
+    <computed alias="c22" format="V22"/>
+    <computed alias="c23" format="V23"/>
+    <computed alias="c24" format="V24"/>
+    <computed alias="c25" format="V25"/>
+    <computed alias="c26" format="V26"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+
   <!-- Cells with the five steps of each colour scale, assigned with the style of the cell (GrdScaleTst screen) -->
   <query id="ThemeScaleTst">
     <table id="AweThm"/>

@@ -93,6 +93,16 @@ public class GroupHeader extends Element {
   }
 
   /**
+   * Retrieves the names of the columns of the group, so clients compute the header from its members
+   *
+   * @return Column names
+   */
+  @JsonGetter("columnNames")
+  public List<String> getColumnNamesConverter() {
+    return this.getElementsByType(Column.class).stream().map(Column::getName).toList();
+  }
+
+  /**
    * Retrieves title's text for JSON serialization
    *
    * @return title

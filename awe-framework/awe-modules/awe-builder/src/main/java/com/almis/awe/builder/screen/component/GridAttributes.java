@@ -19,6 +19,7 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
   private boolean sendAll;
   private boolean sendOperations;
   private boolean showTotals;
+  private boolean showToolbar = true;
   private boolean treeGrid;
   private boolean validateOnSave;
   private Integer initialLevel;
@@ -51,6 +52,7 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
       .setSendAll(isSendAll())
       .setMultioperation(isSendOperations())
       .setShowTotals(isShowTotals())
+      .setShowToolbar(isShowToolbar())
       .setTreegrid(isTreeGrid())
       .setValidateOnSave(isValidateOnSave())
       .setInitialLevel(getInitialLevel())

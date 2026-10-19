@@ -29,6 +29,7 @@ Insert into AweKey (KeyNam, KeyVal) values ('EmlSrvKey', 1);
 Insert into AweKey (KeyNam, KeyVal) values ('AppParKey', 1);
 Insert into AweKey (KeyNam, KeyVal) values ('JmsKey', 1);
 Insert into AweKey (KeyNam, KeyVal) values ('ScrCnfKey', 1);
+Insert into AweKey (KeyNam, KeyVal) values ('GrdCnfKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('ScrResKey', 1);
 
 -- Insert themes

@@ -132,6 +132,17 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   }
 
   /**
+   * Show the grid toolbar (columns dialog and maximize). It is shown by default
+   *
+   * @param showToolbar Show the toolbar
+   * @return Grid builder
+   */
+  public GridBuilder setShowToolbar(boolean showToolbar) {
+    getGridAttributes().setShowToolbar(showToolbar);
+    return this;
+  }
+
+  /**
    * Set validate on save
    *
    * @param validateOnSave

@@ -1,9 +1,12 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {useScreenSize} from "../hooks/useSizeRegistry";
+import useMaximize from "../hooks/useMaximize";
 import PropTypes from "prop-types";
 import AweGridCellTooltip from "./AweGridCellTooltip";
 import {getMoveRowKeyPosition} from "../utilities/grid";
+import AweGridToolbar from "./AweGridToolbar";
 import {classNames} from "../utilities/components";
+import {TestAttributes} from "../utilities/testIds";
 import "./AweSkeleton.less";
 
 /**
@@ -12,10 +15,13 @@ import "./AweSkeleton.less";
  * @subcategory Grid
  */
 function AweGridContainer(props) {
-  const { onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, children } = props;
-  const containerRef = useRef(null);
+  const { id, onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, children } = props;
   const [containerHeight, setContainerHeight] = useState(0);
+  const [resizeCount, setResizeCount] = useState(0);
   const screenSize = useScreenSize();
+  // The grid grows over the maximize target like a window, and it is measured again when the animation ends
+  const onResize = useCallback(() => setResizeCount(count => count + 1), []);
+  const {ref: containerRef, iconMaximized, style, className, toggle: toggleMaximized} = useMaximize({onResize});
 
   const checkKey = useCallback((e) => {
     const movePosition = onKeyMoveRow ? getMoveRowKeyPosition(e) : null;
@@ -43,21 +49,24 @@ function AweGridContainer(props) {
 
   useEffect(() => {
     setContainerHeight(containerRef?.current?.clientHeight || 0);
-  }, []);
+  }, [containerRef]);
 
+  // The grid is measured again when the window changes and when the grid is maximized or restored (end of the animation)
   useEffect(() => {
     setContainerHeight(undefined);
-  }, [screenSize?.height, screenSize?.current]);
+  }, [screenSize?.height, screenSize?.current, resizeCount]);
 
   useEffect(() => {
     if (containerHeight === undefined) {
       setContainerHeight(containerRef?.current?.clientHeight);
     }
-  }, [containerHeight]);
+  }, [containerHeight, containerRef]);
 
   return (
-    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading})} ref={containerRef}
-         aria-busy={loading ? "true" : undefined}>
+    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading}, className)} ref={containerRef} style={style}
+      aria-busy={loading ? "true" : undefined}
+      {...(id ? {[TestAttributes.maximized]: String(iconMaximized)} : {})}>
+      {id && <AweGridToolbar id={id} maximized={iconMaximized} iconMaximized={iconMaximized} onToggleMaximize={toggleMaximized} />}
       <div
         className="grid-contents expand expandible-vertical"
         role="grid-container"
@@ -72,6 +81,7 @@ function AweGridContainer(props) {
 }
 
 AweGridContainer.propTypes = {
+  id: PropTypes.string,
   children: PropTypes.node,
   loading: PropTypes.bool,
   onContextMenu: PropTypes.any,

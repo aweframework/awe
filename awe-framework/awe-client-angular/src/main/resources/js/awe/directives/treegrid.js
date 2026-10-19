@@ -2,6 +2,7 @@ import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
 import "../services/grid/tree";
 import "./gridSkeleton";
+import "./gridToolbar";
 
 // Treegrid directive
 aweApplication.directive('aweTreeGrid',
@@ -70,7 +71,7 @@ aweApplication.directive('aweTreeGrid',
                 // Fix column model
                 component.fixColumnModel(true);
                 scope.gridOptions = _.assign({}, options, {
-                  columnDefs: component.controller.columnModel,
+                  columnDefs: component.initColumnLayout(),
                   data: [],
                   enableRowSelection: true,
                   enableFullRowSelection: true,

@@ -269,6 +269,22 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getGridEmptyTitle()).hasToString("By.cssSelector: [data-testid='grid-empty-title']");
     assertThat(instructions.getGridEmptyText()).hasToString("By.cssSelector: [data-testid='grid-empty-text']");
     assertThat(instructions.getGridEmptyAction()).hasToString("By.cssSelector: [data-testid='grid-empty-action']");
+    assertThat(instructions.getGridColumnsButton("Grd"))
+      .hasToString("By.cssSelector: [data-testid='grid-toolbar'][data-testid-owner='Grd'] [data-testid='grid-columns-button']");
+    assertThat(instructions.getGridMaximizeButton("Grd"))
+      .hasToString("By.cssSelector: [data-testid='grid-toolbar'][data-testid-owner='Grd'] [data-testid='grid-maximize-button']");
+    assertThat(instructions.getGridToolbarMaximized("Grd", true))
+      .hasToString("By.cssSelector: [data-testid='grid-toolbar'][data-testid-owner='Grd'][data-maximized='true']");
+    assertThat(instructions.getGridColumnsCounter("Grd", "24", "26")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
+      + "[data-testid-owner='Grd'] [data-testid='grid-columns-counter'][data-visible='24'][data-total='26']");
+    assertThat(instructions.getGridColumnsCheckbox("Grd", "col01")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
+      + "[data-testid-owner='Grd'] [data-testid='grid-column-item'][column-id='col01'] [data-testid='grid-column-checkbox']");
+    assertThat(instructions.getGridColumnsMoveUp("Grd", "col01")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
+      + "[data-testid-owner='Grd'] [data-testid='grid-column-item'][column-id='col01'] [data-testid='grid-column-up']");
+    assertThat(instructions.getGridColumnsSave("Grd")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
+      + "[data-testid-owner='Grd'] [data-testid='grid-columns-save']");
+    assertThat(instructions.getGridGroupHeader("Grd", "Group A").toString()).contains("@data-testid='grid-group-header'")
+      .contains("normalize-space(.), 'Group A'");
     assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true).toString())
       .endsWith("[data-testid='criterion-input']:checked");
     assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", "B", true).toString())

@@ -272,6 +272,15 @@ CREATE TABLE AweUserSettings
     CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
 );
 
+CREATE TABLE AweUsrGrdCnf (
+    IdeUsrGrdCnf number(10) CONSTRAINT pk_AweUsrGrdCnf PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NOT NULL,                                                 --  User id
+    Scr varchar2(100) NOT NULL,                                                --  Screen id
+    GrdId varchar2(100) NOT NULL,                                              --  Grid id
+    Lay varchar2(4000) NOT NULL,                                               --  Layout (JSON with column order and hidden columns)
+    CONSTRAINT uk_AweUsrGrdCnf UNIQUE (Ope, Scr, GrdId)
+    );
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier

@@ -846,6 +846,15 @@ CREATE TABLE IF NOT EXISTS AweUserSettings
     CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
 );
 
+CREATE TABLE IF NOT EXISTS AweUsrGrdCnf (
+    IdeUsrGrdCnf int NOT NULL PRIMARY KEY,   --  Table identifier
+    Ope varchar(20) NOT NULL,                --  User id
+    Scr varchar(100) NOT NULL,               --  Screen id
+    GrdId varchar(100) NOT NULL,             --  Grid id
+    Lay varchar(4000) NOT NULL,              --  Layout (JSON with column order and hidden columns)
+    CONSTRAINT uk_AweUsrGrdCnf UNIQUE (Ope, Scr, GrdId)
+    );
+
 --------------------------------------------------------
 --  DDL for CONSTRAINTS
 --------------------------------------------------------

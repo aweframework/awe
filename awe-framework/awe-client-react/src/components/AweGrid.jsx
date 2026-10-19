@@ -47,6 +47,7 @@ function AweGrid(props) {
     buttonsTemplate,
     preColumnTemplates,
     postColumnTemplates,
+    visibleColumns,
     getHeader
   } = useGrid(id);
 
@@ -102,8 +103,7 @@ function AweGrid(props) {
   }, [editingRowId]);
 
   const headerTemplate = useCallback(() => {
-    const { headerModel = [], columnModel = [] } = attributes;
-    const visibleColumns = columnModel.filter(col => !col.hidden);
+    const { headerModel = [] } = attributes;
     if (headerModel.length > 0) {
       const header = getHeader();
       return <ColumnGroup>
@@ -125,11 +125,10 @@ function AweGrid(props) {
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, model, address, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, model, address, visibleColumns, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
   const footerTemplate = useCallback(() => {
-    const { columnModel = [], showTotals } = attributes;
-    const visibleColumns = columnModel.filter(col => !col.hidden);
+    const { showTotals } = attributes;
     if (showTotals) {
       return <ColumnGroup>
         <Row>
@@ -140,7 +139,7 @@ function AweGrid(props) {
       </ColumnGroup>;
     }
     return null;
-  }, [attributes, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
+  }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
 
   // PrimeReact does not expose the data of a row to the pass-through of the row, and the order of the rendered rows
   // depends on its own sort and filter. It evaluates "rowClassName" with the row data right before the row pass-through
@@ -155,7 +154,7 @@ function AweGrid(props) {
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
-  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading } = attributes;
+  const { style, headerModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
@@ -167,10 +166,10 @@ function AweGrid(props) {
   const showSkeleton = loading && !reloading && loadingIcon === SKELETON;
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers} first={first} />;
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers} first={first} />;
   }
 
-  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
+  return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
                     onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
     <DataTable
       selection={selectedValues}
@@ -210,7 +209,7 @@ function AweGrid(props) {
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
       {
-        columnModel.filter(col => !col.hidden)
+        visibleColumns
           .map(col => {
             const { name, sortField, align, charlength = null, width = null } = col;
             return <Column

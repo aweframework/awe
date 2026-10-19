@@ -917,6 +917,11 @@
         <xs:documentation xml:lang="en">Height of each row in pixels. AngularJS grids only (default 27); the React engine ignores it.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="show-toolbar" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the grid toolbar, with the Columns dialog (show, hide and reorder columns, saved per user) and the Maximize button. Set it to false to opt out. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="empty-title" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Title (locale or text) shown in the empty state of the grid. Default: a translated "No records" title</xs:documentation>

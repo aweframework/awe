@@ -296,7 +296,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     // check
     expect(screen.getByRole("table")).toBeDefined();
     expect(screen.getAllByRole("cell")[0]).toHaveClass("p-row-number-cell");
-    expect(screen.getAllByRole("button")[0]).toHaveClass("p-column-filter-menu-button");
+    expect(document.querySelector(".p-column-filter-menu-button")).not.toBeNull();
   });
 
   it('renders Awe Grid component with footer', async () => {
@@ -1020,7 +1020,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
       expect(screen.getByRole("table")).toBeDefined();
 
-      fireEvent.click(screen.getAllByRole("button")[0]);
+      fireEvent.click(document.querySelector(".p-column-filter-menu-button"));
 
       //console.info(document.body);
 
@@ -1129,7 +1129,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
       expect(screen.getByRole("table")).toBeDefined();
 
-      fireEvent.click(screen.getAllByRole("button")[0]);
+      fireEvent.click(document.querySelector(".p-column-filter-menu-button"));
 
       //console.info(document.body);
 
