@@ -266,6 +266,17 @@
       </properties>
       <build>
         <plugins>
+          <!-- Central requires -sources and -javadoc jars. The super POM of Maven 3.10 no longer has the release-profile that
+               attached them on -DperformRelease=true, so bind the attach-sources and attach-javadocs executions of
+               pluginManagement here. -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
