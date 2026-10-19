@@ -41,6 +41,7 @@ module.exports = {
     '**/utilities/utilsTest.{js,jsx}',
     '**/utilities/actionRegistryTest.{js,jsx}',
     '**/services/actionParityTest.{js,jsx}',
+    '**/services/actionContractTest.{js,jsx}',
     '**/containers/ActionsContainerUnknownActionTest.{js,jsx}',
     '**/redux/storeTest.{js,jsx}',
     '**/utilities/menuSearchTest.{js,jsx}',

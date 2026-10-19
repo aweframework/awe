@@ -77,6 +77,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | `TemplateService.getTagList(Screen, String)` (#861) | Code that calls this method directly does not compile: it now declares `throws AWENotFoundException`. A tag list missing from the screen raises this error instead of an `IndexOutOfBoundsException`. | Catch or propagate `AWENotFoundException` (or `AWException`). | issue #861 |
 | SQLBuilder (#782) | Only for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder` and call removed private methods of `SQLBuilder` by reflection. The protected methods keep their signatures and still call each other in the same order. | Nothing if you only override protected methods. Replace reflective calls to the removed private methods with the protected methods. | [SQLBuilder](#sqlbuilder) |
+| Screen contract actions (#823) | Java code that uses the `awe-builder` `Action` enum now sends `check-records-generated`, `select-first-row` and `select-last-row` (they used to send names that no engine handled, so the action did nothing). The AngularJS engine now runs `toggle-class`, and the React engine shows `target-message` as a notification. The compiler warns that `Action.FORWARD`, `GET_LOCALS`, `CHECK_LEAF_SELECTED` and `CHECK_PARENT_SELECTED` are deprecated, and the IDE marks some XML values as deprecated. | Check the screens where these actions now run. Remove the deprecated values: they do nothing and are removed in 6.0. | [Screen contract values](#screen-contract-values) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Dark mode and themes (AngularJS client) | Users that never chose the light or the dark mode now get the dark mode when their operating system prefers it. The themes now declare their dark variables through a mixin, and the `--awe-*` design tokens exist. | Nothing for correct themes and LESS. To keep ignoring the operating system, set `@awe-follow-os-color-scheme: false` after importing AWE. Users can still choose the light or the dark mode in the user menu. | [Design tokens and dark mode](design-tokens-guide.md) (issue #770) |
@@ -415,6 +416,31 @@ Notes for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder`:
   (`getFilterGroups` for the filters, `getOperationExpression` for `SUBSTRING`).
 - **Nothing else changes.** The constructors, the bean declarations (`@ConditionalOnMissingBean`, prototype scope)
   and the reflective join methods of `SQLQueryBuilder` are unchanged.
+
+### Screen contract values
+
+Issue #823 aligns the values that the builders emit and the XSDs accept with what the AngularJS and React engines
+handle.
+
+Fixed, so the action now runs:
+
+- `Action.CHECK_RECORDS_GENERATED`, `Action.SELECT_FIRST_ROW` and `Action.SELECT_LAST_ROW` send `check-records-generated`,
+  `select-first-row` and `select-last-row` (they sent `check-records-selected`, `select-first-rows` and
+  `select-last-rows`).
+- `toggle-class` runs in the AngularJS engine, as it already did in React.
+- `target-message` runs in the React engine. It shows a notification; the AngularJS engine shows it as a popover
+  on the target component.
+- `close-window`, handled by both engines, is now a valid button action in `general.xsd`.
+
+Deprecated: still valid, no behaviour in either engine, removed in 6.0:
+
+| Value | Where | Instead |
+|---|---|---|
+| `forward`, `check-leaf-selected`, `check-parent-expanded` | Button action type (`general.xsd`), builder `Action` | Remove it. |
+| `get-locals` | Button action type, builder `Action.GET_LOCALS` | Remove it. The client keeps loading the locals with the `get-locals` server action. |
+| `check-parent-selected` | Builder `Action.CHECK_PARENT_SELECTED` (not in the XSD) | Remove it. |
+| `<frame>`, `<javascript>` | Screen elements (`screen.xsd`) | Remove them: no engine renders them. |
+| `component="progress"` on a criterion | `criteriaComponentType` (`screen.xsd`) | Remove it. The `progress` grid column is not affected. |
 
 ### Security audit
 
@@ -808,7 +834,6 @@ listed so you can plan; each one adds its own entry above when it is merged.
 | [#775](https://gitlab.com/aweframework/awe/-/issues/775) | Migrate charts from Highcharts to Apache ECharts with server-side rendering |
 | [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Replace angular-ui-grid with a modern grid component |
 | [#778](https://gitlab.com/aweframework/awe/-/issues/778) | Enforce modern password hashing and a mandatory master key |
-| [#823](https://gitlab.com/aweframework/awe/-/issues/823) | Align builder action names and dead XSD values with the client contract |
 | [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitize the HTML of grid cells in the React client (an inline `style` in a cell will be dropped; use a CSS class) |
 
 ## Upgrade checklist
@@ -835,6 +860,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
+- [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

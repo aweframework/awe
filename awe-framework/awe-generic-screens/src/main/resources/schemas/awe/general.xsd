@@ -90,7 +90,11 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="confirm" />
       <xs:enumeration value="back" />
-      <xs:enumeration value="forward" />
+      <xs:enumeration value="forward">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine handles it.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="dialog" />
       <xs:enumeration value="reset" />
       <xs:enumeration value="restore" />
@@ -108,6 +112,7 @@
       <xs:enumeration value="filter" />
       <xs:enumeration value="print" />
       <xs:enumeration value="close" />
+      <xs:enumeration value="close-window" />
       <xs:enumeration value="resize" />
       <xs:enumeration value="add-class" />
       <xs:enumeration value="remove-class" />
@@ -132,12 +137,20 @@
       <xs:enumeration value="copy-selected-rows-clipboard" />
       <xs:enumeration value="delete-row" />
       <xs:enumeration value="save-row" />
-      <xs:enumeration value="check-leaf-selected" />
+      <xs:enumeration value="check-leaf-selected">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine handles it.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="check-one-selected" />
       <xs:enumeration value="check-some-selected" />
       <xs:enumeration value="check-records-saved" />
       <xs:enumeration value="check-records-generated" />
-      <xs:enumeration value="check-parent-expanded" />
+      <xs:enumeration value="check-parent-expanded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine handles it.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="select-first-row" />
       <xs:enumeration value="select-last-row" />
       <xs:enumeration value="select-all-rows" />
@@ -159,7 +172,11 @@
       <xs:enumeration value="value" />
       <xs:enumeration value="close-cancel" />
       <xs:enumeration value="reload-language" />
-      <xs:enumeration value="get-locals" />
+      <xs:enumeration value="get-locals">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: it does nothing as a button action. The locals are loaded by the client with the get-locals server action, which stays.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
 

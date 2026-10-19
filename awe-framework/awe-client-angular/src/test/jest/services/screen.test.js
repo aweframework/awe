@@ -1,4 +1,5 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
+import {ClientActions} from "../../../main/resources/js/awe/data/actions";
 import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
@@ -280,19 +281,30 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(languageAction);
   });
 
-  it("toggles every class requested by targetAction on the selected element", () => {
+  it("toggles every class requested by targetAction on the selected element through the toggle-class action", () => {
     document.body.innerHTML = '<div id="toggle-target" class="base"></div>';
     jest.spyOn($settings, "get").mockImplementation((key) => key === "targetActionKey" ? "targetAction" : key);
     const cssAction = action({target: "#toggle-target", parameters: {targetAction: "active highlighted"}});
 
-    $screen.toggleClass(cssAction);
+    const toggle = $screen[ClientActions.screen["toggle-class"].method];
+
+    toggle(cssAction);
     expect($("#toggle-target").hasClass("active")).toBe(true);
     expect($("#toggle-target").hasClass("highlighted")).toBe(true);
 
-    $screen.toggleClass(cssAction);
+    toggle(cssAction);
     expect($("#toggle-target").hasClass("active")).toBe(false);
     expect($("#toggle-target").hasClass("highlighted")).toBe(false);
     expect($actionController.acceptAction).toHaveBeenCalledWith(cssAction);
+  });
+
+  it("dispatches toggle-class, and every screen client action, to a method of the service", () => {
+    const missing = Object.entries(ClientActions.screen)
+      .filter(([, {method}]) => typeof $screen[method] !== "function")
+      .map(([name]) => name);
+
+    expect(ClientActions.screen["toggle-class"]).toEqual({method: "toggleClass"});
+    expect(missing).toEqual([]);
   });
 
   it("reloads theme variable stylesheets with a timestamp query string", () => {
