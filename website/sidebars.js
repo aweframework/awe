@@ -90,6 +90,7 @@ module.exports = {
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
 				"guides/design-tokens",
+				"guides/keyboard-shortcuts",
 				"guides/react-client-upgrade",
 				"guides/release-lines-and-support",
 				"guides/docs-audit",

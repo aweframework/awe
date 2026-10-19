@@ -196,6 +196,16 @@ describe("awe-react-client/test/js/components/AweGridWrapTest.jsx", () => {
         fireEvent.keyDown(cell, { key: "Escape" });
         expect(screen.queryByRole("tooltip")).toBeNull();
       });
+
+      it("keeps the tooltip with other keys", () => {
+        const { container } = renderClamped();
+        const cell = clamped(container);
+        cut(cell, true);
+
+        fireEvent.focusIn(cell);
+        fireEvent.keyDown(cell, { key: "Enter" });
+        expect(screen.getByRole("tooltip")).toBeInTheDocument();
+      });
     });
   });
 });

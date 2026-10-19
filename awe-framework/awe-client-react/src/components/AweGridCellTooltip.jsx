@@ -1,8 +1,12 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {createPortal} from "react-dom";
 import PropTypes from "prop-types";
+import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
+import {ANY} from "../utilities/keyboard";
 
 const CLAMPED_CELL = ".p-cell-clamp";
+// Escape hides the tooltip whatever modifiers are pressed
+const HIDE_SHORTCUT = {key: "Escape", alt: ANY, shift: ANY, ctrl: ANY, meta: ANY};
 
 /**
  * Check if the text of a cell is cut by its maximum number of lines
@@ -32,7 +36,6 @@ function AweGridCellTooltip({containerRef}) {
     }
   }, []);
   const hide = useCallback(() => setTooltip(null), []);
-  const onKeyDown = useCallback((event) => event.key === "Escape" && hide(), [hide]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -43,15 +46,15 @@ function AweGridCellTooltip({containerRef}) {
     container.addEventListener("focusin", show);
     container.addEventListener("mouseout", hide);
     container.addEventListener("focusout", hide);
-    container.addEventListener("keydown", onKeyDown);
     return () => {
       container.removeEventListener("mouseover", show);
       container.removeEventListener("focusin", show);
       container.removeEventListener("mouseout", hide);
       container.removeEventListener("focusout", hide);
-      container.removeEventListener("keydown", onKeyDown);
     };
-  }, [containerRef, show, hide, onKeyDown]);
+  }, [containerRef, show, hide]);
+
+  useKeyboardShortcut([{shortcut: HIDE_SHORTCUT, handler: hide}], {target: containerRef});
 
   if (!tooltip) {
     return null;

@@ -125,4 +125,52 @@ describe('awe-react-client/test/js/containers/ActionsContainerTest.jsx', () => {
     const state = store.getState();
     expect(state.settings.actionsStack).toBe(2000);
   });
+
+  describe('Alt+Shift+Digit shortcut', () => {
+    const press = (init) => act(() => { window.dispatchEvent(new KeyboardEvent('keydown', init)); });
+    const mount = () => renderWithProviders(<MemoryRouter><ActionsContainer /></MemoryRouter>, { preloadedState: buildState() });
+
+    afterEach(() => { window.onkeydown = null; });
+
+    it('shows the stack with every digit, 0 hides it', () => {
+      const { store } = mount();
+      press({ altKey: true, shiftKey: true, code: 'Digit5' });
+      expect(store.getState().settings.actionsStack).toBe(5000);
+      press({ altKey: true, shiftKey: true, code: 'Digit0' });
+      expect(store.getState().settings.actionsStack).toBe(0);
+    });
+
+    it('still works when Ctrl or Meta are also pressed', () => {
+      const { store } = mount();
+      press({ altKey: true, shiftKey: true, ctrlKey: true, metaKey: true, code: 'Digit3' });
+      expect(store.getState().settings.actionsStack).toBe(3000);
+    });
+
+    it.each([
+      ['without Alt', { shiftKey: true, code: 'Digit2' }],
+      ['without Shift', { altKey: true, code: 'Digit2' }],
+      ['with a code that is not a digit', { altKey: true, shiftKey: true, code: 'KeyA' }]
+    ])('does nothing %s', (_name, init) => {
+      const { store } = mount();
+      press(init);
+      expect(store.getState().settings.actionsStack).toBe(0);
+    });
+
+    it('does not dispatch after unmount', () => {
+      const { store, unmount } = mount();
+      unmount();
+      press({ altKey: true, shiftKey: true, code: 'Digit2' });
+      expect(store.getState().settings.actionsStack).toBe(0);
+    });
+
+    it('does not overwrite an existing window.onkeydown', () => {
+      const previous = jest.fn();
+      window.onkeydown = previous;
+      const { store } = mount();
+      press({ altKey: true, shiftKey: true, code: 'Digit4' });
+      expect(window.onkeydown).toBe(previous);
+      expect(previous).toHaveBeenCalledTimes(1);
+      expect(store.getState().settings.actionsStack).toBe(4000);
+    });
+  });
 });

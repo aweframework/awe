@@ -6,9 +6,12 @@ import {updateSettings} from "../redux/actions/settings";
 import {checkActions} from "../utilities";
 import useClientActions from "../services/ClientActionsService";
 import {ActionStatus} from "../redux/actions/actions";
+import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
+import {ANY, DIGIT_CODES} from "../utilities/keyboard";
 
 const {STATUS_RUNNING} = ActionStatus;
-const DIGITS = ["Digit0", "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"];
+// Alt+Shift+digit toggles the actions stack. Ctrl and Meta never mattered for it, so they are not checked
+const ACTIONS_STACK_SHORTCUT = {code: DIGIT_CODES, alt: true, shift: true, ctrl: ANY, meta: ANY};
 
 /**
  * Actions container
@@ -36,18 +39,11 @@ function ActionsContainer() {
     prevRunningActionsRef.current = runningActions;
   }, [runningActions]);
 
-  /**
-   * Component was mounted
-   */
-  useEffect(() => {
-    // Activate actions stack
-    window.onkeydown = (event) => {
-      if (event.altKey && event.shiftKey && DIGITS.includes(event.code)) {
-        // Toggle stack
-        dispatch(updateSettings({actionsStack: DIGITS.indexOf(event.code) * 1000}));
-      }
-    };
-  }, []);
+  // Toggle the actions stack
+  useKeyboardShortcut([{
+    shortcut: ACTIONS_STACK_SHORTCUT,
+    handler: (event) => dispatch(updateSettings({actionsStack: DIGIT_CODES.indexOf(event.code) * 1000}))
+  }]);
 
   return <div
       className="actions-zone" style={{display: isShowing ? "block" : "none"}}>
