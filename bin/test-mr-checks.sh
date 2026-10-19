@@ -590,9 +590,74 @@ fi
 
 # .gitlab-ci.yml: a top-level key defined twice is not an error for YAML or "glab ci lint" (the last one wins), so a
 # merge can silently bring an old copy of a job back (#783 re-added the build-stage Spotless job after it moved to lint).
-# The key is the text before the first colon (or the whole quoted key), whatever follows it on the line.
-DUPLICATE_KEYS=$(grep -oE "^(\"[^\"]*\"|'[^']*'|[^[:space:]#\"'][^:]*):" "$BIN_DIR/../.gitlab-ci.yml" | sort | uniq -d)
-if [ -z "$DUPLICATE_KEYS" ]; then pass ".gitlab-ci.yml: no top-level key is defined twice"; else fail ".gitlab-ci.yml: keys defined twice" "$DUPLICATE_KEYS"; fi
+# duplicate_keys FILE prints each top-level key that FILE defines more than once and returns 1 when there is one, or
+# returns 2 when FILE cannot be read. The key is the text before the first colon (or the whole quoted key), whatever
+# follows it on the line, without its quotes and the spaces before the colon: "job":, 'job': and job : are one key.
+duplicate_keys() {
+  [ -f "$1" ] && [ -r "$1" ] || return 2
+  # grep returns 1 when no line has a key (an empty file), and 2 when it cannot read the file
+  DUPLICATE_KEY_LINES=$(grep -oE "^(\"[^\"]*\"|'[^']*'|[^[:space:]#\"'][^:]*)[[:space:]]*:" "$1") || [ $? -eq 1 ] || return 2
+  DUPLICATE_KEY_LIST=$(printf '%s\n' "$DUPLICATE_KEY_LINES" \
+    | sed -e 's/[[:space:]]*:$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\\(.*\\)'\$/\\1/" | sort | uniq -d)
+  [ -z "$DUPLICATE_KEY_LIST" ] || { printf '%s\n' "$DUPLICATE_KEY_LIST"; return 1; }
+}
+
+# Cases that prove the check fires with the grep and sed of the machine that runs it (BSD on macOS, GNU in the pipeline)
+cat > "$WORK/duplicate-job.yml" <<'YAML'
+stages:
+  - lint
+Spotless:
+  stage: lint
+  script: mvn spotless:check
+Build:
+  script: mvn install
+Spotless:
+  stage: build
+YAML
+run duplicate_keys "$WORK/duplicate-job.yml"
+if [ "$RC" -eq 1 ] && [ "$OUT" = "Spotless" ]; then pass "duplicate keys: a job defined twice is reported"; else fail "duplicate keys: a job defined twice is reported (rc=$RC)" "$OUT"; fi
+
+cat > "$WORK/duplicate-job-spellings.yml" <<'YAML'
+"MR docs warning":
+  script: sh bin/mr-docs.sh
+Spotless :
+  stage: lint
+MR docs warning: {script: sh bin/mr-docs.sh}
+'Spotless':
+  stage: build
+YAML
+run duplicate_keys "$WORK/duplicate-job-spellings.yml"
+EXPECTED=$(printf 'MR docs warning\nSpotless')
+if [ "$RC" -eq 1 ] && [ "$OUT" = "$EXPECTED" ]; then
+  pass "duplicate keys: quoted keys and spaces before the colon count as the same key"
+else
+  fail "duplicate keys: quoted keys and spaces before the colon count as the same key (rc=$RC)" "$OUT"
+fi
+
+cat > "$WORK/unique-keys.yml" <<'YAML'
+# Spotless: a comment is not a key
+Spotless:
+  script: mvn spotless:check
+Build:
+  image: maven:3-eclipse-temurin-21
+  script: mvn install
+YAML
+run duplicate_keys "$WORK/unique-keys.yml"
+if [ "$RC" -eq 0 ] && [ -z "$OUT" ]; then
+  pass "duplicate keys: nested keys, comments and colons in values are not top-level duplicates"
+else
+  fail "duplicate keys: nested keys, comments and colons in values are not top-level duplicates (rc=$RC)" "$OUT"
+fi
+
+run duplicate_keys "$WORK/missing.yml"
+if [ "$RC" -eq 2 ]; then pass "duplicate keys: a file that cannot be read fails the check"; else fail "duplicate keys: a file that cannot be read fails the check (rc=$RC)" "$OUT"; fi
+
+run duplicate_keys "$BIN_DIR/../.gitlab-ci.yml"
+case "$RC" in
+  0) pass ".gitlab-ci.yml: no top-level key is defined twice" ;;
+  1) fail ".gitlab-ci.yml: keys defined twice" "$OUT" ;;
+  *) fail ".gitlab-ci.yml: cannot be read" "$OUT" ;;
+esac
 
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]
