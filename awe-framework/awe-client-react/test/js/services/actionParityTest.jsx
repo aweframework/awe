@@ -26,8 +26,7 @@ const NOT_PORTED = {
   "disable-dependencies": NOT_IN_REACT,
   "end-dependency": NOT_IN_REACT,
   "copy-criterion-value-clipboard": NOT_IN_REACT,
-  "screen-data": "Not a client action in React: the screen data is requested by the screen thunks",
-  "target-message": "Open question: React registers it as targetMessage, so the server name is never dispatched"
+  "screen-data": "Not a client action in React: the screen data is requested by the screen thunks"
 };
 
 /**

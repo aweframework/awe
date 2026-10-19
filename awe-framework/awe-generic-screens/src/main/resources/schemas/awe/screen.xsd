@@ -133,7 +133,11 @@
   <xs:element name="image" type="imageType" />
 
   <!-- Javascript Element -->
-  <xs:element name="javascript" type="javascriptType" />
+  <xs:element name="javascript" type="javascriptType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine renders it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Dialog Element -->
   <xs:element name="dialog" type="dialogType" />
@@ -214,7 +218,11 @@
   <xs:element name="menu-container" type="menuContainerType" />
 
   <!-- Frame Element -->
-  <xs:element name="frame" type="frameType" />
+  <xs:element name="frame" type="frameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine renders it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- View Element -->
   <xs:element name="view" type="viewType" />
@@ -1946,7 +1954,7 @@
   <!-- Criteria component attribute values -->
   <xs:simpleType name="criteriaComponentType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Kind of input of a criterion. All values are implemented by both engines except picklist (React only) and progress (accepted by the schema but not implemented as a criterion by any engine; it only exists as a grid column).</xs:documentation>
+      <xs:documentation xml:lang="en">Kind of input of a criterion. All values are implemented by both engines except picklist (React only) and the deprecated progress (not implemented as a criterion by any engine; it only exists as a grid column).</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="hidden" />
@@ -1969,7 +1977,11 @@
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />
       <xs:enumeration value="color" />
-      <xs:enumeration value="progress" />
+      <xs:enumeration value="progress">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine implements it as a criterion. The progress grid column stays.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="textarea" />
       <xs:enumeration value="uploader" />
       <xs:enumeration value="checkbox" />

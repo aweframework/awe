@@ -77,6 +77,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Spring Session con Redis (#861) | Con varias instancias, los usuarios pierden la sesión al azar y las pantallas fallan tras el login (por ejemplo `Index 0 out of bounds for length 0`): la cookie de sesión es `JSESSIONID` en lugar de `SESSION`, porque las sesiones se quedan en cada servidor. | Sustituya `spring-session-data-redis` por `spring-boot-starter-session-data-redis`, renombre `spring.session.redis.*` a `spring.session.data.redis.*` y actualice las clases de Redis en `spring.autoconfigure.exclude`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | `TemplateService.getTagList(Screen, String)` (#861) | El código que llama directamente a este método no compila: ahora declara `throws AWENotFoundException`. Un tag list que no está en la pantalla lanza este error en lugar de un `IndexOutOfBoundsException`. | Capture o propague `AWENotFoundException` (o `AWException`). | issue #861 |
 | SQLBuilder (#782) | Solo para proyectos que extienden `SQLQueryBuilder` o `SQLMaintainBuilder` e invocan por reflexión métodos privados eliminados de `SQLBuilder`. Los métodos protegidos mantienen sus firmas y se siguen llamando entre sí en el mismo orden. | Nada si solo sobrescribe métodos protegidos. Sustituya las llamadas por reflexión a los métodos privados eliminados por los métodos protegidos. | [SQLBuilder](#sqlbuilder) |
+| Acciones del contrato de pantalla (#823) | El código Java que usa el enum `Action` de `awe-builder` envía ahora `check-records-generated`, `select-first-row` y `select-last-row` (antes enviaba nombres que ningún motor trataba, así que la acción no hacía nada). El motor AngularJS ejecuta ahora `toggle-class`, y el motor React muestra `target-message` como una notificación. El compilador avisa de que `Action.FORWARD`, `GET_LOCALS`, `CHECK_LEAF_SELECTED` y `CHECK_PARENT_SELECTED` están deprecados, y el IDE marca algunos valores del XML como deprecados. | Revise las pantallas en las que estas acciones se ejecutan ahora. Quite los valores deprecados: no hacen nada y se eliminan en la 6.0. | [Valores del contrato de pantalla](#screen-contract-values) |
 | Hilos virtuales (#783, nuevo) | No cambia nada salvo que defina `spring.threads.virtual.enabled=true`. | Opcional: defina la propiedad para ejecutar Spring Boot y los ejecutores de tareas de AWE sobre hilos virtuales. | [Hilos virtuales](../deployment.md#virtual-threads) |
 | Dependencias de los clientes (`moment`, `lodash`, herramientas de build) | El cliente AngularJS ya no incluye `moment` (usa `day.js`) y el cliente React ya no lista `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` ni `@types/*`. Su propio código importa uno de ellos y el build falla con `Cannot find module`. | Declare en su propio `package.json` el paquete que importa: AWE solo los instalaba como detalle de implementación y no los promete a las aplicaciones. `lodash` se mantiene, pero trátelo igual. Consulte la nota bajo la tabla. | [Dependencias de los clientes](#client-dependencies), incidencia #769 |
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
@@ -434,6 +435,30 @@ Notas para los proyectos que extienden `SQLQueryBuilder` o `SQLMaintainBuilder`:
   (`getFilterGroups` para los filtros, `getOperationExpression` para `SUBSTRING`).
 - **Nada más cambia.** Los constructores, la declaración de los beans (`@ConditionalOnMissingBean`, ámbito
   prototype) y los métodos de join que `SQLQueryBuilder` invoca por reflexión no cambian.
+
+### Valores del contrato de pantalla {#screen-contract-values}
+
+La incidencia #823 alinea los valores que emiten los constructores y que aceptan los XSD con lo que tratan los motores
+AngularJS y React.
+
+Corregidos, así que la acción se ejecuta ahora:
+
+- `Action.CHECK_RECORDS_GENERATED`, `Action.SELECT_FIRST_ROW` y `Action.SELECT_LAST_ROW` envían `check-records-generated`,
+  `select-first-row` y `select-last-row` (enviaban `check-records-selected`, `select-first-rows` y `select-last-rows`).
+- `toggle-class` se ejecuta en el motor AngularJS, como ya hacía en React.
+- `target-message` se ejecuta en el motor React. Muestra una notificación; el motor AngularJS lo muestra como un
+  popover sobre el componente destino.
+- `close-window`, que tratan los dos motores, es ahora una acción de botón válida en `general.xsd`.
+
+Deprecados: siguen siendo válidos, no tienen comportamiento en ningún motor y se eliminan en la 6.0:
+
+| Valor | Dónde | En su lugar |
+|---|---|---|
+| `forward`, `check-leaf-selected`, `check-parent-expanded` | Tipo de acción de botón (`general.xsd`), `Action` del constructor | Quítelo. |
+| `get-locals` | Tipo de acción de botón, `Action.GET_LOCALS` del constructor | Quítelo. El cliente sigue cargando los textos con la acción de servidor `get-locals`. |
+| `check-parent-selected` | `Action.CHECK_PARENT_SELECTED` del constructor (no está en el XSD) | Quítelo. |
+| `<frame>`, `<javascript>` | Elementos de pantalla (`screen.xsd`) | Quítelos: ningún motor los pinta. |
+| `component="progress"` en un criterio | `criteriaComponentType` (`screen.xsd`) | Quítelo. La columna `progress` de la rejilla no se ve afectada. |
 
 ### Auditoría de seguridad {#security-audit}
 
@@ -829,7 +854,6 @@ aplicaciones. Se listan para que pueda planificar; cada una añadirá su propia 
 | [#775](https://gitlab.com/aweframework/awe/-/issues/775) | Migrar los gráficos de Highcharts a Apache ECharts con renderizado en el servidor |
 | [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de *grid* moderno |
 | [#778](https://gitlab.com/aweframework/awe/-/issues/778) | Imponer un hash de contraseñas moderno y una clave maestra obligatoria |
-| [#823](https://gitlab.com/aweframework/awe/-/issues/823) | Alinear los nombres de acciones del constructor y los valores muertos del XSD con el contrato del cliente |
 | [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de grid en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
 
 ## Lista de comprobación de la actualización {#upgrade-checklist}
@@ -855,6 +879,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
+- [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 
