@@ -14,7 +14,7 @@ function AweInputCheckbox(props) {
   const { t } = useTranslation();
   const { address, attributes, validationRules, getChecked, onChangeCheckbox } = useCheckboxRadio(id);
 
-  const { style = "", placeholder, required, readonly, label, size, error = false } = attributes;
+  const { style = "", placeholder, required, readonly, label, size, error = false, help, helpImage } = attributes;
   const isSwitch = (style || "").includes("switch");
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
@@ -36,7 +36,7 @@ function AweInputCheckbox(props) {
             className={classes}
             pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
           />
-          <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
+          <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
         </div>
       </AweCriterion>
     );
@@ -55,7 +55,7 @@ function AweInputCheckbox(props) {
           className={classes}
           pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
         />
-        <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
       </div>
     </AweCriterion>
   );

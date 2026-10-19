@@ -86,3 +86,45 @@
   color: var(--text-color-secondary);
   font-size: 0.9rem;
 }
+
+/* Label on the left (left-label): the width of the label is set by the criterion */
+@media screen and (min-width: @sm) {
+  .field.label-left {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0;
+
+    > label,
+    > div.block {
+      grid-column: 1;
+      margin: 0;
+      padding: 0 10px;
+      text-align: right;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    > .p-inputgroup,
+    > small {
+      grid-column: 2;
+    }
+  }
+}
+
+/* Caps lock warning of the password criterion */
+.p-inputgroup .caps-lock-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--orange-500, #f0ad4e);
+  pointer-events: none;
+}
+
+.p-inputtext.caps-lock {
+  border-color: var(--orange-500, #f0ad4e);
+  padding-right: 2.25rem;
+}

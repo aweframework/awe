@@ -2,6 +2,7 @@ import React, {useCallback} from "react";
 import {Calendar} from "primereact/calendar";
 import {translateLabel} from "../utilities";
 import {fromDate, toDate} from "../utilities/dates";
+import useDateOptions from "../hooks/useDateOptions";
 import {classNames} from "../utilities/components";
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -18,11 +19,13 @@ function AweInputDate(props) {
   const settings = useSelector(state => state.settings);
   const { address, attributes = {}, validationRules = {}, value } = useText(id);
 
+  const { format, language, calendarProps } = useDateOptions(attributes, value, settings.language);
+
   const onChange = useCallback((e) => {
     const newDate = e?.value ?? e?.target?.value ?? null;
-    const fixed = fromDate(newDate) || "";
+    const fixed = fromDate(newDate, format, language) || "";
     dispatch(updateThunk(address, { values: [{ value: fixed, label: fixed, selected: true }] }));
-  }, [dispatch, address]);
+  }, [dispatch, address, format, language]);
 
   const { placeholder, required, readonly, size, error } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
@@ -31,16 +34,16 @@ function AweInputDate(props) {
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <Calendar
         id={address?.component}
-        value={toDate(value)}
+        value={toDate(value, format, language)}
         className={classes}
         placeholder={translateLabel(placeholder, t)}
         onChange={onChange}
-        dateFormat="dd/mm/yy"
         required={required}
         disabled={readonly}
         locale={settings.language}
         pt={calendarPassThrough(address?.component)}
         showButtonBar
+        {...calendarProps}
       />
     </AweCriterion>
   );

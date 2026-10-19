@@ -13,7 +13,7 @@ function AweInputRadio(props) {
   const { t } = useTranslation();
   const { address, attributes, validationRules, getChecked, onChangeRadio } = useCheckboxRadio(id);
 
-  const { placeholder, required, readonly, label, group, size, error = false } = attributes;
+  const { placeholder, required, readonly, label, group, size, error = false, help, helpImage } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
@@ -30,7 +30,7 @@ function AweInputRadio(props) {
           className={classes}
           pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
         />
-        <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
       </div>
     </AweCriterion>
   );

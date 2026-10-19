@@ -73,7 +73,11 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 | printable     | Optional     | String  | Check if criterion is printable                                               | `true` (default) or `false`. **Note:** `excel` only has effect on [grid columns](grids.md#printing-columns)                                                                                                                                                                                  |
 | help          | Optional     | String  | Help text for the criterion                                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
 | help-image    | Optional     | String  | Help image for the criterion                                                  | This **must** be a image path                                                                                                                                                                                                                                                                |
-| left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label                                                                                                                                                                      |
+| left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label. The label is shown on the left from the `sm` breakpoint (576 px) and on top below it. Its width is the number of chars by the pixels per char of the criterion size (7 px for `sm`, 8 px for `md` and 10 px for `lg`) in both engines                                                                                                                                                                      |
+
+The `help` and `help-image` attributes show a tooltip when the user stays on the label of the criterion (a help icon is
+shown next to it). Both engines show it in every criterion, including checkboxes, radio buttons, button checkboxes and
+button radios, and also in [buttons](button.md) and in the headers of the [grid columns](grids.md#column-attributes).
 
 ### Specific attributes
 
@@ -111,6 +115,9 @@ Basic text input.
 Basic text input, but the written characters are not shown to the user.
 
 <img alt="Password" src={require('@docusaurus/useBaseUrl').default('img/Password.png')} />
+
+While the caps lock is on, both engines mark the field with a warning color and an arrow icon. The state comes from the
+last key pressed on the page, so the warning shows even if the caps lock was switched on before the user reached the field.
 
 ### Textarea criterion
 
@@ -164,6 +171,17 @@ ticks: [-1000, -500, 0, 500, 1000], ticks_labels: ['-$1000', '-$500', '$0', '$50
 Allows to select a date with a calendar.
 
 <img alt="dateCriteron" src={require('@docusaurus/useBaseUrl').default('img/dateCriteron.png')} />
+
+The AngularJS and the React engines apply the same options to the date criterion and to the date columns of a grid:
+
+* `date-format` sets the format of the date shown **and** of the value that the client sends to the server and expects
+  from it. The default is `dd/mm/yyyy`. The tokens are the ones of the bootstrap-datepicker plugin (`d`, `dd`, `m`, `mm`,
+  `M`, `MM`, `yy`, `yyyy`...), so `yyyy-mm-dd` sends `2024-03-15`.
+* `date-view-mode` set to `months` or `years` makes the calendar select a month or a year. Use it with a format
+  that has no day (`mm/yyyy` or `yyyy`).
+* `show-weekends="false"` disables the Saturdays and the Sundays.
+* `show-future-dates="false"` disables the dates after the date that the criterion has when the screen starts.
+* `date-show-today-button="false"` hides the button that selects today.
 
 ### Time criterion
 
