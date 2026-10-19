@@ -671,6 +671,7 @@
     <constant value="&lt;iframe src=&quot;https://example.com&quot;&gt;&lt;/iframe&gt;Foxtrot" alias="frame"/>
     <constant value="&lt;strong&gt;Golf&lt;/strong&gt; and &lt;em&gt;Hotel&lt;/em&gt;" alias="safe"/>
     <constant value="&lt;b&gt;India&lt;/b&gt; text" alias="escaped" transform="TEXT_HTML"/>
+    <constant value="&lt;strong&gt;Juliett&lt;/strong&gt;&lt;img src=&quot;x&quot; onerror=&quot;window.aweInjected=true&quot;&gt; &lt;em onclick=&quot;window.aweInjected=true&quot;&gt;Kilo&lt;/em&gt;" alias="formatted"/>
     <where>
       <and>
         <filter left-field="l1_nom" condition="eq" right-variable="user"/>

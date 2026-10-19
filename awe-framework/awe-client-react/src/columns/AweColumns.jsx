@@ -21,6 +21,7 @@ import ColumnStaticUploader from "./ColumnStaticUploader";
 import ColumnUploader from "./ColumnUploader";
 import ColumnButton from "./ColumnButton";
 import ColumnTextView from "./ColumnTextView";
+import ColumnFormattedText from "./ColumnFormattedText";
 import ColumnPassword from "./ColumnPassword";
 import ColumnStaticPassword from "./ColumnStaticPassword";
 import ColumnProgress from "./ColumnProgress";
@@ -41,6 +42,7 @@ export const Static = {
   "select": ColumnStaticSelect,
   "numeric": ColumnStaticNumeric,
   "text-view": ColumnTextView,
+  "formatted-text": ColumnFormattedText,
   "password": ColumnStaticPassword,
   "progress": ColumnProgress,
   "sparkline": ColumnSparkline,

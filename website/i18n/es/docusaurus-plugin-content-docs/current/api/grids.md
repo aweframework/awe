@@ -377,10 +377,15 @@ Este componente es muy útil para mostrar un icono dentro de un grid. Los **atri
 
 #### Componente de columna de texto con formato {#formatted-text-column-component}
 
-Este componente se utiliza para mostrar código HTML dentro de un grid. Se permiten dos tipos de etiquetas HTML:
+Este componente se utiliza para mostrar código HTML dentro de un grid. Funciona como una
+[vista de texto](#text-view-column-component) (solo lectura, lanza un evento `click` y acepta `icon`, `unit` y `style`),
+pero su etiqueta se pinta como HTML en lugar de como texto plano. La etiqueta no se traduce.
 
-* `<format style="[text class]">`: Texto formateado.
-* `<br>`: Nueva línea
+El HTML se sanea antes de mostrarse, de modo que los scripts, los manejadores de eventos y el resto de contenido activo
+nunca llegan a la página. En el cliente React la etiqueta solo conserva las etiquetas de formato de texto (`b`,
+`strong`, `i`, `em`, `u`, `s`, `small`, `mark`, `span`, `p`, `br`, `h1`-`h6`, listas, `code`, `pre`, `blockquote`...),
+los enlaces y los atributos `class`, `href`, `target` y `title`. Se eliminan las imágenes, los marcos, los estilos en
+línea y los enlaces `javascript:`. Es la misma política que la del texto de cualquier otra celda del grid.
 
 #### Componente de columna de imagen {#image-column-component}
 
