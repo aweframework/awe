@@ -58,6 +58,8 @@ module.exports = {
     '**/utilities/sparklineTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
+    '**/hooks/useKeyboardShortcutTest.{js,jsx}',
+    '**/utilities/keyboardTest.{js,jsx}',
     '**/hooks/useDateOptionsTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',
     '**/hooks/useMaximizeTest.{js,jsx}',
