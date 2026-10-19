@@ -11,6 +11,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
@@ -21,6 +22,7 @@ import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.tracker.AweClientTracker;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,11 @@ import static org.mockito.Mockito.when;
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 class ScreenServiceTest {
+
+  private static final String QUERY_FAILED_TITLE = "Query failed";
+  private static final String QUERY_FAILED_MESSAGE = "The query of Options failed";
+  private static final String MESSAGE_ACTION = "message";
+  private static final String DEFERRED_FAILED_ACTION = "deferred-failed";
 
   @InjectMocks
   private ScreenService screenService;
@@ -190,6 +197,7 @@ class ScreenServiceTest {
     assertEquals(2L, datalist.getRecords());
     assertTrue(action.getParameters().containsKey("selected"));
     assertTrue(action.getParameters().containsKey("defaultValues"));
+    assertTrue(serviceData.getClientActionList().stream().noneMatch(a -> "deferred-failed".equals(a.getType())));
   }
 
   /**
@@ -223,16 +231,94 @@ class ScreenServiceTest {
     when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
-        data.addError(new AWException("Query failed", "The query of Options failed"));
+        data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE));
         return Map.of();
       });
 
     ServiceData serviceData = screenService.getDeferredDataAction();
 
     ClientAction message = serviceData.getClientActionList().stream()
-      .filter(action -> "message".equals(action.getType())).findFirst().orElseThrow();
-    assertEquals("Query failed", ((CellData) message.getParameters().get("title")).getStringValue());
-    assertEquals("The query of Options failed", ((CellData) message.getParameters().get("message")).getStringValue());
+      .filter(action -> MESSAGE_ACTION.equals(action.getType())).findFirst().orElseThrow();
+    assertEquals(QUERY_FAILED_TITLE, ((CellData) message.getParameters().get("title")).getStringValue());
+    assertEquals(QUERY_FAILED_MESSAGE, ((CellData) message.getParameters().get(MESSAGE_ACTION)).getStringValue());
+  }
+
+  /**
+   * A failed initial load tells the client the container was not loaded, so it is requested again on the next opening (#824)
+   */
+  @Test
+  void getDeferredDataSignalsTheFailureOfTheContainer() throws Exception {
+    prepareDeferredRequest("Dia", Map.of());
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+      .thenAnswer(invocation -> {
+        ScreenData data = invocation.getArgument(2);
+        data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE));
+        return Map.of();
+      });
+
+    ServiceData serviceData = screenService.getDeferredDataAction();
+
+    ClientAction failed = serviceData.getClientActionList().stream()
+      .filter(action -> DEFERRED_FAILED_ACTION.equals(action.getType())).findFirst().orElseThrow();
+    assertEquals("Dia", failed.getTarget());
+    assertTrue(serviceData.getClientActionList().stream().anyMatch(action -> MESSAGE_ACTION.equals(action.getType())));
+  }
+
+  /**
+   * A warning or an information message of an initial load is not a failure: the container stays loaded (#824)
+   */
+  @Test
+  void getDeferredDataDoesNotSignalAFailureForAWarning() throws Exception {
+    prepareDeferredRequest("Dia", Map.of());
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+      .thenAnswer(invocation -> {
+        ScreenData data = invocation.getArgument(2);
+        data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE, AnswerType.WARNING));
+        return Map.of();
+      });
+
+    ServiceData serviceData = screenService.getDeferredDataAction();
+
+    assertTrue(serviceData.getClientActionList().stream().anyMatch(action -> MESSAGE_ACTION.equals(action.getType())));
+    assertTrue(serviceData.getClientActionList().stream().noneMatch(action -> DEFERRED_FAILED_ACTION.equals(action.getType())));
+  }
+
+  /**
+   * A message without a type is not known to be harmless: it counts as a failure (#824)
+   */
+  @Test
+  void getDeferredDataSignalsAFailureForAMessageWithoutType() throws Exception {
+    prepareDeferredRequest("Dia", Map.of());
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+      .thenAnswer(invocation -> {
+        ScreenData data = invocation.getArgument(2);
+        data.addAction(new ClientAction(MESSAGE_ACTION).addParameter(MESSAGE_ACTION, QUERY_FAILED_MESSAGE));
+        return Map.of();
+      });
+
+    ServiceData serviceData = screenService.getDeferredDataAction();
+
+    assertTrue(serviceData.getClientActionList().stream().anyMatch(action -> DEFERRED_FAILED_ACTION.equals(action.getType())));
+  }
+
+  /**
+   * A message whose type is a plain text value is read as well: a warning is not a failure (#824)
+   */
+  @Test
+  void getDeferredDataReadsAMessageTypeStoredAsText() throws Exception {
+    prepareDeferredRequest("Dia", Map.of());
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+      .thenAnswer(invocation -> {
+        ScreenData data = invocation.getArgument(2);
+        ClientAction warning = new ClientAction(MESSAGE_ACTION);
+        warning.getParameters().put(AweConstants.ACTION_MESSAGE_TYPE_ATTRIBUTE, "warning");
+        data.addAction(warning);
+        return Map.of();
+      });
+
+    ServiceData serviceData = screenService.getDeferredDataAction();
+
+    assertTrue(serviceData.getClientActionList().stream().noneMatch(action -> DEFERRED_FAILED_ACTION.equals(action.getType())));
   }
 
   /**

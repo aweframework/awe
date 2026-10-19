@@ -47,6 +47,7 @@ export const ClientActions = {
 
     "fill": {method: "fill"},
     "initial-model": {method: "initialModel"},
+    "deferred-failed": {method: "deferredFailed"},
     "fill-suggest": {method: "fillSuggest"},
     "update-controller": {method: "updateController"},
     "select": {method: "select"},

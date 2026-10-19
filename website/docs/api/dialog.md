@@ -62,7 +62,8 @@ grid definition: they are still loaded with the screen.
 with the identifier of the dialog. The server runs the queries of the components of the dialog and answers with an
 [`initial-model`](actions.md#component-actions) client action for each of them, which applies the data like the screen
 load does: the loaded model is also the one the `restore` and `restore-target` actions go back to. The dialog is not
-loaded again when it is opened later. A component with `autoload="true"` inside the dialog waits for the first opening as
+loaded again when it is opened later, unless a query failed: the error is shown and the next opening loads the
+dialog again. A component with `autoload="true"` inside the dialog waits for the first opening as
 well.
 
 The queries receive the values the screen has **at the moment of the first opening**, not the ones it had when it was
@@ -94,6 +95,8 @@ user cannot reach. The same applies to the save buttons that validate before run
   deferred dialog or tab skips that part and validates the rest.
 - A targeted `validate` whose target is itself an unopened deferred container validates nothing and passes.
 - Once the container has been opened and loaded, its criteria validate as normal, in full and targeted validations.
+- A `validate` without target validates every criterion of the screen, including those of its dialogs (open or closed),
+  wherever the button is, except those of deferred containers never opened. A targeted `validate` validates only its target.
 
 The server does not check `required` for these criteria (it is a client rule), so a save does not fail because they are
 missing. Remember it when a query or maintain needs a value of the dialog: it receives it empty until the dialog is opened.

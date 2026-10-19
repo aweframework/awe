@@ -19,6 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("CRUDCriteriaMatrixIT")
 class MatrixTestsIT extends AbstractSessionTests {
 
+  private static final String BUTTON_DEFERRED_DIALOG = "ButDefDialog";
+  private static final String DEFERRED_SELECT = "DefSelect";
+  private static final String BUTTON_DEFERRED_SAVE = "ButDefSave";
+  private static final String MATRIX_PAGER_OPTION = "matrix-test-pager";
+
   /**
    * Time that a page with wrapping columns may take to render, as a multiple of the time of the same page without wrapping.
    * The React grid lays out every row, and the wrapped text of the taller rows costs about 20% more in this harness (median
@@ -451,7 +456,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     setTestTitle("Grid paginator: visible range and total");
 
     // Go to screen
-    openMatrixOption("matrix-test-pager");
+    openMatrixOption(MATRIX_PAGER_OPTION);
 
     // First page: five rows of eighteen
     checkRowContentsGrid("GrdPagerTst", "adminflare");
@@ -656,26 +661,26 @@ class MatrixTestsIT extends AbstractSessionTests {
     // The screen load ran the queries of what is not deferred, and none of the deferred dialog
     checkDeferredCalls("EagSelect", "1");
     checkDeferredCalls("TabFirstSelect", "1");
-    checkDeferredCalls("DefSelect", "0");
+    checkDeferredCalls(DEFERRED_SELECT, "0");
     checkDeferredCalls("DefRows", "0");
     checkDeferredCalls("DefText", "0");
 
     // The first opening loads the data of the dialog
-    clickButton("ButDefDialog");
+    clickButton(BUTTON_DEFERRED_DIALOG);
     checkRowContentsGrid("GrdDefRows", "3");
     checkCriterionContents("DefText", "Loaded");
     clickButton("ButDefClose");
     checkDialogClosed("DlgDeferred");
-    checkDeferredCalls("DefSelect", "1");
+    checkDeferredCalls(DEFERRED_SELECT, "1");
     checkDeferredCalls("DefRows", "1");
     checkDeferredCalls("DefText", "1");
 
     // The next openings do not load it again
-    clickButton("ButDefDialog");
+    clickButton(BUTTON_DEFERRED_DIALOG);
     checkRowContentsGrid("GrdDefRows", "3");
     clickButton("ButDefClose");
     checkDialogClosed("DlgDeferred");
-    checkDeferredCalls("DefSelect", "1");
+    checkDeferredCalls(DEFERRED_SELECT, "1");
     checkDeferredCalls("DefRows", "1");
 
     // A deferred dialog does not make the other ones wait
@@ -746,7 +751,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickButton("ButDefPreset");
 
     // The first opening loads the dialog, but the value of the action stays
-    clickButton("ButDefDialog");
+    clickButton(BUTTON_DEFERRED_DIALOG);
     checkRowContentsGrid("GrdDefRows", "3");
     checkCriterionContents("DefText", "Preset");
     clickButton("ButDefClose");
@@ -761,11 +766,15 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Deferred dialog never opened does not block validation");
 
-    // Go to screen
+    // Go to the screen from another one, so it is loaded again (the previous test leaves the dialog loaded on it)
+    openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-deferred");
+    checkDeferredCalls(DEFERRED_SELECT, "0");
+    waitForLoadingBar();
+    waitForButtonClickability(BUTTON_DEFERRED_SAVE);
 
     // Its required criteria are ignored: the save goes through without opening the dialog
-    clickButton("ButDefSave");
+    clickButton(BUTTON_DEFERRED_SAVE);
     checkCriterionContents("DefSaved", "Saved");
   }
 
@@ -781,14 +790,17 @@ class MatrixTestsIT extends AbstractSessionTests {
     openMatrixOption("matrix-test-deferred");
 
     // Open the dialog (its required criteria load), empty one and close it
-    clickButton("ButDefDialog");
+    clickButton(BUTTON_DEFERRED_DIALOG);
     checkRowContentsGrid("GrdDefRows", "3");
     writeText("DefText", "");
     clickButton("ButDefClose");
     checkDialogClosed("DlgDeferred");
 
-    // Now the empty required criterion blocks the validation
-    clickButton("ButDefSave");
+    // Now the empty required criterion blocks the validation. The React client unmounts a closed dialog, so open it again
+    // to wait for the validation error of its criterion, then check nothing was saved
+    clickButton(BUTTON_DEFERRED_SAVE);
+    clickButton(BUTTON_DEFERRED_DIALOG);
+    checkValidationErrorVisible();
     checkCriterionContents("DefSaved", "");
   }
 
@@ -987,7 +999,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     // The layout is stored when the server answers: the screen is opened again only after that
     checkMessageTitle("success", "Operation successful");
     closeGridColumns("GrdLayoutTst");
-    openMatrixOption("matrix-test-pager");
+    openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04", "c07");
     checkGridColumnNotShown("GrdLayoutTst", "c03");
@@ -1008,7 +1020,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickGridColumnsReset("GrdLayoutTst");
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
-    openMatrixOption("matrix-test-pager");
+    openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
     checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");

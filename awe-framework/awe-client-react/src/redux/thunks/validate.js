@@ -59,17 +59,25 @@ export function validateRow(address) {
   };
 }
 
+/**
+ * Validate the components of the view. A validate with a target validates the components inside the target; one
+ * without it validates the whole view, dialogs included (as the AngularJS client does with the whole document), even
+ * if the dialog is closed. The content of a deferred container which was never opened is always skipped.
+ *
+ * @param {object} action Validate action
+ * @returns {function} Thunk
+ */
 export function validateAction(action) {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
     const address = getActionAddress(action);
+    // A dialog resets the context of its components, so the context of the caller does not reach them
+    const isInScope = action.target
+      ? (component) => isInsideContext(component.context, address.view, getActionSource(action, components))
+      : (component) => component.context?.view === address.view;
     dispatch(validateComponents(
       Object.values(components).filter((component) =>
-        isInsideContext(
-          component.context,
-          address.view,
-          getActionSource(action, components)
-        ) && !isInPendingDeferredContainer(component, components)
+        isInScope(component) && !isInPendingDeferredContainer(component, components)
       )
     ));
     dispatch(acceptAction(action));

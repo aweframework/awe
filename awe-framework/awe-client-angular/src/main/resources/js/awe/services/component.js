@@ -7,6 +7,19 @@ export function getIconTemplate(style = "", tag = "span") {
 }
 
 // Component service
+/**
+ * Find the element of a component by its identifier (criterion-id attribute or id). The identifier is compared as a
+ * value, never written into a selector, so CSS special characters (a dot, a colon...) are safe.
+ * @param {Object} $parent Parent node to search in
+ * @param {string} id Component identifier
+ * @return {Object} Matching nodes
+ */
+function findComponentElement($parent, id) {
+  return $parent.find("[criterion-id], [id]").filter(function () {
+    return this.getAttribute("criterion-id") === id || this.id === id;
+  });
+}
+
 aweApplication.factory('Component',
   ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log', 'Storage',
     /**
@@ -214,6 +227,8 @@ aweApplication.factory('Component',
              * Generate component API
              */
             component.api = component.api || {};
+            // The validator needs to know where the component is, to skip those inside unopened deferred containers
+            component.api.address = component.address;
             Control.setAddressApi(component.address, component.api);
             /**              * API link to specific getAttribute function;
              * @param {string} attribute Attribute to check
@@ -467,7 +482,7 @@ aweApplication.factory('Component',
           const id = this.address.component;
           return _.findKey(Storage.get("controller")[view], function (componentController, containerId) {
             return containerId !== id && componentController.deferred && !componentController.deferredLoaded
-              && $("#" + containerId).find("[criterion-id='" + id + "'], #" + id).length > 0;
+              && findComponentElement($(document.getElementById(containerId)), id).length > 0;
           });
         },
         /**
@@ -497,11 +512,11 @@ aweApplication.factory('Component',
 
           // Find the components which got data or a value before the first opening
           const view = this.address.view;
-          const $container = $("#" + this.address.component);
+          const $container = $(document.getElementById(this.address.component));
           const loaded = [];
           const valued = [];
           _.each(Storage.get("controller")[view], function (componentController, id) {
-            if (id !== this.address.component && $container.find("[criterion-id='" + id + "'], #" + id).length > 0) {
+            if (id !== this.address.component && findComponentElement($container, id).length > 0) {
               const model = Control.getAddressModel({view: view, component: id});
               // The components with autoload load by themselves when the container opens: not twice
               if ((model && !Utilities.isEmpty(model.values)) || componentController.autoload) {

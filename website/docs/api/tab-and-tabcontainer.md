@@ -92,8 +92,8 @@ The AngularJS and the React clients behave the same way.
 
 The rules are the ones of the [deferred dialogs](dialog.md#deferred-loading), applied to the tab: the components of the
 tabcontainer are on the screen but empty until the tab is selected for the first time; then one silent `deferred-data`
-server action loads them (with the values the screen has at that moment) and the tab is not loaded again. Some details
-of the tabs:
+server action loads them (with the values the screen has at that moment) and the tab is not loaded again, unless a query failed: the error is
+shown and the next selection loads the tab again. Some details of the tabs:
 
 - The tab which is selected when the screen is shown also loads on its own (right after the screen), because it is shown at once. Defer the pages the user does not see first.
 - A tabcontainer which is the first one gets no advantage from the attribute; use it in the other pages.

@@ -253,6 +253,18 @@ describe("controllers/form.js", function() {
     expect(control.changeControllerAttribute).toHaveBeenCalledWith(address, {label: undefined});
   });
 
+  it("marks a deferred container as not loaded when its load failed, so the next opening tries again (#824)", function() {
+    const address = {view: "base", component: "Dia"};
+    defineForm();
+    jest.spyOn(control, "changeControllerAttribute").mockImplementation(() => null);
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+
+    runFormAction("deferred-failed", {target: "Dia", address});
+
+    expect(control.changeControllerAttribute).toHaveBeenCalledWith(address, {deferredLoaded: false});
+    expect(actionController.acceptAction).toHaveBeenCalledTimes(1);
+  });
+
   it("selects primitive values without replacing available option values", function() {
     const address = {view: "base", component: "selector"};
     defineForm();

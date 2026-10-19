@@ -22,7 +22,7 @@ import {
   updateControllerAction
 } from "../redux/thunks/form";
 import {serverAction, serverDownloadAction} from "../redux/thunks/server";
-import {initialModelAction} from "../redux/thunks/deferred";
+import {deferredFailedAction, initialModelAction} from "../redux/thunks/deferred";
 
 function useFormService() {
   const dispatch = useDispatch();
@@ -69,6 +69,12 @@ function useFormService() {
    * @param {object} action Action received
    */
   const initialModel = (action) => dispatch(initialModelAction(action));
+
+  /**
+   * Mark a deferred dialog or tab as not loaded after the server failed to load it, so it is requested again
+   * @param {object} action Action received
+   */
+  const deferredFailed = (action) => dispatch(deferredFailedAction(action));
 
   /**
    * Update controller with action values
@@ -173,6 +179,7 @@ function useFormService() {
       "fill": fill,
       "fill-suggest": fillSuggest,
       "initial-model": initialModel,
+      "deferred-failed": deferredFailed,
       "update-controller": updateController,
       "select": select,
       "cancel": cancel,

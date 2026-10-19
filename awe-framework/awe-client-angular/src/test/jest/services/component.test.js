@@ -319,6 +319,35 @@ describe("Component", () => {
       expect($actionController.addActionList).toHaveBeenCalledTimes(2);
     });
 
+    it("makes the API of a component recognizable by the validator as inside a never opened deferred container (#824)", () => {
+      inject(["Validator", (Validator) => {
+        $storage.get("controller")["report"].inner = {};
+        const component = initializedComponent("inner");
+        component.api.validate = jest.fn(() => ({message: "required"}));
+        $storage.put("api", {report: {inner: component.api}});
+
+        const errors = Validator.validateNode($(document.body));
+
+        expect(component.api.validate).not.toHaveBeenCalled();
+        expect(errors).toEqual([]);
+      }]);
+    });
+
+    it("recognizes a component whose identifier has CSS special characters inside a never opened deferred container (#824)", () => {
+      inject(["Validator", (Validator) => {
+        document.body.innerHTML = `<div id="comp1"><div criterion-id="in.ner:1"></div></div>`;
+        $storage.get("controller")["report"]["in.ner:1"] = {};
+        const component = initializedComponent("in.ner:1");
+        component.api.validate = jest.fn(() => ({message: "required"}));
+        $storage.put("api", {report: {"in.ner:1": component.api}});
+
+        const errors = Validator.validateNode($(document.body));
+
+        expect(component.api.validate).not.toHaveBeenCalled();
+        expect(errors).toEqual([]);
+      }]);
+    });
+
     it("leaves the components with autoload out of the request, as they load by themselves (#824)", () => {
       $storage.get("controller")["report"].autoGrid = {autoload: true};
       document.body.innerHTML = `<div id="comp1"><div id="autoGrid"></div><div criterion-id="inner"></div></div>`;
