@@ -514,8 +514,9 @@ public class BaseConfigProperties {
      */
     private int gridPixelsPerCharacter = 8;
     /**
-     * Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns)
-     * or any other icon-loading value (spinner, dots...)
+     * Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns on
+     * every load), skeleton-dim (placeholder rows on the first load, dimmed rows on a reload) or any other icon-loading
+     * value (spinner, dots...)
      * Default value skeleton
      */
     private String gridIconLoading = "skeleton";

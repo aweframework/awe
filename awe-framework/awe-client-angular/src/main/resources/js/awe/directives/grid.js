@@ -67,9 +67,9 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
       </div>
     </div>
   </div>
-  <awe-loader class="loader grid-loader" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && iconLoader !== 'skeleton'" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
-  <awe-grid-skeleton class="grid-skeleton" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && iconLoader === 'skeleton' && !model.values.length" ng-cloak></awe-grid-skeleton>
-  <awe-loader class="loader grid-loader" skeleton="reload" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && iconLoader === 'skeleton' && model.values.length" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader grid-loader" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && !skeletonLoader" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-grid-skeleton class="grid-skeleton" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && skeletonLoader && !(dimReload && model.values.length)" ng-cloak></awe-grid-skeleton>
+  <awe-loader class="loader grid-loader" skeleton="reload" data-testid="${TestIds.gridLoader}" ng-if="controller.loading && dimReload && model.values.length" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 // Grid directive

@@ -8,6 +8,12 @@
   }
 }
 
+@keyframes awe-skeleton-cover {
+  to {
+    background-color: var(--awe-color-panel, #ffffff);
+  }
+}
+
 @keyframes awe-skeleton-dim {
   from {
     opacity: 1;
@@ -102,6 +108,12 @@
   position: absolute;
   right: 0;
   top: 0;
+
+  // A drawn chart that reloads: the skeleton hides it after the delay, so a fast reload does not flash
+  &.awe-skeleton-chart-cover {
+    animation: awe-skeleton-cover 0s linear @skeleton-delay forwards;
+    background-color: transparent;
+  }
 
   .awe-skeleton-bar {
     flex: 1 1 0;

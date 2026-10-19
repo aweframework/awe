@@ -14,6 +14,7 @@ public enum IconLoading {
   ICON("icon"),
   NONE("none"),
   SKELETON("skeleton"),
+  SKELETON_DIM("skeleton-dim"),
   SPINNER("spinner"),
   SQUARE("square"),
   SQUAREBAR("squarebar");

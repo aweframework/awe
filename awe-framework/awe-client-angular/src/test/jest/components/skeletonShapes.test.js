@@ -41,7 +41,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
     const CRITERION = icon => `<div class="criterion"><label class="control-label">Name</label>
       <div class="input"><input class="form-control"/><awe-loader class="loader" skeleton="field" icon-loader="${icon}"></awe-loader></div></div>`;
 
-    it.each(["spinner", "", "skeleton"])("draws the field skeleton with the loader hook when the icon is '%s'", icon => {
+    it.each(["spinner", "", "skeleton", "skeleton-dim"])("draws the field skeleton with the loader hook when the icon is '%s'", icon => {
       const {element} = compile(CRITERION(icon));
 
       const loader = element.find("awe-loader");
@@ -179,7 +179,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
     const RELOAD = icon => `<div class="grid" aria-busy="true"><awe-loader class="loader grid-loader" skeleton="reload" data-testid="grid-loader" icon-loader="${icon}"></awe-loader></div>`;
 
     it("dims the rows of the grid instead of drawing a spinner and keeps the grid-loader hook", () => {
-      const {element} = compile(RELOAD("skeleton"));
+      const {element} = compile(RELOAD("skeleton-dim"));
 
       const loader = element.find("awe-loader");
       expect(ServerData.preloadAngularTemplate).not.toHaveBeenCalled();
@@ -191,7 +191,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
     });
 
     it("restores the rows when the reload ends", () => {
-      const {element, scope} = compile(RELOAD("skeleton"));
+      const {element, scope} = compile(RELOAD("skeleton-dim"));
 
       scope.$destroy();
 
@@ -209,9 +209,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
     it.each(["grid.html", "treegrid.html"])("selects the loader of the %s template by the rows of the grid", template => {
       const html = fs.readFileSync(path.join(TEMPLATES, template), "utf8");
 
-      expect(html).toMatch(/<awe-grid-skeleton[^>]*ng-if="[^"]*iconLoader === 'skeleton' && !model\.values\.length"/);
-      expect(html).toMatch(/<awe-loader[^>]*skeleton="reload"[^>]*ng-if="[^"]*iconLoader === 'skeleton' && model\.values\.length"/);
-      expect(html).toMatch(/<awe-loader[^>]*ng-if="[^"]*iconLoader !== 'skeleton'"/);
+      expect(html).toMatch(/<awe-grid-skeleton[^>]*ng-if="[^"]*skeletonLoader && !\(dimReload && model\.values\.length\)"/);
+      expect(html).toMatch(/<awe-loader[^>]*skeleton="reload"[^>]*ng-if="[^"]*dimReload && model\.values\.length"/);
+      expect(html).toMatch(/<awe-loader[^>]*ng-if="[^"]*!skeletonLoader"/);
     });
   });
 });

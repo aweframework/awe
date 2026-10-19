@@ -647,5 +647,45 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
 
       expect(loader()).toBeNull();
     });
+
+    it('should cover the drawn chart with its skeleton while it reloads, until the data arrives', () => {
+      const {store} = renderChart(models.ChrPieTst);
+      act(() => lastChart().handlers.finished());
+      expect(loader()).toBeNull();
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: true}));
+      });
+
+      expect(loader()).not.toBeNull();
+      expect(loader().classList.contains("awe-skeleton-chart-pie")).toBe(true);
+      expect(loader().classList.contains("awe-skeleton-chart-cover")).toBe(true);
+      expect(loader().getAttribute("aria-hidden")).toBe("true");
+      expect(document.querySelector("[data-testid='chart']").getAttribute("data-rendered")).toBe("true");
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: false}));
+      });
+
+      expect(loader()).toBeNull();
+    });
+
+    it('should not cover the chart before it is first drawn', () => {
+      renderChart(models.ChrBarTst, values, {loading: true});
+
+      expect(loader()).not.toBeNull();
+      expect(loader().classList.contains("awe-skeleton-chart-cover")).toBe(false);
+    });
+
+    it('should show no skeleton in a hidden chart that reloads', () => {
+      const {store} = renderChart(models.ChrBarTst, values, {visible: false});
+      act(() => lastChart().handlers.finished());
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: true}));
+      });
+
+      expect(loader()).toBeNull();
+    });
   });
 });

@@ -172,42 +172,85 @@ describe("grid loading skeleton", () => {
   it.each(["grid.html", "treegrid.html"])("renders the skeleton with the grid-loader hook in the %s template", template => {
     const html = fs.readFileSync(path.join(TEMPLATES, template), "utf8");
 
-    expect(html).toMatch(/<awe-grid-skeleton[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*iconLoader === 'skeleton'/);
-    expect(html).toMatch(/<awe-loader[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*iconLoader !== 'skeleton'/);
+    expect(html).toMatch(/<awe-grid-skeleton[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*skeletonLoader/);
+    expect(html).toMatch(/<awe-loader[^>]*data-testid="grid-loader"[^>]*ng-if="[^"]*!skeletonLoader"/);
     expect(html).toMatch(/ng-attr-aria-busy="\{\{controller\.loading \|\| undefined\}\}"/);
   });
 
   describe("reload with rows", () => {
     const ROWS = [{name: "a", date: "2026-01-01"}, {name: "b", date: "2026-01-02"}];
 
-    it("dims the current rows instead of drawing the skeleton or the spinner when the default loader reloads", () => {
-      const {element} = compileGrid({rows: ROWS});
+    it("draws the skeleton over the current rows when the default loader (skeleton) reloads", () => {
+      const {element, scope} = compileGrid({rows: ROWS});
 
       const loader = element.find(GRID_LOADER);
+      expect(scope.iconLoader).toBe("skeleton");
       expect(loader.length).toBe(1);
-      expect(loader[0].tagName).toBe("AWE-LOADER");
-      expect(loader.hasClass("grid-reload")).toBe(true);
-      expect(element.find("awe-grid-skeleton").length).toBe(0);
-      expect(element.hasClass("grid-reloading")).toBe(true);
+      expect(loader[0].tagName).toBe("AWE-GRID-SKELETON");
+      expect(element.find("awe-loader").length).toBe(0);
+      expect(element.hasClass("grid-reloading")).toBe(false);
       expect(element.attr("aria-busy")).toBe("true");
     });
 
-    it("restores the rows when the reload ends", () => {
+    it("removes the skeleton when the reload ends", () => {
       const {element, scope} = compileGrid({rows: ROWS});
 
       scope.controller.loading = false;
       refs.$rootScope.$digest();
 
       expect(element.find(GRID_LOADER).length).toBe(0);
-      expect(element.hasClass("grid-reloading")).toBe(false);
       expect(element.attr("aria-busy")).toBeUndefined();
     });
 
-    it("still draws the skeleton on the first load, with no rows", () => {
-      const {element} = compileGrid();
+    describe("with icon-loading='skeleton-dim'", () => {
+      it("dims the current rows instead of drawing the skeleton or the spinner", () => {
+        const {element, scope} = compileGrid({iconLoading: "skeleton-dim", rows: ROWS});
 
-      expect(element.find(GRID_LOADER)[0].tagName).toBe("AWE-GRID-SKELETON");
-      expect(element.hasClass("grid-reloading")).toBe(false);
+        const loader = element.find(GRID_LOADER);
+        expect(scope.iconLoader).toBe("skeleton-dim");
+        expect(loader.length).toBe(1);
+        expect(loader[0].tagName).toBe("AWE-LOADER");
+        expect(loader.hasClass("grid-reload")).toBe(true);
+        expect(element.find("awe-grid-skeleton").length).toBe(0);
+        expect(element.hasClass("grid-reloading")).toBe(true);
+        expect(element.attr("aria-busy")).toBe("true");
+      });
+
+      it("restores the rows when the reload ends", () => {
+        const {element, scope} = compileGrid({iconLoading: "skeleton-dim", rows: ROWS});
+
+        scope.controller.loading = false;
+        refs.$rootScope.$digest();
+
+        expect(element.find(GRID_LOADER).length).toBe(0);
+        expect(element.hasClass("grid-reloading")).toBe(false);
+        expect(element.attr("aria-busy")).toBeUndefined();
+      });
+
+      it("draws the skeleton on the first load, with no rows", () => {
+        const {element} = compileGrid({iconLoading: "skeleton-dim"});
+
+        expect(element.find(GRID_LOADER)[0].tagName).toBe("AWE-GRID-SKELETON");
+        expect(element.find("awe-loader").length).toBe(0);
+        expect(element.hasClass("grid-reloading")).toBe(false);
+      });
+
+      it("dims the rows of every grid when it is the application default", () => {
+        settings.update({gridIconLoading: "skeleton-dim"});
+        const {element, scope} = compileGrid({rows: ROWS});
+
+        expect(scope.iconLoader).toBe("skeleton-dim");
+        expect(element.find(GRID_LOADER).hasClass("grid-reload")).toBe(true);
+        expect(element.find("awe-grid-skeleton").length).toBe(0);
+      });
+
+      it("draws the skeleton over the rows of a grid with icon-loading='skeleton' when the default is skeleton-dim", () => {
+        settings.update({gridIconLoading: "skeleton-dim"});
+        const {element} = compileGrid({iconLoading: "skeleton", rows: ROWS});
+
+        expect(element.find(GRID_LOADER)[0].tagName).toBe("AWE-GRID-SKELETON");
+        expect(element.hasClass("grid-reloading")).toBe(false);
+      });
     });
 
     it.each(["spinner", "dots"])("keeps the %s icon on the first load and on the reload of a grid with a custom icon-loading", icon => {

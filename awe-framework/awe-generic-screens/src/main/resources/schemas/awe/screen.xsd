@@ -859,7 +859,7 @@
     </xs:attribute>
     <xs:attribute name="icon-loading" type="loadingIconEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. skeleton shows placeholder rows with the grid columns. Default: the awe.application.component.grid-icon-loading property (skeleton). Set another value (spinner...) to disable the skeleton on this grid.</xs:documentation>
+        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. skeleton shows placeholder rows with the grid columns on every load; skeleton-dim shows them on the first load and dims the rows on a reload. Default: the awe.application.component.grid-icon-loading property (skeleton). Set another value (spinner...) to disable the skeleton on this grid.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="initial-level" type="xs:integer">
@@ -2307,6 +2307,7 @@
       <xs:enumeration value="custom" />
       <xs:enumeration value="none" />
       <xs:enumeration value="skeleton" />
+      <xs:enumeration value="skeleton-dim" />
     </xs:restriction>
   </xs:simpleType>
 

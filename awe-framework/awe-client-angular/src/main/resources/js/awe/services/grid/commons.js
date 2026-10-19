@@ -439,6 +439,10 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
         // Loading indicator: the icon-loading of the grid wins over the application default
         component.scope.iconLoader = component.controller.iconLoading || $settings.get("gridIconLoading") || "spinner";
+        // skeleton draws placeholder rows on every load; skeleton-dim draws them on the first load and dims the rows on a
+        // reload while the grid has rows
+        component.scope.skeletonLoader = ["skeleton", "skeleton-dim"].includes(component.scope.iconLoader);
+        component.scope.dimReload = component.scope.iconLoader === "skeleton-dim";
 
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();

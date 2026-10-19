@@ -12,7 +12,7 @@ import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
-import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, SKELETON} from "./AweGridSkeleton";
+import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, isSkeletonIcon} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -163,7 +163,7 @@ function AweGrid(props) {
   // The skeleton replaces the rows in the body instead of masking them. While it is shown the grid is kept lazy with
   // its known total, so a client-side paginated grid does not jump back to the first page when its rows disappear
   const reloading = isGridReloading(loading, loadingIcon, values.length);
-  const showSkeleton = loading && !reloading && loadingIcon === SKELETON;
+  const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
     emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers} first={first} />;
