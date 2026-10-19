@@ -30,16 +30,26 @@ class CacheServiceTest extends AbstractSpringAppIntegrationTest {
             .screen("Prueba")
             .name("prueba")
       .build());
-    aweElements.setMenu(AweConstants.PUBLIC_MENU, menu);
-    assertThat(menu.getElementList().size(), equalTo(aweElements.getMenu(AweConstants.PUBLIC_MENU).getElementList().size()));
-    aweElements.setMenu(AweConstants.PUBLIC_MENU, originalMenu);
+    try {
+      aweElements.setMenu(AweConstants.PUBLIC_MENU, menu);
+      assertThat(menu.getElementList().size(), equalTo(aweElements.getMenu(AweConstants.PUBLIC_MENU).getElementList().size()));
+    } finally {
+      // Restore the cached menu: the Spring context is shared with other integration tests
+      aweElements.setMenu(AweConstants.PUBLIC_MENU, originalMenu);
+    }
   }
 
   @Test
   void testScreen() throws Exception {
-    Screen screen = aweElements.getScreen("MatTst").copy();
+    Screen originalScreen = aweElements.getScreen("MatTst");
+    Screen screen = originalScreen.copy();
     screen.addElement(Tag.builder().build());
-    aweElements.setScreen(screen);
-    assertThat(screen.getElementList().size(), equalTo(aweElements.getScreen("MatTst").getElementList().size()));
+    try {
+      aweElements.setScreen(screen);
+      assertThat(screen.getElementList().size(), equalTo(aweElements.getScreen("MatTst").getElementList().size()));
+    } finally {
+      // Restore the cached screen: a tag without source breaks the template of later screen requests
+      aweElements.setScreen(originalScreen);
+    }
   }
 }
