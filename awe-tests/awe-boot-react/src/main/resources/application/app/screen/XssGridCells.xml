@@ -22,6 +22,7 @@
         <column label="COLUMN_XSS_FRAME" name="frame" align="left" charlength="20"/>
         <column label="COLUMN_XSS_SAFE" name="safe" align="left" charlength="20"/>
         <column label="COLUMN_XSS_ESCAPED" name="escaped" align="left" charlength="20"/>
+        <column label="COLUMN_XSS_FORMATTED" name="formatted" align="left" charlength="20" component="formatted-text"/>
       </grid>
     </window>
   </tag>

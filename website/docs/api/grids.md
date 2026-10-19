@@ -380,10 +380,15 @@ This component is very useful to show an icon inside a grid. The **compound attr
 
 #### Formatted text column component
 
-This component is used to show HTML code inside a grid. There are two type of HTML tags allowed:
+This component is used to show HTML code inside a grid. It works like a [text view](#text-view-column-component)
+(read-only, launches a `click` event and accepts `icon`, `unit` and `style`), but its label is rendered as HTML instead
+of plain text. The label is not translated.
 
-* `<format style="[text class]">`: Formatted text. 
-* `<br>`: New line
+The HTML is sanitized before it is shown, so scripts, event handlers and other active content never reach the page.
+In the React client the label keeps only text formatting tags (`b`, `strong`, `i`, `em`, `u`, `s`, `small`, `mark`,
+`span`, `p`, `br`, `h1`-`h6`, lists, `code`, `pre`, `blockquote`...), links and the attributes `class`, `href`, `target`
+and `title`. Images, frames, inline styles and `javascript:` links are removed. It is the same policy as the text of
+any other grid cell.
 
 #### Image column component
 

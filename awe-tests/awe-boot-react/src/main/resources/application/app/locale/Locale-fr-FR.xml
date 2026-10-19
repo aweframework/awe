@@ -33,6 +33,7 @@
   <locale name="COLUMN_MOVE_ROW_STEP" value="Étape"/>
   <locale name="COLUMN_NUMERIC" value="Numérique (test)"/>
   <locale name="COLUMN_XSS_ESCAPED" value="Escaped text"/>
+  <locale name="COLUMN_XSS_FORMATTED" value="Formatted text"/>
   <locale name="COLUMN_XSS_EVENT" value="Event handler"/>
   <locale name="COLUMN_XSS_FRAME" value="Frame"/>
   <locale name="COLUMN_XSS_IMAGE" value="Image"/>

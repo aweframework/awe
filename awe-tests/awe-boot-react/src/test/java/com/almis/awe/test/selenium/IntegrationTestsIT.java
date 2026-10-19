@@ -22,6 +22,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
   private static final String SETTINGS = "settings";
   private static final String DATABASES = "databases";
   private static final String PRINT_BUTTON = "ButPrn";
+  private static final String XSS_CELLS_GRID = "GrdXssCells";
 
   /**
    * The test stored the screen configuration of the databases screen and did not remove it yet
@@ -215,16 +216,19 @@ class IntegrationTestsIT extends AbstractSessionTests {
     gotoScreen("test", "matrix", "matrix-test-xss-cells");
 
     // Check that the text around the markup that is removed is still shown
-    checkRowContentsGrid("GrdXssCells", "Alpha", "omega", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot");
+    checkRowContentsGrid(XSS_CELLS_GRID, "Alpha", "omega", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot");
 
     // Check that the safe markup is kept (its text is shown)
-    checkRowContentsGrid("GrdXssCells", "Golf", "Hotel");
+    checkRowContentsGrid(XSS_CELLS_GRID, "Golf", "Hotel");
 
     // Check that a value that the server escaped is shown as text, tags included
-    checkRowContentsGrid("GrdXssCells", "<b>India</b> text");
+    checkRowContentsGrid(XSS_CELLS_GRID, "<b>India</b> text");
+
+    // Check that the formatted text column keeps the safe markup of its html label
+    checkRowContentsGrid(XSS_CELLS_GRID, "Juliett", "Kilo");
 
     // Check that no cell holds a script, frame, image, handler or script link
-    checkGridCellsHaveNoActiveContent("GrdXssCells");
+    checkGridCellsHaveNoActiveContent(XSS_CELLS_GRID);
   }
 
   /**
