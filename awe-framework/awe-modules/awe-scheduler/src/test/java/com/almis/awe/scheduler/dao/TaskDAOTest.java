@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -84,12 +85,16 @@ class TaskDAOTest {
   @Mock
   private FileChecker fileChecker;
 
+  // The log folder: an empty path would be the working directory, and purging the orphan logs deletes every file in it
+  @TempDir
+  private java.nio.file.Path logFolder;
+
   /**
    * Initializes json mapper for tests
    */
   @BeforeEach
   void initBeans() {
-    taskDAO = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, new FileExecutionLogStore(""));
+    taskDAO = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, new FileExecutionLogStore(logFolder.toString()));
     taskDAO.setApplicationContext(context);
   }
 

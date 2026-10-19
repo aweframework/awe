@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdLayoutTst.xml
+    Description: Grid with 26 columns, two group headers and a hidden key, to check the toolbar: the Columns dialog,
+                 the layout saved by the user and the Maximize button
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_LAYOUT">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_LAYOUT" expandible="vertical">
+      <grid id="GrdLayoutTst" style="expand" initial-load="query" server-action="data" target-action="GrdLayoutTst" max="5">
+        <column label="Col 01" name="c01" align="left" charlength="10"/>
+        <column label="Col 02" name="c02" align="left" charlength="10"/>
+        <group-header name="GrpLayoutA" label="Group A">
+          <column label="Col 03" name="c03" align="left" charlength="10"/>
+          <column label="Col 04" name="c04" align="left" charlength="10"/>
+          <column label="Col 05" name="c05" align="left" charlength="10"/>
+          <column label="Col 06" name="c06" align="left" charlength="10"/>
+        </group-header>
+        <column label="Col 07" name="c07" align="left" charlength="10"/>
+        <column label="Col 08" name="c08" align="left" charlength="10"/>
+        <column label="Col 09" name="c09" align="left" charlength="10"/>
+        <group-header name="GrpLayoutB" label="Group B">
+          <column label="Col 10" name="c10" align="left" charlength="10"/>
+          <column label="Col 11" name="c11" align="left" charlength="10"/>
+          <column label="Col 12" name="c12" align="left" charlength="10"/>
+        </group-header>
+        <column label="Col 13" name="c13" align="left" charlength="10"/>
+        <column label="Col 14" name="c14" align="left" charlength="10"/>
+        <column label="Col 15" name="c15" align="left" charlength="10"/>
+        <column label="Col 16" name="c16" align="left" charlength="10"/>
+        <column label="Col 17" name="c17" align="left" charlength="10"/>
+        <column label="Col 18" name="c18" align="left" charlength="10"/>
+        <column label="Col 19" name="c19" align="left" charlength="10"/>
+        <column label="Col 20" name="c20" align="left" charlength="10"/>
+        <column label="Col 21" name="c21" align="left" charlength="10"/>
+        <column label="Col 22" name="c22" align="left" charlength="10"/>
+        <column label="Col 23" name="c23" align="left" charlength="10"/>
+        <column label="Col 24" name="c24" align="left" charlength="10"/>
+        <column label="Col 25" name="c25" align="left" charlength="10"/>
+        <column label="Col 26" name="c26" align="left" charlength="10"/>
+        <column label="Key" name="key" hidden="true"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

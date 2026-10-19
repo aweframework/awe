@@ -1,0 +1,28 @@
+// Classes of useMaximize (same names as the AngularJS Maximize service)
+.minimized {
+  display: none !important;
+}
+
+.maximizeParent {
+  position: static !important;
+}
+
+// Layer that grows over the maximize target while an element is maximized or restored
+.maximize-clone {
+  position: fixed;
+  z-index: 1050;
+  margin: 0;
+  box-sizing: border-box;
+  background: var(--surface-a, #fff);
+  border: 1px solid var(--surface-border, #dee2e6);
+
+  &.maximize-animated {
+    transition-property: all;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+// The element waits hidden while its clone is growing
+.maximize-resizing {
+  visibility: hidden !important;
+}

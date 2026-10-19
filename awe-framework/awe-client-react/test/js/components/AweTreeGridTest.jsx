@@ -43,6 +43,32 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     expect(screen.getByRole("grid-container")).toBeDefined();
   });
 
+  it('applies the column layout of the user and shows the toolbar', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {values: []},
+          attributes: {
+            treegrid: true,
+            columnModel: [{name: "a", label: "A"}, {name: "b", label: "B"}, {name: "c", label: "C"}],
+            columnLayout: {order: ["c", "b", "a"], hidden: ["b"]},
+            headerModel: [],
+            buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+
+    expect(screen.getAllByRole("columnheader").map(header => header.textContent.trim()).filter(Boolean)).toEqual(["C", "A"]);
+    expect(document.querySelector('[data-testid="grid-toolbar"]')).not.toBeNull();
+  });
+
   it('renders Awe Tree Grid component with buttons', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

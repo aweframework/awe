@@ -22,6 +22,7 @@ import {
   selectionColumnPassThrough
 } from "../utilities/testPassThrough";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
+import { applyColumnLayout, buildHeader } from "../utilities/gridLayout";
 
 // Model of a grid whose data has not arrived yet
 const EMPTY_MODEL = Object.freeze({ values: [] });
@@ -178,7 +179,7 @@ export function useGrid(id) {
       header={headerLabel(translateLabel(label, t))}
       style={{ textAlign: "center" }}
       colSpan={numberOfColumns}
-      pt={headerCellPassThrough(startColumnName)}
+      pt={{ headerCell: { ...headerCellPassThrough(startColumnName).headerCell, ...testHook(TestIds.gridGroupHeader) } }}
     />;
   };
 
@@ -206,25 +207,15 @@ export function useGrid(id) {
     return null;
   };
 
-  const getHeader = () => {
-    const { headerModel = [], columnModel = [] } = attributes;
-    const visibleColumns = columnModel.filter(col => !col.hidden);
-    let headerColumns = [];
-    let groupedColumns = [];
-    let index = 0;
-    headerModel.forEach(header => {
-      let headerStartIndex = visibleColumns.findIndex(column => column.name === header.startColumnName);
-      headerColumns = [...headerColumns, ...visibleColumns.slice(index, headerStartIndex)];
-      headerColumns.push(header);
-      let headerSubColumns = visibleColumns.slice(headerStartIndex, headerStartIndex + header.numberOfColumns);
-      groupedColumns = [...groupedColumns, ...headerSubColumns];
-      index = headerStartIndex + header.numberOfColumns;
-    });
-    return {
-      columns: [...headerColumns, ...visibleColumns.slice(index)],
-      grouped: groupedColumns
-    };
-  };
+  // Columns to show: the ones of the screen in the order of the layout of the user, without the hidden ones
+  const { columnModel: allColumns, headerModel: allHeaders, columnLayout } = attributes;
+  const visibleColumns = useMemo(
+    () => applyColumnLayout(allColumns, allHeaders, columnLayout),
+    [allColumns, allHeaders, columnLayout]
+  );
+
+  // The headers are computed from the membership of the visible columns, not from their position
+  const getHeader = () => buildHeader(visibleColumns, allHeaders, allColumns);
 
   const footerColumnTemplate = (column) => {
     const { footer = {} } = model;
@@ -290,6 +281,7 @@ export function useGrid(id) {
     columnTemplate,
     headerColumnTemplate,
     editorColumnTemplate,
+    visibleColumns,
     getHeader,
     footerColumnTemplate,
     cellTemplate,
@@ -321,6 +313,7 @@ export function useGrid(id) {
     columnTemplate,
     headerColumnTemplate,
     editorColumnTemplate,
+    visibleColumns,
     getHeader,
     footerColumnTemplate,
     cellTemplate,

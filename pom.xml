@@ -51,8 +51,11 @@
          "Invalid character encountered ... for encoding UTF-8" analysis warnings. -->
     <sonar.exclusions>**/fonts/**</sonar.exclusions>
     <!-- Framework-agnostic modules mirrored in both web clients. The AngularJS copy is left out of the duplication
-         analysis; a Jest parity test in awe-client-angular keeps it identical to the React copy. -->
-    <sonar.cpd.exclusions>**/js/awe/data/menuSearch.js,**/js/awe/services/chart/sparkline.js</sonar.cpd.exclusions>
+         analysis; a Jest parity test in awe-client-angular keeps it identical to the React copy.
+         grid/layoutRules.js is the AngularJS adaptation of the React gridLayout.js and differs from it on purpose: it also
+         manages the columns hidden by the user layout (ui-grid keeps them in its column model) and resolves the group
+         headers against the whole column model, so it has no parity test. -->
+    <sonar.cpd.exclusions>**/js/awe/data/menuSearch.js,**/js/awe/services/chart/sparkline.js,**/js/awe/services/grid/layoutRules.js</sonar.cpd.exclusions>
 
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>

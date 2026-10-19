@@ -629,6 +629,28 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Checks that the cut text of a cell shows its whole value in a tooltip on hover and on keyboard focus, and that it goes away when they leave |
 | `checkRowSelected(String gridId, String search)` | Checks that the row of a grid with a text is selected |
 | `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
+| `openGridColumns(String gridId)` | Opens the Columns dialog of the toolbar of a grid |
+| `closeGridColumns(String gridId)` | Closes the Columns dialog of a grid |
+| `checkGridColumnsCounter(String gridId, int visible, int total)` | Checks the "N of M visible" counter of the Columns dialog |
+| `checkGridColumnsListed(String gridId, String columnId)` | Checks that the Columns dialog lists a column |
+| `checkGridColumnsNotListed(String gridId, String columnId)` | Checks that the Columns dialog does not list a column. The columns that the screen hides never appear in it |
+| `hideGridColumn(String gridId, String columnId)` | Hides a column unchecking it in the Columns dialog (that has to be open) |
+| `showGridColumn(String gridId, String columnId)` | Shows a column checking it in the Columns dialog (that has to be open) |
+| `moveGridColumnUp(String gridId, String columnId)` | Moves a column one position up with its arrow in the Columns dialog |
+| `moveGridColumnDown(String gridId, String columnId)` | Moves a column one position down with its arrow in the Columns dialog |
+| `checkGridColumnCannotMoveUp(String gridId, String columnId)` | Checks that a column cannot move up: it is the first of its group header, or the first one without group |
+| `checkGridColumnCannotMoveDown(String gridId, String columnId)` | Checks that a column cannot move down: it is the last of its group header, or the last one without group |
+| `clickGridColumnsShowAll(String gridId)` | Clicks *Show all* in the Columns dialog |
+| `clickGridColumnsReset(String gridId)` | Clicks *Reset* in the Columns dialog: back to the definition of the screen, and the stored layout is removed |
+| `clickGridColumnsSave(String gridId)` | Clicks *Save as default* in the Columns dialog |
+| `checkGridColumnsLeftToRight(String gridId, String... columnIds)` | Checks that the columns are shown in that order, from left to right |
+| `checkGridColumnNotShown(String gridId, String columnId)` | Checks that a column is not shown in the grid |
+| `checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId)` | Checks that a group header spans exactly from its first to its last visible column, give or take three pixels |
+| `checkGridGroupHeaderNotShown(String gridId, String title)` | Checks that a group header is not shown (none of its columns is visible) |
+| `maximizeGrid(String gridId)` | Maximizes a grid with the button of its toolbar |
+| `restoreGrid(String gridId)` | Restores a maximized grid with the button of its toolbar |
+| `checkGridMaximized(String gridId)` | Checks that a grid fills the content area of the screen (its maximize target) and the header stays visible |
+| `checkGridNotMaximized(String gridId)` | Checks that a grid is restored |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Checks that the icon of an icon column is displayed (`plus`, without the library prefix) |
 | `checkColumnSuccessIcon(String columnId)` | Checks that a column shows a success icon |
 
@@ -752,6 +774,10 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 | `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size`, `grid-pagination-info` | Footer pagination, its previous/next arrows (`data-disabled`) of the compact pager, the "go to page" input (AngularJS only) and the page size select. In React the page size also carries `data-value`, because the dropdown repeats the text | Inside the grid |
 | `grid-loader` | Loader of the grid (also the pivot table) | Inside the grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | The empty state of a grid without rows, its title, its text and the button that it offers | Inside the grid |
+| `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | The toolbar of a grid (with `data-testid-owner` = grid id, and `data-maximized`) and its Columns and Maximize buttons | Inside the page |
+| `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | The Columns dialog of a grid (with `data-testid-owner` = grid id), its "N of M visible" counter (`data-visible`, `data-total`) and its actions | Inside the page |
+| `grid-column-group`, `grid-column-item`, `grid-column-checkbox`, `grid-column-handle`, `grid-column-up`, `grid-column-down` | In the Columns dialog: a group of columns (its title is its text), a column (`column-id`) with its checkbox, its drag handle and its arrows | Inside the dialog |
+| `grid-group-header` | A group header of a grid, over its columns | Inside the grid |
 | `tree-icon` | Expand/collapse icon of a tree row. `data-expanded` and `data-loading` | Inside the cell |
 | `tree-header-icon` | Expand/collapse all icon of the header. AngularJS only | Inside the grid |
 | `column-icon` | The icon of an icon column. `data-icon` carries the icon of the cell value (for instance `fa-plus` in a multioperation grid) | Inside the cell |
@@ -818,6 +844,7 @@ or `"false"`, except `data-type`, `data-container`, `data-icon`, `data-value` an
 | `data-active` | Active tab, wizard step, wizard or tab pane and menu option; the datepicker cell that has the keyboard focus |
 | `data-disabled` | Disabled tab list, context menu link, previous/next page arrow or datepicker cell |
 | `data-open` | Menu option or submenu that is open; help popover that is displayed; dialog that is open. A dialog is `false` again only when its backdrop has been removed, so the screen is interactive |
+| `data-maximized` | Toolbar of a grid that fills the content area |
 | `data-expanded`, `data-loading` | Tree row that is expanded, or that is loading its children |
 | `data-completed` | Wizard step that is already done |
 | `data-invalid` | Tab, wizard step or accordion item (AngularJS: the `panel` of the item) that holds fields which failed the validation |

@@ -19,6 +19,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
+import com.almis.awe.service.GridLayoutService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,15 +44,18 @@ import static org.mockito.Mockito.when;
 class ScreenComponentGeneratorTest {
 
   private ScreenModelGenerator screenModelGenerator;
+  private GridLayoutService gridLayoutService;
   private ScreenComponentGenerator generator;
 
   @BeforeEach
   void setUp() {
     screenModelGenerator = mock(ScreenModelGenerator.class);
+    gridLayoutService = mock(GridLayoutService.class);
     AweRequest request = mock(AweRequest.class);
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, screenModelGenerator, mock(InitialLoadDao.class),
-      mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class));
+      mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
+      gridLayoutService);
   }
 
   private static SelectCriteriaBuilder select(String id) throws Exception {
@@ -153,5 +157,7 @@ class ScreenComponentGeneratorTest {
     assertThat(componentMap).containsKeys("InDialog", "Grid", "InnerTab", "Page").doesNotContainKeys("Out", "AlreadyLoaded", "Deep");
     // The column lists were loaded with the screen
     verify(screenModelGenerator, never()).addColumnTarget(any(), any(), any());
+    // The grid layouts were applied with the screen too: the deferred load only sends models
+    verify(gridLayoutService, never()).getScreenLayouts(any());
   }
 }

@@ -414,6 +414,9 @@
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Il y avait une erreur ajoutant totalisateurs pour la requête {1} en ligne {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Il y a eu un problème pour essayer d&apos;authentifier l&apos;utilisateur"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="L&apos;image sélectionnée dépasse la taille maximale autorisée pour l&apos;avatar de 2 Mo"/>
+  <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposition de grille invalide"/>
+  <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposition de la grille n&apos;est pas valide ou vous n&apos;êtes pas connecté, elle n&apos;a donc pas été enregistrée"/>
+  <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposition de la grille comporte trop de colonnes pour être enregistrée"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="Le &quot;include&quot; balise à l`écran {0} n&apos;a pas trouvé les suivantes composants: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Le format du message pour l&apos;envoy à la queue {0} n&apos;a pas été définie"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Le format de message pour la réception de la queue {0} n&apos;a pas été définie"/>
@@ -1267,6 +1270,19 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Chargement"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximiser"/>
+  <locale name="GRID_COLUMNS_BUTTON" value="Colonnes"/>
+  <locale name="GRID_COLUMNS_TITLE" value="Colonnes de la grille"/>
+  <locale name="GRID_COLUMNS_VISIBLE" value="visibles"/>
+  <locale name="GRID_COLUMNS_SHOW_ALL" value="Tout afficher"/>
+  <locale name="GRID_COLUMNS_RESET" value="Réinitialiser"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Enregistrer par défaut"/>
+  <locale name="GRID_COLUMNS_CLOSE" value="Fermer"/>
+  <locale name="GRID_COLUMNS_MOVE_UP" value="Monter"/>
+  <locale name="GRID_COLUMNS_MOVE_DOWN" value="Descendre"/>
+  <locale name="GRID_COLUMNS_DRAG" value="Glisser pour réorganiser"/>
+  <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposition non enregistrée"/>
+  <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="La disposition de la grille n&apos;a pas pu être enregistrée ni supprimée"/>
+  <locale name="GRID_COLUMNS_SAVED" value="Enregistré"/>
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>

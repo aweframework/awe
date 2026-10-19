@@ -1,6 +1,7 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.GridColumnLayout;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.component.button.Button;
@@ -9,6 +10,7 @@ import com.almis.awe.model.entities.screen.component.pivottable.PivotTable;
 import com.almis.awe.model.entities.screen.data.ScreenColumn;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -26,7 +28,9 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 
@@ -124,6 +128,23 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("validate-on-save")
   @XStreamAsAttribute
   private Boolean validateOnSave;
+
+  // Show the grid toolbar (columns and maximize)
+  @XStreamAlias("show-toolbar")
+  @XStreamAsAttribute
+  private Boolean showToolbar;
+
+  // Identifier of the screen the grid was generated for: the key, with the grid id, of the layout of the user
+  @JsonProperty("screenId")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient String screenId;
+
+  // Column layout chosen by the current user (merged with the XML columns), sent next to the original column model
+  @JsonProperty("columnLayout")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient GridColumnLayout columnLayout;
 
   // Column list of grid
   @JsonProperty("columnModel")
@@ -257,6 +278,44 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("multiselect")
   public boolean isMultiselect() {
     return multiselect != null && multiselect;
+  }
+
+  /**
+   * Check if the grid shows its toolbar
+   *
+   * @return Grid shows the toolbar
+   */
+  @JsonGetter("showToolbar")
+  public boolean isShowToolbar() {
+    return showToolbar == null || showToolbar;
+  }
+
+  /**
+   * Retrieve the columns a user can show, hide and reorder: the ones the XML does not hide, in XML order, with the
+   * key of their group header (null when they have none). The key is the position of the group header in the grid.
+   *
+   * @return Layout columns by name
+   */
+  @JsonIgnore
+  public Map<String, String> getLayoutColumns() {
+    Map<String, String> layoutColumns = new LinkedHashMap<>();
+    int groupIndex = 0;
+    for (Element element : getElementList()) {
+      if (element instanceof GroupHeader groupHeader) {
+        addLayoutColumns(layoutColumns, groupHeader.getElementList(), String.valueOf(groupIndex++));
+      } else {
+        addLayoutColumns(layoutColumns, List.of(element), null);
+      }
+    }
+    return layoutColumns;
+  }
+
+  private void addLayoutColumns(Map<String, String> layoutColumns, List<Element> elements, String group) {
+    for (Element element : elements) {
+      if (element instanceof Column column && !column.isHidden() && column.getName() != null) {
+        layoutColumns.put(column.getName(), group);
+      }
+    }
   }
 
   /**

@@ -414,6 +414,9 @@
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="There was an error adding totalizers for the query {1} in line {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="There was a problem trying to authenticate the user"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="The selected image exceeds the maximum allowed avatar size of 2 MB"/>
+  <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Invalid grid layout"/>
+  <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
+  <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="The &apos;include&apos; tag inside {0} screen hasn`t found the following screen source: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Bad request definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Bad response definition format for queue {0}"/>
@@ -1267,6 +1270,19 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Loading"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximize"/>
+  <locale name="GRID_COLUMNS_BUTTON" value="Columns"/>
+  <locale name="GRID_COLUMNS_TITLE" value="Grid columns"/>
+  <locale name="GRID_COLUMNS_VISIBLE" value="visible"/>
+  <locale name="GRID_COLUMNS_SHOW_ALL" value="Show all"/>
+  <locale name="GRID_COLUMNS_RESET" value="Reset"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Save as default"/>
+  <locale name="GRID_COLUMNS_CLOSE" value="Close"/>
+  <locale name="GRID_COLUMNS_MOVE_UP" value="Move up"/>
+  <locale name="GRID_COLUMNS_MOVE_DOWN" value="Move down"/>
+  <locale name="GRID_COLUMNS_DRAG" value="Drag to reorder"/>
+  <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
+  <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
+  <locale name="GRID_COLUMNS_SAVED" value="Saved"/>
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Message from {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>

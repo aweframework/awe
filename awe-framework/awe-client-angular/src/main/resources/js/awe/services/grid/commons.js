@@ -4,12 +4,14 @@ import "./components";
 import "./editable";
 import "./multioperation";
 import "./events";
+import "./layout";
+import {getColumnHeaders} from "./layoutRules";
 
 // Add requirements
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
 
 // Grid commons service
-aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', '$translate', 'AweSettings', 'Control', 'AweUtilities', '$log',
+aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', 'GridLayout', '$translate', 'AweSettings', 'Control', 'AweUtilities', '$log',
   /**
    * Grid common methods
    *
@@ -17,13 +19,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
    * @param {service} GridEditable Grid editable
    * @param {service} GridMultioperation Grid multioperation
    * @param {service} GridEvents Grid events
+   * @param {service} GridLayout Grid column layout
    * @param {service} $translate Translate service
    * @param {service} $settings AWE $settings
    * @param {service} Control Control service
    * @param {service} Utilities AWE Utilities
    * @param {object} $log
    */
-  function (GridComponents, GridEditable, GridMultioperation, GridEvents, $translate, $settings, Control, Utilities, $log) {
+  function (GridComponents, GridEditable, GridMultioperation, GridEvents, GridLayout, $translate, $settings, Control, Utilities, $log) {
     // Retrieve $settings
 
     // Keys that move the selected row of an editable grid while the Alt key is held
@@ -99,23 +102,6 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     };
 
     /**
-     * Retrieve header by column name
-     *
-     * @param {type} headers
-     * @param {type} columnName
-     * @returns {undefined}
-     */
-    const getHeader = function (headers, columnName) {
-      let  selectedHeader = false;
-      _.each(headers, function (header) {
-        if (header.startColumnName === columnName) {
-          selectedHeader = header;
-        }
-      });
-      return selectedHeader;
-    };
-
-    /**
      * Sanitize selected values (retrieve values from row id)
      */
     const sanitizeSelection = function (selection, data, component) {
@@ -159,6 +145,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
       component.addedRows = 0;
       component.isEditing = false;
       component.columnModelStringified = {};
+
+      // Column layout of the user (grid toolbar)
+      GridLayout.attach(component);
 
       // Define attribute methods
       this.attributeMethods = {
@@ -995,7 +984,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             case "excel":
               return true;
             default:
-              return !column.hidden;
+              // Columns hidden by the layout of the user are printed: reports use the definition of the screen
+              return !column.hidden || !!column.layoutHidden;
           }
         }
 
@@ -1505,6 +1495,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.fixColumnModel = function (fixEachColumn) {
 
+          // Store the columns of the screen before the grid adds its own ones
+          if (fixEachColumn) {
+            component.storeLayoutBase();
+          }
+
           // Add initial columns model if exists
           if (component.addInitialColumns) {
             component.addInitialColumns();
@@ -1602,33 +1597,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.reportChangedColumns = function () {
           let  columns = component.getColumns();
           let  headerModel = component.controller.headerModel;
-          if (headerModel.length > 0 && !component.fixedHeaders) {
-            let  fixedHeaders = {};
-            let  currentHeaderColumn = 0;
-            let  currentHeader = null;
-
-            // For each column assign a header
-            _.each(columns, function (column) {
-              if (currentHeaderColumn > 0) {
-                currentHeaderColumn--;
-              } else {
-                let  header = getHeader(headerModel, column.name);
-                if (header) {
-                  currentHeader = header;
-                  currentHeaderColumn = header.numberOfColumns - 1;
-                } else {
-                  currentHeader = null;
-                }
-              }
-
-              // Stored each header for each column
-              if (currentHeader !== null) {
-                fixedHeaders[column.name] = currentHeader;
-              }
-            });
-
-            // Store fixedHeaders
-            component.fixedHeaders = fixedHeaders;
+          if (headerModel.length > 0) {
+            // The header of each column comes from the membership of the column, never from its position
+            component.fixedHeaders = getColumnHeaders(headerModel, component.layoutBase || component.controller.columnModel);
           }
           component.scope.gridOptions.columnHeaders = {
             columns: columns,

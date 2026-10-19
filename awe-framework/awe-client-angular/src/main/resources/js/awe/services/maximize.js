@@ -9,8 +9,10 @@ aweApplication.factory('Maximize',
          * Initialize dialog
          * @param {object} scope Dialog scope
          * @param {object} elem dialog node
+         * @param {object} options Options (optional): contentSelector, the part of the node that is emptied in the animation clone
          */
-        initMaximize: function (scope, elem) {
+        initMaximize: function (scope, elem, options = {}) {
+          const contentSelector = options.contentSelector || ".maximize-content";
           // Panel text
           let panelText = {
             MAXIMIZE: 'SCREEN_TEXT_MAXIMIZE',
@@ -96,7 +98,7 @@ aweApplication.factory('Maximize',
             resizing.addClass("resizeAnimation");
 
             // Empty content layer
-            resizing.find(".maximize-content").addClass("panel-awe").empty();
+            resizing.find(contentSelector).addClass("panel-awe").empty();
 
 
             $body.addClass("animationContainer");

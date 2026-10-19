@@ -69,3 +69,24 @@
   max-width: 28rem;
   pointer-events: none;
 }
+
+.grid-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+// A maximized grid fills the maximize target like a window (position and size set by useMaximize)
+.grid-container.maximized {
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  background: var(--surface-a, #fff);
+
+  > .grid-contents {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+}

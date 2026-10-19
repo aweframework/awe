@@ -1498,6 +1498,193 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   /** Records the interactions that need a real browser */
+  /**
+   * Number of actions the browser has been asked to perform (a click is one)
+   */
+  private long performed() {
+    return org.mockito.Mockito.mockingDetails(driver).getInvocations().stream()
+      .filter(invocation -> invocation.getMethod().getName().equals("perform")).count();
+  }
+
+  @Test
+  void shouldOpenAndCloseTheColumnsDialogOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsButton("Grd"), "Columns");
+      show(instructions.getGridColumnsDialog("Grd"), "");
+      show(instructions.getGridColumnsClose("Grd"), "Close");
+      By dialog = Locator.from(instructions.getGridColumnsDialog("Grd")).toBy();
+      long before = performed();
+
+      utilities.openGridColumns("Grd");
+      assertThat(performed()).isGreaterThan(before);
+
+      // Once it is closed, the dialog is not in the page anymore
+      doAnswer(invocation -> {
+        when(driver.findElements(argThat(dialog::equals))).thenReturn(Collections.emptyList());
+        return null;
+      }).when((Interactive) driver).perform(any());
+      assertThatCode(() -> utilities.closeGridColumns("Grd")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.openGridColumns("Other"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheCounterAndTheColumnsOfTheColumnsDialogInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsCounter("Grd", "24", "26"), "24 of 26 visible");
+      show(instructions.getGridColumnsItem("Grd", "col01"), "Col 01");
+
+      assertThatCode(() -> {
+        utilities.checkGridColumnsCounter("Grd", 24, 26);
+        utilities.checkGridColumnsListed("Grd", "col01");
+        utilities.checkGridColumnsNotListed("Grd", "key");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsCounter("Grd", 26, 26));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsListed("Grd", "key"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsNotListed("Grd", "col01"));
+    }
+  }
+
+  @Test
+  void shouldShowAndHideAColumnWithItsCheckboxInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsCheckbox("Grd", "col01"), "");
+
+      // Checked: showing it again does nothing, hiding it clicks the checkbox
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(true);
+      long start = performed();
+      utilities.showGridColumn("Grd", "col01");
+      assertThat(performed()).isEqualTo(start);
+      utilities.hideGridColumn("Grd", "col01");
+      assertThat(performed()).isGreaterThan(start);
+
+      // Not checked: hiding it again does nothing, showing it clicks the checkbox
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(false);
+      long checked = performed();
+      utilities.hideGridColumn("Grd", "col01");
+      assertThat(performed()).isEqualTo(checked);
+      utilities.showGridColumn("Grd", "col01");
+      assertThat(performed()).isGreaterThan(checked);
+    }
+  }
+
+  @Test
+  void shouldMoveAColumnWithItsArrowsAndCheckItsLimitsInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsMoveUp("Grd", "col05"), "");
+      show(instructions.getGridColumnsMoveDown("Grd", "col05"), "");
+
+      long start = performed();
+      utilities.moveGridColumnUp("Grd", "col05");
+      utilities.moveGridColumnDown("Grd", "col05");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+      assertThrows(AssertionFailedError.class, () -> utilities.moveGridColumnUp("Grd", "other"));
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(true);
+      assertThatCode(() -> {
+        utilities.checkGridColumnCannotMoveUp("Grd", "col05");
+        utilities.checkGridColumnCannotMoveDown("Grd", "col05");
+      }).doesNotThrowAnyException();
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(false);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnCannotMoveUp("Grd", "col05"));
+    }
+  }
+
+  @Test
+  void shouldClickTheActionsOfTheColumnsDialogInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsShowAll("Grd"), "");
+      show(instructions.getGridColumnsReset("Grd"), "");
+      show(instructions.getGridColumnsSave("Grd"), "");
+
+      long start = performed();
+      utilities.clickGridColumnsShowAll("Grd");
+      utilities.clickGridColumnsReset("Grd");
+      utilities.clickGridColumnsSave("Grd");
+
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 3);
+      assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsSave("Other"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheOrderOfTheColumnsOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridHeader("Grd", "a"), "A");
+      show(instructions.getGridHeader("Grd", "b"), "B");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(10.0, 120.0);
+
+      assertThatCode(() -> utilities.checkGridColumnsLeftToRight("Grd", "a", "b")).doesNotThrowAnyException();
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(120.0, 10.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsLeftToRight("Grd", "a", "b"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAColumnIsNotShownInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridHeader("Grd", "a"), "A");
+
+      assertThatCode(() -> utilities.checkGridColumnNotShown("Grd", "hidden")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnNotShown("Grd", "a"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAGroupHeaderSpansOverItsVisibleColumnsInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridGroupHeader("Grd", "Group A"), "Group A");
+      show(instructions.getGridHeader("Grd", "c3"), "C3");
+      show(instructions.getGridHeader("Grd", "c6"), "C6");
+      // Group: 100 - 400. First column: 100. Last column: 400
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(100.0, 400.0, 100.5, 399.0);
+      assertThatCode(() -> utilities.checkGridGroupHeaderOver("Grd", "Group A", "c3", "c6")).doesNotThrowAnyException();
+
+      // The header still spans over a column that was hidden
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(100.0, 520.0, 100.0, 400.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupHeaderOver("Grd", "Group A", "c3", "c6"));
+
+      assertThatCode(() -> utilities.checkGridGroupHeaderNotShown("Grd", "Group B")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupHeaderNotShown("Grd", "Group A"));
+    }
+  }
+
+  @Test
+  void shouldMaximizeAndRestoreAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridMaximizeButton("Grd"), "Maximize");
+      show(instructions.getGridToolbarMaximized("Grd", true), "");
+      show(instructions.getGridToolbarMaximized("Grd", false), "");
+      show(instructions.getGrid("Grd"), "");
+
+      long start = performed();
+      utilities.maximizeGrid("Grd");
+      utilities.restoreGrid("Grd");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+
+      // It fills the content area (maximize target) and the header stays above it
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.97, 40.0);
+      assertThatCode(() -> {
+        utilities.checkGridMaximized("Grd");
+        utilities.checkGridNotMaximized("Grd");
+      }).doesNotThrowAnyException();
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.5, 40.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridMaximized("Grd"));
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.97, 0.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridMaximized("Grd"));
+    }
+  }
+
   private static class RecordingSeleniumUtilities extends SeleniumUtilities {
     private final List<String> events = new ArrayList<>();
 

@@ -629,6 +629,28 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Comprueba que el texto cortado de una celda muestra su valor completo en un tooltip al pasar el ratón y con el foco del teclado, y que desaparece al salir |
 | `checkRowSelected(String gridId, String search)` | Comprueba que la fila de un grid con un texto está seleccionada |
 | `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
+| `openGridColumns(String gridId)` | Abre el diálogo de columnas de la barra de herramientas de un grid |
+| `closeGridColumns(String gridId)` | Cierra el diálogo de columnas de un grid |
+| `checkGridColumnsCounter(String gridId, int visible, int total)` | Comprueba el contador «N de M visibles» del diálogo de columnas |
+| `checkGridColumnsListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas lista una columna |
+| `checkGridColumnsNotListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas no lista una columna. Las columnas que la pantalla oculta nunca aparecen en él |
+| `hideGridColumn(String gridId, String columnId)` | Oculta una columna desmarcándola en el diálogo de columnas (que debe estar abierto) |
+| `showGridColumn(String gridId, String columnId)` | Muestra una columna marcándola en el diálogo de columnas (que debe estar abierto) |
+| `moveGridColumnUp(String gridId, String columnId)` | Sube una columna una posición con su flecha en el diálogo de columnas |
+| `moveGridColumnDown(String gridId, String columnId)` | Baja una columna una posición con su flecha en el diálogo de columnas |
+| `checkGridColumnCannotMoveUp(String gridId, String columnId)` | Comprueba que una columna no puede subir: es la primera de su cabecera de grupo, o la primera sin grupo |
+| `checkGridColumnCannotMoveDown(String gridId, String columnId)` | Comprueba que una columna no puede bajar: es la última de su cabecera de grupo, o la última sin grupo |
+| `clickGridColumnsShowAll(String gridId)` | Pulsa *Mostrar todas* en el diálogo de columnas |
+| `clickGridColumnsReset(String gridId)` | Pulsa *Restablecer* en el diálogo de columnas: vuelve a la definición de la pantalla y se elimina la disposición guardada |
+| `clickGridColumnsSave(String gridId)` | Pulsa *Guardar como predeterminado* en el diálogo de columnas |
+| `checkGridColumnsLeftToRight(String gridId, String... columnIds)` | Comprueba que las columnas se muestran en ese orden, de izquierda a derecha |
+| `checkGridColumnNotShown(String gridId, String columnId)` | Comprueba que una columna no se muestra en el grid |
+| `checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId)` | Comprueba que una cabecera de grupo abarca exactamente desde su primera hasta su última columna visible, con tres píxeles de margen |
+| `checkGridGroupHeaderNotShown(String gridId, String title)` | Comprueba que una cabecera de grupo no se muestra (ninguna de sus columnas está visible) |
+| `maximizeGrid(String gridId)` | Maximiza un grid con el botón de su barra de herramientas |
+| `restoreGrid(String gridId)` | Restaura un grid maximizado con el botón de su barra de herramientas |
+| `checkGridMaximized(String gridId)` | Comprueba que un grid ocupa el área de contenido de la pantalla (su maximize target) y la cabecera sigue visible |
+| `checkGridNotMaximized(String gridId)` | Comprueba que un grid está restaurado |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 
@@ -752,6 +774,10 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 | `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size`, `grid-pagination-info` | Paginación del pie, sus flechas anterior/siguiente (`data-disabled`) del paginador compacto, el input "ir a la página" (solo AngularJS) y el select del tamaño de página. En React el tamaño de página lleva además `data-value`, porque el desplegable repite el texto | Dentro del grid |
 | `grid-loader` | Cargador del grid (también de la tabla dinámica) | Dentro del grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | El estado vacío de un grid sin filas, su título, su texto y el botón que ofrece | Dentro del grid |
+| `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | La barra de herramientas de un grid (con `data-testid-owner` = id del grid, y `data-maximized`) y sus botones de columnas y maximizar | Dentro de la página |
+| `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | El diálogo de columnas de un grid (con `data-testid-owner` = id del grid), su contador «N de M visibles» (`data-visible`, `data-total`) y sus acciones | Dentro de la página |
+| `grid-column-group`, `grid-column-item`, `grid-column-checkbox`, `grid-column-handle`, `grid-column-up`, `grid-column-down` | En el diálogo de columnas: un grupo de columnas (su título es su texto), una columna (`column-id`) con su casilla, su asa de arrastre y sus flechas | Dentro del diálogo |
+| `grid-group-header` | Una cabecera de grupo de un grid, sobre sus columnas | Dentro del grid |
 | `tree-icon` | Icono de expandir/contraer de una fila de árbol. `data-expanded` y `data-loading` | Dentro de la celda |
 | `tree-header-icon` | Icono de expandir/contraer todo de la cabecera. Solo AngularJS | Dentro del grid |
 | `column-icon` | El icono de una columna de iconos. `data-icon` lleva el icono del valor de la celda (por ejemplo `fa-plus` en un grid de multioperación) | Dentro de la celda |
@@ -818,6 +844,7 @@ o `"false"`, excepto `data-type`, `data-container`, `data-icon`, `data-value` y 
 | `data-active` | Pestaña, paso de asistente, asistente o panel de pestaña y opción de menú activos; la celda del selector de fechas que tiene el foco del teclado |
 | `data-disabled` | Lista de pestañas, enlace de menú contextual, flecha de página anterior/siguiente o celda del selector de fechas deshabilitados |
 | `data-open` | Opción de menú o submenú que está abierto; popover de ayuda que se muestra; diálogo que está abierto. Un diálogo vuelve a ser `false` solo cuando se ha eliminado su fondo (backdrop), de modo que la pantalla es interactiva |
+| `data-maximized` | Barra de herramientas de un grid que ocupa el área de contenido |
 | `data-expanded`, `data-loading` | Fila de árbol que está expandida, o que está cargando sus hijos |
 | `data-completed` | Paso de asistente que ya está hecho |
 | `data-invalid` | Pestaña, paso de asistente o elemento de acordeón (AngularJS: el `panel` del elemento) que contiene campos que han fallado la validación |

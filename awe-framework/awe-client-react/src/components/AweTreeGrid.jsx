@@ -45,6 +45,7 @@ function AweTreeGrid(props) {
     buttonsTemplate,
     postColumnTemplates,
     cellTemplate: baseCellTemplate,
+    visibleColumns,
     getHeader
   } = useGrid(id);
 
@@ -118,8 +119,7 @@ function AweTreeGrid(props) {
   }, [attributes.pagerValues, attributes.max]);
 
   const headerTemplate = useCallback(() => {
-    const { headerModel = [], columnModel = [] } = attributes;
-    const visibleColumns = columnModel.filter(col => !col.hidden);
+    const { headerModel = [] } = attributes;
     if (headerModel.length > 0) {
       const header = getHeader();
       return <ColumnGroup>
@@ -139,11 +139,10 @@ function AweTreeGrid(props) {
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, getHeader, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, visibleColumns, getHeader, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
   const footerTemplate = useCallback(() => {
-    const { columnModel = [], showTotals } = attributes;
-    const visibleColumns = columnModel.filter(col => !col.hidden);
+    const { showTotals } = attributes;
     if (showTotals) {
       return <ColumnGroup>
         <Row>
@@ -153,7 +152,7 @@ function AweTreeGrid(props) {
       </ColumnGroup>;
     }
     return null;
-  }, [attributes, footerColumnTemplate, postColumnTemplates]);
+  }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates]);
 
   const cellTemplate = useCallback((rowData, column) => {
     const { expandColumn = treeId } = attributes;
@@ -189,7 +188,7 @@ function AweTreeGrid(props) {
     isRowDeleted: () => renderingRowDeleted.current
   }), [address?.component]);
 
-  const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
+  const { style, headerModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
   const { first = 0, rows = max } = specificAttributes;
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
   const loadingIcon = getGridIconLoading(iconLoading, settings);
@@ -198,10 +197,10 @@ function AweTreeGrid(props) {
   const showSkeleton = loading && !reloading && loadingIcon === SKELETON;
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={columnModel} rows={rows || settings.recordsPerPage} />;
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows || settings.recordsPerPage} />;
   }
 
-  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
+  return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
     <TreeTable
       id={address?.component}
       value={showSkeleton ? [] : nodes} expandedKeys={expandedKeys} selectionKeys={selectionKeys} onToggle={() => null}
@@ -225,8 +224,7 @@ function AweTreeGrid(props) {
       pt={passThrough}
     >
       {
-        columnModel
-          .filter(col => !col.hidden)
+        visibleColumns
           .map(col => {
             const { name, sortField, align, charlength = null, width = null } = col;
             return <Column

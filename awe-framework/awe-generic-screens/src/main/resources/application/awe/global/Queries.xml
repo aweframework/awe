@@ -2580,6 +2580,35 @@
   </query>
 
   <!--
+  User grid layouts (toolbar columns dialog)
+  -->
+
+  <query id="getUserGridLayouts">
+    <table id="AweUsrGrdCnf"/>
+    <field id="GrdId" alias="gridId"/>
+    <field id="Lay" alias="layout"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+  </query>
+
+  <query id="getUserGridLayout">
+    <table id="AweUsrGrdCnf"/>
+    <field id="Lay" alias="layout"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="GrdId" condition="eq" right-variable="gridId"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="gridId" type="STRING" name="gridId"/>
+  </query>
+
+  <!--
   Theme management
   -->
 

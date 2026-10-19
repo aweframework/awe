@@ -8,6 +8,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
+import com.almis.awe.model.dto.GridColumnLayout;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
@@ -20,9 +21,11 @@ import com.almis.awe.model.entities.screen.component.MenuContainer;
 import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
+import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.data.*;
+import com.almis.awe.service.GridLayoutService;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -50,6 +53,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final AweElementsDao aweElementsDao;
   private final BaseConfigProperties baseConfigProperties;
   private final ScreenConfigurationGenerator screenConfigurationGenerator;
+  private final GridLayoutService gridLayoutService;
 
   /**
    * Autowired constructor
@@ -59,16 +63,20 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param initialLoadDao               Initial load service
    * @param aweElementsDao               AWE Elements DAO
    * @param baseConfigProperties         Base configuration properties
+   * @param screenConfigurationGenerator Screen configuration generator
+   * @param gridLayoutService            Grid layout service
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                   InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                  BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
+                                  BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
+                                  GridLayoutService gridLayoutService) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
     this.initialLoadDao = initialLoadDao;
     this.aweElementsDao = aweElementsDao;
     this.baseConfigProperties = baseConfigProperties;
     this.screenConfigurationGenerator = screenConfigurationGenerator;
+    this.gridLayoutService = gridLayoutService;
   }
 
   /**
@@ -106,10 +114,14 @@ public class ScreenComponentGenerator extends ServiceConfig {
       // Components inside deferred dialogs and tab pages do not load their data until they are opened
       Set<Component> deferredComponents = DeferredComponents.getDeferredComponents(screen);
 
+      // Retrieve the grid layouts of the user (only when the screen has grids)
+      Map<String, GridColumnLayout> gridLayouts = screen.getElementsByType(AbstractGrid.class).isEmpty() ?
+        Collections.emptyMap() : gridLayoutService.getScreenLayouts(screen.getId());
+
       // Add component
       List<Component> components = screen.getElementsByType(Component.class);
       for (Component component : components) {
-        generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, deferredComponents.contains(component), true);
+        generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, gridLayouts, deferredComponents.contains(component), true);
       }
 
       // Launch all initial load actions and store the values
@@ -145,7 +157,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     try {
       for (Component component : DeferredComponents.getComponentsToLoad(container)) {
         if (!loaded.contains(component.getElementKey())) {
-          generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, false, false);
+          generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, Collections.emptyMap(), false, false);
         }
       }
 
@@ -171,11 +183,12 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param componentMap       Component map
    * @param storedCriteria     Stored criteria
    * @param menu               Current menu
+   * @param gridLayouts        Grid layouts of the user by grid identifier
    * @param deferred           The component data is not loaded now (it waits for its container to be opened)
    * @param loadColumns        Launch the initial load of the grid columns
    * @throws AWException AWE exception
    */
-  private void generateComponent(String containerId, Component component, List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ObjectNode storedCriteria, Menu menu, boolean deferred, boolean loadColumns) throws AWException {
+  private void generateComponent(String containerId, Component component, List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ObjectNode storedCriteria, Menu menu, Map<String, GridColumnLayout> gridLayouts, boolean deferred, boolean loadColumns) throws AWException {
     if (!NO_TAG.equalsIgnoreCase(component.getComponentTag())) {
       // Generate component model
       ScreenComponent screenComponent = new ScreenComponent();
@@ -196,7 +209,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
 
       // Generate grid
       if (component instanceof Grid) {
-        generateScreenGrid((Grid) screenComponent.getController(), screenComponent, initializationList, loadColumns);
+        generateGrid(containerId, screenComponent, initializationList, gridLayouts, loadColumns);
       }
 
       // Generate menu
@@ -211,6 +224,28 @@ public class ScreenComponentGenerator extends ServiceConfig {
         throw new AWException(getLocale(ERROR_TITLE_SCREEN_GENERATION_ERROR),
           getLocale("ERROR_MESSAGE_DUPLICATED_IDENTIFIER", component.getElementKey(), containerId));
       }
+    }
+  }
+
+  /**
+   * Generate grid: its screen model and its column layout
+   *
+   * @param containerId        Container id
+   * @param screenComponent    Screen component of the grid
+   * @param initializationList Initialization list
+   * @param gridLayouts        Grid layouts of the user by grid identifier
+   * @param loadColumns        Launch the initial load of the grid columns
+   * @throws AWException AWE exception
+   */
+  private void generateGrid(String containerId, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList, Map<String, GridColumnLayout> gridLayouts, boolean loadColumns) throws AWException {
+    Grid gridController = (Grid) screenComponent.getController();
+    generateScreenGrid(gridController, screenComponent, initializationList, loadColumns);
+    if (gridLayouts == null) {
+      // Intended: the layout is stored per screen and grid (the save service checks the grid exists in the screen) and the grids of a generated tag list are in no screen, so a toolbar would offer a save that always fails
+      gridController.setShowToolbar(false);
+    } else {
+      gridController.setScreenId(containerId);
+      gridController.setColumnLayout(gridLayoutService.resolveLayout(gridController, gridLayouts));
     }
   }
 
@@ -348,7 +383,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     // Add component
     List<Component> components = new Tag().setElementList(templateElements).getElementsByType(Component.class);
     for (Component component : components) {
-      generateComponent(tagListId, component, Collections.emptyList(), taglistComponents, JsonNodeFactory.instance.objectNode(), null, false, true);
+      generateComponent(tagListId, component, Collections.emptyList(), taglistComponents, JsonNodeFactory.instance.objectNode(), null, null, false, true);
     }
 
     // Retrieve taglist components

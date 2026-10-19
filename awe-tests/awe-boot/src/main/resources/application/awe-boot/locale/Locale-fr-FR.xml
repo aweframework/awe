@@ -236,6 +236,8 @@
   <locale name="COLUMN_SCALE_NEG_3" value="Negative 3"/>
   <locale name="COLUMN_SCALE_NEG_4" value="Negative 4"/>
   <locale name="COLUMN_SCALE_NEG_5" value="Negative 5"/>
+  <locale name="MENU_TEST_MATRIX_LAYOUT" value="Grid layout"/>
+  <locale name="SCREEN_TITLE_GRID_LAYOUT" value="Grid layout"/>
   <locale name="MENU_TEST_MATRIX_PAGER" value="Grid pager"/>
   <locale name="SCREEN_TITLE_GRID_PAGER" value="Grid pager"/>
   <locale name="MENU_TEST_MATRIX_EMPTY" value="Empty grid"/>

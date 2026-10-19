@@ -65,6 +65,27 @@ export const TestIds = Object.freeze({
   gridEmptyText: "grid-empty-text",
   gridEmptyAction: "grid-empty-action",
   gridLoader: "grid-loader",
+  // Grid toolbar: the toolbar, its Columns and Maximize buttons, and the Columns dialog (the instance is identified by
+  // "grid-id"): its group of columns (the title is its text), a column ("column-id") with its checkbox, handle and
+  // arrows, the "N of M visible" counter ("data-visible" / "data-total") and its actions
+  gridToolbar: "grid-toolbar",
+  gridGroupHeader: "grid-group-header",
+  gridColumnsButton: "grid-columns-button",
+  gridMaximizeButton: "grid-maximize-button",
+  gridColumnsDialog: "grid-columns-dialog",
+  gridColumnGroup: "grid-column-group",
+  gridColumnItem: "grid-column-item",
+  gridColumnCheckbox: "grid-column-checkbox",
+  gridColumnHandle: "grid-column-handle",
+  gridColumnUp: "grid-column-up",
+  gridColumnDown: "grid-column-down",
+  gridColumnsCounter: "grid-columns-counter",
+  gridColumnsShowAll: "grid-columns-show-all",
+  gridColumnsReset: "grid-columns-reset",
+  gridColumnsSave: "grid-columns-save",
+  gridColumnsClose: "grid-columns-close",
+  // React only: result of the last Save or Reset of the Columns dialog ("data-type": saved or error)
+  gridColumnsStatus: "grid-columns-status",
   // Tree grids: expand/collapse icon of a row
   treeIcon: "tree-icon",
   // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
@@ -151,6 +172,11 @@ export const TestAttributes = Object.freeze({
   outsideMonth: "data-outside-month",
   open: "data-open",
   expanded: "data-expanded",
+  // A grid fills the window
+  maximized: "data-maximized",
+  // Columns the Columns dialog of a grid shows as visible, and the ones it lists
+  visibleCount: "data-visible",
+  totalCount: "data-total",
   loading: "data-loading",
   completed: "data-completed",
   // A tab, wizard step or accordion item holds fields that failed the validation
@@ -181,6 +207,7 @@ const STATE_ATTRIBUTES = {
   outsideMonth: TestAttributes.outsideMonth,
   open: TestAttributes.open,
   expanded: TestAttributes.expanded,
+  maximized: TestAttributes.maximized,
   loading: TestAttributes.loading,
   completed: TestAttributes.completed,
   invalid: TestAttributes.invalid,

@@ -76,6 +76,8 @@ public class SeleniumUtilities implements IAweInstructions {
     + "arguments[0].querySelectorAll('[tabindex]').length;";
   private static final int DIALOG_WIDTH_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
+  private static final int GROUP_HEADER_TOLERANCE = 3;
+  private static final double MAXIMIZED_MIN_FILL = 0.9;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
   private static final By LOGIN_FORM_CONTROLS = By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input");
 
@@ -4022,6 +4024,275 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickGridEmptyAction() {
     click(frontEndInstructions.getGridEmptyAction());
+  }
+
+  /**
+   * Open the Columns dialog of the toolbar of a grid
+   *
+   * @param gridId Grid identifier
+   */
+  protected void openGridColumns(String gridId) {
+    click(frontEndInstructions.getGridColumnsButton(gridId));
+    waitUntil(toBeVisible(frontEndInstructions.getGridColumnsDialog(gridId)));
+  }
+
+  /**
+   * Close the Columns dialog of a grid
+   *
+   * @param gridId Grid identifier
+   */
+  protected void closeGridColumns(String gridId) {
+    click(frontEndInstructions.getGridColumnsClose(gridId));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
+  }
+
+  /**
+   * Check the counter of the Columns dialog of a grid: how many columns are shown of the ones it lists
+   *
+   * @param gridId  Grid identifier
+   * @param visible Columns shown
+   * @param total   Columns listed
+   */
+  protected void checkGridColumnsCounter(String gridId, int visible, int total) {
+    waitUntil(toBePresent(frontEndInstructions.getGridColumnsCounter(gridId, String.valueOf(visible), String.valueOf(total))));
+  }
+
+  /**
+   * Check that the Columns dialog of a grid lists a column. The columns that the screen hides never appear in it
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnsListed(String gridId, String columnId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridColumnsItem(gridId, columnId)));
+  }
+
+  /**
+   * Check that the Columns dialog of a grid does not list a column
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnsNotListed(String gridId, String columnId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsItem(gridId, columnId))));
+  }
+
+  /**
+   * Hide a column of a grid unchecking it in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void hideGridColumn(String gridId, String columnId) {
+    setGridColumnChecked(gridId, columnId, false);
+  }
+
+  /**
+   * Show a column of a grid checking it in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void showGridColumn(String gridId, String columnId) {
+    setGridColumnChecked(gridId, columnId, true);
+  }
+
+  private void setGridColumnChecked(String gridId, String columnId, boolean checked) {
+    By checkbox = frontEndInstructions.getGridColumnsCheckbox(gridId, columnId);
+    waitUntil(toBePresent(checkbox));
+    Object current = getBrowser().executeScriptOn(locator(checkbox), "return arguments[0].checked;");
+    if (!Boolean.valueOf(checked).equals(current)) {
+      click(checkbox);
+    }
+  }
+
+  /**
+   * Move a column of a grid one position up with its arrow in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridColumnUp(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
+  }
+
+  /**
+   * Move a column of a grid one position down with its arrow in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridColumnDown(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+  }
+
+  /**
+   * Check that a column cannot move up in the Columns dialog of a grid: it is the first one of its group header
+   * (or the first column without group), because a column never leaves its group
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnCannotMoveUp(String gridId, String columnId) {
+    checkGridColumnArrowDisabled(frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
+  }
+
+  /**
+   * Check that a column cannot move down in the Columns dialog of a grid: it is the last one of its group header
+   * (or the last column without group), because a column never leaves its group
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnCannotMoveDown(String gridId, String columnId) {
+    checkGridColumnArrowDisabled(frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+  }
+
+  private void checkGridColumnArrowDisabled(By arrow) {
+    waitUntil(toBePresent(arrow));
+    Object disabled = getBrowser().executeScriptOn(locator(arrow), "return arguments[0].disabled === true;");
+    assertWithScreenshot("The arrow " + arrow + " is enabled", Boolean.TRUE.equals(disabled));
+  }
+
+  /**
+   * Show all the columns of a grid with the action of its Columns dialog
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsShowAll(String gridId) {
+    click(frontEndInstructions.getGridColumnsShowAll(gridId));
+  }
+
+  /**
+   * Go back to the definition of the screen with the action of the Columns dialog of a grid, which also removes the layout
+   * that the user saved
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsReset(String gridId) {
+    click(frontEndInstructions.getGridColumnsReset(gridId));
+  }
+
+  /**
+   * Save the layout of a grid as the default of the user with the action of its Columns dialog
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsSave(String gridId) {
+    click(frontEndInstructions.getGridColumnsSave(gridId));
+  }
+
+  /**
+   * Check the order of the visible columns of a grid, from left to right. The columns have to be shown
+   *
+   * @param gridId    Grid identifier
+   * @param columnIds Columns in the order they are expected
+   */
+  protected void checkGridColumnsLeftToRight(String gridId, String... columnIds) {
+    String script = "return arguments[0].getBoundingClientRect().left;";
+    double previous = Double.NEGATIVE_INFINITY;
+    for (String columnId : columnIds) {
+      By header = frontEndInstructions.getGridHeader(gridId, columnId);
+      waitUntil(toBeVisible(header));
+      Object measured = getBrowser().executeScriptOn(locator(header), script);
+      double left = measured instanceof Number number ? number.doubleValue() : Double.NaN;
+      assertWithScreenshot("The column " + columnId + " of the grid " + gridId + " is not after the previous one: " + left + " <= " + previous,
+        left > previous);
+      previous = left;
+    }
+  }
+
+  /**
+   * Check that a column of a grid is not shown
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnNotShown(String gridId, String columnId) {
+    waitUntil(BrowserCondition.not(toBeVisible(frontEndInstructions.getGridHeader(gridId, columnId))));
+  }
+
+  /**
+   * Check that a group header of a grid spans exactly over its first and its last visible columns, so hiding any column of
+   * the group keeps the header aligned with the ones that are shown
+   *
+   * @param gridId        Grid identifier
+   * @param title         Title of the group header
+   * @param firstColumnId First visible column of the group
+   * @param lastColumnId  Last visible column of the group
+   */
+  protected void checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId) {
+    By group = frontEndInstructions.getGridGroupHeader(gridId, title);
+    By first = frontEndInstructions.getGridHeader(gridId, firstColumnId);
+    By last = frontEndInstructions.getGridHeader(gridId, lastColumnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(group), toBeVisible(first), toBeVisible(last)));
+    Object groupLeft = getBrowser().executeScriptOn(locator(group), "return arguments[0].getBoundingClientRect().left;");
+    Object groupRight = getBrowser().executeScriptOn(locator(group), "return arguments[0].getBoundingClientRect().right;");
+    Object firstLeft = getBrowser().executeScriptOn(locator(first), "return arguments[0].getBoundingClientRect().left;");
+    Object lastRight = getBrowser().executeScriptOn(locator(last), "return arguments[0].getBoundingClientRect().right;");
+    assertWithScreenshot("The group header " + title + " of the grid " + gridId + " does not span from " + firstColumnId + " to " + lastColumnId
+        + " (" + groupLeft + "-" + groupRight + " against " + firstLeft + "-" + lastRight + ")",
+      isNear(groupLeft, firstLeft) && isNear(groupRight, lastRight));
+  }
+
+  /**
+   * Check that a grid does not show a group header: none of its columns is shown
+   *
+   * @param gridId Grid identifier
+   * @param title  Title of the group header
+   */
+  protected void checkGridGroupHeaderNotShown(String gridId, String title) {
+    waitUntil(BrowserCondition.not(toBeVisible(frontEndInstructions.getGridGroupHeader(gridId, title))));
+  }
+
+  private boolean isNear(Object first, Object second) {
+    return first instanceof Number a && second instanceof Number b && Math.abs(a.doubleValue() - b.doubleValue()) <= GROUP_HEADER_TOLERANCE;
+  }
+
+  /**
+   * Maximize a grid with the button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void maximizeGrid(String gridId) {
+    click(frontEndInstructions.getGridMaximizeButton(gridId));
+  }
+
+  /**
+   * Restore a maximized grid with the button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void restoreGrid(String gridId) {
+    click(frontEndInstructions.getGridMaximizeButton(gridId));
+  }
+
+  /**
+   * Check that a grid fills the content area of the screen (its maximize target), like a maximized window: its toolbar says so,
+   * the grid takes the size of the content area and the page keeps something above it (the header of the application)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridMaximized(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, true)));
+    By grid = frontEndInstructions.getGrid(gridId);
+    waitUntil(toBeVisible(grid));
+    // Smallest ratio between the sizes of the grid and of its maximize target (0 when it has none)
+    Object fill = getBrowser().executeScriptOn(locator(grid), "const target = arguments[0].closest('.maximize-target'); if (!target) { return 0; } "
+      + "const g = arguments[0].getBoundingClientRect(); const t = target.getBoundingClientRect(); "
+      + "return Math.min(g.width / t.width, t.width / g.width, g.height / t.height, t.height / g.height);");
+    Object top = getBrowser().executeScriptOn(locator(grid), "return arguments[0].getBoundingClientRect().top;");
+    assertWithScreenshot("The grid " + gridId + " does not fill the content area (" + fill + " of its size) or covers the header (" + top + "px from the top)",
+      fill instanceof Number f && top instanceof Number t && f.doubleValue() >= MAXIMIZED_MIN_FILL && t.doubleValue() > 0);
+  }
+
+  /**
+   * Check that a grid does not fill the window
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotMaximized(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, false)));
   }
 
   /**

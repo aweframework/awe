@@ -55,6 +55,25 @@ export const TestIds = Object.freeze({
   gridEmptyText: "grid-empty-text",
   gridEmptyAction: "grid-empty-action",
   gridLoader: "grid-loader",
+  // Grid toolbar: the toolbar, its Columns and Maximize buttons, and the Columns dialog (the instance is identified by
+  // "grid-id"): its group of columns (the title is its text), a column ("column-id") with its checkbox, handle and
+  // arrows, the "N of M visible" counter ("data-visible" / "data-total") and its actions
+  gridToolbar: "grid-toolbar",
+  gridGroupHeader: "grid-group-header",
+  gridColumnsButton: "grid-columns-button",
+  gridMaximizeButton: "grid-maximize-button",
+  gridColumnsDialog: "grid-columns-dialog",
+  gridColumnGroup: "grid-column-group",
+  gridColumnItem: "grid-column-item",
+  gridColumnCheckbox: "grid-column-checkbox",
+  gridColumnHandle: "grid-column-handle",
+  gridColumnUp: "grid-column-up",
+  gridColumnDown: "grid-column-down",
+  gridColumnsCounter: "grid-columns-counter",
+  gridColumnsShowAll: "grid-columns-show-all",
+  gridColumnsReset: "grid-columns-reset",
+  gridColumnsSave: "grid-columns-save",
+  gridColumnsClose: "grid-columns-close",
   // Tree grids: expand/collapse icon of a row and the expand/collapse all icon of the header
   treeIcon: "tree-icon",
   treeHeaderIcon: "tree-header-icon",
@@ -131,6 +150,11 @@ export const TestAttributes = Object.freeze({
   // Menu options and branches that are open, tree rows that are expanded or loading, finished wizard steps
   open: "data-open",
   expanded: "data-expanded",
+  // A grid fills the window
+  maximized: "data-maximized",
+  // Columns the Columns dialog of a grid shows as visible, and the ones it lists
+  visibleCount: "data-visible",
+  totalCount: "data-total",
   loading: "data-loading",
   completed: "data-completed",
   // Tabs, wizard steps and accordion items that hold fields which failed the validation

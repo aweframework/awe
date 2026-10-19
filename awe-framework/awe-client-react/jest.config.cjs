@@ -59,6 +59,7 @@ module.exports = {
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',
+    '**/hooks/useMaximizeTest.{js,jsx}',
     '**/redux/actions/advancedDependenciesTest.{js,jsx}',
     '**/redux/actions/dependenciesTest.{js,jsx}',
     '**/redux/actions/settingsTest.{js,jsx}',
@@ -70,6 +71,7 @@ module.exports = {
     '**/services/ScreenServiceTest.{js,jsx}',
     '**/services/components/GridServiceTest.{js,jsx}',
     '**/utilities/gridTest.{js,jsx}',
+    '**/utilities/gridLayoutTest.{js,jsx}',
     '**/utilities/structureCellTest.{js,jsx}',
     '**/utilities/sanitizeHtmlTest.{js,jsx}',
     '**/utilities/testIdsTest.{js,jsx}',
@@ -109,6 +111,7 @@ module.exports = {
     '**/performance/*Test.{js,jsx}',
     '**/components/AweGridEmptyStateTest.{js,jsx}',
     '**/components/AweGridWrapTest.{js,jsx}',
+    '**/components/AweGridToolbarTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'

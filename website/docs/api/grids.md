@@ -65,7 +65,43 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | empty-title         | Optional     | String  | Title of the [empty state](#empty-state) of the grid                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated "No records found" title         |
 | empty-text          | Optional     | String  | Text of the [empty state](#empty-state) of the grid                                                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated explanation text                 |
 | empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
+| show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out                                        |
 
+
+### Toolbar
+
+Every grid shows a toolbar, in both the AngularJS and the React engines, with two buttons:
+
+- **Columns** opens a dialog that lists the columns of the grid. The user shows or hides each column, moves it up or
+  down (with the arrows or by dragging its handle), and sees how many columns are visible. *Show all* shows every
+  column, *Reset* goes back to the definition of the screen XML and *Save as default* stores the layout for the user.
+- **Maximize** makes the grid fill the content area of the screen, like the maximize button of a window or a tab: the grid grows with an animation, the application header and menu stay visible and the rest of the screen fades out until the grid is restored.
+
+The changes of the dialog are applied to the grid at once, but they are kept only when the user chooses *Save as
+default*. The saved layout belongs to the user, so it follows them to other browsers and devices, and it is stored in
+the `AweUsrGrdCnf` table (one row per user, screen and grid; created by a database migration). *Reset* removes it. The
+user is always taken from the session. The layout is applied when the screen is generated: the grid is sent with its
+original `columnModel` plus a `columnLayout` (the order of the columns and the hidden ones), so the first render is
+already personalized.
+
+Some rules keep a stored layout valid when the screen changes:
+
+- Columns hidden in the XML (`hidden="true"`, for example keys) never appear in the dialog.
+- Column ids that no longer exist are ignored, and a column added to the XML appears visible at its XML position.
+- A column can only be reordered within its own `group-header`, and ungrouped columns among themselves; a column never
+  leaves its group, even if the stored layout says otherwise. Groups are not reordered as blocks.
+- The group headers are computed from the visible columns of each group, so hiding any column of a group (also the
+  first one) keeps the headers aligned, and a group without visible columns is not shown.
+
+Set `show-toolbar="false"` to opt a grid out of the toolbar; the grid then always uses the XML definition.
+
+```xml
+<grid id="UserGrid" show-toolbar="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+Excel and PDF exports and printing use the columns of the screen XML, not the layout of the user.
 
 ### Empty state
 

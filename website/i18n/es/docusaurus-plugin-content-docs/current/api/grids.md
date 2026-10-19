@@ -65,6 +65,45 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-title            | Opcional        | String  | Título del [estado vacío](#empty-state) del grid                                                                                                       | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un título traducido "No se han encontrado registros"      |
 | empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
+| show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla                                                                                                      |
+
+### Barra de herramientas {#toolbar}
+
+Todos los grids muestran una barra de herramientas, tanto en el motor AngularJS como en el de React, con dos botones:
+
+- **Columnas** abre un diálogo con la lista de columnas del grid. El usuario muestra u oculta cada columna, la sube o la
+  baja (con las flechas o arrastrando su asa) y ve cuántas columnas están visibles. *Mostrar todas* muestra todas las
+  columnas, *Restablecer* vuelve a la definición del XML de la pantalla y *Guardar como predeterminado* guarda la
+  disposición para el usuario.
+- **Maximizar** hace que el grid ocupe el área de contenido de la pantalla, como el botón de maximizar de una ventana o una pestaña: el grid crece con una animación, la cabecera y el menú de la aplicación siguen visibles y el resto de la pantalla se desvanece hasta que se restaura el grid.
+
+Los cambios del diálogo se aplican al grid de inmediato, pero solo se conservan cuando el usuario elige *Guardar como
+predeterminado*. La disposición guardada pertenece al usuario, así que le acompaña en otros navegadores y dispositivos, y
+se almacena en la tabla `AweUsrGrdCnf` (una fila por usuario, pantalla y grid; la crea una migración de base de datos).
+*Restablecer* la elimina. El usuario siempre se toma de la sesión. La disposición se aplica al generar la pantalla: el
+grid se envía con su `columnModel` original más un `columnLayout` (el orden de las columnas y las ocultas), de modo que
+el primer pintado ya está personalizado.
+
+Algunas reglas mantienen válida una disposición guardada cuando cambia la pantalla:
+
+- Las columnas ocultas en el XML (`hidden="true"`, por ejemplo las claves) nunca aparecen en el diálogo.
+- Los identificadores de columna que ya no existen se ignoran, y una columna añadida al XML aparece visible en su
+  posición del XML.
+- Una columna solo se puede reordenar dentro de su propio `group-header`, y las columnas sin grupo entre sí; una columna
+  nunca sale de su grupo, aunque la disposición guardada lo indique. Los grupos no se reordenan como bloques.
+- Las cabeceras de grupo se calculan a partir de las columnas visibles de cada grupo, de modo que ocultar cualquier
+  columna de un grupo (también la primera) mantiene las cabeceras alineadas, y un grupo sin columnas visibles no se
+  muestra.
+
+Use `show-toolbar="false"` para que un grid no tenga barra de herramientas; entonces siempre usa la definición del XML.
+
+```xml
+<grid id="UserGrid" show-toolbar="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+Las exportaciones a Excel y PDF y la impresión usan las columnas del XML de la pantalla, no la disposición del usuario.
 
 ### Estado vacío {#empty-state}
 
