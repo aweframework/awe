@@ -23,6 +23,7 @@ import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.event.ScreenChangeEvent;
 import com.almis.awe.model.tracker.AweClientTracker;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.screen.DeferredComponents;
@@ -40,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 
@@ -52,6 +54,8 @@ public class ScreenService extends ServiceConfig {
   // Parameters sent by the client when a deferred container is opened: components with data and with a selected value
   private static final String DEFERRED_LOADED_PARAMETER = "deferredLoaded";
   private static final String DEFERRED_VALUED_PARAMETER = "deferredValued";
+  // Client action sent when the initial load of a deferred container failed: the client must ask for it again
+  private static final String DEFERRED_FAILED_ACTION = "deferred-failed";
 
   // Autowired services
   private final MenuService menuService;
@@ -137,7 +141,33 @@ public class ScreenService extends ServiceConfig {
       }
     }
     data.getActions().forEach(serviceData::addClientAction);
+
+    // A failed initial load is shown as an error message, and the container is flagged as not loaded so the client tries again
+    if (data.getActions().stream().anyMatch(ScreenService::isErrorMessage)) {
+      serviceData.addClientAction(new ClientAction(DEFERRED_FAILED_ACTION).setTarget(containerId).setAsync(Boolean.TRUE).setSilent(Boolean.TRUE));
+    }
     return serviceData;
+  }
+
+  /**
+   * Check whether a client action is an error message. Only an explicit warning, information or ok message is not a
+   * failure: a message without a known type counts as an error
+   *
+   * @param action Client action
+   * @return The action is an error message
+   */
+  private static boolean isErrorMessage(ClientAction action) {
+    if (!AweConstants.MESSAGE.equals(action.getType())) {
+      return false;
+    }
+    Object type = action.getParameters().get(AweConstants.ACTION_MESSAGE_TYPE_ATTRIBUTE);
+    String typeValue = switch (type) {
+      case CellData cellData -> cellData.getStringValue();
+      case String text -> text;
+      case null, default -> null;
+    };
+    return Stream.of(AnswerType.WARNING, AnswerType.INFO, AnswerType.OK)
+      .noneMatch(harmless -> harmless.toString().equalsIgnoreCase(typeValue));
   }
 
   /**

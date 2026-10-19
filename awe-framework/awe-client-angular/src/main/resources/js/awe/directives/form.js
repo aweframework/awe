@@ -225,6 +225,16 @@ aweApplication.directive('aweForm',
           $actionController.acceptAction(action);
         },
         /**
+         * The server could not load a deferred dialog or tab: it is marked as not loaded, so the next opening tries again
+         * @param {object} action Action received
+         */
+        deferredFailed: function (action) {
+          Control.changeControllerAttribute(action.attr("callbackTarget"), {deferredLoaded: false});
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
          * Fill suggest model with action values
          * @param {object} action Action received
          */

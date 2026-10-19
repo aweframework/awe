@@ -36,7 +36,8 @@ export const isInPendingDeferredContainer = (component, components) =>
 /**
  * Load the data of a deferred dialog or tab page the first time it is shown.
  * The container is marked as loaded and one silent async server action asks the server for the initial load of its
- * components. If the call fails the mark is reset, so the next opening tries again. The components which already have rows, or a selected value, are reported so the server leaves them as
+ * components. If the call fails, or the server answers that the load failed (deferred-failed action), the mark is
+ * reset, so the next opening tries again. The components which already have rows, or a selected value, are reported so the server leaves them as
  * they are (an action or a dependency reached them before the first opening).
  *
  * @param {object} address Container address (dialog or tab page)
@@ -69,6 +70,20 @@ export function loadDeferredAction(address) {
       ...generateServerAction({ option, deferredLoaded, deferredValued }, DEFERRED_ACTION, address.component, address, true, true, settings),
       errorAttributes: { deferredLoaded: false }
     }]));
+  };
+}
+
+/**
+ * The server could not run the initial load of a deferred container (the error is shown as a message).
+ * The container is marked as not loaded, so the next opening asks for its data again.
+ *
+ * @param {object} action Action received: its address is the container
+ * @returns {function} Thunk
+ */
+export function deferredFailedAction(action) {
+  return (dispatch) => {
+    dispatch(updateAttributes(getActionAddress(action), { deferredLoaded: false }));
+    dispatch(acceptAction(action));
   };
 }
 

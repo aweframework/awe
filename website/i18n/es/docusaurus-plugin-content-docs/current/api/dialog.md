@@ -62,7 +62,8 @@ gráficas, pestañas, etc.). Las listas de opciones de las columnas de un grid (
 `deferred-data` silenciosa con el identificador del diálogo. El servidor ejecuta las consultas de los componentes del
 diálogo y responde con una acción de cliente [`initial-model`](actions.md#component-actions) para cada uno, que aplica los
 datos como lo hace la carga de la pantalla: el modelo cargado es también al que vuelven las acciones `restore` y
-`restore-target`. El diálogo no se vuelve a cargar al abrirlo de nuevo. Un componente con `autoload="true"` dentro del
+`restore-target`. El diálogo no se vuelve a cargar al abrirlo de nuevo, salvo si falló una consulta: se muestra el
+error y la siguiente apertura vuelve a cargarlo. Un componente con `autoload="true"` dentro del
 diálogo también espera a la primera apertura.
 
 Las consultas reciben los valores que tiene la pantalla **en el momento de la primera apertura**, no los que tenía cuando
@@ -95,6 +96,8 @@ de lanzar la acción de servidor.
   o una pestaña diferidos sin abrir omite esa parte y valida el resto.
 - Un `validate` con destino que es en sí mismo un contenedor diferido sin abrir no valida nada y pasa.
 - Cuando el contenedor se ha abierto y cargado, sus criterios validan como siempre, en validaciones completas y con destino.
+- Un `validate` sin destino valida todos los criterios de la pantalla, incluidos los de sus diálogos (abiertos o cerrados),
+  esté donde esté el botón, salvo los de contenedores diferidos que nunca se han abierto. Un `validate` con destino solo valida su destino.
 
 El servidor no comprueba `required` para estos criterios (es una regla del cliente), así que un guardado no falla porque
 falten. Tenlo en cuenta si una consulta o un maintain necesita un valor del diálogo: lo recibe vacío hasta que se abra.

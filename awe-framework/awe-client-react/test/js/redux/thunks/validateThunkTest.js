@@ -532,4 +532,57 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       expect(validated({ ...base, target: 'Dia' })).toContain('InDia');
     });
   });
+
+  describe('untargeted validate and dialogs (#824)', () => {
+    // A dialog resets the context of its components: they do not share a container with the button outside it
+    const make = (id, source, attributes = {}) => ({
+      address: { view: 'base', component: id },
+      context: { view: 'base', source },
+      attributes: { id, ...attributes },
+      model: { values: [] }
+    });
+    const validated = (action) => {
+      validationThunks.validateAction(action)(dispatch, getState);
+      const [[validateThunk]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      validateThunk(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].componentList.map(component => component.address.component);
+    };
+    const untargeted = { type: 'validate', address: { view: 'base', component: 'Save' } };
+
+    beforeEach(() => {
+      mockState.components = {
+        Save: make('Save', ['screen', 'buttons', 'Save']),
+        Field: make('Field', ['screen', 'center', 'Field']),
+        EagDlg: make('EagDlg', ['EagDlg']),
+        InEag: make('InEag', ['EagDlg', 'InEag']),
+        DefDlg: make('DefDlg', ['DefDlg'], { deferred: true }),
+        InDef: make('InDef', ['DefDlg', 'InDef']),
+        Other: make('Other', ['OtherView'])
+      };
+      mockState.components.Other.context.view = 'other';
+    });
+
+    it('validates the components of a dialog which is not deferred', () => {
+      expect(validated(untargeted)).toEqual(expect.arrayContaining(['Field', 'InEag']));
+    });
+
+    it('validates the components of a deferred dialog once it was opened', () => {
+      mockState.components.DefDlg.attributes.deferredLoaded = true;
+
+      expect(validated(untargeted)).toContain('InDef');
+    });
+
+    it('does not validate the components of a deferred dialog never opened', () => {
+      expect(validated(untargeted)).not.toContain('InDef');
+    });
+
+    it('does not validate the components of other views', () => {
+      expect(validated(untargeted)).not.toContain('Other');
+    });
+
+    it('keeps a targeted validate inside its target', () => {
+      expect(validated({ ...untargeted, target: 'center' })).not.toContain('InEag');
+    });
+  });
 });

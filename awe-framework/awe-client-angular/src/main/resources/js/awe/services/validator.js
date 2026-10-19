@@ -1,5 +1,18 @@
 import {aweApplication} from "../awe";
 
+/**
+ * Find the element of a component by its identifier (criterion-id attribute or id). The identifier is compared as a
+ * value, never written into a selector, so CSS special characters (a dot, a colon...) are safe.
+ * @param {Object} $parent Parent node to search in
+ * @param {string} id Component identifier
+ * @return {Object} Matching nodes
+ */
+function findComponentElement($parent, id) {
+  return $parent.find("[criterion-id], [id]").filter(function () {
+    return this.getAttribute("criterion-id") === id || this.id === id;
+  });
+}
+
 // Validator service
 aweApplication.factory('Validator',
   ['Storage', 'AweUtilities', 'AweSettings', 'ValidationRules', '$log', '$window',
@@ -77,14 +90,18 @@ aweApplication.factory('Validator',
          */
         isInPendingDeferredContainer: function (component) {
           const address = component.address;
-          const element = component.element;
-          if (!address || !element) {
+          if (!address) {
+            return false;
+          }
+          // The API of a component has no element: look for it by its identifier
+          const element = component.element || findComponentElement($(document), address.component);
+          if (!element || $(element).length === 0) {
             return false;
           }
           const controllers = Storage.get("controller");
           return _.some(controllers && controllers[address.view], function (controller, containerId) {
             return containerId !== address.component && controller && controller.deferred && !controller.deferredLoaded
-              && $("#" + containerId).find(element).length > 0;
+              && $(document.getElementById(containerId)).find(element).length > 0;
           });
         },
         /**

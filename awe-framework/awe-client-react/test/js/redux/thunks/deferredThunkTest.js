@@ -1,6 +1,8 @@
 import {createStore} from '../../../../src/redux/store';
 import {updateViewComponentsWithDependencies} from '../../../../src/redux/thunks/components';
-import {initialModelAction, loadDeferredAction} from '../../../../src/redux/thunks/deferred';
+import {deferredFailedAction, initialModelAction, loadDeferredAction} from '../../../../src/redux/thunks/deferred';
+import {updateAttributes} from '../../../../src/redux/actions/components';
+import {validateAction} from '../../../../src/redux/thunks/validate';
 import {getComponent} from '../../../../src/utilities';
 import {getAllComponents} from '../../../../src/redux/selectors/componentSelectors';
 import ViewRegistry from '../../../../src/redux/registry/ViewRegistry';
@@ -123,6 +125,43 @@ describe('awe-react-client/test/js/redux/thunks/deferredThunkTest.js', () => {
 
       expect(serverAction.parameters.deferredLoaded).toEqual([]);
       expect(serverAction.parameters.deferredValued).toEqual([]);
+    });
+  });
+
+  describe('validate with the real store (#824)', () => {
+    it('does not validate the components of a deferred dialog never opened', () => {
+      registerScreen();
+      const dispatched = [];
+      const spy = (call) => { dispatched.push(call); return typeof call === 'function' ? call(spy, () => store.getState()) : call; };
+
+      validateAction({type: 'validate', address: {view: 'base', component: 'Outside'}})(spy, () => store.getState());
+
+      const list = dispatched.find(call => call?.type === 'VALIDATE_COMPONENTS').componentList.map(c => c.address.component);
+      expect(list).toEqual(['Outside']);
+    });
+  });
+
+  describe('deferredFailedAction', () => {
+    const failed = () => ({type: 'deferred-failed', address: dialog, target: 'Dia'});
+
+    it('resets the loaded mark of the container, so the next opening requests the data again', () => {
+      registerScreen({deferred: true, deferredLoaded: true});
+      expect(sentActions(run(loadDeferredAction(dialog)))).toHaveLength(0);
+
+      store.dispatch(deferredFailedAction(failed()));
+
+      expect(current(dialog).attributes.deferredLoaded).toBe(false);
+      expect(sentActions(run(loadDeferredAction(dialog)))).toHaveLength(1);
+    });
+
+    it('keeps the container loaded when the answer carries no failure', () => {
+      registerScreen();
+      store.dispatch(updateAttributes(dialog, {deferredLoaded: true}));
+
+      store.dispatch(initialModelAction({type: 'initial-model', address: dialog, target: 'Options', parameters: {datalist: {rows: [{value: '1'}]}}}));
+
+      expect(current(dialog).attributes.deferredLoaded).toBe(true);
+      expect(sentActions(run(loadDeferredAction(dialog)))).toHaveLength(0);
     });
   });
 

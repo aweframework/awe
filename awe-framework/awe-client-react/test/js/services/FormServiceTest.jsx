@@ -22,9 +22,10 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
   });
 
   it('should get all form actions', () => {
-    expect(Object.keys(actions).length).toBe(25);
+    expect(Object.keys(actions).length).toBe(26);
     expect(Object.keys(actions)).toContain('fill-suggest');
     expect(Object.keys(actions)).toContain('initial-model');
+    expect(Object.keys(actions)).toContain('deferred-failed');
   });
 
   it('should restore the first loaded values on restore-target and the default ones on restore', () => {

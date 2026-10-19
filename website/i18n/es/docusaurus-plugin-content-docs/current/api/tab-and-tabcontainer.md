@@ -93,7 +93,8 @@ comportan igual.
 Las reglas son las de los [diálogos diferidos](dialog.md#deferred-loading), aplicadas a la pestaña: los componentes del
 contenedor de pestaña están en la pantalla pero vacíos hasta que se selecciona la pestaña por primera vez; entonces una
 acción de servidor `deferred-data` silenciosa los carga (con los valores que tiene la pantalla en ese momento) y la
-pestaña no se vuelve a cargar. Algunos detalles de las pestañas:
+pestaña no se vuelve a cargar, salvo si falló una consulta: se muestra el error y la siguiente selección vuelve a
+cargarla. Algunos detalles de las pestañas:
 
 - La pestaña seleccionada al mostrar la pantalla también se carga por su cuenta (justo después de la pantalla), porque se ve de inmediato. Difiere primero las páginas que el usuario no ve.
 - En el primer contenedor de pestaña el atributo no aporta ventaja; úsalo en las demás páginas.

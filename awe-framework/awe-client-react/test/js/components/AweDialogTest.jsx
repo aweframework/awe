@@ -2,7 +2,7 @@ import React from "react";
 import { renderWithProviders } from "../test-utils";
 import AweDialog from "../../../src/components/AweDialog";
 import { DEFAULT_SETTINGS } from "../../../src/redux/actions/settings";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
 
 describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
   const preloadedState = {
@@ -156,6 +156,23 @@ describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
       store.dispatch({ type: 'UPDATE_ATTRIBUTES', address: { component: 'dialog', view: 'report' }, data: { isShowing: true } });
 
       expect(dispatched.mock.calls.filter(([call]) => typeof call === 'function')).toHaveLength(0);
+    });
+
+    it('asks again on the next opening, not at once, after the load failed', () => {
+      const { store } = renderDialog({ isShowing: true, deferred: true });
+      const update = (data) => act(() => {
+        store.dispatch({ type: 'UPDATE_ATTRIBUTES', address: { component: 'dialog', view: 'report' }, data });
+      });
+      expect(deferredLoaded(store)).toBe(true);
+
+      // The server answered that the load failed: the dialog is still open, and it is not requested in a loop
+      update({ deferredLoaded: false });
+      expect(deferredLoaded(store)).toBe(false);
+
+      // Closed and opened again: it is requested again
+      update({ isShowing: false });
+      update({ isShowing: true });
+      expect(deferredLoaded(store)).toBe(true);
     });
   });
 });
