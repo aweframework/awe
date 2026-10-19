@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from "react";
 import { Column } from "primereact/column";
 import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
-import { getIconCode, translateLabel } from "../utilities";
+import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
 import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH } from "../utilities/grid";
 import { ContextMenu } from "primereact/contextmenu";
 import { isEmpty } from "../utilities/general";
@@ -162,9 +162,24 @@ export function useGrid(id) {
   // The header of a column is cut by its width: it shows its full text as tooltip
   const headerLabel = (text) => text ? <span className="p-column-title-text" title={text}>{text}</span> : text;
 
+  // Header of a column: its label and, if it has help or help image, the help icon and tooltip
+  const columnHeader = (name, label, help, helpImage) => {
+    const text = translateLabel(label, t);
+    if (!help && !helpImage) {
+      return headerLabel(text);
+    }
+    const target = `help-target-${address.component}-${name}`;
+    return <>
+      {getHelpTooltipNode(help, helpImage, t, `.${target}`)}
+      <span className={target} style={{ cursor: "pointer" }}>
+        <i role="icon" className="help-icon pi pi-question-circle" />{headerLabel(text)}
+      </span>
+    </>;
+  };
+
   const columnTemplate = (col, rowSpan, enableFilters) => {
-    const { name, sortField, label, charlength, width, sortable } = col;
-    return <Column key={name} field={sortField || name} header={headerLabel(translateLabel(label, t))}
+    const { name, sortField, label, charlength, width, sortable, help, helpImage } = col;
+    return <Column key={name} field={sortField || name} header={columnHeader(name, label, help, helpImage)}
       style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
       pt={headerCellPassThrough(name)}
       sortable={sortable} rowSpan={rowSpan} filter={enableFilters} />;

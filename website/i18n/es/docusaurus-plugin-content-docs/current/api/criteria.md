@@ -73,7 +73,12 @@ Los valores **seleccionados** pueden ser completados de varias maneras. Esta es 
 | printable           | Opcional        | String  | Comprobar si el criterio es imprimible                                                          | `true` (por defecto) o `false`. **Nota:** `excel` solo tiene efecto en las [columnas de grid](grids.md#printing-columns)                                                                                                                                                                                                             |
 | help                | Opcional        | String  | Texto de ayuda para el criterio                                                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                                                                                                                              |
 | help-image      | Opcional        | String  | Imagen de ayuda para el criterio                                                                    | Esta **debe** ser una ruta de imagen                                                                                                                                                                                                                                                                                    |
-| left-label   | Opcional        | Entero  | Pon la etiqueta a la izquierda **y** dale un tamaño en caracteres                               | El valor por defecto está vacío (la etiqueta está arriba en lugar de izquierda). Si está definido, el valor debe ser un número de caracteres para la etiqueta                                                                                                                                                           |
+| left-label   | Opcional        | Entero  | Pon la etiqueta a la izquierda **y** dale un tamaño en caracteres                               | El valor por defecto está vacío (la etiqueta está arriba en lugar de izquierda). Si está definido, el valor debe ser un número de caracteres para la etiqueta. La etiqueta se muestra a la izquierda desde el punto de corte `sm` (576 px) y arriba por debajo de él. Su ancho es el número de caracteres por los píxeles por carácter del tamaño del criterio (7 px en `sm`, 8 px en `md` y 10 px en `lg`) en ambos motores                                                                                                                                                           |
+
+Los atributos `help` y `help-image` muestran un tooltip cuando el usuario se detiene sobre la etiqueta del criterio (junto
+a ella aparece un icono de ayuda). Ambos motores lo muestran en todos los criterios, incluidos los checkbox, los radio,
+los checkbox de botones y los radio de botones, y también en los [botones](button.md) y en las cabeceras de las
+[columnas del grid](grids.md#column-attributes).
 
 ### Atributos específicos {#specific-attributes}
 
@@ -111,6 +116,10 @@ Entrada de texto básica.
 Entrada de texto básica, pero los caracteres escritos no se muestran al usuario.
 
 <img alt="Password" src={require('@docusaurus/useBaseUrl').default('img/Password.png')} />
+
+Mientras las mayúsculas están bloqueadas, ambos motores marcan el campo con un color de aviso y un icono de flecha. El
+estado sale de la última tecla pulsada en la página, así que el aviso aparece aunque el usuario activara el bloqueo antes
+de llegar al campo.
 
 ### Criterio de área de texto {#textarea-criterion}
 
@@ -164,6 +173,18 @@ ticks: [-1000, -500, 0, 500, 1000], ticks_labels: ['-$1000', '-$500', '$0', '$50
 Permite seleccionar una fecha con un calendario.
 
 <img alt="dateCriterio" src={require('@docusaurus/useBaseUrl').default('img/dateCriteron.png')} />
+
+Los motores AngularJS y React aplican las mismas opciones al criterio de fecha y a las columnas de fecha de un *grid*:
+
+* `date-format` define el formato de la fecha que se muestra **y** del valor que el cliente envía al servidor y espera
+  recibir de él. Por defecto es `dd/mm/yyyy`. Los símbolos son los del plugin bootstrap-datepicker (`d`, `dd`, `m`, `mm`,
+  `M`, `MM`, `yy`, `yyyy`...), así que `yyyy-mm-dd` envía `2024-03-15`.
+* `date-view-mode` con el valor `months` o `years` hace que el calendario seleccione un mes o un año. Úsalo con un
+  formato sin día (`mm/yyyy` o `yyyy`).
+* `show-weekends="false"` deshabilita los sábados y los domingos.
+* `show-future-dates="false"` deshabilita las fechas posteriores a la fecha que tiene el criterio cuando arranca la
+  pantalla.
+* `date-show-today-button="false"` oculta el botón que selecciona el día de hoy.
 
 ### Criterio de hora {#time-criterion}
 

@@ -85,13 +85,14 @@ function getRequiredValue(component, value, components) {
  * @param {object} value Component value
  * @param {object} components Other components
  * @param {object} settings Settings
+ * @param {object} [column] Grid column of the component: its name and the rows of the grid
  */
-function extractParameters(ruleMethod, rule, component, value, components, settings) {
+function extractParameters(ruleMethod, rule, component, value, components, settings, column) {
   // Get parameters from rule
   let parameters = getParameters(rule, value, components, settings);
 
   // Format comparison values
-  return formatParameters(ruleMethod, component, value, components, parameters);
+  return formatParameters(ruleMethod, component, value, components, parameters, column);
 }
 
 /**
@@ -134,9 +135,9 @@ function getParameters(rule, value, components, settings) {
 /**
  * Format parameters
  */
-function formatParameters(method, component, value, components, parameters) {
+function formatParameters(method, component, value, components, parameters, column) {
   // Format comparison values
-  if (!resolveSpecificMethodParameters(method, component, value, components, parameters)) {
+  if (!resolveSpecificMethodParameters(method, component, value, components, parameters, column)) {
     return formatDefinedParameters(parameters);
   }
   return parameters;
@@ -170,7 +171,7 @@ function formatDefinedParameters(parameters) {
 /**
  * Resolve parameters with specific methods
  */
-function resolveSpecificMethodParameters(method, component, value, components, parameters) {
+function resolveSpecificMethodParameters(method, component, value, components, parameters, column) {
   switch (method) {
     case "required":
       parameters.values.value1 = getRequiredValue(component, value, components);
@@ -179,6 +180,10 @@ function resolveSpecificMethodParameters(method, component, value, components, p
       parameters.values.value1 = component.attributes?.group ?
         getGroupSelectedValues(component, components).length :
         getSelectedValues(component).length;
+      return true;
+    case "maxRepeat":
+      parameters.values.value1 = countRepeatedValue(value, column);
+      // The limit is compared as it is written, as AngularJS does (an empty limit skips the rule)
       return true;
     case "dateRange":
       [parameters.values.from, parameters.values.to] = getSelectedValues(component);
@@ -194,9 +199,27 @@ function resolveSpecificMethodParameters(method, component, value, components, p
   }
 }
 
+/**
+ * Count the rows of a grid column that have the same value (the row of the value included), as AngularJS does:
+ * the values are compared strictly (no coercion, case or trimming), empty values included, and the cells with
+ * several values are arrays that never equal each other
+ * @param {*} value Value of the cell
+ * @param {object} [column] Grid column: its name, the rows of the grid and the cell
+ * @return {number|null} Number of rows with the value or null if it is not a cell of a grid
+ */
+function countRepeatedValue(value, column) {
+  if (!column) {
+    return null;
+  }
+  if (Array.isArray(column.cell)) {
+    return 0;
+  }
+  return column.rows.filter(row => extractCellValue(row?.[column.name]) === value).length;
+}
+
 const ValidationRules = {
-  validate: function (ruleMethod, rule, component, value, components, settings) {
-    let parameters = extractParameters(ruleMethod, rule, component, value, components, settings);
+  validate: function (ruleMethod, rule, component, value, components, settings, column) {
+    let parameters = extractParameters(ruleMethod, rule, component, value, components, settings, column);
     if (ruleMethod in ValidationRules) {
       return ValidationRules[ruleMethod](parameters, settings);
     } else {
@@ -309,6 +332,11 @@ const ValidationRules = {
     let passed = new RegExp(pattern).test(parameters.values.value1);
     return isEmpty(parameters.values.value1) || passed ? null : error;
   },
+  maxRepeat: function (parameters) {
+    let error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_MAX_REPEAT" };
+    let passed = parameters.values.value1 <= parameters.values.value2;
+    return isEmpty(parameters.values.value1) || isEmpty(parameters.values.value2) || passed ? null : error;
+  },
   checkAtLeast: function (parameters) {
     let error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_CHECK_AT_LEAST" };
     let passed = parameters.values.value1 >= parameters.values.value2;
@@ -323,14 +351,14 @@ const ValidationRules = {
   }
 };
 
-function checkIfValid(component, value, components, settings) {
+function checkIfValid(component, value, components, settings, column) {
   const { validate } = ValidationRules;
 
   // The end of a date range cannot be before its start
   const rules = isDateRange(component) ? { ...component?.validationRules, dateRange: true } : component?.validationRules;
 
   return Object.entries(rules || {})
-    .reduce((errorMessage, [ruleMethod, rule]) => errorMessage === null ? validate(ruleMethod, rule, component, value, components, settings) : errorMessage, null);
+    .reduce((errorMessage, [ruleMethod, rule]) => errorMessage === null ? validate(ruleMethod, rule, component, value, components, settings, column) : errorMessage, null);
 }
 
 /**
@@ -429,7 +457,7 @@ export function validateRow(state, address, settings) {
         const cellValue = values[rowIndex][column.name];
         const isMultiple = isMultipleComponent(column.component);
         const valid = !!((rowAttrs?.[column.name]?.error) ??
-          checkIfValid({ ...column, attributes: column }, extractCellValue(cellValue), mergedComponents, settings));
+          checkIfValid({ ...column, attributes: column }, extractCellValue(cellValue), mergedComponents, settings, { name: column.name, rows: values, cell: values[rowIndex][column.name] }));
         if (isMultiple && Array.isArray(cellValue)) {
           return cellValue;
         }
@@ -446,11 +474,17 @@ export function validateRow(state, address, settings) {
         [column.name]: {
           ...(rowAttrs?.[column.name] ?? {}),
           error: (rowAttrs?.[column.name]?.error) ??
-            checkIfValid({ ...column, attributes: (rowAttrs?.[column.name] ?? {}) }, extractCellValue(values[rowIndex][column.name]), mergedComponents, settings)
+            checkIfValid({ ...column, attributes: (rowAttrs?.[column.name] ?? {}) }, extractCellValue(values[rowIndex][column.name]), mergedComponents, settings, { name: column.name, rows: values, cell: values[rowIndex][column.name] })
         }
       }), {})
     },
   };
+
+  const updatedValues = [
+    ...values.slice(0, rowIndex),
+    updatedRow,
+    ...values.slice(rowIndex + 1)
+  ];
 
   if (useRegistry) {
     const base = ComponentRegistry.get(gridId);
@@ -458,11 +492,7 @@ export function validateRow(state, address, settings) {
       const currentFull = mergeComponentState(base, state[gridId] || {});
       currentFull.model = {
         ...currentFull.model,
-        values: [
-          ...values.slice(0, rowIndex),
-          updatedRow,
-          ...values.slice(rowIndex + 1)
-        ]
+        values: updatedValues
       };
       return {
         ...state,
@@ -478,11 +508,7 @@ export function validateRow(state, address, settings) {
       ...state[gridId],
       model: {
         ...state[gridId].model,
-        values: [
-          ...values.slice(0, rowIndex),
-          updatedRow,
-          ...values.slice(rowIndex + 1)
-        ]
+        values: updatedValues
       }
     }
   };

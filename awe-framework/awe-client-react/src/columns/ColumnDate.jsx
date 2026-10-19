@@ -1,6 +1,7 @@
 import React, {useCallback} from "react";
 import {Calendar} from "primereact/calendar";
 import {fromDate, toDate} from "../utilities/dates";
+import useDateOptions from "../hooks/useDateOptions";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
@@ -19,24 +20,26 @@ function ColumnDate(props) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+  const { format, language, calendarProps } = useDateOptions(props, cellValue, settings.language);
+
   const onChange = useCallback((e) => {
     if (cellValue !== e.value) {
-      dispatch(updateModelWithDependencies(address, { values: fromDate(e.value) }));
+      dispatch(updateModelWithDependencies(address, { values: fromDate(e.value, format, language) }));
     }
-  }, [data, address, dispatch]);
+  }, [data, address, dispatch, format, language]);
 
   const classes = classNames(style, cellStyle, "column-editor", { "p-invalid": error }, {"hidden": !visible});
 
   return (
     <Calendar
-      value={toDate(cellValue)}
+      value={toDate(cellValue, format, language)}
       placeholder={translateLabel(placeholder, t)}
       required={getFirstDefinedValue(cellRequired, required, false)}
       disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
       className={classes}
       inputStyle={{ textAlign: align || "center" }}
       showButtonBar
-      dateFormat="dd/mm/yy"
+      {...calendarProps}
       onChange={onChange}
       invalid={error}
       locale={settings.language}

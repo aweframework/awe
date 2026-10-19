@@ -188,6 +188,25 @@ class CriteriaTestsIT extends AbstractSessionTests {
 
     // Check time contents
     checkCriterionContents("TimReq", "12:23:41");
+
+    // The date-format is the one of the value shown and of the value sent
+    checkCriterionContents("CalFmt", "2024-03-15");
+    selectDay("CalFmt", 20);
+    checkCriterionContents("CalFmt", "2024-03-20");
+
+    // Month view with its own format
+    checkCriterionContents("CalMon", "03/2024");
+    selectMonth("CalMon", "May");
+    checkCriterionContents("CalMon", "05/2024");
+
+    // Weekends and future dates disabled: a past working day is accepted
+    checkCriterionContents("CalPas", "15/03/2024");
+    selectDay("CalPas", 14);
+    checkCriterionContents("CalPas", "14/03/2024");
+
+    // Password with the label on the left
+    writeText("Pwd", "secret");
+    checkCriterionContents("Pwd", "secret");
   }
 
   /**

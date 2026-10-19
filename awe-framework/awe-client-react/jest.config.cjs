@@ -58,6 +58,7 @@ module.exports = {
     '**/utilities/sparklineTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
+    '**/hooks/useDateOptionsTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',
     '**/redux/actions/advancedDependenciesTest.{js,jsx}',
     '**/redux/actions/dependenciesTest.{js,jsx}',
@@ -110,6 +111,7 @@ module.exports = {
     '**/components/AweGridEmptyStateTest.{js,jsx}',
     '**/components/AweGridWrapTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',
+    '**/components/ElementHelpTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'
   ],

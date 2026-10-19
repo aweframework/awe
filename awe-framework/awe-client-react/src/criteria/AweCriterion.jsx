@@ -9,12 +9,21 @@ import {TestIds, testHook} from "../utilities/testIds";
 import PropTypes from "prop-types";
 import {CriterionSkeleton} from "../components/AweSkeleton";
 
+// Pixels added to the width of a character by the size of the criterion
+const SIZE_CHAR_INCREMENT = {md: 1, lg: 3};
+
 const AweCriterion = ({children, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
                         generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field"}) => {
-  const {label, style, help, helpImage, icon, unit, size, error, visible, readonly} = attributes || {};
+  const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
   const {t} = useTranslation();
   const settings = useSelector(selectSettings);
+
+  // Label on the left: its width is the number of characters of the contract by the pixels of a character of the size
+  const leftChars = Number.parseInt(leftLabel, 10);
+  const hasLeftLabel = leftChars > 0;
+  const charSize = (settings.pixelsPerCharacter ?? 7) + (SIZE_CHAR_INCREMENT[size] ?? 0);
+  const labelWidth = hasLeftLabel ? {width: `${leftChars * charSize}px`} : {};
 
   const getHelpIcon = () => {
     if (help || helpImage) {
@@ -35,7 +44,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
             className={`block help-target-${address.component}`}
             data-pr-position="bottom"
             data-pr-at="left+6 bottom"
-            style={help || helpImage ? {cursor: "pointer"} : {}}
+            style={{...(help || helpImage ? {cursor: "pointer"} : {}), ...labelWidth}}
             data-pr-showdelay={settings.helpTimeout}
           >
             {getHelpIcon()}{translateLabel(label, t)}
@@ -43,7 +52,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
         </>
       );
     } else {
-      return <div className="block mb-2">&nbsp;</div>;
+      return <div className="block mb-2" style={labelWidth}>&nbsp;</div>;
     }
   };
 
@@ -82,12 +91,16 @@ const AweCriterion = ({children, address, attributes, validationRules,
     "p-disabled": readonly,
     "required": validationRules?.required,
     "col-12": !style,
+    "label-left": hasLeftLabel
   }, style);
 
   return (
     <div className={classes} criterion-id={address.component}>
       {generateLabel && getLabel()}
-      <div className={classNames(groupClass)} style={{position: "relative"}}>
+      {!generateLabel && getHelpTooltipNode(help, helpImage, t, `.help-target-${address.component}`)}
+      <div className={classNames(groupClass, {[`help-target-${address.component}`]: !generateLabel && (help || helpImage)})}
+           style={{position: "relative"}}
+           data-pr-position="bottom" data-pr-at="left+6 bottom" data-pr-showdelay={settings.helpTimeout}>
         {generateIcon && getIcon()}
         {children}
         {generateUnit && getUnit()}

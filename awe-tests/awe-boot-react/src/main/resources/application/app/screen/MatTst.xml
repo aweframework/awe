@@ -93,7 +93,7 @@
       </tabcontainer>
       <tabcontainer id="EdiMat">
         <grid id="GrdEdi" style="expand grid-bordered" editable="true" initial-load="query" server-action="data" target-action="QryEdiTst" max="10" show-totals="true" send-all="true">
-          <column label="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" component="text" charlength="14">
+          <column label="PARAMETER_TEXT" help="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" component="text" charlength="14">
             <dependency source-type="criteria-value" target-type="input" target-action="test">
               <dependency-element id="GrdEdi" column="Tar" attribute="selectedRowValue" alias="test" />
             </dependency>

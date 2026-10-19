@@ -256,6 +256,89 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
     });
   });
 
+  describe('maxRepeat', function() {
+    const repeatGrid = (codes, rule = {value: 2}) => ({
+      grid: {
+        address: {component: 'grid', view: 'base'},
+        attributes: {id: 'id', columnModel: [{name: 'code', component: 'text', validationRules: {maxRepeat: rule}}]},
+        model: {values: codes.map((code, index) => ({id: String(index + 1), code: {value: code}}))}
+      }
+    });
+    const check = (codes, row, rule) => {
+      const result = validateRow(repeatGrid(codes, rule), {component: 'grid', view: 'base', row}, {});
+      return result.grid.model.values[Number(row) - 1].$attrs.code.error;
+    };
+
+    it('should accept a value repeated up to the limit in its column', function() {
+      expect(check(['A', 'A', 'B'], '1')).toBeNull();
+    });
+
+    it('should flag a value repeated more times than the limit', function() {
+      const error = check(['A', 'A', 'A', 'B'], '1');
+      expect(error.message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+      expect(error.values.value2).toBe(2);
+    });
+
+    it('should count only the rows of the column that have the same value', function() {
+      expect(check(['A', 'A', 'A', 'B'], '4')).toBeNull();
+    });
+
+    it('should accept a limit written as a number', function() {
+      expect(check(['A', 'A'], '1', 1).message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+    });
+
+    it('should count the repeated empty values, as AngularJS does', function() {
+      expect(check(['', '', ''], '1').message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+      expect(check(['', 'A', 'B'], '1')).toBeNull();
+    });
+
+    it('should use its own message', function() {
+      expect(check(['A', 'A'], '1', {value: 1, message: 'MY_MESSAGE'}).message).toBe('MY_MESSAGE');
+    });
+
+    it('should read a limit written as a string', function() {
+      expect(check(['A', 'A', 'A'], '1', {value: '2'}).message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+      expect(check(['A', 'A'], '1', {value: '2'})).toBeNull();
+    });
+
+    it('should skip the rule when the limit is empty', function() {
+      expect(check(['A', 'A', 'A'], '1', {value: ''})).toBeNull();
+    });
+
+    it('should flag every value when the limit is not a number, as AngularJS does', function() {
+      expect(check(['A', 'B'], '1', {value: 'abc'}).message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+    });
+
+    it('should compare the values strictly, with no coercion, case or trimming', function() {
+      expect(check([1, '1', 1], '1')).toBeNull();
+      expect(check(['A', 'a', 'A '], '1', 1)).toBeNull();
+      expect(check([1, 1, 1], '1').message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+    });
+
+    it('should never flag the cells with several values, as AngularJS compares their arrays by reference', function() {
+      const multiple = (...selected) => selected.map(value => ({value, label: value, selected: true}));
+      const grid = {
+        grid: {
+          address: {component: 'grid', view: 'base'},
+          attributes: {id: 'id', columnModel: [{name: 'code', component: 'select-multiple', validationRules: {maxRepeat: 1}}]},
+          model: {values: [{id: '1', code: multiple('A', 'B')}, {id: '2', code: multiple('A', 'B')}]}
+        }
+      };
+      const result = validateRow(grid, {component: 'grid', view: 'base', row: '1'}, {});
+      expect(result.grid.model.values[0].$attrs.code.error).toBeNull();
+    });
+
+    it('should validate only the row that changes, leaving the other rows as they are', function() {
+      const staleError = {message: 'VALIDATOR_MESSAGE_MAX_REPEAT', values: {value1: 3, value2: 2}};
+      const state = repeatGrid(['A', 'A', 'A']);
+      state.grid.model.values[0] = {...state.grid.model.values[0], $attrs: {code: {error: staleError}}};
+      const result = validateRow(state, {component: 'grid', view: 'base', row: '3'}, {});
+      expect(result.grid.model.values[0].$attrs.code.error).toBe(staleError);
+      expect(result.grid.model.values[1].$attrs).toBeUndefined();
+      expect(result.grid.model.values[2].$attrs.code.error.message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
+    });
+  });
+
   // Email validation
   it('should launch a email validation OK', function() {
     testValidation("email", "test@awe.com", null);
