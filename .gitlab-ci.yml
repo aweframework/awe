@@ -58,7 +58,7 @@ default:
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
 
-image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
+image: maven:3.10.0-eclipse-temurin-21@sha256:d23342b1a070a07555f4ef20c085a81aa40e5f5b3288ebf8ddae2f67e9d760c8
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version -Dskip.lint=true"
@@ -530,7 +530,7 @@ Security · Secrets:
 
 .renovate-image:
   image:
-    name: ghcr.io/renovatebot/renovate:44@sha256:adad107c8eb9695a83619c1f84bcb75f93cde9a6d50b63824340dd4a0509597d   # major pin + digest; Renovate updates its own pin
+    name: ghcr.io/renovatebot/renovate:44@sha256:510b885a90cd70437816c5c2da1d0c3beff513d3979497b2db1d37c84adfbc2b   # major pin + digest; Renovate updates its own pin
     entrypoint: [""]
 
 # Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
@@ -1037,7 +1037,7 @@ Docs · Javadoc check:
 
 # Browser testing extension
 .browser-testing:
-  image: maven:3.10.0-eclipse-temurin-21@sha256:9b4877723dadf350b452dd97d9a6401e7b56f98fa9dfe420c32ad909989c7e4c
+  image: maven:3.10.0-eclipse-temurin-21@sha256:d23342b1a070a07555f4ef20c085a81aa40e5f5b3288ebf8ddae2f67e9d760c8
   stage: integration test
   # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
   # automerge and the release jobs that need Sonar. A flaky test is handled by the tests, not by the job (#766):
