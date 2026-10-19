@@ -12,6 +12,11 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
     const { parameters, target, address } = action;
     const { component } = address || {};
     const { serverAction, targetAction } = parameters;
+    // The target of the action loads until its response (fill, end-load...) arrives, as in the AngularJS client
+    const targetAddress = target ? { ...address, component: target } : null;
+    if (targetAddress) {
+      dispatch(updateAttributes(targetAddress, { loading: true }));
+    }
 
     try {
       const response = await fetchAction(
@@ -37,6 +42,11 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
       return true;
     } catch (error) {
       console.error("Error in server action call:", error);
+
+      // No response will end the load of the target
+      if (targetAddress) {
+        dispatch(updateAttributes(targetAddress, { loading: false }));
+      }
 
       // The action can ask to set some attributes on its component when the call fails (i.e. to try again)
       if (action.errorAttributes) {

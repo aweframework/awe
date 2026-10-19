@@ -105,13 +105,15 @@ export function chartHintOf(echartsModel) {
 }
 
 /**
- * Skeleton of a chart that is not drawn yet: the area of the chart with a hint of its type. It is not a loader test
- * hook: a chart in a hidden tab is only drawn when it is shown, and the chart hook already tells whether it is rendered
+ * Skeleton of a chart that is not drawn yet or that reloads its data: the area of the chart with a hint of its type. It is
+ * not a loader test hook: a chart in a hidden tab is only drawn when it is shown, and the chart hook already tells whether
+ * it is rendered
  * @category Components
  * @param {string} [hint] "bars" (default), "trend" or "pie"
+ * @param {boolean} [cover] The chart is drawn: the skeleton covers it (after the skeleton delay) while the new data loads
  * @returns {JSX.Element} Skeleton
  */
-export function ChartSkeleton({hint = "bars"}) {
+export function ChartSkeleton({hint = "bars", cover = false}) {
   let shapes;
   if (hint === "pie") {
     shapes = <Skeleton className="awe-skeleton-pie" shape="circle"/>;
@@ -120,9 +122,11 @@ export function ChartSkeleton({hint = "bars"}) {
   } else {
     shapes = BAR_HEIGHTS.map((height, index) => <Skeleton key={index} className="awe-skeleton-bar" height={`${height}%`}/>);
   }
-  return <div className={classNames("awe-skeleton-chart", `awe-skeleton-chart-${hint}`)} aria-hidden="true">{shapes}</div>;
+  return <div className={classNames("awe-skeleton-chart", `awe-skeleton-chart-${hint}`, {"awe-skeleton-chart-cover": cover})}
+              aria-hidden="true">{shapes}</div>;
 }
 
 ChartSkeleton.propTypes = {
-  hint: PropTypes.string
+  hint: PropTypes.string,
+  cover: PropTypes.bool
 };

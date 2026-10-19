@@ -41,6 +41,52 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       expect(update.data).toEqual({deferredLoaded: false});
     });
 
+    describe('loading of the target', () => {
+      const launcher = {view: 'report', component: 'ButSea'};
+      const target = {view: 'report', component: 'ChrLinTst'};
+      const updates = () => dispatch.mock.calls.map(([call]) => call).filter(call => call.type === 'UPDATE_ATTRIBUTES');
+      const launchOn = (actionTarget) => serverAction({
+        type: 'server', address: launcher, target: actionTarget,
+        parameters: {serverAction: 'data', targetAction: 'TstChrTwoSrc'}
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      it('marks the target of the action as loading before calling the server, as the AngularJS client does', async () => {
+        let updatesAtCall = null;
+        global.fetch.mockImplementation(() => {
+          updatesAtCall = updates().map(({address: updated, data}) => ({address: updated, data}));
+          return Promise.resolve({ok: true, json: () => Promise.resolve([])});
+        });
+
+        const result = await launchOn('ChrLinTst');
+
+        expect(result).toBe(true);
+        expect(updatesAtCall).toEqual([{address: target, data: {loading: true}}]);
+        // The response (fill, end-load) ends the load: the thunk does not end it on success
+        expect(updates()).toHaveLength(1);
+      });
+
+      it('ends the loading of the target when the call fails', async () => {
+        global.fetch.mockRejectedValue(new Error('network down'));
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        const result = await launchOn('ChrLinTst');
+
+        expect(result).toBe(false);
+        expect(updates().map(({address: updated, data}) => ({address: updated, data}))).toEqual([
+          {address: target, data: {loading: true}},
+          {address: target, data: {loading: false}}
+        ]);
+      });
+
+      it('marks nothing as loading when the action has no target', async () => {
+        global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([])});
+
+        await launchOn(undefined);
+
+        expect(updates()).toHaveLength(0);
+      });
+    });
+
     const address = {view: 'base', component: 'GrdTskVar'};
     // Editable send-all grid with a column named "value", like the scheduler launch variables dialog
     const grid = {

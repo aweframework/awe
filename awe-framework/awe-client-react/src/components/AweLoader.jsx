@@ -7,6 +7,8 @@ import "./AweSkeleton.less";
 
 const SPINNER = "spinner";
 const SKELETON = "skeleton";
+// Grid icon that dims the rows on a reload: anywhere else it is the skeleton
+const SKELETON_DIM = "skeleton-dim";
 const withCubeClass = (items) => items.map(item => `sk-cube ${item}`);
 
 /**
@@ -25,7 +27,7 @@ const CSS_LOADERS = {
   custom: []
 };
 
-export const LOADER_ICONS = [SPINNER, "none", "icon", SKELETON, ...Object.keys(CSS_LOADERS)];
+export const LOADER_ICONS = [SPINNER, "none", "icon", SKELETON, SKELETON_DIM, ...Object.keys(CSS_LOADERS)];
 
 /**
  * Component loading icon
@@ -39,7 +41,7 @@ function AweLoader({icon, rootProps = {}}) {
     return <ProgressSpinner pt={{root: rootProps}} />;
   }
 
-  if (icon === SKELETON) {
+  if (icon === SKELETON || icon === SKELETON_DIM) {
     return <div className="awe-loader awe-loader-skeleton" aria-hidden="true" {...rootProps}>
       <Skeleton width="100%" height="100%" />
     </div>;

@@ -14,7 +14,7 @@ import {isEmpty} from "../utilities/general";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
-import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, SKELETON} from "./AweGridSkeleton";
+import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, isSkeletonIcon} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -194,7 +194,7 @@ function AweTreeGrid(props) {
   const loadingIcon = getGridIconLoading(iconLoading, settings);
   // The skeleton replaces the rows in the body instead of masking them (see AweGrid)
   const reloading = isGridReloading(loading, loadingIcon, model?.values?.length);
-  const showSkeleton = loading && !reloading && loadingIcon === SKELETON;
+  const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
     emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows || settings.recordsPerPage} />;

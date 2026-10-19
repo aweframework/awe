@@ -8,6 +8,8 @@ import "./AweSkeleton.less";
 import "./AweGridSkeleton.less";
 
 export const SKELETON = "skeleton";
+// Skeleton on the first load and dimmed rows on a reload while the grid has rows
+export const SKELETON_DIM = "skeleton-dim";
 const MAX_SKELETON_ROWS = 10;
 
 /**
@@ -21,15 +23,25 @@ export function getGridIconLoading(iconLoading, settings = {}) {
 }
 
 /**
- * A grid that loads again while it has rows and the skeleton loader (the default one) shows them dimmed instead of the
- * skeleton: the rows stay where they are until the new data arrives. Any other loading icon keeps its icon
+ * Loading icon that draws the skeleton rows: skeleton (the default one, on every load) and skeleton-dim (on the first load)
+ * @param {string} [loadingIcon] Loading icon of the grid (see getGridIconLoading)
+ * @returns {boolean} True when the grid draws the skeleton rows
+ */
+export function isSkeletonIcon(loadingIcon) {
+  return loadingIcon === SKELETON || loadingIcon === SKELETON_DIM;
+}
+
+/**
+ * A grid with the skeleton-dim loader that loads again while it has rows shows them dimmed instead of the skeleton: the
+ * rows stay where they are until the new data arrives. The skeleton loader replaces them with the skeleton and any other
+ * loading icon keeps its icon
  * @param {boolean} loading The grid is loading
  * @param {string} [loadingIcon] Loading icon of the grid (see getGridIconLoading)
  * @param {number} rowCount Rows the grid has
  * @returns {boolean} True when the rows are shown dimmed
  */
 export function isGridReloading(loading, loadingIcon, rowCount) {
-  return !!loading && loadingIcon === SKELETON && rowCount > 0;
+  return !!loading && loadingIcon === SKELETON_DIM && rowCount > 0;
 }
 
 /**

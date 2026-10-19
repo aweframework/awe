@@ -83,7 +83,7 @@ function AweChart(props) {
   const {model = {values: []}, attributes = {}, address} = useComponentState(id);
   const dispatch = useDispatch();
   const {t, i18n} = useTranslation();
-  const {style, visible, chartOptions, xMin, xMax, yMin, yMax} = attributes;
+  const {style, visible, chartOptions, xMin, xMax, yMin, yMax, loading = false} = attributes;
   const echartsModel = useStable(attributes.echartsModel);
   const values = useStable(model.values);
 
@@ -228,7 +228,7 @@ function AweChart(props) {
   return <div className={classes} id={id} ref={containerRef}
     {...testHook(TestIds.chart, {rendered, zoomed, attributes: {"chart-id": id}})}>
     <div ref={chartElementRef} style={{position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}/>
-    {!rendered && visible !== false && <ChartSkeleton hint={chartHintOf(echartsModel)}/>}
+    {(!rendered || loading) && visible !== false && <ChartSkeleton hint={chartHintOf(echartsModel)} cover={rendered}/>}
   </div>;
 }
 

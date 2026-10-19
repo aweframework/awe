@@ -16,6 +16,9 @@ aweApplication.directive('aweLoader',
       let TEMPLATE_LOADING = "--LOADING--";
       // The skeleton is drawn by the client: a block placeholder over the component that is loading
       const SKELETON = "skeleton";
+      // The grid icon that dims the rows on a reload: anywhere else it is the skeleton
+      const SKELETON_DIM = "skeleton-dim";
+      const isSkeletonIcon = icon => icon === SKELETON || icon === SKELETON_DIM;
       const SKELETON_TEMPLATE = `<div class="skeleton-block"><span class="skeleton-bar"></span></div>`;
       // Skeleton kinds: the loader draws the shape of the component (a field, a box with its label, a button, a chart)
       const RELOAD = "reload";
@@ -30,7 +33,7 @@ aweApplication.directive('aweLoader',
        * @param {String} icon Loading icon
        * @return {boolean} Default loading icon
        */
-      const isDefaultIcon = icon => !icon || icon === "spinner" || icon === SKELETON;
+      const isDefaultIcon = icon => !icon || icon === "spinner" || isSkeletonIcon(icon);
 
       /**
        * Get the type of the chart the loader belongs to
@@ -157,7 +160,7 @@ aweApplication.directive('aweLoader',
            */
           function initLoader(iconLoader) {
             const kind = attrs.skeleton;
-            if (kind === RELOAD && iconLoader === SKELETON) {
+            if (kind === RELOAD && isSkeletonIcon(iconLoader)) {
               showReload();
               initWatch();
               return;
@@ -167,7 +170,7 @@ aweApplication.directive('aweLoader',
               initWatch();
               return;
             }
-            if (iconLoader === SKELETON) {
+            if (isSkeletonIcon(iconLoader)) {
               elem.addClass("skeleton-loader");
               compileTemplate(SKELETON_TEMPLATE);
               initWatch();

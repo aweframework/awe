@@ -147,9 +147,32 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
     });
   });
 
-  it("keeps the page of a client-side paginated grid while its rows are dimmed on reload", () => {
+  it("keeps the page of a client-side paginated grid while the skeleton replaces its rows on reload", () => {
     const many = Array.from({length: 25}, (_, index) => ({id: `r${index}`, name: `Row ${index}`, age: index}));
     const state = gridState({loadAll: true, max: 10, iconLoading: "skeleton"}, {values: many});
+    state.components.Grd.model.records = 25;
+    state.components.Grd.specificAttributes = {sort: [], first: 10, rows: 10};
+    const {container, store, dispatchSpy} = renderWithProviders(<AweGrid id="Grd"/>, {preloadedState: state, spyDispatch: true});
+
+    act(() => {
+      store.dispatch(updateAttributes({component: "Grd", view: "report"}, {loading: true}));
+    });
+
+    expect(container.querySelector(`${hook("grid-loader")} .grid-skeleton-row`)).not.toBeNull();
+    expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
+    expect(JSON.stringify(dispatchSpy.mock.calls)).not.toContain("change-page");
+
+    act(() => {
+      store.dispatch(updateAttributes({component: "Grd", view: "report"}, {loading: false}));
+    });
+
+    expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
+    expect(container.querySelector(hook("grid-cell")).textContent).toContain("Row 10");
+  });
+
+  it("keeps the page of a client-side paginated grid while its rows are dimmed on reload", () => {
+    const many = Array.from({length: 25}, (_, index) => ({id: `r${index}`, name: `Row ${index}`, age: index}));
+    const state = gridState({loadAll: true, max: 10, iconLoading: "skeleton-dim"}, {values: many});
     state.components.Grd.model.records = 25;
     state.components.Grd.specificAttributes = {sort: [], first: 10, rows: 10};
     const {container, store, dispatchSpy} = renderWithProviders(<AweGrid id="Grd"/>, {preloadedState: state, spyDispatch: true});
@@ -164,8 +187,16 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
   });
 
   describe("loader", () => {
-    it("offers the skeleton loading icon", () => {
+    it("offers the skeleton loading icons", () => {
       expect(LOADER_ICONS).toContain("skeleton");
+      expect(LOADER_ICONS).toContain("skeleton-dim");
+    });
+
+    it("renders a block skeleton for skeleton-dim outside the grids", () => {
+      const {container} = render(<AweLoader icon="skeleton-dim" rootProps={{"data-testid": "loader"}}/>);
+
+      expect(container.querySelector(`${hook("loader")} .p-skeleton`)).not.toBeNull();
+      expect(container.querySelector(".p-progress-spinner")).toBeNull();
     });
 
     it("renders a block skeleton hidden from assistive technologies", () => {

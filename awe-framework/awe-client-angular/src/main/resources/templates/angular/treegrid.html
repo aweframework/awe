@@ -20,7 +20,7 @@
       <div ng-transclude></div>
     </div>
   </div>
-  <awe-loader class="loader grid-loader" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && iconLoader !== 'skeleton'" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
-  <awe-grid-skeleton class="grid-skeleton" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && iconLoader === 'skeleton' && !model.values.length" ng-cloak></awe-grid-skeleton>
-  <awe-loader class="loader grid-loader" skeleton="reload" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && iconLoader === 'skeleton' && model.values.length" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader grid-loader" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && !skeletonLoader" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-grid-skeleton class="grid-skeleton" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && skeletonLoader && !(dimReload && model.values.length)" ng-cloak></awe-grid-skeleton>
+  <awe-loader class="loader grid-loader" skeleton="reload" data-testid="grid-loader" ng-if="controller.loading && !component.isLoadingBranch && dimReload && model.values.length" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>

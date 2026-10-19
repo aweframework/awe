@@ -60,10 +60,38 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonShapesTest.jsx", ()
     const renderGrid = (attributes, options = {}) =>
       renderWithProviders(<Component id="Grd"/>, {preloadedState: gridState(attributes, {tree, ...options})});
 
-    describe("reload with rows and the default loader", () => {
+    describe("reload with rows and the default loader (skeleton)", () => {
       it.each([
         ["the application default", {}, {}],
-        ["an explicit skeleton icon", {iconLoading: "skeleton"}, {settings: {gridIconLoading: "spinner"}}]
+        ["an explicit skeleton icon", {iconLoading: "skeleton"}, {settings: {gridIconLoading: "skeleton-dim"}}]
+      ])("replaces the rows with the skeleton with %s", (_case, attributes, options) => {
+        const {container} = renderGrid({loading: true, ...attributes}, {values: rows, ...options});
+
+        const grid = container.querySelector(".grid-container");
+        expect(grid.classList.contains("grid-reloading")).toBe(false);
+        expect(grid.getAttribute("aria-busy")).toBe("true");
+        expect(container.querySelector(".p-progress-spinner")).toBeNull();
+        expect(container.querySelector(`${hook("grid-loader")} .grid-skeleton-row`)).not.toBeNull();
+        expect(container.querySelectorAll(hook("grid-cell")).length).toBe(0);
+      });
+
+      it("shows the new rows when the data arrives", () => {
+        const {container, store} = renderGrid({loading: true}, {values: rows});
+
+        act(() => {
+          store.dispatch(updateAttributes({component: "Grd", view: "report"}, {loading: false}));
+        });
+
+        expect(container.querySelector(hook("grid-loader"))).toBeNull();
+        expect(container.querySelector(".grid-skeleton")).toBeNull();
+        expect(container.querySelectorAll(hook("grid-cell")).length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("reload with rows and icon-loading skeleton-dim", () => {
+      it.each([
+        ["the grid icon-loading", {iconLoading: "skeleton-dim"}, {}],
+        ["the application default", {}, {settings: {gridIconLoading: "skeleton-dim"}}]
       ])("dims the rows instead of drawing the skeleton with %s", (_case, attributes, options) => {
         const {container} = renderGrid({loading: true, ...attributes}, {values: rows, ...options});
 
@@ -78,7 +106,7 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonShapesTest.jsx", ()
       });
 
       it("keeps the loading hook while the rows are dimmed", () => {
-        const {container} = renderGrid({loading: true}, {values: rows});
+        const {container} = renderGrid({loading: true, iconLoading: "skeleton-dim"}, {values: rows});
 
         const loader = container.querySelector(hook("grid-loader"));
         expect(loader).not.toBeNull();
@@ -87,7 +115,7 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonShapesTest.jsx", ()
       });
 
       it("stops dimming when the data arrives", () => {
-        const {container, store} = renderGrid({loading: true}, {values: rows});
+        const {container, store} = renderGrid({loading: true, iconLoading: "skeleton-dim"}, {values: rows});
         expect(container.querySelector(".grid-reloading")).not.toBeNull();
 
         act(() => {
@@ -100,13 +128,13 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonShapesTest.jsx", ()
       });
 
       it("does not dim a grid that is not loading", () => {
-        const {container} = renderGrid({}, {values: rows});
+        const {container} = renderGrid({iconLoading: "skeleton-dim"}, {values: rows});
 
         expect(container.querySelector(".grid-reloading")).toBeNull();
       });
 
       it("keeps the skeleton for the first load, when there are no rows to dim", () => {
-        const {container} = renderGrid({loading: true});
+        const {container} = renderGrid({loading: true, iconLoading: "skeleton-dim"});
 
         expect(container.querySelector(".grid-reloading")).toBeNull();
         expect(container.querySelector(`${hook("grid-loader")} .grid-skeleton-row`)).not.toBeNull();

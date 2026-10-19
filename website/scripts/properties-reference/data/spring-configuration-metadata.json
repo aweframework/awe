@@ -45,7 +45,7 @@
     {
       "name": "awe.application.component.grid-icon-loading",
       "type": "java.lang.String",
-      "description": "Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns) or any other icon-loading value (spinner, dots...) Default value skeleton",
+      "description": "Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns on every load), skeleton-dim (placeholder rows on the first load, dimmed rows on a reload) or any other icon-loading value (spinner, dots...) Default value skeleton",
       "defaultValue": "skeleton"
     },
     {
