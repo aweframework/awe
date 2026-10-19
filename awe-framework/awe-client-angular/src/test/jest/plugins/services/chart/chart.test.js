@@ -1,451 +1,453 @@
+import fs from "fs";
+import path from "path";
 import "../../../../../main/resources/js/awe/app";
-import "../../../../../main/resources/webpack/locals-en-GB.config";
-import "../../../../../main/resources/webpack/locals-es-ES.config";
 import {DefaultSettings} from "../../../../../main/resources/js/awe/data/options";
-import Highcharts from "highcharts/highstock";
+import {TestAttributes, TestIds} from "../../../../../main/resources/js/awe/data/testIds";
 
-describe("Chart", () => {
-  let Chart;
+const TEMPLATE = fs.readFileSync(path.join(__dirname, "..", "..", "..", "..", "..", "main", "resources", "templates",
+  "angular", "chart.html"), "utf8");
+
+const LINE_MODEL = {
+  title: {text: "TITLE"},
+  legend: {show: true},
+  xAxis: [{type: "value", awe: {axis: "x"}}],
+  yAxis: [{type: "value", awe: {axis: "y"}}],
+  dataZoom: [{type: "inside", xAxisIndex: 0}],
+  series: [{id: "serie1", name: "Serie 1", type: "line", awe: {type: "line", xValue: "x", yValue: "y"}}]
+};
+
+// Inverted chart (horizontal bars): the AWE x axis is the vertical one, the points are drawn as [y, x]
+const INVERTED_MODEL = {
+  xAxis: [{type: "value", awe: {axis: "y"}}],
+  yAxis: [{type: "value", awe: {axis: "x"}}],
+  dataZoom: [{type: "inside", yAxisIndex: 0}],
+  series: [{id: "serie1", name: "Serie 1", type: "bar", awe: {type: "bar", xValue: "x", yValue: "y"}}],
+  awe: {inverted: true}
+};
+
+const PIE_MODEL = {
+  series: [{id: "themes", name: "Themes", type: "pie", awe: {type: "pie", xValue: "name", yValue: "amount", drilldown: "detail"}}],
+  awe: {
+    chartType: "pie",
+    drilldown: {series: [{id: "detail", name: "Detail", type: "pie", awe: {type: "pie", xValue: "name", yValue: "detail"}}]}
+  }
+};
+
+const ROWS = [{x: 1, y: 10}, {x: 2, y: 20}, {x: 3, y: 30}, {x: 4, y: 40}, {x: 5, y: 50}];
+const PIE_ROWS = [{name: "North", amount: 10, detail: 2}, {name: "South", amount: 15, detail: 3}];
+const flush = () => new Promise(resolve => setTimeout(resolve, 50));
+const copy = (value) => JSON.parse(JSON.stringify(value));
+
+describe("Chart (ECharts)", () => {
   let $compile;
-  let $httpBackend;
-  let utilities;
-  let chartEvents;
-  let control;
-  let settings;
   let $rootScope;
+  let $templateCache;
+  let serverData;
+  let settings;
+  let control;
+  let chartEvents;
+  let controller;
+  let currentSettings;
+  let rows;
 
   beforeEach(() => {
+    // jsdom has no canvas, which ECharts uses to measure the texts
+    jest.spyOn(window.HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({
+      font: "",
+      measureText: (text) => ({width: String(text).length * 7})
+    }));
+    controller = {echartsModel: copy(LINE_MODEL)};
+    rows = copy(ROWS);
+    currentSettings = {language: "en-GB", chartOptions: {limitPointsSerie: 1000000}};
     chartEvents = {mapActions: jest.fn()};
-    control = {getAddressApi: jest.fn(() => ({})), getAddressModel: jest.fn(() => ({selected: {x: 1, y: 2}})), restoreInitialModelAttribute: jest.fn()};
+    control = {
+      getAddressApi: jest.fn(() => ({})),
+      getAddressModel: jest.fn(() => ({selected: {}})),
+      restoreInitialModelAttribute: jest.fn()
+    };
     function ComponentMock(scope, id) {
-      return {address: {view: "base", component: id}, asComponent: jest.fn(() => true), attributeMethods: {}, getMax: jest.fn(() => 3), id, listeners: {}, model: {selected: {}, values: [], zoom: {}}, scope, showContextMenu: jest.fn(), storeEvent: jest.fn()};
+      const component = {
+        address: {view: "base", component: id}, attributeMethods: {}, controller, id, listeners: {},
+        model: {selected: {}, values: rows, zoom: {}}, scope,
+        asComponent: jest.fn(() => true), getMax: jest.fn(() => 6), showContextMenu: jest.fn(),
+        hideContextMenu: jest.fn(), storeEvent: jest.fn()
+      };
+      scope.component = component;
+      scope.controller = controller;
+      return component;
     }
 
     angular.mock.module("aweApplication", {ChartEvents: chartEvents, Component: ComponentMock, Control: control});
-    inject(["$compile", "$httpBackend", "$injector", "$rootScope", (_$compile_, _$httpBackend_, $injector, _$rootScope_) => {
-      $compile = _$compile_;
-      $httpBackend = _$httpBackend_;
-      $rootScope = _$rootScope_;
-      Chart = $injector.get("Chart");
-      utilities = $injector.get("AweUtilities");
-      settings = $injector.get("AweSettings");
-      jest.spyOn(utilities, "defineModelChangeListeners").mockImplementation(() => null);
-      jest.spyOn(utilities, "timeout").mockImplementation(fn => fn());
-      utilities.timeout.cancel = jest.fn();
-      $httpBackend.when("POST", "settings").respond(DefaultSettings);
-    }]);
+    inject(["$compile", "$httpBackend", "$injector", "$rootScope", "$templateCache",
+      (_$compile_, $httpBackend, $injector, _$rootScope_, _$templateCache_) => {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        $templateCache = _$templateCache_;
+        serverData = $injector.get("ServerData");
+        settings = $injector.get("AweSettings");
+        jest.spyOn(settings, "get").mockImplementation(key => currentSettings[key]);
+        jest.spyOn($injector.get("AweUtilities"), "isVisible").mockReturnValue(true);
+        $httpBackend.when("POST", "settings").respond(DefaultSettings);
+      }]);
+    document.body.style.backgroundColor = "";
   });
 
-  function buildDirectiveScope(chartOptions) {
-    const scope = $rootScope.$new();
-    scope.chartOptions = chartOptions;
-    scope.component = {
-      chart: {container: {bind: jest.fn()}, id: "ChartWrapper"},
-      initialized: false,
-      initializeModel: jest.fn(),
-      model: {values: []},
-      onClick: jest.fn(),
-      onRedraw: jest.fn(),
-      onZoom: jest.fn(),
-      translateLabels: jest.fn()
-    };
-    return scope;
+  // jsdom has no layout: the chart element measures what the test says
+  let chartSize;
+  const measured = (node, side) => node.classList?.contains("chart-container") ? chartSize[side] : 0;
+  beforeEach(() => {
+    chartSize = {width: 600, height: 300};
+    jest.spyOn(window.HTMLElement.prototype, "clientWidth", "get").mockImplementation(function () {
+      return measured(this, "width");
+    });
+    jest.spyOn(window.HTMLElement.prototype, "clientHeight", "get").mockImplementation(function () {
+      return measured(this, "height");
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  /**
+   * Compile the chart directive (template and ECharts plugin) as a screen does
+   */
+  function compileChart({model, values} = {}) {
+    if (model) {
+      controller.echartsModel = copy(model);
+    }
+    if (values) {
+      rows = values;
+    }
+    $templateCache.put(serverData.getAngularTemplateUrl("chart"), TEMPLATE);
+    const element = $compile('<awe-chart chart-id="chr"></awe-chart>')($rootScope.$new());
+    document.body.appendChild(element[0]);
+    $rootScope.$digest();
+    const scope = element.isolateScope();
+    const component = scope.component;
+    return {element, component, chart: component.chartInstance, scope};
   }
 
-  function buildChartOptions(theme) {
-    return {
-      chart: {type: "line"},
-      series: [{data: [1, 2, 3]}],
-      theme,
-      title: {text: "TITLE"},
-      xAxis: [{}],
-      yAxis: [{}]
-    };
-  }
+  const seriesData = (chart, index = 0) => chart.getOption().series[index].data;
+  const texts = (chart) => (chart.getOption().graphic || []).flatMap(graphic => graphic.elements || [])
+    .map(element => element.style?.text);
 
-  function setElementSize(element, width, height) {
-    Object.defineProperty(element[0], "clientWidth", {configurable: true, get: () => width});
-    Object.defineProperty(element[0], "clientHeight", {configurable: true, get: () => height});
-  }
+  it("draws the server echartsModel with the component values as an SVG chart", () => {
+    const {element, chart} = compileChart();
 
-  function initializedChart(chartModel = {}) {
-    const component = new Chart($rootScope.$new(), "chartId", {bind: jest.fn()});
-    component.controller = {chartModel};
-    component.asChart();
-    component.chartInstance = {get: jest.fn(() => ({addPoint: jest.fn(), setData: jest.fn()})), redraw: jest.fn(), series: [], xAxis: [{setExtremes: jest.fn()}], yAxis: [{setExtremes: jest.fn()}], zoomOut: jest.fn()};
-    return component;
-  }
-
-  it("changes zoom only when controller parameters include chartOptions.zoom", () => {
-    const component = initializedChart({});
-    jest.spyOn(component, "changeZoom");
-
-    component.checkParametersChanged({chartOptions: {}});
-    component.checkParametersChanged({chartOptions: {zoom: {x: {min: 1, max: 2}}}});
-
-    expect(component.changeZoom).toHaveBeenCalledTimes(1);
-    expect(component.changeZoom).toHaveBeenCalledWith({x: {min: 1, max: 2}});
+    expect(element[0].querySelector(".chart-container svg")).not.toBeNull();
+    expect(chart.getOption().title[0].text).toBe("TITLE");
+    expect(seriesData(chart)).toEqual([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]]);
   });
 
-  it("adds points to each addressed chart series and redraws once", () => {
-    const serie1 = {addPoint: jest.fn()};
-    const serie2 = {addPoint: jest.fn()};
-    const component = initializedChart({series: [{id: "serie1", xValue: "x", yValue: "y"}, {id: "serie2", xValue: "x", yValue: "y", zValue: "z"}]});
-    component.chartInstance.get.mockImplementation(id => id === "serie1" ? serie1 : serie2);
+  it("exposes the browser test hooks: chart-id, data-testid, data-rendered and data-zoomed", async () => {
+    const {element, chart, component} = compileChart();
+    const root = element[0];
 
-    component.addPoints([{x: 10, y: 20, z: 30}]);
+    expect(root.getAttribute("chart-id")).toBe("chr");
+    expect(root.getAttribute(TestAttributes.testId)).toBe(TestIds.chart);
+    expect(root.getAttribute(TestAttributes.zoomed)).toBe("false");
 
-    expect(component.model.values).toEqual([{x: 10, y: 20, z: 30}]);
-    expect(serie1.addPoint).toHaveBeenCalledWith([10, 20], false, false);
-    expect(serie2.addPoint).toHaveBeenCalledWith([10, 20, 30], false, false);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
+    await flush();
+    $rootScope.$digest();
+    expect(root.getAttribute(TestAttributes.rendered)).toBe("true");
+
+    chart.dispatchAction({type: "dataZoom", dataZoomIndex: 0, startValue: 2, endValue: 4});
+    $rootScope.$digest();
+    expect(component.isZoomed()).toBe(true);
+    expect(root.getAttribute(TestAttributes.zoomed)).toBe("true");
   });
 
-  it("updates axis extremes and resets zoom when requested extremes are null", () => {
-    const xAxis = {setExtremes: jest.fn()};
-    const yAxis = {setExtremes: jest.fn()};
-    const component = initializedChart({});
-    component.model.zoom = {x: {min: 1, max: 5}, y: {min: 2, max: 4}};
-    component.chartInstance.xAxis = [xAxis];
-    component.chartInstance.yAxis = [yAxis];
+  it("stores the clicked point and raises the click event", () => {
+    const {chart, component} = compileChart();
 
-    component.changeZoom({x: {min: 3, max: 8}, y: {min: null, max: null}});
+    chart.trigger("click", {componentType: "series", seriesId: "serie1", value: [3, 30]});
 
-    expect(xAxis.setExtremes).toHaveBeenCalledWith(3, 8);
-    expect(yAxis.setExtremes).toHaveBeenCalledWith(null, null);
-    expect(component.chartInstance.zoomOut).toHaveBeenCalledTimes(1);
-    expect(component.model.zoom).toEqual({x: {min: 3, max: 8}, y: {min: null, max: null}});
+    expect(component.model.selected).toEqual({x: 3, y: 30});
+    expect(component.getAttribute("x")).toBe(3);
+    expect(component.getAttribute("y")).toBe(30);
+    expect(component.storeEvent).toHaveBeenCalledWith("click");
   });
 
-  it("replaces, adds, removes, and resets series before redrawing the chart", () => {
-    const component = initializedChart({series: [{id: "serie1"}, {name: "serie2"}]});
-    const oldSeries = [{remove: jest.fn()}, {remove: jest.fn()}];
-    const serie1 = {remove: jest.fn(), setData: jest.fn()};
-    const serie2 = {setData: jest.fn()};
-    component.chartInstance.series = oldSeries;
-    component.chartInstance.addSeries = jest.fn();
-    component.chartInstance.get.mockImplementation(id => ({serie1, serie2}[id] || null));
+  it("stores the double clicked point and raises the double-click event", () => {
+    const {chart, component} = compileChart();
 
-    component.addSeries([{id: "new1"}, {id: "new2"}]);
-    component.replaceSeries([{id: "replacement"}]);
-    component.removeSeries([{id: "serie1"}, {id: "missing"}]);
-    component.resetChart();
+    chart.trigger("dblclick", {componentType: "series", seriesId: "serie1", value: [4, 40]});
 
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "new1"}, false, true);
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "new2"}, false, true);
-    expect(oldSeries[1].remove).toHaveBeenCalledWith(false);
-    expect(oldSeries[0].remove).toHaveBeenCalledWith(false);
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "replacement"}, false, true);
-    expect(serie1.remove).toHaveBeenCalledWith(false);
-    expect(serie1.setData).toHaveBeenCalledWith([], false, true);
-    expect(serie2.setData).toHaveBeenCalledWith([], false, true);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(4);
+    expect(component.model.selected).toEqual({x: 4, y: 40});
+    expect(component.storeEvent).toHaveBeenCalledWith("double-click");
   });
 
-  it("initializes series and drilldown data from model rows without mutating unrelated fields", () => {
-    const chartModel = {
-      series: [{id: "serie1", xValue: "name", yValue: "amount"}],
-      drilldown: {series: [{id: "drill1", xValue: "name", yValue: "detail", drilldown: "children"}]},
-      plotOptions: {pie: {allowPointSelect: true}}
-    };
-    const component = initializedChart(chartModel);
-    component.model.values = [
-      {name: "North", amount: 10, detail: 2, ignored: "metadata"},
-      {name: "South", amount: 15, detail: 3}
-    ];
+  it("stores the point of the context menu, raises the context-menu event and cancels the browser menu", () => {
+    const {chart, component} = compileChart({model: PIE_MODEL, values: copy(PIE_ROWS)});
+    const nativeEvent = {preventDefault: jest.fn()};
 
-    component.initializeModel(chartModel);
+    chart.trigger("contextmenu", {componentType: "series", seriesId: "themes", name: "South", value: 15,
+      event: {event: nativeEvent}});
 
-    expect(chartModel.series[0].data).toEqual([["North", 10], ["South", 15]]);
-    expect(chartModel.drilldown.series[0].data).toEqual([
-      {name: "North", y: 2, drilldown: "children"},
-      {name: "South", y: 3, drilldown: "children"}
-    ]);
-    expect(chartModel.plotOptions.pie.allowPointSelect).toBe(false);
-    expect(component.model.selected).toEqual({});
-    expect(component.model.zoom).toEqual({});
+    expect(component.model.selected).toEqual({x: "South", y: 15});
+    expect(component.storeEvent).toHaveBeenCalledWith("context-menu");
+    expect(nativeEvent.preventDefault).toHaveBeenCalled();
   });
 
-  it("updates initialized chart series from new model values and redraws when under the configured limit", () => {
-    const chartModel = {series: [{id: "serie1", xValue: "x", yValue: "y"}], plotOptions: {}};
-    const chartSerie = {setData: jest.fn()};
-    const component = initializedChart(chartModel);
-    component.initialized = true;
-    component.chartInstance.get.mockReturnValue(chartSerie);
-    component.chartInstance.hasData = jest.fn(() => true);
-    component.chartInstance.hideNoData = jest.fn();
-    component.chartInstance.showNoData = jest.fn();
-    component.chartInstance.options = {lang: {tooMuchData: "Too much data"}};
-    jest.spyOn(settings, "get").mockImplementation(key => key === "chartOptions" ? {limitPointsSerie: 5} : undefined);
+  it("opens the drilldown series on click and goes back with the back control", () => {
+    const {chart, component} = compileChart({model: PIE_MODEL, values: copy(PIE_ROWS)});
 
-    component.updateModel([{x: 1, y: 2}, {x: 3, y: 4}]);
-
-    expect(component.model.values).toEqual([{x: 1, y: 2}, {x: 3, y: 4}]);
-    expect(chartSerie.setData).toHaveBeenCalledWith([[1, 2], [3, 4]], false, true);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
-    expect(component.chartInstance.showNoData).not.toHaveBeenCalled();
-  });
-
-  it("stores click, double-click, context-menu, and zoom selections as chart model events", () => {
-    const component = initializedChart({});
-    const contextEvent = {type: "contextmenu"};
-    const point = {x: "A", y: 9};
-
-    component.onClick.call(point);
-    component.onDblClick({}, {x: "B", y: 12});
-    component.onContextMenu(contextEvent, {x: "C", y: 15});
-    component.onZoom({xAxis: [{min: 1, max: 7}], yAxis: [{min: 2, max: 8}]});
+    chart.trigger("click", {componentType: "series", seriesId: "themes", name: "North", value: 10});
 
     expect(component.storeEvent).toHaveBeenCalledWith("click");
-    expect(component.storeEvent).toHaveBeenCalledWith("double-click");
-    expect(component.storeEvent).toHaveBeenCalledWith("context-menu");
-    expect(component.showContextMenu).toHaveBeenCalledWith(contextEvent);
-    expect(component.model.selected).toEqual({x: "C", y: 15});
-    expect(component.model.zoom).toEqual({y: {min: 2, max: 8}, x: {min: 1, max: 7}});
+    expect(component.chartInstance.getOption().series[0].id).toBe("detail");
+    expect(seriesData(component.chartInstance)).toEqual([{name: "North", value: 2}, {name: "South", value: 3}]);
+    expect(texts(component.chartInstance)).toContain("Back to Themes");
+
+    component.drillUp();
+
+    expect(component.chartInstance.getOption().series[0].id).toBe("themes");
+    expect(texts(component.chartInstance)).not.toContain("Back to Themes");
+  });
+
+  it("stores the zoom of the user in xMin, xMax, yMin and yMax and raises the zoom event", () => {
+    const {chart, component} = compileChart();
+
+    chart.dispatchAction({type: "dataZoom", dataZoomIndex: 0, startValue: 2, endValue: 4});
+
     expect(component.storeEvent).toHaveBeenCalledWith("zoom");
+    expect(component.getAttribute("xMin")).toBe(2);
+    expect(component.getAttribute("xMax")).toBe(4);
+    expect(component.getAttribute("yMin")).toBeNull();
+    expect(component.getAttribute("yMax")).toBeNull();
   });
 
-  it("exposes selected point and printable SVG data through the chart address api", () => {
-    const api = {};
-    const component = initializedChart({});
-    component.chartInstance.getSVG = jest.fn(() => "<svg></svg>");
-    control.getAddressApi.mockReturnValue(api);
-    control.getAddressModel.mockReturnValue({selected: {x: 21, y: 34}});
+  it("zooms to the chart-options of a dependency (JSON text) without raising the zoom event", () => {
+    const {component} = compileChart();
 
-    component.asChart();
+    component.checkParametersChanged({chartOptions: JSON.stringify({zoom: {x: {min: 2, max: 3}}})});
 
-    expect(api.getData()).toEqual({"chartId.x": 21, "chartId.y": 34});
-    expect(api.getPrintData("LANDSCAPE")).toEqual({chartId: {image: "<svg></svg>"}});
-    expect(component.chartInstance.getSVG).toHaveBeenCalledWith({chart: {width: 1167, height: 360}});
+    const dataZoom = component.chartInstance.getOption().dataZoom[0];
+    expect([dataZoom.startValue, dataZoom.endValue]).toEqual([2, 3]);
+    expect(component.getAttribute("xMin")).toBe(2);
+    expect(component.getAttribute("xMax")).toBe(3);
+    expect(component.storeEvent).not.toHaveBeenCalled();
+
+    component.checkParametersChanged({chartOptions: {zoom: {x: {min: null, max: null}}}});
+
+    const reset = component.chartInstance.getOption().dataZoom[0];
+    expect([reset.start, reset.end]).toEqual([0, 100]);
+    expect(component.isZoomed()).toBe(false);
   });
 
-  it("creates stock charts and keeps the wrapper separate from the Highcharts instance", () => {
-    const chartOptions = buildChartOptions("dark-unica");
-    const chartInstance = {destroy: jest.fn(), redraw: jest.fn()};
-    const scope = buildDirectiveScope({...chartOptions, stockChart: true});
+  it("reads the AWE x and y of the points and the zoom of an inverted chart", () => {
+    const {chart, component} = compileChart({model: INVERTED_MODEL});
 
-    jest.spyOn(utilities, "isVisible").mockReturnValue(false);
-    jest.spyOn(Highcharts, "stockChart").mockReturnValue(chartInstance);
-    jest.spyOn(Highcharts, "chart");
+    chart.trigger("click", {componentType: "series", seriesId: "serie1", value: [30, 3]});
+    chart.dispatchAction({type: "dataZoom", dataZoomIndex: 0, startValue: 2, endValue: 4});
 
-    $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
-    scope.$digest();
-
-    expect(Highcharts.stockChart).toHaveBeenCalledTimes(1);
-    expect(Highcharts.chart).not.toHaveBeenCalled();
-    expect(scope.component.chart.id).toBe("ChartWrapper");
-    expect(scope.component.chartInstance).toBe(chartInstance);
-    expect(scope.component.initializeModel).toHaveBeenCalledWith(expect.objectContaining({stockChart: true}), expect.any(Object));
+    expect(component.model.selected).toEqual({x: 3, y: 30});
+    expect(component.getAttribute("xMin")).toBe(2);
+    expect(component.getAttribute("xMax")).toBe(4);
+    expect(component.getAttribute("yMin")).toBeNull();
+    expect(component.getAttribute("yMax")).toBeNull();
   });
 
-  it("normalizes SVG URL references and clears renderer URL after chart creation", () => {
-    const scope = buildDirectiveScope(buildChartOptions("dark-blue"));
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const chartInstance = {destroy: jest.fn(), redraw: jest.fn(), renderer: {box: svg, url: "http://localhost/chart"}};
+  it("zooms the vertical axis of an inverted chart to the chart-options x range", () => {
+    const {component} = compileChart({model: INVERTED_MODEL});
 
-    rect.setAttribute("fill", "url(http://localhost/chart#highcharts-1)");
-    path.setAttribute("clip-path", "url(http://localhost/chart#highcharts-2)");
-    svg.appendChild(rect);
-    svg.appendChild(path);
-    jest.spyOn(utilities, "isVisible").mockReturnValue(false);
-    jest.spyOn(Highcharts, "chart").mockReturnValue(chartInstance);
+    component.checkParametersChanged({chartOptions: {zoom: {x: {min: 2, max: 3}}}});
 
-    $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
-    scope.$digest();
-
-    expect(chartInstance.renderer.url).toBe("");
-    expect(rect.getAttribute("fill")).toBe("url(#highcharts-1)");
-    expect(path.getAttribute("clip-path")).toBe("url(#highcharts-2)");
+    const dataZoom = component.chartInstance.getOption().dataZoom[0];
+    expect([dataZoom.startValue, dataZoom.endValue]).toEqual([2, 3]);
+    expect(component.getAttribute("xMin")).toBe(2);
+    expect(component.getAttribute("xMax")).toBe(3);
   });
 
-  it("destroys the existing chart before reinitializing changed chart options", () => {
-    const scope = buildDirectiveScope(buildChartOptions("dark-unica"));
-    const existingChart = {destroy: jest.fn(), redraw: jest.fn()};
-    const replacementChart = {destroy: jest.fn(), redraw: jest.fn()};
-    let chartBuilds = 0;
+  it("keeps the zoom when the chart is drawn again", () => {
+    const {chart, component} = compileChart();
+    chart.dispatchAction({type: "dataZoom", dataZoomIndex: 0, startValue: 2, endValue: 4});
 
-    jest.spyOn(utilities, "isVisible").mockReturnValue(false);
-    jest.spyOn(Highcharts, "chart").mockImplementation(() => chartBuilds++ === 0 ? existingChart : replacementChart);
+    component.onModelChanged({values: copy(ROWS)});
 
-    $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
-    scope.$digest();
-    scope.chartOptions = {...buildChartOptions("dark-blue"), title: {text: "UPDATED"}};
-    scope.$digest();
-
-    expect(existingChart.destroy).toHaveBeenCalledTimes(1);
-    expect(Highcharts.chart).toHaveBeenCalledTimes(2);
-    expect(scope.component.chartInstance).toBe(replacementChart);
+    const dataZoom = chart.getOption().dataZoom[0];
+    expect([dataZoom.startValue, dataZoom.endValue]).toEqual([2, 4]);
   });
 
-  it("updates language options by rebuilding the chart when language changes", () => {
-    const scope = buildDirectiveScope(buildChartOptions("dark-unica"));
-    const chartInstance = {destroy: jest.fn(), redraw: jest.fn()};
+  it("draws the chart again when the model values change", () => {
+    const {chart, component} = compileChart();
 
-    jest.spyOn(utilities, "isVisible").mockReturnValue(false);
-    jest.spyOn(Highcharts, "chart").mockReturnValue(chartInstance);
-    jest.spyOn(Highcharts, "setOptions").mockImplementation(() => null);
-    settings.update({language: "en-GB"});
+    component.onModelChanged({values: [{x: 7, y: 70}]});
 
-    $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
-    scope.$digest();
-    scope.$broadcast("languageChanged");
-
-    expect(chartInstance.destroy).toHaveBeenCalledTimes(1);
-    expect(Highcharts.setOptions).toHaveBeenCalledWith({lang: global.HighchartsLocale["en-GB"]});
-    expect(Highcharts.chart).toHaveBeenCalledTimes(2);
+    expect(component.model.values).toEqual([{x: 7, y: 70}]);
+    expect(seriesData(chart)).toEqual([[7, 70]]);
   });
 
-  it("reflows only when resize events change visible chart dimensions", () => {
-    const scope = buildDirectiveScope(buildChartOptions("dark-unica"));
-    const chartInstance = {destroy: jest.fn(), redraw: jest.fn(), reflow: jest.fn()};
+  it("shows the too much data message instead of the series over the limitPointsSerie setting", () => {
+    currentSettings.chartOptions = {limitPointsSerie: 3};
+    const {chart} = compileChart();
 
-    jest.spyOn(utilities, "isVisible").mockReturnValue(true);
-    jest.spyOn(Highcharts, "chart").mockReturnValue(chartInstance);
-
-    const element = $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
-    setElementSize(element, 300, 200);
-    scope.$digest();
-    scope.$broadcast("resize-action");
-    setElementSize(element, 450, 200);
-    scope.$broadcast("resize");
-
-    expect(chartInstance.reflow).toHaveBeenCalledTimes(1);
+    expect(seriesData(chart)).toEqual([]);
+    expect(texts(chart)).toContain("Too much data to display");
   });
 
-  it("restores chart values through the Control service boundary", () => {
-    const component = initializedChart({});
+  it("adds the points of add-points and removes the oldest ones over the chart max", () => {
+    const {chart, component} = compileChart();
+
+    component.addPoints([{x: 6, y: 60}, {x: 7, y: 70}]);
+
+    expect(component.model.values.map(row => row.x)).toEqual([2, 3, 4, 5, 6, 7]);
+    expect(seriesData(chart).map(point => point[0])).toEqual([2, 3, 4, 5, 6, 7]);
+
+    component.addPoints(null);
+    expect(component.model.values).toHaveLength(6);
+  });
+
+  it("adds the series of add-chart-series with their points", () => {
+    const {chart, component} = compileChart();
+
+    component.addSeries([{id: "serie2", name: "Serie 2", type: "column", xValue: "x", yValue: "z",
+      data: [[1, 5], [2, 6], [3, 7], [4, 8], [5, 9]]}]);
+
+    const series = chart.getOption().series;
+    expect(series.map(serie => [serie.id, serie.type])).toEqual([["serie1", "line"], ["serie2", "bar"]]);
+    expect(series[1].data).toEqual([[1, 5], [2, 6], [3, 7], [4, 8], [5, 9]]);
+  });
+
+  it("adds and replaces the series that a Java service builds with their points only (no xValue nor yValue)", () => {
+    const {chart, component} = compileChart();
+    const serie = (id) => ({id, name: id, echarts: {id, type: "line", awe: {type: "line"}}, data: [[1, 3], [2, 4]]});
+
+    component.addSeries([serie("donald")]);
+
+    expect(chart.getOption().series.map(drawn => drawn.name)).toEqual(["Serie 1", "donald"]);
+    // The chart had 5 rows: the rows without a point of the new series are gaps
+    expect(chart.getOption().series[1].data).toEqual([[1, 3], [2, 4], [null, null], [null, null], [null, null]]);
+
+    component.replaceSeries([serie("test")]);
+
+    expect(chart.getOption().series.map(drawn => drawn.name)).toEqual(["test"]);
+    expect(chart.getOption().series[0].data).toEqual([[1, 3], [2, 4]]);
+  });
+
+  it("uses the ECharts translation that the server sends with the series of a chart action", () => {
+    const {chart, component} = compileChart();
+
+    component.addSeries([{id: "serie2", name: "Serie 2", type: "spline", xValue: "x", yValue: "z", data: [[1, 5]],
+      echarts: {id: "serie2", name: "Serie 2", type: "line", smooth: true, awe: {type: "spline", xValue: "x", yValue: "z"}}}]);
+
+    expect(chart.getOption().series[1].smooth).toBe(true);
+  });
+
+  it("replaces the series and the values of the chart with replace-chart-series", () => {
+    const {chart, component} = compileChart();
+
+    component.replaceSeries([{id: "other", name: "Other", type: "line", xValue: "a", yValue: "b", data: [[1, 2], [3, 4]]}]);
+
+    expect(chart.getOption().series.map(serie => serie.id)).toEqual(["other"]);
+    expect(component.model.values).toEqual([{a: 1, b: 2}, {a: 3, b: 4}]);
+    expect(seriesData(chart)).toEqual([[1, 2], [3, 4]]);
+  });
+
+  it("removes the series of remove-chart-series by identifier", () => {
+    const {chart, component} = compileChart();
+    component.addSeries([{id: "serie2", name: "Serie 2", type: "line", xValue: "x", yValue: "z", data: []}]);
+
+    component.removeSeries([{id: "serie1"}, {id: "missing"}]);
+
+    expect(chart.getOption().series.map(serie => serie.id)).toEqual(["serie2"]);
+  });
+
+  it("removes the points of the chart on reset", () => {
+    const {chart, component} = compileChart();
+
+    component.resetChart();
+
+    expect(component.model.values).toEqual([]);
+    expect(seriesData(chart)).toEqual([]);
+    expect(texts(chart)).toContain("No data to display");
+  });
+
+  it("restores the initial values through the Control service on restore", () => {
+    const {component} = compileChart();
 
     component.restoreChart();
 
     expect(control.restoreInitialModelAttribute).toHaveBeenCalledWith(component.address, "values");
   });
 
-  it("exposes selected and zoom attributes through chart attribute methods", () => {
-    const component = initializedChart({});
-    component.model.selected = {x: "North", y: 42};
-    component.model.zoom = {x: {min: 1, max: 10}, y: {min: 2, max: 20}};
+  it("resizes and draws the chart again only when the size of its element changes", () => {
+    const {chart, scope} = compileChart();
+    const resize = jest.spyOn(chart, "resize");
 
-    expect(component.getAttribute("x")).toBe("North");
-    expect(component.getAttribute("y")).toBe(42);
-    expect(component.getAttribute("xMin")).toBe(1);
-    expect(component.getAttribute("xMax")).toBe(10);
-    expect(component.getAttribute("yMin")).toBe(2);
-    expect(component.getAttribute("yMax")).toBe(20);
+    scope.$broadcast("resize");
+    expect(resize).not.toHaveBeenCalled();
+
+    chartSize = {width: 900, height: 400};
+    scope.$broadcast("resize-action");
+    expect(resize).toHaveBeenCalledTimes(1);
   });
 
-  it("ignores add-points requests without point payloads", () => {
-    const component = initializedChart({series: [{id: "serie1", xValue: "x", yValue: "y"}]});
+  it("creates the chart again with the texts of the new language when the language changes", () => {
+    const {chart, component, scope} = compileChart({values: []});
+    expect(texts(chart)).toContain("No data to display");
 
-    component.addPoints(null);
+    currentSettings.language = "es-ES";
+    scope.$broadcast("languageChanged");
 
-    expect(component.model.values).toEqual([]);
-    expect(component.chartInstance.get).not.toHaveBeenCalled();
-    expect(component.chartInstance.redraw).not.toHaveBeenCalled();
+    expect(chart.isDisposed()).toBe(true);
+    expect(component.chartInstance).not.toBe(chart);
+    expect(texts(component.chartInstance)).toContain("No hay datos a mostrar");
   });
 
-  it("updates the model through the model-change listener path", () => {
-    const chartSerie = {setData: jest.fn()};
-    const component = initializedChart({series: [{id: "serie1", xValue: "x", yValue: "y"}], plotOptions: {}});
-    component.initialized = true;
-    component.chartInstance.get.mockReturnValue(chartSerie);
-    component.chartInstance.hasData = jest.fn(() => true);
-    component.chartInstance.hideNoData = jest.fn();
-    component.chartInstance.showNoData = jest.fn();
-    jest.spyOn(settings, "get").mockImplementation(key => key === "chartOptions" ? {limitPointsSerie: 10} : undefined);
+  it("draws in dark mode when the application theme is dark", () => {
+    document.body.style.backgroundColor = "rgb(20, 20, 20)";
+    const {chart} = compileChart({values: []});
 
-    component.onModelChanged({values: [{x: 5, y: 8}]});
-
-    expect(component.model.values).toEqual([{x: 5, y: 8}]);
-    expect(chartSerie.setData).toHaveBeenCalledWith([[5, 8]], false, true);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
+    const noData = chart.getOption().graphic[0].elements[0];
+    expect(noData.style.fill).toBe("#dddddd");
   });
 
-  it("does not update axis extremes when requested zoom matches the current model", () => {
-    const component = initializedChart({});
-    component.model.zoom = {x: {min: 1, max: 5}, y: {min: 2, max: 4}};
+  it("disposes the chart when the component is destroyed", () => {
+    const {chart, scope} = compileChart();
 
-    component.changeZoom({x: {min: 1, max: 5}, y: {min: 2, max: 4}});
+    scope.$destroy();
 
-    expect(component.chartInstance.xAxis[0].setExtremes).not.toHaveBeenCalled();
-    expect(component.chartInstance.yAxis[0].setExtremes).not.toHaveBeenCalled();
-    expect(component.chartInstance.zoomOut).not.toHaveBeenCalled();
+    expect(chart.isDisposed()).toBe(true);
   });
 
-  it("stores model values without redrawing before the chart is initialized", () => {
-    const component = initializedChart({series: [{id: "serie1", xValue: "x", yValue: "y"}]});
-    component.initialized = false;
-
-    component.updateModel([{x: 1, y: 2}]);
-
-    expect(component.model.values).toEqual([{x: 1, y: 2}]);
-    expect(component.chartInstance.redraw).not.toHaveBeenCalled();
-  });
-
-  it("shows the configured no-data message when model updates exceed the series limit", () => {
-    const component = initializedChart({series: [{id: "serie1", xValue: "x", yValue: "y"}], plotOptions: {}});
-    component.initialized = true;
-    component.chartInstance.get.mockReturnValue({setData: jest.fn()});
-    component.chartInstance.hasData = jest.fn(() => false);
-    component.chartInstance.hideNoData = jest.fn();
-    component.chartInstance.showNoData = jest.fn();
-    component.chartInstance.options = {lang: {tooMuchData: "Too much data"}};
-    jest.spyOn(component, "resetChart");
-    jest.spyOn(settings, "get").mockImplementation(key => key === "chartOptions" ? {limitPointsSerie: 1} : undefined);
-
-    component.updateModel([{x: 1, y: 2}, {x: 3, y: 4}]);
-
-    expect(component.resetChart).toHaveBeenCalled();
-    expect(component.chartInstance.hideNoData).toHaveBeenCalled();
-    expect(component.chartInstance.showNoData).toHaveBeenCalledWith("Too much data");
-  });
-
-  it("adds standalone series and redraws the chart once", () => {
-    const component = initializedChart({series: []});
-    component.chartInstance.addSeries = jest.fn();
-
-    component.addSeries([{id: "north"}, {id: "south"}]);
-
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "north"}, false, true);
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "south"}, false, true);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
-  });
-
-  it("replaces existing chart series before adding replacements", () => {
-    const component = initializedChart({series: []});
-    const first = {remove: jest.fn()};
-    const second = {remove: jest.fn()};
-    component.chartInstance.series = [first, second];
-    component.chartInstance.addSeries = jest.fn();
-
-    component.replaceSeries([{id: "replacement"}]);
-
-    expect(second.remove).toHaveBeenCalledWith(false);
-    expect(first.remove).toHaveBeenCalledWith(false);
-    expect(component.chartInstance.addSeries).toHaveBeenCalledWith({id: "replacement"}, false, true);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
-  });
-
-  it("removes only series found by identifier and redraws once", () => {
-    const removable = {remove: jest.fn()};
-    const component = initializedChart({series: []});
-    component.chartInstance.get.mockImplementation(id => id === "north" ? removable : null);
-
-    component.removeSeries([{id: "north"}, {id: "missing"}]);
-
-    expect(removable.remove).toHaveBeenCalledWith(false);
-    expect(component.chartInstance.redraw).toHaveBeenCalledTimes(1);
-  });
-
-  it("omits selected data fields that are not present in the selected chart model", () => {
+  it("returns the selected point as the chart data for the server", () => {
     const api = {};
-    const component = initializedChart({});
     control.getAddressApi.mockReturnValue(api);
+    control.getAddressModel.mockReturnValue({selected: {x: 21, y: 34}});
+    compileChart();
+
+    expect(api.getData()).toEqual({"chr.x": 21, "chr.y": 34});
+
     control.getAddressModel.mockReturnValue({selected: {x: "North"}});
+    expect(api.getData()).toEqual({"chr.x": "North"});
+  });
 
-    component.asChart();
+  it.each([
+    ["LANDSCAPE", 1167, 360],
+    ["PORTRAIT", 796, 540]
+  ])("prints the chart as an SVG image of the %s page size", (orientation, width, height) => {
+    const api = {};
+    control.getAddressApi.mockReturnValue(api);
+    compileChart();
 
-    expect(api.getData()).toEqual({"chartId.x": "North"});
+    const {chr} = api.getPrintData(orientation);
+
+    expect(chr.image).toMatch(/^<svg/);
+    expect(chr.image).toContain(`width="${width}"`);
+    expect(chr.image).toContain(`height="${height}"`);
+    expect(chr.image).toContain("TITLE");
+  });
+
+  it("hides and shows the linked series with the series they are linked to", () => {
+    const model = copy(LINE_MODEL);
+    model.series.push({id: "linked", name: "Linked", type: "line", awe: {type: "line", xValue: "x", yValue: "y", linkedTo: "serie1"}});
+    const {chart} = compileChart({model});
+    const dispatch = jest.spyOn(chart, "dispatchAction");
+
+    chart.trigger("legendselectchanged", {name: "Serie 1", selected: {"Serie 1": false}});
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({type: "legendUnSelect", name: "Linked"}));
   });
 });

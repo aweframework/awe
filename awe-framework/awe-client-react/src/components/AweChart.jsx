@@ -23,6 +23,13 @@ const DARK_THEME = "dark";
 const AXES = ["x", "y"];
 
 /**
+ * Check if a chart is inverted (its AWE x axis is the vertical one)
+ * @param {object} echartsModel ECharts model of the chart
+ * @returns {boolean} The chart is inverted
+ */
+const isInverted = (echartsModel) => Boolean(echartsModel?.awe?.inverted);
+
+/**
  * Keep the previous value while the new one is equal: the state of a component is copied when an attribute changes
  * (the events of the chart write attributes), and the chart must not be drawn again (it would lose its zoom) for it
  * @param {*} value Value
@@ -143,13 +150,13 @@ function AweChart(props) {
       if (target) {
         setDrill({from: params.seriesId, to: target});
       }
-      emit({...pointOf(params), event: "click"});
+      emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "click"});
     });
-    chart.on("dblclick", (params) => emit({...pointOf(params), event: "double-click"}));
-    chart.on("contextmenu", (params) => emit({...pointOf(params), event: "context-menu"}));
+    chart.on("dblclick", (params) => emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "double-click"}));
+    chart.on("contextmenu", (params) => emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "context-menu"}));
     chart.on("datazoom", () => {
       if (!zooming.current) {
-        emit({...zoomOf(chart), event: "zoom"});
+        emit({...zoomOf(chart, isInverted(latest.current.echartsModel)), event: "zoom"});
       }
     });
     // A series that is linked to another one hides and shows with it
@@ -185,7 +192,7 @@ function AweChart(props) {
     const chart = chartRef.current;
     const {zoom} = parseChartOptions(chartOptions);
     const changed = chart && zoom ? changedZoom(zoom, latest.current.attributes) : {};
-    const requests = chart ? zoomRequests(chart, changed) : [];
+    const requests = chart ? zoomRequests(chart, changed, isInverted(latest.current.echartsModel)) : [];
     if (requests.length === 0) {
       return;
     }

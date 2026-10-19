@@ -133,7 +133,9 @@ export const TestIds = Object.freeze({
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the global loading bar with its spinner
   loader: "loader",
   loadingBar: "loading-bar",
-  loadingSpinner: "loading-spinner"
+  loadingSpinner: "loading-spinner",
+  // Chart (the instance is identified by "chart-id")
+  chart: "chart"
 });
 
 /**
@@ -163,5 +165,8 @@ export const TestAttributes = Object.freeze({
   type: "data-type",
   container: "data-container",
   // Icon shown by an icon column
-  icon: "data-icon"
+  icon: "data-icon",
+  // A chart has been drawn, and it is zoomed (shows a part of its range)
+  rendered: "data-rendered",
+  zoomed: "data-zoomed"
 });

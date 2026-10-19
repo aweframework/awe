@@ -29,7 +29,7 @@ import static com.almis.awe.model.entities.screen.component.chart.echarts.EChart
  *   {@code xValue}, {@code yValue} and {@code zValue} hints of each series.</li>
  *   <li>The model carries no functions. Everything that the client has to evaluate or interpret travels as data in
  *   an {@code awe} key of the object it belongs to: Highcharts format strings, formatter names, data binding
- *   fields, drilldown, theme and stock flags.</li>
+ *   fields, drilldown and stock flags.</li>
  *   <li><strong>Any object of the model may carry an {@code awe} key with AWE client hints. The client removes
  *   every {@code awe} key before it gives the option to ECharts</strong>, so the hints never reach the
  *   library.</li>
@@ -39,7 +39,7 @@ import static com.almis.awe.model.entities.screen.component.chart.echarts.EChart
  *   <li>{@code title}, {@code legend}, {@code tooltip}, {@code xAxis}, {@code yAxis}, {@code dataZoom} and
  *   {@code series}: ECharts options. {@code xAxis} and {@code yAxis} are arrays, and are missing in pie charts. In
  *   an inverted chart they are swapped: {@code xAxis} holds the horizontal axes, which are the AWE y axes.</li>
- *   <li>{@code awe.chartType}: AWE chart type, such as {@code column_3d}; {@code awe.theme}; {@code awe.inverted};
+ *   <li>{@code awe.chartType}: AWE chart type, such as {@code column_3d}; {@code awe.inverted};
  *   {@code awe.stock}; {@code awe.stacking} ({@code normal} or {@code percent});
  *   {@code awe.drilldown.series}: the series that open when a point of another series is drilled, which are not in
  *   {@code series}.</li>
@@ -244,9 +244,6 @@ public final class EChartsModelBuilder {
     Map<String, Object> hints = hints(model);
     if (chart.getType() != null) {
       hints.put("chartType", chart.getType().toLowerCase(Locale.ROOT));
-    }
-    if (StringUtils.isNotBlank(chart.getTheme())) {
-      hints.put("theme", chart.getTheme());
     }
     if (inverted) {
       hints.put("inverted", true);

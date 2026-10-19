@@ -4,10 +4,10 @@ title: Chart formats
 ---
 
 The texts that a chart draws (data labels, tooltips and axis labels) are described with **format strings**: a text with
-`{...}` tags that are replaced by values. The language is the template language of Highcharts 11. The React engine
-interprets the subset described in this page in the browser, so a format that only uses that subset gives the same
-text with ECharts. Other number specifications (anything but `.Nf` and `,.Nf`) write the raw value: check them when
-you move a chart to the React engine.
+`{...}` tags that are replaced by values. The language is the template language of Highcharts 11. Both engines (React
+and AngularJS) interpret the subset described in this page in the browser, so a format that only uses that subset
+gives the same text with ECharts. Other number specifications (anything but `.Nf` and `,.Nf`) write the raw value: check
+them when you upgrade a chart from AWE 4.
 
 ```text
 <b>{point.name}</b>: {point.percentage:.1f} %

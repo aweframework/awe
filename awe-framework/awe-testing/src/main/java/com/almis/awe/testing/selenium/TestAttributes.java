@@ -47,11 +47,11 @@ public final class TestAttributes {
    */
   public static final String VALUE = "data-value";
   /**
-   * The component drew its content, such as a chart. Only the React client renders it
+   * The component drew its content, such as a chart
    */
   public static final String RENDERED = "data-rendered";
   /**
-   * The chart shows a part of its range because it has been zoomed. Only the React client renders it
+   * The chart shows a part of its range because it has been zoomed
    */
   public static final String ZOOMED = "data-zoomed";
   /**

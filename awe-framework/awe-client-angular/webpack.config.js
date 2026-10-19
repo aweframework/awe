@@ -8,6 +8,8 @@ const dir = path.join(__dirname, "src", "main", "resources", "webpack");
 const styleDir = path.resolve(__dirname, "src", "main", "resources", "less");
 const srcPath = path.resolve(__dirname, "src", "main", "resources", "js", "awe");
 const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib");
+// The chart utilities of the React client (ECharts option builder, events, SVG render) are shared with this client
+const reactSourcePath = path.resolve(__dirname, "..", "awe-client-react", "src");
 
 // Modern browsers only: no Internet Explorer nor legacy mobile browsers
 const autoprefixerBrowsers = ['last 2 versions', '> 0.5%', 'not dead', 'not ie > 0', 'not op_mini all'];
@@ -73,11 +75,12 @@ module.exports = (env = {}, argv = {}) => {
     },
     resolve: {
       extensions: [".js", ".css", ".less", "*"],
+      // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
+      modules: [path.resolve(__dirname, "node_modules"), "node_modules"],
       alias: {
+        "awe-client-react": reactSourcePath,
         "jquery": path.resolve(__dirname, "node_modules", "jquery", "dist", "jquery"),
         "bootstrap-tabdrop": path.resolve(libPath, "bootstrap-tabdrop", "src", "js", "bootstrap-tabdrop"),
-        "HighchartsLocale": path.resolve(libPath, "highcharts", "i18n", "highcharts-lang"),
-        "HighchartsThemes": path.resolve(libPath, "highcharts", "themes", "all"),
         "Tocify": path.resolve(libPath, "tocify", "jquery.tocify"),
         "PivotTable": path.resolve(libPath, "pivotTable", "pivotTable")
       },
@@ -88,8 +91,6 @@ module.exports = (env = {}, argv = {}) => {
       }),
       new LodashModuleReplacementPlugin,
       new webpack.ProvidePlugin({
-        "Highcharts": "highcharts/highstock",
-        "HighchartsLocale": "HighchartsLocale",
         "window.constructor": "constructor"
       })
     ]

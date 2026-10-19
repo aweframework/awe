@@ -35,6 +35,16 @@ public final class XmlSerializerTestUtil {
    * @return XStream serializer
    */
   public static XStreamSerializer buildSerializer() {
+    return new XStreamSerializer(buildMarshaller());
+  }
+
+  /**
+   * Build an XStream marshaller with the same driver, annotations and security settings
+   * used by the framework autoconfiguration
+   *
+   * @return XStream marshaller
+   */
+  public static XStreamMarshaller buildMarshaller() {
     XStreamMarshaller marshaller = new XStreamMarshaller();
     marshaller.setStreamDriver(new DomDriver(null, new NoNameCoder()));
     marshaller.getXStream().processAnnotations(new Class[]{
@@ -52,6 +62,6 @@ public final class XmlSerializerTestUtil {
       Locales.class
     });
     marshaller.getXStream().allowTypesByWildcard(new String[]{"java.*", "com.almis.awe.model.entities.**"});
-    return new XStreamSerializer(marshaller);
+    return marshaller;
   }
 }

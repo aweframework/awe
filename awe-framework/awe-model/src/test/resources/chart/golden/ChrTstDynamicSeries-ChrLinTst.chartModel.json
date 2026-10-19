@@ -23,7 +23,6 @@
     }
   },
   "stockChart" : false,
-  "theme" : "dark-unica",
   "title" : {
     "text" : "SCREEN_TEXT_DYNAMIC_SERIES_CHART"
   },

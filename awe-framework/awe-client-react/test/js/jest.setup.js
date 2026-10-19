@@ -12,7 +12,10 @@ if (!global.TextDecoder) {
   global.TextDecoder = TextDecoder;
 }
 
-if (!Element.prototype.scrollIntoView) {
+// The suites of the chart server run in the node environment, without a DOM
+const hasDom = typeof window !== 'undefined';
+
+if (hasDom && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = jest.fn();
 }
 
@@ -85,7 +88,7 @@ if (!global.__AWE_JEST_CONSOLE_FILTERS__) {
 
 // Mock window.matchMedia — jsdom does not implement it.
 // Required by PrimeReact components (PickList, etc.) that use media queries.
-Object.defineProperty(window, 'matchMedia', {
+if (hasDom) Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
     matches: false,

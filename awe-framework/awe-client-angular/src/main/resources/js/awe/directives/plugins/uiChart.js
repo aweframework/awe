@@ -1,233 +1,132 @@
 import {aweApplication} from "../../awe";
+import {echarts, getEChartsLocale, isDarkTheme} from "awe-client-react/utilities/echartsSetup";
 
-// HIGHCHARTS
-import Highcharts from "highcharts/highstock";
-import "HighchartsLocale";
-import "HighchartsThemes";
+const DARK_THEME = "dark";
+const PLAIN_THEME = null;
 
-require("highcharts/highcharts-more.src")(Highcharts);
-require("highcharts/highcharts-3d.src")(Highcharts);
-require("highcharts/modules/drilldown.src")(Highcharts);
-require("highcharts/modules/boost.src")(Highcharts);
-require("highcharts/modules/no-data-to-display.src")(Highcharts);
-require("highcharts/modules/exporting.src")(Highcharts);
-
-function normalizeSvgReference(value) {
-  if (value?.indexOf('url(') !== 0) {
-    return value;
-  }
-  let match = value.match(/#([^)'"]+)\)?/);
-  return match ? 'url(#' + match[1] + ')' : value;
+/**
+ * Read the size of the element that holds the chart
+ * @param {HTMLElement} element Chart element
+ * @returns {{width: number, height: number}} Size
+ */
+function sizeOf(element) {
+  return {width: element.clientWidth, height: element.clientHeight};
 }
 
-function normalizeSvgNodeAttribute(node, attribute) {
-  if (!node?.hasAttribute?.(attribute)) {
-    return;
-  }
-  let value = node.getAttribute(attribute);
-  let normalized = normalizeSvgReference(value);
-  if (normalized !== value) {
-    node.setAttribute(attribute, normalized);
-  }
-}
-
-function cloneChartOptions(options) {
-  return typeof structuredClone === 'function'
-    ? structuredClone(options)
-    : JSON.parse(JSON.stringify(options));
-}
-
-function normalizeSvgReferences(chartInstance) {
-  let container = chartInstance?.renderer?.box || chartInstance?.container;
-  if (!container) {
-    return;
-  }
-
-  if (chartInstance.renderer) {
-    chartInstance.renderer.url = '';
-  }
-
-  _.each(container.getElementsByTagName('*'), function (node) {
-    _.each(['fill', 'stroke', 'clip-path'], function (attribute) {
-      normalizeSvgNodeAttribute(node, attribute);
-    });
-  });
-}
-
-function destroyChartInstance(component) {
-  if (component.chartInstance) {
-    component.chartInstance.destroy();
-    component.chartInstance = null;
-  }
-}
-
-function updateChartDimensions(elem, Utilities) {
-  if (!Utilities.isVisible(elem[0])) {
-    return null;
-  }
-
-  return {
-    width: elem[0].clientWidth,
-    height: elem[0].clientHeight
-  };
-}
-
-function applyChartTheme(highchartOptions, themeChart) {
-  if (themeChart === undefined || themeChart === "" || !Highcharts.theme[themeChart]) {
-    return;
-  }
-
-  _.merge(highchartOptions, Highcharts.theme[themeChart]);
-  _.each(highchartOptions.xAxis, function (xAxis) {
-    _.merge(xAxis, Highcharts.theme[themeChart].xAxis);
-  });
-  _.each(highchartOptions.yAxis, function (yAxis) {
-    _.merge(yAxis, Highcharts.theme[themeChart].yAxis);
-  });
-}
-
-function getChartEvents(scope, elem) {
-  return {
-    chart: {
-      renderTo: elem[0],
-      events: {
-        selection: scope.component.onZoom,
-        redraw: scope.component.onRedraw,
-        load: scope.component.onRedraw
-      }
-    },
-    plotOptions: {
-      series: {
-        cursor: 'pointer',
-        point: {
-          events: {
-            click: scope.component.onClick
-          }
-        }
-      }
-    }
-  };
-}
-
-function buildChartInstance(highchartOptions, isStockChart) {
-  return isStockChart ? Highcharts.stockChart(highchartOptions) : Highcharts.chart(highchartOptions);
-}
-
-// Highcharts plugin
+// Apache ECharts plugin: draws the `echartsModel` of the chart with the SVG renderer
 aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
   /**
-   * Chart generic methods
+   * Chart plugin
    * @param {Service} $settings
    * @param {Service} Utilities
    */
   function ($settings, Utilities) {
-    // Get default $settings
-
-    // Set global options
-    Highcharts.setOptions({
-      global: {
-        useUTC: false
-      },
-      lang: global.HighchartsLocale[$settings.get("language")]
-    });
     return {
       restrict: 'A',
-      require: ['ngModel'],
-      link: function (scope, elem, attrs, modelController) {
-        // Flag chart all ready initialized
-        let  chartDimensions = {
-          width: 0,
-          height: 0
-        };
-        // Add global options
-        let  highchartOptions = {};
-        let  chartOptions = {};
+      link: function (scope, elem, attrs) {
+        const element = elem[0];
+        let size = {width: 0, height: 0};
+        let dark = false;
+
         /**
-         * Plugin initialization
-         * @param {object} newValue plugin parameters
-         * @param {object} oldValue plugin parameters
+         * Draw the chart option (again)
          */
-        let  initPlugin = function (newValue, oldValue) {
-          if (!(newValue && (!scope.component.initialized || newValue !== oldValue))) {
-            if (scope.component.chartInstance) {
-              scope.component.chartInstance.redraw();
-            }
+        const draw = function () {
+          const chart = scope.component?.chartInstance;
+          if (!chart) {
             return;
           }
-
-          highchartOptions = {};
-          chartOptions = cloneChartOptions(newValue);
-          scope.component.initializeModel(chartOptions, modelController);
-
-          _.merge(highchartOptions, chartOptions);
-          highchartOptions.exporting = {
-            enabled: false
-          };
-
-          scope.component.translateLabels(highchartOptions);
-          applyChartTheme(highchartOptions, chartOptions.theme);
-          _.merge(highchartOptions, getChartEvents(scope, elem));
-
-          destroyChartInstance(scope.component);
-          scope.component.chartInstance = buildChartInstance(highchartOptions, newValue.stockChart);
-          normalizeSvgReferences(scope.component.chartInstance);
-
-          Utilities.timeout(function () {
-            normalizeSvgReferences(scope.component.chartInstance);
-          }, 0);
-
-          let currentDimensions = updateChartDimensions(elem, Utilities);
-          if (currentDimensions) {
-            chartDimensions = currentDimensions;
+          try {
+            chart.setOption(scope.component.getOption({...size, dark}), {notMerge: true});
+          } catch (error) {
+            console.error(`[ERROR] The chart '${scope.component.id}' could not be drawn`, error);
           }
+        };
 
-          scope.component.initialized = true;
-        };
         /**
-         * Update global options
+         * Mark the chart as drawn (browser tests wait for it)
          */
-        let  updateGlobalOptions = function () {
-          // Update element as date with options
-          destroyChartInstance(scope.component);
-          scope.component.initialized = false;
-          // Get lenguage
-          let  language = global.HighchartsLocale[$settings.get("language")];
-          // Update global options
-          Highcharts.setOptions({
-            lang: language
-          });
-          initPlugin(chartOptions);
+        const markRendered = function () {
+          if (!scope.component.rendered) {
+            scope.component.rendered = true;
+            scope.$applyAsync();
+          }
         };
+
         /**
-         * Check if dimensions have changed
-         * @returns {Boolean}
+         * Dispose the chart instance
          */
-        let  changedDimensions = function () {
-          let  changed = false;
-          let  currentDimensions = {
-            width: elem[0].clientWidth,
-            height: elem[0].clientHeight
+        const dispose = function () {
+          const chart = scope.component?.chartInstance;
+          if (chart) {
+            chart.dispose();
+            scope.component.chartInstance = null;
+          }
+        };
+
+        /**
+         * Create the chart instance (again when the language changes: the texts of ECharts are set on creation)
+         */
+        const create = function () {
+          const component = scope.component;
+          dispose();
+          dark = isDarkTheme(element);
+          size = sizeOf(element);
+          let chart;
+          try {
+            chart = echarts.init(element, dark ? DARK_THEME : PLAIN_THEME, {
+              renderer: "svg",
+              locale: getEChartsLocale($settings.get("language"))
+            });
+          } catch (error) {
+            console.error(`[ERROR] The chart '${component.id}' could not be created`, error);
+            return;
+          }
+          component.chartInstance = chart;
+          // The chart events come from outside AngularJS: the template reads what they change (x, y, zoom)
+          const inDigest = (handler) => (params) => {
+            handler(params, chart);
+            scope.$applyAsync();
           };
-          changed = currentDimensions.width !== chartDimensions.width || currentDimensions.height !== chartDimensions.height;
-          chartDimensions = currentDimensions;
-          return changed;
+          chart.on("rendered", markRendered);
+          chart.on("finished", markRendered);
+          chart.on("click", inDigest(component.onClick));
+          chart.on("dblclick", inDigest(component.onDblClick));
+          chart.on("contextmenu", inDigest(component.onContextMenu));
+          chart.on("datazoom", inDigest(component.onZoom));
+          chart.on("legendselectchanged", inDigest(component.onLegendSelect));
+          component.render = draw;
+          draw();
         };
+
+        /**
+         * Resize the chart when the size of its element changes
+         */
+        const onResize = function () {
+          const chart = scope.component?.chartInstance;
+          if (!chart || !Utilities.isVisible(element)) {
+            return;
+          }
+          const current = sizeOf(element);
+          if (current.width !== size.width || current.height !== size.height) {
+            size = current;
+            chart.resize();
+            // The layout of the option depends on the size of the chart
+            draw();
+          }
+        };
+
         /**********************************************************************/
         /* WATCHES                                                            */
         /**********************************************************************/
 
-        // Watch for controller changes
-        scope.$watch(attrs.uiChart, initPlugin);
-        /**
-         * Redraw on resize
-         */
-        let  onResize = function () {
-          if (scope.component.initialized && Utilities.isVisible(elem[0])) {
-            if (scope.component.chartInstance && changedDimensions()) {
-              scope.component.chartInstance.reflow();
-            }
+        // The chart is created when the chart service has its model; the service draws it again on each change
+        const unwatch = scope.$watch(attrs.uiChart, function (model) {
+          if (model) {
+            unwatch();
+            create();
           }
-        };
+        });
         // Watch for screen initialization
         scope.$on("initialised", onResize);
         // Watch for element resize
@@ -235,13 +134,12 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
         // Watch for element resize
         scope.$on("resize-action", onResize);
         // Watch for language change
-        scope.$on('languageChanged', updateGlobalOptions);
-        scope.$on('$destroy', function () {
-          if (scope.component.initialized && scope.component.chartInstance) {
-            scope.component.chartInstance.destroy();
-            scope.component.chartInstance = null;
+        scope.$on('languageChanged', function () {
+          if (scope.component?.chartInstance) {
+            create();
           }
         });
+        scope.$on('$destroy', dispose);
       }
     };
   }]);

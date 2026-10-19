@@ -643,12 +643,12 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
         warn.mockRestore();
       });
 
-      it('should not write points without the fields they are bound to', () => {
+      it('should bind the points of a series without fields (a series built in Java with its points) to keys of its own', () => {
         mockComponent.model.values = [];
 
         thunks.addSeriesAction({type: 'add-chart-series', address: mockAddress, parameters: {series: [{id: 'x', data: [[1, 2]]}]}})(dispatch, getState);
 
-        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([]);
+        expect(valuesOf(dispatch.mock.calls[1][0])).toEqual([{"x#x": 1, "x#y": 2}]);
       });
 
       it('should accept the action', () => {

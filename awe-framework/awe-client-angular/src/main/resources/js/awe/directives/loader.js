@@ -23,7 +23,7 @@ aweApplication.directive('aweLoader',
       // Skeleton kinds: the loader draws the shape of the component (a field, a box with its label, a button, a chart)
       const RELOAD = "reload";
       const BAR_HEIGHTS = [45, 70, 55, 85, 60, 40, 75];
-      const TREND_TYPES = ["line", "area", "spline", "areaspline", "scatter"];
+      const TREND_TYPES = ["line", "scatter"];
       const bar = style => `<span class="skeleton-bar"${style ? ` style="${style}"` : ""}></span>`;
       const CHECK_TEMPLATE = radio => `<div class="skeleton-block skeleton-box"><span class="skeleton-bar skeleton-check${radio ? " skeleton-radio" : ""}"></span>${bar("flex: 1 1 0")}</div>`;
       const CHART_BARS = BAR_HEIGHTS.map(height => bar(`height: ${height}%`)).join("");
@@ -41,8 +41,8 @@ aweApplication.directive('aweLoader',
        * @return {String} Chart type
        */
       function getChartType(scope) {
-        const model = (scope.controller && scope.controller.chartModel) || {};
-        return (model.chart && model.chart.type) || (model.series && model.series[0] && model.series[0].type) || "";
+        const model = (scope.controller && scope.controller.echartsModel) || {};
+        return (model.series && model.series[0] && model.series[0].type) || "";
       }
 
       /**

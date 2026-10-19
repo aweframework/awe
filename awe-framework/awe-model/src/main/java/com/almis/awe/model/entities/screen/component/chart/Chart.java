@@ -57,12 +57,6 @@ public class Chart extends AbstractChart {
   @XStreamAsAttribute
   private Boolean stockChart;
 
-  // Chart theme template
-  @JsonIgnore
-  @XStreamAlias("theme")
-  @XStreamAsAttribute
-  private String theme;
-
   // Inverted axis
   @JsonIgnore
   @XStreamAlias("inverted")
@@ -181,11 +175,6 @@ public class Chart extends AbstractChart {
 
       // Add plotOptions to chart
       chartModel.put(ChartConstants.PLOT_OPTIONS, getPlotOptions());
-    }
-
-    // Set theme
-    if (getTheme() != null) {
-      chartModel.put(ChartConstants.THEME, getTheme());
     }
 
     // Disable chart credits

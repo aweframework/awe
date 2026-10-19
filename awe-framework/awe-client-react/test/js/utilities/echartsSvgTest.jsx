@@ -48,6 +48,30 @@ describe('awe-react-client/test/js/utilities/echartsSvgTest.jsx', () => {
     expect(error).not.toHaveBeenCalled();
   });
 
+  it('should leave out the style element of the hover rules, which the PDF renderer (Batik) cannot read', () => {
+    const option = buildEChartsOption(JSON.parse(JSON.stringify(models.ChrLinTst)), values,
+      {t: (text) => text, locale, width: 800, height: 400});
+
+    const svg = renderSvg(option, {width: 800, height: 400}, "es-ES");
+
+    expect(svg).toContain("<path");
+    expect(svg).not.toMatch(/<style/);
+    expect(svg).not.toContain(":hover");
+  });
+
+  it('should draw the shadows with SVG 1.1 filters, which the PDF renderer (Batik) can read', () => {
+    const model = JSON.parse(JSON.stringify(models.ChrSemiCircleTst));
+    model.series[0].label = {...model.series[0].label, textShadowOffsetX: 2, textShadowOffsetY: 1, textShadowBlur: 2,
+      textShadowColor: "black"};
+    const option = buildEChartsOption(model, values, {t: (text) => text, locale, width: 800, height: 400});
+
+    const svg = renderSvg(option, {width: 800, height: 400}, "es-ES");
+
+    expect(svg).not.toContain("feDropShadow");
+    expect(svg).toMatch(/<filter [^>]*>\s*<feGaussianBlur in="SourceAlpha" stdDeviation="1 1" result="blur"\/>\s*<feOffset in="blur" dx="2" dy="1" result="offset"\/>\s*<feFlood flood-color="black" flood-opacity="1"\/>\s*<feComposite in2="offset" operator="in" result="shadow"\/>\s*<feMerge><feMergeNode in="shadow"\/><feMergeNode in="SourceGraphic"\/><\/feMerge>\s*<\/filter>/);
+    expect(svg).toMatch(/filter="url\(#[^)]+\)"/);
+  });
+
   it('should draw the no data message', () => {
     const option = buildEChartsOption(JSON.parse(JSON.stringify(models.ChrLinTst)), [],
       {t: (text) => text, locale, width: 800, height: 400});

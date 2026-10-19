@@ -57,6 +57,8 @@ public class Chart extends ServiceConfig {
       ChartSerie serie = new ChartSerie();
       serie.setId(user);
       serie.setName(user);
+      // A new series has no point list
+      serie.setData(new ArrayList<>());
 
       // Add data to serie
       for (String month : months) {

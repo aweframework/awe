@@ -120,7 +120,8 @@ describe("test id vocabulary", () => {
       confirmCancel: "confirm-cancel",
       loader: "loader",
       loadingBar: "loading-bar",
-      loadingSpinner: "loading-spinner"
+      loadingSpinner: "loading-spinner",
+      chart: "chart"
     });
     Object.keys(TestIds).map(name => TestIds[name]).forEach(value => expect(value).toMatch(/^[a-z]+(-[a-z]+)*$/));
   });
@@ -144,7 +145,9 @@ describe("test id vocabulary", () => {
       invalid: "data-invalid",
       type: "data-type",
       container: "data-container",
-      icon: "data-icon"
+      icon: "data-icon",
+      rendered: "data-rendered",
+      zoomed: "data-zoomed"
     });
   });
 

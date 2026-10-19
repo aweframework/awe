@@ -3,18 +3,14 @@ id: chart-parameters
 title: Parámetros de gráficas
 ---
 
-El elemento `chart-parameter` añade o sobrescribe opciones de Highcharts de una gráfica. Es el punto de extensión del XML de
+El elemento `chart-parameter` añade o sobrescribe opciones de una gráfica, escritas con los nombres de la API de Highcharts. Es el punto de extensión del XML de
 gráficas: todo lo que los atributos XML no cubren (colores, estilos de las etiquetas de datos, marcadores, rellenos con degradado, nombres de apilado,
 separación de barras, formatos de tooltip...) se define con él.
 
-El mismo elemento lo usan ambos motores, pero cada uno lo lee a su manera:
-
-* **Motor AngularJS (Highcharts).** Las opciones se fusionan tal cual en la configuración de Highcharts, por lo que cualquier
-  opción de la [API de Highcharts](https://api.highcharts.com/highcharts) es válida.
-* **Motor React (Apache ECharts).** El servidor traduce las opciones que tienen equivalente en ECharts al
-  `echartsModel` de la gráfica. Cualquier otra opción se **ignora** y se notifica una vez, con un aviso en el log del servidor.
-  Las opciones siguen llegando sin cambios al `chartModel` de Highcharts, por lo que la misma pantalla sigue funcionando en el motor
-  AngularJS.
+Ambos motores (React y AngularJS) dibujan las gráficas con Apache ECharts y leen el elemento de la misma forma: el servidor
+traduce las opciones que tienen equivalente en ECharts al `echartsModel` de la gráfica. Cualquier otra opción se **ignora** y se
+notifica una vez, con un aviso en el log del servidor. En AWE 4 el motor AngularJS fusionaba las opciones tal cual en la
+configuración de Highcharts; en AWE 5 solo aplica las traducidas, igual que el motor React.
 
 Esta página lista qué opciones se traducen, cuáles se aproximan y cuáles se ignoran. La tabla se
 deriva de la tabla de traducción del servidor (`HighchartsParameterTable` y `SeriesParameterRules` en
@@ -59,7 +55,7 @@ Las opciones de la serie prevalecen sobre las de `plotOptions.<type>`, que preva
 Las opciones sin tratar de cada serie también están disponibles para el [lenguaje de formato](chart-format.md) como
 `series.userOptions.<name>`, incluidos nombres personalizados como `fullname`.
 
-## Tabla de traducción (motor React) {#translation-table-react-engine}
+## Tabla de traducción {#translation-table}
 
 Las tablas usan estas marcas:
 
@@ -170,7 +166,7 @@ gráfica para usar los atributos del XML.
 
 ### Aproximaciones que el servidor también notifica {#approximations-that-the-server-also-reports}
 
-| Caso                                                                     | Resultado en el motor React                                   |
+| Caso                                                                     | Resultado en ambos motores                                    |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | Series de tipo `arearange` y `areasplinerange`                           | Se dibujan como una línea rellena (aviso)                     |
 | Un `type` de serie que no está en la tabla de tipos de gráfica            | Se dibuja como una línea (aviso)                              |

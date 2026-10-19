@@ -61,7 +61,7 @@ que no envía el modelo (un servidor de AWE 4) produce gráficos vacíos y un av
 Las dependencias `highcharts` y `highcharts-react-official` han desaparecido del cliente y se ha añadido `echarts`
 6.1.0. Si su aplicación tiene componentes personalizados que importan Highcharts, declárelo en su propio
 `package.json` (compruebe su licencia) o pase a ECharts. La lista completa de diferencias en los gráficos (paleta,
-temas, gráficos 3D, formatos, impresión, reglas CSS) está en [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5).
+el atributo `theme` eliminado, gráficos 3D, formatos, impresión, reglas CSS) está en [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5).
 
 ### El HTML de las celdas se sanitiza {#html-in-cells-is-sanitized}
 

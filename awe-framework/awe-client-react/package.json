@@ -17,7 +17,9 @@
     "build:prod": "webpack --config webpack.prod.js",
     "build:production": "npm run build:prod",
     "react-client-dev": "npm run build:dev",
-    "react-client-prod": "npm run build:prod"
+    "react-client-prod": "npm run build:prod",
+    "build:chart-server": "webpack --config webpack.renderer.js",
+    "chart-server": "node target/chart-server/awe-chart-server.cjs"
   },
   "keywords": [
     "AWE",

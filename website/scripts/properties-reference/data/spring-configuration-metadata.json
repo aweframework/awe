@@ -13,6 +13,12 @@
       "defaultValue": "address"
     },
     {
+      "name": "awe.application.chart-server-url",
+      "type": "java.lang.String",
+      "description": "Url of the AWE chart server, which renders the charts of the server (ECharts model to SVG). Default value http://localhost:7801",
+      "defaultValue": "http://localhost:7801"
+    },
+    {
       "name": "awe.application.component.chart-limit-point-serie",
       "type": "java.lang.Integer",
       "description": "Limit of points series in chart component.",
@@ -257,12 +263,6 @@
       "type": "java.lang.String",
       "description": "Xml file name of templates definition. Default value Templates.",
       "defaultValue": "Templates"
-    },
-    {
-      "name": "awe.application.highcharts-server-url",
-      "type": "java.lang.String",
-      "description": "Highcharts export server url Default value <a href=\"https://export.highcharts.com\">...</a>",
-      "defaultValue": "https://export.highcharts.com"
     },
     {
       "name": "awe.application.jms.enabled",

@@ -1,35 +1,50 @@
 ---
 name: awe-integration-tests
-description: "Trigger: run integration tests, selenium IT, spring integration tests, awe-boot verify, run a test suite. Exact commands to run AWE's Spring integration and Selenium tests locally."
+description: "Trigger: run integration tests, browser IT, playwright IT, selenium IT, spring integration tests, awe-boot verify, run a test suite. Exact commands to run AWE's Spring integration and browser (Playwright, Selenium) tests locally."
 license: Apache-2.0
 metadata:
   author: awe-team
-  version: "1.1"
+  version: "1.2"
 ---
 
 ## Activation Contract
 
-Use when running or debugging AWE's integration tests locally: Spring/JUnit DB-backed tests, or Selenium browser suites. Commands mirror `.gitlab-ci.yml` so a local pass predicts CI.
+Use when running or debugging AWE's integration tests locally: Spring/JUnit DB-backed tests, or the browser suites. Commands mirror `.gitlab-ci.yml` so a local pass predicts CI.
+
+The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwright`): those are the jobs of every merge request (`E2E · <engine> · Chromium · <suite>`, `.playwright-testing` in `.gitlab-ci.yml`). Selenium (`awe.test.tool=selenium`, the property default) only runs on `master`, `support/*` and the `develop` schedule (`.rules-selenium`): use it only to reproduce one of those jobs, or for remote/service browsers, which Playwright does not support.
 
 ## Hard Rules
 
-- Selenium ITs are ordered and stateful (`t000`→`t999`); run the whole suite tag, never a single method.
+- Browser ITs are ordered and stateful (`t000`→`t999`); run the whole suite tag, never a single method.
+- Run them with Playwright, as the merge request pipeline does: `-Dawe.test.tool=playwright -Dawe.test.allowed-recording=false`. Do not run Selenium unless you reproduce a `master`/`support/*`/schedule job.
 - `verify` on awe-boot starts its own app (`spring-boot:start`, port 8080) and stops it after — free 8080 first; do not leave a manual `spring-boot:run` instance up.
-- **Linux / WSL:** prefix `xvfb-run -a` when there is no X11 `DISPLAY`: the FFmpeg video recorder (forced by `video.properties` `recorder.type=FFMPEG`, `video.mode=ALL`) queries AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
-- **Windows:** no `xvfb-run` — the desktop session is a real display, so no `HeadlessException`. Instead `ffmpeg` must be on the `PATH` (`WindowsFFmpegRecorder` shells out to `ffmpeg gdigrab`), run the command on a single line (`\` is bash-only), and do NOT pass `-Djava.awt.headless=true`. To skip recording entirely (no ffmpeg needed), unset `video.mode` / disable recording in `video.properties`.
+- **Selenium only, Linux / WSL:** prefix `xvfb-run -a` when there is no X11 `DISPLAY`: the FFmpeg video recorder (forced by `video.properties` `recorder.type=FFMPEG`, `video.mode=ALL`) queries AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
+- **Selenium only, Windows:** no `xvfb-run` — the desktop session is a real display, so no `HeadlessException`. Instead `ffmpeg` must be on the `PATH` (`WindowsFFmpegRecorder` shells out to `ffmpeg gdigrab`), run the command on a single line (`\` is bash-only), and do NOT pass `-Djava.awt.headless=true`. To skip recording entirely (no ffmpeg needed), unset `video.mode` / disable recording in `video.properties`.
+- Playwright needs no display and no recorder (`awe.test.allowed-recording=false`, as in CI). It downloads its own browsers to `~/.cache/ms-playwright` on the first run (needs network); `headless-chrome` runs its Chromium, not the installed Chrome.
 - Selenium Manager / WebDriverManager auto-resolves the driver for the installed `google-chrome`; no manual chromedriver needed (needs network on first run).
 - Run `mvn install -DskipTests` (or `-pl <module>`) before testing so awe-boot bundles your latest module resources.
 
 ## Execution Steps
 
-### Selenium browser ITs
+### Browser ITs with Playwright (default, as in merge requests)
+```bash
+mvn -f awe-tests/awe-boot/pom.xml verify \
+  -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true \
+  -Dawe.test.browser=headless-chrome -Dawe.test.tool=playwright -Dawe.test.allowed-recording=false \
+  -Dgroups=<SUITE_TAG>
+```
+- `<SUITE_TAG>` (JUnit `@Tag`): `SchedulerIT`, `ApplicationIntegrationIT`, `CRUDCriteriaMatrixIT`, `RegressionWebsocketPrintIT`.
+- `-Dskip.selenium=false` enables the browser ITs whatever the tool (the flag predates Playwright).
+- Browser: `headless-chrome` (Chromium, the merge request jobs) or `headless-firefox` (the Firefox jobs run on `master` and the nightly `develop` schedule).
+- React test application: `-f awe-tests/awe-boot-react/pom.xml` with the same options.
+- Failure evidence: screenshot, page source, console and the Playwright trace of the failed test.
+
+### Browser ITs with Selenium (only to reproduce master, support/* or schedule jobs)
 ```bash
 xvfb-run -a mvn -f awe-tests/awe-boot/pom.xml verify \
   -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true \
   -Dawe.test.browser=headless-chrome -Dgroups=<SUITE_TAG>
 ```
-- `<SUITE_TAG>` (JUnit `@Tag`): `SchedulerIT`, `ApplicationIntegrationIT`, `CRUDCriteriaMatrixIT`, `RegressionWebsocketPrintIT`.
-- Browser: `headless-chrome` or `headless-firefox`.
 - Drop `xvfb-run -a` on a host with a real display (macOS, or Linux with X11).
 - On **Windows** (PowerShell / cmd), no `xvfb-run` and single line — needs `ffmpeg` on the `PATH`:
 ```powershell
@@ -45,7 +60,7 @@ mvn verify -Dskip.frontend=true -P<db>          # db: h2 h2-flyway hsql-flyway o
 # One class (surefire), e.g. an integration test in awe-boot
 mvn -pl awe-tests/awe-boot -am test -Dtest=MenuServiceTest -Dsurefire.failIfNoSpecifiedTests=false
 ```
-Selenium is skipped by default (`-Dskip.selenium=true`); these run only the JUnit tests.
+The browser ITs are skipped by default (`-Dskip.selenium=true`, whatever the tool); these run only the JUnit tests.
 
 ### Databases in containers (#764)
 `awe-testing` ships a Testcontainers utility (`com.almis.awe.testing.database`). **PostgreSQL, MySQL, SQL Server and Oracle use it**: their `-Ppostgresql`, `-Pmysql`, `-Psqlserver`, `-Poracle` profiles and the `-flyway` variants of each start the database in a container, locally and in CI, with no external server. H2 and HSQLDB are embedded.
@@ -88,9 +103,10 @@ Keycloak reaches AWE for the back-channel call through `host.testcontainers.inte
 
 ## Output Contract
 
-Report the exact command run, the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On Selenium failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `browser-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).
+Report the exact command run (and the automation tool), the failsafe/surefire `Tests run:` summary, and `BUILD SUCCESS`/`FAILURE`. On a browser test failure, point to the screenshot/video: locally under `awe-tests/awe-boot/target/tests/selenium/screenshots/`; in GitLab CI under `browser-evidence/` in the job artifacts (linked at the end of the job log; the failed test's screenshot is also shown in the pipeline Tests tab via View details).
 
 ## References
 
-- `.gitlab-ci.yml` — canonical CI test jobs (`IT_OPTS`, `UT_OPTS`, suite `TEST_TAGS`, per-DB `TEST_NAME`).
+- `.gitlab-ci.yml` — canonical CI test jobs (`IT_OPTS`, `UT_OPTS`, `IT_TOOL_OPTS` of `.playwright-testing`, `.rules-selenium`, suite `TEST_TAGS`, per-DB `TEST_NAME`).
+- `website/docs/guides/selenium-test-guide.md#automation-tool-awetesttool` — `awe.test.tool`, Playwright browsers and installation.
 - `awe-tests/awe-boot/pom.xml` — `spring-boot:start`/`stop` around integration-test; `skip.selenium` / `skip.junit` flags.

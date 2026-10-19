@@ -70,7 +70,7 @@ Check our latest technology stack on [![StackShare](https://img.shields.io/badge
 
 * Redux.js
 * Socket.IO
-* Highcharts
+* Apache ECharts
 * Font Awesome
 
 ### Databases

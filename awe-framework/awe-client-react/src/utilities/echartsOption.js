@@ -1,4 +1,4 @@
-import {translateLabel} from "./index";
+import {translateLabel} from "./labels";
 import {FORMATTERS, formatTemplate, toEChartsTimeFormat} from "./chartFormat";
 import {AWE, SERIES_INFO, asArray, hintsOf, isPie, pointContext, withoutAwe} from "./echartsContext";
 import {roundBars} from "./echartsBars";
@@ -94,16 +94,17 @@ export function findDrilldownId(model, seriesId) {
 // ------------------------------------------------------------------------------------------------------------
 
 /**
- * Bind the component values to the points of a series
+ * Bind the component values to the points of a series. A series that brings its own rows (`awe.values`, sent by the
+ * server render when the series reads another datasource) is bound to them instead
  * @param {object} serie Series of the model
  * @param {object[]} values Component values
  * @param {boolean} inverted The chart is inverted
  * @returns {Array} Points
  */
 function bindData(serie, values, inverted) {
-  const {xValue, yValue, zValue} = hintsOf(serie);
+  const {xValue, yValue, zValue, values: ownValues} = hintsOf(serie);
   const hasZ = Boolean(zValue);
-  const rows = asArray(values);
+  const rows = asArray(ownValues ?? values);
   if (isPie(serie)) {
     return rows.map(row => ({name: row[xValue], value: row[yValue] ?? null}));
   }

@@ -23,7 +23,6 @@ public class ChartBuilder extends AbstractComponentBuilder<ChartBuilder, Chart> 
   private ChartAxis zoomType;
   private String formatDataLabels;
   private String subtitle;
-  private String theme;
   private boolean enableDataLabels;
   private boolean inverted;
   private boolean stockChart;
@@ -40,7 +39,6 @@ public class ChartBuilder extends AbstractComponentBuilder<ChartBuilder, Chart> 
     super.build(chart)
       .setFormatDataLabels(getFormatDataLabels())
       .setSubTitle(getSubtitle())
-      .setTheme(getTheme())
       .setEnableDataLabels(isEnableDataLabels())
       .setInverted(isInverted())
       .setStockChart(isStockChart());

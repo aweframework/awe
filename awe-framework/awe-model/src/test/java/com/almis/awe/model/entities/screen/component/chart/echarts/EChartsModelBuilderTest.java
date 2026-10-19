@@ -565,11 +565,11 @@ class EChartsModelBuilderTest {
   void everythingClientEvaluatedTravelsInsideAweHints() {
     ChartAxis axis = ChartAxis.builder().labelFormat("{value} ºC").formatterFunction("formatCurrencyMagnitude").build();
     ChartTooltip tooltip = ChartTooltip.builder().pointFormat("{point.y}").dateFormat("%Y").build();
-    Chart chart = chart("column").enableDataLabels(true).formatDataLabels("{y:.1f}").stockChart(true).theme("blue")
+    Chart chart = chart("column").enableDataLabels(true).formatDataLabels("{y:.1f}").stockChart(true)
       .xAxisList(List.of(axis)).chartTooltip(tooltip).serieList(List.of(serie("a").build())).build();
     JsonNode model = echarts(chart);
 
-    for (String key : List.of("labelFormat", "formatter", "pointFormat", "dateFormat", "xValue", "yValue", "theme", "stock")) {
+    for (String key : List.of("labelFormat", "formatter", "pointFormat", "dateFormat", "xValue", "yValue", "stock")) {
       assertThat(pathsOf(model, key)).as(key).isNotEmpty().allMatch(path -> path.contains("/awe/"));
     }
     // Hints are always objects' children, never array items or values

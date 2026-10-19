@@ -563,17 +563,6 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(css(TestIds.TAG_LIST) + "[tag-list-id='" + tagListId + "']");
   }
 
-  @Override
-  public By getChart(String chartId) {
-    // The chart carries its identifier and tells when it has been drawn
-    return By.cssSelector(css(TestIds.CHART) + "[chart-id='" + chartId + "']" + stateCss(TestAttributes.RENDERED, true));
-  }
-
-  @Override
-  public By getChartZoomed(String chartId) {
-    return By.cssSelector(css(TestIds.CHART) + "[chart-id='" + chartId + "']" + stateCss(TestAttributes.ZOOMED, true));
-  }
-
   public By getContextMenuMask() {
     // The context menu closes with the keyboard: there is no mask to click
     return null;

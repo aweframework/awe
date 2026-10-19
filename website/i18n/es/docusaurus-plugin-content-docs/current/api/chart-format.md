@@ -4,10 +4,10 @@ title: Formatos de gráficas
 ---
 
 Los textos que dibuja una gráfica (etiquetas de datos, tooltips y etiquetas de los ejes) se describen con **cadenas de formato**: un texto con
-etiquetas `{...}` que se sustituyen por valores. El lenguaje es el lenguaje de plantillas de Highcharts 11. El motor React
-interpreta en el navegador el subconjunto descrito en esta página, por lo que un formato que solo use ese subconjunto produce el mismo
-texto con ECharts. Cualquier otra especificación de número (salvo `.Nf` y `,.Nf`) escribe el valor sin tratar: revísalas cuando
-migres una gráfica al motor React.
+etiquetas `{...}` que se sustituyen por valores. El lenguaje es el lenguaje de plantillas de Highcharts 11. Ambos motores (React y
+AngularJS) interpretan en el navegador el subconjunto descrito en esta página, por lo que un formato que solo use ese subconjunto
+produce el mismo texto con ECharts. Cualquier otra especificación de número (salvo `.Nf` y `,.Nf`) escribe el valor sin tratar:
+revíselas cuando actualice una gráfica desde AWE 4.
 
 ```text
 <b>{point.name}</b>: {point.percentage:.1f} %

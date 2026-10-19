@@ -74,7 +74,7 @@ export const ClientActions = {
   chart: {
     "add-points": {method: "onAddPoints", check: ["component", "view"]},
     "add-chart-series": {method: "onAddSeries", check: ["component", "view"]},
-    "remove-chart-series": {method: "onRemoveSeries"}, check: ["component", "view"],
+    "remove-chart-series": {method: "onRemoveSeries", check: ["component", "view"]},
     "replace-chart-series": {method: "onReplaceSeries", check: ["component", "view"]},
     "reset": {method: "onReset", check: ["component", "view"]},
     "restore": {method: "onRestore", check: ["component", "view"]}

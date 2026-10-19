@@ -63,7 +63,7 @@ You must have Maven 3.x installed on your computer as well as a **JDK 17** or hi
 * [Spring framework](https://spring.io/) - AWE Spring boot starter
 * [Angular JS](https://angularjs.org/) - Angular JS framework
 * [Bootstrap](https://getbootstrap.com/) - Bootstrap web toolkit
-* [Highcharts](https://www.highcharts.com/) - Interactive charts library
+* [Apache ECharts](https://echarts.apache.org/) - Interactive charts library
 
 [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/almis-informatica-financiera/aweframework)
 
@@ -140,5 +140,4 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## License
 
-All parts of AWE, **except the contents of the graphical charts library (HighCharts)**, are licensed
-under Apache License v2.0 see the [LICENSE.md](LICENSE.md) file for details.
+All parts of AWE are licensed under Apache License v2.0, see the [LICENSE.md](LICENSE.md) file for details.

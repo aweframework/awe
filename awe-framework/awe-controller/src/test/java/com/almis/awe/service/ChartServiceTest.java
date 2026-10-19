@@ -19,19 +19,26 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.mock.http.client.MockClientHttpRequest;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
@@ -55,6 +62,8 @@ class ChartServiceTest {
   private RestTemplate restTemplate;
 
   private MockRestServiceServer mockServer;
+
+  private static final String CHART_SERVER_URL = "http://chart-server:7801";
 
   @Mock
   private BaseConfigProperties baseConfigProperties;
@@ -158,13 +167,13 @@ class ChartServiceTest {
     chartService.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     lenient().when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
-    lenient().when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
+    lenient().when(baseConfigProperties.getChartServerUrl()).thenReturn(CHART_SERVER_URL);
     given(aweElements.getScreen(anyString())).willReturn(testScreen);
   }
 
   @Test
   void renderChart() throws Exception {
-    mockServer.expect(requestTo("https://export.highcharts.com"))
+    mockServer.expect(requestTo(CHART_SERVER_URL))
       .andExpect(method(HttpMethod.POST))
       .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
@@ -174,7 +183,7 @@ class ChartServiceTest {
 
   @Test
   void renderChartWithDetails() throws AWException {
-    mockServer.expect(requestTo("https://export.highcharts.com"))
+    mockServer.expect(requestTo(CHART_SERVER_URL))
       .andExpect(method(HttpMethod.POST))
       .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
@@ -212,7 +221,7 @@ class ChartServiceTest {
 
   @Test
   void renderChartNot200() {
-    mockServer.expect(requestTo("https://export.highcharts.com"))
+    mockServer.expect(requestTo(CHART_SERVER_URL))
       .andExpect(method(HttpMethod.POST))
       .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
@@ -227,7 +236,7 @@ class ChartServiceTest {
       .filter(StringHttpMessageConverter.class::isInstance)
       .count();
 
-    mockServer.expect(ExpectedCount.times(2), requestTo("https://export.highcharts.com"))
+    mockServer.expect(ExpectedCount.times(2), requestTo(CHART_SERVER_URL))
       .andExpect(method(HttpMethod.POST))
       .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
@@ -249,7 +258,7 @@ class ChartServiceTest {
       return execution.execute(request, body);
     });
 
-    mockServer.expect(ExpectedCount.times(2), requestTo("https://export.highcharts.com"))
+    mockServer.expect(ExpectedCount.times(2), requestTo(CHART_SERVER_URL))
       .andExpect(method(HttpMethod.POST))
       .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
@@ -258,6 +267,138 @@ class ChartServiceTest {
 
     assertEquals(2, interceptorCalls.get());
     mockServer.verify();
+  }
+
+  @Test
+  void renderChartSendsEChartsModelAndMainRows() throws AWException {
+    AtomicReference<JsonNode> request = new AtomicReference<>();
+    given(aweElements.getLanguage()).willReturn("es-ES");
+    mockServer.expect(requestTo(CHART_SERVER_URL))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(captureBody(request))
+      .andRespond(withSuccess("<svg/>", MediaType.valueOf("image/svg+xml")));
+
+    assertEquals("<svg/>", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+    mockServer.verify();
+
+    JsonNode body = request.get();
+    assertThat(body.path("type").asString()).isEqualTo("image/svg+xml");
+    assertThat(body.path("language").asString()).isEqualTo("es-ES");
+    // ECharts model, not the Highcharts one
+    JsonNode infile = body.path("infile");
+    assertThat(infile.path("series").isArray()).isTrue();
+    assertThat(infile.path("series").get(0).path("id").asString()).isEqualTo("serie-1");
+    assertThat(infile.has("chart")).isFalse();
+    assertThat(infile.has("plotOptions")).isFalse();
+    // Rows of the main datasource, serialized as the client gets them
+    JsonNode values = body.path("values");
+    assertThat(values.size()).isEqualTo(3);
+    assertThat(values.get(0).path("dates").asLong()).isEqualTo(1366927200000L);
+    assertThat(values.get(2).path("serie3").asInt()).isEqualTo(10);
+    // Series of the main datasource do not carry their own rows
+    infile.path("series").forEach(serie -> assertThat(serie.path("awe").has("values")).isFalse());
+  }
+
+  @Test
+  void renderChartSendsRowsOfOtherDatasourceInTheSeries() throws AWException {
+    AtomicReference<JsonNode> request = new AtomicReference<>();
+    mockServer.expect(requestTo(CHART_SERVER_URL))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(captureBody(request))
+      .andRespond(withSuccess("<svg/>", MediaType.valueOf("image/svg+xml")));
+
+    Map<String, DataList> datasources = Map.of(
+      "main", dataList(row("category", "asphalt", "serie1", 3), row("category", "clean", "serie1", 5)),
+      "detail", dataList(row("category", "asphalt1", "subserie1", 1), row("category", "asphalt2", "subserie1", 2),
+        row("category", "Mr Proper", "subserie1", 4))
+    );
+
+    assertEquals("<svg/>", chartService.renderChart("Chart", "DrillDownTest", datasources));
+    mockServer.verify();
+
+    JsonNode body = request.get();
+    assertThat(body.path("values").size()).isEqualTo(2);
+    JsonNode series = body.path("infile").path("series");
+    JsonNode mainSerie = findSerie(series, "main");
+    JsonNode detailSerie = findSerie(series, "detail");
+    assertThat(mainSerie.path("awe").has("values")).isFalse();
+    assertThat(detailSerie.path("awe").path("values").size()).isEqualTo(3);
+    assertThat(detailSerie.path("awe").path("values").get(2).path("category").asString()).isEqualTo("Mr Proper");
+    assertThat(detailSerie.path("awe").path("values").get(2).path("subserie1").asInt()).isEqualTo(4);
+  }
+
+  @Test
+  void renderChartSendsEmptyRowsForMissingDatasource() throws AWException {
+    AtomicReference<JsonNode> request = new AtomicReference<>();
+    mockServer.expect(requestTo(CHART_SERVER_URL))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(captureBody(request))
+      .andRespond(withSuccess("<svg/>", MediaType.valueOf("image/svg+xml")));
+
+    assertEquals("<svg/>", chartService.renderChart("Chart", "DrillDownTest", Map.of("main", new DataList())));
+    mockServer.verify();
+
+    JsonNode body = request.get();
+    assertThat(body.path("values").isArray()).isTrue();
+    assertThat(body.path("values").isEmpty()).isTrue();
+    JsonNode detailValues = findSerie(body.path("infile").path("series"), "detail").path("awe").path("values");
+    assertThat(detailValues.isArray()).isTrue();
+    assertThat(detailValues.isEmpty()).isTrue();
+  }
+
+  @Test
+  void renderChartSendsOnlyTranslatedWords() throws AWException {
+    AtomicReference<JsonNode> request = new AtomicReference<>();
+    given(aweElements.getLanguage()).willReturn("en-GB");
+    given(aweElements.getLocaleWithLanguage(anyString(), eq("en-GB")))
+      .willAnswer(invocation -> switch ((String) invocation.getArgument(0)) {
+        case "Temperaturas" -> "Temperatures";
+        case "Lluvias" -> "Rain";
+        default -> invocation.getArgument(0);
+      });
+    mockServer.expect(requestTo(CHART_SERVER_URL))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(captureBody(request))
+      .andRespond(withSuccess("<svg/>", MediaType.valueOf("image/svg+xml")));
+
+    chartService.renderChart("Chart", "LineChartTest", buildLineChartData());
+    mockServer.verify();
+
+    JsonNode translations = request.get().path("translations");
+    assertThat(translations.propertyNames()).containsExactlyInAnyOrder("Temperaturas", "Lluvias");
+    assertThat(translations.path("Temperaturas").asString()).isEqualTo("Temperatures");
+    assertThat(translations.path("Lluvias").asString()).isEqualTo("Rain");
+  }
+
+  @Test
+  void renderChartUsesChartServerUrl() throws AWException {
+    given(baseConfigProperties.getChartServerUrl()).willReturn("http://charts:9000");
+    mockServer.expect(requestTo("http://charts:9000"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withSuccess("<svg/>", MediaType.valueOf("image/svg+xml")));
+
+    assertEquals("<svg/>", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+    mockServer.verify();
+  }
+
+  @Test
+  void renderNullChart() throws AWException {
+    assertNull(chartService.renderChart("Chart", "NotFoundChart", Map.of()));
+    assertNull(chartService.renderChart((Chart) null, new DataList()));
+    assertNull(chartService.renderChart((Chart) null, Map.of()));
+  }
+
+  private RequestMatcher captureBody(AtomicReference<JsonNode> request) {
+    return clientRequest -> request.set(new JsonMapper().readTree(((MockClientHttpRequest) clientRequest).getBodyAsString()));
+  }
+
+  private JsonNode findSerie(JsonNode series, String id) {
+    for (JsonNode serie : series) {
+      if (id.equals(serie.path("id").asString())) {
+        return serie;
+      }
+    }
+    throw new AssertionError("Series " + id + " not found in " + series);
   }
 
   private DataList buildLineChartData() {

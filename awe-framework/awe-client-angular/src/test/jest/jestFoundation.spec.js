@@ -109,6 +109,15 @@ describe("Jest foundation configuration", () => {
     expect(dependencyNames).toContain("dayjs");
   });
 
+  it("draws charts with the same ECharts version as the React client and without Highcharts", () => {
+    const reactPackage = JSON.parse(fs.readFileSync(
+      path.join(__dirname, "..", "..", "..", "..", "awe-client-react", "package.json"), "utf8"));
+    const dependencyNames = Object.keys(packageConfig.dependencies || {});
+
+    expect(dependencyNames).not.toContain("highcharts");
+    expect(packageConfig.dependencies.echarts).toBe(reactPackage.dependencies.echarts);
+  });
+
   it("discovers source-traceable Jest specs instead of relying on npm bucket scripts", () => {
     expect(jestConfig.testMatch).toEqual(expect.arrayContaining([
       "<rootDir>/src/test/jest/**/*.spec.js",
@@ -120,8 +129,7 @@ describe("Jest foundation configuration", () => {
     expect(jestConfig.moduleNameMapper).toEqual(expect.objectContaining({
       "^jquery$": expect.stringContaining(path.join("node_modules", "jquery", "dist", "jquery")),
       "^bootstrap-tabdrop$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "pluginMock.js")),
-      "^highcharts/highstock$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "highchartsMock.js")),
-      "^highcharts/(.*)$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "highchartsModuleMock.js")),
+      "^awe-client-react/(.*)$": expect.stringContaining(path.join("awe-client-react", "src", "$1")),
       "\\.(css|less)$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "styleMock.js")),
       "\\.(jpg|jpeg|png|gif|svg|ttf|eot|woff|woff2)$": expect.stringContaining(
         path.join("src", "test", "jest", "mocks", "fileMock.js")
@@ -130,7 +138,11 @@ describe("Jest foundation configuration", () => {
   });
 
   it("uses a Jest Babel environment without Karma's Istanbul preprocessing", () => {
-    expect(jestConfig.transform["^.+\\.js$"][1]).toEqual({ envName: "jest" });
+    expect(jestConfig.transform["^.+\\.js$"][1]).toEqual({
+      envName: "jest",
+      configFile: path.join(__dirname, "..", "..", "..", ".babelrc"),
+      babelrc: false
+    });
     expect(babelConfig.env.jest).toEqual({
       compact: false,
       plugins: []
@@ -162,13 +174,8 @@ describe("Jest foundation configuration", () => {
   });
 
   it("preserves runtime shims required by migrated AngularJS suites", () => {
-    const highchartsMock = require("./mocks/highchartsMock.js");
-    const highchartsModuleMock = require("./mocks/highchartsModuleMock.js");
     const input = global.$("<input />");
     const target = { nested: { value: "original" } };
-
-    expect(highchartsMock.chart()).toEqual({ destroy: expect.any(Function), reflow: expect.any(Function) });
-    expect(highchartsModuleMock(highchartsMock)).toBe(highchartsMock);
 
     global._.merge(target, { nested: { extra: true } });
     expect(target).toEqual({ nested: { value: "original", extra: true } });

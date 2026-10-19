@@ -119,7 +119,7 @@ export const TestIds = Object.freeze({
   // React only: avatar of the logged user in the header (the avatar itself and the user name that goes with it)
   avatar: "avatar",
   avatarName: "avatar-name",
-  // React only: chart (the instance is identified by "chart-id"); "data-rendered" tells that the chart was drawn
+  // Chart (the instance is identified by "chart-id"); "data-rendered" tells that the chart was drawn
   chart: "chart",
   // React only: tag list (the instance is identified by "tag-list-id")
   tagList: "tag-list",
@@ -181,9 +181,9 @@ export const TestAttributes = Object.freeze({
   completed: "data-completed",
   // A tab, wizard step or accordion item holds fields that failed the validation
   invalid: "data-invalid",
-  // React only: the component drew its content (a chart)
+  // The component drew its content (a chart)
   rendered: "data-rendered",
-  // React only: the chart is zoomed (shows a part of its range)
+  // The chart is zoomed (shows a part of its range)
   zoomed: "data-zoomed",
   // React only: number of a wizard step (the step shows an icon instead of its number when it has one)
   stepNumber: "data-step-number",

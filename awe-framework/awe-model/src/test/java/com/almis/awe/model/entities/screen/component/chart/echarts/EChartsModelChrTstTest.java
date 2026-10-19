@@ -126,7 +126,6 @@ class EChartsModelChrTstTest {
     JsonNode model = echarts(charts.get("ChrStockTst"));
 
     assertThat(model.at("/awe/stock").asBoolean()).isTrue();
-    assertThat(model.at("/awe/theme").asString()).isEqualTo("blue");
     assertThat(model.at("/dataZoom")).hasSize(2);
     assertThat(model.at("/dataZoom/0/type").asString()).isEqualTo("inside");
     assertThat(model.at("/dataZoom/0/xAxisIndex").asInt()).isZero();
@@ -193,7 +192,6 @@ class EChartsModelChrTstTest {
   void semicircleOpensUpwardWithInsideLabelsAndCenteredTitle() {
     JsonNode model = echarts(charts.get("ChrSemiCircleTst"));
 
-    assertThat(model.at("/awe/theme").asString()).isEqualTo("gray");
     assertThat(model.at("/series/0/type").asString()).isEqualTo("pie");
     assertThat(model.at("/series/0/startAngle").asInt()).isEqualTo(180);
     assertThat(model.at("/series/0/endAngle").asInt()).isEqualTo(360);
@@ -246,7 +244,6 @@ class EChartsModelChrTstTest {
     assertThat(model.at("/xAxis/0/type").asString()).isEqualTo("category");
     assertThat(model.at("/xAxis/0/name").asString()).isEqualTo("SCREEN_TEXT_MONTHS");
     assertThat(model.at("/yAxis/0/type").asString()).isEqualTo("value");
-    assertThat(model.at("/awe/theme").asString()).isEqualTo("dark-unica");
     assertThat(model.at("/awe/chartType").asString()).isEqualTo("line");
     assertThat(model.at("/legend/orient").asString()).isEqualTo("vertical");
     assertThat(model.at("/legend/awe/title").asString()).isEqualTo("SCREEN_TEXT_LEGEND");
