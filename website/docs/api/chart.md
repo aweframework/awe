@@ -7,33 +7,35 @@ A chart shows the result of a query as a graphic: lines, columns, areas, pies, s
 screen XML with a `chart` element, its axes, its series and, optionally, a legend, a tooltip and extra parameters. The
 chart loads its data from a query, like any other AWE component.
 
-Two engines draw the charts, and **the chart XML is the same in both**:
+Two engines draw the charts, and **the chart XML is the same in both**. Both draw them with the same library and the
+same code:
 
-| Engine     | Library                                                       | Notes                                                               |
-| ---------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
-| React      | [Apache ECharts](https://echarts.apache.org/) 6.1.0           | Default client of AWE 5. Charts are drawn as SVG                    |
-| AngularJS  | [Highcharts](https://www.highcharts.com/)                     | Keeps drawing the charts with Highcharts until the AngularJS engine moves to ECharts (issue #775) |
+| Engine    | Library                                             | Notes                                                      |
+| --------- | --------------------------------------------------- | ---------------------------------------------------------- |
+| React     | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Default client of AWE 5. Charts are drawn as SVG           |
+| AngularJS | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Charts are drawn as SVG, with the code of the React client |
 
-The server does the translation. For every chart it builds the Highcharts `chartModel` (used by the AngularJS engine)
-and, next to it, an `echartsModel` (used by the React engine). The `echartsModel` is an ECharts option without data and
-without functions: the client adds the values of the query, and interprets the [formats](chart-format.md) and the other
+The server does the translation. For every chart it builds an `echartsModel`: an ECharts option without data and
+without functions. The client adds the values of the query, and interprets the [formats](chart-format.md) and the other
 hints that the server sends. The options that you set with [`chart-parameter`](chart-parameters.md) are translated too;
 the ones that have no ECharts counterpart are ignored and reported in the log of the server.
 
-> **Note:** Apache ECharts is open source (Apache License 2.0). Highcharts is open source for **non commercial
-> applications**. For commercial purposes, you must *purchase* a license to use it in the AngularJS engine.
+> **Note:** Apache ECharts is open source (Apache License 2.0), so no commercial licence is needed to draw charts in
+> either engine. In AWE 4 the AngularJS engine drew them with Highcharts, which needs a licence for commercial
+> applications. See [Changes from AWE 4 (Highcharts)](#changes-from-awe-4-highcharts).
 
 The pages about charts are:
 
-* **Charts** (this page): XML structure, examples of every chart type, actions, differences between the engines.
+* **Charts** (this page): XML structure, examples of every chart type, actions, styling and the changes from AWE 4.
 * [Chart formats](chart-format.md): the format language of labels, tooltips and axes.
-* [Chart parameters](chart-parameters.md): the Highcharts options that you can set, and how each one is translated.
+* [Chart parameters](chart-parameters.md): the options (with Highcharts names) that you can set, and how each one is
+  translated.
 
 ## Chart concepts
 
 To get to grasp with how a chart works it is important to understand the various parts or concepts of a chart. Below
-is an image and a description of the main concepts in a chart. The image was drawn with Highcharts but the parts are
-the same in both engines.
+is an image and a description of the main concepts in a chart. The image was drawn with Highcharts (AWE 4) but the
+parts are the same with ECharts, in both engines.
 
 <img alt="understanding_highcharts" src={require('@docusaurus/useBaseUrl').default('img/understanding_highcharts.png')} />
 
@@ -55,20 +57,22 @@ the same in both engines.
 
 ### Time series with zoom (stock charts)
 
-A chart with `stock-chart="true"` is meant to show the evolution of a lot of data over time. In the React engine it has
-a **slider** under the plot (the navigator) and the x axis can be zoomed with the mouse wheel. The AngularJS engine
-draws it with Highstock, which adds a range selector, a scrollbar and a navigator.
+A chart with `stock-chart="true"` is meant to show the evolution of a lot of data over time. In both engines it has a
+**slider** under the plot (the navigator), the x axis can be zoomed with the mouse wheel and moved by dragging inside
+the plot, and the legend is hidden by default. In AWE 4 the AngularJS engine drew it with Highstock, the chart of the
+image below.
 
 <img alt="understanding_highstock" src={require('@docusaurus/useBaseUrl').default('img/understanding_highstock.png')} />
 
-* **Navigator:** Allows you to fine tune the range of the chart which is displayed.
-* **Range selector:** Allows you to quickly select a range to be shown on the chart or specify the exact interval to
-  be shown. Only in the AngularJS engine.
-* **Scrollbar:** Allows scrolling on the chart. Only in the AngularJS engine.
+* **Navigator:** Allows you to fine tune the range of the chart which is displayed. With ECharts it is a slider under
+  the plot.
+* **Range selector:** Not available. It was part of Highstock (AWE 4, AngularJS engine).
+* **Scrollbar:** Not available. It was part of Highstock: drag the slider or the plot instead.
 * **Crosshair:** Shows a line following the tooltip of a chart to better read results of the x-axis. This
   functionality can be found in the tooltip options, and it can be used in any chart (it is not enabled by default).
 
-The image above shows Highstock. See the [stock chart example](#stock-chart-with-zoom) for the React engine.
+The image above shows Highstock. See the [stock chart example](#stock-chart-with-zoom) for the chart drawn with
+ECharts.
 
 ## XML skeleton
 
@@ -116,7 +120,6 @@ Chart element has the following attributes:
 | subtitle | Optional | String | Is the subtitle of chart               | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
 | type | **Required** | String | Type of chart | `line`, `spline`, `column`, `column_3d`, `area`, `areaspline`, `arearange`, `areasplinerange`, `pie`, `pie_3d`, `donut`, `donut_3d`, `semicircle`, `mixed`, `bubble`, `scatter`. See [chart types](#chart-types) |
 | stock-chart | Optional | Boolean | Flag to indicate a stock type chart | `true` or `false` |
-| theme | Optional | String | Is the name of the Highcharts theme | AngularJS engine only. See [Highcharts themes](#highcharts-themes-angularjs-engine) |
 | inverted | Optional | Boolean | Whether to invert the axes so that the x axis is vertical and y axis is horizontal. When true, the x axis is reversed by default. | `true` or `false` |
 | stacking | Optional | String | Whether to stack the values of each series on top of each other | `normal` or `percent` |
 | enable-data-labels | Optional | Boolean | Whether to show the data labels of the points | Defaults to `false` |
@@ -136,7 +139,7 @@ Chart element has the following attributes:
 
 ##### Chart types
 
-| Type                                        | Drawn as (React engine)                                                              |
+| Type                                        | Drawn as                                                                             |
 | ------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `line`, `spline`                            | Lines. `spline` smooths them                                                         |
 | `area`, `areaspline`                        | Filled lines. `areaspline` smooths them                                              |
@@ -230,7 +233,7 @@ It is used for overwrite values in chart elements. It has the following attribut
 | value | Optional | String | Value of chart parameter |  |
 
 The chart element, the axes, the legend, the tooltip and the series accept `chart-parameter` children. See
-[chart parameters](chart-parameters.md) for the options that each engine applies.
+[chart parameters](chart-parameters.md) for the options that are applied.
 
 ## Series and queries concepts
 
@@ -417,7 +420,7 @@ of the plot. The `threshold` of `-Infinity` fills the area from the bottom of th
 ### Column chart
 
 Type `column`. With the `stacking` attribute (`normal` or `percent`) the series are stacked. The type `column_3d` is
-accepted in the XML, but **the React engine draws it flat**, like this stacked chart:
+accepted in the XML, but **both engines draw it flat**, like this stacked chart:
 
 <img alt="Stacked column chart with three series" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stacked-column.png')} />
 
@@ -736,8 +739,8 @@ Without `minSize` and `maxSize` the sizes go from 10 to 50 pixels:
 
 ### Stock chart with zoom
 
-With `stock-chart="true"` the chart is meant for long time series. The React engine adds a slider (the navigator) under
-the plot, a zoom of the x axis with the mouse wheel, and shows no legend by default.
+With `stock-chart="true"` the chart is meant for long time series. Both engines add a slider (the navigator) under the
+plot, a zoom of the x axis with the mouse wheel, and show no legend by default.
 
 <img alt="Time series chart with a navigator slider under the plot" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stock.png')} />
 
@@ -806,14 +809,13 @@ the zoom of two charts:
 </dependency>
 ```
 
-The result of the formula is an options object (or its JSON text). Both engines apply the **zoom**
-(`{zoom: {x: {min, max}, y: {min, max}}}`): the AngularJS engine sets the extremes of the Highcharts axes, and the React
-engine zooms the data zoom components of the ECharts axes. A `null` range shows the whole axis again. The chart does
-not zoom again to the range it already has, so two charts linked by the same dependency do not trigger each other in a
-loop.
+The result of the formula is an options object (or its JSON text). Both engines apply only its **zoom**
+(`{zoom: {x: {min, max}, y: {min, max}}}`): the chart zooms the data zoom components of its ECharts axes. A `null`
+range shows the whole axis again. The chart does not zoom again to the range it already has, so two charts linked by
+the same dependency do not trigger each other in a loop.
 
-The rest of the options are Highcharts options and the React engine ignores them: only the zoom is supported with
-ECharts. The other dependencies of a chart (visibility, attributes, `reload`...) work in both engines. See
+The other options of the object are ignored (in AWE 4 the AngularJS engine merged them into the Highcharts chart). The
+other dependencies of a chart (visibility, attributes, `reload`...) work in both engines. See
 [dependencies](dependencies.md).
 
 ### Events and attributes
@@ -829,124 +831,81 @@ Both engines emit the same events and write the same attributes, so the dependen
 
 `x` and `y` are the coordinates of the point (the name and the value of a pie slice). `xMin`, `xMax`, `yMin` and `yMax`
 are the visible range of each axis, and they are `null` while the whole axis is shown. A zoom that comes from a
-`chart-options` dependency writes the attributes but does not emit the `zoom` event again. In the React engine the zoom
-is made with the mouse wheel or with the slider of the chart (a `dataZoom` of the chart model), and the chart tells in
-its `data-zoomed` test attribute that it is zoomed. The React engine does not show the context menu of the chart
-buttons on `context-menu` yet (issue #801).
+`chart-options` dependency writes the attributes but does not emit the `zoom` event again. In both engines the zoom is
+made with the mouse wheel and by dragging inside the plot, or with the slider of the chart (a `dataZoom` of the chart
+model). There is no **Reset zoom** button: zoom out with the mouse wheel. The chart tells in its `data-zoomed` test
+attribute that it is zoomed.
 
-## Differences between the engines
+In an inverted chart (`inverted="true"` or a `bar` series) the x axis of AWE is the vertical one. The events and the
+zoom report the `x` and `y` of AWE, not the direction of the screen.
 
-| Feature                                   | React (ECharts)                                                                                | AngularJS (Highcharts)                          |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| 3D types (`column_3d`, `pie_3d`, `donut_3d`) | Drawn **flat**                                                                              | Drawn in 3D                                     |
-| `chart-parameter` options                 | Only the [translated options](chart-parameters.md); the rest are ignored and logged            | Any option of the Highcharts API                |
-| `chart-options` dependency                | Only the zoom is applied, the other options are ignored                                        | Applied                                         |
-| `theme` attribute (Highcharts themes)     | Ignored. The look comes from the theme of the application                                      | Applied                                         |
-| Default palette                           | The Highcharts 11 palette, for the series without color                                        | The Highcharts palette, or the one of the theme |
-| Dark mode                                 | The charts follow the theme of the application (see below)                                     | Highcharts themes (`theme` attribute)           |
-| Stock charts                              | Slider and zoom with the mouse wheel                                                           | Highstock: navigator, range selector, scrollbar |
-| Printing                                  | Image drawn by the SVG renderer of ECharts                                                     | Highcharts export                               |
-| Chart texts                               | Files `src/i18n/charts/charts-<language>.json`                                                 | Texts of the AngularJS client                   |
+The React engine does not show the context menu of the chart buttons on `context-menu` yet (issue #801).
 
-### Known limits of the React engine
+## Styling a chart
+
+A chart has no theme of its own: its look comes from the theme of the application.
+
+* **Light and dark.** When the chart is created, it reads the background of the application (the `--surface-a`
+  variable of the theme, or the background of the page). It draws itself with light colors or, when that background is
+  dark, with the dark colors of ECharts. If the user changes the theme while the screen is open, the chart picks the
+  new theme when it is created again (for example when the screen is opened again or the language changes).
+* **Series colors.** The `color` attribute of a `chart-serie` sets the color of a series. The series without a color
+  take the colors of the `colors` parameter of the chart or, by default, the Highcharts 11 palette (`#2caffe`,
+  `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`).
+* **Anything else.** Fonts, title, axes, grid lines, data labels, markers, gradient fills... are set with
+  [`chart-parameter`](chart-parameters.md) elements. Only the translated options are applied.
+
+CSS rules cannot restyle the drawing of a chart: the SVG renderer of ECharts writes the styles inline, without CSS
+classes. The `style` attribute of the chart sets the CSS classes of its container, not the colors of the chart.
+
+## Changes from AWE 4 (Highcharts)
+
+In AWE 4 the AngularJS engine drew the charts with Highcharts and Highstock. In AWE 5 both engines draw them with
+ECharts, from the same `echartsModel`:
+
+| Feature                                      | AWE 4 (Highcharts, AngularJS engine)              | AWE 5 (ECharts, both engines)                                                       |
+| -------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 3D types (`column_3d`, `pie_3d`, `donut_3d`) | Drawn in 3D                                       | Drawn **flat**                                                                      |
+| Range types (`arearange`, `areasplinerange`) | Drawn as ranges                                   | Approximated by a filled line (the server logs a warning)                           |
+| `chart-parameter` options                    | Any option of the Highcharts API                  | Only the [translated options](chart-parameters.md); the rest are ignored and logged |
+| `chart-options` dependency                   | Any Highcharts option                             | Only the zoom is applied, the other options are ignored                             |
+| `theme` attribute                            | Highcharts themes                                 | Removed. See [Styling a chart](#styling-a-chart)                                    |
+| Default palette                              | The Highcharts palette, or the one of the theme   | The Highcharts 11 palette, for the series without color                             |
+| Dark mode                                    | Dark Highcharts themes (`theme` attribute)        | The charts follow the theme of the application                                      |
+| `.highcharts-*` CSS rules                    | Applied                                           | Match nothing: the SVG has no CSS classes                                           |
+| Stock charts                                 | Highstock: navigator, range selector, scrollbar   | Slider, zoom with the mouse wheel and dragging                                      |
+| Zoom                                         | Selection with the mouse and a Reset zoom button  | Mouse wheel and dragging inside the plot, slider. No Reset zoom button              |
+| Printing                                     | Highcharts export                                 | Image drawn by the SVG renderer of ECharts                                          |
+| Server rendering (`ChartService`)            | Highcharts export server                          | AWE chart server (ECharts)                                                          |
+| Chart texts                                  | Highcharts language files of the AngularJS client | Files `src/i18n/charts/charts-<language>.json` of the React client                  |
+
+### Known limits
 
 * **3D charts are flat.** The 3D types are accepted, so existing screens keep working, but the depth is not drawn.
-* **Colors.** When the XML gives no colors, the series take the colors of the Highcharts 11 default palette
-  (`#2caffe`, `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`). Set the
-  `color` of the series, or the `colors` parameter of the chart, to use your own.
-* **Dark theme.** The chart reads the theme of the application when it is created, and draws itself with light or dark
-  colors. If the user changes the theme while the screen is open, the chart picks the new theme when it is created
-  again (for example when the screen is opened again or the language changes).
 * **Drilldown and printing.** Printing a chart that is drilled down prints the top level.
 * **Raw values.** The values are drawn as the query gives them: nothing is rounded unless a format or `number-decimals`
   says so.
 * **Highcharts options.** Options without an ECharts counterpart are ignored. Check the log of the server, which
   reports each one once (see [chart parameters](chart-parameters.md#everything-else)).
-* **Highcharts themes.** The `theme` attribute applies only to the AngularJS engine.
 * **Range types.** `arearange` and `areasplinerange` are approximated by a filled line.
-
-## Highcharts themes (AngularJS engine)
-
-> **Note:** This section applies only to the AngularJS engine. The React engine ignores the `theme` attribute.
-
-The AngularJS engine and the Highcharts library allow to change the style easily. There are some themes by default. Just
-set the attribute `theme` of the chart element with the name of the theme.
-
-The available theme list is:
-
--   dark-unica
--   dark-green
--   dark-blue
--   gray
--   grid
-
-### Creating your own theme
-
-Here is a simple example to show the process:
-
-```javascript
-/**
- * Theme for Highcharts JS
- */
-
-Highcharts.theme["your-theme"] = {
-colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', 
-             '#FF9655', '#FFF263', '#6AF9C4'],
-    chart: {
-        backgroundColor: {
-            linearGradient: [0, 0, 500, 500],
-            stops: [
-                [0, 'rgb(255, 255, 255)'],
-                [1, 'rgb(240, 240, 255)']
-            ]
-        },
-    },
-    title: {
-        style: {
-            color: '#000',
-            font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
-        }
-    },
-    subtitle: {
-        style: {
-            color: '#666666',
-            font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
-        }
-    },
-
-    legend: {
-        itemStyle: {
-            font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: 'black'
-        },
-        itemHoverStyle:{
-            color: 'gray'
-        }   
-    }
-};
-
-```
-
-> **Note:** You must add the new file name into **scripts.xml** file on your project.
 
 ## Printing and server rendering
 
-**Printing in the React engine.** When the user prints a screen with a chart, the client draws an image of the chart
-apart from the screen, with the SVG renderer of ECharts, in light colors and with the size of the page. The image is
-drawn from the top level of the chart, even when the user has drilled down.
+**Printing.** When the user prints a screen with a chart, the client draws an image of the chart apart from the
+screen, with the SVG renderer of ECharts, in light colors and with the size of the page (in the AngularJS engine,
+1167 x 360 pixels in landscape and 796 x 540 in portrait). The image is drawn from the top level of the chart, even
+when the user has drilled down.
 
-**Rendering on the server.** The `ChartService` described below is independent of the engine of the browser: it builds
-the Highcharts model of the chart and sends it to a Highcharts export server, which returns an SVG image. It still needs
-the export server (`highcharts.server.url`).
+**Rendering on the server.** The `ChartService` described below is independent of the engine of the browser: it sends
+the ECharts model of the chart and its data to the AWE chart server, which draws it with the same code as the
+browser and returns an SVG image. No Highcharts export server is needed.
 
 ## Chart render service
 
-Highcharts has an export server which allows you to generate high quality charts on the server side:
-
-https://www.highcharts.com/docs/export-module/setting-up-the-server
-
-We have developed a new render service which allows you to generate charts in `SVG` format using this export server and 
-AWE charts.
+`ChartService` generates charts in `SVG` format on the server side, for example to put them in a report or an e-mail.
+The image is drawn by the **AWE chart server**, a small Node service that renders the chart with the server-side
+rendering of [Apache ECharts](https://echarts.apache.org/handbook/en/how-to/cross-platform/server/) (SVG renderer,
+`ssr: true`), without a browser. It replaces the Highcharts export server of AWE 4 and keeps its HTTP contract.
 
 ### Defining charts
 
@@ -1013,50 +972,121 @@ datasources.put("detail", detailDataList);
 The first serie (`data`) will pick the data defined on `main` key 
 and the second serie (`detail`) will pick the data defined on `detail` key
 
-### Render server
+### Chart server
 
-You can configure the render server on `application.properties` file updating the `highcharts.server.url` property:
+Start the AWE chart server and set its URL in the `awe.application.chart-server-url` property (default
+`http://localhost:7801`):
 
 ```properties
-################################################
-# Chart properties
-################################################
-highcharts.server.url=http://export.highcharts.com
+awe.application.chart-server-url=http://chart-server:7801
 ```
 
-The default export server is pointing to Highcharts export server: `http://export.highcharts.com`
+The old `awe.application.highcharts-server-url` property is removed: the public Highcharts export server it pointed to
+(`https://export.highcharts.com`) cannot draw an ECharts chart. Rename it to `awe.application.chart-server-url`.
+
+The chart server is published as a container image in the
+[docker-tools](https://gitlab.com/aweframework/docker-tools) registry:
+
+```bash
+docker run -d --name awe-chart-server -p 7801:7801 registry.gitlab.com/aweframework/docker-tools/awe-chart-server:latest
+```
+
+With Docker Compose, next to the application:
+
+```yaml
+services:
+  chart-server:
+    image: registry.gitlab.com/aweframework/docker-tools/awe-chart-server:latest
+  app:
+    image: my-awe-application
+    environment:
+      AWE_APPLICATION_CHARTSERVERURL: http://chart-server:7801
+```
+
+Without containers, it is one Node file built from the React client module (`awe-framework/awe-client-react`):
+
+```bash
+# Node bundle (also built by the Maven build of the module) in target/chart-server/awe-chart-server.cjs
+npm run build:chart-server
+# Run it with Node 20 or later
+PORT=7801 node target/chart-server/awe-chart-server.cjs
+```
+
+| Environment variable | Default    | Description                                  |
+|----------------------|------------|----------------------------------------------|
+| `PORT`               | `7801`     | Port of the server                           |
+| `HOST`               | `0.0.0.0`  | Address to listen to                         |
+| `MAX_BODY_SIZE`      | `10485760` | Maximum size of a request body, in bytes     |
+
+The server answers `GET /health` with `OK`, and renders a chart with `POST /` and a JSON body:
+
+| Field          | Required | Description                                                                                   |
+|----------------|----------|-----------------------------------------------------------------------------------------------|
+| `infile`       | Yes      | ECharts model of the chart (`echartsModel`). A series of another datasource brings its rows in `awe.values` |
+| `type`         | No       | `image/svg+xml` (default). Any other type is rejected with `400`: only SVG is rendered         |
+| `values`       | No       | Rows of the `main` datasource                                                                 |
+| `width`, `height` | No    | Size of the image, `600` x `400` by default (the default of the Highcharts export server)     |
+| `language`     | No       | Language of the texts, numbers and dates (`es-ES`, `fr-FR`, `en-GB`). English by default       |
+| `translations` | No       | Translation of the locale keys of the chart, sent by `ChartService` in the language of the user |
+
+It answers `200` with the SVG image, `400` for a wrong request, `413` for a body over `MAX_BODY_SIZE` and `500` when
+the chart cannot be drawn (the error is in the log of the server). `ChartService` throws an `AWException` for any answer
+that is not `2xx`.
 
 ## Upgrading to AWE 5
 
-In AWE 5 the React engine draws the charts with [Apache ECharts](https://echarts.apache.org/) 6.1.0 instead of
-Highcharts. The AngularJS engine keeps drawing them with Highcharts until it moves to ECharts (issue #775).
+In AWE 5 both engines, React and AngularJS, draw the charts with [Apache ECharts](https://echarts.apache.org/) 6.1.0
+instead of Highcharts. Neither client depends on Highcharts any more.
 
-The chart XML does not change. The server translates the chart, its axes, series and `chart-parameter` elements into
-an ECharts model, and logs a warning (once per option) for every option it cannot translate. Check these points when
-you upgrade an application that uses the React engine:
+The chart XML does not change, except for the `theme` attribute, which is removed. The server translates the chart, its
+axes, series and `chart-parameter` elements into an ECharts model, and logs a warning (once per option) for every
+option it cannot translate. Check these points when you upgrade an application, in either engine:
 
 * **Review the log of the server.** Open every screen with a chart and look for warnings that start with
-  `Highcharts chart-parameter`. Each one is an option that the React engine ignores. See
+  `Highcharts chart-parameter`. Each one is an option that the charts ignore. See
   [chart parameters](chart-parameters.md) for the options that are translated.
-* **Custom code that imports Highcharts.** The React client no longer depends on `highcharts` nor on
-  `highcharts-react-official`. A custom component of your application that imports them has to declare them in its own
-  `package.json` (check the Highcharts licence) or move to ECharts, which the client already provides.
+* **`theme` attribute.** The attribute of `chart` and the `setTheme` method of `ChartBuilder` are removed. A screen
+  that still has `theme="..."` loads without errors (the attribute is ignored), but the look of the theme is no longer
+  applied: the charts follow the theme of the application. Remove the attribute, and set the colors and fonts that the
+  theme gave in the XML. See [Styling a chart](#styling-a-chart).
+* **Custom Highcharts code.** No client provides Highcharts any more. In the AngularJS engine, the Highcharts themes
+  (`Highcharts.theme` files) and other Highcharts scripts that the application adds in `scripts.xml` no longer do
+  anything (and fail if they expect the `Highcharts` global): remove them. In the React engine, a custom component that
+  imports `highcharts` or `highcharts-react-official` has to declare them in its own `package.json` (check the
+  Highcharts licence) or move to ECharts, which the client already provides.
 * **`.highcharts-*` CSS rules.** The charts are no longer drawn by Highcharts, so these rules do not match anything in
-  the React engine. Colors, fonts and borders come from the XML (`chart-parameter`) and from the theme. The dark mode
-  of the application is applied to the charts automatically, when the chart is created.
+  either engine, and the SVG of ECharts has no CSS classes. Colors, fonts and borders come from the XML
+  (`chart-parameter`, the `color` of the series) and from the theme of the application. The dark mode of the
+  application is applied to the charts automatically, when the chart is created.
 * **Palette.** The series without a color of their own keep the Highcharts 11 default palette. Set `color` in the
   series or the `colors` parameter in the chart to change it.
-* **Highcharts themes.** The `theme` attribute is ignored by the React engine. If a theme gave colors or fonts to your
-  charts, set them in the XML.
-* **3D charts** (`column_3d`, `pie_3d`, `donut_3d`) are drawn flat.
-* **`chart-options` dependency.** Its result is a Highcharts options object. The React engine applies only its
-  `zoom` (to link the zoom of charts) and ignores the other options.
+* **3D charts** (`column_3d`, `pie_3d`, `donut_3d`) are drawn flat, and `arearange` and `areasplinerange` are
+  approximated by a filled line.
+* **`chart-options` dependency.** Its result is a Highcharts options object. Both engines apply only its `zoom` (to
+  link the zoom of charts) and ignore the other options.
+* **Stock charts and zoom.** A stock chart has a slider under the plot and zooms with the mouse wheel and by dragging
+  inside the plot. The range selector, the scrollbar and the Reset zoom button of Highcharts are gone.
 * **Formats.** The format strings of Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, the date patterns of
   `%Y-%m-%d`...) work as before, see [chart formats](chart-format.md). Number specifications other than `.Nf` and
   `,.Nf` are written as the raw value, and the values are never rounded unless a format asks for it.
 * **Printing.** The charts are printed from an image drawn by ECharts. A drilled-down chart prints its top level.
 * **Chart texts.** The language files of the chart texts are `src/i18n/charts/charts-<language>.json` in the React
   client, and they only hold the texts that the charts use: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`,
-  `months`, `shortMonths` and `weekdays`. Copy your customizations to those files.
-* **Server rendering.** `ChartService` still uses the Highcharts export server and the Highcharts model of the chart,
-  so `highcharts.server.url` is still needed for it.
+  `months`, `shortMonths` and `weekdays`. The AngularJS engine uses the same files (and adds Basque). Copy your
+  customizations to those files.
+* **Server rendering.** `ChartService` sends the ECharts model to the AWE chart server instead of the Highcharts
+  model to a Highcharts export server. Run the chart server and set `awe.application.chart-server-url`, see
+  [Chart server](#chart-server).
+
+Other changes of the AngularJS engine, which now behaves like the React engine:
+
+* **Labels.** The title, the subtitle, the axis titles and the series names are translated word by word: every word
+  that is a locale key is replaced. A label that is a single key is translated as before.
+* **Chart actions.** `add-points` on a chart with `max` keeps exactly `max` points, dropping the oldest ones. `reset`
+  clears the values of the chart.
+* **Too much data.** The `limitPointsSerie` setting counts the rows of the chart. When there are more rows, the chart
+  shows the "too much data" message instead of the series.
+* **Inverted charts.** The x axis of AWE is the vertical one: the events and the zoom report the `x` and `y` of AWE.
+* **Browser tests.** The chart element has the `data-testid="chart"`, `chart-id`, `data-rendered` and `data-zoomed`
+  attributes, like in the React engine. The `getChart` and `getChartZoomed` instructions of `awe-testing` use them; the
+  `.highcharts-reset-zoom` selector is gone.

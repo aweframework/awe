@@ -42,7 +42,6 @@
     "yValue" : "serie1"
   } ],
   "stockChart" : false,
-  "theme" : "gray",
   "title" : {
     "align" : "center",
     "text" : "Grafico 8",

@@ -1,156 +1,83 @@
 import {aweApplication} from "../../awe";
+import {buildEChartsOption, findDrilldownId} from "awe-client-react/utilities/echartsOption";
+import {parseChartOptions, pointOf, zoomOf} from "awe-client-react/utilities/echartsEvents";
+import {linkedNames} from "awe-client-react/utilities/echartsLegend";
+import {getEChartsSerie, mergeSeriesPoints} from "awe-client-react/utilities/echartsSeries";
+import {renderSvg} from "awe-client-react/utilities/echartsSetup";
+import {getChartTexts} from "./texts";
 import "../../directives/plugins/uiChart";
 import "./events";
 
+const AXES = ["x", "y"];
+const FULL_RANGE = {start: 0, end: 100};
+
+/**
+ * Size of the printed chart image for each page orientation
+ * @type {object}
+ */
+const PRINT_SIZES = {
+  LANDSCAPE: {width: 1167, height: 360},
+  PORTRAIT: {width: 796, height: 540}
+};
+
+/**
+ * Retrieve the AWE axis (x or y) that a data zoom component zooms. The AWE x axis is the vertical one in an inverted
+ * chart
+ * @param {object} dataZoom Data zoom component
+ * @param {boolean} inverted The chart is inverted
+ * @returns {string|undefined} Axis
+ */
+function axisOf(dataZoom, inverted) {
+  const axis = AXES.find(name => !_.isNil(dataZoom[`${name}AxisIndex`]));
+  return inverted && axis ? AXES.find(name => name !== axis) : axis;
+}
+
+/**
+ * Give the zoom of the chart to the data zoom components of an option, so that drawing the chart again keeps it
+ * @param {object} option ECharts option, which is changed
+ * @param {object} zoom Zoom of the chart model: {x: {min, max}, y: {min, max}}
+ * @param {boolean} inverted The chart is inverted
+ * @returns {object} Option
+ */
+function applyZoom(option, zoom, inverted) {
+  if (!option.dataZoom) {
+    return option;
+  }
+  option.dataZoom = _.castArray(option.dataZoom).map(dataZoom => {
+    const range = zoom[axisOf(dataZoom, inverted)];
+    if (!range) {
+      return dataZoom;
+    }
+    const {min = null, max = null} = range;
+    return {
+      ..._.omit(dataZoom, ["start", "end", "startValue", "endValue"]),
+      ...(min === null ? {start: FULL_RANGE.start} : {startValue: min}),
+      ...(max === null ? {end: FULL_RANGE.end} : {endValue: max})
+    };
+  });
+  return option;
+}
+
 // Chart service
 aweApplication.factory('Chart',
-  ['Component', '$translate', 'ChartEvents', 'Storage', 'Control', 'AweUtilities', 'AweSettings',
+  ['Component', '$translate', 'ChartEvents', 'Control', 'AweUtilities', 'AweSettings',
     /**
      * Chart generic methods
      * @param {function} Component
      * @param {Object} $translate
      * @param {Object} ChartEvents
-     * @param {Object} Storage
      * @param {Object} Control
      * @param {Object} Utilities
      * @param {Object} $settings Awe $settings
      */
-    function (Component, $translate, ChartEvents, Storage, Control, Utilities, $settings) {
-      // Get awe $settings
-      const updateChartSerie = function (serie, chart, model, sizeSerieLimit, limit) {
-        let chartSerie = chart.get(serie.id);
-        let serieData = getSerieData(serie, model);
-        chartSerie.setData(serieData, false, true);
-        return !sizeSerieLimit && serieData.length > limit;
-      };
-
-      // Axis formatter API
-      let  formatterList = {
-        /**
-         * Format currency magnitude
-         * @returns {String} formatted value
-         */
-        formatCurrencyMagnitude: function () {
-          let  value = this.value;
-          let  symbol = null;
-          let  magnitudes = [{
-              exp: 6,
-              symbol: "M"
-            }, {
-              exp: 3,
-              symbol: "K"
-            }, {
-              exp: 0,
-              symbol: ""
-            }];
-          // Search for magnitudes and pick the biggest one
-          _.each(magnitudes, function (magnitude) {
-            let  factor = Math.pow(10, magnitude.exp);
-            if (Math.abs(value) >= factor && symbol === null) {
-              symbol = magnitude.symbol;
-              value = Math.round(value * 100 / factor) / 100;
-            }
-          });
-          return value + symbol;
-        }
-      };
-      /**
-       * Process chart series model
-       * @param serie chart serie
-       * @param model chart model
-       */
-      let  getSerieData = function (serie, model) {
-        let  serieData = [];
-        // Retrieve fieldlist
-        let  fieldList = [serie.xValue, serie.yValue];
-        if (serie.zValue) {
-          fieldList.push(serie.zValue);
-        }
-        _.each(model, function (row) {
-          if ((fieldList[0] in row) && (fieldList[1] in row)) {
-            if ("drilldown" in serie) {
-              let  objectPointSerie = {};
-              objectPointSerie.name = row[fieldList[0]];
-              objectPointSerie.y = row[fieldList[1]];
-              objectPointSerie.drilldown = serie.drilldown;
-              serieData.push(objectPointSerie);
-            } else {
-              let  pointSerie = [];
-              _.each(fieldList, function (field) {
-                if (field in row) {
-                  pointSerie.push(row[field]);
-                }
-              });
-              serieData.push(pointSerie);
-            }
-
-          }
-        });
-        return serieData;
-      };
-
-      function addSeriePoints (serie, points, component) {
-        if ("id" in serie) {
-          let  fieldList = [serie.xValue, serie.yValue];
-          if ("zValue" in serie) {
-            fieldList.push(serie.zValue);
-          }
-          // Get point for serie
-          let  point = [];
-          _.each(fieldList, function (field) {
-            point.push(points[0][field]);
-          });
-          // Add point
-          let swift = component.model.values.length >= component.getMax();
-          component.chartInstance.get(serie.id).addPoint(point, false, swift);
-        }
-      }
+    function (Component, $translate, ChartEvents, Control, Utilities, $settings) {
 
       /**
-       * Regenerate point events
-       * @param {string} index
-       * @param {object} series
-       * @param {object} eventTimer
-       * @param {object} component
+       * Translate a locale key
+       * @param {string} key Key
+       * @returns {string} Translated text
        */
-      function regeneratePointEvents(index, series, eventTimer, component) {
-        let point = series.data[index];
-        if (point.graphic) {
-          point.graphic.on('dblclick', function (event) {
-            event.preventDefault();
-            Utilities.timeout.cancel(eventTimer);
-            eventTimer = Utilities.timeout(function () {
-              component.onDblClick(event, point);
-            });
-
-            return false;
-          });
-          point.graphic.on('mousedown', function (event) {
-            if (event.which === 3) {
-              // Cancel event propagation
-              Utilities.stopPropagation(event, true);
-              return false;
-            }
-          });
-          let onContextMenuPoint = function (event) {
-            if (event.which === 3) {
-              // Right click
-              // Cancel event propagation
-              Utilities.stopPropagation(event, true);
-              Utilities.timeout.cancel(eventTimer);
-              eventTimer = Utilities.timeout(function () {
-                component.onContextMenu(event, point);
-              });
-              return false;
-            }
-          };
-          point.graphic.on('contextmenu', onContextMenuPoint);
-          point.graphic.on('click', onContextMenuPoint);
-          point.graphic.on('mouseup', onContextMenuPoint);
-        }
-
-        return eventTimer;
-      }
+      const translate = (key) => $translate.instant(key);
 
       /**
        * Chart constructor
@@ -164,8 +91,6 @@ aweApplication.factory('Chart',
         this.element = element;
         this.component = new Component(this.scope, this.id);
         this.component.chart = this;
-        this.sorting = [];
-        this.addedRows = 0;
 
         // Define attribute methods
         this.attributeMethods = {
@@ -235,249 +160,149 @@ aweApplication.factory('Chart',
             // If component initialization is wrong, cancel initialization
             return false;
           }
-          let  chartOptions = component.controller.chartModel;
 
           /**
-           * Process chart series model
-           * @param controller chart controller
-           * @param modelController chart model
+           * Initialize the chart model: the ECharts model sent by the server, no selection, no zoom and no drilldown
            */
-          component.initializeModel = function (controller) {
-            // Get chart series controller
-            let  seriesModelList = _.get(controller, "series", []);
-            // Get chart drilldown series controller
-            let  drillSeriesModelList = _.get(controller, "drilldown.series", []);
-            // Chart model data
-            let  model = component.model.values;
-            // Build array data for each serie of chart
-            if (seriesModelList) {
-              _.each(seriesModelList, function (serie) {
-                serie.data = getSerieData(serie, model);
-              });
-            }
-            // Build array data for each drilldown serie of chart
-            if (drillSeriesModelList && drillSeriesModelList.length > 0) {
-              _.each(drillSeriesModelList, function (serie) {
-                serie.data = getSerieData(serie, model);
-              });
-              // Disabled allow point selection in Pies
-              if (controller.plotOptions.pie) {
-                controller.plotOptions.pie.allowPointSelect = false;
-              }
-            }
-            // Define model selection
+          component.initializeModel = function () {
+            component.echartsModel = component.controller.echartsModel || {};
+            component.drill = null;
+            component.rendered = false;
             component.model.selected = {};
             component.model.zoom = {};
           };
+
           /**
-           * Process chart series model
-           * @param model chart model
+           * Draw the chart again (the chart plugin replaces it when it creates the chart)
            */
-          component.updateModel = function (model) {
-            // Store model
-            component.model.values = model;
-            // Get number size limit serie
-            let  limitPointSerie = $settings.get("chartOptions").limitPointsSerie;
+          component.render = component.render || _.noop;
 
-            if (component.initialized) {
-              // Get chart object
-               let  chart = component.chartInstance;
-              // Flag check limit serie size
-              let  sizeSerieLimit = false;
-              // Get chart series controller
-              let  seriesModelList = _.get(chartOptions, "series", []);
-              // Get chart series controller
-              let  drillDownSeriesModelList = _.get(chartOptions, "drilldown.series", []);
-              // Build array datas for each serie of chart
-              if (seriesModelList) {
-                _.each(seriesModelList, (serie) => { sizeSerieLimit = updateChartSerie(serie, chart, model, sizeSerieLimit, limitPointSerie);});
-              }
-
-              // Build array datas for each drilldown serie of chart
-              if (drillDownSeriesModelList !== null) {
-                _.each(drillDownSeriesModelList,  (serie) => { sizeSerieLimit = updateChartSerie(serie, chart, model, sizeSerieLimit, limitPointSerie);});
-                // Disabled allow point selection in Pies
-                if (chartOptions.plotOptions.pie) {
-                  chartOptions.plotOptions.pie.allowPointSelect = false;
-                }
-              }
-
-              // Check limit serie size flag
-              if (sizeSerieLimit) {
-                // Reset chart and show message
-                component.resetChart();
-                if (!chart.hasData()) {
-                  chart.hideNoData();
-                  chart.showNoData(chart.options.lang.tooMuchData);
-                }
-              } else {
-                // Redraw chart
-                chart.redraw();
-              }
-            }
-          };
           /**
-           * Translate literals of chart
-           * @param highchartOptions chart options
-           * @returns highchartOptions with labels translated
+           * Check if the values have more points than the `limitPointsSerie` setting allows
+           * @param {object[]} values Chart values
+           * @returns {boolean} There are too many points
            */
-          component.translateLabels = function (highchartOptions) {
-            // Chart title
-            if ("title" in highchartOptions) {
-              highchartOptions.title.text = $translate.instant(highchartOptions.title.text);
-            }
-
-            // Chart subtitle
-            if ("subtitle" in highchartOptions) {
-              highchartOptions.subtitle.text = $translate.instant(highchartOptions.subtitle.text);
-            }
-
-            // Chart legend
-            if ("legend" in highchartOptions && "title" in highchartOptions.legend) {
-              highchartOptions.legend.title.text = $translate.instant(highchartOptions.legend.title.text);
-            }
-
-            // Chart xAxis
-            if ("xAxis" in highchartOptions) {
-              _.each(highchartOptions.xAxis, function (xAxis) {
-                if ("title" in xAxis) {
-                  xAxis.title.text = $translate.instant(xAxis.title.text);
-                }
-                if ("labels" in xAxis && "formatter" in xAxis.labels) {
-                  let  formatterFunction = xAxis.labels.formatter;
-                  xAxis.labels.formatter = formatterList[formatterFunction];
-                }
-              });
-            }
-
-            // Chart yAxis
-            if ("yAxis" in highchartOptions) {
-              _.each(highchartOptions.yAxis, function (yAxis) {
-                if ("title" in yAxis) {
-                  yAxis.title.text = $translate.instant(yAxis.title.text);
-                }
-                if ("labels" in yAxis && "formatter" in yAxis.labels) {
-                  let  formatterFunction = yAxis.labels.formatter;
-                  yAxis.labels.formatter = formatterList[formatterFunction];
-                }
-              });
-            }
-
-            // Chart series
-            if ("series" in highchartOptions) {
-              _.each(highchartOptions.series, function (serie) {
-                if ("name" in serie) {
-                  serie.name = $translate.instant(serie.name);
-                }
-              });
-            }
-
-            // Drilldown Chart series
-            if ("drilldown" in highchartOptions && "series" in highchartOptions.drilldown) {
-              _.each(highchartOptions.drilldown.series, function (drilldownSerie) {
-                if ("name" in drilldownSerie) {
-                  drilldownSerie.name = $translate.instant(drilldownSerie.name);
-                }
-              });
-            }
+          const isTooMuchData = function (values) {
+            const limit = _.get($settings.get("chartOptions"), "limitPointsSerie");
+            return Number.isFinite(limit) && values.length > limit;
           };
+
           /**
-           * On add points event
-           * Add points to chart series
-           * @param {object} points chart points
+           * Build the ECharts option of the chart
+           * @param {{width: number, height: number, dark: boolean}} environment Size of the chart and dark mode
+           * @returns {object} ECharts option
+           */
+          component.getOption = function ({width, height, dark}) {
+            const values = component.model.values || [];
+            const texts = getChartTexts($settings.get("language"));
+            const tooMuchData = isTooMuchData(values);
+            const option = buildEChartsOption(component.echartsModel, tooMuchData ? [] : values, {
+              t: translate,
+              locale: tooMuchData ? {...texts, noData: texts.tooMuchData} : texts,
+              width, height, dark,
+              drill: component.drill,
+              onBack: component.drillUp
+            });
+            return applyZoom(option, component.model.zoom || {}, isInverted());
+          };
+
+          /**
+           * Check if the chart is zoomed (shows a part of its range)
+           * @returns {boolean} The chart is zoomed
+           */
+          component.isZoomed = function () {
+            const zoom = component.model.zoom || {};
+            return AXES.some(axis => zoom[axis] && (!_.isNil(zoom[axis].min) || !_.isNil(zoom[axis].max)));
+          };
+
+          /**
+           * Update the series of the ECharts model, which closes the drilldown
+           * @param {function(object[]): object[]} update Retrieves the new series from the current ones
+           */
+          const updateSeries = function (update) {
+            const model = component.echartsModel || {};
+            component.echartsModel = {...model, series: update(model.series || [])};
+            component.drill = null;
+          };
+
+          /**
+           * Check if the chart is inverted (its axes are swapped)
+           * @returns {boolean} The chart is inverted
+           */
+          const isInverted = () => Boolean(_.get(component.echartsModel, "awe.inverted"));
+
+          /**
+           * Store the model values and draw the chart again
+           * @param {object[]} values chart values
+           */
+          component.updateModel = function (values) {
+            component.model.values = values;
+            component.render();
+          };
+
+          /**
+           * On add points event: add the points to the values. When the values reach the maximum of the chart, the
+           * oldest points are removed
+           * @param {object[]} points chart points
            */
           component.addPoints = function (points) {
-            // Add points to chart series
-            if (points) {
-              // Get attribute id for each serie
-              component.model.values.push(points[0]);
-              _.each(chartOptions.series, (serie) => addSeriePoints(serie, points, component));
-               component.chartInstance.redraw();
+            if (!points) {
+              return;
             }
-          };
-
-          /**
-           * On add series event
-           * Add series to chart
-           * @param {object} series to add chart
-           */
-          component.addSeries = function (series) {
-            // Get chart
-             let  chart = component.chartInstance;
-
-            _.each(series, function (serie) {
-              // Add serie with
-              chart.addSeries(serie, false, true);
-            });
-            // Redraw chart
-            chart.redraw();
-          };
-
-          /**
-           * On replace series event
-           * Replace series of chart
-           * @param {object} series to replace chart
-           */
-          component.replaceSeries = function (series) {
-            // Get chart
-             let  chart = component.chartInstance;
-
-            // Remove old series
-            let  seriesLength = chart.series.length;
-            for (let  i = seriesLength - 1; i > -1; i--) {
-              chart.series[i].remove(false);
-            }
-            // Add new series
-            _.each(series, function (serie) {
-              chart.addSeries(serie, false, true);
-            });
-            // Redraw chart
-            chart.redraw();
-          };
-
-          /**
-           * On remove series event
-           * Remove series of chart
-           * @param {object} series to remove chart
-           */
-          component.removeSeries = function (series) {
-            // Get chart
-             let  chart = component.chartInstance;
-
-            // Remove series by id
-            _.each(series, function (serie) {
-              if (chart.get(serie.id) !== null) {
-                chart.get(serie.id).remove(false);
+            const values = component.model.values;
+            const max = component.getMax();
+            _.each(points, function (point) {
+              values.push(point);
+              if (max > 0 && values.length > max) {
+                values.shift();
               }
             });
-
-            // Redraw chart
-            chart.redraw();
+            component.render();
           };
 
           /**
-           * On reset action event
-           * Remove series of chart
+           * On add series event: add the series (and their points) to the chart
+           * @param {object[]} series series to add
+           */
+          component.addSeries = function (series) {
+            const ids = new Set(_.map(series, "id"));
+            const inverted = isInverted();
+            updateSeries(current => [
+              ...current.filter(serie => !ids.has(serie.id)),
+              ...series.map(serie => getEChartsSerie(serie, inverted))
+            ]);
+            component.model.values = mergeSeriesPoints(component.model.values || [], series);
+            component.render();
+          };
+
+          /**
+           * On replace series event: the series (and their points) replace the ones of the chart
+           * @param {object[]} series series of the chart
+           */
+          component.replaceSeries = function (series) {
+            const inverted = isInverted();
+            updateSeries(() => series.map(serie => getEChartsSerie(serie, inverted)));
+            component.model.values = mergeSeriesPoints([], series);
+            component.render();
+          };
+
+          /**
+           * On remove series event: remove the series of the chart with the same identifier
+           * @param {object[]} series series to remove
+           */
+          component.removeSeries = function (series) {
+            const ids = new Set(_.map(series, "id"));
+            updateSeries(current => current.filter(serie => !ids.has(serie.id)));
+            component.render();
+          };
+
+          /**
+           * On reset action event: remove the points of the chart
            */
           component.resetChart = function () {
-            // Get chart Object
-             let  chart = component.chartInstance;
-
-            // Get chart series controller
-            let  seriesModelList = _.get(chartOptions, "series", []);
-
-            // Build array datas for each serie of chart
-            if (seriesModelList) {
-              _.each(seriesModelList, function (serie) {
-                // Get serie identifier with id or name
-                let  serieID = "id" in serie ? serie.id : serie.name;
-                let  chartSerie = chart.get(serieID);
-                chartSerie.setData([], false, true);
-              });
-            }
-
-            // Redraw chart
-            chart.redraw();
+            component.model.values = [];
+            component.drill = null;
+            component.render();
           };
           /**
            * On restore action event
@@ -485,7 +310,6 @@ aweApplication.factory('Chart',
            */
           component.restoreChart = function () {
             Control.restoreInitialModelAttribute(component.address, "values");
-            //component.updateModel(model.values);
           };
           /**
            * Basic getAttribute function (To be overwritten on complex directives)
@@ -495,54 +319,44 @@ aweApplication.factory('Chart',
           component.getAttribute = function (attribute) {
             return component.attributeMethods[attribute](component);
           };
-          let  processParameters = function (parameters) {
-            let  options;
-            switch (typeof parameters) {
-              case "string":
-                options = Utilities.evalJSON(parameters);
-                break;
-              case "object":
-                options = parameters;
-                break;
-              default:
-                options = {};
-            }
-            return options;
-          };
           /**
            * Check what parameters have changed and apply the changes to the chart
            * @param {object} parameters
            */
           component.checkParametersChanged = function (parameters) {
-            let  options = processParameters(parameters.chartOptions);
+            let  options = parseChartOptions(parameters.chartOptions);
             if ("zoom" in options) {
               component.changeZoom(options.zoom);
             }
           };
           /**
-           * Change the chart zoom
-           * @param {object} zoom
+           * Change the chart zoom (the zoom of a linked chart)
+           * @param {object} zoom Zoom of each axis: {x: {min, max}, y: {min, max}}
            */
           component.changeZoom = function (zoom) {
-            let  axisList = ["x", "y"];
-            _.each(axisList, function (axis) {
-              let  selectedMin = axis in component.model.zoom ? component.model.zoom[axis]["min"] : null;
-              let  selectedMax = axis in component.model.zoom ? component.model.zoom[axis]["max"] : null;
-              if (axis in zoom) {
-                if (selectedMin !== zoom[axis].min || selectedMax !== zoom[axis].max) {
-                  // Set zoom extremes
-                   if (component.chartInstance[axis + "Axis"][0].setExtremes) {
-                     component.chartInstance[axis + "Axis"][0].setExtremes(zoom[axis].min || null, zoom[axis].max || null);
-                   }
-                  // Update zoom model
-                  component.model.zoom[axis] = {min: zoom[axis].min || null, max: zoom[axis].max || null};
-                  // Reset zoom if both values are null
-                  if (zoom[axis].min === null && zoom[axis].max === null) {
-                     component.chartInstance.zoomOut();
-                  }
-                }
+            let changed = false;
+            _.each(AXES, function (axis) {
+              if (!zoom || !(axis in zoom)) {
+                return;
+              }
+              const min = _.get(zoom, [axis, "min"], null);
+              const max = _.get(zoom, [axis, "max"], null);
+              const current = component.model.zoom[axis] || {};
+              if ((current.min ?? null) !== min || (current.max ?? null) !== max) {
+                component.model.zoom[axis] = {min, max};
+                changed = true;
               }
             });
+            if (changed) {
+              component.render();
+            }
+          };
+          /**
+           * Close the drilldown series and show the series that opened it
+           */
+          component.drillUp = function () {
+            component.drill = null;
+            component.render();
           };
           /**********************************************************************/
           /* EVENT HANDLERS                                                     */
@@ -550,83 +364,66 @@ aweApplication.factory('Chart',
 
           /**
            * Store point clicked on chart model
-           * @param {object} data
+           * @param {object} params ECharts event parameters
            */
-          component.storeClickData = function (data) {
-            component.model.selected = {x: data.x, y: data.y};
+          component.storeClickData = function (params) {
+            component.model.selected = pointOf(params, isInverted());
           };
 
           /**
-           * On each redraw add dblclick and contextmenu events
+           * Click event: opens the drilldown series of the point, if any
+           * @param {object} params ECharts event parameters
            */
-          component.onRedraw = function () {
-            let  chart = this;
-            let  eventTimer = null;
-            for (let j in chart.series) {
-              let series = chart.series[j];
-              for (let i in series.data) {
-                eventTimer = regeneratePointEvents(i, series, eventTimer, component);
-              }
+          component.onClick = function (params) {
+            const target = findDrilldownId(component.echartsModel, params.seriesId);
+            if (target) {
+              component.drill = {from: params.seriesId, to: target};
+              component.render();
             }
-          };
-
-          /**
-           * Click event
-           */
-          component.onClick = function () {
-            // Store click data
-            component.storeClickData(this);
-            // Store click event
+            component.storeClickData(params);
             component.storeEvent("click");
           };
 
           /**
            * Double Click event
-           * @param {object} event
-           * @param {object} point
+           * @param {object} params ECharts event parameters
            */
-          component.onDblClick = function (event, point) {
-            // Store click data
-            component.storeClickData(point);
-            // Store click event
+          component.onDblClick = function (params) {
+            component.storeClickData(params);
             component.storeEvent("double-click");
           };
 
           /**
-           * Context menu event
-           * @param {object} event
-           * @param {object} point
+           * Context menu event (the menu is shown by the mousedown listener of the chart element)
+           * @param {object} params ECharts event parameters
            */
-          component.onContextMenu = function (event, point) {
-            // Store click data
-            component.storeClickData(point);
-            // Store click event
+          component.onContextMenu = function (params) {
+            _.invoke(params, "event.event.preventDefault");
+            component.storeClickData(params);
             component.storeEvent("context-menu");
-            // Show context menu
-            component.showContextMenu(event);
           };
+
           /**
-           * Selection (zoom) event
-           * @param {object} event
+           * Zoom event
+           * @param {object} params ECharts event parameters
+           * @param {object} chart ECharts instance
            */
-          component.onZoom = function (event) {
-            let  zoom = {};
-            // Set yAxis zoom
-            if (event.yAxis && event.yAxis.length > 0) {
-              zoom = {min: event.yAxis[0].min, max: event.yAxis[0].max};
-            } else {
-              zoom = {min: null, max: null};
-            }
-            component.model.zoom.y = zoom;
-            // Set xAxis zoom
-            if (event.xAxis && event.xAxis.length > 0) {
-              zoom = {min: event.xAxis[0].min, max: event.xAxis[0].max};
-            } else {
-              zoom = {min: null, max: null};
-            }
-            component.model.zoom.x = zoom;
-            // Store zoom event
+          component.onZoom = function (params, chart) {
+            const {xMin, xMax, yMin, yMax} = zoomOf(chart, isInverted());
+            component.model.zoom.x = {min: xMin, max: xMax};
+            component.model.zoom.y = {min: yMin, max: yMax};
             component.storeEvent("zoom");
+          };
+
+          /**
+           * Legend event: a series that is linked to another one hides and shows with it
+           * @param {object} params ECharts event parameters
+           * @param {object} chart ECharts instance
+           */
+          component.onLegendSelect = function ({name, selected}, chart) {
+            const type = _.get(selected, name) === false ? "legendUnSelect" : "legendSelect";
+            const series = _.get(component.echartsModel, "series", []);
+            linkedNames(series, name, translate).forEach(linked => chart.dispatchAction({type, name: linked}));
           };
 
           /**
@@ -664,31 +461,24 @@ aweApplication.factory('Chart',
             return data;
           };
           /**
-           * Retrieve the data of the component that should be sent to the server for printing actions
-           * @param {String} Orientation
+           * Retrieve the data of the component that should be sent to the server for printing actions: the chart
+           * image (SVG) drawn apart, in light colors and with the size of the page
+           * @param {String} orientation Page orientation (LANDSCAPE or PORTRAIT)
            * @return {Object} Data to send to the server
            */
           api.getPrintData = function (orientation) {
-            let  data = {};
-            let  chartSize;
-            switch (orientation) {
-              case "LANDSCAPE":
-                chartSize = {width:1167, height:360};
-                break;
-              case "PORTRAIT":
-              default:
-                chartSize = {width:796, height:540};
-                break;
-            }
-            data[component.address.component] = {
-              // Set chart image
-               image: component.chartInstance.getSVG({chart:chartSize})
-            };
-            return data;
+            const size = PRINT_SIZES[orientation] || PRINT_SIZES.PORTRAIT;
+            const language = $settings.get("language");
+            const option = buildEChartsOption(component.echartsModel, component.model.values || [],
+              {...size, t: translate, locale: getChartTexts(language), dark: false});
+            return {[component.address.component]: {image: renderSvg(option, size, language)}};
           };
           /**********************************************************************/
           /* EVENTS                                                             */
           /**********************************************************************/
+
+          // Initialize the chart model
+          component.initializeModel();
 
           // Map grid actions
           ChartEvents.mapActions(component);

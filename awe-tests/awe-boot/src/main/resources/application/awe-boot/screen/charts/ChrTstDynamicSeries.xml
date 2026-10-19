@@ -28,7 +28,7 @@ and open the template in the editor.
     </window>
     <tag type="div" style="expand" expandible="vertical">
       <window label="SCREEN_TEXT_LINE_CHART" maximize="true" icon="line-chart" style="expand">
-        <chart id="ChrLinTst" label="SCREEN_TEXT_DYNAMIC_SERIES_CHART" type="line" theme="dark-unica">
+        <chart id="ChrLinTst" label="SCREEN_TEXT_DYNAMIC_SERIES_CHART" type="line">
           <chart-legend label="SCREEN_TEXT_LEGEND" verticalAlign="middle" align="right" layout="vertical" border-width="1"/>
           <x-axis label="SCREEN_TEXT_MONTHS" type="category" />
           <y-axis label="SCREEN_TEXT_NUM_ACCESS_WEB" />

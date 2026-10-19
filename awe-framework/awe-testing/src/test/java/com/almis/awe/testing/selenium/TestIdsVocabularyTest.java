@@ -61,7 +61,6 @@ class TestIdsVocabularyTest {
 
     assertThat(react).containsEntry("avatar", TestIds.AVATAR)
       .containsEntry("avatarName", TestIds.AVATAR_NAME)
-      .containsEntry("chart", TestIds.CHART)
       .containsEntry("criterionError", TestIds.CRITERION_ERROR)
       .containsEntry("criterionUnit", TestIds.CRITERION_UNIT)
       .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
@@ -84,10 +83,13 @@ class TestIdsVocabularyTest {
 
     assertThat(react).containsEntry("editing", TestAttributes.EDITING)
       .containsEntry("deleted", TestAttributes.DELETED)
-      .containsEntry("rendered", TestAttributes.RENDERED)
-      .containsEntry("zoomed", TestAttributes.ZOOMED)
       .containsEntry("stepNumber", TestAttributes.STEP_NUMBER);
-    assertThat(angular).doesNotContainKeys("editing", "deleted", "rendered", "zoomed", "stepNumber");
+    assertThat(angular).doesNotContainKeys("editing", "deleted", "stepNumber");
+    // Both clients draw the charts with ECharts and render the chart hook and its state
+    assertThat(readJavaScriptConstant(REACT_VOCABULARY_FILE, "TestIds")).containsEntry("chart", TestIds.CHART);
+    assertThat(readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, "TestIds")).containsEntry("chart", TestIds.CHART);
+    assertThat(react).containsEntry("rendered", TestAttributes.RENDERED).containsEntry("zoomed", TestAttributes.ZOOMED);
+    assertThat(angular).containsEntry("rendered", TestAttributes.RENDERED).containsEntry("zoomed", TestAttributes.ZOOMED);
   }
 
   @Test

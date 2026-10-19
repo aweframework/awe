@@ -3,18 +3,14 @@ id: chart-parameters
 title: Chart parameters
 ---
 
-The `chart-parameter` element adds or overwrites Highcharts options of a chart. It is the extension point of the chart
-XML: anything that the XML attributes do not cover (colors, data label styles, markers, gradient fills, stack names,
-bar padding, tooltip formats...) is set with it.
+The `chart-parameter` element adds or overwrites options of a chart, written with the names of the Highcharts API. It
+is the extension point of the chart XML: anything that the XML attributes do not cover (colors, data label styles,
+markers, gradient fills, stack names, bar padding, tooltip formats...) is set with it.
 
-The same element is used by both engines, but each one reads it in its own way:
-
-* **AngularJS engine (Highcharts).** The options are merged into the Highcharts configuration as they are, so any
-  option of the [Highcharts API](https://api.highcharts.com/highcharts) is valid.
-* **React engine (Apache ECharts).** The server translates the options that have an ECharts counterpart into the
-  `echartsModel` of the chart. Every other option is **ignored** and reported once, with a warning in the server log.
-  The options still reach the Highcharts `chartModel` unchanged, so the same screen keeps working in the AngularJS
-  engine.
+Both engines (React and AngularJS) draw the charts with Apache ECharts and read the element in the same way: the server
+translates the options that have an ECharts counterpart into the `echartsModel` of the chart. Every other option is
+**ignored** and reported once, with a warning in the server log. In AWE 4 the AngularJS engine merged the options into
+the Highcharts configuration as they were; in AWE 5 it applies only the translated ones, like the React engine.
 
 This page lists which options are translated, which ones are approximated and which ones are ignored. The table is
 derived from the translation table of the server (`HighchartsParameterTable` and `SeriesParameterRules` in
@@ -59,7 +55,7 @@ The options of the series override those of `plotOptions.<type>`, which override
 The raw options of every series are also available to the [format language](chart-format.md) as
 `series.userOptions.<name>`, including custom names such as `fullname`.
 
-## Translation table (React engine)
+## Translation table
 
 The tables use these marks:
 
@@ -170,7 +166,7 @@ chart to use the attributes of the XML.
 
 ### Approximations that the server also reports
 
-| Case                                                                     | Result in the React engine                                    |
+| Case                                                                     | Result in both engines                                        |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | Series type `arearange` and `areasplinerange`                            | Drawn as a filled line (warning)                              |
 | A series `type` that is not in the table of chart types                   | Drawn as a line (warning)                                     |

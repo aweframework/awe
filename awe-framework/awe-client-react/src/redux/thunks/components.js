@@ -15,6 +15,7 @@ import {clearRuntimeEvent, setRuntimeEvent} from "../actions/runtime";
 import {getActionAddress, getComponent} from "../../utilities";
 import {acceptAction, addActionsTop, addStack, rejectAction, removeStack} from "../actions/actions";
 import MenuRegistry from "../registry/MenuRegistry";
+import {getEChartsSerie, mergeSeriesPoints} from "../../utilities/echartsSeries";
 import {getAllComponents} from "../selectors/componentSelectors";
 
 const { BUTTON_RESET } = ButtonTypes;
@@ -369,60 +370,6 @@ export const addPointsAction = (action) => {
     dispatch(acceptAction(action));
   };
 };
-
-const ECHARTS_TYPES = {column: "bar", bar: "bar", pie: "pie", scatter: "scatter", bubble: "scatter"};
-
-/**
- * Retrieve the ECharts series of a series that a chart action sends. The server sends the translation in the
- * "echarts" property; the series is built from its Highcharts fields when it is missing
- * @param {object} serie Series of the action
- * @param {boolean} inverted The chart is inverted, so its axes are swapped
- * @returns {object} ECharts series
- */
-function getEChartsSerie(serie, inverted) {
-  const translated = serie.echarts || {
-    id: serie.id,
-    name: serie.name ?? serie.label,
-    type: ECHARTS_TYPES[serie.type] || "line",
-    ...(serie.color ? {itemStyle: {color: serie.color}} : {}),
-    awe: {
-      type: serie.type,
-      xValue: serie.xValue,
-      yValue: serie.yValue,
-      ...(serie.zValue ? {zValue: serie.zValue} : {})
-    }
-  };
-  if (!inverted) {
-    return translated;
-  }
-  const {xAxisIndex, yAxisIndex, ...rest} = translated;
-  return {
-    ...rest,
-    ...(yAxisIndex === undefined ? {} : {xAxisIndex: yAxisIndex}),
-    ...(xAxisIndex === undefined ? {} : {yAxisIndex: xAxisIndex})
-  };
-}
-
-/**
- * Merge the points of the series of an action into the values of the chart, row by row
- * @param {object[]} values Current values
- * @param {object[]} series Series of the action
- * @returns {object[]} New values
- */
-function mergeSeriesPoints(values, series) {
-  const rows = [...values];
-  series.forEach(serie => {
-    const {xValue = serie.echarts?.awe?.xValue, yValue = serie.echarts?.awe?.yValue} = serie;
-    const zValue = serie.zValue ?? serie.echarts?.awe?.zValue;
-    if (!xValue || !yValue) {
-      return;
-    }
-    (serie.data || []).forEach(([x, y, z], index) => {
-      rows[index] = {...rows[index], [xValue]: x, [yValue]: y, ...(zValue ? {[zValue]: z} : {})};
-    });
-  });
-  return rows;
-}
 
 /**
  * Update the series of the ECharts model of a chart

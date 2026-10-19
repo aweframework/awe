@@ -5,26 +5,26 @@ title: Gráficas
 
 Un gráfico muestra el resultado de una consulta de forma gráfica: líneas, columnas, áreas, sectores, diagramas de dispersión... Se describe en el XML de la pantalla con un elemento `chart`, sus ejes, sus series y, opcionalmente, una leyenda, un tooltip y parámetros adicionales. El gráfico carga sus datos de una consulta, como cualquier otro componente de AWE.
 
-Dos motores dibujan los gráficos y **el XML del gráfico es el mismo en ambos**:
+Dos motores dibujan los gráficos y **el XML del gráfico es el mismo en ambos**. Los dos los dibujan con la misma biblioteca y el mismo código:
 
-| Motor    | Biblioteca                                             | Notas                                                                                             |
-| --------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| React     | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Cliente por defecto de AWE 5. Los gráficos se dibujan como SVG                                                  |
-| AngularJS | [Highcharts](https://www.highcharts.com/)           | Sigue dibujando los gráficos con Highcharts hasta que el motor AngularJS pase a ECharts (issue #775) |
+| Motor     | Biblioteca                                          | Notas                                                             |
+| --------- | --------------------------------------------------- | ----------------------------------------------------------------- |
+| React     | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Cliente por defecto de AWE 5. Los gráficos se dibujan como SVG    |
+| AngularJS | [Apache ECharts](https://echarts.apache.org/) 6.1.0 | Los gráficos se dibujan como SVG, con el código del cliente React |
 
-La traducción la hace el servidor. Para cada gráfico construye el `chartModel` de Highcharts (usado por el motor AngularJS) y, junto a él, un `echartsModel` (usado por el motor React). El `echartsModel` es una opción de ECharts sin datos y sin funciones: el cliente añade los valores de la consulta e interpreta los [formatos](chart-format.md) y el resto de indicaciones que envía el servidor. Las opciones que se establecen con [`chart-parameter`](chart-parameters.md) también se traducen; las que no tienen equivalente en ECharts se ignoran y se registran en el log del servidor.
+La traducción la hace el servidor. Para cada gráfico construye un `echartsModel`: una opción de ECharts sin datos y sin funciones. El cliente añade los valores de la consulta e interpreta los [formatos](chart-format.md) y el resto de indicaciones que envía el servidor. Las opciones que se establecen con [`chart-parameter`](chart-parameters.md) también se traducen; las que no tienen equivalente en ECharts se ignoran y se registran en el log del servidor.
 
-> **Nota:** Apache ECharts es de código abierto (Apache License 2.0). Highcharts es de código abierto para **aplicaciones no comerciales**. Para fines comerciales, debe *adquirir* una licencia para usarlo en el motor AngularJS.
+> **Nota:** Apache ECharts es de código abierto (Apache License 2.0), por lo que no se necesita ninguna licencia comercial para dibujar gráficos en ninguno de los dos motores. En AWE 4 el motor AngularJS los dibujaba con Highcharts, que necesita una licencia para aplicaciones comerciales. Véase [Cambios respecto a AWE 4 (Highcharts)](#changes-from-awe-4-highcharts).
 
 Las páginas sobre gráficos son:
 
-* **Gráficas** (esta página): estructura XML, ejemplos de cada tipo de gráfico, acciones y diferencias entre los motores.
+* **Gráficas** (esta página): estructura XML, ejemplos de cada tipo de gráfico, acciones, estilo y cambios respecto a AWE 4.
 * [Formatos de gráficos](chart-format.md): el lenguaje de formato de etiquetas, tooltips y ejes.
-* [Parámetros de gráficos](chart-parameters.md): las opciones de Highcharts que se pueden establecer y cómo se traduce cada una.
+* [Parámetros de gráficos](chart-parameters.md): las opciones (con nombres de Highcharts) que se pueden establecer y cómo se traduce cada una.
 
 ## Conceptos del gráfico {#chart-concepts}
 
-Para entender cómo funciona un gráfico es importante conocer las distintas partes o conceptos que lo componen. A continuación se muestra una imagen y una descripción de los conceptos principales de un gráfico. La imagen se dibujó con Highcharts, pero las partes son las mismas en ambos motores.
+Para entender cómo funciona un gráfico es importante conocer las distintas partes o conceptos que lo componen. A continuación se muestra una imagen y una descripción de los conceptos principales de un gráfico. La imagen se dibujó con Highcharts (AWE 4), pero las partes son las mismas con ECharts, en ambos motores.
 
 <img alt="Sobre Highcharts" src={require('@docusaurus/useBaseUrl').default('img/understanding_highcharts.png')} />
 
@@ -40,16 +40,16 @@ Para entender cómo funciona un gráfico es importante conocer las distintas par
 
 ### Series temporales con zoom (gráficos bursátiles) {#time-series-with-zoom-stock-charts}
 
-Un gráfico con `stock-chart="true"` está pensado para mostrar la evolución de muchos datos a lo largo del tiempo. En el motor React tiene un **deslizador** bajo el área del gráfico (el navegador) y el eje x se puede ampliar con la rueda del ratón. El motor AngularJS lo dibuja con Highstock, que añade un selector de rango, una barra de desplazamiento y un navegador.
+Un gráfico con `stock-chart="true"` está pensado para mostrar la evolución de muchos datos a lo largo del tiempo. En ambos motores tiene un **deslizador** bajo el área del gráfico (el navegador), el eje x se puede ampliar con la rueda del ratón y desplazar arrastrando dentro del área del gráfico, y la leyenda está oculta por defecto. En AWE 4 el motor AngularJS lo dibujaba con Highstock, el gráfico de la imagen siguiente.
 
 <img alt="Sobre Highstock" src={require('@docusaurus/useBaseUrl').default('img/understanding_highstock.png')} />
 
-* **Selector fino:** Te permite ajustar el rango del gráfico que se muestra.
-* **Selector de rango:** Permite seleccionar rápidamente un rango para mostrar en el gráfico o especificar el intervalo exacto. Solo en el motor AngularJS.
-* **Barra de desplazamiento:** Permite desplazarse en el gráfico. Solo en el motor AngularJS.
+* **Navegador:** Permite ajustar el rango del gráfico que se muestra. Con ECharts es un deslizador bajo el área del gráfico.
+* **Selector de rango:** No disponible. Formaba parte de Highstock (AWE 4, motor AngularJS).
+* **Barra de desplazamiento:** No disponible. Formaba parte de Highstock: arrastre el deslizador o el área del gráfico en su lugar.
 * **Cruceta:** Muestra una línea siguiendo la descripción de un gráfico para leer mejor los resultados del eje x. Esta funcionalidad se encuentra en las opciones del tooltip y se puede usar en cualquier gráfico (no está habilitada por defecto).
 
-La imagen anterior muestra Highstock. Consulte el [ejemplo de gráfico bursátil](#stock-chart-with-zoom) para el motor React.
+La imagen anterior muestra Highstock. Consulte el [ejemplo de gráfico bursátil](#stock-chart-with-zoom) para ver el gráfico dibujado con ECharts.
 
 ## Esqueleto de XML {#xml-skeleton}
 
@@ -96,7 +96,6 @@ El elemento gráfico tiene los siguientes atributos:
 | subtitle           | Opcional        | String  | Es el subtítulo del gráfico                                                                                                    | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                             |
 | type               | **Obligatorio** | String  | Tipo de gráfico                                                                                                                | `line`, `spline`, `column`, `column_3d`, `area`, `areaspline`, `arearange`, `areasplinerange`, `pie`, `pie_3d`, `donut`, `donut_3d`, `semicircle`, `mixed`, `bubble`, `scatter`. See [chart types](#chart-types) |
 | stock-chart        | Opcional        | Boolean | Indicador de tipo de gráfico de stock                                                                                          | `true` o `false`                                                                                                                                                                                                |
-| theme              | Opcional        | String  | Es el nombre del tema de Highcharts                                                                                            | Solo motor AngularJS. Véase [Highcharts themes](#highcharts-themes-angularjs-engine)                                                                                                                              |
 | inverted           | Opcional        | Boolean | Invertir los ejes para que el eje x sea vertical y el eje y sea horizontal. Cuando es true, el eje x es revertido por defecto. | `true` o `false`                                                                                                                                                                                                |
 | stacking           | Opcional        | String  | Si se deben apilar los valores de cada serie encima de la otra                                                                 | `normal` o `percent`                                                                                                                                                                                            |
 | enable-data-labels | Opcional        | Boolean | Indica si se muestran las etiquetas de datos de los puntos                                                                                  | Por defecto es `false`                                                                                                                                                                                              |
@@ -116,7 +115,7 @@ El elemento gráfico tiene los siguientes atributos:
 
 ##### Tipos de gráfico {#chart-types}
 
-| Tipo                           | Dibujado como (motor React)                                                                    |
+| Tipo                           | Dibujado como                                                                                  |
 | ------------------------------ | ------------------------------------------------------------------------------------------ |
 | `line`, `spline`               | Líneas. `spline` las suaviza                                                               |
 | `area`, `areaspline`           | Líneas rellenas. `areaspline` las suaviza                                                    |
@@ -205,7 +204,7 @@ Se utiliza para sobrescribir valores en los elementos del gráfico. Tiene los si
 | name     | **Obligatorio** | String | Nombre del parámetro gráfico |                                                                                                       |
 | value    | Opcional        | String | Valor del parámetro gráfico  |                                                                                                       |
 
-El elemento chart, los ejes, la leyenda, el tooltip y las series admiten hijos `chart-parameter`. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que aplica cada motor.
+El elemento chart, los ejes, la leyenda, el tooltip y las series admiten hijos `chart-parameter`. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que se aplican.
 
 ## Conceptos de series y consultas {#series-and-queries-concepts}
 
@@ -374,7 +373,7 @@ El relleno de un área es un degradado lineal definido en la serie (`fillColor`)
 
 ### Gráfico de columnas {#column-chart}
 
-Tipo `column`. Con el atributo `stacking` (`normal` o `percent`) las series se apilan. El tipo `column_3d` se acepta en el XML, pero **el motor React lo dibuja plano**, como este gráfico apilado:
+Tipo `column`. Con el atributo `stacking` (`normal` o `percent`) las series se apilan. El tipo `column_3d` se acepta en el XML, pero **ambos motores lo dibujan plano**, como este gráfico apilado:
 
 <img alt="Gráfico de columnas apiladas con tres series" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stacked-column.png')} />
 
@@ -676,7 +675,7 @@ Sin `minSize` ni `maxSize`, los tamaños van de 10 a 50 píxeles:
 
 ### Gráfico bursátil con zoom {#stock-chart-with-zoom}
 
-Con `stock-chart="true"` el gráfico está pensado para series temporales largas. El motor React añade un deslizador (el navegador) bajo el área del gráfico, un zoom del eje x con la rueda del ratón y no muestra leyenda por defecto.
+Con `stock-chart="true"` el gráfico está pensado para series temporales largas. Ambos motores añaden un deslizador (el navegador) bajo el área del gráfico, un zoom del eje x con la rueda del ratón y no muestran leyenda por defecto.
 
 <img alt="Gráfico de series temporales con un deslizador de navegación bajo el área del gráfico" src={require('@docusaurus/useBaseUrl').default('img/charts/echarts-stock.png')} />
 
@@ -739,9 +738,9 @@ Una dependencia con `target-type="chart-options"` cambia las opciones de un grá
 </dependency>
 ```
 
-El resultado de la fórmula es un objeto de opciones (o su texto JSON). Ambos motores aplican el **zoom** (`{zoom: {x: {min, max}, y: {min, max}}}`): el motor AngularJS fija los extremos de los ejes de Highcharts, y el motor React hace zoom en los componentes de zoom de datos de los ejes de ECharts. Un rango `null` vuelve a mostrar el eje completo. El gráfico no vuelve a hacer zoom al rango que ya tiene, así que dos gráficos enlazados por la misma dependencia no se disparan entre sí en bucle.
+El resultado de la fórmula es un objeto de opciones (o su texto JSON). Ambos motores aplican solo su **zoom** (`{zoom: {x: {min, max}, y: {min, max}}}`): el gráfico hace zoom en los componentes de zoom de datos de sus ejes de ECharts. Un rango `null` vuelve a mostrar el eje completo. El gráfico no vuelve a hacer zoom al rango que ya tiene, así que dos gráficos enlazados por la misma dependencia no se disparan entre sí en bucle.
 
-El resto de las opciones son opciones de Highcharts y el motor React las ignora: con ECharts solo se admite el zoom. Las demás dependencias de un gráfico (visibilidad, atributos, `reload`...) funcionan en ambos motores. Véase [dependencias](dependencies.md).
+Las demás opciones del objeto se ignoran (en AWE 4 el motor AngularJS las fusionaba en el gráfico de Highcharts). Las demás dependencias de un gráfico (visibilidad, atributos, `reload`...) funcionan en ambos motores. Véase [dependencias](dependencies.md).
 
 ### Eventos y atributos {#events-and-attributes}
 
@@ -754,109 +753,59 @@ Ambos motores emiten los mismos eventos y escriben los mismos atributos, por lo 
 | `context-menu` | El usuario hace clic derecho en un punto        | `x`, `y` del punto             |
 | `zoom`         | El usuario hace zoom en el gráfico o lo restablece | `xMin`, `xMax`, `yMin`, `yMax` |
 
-`x` e `y` son las coordenadas del punto (el nombre y el valor de un sector de un gráfico circular). `xMin`, `xMax`, `yMin` e `yMax` son el rango visible de cada eje, y valen `null` mientras se muestra el eje completo. Un zoom que viene de una dependencia `chart-options` escribe los atributos pero no vuelve a emitir el evento `zoom`. En el motor React el zoom se hace con la rueda del ratón o con el deslizador del gráfico (un `dataZoom` del modelo del gráfico), y el gráfico indica en su atributo de prueba `data-zoomed` que tiene zoom. El motor React todavía no muestra el menú contextual de los botones del gráfico con `context-menu` (incidencia #801).
+`x` e `y` son las coordenadas del punto (el nombre y el valor de un sector de un gráfico circular). `xMin`, `xMax`, `yMin` e `yMax` son el rango visible de cada eje, y valen `null` mientras se muestra el eje completo. Un zoom que viene de una dependencia `chart-options` escribe los atributos pero no vuelve a emitir el evento `zoom`. En ambos motores el zoom se hace con la rueda del ratón y arrastrando dentro del área del gráfico, o con el deslizador del gráfico (un `dataZoom` del modelo del gráfico). No hay botón **Reset zoom**: para quitar el zoom, use la rueda del ratón. El gráfico indica en su atributo de prueba `data-zoomed` que tiene zoom.
 
-## Diferencias entre los motores {#differences-between-the-engines}
+En un gráfico invertido (`inverted="true"` o una serie `bar`) el eje x de AWE es el vertical. Los eventos y el zoom informan de las `x` e `y` de AWE, no de la dirección de la pantalla.
 
-| Característica                                      | React (ECharts)                                                                     | AngularJS (Highcharts)                          |
-| -------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Tipos 3D (`column_3d`, `pie_3d`, `donut_3d`) | Dibujado **plano**                                                                      | Dibujado en 3D                                     |
-| Opciones de `chart-parameter`                    | Solo las [opciones traducidas](chart-parameters.md); el resto se ignoran y se registran | Cualquier opción de la API de Highcharts                |
-| Dependencia `chart-options`                   | Solo se aplica el zoom, las demás opciones se ignoran                                   | Se aplica                                         |
-| Atributo `theme` (temas de Highcharts)        | Se ignora. El aspecto proviene del tema de la aplicación                           | Se aplica                                         |
-| Paleta por defecto                              | La paleta de Highcharts 11, para las series sin color                             | La paleta de Highcharts, o la del tema |
-| Modo oscuro                                    | Los gráficos siguen el tema de la aplicación (véase más abajo)                          | Temas de Highcharts (atributo `theme`)           |
-| Gráficos bursátiles                                 | Deslizador y zoom con la rueda del ratón                                                | Highstock: navegador, selector de rango, barra de desplazamiento |
-| Impresión                                     | Imagen dibujada por el renderizador SVG de ECharts                                          | Exportación de Highcharts                               |
-| Textos del gráfico                                  | Archivos `src/i18n/charts/charts-<language>.json`                                | Textos del cliente AngularJS                   |
+El motor React todavía no muestra el menú contextual de los botones del gráfico con `context-menu` (incidencia #801).
 
-### Límites conocidos del motor React {#known-limits-of-the-react-engine}
+## Estilo de un gráfico {#styling-a-chart}
+
+Un gráfico no tiene tema propio: su aspecto proviene del tema de la aplicación.
+
+* **Claro y oscuro.** Al crearse, el gráfico lee el fondo de la aplicación (la variable `--surface-a` del tema, o el fondo de la página). Se dibuja con colores claros o, cuando ese fondo es oscuro, con los colores oscuros de ECharts. Si el usuario cambia el tema con la pantalla abierta, el gráfico adopta el nuevo tema cuando se vuelve a crear (por ejemplo, al abrir de nuevo la pantalla o al cambiar el idioma).
+* **Colores de las series.** El atributo `color` de un `chart-serie` establece el color de una serie. Las series sin color toman los colores del parámetro `colors` del gráfico o, por defecto, la paleta de Highcharts 11 (`#2caffe`, `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`).
+* **Todo lo demás.** Las fuentes, el título, los ejes, las líneas de la cuadrícula, las etiquetas de datos, los marcadores, los rellenos en degradado... se definen con elementos [`chart-parameter`](chart-parameters.md). Solo se aplican las opciones traducidas.
+
+Las reglas CSS no pueden cambiar el estilo del dibujo de un gráfico: el renderizador SVG de ECharts escribe los estilos en línea, sin clases CSS. El atributo `style` del gráfico establece las clases CSS de su contenedor, no los colores del gráfico.
+
+## Cambios respecto a AWE 4 (Highcharts) {#changes-from-awe-4-highcharts}
+
+En AWE 4 el motor AngularJS dibujaba los gráficos con Highcharts y Highstock. En AWE 5 ambos motores los dibujan con ECharts, a partir del mismo `echartsModel`:
+
+| Característica                                  | AWE 4 (Highcharts, motor AngularJS)                              | AWE 5 (ECharts, ambos motores)                                                           |
+| ----------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Tipos 3D (`column_3d`, `pie_3d`, `donut_3d`)    | Dibujados en 3D                                                  | Dibujados **planos**                                                                     |
+| Tipos de rango (`arearange`, `areasplinerange`) | Dibujados como rangos                                            | Aproximados mediante una línea rellena (el servidor registra una advertencia)            |
+| Opciones de `chart-parameter`                   | Cualquier opción de la API de Highcharts                         | Solo las [opciones traducidas](chart-parameters.md); el resto se ignoran y se registran  |
+| Dependencia `chart-options`                     | Cualquier opción de Highcharts                                   | Solo se aplica el zoom, las demás opciones se ignoran                                    |
+| Atributo `theme`                                | Temas de Highcharts                                              | Eliminado. Véase [Estilo de un gráfico](#styling-a-chart)                                |
+| Paleta por defecto                              | La paleta de Highcharts, o la del tema                           | La paleta de Highcharts 11, para las series sin color                                    |
+| Modo oscuro                                     | Temas oscuros de Highcharts (atributo `theme`)                   | Los gráficos siguen el tema de la aplicación                                             |
+| Reglas CSS `.highcharts-*`                      | Se aplican                                                       | No coinciden con nada: el SVG no tiene clases CSS                                        |
+| Gráficos bursátiles                             | Highstock: navegador, selector de rango, barra de desplazamiento | Deslizador, zoom con la rueda del ratón y arrastrando                                    |
+| Zoom                                            | Selección con el ratón y un botón Reset zoom                     | Rueda del ratón y arrastre dentro del área del gráfico, deslizador. Sin botón Reset zoom |
+| Impresión                                       | Exportación de Highcharts                                        | Imagen dibujada por el renderizador SVG de ECharts                                       |
+| Renderizado en el servidor (`ChartService`)     | Servidor de exportación de Highcharts                            | Servidor de gráficos de AWE (ECharts)                                                    |
+| Textos del gráfico                              | Archivos de idioma de Highcharts del cliente AngularJS           | Archivos `src/i18n/charts/charts-<language>.json` del cliente React                      |
+
+### Límites conocidos {#known-limits}
 
 * **Los gráficos 3D son planos.** Los tipos 3D se aceptan, de modo que las pantallas existentes siguen funcionando, pero la profundidad no se dibuja.
-* **Colores.** Cuando el XML no indica colores, las series toman los colores de la paleta por defecto de Highcharts 11 (`#2caffe`, `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`). Establezca el `color` de las series, o el parámetro `colors` del gráfico, para usar los suyos.
-* **Tema oscuro.** El gráfico lee el tema de la aplicación cuando se crea y se dibuja con colores claros u oscuros. Si el usuario cambia el tema con la pantalla abierta, el gráfico adopta el nuevo tema cuando se vuelve a crear (por ejemplo, al abrir de nuevo la pantalla o al cambiar el idioma).
 * **Drilldown e impresión.** Al imprimir un gráfico con drilldown se imprime el nivel superior.
 * **Valores sin procesar.** Los valores se dibujan tal como los devuelve la consulta: nada se redondea salvo que lo indique un formato o `number-decimals`.
 * **Opciones de Highcharts.** Las opciones sin equivalente en ECharts se ignoran. Consulte el log del servidor, que informa de cada una una sola vez (véase [parámetros de gráficos](chart-parameters.md#everything-else)).
-* **Temas de Highcharts.** El atributo `theme` solo se aplica al motor AngularJS.
 * **Tipos de rango.** `arearange` y `areasplinerange` se aproximan mediante una línea rellena.
-
-## Temas de Highcharts (motor AngularJS) {#highcharts-themes-angularjs-engine}
-
-> **Nota:** Esta sección solo se aplica al motor AngularJS. El motor React ignora el atributo `theme`.
-
-El motor AngularJS y la biblioteca Highcharts permiten cambiar el estilo fácilmente. Hay algunos temas por defecto. Basta con establecer el atributo `theme` del elemento chart con el nombre del tema.
-
-La lista de temas disponible es:
-
--   dark-unica
--   dark-green
--   dark-blue
--   gray
--   grid
-
-### Creando tu propio tema {#creating-your-own-theme}
-
-Aquí hay un ejemplo sencillo para mostrar el proceso:
-
-```javascript
-/**
- * Theme for Highcharts JS
- */
-
-Highcharts.theme["your-theme"] = {
-colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', 
-             '#FF9655', '#FFF263', '#6AF9C4'],
-    chart: {
-        backgroundColor: {
-            linearGradient: [0, 0, 500, 500],
-            stops: [
-                [0, 'rgb(255, 255, 255)'],
-                [1, 'rgb(240, 240, 255)']
-            ]
-        },
-    },
-    title: {
-        style: {
-            color: '#000',
-            font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
-        }
-    },
-    subtitle: {
-        style: {
-            color: '#666666',
-            font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
-        }
-    },
-
-    legend: {
-        itemStyle: {
-            font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: 'black'
-        },
-        itemHoverStyle:{
-            color: 'gray'
-        }   
-    }
-};
-
-```
-
-> **Nota:** Debe añadir el nuevo nombre de archivo en **scripts.xml** en su proyecto.
 
 ## Impresión y renderizado en el servidor {#printing-and-server-rendering}
 
-**Impresión en el motor React.** Cuando el usuario imprime una pantalla con un gráfico, el cliente dibuja una imagen del gráfico aparte de la pantalla, con el renderizador SVG de ECharts, en colores claros y con el tamaño de la página. La imagen se dibuja a partir del nivel superior del gráfico, incluso cuando el usuario ha hecho drilldown.
+**Impresión.** Cuando el usuario imprime una pantalla con un gráfico, el cliente dibuja una imagen del gráfico aparte de la pantalla, con el renderizador SVG de ECharts, en colores claros y con el tamaño de la página (en el motor AngularJS, 1167 x 360 píxeles en horizontal y 796 x 540 en vertical). La imagen se dibuja a partir del nivel superior del gráfico, incluso cuando el usuario ha hecho drilldown.
 
-**Renderizado en el servidor.** El `ChartService` descrito a continuación es independiente del motor del navegador: construye el modelo de Highcharts del gráfico y lo envía a un servidor de exportación de Highcharts, que devuelve una imagen SVG. Sigue necesitando el servidor de exportación (`highcharts.server.url`).
+**Renderizado en el servidor.** El `ChartService` descrito a continuación es independiente del motor del navegador: envía el modelo de ECharts del gráfico y sus datos al servidor de gráficos de AWE, que lo dibuja con el mismo código que el navegador y devuelve una imagen SVG. No necesita ningún servidor de exportación de Highcharts.
 
 ## Servicio de exportación de gráficas {#chart-render-service}
 
-Highcharts tiene un servidor de exportación que permite generar gráficos de alta calidad en el lado del servidor:
-
-https://www.highcharts.com/docs/export-module/setting-up-the-server
-
-Hemos desarrollado un nuevo servicio de renderizado que permite generar gráficos en formato `SVG` usando este servidor de exportación y los gráficos de AWE.
+`ChartService` genera gráficos en formato `SVG` en el servidor, por ejemplo para incluirlos en un informe o en un correo. La imagen la dibuja el **servidor de gráficos de AWE**, un pequeño servicio Node que pinta el gráfico con el renderizado en servidor de [Apache ECharts](https://echarts.apache.org/handbook/en/how-to/cross-platform/server/) (renderizador SVG, `ssr: true`), sin navegador. Sustituye al servidor de exportación de Highcharts de AWE 4 y mantiene su contrato HTTP.
 
 ### Definiendo gráficos {#defining-charts}
 
@@ -917,33 +866,85 @@ datasources.put("detail", detailDataList);
 
 La primera serie (`data`) elegirá los datos definidos en la clave `main` y la segunda serie (`detail`) elegirá los datos definidos en la clave `detail`
 
-### Procesar servidor {#render-server}
+### Servidor de gráficos {#chart-server}
 
-Puede configurar el servidor de renderizado en el archivo `application.properties` actualizando la propiedad `highcharts.server.url`:
+Arranque el servidor de gráficos de AWE y configure su URL en la propiedad `awe.application.chart-server-url` (por defecto `http://localhost:7801`):
 
 ```properties
-################################################
-# Chart properties
-################################################
-highcharts.server.url=http://export.highcharts.com
+awe.application.chart-server-url=http://chart-server:7801
 ```
 
-El servidor de exportación predeterminado apunta al servidor de exportación de Highcharts: `http://export.highcharts.com`
+La antigua propiedad `awe.application.highcharts-server-url` se elimina: el servidor público de exportación de Highcharts al que apuntaba (`https://export.highcharts.com`) no puede dibujar un gráfico de ECharts. Renómbrela a `awe.application.chart-server-url`.
+
+El servidor de gráficos se publica como imagen de contenedor en el registro de [docker-tools](https://gitlab.com/aweframework/docker-tools):
+
+```bash
+docker run -d --name awe-chart-server -p 7801:7801 registry.gitlab.com/aweframework/docker-tools/awe-chart-server:latest
+```
+
+Con Docker Compose, junto a la aplicación:
+
+```yaml
+services:
+  chart-server:
+    image: registry.gitlab.com/aweframework/docker-tools/awe-chart-server:latest
+  app:
+    image: mi-aplicacion-awe
+    environment:
+      AWE_APPLICATION_CHARTSERVERURL: http://chart-server:7801
+```
+
+Sin contenedores, es un único fichero de Node que se genera desde el módulo del cliente React (`awe-framework/awe-client-react`):
+
+```bash
+# Bundle de Node (también lo genera el build Maven del módulo) en target/chart-server/awe-chart-server.cjs
+npm run build:chart-server
+# Ejecútelo con Node 20 o superior
+PORT=7801 node target/chart-server/awe-chart-server.cjs
+```
+
+| Variable de entorno | Por defecto | Descripción                                        |
+|---------------------|-------------|----------------------------------------------------|
+| `PORT`              | `7801`      | Puerto del servidor                                |
+| `HOST`              | `0.0.0.0`   | Dirección en la que escucha                        |
+| `MAX_BODY_SIZE`     | `10485760`  | Tamaño máximo del cuerpo de una petición, en bytes |
+
+El servidor responde `GET /health` con `OK` y dibuja un gráfico con `POST /` y un cuerpo JSON:
+
+| Campo             | Obligatorio | Descripción                                                                                   |
+|-------------------|-------------|-----------------------------------------------------------------------------------------------|
+| `infile`          | Sí          | Modelo de ECharts del gráfico (`echartsModel`). Una serie de otro datasource trae sus filas en `awe.values` |
+| `type`            | No          | `image/svg+xml` (por defecto). Cualquier otro tipo se rechaza con `400`: solo se genera SVG     |
+| `values`          | No          | Filas del datasource `main`                                                                   |
+| `width`, `height` | No          | Tamaño de la imagen, `600` x `400` por defecto (el del servidor de exportación de Highcharts)  |
+| `language`        | No          | Idioma de los textos, números y fechas (`es-ES`, `fr-FR`, `en-GB`). Inglés por defecto         |
+| `translations`    | No          | Traducción de las claves de idioma del gráfico, que `ChartService` envía en el idioma del usuario |
+
+Responde `200` con la imagen SVG, `400` ante una petición incorrecta, `413` si el cuerpo supera `MAX_BODY_SIZE` y `500` cuando no puede dibujar el gráfico (el error queda en el log del servidor). `ChartService` lanza una `AWException` ante cualquier respuesta que no sea `2xx`.
 
 ## Actualización a AWE 5 {#upgrading-to-awe-5}
 
-En AWE 5 el motor React dibuja los gráficos con [Apache ECharts](https://echarts.apache.org/) 6.1.0 en lugar de Highcharts. El motor AngularJS sigue dibujándolos con Highcharts hasta que pase a ECharts (issue #775).
+En AWE 5 ambos motores, React y AngularJS, dibujan los gráficos con [Apache ECharts](https://echarts.apache.org/) 6.1.0 en lugar de Highcharts. Ninguno de los dos clientes depende ya de Highcharts.
 
-El XML del gráfico no cambia. El servidor traduce el gráfico, sus ejes, series y elementos `chart-parameter` a un modelo de ECharts y registra una advertencia (una vez por opción) por cada opción que no puede traducir. Revise estos puntos al actualizar una aplicación que usa el motor React:
+El XML del gráfico no cambia, salvo el atributo `theme`, que se elimina. El servidor traduce el gráfico, sus ejes, series y elementos `chart-parameter` a un modelo de ECharts y registra una advertencia (una vez por opción) por cada opción que no puede traducir. Revise estos puntos al actualizar una aplicación, con cualquiera de los dos motores:
 
-* **Revise el log del servidor.** Abra cada pantalla con un gráfico y busque las advertencias que empiecen por `Highcharts chart-parameter`. Cada una es una opción que el motor React ignora. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que se traducen.
-* **Código propio que importa Highcharts.** El cliente React ya no depende de `highcharts` ni de `highcharts-react-official`. Un componente propio de su aplicación que los importe debe declararlos en su propio `package.json` (compruebe la licencia de Highcharts) o pasar a ECharts, que el cliente ya incluye.
-* **Reglas CSS `.highcharts-*`.** Los gráficos ya no los dibuja Highcharts, por lo que estas reglas no coinciden con nada en el motor React. Los colores, las fuentes y los bordes provienen del XML (`chart-parameter`) y del tema. El modo oscuro de la aplicación se aplica automáticamente a los gráficos cuando se crea el gráfico.
+* **Revise el log del servidor.** Abra cada pantalla con un gráfico y busque las advertencias que empiecen por `Highcharts chart-parameter`. Cada una es una opción que los gráficos ignoran. Véase [parámetros de gráficos](chart-parameters.md) para las opciones que se traducen.
+* **Atributo `theme`.** Se eliminan el atributo de `chart` y el método `setTheme` de `ChartBuilder`. Una pantalla que todavía tenga `theme="..."` se carga sin errores (el atributo se ignora), pero el aspecto del tema ya no se aplica: los gráficos siguen el tema de la aplicación. Elimine el atributo y defina en el XML los colores y las fuentes que daba el tema. Véase [Estilo de un gráfico](#styling-a-chart).
+* **Código propio de Highcharts.** Ningún cliente incluye ya Highcharts. En el motor AngularJS, los temas de Highcharts (archivos `Highcharts.theme`) y otros scripts de Highcharts que la aplicación añade en `scripts.xml` ya no tienen efecto (y fallan si usan la variable global `Highcharts`): elimínelos. En el motor React, un componente propio que importe `highcharts` o `highcharts-react-official` debe declararlos en su propio `package.json` (compruebe la licencia de Highcharts) o pasar a ECharts, que el cliente ya incluye.
+* **Reglas CSS `.highcharts-*`.** Los gráficos ya no los dibuja Highcharts, por lo que estas reglas no coinciden con nada en ninguno de los dos motores, y el SVG de ECharts no tiene clases CSS. Los colores, las fuentes y los bordes provienen del XML (`chart-parameter`, el `color` de las series) y del tema de la aplicación. El modo oscuro de la aplicación se aplica automáticamente a los gráficos cuando se crea el gráfico.
 * **Paleta.** Las series sin color propio mantienen la paleta por defecto de Highcharts 11. Establezca `color` en la serie o el parámetro `colors` en el gráfico para cambiarla.
-* **Temas de Highcharts.** El motor React ignora el atributo `theme`. Si un tema daba colores o fuentes a sus gráficos, establézcalos en el XML.
-* **Gráficos 3D** (`column_3d`, `pie_3d`, `donut_3d`): se dibujan planos.
-* **Dependencia `chart-options`.** Su resultado es un objeto de opciones de Highcharts. El motor React solo aplica su `zoom` (para enlazar el zoom de gráficos) e ignora las demás opciones.
+* **Gráficos 3D** (`column_3d`, `pie_3d`, `donut_3d`): se dibujan planos, y `arearange` y `areasplinerange` se aproximan mediante una línea rellena.
+* **Dependencia `chart-options`.** Su resultado es un objeto de opciones de Highcharts. Ambos motores aplican solo su `zoom` (para enlazar el zoom de gráficos) e ignoran las demás opciones.
+* **Gráficos bursátiles y zoom.** Un gráfico bursátil tiene un deslizador bajo el área del gráfico y hace zoom con la rueda del ratón y arrastrando dentro del área del gráfico. El selector de rango, la barra de desplazamiento y el botón Reset zoom de Highcharts desaparecen.
 * **Formatos.** Las cadenas de formato de Highcharts 11 (`{point.y:.2f}`, `{#if ...}`, los patrones de fecha como `%Y-%m-%d`...) funcionan como antes, véase [formatos de gráficos](chart-format.md). Las especificaciones numéricas distintas de `.Nf` y `,.Nf` se escriben como el valor sin procesar, y los valores nunca se redondean salvo que un formato lo pida.
 * **Impresión.** Los gráficos se imprimen a partir de una imagen dibujada por ECharts. Un gráfico con drilldown imprime su nivel superior.
-* **Textos del gráfico.** Los archivos de idioma de los textos del gráfico son `src/i18n/charts/charts-<language>.json` en el cliente React, y solo contienen los textos que usan los gráficos: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`, `months`, `shortMonths` y `weekdays`. Copie sus personalizaciones a esos archivos.
-* **Renderizado en el servidor.** `ChartService` sigue usando el servidor de exportación de Highcharts y el modelo de Highcharts del gráfico, por lo que sigue siendo necesario `highcharts.server.url`.
+* **Textos del gráfico.** Los archivos de idioma de los textos del gráfico son `src/i18n/charts/charts-<language>.json` en el cliente React, y solo contienen los textos que usan los gráficos: `noData`, `drillUpText`, `decimalPoint`, `thousandsSep`, `months`, `shortMonths` y `weekdays`. El motor AngularJS usa los mismos archivos (y añade el euskera). Copie sus personalizaciones a esos archivos.
+* **Renderizado en el servidor.** `ChartService` envía el modelo de ECharts al servidor de gráficos de AWE en lugar del modelo de Highcharts a un servidor de exportación de Highcharts. Arranque el servidor de gráficos y configure `awe.application.chart-server-url`, véase [Servidor de gráficos](#chart-server).
+
+Otros cambios del motor AngularJS, que ahora se comporta como el motor React:
+
+* **Etiquetas.** El título, el subtítulo, los títulos de los ejes y los nombres de las series se traducen palabra a palabra: se sustituye cada palabra que es una clave de idioma. Una etiqueta que es una sola clave se traduce como antes.
+* **Acciones de gráfico.** `add-points` en un gráfico con `max` mantiene exactamente `max` puntos y descarta los más antiguos. `reset` vacía los valores del gráfico.
+* **Demasiados datos.** El ajuste `limitPointsSerie` cuenta las filas del gráfico. Cuando hay más filas, el gráfico muestra el mensaje de "demasiados datos" en lugar de las series.
+* **Gráficos invertidos.** El eje x de AWE es el vertical: los eventos y el zoom informan de las `x` e `y` de AWE.
+* **Pruebas de navegador.** El elemento del gráfico tiene los atributos `data-testid="chart"`, `chart-id`, `data-rendered` y `data-zoomed`, como en el motor React. Las instrucciones `getChart` y `getChartZoomed` de `awe-testing` los usan; el selector `.highcharts-reset-zoom` desaparece.

@@ -74,5 +74,12 @@ module.exports = [
     rules: {
       'no-console': 0
     }
+  },
+  {
+    // The chart server is a Node process: the console is its log
+    files: ['src/renderer/**/*.js'],
+    rules: {
+      'no-console': 0
+    }
   }
 ];

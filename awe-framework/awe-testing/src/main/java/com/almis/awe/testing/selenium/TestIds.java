@@ -143,7 +143,7 @@ public final class TestIds {
   public static final String DIALOG = "dialog";
   public static final String DIALOG_CLOSE = "dialog-close";
 
-  // React only: chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
+  // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";
 
   // React only: tag list (the instance is identified by "tag-list-id")

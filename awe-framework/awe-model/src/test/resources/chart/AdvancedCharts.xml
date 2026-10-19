@@ -19,8 +19,8 @@
           </chart-parameter>
         </chart-parameter>
       </chart>
-      <!-- stock chart, theme blue, dates, magnitude formatter -->
-      <chart id="AdvStock" label="Valor liquidativo" type="line" stock-chart="true" theme="blue" zoom-type="xAxis">
+      <!-- stock chart, dates, magnitude formatter -->
+      <chart id="AdvStock" label="Valor liquidativo" type="line" stock-chart="true" zoom-type="xAxis">
         <chart-legend enabled="false" />
         <chart-tooltip number-decimals="2" date-format="%d/%m/%Y" crosshairs="xAxis" shared="true" />
         <x-axis type="datetime">

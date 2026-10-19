@@ -1,4 +1,4 @@
-import {translateLabel} from "./index";
+import {translateLabel} from "./labels";
 import {hintsOf, isPie, withoutAwe} from "./echartsContext";
 
 /**

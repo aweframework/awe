@@ -70,7 +70,7 @@ Consulte nuestra pila tecnológica más reciente en [![StackShare](https://img.s
 
 * Redux.js
 * Socket.IO
-* Highcharts
+* Apache ECharts
 * Font Awesome
 
 ### Bases de datos {#databases}

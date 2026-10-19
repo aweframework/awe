@@ -3,12 +3,12 @@ package com.almis.awe.service;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.chart.Chart;
 import com.almis.awe.model.entities.screen.component.chart.ChartParameter;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
-import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +24,10 @@ import java.util.*;
 
 @Slf4j
 public class ChartService extends ServiceConfig {
+
+  private static final String MAIN_DATASOURCE = "main";
+  private static final String DATASOURCE_PARAMETER = "datasource";
+  private static final String AWE_HINTS = "awe";
 
   // Autowired parameters
   private final ObjectMapper mapper;
@@ -41,7 +45,7 @@ public class ChartService extends ServiceConfig {
   }
 
   /**
-   * Render chart with highcharts export server
+   * Render chart with the AWE chart server (ECharts)
    *
    * @param screenName Screen name where chart is
    * @param chartName  Chart identifier
@@ -54,7 +58,7 @@ public class ChartService extends ServiceConfig {
   }
 
   /**
-   * Render chart with highcharts export server
+   * Render chart with the AWE chart server (ECharts)
    *
    * @param screenName  Screen name where chart is
    * @param chartName   Chart identifier
@@ -67,7 +71,7 @@ public class ChartService extends ServiceConfig {
   }
 
   /**
-   * Render chart with highcharts export server
+   * Render chart with the AWE chart server (ECharts)
    *
    * @param chart Chart
    * @param data  Data to fill the chart
@@ -76,12 +80,12 @@ public class ChartService extends ServiceConfig {
    */
   public String renderChart(Chart chart, DataList data) throws AWException {
     Map<String, DataList> datasourceMap = new HashMap<>();
-    datasourceMap.put("main", data);
+    datasourceMap.put(MAIN_DATASOURCE, data);
     return renderChart(chart, datasourceMap);
   }
 
   /**
-   * Render chart with highcharts export server
+   * Render chart with the AWE chart server (ECharts)
    *
    * @param chart       Chart
    * @param datasourceMap Data sources map
@@ -105,7 +109,7 @@ public class ChartService extends ServiceConfig {
   }
 
   /**
-   * Render chart with highcharts export server
+   * Render chart with the AWE chart server (ECharts)
    *
    * @param chart       Chart
    * @param datasourceMap Data sources map
@@ -115,34 +119,56 @@ public class ChartService extends ServiceConfig {
   private String renderChartWithDatasourceMap(Chart chart, Map<String, DataList> datasourceMap) throws AWException {
     String response = null;
     if (chart != null) {
-      // Add data to chart model
-      generateData(chart, datasourceMap);
-
-      // Generate chart in server
-      response = generateChartInServer(chart);
+      response = generateChartInServer(buildChartRequest(chart, datasourceMap));
     }
     return response;
   }
 
   /**
+   * Build the request of the chart server: the ECharts model of the chart, the rows of the main datasource, the
+   * language and the translations of the locale keys of the model. A series that reads another datasource carries
+   * its own rows in its client hints ({@code awe.values}). A datasource that is not in the map has no rows
+   *
+   * @param chart         Chart
+   * @param datasourceMap Data sources map
+   * @return Chart request
+   */
+  private Map<String, Object> buildChartRequest(Chart chart, Map<String, DataList> datasourceMap) {
+    Map<String, Object> model = chart.getEchartsModel();
+    String language = getElements().getLanguage();
+
+    // Translations are taken before adding the rows, so only the strings of the model are translated
+    Map<String, String> translations = new LinkedHashMap<>();
+    collectTranslations(model, language, translations);
+    addSeriesValues(model, chart, datasourceMap);
+
+    Map<String, Object> chartData = new HashMap<>();
+    chartData.put("type", "image/svg+xml");
+    chartData.put("infile", model);
+    chartData.put("values", getRows(datasourceMap, MAIN_DATASOURCE));
+    chartData.put("language", language);
+    chartData.put("translations", translations);
+    return chartData;
+  }
+
+  /**
    * Call server and retrieve chart data
    *
-   * @param chart Chart
+   * @param chartData Chart request
    * @return Chart in server
    */
-  private String generateChartInServer(Chart chart) throws AWException {
+  private String generateChartInServer(Map<String, Object> chartData) throws AWException {
     RestTemplate restTemplate = buildChartRestTemplate(getBean(RestTemplate.class));
-
-    // Generate parameters
-    Map<String, Object> chartData = new HashMap<>();
-    chartData.put("infile", chart.getChartModel());
-    chartData.put("type", "image/svg+xml");
 
     // Generate request
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    ResponseEntity<String> responseEntity = restTemplate.postForEntity(baseConfigProperties.getHighchartsServerUrl(), new HttpEntity<>(chartData, headers), String.class);
-    log.info("Generating chart with data: {}", mapper.valueToTree(chartData));
+    String url = baseConfigProperties.getChartServerUrl();
+    // The request carries the chart data, so it is only logged on debug
+    if (log.isDebugEnabled()) {
+      log.debug("Generating chart in {} with data: {}", url, mapper.valueToTree(chartData));
+    }
+    ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, new HttpEntity<>(chartData, headers), String.class);
 
     // Handle response status
     if (!responseEntity.getStatusCode().is2xxSuccessful()) {
@@ -172,37 +198,104 @@ public class ChartService extends ServiceConfig {
   }
 
   /**
-   * Generate chart data
+   * Add the rows of the series that read another datasource (series chart-parameter {@code datasource}) to their
+   * client hints, as {@code awe.values}. The series of the main datasource use the {@code values} of the request
    *
-   * @param chart       Chart
+   * @param model         ECharts model
+   * @param chart         Chart
    * @param datasourceMap Data sources map
    */
-  private void generateData(Chart chart, Map<String, DataList> datasourceMap) {
-    ChartParameter defaultParameter = new ChartParameter().setName("datasource").setValue("main");
-    chart.setSerieList(chart.getSerieList()
-      .stream()
-      .map(serie -> serie.setData(getSerieData(serie, datasourceMap.get(Optional.ofNullable(serie.getParameterList()).orElse(Collections.emptyList()).stream().filter(parameter -> parameter.getName().equals("datasource")).findFirst().orElse(defaultParameter).getValue()))))
-      .toList());
+  private void addSeriesValues(Map<String, Object> model, Chart chart, Map<String, DataList> datasourceMap) {
+    Map<String, String> serieDatasources = new HashMap<>();
+    for (ChartSerie serie : chart.getSerieList()) {
+      String datasource = getDatasource(serie);
+      if (serie.getId() != null && !MAIN_DATASOURCE.equals(datasource)) {
+        serieDatasources.put(serie.getId(), datasource);
+      }
+    }
+    if (serieDatasources.isEmpty()) {
+      return;
+    }
+
+    // Series of the chart and drilldown series (in the hints of the model)
+    List<Object> seriesList = new ArrayList<>(asList(model.get("series")));
+    if (model.get(AWE_HINTS) instanceof Map<?, ?> hints && hints.get("drilldown") instanceof Map<?, ?> drilldown) {
+      seriesList.addAll(asList(drilldown.get("series")));
+    }
+    for (Object item : seriesList) {
+      if (item instanceof Map<?, ?> serieModel && serieDatasources.containsKey(serieModel.get("id"))) {
+        hintsOf(castMap(serieModel)).put("values", getRows(datasourceMap, serieDatasources.get(serieModel.get("id"))));
+      }
+    }
   }
 
   /**
-   * Retrieve serie data from datalist
+   * Retrieve the datasource of a series (chart-parameter {@code datasource}, main by default)
    *
-   * @param serie Serie
-   * @param data  Datalist
-   * @return Serie data
+   * @param serie Series
+   * @return Datasource name
    */
-  private List<ChartSeriePoint> getSerieData(ChartSerie serie, DataList data) {
-    List<ChartSeriePoint> result = new ArrayList<>();
-    data.getRows().stream()
-      .filter(row -> row.containsKey(serie.getXValue()))
-      .forEach(row -> {
-        if (serie.getZValue() != null) {
-          result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue(), row.get(serie.getZValue()).getValue()));
-        } else {
-          result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue()));
-        }
-      });
-    return result;
+  private String getDatasource(ChartSerie serie) {
+    return Optional.ofNullable(serie.getParameterList()).orElse(Collections.emptyList()).stream()
+      .filter(parameter -> DATASOURCE_PARAMETER.equals(parameter.getName()))
+      .map(ChartParameter::getValue)
+      .findFirst()
+      .orElse(MAIN_DATASOURCE);
+  }
+
+  /**
+   * Retrieve the rows of a datasource, serialized as the client receives them
+   *
+   * @param datasourceMap Data sources map
+   * @param datasource    Datasource name
+   * @return Rows of the datasource, empty when the datasource is not in the map
+   */
+  private List<Map<String, CellData>> getRows(Map<String, DataList> datasourceMap, String datasource) {
+    DataList data = datasourceMap.get(datasource);
+    return data == null || data.getRows() == null ? Collections.emptyList() : data.getRows();
+  }
+
+  /**
+   * Collect the translation of the words of all the strings of the model (as the client translates the labels,
+   * word by word). Only the words that have a translation are collected
+   *
+   * @param node         Model node
+   * @param language     Language
+   * @param translations Translations found
+   */
+  private void collectTranslations(Object node, String language, Map<String, String> translations) {
+    if (node instanceof Map<?, ?> map) {
+      map.values().forEach(value -> collectTranslations(value, language, translations));
+    } else if (node instanceof Collection<?> collection) {
+      collection.forEach(value -> collectTranslations(value, language, translations));
+    } else if (node instanceof String text) {
+      Arrays.stream(text.split(" "))
+        .filter(word -> !word.isEmpty() && !translations.containsKey(word))
+        .forEach(word -> {
+          String translation = getElements().getLocaleWithLanguage(word, language);
+          if (translation != null && !translation.equals(word)) {
+            translations.put(word, translation);
+          }
+        });
+    }
+  }
+
+  /**
+   * Retrieve the client hints of a series model, creating them when needed
+   *
+   * @param serieModel Series model
+   * @return Client hints
+   */
+  private Map<String, Object> hintsOf(Map<String, Object> serieModel) {
+    return castMap(serieModel.computeIfAbsent(AWE_HINTS, key -> new LinkedHashMap<String, Object>()));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> castMap(Object value) {
+    return (Map<String, Object>) value;
+  }
+
+  private static List<?> asList(Object value) {
+    return value instanceof List<?> list ? list : Collections.emptyList();
   }
 }

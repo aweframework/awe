@@ -397,7 +397,6 @@
     <xs:attribute name="subtitle" type="xs:string" />
     <xs:attribute name="type" use="required" type="chartTypesEnum" />
     <xs:attribute name="stock-chart" type="booleanEnum" />
-    <xs:attribute name="theme" type="xs:string" />
     <xs:attribute name="inverted" type="booleanEnum" />
     <xs:attribute name="stacking" type="stackTypeEnum" />
     <xs:attribute name="enable-data-labels" type="booleanEnum" />

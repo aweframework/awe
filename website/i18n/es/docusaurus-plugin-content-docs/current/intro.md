@@ -42,7 +42,7 @@ Si desea contribuir al propio AWE, importe este repositorio como un proyecto Mav
 * [Spring framework](https://spring.io/) - AWE Spring boot starter
 * [Angular JS](https://angularjs.org/) - Angular JS framework
 * [Bootstrap](https://getbootstrap.com/) - Kit de herramientas web de Bootstrap
-* [Highcharts](https://www.highcharts.com/) - Biblioteca de gráficos interactivos
+* [Apache ECharts](https://echarts.apache.org/) - Biblioteca de gráficos interactivos
 
 [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/almis-informatica-financiera/aweframework)
 
@@ -56,4 +56,4 @@ Por favor, lea [CONTRIBUTING.md](https://gitlab.com/aweframework/awe/-/blob/mast
 
 ## Licencia {#license}
 
-Todas las partes de AWE, **excepto el contenido de la biblioteca de gráficas (HighCharts)**, están licenciadas bajo Apache License v2. Vea el archivo [LICENSE.md](https://gitlab.com/aweframework/awe/-/blob/master/LICENSE.md) para más detalles.
+Todas las partes de AWE están licenciadas bajo Apache License v2. Vea el archivo [LICENSE.md](https://gitlab.com/aweframework/awe/-/blob/master/LICENSE.md) para más detalles.

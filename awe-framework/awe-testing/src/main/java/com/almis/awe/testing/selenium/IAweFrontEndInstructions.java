@@ -1001,23 +1001,25 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get a chart
+   * Get a chart once it has been drawn. Both clients render the chart hook with its identifier ({@code chart-id})
    *
    * @param chartId Chart identifier
-   * @return Selector of what the chart renders
+   * @return Selector of the drawn chart
    */
   default By getChart(String chartId) {
-    return By.cssSelector("[chart-id='" + chartId + "'] svg");
+    return By.cssSelector(TestIds.css(TestIds.CHART) + "[chart-id='" + chartId + "']"
+      + TestAttributes.css(TestAttributes.RENDERED, true));
   }
 
   /**
    * Get a chart that is zoomed
    *
    * @param chartId Chart identifier
-   * @return Selector of the chart once it shows a part of its range (AngularJS: its reset zoom button)
+   * @return Selector of the chart once it shows a part of its range
    */
   default By getChartZoomed(String chartId) {
-    return By.cssSelector("[chart-id='" + chartId + "'] .highcharts-reset-zoom");
+    return By.cssSelector(TestIds.css(TestIds.CHART) + "[chart-id='" + chartId + "']"
+      + TestAttributes.css(TestAttributes.ZOOMED, true));
   }
 
   /**

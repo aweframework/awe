@@ -153,10 +153,10 @@ public class BaseConfigProperties {
   private boolean logUserEnable = true;
 
   /**
-   * Highcharts export server url
-   * Default value <a href="https://export.highcharts.com">...</a>
+   * Url of the AWE chart server, which renders the charts of the server (ECharts model to SVG).
+   * Default value http://localhost:7801
    */
-  private String highchartsServerUrl = "https://export.highcharts.com";
+  private String chartServerUrl = "http://localhost:7801";
 
   /**
    * XStream driver

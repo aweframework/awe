@@ -140,16 +140,16 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
 
   describe("charts", () => {
     const CHART = (type, icon = "spinner") => compile(`<div><awe-loader class="loader chart-loader" skeleton="chart" icon-loader="${icon}"></awe-loader></div>`,
-      {controller: {chartModel: type ? {chart: {type}} : {}}}).element;
+      {controller: {echartsModel: type ? {series: [{type}]} : {}}}).element;
 
-    it.each(["column", "bar", undefined])("hints a bar chart for %s charts", type => {
+    it.each(["bar", undefined])("hints a bar chart for %s charts", type => {
       const element = CHART(type);
 
       expect(element.find(".skeleton-chart.skeleton-chart-bars .skeleton-bar").length).toBe(7);
       expect(element.find("awe-loader").attr("data-testid")).toBe("loader");
     });
 
-    it.each(["line", "area", "spline", "areaspline"])("hints a trend for %s charts", type => {
+    it.each(["line", "scatter"])("hints a trend for %s charts", type => {
       expect(CHART(type).find(".skeleton-chart.skeleton-chart-trend .skeleton-bar").length).toBe(1);
     });
 
@@ -157,9 +157,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/skeletonShap
       expect(CHART("pie").find(".skeleton-chart.skeleton-chart-pie .skeleton-bar").length).toBe(1);
     });
 
-    it("reads the type from the first series when the chart has none", () => {
+    it("reads the type of the first series of the ECharts model", () => {
       const element = compile(`<div><awe-loader class="loader chart-loader" skeleton="chart" icon-loader="spinner"></awe-loader></div>`,
-        {controller: {chartModel: {series: [{type: "pie"}]}}}).element;
+        {controller: {echartsModel: {series: [{type: "pie"}, {type: "line"}]}}}).element;
 
       expect(element.find(".skeleton-chart-pie").length).toBe(1);
     });

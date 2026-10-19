@@ -59,8 +59,8 @@ does not send the model (an AWE 4 server) produces empty charts and a warning in
 
 The `highcharts` and `highcharts-react-official` dependencies are gone from the client and `echarts` 6.1.0 was added.
 If your application has custom components that import Highcharts, declare it in your own `package.json` (check its
-licence) or move to ECharts. The complete list of chart differences (palette, themes, 3D charts, formats, printing,
-CSS rules) is in [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5).
+licence) or move to ECharts. The complete list of chart differences (palette, the removed `theme` attribute, 3D
+charts, formats, printing, CSS rules) is in [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5).
 
 ### HTML in cells is sanitized
 

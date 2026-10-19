@@ -20,12 +20,9 @@ aweApplication.directive('aweChart',
           // Set spin options
           scope.spinOptions = DefaultSpin.big;
 
-          // Init as component
+          // Init as chart: the chart plugin draws the ECharts model of the component
           let  component = new Chart(scope, scope.chartId, element);
-          if (component.asChart()) {
-            // Get chart controller
-            scope.chartOptions = component.controller.chartModel;
-          }
+          component.asChart();
         }
       };
     }]);

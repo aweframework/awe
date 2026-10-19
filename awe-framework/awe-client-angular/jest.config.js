@@ -1,5 +1,8 @@
 const path = require("path");
 
+// The chart utilities of the React client are shared with this client (see webpack.config.js)
+const reactSourcePath = path.join(__dirname, "..", "awe-client-react", "src");
+
 // Jest is the canonical AngularJS frontend test runner. Maven and CI invoke
 // `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution,
 // and LCOV reports under target/reports/jest.
@@ -14,9 +17,14 @@ module.exports = {
     "<rootDir>/src/test/jest/**/*.spec.js",
     "<rootDir>/src/test/jest/**/*.test.js"
   ],
+  // The Babel configuration of this module also compiles the shared React sources and the ECharts modules
   transform: {
-    "^.+\\.js$": ["babel-jest", { envName: "jest" }]
+    "^.+\\.js$": ["babel-jest", { envName: "jest", configFile: path.join(__dirname, ".babelrc"), babelrc: false }]
   },
+  // ECharts is loaded from its CommonJS bundle (moduleNameMapper below): only its locale modules are ES modules to compile
+  transformIgnorePatterns: ["/node_modules/(?!echarts/i18n/)"],
+  // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
+  moduleDirectories: [path.join(__dirname, "node_modules"), "node_modules"],
   collectCoverageFrom: [
     "src/main/resources/js/**/*.js",
     "!src/main/resources/js/lib/**"
@@ -47,11 +55,9 @@ module.exports = {
     "^jquery$": path.join(__dirname, "node_modules", "jquery", "dist", "jquery"),
     "^jquery-ui$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^bootstrap-tabdrop$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    "^highcharts/highstock$": path.join(__dirname, "src", "test", "jest", "mocks", "highchartsMock.js"),
-    "^highcharts/(.*)$": path.join(__dirname, "src", "test", "jest", "mocks", "highchartsModuleMock.js"),
-    "^HighchartsLocale$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    "^HighchartsThemes$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    ".*highcharts/i18n/highcharts\\..*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
+    "^awe-client-react/(.*)$": path.join(reactSourcePath, "$1"),
+    "^echarts/core$": path.join(__dirname, "node_modules", "echarts", "dist", "echarts.js"),
+    "^echarts/(charts|components|renderers)$": path.join(__dirname, "src", "test", "jest", "mocks", "echartsExtensions.js"),
     ".*pivotTable/i18n/pivot\\..*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^bootstrap-datepicker/js/locales/.*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^Tocify$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),

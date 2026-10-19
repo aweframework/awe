@@ -22,7 +22,6 @@
     "yValue" : "serie1"
   } ],
   "stockChart" : true,
-  "theme" : "blue",
   "title" : {
     "text" : "Grafico 4"
   },

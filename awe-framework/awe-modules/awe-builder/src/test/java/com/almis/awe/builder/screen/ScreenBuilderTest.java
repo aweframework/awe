@@ -532,7 +532,6 @@ class ScreenBuilderTest {
           .setStacking(Stacking.PERCENT)
           .setInverted(true)
           .setMax(45)
-          .setTheme("chartTheme")
           .setVisible(false)
           .setSubtitle("SUBTITLE")
           .setChartType(ChartType.BUBBLE)
@@ -623,7 +622,6 @@ class ScreenBuilderTest {
     assertTrue(Stacking.PERCENT.equalsStr(chart.getStacking()));
     assertSame(true, chart.isInverted());
     assertSame(45, chart.getMax());
-    assertEquals("chartTheme", chart.getTheme());
     assertSame(false, chart.isVisible());
     assertEquals("SUBTITLE", chart.getSubTitle());
     assertEquals(chart.getType(), ChartType.BUBBLE.toString());

@@ -12,10 +12,10 @@ const ANGULAR_VOCABULARY = path.resolve(
  * Anything else must be identical to the AngularJS vocabulary.
  */
 const REACT_ONLY_TEST_IDS = [
-  'avatar', 'avatarName', 'chart', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'tagList', 'wizardStepNumber',
+  'avatar', 'avatarName', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'tagList', 'wizardStepNumber',
   'gridColumnsStatus', 'errorBoundary', 'errorBoundaryTitle', 'errorBoundaryMessage', 'errorBoundaryDetails', 'errorBoundaryRetry', 'errorBoundaryReload'
 ];
-const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'rendered', 'stepNumber', 'value', 'zoomed'];
+const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'stepNumber', 'value'];
 
 /**
  * Read the entries of a frozen constant ("export const Name = Object.freeze({ key: "value", ... })")
