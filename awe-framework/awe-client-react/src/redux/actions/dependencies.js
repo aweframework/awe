@@ -54,6 +54,33 @@ const VALUE_RESET = "[[ RESET ]]";
 
 const DEPENDENCY_VALUES = {};
 
+/**
+ * Check if the text of a value contains the text of another one (case insensitive, like AngularJS)
+ * @param {*} v1 Value
+ * @param {*} v2 Searched value
+ * @returns {boolean} Value contains the searched value
+ */
+function compareContainValues(v1, v2) {
+  const toText = value => (isEmpty(value) ? "" : String(value)).toUpperCase();
+  return toText(v1).indexOf(toText(v2)) > -1;
+}
+
+/**
+ * Check if a value is one of the given ones (like AngularJS)
+ * @param {*} v1 Value
+ * @param {*} v2 Array, comma separated text or single value
+ * @returns {boolean} Value is in the given values
+ */
+function compareInValues(v1, v2) {
+  if (Array.isArray(v2)) {
+    return v2.includes(v1);
+  }
+  if (_.isString(v2)) {
+    return v2.split(",").includes(String(v1));
+  }
+  return compareEqualValues(v1, v2);
+}
+
 const ConditionTest = {
   "eq": (v1, v2, def) => ({ "test": compareEqualValues(v1, v2), "string": def }),
   "ne": (v1, v2, def) => ({ "test": !compareEqualValues(v1, v2), "string": def }),
@@ -61,10 +88,10 @@ const ConditionTest = {
   "le": (v1, v2, def) => ({ "test": v1 <= v2, "string": def }),
   "gt": (v1, v2, def) => ({ "test": v1 > v2, "string": def }),
   "lt": (v1, v2, def) => ({ "test": v1 < v2, "string": def }),
-  "in": (v1, v2, def) => ({
-    "test": (_.isString(v2) ? v2.split(",") : asArray(v2)).includes(v1),
-    "string": def
-  }),
+  "contains": (v1, v2, def) => ({ "test": compareContainValues(v1, v2), "string": def }),
+  "not contains": (v1, v2, def) => ({ "test": !compareContainValues(v1, v2), "string": def }),
+  "in": (v1, v2, def) => ({ "test": compareInValues(v1, v2), "string": def }),
+  "not in": (v1, v2, def) => ({ "test": !compareInValues(v1, v2), "string": def }),
   "is not false": (v1) => ({ "test": Boolean(v1), "string": `'${v1}' is not false` }),
   "is empty": (v1) => ({ "test": isEmpty(v1), "string": `'${v1}' is empty` }),
   "is not empty": (v1) => ({ "test": !isEmpty(v1), "string": `'${v1}' is not empty` })
@@ -319,8 +346,9 @@ function getAttribute(trigger, state) {
  * Retrieve element triggers
  * @param {object} element Element to get the triggers from
  * @param {object} component Component where the dependency is
+ * @param {boolean} forChanges The triggers are used to detect changes (elements with check-changes="false" have none)
  */
-function getTriggers(element, component) {
+function getTriggers(element, component, forChanges = false) {
   // Calculate row
   let row = element.row || component.address.row || undefined;
 
@@ -328,7 +356,7 @@ function getTriggers(element, component) {
   let triggers = [];
 
   // Don't check changes if not defined, unless it's an event trigger
-  if (element.checkChanges === false && !element.event) {
+  if (forChanges && element.checkChanges === false && !element.event) {
     return triggers;
   }
 
@@ -416,7 +444,7 @@ function getTriggerModelContext(trigger, state) {
 
 function getDependencyModelContext(dependency, component, state) {
   return (dependency.elements || [])
-    .flatMap(element => getTriggers({ ...element, row: dependency.address?.row }, component))
+    .flatMap(element => getTriggers({ ...element, row: dependency.address?.row }, component, true))
     .map(trigger => getTriggerModelContext(trigger, state))
     .filter(context => context);
 }
@@ -437,20 +465,20 @@ function evaluateTrigger(trigger, component, state) {
   v2 = getFirstDefinedAndNotNullValue(v2, trigger.value);
 
   // Evaluate trigger
+  // An unknown condition is evaluated as "is not empty", like AngularJS does
   let condition = trigger.condition || ("event" in trigger ? "is not false" : "is not empty");
-  if (condition in ConditionTest) {
-    let test = ConditionTest[condition](v1, v2, `'${v1}' ${condition} '${v2}'`);
-    test.value = v1;
-
-    // Check optional
-    if (trigger.optional) {
-      test.test = true;
-      test.string += " (optional)";
-    }
-    return test;
-  } else {
-    return { test: false, string: `invalid condition: ${condition}` };
+  if (!(condition in ConditionTest)) {
+    condition = "is not empty";
   }
+  let test = ConditionTest[condition](v1, v2, `'${v1}' ${condition} '${v2}'`);
+  test.value = v1;
+
+  // Check optional
+  if (trigger.optional) {
+    test.test = true;
+    test.string += " (optional)";
+  }
+  return test;
 }
 
 /**
@@ -469,7 +497,8 @@ function evaluateDependency(dependency, component, state) {
     string: []
   };
 
-  // Lazy evaluation. On first failed check of and/or evaluation, return
+  // All the elements are evaluated, their values are needed by the dependency source
+  let cancelled = false;
   (dependency.elements || []).forEach((trigger, index) => {
     let triggerResult = evaluateTrigger({ ...trigger, row: dependency.address?.row }, component, state);
     result.launch = check(result.launch, triggerResult.test);
@@ -477,12 +506,9 @@ function evaluateDependency(dependency, component, state) {
     result.string.push(triggerResult.string);
 
     // Don`t trigger if a high priority trigger is not achieved
-    if (trigger.cancel && !triggerResult.test) return { ...result, launch: false };
-
-    // Lazy evaluation
-    if (!result.launch && dependency.type === "and") return result;
-    if (result.launch && dependency.type !== "and") return result;
+    cancelled = cancelled || Boolean(trigger.cancel && !triggerResult.test);
   });
+  result.launch = result.launch && !cancelled;
 
   // Return full evaluation
   return result;
@@ -837,7 +863,10 @@ function isStoredRow(component, rowId) {
 }
 
 function hasChanged(dependency, component, state) {
-  const newValues = evaluateDependency(dependency, component, state).values;
+  // Elements with check-changes="false" are evaluated but their values do not launch the dependency
+  const unchecked = (dependency.elements || [])
+    .map((element, index) => (element.checkChanges === false && !element.event ? getTriggerId(element, dependency, index) : null));
+  const newValues = _.omit(evaluateDependency(dependency, component, state).values, unchecked);
   const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
 
   // A unique check validates what the user has just typed. When the row of a stored record shows up for the first
