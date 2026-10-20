@@ -7,6 +7,8 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
   let mockAddress;
   let mockComponent;
   let mockState;
+  // Plain actions dispatched, without the thunks that raise events of the dependencies
+  const plainActions = () => dispatch.mock.calls.map(([action]) => action).filter(action => typeof action !== 'function');
 
   beforeEach(() => {
     dispatch = jest.fn();
@@ -355,7 +357,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction]] = dispatch.mock.calls;
+      const [acceptAction] = plainActions();
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
@@ -377,7 +379,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.mock.calls;
+      const [rejectAction] = plainActions();
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
@@ -399,7 +401,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.mock.calls;
+      const [rejectAction] = plainActions();
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
@@ -412,7 +414,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     it('debería aceptar si hay al menos una fila seleccionada', () => {
       const action = { parameters: {}, address: mockAddress };
       gridThunks.checkSomeSelectedGridAction(action)(dispatch, getState);
-      expect(dispatch.mock.calls[0][0].type).toBe('ACCEPT_ACTION');
+      expect(plainActions()[0].type).toBe('ACCEPT_ACTION');
     });
 
     it('debería rechazar si no hay ninguna seleccionada', () => {
@@ -429,7 +431,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.checkSomeSelectedGridAction({address: mockAddress})(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.mock.calls;
+      const [rejectAction] = plainActions();
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
