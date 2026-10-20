@@ -223,6 +223,8 @@ export const openDialogAction = (action) => {
     if (!isShowing) {
       dispatch(addStack());
       dispatch(updateAttributes(address, { isShowing: true, action: action }));
+      // As AngularJS, the dialog stores the open event once it is opened
+      dispatch(updateModelWithDependencies(address, { event: "open" }));
     }
   };
 };
@@ -235,6 +237,8 @@ export const closeDialogAction = (action) => {
     const component = getComponent(components, address);
     const { isShowing } = component.attributes;
     if (isShowing) {
+      // As AngularJS, the dialog stores the close event before it is closed
+      dispatch(updateModelWithDependencies(address, { event: "close" }));
       dispatch(removeStack());
       dispatch(acceptAction(component.attributes.action));
       dispatch(updateAttributes(address, { isShowing: false, action: null }));
@@ -250,6 +254,8 @@ export const closeDialogAndCancelAction = (action) => {
     const component = getComponent(components, address);
     const { isShowing } = component.attributes;
     if (isShowing) {
+      // As AngularJS, the dialog stores the close event before it is closed
+      dispatch(updateModelWithDependencies(address, { event: "close" }));
       dispatch(removeStack());
       dispatch(rejectAction(component.attributes.action));
       dispatch(updateAttributes(address, { isShowing: false, action: null }));

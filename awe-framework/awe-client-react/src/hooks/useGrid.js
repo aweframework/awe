@@ -27,8 +27,8 @@ import { applyColumnLayout, buildHeader } from "../utilities/gridLayout";
 // Model of a grid whose data has not arrived yet
 const EMPTY_MODEL = Object.freeze({ values: [] });
 
-function mapContextMenu(contextMenu, props) {
-  const { t, addActionsTop, address, optionAttributes } = props;
+export function mapContextMenu(contextMenu, props) {
+  const { t, addActionsTop, raiseEvent, address, optionAttributes } = props;
   return (contextMenu || [])
     .filter(option => optionAttributes[option.id])
     .map(option => ({ ...optionAttributes[option.id], optionId: option.id }))
@@ -40,7 +40,11 @@ function mapContextMenu(contextMenu, props) {
       disabled: option.disabled,
       visible: option.visible,
       separator: option.separator,
-      command: () => addActionsTop((option.actions || []).map(action => ({ ...action, address }))),
+      command: () => {
+        addActionsTop((option.actions || []).map(action => ({ ...action, address })));
+        // The context option stores its click event, as AngularJS does
+        raiseEvent?.({ ...address, component: option.optionId }, "click");
+      },
       ...(mapContextMenu(option.contextMenu, props).length > 0 ? { items: mapContextMenu(option.contextMenu, props) } : {}),
     }));
 }
@@ -64,6 +68,7 @@ export function useGrid(id) {
 
   const addActionsTop = useCallback((actions) => dispatch(addActionsTopAction(actions)), [dispatch]);
   const updateModelWithDependencies = useCallback((addr, payload) => dispatch(updateThunk(addr, payload)), [dispatch]);
+  const updateEvent = useCallback((addr, event) => dispatch(updateThunk(addr, { event })), [dispatch]);
   const updateAttributes = useCallback((addr, payload) => dispatch(updateAttributesAction(addr, payload)), [dispatch]);
 
   const validateRow = useCallback((postActions) => {
@@ -114,7 +119,7 @@ export function useGrid(id) {
 
   const contextMenuTemplate = () => {
     const { contextMenu = [] } = attributes;
-    let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, optionAttributes });
+    let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, raiseEvent: updateEvent, address, optionAttributes });
     if (contextMenuMapped.length > 0) {
       return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />;
     }

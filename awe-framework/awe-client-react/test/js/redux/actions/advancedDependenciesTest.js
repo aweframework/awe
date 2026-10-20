@@ -1944,3 +1944,96 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     });
   });
 });
+
+describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js (#818 specific targets and wildcards)', () => {
+  const SpecificDependencyRegistry = require('../../../../src/redux/registry/SpecificDependencyRegistry').default;
+  let dispatch;
+  let state;
+
+  const buildState = (componentType, dependency) => ({
+    components: {
+      comp1: {
+        address: { view: 'testView', component: 'comp1' },
+        attributes: { component: componentType },
+        validationRules: {},
+        model: { values: [{ value: 'x', selected: true }] },
+        dependencies: [dependency]
+      },
+      comp2: {
+        address: { view: 'testView', component: 'comp2' },
+        attributes: {},
+        validationRules: {},
+        model: { values: [{ value: 'test', label: 'Test', selected: true }] },
+        dependencies: []
+      }
+    },
+    settings: { activeDependencies: true, serverActionKey: 'serverAction', targetActionKey: 'targetAction' },
+    view: { view: 'testView', testView: { name: 'Test Screen' } }
+  });
+
+  const baseDependency = (extra) => ({
+    type: 'and',
+    elements: [{ id: 'comp2', attribute1: 'value', condition: 'is not empty', checkChanges: true }],
+    initial: true,
+    ...extra
+  });
+
+  beforeEach(() => {
+    dispatch = jest.fn();
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    SpecificDependencyRegistry.clear();
+    jest.restoreAllMocks();
+  });
+
+  it('routes a specific target to the handler registered for the component type', () => {
+    const handler = jest.fn(() => null);
+    SpecificDependencyRegistry.register('custom', handler);
+    state = buildState('custom', baseDependency({ target: 'specific', source: 'value', value: 'v' }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    const [dependency, value, launch] = handler.mock.calls[0];
+    expect(dependency.target).toBe('specific');
+    expect(value).toBe('v');
+    expect(launch).toBe(true);
+  });
+
+  it('ignores a specific target without registered handler without warning', () => {
+    state = buildState('text', baseDependency({ target: 'specific', source: 'value', value: 'v' }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    expect(console.warn).not.toHaveBeenCalledWith(expect.stringContaining('not defined'));
+  });
+
+  it('replaces the wildcards of the target action of dependency actions', () => {
+    const dependency = baseDependency({
+      target: 'none',
+      actions: [{ type: 'server', targetAction: 'Save[comp2]', parameters: { targetAction: 'Save[comp2]', other: 1 } }]
+    });
+    dependency.elements[0].alias = 'comp2';
+    state = buildState('text', dependency);
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    const addActions = dispatch.mock.calls.map(([a]) => a).find(a => a.type === 'ADD_ACTIONS_TOP');
+    expect(addActions.payload[0].targetAction).toBe('Savetest');
+    expect(addActions.payload[0].parameters).toEqual({ targetAction: 'Savetest', other: 1 });
+  });
+
+  it('keeps dependency actions without target action untouched', () => {
+    state = buildState('text', baseDependency({ target: 'none', actions: [{ type: 'custom-action' }] }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    const addActions = dispatch.mock.calls.map(([a]) => a).find(a => a.type === 'ADD_ACTIONS_TOP');
+    expect(addActions.payload[0]).toEqual({ type: 'custom-action', address: { view: 'testView', component: 'comp1' } });
+  });
+});
