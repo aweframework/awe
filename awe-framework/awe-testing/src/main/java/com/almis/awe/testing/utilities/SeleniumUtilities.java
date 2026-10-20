@@ -3960,6 +3960,22 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Go to a page of a grid typing it on the go to page input of its paginator, which shows the current page, and
+   * pressing Enter, and wait for the grid to load. In the AngularJS client the input is in the wide pager only, when the
+   * grid has more than one page
+   *
+   * @param page Page to go to (the first one is 1)
+   */
+  protected void goToGridPage(int page) {
+    Locator input = locator(frontEndInstructions.getGridGotoPage());
+    waitUntil(BrowserCondition.present(input));
+    getBrowser().clear(input);
+    writeText(input, String.valueOf(page));
+    getBrowser().press(input, Key.ENTER);
+    waitForLoadingGrid();
+  }
+
+  /**
    * Check that an option of the radio of a cell of a grid (a radio or a button-radio column) is the chosen one
    *
    * @param gridId   Grid identifier

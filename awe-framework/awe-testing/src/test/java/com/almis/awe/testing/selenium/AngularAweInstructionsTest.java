@@ -267,6 +267,7 @@ class AngularAweInstructionsTest {
   @Test
   void shouldLocateThePaginatorInfoTheEmptyStateTheRadiosTheCellClassesAndTheDialogPanel() {
     assertThat(instructions.getGridPaginationInfo()).hasToString("By.cssSelector: [data-testid='grid-pagination-info']");
+    assertThat(instructions.getGridGotoPage()).hasToString("By.cssSelector: [data-testid='grid-goto-page']");
     assertThat(instructions.getGridEmpty()).hasToString("By.cssSelector: [data-testid='grid-empty']");
     assertThat(instructions.getGridEmptyTitle()).hasToString("By.cssSelector: [data-testid='grid-empty-title']");
     assertThat(instructions.getGridEmptyText()).hasToString("By.cssSelector: [data-testid='grid-empty-text']");

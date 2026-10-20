@@ -90,3 +90,24 @@
     min-height: 0;
   }
 }
+
+.grid-container .p-paginator .pagination-goto-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0.5rem;
+  white-space: nowrap;
+
+  .pagination-goto {
+    // The padding of the theme inputs, so it is as high as the page size dropdown
+    width: 4rem;
+    text-align: center;
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+}

@@ -1260,6 +1260,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_GRID_LAST" value="Último"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Siguiente"/>
   <locale name="SCREEN_TEXT_GRID_OF" value="de"/>
+  <locale name="SCREEN_TEXT_GRID_PAGE" value="Página"/>
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Anterior"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Filas"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificador o el texto de búsqueda"/>

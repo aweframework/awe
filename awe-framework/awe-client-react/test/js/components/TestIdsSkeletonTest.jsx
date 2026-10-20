@@ -159,14 +159,14 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
     });
 
     expect(container.querySelector(`${hook("grid-loader")} .grid-skeleton-row`)).not.toBeNull();
-    expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
+    expect(container.querySelector(hook("grid-goto-page")).value).toBe("2");
     expect(JSON.stringify(dispatchSpy.mock.calls)).not.toContain("change-page");
 
     act(() => {
       store.dispatch(updateAttributes({component: "Grd", view: "report"}, {loading: false}));
     });
 
-    expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
+    expect(container.querySelector(hook("grid-goto-page")).value).toBe("2");
     expect(container.querySelector(hook("grid-cell")).textContent).toContain("Row 10");
   });
 
@@ -182,7 +182,7 @@ describe("awe-react-client/test/js/components/TestIdsSkeletonTest.jsx", () => {
     });
 
     expect(container.querySelector(".grid-reloading")).not.toBeNull();
-    expect(container.querySelector(".p-paginator-page.p-highlight").textContent).toBe("2");
+    expect(container.querySelector(hook("grid-goto-page")).value).toBe("2");
     expect(JSON.stringify(dispatchSpy.mock.calls)).not.toContain("change-page");
   });
 

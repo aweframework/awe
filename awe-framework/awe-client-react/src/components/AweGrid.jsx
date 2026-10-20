@@ -17,8 +17,12 @@ import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
 import {useTranslation} from "react-i18next";
+import {gotoPageTemplate} from "./AweGridGotoPage";
 
-const PAGINATOR_TEMPLATE = "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport";
+const PAGINATOR_TEMPLATE = {
+  layout: "FirstPageLink PrevPageLink JumpToPageInput NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport",
+  JumpToPageInput: gotoPageTemplate
+};
 
 function AweGrid(props) {
   const { id } = props;
