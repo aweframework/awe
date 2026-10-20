@@ -5,6 +5,12 @@
 export const ANY = "any";
 
 /**
+ * All the modifiers of a shortcut set to ANY, to spread in a shortcut that works whatever modifiers are pressed
+ * @type {{alt: string, shift: string, ctrl: string, meta: string}}
+ */
+export const ANY_MODIFIERS = Object.freeze({alt: ANY, shift: ANY, ctrl: ANY, meta: ANY});
+
+/**
  * Codes of the digit keys of the main keyboard row (they do not change with Option on macOS, unlike event.key)
  * @type {string[]}
  */
@@ -51,6 +57,8 @@ export function matchesShortcut(event, shortcut) {
  * @param {object[]} [bindings] Bindings
  * @param {object} [bindings[].shortcut] Shortcut of the binding (see matchesShortcut)
  * @param {object[]} [bindings[].shortcuts] Several shortcuts for the same handler
+ * @param {function(KeyboardEvent): boolean} [bindings[].when] Extra condition on the event that is not a key (for
+ * example an empty input). When it returns false the binding is skipped and the next one is tried
  * @param {function(KeyboardEvent, object)} bindings[].handler Called with the event and the shortcut that matched
  * @return {function(KeyboardEvent): boolean} Handler for a key event. It returns true when a binding matched
  */
@@ -59,7 +67,7 @@ export function createKeyHandler(bindings = []) {
     for (const binding of bindings) {
       const shortcuts = binding.shortcuts ?? [binding.shortcut];
       const matched = shortcuts.find((shortcut) => matchesShortcut(event, shortcut));
-      if (matched) {
+      if (matched && (!binding.when || binding.when(event))) {
         binding.handler(event, matched);
         return true;
       }

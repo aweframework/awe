@@ -74,9 +74,13 @@ function MyComponent({onSave}) {
 * Un atajo tiene `key` (depende del idioma, para teclas con nombre como `Enter`) o `code` (tecla física, para dígitos y
   letras), ambos como cadena o como lista de cadenas.
 * Los modificadores `alt`, `shift`, `ctrl` y `meta` son exactos: el que no se indica no debe estar pulsado. Indícalo
-  como `ANY` (exportado por la utilidad) para aceptarlo en ambos casos.
+  como `ANY` (exportado por la utilidad) para aceptarlo en ambos casos, o expande `ANY_MODIFIERS` para aceptar todas las
+  combinaciones.
 * Para manejadores escritos como props `onKeyDown`, `createKeyHandler(bindings)` devuelve una función que ejecuta el
-  primer binding que coincide y devuelve si alguno lo hizo.
+  primer binding que coincide y devuelve si alguno lo hizo. Un binding puede tener un predicado `when(event)` para una
+  condición que no es una tecla (por ejemplo, un input vacío): el binding se omite cuando devuelve false.
+* Con `target: ref` el elemento se lee cuando se ejecuta el efecto, por lo que debe estar montado junto con el
+  componente. Para un elemento que se renderiza de forma condicional usa un `onKeyDown` con `createKeyHandler`.
 * El hook conserva los últimos bindings, por lo que pueden cambiar en cada render sin volver a suscribirse. Las
   opciones son `target`, `enabled`, `eventName` y `capture`.
 

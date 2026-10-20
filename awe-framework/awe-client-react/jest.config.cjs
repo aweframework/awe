@@ -64,6 +64,7 @@ module.exports = {
     '**/hooks/useGridContextMenuTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
     '**/hooks/useKeyboardShortcutTest.{js,jsx}',
+    '**/hooks/useSuggestTest.{js,jsx}',
     '**/utilities/keyboardTest.{js,jsx}',
     '**/hooks/useDateOptionsTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',

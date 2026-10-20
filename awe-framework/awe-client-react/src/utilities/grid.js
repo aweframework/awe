@@ -2,6 +2,7 @@ import _ from "lodash";
 import {getDataDependingOnList, getVisibleTextData} from "./index";
 import {formatNumber, isNumber} from "./numbers";
 import {ComponentType, isEmpty} from "./general";
+import {matchesShortcut} from "./keyboard";
 
 const {
   COMPONENT_NUMERIC,
@@ -49,14 +50,15 @@ export const MoveRowActionType = {
 };
 
 /**
- * Keys that move the selected row of an editable grid while the Alt key is held
+ * Shortcuts that move the selected row of an editable grid, with the position they move it to. Alt must be held and no
+ * other modifier.
  */
-const MOVE_ROW_KEYS = {
-  ArrowUp: RowPositionType.BEFORE,
-  ArrowDown: RowPositionType.AFTER,
-  Home: RowPositionType.FIRST,
-  End: RowPositionType.LAST
-};
+export const MOVE_ROW_SHORTCUTS = Object.freeze([
+  {shortcut: {key: "ArrowUp", alt: true}, position: RowPositionType.BEFORE},
+  {shortcut: {key: "ArrowDown", alt: true}, position: RowPositionType.AFTER},
+  {shortcut: {key: "Home", alt: true}, position: RowPositionType.FIRST},
+  {shortcut: {key: "End", alt: true}, position: RowPositionType.LAST}
+]);
 
 /**
  * Retrieve the position a row moves to for a keyboard event
@@ -64,8 +66,7 @@ const MOVE_ROW_KEYS = {
  * @returns {string|null} Row position (BEFORE, AFTER, FIRST or LAST) or null if the key does not move rows
  */
 export function getMoveRowKeyPosition(event) {
-  const { key, altKey, ctrlKey, shiftKey, metaKey } = event;
-  return altKey && !ctrlKey && !shiftKey && !metaKey ? MOVE_ROW_KEYS[key] || null : null;
+  return MOVE_ROW_SHORTCUTS.find(({shortcut}) => matchesShortcut(event, shortcut))?.position ?? null;
 }
 
 /**

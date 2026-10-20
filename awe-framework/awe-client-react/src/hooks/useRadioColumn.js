@@ -5,19 +5,15 @@ import {updateModelWithDependencies} from "../redux/thunks/components";
 import {extractCellValue} from "../utilities/grid";
 import {getFirstDefinedValue, isEmpty} from "../utilities/general";
 import {translateLabel} from "../utilities";
-
-const KEY_STEP = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1};
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 /**
  * Move the choice of a cell to its next or previous enabled option and focus it.
  * The options are the radio inputs of the group the key was pressed in.
  * @param {Event} event Key down event on one option
+ * @param {number} step 1 for the next option, -1 for the previous one
  */
-function moveChoice(event) {
-  const step = KEY_STEP[event.key];
-  if (!step) {
-    return;
-  }
+function moveChoice(event, step) {
   const group = event.target.closest("[role=radiogroup]");
   const options = Array.from(group?.querySelectorAll("input[type=radio]") ?? []).filter(input => !input.disabled);
   const current = options.indexOf(event.target);
@@ -29,6 +25,12 @@ function moveChoice(event) {
   next.focus();
   next.click();
 }
+
+// The arrows move the choice whatever modifiers are pressed
+const onChoiceKeyDown = createKeyHandler([
+  {shortcut: {key: ["ArrowRight", "ArrowDown"], ...ANY_MODIFIERS}, handler: (event) => moveChoice(event, 1)},
+  {shortcut: {key: ["ArrowLeft", "ArrowUp"], ...ANY_MODIFIERS}, handler: (event) => moveChoice(event, -1)}
+]);
 
 /**
  * Logic of a radio or button-radio column. The options come from the list of the column, like the ones of a select
@@ -70,7 +72,7 @@ export default function useRadioColumn(props) {
     groupLabel: translateLabel(label, t),
     required: !!getFirstDefinedValue(validationRules.required, required, false),
     onSelect,
-    onKeyDown: moveChoice,
+    onKeyDown: onChoiceKeyDown,
     t
   };
 }

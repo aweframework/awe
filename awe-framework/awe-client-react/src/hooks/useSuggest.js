@@ -2,6 +2,7 @@ import {useCallback, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {initialSuggestAction, suggestAction} from "../redux/thunks/suggest";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => {
   const dispatch = useDispatch();
@@ -27,11 +28,12 @@ const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => 
       dispatch(updateModelWithDependencies(address, { values: [] }));
   }, [value]);
 
-  const onKeyPress = (e) => {
-    if (e.code === "Space" && e.target.value === "") {
-      autocompleteRef.current?.onDropdownClick?.();
-    }
-  };
+  // Space opens the options of an empty suggest. It is bound to the key code, whatever the modifiers
+  const onKeyPress = createKeyHandler([{
+    shortcut: {code: "Space", ...ANY_MODIFIERS},
+    when: (e) => e.target.value === "",
+    handler: () => autocompleteRef.current?.onDropdownClick?.()
+  }]);
 
   const onSuggest = ({originalEvent, query}) => {
     suggest(originalEvent, query);

@@ -200,6 +200,14 @@ describe("awe-react-client/test/js/columns/ColumnRadioTest.jsx", () => {
     expect(getRow(store, "1")[COLUMN].value).toBe("C");
   });
 
+  it("moves the choice with the arrow keys whatever modifiers are pressed", () => {
+    const {store} = renderCell("1", "A");
+
+    fireEvent.keyDown(getRadio("Option A"), {key: "ArrowDown", shiftKey: true, ctrlKey: true});
+
+    expect(getRow(store, "1")[COLUMN].value).toBe("B");
+  });
+
   it("ignores the other keys", () => {
     const {store} = renderCell("1", "B");
 
