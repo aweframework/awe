@@ -669,6 +669,8 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickButton(BUTTON_DEFERRED_DIALOG);
     checkRowContentsGrid("GrdDefRows", "3");
     checkCriterionContents("DefText", "Loaded");
+    // The select has no selection from the server: it shows its first option
+    checkSelectContents(DEFERRED_SELECT, "One");
     clickButton("ButDefClose");
     checkDialogClosed("DlgDeferred");
     checkDeferredCalls(DEFERRED_SELECT, "1");

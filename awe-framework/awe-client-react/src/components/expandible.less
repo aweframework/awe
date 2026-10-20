@@ -46,41 +46,55 @@
   > * {
     .flex(none);
   }
+  // Flex items keep min-width: auto, so an expanding child could not shrink below the fixed width of its content (a
+  // grid) and would push its siblings out of the container. min-width: 0 lets it shrink and scroll its own content.
   > .expand {
     .flex(1);
+    min-width: 0;
   }
   > .expand-2x {
     .flex(2);
+    min-width: 0;
   }
   > .expand-3x {
     .flex(3);
+    min-width: 0;
   }
   > .expand-4x {
     .flex(4);
+    min-width: 0;
   }
   > .expand-5x {
     .flex(5);
+    min-width: 0;
   }
   > .expand-6x {
     .flex(6);
+    min-width: 0;
   }
   > .expand-7x {
     .flex(7);
+    min-width: 0;
   }
   > .expand-8x {
     .flex(8);
+    min-width: 0;
   }
   > .expand-9x {
     .flex(9);
+    min-width: 0;
   }
   > .expand-10x {
     .flex(10);
+    min-width: 0;
   }
   > .expand-11x {
     .flex(11);
+    min-width: 0;
   }
   > .expand-12x {
     .flex(12);
+    min-width: 0;
   }
 }
 
