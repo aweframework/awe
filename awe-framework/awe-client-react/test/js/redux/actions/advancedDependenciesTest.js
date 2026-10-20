@@ -342,6 +342,84 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     });
   });
 
+  describe('Condition parity with the AngularJS engine', () => {
+    // Evaluates a dependency over comp2 and tells whether it was launched, comparing the dispatched actions with
+    // the ones of a dependency that is known to be launched (or not)
+    const run = (elements, type = 'and', values = [{ value: 'x', selected: true }]) => {
+      dispatch.mockClear();
+      mockComponent.dependencies = [{ type, elements, target: 'show', initial: true }];
+      mockState.components.comp2.model.values = values;
+      dependencies.initializeDependencies('testView', mockState, dispatch);
+      return JSON.stringify(dispatch.mock.calls);
+    };
+    const element = (condition, value, extra = {}) => ({ id: 'comp2', attribute1: 'value', condition, value, ...extra });
+    const isLaunched = (elements, type, values) => {
+      const result = run(elements, type, values);
+      const launched = run([element('is not empty')], 'and', [{ value: 'x', selected: true }]);
+      const notLaunched = run([element('is empty')], 'and', [{ value: 'x', selected: true }]);
+      expect(launched).not.toEqual(notLaunched);
+      return result === launched;
+    };
+    const withValue = value => [{ value, selected: true }];
+
+    it('contains ignores the case and compares numbers as text', () => {
+      expect(isLaunched([element('contains', 'ES')], 'and', withValue('Testing'))).toBe(true);
+      expect(isLaunched([element('contains', 'zz')], 'and', withValue('Testing'))).toBe(false);
+      expect(isLaunched([element('contains', 23)], 'and', withValue(12345))).toBe(true);
+      expect(isLaunched([element('contains', '9')], 'and', withValue(12345))).toBe(false);
+    });
+
+    it('contains treats empty values as empty text', () => {
+      expect(isLaunched([element('contains', '')], 'and', withValue(null))).toBe(true);
+      expect(isLaunched([element('contains', 'a')], 'and', withValue(null))).toBe(false);
+    });
+
+    it('contains uses the text form of an array', () => {
+      expect(isLaunched([element('contains', 'b,c')], 'and', [{ value: 'a', selected: true }, { value: 'b', selected: true }]))
+        .toBe(false);
+      expect(isLaunched([element('contains', 'A,B')], 'and', [{ value: 'a', selected: true }, { value: 'b', selected: true }]))
+        .toBe(true);
+    });
+
+    it('not contains is the negation of contains', () => {
+      expect(isLaunched([element('not contains', 'ES')], 'and', withValue('Testing'))).toBe(false);
+      expect(isLaunched([element('not contains', 'zz')], 'and', withValue('Testing'))).toBe(true);
+    });
+
+    it('in compares a number with a comma separated text', () => {
+      expect(isLaunched([element('in', '1,2')], 'and', withValue(1))).toBe(true);
+      expect(isLaunched([element('in', '1,2')], 'and', withValue(3))).toBe(false);
+    });
+
+    it('in uses a strict comparison with an array and falls back to equality for other values', () => {
+      expect(isLaunched([element('in', [1, 2])], 'and', withValue(1))).toBe(true);
+      expect(isLaunched([element('in', [1, 2])], 'and', withValue('1'))).toBe(false);
+      expect(isLaunched([element('in', 5)], 'and', withValue('5'))).toBe(true);
+      expect(isLaunched([element('in', 5)], 'and', withValue('6'))).toBe(false);
+    });
+
+    it('not in is the negation of in', () => {
+      expect(isLaunched([element('not in', '1,2')], 'and', withValue(1))).toBe(false);
+      expect(isLaunched([element('not in', '1,2')], 'and', withValue(3))).toBe(true);
+    });
+
+    it('an unknown condition behaves like is not empty', () => {
+      expect(isLaunched([element('unknown')], 'and', withValue('x'))).toBe(true);
+      expect(isLaunched([element('unknown')], 'and', [])).toBe(false);
+    });
+
+    it('a failed cancel element prevents the whole dependency from being launched', () => {
+      const elements = [element('is not empty'), element('eq', 'other', { cancel: true })];
+      expect(isLaunched(elements, 'or', withValue('x'))).toBe(false);
+      expect(isLaunched([element('is not empty'), element('eq', 'x', { cancel: true })], 'or', withValue('x'))).toBe(true);
+    });
+
+    it('check-changes false still evaluates the condition', () => {
+      expect(isLaunched([element('eq', 'x', { checkChanges: false })], 'and', withValue('x'))).toBe(true);
+      expect(isLaunched([element('eq', 'y', { checkChanges: false })], 'and', withValue('x'))).toBe(false);
+    });
+  });
+
   describe('Tipos de dependencias (and/or)', () => {
     it('debería evaluar dependencia tipo AND correctamente', () => {
       mockComponent.dependencies = [{
