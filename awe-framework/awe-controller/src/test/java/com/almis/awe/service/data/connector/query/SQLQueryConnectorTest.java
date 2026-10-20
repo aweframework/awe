@@ -44,6 +44,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -166,7 +167,7 @@ class SQLQueryConnectorTest {
     when(elements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
 
     // --- QueryUtil stub: getFullSQL must return a non-null string to avoid NPE in StringUtil.toUnilineText ---
-    when(queryUtil.getFullSQL(anyString(), any())).thenReturn("SELECT 1");
+    when(queryUtil.getFullSQL(anyString(), any(), any())).thenReturn("SELECT 1");
     // getRequestParameter returns null by default (no database routing), which is correct for primary datasource tests
     when(queryUtil.getRequestParameter(any(), any())).thenReturn(null);
   }
@@ -366,6 +367,32 @@ class SQLQueryConnectorTest {
           .isInstanceOf(AWEQueryException.class)
           .hasRootCauseInstanceOf(RuntimeException.class)
           .hasRootCauseMessage("original cause");
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  @Nested
+  @DisplayName("Sensitive values in the logged SQL")
+  class SensitiveValuesInLoggedSql {
+
+    @Test
+    @DisplayName("The SQL of a query error masks the sensitive values collected by the builder")
+    void querySqlMasksSensitiveValues() throws Exception {
+      Set<String> maskedValues = Set.of("{bcrypt}$2a$10$hash");
+      when(databaseConfigProperties.getLogMaskedFields()).thenReturn(new String[]{"l1_pas"});
+      when(sqlQueryBuilder.getLogMaskedValues()).thenReturn(maskedValues);
+      when(queryUtil.getFullSQL("SELECT 1", Collections.emptyList(), maskedValues))
+        .thenReturn("SELECT 1 WHERE l1_pas = '********'");
+      when(sqlQuery.fetch()).thenThrow(new RuntimeException("original cause"));
+
+      try (MockedStatic<DataSourceUtils> dsu = mockStatic(DataSourceUtils.class)) {
+        dsu.when(() -> DataSourceUtils.getConnection(dataSource)).thenReturn(connection);
+
+        assertThatThrownBy(() -> connector.launch(buildQuery("qMasked"), emptyParams()))
+          .isInstanceOfSatisfying(AWEQueryException.class,
+            exception -> assertThat(exception.getQuery()).isEqualTo("SELECT 1 WHERE l1_pas = '********'"));
+        verify(sqlQueryBuilder).setLogMaskedFields("l1_pas");
       }
     }
   }

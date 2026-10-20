@@ -1054,7 +1054,9 @@ Estos son los tipos de variable posibles:
 * **STRINGB**: una cadena con % en ambos lados (para el operador `LIKE`)
 * **STRINGN**: una cadena que tiene `NULL` cuando está vacía
 * **STRING**: una cadena que tiene "" cuando está vacía
-* **STRING_HASH**: aplica la función Sha 256 a la variable de cadena
+* **STRING_HASH_PASSWORD**: calcula el hash de una contraseña de usuario con el codificador de contraseñas configurado (`awe.security.password-encoder`, BCrypt por defecto). El hash lleva sal: guárdelo, no lo compare nunca en SQL. Compruebe las contraseñas en Java con `PasswordEncoder.matches`
+* **STRING_HASH_RIPEMD160**: *obsoleto para contraseñas de usuario, use `STRING_HASH_PASSWORD`*. Aplica el hash RIPEMD-160, sin sal, a la variable de cadena. Se mantiene para los descriptores que todavía comparan hashes heredados
+* **STRING_HASH_SHA**: aplica la función Sha 256 a la variable de cadena
 * **STRING_ENCRYPT**: aplica la función encryptRipEmd160 a la variable de cadena
 * **INTEGER**: número entero
 * **FLOAT**: número float (32 bits)

@@ -110,6 +110,15 @@ Para cambiar las restricciones de cualquier opción, se puede seleccionar la opc
 
 Esta opción es muy útil para generar valores o propiedades cifrados. Basta con introducir el texto que se desea cifrar en el criterio `Text` y pulsar el botón `Encrypt`. Se rellenará el texto `Encrypted` con el texto que hay que añadir en las columnas cifradas de la base de datos y `Encrypted property`, que es el texto cifrado que se utiliza en los valores del archivo `application.properties`.
 
+El campo `Hash de contraseña` muestra el hash del texto calculado con el algoritmo seleccionado en `Algoritmo de contraseña`, en el formato que se guarda en `ope.l1_pas`. Úselo para escribir scripts de inserción de usuarios: el valor se inserta tal cual en `ope.l1_pas`.
+
+| Algoritmo de contraseña | Resultado |
+|---|---|
+| BCrypt | `{bcrypt}$2a$...` (68 caracteres). Los hashes BCrypt llevan sal, por lo que cada pulsación genera un hash distinto, y todos validan la misma contraseña |
+| RIPEMD-160 (AWE 4) | El hash de AWE 4, 40 caracteres hexadecimales sin prefijo, para bases de datos o sistemas que aún lo necesiten |
+
+Por defecto se selecciona el algoritmo configurado (`awe.security.password-encoder`). La `Phrase key` no cambia el hash de la contraseña.
+
 <img alt="Utilidad de cifrado" src={require('@docusaurus/useBaseUrl').default('img/EncryptManagerScreen.png')} />
 
 ## Configuración de pantalla {#screen-configuration}

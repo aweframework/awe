@@ -355,7 +355,8 @@ All queries live in `global/Queries.xml`.
 | `FLOAT` | Decimal number |
 | `DATE` | Date value |
 | `OBJECT` | Generic object |
-| `STRING_HASH_RIPEMD160` | Hashed text (RIPEMD-160) |
+| `STRING_HASH_PASSWORD` | User password hashed with the configured password encoder (BCrypt by default, salted: never compare it in SQL) |
+| `STRING_HASH_RIPEMD160` | Hashed text (RIPEMD-160, unsalted). Deprecated for passwords: use `STRING_HASH_PASSWORD` |
 | `STRING_HASH_SHA` | Hashed text (SHA) |
 
 ### Maintain Descriptors
@@ -402,7 +403,7 @@ All maintain targets live in `global/Maintain.xml`.
     <field id="IdePro" variable="Pro" />
     <variable id="IdeOpe" type="INTEGER" name="IdeOpe" />
     <variable id="Usr" type="STRING" name="Usr" />
-    <variable id="Pas" type="STRING_HASH_RIPEMD160" name="Pas" />
+    <variable id="Pas" type="STRING_HASH_PASSWORD" name="Pas" />
     <variable id="Sta" type="INTEGER" name="Sta" />
     <variable id="Eml" type="STRING" name="Eml" />
     <variable id="Lan" type="STRING" name="Lan" />

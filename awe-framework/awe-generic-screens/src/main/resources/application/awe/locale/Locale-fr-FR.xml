@@ -414,6 +414,8 @@
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Il y avait une erreur ajoutant totalisateurs pour la requête {1} en ligne {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Il y a eu un problème pour essayer d&apos;authentifier l&apos;utilisateur"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="L&apos;image sélectionnée dépasse la taille maximale autorisée pour l&apos;avatar de 2 Mo"/>
+  <locale name="ERROR_TITLE_PASSWORD_HASH" value="Hachage du mot de passe"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_ALGORITHM" value="L’algorithme du mot de passe n’est pas valide"/>
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposition de grille invalide"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposition de la grille n&apos;est pas valide ou vous n&apos;êtes pas connecté, elle n&apos;a donc pas été enregistrée"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposition de la grille comporte trop de colonnes pour être enregistrée"/>
@@ -871,6 +873,8 @@
   <locale name="HELP_SCREEN_TITLE_EML_SRV_UPD" value="Modification de serveur de messagerie"/>
   <locale name="HELP_SCREEN_TITLE_EML_USR" value="Notifier les utilisateurs actives"/>
   <locale name="HELP_SCREEN_TITLE_ENC" value="Encrypt manager"/>
+  <locale name="HELP_PARAMETER_PASSWORD_ALGORITHM" value="Algorithme du hachage du mot de passe. L’algorithme configuré (awe.security.password-encoder) est sélectionné par défaut ; RIPEMD-160 donne le hachage d’AWE 4"/>
+  <locale name="HELP_PARAMETER_PASSWORD_HASH" value="Hachage du texte avec l’algorithme de mots de passe sélectionné, prêt à insérer dans ope.l1_pas"/>
   <locale name="HELP_SCREEN_TITLE_ERROR" value="Erreur"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML" value="Grups de courrier"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML_NEW" value="Insertion de group de courrier"/>
@@ -1171,6 +1175,8 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_PROGRESS" value="Progrès"/>
   <locale name="PARAMETER_PROPERTY" value="Propriété"/>
   <locale name="PARAMETER_PROPERTY_ENCRYPT" value="Propriété chiffrée"/>
+  <locale name="PARAMETER_PASSWORD_ALGORITHM" value="Algorithme du mot de passe"/>
+  <locale name="PARAMETER_PASSWORD_HASH" value="Hachage du mot de passe"/>
   <locale name="PARAMETER_PRVCMD" value="Commande precedente"/>
   <locale name="PARAMETER_PURGUE" value="Purge"/>
   <locale name="PARAMETER_QUEUE_TYPE" value="Type de queue"/>

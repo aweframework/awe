@@ -170,6 +170,41 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   }
 
   @Test
+  @DisplayName("The password hash columns hold BCrypt hashes")
+  void testPasswordHashColumnsAreWidened() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.4.0"), "The AWE password hash migration is shipped for " + dialect());
+
+    assertPasswordHashColumnIsWidened("ope");
+    assertPasswordHashColumnIsWidened("HISope");
+  }
+
+  @Test
+  @DisplayName("The password hash migration can be applied again over the widened columns")
+  void testPasswordHashMigrationCanBeAppliedAgain() throws Exception {
+    // Forget that 1.4.0 was applied: Flyway runs the script again over the columns it already widened
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      String quote = connection.getMetaData().getIdentifierQuoteString();
+      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.4.0'");
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
+
+    Flyway.configure()
+      .dataSource(dataSource)
+      .locations("classpath:db/migration/" + dialect())
+      .sqlMigrationPrefix("AWE_V")
+      .table("flyway_schema_AWE")
+      .outOfOrder(true)
+      .load()
+      .migrate();
+
+    assertTrue(appliedVersions("AWE").contains("1.4.0"), "AWE_V1.4.0 applied again successfully on " + dialect());
+    assertPasswordHashColumnIsWidened("ope");
+    assertPasswordHashColumnIsWidened("HISope");
+  }
+
+  @Test
   @DisplayName("The grid layout migration can be applied again over the existing objects")
   void testGridLayoutMigrationCanBeAppliedAgain() throws Exception {
     // Forget that 1.3.1 was applied: Flyway runs the script again over the table and the key it already created
@@ -200,6 +235,18 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
          Statement statement = connection.createStatement();
          ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'GrdCnfKey'")) {
       assertTrue(result.next() && result.getInt(1) == 1, "The GrdCnfKey sequence exists exactly once");
+    }
+  }
+
+  private void assertPasswordHashColumnIsWidened(String table) throws SQLException {
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery("SELECT l1_pas FROM " + table + " WHERE 1 = 0")) {
+      int size = result.getMetaData().getPrecision(1);
+      String type = result.getMetaData().getColumnTypeName(1);
+      assertTrue(size >= 255, table + ".l1_pas holds 255 characters on " + dialect() + " (" + type + "(" + size + "))");
+      assertFalse(type.equalsIgnoreCase("CHAR") || type.equalsIgnoreCase("CHARACTER") || type.equalsIgnoreCase("BPCHAR"),
+        table + ".l1_pas is not a fixed length type on " + dialect() + " (" + type + ")");
     }
   }
 

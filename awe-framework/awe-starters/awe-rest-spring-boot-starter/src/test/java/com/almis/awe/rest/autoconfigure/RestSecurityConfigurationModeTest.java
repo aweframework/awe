@@ -60,13 +60,13 @@ class RestSecurityConfigurationModeTest {
       OAuth2ResourceServerWebSecurityAutoConfiguration.class,
       WebMvcAutoConfiguration.class
     ))
-    .withUserConfiguration(RestSecurityConfiguration.class, LocalLoginConfig.class, TestConfig.class);
+    .withUserConfiguration(RestSecurityConfiguration.class, LocalLoginConfig.class, TestConfig.class)
+    .withPropertyValues("awe.security.master-key=test-master-key");
 
   @Test
   void shouldKeepJwtFiltersAndAuthenticateEndpointInLocalModeByDefault() {
     contextRunner
       .withPropertyValues(
-        "awe.security.master.key=test-master-key",
         "awe.application.module-list[0]=awe"
       )
       .run(context -> {

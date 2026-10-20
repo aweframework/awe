@@ -1,15 +1,20 @@
 package com.almis.awe.security.audit;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.dao.UserDAO;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.User;
 import com.almis.awe.model.security.audit.SecurityAuditCause;
 import com.almis.awe.model.security.audit.SecurityAuditEvent;
 import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.service.QueryService;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
@@ -27,12 +32,12 @@ public class UserAccountAuditService extends ServiceConfig {
 
   /** Query reading the user name and lock flag of users by identifier */
   public static final String USER_STATUS_QUERY = "UsrGetSecSta";
-  /** Query checking that a user has a password */
-  public static final String PASSWORD_CHECK_QUERY = "UsrChkPwd";
 
   private final SecurityAuditService securityAuditService;
   private final QueryService queryService;
   private final LoginAttemptService loginAttemptService;
+  private final ObjectProvider<UserDAO> userDAO;
+  private final ObjectProvider<PasswordEncoder> passwordEncoder;
 
   /**
    * Constructor
@@ -40,12 +45,17 @@ public class UserAccountAuditService extends ServiceConfig {
    * @param securityAuditService Security audit service
    * @param queryService         Query service
    * @param loginAttemptService  Login attempt service
+   * @param userDAO              User DAO, reads the stored password hash of a password change
+   * @param passwordEncoder      Password encoder, checks the new password against the stored hash
    */
   public UserAccountAuditService(SecurityAuditService securityAuditService, QueryService queryService,
-                                 LoginAttemptService loginAttemptService) {
+                                 LoginAttemptService loginAttemptService, ObjectProvider<UserDAO> userDAO,
+                                 ObjectProvider<PasswordEncoder> passwordEncoder) {
     this.securityAuditService = securityAuditService;
     this.queryService = queryService;
     this.loginAttemptService = loginAttemptService;
+    this.userDAO = userDAO;
+    this.passwordEncoder = passwordEncoder;
   }
 
   /**
@@ -83,20 +93,17 @@ public class UserAccountAuditService extends ServiceConfig {
 
   /**
    * A user changed the password: launched after the update, it checks that the new password is stored (a wrong
-   * current password updates nothing).
+   * current password updates nothing). The stored hash is salted, so it is checked with the password encoder.
    *
    * @param user     User name
    * @param password New password
    * @return Empty service data
-   * @throws AWException Error reading the user
    */
-  public ServiceData auditPasswordChange(String user, String password) throws AWException {
+  public ServiceData auditPasswordChange(String user, String password) {
     if (!securityAuditService.isEnabled() || user == null) {
       return new ServiceData();
     }
-    ObjectNode parameters = JsonNodeFactory.instance.objectNode().put("Usr", user.trim()).put("Pas", password);
-    DataList result = queryService.launchPrivateQuery(PASSWORD_CHECK_QUERY, parameters).getDataList();
-    if (result != null && !result.getRows().isEmpty()) {
+    if (isStoredPassword(user.trim(), password)) {
       securityAuditService.success(SecurityAuditEventType.PASSWORD_CHANGE, user.trim(), null);
     } else {
       securityAuditService.failure(SecurityAuditEventType.PASSWORD_CHANGE, user.trim(), SecurityAuditCause.BAD_CREDENTIALS, null);
@@ -119,6 +126,20 @@ public class UserAccountAuditService extends ServiceConfig {
       administratorEvent(SecurityAuditEventType.TOTP_RESET, user.name());
     }
     return new ServiceData();
+  }
+
+  private boolean isStoredPassword(String user, String password) {
+    UserDAO users = userDAO.getIfAvailable();
+    PasswordEncoder encoder = passwordEncoder.getIfAvailable();
+    if (users == null || encoder == null) {
+      return false;
+    }
+    try {
+      User storedUser = users.findByUserName(user);
+      return storedUser != null && encoder.matches(password, storedUser.getPassword());
+    } catch (UsernameNotFoundException exc) {
+      return false;
+    }
   }
 
   private void administratorEvent(SecurityAuditEventType type, String username) {

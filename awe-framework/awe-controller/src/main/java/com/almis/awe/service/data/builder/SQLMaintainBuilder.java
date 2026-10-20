@@ -63,6 +63,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   public SQLMaintainBuilder(QueryUtil queryUtil, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
     super(queryUtil, encodeService);
     this.databaseConfigProperties = databaseConfigProperties;
+    setLogMaskedFields(databaseConfigProperties == null ? null : databaseConfigProperties.getLogMaskedFields());
   }
 
   /**
@@ -501,7 +502,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
           values.add(calculateSequence((Field) field, getVariableIndex()));
           // Get field value
         } else if (!isIncrementalKey(field)) {
-          values.add(getSqlFieldExpression(field, getVariableIndex()));
+          values.add(getLogMaskedFieldExpression(field, getSqlFieldExpression(field, getVariableIndex())));
         }
       }
     }
@@ -524,7 +525,11 @@ public class SQLMaintainBuilder extends SQLBuilder {
     for (Tuple row : rows) {
       Object[] values = getMaterializedRowValues(row);
       validateMaterializedInsertQueryRowWidth(insertFields, values);
-      addInsertValues(insertClause, mapMaterializedRowValues(values));
+      List<Expression> rowValues = mapMaterializedRowValues(values);
+      for (int index = 0; index < insertFields.size(); index++) {
+        getLogMaskedFieldExpression(insertFields.get(index), rowValues.get(index));
+      }
+      addInsertValues(insertClause, rowValues);
     }
 
     if (rows.size() > 1) {
@@ -607,7 +612,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     for (int index = 0; index < insertFields.size(); index++) {
       if (insertFields.get(index).isAudit()) {
-        auditValues.add(toExpression(values[index]));
+        auditValues.add(getLogMaskedFieldExpression(insertFields.get(index), toExpression(values[index])));
       }
     }
 
@@ -623,6 +628,17 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
   private boolean shouldAddBatch() throws AWException {
     return hasInsertQuerySource() && getMaterializedInsertQueryRows().size() > 1;
+  }
+
+  /**
+   * Keep the value written to a masked column to mask it in the logged SQL
+   *
+   * @param field Field
+   * @param value Field value
+   * @return The same value
+   */
+  private Expression getLogMaskedFieldExpression(SqlField field, Expression value) {
+    return isLogMaskedField(field.getId()) ? addLogMaskedValues(value) : value;
   }
 
   private Expression toExpression(Object value) {
@@ -653,7 +669,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     for (SqlField field : getQuery().getSqlFieldList()) {
       if (field.isAudit()) {
-        values.add(getSqlFieldExpression(field, num));
+        values.add(getLogMaskedFieldExpression(field, getSqlFieldExpression(field, num)));
       }
     }
 

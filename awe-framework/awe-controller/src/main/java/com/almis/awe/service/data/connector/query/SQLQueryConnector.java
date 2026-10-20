@@ -24,6 +24,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -105,6 +106,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     try {
       // Get query builder
       SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
+      builder.setLogMaskedFields(databaseConfigProperties.getLogMaskedFields());
 
       // Get query variables for further usage
       Map<String, QueryParameter> variableMap = builder.setQuery(query)
@@ -143,7 +145,9 @@ public class SQLQueryConnector extends AbstractQueryConnector {
         long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L);
         queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
       }
-      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
+      // Hashes and sensitive column values are masked in the logged SQL, not in the executed one
+      SQLBindings bindings = queryBuilt.getSQL();
+      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings(), builder.getLogMaskedValues()));
       try {
         // Launch query
         List<Tuple> allResults = queryBuilt.fetch();

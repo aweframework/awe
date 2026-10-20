@@ -89,6 +89,8 @@ Una vez que pulsamos el botón de búsqueda, el servidor ejecutará la consulta 
 
 En este caso podemos ver la fecha y la hora en que se ejecutó la acción, así como el usuario, la pantalla, el identificador de la consulta y la consulta SQL completa.
 
+Los valores sensibles se enmascaran como `'********'`: los valores de las variables con hash o cifradas (`STRING_HASH_*`, `STRING_ENCRYPT`) y los valores escritos o comparados con las columnas de [`awe.database.log-masked-fields`](../properties.md#awe.database.log-masked-fields) (por defecto `l1_pas`). La sentencia que se ejecuta conserva los valores reales.
+
 ### Consola del navegador {#browser-console}
 
 Para buscar en la consola del navegador, pulse la tecla F12 y haga clic en la pestaña Console.

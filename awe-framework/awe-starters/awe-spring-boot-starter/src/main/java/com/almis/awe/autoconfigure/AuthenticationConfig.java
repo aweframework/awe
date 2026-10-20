@@ -6,9 +6,10 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.user.AweUserDetailService;
+import com.almis.awe.service.user.CurrentPasswordChangeService;
 import com.almis.awe.service.user.LdapAweUserDetailsMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -127,15 +129,47 @@ public class AuthenticationConfig {
   }
 
   /**
-   * Configure DAO authentication provider
+   * Password encoder of user passwords. New passwords are hashed with {@code awe.security.password-encoder} and
+   * stored hashes of every algorithm keep validating
    *
+   * @param securityConfigProperties Security config properties
+   * @return Password encoder
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PasswordEncoder passwordEncoder(SecurityConfigProperties securityConfigProperties) {
+    return new AwePasswordEncoder(securityConfigProperties.getPasswordEncoder());
+  }
+
+  /**
+   * Password changes that require the current password (change password screens and user settings)
+   *
+   * @param userDAO         User DAO
+   * @param passwordEncoder Password encoder
+   * @return Current password change service
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public CurrentPasswordChangeService currentPasswordChangeService(UserDAO userDAO, PasswordEncoder passwordEncoder) {
+    return new CurrentPasswordChangeService(userDAO, passwordEncoder);
+  }
+
+  /**
+   * Configure DAO authentication provider. With AWE's user details service, passwords whose hash is not the
+   * configured algorithm are rehashed on a successful login
+   *
+   * @param userDetailsService User details service
+   * @param passwordEncoder    Password encoder
    * @return DaoAuthenticationProvider
    */
   @Bean
   @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "bbdd", matchIfMissing = true)
-  public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
+  public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
     DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-    daoAuthenticationProvider.setPasswordEncoder(new Ripemd160PasswordEncoder());
+    daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+    if (userDetailsService instanceof AweUserDetailService aweUserDetailService) {
+      daoAuthenticationProvider.setUserDetailsPasswordService(aweUserDetailService);
+    }
     daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
     return daoAuthenticationProvider;
   }

@@ -89,6 +89,8 @@ Once we hit the search button, the server will execute the SQL query, and the co
 
 In this case we can see the date and time that the action was executed as well as the user, the screen, the query ID, and the full SQL query.
 
+Sensitive values are masked as `'********'`: the values of hashed and encrypted variables (`STRING_HASH_*`, `STRING_ENCRYPT`) and the values written to or compared with the columns of [`awe.database.log-masked-fields`](../properties.md#awe.database.log-masked-fields) (default `l1_pas`). The statement executed keeps the real values.
+
 ### Browser console
 
 To search through the browser console, press the F12 key, and click on the Console tab.

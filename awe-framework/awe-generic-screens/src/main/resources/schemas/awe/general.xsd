@@ -43,7 +43,16 @@
       <xs:enumeration value="NULL"/>
       <xs:enumeration value="BOOLEAN"/>
       <xs:enumeration value="STRING_ENCRYPT"/>
-      <xs:enumeration value="STRING_HASH_RIPEMD160"/>
+      <xs:enumeration value="STRING_HASH_RIPEMD160">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated for user passwords: use STRING_HASH_PASSWORD. Unsalted RIPEMD-160 hash, kept unchanged for the descriptors that still compare legacy hashes.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="STRING_HASH_PASSWORD">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">User password hashed with the application password encoder (awe.security.password-encoder, BCrypt by default). The hash is salted: store it, never compare it in SQL.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="STRING_HASH_SHA"/>
       <xs:enumeration value="STRING_HASH_PBKDF_2_W_HMAC_SHA_1"/>
       <xs:enumeration value="LIST_TO_STRING"/>

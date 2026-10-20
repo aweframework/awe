@@ -414,6 +414,8 @@
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="There was an error adding totalizers for the query {1} in line {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="There was a problem trying to authenticate the user"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="The selected image exceeds the maximum allowed avatar size of 2 MB"/>
+  <locale name="ERROR_TITLE_PASSWORD_HASH" value="Password hash"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_ALGORITHM" value="The password algorithm is not valid"/>
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Invalid grid layout"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
@@ -871,6 +873,8 @@
   <locale name="HELP_SCREEN_TITLE_EML_SRV_UPD" value="Update mail server"/>
   <locale name="HELP_SCREEN_TITLE_EML_USR" value="Notify active users"/>
   <locale name="HELP_SCREEN_TITLE_ENC" value="Encrypt manager"/>
+  <locale name="HELP_PARAMETER_PASSWORD_ALGORITHM" value="Algorithm of the password hash. The configured one (awe.security.password-encoder) is selected by default; RIPEMD-160 gives the AWE 4 hash"/>
+  <locale name="HELP_PARAMETER_PASSWORD_HASH" value="Hash of the text with the selected password algorithm, ready to insert into ope.l1_pas"/>
   <locale name="HELP_SCREEN_TITLE_ERROR" value="Error"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML" value="Email groups"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML_NEW" value="New email group"/>
@@ -1171,6 +1175,8 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_PROGRESS" value="Progress"/>
   <locale name="PARAMETER_PROPERTY" value="Property"/>
   <locale name="PARAMETER_PROPERTY_ENCRYPT" value="Encrypted property"/>
+  <locale name="PARAMETER_PASSWORD_ALGORITHM" value="Password algorithm"/>
+  <locale name="PARAMETER_PASSWORD_HASH" value="Password hash"/>
   <locale name="PARAMETER_PRVCMD" value="Previous command"/>
   <locale name="PARAMETER_PURGUE" value="Purgue"/>
   <locale name="PARAMETER_QUEUE_TYPE" value="Queue type"/>

@@ -37,6 +37,7 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -163,13 +164,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
     // If the operation is batched, and we have queries left or a query without being already launched, launch
     if (queryBuilt != null) {
-      rowsUpdated = launchAsSingleOperation(queryBuilt, indexMaintain, false, query);
+      rowsUpdated = launchAsSingleOperation(queryBuilt, indexMaintain, false, query, builder.getLogMaskedValues());
       maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated));
     }
 
     // Same with audit
     if (auditQueryBuilt != null) {
-      rowsUpdated = launchAsSingleOperation(auditQueryBuilt, indexMaintain, true, query);
+      rowsUpdated = launchAsSingleOperation(auditQueryBuilt, indexMaintain, true, query, builder.getLogMaskedValues());
       maintainOut.addResultDetails(new MaintainResultDetails(MaintainType.AUDIT, rowsUpdated, parameterMap));
     }
 
@@ -230,7 +231,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .setParameters(parameters);
 
     // Launch as a single operation
-    rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query);
+    rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query, builder.getLogMaskedValues());
     maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated, parameterMap));
 
     // Audit the operation
@@ -253,7 +254,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
       // If the operation is batched, and we have queries left or a query without being already launched, launch
       if (auditQueryBuilt != null) {
-        rowsUpdated = launchAsSingleOperation(auditQueryBuilt, indexAudit, true, query);
+        rowsUpdated = launchAsSingleOperation(auditQueryBuilt, indexAudit, true, query, builder.getLogMaskedValues());
         maintainOut.addResultDetails(new MaintainResultDetails(MaintainType.AUDIT, rowsUpdated, parameterMap));
       }
     }
@@ -303,13 +304,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     }
 
     // Launch as a single operation
-    rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query);
+    rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query, builder.getLogMaskedValues());
     maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated, parameterMap));
 
     // If the AUDIT table is defined and the operation has updated any rows, AUDIT the operation
     if (auditActive && rowsUpdated > 0) {
       // Launch as a single operation
-      rowsUpdated = launchAsSingleOperation(builder.setAudit(true).setOperation(MaintainBuildOperation.NO_BATCH).build(), null, true, query);
+      rowsUpdated = launchAsSingleOperation(builder.setAudit(true).setOperation(MaintainBuildOperation.NO_BATCH).build(), null, true, query, builder.getLogMaskedValues());
       maintainOut.addResultDetails(new MaintainResultDetails(MaintainType.AUDIT, rowsUpdated, parameterMap));
     }
 
@@ -374,7 +375,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     // If this is the last operation of the batch, launch it
     if ((index + 1) % maxBatchSize == 0) {
       // Launch as a single operation
-      rowsUpdated = launchAsSingleOperation(queryBuilt, index, isAudit, query);
+      rowsUpdated = launchAsSingleOperation(queryBuilt, index, isAudit, query, builder.getLogMaskedValues());
       maintainOut.addResultDetails(new MaintainResultDetails(maintainType, rowsUpdated, builder.getVariables()));
 
       queryBuilt = null;
@@ -408,7 +409,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     }
 
     // Launch as a single operation
-    Long rowsUpdated = launchAsSingleOperation(builder.build(), index, isAudit, query);
+    Long rowsUpdated = launchAsSingleOperation(builder.build(), index, isAudit, query, builder.getLogMaskedValues());
     maintainOut.addResultDetails(new MaintainResultDetails(maintainType, rowsUpdated, builder.getVariables()));
 
     // Restore query's initial definition
@@ -424,10 +425,11 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * @param index         The index of the current operation, typically used for logging or auditing. Can be null.
    * @param isAudit       A flag indicating whether this operation is part of an audit process.
    * @param maintainQuery The maintaining query object that contains metadata and context for the SQL operation.
+   * @param maskedValues  Values masked in the logged SQL (hashes, passwords...)
    * @return The number of rows affected by the SQL operation.
    */
   private long launchAsSingleOperation(AbstractSQLClause<?> statement, Integer index, boolean isAudit,
-                                       MaintainQuery maintainQuery) throws AWException {
+                                       MaintainQuery maintainQuery, Collection<String> maskedValues) throws AWException {
     List<Long> timeLapse = LogUtil.prepareTimeLapse();
     long updated;
 
@@ -437,7 +439,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .filter(SqlField::isAutoIncremental)
       .findFirst();
 
-    String sql = getStatementSql(statement);
+    String sql = getStatementSql(statement, maskedValues);
 
     try {
       if (statement instanceof SQLInsertClause insertClause && autoIncrementalField.isPresent()) {
@@ -469,11 +471,11 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     return updated;
   }
 
-  private String getStatementSql(AbstractSQLClause<?> statement) {
+  private String getStatementSql(AbstractSQLClause<?> statement, Collection<String> maskedValues) {
     // Serialize once: a batched clause renders one binding set per batched element
     List<SQLBindings> bindingList = statement.getSQL();
     SQLBindings bindings = bindingList.get(bindingList.size() - 1);
-    return StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
+    return StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings(), maskedValues));
   }
 
 	/**

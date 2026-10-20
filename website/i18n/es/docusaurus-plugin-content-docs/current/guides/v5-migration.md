@@ -87,6 +87,8 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Modo oscuro y temas (cliente AngularJS) | Los usuarios que nunca eligieron el modo claro u oscuro obtienen ahora el modo oscuro cuando su sistema operativo lo prefiere. Los temas declaran ahora sus variables oscuras mediante un mixin y existen los design tokens `--awe-*`. | Nada para temas y LESS correctos. Para seguir ignorando el sistema operativo, defina `@awe-follow-os-color-scheme: false` después de importar AWE. Los usuarios pueden seguir eligiendo el modo claro u oscuro en el menú de usuario. | [Design tokens y modo oscuro](design-tokens-guide.md) (issue #770) |
 | Indicadores de carga (ambos clientes) | Un grid o un grid en árbol sin `icon-loading` muestra filas de relleno con la forma de sus columnas mientras cargan sus filas, en lugar del spinner. Una pantalla muestra una estructura de relleno mientras se abre; la primera pantalla de la página (al abrir la aplicación o recargarla) carga bajo la animación de inicio en su lugar. Los criterios muestran un relleno con su forma (etiqueta y campo, filas del textarea, checkbox o radio, opciones del picklist), los botones uno tan ancho como su etiqueta y los gráficos su área con una pista del tipo de gráfico. Los esqueletos solo aparecen tras 150 ms, así que las cargas rápidas no muestran nada, y el brillo se detiene con `prefers-reduced-motion: reduce`. Una recarga de grid con filas en pantalla también muestra las filas de relleno; con `icon-loading="skeleton-dim"` mantiene las filas atenuadas en lugar de sustituirlas. Los criterios, botones y gráficos con un `icon-loading` propio conservan su icono. Los valores `data-testid` de los indicadores no cambian, así que las esperas de los tests de navegador siguen funcionando. | Nada. Para mantener el spinner en un grid, defina `icon-loading="spinner"` en él; para mantenerlo en todos los grids, defina `awe.application.component.grid-icon-loading=spinner`. Para atenuar las filas en una recarga en lugar de mostrar el relleno, use `skeleton-dim` en el atributo o en la propiedad. | [Atributos del grid](../api/grids.md#general-attributes), [Propiedades](../properties#awe.application.component.grid-icon-loading) (issues #774, #856, #864) |
 | Auditoría de seguridad (#779, nuevo) | Flyway aplica `AWE_V1.3.0__Security_audit_events.sql` y crea la tabla `AweSecAudEvt`; los eventos de seguridad se registran en ella y en el logger `awe.security.audit`; aparece la opción **Auditoría de seguridad** en el menú de seguridad. | Nada. Para desactivar la auditoría, establezca `awe.security.audit.enabled=false`; restrinja la nueva opción a los perfiles que puedan verla. Consulte la nota bajo la tabla. | [Auditoría de seguridad](#security-audit), [Página de auditoría de seguridad](../security/security-audit.md) |
+| Hash de contraseñas (#778) | Las contraseñas nuevas se guardan como hashes BCrypt (`{bcrypt}$2a$...`, 68 caracteres) en lugar de hashes RIPEMD-160 (40 caracteres), y cada usuario se vuelve a hashear en su siguiente inicio de sesión correcto. Flyway aplica `AWE_V1.4.0__Password_hash_length.sql`. El XML propio que compara `l1_pas` con `STRING_HASH_RIPEMD160` deja de encontrar a los usuarios ya rehasheados, y los sistemas externos que leen `l1_pas` encuentran un formato que no conocen. | Amplíe `l1_pas` antes de la actualización si gestiona su propio esquema, escriba las contraseñas con `STRING_HASH_PASSWORD` y compruébelas en Java, y mantenga `awe.security.password-encoder=ripemd160` mientras un sistema externo siga leyendo `l1_pas`. Haga una copia de seguridad de `ope`: los usuarios rehasheados ya no pueden iniciar sesión en AWE 4. | [Hash de contraseñas y clave maestra](#password-hashing-and-master-key) |
+| Clave maestra (#778) | La aplicación no arranca: `awe.security.master-key is required: it encrypts stored data ...`. | Defina `awe.security.master-key`. Una aplicación que nunca la definió debe definir el antiguo valor por defecto de AWE 4 para seguir descifrando sus datos almacenados y, después, planificar una rotación. | [Clave maestra](#master-key) |
 | Barra de herramientas del grid | Todos los grids muestran una barra de herramientas con un diálogo de *Columnas* y un botón de *Maximizar*, y la migración Flyway `AWE_V1.3.1` crea una tabla nueva `AweUsrGrdCnf` (guarda la disposición de columnas de cada usuario). En React, las cabeceras de grupo de un grid se calculan ahora a partir de las columnas visibles de cada grupo. | Nada para los descriptores, que siguen funcionando. Use `show-toolbar="false"` en los grids que no deben mostrar la barra de herramientas. Las aplicaciones que no usan las migraciones Flyway de AWE deben crear `AweUsrGrdCnf` por su cuenta (vea el script de su base de datos en `db/migration`). | [Barra de herramientas](../api/grids.md#toolbar), issue #813 |
 
 ### jsoup en el sanitizador de parámetros de entrada {#jsoup-in-the-input-parameter-sanitizer}
@@ -484,6 +486,106 @@ de contraseña y de segundo factor, aprovisionamiento SSO, accesos denegados y t
 - **Opción de menú nueva.** `security-audit` (pantalla `SecAud`) se añade en Configuración > Seguridad del menú
   `private`. Las aplicaciones que sustituyen el menú completo no la tienen salvo que la añadan.
 
+### Hash de contraseñas y clave maestra {#password-hashing-and-master-key}
+
+AWE 5 calcula el hash de las contraseñas de usuario con BCrypt y exige una clave maestra en la configuración
+(issue #778). Los productos actualizados desde AWE 4 siguen funcionando con sus hashes RIPEMD-160 y sus datos cifrados, pero
+algunos pasos deben hacerse **antes** de la actualización. Revise las dos listas.
+
+#### Hash de contraseñas {#password-hashing}
+
+| Tema | AWE 4 | AWE 5 |
+|---|---|---|
+| Algoritmo de las contraseñas nuevas | RIPEMD-160, sin sal (40 caracteres) | BCrypt, con sal y el prefijo `{bcrypt}` (68 caracteres). `awe.security.password-encoder=ripemd160` mantiene el formato de AWE 4 |
+| Hashes RIPEMD-160 almacenados | Se validan | Se siguen validando y se vuelven a hashear con BCrypt en el siguiente inicio de sesión correcto |
+| `ope.l1_pas`, `HISope.l1_pas` | `char(40)` | `varchar(255)` (Flyway `AWE_V1.4.0__Password_hash_length.sql`) |
+| Comprobación de la contraseña actual (pantallas de ajustes y de cambio de contraseña) | Comparación de hashes en SQL | Java, con `PasswordEncoder.matches` |
+| `OpePas` | Lo escriben las pantallas estándar (copia SHA-256) | Ya no se escribe; la columna se mantiene |
+| Consulta `getUserData` | Devuelve el hash almacenado (`oldPassword`) | Ya no lo devuelve |
+
+Lista de comprobación:
+
+- [ ] **Elija el codificador.** `awe.security.password-encoder=bcrypt` (por defecto) o `ripemd160`. Con `bcrypt`, un
+  usuario cuyo hash es RIPEMD-160 se vuelve a hashear con BCrypt en su siguiente inicio de sesión correcto con la
+  autenticación de base de datos. Un rehash fallido (por ejemplo, con una columna que sigue siendo `char(40)`) no
+  impide el inicio de sesión: el usuario entra con el hash actual y el log muestra el WARN `The password of user
+  <user> could not be rehashed with the configured algorithm. It keeps the current hash`. Con `ripemd160`, las
+  contraseñas nuevas mantienen el formato de AWE 4 y no se rehashea nada; los hashes BCrypt ya almacenados se siguen
+  validando.
+- [ ] **Amplíe la columna antes de actualizar.** Flyway aplica `AWE_V1.4.0__Password_hash_length.sql` en las seis
+  bases de datos soportadas: `ope.l1_pas` y `HISope.l1_pas` pasan a `varchar(255)`. Los productos que gestionan su
+  propio esquema deben aplicar el cambio equivalente **antes** de actualizar (consulte el script de su base de datos
+  en `db/migration`). El script se puede volver a aplicar y nunca reduce una columna que ya sea más ancha de 255
+  caracteres.
+- [ ] **Revise su XML propio que compara o escribe `l1_pas`.** Un hash BCrypt tiene su propia sal, por lo que el hash
+  de la misma contraseña es distinto cada vez: un filtro SQL que compara `l1_pas` con una variable
+  `STRING_HASH_RIPEMD160` deja de coincidir en cuanto el usuario se rehashea. Escriba las contraseñas con
+  `STRING_HASH_PASSWORD` (calcula el hash con el codificador configurado) y compruébelas en Java con
+  `PasswordEncoder.matches`, como hace `CurrentPasswordChangeService`. `STRING_HASH_RIPEMD160` sigue funcionando y
+  queda obsoleto. Consulte [Tipos de variable](../api/query-definition.md#variable-types).
+- [ ] **Revise los targets estándar redefinidos.** Si su propio `Maintain.xml` o `Queries.xml` redefine los targets de
+  contraseña, compárelos con AWE 5: `UsrUpdPwd` y `ChdPwdPub` llaman ahora a un servicio Java que comprueba la
+  contraseña actual y después lanza `UsrUpdPwdUpdate` y `ChdPwdPubUpdate`; la consulta `UsrChkPwd` se elimina.
+- [ ] **Revise los sistemas externos que leen `l1_pas`.** Un sistema que compara o copia el hash (otra aplicación, un
+  informe, un puente de inicio de sesión único) no entiende BCrypt. Mantenga
+  `awe.security.password-encoder=ripemd160` hasta que se adapte.
+- [ ] **Haga una copia de seguridad de `ope` antes de la actualización.** No hay vuelta atrás a AWE 4 para los usuarios
+  ya rehasheados: AWE 4 no puede validar un hash BCrypt. Para volver atrás, restaure la copia (los usuarios que
+  cambiaron la contraseña después de la actualización pierden el cambio).
+- [ ] **Adapte lo que lea `OpePas`.** Las pantallas estándar ya no lo escriben (contenía una copia SHA-256 sin sal de
+  la contraseña). La columna se mantiene; sus valores ya no se actualizan.
+- [ ] **Adapte las pantallas propias que leen `oldPassword`.** `getUserData` ya no envía el hash almacenado al
+  navegador, y las pantallas de ajustes ya no validan la contraseña actual en el navegador (`validation` con
+  `criterion:'oldPassword'`): la comprueba el servidor. Una contraseña actual incorrecta sigue respondiendo OK y no
+  actualiza nada.
+- [ ] **Valores enmascarados en el log de SQL.** El SQL que se escribe en el log (y el que llevan los errores de
+  consulta) muestra `'********'` en lugar de los valores de las variables `STRING_HASH_*` y `STRING_ENCRYPT` y de los
+  valores escritos o comparados con las columnas de `awe.database.log-masked-fields` (por defecto `l1_pas`); la
+  sentencia que se ejecuta no cambia. Añada a la propiedad sus propias columnas sensibles si también quiere
+  enmascararlas.
+- [ ] **Scripts de inserción de usuarios.** La pantalla [Utilidad de cifrado](default-screens.md#encrypt-util) muestra
+  ahora el **Hash de contraseña** del texto, listo para insertar en `ope.l1_pas`, con el algoritmo configurado o, si
+  lo elige en **Algoritmo de contraseña**, con el hash RIPEMD-160 de AWE 4.
+
+#### Clave maestra {#master-key}
+
+`awe.security.master-key` cifra los datos almacenados: las variables `STRING_ENCRYPT`, las propiedades `ENC(...)` y
+los valores de la pantalla Utilidad de cifrado. AWE 4 usaba un valor por defecto publicado cuando la propiedad no estaba
+definida; AWE 5 no tiene valor por defecto.
+
+Lista de comprobación:
+
+- [ ] **Defina la clave maestra.** Sin ella la aplicación no arranca, y Spring Boot indica este motivo para la
+  propiedad `awe.security.master-key`:
+
+  ```text
+  awe.security.master-key is required: it encrypts stored data (encrypted parameters and properties). Applications
+  upgraded from AWE 4 that never configured it must set the former default value (see the AWE 5 migration guide) to
+  keep decrypting their stored data, then rotate it.
+  ```
+
+- [ ] **Las aplicaciones que nunca la definieron** cifraron sus datos con el valor por defecto de AWE 4. Defina ese
+  valor, copiado literalmente (incluido `%25`), para seguir descifrando los datos `STRING_ENCRYPT` y las propiedades
+  `ENC(...)`:
+
+  ```properties
+  awe.security.master-key=B1Le3s%25abc75TeBe05
+  ```
+
+  El valor se acepta y cada arranque registra el WARN `awe.security.master-key is set to the published AWE 4 default
+  value. Keep it only while stored data encrypted with it is needed, and rotate it (see the AWE 5 migration guide)`.
+- [ ] **Planifique la rotación.** El valor por defecto de AWE 4 es público. Elija una clave secreta nueva por entorno,
+  genere los valores nuevos a partir de su texto en claro en la pantalla Utilidad de cifrado con la clave nueva en el
+  campo `Phrase key` (`Encrypted` para las columnas de base de datos, `Encrypted property` para `ENC(...)`) y despliegue
+  los valores nuevos junto con la nueva `awe.security.master-key`.
+- [ ] **Jasypt y el secreto JWT siguen a la clave maestra.** `jasypt.encryptor.password` (las propiedades `ENC(...)`) y
+  el valor por defecto de `awe.rest.api.jwt.secret` ya no ocultan una copia del valor de AWE 4: toman la clave maestra.
+  Salvo que se defina `awe.rest.api.jwt.secret`, rotar la clave maestra invalida los tokens JWT locales ya emitidos.
+- [ ] **Use solo `awe.security.master-key`.** El nombre antiguo `awe.security.master.key` sigue teniendo prioridad
+  para jasypt y el secreto JWT cuando está definido, pero no cumple la obligación de definir `awe.security.master-key`,
+  y `STRING_ENCRYPT` usa siempre `awe.security.master-key`. Pase el valor al nombre nuevo y elimine el antiguo, para que
+  no puedan ser distintos.
+
 ### API pública con Jackson 3 {#jackson-3-public-api}
 
 Los miembros públicos y protegidos de los módulos del framework de AWE 5 cuya firma usa un tipo de Jackson 3
@@ -856,7 +958,6 @@ aplicaciones. Se listan para que pueda planificar; cada una añadirá su propia 
 |---|---|
 | [#755](https://gitlab.com/aweframework/awe/-/issues/755) | Sustituir el Bootstrap 3 incluido por Tailwind y una capa de compatibilidad de AWE |
 | [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de *grid* moderno |
-| [#778](https://gitlab.com/aweframework/awe/-/issues/778) | Imponer un hash de contraseñas moderno y una clave maestra obligatoria |
 | [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de grid en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
 
 ## Lista de comprobación de la actualización {#upgrade-checklist}
@@ -885,6 +986,8 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
+- [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)
+- [ ] `awe.security.master-key` is set (the AWE 4 default value if the application never set it) and its rotation is planned
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

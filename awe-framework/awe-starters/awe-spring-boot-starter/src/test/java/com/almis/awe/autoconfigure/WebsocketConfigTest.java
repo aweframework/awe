@@ -40,7 +40,7 @@ class WebsocketConfigTest {
 
     private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(WebsocketConfig.class))
-            .withPropertyValues("awe.application.module-list=awe")
+            .withPropertyValues("awe.application.module-list=awe", "awe.security.master-key=test-master-key")
             .withBean(BaseConfigProperties.class)
             .withBean(SecurityConfigProperties.class, () -> {
                 SecurityConfigProperties properties = new SecurityConfigProperties();

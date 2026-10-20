@@ -68,6 +68,7 @@ class LocalLoginSecurityTest {
     .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class, MultiTenantOAuth2Config.class,
       AuthenticationWithSSOConfigTest.ExtraConfig.class, LocalProviderConfig.class)
     .withPropertyValues("awe.application.module-list=awe",
+      "awe.security.master-key=test-master-key",
       "spring.cache.type=NONE",
       "awe.database.enabled=false",
       "awe.security.sso.enabled=true",

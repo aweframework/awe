@@ -60,6 +60,7 @@ class BackChannelLogoutSecurityTest {
     .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class, MultiTenantOAuth2Config.class,
       AuthenticationWithSSOConfigTest.ExtraConfig.class)
     .withPropertyValues("awe.application.module-list=awe",
+      "awe.security.master-key=test-master-key",
       "spring.cache.type=NONE",
       "awe.database.enabled=false")
     .withBean(NoOpCacheManager.class)

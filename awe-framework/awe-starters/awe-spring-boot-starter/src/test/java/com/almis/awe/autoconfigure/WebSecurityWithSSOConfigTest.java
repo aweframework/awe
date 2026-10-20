@@ -54,6 +54,7 @@ class AuthenticationWithSSOConfigTest {
           MultiTenantOAuth2Config.class,
           ExtraConfig.class)
 			.withPropertyValues("awe.application.module-list=awe",
+					"awe.security.master-key=test-master-key",
 					"spring.cache.type=NONE",
 					"awe.database.enabled=false")
 			.withBean(NoOpCacheManager.class)

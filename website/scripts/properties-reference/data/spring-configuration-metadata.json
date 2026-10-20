@@ -662,6 +662,14 @@
       "defaultValue": 0
     },
     {
+      "name": "awe.database.log-masked-fields",
+      "type": "java.lang.String[]",
+      "description": "Columns whose values are masked in the SQL written to the logs and to query errors (case-insensitive). The value written to or compared with these columns is shown as '********'. The values of hashed and encrypted variables (STRING_HASH_*, STRING_ENCRYPT) are always masked. Default value l1_pas",
+      "defaultValue": [
+        "l1_pas"
+      ]
+    },
+    {
       "name": "awe.database.migration-modules",
       "type": "java.lang.String[]",
       "description": "List of modules separated by comma to be migrated by flyway. Default value AWE module",
@@ -1007,8 +1015,8 @@
     {
       "name": "awe.rest.api.jwt.secret",
       "type": "java.lang.String",
-      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master.key).",
-      "defaultValue": "${awe.security.master.key}"
+      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master-key), or to the legacy awe.security.master.key when it is set.",
+      "defaultValue": "${awe.security.master-key}"
     },
     {
       "name": "awe.rest.api.oauth2-resource-server.jwt.audiences",
@@ -1450,8 +1458,13 @@
     {
       "name": "awe.security.master-key",
       "type": "java.lang.String",
-      "description": "Master key used in encryption process. Default value B1Le3s%25abc75TeBe05",
-      "defaultValue": "B1Le3s%25abc75TeBe05"
+      "description": "Master key used to encrypt stored data (encrypted parameters and properties). Required: there is no default value. Applications upgraded from AWE 4 that never configured it must set the former default value (see the AWE 5 migration guide) to keep decrypting their stored data, and rotate it afterwards."
+    },
+    {
+      "name": "awe.security.password-encoder",
+      "type": "com.almis.awe.config.PasswordEncoderType",
+      "description": "Algorithm used to hash new user passwords: {@code bcrypt} or {@code ripemd160}. Stored hashes of every algorithm keep validating, and with {@code bcrypt} the legacy RIPEMD-160 hashes are rehashed on the next successful login. Set {@code ripemd160} only when the application's own XML descriptors or external systems compare the stored hash ({@code ope.l1_pas}) and cannot be adapted yet. Default value bcrypt",
+      "defaultValue": "bcrypt"
     },
     {
       "name": "awe.security.password-min-length",

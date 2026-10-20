@@ -417,6 +417,8 @@
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Ha habido un error añadiendo los totalizadores de la consulta {1} en la fila {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Ha habido un problema realizando la autenticación"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="La imagen seleccionada supera el tamaño máximo permitido para el avatar de 2 MB"/>
+  <locale name="ERROR_TITLE_PASSWORD_HASH" value="Hash de contraseña"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_ALGORITHM" value="El algoritmo de contraseña no es válido"/>
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposición de grid no válida"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposición del grid no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposición del grid tiene demasiadas columnas para guardarse"/>
@@ -874,6 +876,8 @@
   <locale name="HELP_SCREEN_TITLE_EML_SRV_UPD" value="Modificar servidor de correo"/>
   <locale name="HELP_SCREEN_TITLE_EML_USR" value="Notificar usuarios activos"/>
   <locale name="HELP_SCREEN_TITLE_ENC" value="Manager de encriptación"/>
+  <locale name="HELP_PARAMETER_PASSWORD_ALGORITHM" value="Algoritmo del hash de la contraseña. Por defecto se selecciona el configurado (awe.security.password-encoder); RIPEMD-160 da el hash de AWE 4"/>
+  <locale name="HELP_PARAMETER_PASSWORD_HASH" value="Hash del texto con el algoritmo de contraseña seleccionado, listo para insertar en ope.l1_pas"/>
   <locale name="HELP_SCREEN_TITLE_ERROR" value="Error"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML" value="Grupos de correo"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML_NEW" value="Alta de grupo de correo"/>
@@ -1174,6 +1178,8 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_PROGRESS" value="Progreso"/>
   <locale name="PARAMETER_PROPERTY" value="Propiedad"/>
   <locale name="PARAMETER_PROPERTY_ENCRYPT" value="Propiedad cifrada"/>
+  <locale name="PARAMETER_PASSWORD_ALGORITHM" value="Algoritmo de contraseña"/>
+  <locale name="PARAMETER_PASSWORD_HASH" value="Hash de contraseña"/>
   <locale name="PARAMETER_PRVCMD" value="Comando previo"/>
   <locale name="PARAMETER_PURGUE" value="Purga"/>
   <locale name="PARAMETER_QUEUE_TYPE" value="Tipo de cola"/>

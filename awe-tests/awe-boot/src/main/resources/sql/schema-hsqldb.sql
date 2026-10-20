@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS ope
     IdeOpe  int
         CONSTRAINT pk_ope PRIMARY KEY NOT NULL, --- Operator key
     l1_nom  char(20),                           --- User name
-    l1_pas  char(40),                           --- User password hash
+    l1_pas  varchar(255),                           --- User password hash
     OpePas  char(200),                          --- User password hash (old)
     l1_con  int      DEFAULT 0,                 --- Connected (1) or not (0)
     l1_dev  char(3),                            --- unused
@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS HISope
     HISact  varchar(1)   not NULL,
     IdeOpe  int          NULL,
     l1_nom  char(20)     NULL,
-    l1_pas  char(40)     NULL,
+    l1_pas  varchar(255)NULL,
     OpePas  char(200)    NULL,
     l1_con  int          NULL,
     l1_dev  char(3)      NULL,

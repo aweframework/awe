@@ -28,6 +28,7 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.ObjectMapper;
@@ -51,8 +52,10 @@ class SecurityConfigPasswordChangeTest {
     .withBean(AccessService.class, () -> mock(AccessService.class))
     .withBean(TotpService.class, () -> mock(TotpService.class))
     .withBean(MaintainService.class, () -> mock(MaintainService.class))
+    .withBean(PasswordEncoder.class, () -> mock(PasswordEncoder.class))
     .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class)
-    .withPropertyValues("awe.application.module-list=awe", "awe.security.auth-mode=bbdd");
+    .withPropertyValues("awe.application.module-list=awe", "awe.security.auth-mode=bbdd",
+      "awe.security.master-key=test-master-key");
 
   @Test
   @DisplayName("A custom user details service starts the context without the expired password change service")
@@ -71,6 +74,8 @@ class SecurityConfigPasswordChangeTest {
     runner.withBean(AweUserDetailService.class, () -> mock(AweUserDetailService.class)).run(context -> {
       assertThat(context).hasNotFailed();
       assertThat(context).hasSingleBean(PasswordChangeService.class);
+      assertThat(ReflectionTestUtils.getField(context.getBean(PasswordChangeService.class), "passwordEncoder"))
+        .isSameAs(context.getBean(PasswordEncoder.class));
     });
   }
 

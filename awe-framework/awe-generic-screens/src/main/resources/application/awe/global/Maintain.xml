@@ -31,7 +31,6 @@
       <field id="IdeOpe" sequence="OpeKey" variable="IdeOpe"/>
       <field id="l1_nom" variable="Usr"/>
       <field id="l1_pas" variable="Pas"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_act" variable="Sta"/>
       <field id="WebPrn" variable="WebPrn"/>
       <field id="PcPrn" variable="PcPrn"/>
@@ -47,8 +46,7 @@
       <field id="PwdLck" variable="PwdLck"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
       <variable id="Usr" type="STRING" name="Usr"/>
-      <variable id="Pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="Pas" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="Sta" type="INTEGER" name="Sta"/>
       <variable id="WebPrn" type="STRINGN" name="WebPrn"/>
       <variable id="PcPrn" type="STRINGN" name="PcPrn"/>
@@ -144,7 +142,6 @@
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="Pwd"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_psd" variable="l1_psd"/>
       <field id="PwdLck" variable="PwdLck"/>
       <field id="NumLog" variable="NumLog"/>
@@ -159,8 +156,7 @@
         </and>
       </where>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
-      <variable id="Pwd" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="Pwd" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="l1_psd" type="DATE" value=""/>
       <variable id="PwdLck" type="INTEGER" value="0"/>
       <variable id="NumLog" type="INTEGER" value="0"/>
@@ -168,21 +164,28 @@
     </update>
   </target>
 
+  <!-- Change the password of the user in session (settings screen): only when the current password matches. The stored hash
+       is salted, so CurrentPasswordChangeService checks it in Java and then launches UsrUpdPwdUpdate -->
   <target name="UsrUpdPwd">
+    <serve service="changeOwnPassword">
+      <variable id="currentPassword" type="STRING" name="OldPas"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Stores the new password of UsrUpdPwd. Not public, and the user is never a request parameter (any signed in user can launch a
+       target): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it launches this target -->
+  <target name="UsrUpdPwdUpdate">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="Pwd"/>
-      <field id="OpePas" variable="NewPwd"/>
       <where>
         <and>
           <filter left-field="l1_nom" condition="eq" right-variable="user" trim="true"/>
-          <filter left-field="l1_pas" condition="eq" right-variable="OldPwd" trim="true"/>
         </and>
       </where>
-      <variable id="user" type="STRING" session="user"/>
-      <variable id="OldPwd" type="STRING_HASH_RIPEMD160" name="OldPas"/>
-      <variable id="Pwd" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="NewPwd" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="user" type="STRING" session="verifiedPasswordUser"/>
+      <variable id="Pwd" type="STRING_HASH_PASSWORD" name="Pas"/>
     </update>
   </target>
 
@@ -207,7 +210,6 @@
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_psd" variable="SysDat"/>
       <where>
         <and>
@@ -215,8 +217,7 @@
         </and>
       </where>
       <variable id="l1_nom" type="STRING" session="user"/>
-      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
     </update>
     <!-- Security audit of the password change -->
@@ -239,7 +240,6 @@
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_psd" variable="SysDat"/>
       <where>
         <and>
@@ -247,9 +247,25 @@
         </and>
       </where>
       <variable id="l1_nom" type="STRING" session="expiredPasswordUser"/>
-      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
+  </target>
+
+  <!-- Stores a password rehashed with the configured algorithm after a successful login. Not public, and neither the user
+       nor the hash are request parameters (any signed in user can launch a target): UserDAOImpl sets the session parameters
+       passwordRehashUser and passwordRehashValue only while it launches this target -->
+  <target name="UsrRehashPwd">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="passwordRehashUser"/>
+      <variable id="l1_pas" type="STRING" session="passwordRehashValue"/>
     </update>
   </target>
 
@@ -266,32 +282,40 @@
   </target>
 
 
-  <!-- Change the password without a session (ChdPwdPub and change-password screens): only when the current password matches -->
+  <!-- Change the password without a session (ChdPwdPub and change-password screens): only when the current password matches and the
+       user is active. The stored hash is salted, so CurrentPasswordChangeService checks it in Java and then launches ChdPwdPubUpdate -->
   <target name="ChdPwdPub" public="true">
-    <update>
-      <table id="ope"/>
-      <field id="l1_pas" variable="l1_pas"/>
-      <field id="OpePas" variable="OpePas"/>
-      <field id="l1_psd" variable="SysDat"/>
-      <where>
-        <and>
-          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
-          <filter left-field="l1_pas" condition="eq" right-variable="OldPas" ignorecase="true"/>
-          <filter left-field="l1_act" condition="eq" right-variable="active"/>
-        </and>
-      </where>
-      <variable id="l1_nom" type="STRING" name="Usr"/>
-      <variable id="OldPas" type="STRING_HASH_RIPEMD160" name="OldPas"/>
-      <variable id="active" type="INTEGER" value="1"/>
-      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
-      <variable id="SysDat" type="SYSTEM_DATE"/>
-    </update>
+    <serve service="changePasswordWithCurrent">
+      <variable id="user" type="STRING" name="Usr"/>
+      <variable id="currentPassword" type="STRING" name="OldPas"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
     <!-- Security audit of the password change (a wrong current password updates nothing) -->
     <serve service="audit-password-change">
       <variable id="user" type="STRING" name="Usr"/>
       <variable id="password" type="STRING" name="Pas"/>
     </serve>
+  </target>
+
+  <!-- Stores the new password of ChdPwdPub. Not public, and the user is never a request parameter (anybody can launch a public target
+       and any signed in user a private one): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it
+       launches this target -->
+  <target name="ChdPwdPubUpdate">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <field id="l1_psd" variable="SysDat"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+          <filter left-field="l1_act" condition="eq" right-variable="active"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="verifiedPasswordUser"/>
+      <variable id="active" type="INTEGER" value="1"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
+      <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
   </target>
 
   <!-- Modules -->

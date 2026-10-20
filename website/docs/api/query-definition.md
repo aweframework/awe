@@ -1059,7 +1059,9 @@ These are the possible variable types:
 * **STRINGB**: a string with % at both sides (for `LIKE` operator)
 * **STRINGN**: a string that has `NULL` when it's empty
 * **STRING**: a string that has "" when it's empty
-* **STRING_HASH**: applies Sha 256 function to string variable
+* **STRING_HASH_PASSWORD**: hashes a user password with the configured password encoder (`awe.security.password-encoder`, BCrypt by default). The hash is salted: store it, never compare it in SQL. Check passwords in Java with `PasswordEncoder.matches`
+* **STRING_HASH_RIPEMD160**: *deprecated for user passwords, use `STRING_HASH_PASSWORD`*. Applies the RIPEMD-160 hash, without salt, to string variable. Kept for the descriptors that still compare legacy hashes
+* **STRING_HASH_SHA**: applies Sha 256 function to string variable
 * **STRING_ENCRYPT**: applies encryptRipEmd160 function to string variable
 * **INTEGER**: integer number
 * **FLOAT**: float number (32 bits)

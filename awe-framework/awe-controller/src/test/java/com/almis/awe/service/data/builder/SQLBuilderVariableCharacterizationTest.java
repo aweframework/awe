@@ -1,5 +1,8 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.QueryParameter;
@@ -9,6 +12,7 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.EncodeService;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
@@ -110,6 +114,7 @@ class SQLBuilderVariableCharacterizationTest {
       Arguments.of(ParameterType.STRING_HASH_SHA, "?", ""),
       Arguments.of(ParameterType.STRING_ENCRYPT, "?", ""),
       Arguments.of(ParameterType.STRING_HASH_RIPEMD160, "?", ""),
+      Arguments.of(ParameterType.STRING_HASH_PASSWORD, "?", ""),
       Arguments.of(ParameterType.STRING_HASH_PBKDF_2_W_HMAC_SHA_1, "?", ""),
       Arguments.of(ParameterType.STRINGL, "?", "%"),
       Arguments.of(ParameterType.STRINGR, "?", "%"),
@@ -217,6 +222,35 @@ class SQLBuilderVariableCharacterizationTest {
     assertThat(constants(builder.getVariableAsExpression("abc", ParameterType.STRING_ENCRYPT)))
       .containsExactly("encrypted");
     assertThat(constants(builder.getVariableAsExpression("abc", ParameterType.STRING_HASH_RIPEMD160)))
+      .containsExactly(EncodeService.encodeRipEmd160("abc"));
+  }
+
+  @Test
+  @DisplayName("A password binds the hash of the configured password encoder")
+  void passwordBindsConfiguredEncoderHash() throws AWException {
+    SecurityConfigProperties securityConfigProperties = new SecurityConfigProperties();
+    StubBuilder passwordBuilder = new StubBuilder(new QueryUtil(null, null, null, null),
+      new EncodeService(new BaseConfigProperties(), securityConfigProperties));
+    passwordBuilder.setQuery(new Query());
+
+    Expression<?> expression = passwordBuilder.getVariableAsExpression("abc", ParameterType.STRING_HASH_PASSWORD);
+
+    assertThat(sql(expression)).isEqualTo("?");
+    assertThat(constants(expression)).singleElement().isInstanceOf(String.class).asString()
+      .startsWith("{bcrypt}")
+      .matches(hash -> new AwePasswordEncoder(PasswordEncoderType.BCRYPT).matches("abc", hash), "matches the password");
+  }
+
+  @Test
+  @DisplayName("A password binds the legacy RIPEMD-160 hash when the encoder is ripemd160")
+  void passwordBindsLegacyHashWithRipemd160Encoder() throws AWException {
+    SecurityConfigProperties securityConfigProperties = new SecurityConfigProperties();
+    securityConfigProperties.setPasswordEncoder(PasswordEncoderType.RIPEMD160);
+    StubBuilder passwordBuilder = new StubBuilder(new QueryUtil(null, null, null, null),
+      new EncodeService(new BaseConfigProperties(), securityConfigProperties));
+    passwordBuilder.setQuery(new Query());
+
+    assertThat(constants(passwordBuilder.getVariableAsExpression("abc", ParameterType.STRING_HASH_PASSWORD)))
       .containsExactly(EncodeService.encodeRipEmd160("abc"));
   }
 

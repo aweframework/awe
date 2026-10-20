@@ -41,6 +41,7 @@ import java.util.*;
 public class QueryUtil extends ServiceConfig {
 
   private static final String EMPTY_SQL_COLLECTION_LOG = "/* empty */";
+  private static final String MASKED_SQL_VALUE_LOG = "'********'";
   private static final char SQL_PLACEHOLDER = '?';
   private static final char SQL_LITERAL_DELIMITER = '\'';
 
@@ -522,7 +523,7 @@ public class QueryUtil extends ServiceConfig {
         output = valueList;
         break;
       case STRING, STRINGB, STRINGL, STRINGR, STRING_ENCRYPT,
-           STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
+           STRING_HASH_RIPEMD160, STRING_HASH_PASSWORD, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
       default:
         output = getStringParameter(parameter, stringValue);
         break;
@@ -793,23 +794,45 @@ public class QueryUtil extends ServiceConfig {
    * @return SQL statement
    */
   public String getFullSQL(String sql, List<Object> parameters) {
+    return getFullSQL(sql, parameters, Collections.emptySet());
+  }
+
+  /**
+   * Retrieve full sql statement as string to be logged, replacing every parameter placeholder with its
+   * formatted value and masking the sensitive values.
+   * <p>
+   * A binding or a string literal whose value is one of the masked values is rendered as {@code '********'},
+   * so password hashes and encrypted values never reach the logs. The statement executed is not changed.
+   *
+   * @param sql          SQL Statement
+   * @param parameters   Parameter list
+   * @param maskedValues Values to mask
+   * @return SQL statement
+   */
+  public String getFullSQL(String sql, List<Object> parameters, Collection<String> maskedValues) {
     if (sql == null) {
       return null;
     }
 
+    Collection<String> masked = maskedValues == null ? Collections.emptySet() : maskedValues;
     Iterator<Object> bindings = (parameters == null ? Collections.emptyList() : parameters).iterator();
     StringBuilder fullSql = new StringBuilder(sql.length());
-    boolean insideLiteral = false;
 
-    for (int index = 0; index < sql.length(); index++) {
+    int index = 0;
+    while (index < sql.length()) {
       char character = sql.charAt(index);
       if (character == SQL_LITERAL_DELIMITER) {
-        insideLiteral = !insideLiteral;
-        fullSql.append(character);
-      } else if (character == SQL_PLACEHOLDER && !insideLiteral && bindings.hasNext()) {
-        fullSql.append(formatParameter(bindings.next()));
+        int literalEnd = getLiteralEnd(sql, index);
+        String literal = sql.substring(index, literalEnd);
+        fullSql.append(isMaskedLiteral(literal, masked) ? MASKED_SQL_VALUE_LOG : literal);
+        index = literalEnd;
       } else {
-        fullSql.append(character);
+        if (character == SQL_PLACEHOLDER && bindings.hasNext()) {
+          fullSql.append(formatParameter(bindings.next(), masked));
+        } else {
+          fullSql.append(character);
+        }
+        index++;
       }
     }
 
@@ -817,12 +840,51 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
+   * Retrieve the position after the end of the string literal starting at the given position. Doubled
+   * delimiters are escaped quotes inside the literal. An unterminated literal ends with the statement.
+   *
+   * @param sql   SQL statement
+   * @param start Position of the opening delimiter
+   * @return Position after the closing delimiter
+   */
+  private int getLiteralEnd(String sql, int start) {
+    int index = start + 1;
+    while (index < sql.length()) {
+      if (sql.charAt(index) == SQL_LITERAL_DELIMITER) {
+        if (index + 1 < sql.length() && sql.charAt(index + 1) == SQL_LITERAL_DELIMITER) {
+          index += 2;
+          continue;
+        }
+        return index + 1;
+      }
+      index++;
+    }
+    return sql.length();
+  }
+
+  /**
+   * Check whether a complete string literal holds a masked value
+   *
+   * @param literal      Literal with its delimiters
+   * @param maskedValues Values to mask
+   * @return Literal must be masked
+   */
+  private boolean isMaskedLiteral(String literal, Collection<String> maskedValues) {
+    if (maskedValues.isEmpty() || literal.length() < 2 || literal.charAt(literal.length() - 1) != SQL_LITERAL_DELIMITER) {
+      return false;
+    }
+    String value = literal.substring(1, literal.length() - 1).replace("''", "'");
+    return maskedValues.contains(value);
+  }
+
+  /**
    * Format log parameters
    *
-   * @param binding Binding to format
+   * @param binding      Binding to format
+   * @param maskedValues Values to mask
    * @return Formatted parameter
    */
-  private String formatParameter(Object binding) {
+  private String formatParameter(Object binding, Collection<String> maskedValues) {
     if (binding == null) {
       return "null";
     } else if (binding instanceof Collection<?> collectionBinding) {
@@ -830,13 +892,14 @@ public class QueryUtil extends ServiceConfig {
         return EMPTY_SQL_COLLECTION_LOG;
       }
       return collectionBinding.stream()
-          .map(this::formatParameter)
+          .map(value -> formatParameter(value, maskedValues))
           .reduce((left, right) -> left + ", " + right)
           .orElse("");
     } else if (binding.getClass().isArray()) {
-      return formatArrayParameter(binding);
+      return formatArrayParameter(binding, maskedValues);
     } else if (binding instanceof String stringBinding) {
-      return MessageFormat.format("''{0}''", stringBinding.replace("'", "''"));
+      return maskedValues.contains(stringBinding) ? MASKED_SQL_VALUE_LOG
+          : MessageFormat.format("''{0}''", stringBinding.replace("'", "''"));
     } else if (binding instanceof Boolean booleanBinding) {
       return booleanBinding ? "TRUE" : "FALSE";
     } else if (binding instanceof LocalDate localDateBinding) {
@@ -849,13 +912,13 @@ public class QueryUtil extends ServiceConfig {
     return binding.toString();
   }
 
-  private String formatArrayParameter(Object binding) {
+  private String formatArrayParameter(Object binding, Collection<String> maskedValues) {
     if (Array.getLength(binding) == 0) {
       return EMPTY_SQL_COLLECTION_LOG;
     }
     List<String> values = new ArrayList<>();
     for (int index = 0; index < Array.getLength(binding); index++) {
-      values.add(formatParameter(Array.get(binding, index)));
+      values.add(formatParameter(Array.get(binding, index), maskedValues));
     }
     return String.join(", ", values);
   }

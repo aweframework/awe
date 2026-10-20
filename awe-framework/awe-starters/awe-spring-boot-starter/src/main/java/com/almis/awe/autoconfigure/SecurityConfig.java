@@ -2,7 +2,6 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.*;
 import com.almis.awe.security.accessbean.LoginAccessControl;
-import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.service.*;
 import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
@@ -22,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Clock;
 import java.util.Objects;
@@ -44,6 +44,10 @@ public class SecurityConfig extends ServiceConfig {
    */
   public SecurityConfig(SecurityConfigProperties securityConfigProperties) {
     this.securityConfigProperties = securityConfigProperties;
+    if (SecurityConfigProperties.LEGACY_MASTER_KEY.equals(securityConfigProperties.getMasterKey())) {
+      log.warn("awe.security.master-key is set to the published AWE 4 default value. Keep it only while stored data "
+        + "encrypted with it is needed, and rotate it (see the AWE 5 migration guide)");
+    }
   }
 
   /**
@@ -116,6 +120,7 @@ public class SecurityConfig extends ServiceConfig {
    * @param securityConfigProperties Security config properties
    * @param userDetailsService       AWE user details
    * @param maintainService          Maintain service
+   * @param passwordEncoder          Password encoder
    * @return PasswordChangeService bean (only when AWE's user details service is in use; otherwise the expired password
    * login answers with the localized message only)
    */
@@ -124,8 +129,9 @@ public class SecurityConfig extends ServiceConfig {
   @ConditionalOnBean(AweUserDetailService.class)
   public PasswordChangeService passwordChangeService(SecurityConfigProperties securityConfigProperties,
                                                      AweUserDetailService userDetailsService,
-                                                     MaintainService maintainService) {
-    return new PasswordChangeService(securityConfigProperties, userDetailsService, maintainService, new Ripemd160PasswordEncoder());
+                                                     MaintainService maintainService,
+                                                     PasswordEncoder passwordEncoder) {
+    return new PasswordChangeService(securityConfigProperties, userDetailsService, maintainService, passwordEncoder);
   }
 
   /**
