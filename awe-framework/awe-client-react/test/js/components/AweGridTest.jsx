@@ -4,7 +4,7 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweGrid from "../../../src/components/AweGrid";
-import {updateModel} from "../../../src/redux/actions/components";
+import {updateModel, updateSpecificAttributes} from "../../../src/redux/actions/components";
 
 describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
@@ -1038,9 +1038,11 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
       renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
 
       expect(screen.getByRole("table")).toBeDefined();
-      expect(screen.getByLabelText("Page 3")).toBeDefined();
+      const gotoPage = document.querySelector("[data-testid='grid-goto-page']");
+      expect(gotoPage).not.toBeNull();
 
-      fireEvent.click(screen.getByLabelText("Page 3"));
+      fireEvent.change(gotoPage, {target: {value: "3"}});
+      fireEvent.keyDown(gotoPage, {key: "Enter", code: "Enter", keyCode: 13});
     });
 
     it('... and sort', () => {
@@ -1147,9 +1149,11 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
       renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
 
       expect(screen.getByRole("table")).toBeDefined();
-      expect(screen.getByLabelText("Page 3")).toBeDefined();
+      const gotoPage = document.querySelector("[data-testid='grid-goto-page']");
+      expect(gotoPage).not.toBeNull();
 
-      fireEvent.click(screen.getByLabelText("Page 3"));
+      fireEvent.change(gotoPage, {target: {value: "3"}});
+      fireEvent.keyDown(gotoPage, {key: "Enter", code: "Enter", keyCode: 13});
     });
 
     it('... and sort', () => {
@@ -1356,6 +1360,173 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
       });
 
       expect(container.querySelector(PAGINATION_INFO)).toBeNull();
+    });
+  });
+
+  describe('go to page', () => {
+    const GOTO_PAGE = "[data-testid='grid-goto-page']";
+    const gotoState = ({ records = 25, first = 0, rows = 10 } = {}) => ({
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            records,
+            values: Array.from({length: Math.min(rows, records)}, (_, index) => ({id: `r${index}`, name: `Name ${index}`}))
+          },
+          attributes: {
+            columnModel: [{name: "name", label: "Name"}],
+            headerModel: [],
+            buttonModel: [],
+            visible: true,
+            max: rows
+          },
+          specificAttributes: {sort: [], first, rows}
+        }
+      }
+    });
+    const pageChanges = (dispatchSpy) => dispatchSpy.mock.calls
+      .map(([action]) => action)
+      .filter(action => action.type === 'ADD_ACTIONS_TOP')
+      .flatMap(action => action.payload)
+      .filter(action => action.type === "change-page")
+      .map(action => action.parameters);
+    const renderGoto = (state = gotoState()) => {
+      const rendered = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: state, spyDispatch: true});
+      const input = rendered.container.querySelector(GOTO_PAGE);
+      // What the user reads: "Page [2] of 3"
+      const label = [...(input?.closest(".pagination-goto-page")?.children || [])]
+        .map(element => element.tagName === "INPUT" ? `[${element.value}]` : element.textContent).join(" ");
+      return {...rendered, input, label};
+    };
+    const pressEnter = (input) => fireEvent.keyDown(input, {key: "Enter", code: "Enter", keyCode: 13});
+
+    it('shows the current page and the total of pages between the arrows instead of the page links', () => {
+      const {container, input, label} = renderGoto(gotoState({first: 10}));
+
+      expect(input.value).toBe("2");
+      expect(label).toBe("SCREEN_TEXT_GRID_PAGE [2] SCREEN_TEXT_GRID_OF 3");
+      expect(container.querySelector(".p-paginator-pages")).toBeNull();
+      const parts = [...container.querySelector(".p-paginator").children].map(element => element.className);
+      const goto = parts.findIndex(className => className.includes("pagination-goto-page"));
+      expect(parts[goto - 1]).toContain("p-paginator-prev");
+      expect(parts[goto + 1]).toContain("p-paginator-next");
+    });
+
+    it('applies the typed page on Enter and cancels the event', () => {
+      const {dispatchSpy, input} = renderGoto();
+
+      fireEvent.change(input, {target: {value: "3"}});
+      const notCancelled = pressEnter(input);
+
+      expect(notCancelled).toBe(false);
+      expect(pageChanges(dispatchSpy)).toEqual([{page: 3, first: 20, rows: 10, max: 10}]);
+    });
+
+    it('does not let Enter reach the grid container, which would save the row', () => {
+      jest.useFakeTimers();
+      try {
+        const {dispatchSpy, input} = renderGoto();
+
+        fireEvent.change(input, {target: {value: "2"}});
+        pressEnter(input);
+        act(() => jest.advanceTimersByTime(200));
+
+        const actions = dispatchSpy.mock.calls.map(([action]) => action)
+          .filter(action => action.type === 'ADD_ACTIONS_TOP').flatMap(action => action.payload);
+        expect(actions.map(action => action.type)).toEqual(["change-page", "filter"]);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('requests the page once when the input loses the focus before the page is shown', () => {
+      const {dispatchSpy, input} = renderGoto();
+
+      fireEvent.change(input, {target: {value: "3"}});
+      pressEnter(input);
+      fireEvent.blur(input);
+
+      expect(pageChanges(dispatchSpy)).toEqual([{page: 3, first: 20, rows: 10, max: 10}]);
+    });
+
+    it('does not apply the page while typing', () => {
+      const {dispatchSpy, input} = renderGoto();
+
+      fireEvent.change(input, {target: {value: "3"}});
+      fireEvent.keyDown(input, {key: "3", code: "Digit3", keyCode: 51});
+
+      expect(pageChanges(dispatchSpy)).toEqual([]);
+      expect(input.value).toBe("3");
+    });
+
+    it('applies a different page on blur', () => {
+      const {dispatchSpy, input} = renderGoto();
+
+      fireEvent.change(input, {target: {value: "2"}});
+      fireEvent.blur(input);
+
+      expect(pageChanges(dispatchSpy)).toEqual([{page: 2, first: 10, rows: 10, max: 10}]);
+    });
+
+    it('does not apply the current page on Enter or blur', () => {
+      const {dispatchSpy, input} = renderGoto(gotoState({first: 10}));
+
+      pressEnter(input);
+      fireEvent.blur(input);
+
+      expect(pageChanges(dispatchSpy)).toEqual([]);
+      expect(input.value).toBe("2");
+    });
+
+    it.each(["0", "4", ""])('ignores the out of range page "%s" and shows the current page again', (value) => {
+      const {dispatchSpy, input} = renderGoto();
+
+      fireEvent.change(input, {target: {value}});
+      pressEnter(input);
+
+      expect(pageChanges(dispatchSpy)).toEqual([]);
+      expect(input.value).toBe("1");
+
+      fireEvent.change(input, {target: {value}});
+      fireEvent.blur(input);
+
+      expect(pageChanges(dispatchSpy)).toEqual([]);
+      expect(input.value).toBe("1");
+    });
+
+    it('shows the page of the grid when it changes', () => {
+      const {input, store} = renderGoto();
+
+      act(() => {
+        store.dispatch(updateSpecificAttributes({component: "grid", view: "report"}, {first: 20}));
+      });
+
+      expect(input.value).toBe("3");
+    });
+
+    it('is a number input', () => {
+      const {input} = renderGoto();
+
+      expect(input.tagName).toBe("INPUT");
+      expect(input.type).toBe("number");
+    });
+
+    it('is disabled with a single page', () => {
+      const {input, label} = renderGoto(gotoState({records: 10}));
+
+      expect(input.disabled).toBe(true);
+      expect(input.value).toBe("1");
+      expect(label).toBe("SCREEN_TEXT_GRID_PAGE [1] SCREEN_TEXT_GRID_OF 1");
+    });
+
+    it('is disabled without records', () => {
+      const {input, label} = renderGoto(gotoState({records: 0}));
+
+      expect(input.disabled).toBe(true);
+      expect(input.value).toBe("0");
+      expect(label).toBe("SCREEN_TEXT_GRID_PAGE [0] SCREEN_TEXT_GRID_OF 0");
     });
   });
 });

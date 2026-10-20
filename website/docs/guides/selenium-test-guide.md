@@ -605,6 +605,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridPageSize(String size)` | Checks the number of rows that a grid shows in each page |
 | `checkGridPaginationInfo(String text)` | Checks the text of the paginator that tells the range of rows shown and the total (`View 1 - 10 of 25`) |
 | `clickGridNextPage()` | Goes to the next page of a grid with its paginator and waits for the load. In the AngularJS client it works with the compact pager only: the wide pager has no hook for its page links |
+| `goToGridPage(int page)` | Replaces the page of the "go to page" input of the paginator with the given one, presses Enter and waits for the load. In the AngularJS client the input is in the wide pager only, when the grid has more than one page |
 | `checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId)` | Checks that an option of the radio or button-radio of a cell is the chosen one. The option is identified by its value |
 | `checkGridRadioNoChoice(String gridId, String rowId, String columnId)` | Checks that no option of the radio or button-radio of a cell is chosen |
 | `selectGridRadioOption(String gridId, String rowId, String columnId, String optionId)` | Chooses an option of the radio or button-radio of a cell with a click. The option is identified by its value |
@@ -772,7 +773,7 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 | `grid-cell` | A cell: the element that carries `column-id`, whatever it renders (value, editor, checkbox, tree icon) | Inside a row, with `column-id` |
 | `grid-row-checkbox` | Label of the selection checkbox of a row. `data-selected` | Inside the cell |
 | `grid-row-save`, `grid-row-cancel` | Save and cancel buttons of an editable grid | Inside the grid |
-| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size`, `grid-pagination-info` | Footer pagination, its previous/next arrows (`data-disabled`) of the compact pager, the "go to page" input (AngularJS only) and the page size select. In React the page size also carries `data-value`, because the dropdown repeats the text | Inside the grid |
+| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size`, `grid-pagination-info` | Footer pagination, its previous/next arrows (`data-disabled`) of the compact pager, the "go to page" input (in React the current page between the arrows, "Page [2] of 87", disabled with a single page; in AngularJS only in the wide pager, with more than one page) and the page size select. In React the page size also carries `data-value`, because the dropdown repeats the text | Inside the grid |
 | `grid-loader` | Loader of the grid (also the pivot table) | Inside the grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | The empty state of a grid without rows, its title, its text and the button that it offers | Inside the grid |
 | `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | The toolbar of a grid (with `data-testid-owner` = grid id, and `data-maximized`) and its Columns and Maximize buttons | Inside the page |

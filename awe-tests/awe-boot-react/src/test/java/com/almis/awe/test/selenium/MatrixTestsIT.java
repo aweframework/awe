@@ -471,6 +471,28 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Paginator test: the user types a page on the go to page input and presses Enter
+   */
+  @Test
+  void t116_gridPaginatorGoesToTheTypedPage() {
+    // Title
+    setTestTitle("Grid paginator: go to the typed page");
+
+    // Go to screen
+    openMatrixOption(MATRIX_PAGER_OPTION);
+    checkRowContentsGrid("GrdPagerTst", "adminflare");
+    checkGridPaginationInfo("View 1 - 5 of 18");
+
+    // Third page of four
+    goToGridPage(3);
+    checkGridPaginationInfo("View 11 - 15 of 18");
+
+    // Last page
+    goToGridPage(4);
+    checkGridPaginationInfo("View 16 - 18 of 18");
+  }
+
+  /**
    * Radio columns test: a radio column and a button-radio column show the options of their list in every cell
    */
   @Test

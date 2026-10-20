@@ -1263,6 +1263,27 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
+  void shouldGoToAPageOfAGridTypingItOnTheGoToPageInputAndPressingEnter() {
+    // The input shows the current page, which is replaced by the typed one
+    WebElement input = show(instructions.getGridGotoPage(), "");
+    when(input.getAttribute("value")).thenReturn("1");
+    List<Object> keysPressed = new ArrayList<>();
+    doAnswer(invocation -> {
+      ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+        ((List<Map<String, Object>>) sequence.toJson().get("actions")).stream()
+          .filter(action -> "keyDown".equals(action.get("type"))).forEach(action -> keysPressed.add(action.get("value"))));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.goToGridPage(3)).doesNotThrowAnyException();
+
+    // The current page is cleared, and the page is typed and applied with Enter, as the user does
+    verify(input).clear();
+    assertThat(keysPressed).containsExactly("3", Keys.ENTER.toString());
+  }
+
+  @Test
   void shouldCheckAndChooseTheOptionsOfTheRadioOfAGridCellInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);

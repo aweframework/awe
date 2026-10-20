@@ -1179,6 +1179,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the input of the paginator of a grid that goes to the typed page
+   *
+   * @return Go to page input selector
+   */
+  default By getGridGotoPage() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GOTO_PAGE));
+  }
+
+  /**
    * Get the text of the paginator of a grid that tells the range of rows shown and the total
    *
    * @return Paginator information selector

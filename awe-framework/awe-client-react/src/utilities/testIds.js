@@ -59,6 +59,7 @@ export const TestIds = Object.freeze({
   gridPagePrevious: "grid-page-previous",
   gridPageNext: "grid-page-next",
   gridPageSize: "grid-page-size",
+  gridGotoPage: "grid-goto-page",
   gridPaginationInfo: "grid-pagination-info",
   gridEmpty: "grid-empty",
   gridEmptyTitle: "grid-empty-title",

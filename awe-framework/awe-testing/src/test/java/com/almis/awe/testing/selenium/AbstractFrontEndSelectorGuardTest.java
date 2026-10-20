@@ -299,6 +299,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridPageSize", i::getGridPageSize);
     catalog.put("getGridPaginationInfo", i::getGridPaginationInfo);
     catalog.put("getGridPageNext", i::getGridPageNext);
+    catalog.put("getGridGotoPage", i::getGridGotoPage);
     catalog.put("getGridEmpty", i::getGridEmpty);
     catalog.put("getGridEmptyTitle", i::getGridEmptyTitle);
     catalog.put("getGridEmptyText", i::getGridEmptyText);

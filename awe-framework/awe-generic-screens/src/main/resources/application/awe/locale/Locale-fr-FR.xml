@@ -1257,6 +1257,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_GRID_LAST" value="Dernier"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Suivant"/>
   <locale name="SCREEN_TEXT_GRID_OF" value="de"/>
+  <locale name="SCREEN_TEXT_GRID_PAGE" value="Page"/>
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Précédent"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Résultats"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificateur de texte ou de recherche"/>

@@ -387,6 +387,7 @@ class ReactAweInstructionsTest {
   @Test
   void shouldLocateThePaginatorInfoTheEmptyStateTheRadiosTheCellClassesAndTheDialogPanel() {
     assertThat(instructions.getGridPaginationInfo()).hasToString("By.cssSelector: [data-testid='grid-pagination-info']");
+    assertThat(instructions.getGridGotoPage()).hasToString("By.cssSelector: [data-testid='grid-goto-page']");
     assertThat(instructions.getGridEmptyAction()).hasToString("By.cssSelector: [data-testid='grid-empty-action']");
     assertThat(instructions.getGridColumnsButton("Grd"))
       .hasToString("By.cssSelector: [data-testid='grid-toolbar'][data-testid-owner='Grd'] [data-testid='grid-columns-button']");
