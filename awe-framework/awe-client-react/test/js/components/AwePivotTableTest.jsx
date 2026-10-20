@@ -47,16 +47,65 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
 
     // Click on count button
     fireEvent.click(screen.getByText("Count", {exact: false}));
-    await waitFor(() =>  screen.findByText("Sum over Sum", {exact: false}));
+    await waitFor(() =>  screen.findByText("Sum over Sum"));
 
     // Click on Sum over Sum button
-    fireEvent.click(screen.getByText("Sum over Sum", {exact: false}));
+    fireEvent.click(screen.getByText("Sum over Sum"));
     await waitFor(() => findByText(document.querySelector(".pvtDropdownActiveValue"), "Sum over Sum", {exact: false}));
 
     // Click on Sum over Sum button
     fireEvent.click(getByText(document.querySelector(".pvtDropdownActiveValue"), "Sum over Sum", {exact: false}));
 
-    await waitFor(() => screen.findByText("Sum over Sum", {exact: false}));
-    expect(await screen.findByText("Sum over Sum", {exact: false})).toBeDefined();
+    await waitFor(() => screen.findByText("Sum over Sum"));
+    expect(await screen.findByText("Sum over Sum")).toBeDefined();
+  });
+
+  const withAttributes = (attributes, values = [{Als: 12, Qty: 1234.5}]) => ({
+    settings: DEFAULT_SETTINGS,
+    components: {
+      pivotTable: {
+        address: {component: 'pivotTable', view: 'report'},
+        model: {values},
+        attributes: {component: "pivotTable", cols: "Als", ...attributes}
+      }
+    }
+  });
+
+  it('applies renderer and aggregator attributes as initial values', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>,
+      {preloadedState: withAttributes({renderer: "Heatmap", aggregator: "Sum", aggregationField: "Qty"})});
+
+    await waitFor(() => expect(document.querySelectorAll(".pvtDropdownCurrent")[0].textContent).toContain("Table Heatmap"));
+    expect(document.querySelectorAll(".pvtDropdownCurrent")[1].textContent).toMatch(/Sum$/);
+  });
+
+  it('keeps the aggregator chosen by the user over the XML one', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState: withAttributes({aggregator: "Sum", aggregationField: "Qty"})});
+
+    await waitFor(() => expect(document.querySelectorAll(".pvtDropdownCurrent")[1].textContent).toMatch(/Sum$/));
+    fireEvent.click(document.querySelectorAll(".pvtDropdownCurrent")[1]);
+    fireEvent.click(await screen.findByText("Maximum"));
+    await waitFor(() => expect(document.querySelectorAll(".pvtDropdownCurrent")[1].textContent).toMatch(/Maximum$/));
+  });
+
+  it('sorts with set-pivot-sorters orders even when sort-method is absolute', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState: withAttributes(
+      {cols: "", rows: "Als", sortMethod: "absolute", sorters: {Als: ["b", "a"]}}, [{Als: "a"}, {Als: "b"}])});
+
+    await waitFor(() => expect([...document.querySelectorAll("th.pvtRowLabel")].map(th => th.textContent)).toEqual(["b", "a"]));
+  });
+
+  it('uses the values field chosen by the user over the aggregation-field', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState: withAttributes(
+      {aggregator: "Sum", aggregationField: "Als", vals: "Qty"})});
+
+    await waitFor(() => expect(screen.getAllByText("1,234.50").length).toBeGreaterThan(0));
+  });
+
+  it('renders a formatted Custom Sum', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState: withAttributes({
+      aggregator: "Custom Sum", aggregationField: "Qty", decimalNumbers: 2, thousandSeparator: ".", decimalSeparator: ","})});
+
+    await waitFor(() => expect(screen.getAllByText("1.234,50").length).toBeGreaterThan(0));
   });
 });

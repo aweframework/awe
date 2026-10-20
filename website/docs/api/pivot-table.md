@@ -140,22 +140,20 @@ The pivot table is drawn with a different library in each engine, and the XML at
 | -------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
 | Library                                                              | PivotTable.js (jQuery), included in AWE      | [react-pivottable](https://github.com/plotly/react-pivottable) 0.11 |
 | `rows`, `cols`                                                       | Applied                               | Applied                                                       |
-| `renderer`, `aggregator`, `aggregation-field`                        | Applied                               | **Not applied**: the table starts with the library defaults   |
-| `sort-method`, `total-row-placement`, `total-column-placement`       | Applied                               | **Not applied**                                               |
-| `decimal-numbers`, `thousand-separator`, `decimal-separator`, custom aggregators | Applied                   | **Not applied**: the `Custom ...` aggregators do not exist    |
+| `renderer`, `aggregator`, `aggregation-field`                        | Applied                               | Applied as initial values (`Table Barchart` falls back to `Table`) |
+| `sort-method`                                                        | Applied                               | Applied                                                       |
+| `total-row-placement`, `total-column-placement`                      | Applied                               | **Not applied**                                               |
+| `decimal-numbers`, `thousand-separator`, `decimal-separator`, custom aggregators | Applied                   | Applied: the `Custom ...` aggregators exist                   |
 | Actions `set-pivot-group-rows`, `set-pivot-group-cols`, `set-pivot-sorters` | Applied                        | Applied                                                       |
 | Context menu (`context-button`)                                      | Available                             | Not available                                                 |
 | `autoload`, `autorefresh`                                            | Applied                               | Ignored                                                       |
 | Texts of the table                                                   | Translated (English, Spanish, Basque, French) | Always in English                                     |
-| Maximum number of values listed in the filter of a field             | `awe.application.component.pivot-num-group` (5000) | 500 (the library default)                        |
+| Maximum number of values listed in the filter of a field             | `awe.application.component.pivot-num-group` (5000) | `pivotOptions.numGroup` setting (5000)           |
 
-In the React engine the user can still choose the renderer and the aggregator in the table, and the choices are
-kept while the screen is open. If a screen must start with a given renderer or aggregator in both engines, it needs the
-AngularJS engine today.
-
-> **Note:** The differences of the React engine come from how the component passes the XML attributes to the library
-> (`AwePivotTable.jsx` forwards them as they are, and the library expects other names). They are listed here so you can
-> plan ahead; they do not break the screen.
+In the React engine the XML attributes are initial values: the user can still change the renderer and the aggregator
+in the table, and those choices are kept while the screen is open. What the React engine does not support yet is the
+total placement (`total-row-placement`, `total-column-placement`), the `Table Barchart` renderer and the context menu.
+They do not break the screen.
 
 ## Related pages
 
