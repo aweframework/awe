@@ -51,14 +51,14 @@
 
     <!-- plugin versions -->
     <plugin-spring-boot.version>${spring-boot.version}</plugin-spring-boot.version>
-    <plugin-frontend.version>1.15.4</plugin-frontend.version>
+    <plugin-frontend.version>2.0.2</plugin-frontend.version>
     <plugin-compiler.version>3.16.0</plugin-compiler.version>
     <plugin-war.version>3.5.1</plugin-war.version>
     <plugin-surefire.version>3.6.0</plugin-surefire.version>
     <plugin-failsafe.version>3.6.0</plugin-failsafe.version>
     <plugin-xml-maven.version>1.2.2</plugin-xml-maven.version>
     <plugin-jar.version>3.5.1</plugin-jar.version>
-    <plugin-ant.version>1.8</plugin-ant.version>
+    <plugin-ant.version>3.2.0</plugin-ant.version>
     <plugin-flatten-maven.version>1.8.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.5.0</plugin-resources.version>
