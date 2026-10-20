@@ -4,13 +4,8 @@ import PropTypes from "prop-types";
 
 import { searchOptions } from "../utilities/menuSearch";
 import { translateLabel } from "../utilities";
+import { ANY_MODIFIERS, createKeyHandler } from "../utilities/keyboard";
 import "./AweMenuSearch.css";
-
-// Keyboard codes handled inside the search panel
-const KEY_DOWN = 40;
-const KEY_UP = 38;
-const KEY_ENTER = 13;
-const KEY_ESCAPE = 27;
 
 /**
  * Menu option search (command palette).
@@ -90,34 +85,42 @@ function AweMenuSearch(props) {
    * Keyboard navigation inside the search panel.
    * @param {object} event Keydown event
    */
-  const onSearchKeydown = (event) => {
-    switch (event.keyCode) {
-      case KEY_DOWN:
-        if (results.length) {
-          setActive(prev => (prev + 1) % results.length);
-          event.preventDefault();
-        }
-        break;
-      case KEY_UP:
-        if (results.length) {
-          setActive(prev => (prev - 1 + results.length) % results.length);
-          event.preventDefault();
-        }
-        break;
-      case KEY_ENTER:
-        if (results.length) {
-          selectResult(results[Math.max(active, 0)]);
-          event.preventDefault();
-        }
-        break;
-      case KEY_ESCAPE:
+  const handleSearchKey = createKeyHandler([
+    {
+      shortcut: {key: "ArrowDown", ...ANY_MODIFIERS},
+      when: () => results.length > 0,
+      handler: (event) => {
+        setActive(prev => (prev + 1) % results.length);
+        event.preventDefault();
+      }
+    },
+    {
+      shortcut: {key: "ArrowUp", ...ANY_MODIFIERS},
+      when: () => results.length > 0,
+      handler: (event) => {
+        setActive(prev => (prev - 1 + results.length) % results.length);
+        event.preventDefault();
+      }
+    },
+    {
+      shortcut: {key: "Enter", ...ANY_MODIFIERS},
+      when: () => results.length > 0,
+      handler: (event) => {
+        selectResult(results[Math.max(active, 0)]);
+        event.preventDefault();
+      }
+    },
+    {
+      shortcut: {key: "Escape", ...ANY_MODIFIERS},
+      handler: (event) => {
         closeSearch();
         event.preventDefault();
-        break;
-      default:
-        break;
+      }
     }
-  };
+  ]);
+  // The keys of an input method composition belong to it (keyCode 229 is Safari's composition end with key "Enter").
+  // React does not copy isComposing to its keyboard event: it is read from the native one
+  const onSearchKeydown = (event) => event.nativeEvent?.isComposing || event.keyCode === 229 || handleSearchKey(event);
 
   // Focus the input when the panel opens
   useEffect(() => {

@@ -197,6 +197,16 @@ describe("awe-react-client/test/js/components/AweGridWrapTest.jsx", () => {
         expect(screen.queryByRole("tooltip")).toBeNull();
       });
 
+      it("hides the tooltip with Escape even with a modifier", () => {
+        const { container } = renderClamped();
+        const cell = clamped(container);
+        cut(cell, true);
+
+        fireEvent.focusIn(cell);
+        fireEvent.keyDown(cell, { key: "Escape", shiftKey: true });
+        expect(screen.queryByRole("tooltip")).toBeNull();
+      });
+
       it("keeps the tooltip with other keys", () => {
         const { container } = renderClamped();
         const cell = clamped(container);

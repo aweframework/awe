@@ -1,4 +1,4 @@
-import React, {useCallback, useRef} from "react";
+import React, {useCallback, useMemo, useRef} from "react";
 import {ColorPicker} from "primereact/colorpicker";
 import {translateLabel} from "../utilities";
 import {InputText} from "primereact/inputtext";
@@ -11,6 +11,7 @@ import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import {useTranslation} from "react-i18next";
 import PropTypes from "prop-types";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 function AweInputColor(props) {
   const { id } = props;
@@ -24,6 +25,9 @@ function AweInputColor(props) {
   const onPickerChange = useCallback((e) => {
     onChange({ target: { value: toColor(e.target.value) } });
   }, [onChange]);
+
+  // Enter is read on key press, as before, so the typed characters keep their event
+  const onKeyPress = useMemo(() => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: onSubmit}]), [onSubmit]);
 
   const onToggleOverlay = useCallback((e) => {
     if (!readonly) {
@@ -40,7 +44,7 @@ function AweInputColor(props) {
         placeholder={translateLabel(placeholder, t)}
         onChange={onChange}
         onBlur={onBlur}
-        onKeyPress={e => e.key === "Enter" && onSubmit()}
+        onKeyPress={onKeyPress}
         required={required}
         disabled={readonly}
       />

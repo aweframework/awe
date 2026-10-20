@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import {InputText} from "primereact/inputtext";
 import {classNames} from "../utilities/components";
 import {translateLabel} from "../utilities";
@@ -7,6 +7,7 @@ import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import useCapsLock from "../hooks/useCapsLock";
 import PropTypes from "prop-types";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 import {TestIds, testHook} from "../utilities/testIds";
 
 function AweInputPassword(props) {
@@ -16,6 +17,7 @@ function AweInputPassword(props) {
   const capsLockOn = useCapsLock();
 
   const { placeholder, required, readonly, size, error } = attributes;
+  const onKeyDown = useMemo(() => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: onSubmit}]), [onSubmit]);
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error, "caps-lock": capsLockOn });
 
   return (
@@ -28,7 +30,7 @@ function AweInputPassword(props) {
         placeholder={translateLabel(placeholder, t)}
         onChange={onChange}
         onBlur={onBlur}
-        onKeyDown={e => e.key === "Enter" && onSubmit()}
+        onKeyDown={onKeyDown}
         required={required}
         disabled={readonly}
         {...testHook(TestIds.criterionInput)}

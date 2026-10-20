@@ -74,9 +74,12 @@ function MyComponent({onSave}) {
 * A shortcut has `key` (language dependent, for named keys such as `Enter`) or `code` (physical key, for digits and
   letters), both as a string or a list of strings.
 * The modifiers `alt`, `shift`, `ctrl` and `meta` are exact: one that is not set must not be pressed. Set it to `ANY`
-  (exported by the utility) to accept it either way.
+  (exported by the utility) to accept it either way, or spread `ANY_MODIFIERS` to accept every combination.
 * For handlers written as `onKeyDown` props, `createKeyHandler(bindings)` returns a function that runs the first binding
-  that matches and returns whether one did.
+  that matches and returns whether one did. A binding can have a `when(event)` predicate for a condition that is not a
+  key (for example an empty input): the binding is skipped when it returns false.
+* With `target: ref` the element is read when the effect runs, so it must be mounted together with the component. For an
+  element that is rendered conditionally use an `onKeyDown` with `createKeyHandler` instead.
 * The hook keeps the latest bindings, so they can change on every render without subscribing again. The options are
   `target`, `enabled`, `eventName` and `capture`.
 

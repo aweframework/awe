@@ -1,4 +1,4 @@
-import {ANY, DIGIT_CODES, SHORTCUTS, createKeyHandler, matchesShortcut} from "../../../src/utilities/keyboard";
+import {ANY, ANY_MODIFIERS, DIGIT_CODES, SHORTCUTS, createKeyHandler, matchesShortcut} from "../../../src/utilities/keyboard";
 
 const press = (init) => new KeyboardEvent("keydown", init);
 
@@ -63,6 +63,15 @@ describe("utilities/keyboard", () => {
     });
   });
 
+  describe("ANY_MODIFIERS", () => {
+    it("lets a shortcut match with any combination of modifiers", () => {
+      const shortcut = {key: "Escape", ...ANY_MODIFIERS};
+      expect(matchesShortcut(press({key: "Escape"}), shortcut)).toBe(true);
+      expect(matchesShortcut(press({key: "Escape", altKey: true, shiftKey: true, ctrlKey: true, metaKey: true}), shortcut)).toBe(true);
+      expect(matchesShortcut(press({key: "Enter"}), shortcut)).toBe(false);
+    });
+  });
+
   describe("createKeyHandler", () => {
     it("runs the first matching binding and returns true", () => {
       const first = jest.fn();
@@ -90,6 +99,33 @@ describe("utilities/keyboard", () => {
       const event = press({key: "ArrowDown"});
       expect(handler(event)).toBe(true);
       expect(run).toHaveBeenCalledWith(event, {key: "ArrowDown"});
+    });
+
+    it("skips a binding whose when predicate is false and tries the next one", () => {
+      const skipped = jest.fn();
+      const run = jest.fn();
+      const handler = createKeyHandler([
+        {shortcut: {key: "Space"}, when: () => false, handler: skipped},
+        {shortcut: {key: "Space"}, when: () => true, handler: run}
+      ]);
+      expect(handler(press({key: "Space"}))).toBe(true);
+      expect(skipped).not.toHaveBeenCalled();
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
+    it("gives the event to the when predicate and returns false when it rejects the only binding", () => {
+      const when = jest.fn(() => false);
+      const run = jest.fn();
+      const event = press({key: "Enter"});
+      expect(createKeyHandler([{shortcut: {key: "Enter"}, when, handler: run}])(event)).toBe(false);
+      expect(when).toHaveBeenCalledWith(event);
+      expect(run).not.toHaveBeenCalled();
+    });
+
+    it("does not evaluate when for an event that does not match the shortcut", () => {
+      const when = jest.fn(() => true);
+      createKeyHandler([{shortcut: {key: "Enter"}, when, handler: jest.fn()}])(press({key: "a"}));
+      expect(when).not.toHaveBeenCalled();
     });
 
     it("handles an empty or missing list of bindings", () => {

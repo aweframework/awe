@@ -14,6 +14,7 @@ import { updateModelWithDependencies as updateThunk } from "../redux/thunks/comp
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import {TestIds, testHook} from "../utilities/testIds";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 /**
  * Normalize the text-model value into a number the numeric input can compare against.
@@ -66,6 +67,11 @@ function AweInputNumeric(props) {
     }
   }, [readonly, onValueChange]);
 
+  const onKeyDown = useMemo(
+    () => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: () => commit(currentValue)}]),
+    [commit, currentValue]
+  );
+
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules} groupClass={showSlider ? "" : "p-inputgroup"}
       generateIcon={!showSlider} generateUnit={!showSlider}>
@@ -87,7 +93,7 @@ function AweInputNumeric(props) {
         onValueChange={onValueChange}
         inputStyle={{ textAlign: align || "right" }}
         pt={{ input: { root: testHook(TestIds.criterionInput) } }}
-        onKeyDown={e => e.key === "Enter" && commit(currentValue)}
+        onKeyDown={onKeyDown}
       />
       {showSlider ? (
         <Slider

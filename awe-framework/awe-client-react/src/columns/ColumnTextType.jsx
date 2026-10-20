@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {InputText} from 'primereact/inputtext';
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
@@ -8,6 +8,7 @@ import {TestIds, testHook} from "../utilities/testIds";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 function ColumnTextType(props) {
   const { placeholder, label, required, readonly, data, attrs, style, inputType, address } = props;
@@ -38,11 +39,10 @@ function ColumnTextType(props) {
     }
   }, [storeChange]);
 
-  const onKeyDown = useCallback((e) => {
-    if (e.key === "Enter") {
-      storeChange();
-    }
-  }, [storeChange]);
+  const onKeyDown = useMemo(
+    () => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: storeChange}]),
+    [storeChange]
+  );
 
   const onBlur = useCallback(() => {
     storeChange();

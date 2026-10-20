@@ -8,6 +8,17 @@ import {updateModel} from "../../../src/redux/actions/components";
 
 describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
+  // Row actions (save and cancel) added to the top of the action stack
+  const rowActions = (dispatchSpy) => dispatchSpy.mock.calls
+    .map(([action]) => action)
+    .filter(action => action.type === 'ADD_ACTIONS_TOP')
+    .flatMap(action => action.payload)
+    .filter(action => ["save-row", "cancel-row"].includes(action.type));
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('renders Awe Grid component', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,
@@ -736,7 +747,9 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     });
 
     it('... and save row with keyboard', () => {
-      renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("table")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -750,10 +763,19 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      // The row is saved after the focus has left the cell
+      expect(rowActions(dispatchSpy)).toEqual([]);
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(rowActions(dispatchSpy)).toEqual([{type: "save-row", address}]);
     });
 
     it('... and cancel row with keyboard', () => {
-      renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("table")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -767,6 +789,8 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      expect(rowActions(dispatchSpy)).toEqual([{type: "cancel-row", address}]);
     });
   });
 
@@ -895,7 +919,9 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     });
 
     it('... and save row with keyboard', () => {
-      renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("table")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -909,10 +935,19 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      // The row is saved after the focus has left the cell
+      expect(rowActions(dispatchSpy)).toEqual([]);
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(rowActions(dispatchSpy)).toEqual([{type: "save-row", address}]);
     });
 
     it('... and cancel row with keyboard', () => {
-      renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("table")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -926,6 +961,8 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      expect(rowActions(dispatchSpy)).toEqual([{type: "cancel-row", address}]);
     });
   });
 

@@ -1,9 +1,10 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useScreenSize} from "../hooks/useSizeRegistry";
 import useMaximize from "../hooks/useMaximize";
 import PropTypes from "prop-types";
 import AweGridCellTooltip from "./AweGridCellTooltip";
-import {getMoveRowKeyPosition} from "../utilities/grid";
+import {MOVE_ROW_SHORTCUTS} from "../utilities/grid";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 import AweGridToolbar from "./AweGridToolbar";
 import {classNames} from "../utilities/components";
 import {TestAttributes} from "../utilities/testIds";
@@ -23,25 +24,24 @@ function AweGridContainer(props) {
   const onResize = useCallback(() => setResizeCount(count => count + 1), []);
   const {ref: containerRef, iconMaximized, style, className, toggle: toggleMaximized} = useMaximize({onResize});
 
-  const checkKey = useCallback((e) => {
-    const movePosition = onKeyMoveRow ? getMoveRowKeyPosition(e) : null;
-    if (movePosition) {
-      e.preventDefault();
-      onKeyMoveRow(movePosition);
-      return;
-    }
-    switch (e.key) {
-      case "Escape":
-        onKeyCancelRow && onKeyCancelRow();
-        break;
-      case "Enter":
+  // Escape and Enter work whatever modifiers are pressed. Alt+arrows and Alt+Home/End move the selected row when the grid allows it
+  const checkKey = useMemo(() => createKeyHandler([
+    ...(onKeyMoveRow ? MOVE_ROW_SHORTCUTS.map(({shortcut, position}) => ({
+      shortcut,
+      handler: (e) => {
+        e.preventDefault();
+        onKeyMoveRow(position);
+      }
+    })) : []),
+    {shortcut: {key: "Escape", ...ANY_MODIFIERS}, handler: () => onKeyCancelRow && onKeyCancelRow()},
+    {
+      shortcut: {key: "Enter", ...ANY_MODIFIERS},
+      handler: () => {
         document.body.focus();
         setTimeout(() => onKeySaveRow && onKeySaveRow(), 100);
-        break;
-      default:
-        break;
+      }
     }
-  }, [onKeyCancelRow, onKeySaveRow, onKeyMoveRow]);
+  ]), [onKeyCancelRow, onKeySaveRow, onKeyMoveRow]);
 
   const contextMenu = useCallback((e) => {
     onContextMenuProp && onContextMenuProp({ originalEvent: e, data: null, index: -1 });

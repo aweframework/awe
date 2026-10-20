@@ -20,6 +20,9 @@ function resolveTarget(target) {
  * Register keyboard shortcuts while the component is mounted. It adds a listener (it never replaces the ones of
  * others, such as the window key down property) and removes it on unmount. The listener is not subscribed again when the
  * bindings change: it always runs the latest ones.
+ *
+ * A ref target is read when the effect runs, so the referenced element must be mounted together with the component:
+ * for a conditionally rendered element use an onKeyDown with createKeyHandler instead.
  * @param {object[]} bindings Bindings, see createKeyHandler
  * @param {object} [options] Options
  * @param {object} [options.target] Window by default, a React ref or an EventTarget

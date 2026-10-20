@@ -127,17 +127,67 @@ describe('components/AweMenuSearch.jsx', () => {
     expect(screen.getAllByRole("option")).toHaveLength(2);
     expect(screen.getAllByRole("option")[0]).toHaveClass("active");
 
-    fireEvent.keyDown(input, { keyCode: 40 }); // down -> index 1
+    fireEvent.keyDown(input, { key: "ArrowDown" }); // down -> index 1
     expect(screen.getAllByRole("option")[1]).toHaveClass("active");
-    fireEvent.keyDown(input, { keyCode: 40 }); // down wraps -> index 0
+    fireEvent.keyDown(input, { key: "ArrowDown" }); // down wraps -> index 0
     expect(screen.getAllByRole("option")[0]).toHaveClass("active");
-    fireEvent.keyDown(input, { keyCode: 38 }); // up wraps -> index 1
+    fireEvent.keyDown(input, { key: "ArrowUp" }); // up wraps -> index 1
     expect(screen.getAllByRole("option")[1]).toHaveClass("active");
 
-    fireEvent.keyDown(input, { keyCode: 13 }); // enter -> launch index 1
+    fireEvent.keyDown(input, { key: "Enter" }); // enter -> launch index 1
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ name: "b" }));
     expect(screen.queryByRole("textbox")).toBeNull();
+  });
+
+  it('prevents the default of the keys it handles only when it handles them', () => {
+    const options = [{ name: "a", label: "Alpha", visible: true, actions: [{ type: "screen" }] }];
+    render(<AweMenuSearch options={options} menuType="vertical" isAllowed={isAllowed} onSelect={jest.fn()} />);
+    const input = openPanel();
+
+    // Without results the arrows and Enter keep their default behavior
+    expect(fireEvent.keyDown(input, { key: "ArrowDown" })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "ArrowUp" })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "Enter" })).toBe(true);
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+
+    // With results they are handled
+    fireEvent.change(input, { target: { value: "a" } });
+    expect(fireEvent.keyDown(input, { key: "ArrowDown" })).toBe(false);
+    expect(fireEvent.keyDown(input, { key: "ArrowUp" })).toBe(false);
+
+    // Other keys are left alone
+    expect(fireEvent.keyDown(input, { key: "a" })).toBe(true);
+  });
+
+  it('handles the keys whatever modifiers are pressed', () => {
+    const options = [{ name: "a", label: "Alpha", visible: true, actions: [{ type: "screen" }] }];
+    const onSelect = jest.fn();
+    render(<AweMenuSearch options={options} menuType="vertical" isAllowed={isAllowed} onSelect={onSelect} />);
+    const input = openPanel();
+    fireEvent.change(input, { target: { value: "a" } });
+
+    expect(fireEvent.keyDown(input, { key: "Enter", shiftKey: true })).toBe(false);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+
+    openPanel();
+    expect(fireEvent.keyDown(screen.getByRole("textbox"), { key: "Escape", ctrlKey: true })).toBe(false);
+    expect(screen.queryByRole("textbox")).toBeNull();
+  });
+
+  it('ignores the keys of an input method composition, as the old keyCode switch did', () => {
+    const options = [{ name: "a", label: "Alpha", visible: true, actions: [{ type: "screen" }] }];
+    const onSelect = jest.fn();
+    render(<AweMenuSearch options={options} menuType="vertical" isAllowed={isAllowed} onSelect={onSelect} />);
+    const input = openPanel();
+    fireEvent.change(input, { target: { value: "a" } });
+
+    // Safari ends a composition with key "Enter" and keyCode 229; other browsers flag it with isComposing
+    expect(fireEvent.keyDown(input, { key: "Enter", keyCode: 229 })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "Enter", isComposing: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "Escape", keyCode: 229 })).toBe(true);
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 
   it('highlights a result on mouse enter', () => {
@@ -158,7 +208,7 @@ describe('components/AweMenuSearch.jsx', () => {
     const input = openPanel();
     fireEvent.change(input, { target: { value: "invoice" } });
 
-    fireEvent.keyDown(input, { keyCode: 27 });
+    fireEvent.keyDown(input, { key: "Escape" });
     expect(screen.queryByRole("textbox")).toBeNull();
 
     // Reopen: query has been reset
@@ -182,7 +232,7 @@ describe('components/AweMenuSearch.jsx', () => {
     const { onSelect } = renderSearch();
     const input = openPanel();
 
-    fireEvent.keyDown(input, { keyCode: 13 });
+    fireEvent.keyDown(input, { key: "Enter" });
 
     expect(onSelect).not.toHaveBeenCalled();
     expect(screen.getByRole("textbox")).toBeInTheDocument();
@@ -252,7 +302,7 @@ describe('components/AweMenu.jsx menu search gating', () => {
     fireEvent.click(document.querySelector(".awe-menu-search-toggle"));
     const input = screen.getByRole("textbox");
     fireEvent.change(input, { target: { value: "invoice" } });
-    fireEvent.keyDown(input, { keyCode: 13 });
+    fireEvent.keyDown(input, { key: "Enter" });
 
     expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "DELETE_STACK" }));
     expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "ADD_ACTIONS_TOP" }));

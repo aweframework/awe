@@ -1,5 +1,5 @@
 import React from 'react';
-import {fireEvent, screen} from '@testing-library/react';
+import {act, fireEvent, screen} from '@testing-library/react';
 
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
@@ -12,8 +12,16 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
+
+  // Row actions (save and cancel) added to the top of the action stack
+  const rowActions = (dispatchSpy) => dispatchSpy.mock.calls
+    .map(([action]) => action)
+    .filter(action => action.type === 'ADD_ACTIONS_TOP')
+    .flatMap(action => action.payload)
+    .filter(action => ["save-row", "cancel-row"].includes(action.type));
 
   it('renders Awe Tree Grid component', () => {
     const preloadedState = {
@@ -532,7 +540,9 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     });
 
     it('... and save row with keyboard', () => {
-      renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("grid-container")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -546,10 +556,19 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      // The row is saved after the focus has left the cell
+      expect(rowActions(dispatchSpy)).toEqual([]);
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(rowActions(dispatchSpy)).toEqual([{type: "save-row", address}]);
     });
 
     it('... and cancel row with keyboard', () => {
-      renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("grid-container")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -563,6 +582,8 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      expect(rowActions(dispatchSpy)).toEqual([{type: "cancel-row", address}]);
     });
   });
 
@@ -686,7 +707,9 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     });
 
     it('... and save row with keyboard', () => {
-      renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("grid-container")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -700,10 +723,19 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      // The row is saved after the focus has left the cell
+      expect(rowActions(dispatchSpy)).toEqual([]);
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(rowActions(dispatchSpy)).toEqual([{type: "save-row", address}]);
     });
 
     it('... and cancel row with keyboard', () => {
-      renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+      jest.useFakeTimers();
+      const {dispatchSpy} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState, spyDispatch: true});
+      const {address} = preloadedState.components.grid;
 
       expect(screen.getByRole("grid-container")).toBeDefined();
       expect(screen.getByRole("save-edit-row")).toBeDefined();
@@ -717,6 +749,8 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         view: window,
         bubbles: true
       }));
+
+      expect(rowActions(dispatchSpy)).toEqual([{type: "cancel-row", address}]);
     });
   });
 
