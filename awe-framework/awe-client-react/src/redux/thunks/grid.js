@@ -7,7 +7,7 @@ import {
 } from "../../utilities";
 import { acceptAction, addActionsTop, rejectAction } from "../actions/actions";
 import { updateAttributes, updateSpecificAttributes } from "../actions/components";
-import { updateModelWithDependencies } from "./components";
+import { raiseEventOnDependencies, updateModelWithDependencies } from "./components";
 import { compareEqualValues } from "../../utilities/general";
 import {
   extractCellValue,
@@ -218,8 +218,10 @@ export const afterCancelRowGridAction = afterRowGridAction("after-cancel-row", t
 
 export const checkOneSelectedGridAction = (action, t) => {
   return (dispatch, getState) => {
-    const components = getAllComponents(getState());
     const address = getActionAddress(action);
+    // Like AngularJS, the check event is raised whether the check passes or not
+    dispatch(raiseEventOnDependencies(address, "check-one-selected"));
+    const components = getAllComponents(getState());
     const component = getComponent(components, address);
     const { values } = component.model;
 
@@ -234,8 +236,10 @@ export const checkOneSelectedGridAction = (action, t) => {
 
 export const checkSomeSelectedGridAction = (action, t) => {
   return (dispatch, getState) => {
-    const components = getAllComponents(getState());
     const address = getActionAddress(action);
+    // Like AngularJS, the check event is raised whether the check passes or not
+    dispatch(raiseEventOnDependencies(address, "check-some-selected"));
+    const components = getAllComponents(getState());
     const component = getComponent(components, address);
     const { values } = component.model;
 
@@ -250,8 +254,10 @@ export const checkSomeSelectedGridAction = (action, t) => {
 
 export const checkRecordsSavedGridAction = (action, t) => {
   return (dispatch, getState) => {
-    const components = getAllComponents(getState());
     const address = getActionAddress(action);
+    // Like AngularJS, the check event is raised whether the check passes or not
+    dispatch(raiseEventOnDependencies(address, "check-records-saved"));
+    const components = getAllComponents(getState());
     const component = getComponent(components, address);
     const { values } = component.model;
 
@@ -270,8 +276,10 @@ export const checkRecordsSavedGridAction = (action, t) => {
 
 export const checkRecordsGeneratedGridAction = (action, t) => {
   return (dispatch, getState) => {
-    const components = getAllComponents(getState());
     const address = getActionAddress(action);
+    // Like AngularJS, the check event is raised whether the check passes or not
+    dispatch(raiseEventOnDependencies(address, "check-records-generated"));
+    const components = getAllComponents(getState());
     const component = getComponent(components, address);
     const { values } = component.model;
 
@@ -316,6 +324,7 @@ export const deleteRowGridAction = (action) => {
 
     // Like AngularJS, no row stays selected and the after-delete-row notification is raised
     dispatch(updateModelWithDependencies(address, {
+      event: "delete-row",
       values: newValues.map((item) => ({ ...item, selected: false })),
       ...(newValues.length === values.length ? {} : { records: newValues.length })
     }));
@@ -604,6 +613,8 @@ export const editRowGridAction = (action) => {
 export const saveRowGridAction = (action) => {
   return (dispatch, getState) => {
     const address = getActionAddress(action);
+    // Like AngularJS, before-save-row is raised before the row is validated and saved
+    dispatch(raiseEventOnDependencies(address, "before-save-row"));
     const components = getAllComponents(getState());
     const { component, values } = getGridAndValues(components, address);
     const editingRow = values.find(row => row.$row?.editing) || {};
@@ -648,6 +659,8 @@ export const saveRowGridAction = (action) => {
 export const cancelRowGridAction = (action) => {
   return (dispatch, getState) => {
     const address = getActionAddress(action);
+    // Like AngularJS, before-cancel-row is raised before the row is restored
+    dispatch(raiseEventOnDependencies(address, "before-cancel-row"));
     const components = getAllComponents(getState());
     const { component, values } = getGridAndValues(components, address);
     const editingRow = values.find(row => row.$row?.editing)?.$row?.editingRow || {};

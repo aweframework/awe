@@ -881,11 +881,23 @@ function isColumnDependency(dependency) {
     .reduce((prev, current) => ["currentRow", "prevCurrentRow", "nextCurrentRow"].includes(current) || prev, false);
 }
 
-function getDependenciesExecutions(state, initial, view) {
+/**
+ * Check if a dependency listens to an event of a component: one of its elements has that event on that component
+ * @param {object} dependency Dependency
+ * @param {{address: object, event: string}} launcher Component that raises the event and the event
+ * @returns {boolean} The dependency listens to the event
+ */
+function listensToEvent(dependency, { address, event }) {
+  return (dependency.elements || []).some(element => element.event === event && element.id === address.component
+    && (!element.view1 || element.view1 === address.view));
+}
+
+function getDependenciesExecutions(state, initial, view, eventOnly) {
   const allComponents = getAllComponents(state);
   const executions = _.groupBy(Object.values(allComponents)
     .filter(component => (!initial || component.address?.view === view) && getComponentDependencies(component).length > 0)
     .map(component => getComponentDependencies(component)
+      .filter(dependency => !eventOnly || listensToEvent(dependency, eventOnly))
       .filter(dependency => initial ? initializeDependency(dependency, component, state) : hasChanged(dependency, component, state))
       .map(dependency => checkDependency(dependency, component, state))
       .filter(e => e.length > 0)
@@ -933,8 +945,15 @@ export function forgetInputDependencies(componentList = []) {
   });
 }
 
-export function checkDependencies(state, dispatch) {
-  const executions = getDependenciesExecutions(state, false);
+/**
+ * Check the dependencies
+ * @param {object} state Redux state
+ * @param {function} dispatch Dispatch function
+ * @param {{address: object, event: string}} [eventOnly] Check only the dependencies that listen to this event, like
+ * AngularJS does for the events that only notify (the column dependencies of the component are not checked)
+ */
+export function checkDependencies(state, dispatch, eventOnly) {
+  const executions = getDependenciesExecutions(state, false, undefined, eventOnly);
   dispatchExecutions(executions, state, dispatch);
 }
 

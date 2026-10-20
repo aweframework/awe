@@ -6,6 +6,7 @@ import {act, waitFor} from "@testing-library/react";
 import {DEFAULT_SETTINGS} from "../../../../src/redux/actions/settings";
 import {configureStore} from "@reduxjs/toolkit";
 import createRootReducer from "../../../../src/redux/reducers";
+import {initializeDependencies} from "../../../../src/redux/actions/dependencies";
 import ComponentRegistry from "../../../../src/redux/registry/ComponentRegistry";
 
 describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', function () {
@@ -1155,6 +1156,129 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        expect(selection(store)).toEqual([true, true]);
      });
 
+     const stateWith = (values, attributes = {}) => ({
+       ...gridState,
+       components: {
+         grid: {
+           ...gridState.components.grid,
+           attributes: {editable: true, validateOnSave: false, columnModel: [{name: "col1", label: "Column 1"}], ...attributes},
+           model: {values}
+         }
+       }
+     });
+     const editingValues = [
+       {id: "1", col1: "new", selected: true, $row: {editing: true, editingRow: {id: "1", col1: "a"}}},
+       {id: "2", col1: "b", selected: false}
+     ];
+
+     it('save-row raises before-save-row first, like AngularJS', async () => {
+       setupRecorded(stateWith(editingValues));
+
+       act(() => actions["save-row"]({type: "save-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("after-save-row"));
+       expect(raisedEvents().slice(0, 3)).toEqual(["before-save-row", "save-row", "after-save-row"]);
+     });
+
+     it('save-row raises before-save-row even when the validation rejects the row', async () => {
+       const invalid = [{...editingValues[0], $attrs: {col1: {error: true}}}, editingValues[1]];
+       const { store } = setupRecorded(stateWith(invalid, {validateOnSave: true}));
+
+       act(() => actions["save-row"]({type: "save-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("before-save-row"));
+       expect(raisedEvents()).not.toContain("save-row");
+       expect(store.getState().components.grid.model.values[0].$row.editing).toBe(true);
+     });
+
+     it('cancel-row raises before-cancel-row before the row is restored', async () => {
+       setupRecorded(stateWith(editingValues));
+
+       act(() => actions["cancel-row"]({type: "cancel-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("after-cancel-row"));
+       expect(raisedEvents()[0]).toBe("before-cancel-row");
+     });
+
+     it('delete-row raises delete-row once the row is removed and before after-delete-row', async () => {
+       const { store } = setupRecorded(stateWith([{id: "1", col1: "a", selected: true}, {id: "2", col1: "b"}]));
+
+       act(() => actions["delete-row"]({type: "delete-row", address, parameters: {rowId: "1"}}, props));
+
+       await waitFor(() => expect(raisedEvents()).toEqual(["delete-row", "after-delete-row"]));
+       expect(store.getState().components.grid.model.values.map(({id}) => id)).toEqual(["2"]);
+     });
+
+     describe.each([
+       ["check-records-saved", [{id: "1", col1: "a"}], [{id: "1", col1: "a", $row: {editing: true}}]],
+       ["check-records-generated", [{id: "1", col1: "a", $row: {operation: "INSERT"}}], [{id: "1", col1: "a"}]],
+       ["check-one-selected", [{id: "1", col1: "a", selected: true}], [{id: "1", col1: "a"}]],
+       ["check-some-selected", [{id: "1", col1: "a", selected: true}], [{id: "1", col1: "a"}]]
+     ])('%s', (name, passing, failing) => {
+       it.each([["passes", passing, true], ["fails", failing, false]])('is raised when the check %s, like AngularJS', async (_, values, ok) => {
+         setupRecorded(stateWith(values));
+         const action = {type: name, address};
+
+         act(() => actions[name](action, props));
+
+         await waitFor(() => expect(raisedEvents()).toEqual([name]));
+         expect(recorded.some(({type, payload}) => type === "REJECT_ACTION" && payload === action)).toBe(!ok);
+       });
+     });
+
+     it('launches the dependency of a grid event with the real dependency check', async () => {
+       const dependent = {
+         address: {component: "other", view: "report"},
+         attributes: {visible: true},
+         model: {values: []},
+         dependencies: [{
+           type: "and",
+           elements: [{id: "grid", event: "delete-row", checkChanges: false}],
+           target: "label",
+           source: "value",
+           value: "deleted",
+           initial: false
+         }]
+       };
+       const state = stateWith([{id: "1", col1: "a", selected: true}]);
+       state.components.other = dependent;
+       state.view = {view: "report", report: {name: "Report"}};
+       const { store } = setupRecorded(state);
+       act(() => initializeDependencies("report", store.getState(), store.dispatch));
+
+       act(() => actions["delete-row"]({type: "delete-row", address, parameters: {rowId: "1"}}, props));
+
+       await waitFor(() => expect(store.getState().components.other.attributes.label).toBe("deleted"));
+     });
+
+     it('before-save-row does not check the column dependencies of the row being edited (AngularJS only checks listeners)', async () => {
+       const mirror = (from) => [{
+         source: "criteria-value", target: "input", query: "Cpy",
+         elements: [{id: "grid", column1: from, attribute1: "selectedRowValue", alias: "Cpy"}]
+       }];
+       const state = stateWith([{id: "new-row-0", Num: 0, Num2: null, selected: true, $row: {editing: true, operation: "INSERT"}}], {
+         columnModel: [
+           {id: "Num", name: "Num", label: "Num", dependencies: mirror("Num2")},
+           {id: "Num2", name: "Num2", label: "Num2", dependencies: mirror("Num")}
+         ]
+       });
+       const { store } = setupRecorded(state);
+       act(() => initializeDependencies("report", store.getState(), store.dispatch));
+       // The user types in the cell: the model changes without checking the dependencies
+       act(() => store.dispatch({type: "UPDATE_MODEL", address, data: {
+         values: [{id: "new-row-0", Num: 0, Num2: 5, selected: true, $row: {editing: true, operation: "INSERT"}}]
+       }}));
+
+       act(() => actions["save-row"]({type: "save-row", address}, props));
+
+       await waitFor(() => expect(raisedEvents()).toContain("after-save-row"));
+       // The copy is launched by the change that save-row makes, not by the notification that precedes it
+       const firstCopy = recorded.findIndex(({type}) => type === "UPDATE_MULTIPLE_MODELS");
+       const saveRow = recorded.findIndex(({type, event}) => type === "SET_RUNTIME_EVENT" && event === "save-row");
+       expect(saveRow).toBeGreaterThan(-1);
+       expect(firstCopy).toBeGreaterThan(saveRow);
+     });
+
      it('cancel-row raises after-cancel-row once the edition is cancelled, like AngularJS', async () => {
        const editing = {
          ...gridState,
@@ -1174,7 +1298,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
        act(() => actions["cancel-row"]({type: "cancel-row", address}, props));
 
-       await waitFor(() => expect(raisedEvents()).toEqual(["cancel-row", "after-cancel-row", "select-row"]));
+       await waitFor(() => expect(raisedEvents()).toEqual(["before-cancel-row", "cancel-row", "after-cancel-row", "select-row"]));
        expect(selection(store)).toEqual([false, false]);
      });
 
@@ -1218,7 +1342,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
        act(() => actions["delete-row"]({type: "delete-row", address, parameters: {rowId: "1"}}, props));
 
-       await waitFor(() => expect(raisedEvents()).toEqual(["after-delete-row"]));
+       await waitFor(() => expect(raisedEvents()).toEqual(["delete-row", "after-delete-row"]));
        expect(selection(store).filter(Boolean)).toEqual([]);
      });
 

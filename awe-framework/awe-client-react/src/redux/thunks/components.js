@@ -79,6 +79,25 @@ export function updateModelWithDependencies(address, data) {
 }
 
 /**
+ * Raise an event that only notifies, without changing the model: only the dependencies that listen to the event are
+ * checked, as AngularJS does, so the others (e.g. the column dependencies of a grid being edited) keep waiting for
+ * their own change
+ * @param {object} address Address of the component that raises the event
+ * @param {string} event Event raised
+ * @returns {function} Thunk
+ */
+export function raiseEventOnDependencies(address, event) {
+  return (dispatch, getState) => {
+    dispatch(setRuntimeEvent(address, event));
+    try {
+      checkDependencies(getState(), dispatch, { address, event });
+    } finally {
+      dispatch(clearRuntimeEvent());
+    }
+  };
+}
+
+/**
  * Update the attributes of a component and check the dependencies that read them. When the data has an event, the
  * event is raised while the dependencies are checked (the chart events, which write attributes such as x or xMin)
  * @param {object} address Component address
