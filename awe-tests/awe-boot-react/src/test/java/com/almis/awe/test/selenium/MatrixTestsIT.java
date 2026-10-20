@@ -145,7 +145,9 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Grid test: Multiselect");
 
-    // Go to screen
+    // Go to the screen from another one, so it is loaded again: the client does not reload the current screen from its
+    // own menu option, and the previous test leaves a row of GrdSta selected, which hides GrdMus
+    openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixScreen();
 
     // Click on tab
@@ -804,6 +806,10 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickButton(BUTTON_DEFERRED_DIALOG);
     checkValidationErrorVisible();
     checkCriterionContents("DefSaved", "");
+
+    // Close the dialog, so it does not cover the menu for the next tests
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
   }
 
   /**
