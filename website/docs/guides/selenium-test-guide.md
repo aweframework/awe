@@ -392,6 +392,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkLogout()` | Logs out and checks that the login screen is shown. Preferred form |
 | `checkLogout(String cssSelector, String checkText)` | Logs out and checks a text inside a CSS selector. Raw-selector form: prefer `checkLogout()` |
 | `checkLogoutWithConfirmation()` | Logs out of an application that asks for a confirmation first, accepts it and checks the login screen |
+| `checkLogoutCancelledWithEscape()` | Asks to log out, closes the confirmation with the `Escape` key and checks that the login screen is not shown |
 | `gotoScreen(String... menuOptions)` | Clicks the menu options in order to open a screen, and waits for the menu to take effect |
 | `waitForMenuOption(String option)` | Waits until the click on a menu option has taken effect. `gotoScreen` already calls it |
 | `checkMenuOption(String option, String text)` | Checks that a menu option is visible and contains a text |

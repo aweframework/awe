@@ -1,10 +1,12 @@
 import React from 'react';
-import { act, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import {DEFAULT_SETTINGS, updateSettings} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import MessageContainer from "../../../src/containers/MessageContainer";
-import { addMessage } from "../../../src/redux/actions/messages";
+import { addMessage, removeConfirm } from "../../../src/redux/actions/messages";
+import { acceptAction, rejectAction } from "../../../src/redux/actions/actions";
 import { MemoryRouter } from 'react-router';
+import { ESC_KEY_HANDLING_PRIORITIES, useGlobalOnEscapeKey } from 'primereact/hooks';
 
 const mockShow = jest.fn();
 const mockRemove = jest.fn();
@@ -80,6 +82,60 @@ describe('awe-react-client/test/js/containers/MessageContainerTest.jsx', () => {
 
     await waitFor(() => {
       expect(mockShow).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('confirm dialog', () => {
+    const action = {type: 'confirm', parameters: {target: 'Confirm'}};
+    const confirmState = {
+      ...preloadedState,
+      messages: {showing: [], confirm: {title: 'Confirm title', message: 'Confirm message', action}}
+    };
+
+    it('rejects the action and removes the confirm when Escape is pressed', async () => {
+      const {store, dispatchSpy} = renderWithProviders(<MessageContainer/>, {preloadedState: confirmState, spyDispatch: true});
+      await screen.findByText('Confirm message');
+
+      fireEvent.keyDown(document, {key: 'Escape', code: 'Escape'});
+
+      await waitFor(() => expect(store.getState().messages.confirm).toBeUndefined());
+      expect(dispatchSpy).toHaveBeenCalledWith(rejectAction(action));
+      expect(dispatchSpy).toHaveBeenCalledWith(removeConfirm());
+      expect(dispatchSpy).not.toHaveBeenCalledWith(acceptAction(action));
+    });
+
+    it('rejects the action on Escape even when an overlay below it handles Escape too', async () => {
+      const overlayEscape = jest.fn();
+      function OpenOverlay() {
+        useGlobalOnEscapeKey({callback: overlayEscape, when: true, priority: [ESC_KEY_HANDLING_PRIORITIES.OVERLAY_PANEL, 1]});
+        return null;
+      }
+      const {store, dispatchSpy} = renderWithProviders(<><OpenOverlay/><MessageContainer/></>,
+        {preloadedState: confirmState, spyDispatch: true});
+      await screen.findByText('Confirm message');
+
+      fireEvent.keyDown(document, {key: 'Escape', code: 'Escape'});
+
+      await waitFor(() => expect(store.getState().messages.confirm).toBeUndefined());
+      expect(dispatchSpy).toHaveBeenCalledWith(rejectAction(action));
+      expect(overlayEscape).not.toHaveBeenCalled();
+    });
+
+    it('accepts the action when the Accept button is clicked', async () => {
+      const {store, dispatchSpy} = renderWithProviders(<MessageContainer/>, {preloadedState: confirmState, spyDispatch: true});
+
+      fireEvent.click(await screen.findByRole('button', {name: /BUTTON_ACCEPT|Accept/i}));
+
+      await waitFor(() => expect(store.getState().messages.confirm).toBeUndefined());
+      expect(dispatchSpy).toHaveBeenCalledWith(acceptAction(action));
+      expect(dispatchSpy).not.toHaveBeenCalledWith(rejectAction(action));
+    });
+
+    it('does not render a close icon', async () => {
+      renderWithProviders(<MessageContainer/>, {preloadedState: confirmState});
+      await screen.findByText('Confirm message');
+
+      expect(document.querySelector('.p-dialog-header-close')).toBeNull();
     });
   });
 });

@@ -259,6 +259,21 @@ class RegressionTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Escape closes a confirmation and cancels its action (#873)
+   */
+  @Test
+  void t013_cancelConfirmWithEscape() {
+    // Close the logout confirmation with the Escape key
+    checkLogoutCancelledWithEscape();
+
+    // The session is still alive: the logout can be asked and accepted again
+    checkLogoutWithConfirmation();
+
+    // Do right login
+    checkLogin("test", "test", "Manager (test)");
+  }
+
+  /**
    * Sort a grid using a component column
    */
   @Test

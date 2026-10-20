@@ -51,7 +51,7 @@ The digit is read from the physical key, so it also works on macOS where `Option
 
 | Keys | Action |
 |------|--------|
-| `Escape` | Close the dialog. Message and confirm dialogs do not close with it. |
+| `Escape` | Close the dialog. A confirm dialog closes with it and cancels its action, as `Cancel` does. Message dialogs do not close with it. |
 
 ## Register a shortcut
 
