@@ -93,6 +93,22 @@ export function formule(expression, values) {
 }
 
 /**
+ * Replace the [id] wildcards of a text with the given values (case insensitive), like AngularJS does
+ * @param {string} text Text with wildcards
+ * @param {Object} values Values by wildcard id
+ * @returns {string|null} Text with the wildcards replaced, or null if there is no text
+ * @memberOf Utilities
+ */
+export function replaceWildcard(text, values) {
+  if (text === undefined || text === null) {
+    return null;
+  }
+  return Object.entries(values || {}).reduce(
+    (replaced, [valueId, value]) => replaced.replace(new RegExp(`\\[${valueId}\\]`, "ig"), () => value),
+    String(text));
+}
+
+/**
  * Check actions
  * @param {object} allowedActions Object actions
  * @param {object} actions Actions to launch

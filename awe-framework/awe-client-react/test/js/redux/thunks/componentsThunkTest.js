@@ -1,6 +1,16 @@
 import * as thunks from '../../../../src/redux/thunks/components';
 import MenuRegistry from '../../../../src/redux/registry/MenuRegistry';
 
+// Events raised through updateModelWithDependencies(address, {event}): run each dispatched thunk and read the runtime event
+const eventsRaised = (dispatch) => dispatch.mock.calls
+  .map(([arg]) => arg)
+  .filter((arg) => typeof arg === 'function')
+  .flatMap((thunk) => {
+    const inner = jest.fn();
+    thunk(inner, () => ({ components: {}, settings: {} }));
+    return inner.mock.calls.map(([a]) => a).filter((a) => a?.type === 'SET_RUNTIME_EVENT').map((a) => a.event);
+  });
+
 describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
   let dispatch;
   let getState;
@@ -293,13 +303,22 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.openDialogAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch).toHaveBeenCalledTimes(2);
+      expect(dispatch).toHaveBeenCalledTimes(3);
 
       const [[addStack], [updateAttributes]] = dispatch.mock.calls;
       expect(addStack.type).toBe('ADD_STACK');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.isShowing).toBe(true);
       expect(updateAttributes.data.action).toEqual(action);
+    });
+
+    it('emite el evento open tras abrir el diálogo', () => {
+      mockComponent.attributes.isShowing = false;
+
+      thunks.openDialogAction({ type: 'openDialog', address: mockAddress })(dispatch, getState);
+
+      expect(dispatch.mock.calls[2][0].type).toBeUndefined();
+      expect(eventsRaised(dispatch)).toEqual(['open']);
     });
 
     it('no debería hacer nada si el diálogo ya está mostrándose', () => {
@@ -321,9 +340,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.closeDialogAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch).toHaveBeenCalledTimes(4);
+      expect(dispatch).toHaveBeenCalledTimes(5);
+      expect(eventsRaised(dispatch)).toEqual(['close']);
 
-      const [[acceptAction], [removeStack], [acceptAction2], [updateAttributes]] = dispatch.mock.calls;
+      const [[acceptAction], , [removeStack], [acceptAction2], [updateAttributes]] = dispatch.mock.calls;
       expect(removeStack.type).toBe('REMOVE_STACK');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
     });
@@ -334,8 +354,9 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.closeDialogAction(action)(dispatch, getState);
 
-      // Solo se acepta la acción
+      // Solo se acepta la acción y no se emite ningún evento
       expect(dispatch).toHaveBeenCalledTimes(1);
+      expect(eventsRaised(dispatch)).toEqual([]);
     });
   });
 
@@ -349,7 +370,8 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[acceptAction], [removeStack], [rejectAction], [updateAttributes]] = dispatch.mock.calls;
+      expect(eventsRaised(dispatch)).toEqual(['close']);
+      const [[acceptAction], , [removeStack], [rejectAction], [updateAttributes]] = dispatch.mock.calls;
       expect(rejectAction.type).toBe('REJECT_ACTION');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
     });

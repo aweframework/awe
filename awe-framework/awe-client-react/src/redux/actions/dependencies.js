@@ -10,10 +10,11 @@ import {
 } from "./components";
 
 import { addActionsTop } from "./actions";
-import { asArray, componentValue, formule, generateAddress, generateServerAction } from "../../utilities";
+import { asArray, componentValue, formule, generateAddress, generateServerAction, replaceWildcard } from "../../utilities";
 import { getAllComponents } from "../selectors/componentSelectors";
 import { getDependencyComponentId, getTriggerId, parseValidationRules } from "../../utilities/components";
 import ViewRegistry from "../registry/ViewRegistry";
+import SpecificDependencyRegistry from "../registry/SpecificDependencyRegistry";
 import {
   getCellAttribute,
   getCellValue,
@@ -711,11 +712,31 @@ function applyTarget(dependency, component, value, result) {
     case "none-false":
       return null;
 
+    case "specific-true":
+    case "specific-false": {
+      // As AngularJS, the component which implements the dependency receives it; the others ignore it
+      const handler = SpecificDependencyRegistry.get(component?.attributes?.component);
+      return handler ? handler(dependency, value, launch) ?? null : null;
+    }
+
     default:
       console.warn(`Dependency target "${target}" not defined`);
   }
 
   return null;
+}
+
+/**
+ * Map the actions of a dependency replacing the wildcards of their target action, like AngularJS
+ */
+function mapDependencyActions(actions, address, values) {
+  return actions.map(action => {
+    if (action.targetAction === undefined || action.targetAction === null) {
+      return { ...action, address };
+    }
+    const targetAction = replaceWildcard(action.targetAction, values);
+    return { ...action, address, targetAction, parameters: { ...action.parameters, targetAction } };
+  });
 }
 
 /**
@@ -727,7 +748,7 @@ function executeDependency(dependency, component, result, state) {
 
   // Launch dependency actions
   if (dependency.actions?.length > 0 && result.launch) {
-    dispatchActions.push({ addActions: dependency.actions?.map(action => ({ ...action, address })) });
+    dispatchActions.push({ addActions: mapDependencyActions(dependency.actions, address, result.values) });
   }
 
   // Check force by target
