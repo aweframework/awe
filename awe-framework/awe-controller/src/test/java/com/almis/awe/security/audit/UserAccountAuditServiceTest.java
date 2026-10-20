@@ -1,14 +1,22 @@
 package com.almis.awe.security.audit;
 
+import com.almis.awe.config.PasswordEncoderType;
+import com.almis.awe.dao.UserDAO;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.User;
 import com.almis.awe.model.security.audit.SecurityAuditCause;
 import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.security.audit.SecurityAuditOutcome;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashMap;
@@ -18,7 +26,9 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -29,7 +39,10 @@ class UserAccountAuditServiceTest {
   private final RecordingSecurityAudit audit = new RecordingSecurityAudit();
   private final QueryService queryService = mock(QueryService.class);
   private final LoginAttemptService attempts = mock(LoginAttemptService.class);
-  private final UserAccountAuditService service = new UserAccountAuditService(audit.service(), queryService, attempts);
+  private final UserDAO userDAO = mock(UserDAO.class);
+  private final PasswordEncoder encoder = new AwePasswordEncoder(PasswordEncoderType.BCRYPT);
+  private final UserAccountAuditService service = new UserAccountAuditService(audit.service(), queryService, attempts,
+    provider(userDAO), provider(encoder));
 
   @Test
   void unlockingAUserIsAuditedAndClearsItsFailures() throws AWException {
@@ -72,17 +85,54 @@ class UserAccountAuditServiceTest {
   }
 
   @Test
-  void passwordChangesAreCheckedAgainstTheStoredPassword() throws AWException {
-    when(queryService.launchPrivateQuery(eq(UserAccountAuditService.PASSWORD_CHECK_QUERY), any(ObjectNode.class)))
-      .thenReturn(new ServiceData().setDataList(dataList(user("jdoe", "0"))))
-      .thenReturn(new ServiceData().setDataList(new DataList()));
+  void aPasswordChangeIsASuccessWhenTheStoredHashMatchesTheNewPassword() throws AWException {
+    when(userDAO.findByUserName("jdoe")).thenReturn(new User().setUsername("jdoe").setPassword(encoder.encode("new")));
+
+    service.auditPasswordChange(" jdoe ", "new");
+
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "username")
+      .containsExactly(tuple(SecurityAuditEventType.PASSWORD_CHANGE, SecurityAuditOutcome.SUCCESS, null, "jdoe"));
+    verify(queryService, never()).launchPrivateQuery(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void aPasswordChangeIsASuccessWithALegacyStoredHash() throws AWException {
+    when(userDAO.findByUserName("jdoe")).thenReturn(new User().setUsername("jdoe").setPassword(EncodeService.encodeRipEmd160("new") + "  "));
 
     service.auditPasswordChange("jdoe", "new");
+
+    assertThat(audit.events()).extracting("outcome").containsExactly(SecurityAuditOutcome.SUCCESS);
+  }
+
+  @Test
+  void aPasswordChangeIsAFailureWhenTheStoredHashIsNotTheNewPassword() throws AWException {
+    // A wrong current password updates nothing, so the stored hash is still the previous password
+    when(userDAO.findByUserName("jdoe")).thenReturn(new User().setUsername("jdoe").setPassword(encoder.encode("previous")));
+
     service.auditPasswordChange("jdoe", "new");
 
-    assertThat(audit.events()).extracting("type", "outcome", "cause").containsExactly(
-      tuple(SecurityAuditEventType.PASSWORD_CHANGE, SecurityAuditOutcome.SUCCESS, null),
-      tuple(SecurityAuditEventType.PASSWORD_CHANGE, SecurityAuditOutcome.FAILURE, SecurityAuditCause.BAD_CREDENTIALS));
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "username")
+      .containsExactly(tuple(SecurityAuditEventType.PASSWORD_CHANGE, SecurityAuditOutcome.FAILURE, SecurityAuditCause.BAD_CREDENTIALS, "jdoe"));
+  }
+
+  @Test
+  void aPasswordChangeOfAnUnknownUserIsAFailure() throws AWException {
+    when(userDAO.findByUserName("ghost")).thenThrow(new UsernameNotFoundException("ghost"));
+
+    service.auditPasswordChange("ghost", "new");
+
+    assertThat(audit.events()).extracting("outcome", "cause", "username")
+      .containsExactly(tuple(SecurityAuditOutcome.FAILURE, SecurityAuditCause.BAD_CREDENTIALS, "ghost"));
+  }
+
+  @Test
+  void aPasswordChangeWithoutUserDaoIsAFailure() throws AWException {
+    UserAccountAuditService withoutUsers = new UserAccountAuditService(audit.service(), queryService, attempts,
+      provider(null), provider(encoder));
+
+    withoutUsers.auditPasswordChange("jdoe", "new");
+
+    assertThat(audit.events()).extracting("outcome").containsExactly(SecurityAuditOutcome.FAILURE);
   }
 
   @Test
@@ -98,6 +148,13 @@ class UserAccountAuditServiceTest {
   private void stubUsers(Map<String, CellData>... rows) throws AWException {
     when(queryService.launchPrivateQuery(eq(UserAccountAuditService.USER_STATUS_QUERY), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(dataList(rows)));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> ObjectProvider<T> provider(T bean) {
+    ObjectProvider<T> provider = mock(ObjectProvider.class);
+    lenient().when(provider.getIfAvailable()).thenReturn(bean);
+    return provider;
   }
 
   @SafeVarargs

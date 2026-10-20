@@ -148,6 +148,7 @@ class ExpiredPasswordChangeTest extends AbstractSpringFixedEnvironmentIT {
       .andExpect(jsonPath("$[?(@.type=='message')].parameters.message",
         hasItem("Password changed. Sign in with the new password.")))
       .andExpect(jsonPath("$[?(@.type=='screen')].target", hasItem("/")));
+    assertStoredWithTheConfiguredEncoder();
 
     // Still no session, and the request cannot be used twice
     privateRequest(session).andExpect(status().isUnauthorized());
@@ -226,6 +227,21 @@ class ExpiredPasswordChangeTest extends AbstractSpringFixedEnvironmentIT {
       .andExpect(jsonPath("$[?(@.type=='message')].parameters.message",
         hasItem("The password change is not available or has expired. Sign in again to change the password.")));
     assertPasswordUnchanged();
+  }
+
+  /**
+   * The new password is stored with BCrypt, the configured encoder, and the old unsalted copy (OpePas) is not written
+   */
+  private void assertStoredWithTheConfiguredEncoder() throws Exception {
+    try (Connection connection = dataSource.getConnection();
+         PreparedStatement statement = connection.prepareStatement("SELECT l1_pas, OpePas FROM ope WHERE l1_nom = ?")) {
+      statement.setString(1, CHANGED_USER);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        assertTrue(resultSet.next());
+        assertTrue(resultSet.getString(1).startsWith("{bcrypt}"));
+        assertEquals(String.valueOf(originalOpePassword), String.valueOf(resultSet.getString(2)));
+      }
+    }
   }
 
   private void assertPasswordUnchanged() throws Exception {

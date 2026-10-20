@@ -912,21 +912,7 @@ public class MaintainService extends ServiceConfig {
 
           // If variable is a string, ignore case it
           Variable variable = origin.getVariableDefinition(field.getVariable());
-          switch (ParameterType.valueOf(variable.getType())) {
-            case STRING:
-            case STRINGB:
-            case STRINGL:
-            case STRINGR:
-            case STRING_HASH_RIPEMD160:
-            case STRING_HASH_SHA:
-            case STRING_HASH_PBKDF_2_W_HMAC_SHA_1:
-            case STRING_ENCRYPT:
-              filter.setIgnoreCase(true);
-              break;
-            default:
-              filter.setIgnoreCase(false);
-              break;
-          }
+          filter.setIgnoreCase(isCaseInsensitiveKey(ParameterType.valueOf(variable.getType())));
 
           // Add new filter to filter list
           filterList.add(filter);
@@ -939,6 +925,20 @@ public class MaintainService extends ServiceConfig {
 
     // Set the filter group list to query
     maintainQuery.setFilterGroup(filterGroup);
+  }
+
+  /**
+   * Check if a key filter of a multiple maintain ignores the case of the variable (text variables)
+   *
+   * @param type Variable type
+   * @return true if the filter ignores the case
+   */
+  static boolean isCaseInsensitiveKey(ParameterType type) {
+    return switch (type) {
+      case STRING, STRINGB, STRINGL, STRINGR, STRING_HASH_RIPEMD160, STRING_HASH_PASSWORD, STRING_HASH_SHA,
+           STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_ENCRYPT -> true;
+      default -> false;
+    };
   }
 
   /**

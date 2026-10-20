@@ -91,6 +91,19 @@ class SecurityAuditAccountTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
+  @DisplayName("A password change with the current password is audited as a success and stores a BCrypt hash")
+  void passwordChangeWithCurrentPassword() throws Exception {
+    Instant start = Instant.now().minusSeconds(1);
+
+    maintain("ChdPwdPub", "{\"Usr\":\"" + USER + "\",\"OldPas\":\"test\",\"Pas\":\"newpass1\",\"max\":30}")
+      .andExpect(status().isOk());
+
+    assertThat(string(support.user(USER).get("L1_PAS"))).startsWith("{bcrypt}");
+    assertThat(support.events(USER, start)).extracting(event -> event.substring(0, event.lastIndexOf('/')))
+      .containsExactly("PASSWORD_CHANGE/SUCCESS/null");
+  }
+
+  @Test
   @DisplayName("A REST login issues a token and a wrong token is rejected")
   void restTokens() throws Exception {
     Instant start = Instant.now().minusSeconds(1);

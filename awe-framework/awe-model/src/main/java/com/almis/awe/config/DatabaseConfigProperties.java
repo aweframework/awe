@@ -34,6 +34,14 @@ public class DatabaseConfigProperties {
   private int limitLogSize = 0;
 
   /**
+   * Columns whose values are masked in the SQL written to the logs and to query errors (case-insensitive).
+   * The value written to or compared with these columns is shown as '********'. The values of hashed and encrypted
+   * variables (STRING_HASH_*, STRING_ENCRYPT) are always masked.
+   * Default value l1_pas
+   */
+  private String[] logMaskedFields = {"l1_pas"};
+
+  /**
    * Enable multi database. Enable a custom datasource to allow connections to multiple database.
    * Default value false
    */

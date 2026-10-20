@@ -3,6 +3,7 @@ package com.almis.awe.autoconfigure;
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.config.LockoutConfigProperties;
 import com.almis.awe.config.SecurityAuditConfigProperties;
+import com.almis.awe.dao.UserDAO;
 import com.almis.awe.security.audit.DatabaseSecurityAuditSink;
 import com.almis.awe.security.audit.LogSecurityAuditSink;
 import com.almis.awe.security.audit.LoginAttemptService;
@@ -23,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
 import java.time.Clock;
@@ -147,13 +149,16 @@ public class SecurityAuditConfig {
    * @param securityAuditService Security audit service
    * @param queryService         Query service
    * @param loginAttemptService  Login attempt service
+   * @param userDAO              User DAO
+   * @param passwordEncoder      Password encoder
    * @return User account audit service
    */
   @Bean
   @ConditionalOnMissingBean
   public UserAccountAuditService userAccountAuditService(SecurityAuditService securityAuditService, QueryService queryService,
-                                                         LoginAttemptService loginAttemptService) {
-    return new UserAccountAuditService(securityAuditService, queryService, loginAttemptService);
+                                                         LoginAttemptService loginAttemptService, ObjectProvider<UserDAO> userDAO,
+                                                         ObjectProvider<PasswordEncoder> passwordEncoder) {
+    return new UserAccountAuditService(securityAuditService, queryService, loginAttemptService, userDAO, passwordEncoder);
   }
 
   /**

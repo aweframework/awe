@@ -29,7 +29,7 @@
       <tag type="h3" label="SCREEN_TEXT_CHANGE_PWD"/>
       <tag type="hr" style="no-margin-t"/>
       <tag id="update-password" type="div">
-        <criteria label="PARAMETER_OLD_PASSWD" component="password" id="OldPas" validation="{eq:{criterion:'oldPassword', message:'VALIDATOR_MESSAGE_OLD_PASSWORD'}}" icon="key" />
+        <criteria label="PARAMETER_OLD_PASSWD" component="password" id="OldPas" icon="key" />
         <criteria label="PARAMETER_NEW_PASSWD" component="password" id="Pas" validation="{pattern:{setting:'passwordPattern'}, ne:{criterion:'OldPas', message:'VALIDATOR_MESSAGE_REPEAT_OLD_PASSWORD'}, minlength:{setting:'minlengthPassword'}}"
                   icon="key" />
         <criteria label="PARAMETER_RETYPE_PASSWD" component="password" id="RetPas" validation="{eq:{criterion:'Pas', message:'VALIDATOR_MESSAGE_REPEAT_PASSWORD'}}" icon="key"/>

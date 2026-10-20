@@ -14,8 +14,8 @@ my.encoded.password=ENC(Pit1Q1bNt3uNQpZbldKbLg==)
 
 ---
 
-> :information_source: The master key used to encode the properties is the `awe.security.master-key` property from `security.properties` file.
-> You can overwrite it on your own `application.properties` file.
+> :information_source: The master key used to encode the properties is the `awe.security.master-key` property. It is required and has no
+> default value: set it in your own `application.properties` file or in the environment.
 
 ---
 

@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -147,7 +148,7 @@ class SQLMaintainConnectorTest {
     when(sqlMaintainBuilder.setVariables(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.setParameters(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
-    when(queryUtil.getFullSQL(any(), any())).thenReturn("insert sql");
+    when(queryUtil.getFullSQL(any(), any(), any())).thenReturn("insert sql");
     when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings("insert (dummy) values (value)", Collections.emptyList())));
 
     // Do
@@ -178,7 +179,7 @@ class SQLMaintainConnectorTest {
     when(sqlMaintainBuilder.setVariables(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.setParameters(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
-    when(queryUtil.getFullSQL(any(), any())).thenReturn("insert sql");
+    when(queryUtil.getFullSQL(any(), any(), any())).thenReturn("insert sql");
     when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings("insert (dummy) values (value)", Collections.emptyList())));
 
     // Do
@@ -216,7 +217,7 @@ class SQLMaintainConnectorTest {
     when(sqlMaintainBuilder.setParameters(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
     when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings(placeholderSql, Collections.singletonList("John"))));
-    when(queryUtil.getFullSQL(placeholderSql, Collections.singletonList("John"))).thenReturn(fullSql);
+    when(queryUtil.getFullSQL(placeholderSql, Collections.singletonList("John"), Collections.emptySet())).thenReturn(fullSql);
     when(abstractSQLClause.execute()).thenThrow(expectedCause);
 
     AWEQueryException exception = assertThrows(AWEQueryException.class,
@@ -225,7 +226,44 @@ class SQLMaintainConnectorTest {
     assertEquals(fullSql, exception.getQuery());
     assertEquals(expectedCause, exception.getCause());
     assertTrue(exception.getQuery().contains("'John'"));
-    verify(queryUtil).getFullSQL(placeholderSql, Collections.singletonList("John"));
+    verify(queryUtil).getFullSQL(placeholderSql, Collections.singletonList("John"), Collections.emptySet());
+  }
+
+  @Test
+  void givenExecutionFailure_wrapsExceptionWithMaskedSql() throws AWException {
+
+    Insert insertMaintain = new Insert();
+    insertMaintain.setId("UsrRehashPwd");
+    insertMaintain.setOperationId("UsrRehashPwd");
+    insertMaintain.setVariableIndex(0);
+
+    String placeholderSql = "update ope set l1_pas = ? where l1_nom = ?";
+    List<Object> bindings = List.of("{bcrypt}$2a$10$hash", "pvidal");
+    Set<String> maskedValues = Set.of("{bcrypt}$2a$10$hash");
+    String maskedSql = "update ope set l1_pas = '********' where l1_nom = 'pvidal'";
+
+    when(queryUtil.getDefaultVariableMap(any())).thenReturn(new HashMap<>());
+    when(databaseConfigProperties.isAuditEnable()).thenReturn(false);
+    when(context.getBean(SQLMaintainBuilder.class)).thenReturn(sqlMaintainBuilder);
+    mockConfigurationBean();
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("translated");
+    when(sqlMaintainBuilder.setMaintain(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setVariableIndex(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setOperation(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setFactory(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setVariables(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setParameters(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
+    when(sqlMaintainBuilder.getLogMaskedValues()).thenReturn(maskedValues);
+    when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings(placeholderSql, bindings)));
+    when(queryUtil.getFullSQL(placeholderSql, bindings, maskedValues)).thenReturn(maskedSql);
+    when(abstractSQLClause.execute()).thenThrow(new RuntimeException("db failure"));
+
+    AWEQueryException exception = assertThrows(AWEQueryException.class,
+      () -> sqlMaintainConnector.launch(insertMaintain, databaseConnection, objectMapper.createObjectNode()));
+
+    assertEquals(maskedSql, exception.getQuery());
   }
 
   @Test
@@ -319,7 +357,7 @@ class SQLMaintainConnectorTest {
     when(sqlMaintainBuilder.setVariableIndex(any())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.setAudit(anyBoolean())).thenReturn(sqlMaintainBuilder);
     when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
-    when(queryUtil.getFullSQL(any(), any())).thenReturn("insert sql");
+    when(queryUtil.getFullSQL(any(), any(), any())).thenReturn("insert sql");
     when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings("insert (dummy) values (value)", Collections.emptyList())));
 
     ServiceData maintainOut = sqlMaintainConnector.launch(insertMaintain, databaseConnection, JsonNodeFactory.instance.objectNode());

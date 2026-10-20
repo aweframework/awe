@@ -1,6 +1,7 @@
 package com.almis.awe.config;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -17,10 +18,21 @@ import java.util.List;
 @Data
 public class SecurityConfigProperties {
   /**
-   * Master key used in encryption process.
-   * Default value B1Le3s%25abc75TeBe05
+   * Master key of AWE 4 and earlier, used when {@code awe.security.master-key} was not configured. Applications
+   * upgraded from AWE 4 that never configured the master key keep their stored data encrypted with it, so they must
+   * set it explicitly to keep decrypting that data, and rotate it afterwards.
    */
-  private String masterKey = "B1Le3s%25abc75TeBe05";
+  public static final String LEGACY_MASTER_KEY = "B1Le3s%25abc75TeBe05";
+
+  /**
+   * Master key used to encrypt stored data (encrypted parameters and properties). Required: there is no default value.
+   * Applications upgraded from AWE 4 that never configured it must set the former default value (see the AWE 5
+   * migration guide) to keep decrypting their stored data, and rotate it afterwards.
+   */
+  @NotBlank(message = "awe.security.master-key is required: it encrypts stored data (encrypted parameters and "
+    + "properties). Applications upgraded from AWE 4 that never configured it must set the former default value "
+    + "(see the AWE 5 migration guide) to keep decrypting their stored data, then rotate it.")
+  private String masterKey;
   /**
    * Enable json encryption in between client-server
    */
@@ -60,6 +72,15 @@ public class SecurityConfigProperties {
    * Default value .*
    */
   private int passwordMinLength = 4;
+
+  /**
+   * Algorithm used to hash new user passwords: {@code bcrypt} or {@code ripemd160}.
+   * Stored hashes of every algorithm keep validating, and with {@code bcrypt} the legacy RIPEMD-160 hashes are rehashed
+   * on the next successful login. Set {@code ripemd160} only when the application's own XML descriptors or external
+   * systems compare the stored hash ({@code ope.l1_pas}) and cannot be adapted yet.
+   * Default value bcrypt
+   */
+  private PasswordEncoderType passwordEncoder = PasswordEncoderType.BCRYPT;
 
   /**
    * Authentication mode

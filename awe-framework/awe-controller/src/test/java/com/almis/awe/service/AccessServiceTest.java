@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
@@ -19,6 +20,7 @@ import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.SecondFactorStatusType;
 import com.almis.awe.security.audit.RecordingSecurityAudit;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import org.jetbrains.annotations.NotNull;
@@ -340,6 +342,58 @@ class AccessServiceTest {
     when(encodeService.encryptRipEmd160WithPhraseKey("test", "4W3M42T3RK3Y%$ED")).thenReturn("encrypted-text");
     ServiceData serviceData = accessService.encryptText("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
+  }
+
+  @Test
+  void hashPassword_returnsTheHashOfTheConfiguredEncoder() throws AWException {
+    when(encodeService.encodePassword("test")).thenReturn("{bcrypt}$2a$10$hash");
+    ServiceData serviceData = accessService.hashPassword("test", "");
+    assertEquals(1, serviceData.getDataList().getRows().size());
+    assertEquals("{bcrypt}$2a$10$hash", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+  }
+
+  @Test
+  void hashPassword_withoutText_returnsAnEmptyValue() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("", "ripemd160");
+    assertEquals("", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void hashPassword_withTheLegacyAlgorithm_returnsTheAwe4Hash() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("test", "ripemd160");
+    assertEquals("5e52fee47e6b070565f74372468cdc699de89107", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void hashPassword_withBcrypt_returnsAValidBcryptHash() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("test", "BCRYPT");
+    String hash = serviceData.getDataList().getRows().get(0).get("encoded").getStringValue();
+    assertThat(hash).startsWith("{bcrypt}$2");
+    assertThat(new AwePasswordEncoder(PasswordEncoderType.BCRYPT).matches("test", hash)).isTrue();
+  }
+
+  @Test
+  void hashPassword_withAnUnknownAlgorithm_isRejected() {
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    assertThrows(AWException.class, () -> accessService.hashPassword("test", "md5"));
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void passwordAlgorithms_listTheConfiguredAlgorithmFirst() {
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.RIPEMD160);
+    ServiceData serviceData = accessService.getPasswordAlgorithms();
+    assertThat(serviceData.getDataList().getRows())
+      .extracting(row -> row.get("value").getStringValue())
+      .containsExactly("ripemd160", "bcrypt");
+
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.BCRYPT);
+    assertThat(accessService.getPasswordAlgorithms().getDataList().getRows())
+      .extracting(row -> row.get("value").getStringValue())
+      .containsExactly("bcrypt", "ripemd160");
   }
 
   @Test

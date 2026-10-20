@@ -7,6 +7,7 @@ import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.maintain.Serve;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
+import com.almis.awe.model.type.ParameterType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -471,5 +473,68 @@ class QueryUtilTest {
         Arrays.asList("one", "two"));
 
     assertEquals("select * from table where first = 'one'", fullSql);
+  }
+
+  /**
+   * Test password and legacy hash variables keep the raw text: they are hashed when the statement is built
+   */
+  @Test
+  void testHashedStringParametersKeepTheRawText() throws Exception {
+    for (ParameterType type : List.of(ParameterType.STRING_HASH_PASSWORD, ParameterType.STRING_HASH_RIPEMD160)) {
+      assertEquals("secret", queryUtil.getParameter("secret", null, type, "password").asString(), type.name());
+      assertEquals("typed", queryUtil.getParameter(null, JsonNodeFactory.instance.textNode("typed"), type, "password").asString(), type.name());
+    }
+  }
+  /**
+   * Test full SQL masks the bindings whose value is sensitive and keeps the rest
+   */
+  @Test
+  void testGetFullSqlMasksSensitiveBindings() {
+    String fullSql = queryUtil.getFullSQL(
+        "update ope set l1_pas = ?, l1_nom = ? where IdeOpe = ?",
+        Arrays.asList("{bcrypt}$2a$10$hash", "pvidal", 7),
+        Set.of("{bcrypt}$2a$10$hash"));
+
+    assertEquals("update ope set l1_pas = '********', l1_nom = 'pvidal' where IdeOpe = 7", fullSql);
+  }
+
+  /**
+   * Test full SQL masks sensitive values rendered as literals (queries are built with literals)
+   */
+  @Test
+  void testGetFullSqlMasksSensitiveLiterals() {
+    String fullSql = queryUtil.getFullSQL(
+        "select l1_nom from ope where l1_pas = 'O''Hash' and l1_nom = 'pvidal' and Des = '?'",
+        Collections.emptyList(),
+        Set.of("O'Hash"));
+
+    assertEquals("select l1_nom from ope where l1_pas = '********' and l1_nom = 'pvidal' and Des = '?'", fullSql);
+  }
+
+  /**
+   * Test full SQL masks sensitive values inside a list binding (IN filters)
+   */
+  @Test
+  void testGetFullSqlMasksSensitiveValuesInsideListBindings() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from ope where l1_pas in (?)",
+        Collections.singletonList(List.of("secret-hash", "other")),
+        Set.of("secret-hash"));
+
+    assertEquals("select * from ope where l1_pas in ('********', 'other')", fullSql);
+  }
+
+  /**
+   * Test full SQL without sensitive values renders as the unmasked variant, unterminated literals included
+   */
+  @Test
+  void testGetFullSqlWithoutSensitiveValuesKeepsTheStatement() {
+    String sql = "select * from table where first = ? and second = 'it''s ?' and third = 'open ?";
+    List<Object> bindings = Arrays.asList("one", "two");
+
+    assertEquals(queryUtil.getFullSQL(sql, bindings), queryUtil.getFullSQL(sql, bindings, Set.of()));
+    assertEquals(queryUtil.getFullSQL(sql, bindings), queryUtil.getFullSQL(sql, bindings, null));
+    assertEquals("select * from table where first = 'one' and second = 'it''s ?' and third = 'open ?",
+        queryUtil.getFullSQL(sql, bindings, Set.of("two")));
   }
 }

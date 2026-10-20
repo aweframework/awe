@@ -2,8 +2,8 @@
   "properties": [
     {
       "name": "awe.rest.api.jwt.secret",
-      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master.key).",
-      "defaultValue": "${awe.security.master.key}"
+      "description": "JWT secret used to sign the tokens. Defaults to the AWE master key (awe.security.master-key), or to the legacy awe.security.master.key when it is set.",
+      "defaultValue": "${awe.security.master-key}"
     },
     {
       "name": "awe.rest.api.oauth2-resource-server.principal.delegated-username-claims",

@@ -51,7 +51,7 @@ Este módulo admite dos modos de autenticación REST:
 | `awe.rest.api.auth.mode` | `local-jwt` | Modo de autenticación REST (`local-jwt` u `oauth2-resource-server`) |
 | `awe.rest.api.jwt.authorization-header` | `Authorization` | Nombre de la cabecera de autenticación |
 | `awe.rest.api.jwt.prefix` | `Bearer` | Prefijo del token JWT |
-| `awe.rest.api.jwt.secret` | `${awe.security.master.key}` | Secreto JWT para la firma de tokens locales |
+| `awe.rest.api.jwt.secret` | La clave maestra (`awe.security.master.key` si está definida; si no, `awe.security.master-key`) | Secreto JWT para la firma de tokens locales |
 | `awe.rest.api.jwt.issuer` | `AWE ISSUER` | Emisor del JWT local |
 | `awe.rest.api.jwt.expiration-time` | `60m` | Expiración del JWT local |
 

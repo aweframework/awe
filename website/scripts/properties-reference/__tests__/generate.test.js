@@ -78,7 +78,8 @@ test('the generated page hides the internal hikari maps and has no leftover defa
 	assert.ok(!page.includes('spring.datasource.hikari.data-sources'));
 	const rows = page.split('\n').filter((line) => line.startsWith('| <Anchor'));
 	assert.ok(rows.length > 250);
-	assert.deepEqual(rows.filter((row) => /default value/i.test(row)), []);
+	// The leftover sentence is the capitalized "Default value x" of the Javadoc; prose such as "the former default value" is kept
+	assert.deepEqual(rows.filter((row) => /(?:^|\s)(?:The )?Default value/.test(row)), []);
 });
 
 test('generate refuses to overwrite a hand-written page without the marker', () => {

@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.TotpConfigProperties;
@@ -20,6 +21,7 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +69,8 @@ public class AccessService extends ServiceConfig {
 
   public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
   public static final String UPDATE_OAUTH_ROLE = "UpdateOauthUserProfile";
+  // Column of the encrypted and hashed values returned to the Encrypt util screen
+  private static final String ENCODED_COLUMN = "encoded";
   /** Request attribute holding the user name of an SSO login refused by AWE, for the security audit */
   public static final String SSO_REJECTED_USERNAME_ATTRIBUTE = AccessService.class.getName() + ".ssoRejectedUsername";
 
@@ -575,7 +579,58 @@ public class AccessService extends ServiceConfig {
     // Encode the text
     String textEncrypted = encodeService.encryptRipEmd160WithPhraseKey(textToEncrypt, phraseKey);
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, textEncrypted);
+    return new ServiceData()
+      .setDataList(dataList);
+  }
+
+  /**
+   * Hashes a password as the standard user screens store it in {@code ope.l1_pas}, with the given algorithm or, without
+   * it, with the configured password encoder. The result keeps the format of the algorithm (for example the
+   * {@code {bcrypt}} prefix, or the bare AWE 4 RIPEMD-160 hash), so it can be inserted into the database as is
+   *
+   * @param password  password to hash
+   * @param algorithm password algorithm ({@code bcrypt} or {@code ripemd160}); empty for the configured one
+   * @return Service Data with the password hash (empty without password)
+   * @throws AWException the algorithm is not a password algorithm
+   */
+  public ServiceData hashPassword(String password, String algorithm) throws AWException {
+    PasswordEncoderType type = null;
+    if (StringUtils.isNotBlank(algorithm)) {
+      try {
+        type = PasswordEncoderType.valueOf(algorithm.trim().toUpperCase(Locale.ROOT));
+      } catch (IllegalArgumentException exc) {
+        throw new AWException(getLocale("ERROR_TITLE_PASSWORD_HASH"), getLocale("ERROR_MESSAGE_PASSWORD_ALGORITHM"), AnswerType.WARNING);
+      }
+    }
+    String hash;
+    if (StringUtils.isEmpty(password)) {
+      hash = "";
+    } else if (type == null) {
+      hash = encodeService.encodePassword(password);
+    } else {
+      hash = new AwePasswordEncoder(type).encode(password);
+    }
+    DataList dataList = new DataList();
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, hash);
+    return new ServiceData()
+      .setDataList(dataList);
+  }
+
+  /**
+   * Password algorithms that {@link #hashPassword(String, String)} accepts, the configured one first so that it is the
+   * one selected by default
+   *
+   * @return Service Data with the algorithms (value and label)
+   */
+  public ServiceData getPasswordAlgorithms() {
+    PasswordEncoderType configured = securityConfigProperties.getPasswordEncoder();
+    List<PasswordEncoderType> types = new ArrayList<>(List.of(PasswordEncoderType.values()));
+    types.remove(configured);
+    types.add(0, configured);
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "value", types.stream().map(type -> type.name().toLowerCase(Locale.ROOT)).toList());
+    DataListUtil.addColumn(dataList, "label", types.stream().map(type -> type == PasswordEncoderType.BCRYPT ? "BCrypt" : "RIPEMD-160 (AWE 4)").toList());
     return new ServiceData()
       .setDataList(dataList);
   }
@@ -597,7 +652,7 @@ public class AccessService extends ServiceConfig {
     // Encode the text
     String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, textEncrypted);
     return new ServiceData()
       .setDataList(dataList);
   }

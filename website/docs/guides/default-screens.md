@@ -147,6 +147,17 @@ on the `Text` criterion and push the `Encrypt` button. You will have filled the 
 text you need to add in database encrypted columns and the `Encrypted property` which is the encrypted text to be used 
 in `application.properties` file values.
 
+The `Password hash` field shows the text hashed with the algorithm selected in `Password algorithm`, in the format
+stored in `ope.l1_pas`. Use it to write scripts that insert users: the value goes as is into `ope.l1_pas`.
+
+| Password algorithm | Result |
+|---|---|
+| BCrypt | `{bcrypt}$2a$...` (68 characters). BCrypt hashes are salted, so each click gives a different hash, and all of them validate the same password |
+| RIPEMD-160 (AWE 4) | The AWE 4 hash, 40 hexadecimal characters without prefix, for databases or systems that still need it |
+
+The configured algorithm (`awe.security.password-encoder`) is selected by default. The `Phrase key` does not change the
+password hash.
+
 <img alt="Encrypt util" src={require('@docusaurus/useBaseUrl').default('img/EncryptManagerScreen.png')} />
 
 ## Screen configuration

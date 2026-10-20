@@ -25,8 +25,11 @@ import tools.jackson.databind.JsonNode;
 import java.sql.Clob;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.almis.awe.model.type.ParameterType.LIST_TO_STRING;
 
@@ -44,9 +47,59 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   private static final String ERROR_MESSAGE_UNSUPPORTED_FUNCTION = "ERROR_MESSAGE_UNSUPPORTED_FUNCTION";
   private static final String ERROR_MESSAGE_UNSUPPORTED_CAST = "ERROR_MESSAGE_UNSUPPORTED_CAST";
 
+  /**
+   * Collects the non-empty string constants of an expression. Subqueries keep their own values.
+   */
+  private static final Visitor<Void, Set<String>> LOG_MASKED_VALUES_COLLECTOR = new Visitor<>() {
+    @Override
+    public Void visit(com.querydsl.core.types.Constant<?> expression, Set<String> values) {
+      if (expression.getConstant() instanceof String value && !value.isEmpty()) {
+        values.add(value);
+      }
+      return null;
+    }
+
+    @Override
+    public Void visit(FactoryExpression<?> expression, Set<String> values) {
+      expression.getArgs().forEach(argument -> argument.accept(this, values));
+      return null;
+    }
+
+    @Override
+    public Void visit(com.querydsl.core.types.Operation<?> expression, Set<String> values) {
+      expression.getArgs().forEach(argument -> argument.accept(this, values));
+      return null;
+    }
+
+    @Override
+    public Void visit(ParamExpression<?> expression, Set<String> values) {
+      return null;
+    }
+
+    @Override
+    public Void visit(Path<?> expression, Set<String> values) {
+      return null;
+    }
+
+    @Override
+    public Void visit(SubQueryExpression<?> expression, Set<String> values) {
+      return null;
+    }
+
+    @Override
+    public Void visit(TemplateExpression<?> expression, Set<String> values) {
+      expression.getArgs().stream()
+        .filter(Expression.class::isInstance)
+        .forEach(argument -> ((Expression<?>) argument).accept(this, values));
+      return null;
+    }
+  };
+
   private SQLQueryFactory factory;
   private final EncodeService encodeService;
   private final Clock clock = Clock.systemDefaultZone();
+  private final Set<String> logMaskedFields = new HashSet<>();
+  private final Set<String> logMaskedValues = new HashSet<>();
 
   /**
    * Autowired constructor
@@ -80,6 +133,55 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   }
 
   /**
+   * Sets the columns whose values must be masked in the logged SQL (case-insensitive)
+   *
+   * @param fields Column names
+   * @return this
+   */
+  public SQLBuilder setLogMaskedFields(String... fields) {
+    logMaskedFields.clear();
+    if (fields != null) {
+      for (String field : fields) {
+        logMaskedFields.add(field.toLowerCase(Locale.ROOT));
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Retrieve the values the statement binds that must be masked in the logged SQL: the values of hashed and
+   * encrypted variables and the values written to or compared with the masked columns
+   *
+   * @return Values to mask
+   */
+  public Set<String> getLogMaskedValues() {
+    return logMaskedValues;
+  }
+
+  /**
+   * Check whether a column is one of the masked columns
+   *
+   * @param field Column name
+   * @return Column values must be masked
+   */
+  protected boolean isLogMaskedField(String field) {
+    return field != null && logMaskedFields.contains(field.toLowerCase(Locale.ROOT));
+  }
+
+  /**
+   * Keep the string values of an expression to mask them in the logged SQL
+   *
+   * @param expression Expression
+   * @return The same expression
+   */
+  protected Expression addLogMaskedValues(Expression<?> expression) {
+    if (expression != null) {
+      expression.accept(LOG_MASKED_VALUES_COLLECTOR, logMaskedValues);
+    }
+    return expression;
+  }
+
+  /**
    * Generates a SQLQuery as a subquery
    *
    * @param queryId Id of the query to generate
@@ -88,11 +190,14 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    */
   protected SQLQuery<Tuple> getSubquery(String queryId) throws AWException {
     SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
-    return builder
+    builder.setLogMaskedFields(logMaskedFields.toArray(new String[0]));
+    SQLQuery<Tuple> subquery = builder
       .setQuery(getElements().getQuery(queryId).copy())
       .setFactory(getFactory())
       .setParameters(getParameters())
       .build();
+    logMaskedValues.addAll(builder.getLogMaskedValues());
+    return subquery;
   }
 
   /**
@@ -556,6 +661,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         return Expressions.currentTimestamp();
       case STRING:
       case STRING_HASH_RIPEMD160:
+      case STRING_HASH_PASSWORD:
       case STRING_HASH_SHA:
       case STRING_ENCRYPT:
       case STRING_HASH_PBKDF_2_W_HMAC_SHA_1:
@@ -588,15 +694,18 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     }
 
     // Act selecting the variable type
+    // Hashed and encrypted values are never written to the logs
     switch (type) {
       case STRING_HASH_RIPEMD160:
-        return getStringExpression(EncodeService.encodeRipEmd160(value));
+        return addLogMaskedValues(getStringExpression(EncodeService.encodeRipEmd160(value)));
+      case STRING_HASH_PASSWORD:
+        return addLogMaskedValues(getStringExpression(encodeService.encodePassword(value)));
       case STRING_HASH_SHA:
-        return getStringExpression(encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, value));
+        return addLogMaskedValues(getStringExpression(encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, value)));
       case STRING_HASH_PBKDF_2_W_HMAC_SHA_1:
-        return getStringExpression(encodeService.encodePBKDF2WithHmacSHA1(value));
+        return addLogMaskedValues(getStringExpression(encodeService.encodePBKDF2WithHmacSHA1(value)));
       case STRING_ENCRYPT:
-        return getStringExpression(encodeService.encryptRipEmd160(value));
+        return addLogMaskedValues(getStringExpression(encodeService.encryptRipEmd160(value)));
       case STRING:
       default:
         return getStringExpression(value);
@@ -746,6 +855,14 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         return null;
       }
 
+      // The value compared with a masked column is never written to the logs
+      if (isLogMaskedField(getFilterFieldId(filter.getLeftOperand(), filter.getLeftField()))) {
+        addLogMaskedValues(secondOperand);
+      }
+      if (isLogMaskedField(getFilterFieldId(filter.getRightOperand(), filter.getRightField()))) {
+        addLogMaskedValues(firstOperand);
+      }
+
       // Create the condition for the comparison and execute
       return SqlFilterConditions.condition(filter.getCondition().toLowerCase(), filter.isIgnoreCase(), firstOperand,
         secondOperand);
@@ -755,6 +872,18 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       throw new AWException(getLocale(ERROR_TITLE_GENERATING_FILTER),
         getLocale("ERROR_MESSAGE_GENERATING_FILTER", filter.toString()), exc);
     }
+  }
+
+  /**
+   * Retrieve the column of a filter side, from its operand or from its field
+   *
+   * @param operand Filter operand
+   * @param fieldId Filter field
+   * @return Column name
+   */
+  private String getFilterFieldId(TransitionField operand, String fieldId) {
+    SqlField field = getSqlFieldFromTransition(operand);
+    return field == null ? fieldId : field.getId();
   }
 
   /**

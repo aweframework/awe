@@ -219,7 +219,7 @@ step-by-step setup with Keycloak and Entra ID is in the [IdP-first guide](idp-fi
 | Local login stays active under SSO (default). | Set `awe.security.sso.local-login=false` and treat every break-glass login in the log as a monitored exception. |
 | Default role can grant access to users with no role. | Keep `awe.application.default-role` **unprivileged** (never an administrative profile); keep the fail-closed default of IdP-first, or set `awe.security.sso.require-role=true`. |
 | Several roles carry the prefix. | The first name in alphabetical order that exists as an AWE profile wins; send a single prefixed role per user when the choice matters. |
-| Client secrets in configuration files. | Inject them from environment variables or a secret vault; if you use `ENC(...)` encrypted properties, replace the default `awe.security.master-key`. Never commit secrets. |
+| Client secrets in configuration files. | Inject them from environment variables or a secret vault; `awe.security.master-key` is required and has no default: set a secret value per environment, and rotate it if the application still uses the published AWE 4 value (see [Master key](../guides/v5-migration.md#master-key)). Never commit secrets. |
 | Wrong or spoofed provider. | Set `issuer-uri` explicitly and over HTTPS; Spring Security validates the issuer, audience, expiry and nonce of the ID token. For Entra ID prefer a single-tenant app registration. Keep redirect URIs exact (no wildcards in production). |
 | Open tenant resolution. | Declare explicit `tenant-mappings`; keep user names unique across tenants. |
 | Second factor not enforced. | AWE TOTP does not run on the SSO path; enforce MFA in the provider. |

@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
@@ -28,7 +30,7 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.*
  * @author pvidal
  */
 @Slf4j
-public class AweUserDetailService extends ServiceConfig implements UserDetailsService {
+public class AweUserDetailService extends ServiceConfig implements UserDetailsService, UserDetailsPasswordService {
 
   // Autowired services
   private final UserDAO userRepository;
@@ -55,6 +57,31 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
 
     // Build User details
     return getAweUserDetails(user);
+  }
+
+  /**
+   * Store the password hash of a user rehashed with the configured algorithm after a successful login. A failed update
+   * never breaks the login: the user keeps the current hash and signs in again next time with it
+   *
+   * @param user        User details
+   * @param newPassword New password hash
+   * @return User details with the new password hash, or the same user details when it has not been stored
+   */
+  @Override
+  public UserDetails updatePassword(UserDetails user, String newPassword) {
+    boolean updated;
+    try {
+      updated = userRepository.updatePassword(user.getUsername(), newPassword);
+    } catch (RuntimeException exc) {
+      // The exception is not logged: its message may carry the new hash
+      updated = false;
+    }
+    if (!updated) {
+      log.warn("The password of user {} could not be rehashed with the configured algorithm. It keeps the current hash", user.getUsername());
+      return user;
+    }
+    log.info("The password of user {} has been rehashed with the configured algorithm", user.getUsername());
+    return user instanceof AweUserDetails aweUser ? aweUser.setPassword(newPassword) : user;
   }
 
   public AweUserDetails loadUserByEmail(String email) {

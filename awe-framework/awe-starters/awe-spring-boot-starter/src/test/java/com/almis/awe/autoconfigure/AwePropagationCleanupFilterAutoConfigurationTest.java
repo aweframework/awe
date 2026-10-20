@@ -77,6 +77,7 @@ class AwePropagationCleanupFilterAutoConfigurationTest {
       .withConfiguration(AutoConfigurations.of(AweAutoConfiguration.class))
       .withPropertyValues(
           "awe.application.module-list=awe",
+          "awe.security.master-key=test-master-key",
           "spring.cache.type=NONE",
           "awe.database.enabled=false"
       )

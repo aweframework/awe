@@ -41,6 +41,19 @@
       <service-parameter type="STRING" name="password" />
     </java>
   </service>
+  <service id="changePasswordWithCurrent">
+    <java classname="com.almis.awe.service.user.CurrentPasswordChangeService" method="changePassword">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="currentPassword" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
+  <service id="changeOwnPassword">
+    <java classname="com.almis.awe.service.user.CurrentPasswordChangeService" method="changeOwnPassword">
+      <service-parameter type="STRING" name="currentPassword" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
   <service id="verify2faCode">
     <java classname="com.almis.awe.service.AccessService" method="verify2faCode">
       <service-parameter type="STRING" name="code" />
@@ -54,6 +67,15 @@
       <service-parameter type="STRING" name="text" />
       <service-parameter type="STRING" name="phraseKey" />
     </java>
+  </service>
+  <service id="SerHasPwd">
+    <java classname="com.almis.awe.service.AccessService" method="hashPassword">
+      <service-parameter type="STRING" name="text" />
+      <service-parameter type="STRING" name="algorithm" />
+    </java>
+  </service>
+  <service id="SerPwdAlg">
+    <java classname="com.almis.awe.service.AccessService" method="getPasswordAlgorithms" />
   </service>
   <service id="SerEncPpt">
     <java classname="com.almis.awe.service.AccessService" method="encryptProperty">

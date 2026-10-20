@@ -122,20 +122,6 @@
     <variable id="IdeOpe" type="INTEGER" name="IdeOpe" />
   </query>
 
-  <!-- Users whose password is the given one (security audit of password changes) -->
-  <query id="UsrChkPwd">
-    <table id="ope" />
-    <field id="l1_nom" alias="user" />
-    <where>
-      <and>
-        <filter left-field="l1_nom" left-table="ope" condition="eq" right-variable="Usr" trim="true" />
-        <filter left-field="l1_pas" left-table="ope" condition="eq" right-variable="Pas" ignorecase="true" />
-      </and>
-    </where>
-    <variable id="Usr" type="STRING" name="Usr" />
-    <variable id="Pas" type="STRING_HASH_RIPEMD160" name="Pas" />
-  </query>
-
   <!-- Consecutive failed logins of a user (automatic lockout) -->
   <query id="UsrGetNumLog">
     <table id="ope" />
@@ -564,7 +550,6 @@
     <table id="ope" />
     <field id="OpeNam" alias="name" />
     <field id="EmlAdr" alias="email" />
-    <field id="l1_pas" alias="oldPassword" />
     <field id="enable2fa" alias="enable2fa"/>
     <where>
       <and>
@@ -2051,6 +2036,21 @@
     <field id="encoded" alias="label" />
     <variable id="text" type="STRING" name="CrtTxt" />
     <variable id="phraseKey" type="STRING" name="CrtPhr" />
+  </query>
+
+  <!-- Password hash with the configured algorithm, to insert users with scripts (Service hashPassword). Not cacheable:
+       each hash has its own salt and passwords must not stay in the cache -->
+  <query id="GetPwdHas" service="SerHasPwd" cacheable="false">
+    <field id="encoded" alias="value"/>
+    <field id="encoded" alias="label" />
+    <variable id="text" type="STRING" name="CrtTxt" />
+    <variable id="algorithm" type="STRING" name="CrtPwdAlg" />
+  </query>
+
+  <!-- Password algorithms of the Encrypt util screen, the configured one first (Service getPasswordAlgorithms) -->
+  <query id="GetPwdAlg" service="SerPwdAlg">
+    <field id="value" />
+    <field id="label" />
   </query>
 
   <!-- Encrypt property text (Service encryptText) -->
