@@ -182,6 +182,23 @@ describe('awe-react-client/test/js/redux/thunks/deferredThunkTest.js', () => {
       expect(model.records).toBe(2);
     });
 
+    // The server sends `selected` as a CellData of the selected list: an empty list is [] and no list is null
+    it.each([['an empty list', []], ['no list', null], ['no selected key', undefined]])(
+      'keeps the loaded options when the server sends %s as the selection', (_, selected) => {
+        registerScreen();
+
+        store.dispatch(initialModelAction(initialModel({
+          datalist: {rows: [{value: '1', label: 'One'}, {value: '2', label: 'Two'}, {value: '3', label: 'Three'}],
+            page: 1, total: 1, records: 3},
+          selected,
+          defaultValues: []
+        })));
+
+        const {model} = current(options);
+        expect(model.values.map(row => row.value)).toEqual(['1', '2', '3']);
+        expect(model.values.some(row => row.selected)).toBe(false);
+      });
+
     it('keeps the loaded model as the stored and the default one, like the screen load does', () => {
       registerScreen();
 

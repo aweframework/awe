@@ -24,6 +24,7 @@ const PIE_RADIUS_FACTOR = 0.8;
 const BUBBLE_SIZE = {min: 10, max: 50};
 const TIME_LEVELS = ["year", "month", "day", "hour", "minute", "second", "millisecond"];
 const MAX_LABELLED_CATEGORIES = 60;
+const DAY_MS = 86400000;
 const CATEGORY_LABEL = {fontSize: 11, charWidth: 7, labelPadding: 6, rotatedCharHeight: 4.7, maxRoom: 70, rotation: 45};
 
 /**
@@ -238,6 +239,10 @@ function buildSeries(serie, environment, index) {
   applyMarkerFill(built, hints.markerFill, info.color ?? palette[index % palette.length]);
   SERIES_INFO.set(built, info);
   if (isPie(serie)) {
+    if (data.length === 0 && serie.showEmptyCircle === undefined) {
+      // ECharts draws a grey circle for an empty pie, which would cover the "No data" message
+      built.showEmptyCircle = false;
+    }
     layoutPie(built, serie, hasTitle, environment.plotArea);
     fitPieLabels(built, environment);
   }
@@ -518,6 +523,10 @@ function buildAxes(axes, key, series, environment, layout) {
     if (axis.type === "time") {
       // Highcharts tick intervals are in milliseconds, which makes thousands of ticks in ECharts
       delete built.interval;
+      if (built.minInterval === undefined && !hasLabelHints(axis) && hasWholeDays(users, key)) {
+        // Points that are whole days must not get ticks between days ("18:00", "06:00")
+        built.minInterval = DAY_MS;
+      }
     }
     const axisLabel = buildAxisLabel(axis, key, users, environment, layout);
     if (Object.keys(axisLabel).length > 0) {
@@ -528,6 +537,46 @@ function buildAxes(axes, key, series, environment, layout) {
     }
     return built;
   });
+}
+
+/**
+ * Check if an axis has its own label or tick hints, which the day ticks must respect
+ * @param {object} axis Axis of the model
+ * @returns {boolean} The axis has hints
+ */
+function hasLabelHints(axis) {
+  return axis.interval !== undefined || axis.splitNumber !== undefined || Object.keys(axis.axisLabel ?? {}).length > 0
+    || Boolean(hintsOf(axis).formatter);
+}
+
+/**
+ * Check if a time value is a whole day: midnight in the local time zone or in UTC. The value is a timestamp in
+ * milliseconds or a date string
+ * @param {number|string|Date} value Value of a point
+ * @returns {boolean} The value is a whole day
+ */
+function isWholeDay(value) {
+  const time = value instanceof Date ? value.getTime() : typeof value === "string" ? Date.parse(value) : value;
+  if (typeof time !== "number" || !Number.isFinite(time)) {
+    return false;
+  }
+  const date = new Date(time);
+  return time % DAY_MS === 0 || (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0
+    && date.getMilliseconds() === 0);
+}
+
+/**
+ * Check if every point of the series that use a time axis is a whole day. An axis without points is not
+ * @param {object[]} users Built series that use the axis
+ * @param {string} key xAxis or yAxis
+ * @returns {boolean} All the points are whole days
+ */
+function hasWholeDays(users, key) {
+  // The first coordinate of a point goes to the xAxis, the second to the yAxis
+  const index = key === "xAxis" ? 0 : 1;
+  const times = users.flatMap(serie => serie.data.map(data => pointOf(data)?.[index]))
+    .filter(time => time !== null && time !== undefined);
+  return times.length > 0 && times.every(isWholeDay);
 }
 
 /**

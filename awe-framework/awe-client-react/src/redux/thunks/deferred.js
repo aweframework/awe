@@ -1,4 +1,4 @@
-import { generateServerAction, getActionAddress, getComponent } from "../../utilities";
+import { asArray, generateServerAction, getActionAddress, getComponent } from "../../utilities";
 import { acceptAction, addActionsTop } from "../actions/actions";
 import { keepModel, updateAttributes } from "../actions/components";
 import { getAllComponents } from "../selectors/componentSelectors";
@@ -122,8 +122,9 @@ export function initialModelAction(action) {
       dispatch(updateModelWithDependencies(address, { ...paging, values }));
       dispatch(updateAttributes(address, { loading: false }));
 
-      // The selection the component had wins over the one the server sends
-      if (selected !== undefined && previousSelected.size === 0) {
+      // The selection the component had wins over the one the server sends. An empty selection is not sent to the model:
+      // it would filter the loaded options out (the select could not pick its first option)
+      if (previousSelected.size === 0 && asArray(selected).length > 0) {
         dispatch(updateModelWithDependencies(address, { selected }));
       }
 

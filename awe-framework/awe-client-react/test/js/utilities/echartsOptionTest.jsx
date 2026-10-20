@@ -85,6 +85,17 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       expect(option.graphic[0]).toMatchObject({type: "text", left: "center", top: "middle"});
     });
 
+    it('should not draw the empty circle of a pie without points', () => {
+      const option = build("ChrPieTst", []);
+
+      expect(option.series[0].showEmptyCircle).toBe(false);
+      expect(graphicTexts(option)).toEqual(["No data to display"]);
+    });
+
+    it('should leave the empty circle option of a pie with points to ECharts', () => {
+      expect(build("ChrPieTst").series[0].showEmptyCircle).toBeUndefined();
+    });
+
     it('should not show the no data message when there are points', () => {
       expect(graphicTexts(build("ChrLinTst"))).toEqual([]);
     });
@@ -221,6 +232,49 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       expect(option.yAxis[0].interval).toBeUndefined();
       expect(option.xAxis[0].interval).toBe(1);
       expect(build("ChrLinTst").xAxis[0].axisLabel.hideOverlap).toBe(true);
+    });
+
+    describe('day ticks of a time axis', () => {
+      const DAY_MS = 86400000;
+      const dayRows = (xs) => xs.map((x, index) => ({dates: x, serie1: index, serie2: index}));
+
+      it('should tick once per day when every point is a whole day', () => {
+        expect(build("ChrLinTst").xAxis[0].minInterval).toBe(DAY_MS);
+      });
+
+      it('should read the whole days of a date string', () => {
+        const rows = dayRows(["2024-01-01T00:00:00", "2024-01-02T00:00:00"]);
+
+        expect(build("ChrLinTst", rows).xAxis[0].minInterval).toBe(DAY_MS);
+      });
+
+      it('should read the whole days of the vertical time axis of an inverted chart', () => {
+        const model = clone(models.ChrBarHorTst);
+        delete model.yAxis[0].interval;
+
+        expect(buildEChartsOption(model, values, context()).yAxis[0].minInterval).toBe(DAY_MS);
+      });
+
+      it('should respect a time axis that has its own interval', () => {
+        expect(build("ChrBarHorTst").yAxis[0].minInterval).toBeUndefined();
+      });
+
+      it('should not change an axis whose points carry a time of day', () => {
+        const rows = dayRows([day(1) + 3600000, day(2) + 7200000]);
+
+        expect(build("ChrLinTst", rows).xAxis[0].minInterval).toBeUndefined();
+      });
+
+      it('should not change an axis without points', () => {
+        expect(build("ChrLinTst", []).xAxis[0].minInterval).toBeUndefined();
+      });
+
+      it('should keep the minInterval that the model gives', () => {
+        const model = clone(models.ChrLinTst);
+        model.xAxis[0].minInterval = 3600000;
+
+        expect(buildEChartsOption(model, values, context()).xAxis[0].minInterval).toBe(3600000);
+      });
     });
 
     it('should hide overlapping labels of value axes, which a fixed interval can crowd', () => {
