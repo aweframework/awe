@@ -45,16 +45,22 @@ default:
 # - light: short checks, about 2 GB of memory. medium: medium jobs on a slow machine with about 4 GB.
 # - large: the big general runners. shared-cache: the runners on the shared S3 cache of the local network.
 # A runner takes a job only if it has every tag the job asks for, and untagged jobs only if it runs untagged jobs.
-# - light: the merge request checks, Lint · Frontend, Lint · Spanish docs, Security · Secrets, the release API jobs.
-# - medium: Lint · Spotless, Unit · AngularJS (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate.
-# - large and shared-cache are not requested by any job: Build · Maven and Analysis · Sonar run untagged, Docs · Javadoc check on
-#   medium and the Playwright browser downloads on light, so any online runner can take them. Docs · Javadoc check gets the
-#   AWE SNAPSHOT jars as Build · Maven artifacts. Analysis · Sonar reads the ones Build · Maven leaves in the Maven cache; on
-#   a runner outside the shared S3 cache that cache may be empty.
-# - untagged: Maven builds other than Build · Maven, database, Selenium, Playwright and package jobs, the website build and
-#   the React Jest suite (it times out on the slow medium runner). They do not need the shared cache: they build what they
-#   need or get the jars as Build · Maven artifacts, and the Playwright jobs download their browser when the cache does not
-#   have it. Runners outside the shared cache can take all of these.
+# - light: the merge request checks, Lint · Frontend, Lint · Spanish docs, Lint · Markdown, Lint · Renovate config,
+#   Security · Secrets, Build · Chromium/Firefox cache, the release API jobs, and the jobs without a build that only download,
+#   copy or push: Deploy · Staging/Production (git + kustomize), pages (cp/mv) and container_scanning (no dind service).
+# - medium: Lint · Spotless, Unit · AngularJS (AngularJS Jest, jsdom, no real browser), the dependency scan, Renovate,
+#   Docs · Javadoc check, Build · Website (all locales), Package · React jar, Deploy · Maven snapshot and the database jobs
+#   on an embedded database (Database · H2, H2 · Flyway, HSQL · Flyway: no container, no dind service). They passed on the
+#   slow medium runner in times close to the big runners.
+# - large and shared-cache are not requested by any job: Build · Maven and Analysis · Sonar run untagged, so any online
+#   runner that takes untagged jobs can take them. Docs · Javadoc check gets the AWE SNAPSHOT jars as Build · Maven
+#   artifacts. Analysis · Sonar reads the ones Build · Maven leaves in the Maven cache; on a runner outside the shared S3
+#   cache that cache may be empty.
+# - untagged (the big runners): Build · Maven, Unit · Java, Unit · React (it times out on the slow medium runner),
+#   Analysis · Sonar, the database jobs with Testcontainers (dind), Integration · Keycloak, the Selenium and Playwright
+#   suites, Package · Docker images (dind), Docs · Javadoc & schemas, Deploy · Maven Central and npm, dast. They do not need the shared cache:
+#   they build what they need or get the jars as Build · Maven artifacts, and the Playwright jobs download their browser
+#   when the cache does not have it. Runners outside the shared cache can take all of these.
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
 
@@ -640,6 +646,7 @@ Build · Website:
 
 Build · Website (all locales):
   extends: .build-website
+  tags: [ medium ]
   interruptible: false
   script:
     - npm --prefix website ci
@@ -812,16 +819,19 @@ Unit · Java:
 
 Database · H2:
   extends: .database-testing
+  tags: [ medium ]
   variables:
     TEST_NAME: h2
 
 Database · H2 · Flyway:
   extends: .database-testing
+  tags: [ medium ]
   variables:
     TEST_NAME: h2-flyway
 
 Database · HSQL · Flyway:
   extends: .database-testing
+  tags: [ medium ]
   variables:
     TEST_NAME: hsql-flyway
 
@@ -1759,6 +1769,7 @@ Docs · Javadoc & schemas:
 # branches that publish images only.
 Package · React jar:
   stage: package
+  tags: [ medium ]
   interruptible: false
   timeout: 20m
   needs:
@@ -1875,6 +1886,7 @@ Package · Docker images:
 # after adoption, so findings are visible without blocking releases; tighten once triaged.
 container_scanning:
   stage: deploy
+  tags: [ light ]
   timeout: 15m
   allow_failure: true
   needs:
@@ -1906,6 +1918,7 @@ container_scanning:
 
 Deploy · Maven snapshot:
   stage: deploy
+  tags: [ medium ]
   interruptible: false
   timeout: 20m
   needs:
@@ -2007,6 +2020,7 @@ Deploy · npm:
 # Both images are set by the digest that "Package · Docker images" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
 .k8s_deploy:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
+  tags: [ light ]
   cache: { }
   interruptible: false
   timeout: 15m
@@ -2094,6 +2108,7 @@ dast:
 
 pages:
   image: docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
+  tags: [ light ]
   stage: deploy
   cache: { }
   interruptible: false
