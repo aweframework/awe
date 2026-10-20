@@ -6,6 +6,7 @@ import {removeConfirm, removeMessage, showMessages as showMessagesAction} from "
 
 import "./MessageContainer.less";
 import {Dialog} from "primereact/dialog";
+import {ESC_KEY_HANDLING_PRIORITIES, useGlobalOnEscapeKey} from "primereact/hooks";
 import {Button} from "primereact/button";
 import {useTranslation} from "react-i18next";
 import {Toast} from "primereact/toast";
@@ -15,6 +16,9 @@ import {toastPassThrough} from "../utilities/testPassThrough";
 
 const NO_MESSAGES = {};
 const NO_SETTINGS = {};
+// The confirm is modal and shown over everything: Escape cancels it before closing any overlay below it (the menu that
+// launched the action, for instance)
+const CONFIRM_ESC_KEY_PRIORITY = [ESC_KEY_HANDLING_PRIORITIES.TOOLTIP + 100, 0];
 
 /**
  * Message container
@@ -73,10 +77,15 @@ function MessageContainer() {
 
 
   const {title, message, visible = true} = confirm ?? {visible: false};
+
+  // Escape cancels the confirm, as the Cancel button does
+  useGlobalOnEscapeKey({callback: onCancel, when: visible, priority: CONFIRM_ESC_KEY_PRIORITY});
+
   return <>
     <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition} pt={toastPassThrough()}/>
     <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
-            modal={true} closable={false} closeOnEscape={false} pt={{root: testHook(TestIds.confirmDialog)}}>
+            modal={true} closable={false} closeOnEscape={false} onHide={onCancel}
+            pt={{root: testHook(TestIds.confirmDialog)}}>
       <i className="pi pi-exclamation-triangle m-3 text-center text-warning" style={{fontSize: '8rem'}}/>
       <span>{translateLabel(message, t)}</span>
     </Dialog>

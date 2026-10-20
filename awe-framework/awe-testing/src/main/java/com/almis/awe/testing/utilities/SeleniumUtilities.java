@@ -3473,6 +3473,37 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Ask to log out, close the confirmation with the Escape key and check that the application stays logged in
+   */
+  protected void checkLogoutCancelledWithEscape() {
+    By confirmAccept = By.id("confirm-accept");
+
+    // Test title
+    setTestTitle("Logout cancelled: close the confirmation with the Escape key");
+
+    // Ask to log out
+    clickLogoutButton();
+    waitUntil(toBeVisible(confirmAccept));
+
+    // Pause 300 ms
+    pause(300);
+
+    // Close the confirmation with the Escape key
+    getBrowser().press(Key.ESCAPE);
+    waitUntil(toBeInvisible(confirmAccept));
+
+    // The logout did not run: the login screen is not shown
+    waitForLoadingBar();
+    waitUntil(toBeInvisible(frontEndInstructions.getLoginScreenMarker()));
+
+    // Close the user menu that holds the logout button, so the next step finds it closed
+    if (frontEndInstructions.getUserMenuButtonId() != null) {
+      getBrowser().press(Key.ESCAPE);
+      waitUntil(toBeInvisible(frontEndInstructions.getButton("ButLogOut")));
+    }
+  }
+
+  /**
    * Log out the application and check that the login screen is shown
    *
    * @param confirm Accept the confirmation that the application asks for
@@ -3483,14 +3514,8 @@ public class SeleniumUtilities implements IAweInstructions {
     // Test title
     setTestTitle("Logout test: Log out the application");
 
-    // Wait for element not visible
-    waitForLoadingBar();
-
-    // Open the user menu when the logout button is inside it
-    Optional.ofNullable(frontEndInstructions.getUserMenuButtonId()).ifPresent(this::clickInfoButton);
-
     // Click on logout
-    clickButton("ButLogOut", true);
+    clickLogoutButton();
 
     // Accept the confirmation
     if (confirm) {
@@ -3500,6 +3525,20 @@ public class SeleniumUtilities implements IAweInstructions {
     // Wait for the login screen
     waitForSelector(marker);
     checkText(marker, frontEndInstructions.getLoginScreenText());
+  }
+
+  /**
+   * Click on the logout button, opening the user menu first when the button is inside it
+   */
+  private void clickLogoutButton() {
+    // Wait for element not visible
+    waitForLoadingBar();
+
+    // Open the user menu when the logout button is inside it
+    Optional.ofNullable(frontEndInstructions.getUserMenuButtonId()).ifPresent(this::clickInfoButton);
+
+    // Click on logout
+    clickButton("ButLogOut", true);
   }
 
   /**
