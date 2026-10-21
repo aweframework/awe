@@ -1,5 +1,9 @@
 const path = require('path');
 
+// Dates are local to a time zone that is not UTC (and has daylight saving time), so the tests tell local midnight
+// from UTC midnight on every machine. Set before Jest starts its workers, which inherit it.
+process.env.TZ = 'Europe/Madrid';
+
 // Maven and CI invoke `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution
 // and LCOV reports under target/reports/jest (the paths declared in this module's pom.xml).
 module.exports = {
