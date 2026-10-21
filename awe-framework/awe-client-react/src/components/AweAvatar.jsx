@@ -9,7 +9,7 @@ import { Badge } from "primereact/badge";
 import { Components } from "../utilities/structure";
 import { getFirstDefinedValue } from "../utilities/general";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies } from "../redux/thunks/components";
@@ -21,7 +21,6 @@ function AweAvatar(props) {
   const { id, elementList = [] } = props;
   const { address } = useComponent(id);
   const { model = {}, attributes = {}, actions = [] } = useComponentState(id);
-  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const opRef = useRef(null);
@@ -62,7 +61,7 @@ function AweAvatar(props) {
         shape={"circle"}
         image={computedImage}
         icon={!computedImage && getIconCode(computedIcon, "p-button-icon p-c p-button-icon-left")}
-        disabled={globalDisabled || disabled}
+        disabled={disabled}
         label={!computedImage && !computedIcon && (computedLabel || "").charAt(0).toUpperCase()}
         title={translateLabel(computedLabel, t)}
         pt={{ root: testHook(TestIds.avatar) }}>

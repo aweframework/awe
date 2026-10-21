@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "primereact/button";
+import ActionsRunningButton from "./ActionsRunningButton";
 import { classNames } from "../utilities/components";
 import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
 import PropTypes from "prop-types";
@@ -14,7 +14,6 @@ function AweInfoButton(props) {
 
   const { id } = props;
   const { address = {}, attributes = {}, actions } = useComponentState(id);
-  const globalDisabled = useSelector(state => state.actions.running);
   const settings = useSelector(state => state.settings);
   const { t } = useTranslation();
   const { style, icon, disabled, label, size, visible, help, helpImage } = attributes;
@@ -32,12 +31,12 @@ function AweInfoButton(props) {
 
   return (<span className="p-overlay-badge">
     {getHelpTooltipNode(help, helpImage, t, `.help-info-button-${id}`)}
-    <Button
+    <ActionsRunningButton
       id={id}
       type="button"
       className={classes}
       icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
-      disabled={globalDisabled || disabled}
+      disabled={disabled}
       label={translateLabel(label, t)}
       iconPos={"left"}
       onClick={onClick}

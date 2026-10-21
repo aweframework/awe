@@ -87,4 +87,16 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
     // Click on avatar
     fireEvent.click(document.querySelector("div#avatar"));
   });
+  it("is not disabled while actions run, as in the AngularJS engine", () => {
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
+
+    renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, {
+      preloadedState: { ...preloadedState, actions: { running: true, sync: [[]], async: [] } }
+    });
+
+    const avatar = document.querySelector("#avatar");
+    expect(avatar.hasAttribute("disabled")).toBe(false);
+    expect(avatar.className).not.toContain("p-disabled");
+  });
+
 });

@@ -151,13 +151,15 @@ function changeActionAttribute(state, actionId, data) {
 }
 
 /**
- * Run an action
+ * Run an action. Only a sync action that is not silent disables the screen, as in the AngularJS engine: a silent
+ * action leaves the flag as it was and an async action runs in the background
  * @param state State
  * @param action Action to run
  * @return {object}
  */
 function runAction(state, action) {
-  return changeActionAttribute({...state, running: !action.silent}, action.id, {"status": STATUS_RUNNING});
+  const nextState = action.silent || action.async ? state : toggleActionsRunning(state, true);
+  return changeActionAttribute(nextState, action.id, {"status": STATUS_RUNNING});
 }
 
 /**

@@ -8,16 +8,43 @@ import { Badge } from "primereact/badge";
 import { useTranslation } from "react-i18next";
 import { useInvalidValues, usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
+import { selectActionsRunning } from "../redux/selectors/stateSelectors";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import { TestIds, testHook } from "../utilities/testIds";
 import { tabMenuPassThrough } from "../utilities/testPassThrough";
 import AweWindow from "./AweWindow";
 
+/**
+ * Tab menu disabled while actions run. It is the only part of the tabs that reads the running flag, so a running/idle
+ * transition does not render the tab content again
+ */
+function AweTabMenu({ id, values, activeIndex, disabled, invalid, onChange, itemRenderer }) {
+  const running = useSelector(selectActionsRunning);
+  const menuDisabled = running || disabled;
+  return <TabMenu id={id} model={values.map((item, index) => ({
+    ...item,
+    disabled: menuDisabled,
+    template: (item) => itemRenderer(item, index)
+  }))}
+    activeIndex={activeIndex}
+    pt={tabMenuPassThrough(values, activeIndex, menuDisabled, invalid)}
+    onTabChange={onChange} />;
+}
+
+AweTabMenu.propTypes = {
+  id: PropTypes.string,
+  values: PropTypes.array,
+  activeIndex: PropTypes.number,
+  disabled: PropTypes.bool,
+  invalid: PropTypes.array,
+  onChange: PropTypes.func,
+  itemRenderer: PropTypes.func
+};
+
 function AweTabs(props) {
   const { id, elementList = [] } = props;
   const { model = { values: [] }, address, attributes = {} } = useComponentState(id);
-  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
   const invalid = useInvalidValues(id);
@@ -47,14 +74,8 @@ function AweTabs(props) {
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
   const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
   return <div className={className} criterion-id={id}>
-    <TabMenu id={id} model={values.map((item, index) => ({
-      ...item,
-      disabled: globalDisabled || disabled,
-      template: (item) => itemRenderer(item, index)
-    }))}
-      activeIndex={activeIndex}
-      pt={tabMenuPassThrough(values, activeIndex, globalDisabled || disabled, invalid)}
-      onTabChange={onChange} />
+    <AweTabMenu id={id} values={values} activeIndex={activeIndex} disabled={disabled} invalid={invalid}
+      onChange={onChange} itemRenderer={itemRenderer} />
     {elementList
       .filter(item => item.elementType === "TabContainer")
       .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}

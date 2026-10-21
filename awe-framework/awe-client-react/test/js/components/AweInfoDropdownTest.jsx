@@ -32,4 +32,12 @@ describe('awe-react-client/test/js/criteria/AweInfoDropdownTest.jsx', () => {
     expect(document.querySelector("button#infodropdown")).not.toBeNull();
   });
 
+  it('is not disabled while actions run, as in the AngularJS engine', () => {
+    renderWithProviders(<AweInfoDropdown id="infodropdown"></AweInfoDropdown>, {
+      preloadedState: {...preloadedState, actions: {running: true, sync: [[]], async: []}}
+    });
+
+    expect(document.querySelector("button#infodropdown").hasAttribute("disabled")).toBe(false);
+  });
+
 });
