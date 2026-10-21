@@ -1,0 +1,16 @@
+{
+	"description": "Maximum number of undocumented attributes allowed per schema (0 when a schema is not listed). The numbers only go down: when you document attributes, lower them in the same change.",
+	"maxUndocumented": {
+		"access.xsd": 3,
+		"actions.xsd": 8,
+		"email.xsd": 8,
+		"enumerated.xsd": 3,
+		"locale.xsd": 2,
+		"menu.xsd": 18,
+		"profile.xsd": 3,
+		"queues.xsd": 18,
+		"screen.xsd": 242,
+		"services.xsd": 24,
+		"variable.xsd": 8
+	}
+}

@@ -91,6 +91,11 @@ $ npm run test:reference       # unit tests of the generator
 
 To document an attribute, add an `xs:annotation/xs:documentation` to it in the XSD.
 
+The generator fails (exit code 1) when a schema has more undocumented attributes than its threshold in
+`scripts/xsd-reference/thresholds.json` (`maxUndocumented`, 0 for a schema that is not listed) and lists them. The thresholds
+are the current counts and only go down: when you document attributes, lower them in the same change (the generator prints
+the new value).
+
 ## Broken anchors
 
 `npm --prefix website run build` prints `Docusaurus found broken anchors!` followed by the pages and anchors that do

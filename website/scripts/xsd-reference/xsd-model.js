@@ -111,17 +111,30 @@ function loadSchemas(dir, entries = schemaFiles(dir)) {
 	return [...loaded.values()].sort((a, b) => a.file.localeCompare(b.file));
 }
 
+/** Name of the closest named declaration (element, type or attribute group) that contains the node. */
+function ownerName(node) {
+	for (let parent = node.parentNode; parent && parent !== parent.ownerDocument.documentElement; parent = parent.parentNode) {
+		if (parent.hasAttribute('name')) {
+			return parent.getAttribute('name');
+		}
+	}
+	return '(schema)';
+}
+
 function declaredAttributeStats(schema) {
 	let attributes = 0;
 	let documented = 0;
+	const undocumentedNames = [];
 	// An attribute with a "ref" only uses a declaration counted where it is declared.
 	for (const node of Array.from(schema.root.getElementsByTagNameNS(XS, 'attribute')).filter((n) => n.hasAttribute('name'))) {
 		attributes += 1;
 		if (documentationOf(node)) {
 			documented += 1;
+		} else {
+			undocumentedNames.push(`${ownerName(node)}@${node.getAttribute('name')}`);
 		}
 	}
-	return {attributes, documented};
+	return {attributes, documented, undocumentedNames};
 }
 
 /** Resolution of names across the include closure of a schema. */

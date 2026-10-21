@@ -126,7 +126,7 @@ point your IDE to `target/schemas/awe/catalog.xml` after the first build.
 
 ## Checks when you change a schema
 
-The XSDs are in `awe-framework/awe-generic-screens/src/main/resources/schemas/awe`. Three checks protect them; none is a job of
+The XSDs are in `awe-framework/awe-generic-screens/src/main/resources/schemas/awe`. Four checks protect them; none is a job of
 its own, they run inside the normal test and build jobs:
 
 | Check | What it verifies | Run it locally |
@@ -134,6 +134,10 @@ its own, they run inside the normal test and build jobs:
 | `XsdCatalogConsistencyTest` (unit test of `awe-generic-screens`) | Catalog system ids are unique and are the published URLs, every XSD has a catalog entry, every entry points to an existing file, and every `schemaLocation` resolves through the catalog | `mvn test -pl awe-framework/awe-generic-screens -Dtest=XsdCatalogConsistencyTest` |
 | `xml-maven-plugin` `validate` (phase `compile`) | The application XML of the modules that configure it (`awe-boot`, `awe-boot-react`, `awe-scheduler-boot`, the AWE modules...) is valid against the schemas, resolved with the catalog unpacked into `target/schemas/awe/` | `mvn compile -pl awe-tests/awe-scheduler-boot -Dskip.frontend=true` |
 | Unit tests of the XSD reference generator (`website/scripts/xsd-reference`) | The generator that produces the [XSD reference](/reference/) from the schemas | `npm --prefix website run test:scripts` (also part of the `Build · Website` job) |
+| Documentation threshold of the XSD reference generator (`website/scripts/xsd-reference/thresholds.json`) | No schema has more undocumented attributes than its threshold (`maxUndocumented`, 0 for a schema that is not listed); the build fails and lists them otherwise | `npm --prefix website run generate:reference` (runs before every website build, so in `Build · Website` too) |
+
+Document every new attribute with an `xs:annotation/xs:documentation`. The thresholds only go down: when you document
+attributes, the generator prints the lower value and you set it in `thresholds.json` in the same change.
 
 When you add an XSD, add its entry to `catalog.xml` (the test fails otherwise) and its row to the
 [published schemas](#published-schemas) table. The pipeline publishes the XSDs and the catalog to the site from `develop` and
