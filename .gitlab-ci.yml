@@ -510,10 +510,10 @@ Security · Secrets:
     - <<: *if-branches
     - <<: *if-firefox-nightly
 
-# docker-tools images are pinned as tag@digest: the registry only publishes a
-# "latest" tag (no immutable version tags), so the digest is what actually
-# freezes the image; the "latest" part is kept only so the reference stays
-# human-readable. Renovate (#761) tracks and updates these digests.
+# docker-tools images are pinned by version: docker-tools protects its X.Y.Z
+# tags as immutable, so a version always names the same image. Most of them
+# also carry their digest (tag@digest); the sonar image is pinned by its
+# version only. Renovate (#761) tracks and updates these digests.
 .build-website:
   image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.1@sha256:a7a9e753e0f3f19223e58c4ed17833092202b1788d98c44b4c0be3145e7ba38f
   stage: build
@@ -1589,7 +1589,7 @@ Security · Dependencies:
 ##############################
 
 Analysis · Sonar:
-  image: registry.gitlab.com/aweframework/docker-tools/sonar:1.0.1@sha256:02cab9a70c59a79dea12e4d1581658d253f68c50d02d42bedbb1fcfdfec1c080
+  image: registry.gitlab.com/aweframework/docker-tools/sonar:1.0.2
   stage: analysis
   timeout: 20m
   # Some needs are optional: a merge-request pipeline may run Sonar (backend or frontend changed)
