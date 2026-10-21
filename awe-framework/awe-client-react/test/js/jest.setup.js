@@ -67,8 +67,19 @@ if (!global.__AWE_JEST_CONSOLE_FILTERS__) {
     message.includes('Could not parse CSS stylesheet')
   );
 
+  // Development checks of react-redux and reselect: a selector that returns a new result for the same state renders the
+  // component again on every dispatch, so it fails the test instead of only warning
+  const selectorInstability = (message) => (
+    /Selector .* returned (a different result when called with the same parameters|the root state when called)/.test(message) ||
+    message.includes('An input selector returned a different result when passed same arguments') ||
+    message.includes('The result function returned its own inputs without modification')
+  );
+
   console.warn = (...args) => {
     const message = getMessageText(args);
+    if (selectorInstability(message)) {
+      throw new Error(message);
+    }
     if (suppressWarn(message)) {
       return;
     }

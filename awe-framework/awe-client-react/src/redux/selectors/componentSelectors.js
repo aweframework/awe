@@ -1,12 +1,15 @@
-import { createSelector } from 'reselect';
+import { createSelector } from '@reduxjs/toolkit';
 import ComponentRegistry from '../registry/ComponentRegistry';
 import { mergeComponentState } from '../../utilities/mergeUtils';
+
+// Input selectors must return the same reference for the same state: a new empty object would break the memoization
+const EMPTY = {};
 
 /**
  * Selector base: obtiene deltas de un componente específico
  */
 const getComponentDeltas = (state, componentId) =>
-    state.components[componentId] || {};
+    state.components[componentId] || EMPTY;
 
 /**
  * Selector base: obtiene todos los deltas
@@ -16,7 +19,7 @@ const getAllComponentDeltas = (state) => state.components;
 /**
  * Selector base: obtiene settings (para feature flag)
  */
-const getSettings = (state) => state.settings || {};
+const getSettings = (state) => state.settings || EMPTY;
 
 /**
  * Factory de selector para un componente individual

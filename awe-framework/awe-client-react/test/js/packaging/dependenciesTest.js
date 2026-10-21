@@ -19,6 +19,10 @@ const REMOVED = [
   'redux-thunk'
 ];
 
+// Redux Toolkit bundles redux and reselect: import them through @reduxjs/toolkit so there is one copy of each
+const PROVIDED_BY_TOOLKIT = ['redux', 'reselect'];
+const major = (name) => Number(packageConfig.dependencies[name].replace(/^[^\d]*/, '').split('.')[0]);
+
 describe('Dependencies of the React client', () => {
   it.each(REMOVED)('does not declare the unused %s', (name) => {
     expect(declared).not.toContain(name);
@@ -33,7 +37,23 @@ describe('Dependencies of the React client', () => {
   });
   const escape = (name) => name.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 
-  it.each(REMOVED)('has no import or require of the removed %s', (name) => {
+  it.each(PROVIDED_BY_TOOLKIT)('does not declare %s, which Redux Toolkit provides', (name) => {
+    expect(declared).not.toContain(name);
+  });
+
+  it('uses Redux Toolkit 2 and react-redux 9', () => {
+    expect(major('@reduxjs/toolkit')).toBe(2);
+    expect(major('react-redux')).toBe(9);
+  });
+
+  it('keeps immer on the major Redux Toolkit uses', () => {
+    const toolkit = require('@reduxjs/toolkit/package.json');
+    const toolkitImmer = Number(toolkit.dependencies.immer.replace(/^[^\d]*/, '').split('.')[0]);
+
+    expect(major('immer')).toBe(toolkitImmer);
+  });
+
+  it.each([...REMOVED, ...PROVIDED_BY_TOOLKIT])('has no import or require of the removed %s', (name) => {
     const usage = new RegExp(`(?:from|import|require\\()\\s*['"]${escape(name)}(?:/[^'"]*)?['"]`);
     const files = [
       ...sourceFiles(path.join(ROOT, 'src')),
