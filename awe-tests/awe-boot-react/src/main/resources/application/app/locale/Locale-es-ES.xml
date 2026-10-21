@@ -89,6 +89,7 @@
   <locale name="MENU_TEST" value="Tests"/>
   <locale name="MENU_TEST_ACCORDIONS" value="Acordeones"/>
   <locale name="MENU_TEST_BUTTONS" value="Botones"/>
+  <locale name="MENU_TEST_DEPENDENCIES" value="Dependencias"/>
   <locale name="MENU_TEST_CAROUSEL" value="Carrusel"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Series dinámicas"/>
   <locale name="MENU_TEST_CHART_ADVANCED" value="Gráficos avanzados"/>
@@ -208,6 +209,7 @@
   <locale name="SCREEN_TEXT_TIME_SECONDS" value="Tiempo en segundos"/>
   <locale name="SCREEN_TITLE_ACCORDION_TEST" value="Prueba de acordeón"/>
   <locale name="SCREEN_TITLE_BUTTON_TEST" value="Test de botones"/>
+  <locale name="SCREEN_TITLE_DEPENDENCY_TEST" value="Test de dependencias"/>
   <locale name="SCREEN_TITLE_CHART_DYNAMIC_SERIES" value="Gráfico series dinámicas"/>
   <locale name="SCREEN_TITLE_CHART_GRID_PRINT" value="Prueba de impresión de Grids y Charts"/>
   <locale name="SCREEN_TITLE_CHART_TEST" value="Test de gráficos"/>

@@ -82,6 +82,7 @@
       <option name="criteria-uploader" label="MENU_TEST_CRITERIA_UPLOADER" screen="UplTst" icon="upload"/>
     </option>
     <option name="button-test" label="MENU_TEST_BUTTONS" screen="ButTst" icon="check"/>
+    <option name="dependency-test" label="MENU_TEST_DEPENDENCIES" screen="DepTst" icon="sitemap"/>
     <option name="matrix" label="MENU_TEST_MATRIX" icon="table">
       <option name="matrix-test" label="MENU_TEST_MATRIX_ALL" screen="MatTst" icon="list-alt"/>
       <option name="matrix-test-numbers" label="MENU_TEST_MATRIX_NUMBERS" screen="MatEdiNumTst" icon="list-ol"/>
