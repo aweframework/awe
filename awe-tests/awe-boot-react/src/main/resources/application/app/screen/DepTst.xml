@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : DepTst.xml
+    Description: Dependency test screen (#818): the conditions (contains, not contains, in) and the source events (dialog
+                 open and close, grid check-one-selected and delete-row) that a dependency can use, in either engine
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DEPENDENCY_TEST">
+  <tag source="buttons">
+    <!-- Visible only when DepTxt contains "awe", whatever the case -->
+    <button button-type="button" id="ButDepContains" label="Contains awe" icon="search">
+      <dependency target-type="show" initial="true">
+        <dependency-element id="DepTxt" condition="contains" value="awe" />
+      </dependency>
+    </button>
+    <!-- Visible only while DepTxt does not contain "awe" -->
+    <button button-type="button" id="ButDepNotContains" label="Does not contain awe" icon="ban">
+      <dependency target-type="show" initial="true">
+        <dependency-element id="DepTxt" condition="not contains" value="awe" />
+      </dependency>
+    </button>
+    <!-- Visible only when DepCol is one of the values of the list -->
+    <button button-type="button" id="ButDepIn" label="In the list" icon="list">
+      <dependency target-type="show" initial="true">
+        <dependency-element id="DepCol" condition="in" value="red,green" />
+      </dependency>
+    </button>
+    <button button-type="button" id="ButDepDialog" label="Open dialog" icon="window-maximize">
+      <button-action type="dialog" target="DlgDep" />
+    </button>
+    <button button-type="button" id="ButDepCheckOne" label="Check one selected" icon="check">
+      <button-action type="check-one-selected" target="GrdDep" />
+    </button>
+    <button button-type="button" id="ButDepDelete" label="Delete row" icon="trash">
+      <button-action type="delete-row" target="GrdDep" silent="true" />
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <window id="WinDepCrt" label="SCREEN_TEXT_CRITERIA" maximize="true">
+      <tag type="div" style="panel-body">
+        <criteria label="Text" id="DepTxt" component="text" style="col-xs-6 col-sm-3 col-lg-2" />
+        <criteria label="Colour" id="DepCol" component="text" style="col-xs-6 col-sm-3 col-lg-2" />
+        <criteria label="Dialog" id="DepDlg" component="text" style="col-xs-6 col-sm-3 col-lg-2">
+          <dependency source-type="value" target-type="input" value="Opened">
+            <dependency-element id="DlgDep" event="open" />
+          </dependency>
+          <dependency source-type="value" target-type="input" value="Closed">
+            <dependency-element id="DlgDep" event="close" />
+          </dependency>
+        </criteria>
+        <criteria label="Grid" id="DepGrd" component="text" style="col-xs-6 col-sm-3 col-lg-2">
+          <dependency source-type="value" target-type="input" value="One selected">
+            <dependency-element id="GrdDep" event="check-one-selected" />
+          </dependency>
+          <dependency source-type="value" target-type="input" value="Deleted">
+            <dependency-element id="GrdDep" event="delete-row" />
+          </dependency>
+        </criteria>
+      </tag>
+    </window>
+    <window id="WinDepGrd" style="expand" label="SCREEN_TEXT_DATA" expandible="vertical">
+      <grid id="GrdDep" style="expand" initial-load="query" server-action="data" target-action="QryUniTstId" max="30">
+        <column label="PARAMETER_TEXT" name="Als" sort-field="Als" align="left" charlength="20" />
+      </grid>
+    </window>
+  </tag>
+  <tag source="modal">
+    <dialog label="SCREEN_TEXT_CRITERIA" icon="pencil-square-o" id="DlgDep" modal="true" style="normal">
+      <tag type="div" style="modal-body scrollable">
+        <criteria label="PARAMETER_TEXT" component="text" id="DlgDepTxt" style="col-xs-12 col-sm-12 col-lg-12" />
+      </tag>
+    </dialog>
+  </tag>
+</screen>
