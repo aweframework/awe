@@ -26,10 +26,12 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
+import com.almis.awe.service.observation.ExecutionObserver;
 import com.almis.awe.service.screen.DeferredComponents;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -64,6 +66,9 @@ public class ScreenService extends ServiceConfig {
   private final ApplicationEventPublisher eventPublisher;
   private final TemplateService templateService;
 
+  // Observer of the screens built (metrics, traces...). Optional: without one the screen is just built
+  private ExecutionObserver executionObserver = ExecutionObserver.NONE;
+
   /**
    * Autowired constructor
    *
@@ -79,6 +84,16 @@ public class ScreenService extends ServiceConfig {
     this.templateService = templateService;
     this.screenComponentGenerator = screenComponentGenerator;
     this.eventPublisher = eventPublisher;
+  }
+
+  /**
+   * Set the observer of the screens built
+   *
+   * @param executionObserver Execution observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setExecutionObserver(ExecutionObserver executionObserver) {
+    this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
   }
 
   /**
@@ -236,11 +251,16 @@ public class ScreenService extends ServiceConfig {
     // Get screen
     Screen screen = getScreenFromOptionId(optionId, menu);
 
-    // Initialize screen
-    initializeScreenNavigation(screen, optionId);
+    // Observe the build once the option is known to be in the menu, so a forged option never becomes a tag
+    String screenId = screen.getId();
+    return executionObserver.observe(ExecutionObserver.ExecutionType.SCREEN, optionId == null ? screenId : optionId,
+      Map.of("screen", screenId == null ? "undefined" : screenId), () -> {
+        // Initialize screen
+        initializeScreenNavigation(screen, optionId);
 
-    // Generate map with model and controller data
-    return getScreenData(screen, menu, optionId, generateTemplate);
+        // Generate map with model and controller data
+        return getScreenData(screen, menu, optionId, generateTemplate);
+      });
   }
 
   /**

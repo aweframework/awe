@@ -11,8 +11,10 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.file.FileUtil;
+import com.almis.awe.service.observation.FileTransferObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,9 @@ public class FileService extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
   private final EncodeService encodeService;
 
+  // Observer of the uploads and downloads (metrics...). Optional: without one nothing is recorded
+  private FileTransferObserver fileTransferObserver = FileTransferObserver.NONE;
+
   private static final String ERROR_TITLE_FILE_READING_ERROR = "ERROR_TITLE_FILE_READING_ERROR";
   private static final String ERROR_MESSAGE_FILE_READING_ERROR = "ERROR_MESSAGE_FILE_READING_ERROR";
 
@@ -56,6 +61,16 @@ public class FileService extends ServiceConfig {
     this.request = request;
     this.baseConfigProperties = baseConfigProperties;
     this.encodeService = encodeService;
+  }
+
+  /**
+   * Set the observer of the uploads and downloads
+   *
+   * @param fileTransferObserver File transfer observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setFileTransferObserver(FileTransferObserver fileTransferObserver) {
+    this.fileTransferObserver = fileTransferObserver == null ? FileTransferObserver.NONE : fileTransferObserver;
   }
 
   /**
@@ -139,6 +154,7 @@ public class FileService extends ServiceConfig {
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(resource.contentLength());
       headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"" + resource.getFilename() + "\"");
+      fileTransferObserver.transferred(FileTransferObserver.Direction.DOWNLOAD, resource.contentLength());
 
       // Retrieve entity
       return new ResponseEntity<>(resource, headers, HttpStatus.OK);
@@ -188,6 +204,7 @@ public class FileService extends ServiceConfig {
 
       // Generate the file stream
       IOUtils.copy(fileStream, outputStream);
+      fileTransferObserver.transferred(FileTransferObserver.Direction.DOWNLOAD, outputStream.size());
 
       // Return the file stream
       return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
@@ -225,6 +242,7 @@ public class FileService extends ServiceConfig {
         try (InputStream inputStream = file.getInputStream()) {
           Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         }
+        fileTransferObserver.transferred(FileTransferObserver.Direction.UPLOAD, fileData.getFileSize());
       }
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_SAVING_ITEM"),

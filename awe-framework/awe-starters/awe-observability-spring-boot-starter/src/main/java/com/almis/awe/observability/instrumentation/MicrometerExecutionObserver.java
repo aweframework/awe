@@ -7,16 +7,20 @@ import com.almis.awe.service.observation.ExecutionObserver;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Observes every AWE query, maintain and action execution with Micrometer.
+ * Observes every AWE query, maintain, action, screen build and export with Micrometer.
  *
- * <p>Each execution is an {@link Observation} named {@code awe.query}, {@code awe.maintain} or {@code awe.action}.
- * Spring Boot turns an observation into a timer (count, total time and max) and into a span of the current trace, so
+ * <p>Each execution is an {@link Observation} named {@code awe.query}, {@code awe.maintain}, {@code awe.action},
+ * {@code awe.screen} or {@code awe.export}. The types switched off run plainly, with no observation at all.</p>
+ *
+ * <p>Spring Boot turns an observation into a timer (count, total time and max) and into a span of the current trace, so
  * metrics and traces share names, tags and outcome, and the span is a child of the current one, which keeps the trace
  * and span ids that the logs already show.</p>
  *
@@ -27,8 +31,10 @@ import java.util.function.Supplier;
  * {@code none} for a success and for an error answer that threw nothing.</p>
  *
  * <p>Tags are low cardinality by construction: {@code id} is the identifier defined in the XML of the application,
- * the extra tags AWE passes ({@code connector} for queries) have a fixed set of values and {@code outcome} is
- * {@code success} or {@code error}. Users and parameters are never tags. The id is a tag of the span too, not part of
+ * the extra tags AWE passes ({@code connector} for queries, {@code screen} for screens, {@code format} for exports)
+ * come from the XML or have a fixed set of values and {@code outcome} is {@code success} or {@code error}; the
+ * {@link AweTagValueLimitFilter} caps the values of {@code id} and {@code screen} anyway. Users and parameters are
+ * never tags. The id is a tag of the span too, not part of
  * its name, because Micrometer rewrites span names to lower-case with hyphens and would mangle camel-case ids.</p>
  */
 public class MicrometerExecutionObserver implements ExecutionObserver {
@@ -39,14 +45,26 @@ public class MicrometerExecutionObserver implements ExecutionObserver {
   static final String OUTCOME_SUCCESS = "success";
 
   private final Supplier<ObservationRegistry> registry;
+  private final Set<ExecutionType> disabledTypes;
 
   /**
-   * Constructor
+   * Constructor that observes every execution type
    *
    * @param registry Supplier of the observation registry (resolved on use, so the observer can be created before it)
    */
   public MicrometerExecutionObserver(Supplier<ObservationRegistry> registry) {
+    this(registry, Set.of());
+  }
+
+  /**
+   * Constructor
+   *
+   * @param registry      Supplier of the observation registry (resolved on use, so the observer can be created before it)
+   * @param disabledTypes Execution types that run plainly, without observation
+   */
+  public MicrometerExecutionObserver(Supplier<ObservationRegistry> registry, Set<ExecutionType> disabledTypes) {
     this.registry = registry;
+    this.disabledTypes = disabledTypes.isEmpty() ? Set.of() : EnumSet.copyOf(disabledTypes);
   }
 
   @Override
@@ -57,6 +75,9 @@ public class MicrometerExecutionObserver implements ExecutionObserver {
   @Override
   public <T> T observe(ExecutionType type, String id, Map<String, String> tags, Execution<T> execution,
                        Function<? super T, AnswerType> answerType) throws AWException {
+    if (disabledTypes.contains(type)) {
+      return execution.execute();
+    }
     ObservationRegistry observationRegistry = registry.get();
     if (observationRegistry == null || observationRegistry.isNoop()) {
       return execution.execute();

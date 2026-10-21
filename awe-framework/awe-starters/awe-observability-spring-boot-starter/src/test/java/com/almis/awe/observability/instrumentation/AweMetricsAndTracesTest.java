@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,16 +33,59 @@ class AweMetricsAndTracesTest {
 
   private MeterRegistry meterRegistry;
   private SimpleTracer tracer;
+  private ObservationRegistry registry;
   private ExecutionObserver observer;
 
   @BeforeEach
   void setUp() {
     meterRegistry = new SimpleMeterRegistry();
     tracer = new SimpleTracer();
-    ObservationRegistry registry = ObservationRegistry.create();
+    registry = ObservationRegistry.create();
     registry.observationConfig().observationHandler(new DefaultMeterObservationHandler(meterRegistry));
     registry.observationConfig().observationHandler(new DefaultTracingObservationHandler(tracer));
     observer = new MicrometerExecutionObserver(() -> registry);
+  }
+
+  @Test
+  @DisplayName("Screens and exports have their own timers, tagged with the option, screen, format and outcome")
+  void screensAndExports() throws AWException {
+    observer.observe(ExecutionType.SCREEN, "opt1", Map.of("screen", "scr1"), () -> "built");
+    observer.observe(ExecutionType.SCREEN, "opt1", Map.of("screen", "scr1"), () -> "built");
+    observer.observe(ExecutionType.EXPORT, "scr1", Map.of("format", "pdf"), () -> "file");
+
+    assertThat(meterRegistry.get("awe.screen").tags("id", "opt1", "screen", "scr1", "outcome", "success").timer().count())
+      .isEqualTo(2);
+    assertThat(meterRegistry.get("awe.export").tags("id", "scr1", "format", "pdf", "outcome", "success").timer().count())
+      .isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("A disabled family runs its executions plainly: same result, no meter, no span; the other families are still observed")
+  void disabledFamilies() throws AWException {
+    ExecutionObserver limited = new MicrometerExecutionObserver(() -> registry, Set.of(ExecutionType.SCREEN, ExecutionType.EXPORT));
+
+    assertThat(limited.observe(ExecutionType.SCREEN, "opt1", Map.of("screen", "scr1"), () -> "built")).isEqualTo("built");
+    assertThat(limited.observe(ExecutionType.EXPORT, "scr1", Map.of("format", "pdf"), () -> "file", result -> AnswerType.OK))
+      .isEqualTo("file");
+    limited.observe(ExecutionType.QUERY, "Q1", Map.of(), ServiceData::new);
+
+    assertThat(meterRegistry.find("awe.screen").meters()).isEmpty();
+    assertThat(meterRegistry.find("awe.screen.active").meters()).isEmpty();
+    assertThat(meterRegistry.find("awe.export").meters()).isEmpty();
+    assertThat(meterRegistry.get("awe.query").tags("id", "Q1", "outcome", "success").timer().count()).isEqualTo(1);
+    assertThat(tracer.getSpans()).extracting(SimpleSpan::getName).containsExactly("awe.query");
+  }
+
+  @Test
+  @DisplayName("A disabled family still rethrows the failure of its execution")
+  void disabledFamilyRethrows() {
+    ExecutionObserver limited = new MicrometerExecutionObserver(() -> registry, Set.of(ExecutionType.SCREEN));
+    AWException failure = new AWException("boom", "failed");
+
+    assertThatThrownBy(() -> limited.observe(ExecutionType.SCREEN, "opt1", Map.of(), () -> {
+      throw failure;
+    })).isSameAs(failure);
+    assertThat(meterRegistry.find("awe.screen").meters()).isEmpty();
   }
 
   @Test
