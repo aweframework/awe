@@ -1644,6 +1644,56 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldClickCloseAgainWhenTheColumnsDialogStaysOpen() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsDialog("Grd"), "");
+      show(instructions.getGridColumnsClose("Grd"), "Close");
+      By dialog = Locator.from(instructions.getGridColumnsDialog("Grd")).toBy();
+      long before = performed();
+
+      // The first click misses the button (the outcome of a reset moved it), the second one closes the dialog
+      int[] clicks = {0};
+      doAnswer(invocation -> {
+        if (++clicks[0] == 2) {
+          when(driver.findElements(argThat(dialog::equals))).thenReturn(Collections.emptyList());
+        }
+        return null;
+      }).when((Interactive) driver).perform(any());
+
+      assertThatCode(() -> utilities.closeGridColumns("Grd")).doesNotThrowAnyException();
+      assertThat(performed() - before).isEqualTo(2);
+    }
+  }
+
+  @Test
+  void shouldNotClickCloseAgainWhenTheColumnsDialogIsClosingSlowly() {
+    properties.setTimeout(Duration.ofSeconds(1));
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsDialog("Grd"), "");
+      show(instructions.getGridColumnsClose("Grd"), "Close");
+      By dialog = Locator.from(instructions.getGridColumnsDialog("Grd")).toBy();
+      By close = Locator.from(instructions.getGridColumnsClose("Grd")).toBy();
+      long before = performed();
+
+      // The click worked: the button is gone at once, the dialog only after longer than a retry wait (the timeout)
+      long[] clickedAt = {0};
+      doAnswer(invocation -> {
+        clickedAt[0] = System.currentTimeMillis();
+        when(driver.findElements(argThat(close::equals))).thenReturn(Collections.emptyList());
+        return null;
+      }).when((Interactive) driver).perform(any());
+      WebElement shown = driver.findElements(dialog).get(0);
+      when(driver.findElements(argThat(dialog::equals))).thenAnswer(invocation ->
+        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] > 1500 ? Collections.emptyList() : List.of(shown));
+
+      assertThatCode(() -> utilities.closeGridColumns("Grd")).doesNotThrowAnyException();
+      assertThat(performed() - before).isEqualTo(1);
+    }
+  }
+
+  @Test
   void shouldCheckWhetherTheColumnsOfAGridAreADialogOrASidePanelInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);

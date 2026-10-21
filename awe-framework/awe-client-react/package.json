@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.13.0",
-    "@stomp/stompjs": "7.4.0",
+    "@stomp/stompjs": "7.5.0",
     "animate.css": "4.1.1",
     "classnames": "2.5.1",
     "dompurify": "3.4.17",

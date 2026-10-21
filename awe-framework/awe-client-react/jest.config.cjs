@@ -25,6 +25,7 @@ module.exports = {
     '**/packaging/packageLicenseTest.{js,jsx}',
     '**/packaging/babelConfigTest.{js,jsx}',
     '**/packaging/dependenciesTest.{js,jsx}',
+    '**/packaging/applicationDependenciesTest.{js,jsx}',
     '**/packaging/helpTemplatesTest.{js,jsx}',
     '**/packaging/textUtilitiesTest.{js,jsx}',
     '**/packaging/designTokensTest.{js,jsx}',
