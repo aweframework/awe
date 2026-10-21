@@ -14,6 +14,7 @@ import PropTypes from "prop-types";
 import { TestIds, testHook } from "../utilities/testIds";
 import { tabMenuPassThrough } from "../utilities/testPassThrough";
 import AweWindow from "./AweWindow";
+import { useContextMenu } from "../hooks/useContextMenu";
 
 /**
  * Tab menu disabled while actions run. It is the only part of the tabs that reads the running flag, so a running/idle
@@ -48,6 +49,7 @@ function AweTabs(props) {
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
   const invalid = useInvalidValues(id);
+  const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
 
   const titleRenderer = (title) => title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
   const labelRenderer = (label) => label ? <span className={`p-tab-title`} {...testHook(TestIds.tabLabel)}>{translateLabel(label, t)}</span> : null;
@@ -73,12 +75,13 @@ function AweTabs(props) {
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
   const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
-  return <div className={className} criterion-id={id}>
+  return <div className={className} criterion-id={id} onContextMenu={onContextMenu}>
     <AweTabMenu id={id} values={values} activeIndex={activeIndex} disabled={disabled} invalid={invalid}
       onChange={onChange} itemRenderer={itemRenderer} />
     {elementList
       .filter(item => item.elementType === "TabContainer")
       .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+    {contextMenuTemplate()}
   </div>;
 }
 

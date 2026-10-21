@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Column } from "primereact/column";
 import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
-import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
+import { getHelpTooltipNode, translateLabel } from "../utilities";
+import { useContextMenu } from "./useContextMenu";
 import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH } from "../utilities/grid";
-import { ContextMenu } from "primereact/contextmenu";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
 import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
@@ -13,11 +13,9 @@ import { updateAttributes as updateAttributesAction } from "../redux/actions/com
 import { useTranslation } from "react-i18next";
 import AweButton from "../components/AweButton";
 import useComponent from "./useComponent";
-import { useComponentState, useContextMenuAttributes } from "./useComponentState";
+import { useComponentState } from "./useComponentState";
 import {
   bodyCellPassThrough,
-  contextMenuLinkTemplate,
-  contextMenuPassThrough,
   headerCellPassThrough,
   selectionColumnPassThrough
 } from "../utilities/testPassThrough";
@@ -26,28 +24,6 @@ import { applyColumnLayout, buildHeader } from "../utilities/gridLayout";
 
 // Model of a grid whose data has not arrived yet
 const EMPTY_MODEL = Object.freeze({ values: [] });
-
-export function mapContextMenu(contextMenu, props) {
-  const { t, addActionsTop, raiseEvent, address, optionAttributes } = props;
-  return (contextMenu || [])
-    .filter(option => optionAttributes[option.id])
-    .map(option => ({ ...optionAttributes[option.id], optionId: option.id }))
-    .map(option => ({
-      optionId: option.optionId,
-      template: contextMenuLinkTemplate,
-      label: translateLabel(option.label, t),
-      icon: getIconCode(option.icon, "p-menuitem-icon"),
-      disabled: option.disabled,
-      visible: option.visible,
-      separator: option.separator,
-      command: () => {
-        addActionsTop((option.actions || []).map(action => ({ ...action, address })));
-        // The context option stores its click event, as AngularJS does
-        raiseEvent?.({ ...address, component: option.optionId }, "click");
-      },
-      ...(mapContextMenu(option.contextMenu, props).length > 0 ? { items: mapContextMenu(option.contextMenu, props) } : {}),
-    }));
-}
 
 /**
  * Hook providing shared grid helpers previously in AweGridCommons class.
@@ -63,12 +39,9 @@ export function useGrid(id) {
   // The model only exists once the data of the component has arrived
   const modelLoaded = stateModel !== undefined;
   const settings = useSelector(state => state.settings || {});
-  const optionAttributes = useContextMenuAttributes(attributes.contextMenu);
-  const cmRef = useRef(null);
 
   const addActionsTop = useCallback((actions) => dispatch(addActionsTopAction(actions)), [dispatch]);
   const updateModelWithDependencies = useCallback((addr, payload) => dispatch(updateThunk(addr, payload)), [dispatch]);
-  const updateEvent = useCallback((addr, event) => dispatch(updateThunk(addr, { event })), [dispatch]);
   const updateAttributes = useCallback((addr, payload) => dispatch(updateAttributesAction(addr, payload)), [dispatch]);
 
   const validateRow = useCallback((postActions) => {
@@ -113,18 +86,9 @@ export function useGrid(id) {
     validateRow([{ type: "select-row", address, parameters: { values } }]);
   }, [validateRow, address, attributes]);
 
-  const onContextMenu = useCallback((data) => {
-    cmRef.current?.show(data.originalEvent);
-  }, []);
-
-  const contextMenuTemplate = () => {
-    const { contextMenu = [] } = attributes;
-    let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, raiseEvent: updateEvent, address, optionAttributes });
-    if (contextMenuMapped.length > 0) {
-      return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />;
-    }
-    return null;
-  };
+  const { onContextMenu, contextMenuTemplate } = useContextMenu({
+    address, contextMenu: attributes.contextMenu, openWithoutVisibleOptions: true
+  });
 
   const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers) => {
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getRowNumberWidthStyle(first, rows) };
@@ -284,7 +248,6 @@ export function useGrid(id) {
     modelLoaded,
     specificAttributes,
     settings,
-    optionAttributes,
     addActionsTop,
     updateModelWithDependencies,
     updateAttributes,
@@ -307,8 +270,7 @@ export function useGrid(id) {
     cellTemplate,
     buttonsTemplate,
     preColumnTemplates,
-    postColumnTemplates,
-    cmRef
+    postColumnTemplates
   }), [t,
     address,
     attributes,
@@ -316,7 +278,6 @@ export function useGrid(id) {
     modelLoaded,
     specificAttributes,
     settings,
-    optionAttributes,
     addActionsTop,
     updateModelWithDependencies,
     updateAttributes,
@@ -340,5 +301,5 @@ export function useGrid(id) {
     buttonsTemplate,
     preColumnTemplates,
     postColumnTemplates,
-    cmRef]);
+    ]);
 }

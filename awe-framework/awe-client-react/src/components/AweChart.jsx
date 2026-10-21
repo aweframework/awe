@@ -5,6 +5,7 @@ import {localeOptions} from "primereact/api";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import {useComponentState} from "../hooks/useComponentState";
+import {useContextMenu} from "../hooks/useContextMenu";
 import {classNames} from "../utilities/components";
 import {TestIds, testHook} from "../utilities/testIds";
 import {updateAttributesWithDependencies} from "../redux/thunks/components";
@@ -91,6 +92,7 @@ function AweChart(props) {
   const dispatch = useDispatch();
   const {t, i18n} = useTranslation();
   const {style, visible, chartOptions, xMin, xMax, yMin, yMax, loading = false} = attributes;
+  const {onContextMenu, contextMenuTemplate} = useContextMenu({address, contextMenu: attributes.contextMenu});
   const echartsModel = useStable(attributes.echartsModel);
   const values = useStable(model.values);
 
@@ -232,10 +234,11 @@ function AweChart(props) {
 
   const zoomed = [xMin, xMax, yMin, yMax].some(limit => !_.isNil(limit));
   const classes = classNames("awe-chart", "expand", style, {"hidden": !visible});
-  return <div className={classes} id={id} ref={containerRef}
+  return <div className={classes} id={id} ref={containerRef} onContextMenu={onContextMenu}
     {...testHook(TestIds.chart, {rendered, zoomed, attributes: {"chart-id": id}})}>
     <div ref={chartElementRef} style={{position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}/>
     {(!rendered || loading) && visible !== false && <ChartSkeleton hint={chartHintOf(echartsModel)} cover={rendered}/>}
+    {contextMenuTemplate()}
   </div>;
 }
 
