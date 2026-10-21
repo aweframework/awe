@@ -1012,6 +1012,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the table of a pivot table once it has been drawn. Both clients render the component with its identifier as
+   * the DOM id, and draw the pivot table inside it
+   *
+   * @param pivotTableId Pivot table identifier
+   * @return Selector of the drawn pivot table
+   */
+  default By getPivotTable(String pivotTableId) {
+    return By.cssSelector("#" + pivotTableId + " table.pvtTable");
+  }
+
+  /**
    * Get a chart that is zoomed
    *
    * @param chartId Chart identifier

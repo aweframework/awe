@@ -290,6 +290,14 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckThatAPivotTableIsDrawn() {
+    show(instructions.getPivotTable("listaDatos"), "");
+
+    assertThatCode(() -> utilities.checkPivotTableVisible("listaDatos")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkPivotTableVisible("UndrawnPivot"));
+  }
+
+  @Test
   void shouldFailToZoomAChartThatIsNotThere() {
     use(new ReactAweInstructions());
 

@@ -681,6 +681,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkTabInvalid(String tabId, boolean invalid)` | Checks that a tab criterion marks a tab as holding fields that failed the validation (`true`), or that it marks none (`false`) |
 | `checkWizardStepInvalid(String wizardId, boolean invalid)` | The same for the steps of a wizard |
 | `checkChartVisible(String chartId)` | Checks that a chart is displayed (the chart has been drawn) |
+| `checkPivotTableVisible(String pivotTableId)` | Checks that a pivot table is displayed (its table has been drawn) |
 | `zoomChart(String chartId)` | Zooms a chart in with the mouse wheel over its center |
 | `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |

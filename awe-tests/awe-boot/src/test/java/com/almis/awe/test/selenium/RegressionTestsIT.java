@@ -521,4 +521,19 @@ class RegressionTestsIT extends AbstractSessionTests {
     checkMultipleSelectorContents("SugMul", "pei (pei@test.com)");
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
   }
+
+  /**
+   * Pivot table renders: the pivot locale is resolved from the application language (en-GB)
+   */
+  @Test
+  void t060_pivotTableRenders() {
+    // Title
+    setTestTitle("Pivot table renders: the pivot locale is resolved from the application language (en-GB)");
+
+    // Go to screen
+    gotoScreen("test", "pivot-test");
+
+    // Check the pivot table is drawn with its loaded data
+    checkPivotTableVisible("listaDatos");
+  }
 }
