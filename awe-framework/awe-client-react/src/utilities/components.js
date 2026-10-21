@@ -70,10 +70,17 @@ const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT, ADDRESS_VIEW, ADDRESS_IN
  * @namespace Components
  */
 
+/**
+ * Check if a component is a grid (it has a column model)
+ * @param {object} component Component
+ * @returns {boolean} The component is a grid
+ */
+export function isGridComponent(component) {
+  return "columnModel" in (component?.attributes || {});
+}
+
 export function getComponentIdentifierKey(component) {
-  const attributes = component?.attributes || {};
-  const isGrid = "columnModel" in attributes;
-  return isGrid ? getGridIdentifier(attributes) : "value";
+  return isGridComponent(component) ? getGridIdentifier(component.attributes) : "value";
 }
 
 /**

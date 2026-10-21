@@ -11,11 +11,12 @@ import { ButtonTypes, keepModel, updateAttributes } from "../actions/components"
 import { getFormValues } from "../selectors/form";
 import { getAllComponents } from "../selectors/componentSelectors";
 import {
+  raiseEventOnDependencies,
   resetMultipleModelWithDependencies,
   restoreMultipleModelWithDependencies,
   updateModelWithDependencies
 } from "./components";
-import { getComponentIdentifierKey } from "../../utilities/components";
+import { getComponentIdentifierKey, isGridComponent } from "../../utilities/components";
 const { BUTTON_SUBMIT } = ButtonTypes;
 
 export function submitAction(action) {
@@ -168,6 +169,11 @@ export function fillAction(action) {
     if (pendingCellUpdates.length > 0) {
       dispatch(updateAttributes(address, { pendingCellUpdates: [] }));
       pendingCellUpdates.forEach(({ row, column, data }) => dispatch(updateModelWithDependencies({ ...address, row, column }, { values: data })));
+    }
+
+    // A grid raises change once its rows are loaded, like AngularJS: only the dependencies listening to it are checked
+    if (isGridComponent(component)) {
+      dispatch(raiseEventOnDependencies(address, "change"));
     }
 
     // Finish action
