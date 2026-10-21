@@ -150,6 +150,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `select-last-row`                | Selecciona la última fila del grid                                                                   | `grid`                      |
 | `select-all-rows`                | Seleccionar todas las filas del grid                                                                 | `grid`                      |
 | `unselect-all-rows`              | Deseleccionar todas las filas del grid                                                                | `grid`                      |
+| `show-context-menu`              | Abre el menú contextual bajo el botón que la lanza (ver [Menú contextual](context-menu.md#opening-the-menu)) | El propio botón             |
 | `validate-selected-row`          | Iniciar una validación en la fila seleccionada del grid                                              | `grid`                      |
 | `copy-selected-rows-clipboard`   | Copiar las filas seleccionadas del grid al portapapeles                                                      | `grid`                      |
 | `show-columns`                   | Mostrar las columnas del grid definidas en el parámetro `columns`                                                 | `grid`                      |

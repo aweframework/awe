@@ -62,7 +62,8 @@ export const ClientActions = {
   // Available component actions
   component: {
     "filter": {method: "reload"},
-    "start-load": {method: "startLoad"}
+    "start-load": {method: "startLoad"},
+    "show-context-menu": {method: "onShowContextMenu"}
   },
   // Available component actions
   menu: {

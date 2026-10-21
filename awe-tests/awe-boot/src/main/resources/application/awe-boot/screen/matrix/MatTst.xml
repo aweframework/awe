@@ -277,6 +277,9 @@
           <grid id="GrdMuo" style="expand" editable="true" send-operations="true" initial-load="query" server-action="data" target-action="QryUniTst" max="30">
             <column label="PARAMETER_TEXT" name="Als2" sort-field="Als" align="left" charlength="20" component="text" />
             <column label="PARAMETER_TEXT" name="Des2" sort-field="Des" align="left" charlength="40" component="text" />
+            <column label="PARAMETER_DIALOG" name="CtxBtn" align="center" icon="ellipsis-v" component="button" charlength="12">
+              <button-action type="show-context-menu" />
+            </column>
             <button label="BUTTON_NEW" icon="plus-circle" id="ButGrdMuoAdd">
               <button-action type="add-row" target="GrdMuo" silent="true" />
             </button>

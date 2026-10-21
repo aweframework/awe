@@ -64,6 +64,9 @@ class AngularAweInstructionsTest {
       + "//*[@data-testid='grid-cell' and @column-id='Col']//text()[contains(.,'abc')]/..");
     assertThat(instructions.findGridCell(null, "abc")).hasToString("By.xpath: "
       + "//*[@data-testid='grid-row']//*[@data-testid='grid-cell']//text()[contains(.,'abc')]/..");
+    assertThat(instructions.getGridCellButton("Grd", "R1", "Col")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
+      + "//*[@data-testid='grid-cell' and @column-id='Col']//button");
     // A row is selected by clicking on its cell
     assertThat(instructions.findGridRowSelection("Grd", "abc")).isEqualTo(instructions.findGridCell("Grd", "abc"));
     // A selected row is edited at once, so its text may be the value of an input
@@ -178,6 +181,7 @@ class AngularAweInstructionsTest {
     List<By> locators = List.of(
       instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
       instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
+      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"),
       instructions.getGridScrollZone("Gr'd"), instructions.getCellFromDatepicker("day", "It's"),
       instructions.getMenuOpenedChildren("Op't"), instructions.getSelectResult("It's"),
       instructions.getSuggestResult("a'b\"c"), instructions.containsText("cla'ss", "It's"));

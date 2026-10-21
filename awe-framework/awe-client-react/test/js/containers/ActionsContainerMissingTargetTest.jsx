@@ -22,7 +22,7 @@ const COMPONENT_ACTIONS = [
   "click", "file-uploaded", "clear-file",
   "next-step", "prev-step", "first-step", "last-step", "nth-step",
   "add-points", "add-chart-series", "remove-chart-series", "replace-chart-series",
-  "set-pivot-sorters", "set-pivot-group-rows", "set-pivot-group-cols", "toggle-menu"
+  "set-pivot-sorters", "set-pivot-group-rows", "set-pivot-group-cols", "toggle-menu", "show-context-menu"
 ];
 
 function buildState(type, components = {}) {

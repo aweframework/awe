@@ -89,6 +89,17 @@ aweApplication.factory('Column',
           };
 
           /**
+           * Action show-context-menu: select the row of the cell and open the menu of the grid under the cell button
+           */
+          component.onShowContextMenu = function () {
+            const root = $(component.element);
+            const anchor = root.is("button") ? root : root.find("button").first();
+            if (typeof gridComponent.showRowContextMenu === "function") {
+              gridComponent.showRowContextMenu(component.address.row, anchor.length > 0 ? anchor : root);
+            }
+          };
+
+          /**
            * Reset and restore column
            */
           component.onReset = $utilities.noop;

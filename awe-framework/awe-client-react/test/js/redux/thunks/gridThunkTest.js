@@ -99,6 +99,17 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
 
       expect(selectRows([3])).toEqual([3]);
     });
+
+    it('reads the row being edited before accepting the action, as accepting it can change the state', () => {
+      // Accepting the action runs the queue, which can finish the edition of the row
+      dispatch.mockImplementation((item) => {
+        if (item?.type === 'ACCEPT_ACTION') {
+          mockComponent.model.values[1].$row = { editing: false };
+        }
+      });
+
+      expect(selectRows([3])).toEqual([2]);
+    });
   });
 
   // -------------------------------

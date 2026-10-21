@@ -2209,6 +2209,19 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Click the button of a grid cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void clickGridCellButton(String gridId, String rowId, String columnId) {
+    By button = frontEndInstructions.getGridCellButton(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(button), checkIfGridLoaderIsNotVisible()));
+    clickSelector(button);
+  }
+
+  /**
    * Click on a cell on selected row
    *
    * @param gridId   Grid id

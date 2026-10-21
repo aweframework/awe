@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { ContextMenu } from "primereact/contextmenu";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import { contextMenuLinkTemplate, contextMenuPassThrough } from "../utilities/te
 import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import { useContextMenuAttributes } from "./useComponentState";
+import { registerContextMenu, registerContextMenuAnchor } from "../utilities/contextMenuRegistry";
 
 /**
  * Map the options of a context menu to the items of a PrimeReact ContextMenu
@@ -75,11 +76,47 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
     cmRef.current?.show(event);
   }, [canOpen]);
 
+  // The show-context-menu action opens the menu under a button: no mouse event, so its position comes from the button.
+  // PrimeReact places the menu one pixel below and right of pageX/pageY
+  const canOpenRef = useRef(canOpen);
+  canOpenRef.current = canOpen;
+  const showUnder = useCallback((anchor) => {
+    if (!cmRef.current || !anchor?.getBoundingClientRect) {
+      return false;
+    }
+    const rect = anchor.getBoundingClientRect();
+    cmRef.current.show({
+      pageX: rect.left + window.scrollX - 1,
+      pageY: rect.bottom + window.scrollY - 1,
+      preventDefault: () => null,
+      stopPropagation: () => null
+    });
+    return true;
+  }, []);
+  const { view, component } = address || {};
+  useEffect(
+    () => registerContextMenu({ view, component }, { show: showUnder, canOpen: () => canOpenRef.current }),
+    [view, component, showUnder]);
+
   const contextMenuTemplate = useCallback(() => items.length > 0
     ? <ContextMenu model={items} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />
     : null, [items]);
 
   return { onContextMenu, contextMenuTemplate };
+}
+
+/**
+ * Register a button as the element the show-context-menu action hangs a menu from
+ * @param {object} address Address of the button (a cell address for a button of a grid row)
+ * @returns {{current: Element}} Ref to give to the PrimeReact Button (it holds the button element)
+ */
+export function useContextMenuAnchor(address) {
+  const buttonRef = useRef(null);
+  const { view, component, row, column } = address || {};
+  useEffect(
+    () => registerContextMenuAnchor({ view, component, row, column }, () => buttonRef.current),
+    [view, component, row, column]);
+  return buttonRef;
 }
 
 export default useContextMenu;

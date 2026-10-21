@@ -1,6 +1,7 @@
 package com.almis.awe.schemas;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Document;
@@ -51,5 +52,27 @@ class ContextMenuOwnersSchemaTest {
   void ownerAcceptsContextButtons(String typeName) {
     assertThat(typeAccepts(typeName, "context-button")).as("context-button in " + typeName).isTrue();
     assertThat(typeAccepts(typeName, "context-separator")).as("context-separator in " + typeName).isTrue();
+  }
+
+  @Test
+  void buttonActionAcceptsShowContextMenu() throws Exception {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setNamespaceAware(true);
+    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    Document general = factory.newDocumentBuilder()
+      .parse(Paths.get(ContextMenuOwnersSchemaTest.class.getResource("/schemas/awe/general.xsd").toURI()).toFile());
+
+    NodeList types = general.getElementsByTagNameNS(XMLConstants.W3C_XML_SCHEMA_NS_URI, "simpleType");
+    boolean accepted = false;
+    for (int i = 0; i < types.getLength(); i++) {
+      Element type = (Element) types.item(i);
+      if ("buttonActionEnum".equals(type.getAttribute("name"))) {
+        NodeList values = type.getElementsByTagNameNS(XMLConstants.W3C_XML_SCHEMA_NS_URI, "enumeration");
+        for (int j = 0; j < values.getLength(); j++) {
+          accepted |= "show-context-menu".equals(((Element) values.item(j)).getAttribute("value"));
+        }
+      }
+    }
+    assertThat(accepted).as("show-context-menu in buttonActionEnum").isTrue();
   }
 }

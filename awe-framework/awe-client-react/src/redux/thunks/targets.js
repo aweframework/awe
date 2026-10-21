@@ -9,7 +9,7 @@ import {getAllComponents} from "../selectors/componentSelectors";
  */
 const COMPONENT_ACTIONS = new Set([
   // Button, uploader and menu
-  "click", "file-uploaded", "clear-file", "toggle-menu",
+  "click", "show-context-menu", "file-uploaded", "clear-file", "toggle-menu",
   // Wizard
   "next-step", "prev-step", "first-step", "last-step", "nth-step",
   // Chart

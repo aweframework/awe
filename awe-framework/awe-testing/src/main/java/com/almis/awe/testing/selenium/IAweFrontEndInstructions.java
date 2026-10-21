@@ -6,6 +6,7 @@ import com.almis.awe.testing.enumerated.SuggestBehavior;
 import org.openqa.selenium.By;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IAweFrontEndInstructions extends IAweInstructions {
 
@@ -357,6 +358,21 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Grid cell selector
    */
   By getGridCellText(String gridId, String rowId, String columnId, String search);
+
+  /**
+   * Get the button of a cell of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Button selector
+   */
+  default By getGridCellButton(String gridId, String rowId, String columnId) {
+    String grid = Optional.ofNullable(gridId)
+      .map(id -> "//*[@grid-id=" + XpathLiterals.of(id) + " or @tree-grid-id=" + XpathLiterals.of(id) + "]").orElse("");
+    return By.xpath(grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + " and @row-id=" + XpathLiterals.of(rowId) + "]//*["
+      + TestIds.xpath(TestIds.GRID_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]//button");
+  }
 
   /**
    * Find a cell containing a text

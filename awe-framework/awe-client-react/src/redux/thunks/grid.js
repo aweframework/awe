@@ -90,25 +90,49 @@ export const toggleColumnVisibilityGridAction = (action) => {
   };
 };
 
+/**
+ * Rows to select in a grid. The row being edited is the selected one (the AngularJS client edits the row the user selects):
+ * while it is edited, the selection stays on it, as a click on another row (or two quick clicks that unselect it) would
+ * leave a row being edited that is not selected, and the criteria that depend on the selected row would ignore it
+ * @param {function} getState Get state function
+ * @param {object} address Address of the grid
+ * @param {Array} values Identifiers of the rows to select
+ * @returns {Array} Identifiers of the rows to select
+ */
+const getRowsToSelect = (getState, address, values) => {
+  const component = getComponent(getAllComponents(getState()), address);
+  const editingRow = !component?.attributes?.multiselect
+    ? component?.model?.values?.find(row => row.$row?.editing) : undefined;
+  return editingRow ? [editingRow[getGridIdentifier(component.attributes)]] : values;
+};
+
+const selectRowsUpdate = (address, selected) => updateModelWithDependencies(address, {
+  event: "select-row",
+  selected
+});
+
+/**
+ * Select rows of a grid (see getRowsToSelect)
+ * @param {function} dispatch Dispatch function
+ * @param {function} getState Get state function
+ * @param {object} address Address of the grid
+ * @param {Array} values Identifiers of the rows to select
+ */
+export const selectRows = (dispatch, getState, address, values) => {
+  dispatch(selectRowsUpdate(address, getRowsToSelect(getState, address, values)));
+};
+
 export const selectRowGridAction = (action) => {
   return (dispatch, getState) => {
     const address = getActionAddress(action);
-    const component = getComponent(getAllComponents(getState()), address);
     const { values = [] } = action.parameters;
 
-    // The row being edited is the selected one (the AngularJS client edits the row the user selects): while it is
-    // edited, the selection stays on it, as a click on another row (or two quick clicks that unselect it) would leave
-    // a row being edited that is not selected, and the criteria that depend on the selected row would ignore it
-    const editingRow = !component?.attributes?.multiselect
-      ? component?.model?.values?.find(row => row.$row?.editing) : undefined;
-    const selected = editingRow ? [editingRow[getGridIdentifier(component.attributes)]] : values;
+    // Read the state before accepting the action: accepting it runs the queue, which can change the row being edited
+    const selected = getRowsToSelect(getState, address, values);
 
     dispatch(acceptAction(action));
 
-    dispatch(updateModelWithDependencies(address, {
-      event: "select-row",
-      selected
-    }));
+    dispatch(selectRowsUpdate(address, selected));
   };
 };
 

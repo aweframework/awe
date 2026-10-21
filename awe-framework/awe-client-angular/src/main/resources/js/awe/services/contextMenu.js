@@ -110,6 +110,24 @@ aweApplication.factory('ContextMenu',
           });
         },
         /**
+         * Show the context menu under an element: its top left corner lands on the bottom left corner of the
+         * anchor. It serves actions, which carry no mouse event
+         * @param {jQuery} anchor Element the menu hangs from
+         */
+        showUnder: function (anchor) {
+          const node = anchor && anchor[0];
+          if (!node || !node.getBoundingClientRect) {
+            return;
+          }
+          const rect = node.getBoundingClientRect();
+          // show() moves the menu up and left by the pointer offset, which is added back here
+          this.show({
+            clientX: rect.left + POINTER_OFFSET,
+            clientY: rect.bottom + POINTER_OFFSET,
+            preventDefault: Utilities.noop
+          });
+        },
+        /**
          * Get the menu list. It is rendered next to the directive anchor (ng-if) and remembered once found, as it
          * leaves its place while it is open. An empty lookup (menu not rendered yet) or a node that ng-if has
          * since replaced is never remembered
@@ -155,10 +173,15 @@ aweApplication.factory('ContextMenu',
             if (destroyed !== true && this.placeholder.parent().length > 0) {
               this.placeholder.replaceWith(this.element);
             } else {
-              // Nothing to return to (the component DOM is gone). Never remove() the linked menu (that strips its
-              // Angular data and a later show would find a dead node): detach it so it can be shown again
+              // Nothing to return to (the component DOM is gone). While the scope lives, never remove() the linked
+              // menu (that strips its Angular data and a later show would find a dead node): detach it so it can be
+              // shown again. With the scope destroyed nothing shows it again, so it leaves the page for good
               this.placeholder.remove();
-              this.element.detach();
+              if (destroyed === true) {
+                this.element.remove();
+              } else {
+                this.element.detach();
+              }
             }
           }
         },

@@ -150,6 +150,7 @@ Actions which works over components in the screen.
 | `select-last-row`                | Selects the last row of the grid                                                                         | `grid`                      |
 | `select-all-rows`                | Select all rows of the grid                                                                              | `grid`                      |
 | `unselect-all-rows`              | Unselect all rows of the grid                                                                            | `grid`                      |
+| `show-context-menu`              | Open the context menu under the button that launches it (see [Context menu](context-menu.md#opening-the-menu)) | The button itself           |
 | `validate-selected-row`          | Launch a validation on the selected row of the grid                                                      | `grid`                      |
 | `copy-selected-rows-clipboard`   | Copy the selected rows on the grid to the clipboard                                                      | `grid`                      |
 | `show-columns`                   | Show the grid columns defined on the `columns` parameter                                                 | `grid`                      |

@@ -79,6 +79,9 @@ class ReactAweInstructionsTest {
       + "//text()[contains(.,'abc')]/..");
     assertThat(instructions.findGridCell(null, "abc")).hasToString("By.xpath: "
       + "//*[@data-testid='grid-row']//*[@data-testid='grid-cell']//text()[contains(.,'abc')]/..");
+    assertThat(instructions.getGridCellButton("Grd", "R1", "Col")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
+      + "//*[@data-testid='grid-cell' and @column-id='Col']//button");
     assertThat(instructions.getRowEditBehavior()).isEqualTo(RowEditBehavior.DOUBLE_CLICK);
   }
 
@@ -262,6 +265,7 @@ class ReactAweInstructionsTest {
 
     List<By> locators = List.of(
       instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
+      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"),
       instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
       instructions.getCellFromDatepicker("day", "It's"), instructions.getTab("Ta'b", "Men's"),
       instructions.getTabActive("Ta'b", "Men's"), instructions.getMenuOpenedChildren("Op't"),
