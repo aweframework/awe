@@ -651,6 +651,10 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `restoreGrid(String gridId)` | Restaura un grid maximizado con el botón de su barra de herramientas |
 | `checkGridMaximized(String gridId)` | Comprueba que un grid ocupa el área de contenido de la pantalla (su maximize target) y la cabecera sigue visible |
 | `checkGridNotMaximized(String gridId)` | Comprueba que un grid está restaurado |
+| `maximizeWindow(String windowId)` | Maximiza una ventana (`maximize="true"` y con etiqueta) con su botón de maximizar |
+| `restoreWindow(String windowId)` | Restaura una ventana maximizada con su botón de restaurar |
+| `checkWindowMaximized(String windowId)` | Comprueba que una ventana ocupa el área de contenido de la pantalla (su maximize target) y la cabecera sigue visible |
+| `checkWindowNotMaximized(String windowId)` | Comprueba que una ventana está restaurada |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Comprueba que el icono de una columna de iconos se muestra (`plus`, sin el prefijo de la librería) |
 | `checkColumnSuccessIcon(String columnId)` | Comprueba que una columna muestra un icono de éxito |
 
@@ -775,6 +779,7 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 | `grid-loader` | Cargador del grid (también de la tabla dinámica) | Dentro del grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | El estado vacío de un grid sin filas, su título, su texto y el botón que ofrece | Dentro del grid |
 | `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | La barra de herramientas de un grid (con `data-testid-owner` = id del grid, y `data-maximized`) y sus botones de columnas y maximizar | Dentro de la página |
+| `window`, `window-maximize-button` | Una ventana (con `data-testid-owner` = id de la ventana, y `data-maximized`) y su botón de maximizar | Dentro de la página |
 | `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | El diálogo de columnas de un grid (con `data-testid-owner` = id del grid), su contador «N de M visibles» (`data-visible`, `data-total`) y sus acciones | Dentro de la página |
 | `grid-column-group`, `grid-column-item`, `grid-column-checkbox`, `grid-column-handle`, `grid-column-up`, `grid-column-down` | En el diálogo de columnas: un grupo de columnas (su título es su texto), una columna (`column-id`) con su casilla, su asa de arrastre y sus flechas | Dentro del diálogo |
 | `grid-group-header` | Una cabecera de grupo de un grid, sobre sus columnas | Dentro del grid |
@@ -844,7 +849,7 @@ o `"false"`, excepto `data-type`, `data-container`, `data-icon`, `data-value` y 
 | `data-active` | Pestaña, paso de asistente, asistente o panel de pestaña y opción de menú activos; la celda del selector de fechas que tiene el foco del teclado |
 | `data-disabled` | Lista de pestañas, enlace de menú contextual, flecha de página anterior/siguiente o celda del selector de fechas deshabilitados |
 | `data-open` | Opción de menú o submenú que está abierto; popover de ayuda que se muestra; diálogo que está abierto. Un diálogo vuelve a ser `false` solo cuando se ha eliminado su fondo (backdrop), de modo que la pantalla es interactiva |
-| `data-maximized` | Barra de herramientas de un grid que ocupa el área de contenido |
+| `data-maximized` | Barra de herramientas de un grid o ventana que ocupa el área de contenido |
 | `data-expanded`, `data-loading` | Fila de árbol que está expandida, o que está cargando sus hijos |
 | `data-completed` | Paso de asistente que ya está hecho |
 | `data-invalid` | Pestaña, paso de asistente o elemento de acordeón (AngularJS: el `panel` del elemento) que contiene campos que han fallado la validación |

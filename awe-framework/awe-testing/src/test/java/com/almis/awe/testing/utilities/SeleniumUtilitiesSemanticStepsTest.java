@@ -1706,6 +1706,30 @@ class SeleniumUtilitiesSemanticStepsTest {
     }
   }
 
+  @Test
+  void shouldMaximizeAndRestoreAWindowInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowMaximizeButton("Win"), "Maximize");
+      show(instructions.getWindow("Win", true), "");
+      show(instructions.getWindow("Win", false), "");
+      show(instructions.getWindow("Win"), "");
+
+      long start = performed();
+      utilities.maximizeWindow("Win");
+      utilities.restoreWindow("Win");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.97, 40.0);
+      assertThatCode(() -> {
+        utilities.checkWindowMaximized("Win");
+        utilities.checkWindowNotMaximized("Win");
+      }).doesNotThrowAnyException();
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.5, 40.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkWindowMaximized("Win"));
+    }
+  }
+
   private static class RecordingSeleniumUtilities extends SeleniumUtilities {
     private final List<String> events = new ArrayList<>();
 

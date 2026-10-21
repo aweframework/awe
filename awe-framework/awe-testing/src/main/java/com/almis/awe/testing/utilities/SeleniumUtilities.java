@@ -4330,14 +4330,23 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkGridMaximized(String gridId) {
     waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, true)));
-    By grid = frontEndInstructions.getGrid(gridId);
-    waitUntil(toBeVisible(grid));
-    // Smallest ratio between the sizes of the grid and of its maximize target (0 when it has none)
-    Object fill = getBrowser().executeScriptOn(locator(grid), "const target = arguments[0].closest('.maximize-target'); if (!target) { return 0; } "
+    checkFillsMaximizeTarget("grid " + gridId, frontEndInstructions.getGrid(gridId));
+  }
+
+  /**
+   * Check that an element fills its maximize target (the content area) and leaves the header of the application above it
+   *
+   * @param description Description of the element for the failure message
+   * @param element     Element selector
+   */
+  private void checkFillsMaximizeTarget(String description, By element) {
+    waitUntil(toBeVisible(element));
+    // Smallest ratio between the sizes of the element and of its maximize target (0 when it has none)
+    Object fill = getBrowser().executeScriptOn(locator(element), "const target = arguments[0].closest('.maximize-target'); if (!target) { return 0; } "
       + "const g = arguments[0].getBoundingClientRect(); const t = target.getBoundingClientRect(); "
       + "return Math.min(g.width / t.width, t.width / g.width, g.height / t.height, t.height / g.height);");
-    Object top = getBrowser().executeScriptOn(locator(grid), "return arguments[0].getBoundingClientRect().top;");
-    assertWithScreenshot("The grid " + gridId + " does not fill the content area (" + fill + " of its size) or covers the header (" + top + "px from the top)",
+    Object top = getBrowser().executeScriptOn(locator(element), "return arguments[0].getBoundingClientRect().top;");
+    assertWithScreenshot("The " + description + " does not fill the content area (" + fill + " of its size) or covers the header (" + top + "px from the top)",
       fill instanceof Number f && top instanceof Number t && f.doubleValue() >= MAXIMIZED_MIN_FILL && t.doubleValue() > 0);
   }
 
@@ -4348,6 +4357,43 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkGridNotMaximized(String gridId) {
     waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, false)));
+  }
+
+  /**
+   * Maximize a window with its Maximize button
+   *
+   * @param windowId Window identifier
+   */
+  protected void maximizeWindow(String windowId) {
+    click(frontEndInstructions.getWindowMaximizeButton(windowId));
+  }
+
+  /**
+   * Restore a maximized window with its Restore button
+   *
+   * @param windowId Window identifier
+   */
+  protected void restoreWindow(String windowId) {
+    click(frontEndInstructions.getWindowMaximizeButton(windowId));
+  }
+
+  /**
+   * Check that a window fills the content area of the screen (its maximize target) and keeps the header of the application above it
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkWindowMaximized(String windowId) {
+    waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, true)));
+    checkFillsMaximizeTarget("window " + windowId, frontEndInstructions.getWindow(windowId, true));
+  }
+
+  /**
+   * Check that a window is not maximized
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkWindowNotMaximized(String windowId) {
+    waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, false)));
   }
 
   /**

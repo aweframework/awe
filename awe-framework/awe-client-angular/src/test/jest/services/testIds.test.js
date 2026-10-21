@@ -118,6 +118,8 @@ describe("test id vocabulary", () => {
       confirmDialog: "confirm-dialog",
       confirmAccept: "confirm-accept",
       confirmCancel: "confirm-cancel",
+      window: "window",
+      windowMaximizeButton: "window-maximize-button",
       loader: "loader",
       loadingBar: "loading-bar",
       loadingSpinner: "loading-spinner",

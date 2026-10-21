@@ -45,7 +45,7 @@ A window is a container with a title bar. It also can be maximized or restored, 
 | style        | Optional   | String   | Window CSS classes                             | **Note:** Here you can use `expand` class to set the window as expandible  |
 | icon         | Optional   | String   | Icon identifier                                | **Note:** You can check all iconsets at [icons](icons.md) screen           |
 | expandible   | Optional   | String   | How to [expand](layout.md) the window children | `vertical` (default), `horizontal`                                         |
-| maximize     | Optional   | Boolean  | Whether to show the maximize icon or not       |                                                                            |
+| maximize     | Optional   | Boolean  | Whether to show the maximize icon or not       | **Note:** Only a window with a `label` can be maximized                    |
 | help         | Optional   | String   | Help text for the criterion                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | help-image   | Optional   | String   | Help image for the criterion                   | This **must** be a image path                                              |
 
@@ -79,7 +79,9 @@ Both engines handle `expandible` and `maximize` in the same way:
 
 * `expandible` sets the direction in which the window shares the space among its children (`vertical` by default).
 * `maximize="true"` shows a button in the title bar that maximizes the window over the content of the screen and
-  restores it. While the window is maximized, the content with the `expand-maximize` style takes the free space.
+  restores it. The window fills the content area, keeping the menu and the top bar visible, and its sibling windows are
+  hidden while it is maximized. The Restore button brings it back; there is no Escape key shortcut. The content with the
+  `expand-maximize` style takes the free space while the window is maximized.
 
 The differences are only visual: the AngularJS engine uses Font Awesome icons for the maximize button and the React
 engine uses PrimeIcons, and the React engine shows the `icon` of the window at the right of the title bar.

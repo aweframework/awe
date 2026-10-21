@@ -41,7 +41,7 @@ These styles go in the `style` attribute of the children of an expandible contai
 | `expand`              | The child takes its share of the free space                                                                         |
 | `expand-2x`           | The child takes double the space of a single `expand`                                                               |
 | `expand-3x` ... `expand-12x` | The child takes three, four... up to twelve times the space of a single `expand`                             |
-| `expand-maximize`     | The child expands **only** when the *parent* [window](window.md) is maximized. AngularJS engine only                |
+| `expand-maximize`     | The child expands **only** when the *parent* [window](window.md) is maximized                                       |
 
 The children without any of these styles keep their own size.
 
@@ -136,7 +136,7 @@ The `expandible` attribute and the `expand` styles work in both engines, with th
 | `expandible` of a `tag` without `type`   | Lost: a tag without `type` generates no element       | Applied to the `div` that the React tag generates  |
 | `expandible` of a `window`               | Applied (vertical by default)                         | Ignored: the window is always vertical             |
 | `expandible` of a tag with `source`      | Applied (if the tag has a `type`)                     | Ignored: the template only uses the `style`       |
-| `expand-maximize`                        | Applied                                               | Ignored: there is no maximize in the window        |
+| `expand-maximize`                        | Applied                                               | Applied                                            |
 
 To keep a screen working in both engines, give a `type` to the tags with `expandible`, and put the horizontal layouts
 inside a `tag` instead of directly in a window or in a source tag.

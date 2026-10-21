@@ -1,42 +1,18 @@
-import React, {useEffect, useRef, useState} from "react";
+import React from "react";
 import {Panel} from 'primereact/panel';
 import {useTranslation} from 'react-i18next';
 import "./AweWindow.less";
 import {getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
+import {TestIds, testHook} from "../utilities/testIds";
+import useMaximize from "../hooks/useMaximize";
 import PropTypes from "prop-types";
 
 function AweWindow(props) {
   const {id, style, help, helpImage, label, icon, expand, maximize, elementList = []} = props;
-  const [maximized, setMaximized] = useState(false);
-  const [bounds, setBounds] = useState(null);
-  const buttonRef = useRef(null);
-
-  // The window is fixed over the maximize target of the template. It cannot be absolute, because a resizable
-  // that contains the window is a positioning context and the window would only fill that box.
-  const measureTarget = () => {
-    const target = buttonRef.current?.closest(".maximize-target");
-    if (!target) {
-      return {top: 0, left: 0, right: 0, bottom: 0};
-    }
-    const {top, left, width, height} = target.getBoundingClientRect();
-    return {top, left, width, height};
-  };
-
-  useEffect(() => {
-    if (!maximized) {
-      return undefined;
-    }
-    const update = () => setBounds(measureTarget());
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [maximized]);
-
-  const toggleMaximized = () => {
-    setBounds(maximized ? null : measureTarget());
-    setMaximized(!maximized);
-  };
+  // The window grows over the maximize target like a grid does, and its siblings fade out
+  const {ref: windowRef, iconMaximized, style: maximizeStyle, className: maximizeClassName, toggle: toggleMaximized} = useMaximize();
   const { t } = useTranslation();
 
   const getIcon = () => {
@@ -52,10 +28,10 @@ function AweWindow(props) {
     if (!isMaximizable) {
       return null;
     }
-    const title = t(maximized ? "SCREEN_TEXT_RESTORE" : "SCREEN_TEXT_MAXIMIZE");
+    const title = t(iconMaximized ? "SCREEN_TEXT_RESTORE" : "SCREEN_TEXT_MAXIMIZE");
     return <button type="button" className="maximize-button p-link" title={title} aria-label={title}
-      ref={buttonRef} onClick={toggleMaximized}>
-      <i className={`pi ${maximized ? "pi-window-minimize" : "pi-window-maximize"}`}/>
+      onClick={toggleMaximized} {...testHook(TestIds.windowMaximizeButton)}>
+      <i className={`pi ${iconMaximized ? "pi-window-minimize" : "pi-window-maximize"}`}/>
     </button>;
   };
 
@@ -73,7 +49,7 @@ function AweWindow(props) {
     return <div className={`help-target-${id}`}>{translateLabel(label, t)} {getHelpIcon()}</div>;
   };
 
-  const classes = classNames("m-2", `expandible-${expand || "vertical"}`, {maximized}, style);
+  const classes = classNames("m-2", `expandible-${expand || "vertical"}`, style, maximizeClassName);
 
   return <>
     {getHelpTooltipNode(help, helpImage, t,`.help-target-${id}`)}
@@ -81,7 +57,8 @@ function AweWindow(props) {
       id={id}
       window-id={id}
       className={classes}
-      style={maximized && bounds ? {position: "fixed", ...bounds} : undefined}
+      style={maximizeStyle}
+      pt={{root: {ref: windowRef, ...testHook(TestIds.window, {owner: id, maximized: iconMaximized})}}}
       header={getHeader()}
       icons={getIcons()}>
       {elementList.map((node, index) => Components(node, index))}

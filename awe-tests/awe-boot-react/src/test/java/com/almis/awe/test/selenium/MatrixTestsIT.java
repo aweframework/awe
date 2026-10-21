@@ -1063,6 +1063,26 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Window maximize test: a window with a label and maximize="true" fills the content area of the screen (the header
+   * of the application stays visible) and the Restore button brings it back
+   */
+  @Test
+  void t117_windowMaximizeAndRestore() {
+    // Title
+    setTestTitle("Window: maximize and restore");
+
+    // Go to screen
+    gotoScreen("test", "screen-test");
+
+    // Maximize fills the content area of the screen and restores the window
+    String windowId = "WinGrd";
+    maximizeWindow(windowId);
+    checkWindowMaximized(windowId);
+    restoreWindow(windowId);
+    checkWindowNotMaximized(windowId);
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

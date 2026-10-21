@@ -130,6 +130,9 @@ export const TestIds = Object.freeze({
   confirmDialog: "confirm-dialog",
   confirmAccept: "confirm-accept",
   confirmCancel: "confirm-cancel",
+  // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
+  window: "window",
+  windowMaximizeButton: "window-maximize-button",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the global loading bar with its spinner
   loader: "loader",
   loadingBar: "loading-bar",
