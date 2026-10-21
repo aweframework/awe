@@ -656,6 +656,12 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Element selector
    */
   private void contextMenu(By selector) {
+    // A menu opened before may still be closing (its mask, its fade out): while it does, a menu that overflows the
+    // viewport keeps the page scrolled and the layout moves under the pointer when it is gone
+    // (every match counts, not only the first one; React has no mask nor ng-animate, so nothing matches and it passes)
+    waitUntil(BrowserCondition.noneVisible(locator(By.cssSelector(".component-mask"))));
+    waitUntil(BrowserCondition.noneVisible(locator(By.cssSelector("[data-testid='context-menu'].ng-animate"))));
+
     // Wait until element is clickable
     waitUntil(toBeClickable(selector));
 
@@ -2243,6 +2249,44 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void contextMenu(String gridId, String rowId, String columnId) {
     contextMenuFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
+  }
+
+  /**
+   * Right click on a button to open its context menu
+   *
+   * @param buttonId Button id
+   */
+  protected void contextMenuOnButton(String buttonId) {
+    waitForButton(buttonId);
+    contextMenu(frontEndInstructions.getButton(buttonId));
+  }
+
+  /**
+   * Right click on a criterion to open its context menu
+   *
+   * @param criterionId Criterion id
+   */
+  protected void contextMenuOnCriterion(String criterionId) {
+    contextMenu(By.cssSelector(frontEndInstructions.getCriterionCss(criterionId)));
+  }
+
+  /**
+   * Right click on the tab list of a tab criterion to open its context menu
+   *
+   * @param tabId Tab criterion id
+   */
+  protected void contextMenuOnTab(String tabId) {
+    waitForTab(tabId);
+    contextMenu(frontEndInstructions.getTab(tabId));
+  }
+
+  /**
+   * Right click on the active step of a wizard to open its context menu
+   *
+   * @param wizardId Wizard criterion id
+   */
+  protected void contextMenuOnWizard(String wizardId) {
+    contextMenu(frontEndInstructions.getActiveWizardStepOf(wizardId));
   }
 
   /**

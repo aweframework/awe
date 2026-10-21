@@ -271,6 +271,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getEnabledDatepickerDay", i::getEnabledDatepickerDay);
     catalog.put("getActiveWizardStepNumber", i::getActiveWizardStepNumber);
     catalog.put("getActiveWizardStep", () -> i.getActiveWizardStep("2"));
+    catalog.put("getActiveWizardStepOf", () -> i.getActiveWizardStepOf("wizard"));
     catalog.put("getTagList", () -> i.getTagList("Tags"));
     catalog.put("getChart", () -> i.getChart("Chr"));
     catalog.put("getInvalidTab", () -> i.getInvalidTab(CRITERION));

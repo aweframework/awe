@@ -1246,8 +1246,8 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
   });
 
 
-  describe('context menu options resolved by the selection', () => {
-    const buildState = () => ({
+  describe('context menu of the grid', () => {
+    const buildState = (contextMenu) => ({
       settings: DEFAULT_SETTINGS,
       screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
       components: {
@@ -1256,13 +1256,21 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
           model: {values: [{id: 1, "test": "test"}]},
           attributes: {
             loadAll: true, max: 30, columnModel: [{name: "test", label: "test", hidden: false}],
-            headerModel: [], buttonModel: [], contextMenu: [{id: "optionLate"}]
+            headerModel: [], buttonModel: [], contextMenu
           },
           specificAttributes: {sort: []}
         },
-        optionLate: {
-          address: {component: 'optionLate', view: 'report'}, model: {values: []},
-          attributes: {label: "Late", visible: false}
+        optionShown: {
+          address: {component: 'optionShown', view: 'report'}, model: {values: []},
+          attributes: {label: "Shown", visible: true}
+        },
+        optionHidden: {
+          address: {component: 'optionHidden', view: 'report'}, model: {values: []},
+          attributes: {label: "Hidden", visible: false}
+        },
+        optionSeparator: {
+          address: {component: 'optionSeparator', view: 'report'}, model: {values: []},
+          attributes: {separator: true, visible: true}
         }
       }
     });
@@ -1270,17 +1278,37 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     it('opens the menu when every option is hidden at the click and shows the one the selection makes visible', () => {
       // The right click selects the row and the dependencies of the options resolve after it: the options of a grid
       // are hidden when the menu opens and appear as soon as they resolve
-      const {store} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState()});
+      const {store} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState([{id: "optionHidden"}])});
 
       fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
       expect(document.querySelector(".p-contextmenu")).not.toBeNull();
       expect(document.querySelector(".p-contextmenu .p-menuitem")).toBeNull();
 
       act(() => {
-        store.dispatch(updateAttributes({component: 'optionLate', view: 'report'}, {visible: true}));
+        store.dispatch(updateAttributes({component: 'optionHidden', view: 'report'}, {visible: true}));
       });
 
       expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
+    });
+
+    it('keeps the browser menu on a grid that declares no options', () => {
+      renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState([])});
+
+      fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
+
+      expect(document.querySelector(".p-contextmenu")).toBeNull();
+    });
+
+    it('stops the right click on a row from reaching a parent context menu handler', () => {
+      const parentHandler = jest.fn();
+      renderWithProviders(<div onContextMenu={parentHandler}><AweGrid id="grid"/></div>, {
+        preloadedState: buildState([{id: "optionShown"}])
+      });
+
+      fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
+
+      expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
+      expect(parentHandler).not.toHaveBeenCalled();
     });
   });
 

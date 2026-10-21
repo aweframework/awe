@@ -17,6 +17,9 @@
   <tag source="center" expandible="vertical">
     <tag type="div" style="expand" expandible="vertical">
       <tab id="RevTabs" initial-load="enum" target-action="RevTabs">
+        <context-button id="CtxTabSet" label="Set value from the tabs" icon="calculator">
+          <button-action type="value" target="RevTabFirst" value="FromTabs"/>
+        </context-button>
         <tabcontainer id="RevTabOne">
           <tag type="div" style="panel-body">
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevTabFirst"
@@ -49,6 +52,9 @@
     </tag>
     <tag type="div" style="expand" expandible="vertical">
       <wizard id="RevWizard" initial-load="enum" target-action="RevSteps" label="SCREEN_TEXT_STEP">
+        <context-button id="CtxWizardSet" label="Set value from the wizard" icon="calculator">
+          <button-action type="value" target="RevStepFirst" value="FromWizard"/>
+        </context-button>
         <wizard-panel id="RevStepOne">
           <tag type="div" style="panel-body">
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="RevStepFirst"

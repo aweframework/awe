@@ -40,7 +40,11 @@
       </dependency>
     </button>
     <button button-type="button" icon="rebel" id="ButIco" />
-    <button button-type="button" label="BUTTON_CONFIRM" id="ButTxt" />
+    <button button-type="button" label="BUTTON_CONFIRM" id="ButTxt">
+      <context-button id="CtxButSet" label="Set value from the button" icon="calculator">
+        <button-action type="value" target="ButCtxBut" value="FromButton" />
+      </context-button>
+    </button>
   </tag>
   <tag source="center" expandible="vertical">
     <window id="WinDat" label="SCREEN_TEXT_DATA" maximize="true">
@@ -59,6 +63,12 @@
           <dependency initial="true" source-type="value" target-type="input" value="Valor2">
             <dependency-element id="ButSetVa2" event="click" />
           </dependency>
+        </criteria>
+        <criteria label="Context menu on a button" id="ButCtxBut" component="text" style="col-xs-6 col-sm-3 col-lg-2" />
+        <criteria label="Context menu on a criterion" id="ButCtxCri" component="text" style="col-xs-6 col-sm-3 col-lg-2">
+          <context-button id="CtxCriSet" label="Set value from the criterion" icon="calculator">
+            <button-action type="value" target="ButCtxCri" value="FromCriterion" />
+          </context-button>
         </criteria>
       </tag>
     </window>

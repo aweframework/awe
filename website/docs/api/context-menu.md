@@ -3,7 +3,14 @@ id: context-menu
 title: Context menu
 ---
 
-Awe engine allows define context menu inside a grid, criterias or charts. With these menus, you can add functionality to your window.
+Awe engine allows define context menu inside a grid, tree grid, chart, button, criterion, tab or wizard. With these menus, you can add functionality to your window.
+
+## Opening the menu
+
+The menu opens with a right click on the component that declares it: grids, tree grids, charts, buttons, criteria, tabs and wizards.
+
+- When none of the options is visible (for example, because of their dependencies), the menu does not open and the browser menu is shown instead.
+- When a component sits inside another one that also declares a context menu (a criterion inside a tab), the menu of the inner component wins over the menu of its container.
 
 <img alt="GridContextMenu" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 

@@ -8,7 +8,7 @@ export const templateButton = `<div ng-show="controller.visible" class="{{::grou
     ${getIconTemplate("button-icon", "i")}
     <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
   </button>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 

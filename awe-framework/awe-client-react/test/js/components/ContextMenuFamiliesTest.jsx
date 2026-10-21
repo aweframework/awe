@@ -47,6 +47,11 @@ function stateOf(id, extra = {}, contextMenu = OPTIONS) {
         model: { values: [] },
         attributes: { label: "Add", visible: true, actions: [{ type: "do-add" }] }
       },
+      OptSeparator: {
+        address: address("OptSeparator"),
+        model: { values: [] },
+        attributes: { separator: true, visible: true }
+      },
       OptHidden: {
         address: address("OptHidden"),
         model: { values: [] },
@@ -130,6 +135,17 @@ describe("awe-react-client/test/js/components/ContextMenuFamiliesTest.jsx", () =
       const event = await rightClick(container.querySelector(selector));
 
       expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("keeps the browser menu when only separators are visible", async () => {
+      const { container } = renderWithProviders(render(), {
+        preloadedState: stateOf(id, {}, [{ id: "OptSeparator" }, { id: "OptHidden" }])
+      });
+
+      const event = await rightClick(container.querySelector(selector));
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(document.querySelector(hook("context-menu"))).toBeNull();
     });
   });
 });

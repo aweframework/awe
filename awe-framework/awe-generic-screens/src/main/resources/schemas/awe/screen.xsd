@@ -1519,6 +1519,8 @@
       <xs:element ref="include" />
       <xs:element ref="button-action" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="buttonAttr" />
   </xs:complexType>
@@ -1628,6 +1630,8 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="tabcontainer" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="tabAttr" />
   </xs:complexType>
@@ -1637,6 +1641,8 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="wizard-panel" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="wizardAttr" />
   </xs:complexType>

@@ -8,7 +8,7 @@ import {TestIds} from "../../data/testIds";
 // Template
 const template =
 `<div class="tab-container tab-container-{{::size}} expand expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-    <awe-context-menu ng-cloak></awe-context-menu>
+    <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
     <div class="{{::criterionClass}} expand expandible-vertical">
       <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}" data-testid="${TestIds.tabList}" ng-attr-data-disabled="{{!!isDisabled()}}">
           <li ng-class="{'active':$parent.model.selected === tab.value, 'tab-invalid':invalidPanels[tab.value]}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}" data-testid="${TestIds.tab}" ng-attr-data-active="{{$parent.model.selected === tab.value}}" ng-attr-data-invalid="{{!!invalidPanels[tab.value]}}">

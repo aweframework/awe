@@ -1,12 +1,13 @@
 package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ElementRef;
 import com.almis.awe.testing.driver.ElementReplacedException;
 import com.almis.awe.testing.driver.Locator;
 
 import java.time.Duration;
-import java.util.function.LongSupplier;
 import java.util.Arrays;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 
 /**
@@ -131,6 +132,32 @@ interface BrowserCondition {
       @Override
       public String toString() {
         return "element located by " + locator + " to be invisible";
+      }
+    };
+  }
+
+  /**
+   * No match of the locator is displayed. Unlike {@link #invisible(Locator)}, which looks at the first match only, it
+   * checks every match (several masks or fading menus can be on the page at once); no match at all is met. A match
+   * that is replaced while it is read is "not yet"
+   *
+   * @param locator Locator
+   * @return Condition
+   */
+  static BrowserCondition noneVisible(Locator locator) {
+    return new BrowserCondition() {
+      @Override
+      public boolean isMet(BrowserDriver browser) {
+        try {
+          return browser.elements(locator).stream().noneMatch(ElementRef::isVisible);
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      }
+
+      @Override
+      public String toString() {
+        return "no element located by " + locator + " to be visible";
       }
     };
   }
