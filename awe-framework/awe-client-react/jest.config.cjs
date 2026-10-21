@@ -130,6 +130,7 @@ module.exports = {
     '**/components/AweGridRadioColumnTest.{js,jsx}',
     '**/components/ElementHelpTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
+    '**/components/ContextMenuFamiliesTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'
   ],
   transform: {

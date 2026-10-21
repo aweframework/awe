@@ -4,7 +4,7 @@ import {act, fireEvent, screen} from '@testing-library/react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweGrid from "../../../src/components/AweGrid";
-import {updateModel, updateSpecificAttributes} from "../../../src/redux/actions/components";
+import {updateAttributes, updateModel, updateSpecificAttributes} from "../../../src/redux/actions/components";
 
 describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
@@ -1243,6 +1243,45 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
 
     expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
+  });
+
+
+  describe('context menu options resolved by the selection', () => {
+    const buildState = () => ({
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {values: [{id: 1, "test": "test"}]},
+          attributes: {
+            loadAll: true, max: 30, columnModel: [{name: "test", label: "test", hidden: false}],
+            headerModel: [], buttonModel: [], contextMenu: [{id: "optionLate"}]
+          },
+          specificAttributes: {sort: []}
+        },
+        optionLate: {
+          address: {component: 'optionLate', view: 'report'}, model: {values: []},
+          attributes: {label: "Late", visible: false}
+        }
+      }
+    });
+
+    it('opens the menu when every option is hidden at the click and shows the one the selection makes visible', () => {
+      // The right click selects the row and the dependencies of the options resolve after it: the options of a grid
+      // are hidden when the menu opens and appear as soon as they resolve
+      const {store} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: buildState()});
+
+      fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
+      expect(document.querySelector(".p-contextmenu")).not.toBeNull();
+      expect(document.querySelector(".p-contextmenu .p-menuitem")).toBeNull();
+
+      act(() => {
+        store.dispatch(updateAttributes({component: 'optionLate', view: 'report'}, {visible: true}));
+      });
+
+      expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
+    });
   });
 
 

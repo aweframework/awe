@@ -10,6 +10,7 @@ import { selectActionsRunning } from "../redux/selectors/stateSelectors";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
+import { useContextMenu } from "../hooks/useContextMenu";
 
 /**
  * Steps disabled while actions run. It is the only part of the wizard that reads the running flag, so a running/idle
@@ -42,6 +43,7 @@ function AweSteps(props) {
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
   const invalid = useInvalidValues(id);
+  const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
 
   const titleRenderer = (title) => title ? <span className={`p-steps-supertitle`}>{translateLabel(title, t)}</span> : null;
   const labelRenderer = (label) => label ? <span className={`p-steps-title`}>{translateLabel(label, t)}</span> : null;
@@ -80,12 +82,13 @@ function AweSteps(props) {
 
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
-  return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`} criterion-id={id}>
+  return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`} criterion-id={id} onContextMenu={onContextMenu}>
     <AweStepList values={values} activeIndex={activeIndex} disabled={disabled} onChange={onChange}
       itemRenderer={itemRenderer} />
     {elementList
       .filter(item => item.elementType === "WizardPanel")
       .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+    {contextMenuTemplate()}
   </div>;
 }
 

@@ -8,6 +8,7 @@ import "./AweCriterion.less";
 import {TestIds, testHook} from "../utilities/testIds";
 import PropTypes from "prop-types";
 import {CriterionSkeleton} from "../components/AweSkeleton";
+import {useContextMenu} from "../hooks/useContextMenu";
 
 // Pixels added to the width of a character by the size of the criterion
 const SIZE_CHAR_INCREMENT = {md: 1, lg: 3};
@@ -18,6 +19,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
   const {t} = useTranslation();
   const settings = useSelector(selectSettings);
+  const {onContextMenu, contextMenuTemplate} = useContextMenu({address, contextMenu: attributes?.contextMenu});
 
   // Label on the left: its width is the number of characters of the contract by the pixels of a character of the size
   const leftChars = Number.parseInt(leftLabel, 10);
@@ -95,7 +97,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
   }, style);
 
   return (
-    <div className={classes} criterion-id={address.component}>
+    <div className={classes} criterion-id={address.component} onContextMenu={onContextMenu}>
       {generateLabel && getLabel()}
       {!generateLabel && getHelpTooltipNode(help, helpImage, t, `.help-target-${address.component}`)}
       <div className={classNames(groupClass, {[`help-target-${address.component}`]: !generateLabel && (help || helpImage)})}
@@ -106,6 +108,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
         {generateUnit && getUnit()}
       </div>
       {getValidation()}
+      {contextMenuTemplate()}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { mapContextMenu } from '../../../src/hooks/useGrid';
+import { mapContextMenu } from '../../../src/hooks/useContextMenu';
 
 describe('awe-react-client/test/js/hooks/useGridContextMenuTest.js', () => {
   const address = { view: 'base', component: 'grid1' };
