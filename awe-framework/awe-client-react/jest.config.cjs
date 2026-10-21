@@ -27,6 +27,7 @@ module.exports = {
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
     '**/redux/thunks/gridCellLoadRaceThunkTest.{js,jsx}',
+    '**/redux/thunks/gridChangeEventThunkTest.{js,jsx}',
     '**/redux/thunks/fillSuggestThunkTest.{js,jsx}',
     '**/redux/thunks/deferredThunkTest.{js,jsx}',
     '**/redux/thunks/filesThunkTest.{js,jsx}',
