@@ -4,7 +4,10 @@
 /**
  * Generates the XSD reference pages of the site (website/reference) from the AWE schemas.
  *
- * Usage: node scripts/xsd-reference/generate.js [--xsd-dir <dir>] [--out <dir>]
+ * Usage: node scripts/xsd-reference/generate.js [--xsd-dir <dir>] [--out <dir>] [--thresholds <file>]
+ *
+ * It prints the attribute documentation coverage of every schema and exits with 1 when a schema has more undocumented
+ * attributes than its threshold in thresholds.json (0 for a schema without one), listing them. The pages are written anyway.
  *
  * The output folder is fully regenerated and git-ignored: the pages are never committed. To make sure a
  * wrong --out cannot delete anything else, the folder must be inside website/ and be either missing, empty
@@ -16,19 +19,20 @@ const path = require('node:path');
 
 const {loadSchemas, buildReference} = require('./xsd-model');
 const {renderPages} = require('./render');
-const {coverageReport, formatReport} = require('./report');
+const {coverageReport, formatReport, checkThresholds, formatThresholdCheck} = require('./report');
 
 const WEBSITE = path.resolve(__dirname, '..', '..');
 const DEFAULT_XSD_DIR = path.resolve(WEBSITE, '..', 'awe-framework', 'awe-generic-screens', 'src', 'main', 'resources', 'schemas', 'awe');
 const DEFAULT_OUT = path.join(WEBSITE, 'reference');
+const DEFAULT_THRESHOLDS = path.join(__dirname, 'thresholds.json');
 const MARKER = '.generated-by-xsd-reference';
 
 function parseArgs(argv) {
-	const options = {xsdDir: DEFAULT_XSD_DIR, out: DEFAULT_OUT};
+	const options = {xsdDir: DEFAULT_XSD_DIR, out: DEFAULT_OUT, thresholds: DEFAULT_THRESHOLDS};
 	for (let i = 0; i < argv.length; i += 2) {
-		const key = {'--xsd-dir': 'xsdDir', '--out': 'out'}[argv[i]];
+		const key = {'--xsd-dir': 'xsdDir', '--out': 'out', '--thresholds': 'thresholds'}[argv[i]];
 		if (!key || argv[i + 1] === undefined) {
-			throw new Error(`Usage: generate.js [--xsd-dir <dir>] [--out <dir>] (got "${argv.slice(i).join(' ')}")`);
+			throw new Error(`Usage: generate.js [--xsd-dir <dir>] [--out <dir>] [--thresholds <file>] (got "${argv.slice(i).join(' ')}")`);
 		}
 		options[key] = path.resolve(argv[i + 1]);
 	}
@@ -83,11 +87,41 @@ function ensureGenerated(options = {}) {
 	}
 }
 
-if (require.main === module) {
-	const options = parseArgs(process.argv.slice(2));
-	const {pages, report} = generate(options);
-	console.log(`XSD reference: ${pages.length} pages written to ${path.relative(process.cwd(), options.out) || '.'}`);
-	console.log(formatReport(report));
+function loadThresholds(file) {
+	let content;
+	try {
+		content = JSON.parse(fs.readFileSync(file, 'utf8'));
+	} catch (error) {
+		throw new Error(`Cannot read the XSD documentation thresholds ${file}: ${error.message}`);
+	}
+	if (!content || typeof content.maxUndocumented !== 'object' || content.maxUndocumented === null) {
+		throw new Error(`The XSD documentation thresholds ${file} have no "maxUndocumented" object (schema file -> allowed count)`);
+	}
+	for (const [schema, max] of Object.entries(content.maxUndocumented)) {
+		if (!Number.isInteger(max) || max < 0) {
+			throw new Error(`The XSD documentation threshold of ${schema} in ${file} must be a whole number of attributes (0 or more), got ${JSON.stringify(max)}`);
+		}
+	}
+	return content.maxUndocumented;
 }
 
-module.exports = {generate, ensureGenerated, parseArgs, assertSafeOutput};
+/** Generates the reference, prints the coverage and checks the thresholds; returns the exit code. */
+function run({thresholds = DEFAULT_THRESHOLDS, ...options}, log = console.log) {
+	const maxUndocumented = loadThresholds(thresholds);
+	const out = options.out || DEFAULT_OUT;
+	const {pages, report} = generate(options);
+	log(`XSD reference: ${pages.length} pages written to ${path.relative(process.cwd(), out) || '.'}`);
+	log(formatReport(report));
+	const check = checkThresholds(report, maxUndocumented);
+	const details = formatThresholdCheck(check);
+	if (details) {
+		log(details);
+	}
+	return check.passed ? 0 : 1;
+}
+
+if (require.main === module) {
+	process.exitCode = run(parseArgs(process.argv.slice(2)));
+}
+
+module.exports = {generate, ensureGenerated, parseArgs, assertSafeOutput, run};

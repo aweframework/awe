@@ -7,7 +7,7 @@ const path = require('node:path');
 
 const {loadSchemas, buildReference} = require('../xsd-model');
 const {renderPages} = require('../render');
-const {coverageReport, formatReport} = require('../report');
+const {coverageReport, formatReport, checkThresholds, formatThresholdCheck} = require('../report');
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 const REAL_XSDS = path.join(__dirname, '..', '..', '..', '..', 'awe-framework', 'awe-generic-screens', 'src', 'main', 'resources', 'schemas', 'awe');
@@ -117,4 +117,42 @@ test('formats the coverage report as a readable table', () => {
 test('shows no coverage percentage for a schema without declared attributes', () => {
 	const reference = buildReference(loadSchemas(FIXTURES, ['empty.xsd']));
 	assert.match(formatReport(coverageReport(reference)), /empty\.xsd\s+0\s+0\s+0\s+-/);
+});
+
+test('coverage report lists the undocumented attributes of each schema with their owner', () => {
+	const report = coverageReport(fixtureReference());
+	assert.deepEqual(report.rows.map((r) => [r.file, r.undocumentedNames]), [
+		['base.xsd', ['commonAttr@visible']],
+		['main.xsd', ['boxType@size', 'boxType@mode', 'itemType@mixed', 'specialItemType@level']],
+	]);
+});
+
+test('threshold check fails the schemas with more undocumented attributes than allowed', () => {
+	const check = checkThresholds(coverageReport(fixtureReference()), {'base.xsd': 1, 'main.xsd': 3});
+	assert.equal(check.passed, false);
+	assert.deepEqual(check.failures.map((f) => [f.file, f.undocumented, f.max]), [['main.xsd', 4, 3]]);
+	const text = formatThresholdCheck(check);
+	assert.match(text, /main\.xsd: 4 undocumented attributes, the threshold allows 3/);
+	assert.match(text, /boxType@size/);
+	assert.match(text, /specialItemType@level/);
+	assert.doesNotMatch(text, /commonAttr@visible/);
+});
+
+test('threshold check allows no undocumented attribute in a schema without a threshold', () => {
+	const check = checkThresholds(coverageReport(fixtureReference()), {'main.xsd': 4});
+	assert.deepEqual(check.failures.map((f) => [f.file, f.max]), [['base.xsd', 0]]);
+});
+
+test('threshold check passes at the threshold and asks to lower a threshold above the count', () => {
+	const check = checkThresholds(coverageReport(fixtureReference()), {'base.xsd': 1, 'main.xsd': 6});
+	assert.equal(check.passed, true);
+	assert.deepEqual(check.failures, []);
+	assert.deepEqual(check.lowerable.map((l) => [l.file, l.undocumented, l.max]), [['main.xsd', 4, 6]]);
+	assert.match(formatThresholdCheck(check), /lower the threshold of main\.xsd from 6 to 4/);
+});
+
+test('the AWE schemas stay within the committed thresholds', () => {
+	const thresholds = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'thresholds.json'), 'utf8')).maxUndocumented;
+	const check = checkThresholds(coverageReport(buildReference(loadSchemas(REAL_XSDS))), thresholds);
+	assert.deepEqual(check.failures, [], formatThresholdCheck(check));
 });

@@ -131,8 +131,9 @@ test('lists the simple types declared by each schema', () => {
 test('counts declared and documented attributes per schema', () => {
 	const reference = fixtureReference();
 	// base: id (documented), visible ; main: size, mode, count (documented), mixed, level
-	assert.deepEqual(schema(reference, 'base.xsd').stats, {attributes: 2, documented: 1});
-	assert.deepEqual(schema(reference, 'main.xsd').stats, {attributes: 5, documented: 1});
+	assert.deepEqual(schema(reference, 'base.xsd').stats, {attributes: 2, documented: 1, undocumentedNames: ['commonAttr@visible']});
+	assert.deepEqual(schema(reference, 'main.xsd').stats.attributes, 5);
+	assert.deepEqual(schema(reference, 'main.xsd').stats.documented, 1);
 });
 
 function extrasReference() {
@@ -166,5 +167,6 @@ test('counts only particles as the alternatives of an xs:choice, not its annotat
 
 test('counts an attribute reference once: only the global declaration is a declared attribute', () => {
 	// lang (documented, global) and span
-	assert.deepEqual(schema(extrasReference(), 'extras.xsd').stats, {attributes: 2, documented: 1});
+	const {attributes, documented} = schema(extrasReference(), 'extras.xsd').stats;
+	assert.deepEqual({attributes, documented}, {attributes: 2, documented: 1});
 });
