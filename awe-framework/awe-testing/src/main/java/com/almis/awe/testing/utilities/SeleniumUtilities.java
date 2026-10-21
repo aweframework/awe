@@ -59,6 +59,7 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final int MENU_CLICK_RETRIES = 2;
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
+  private static final int CLOSE_COLUMNS_ATTEMPTS = 3;
   private static final String TEXT_VALUE = " text: '";
   // Tells whether the element that has the focus is inside the element that the selector (first argument) finds
   private static final String FOCUS_INSIDE_SCRIPT = "var active = document.activeElement;"
@@ -4168,8 +4169,25 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid identifier
    */
   protected void closeGridColumns(String gridId) {
-    click(frontEndInstructions.getGridColumnsClose(gridId));
-    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
+    // A reset or a save shows its outcome in the dialog when the server answers, and the centered dialog grows: a click
+    // on its way at that moment misses the Close button, so it is clicked again while the dialog and its button stay.
+    // Once the button is gone the click worked, and the dialog is only waited for
+    By dialog = frontEndInstructions.getGridColumnsDialog(gridId);
+    By close = frontEndInstructions.getGridColumnsClose(gridId);
+    Duration wait = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
+    for (int attempt = 1; attempt <= CLOSE_COLUMNS_ATTEMPTS && getBrowser().exists(locator(close)); attempt++) {
+      if (attempt > 1) {
+        log.warn("The Columns dialog of {} is still open: click {} of {} on Close", gridId, attempt, CLOSE_COLUMNS_ATTEMPTS);
+      }
+      click(close);
+      try {
+        BrowserPoll.until(getBrowser(), BrowserCondition.not(toBePresent(dialog)), wait);
+        return;
+      } catch (BrowserPoll.PollTimeoutException exc) {
+        log.debug("The Columns dialog of {} did not close within {}", gridId, wait, exc);
+      }
+    }
+    waitUntil(BrowserCondition.not(toBePresent(dialog)));
   }
 
   /**

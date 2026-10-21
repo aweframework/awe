@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "./useComponentState";
@@ -58,7 +58,9 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
     }
   };
 
-  const [selected, setSelected] = useState(getSelectedValue(model.values, multiple, t));
+  // Derived from the model, not copied into a state: a copy lags one render behind the store, and react-redux renders
+  // store updates made inside effects synchronously, so a select that picks its first value would dispatch again forever
+  const selected = useMemo(() => getSelectedValue(model.values, multiple, t), [model?.values, multiple, t]);
 
   // --- onChange ---
   const onChange = useCallback((e) => {
@@ -76,10 +78,6 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
       }));
     }
   }, [address, model, multiple]);
-
-  useEffect(() => {
-    setSelected(getSelectedValue(model.values, multiple, t));
-  }, [model?.values]);
 
   return {
     t,
