@@ -1,3 +1,4 @@
+const os = require("os");
 const path = require("path");
 
 // The chart utilities of the React client are shared with this client (see webpack.config.js)
@@ -7,9 +8,15 @@ const reactSourcePath = path.join(__dirname, "..", "awe-client-react", "src");
 // `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution,
 // and LCOV reports under target/reports/jest.
 module.exports = {
-  // In CI the job shares the runner with other jobs and may have little memory: Jest's default of one worker per CPU
-  // gets workers killed (SIGKILL), so CI runs 4 workers. Local runs keep Jest's default.
-  ...(process.env.CI ? {maxWorkers: 4} : {}),
+  // In CI the job shares the runner with other jobs: Jest's default of one worker per CPU gets workers killed (SIGKILL)
+  // when memory is short, and saturates the CPU of a small runner (a 4 vCPU VM on a host shared with other VMs, with a
+  // low-power 10 W laptop CPU, shows 10-16 % steal with 4 workers). CI runs half the CPUs as workers, at most 4 (the
+  // previous fixed value) and at least 1. Even then a slow shared runner can push a slow suite (the LESS compilation of
+  // styles/skeleton) past the 5 s default, so CI allows 15 s per test and hook. Local runs keep Jest's defaults, so a
+  // slow test still shows up.
+  ...(process.env.CI
+    ? {maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2))), testTimeout: 15000}
+    : {}),
   testEnvironment: "jsdom",
   cacheDirectory: path.join(__dirname, "target", ".cache", "jest"),
   setupFilesAfterEnv: [path.join(__dirname, "src", "test", "jest", "setup.js")],
