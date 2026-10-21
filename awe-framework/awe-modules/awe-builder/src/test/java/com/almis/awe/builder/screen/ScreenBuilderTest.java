@@ -181,6 +181,54 @@ class ScreenBuilderTest {
   }
 
   /**
+   * Build a single screen with a side panel (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addSidePanel() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addSidePanel(new SidePanelBuilder()
+          .setPosition(SidePanelPosition.LEFT)
+          .setMaxWidth("30rem")
+          .setOnClose(OnClose.REJECT)
+          .setDeferred(true)
+          .setIcon("info")
+          .setLabel("PANEL_LABEL")
+          .setId("PnlDet")));
+
+    Screen screen = builder.build();
+    SidePanel sidePanel = (SidePanel) screen.getElementList().get(0).getElementList().get(0);
+    assertEquals("PnlDet", sidePanel.getId());
+    assertEquals("PANEL_LABEL", sidePanel.getLabel());
+    assertEquals("left", sidePanel.getPosition());
+    assertEquals("30rem", sidePanel.getMaxWidth());
+    assertEquals("info", sidePanel.getIcon());
+    assertTrue(OnClose.REJECT.equalsStr(sidePanel.getOnClose()));
+    assertTrue(sidePanel.isDeferred());
+  }
+
+  /**
+   * A side panel built without position is anchored to the right edge (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addSidePanelOnTheRightByDefault() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder().setSource("center").setType("div").addSidePanel(new SidePanelBuilder()));
+
+    SidePanel sidePanel = (SidePanel) builder.build().getElementList().get(0).getElementList().get(0);
+    assertEquals("right", sidePanel.getPosition());
+    assertFalse(sidePanel.isDeferred());
+  }
+
+  /**
    * Build a single screen with an include
    *
    * @throws Exception exception
@@ -868,6 +916,7 @@ class ScreenBuilderTest {
           .setLoadAll(true)
           .setShowTotals(true)
           .setShowToolbar(false)
+          .setColumnsPanel(ColumnsPanel.SIDE_PANEL)
           .setTreeLeaf("treeLeaf")
           .addGroupHeader(new GroupHeaderBuilder()
             .setLabel("LABEL1")
@@ -926,6 +975,7 @@ class ScreenBuilderTest {
     assertSame(true, grid.isLoadAll());
     assertSame(true, grid.isShowTotals());
     assertSame(false, grid.isShowToolbar());
+    assertEquals("side-panel", grid.getColumnsPanel());
     assertEquals("treeLeaf", grid.getTreeLeaf());
 
     assertEquals("LABEL1", header.getLabel());

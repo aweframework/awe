@@ -139,6 +139,9 @@ export const TestIds = Object.freeze({
   // Modal dialogs and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",
+  // Side panels (dialogs anchored to an edge of the screen) with their close button
+  sidePanel: "side-panel",
+  sidePanelClose: "side-panel-close",
   confirmDialog: "confirm-dialog",
   confirmAccept: "confirm-accept",
   confirmCancel: "confirm-cancel",

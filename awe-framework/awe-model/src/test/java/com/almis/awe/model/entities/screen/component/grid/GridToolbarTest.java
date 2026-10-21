@@ -82,6 +82,29 @@ class GridToolbarTest {
   }
 
   @Test
+  @DisplayName("A grid without columns-panel leaves the Columns to the application default")
+  void columnsPanelIsOnlySentWhenTheGridSetsIt() {
+    Grid grid = new Grid();
+    assertTrue(new ObjectMapper().valueToTree(grid).path("columnsPanel").isMissingNode());
+
+    grid.setColumnsPanel("side-panel");
+    assertEquals("side-panel", new ObjectMapper().valueToTree(grid).get("columnsPanel").asText());
+  }
+
+  @Test
+  @DisplayName("The columns-panel attribute is read from the XML and survives a copy")
+  void columnsPanelAttributeIsParsed() {
+    XStream xstream = new XStream();
+    xstream.allowTypesByWildcard(new String[]{"com.almis.awe.**"});
+    xstream.processAnnotations(Grid.class);
+
+    Grid grid = (Grid) xstream.fromXML("<grid id=\"Grd\" columns-panel=\"side-panel\"/>");
+
+    assertEquals("side-panel", grid.getColumnsPanel());
+    assertEquals("side-panel", grid.copy().getColumnsPanel());
+  }
+
+  @Test
   @DisplayName("The grid serializes its column layout when it has one")
   void columnLayoutIsSerialized() {
     Grid grid = new Grid();

@@ -141,6 +141,7 @@ module.exports = {
 				"api/info",
 				"api/include",
 				"api/dialog",
+				"api/side-panel",
 				"api/chart",
 				"api/chart-format",
 				"api/chart-parameters",

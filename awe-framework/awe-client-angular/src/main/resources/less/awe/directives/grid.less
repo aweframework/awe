@@ -763,27 +763,8 @@
   z-index: 1050;
 }
 
-.grid-columns-dialog {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-  left: 50%;
-  max-height: 85vh;
-  max-width: 95vw;
-  overflow: auto;
-  padding: 16px;
-  position: fixed;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 28rem;
-  z-index: 1051;
-
-  .grid-columns-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
+// Counter, list and actions of the Columns, shared by the dialog and the side panel
+.grid-columns-content() {
   .grid-columns-counter {
     font-weight: 600;
     margin-bottom: 8px;
@@ -793,12 +774,6 @@
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-
-  // The list scrolls inside the dialog, so its actions stay in view with a long list of columns
-  .grid-columns-list {
-    max-height: 55vh;
-    overflow-y: auto;
   }
 
   .grid-column-item {
@@ -839,6 +814,44 @@
     flex-wrap: wrap;
     gap: 4px;
     justify-content: flex-end;
+  }
+}
+
+.grid-columns-dialog {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  left: 50%;
+  max-height: 85vh;
+  max-width: 95vw;
+  overflow: auto;
+  padding: 16px;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 28rem;
+  z-index: 1051;
+  .grid-columns-content();
+
+  .grid-columns-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  // The list scrolls inside the dialog, so its actions stay in view with a long list of columns
+  .grid-columns-list {
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+
+  .grid-columns-actions {
     margin-top: 12px;
   }
+}
+
+// The Columns as a side panel (columns-panel="side-panel", #843): the side-panel modal (side-panel.less) holds the
+// list in its body, which scrolls, and the actions in its footer
+.modal.grid-columns-side-panel {
+  .grid-columns-content();
 }

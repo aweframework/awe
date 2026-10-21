@@ -75,6 +75,14 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final String SPARKLINE_FOCUS_SCRIPT = "return arguments[0].getAttribute('focusable') + '|' + "
     + "arguments[0].querySelectorAll('[tabindex]').length;";
   private static final int DIALOG_WIDTH_TOLERANCE = 2;
+  // Where a side panel (first argument) is: its gaps to the left and to the right edges of the viewport, its width and
+  // its maximum width (second argument, a css length that the browser resolves) capped by the width of the viewport
+  private static final String SIDE_PANEL_PLACEMENT_SCRIPT = "var panel = arguments[0], rect = panel.getBoundingClientRect();"
+    + " var viewport = document.documentElement.clientWidth, probe = document.createElement('div');"
+    + " probe.style.cssText = 'position:absolute;visibility:hidden;width:' + arguments[1];"
+    + " document.body.appendChild(probe); var maximum = Math.min(probe.offsetWidth, viewport); probe.remove();"
+    + " return rect.left + '|' + (viewport - rect.right) + '|' + panel.offsetWidth + '|' + maximum;";
+  private static final int SIDE_PANEL_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
   private static final int GROUP_HEADER_TOLERANCE = 3;
   private static final double MAXIMIZED_MIN_FILL = 0.9;
@@ -4101,6 +4109,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the Columns of a grid are open as a modal dialog or as a side panel (grid attribute columns-panel)
+   *
+   * @param gridId Grid identifier
+   * @param panel  dialog or side-panel
+   */
+  protected void checkGridColumnsPanel(String gridId, String panel) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridColumnsPanel(gridId, panel)));
+  }
+
+  /**
    * Close the Columns dialog of a grid
    *
    * @param gridId Grid identifier
@@ -4849,6 +4867,100 @@ public class SeleniumUtilities implements IAweInstructions {
     double shown = measured instanceof Number number ? number.doubleValue() : Double.NaN;
     assertWithScreenshot("The width of the dialog " + dialogId + " is " + measured + "px, not " + width + "px",
       Math.abs(shown - width) <= DIALOG_WIDTH_TOLERANCE);
+  }
+
+  /**
+   * Close a side panel with the close button of its header
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void closeSidePanel(String panelId) {
+    click(frontEndInstructions.getSidePanelClose(panelId));
+  }
+
+  /**
+   * Close an open side panel pressing Esc, and check that it has been closed
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void closeSidePanelWithEscape(String panelId) {
+    waitUntil(toBeVisible(frontEndInstructions.getOpenSidePanel(panelId)));
+    getBrowser().press(Key.ESCAPE);
+    checkSidePanelClosed(panelId);
+  }
+
+  /**
+   * Check that a side panel has been closed
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void checkSidePanelClosed(String panelId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenSidePanel(panelId)));
+  }
+
+  /**
+   * Check that a side panel is open against an edge of the screen and as wide as its maximum width (or the screen, when
+   * the screen is narrower), give or take two pixels. The browser resolves the maximum width, so a length in rem does
+   * not depend on the font size of the theme. It waits for the panel to finish sliding in
+   *
+   * @param panelId  Side panel identifier
+   * @param position Edge of the screen: left or right
+   * @param maxWidth Maximum width of the side panel (a css length, as in its max-width attribute)
+   */
+  protected void checkSidePanelOpen(String panelId, String position, String maxWidth) {
+    boolean left = "left".equals(position);
+    if (!left && !"right".equals(position)) {
+      throw new IllegalArgumentException("The position of a side panel is left or right, not " + position);
+    }
+    By selector = frontEndInstructions.getSidePanelPanel(panelId);
+    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.of("the side panel " + panelId + " to be open on the " + position + " edge, " + maxWidth + " wide",
+      browser -> isSidePanelPlaced(browser.executeScriptOn(locator(selector), SIDE_PANEL_PLACEMENT_SCRIPT, maxWidth), left)));
+  }
+
+  private static boolean isSidePanelPlaced(Object placement, boolean left) {
+    if (!(placement instanceof String text)) {
+      return false;
+    }
+    String[] values = text.split("\\|");
+    try {
+      double gap = Double.parseDouble(values[left ? 0 : 1]);
+      double width = Double.parseDouble(values[2]);
+      double maximum = Double.parseDouble(values[3]);
+      return Math.abs(gap) <= SIDE_PANEL_TOLERANCE && Math.abs(width - maximum) <= SIDE_PANEL_TOLERANCE;
+    } catch (NumberFormatException | ArrayIndexOutOfBoundsException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Press Tab several times on an open side panel and check that the focus never leaves it: after the last field it goes
+   * back to the first one
+   *
+   * @param panelId Side panel identifier
+   * @param presses Times to press Tab (more than the fields of the panel to go round it)
+   */
+  protected void checkSidePanelKeepsTheFocus(String panelId, int presses) {
+    String panelCss = frontEndInstructions.getSidePanelCss(panelId);
+    checkFocusInside(panelCss, "the side panel " + panelId);
+    for (int press = 1; press <= presses; press++) {
+      getBrowser().press(Key.TAB);
+      checkFocusInside(panelCss, "the side panel " + panelId + " after " + press + " Tab");
+    }
+  }
+
+  /**
+   * Check that a button has the keyboard focus, for instance the one that opened a dialog once the dialog is closed
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonFocused(String buttonId) {
+    checkFocusInside(frontEndInstructions.getButtonCss(buttonId), "button " + buttonId);
+  }
+
+  private void checkFocusInside(String css, String description) {
+    waitUntil(BrowserCondition.of("focus to be on " + description,
+      browser -> Boolean.TRUE.equals(browser.executeScript(FOCUS_INSIDE_SCRIPT, css))));
   }
 
   /**

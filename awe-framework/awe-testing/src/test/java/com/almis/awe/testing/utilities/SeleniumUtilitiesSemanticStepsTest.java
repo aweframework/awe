@@ -8,6 +8,7 @@ import com.almis.awe.testing.selenium.AngularAweInstructions;
 import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.ReactAweInstructions;
 import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -1409,6 +1410,90 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCloseASidePanelWithItsCloseButtonAndCheckThatItIsClosed() {
+    show(instructions.getSidePanelClose("Pnl"), "");
+    show(instructions.getOpenSidePanel("Open"), "");
+
+    assertThatCode(() -> {
+      utilities.closeSidePanel("Pnl");
+      utilities.checkSidePanelClosed("Closed");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.closeSidePanel("Missing"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelClosed("Open"));
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
+  void shouldCloseAnOpenSidePanelWithEscape() {
+    WebElement panel = show(instructions.getOpenSidePanel("Pnl"), "");
+    AtomicInteger escapes = new AtomicInteger();
+    when(panel.isDisplayed()).thenAnswer(invocation -> escapes.get() == 0);
+    doAnswer(invocation -> escapes.incrementAndGet()).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.closeSidePanelWithEscape("Pnl")).doesNotThrowAnyException();
+    assertThat(escapes).hasValue(1);
+    // A panel that is not open cannot be closed
+    assertThrows(AssertionFailedError.class, () -> utilities.closeSidePanelWithEscape("Missing"));
+    assertThat(escapes).hasValue(1);
+  }
+
+  @Test
+  void shouldCheckThatASidePanelIsOpenOnItsEdgeWithItsMaximumWidthInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getSidePanelPanel("Pnl"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      // Gap to the left edge | gap to the right edge | width | maximum width in pixels (capped by the viewport)
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("544|0|480.4|480");
+
+      assertThatCode(() -> utilities.checkSidePanelOpen("Pnl", "right", "30rem")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelOpen("Pnl", "left", "30rem"));
+
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("1|703|320|320");
+      assertThatCode(() -> utilities.checkSidePanelOpen("Pnl", "left", "20rem")).doesNotThrowAnyException();
+
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("0|704|300|320");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelOpen("Pnl", "left", "20rem"));
+    }
+  }
+
+  @Test
+  void shouldMeasureTheSidePanelResolvingItsMaximumWidthInTheBrowser() {
+    show(instructions.getSidePanelPanel("Pnl"), "");
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("544|0|480|480");
+
+    utilities.checkSidePanelOpen("Pnl", "right", "30rem");
+
+    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    verify(executor, atLeast(1)).executeScript(anyString(), arguments.capture());
+    assertThat(arguments.getAllValues()).anySatisfy(values -> assertThat(values).contains("30rem"));
+  }
+
+  @Test
+  void shouldCheckThatTheFocusStaysInsideTheSidePanelWhileTabbing() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    String panelCss = instructions.getSidePanelCss("Pnl");
+    when(executor.executeScript(anyString(), eq(panelCss))).thenReturn(true);
+
+    assertThatCode(() -> utilities.checkSidePanelKeepsTheFocus("Pnl", 3)).doesNotThrowAnyException();
+    verify((Interactive) driver, times(3)).perform(any());
+
+    when(executor.executeScript(anyString(), eq(panelCss))).thenReturn(true, false);
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelKeepsTheFocus("Pnl", 3));
+  }
+
+  @Test
+  void shouldCheckThatAButtonHasTheFocus() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(anyString(), eq(instructions.getButtonCss("ButOpen")))).thenReturn(true);
+
+    assertThatCode(() -> utilities.checkButtonFocused("ButOpen")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkButtonFocused("ButOther"));
+  }
+
+  @Test
   void shouldOpenTheUserMenuToSwitchTheColorMode() {
     utilities.switchToDarkMode();
     utilities.switchToLightMode();
@@ -1555,6 +1640,18 @@ class SeleniumUtilitiesSemanticStepsTest {
       }).when((Interactive) driver).perform(any());
       assertThatCode(() -> utilities.closeGridColumns("Grd")).doesNotThrowAnyException();
       assertThrows(AssertionFailedError.class, () -> utilities.openGridColumns("Other"));
+    }
+  }
+
+  @Test
+  void shouldCheckWhetherTheColumnsOfAGridAreADialogOrASidePanelInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, "Grd")
+        + TestAttributes.css(TestAttributes.TYPE, "side-panel")), "");
+
+      assertThatCode(() -> utilities.checkGridColumnsPanel("Grd", "side-panel")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsPanel("Grd", "dialog"));
     }
   }
 

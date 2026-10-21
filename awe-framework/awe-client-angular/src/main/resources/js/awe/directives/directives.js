@@ -84,6 +84,7 @@ import "./input/markdownEditor";
 
 import "./confirm";
 import "./dialog";
+import "./sidePanel";
 
 import "./input/tab";
 import "./input/wizard";

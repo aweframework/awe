@@ -49,6 +49,12 @@
       "defaultValue": "d"
     },
     {
+      "name": "awe.application.component.grid-columns-panel",
+      "type": "java.lang.String",
+      "description": "How the toolbar of the grids that do not define columns-panel shows their Columns: dialog (a modal dialog) or side-panel (a panel anchored to the right edge of the screen) Default value dialog",
+      "defaultValue": "dialog"
+    },
+    {
       "name": "awe.application.component.grid-icon-loading",
       "type": "java.lang.String",
       "description": "Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns on every load), skeleton-dim (placeholder rows on the first load, dimmed rows on a reload) or any other icon-loading value (spinner, dots...) Default value skeleton",

@@ -48,6 +48,7 @@ export const DEFAULT_SETTINGS = {
   homeScreen: "home",
   recordsPerPage: 30,
   gridIconLoading: "skeleton",
+  gridColumnsPanel: "dialog",
   pixelsPerCharacter: 7,
   defaultComponentSize: "md",
   shareSessionInTabs: false,

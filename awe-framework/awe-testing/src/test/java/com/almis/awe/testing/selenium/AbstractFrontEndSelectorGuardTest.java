@@ -312,6 +312,11 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridSparkline", () -> i.getGridSparkline(GRID, ROW, COLUMN));
     catalog.put("getGridCellWithClass", () -> i.getGridCellWithClass(GRID, ROW, COLUMN, "scale-seq-1"));
     catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
+    catalog.put("getSidePanelCss", () -> i.getSidePanelCss("Pnl"));
+    catalog.put("getOpenSidePanel", () -> i.getOpenSidePanel("Pnl"));
+    catalog.put("getSidePanelClose", () -> i.getSidePanelClose("Pnl"));
+    catalog.put("getSidePanelPanel", () -> i.getSidePanelPanel("Pnl"));
+    catalog.put("getButtonCss", () -> i.getButtonCss("ButId"));
     catalog.put("getGridColumnsButton", () -> i.getGridColumnsButton(GRID));
     catalog.put("getGridMaximizeButton", () -> i.getGridMaximizeButton(GRID));
     catalog.put("getGridToolbarMaximized", () -> i.getGridToolbarMaximized(GRID, true));
@@ -319,6 +324,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getWindowMaximized", () -> i.getWindow(WINDOW, true));
     catalog.put("getWindowMaximizeButton", () -> i.getWindowMaximizeButton(WINDOW));
     catalog.put("getGridColumnsDialog", () -> i.getGridColumnsDialog(GRID));
+    catalog.put("getGridColumnsPanel", () -> i.getGridColumnsPanel(GRID, "side-panel"));
     catalog.put("getGridColumnsCounter", () -> i.getGridColumnsCounter(GRID, "24", "26"));
     catalog.put("getGridColumnsItem", () -> i.getGridColumnsItem(GRID, COLUMN));
     catalog.put("getGridColumnsCheckbox", () -> i.getGridColumnsCheckbox(GRID, COLUMN));

@@ -66,6 +66,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla                                                                                                      |
+| columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho          | `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`dialog`) |
 
 ### Barra de herramientas {#toolbar}
 
@@ -94,6 +95,19 @@ Algunas reglas mantienen válida una disposición guardada cuando cambia la pant
 - Las cabeceras de grupo se calculan a partir de las columnas visibles de cada grupo, de modo que ocultar cualquier
   columna de un grupo (también la primera) mantiene las cabeceras alineadas, y un grupo sin columnas visibles no se
   muestra.
+
+Con `columns-panel="side-panel"` las columnas se abren en un panel anclado al borde derecho de la pantalla en lugar de
+en un diálogo modal, con la misma lista y las mismas acciones. El panel mantiene el foco del teclado dentro, se cierra con
+Esc, con su acción *Cerrar* o con un clic fuera, y devuelve el foco al botón *Columnas*.
+Los grids que no definen `columns-panel` usan la propiedad de aplicación
+[`awe.application.component.grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel)
+(`dialog` por defecto), de modo que una aplicación puede mostrar las columnas de todos sus grids en un panel lateral.
+
+```xml
+<grid id="UserGrid" columns-panel="side-panel" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
 
 Use `show-toolbar="false"` para que un grid no tenga barra de herramientas; entonces siempre usa la definición del XML.
 

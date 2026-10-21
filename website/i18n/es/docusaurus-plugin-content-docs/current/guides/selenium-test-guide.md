@@ -464,6 +464,12 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `closeDialog(String dialogId)` | Cierra un diálogo modal con el icono de cierre de su cabecera, como un usuario que lo descarta sin usar sus botones |
 | `checkDialogClosed(String dialogId)` | Comprueba que se ha cerrado un diálogo modal |
 | `checkDialogWidth(String dialogId, int width)` | Comprueba el ancho en píxeles de un diálogo abierto, con dos de margen. Úsalo para comprobar las clases de tamaño `modal-sm`, `modal-md` y `modal-lg` |
+| `closeSidePanel(String panelId)` | Cierra un panel lateral con el botón de cierre de su cabecera |
+| `closeSidePanelWithEscape(String panelId)` | Cierra un panel lateral abierto pulsando Esc y comprueba que se ha cerrado |
+| `checkSidePanelClosed(String panelId)` | Comprueba que un panel lateral se ha cerrado |
+| `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Comprueba que un panel lateral está abierto contra su borde (`left` o `right`) y tan ancho como su ancho máximo (una longitud css que resuelve el navegador, limitada por el ancho de la pantalla), con dos píxeles de margen |
+| `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Pulsa Tab las veces indicadas y comprueba que el foco del teclado nunca sale del panel lateral |
+| `checkButtonFocused(String buttonId)` | Comprueba que un botón tiene el foco del teclado (por ejemplo el que abrió un diálogo o un panel lateral, una vez cerrado) |
 | `checkValidationErrorVisible()` | Comprueba que la pantalla muestra errores de validación |
 
 ### Criterios: escribir y leer {#criteria-writing-and-reading}
@@ -631,6 +637,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
 | `openGridColumns(String gridId)` | Abre el diálogo de columnas de la barra de herramientas de un grid |
 | `closeGridColumns(String gridId)` | Cierra el diálogo de columnas de un grid |
+| `checkGridColumnsPanel(String gridId, String panel)` | Comprueba que las columnas de un grid están abiertas como diálogo modal (`dialog`) o como panel lateral (`side-panel`), según el atributo `columns-panel` del grid |
 | `checkGridColumnsCounter(String gridId, int visible, int total)` | Comprueba el contador «N de M visibles» del diálogo de columnas |
 | `checkGridColumnsListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas lista una columna |
 | `checkGridColumnsNotListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas no lista una columna. Las columnas que la pantalla oculta nunca aparecen en él |

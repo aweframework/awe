@@ -1,5 +1,6 @@
 package com.almis.awe.builder.screen.grid;
 
+import com.almis.awe.builder.enumerates.ColumnsPanel;
 import com.almis.awe.builder.screen.base.AbstractColumnBuilder;
 import com.almis.awe.builder.screen.base.AbstractComponentBuilder;
 import com.almis.awe.builder.screen.button.ButtonBuilder;
@@ -139,6 +140,17 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
    */
   public GridBuilder setShowToolbar(boolean showToolbar) {
     getGridAttributes().setShowToolbar(showToolbar);
+    return this;
+  }
+
+  /**
+   * Choose how the toolbar shows the Columns: a modal dialog (default) or a side panel
+   *
+   * @param columnsPanel Columns panel
+   * @return Grid builder
+   */
+  public GridBuilder setColumnsPanel(ColumnsPanel columnsPanel) {
+    getGridAttributes().setColumnsPanel(columnsPanel);
     return this;
   }
 

@@ -99,6 +99,7 @@
       <option name="matrix-test-wrap" label="MENU_TEST_MATRIX_WRAP" screen="GrdWrapTst" icon="align-left"/>
       <option name="matrix-test-nowrap" label="MENU_TEST_MATRIX_NOWRAP" screen="GrdNoWrapTst" icon="align-justify"/>
       <option name="matrix-test-dialog-size" label="MENU_TEST_MATRIX_DIALOG_SIZE" screen="DlgSizeTst" icon="window-maximize"/>
+      <option name="matrix-test-side-panel" label="MENU_TEST_MATRIX_SIDE_PANEL" screen="SidePanelTst" icon="columns"/>
       <option name="matrix-test-deferred" label="MENU_TEST_MATRIX_DEFERRED" screen="DeferredLoadTst" icon="hourglass-half"/>
       <option name="matrix-test-deferred-heavy" label="MENU_TEST_MATRIX_DEFERRED_HEAVY" screen="DeferredHeavyTst" icon="hourglass-half"/>
       <option name="matrix-test-tree" label="MENU_TEST_MATRIX_TREE" screen="test-tree" icon="sitemap"/>

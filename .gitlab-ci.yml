@@ -970,7 +970,8 @@ Unit · AngularJS:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:1.0.1@sha256:92dbb352e8c9de5b10fb25a04ec4aec41b5e9beb7142bc0bc9ccc77e6d57001a
   needs: [ ]
   cache: { }
-  timeout: 15m
+  # The slow medium runner, when busy, takes close to 15 minutes for the AngularJS suite even when every test passes
+  timeout: 30m
   variables:
     BABEL_ENV: test
     NODE_ENV: test

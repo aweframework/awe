@@ -1,5 +1,6 @@
 // Grid toolbar: Columns dialog and Maximize, with the layout of the user applied to the grid
 import {cleanupHeavyComponentTest, initHeavyComponentTest} from "./heavyComponentTestUtils";
+import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 const hook = id => `[data-testid='${id}']`;
 
@@ -292,6 +293,141 @@ describe("grid toolbar", () => {
     expect(animate).toHaveBeenCalledTimes(1);
     expect(scope.maximized).toBe(true);
     target.remove();
+  });
+
+  describe("columns panel (#843)", () => {
+    // The Columns of the dialog mode live in the toolbar; the side panel is a modal appended to the page body
+    const columns = () => $(document.body).find(hook("grid-columns-dialog"));
+    const openColumns = (controllerOverrides = {}) => {
+      const result = compileGrid(controllerOverrides);
+      document.body.appendChild(result.element[0]);
+      const toolbarScope = angular.element(result.element.find(hook("grid-toolbar"))).scope();
+      const button = result.element.find(hook("grid-columns-button"))[0];
+      button.focus();
+      toolbarScope.openColumns();
+      refs.$rootScope.$digest();
+      return {...result, toolbarScope, button, dialog: columns()};
+    };
+    const escape = () => {
+      const event = new window.KeyboardEvent("keydown", {key: "Escape", keyCode: 27, which: 27, bubbles: true, cancelable: true});
+      document.activeElement.dispatchEvent(event);
+      refs.$rootScope.$digest();
+    };
+
+    afterEach(() => {
+      $(document.body).removeClass("modal-open").children().remove();
+    });
+
+    it("opens the Columns as a modal dialog by default", () => {
+      const {dialog} = openColumns();
+
+      expect(dialog.attr("data-type")).toBe("dialog");
+      expect(dialog.hasClass("side-panel")).toBe(false);
+    });
+
+    it("opens the Columns as a side panel like the side-panel element: a modal on the right edge that slides in", () => {
+      const {dialog} = openColumns({columnsPanel: "side-panel"});
+
+      expect(dialog.attr("data-type")).toBe("side-panel");
+      expect(dialog.attr("data-testid-owner")).toBe("Grid");
+      ["modal", "fade", "in", "side-panel", "side-panel-right"].forEach(name => expect(dialog.hasClass(name)).toBe(true));
+      expect(dialog.find(".modal-header .modal-title").text()).toContain("GRID_COLUMNS_TITLE");
+      expect(dialog.find(".modal-header button.close").length).toBe(1);
+    });
+
+    it("shows the same list in its body and the actions in its footer", () => {
+      const {dialog} = openColumns({columnsPanel: "side-panel"});
+
+      expect(dialog.find(".side-panel-body " + hook("grid-column-item")).length).toBe(4);
+      expect(dialog.find(".side-panel-body " + hook("grid-columns-counter")).attr("data-visible")).toBe("4");
+      ["grid-columns-show-all", "grid-columns-reset", "grid-columns-save", "grid-columns-close"]
+        .forEach(id => expect(dialog.find(".modal-footer " + hook(id)).length).toBe(1));
+    });
+
+    it("hides a column of the grid from the side panel", () => {
+      const {dialog, scope} = openColumns({columnsPanel: "side-panel"});
+
+      dialog.find(hook("grid-column-item") + "[column-id='b'] input[type='checkbox']").trigger("click");
+      refs.$rootScope.$digest();
+
+      expect(scope.gridOptions.columnDefs.find(def => def.name === "b").hidden).toBe(true);
+    });
+
+    it("moves the focus into the side panel and keeps Tab inside", () => {
+      const {dialog} = openColumns({columnsPanel: "side-panel"});
+
+      expect(dialog[0].contains(document.activeElement)).toBe(true);
+
+      const close = dialog.find(hook("grid-columns-close"))[0];
+      close.focus();
+      close.dispatchEvent(new window.KeyboardEvent("keydown", {key: "Tab", bubbles: true, cancelable: true}));
+      expect(dialog[0].contains(document.activeElement)).toBe(true);
+    });
+
+    it("closes the side panel with Esc and gives the focus back to the Columns button", () => {
+      const {button} = openColumns({columnsPanel: "side-panel"});
+
+      escape();
+
+      expect(columns().length).toBe(0);
+      expect(document.activeElement).toBe(button);
+    });
+
+    it("closes the side panel with a click outside it", () => {
+      const {button} = openColumns({columnsPanel: "side-panel"});
+
+      $(document.body).find(".modal.side-panel").trigger("click");
+      refs.$rootScope.$digest();
+
+      expect(columns().length).toBe(0);
+      expect(document.activeElement).toBe(button);
+    });
+
+    it("gives the focus back to the Columns button when the side panel is closed with its Close action", () => {
+      const {button, toolbarScope} = openColumns({columnsPanel: "side-panel"});
+
+      toolbarScope.closeColumns();
+      refs.$rootScope.$digest();
+
+      expect(columns().length).toBe(0);
+      expect(document.activeElement).toBe(button);
+    });
+
+    it("removes the side panel from the page with the grid", () => {
+      const {scope} = openColumns({columnsPanel: "side-panel"});
+
+      scope.$destroy();
+
+      expect($(document.body).find(".modal.side-panel").length).toBe(0);
+    });
+
+    it("keeps the dialog as the default of the application settings", () => {
+      expect(DefaultSettings.gridColumnsPanel).toBe("dialog");
+    });
+
+    it("opens the Columns of a grid without columns-panel as the application settings say", () => {
+      inject(["AweSettings", settings => settings.update({gridColumnsPanel: "side-panel"})]);
+
+      const {dialog} = openColumns();
+
+      expect(dialog.attr("data-type")).toBe("side-panel");
+    });
+
+    it("lets the columns-panel of the grid win over the application settings", () => {
+      inject(["AweSettings", settings => settings.update({gridColumnsPanel: "side-panel"})]);
+
+      const {dialog} = openColumns({columnsPanel: "dialog"});
+
+      expect(dialog.attr("data-type")).toBe("dialog");
+    });
+
+    it("keeps the dialog as it was: Esc does not close it", () => {
+      openColumns();
+
+      escape();
+
+      expect(columns().length).toBe(1);
+    });
   });
 
   it("uses the screen texts of the window maximize in the toolbar button", () => {

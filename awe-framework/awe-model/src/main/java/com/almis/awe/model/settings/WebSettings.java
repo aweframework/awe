@@ -30,6 +30,7 @@ public class WebSettings {
   private Integer recordsPerPageOnCriteria;
   private Integer pixelsPerCharacter;
   private String gridIconLoading;
+  private String gridColumnsPanel;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
   private Boolean menuSearchEnabled;

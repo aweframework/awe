@@ -179,6 +179,12 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
       + TestAttributes.css(TestAttributes.OPEN, true) + " > *");
   }
 
+  @Override
+  public By getSidePanelPanel(String panelId) {
+    // As in a dialog, the hook is in the layer that covers the page: the panel that has the size is its first child
+    return By.cssSelector(getSidePanelCss(panelId) + TestAttributes.css(TestAttributes.OPEN, true) + " > *");
+  }
+
   public By getGridSaveButton() {
     return By.cssSelector(css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }

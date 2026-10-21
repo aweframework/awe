@@ -693,6 +693,7 @@ Para cada componente diseñado en AWE tienes un `builder` para definir su compor
 - `TagBuilder`: Construye un componente `<tag>`.
 - `WindowBuilder`: Construye un componente `<window>`.
 - `DialogBuilder`: Construye un componente `<dialog>`.
+- `SidePanelBuilder`: Construye un componente `<side-panel>`.
 - `IncludeBuilder`: Construye un componente `<include>`.
 - `MenuContainerBuilder`: Construye un componente `<menu-container>`.
 - `MessageBuilder`: Construye un componente `<message>`.

@@ -1,7 +1,8 @@
 import React, { useCallback, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Dialog } from "primereact/dialog";
-import { useDispatch } from "react-redux";
+import { Sidebar } from "primereact/sidebar";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { translateLabel } from "../utilities";
 import { updateAttributes } from "../redux/actions/components";
@@ -14,7 +15,10 @@ import {
   setColumnVisible
 } from "../utilities/gridLayout";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import "./AweGridColumnsDialog.less";
+
+const SIDE_PANEL = "side-panel";
 
 /**
  * Split the columns, in layout order, into the nodes the dialog shows: columns without group and groups with their
@@ -39,7 +43,8 @@ function getNodes(columnModel, headerModel, order) {
 }
 
 /**
- * Dialog that lists the columns of a grid to show, hide and reorder them
+ * Dialog that lists the columns of a grid to show, hide and reorder them. With columns-panel="side-panel" it is a
+ * side panel anchored to the right edge instead of a modal dialog (#843).
  * @category Components
  * @subcategory Grid
  */
@@ -47,8 +52,14 @@ function AweGridColumnsDialog({ address, attributes, visible, onHide }) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const dragged = useRef(null);
+  const sidebar = useRef(null);
   const [status, setStatus] = useState(null);
-  const { columnModel = [], headerModel = [], columnLayout, screenId } = attributes;
+  const { columnModel = [], headerModel = [], columnLayout, screenId, columnsPanel } = attributes;
+  // The grid columns-panel, or the application default (gridColumnsPanel setting) when the grid does not set it
+  const defaultPanel = useSelector(state => state.settings?.gridColumnsPanel);
+  const asSidePanel = (columnsPanel ?? defaultPanel) === SIDE_PANEL;
+  // The side panel keeps the focus inside (the modal dialog of PrimeReact already does)
+  useFocusTrap(() => sidebar.current?.getElement(), asSidePanel && !!visible);
   const layout = mergeColumnLayout(columnModel, headerModel, columnLayout);
   const total = layout.order.length;
   const visibleCount = total - layout.hidden.length;
@@ -130,10 +141,7 @@ function AweGridColumnsDialog({ address, attributes, visible, onHide }) {
       {...testHook(TestIds.gridColumnsClose)}>{t("GRID_COLUMNS_CLOSE")}</button>
   </div>;
 
-  return <Dialog visible={visible} onHide={onHide} header={t("GRID_COLUMNS_TITLE")} footer={footer}
-    className="grid-columns-dialog" style={{ width: "28rem", maxWidth: "95vw" }} focusOnShow={false}
-    pt={{ root: testHook(TestIds.gridColumnsDialog, { owner: address.component }) }}>
-    <div>
+  const content = <div>
       {status && <div className="grid-columns-status" role="status" {...testHook(TestIds.gridColumnsStatus, { type: status })}>
         {t(status === "saved" ? "GRID_COLUMNS_SAVED" : "GRID_COLUMNS_ERROR_MESSAGE")}
       </div>}
@@ -148,7 +156,23 @@ function AweGridColumnsDialog({ address, attributes, visible, onHide }) {
             <ul>{node.columns.map(renderColumn)}</ul>
           </li>)}
       </ul>
-    </div>
+    </div>;
+  const root = testHook(TestIds.gridColumnsDialog, { owner: address.component, type: asSidePanel ? SIDE_PANEL : "dialog" });
+
+  if (asSidePanel) {
+    return <Sidebar ref={sidebar} visible={visible} onHide={onHide} position="right"
+      header={<span className="grid-columns-title">{t("GRID_COLUMNS_TITLE")}</span>}
+      className="grid-columns-dialog grid-columns-side-panel" style={{ width: "100%", maxWidth: "28rem" }}
+      pt={{ root: root }}>
+      {content}
+      {footer}
+    </Sidebar>;
+  }
+
+  return <Dialog visible={visible} onHide={onHide} header={t("GRID_COLUMNS_TITLE")} footer={footer}
+    className="grid-columns-dialog" style={{ width: "28rem", maxWidth: "95vw" }} focusOnShow={false}
+    pt={{ root: root }}>
+    {content}
   </Dialog>;
 }
 

@@ -58,3 +58,35 @@
     gap: 0.25rem;
   }
 }
+
+// Columns as a side panel (columns-panel="side-panel", #843): the list takes the height of the panel and the actions
+// stay at its bottom
+.grid-columns-side-panel {
+  .p-sidebar-header {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--surface-border, #dee2e6);
+  }
+
+  .grid-columns-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .p-sidebar-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-columns-list {
+    max-height: none;
+  }
+
+  .grid-columns-actions {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 0.75rem 0;
+    background-color: var(--surface-overlay, #ffffff);
+    border-top: 1px solid var(--surface-border, #dee2e6);
+  }
+}
