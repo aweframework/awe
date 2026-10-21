@@ -4,7 +4,7 @@ import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
 
 export const templateButtonCheckbox = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': checked, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" 
          ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" 
          ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.criterionInput}"/>
@@ -17,7 +17,7 @@ export const templateButtonCheckbox = `<label ng-show="controller.visible" class
   <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
 export const templateButtonRadio = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': component.model.selected === component.value, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-focus="focus()" ng-blur="blur()"
          ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
          data-testid="${TestIds.criterionInput}"/>
@@ -31,7 +31,7 @@ export const templateButtonRadio = `<label ng-show="controller.visible" class="c
 </label>`;
 
 export const templateInputCheckbox = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" class="control-label label-{{::size}}" ng-cloak></label>
     <div class="validator input">
@@ -77,7 +77,7 @@ export const templateColumnButtonRadio = `<div ng-show="component.controller.vis
 </div>`;
 
 export const templateRadio = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-cloak></label>
     <div class="validator input">

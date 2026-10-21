@@ -2,6 +2,7 @@ package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.driver.BrowserDriver;
 import com.almis.awe.testing.driver.ElementNotFoundException;
+import com.almis.awe.testing.driver.ElementRef;
 import com.almis.awe.testing.driver.ElementReplacedException;
 import com.almis.awe.testing.driver.Locator;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,39 @@ class BrowserConditionTest {
 
     assertThat(BrowserCondition.visible(ITEM).isMet(browser)).isTrue();
     assertThat(BrowserCondition.visible(ITEM).isMet(browser)).isFalse();
+  }
+
+  @Test
+  void shouldHaveNoneVisibleWhenThereIsNoMatch() {
+    when(browser.elements(ITEM)).thenReturn(List.of());
+
+    assertThat(BrowserCondition.noneVisible(ITEM).isMet(browser)).isTrue();
+  }
+
+  @Test
+  void shouldNotHaveNoneVisibleWhenAnyMatchBeyondTheFirstIsDisplayed() {
+    ElementRef hidden = mock(ElementRef.class);
+    ElementRef shown = mock(ElementRef.class);
+    when(shown.isVisible()).thenReturn(true);
+    when(browser.elements(ITEM)).thenReturn(List.of(hidden, shown));
+
+    assertThat(BrowserCondition.noneVisible(ITEM).isMet(browser)).isFalse();
+  }
+
+  @Test
+  void shouldHaveNoneVisibleWhenEveryMatchIsHidden() {
+    when(browser.elements(ITEM)).thenReturn(List.of(mock(ElementRef.class), mock(ElementRef.class)));
+
+    assertThat(BrowserCondition.noneVisible(ITEM).isMet(browser)).isTrue();
+  }
+
+  @Test
+  void shouldWaitAgainWhenAMatchIsReplacedWhileItIsRead() {
+    ElementRef replaced = mock(ElementRef.class);
+    when(replaced.isVisible()).thenThrow(new ElementReplacedException(ITEM, new IllegalStateException("replaced")));
+    when(browser.elements(ITEM)).thenReturn(List.of(replaced));
+
+    assertThat(BrowserCondition.noneVisible(ITEM).isMet(browser)).isFalse();
   }
 
   /** Clock that only moves when the test says so */

@@ -62,7 +62,7 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
     [contextMenu, t, addActionsTop, raiseEvent, address, optionAttributes]);
   const canOpen = openWithoutVisibleOptions
     ? items.length > 0
-    : items.some(item => item.visible !== false);
+    : items.some(item => item.visible !== false && !item.separator);
 
   const onContextMenu = useCallback((data) => {
     const event = data?.originalEvent ?? data;

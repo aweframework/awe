@@ -3,7 +3,14 @@ id: context-menu
 title: Menú contextual
 ---
 
-El motor de Awe permite definir un menú contextual dentro de un *grid*, criterios o gráficas. Con estos menús, se puede añadir funcionalidad a la ventana.
+El motor de Awe permite definir un menú contextual dentro de un *grid*, *tree grid*, gráfica, botón, criterio, pestaña o *wizard*. Con estos menús, se puede añadir funcionalidad a la ventana.
+
+## Apertura del menú {#opening-the-menu}
+
+El menú se abre con un clic derecho sobre el componente que lo declara: *grids*, *tree grids*, gráficas, botones, criterios, pestañas y *wizards*.
+
+- Cuando ninguna de las opciones es visible (por ejemplo, por sus dependencias), el menú no se abre y se muestra el menú del navegador.
+- Cuando un componente está dentro de otro que también declara un menú contextual (un criterio dentro de una pestaña), prevalece el menú del componente interior sobre el de su contenedor.
 
 <img alt="Menú contextual de grid" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 

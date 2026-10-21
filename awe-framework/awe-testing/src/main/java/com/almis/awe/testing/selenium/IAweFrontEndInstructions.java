@@ -856,6 +856,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the active step of a wizard, whatever its number
+   *
+   * @param wizardId Wizard criterion identifier
+   * @return Active step selector of the wizard
+   */
+  default By getActiveWizardStepOf(String wizardId) {
+    return By.cssSelector(getCriterionCss(wizardId) + " " + TestIds.css(TestIds.WIZARD_STEP)
+      + TestAttributes.css(TestAttributes.ACTIVE, true));
+  }
+
+  /**
    * Get the tag list of a screen (the AWE component that shows a list of tags)
    *
    * @param tagListId Tag list identifier

@@ -568,6 +568,10 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `contextMenuRowContents(String search)` | Abre el menú contextual de la fila que contiene un texto |
 | `contextMenuRowContents(String gridId, String search)` | Igual en un grid dado |
 | `contextMenu(String gridId, String rowId, String columnId)` | Abre el menú contextual de una celda |
+| `contextMenuOnButton(String buttonId)` | Abre el menú contextual de un botón con un clic derecho |
+| `contextMenuOnCriterion(String criterionId)` | Abre el menú contextual de un criterio con un clic derecho |
+| `contextMenuOnTab(String tabId)` | Abre el menú contextual de un criterio de pestañas con un clic derecho sobre su lista de pestañas |
+| `contextMenuOnWizard(String wizardId)` | Abre el menú contextual de un *wizard* con un clic derecho sobre su paso activo |
 | `selectAllRowsOfGrid(String gridId)` | Selecciona todas las filas con el checkbox de la cabecera |
 | `checkAllRowsSelected(String gridId)` | Comprueba que todas las filas de un grid están seleccionadas |
 | `clickGridViewport(String gridId)` | Hace clic en la zona del grid que muestra las filas, fuera de cualquier fila |

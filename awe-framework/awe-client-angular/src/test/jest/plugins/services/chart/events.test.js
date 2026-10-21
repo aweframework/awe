@@ -77,10 +77,57 @@ describe("ChartEvents", () => {
   });
 
   it("shows the context menu on right click and hides it on left click", () => {
+    component.scope.contextMenu = {hasVisibleOptions: () => true};
     component.chart.element.trigger($.Event("mousedown", {which: 3}));
     component.chart.element.trigger($.Event("mousedown", {which: 1}));
 
     expect(component.showContextMenu).toHaveBeenCalledTimes(1);
     expect(component.hideContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not show the context menu on right click when every option is hidden", () => {
+    component.scope.contextMenu = {hasVisibleOptions: () => false};
+
+    component.chart.element.trigger($.Event("mousedown", {which: 3}));
+
+    expect(component.showContextMenu).not.toHaveBeenCalled();
+  });
+
+  it("stops the browser contextmenu event at the chart when it has a context menu", () => {
+    component.scope.contextMenu = {hasVisibleOptions: () => true};
+    const parentHandler = jest.fn();
+    const parent = $("<div></div>").append(component.chart.element).on("contextmenu", parentHandler);
+
+    const event = $.Event("contextmenu");
+    component.chart.element.trigger(event);
+
+    expect(parentHandler).not.toHaveBeenCalled();
+    expect(event.isDefaultPrevented()).toBe(true);
+    parent.remove();
+  });
+
+  it("keeps the browser menu of a chart whose options are all hidden or separators", () => {
+    component.scope.contextMenu = {hasVisibleOptions: () => false};
+    const parentHandler = jest.fn();
+    const parent = $("<div></div>").append(component.chart.element).on("contextmenu", parentHandler);
+
+    const event = $.Event("contextmenu");
+    component.chart.element.trigger(event);
+
+    expect(parentHandler).toHaveBeenCalledTimes(1);
+    expect(event.isDefaultPrevented()).toBe(false);
+    parent.remove();
+  });
+
+  it("lets the contextmenu event of a chart without a context menu bubble", () => {
+    const parentHandler = jest.fn();
+    const parent = $("<div></div>").append(component.chart.element).on("contextmenu", parentHandler);
+
+    const event = $.Event("contextmenu");
+    component.chart.element.trigger(event);
+
+    expect(parentHandler).toHaveBeenCalledTimes(1);
+    expect(event.isDefaultPrevented()).toBe(false);
+    parent.remove();
   });
 });

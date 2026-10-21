@@ -569,6 +569,10 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `contextMenuRowContents(String search)` | Opens the context menu of the row that contains a text |
 | `contextMenuRowContents(String gridId, String search)` | Same in a given grid |
 | `contextMenu(String gridId, String rowId, String columnId)` | Opens the context menu of a cell |
+| `contextMenuOnButton(String buttonId)` | Opens the context menu of a button with a right click |
+| `contextMenuOnCriterion(String criterionId)` | Opens the context menu of a criterion with a right click |
+| `contextMenuOnTab(String tabId)` | Opens the context menu of a tab criterion with a right click on its tab list |
+| `contextMenuOnWizard(String wizardId)` | Opens the context menu of a wizard with a right click on its active step |
 | `selectAllRowsOfGrid(String gridId)` | Selects every row with the checkbox of the header |
 | `checkAllRowsSelected(String gridId)` | Checks that every row of a grid is selected |
 | `clickGridViewport(String gridId)` | Clicks the area of the grid that shows the rows, outside any row |

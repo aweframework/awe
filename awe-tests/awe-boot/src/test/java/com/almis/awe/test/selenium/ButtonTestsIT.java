@@ -119,4 +119,50 @@ class ButtonTestsIT extends AbstractSessionTests {
     // Check text
     checkCriterionContents("ButVal", "Valor3");
   }
+
+  /**
+   * Context menu on a button and on a criterion: a right click opens the menu declared with context-button and its
+   * option runs its actions
+   */
+  @Test
+  void t033_contextMenuOnButtonAndCriterion() {
+    // Title
+    setTestTitle("Button test: context menu on a button and on a criterion");
+
+    // Go to screen
+    gotoScreen("test", "button-test");
+
+    // Right click on the button and choose its option
+    contextMenuOnButton("ButTxt");
+    clickContextButton("CtxButSet");
+    checkCriterionContents("ButCtxBut", "FromButton");
+
+    // Right click on the criterion and choose its option
+    contextMenuOnCriterion("ButCtxCri");
+    clickContextButton("CtxCriSet");
+    checkCriterionContents("ButCtxCri", "FromCriterion");
+  }
+
+  /**
+   * Context menu on tabs and on a wizard: a right click opens the menu declared with context-button and its option runs
+   * its actions
+   */
+  @Test
+  void t034_contextMenuOnTabAndWizard() {
+    // Title
+    setTestTitle("Button test: context menu on tabs and on a wizard");
+
+    // Go to screen
+    gotoScreen("test", "reveal-invalid-test");
+
+    // Right click on the tabs and choose their option
+    contextMenuOnTab("RevTabs");
+    clickContextButton("CtxTabSet");
+    checkCriterionContents("RevTabFirst", "FromTabs");
+
+    // Right click on the wizard and choose its option
+    contextMenuOnWizard("RevWizard");
+    clickContextButton("CtxWizardSet");
+    checkCriterionContents("RevStepFirst", "FromWizard");
+  }
 }
