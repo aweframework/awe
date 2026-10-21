@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button } from "primereact/button";
+import ActionsRunningButton from "./ActionsRunningButton";
 import { ButtonTypes } from "../redux/actions/components";
 import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
 import { classNames } from "../utilities/components";
@@ -31,7 +31,6 @@ function AweButton(props) {
   const state = useComponentState(id);
   const { address = {}, attributes = {}, actions = [] } = state;
   const settings = useSelector(state => state.settings);
-  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -56,12 +55,12 @@ function AweButton(props) {
   const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", getButtonType(buttonType), { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style);
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
-    <Button
+    <ActionsRunningButton
       id={id}
       type="button"
       className={classes}
       icon={getIconCode(icon, classNames("p-button-icon", "p-c", "p-button-icon-left", { [`text-${size}`]: size }),)}
-      disabled={globalDisabled || disabled}
+      disabled={disabled}
       label={translateLabel(label, t)}
       iconPos={"left"}
       onClick={onClick}

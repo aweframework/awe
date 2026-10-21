@@ -6,7 +6,7 @@ import { classNames, clickDropdown } from "../utilities/components";
 import "./AweInfoDropdown.less";
 import { getIconCode, translateLabel } from "../utilities";
 import { Components } from "../utilities/structure";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { useTranslation } from "react-i18next";
 import { addActionsTop } from "../redux/actions/actions";
@@ -18,7 +18,6 @@ import { TestIds, testHook } from "../utilities/testIds";
 function AweInfoDropdown(props) {
   const { id, elementList = [] } = props;
   const { address, model = { values: [] }, attributes = {}, actions = [] } = useComponentState(id);
-  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const opRef = useRef(null);
@@ -45,7 +44,7 @@ function AweInfoDropdown(props) {
         type="button"
         className={classes}
         icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
-        disabled={globalDisabled || disabled}
+        disabled={disabled}
         label={translateLabel(computedLabel, t)}
         iconPos={"left"}
         onClick={onClick}

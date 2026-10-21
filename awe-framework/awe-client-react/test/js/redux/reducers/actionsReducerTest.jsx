@@ -61,13 +61,41 @@ describe('awe-react-client/test/js/redux/reducers/actionsReducerTest.jsx', () =>
     expect(state1.running).toBe(true);
   });
 
-  it('RUN_ACTION respects silent flag for running toggle', () => {
+  it('RUN_ACTION of a silent action leaves running as it was', () => {
     let state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [{ type: 'x' }] });
     const id = currentStack(state)[0].id;
-    // Mark running with silent true
     state = actionsReducer(state, { type: RUN_ACTION, payload: { id, silent: true } });
-    expect(state.running).toBe(false);
+    expect(state.running).toBe(true);
     expect(currentStack(state)[0].status).toBe(ActionStatus.STATUS_RUNNING);
+  });
+
+  it('a silent action does not set running when the queue is idle', () => {
+    const state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [{ type: 'quiet', silent: true }] });
+    expect(currentStack(state)[0].status).toBe(ActionStatus.STATUS_RUNNING);
+    expect(state.running).toBe(false);
+  });
+
+  it('a silent action after a non silent one keeps running until the stack is empty', () => {
+    let state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [{ type: 'loud' }, { type: 'quiet', silent: true }] });
+    state = actionsReducer(state, { type: ACCEPT_ACTION, payload: currentStack(state)[0] });
+    expect(currentStack(state)[0].type).toBe('quiet');
+    expect(state.running).toBe(true);
+    state = actionsReducer(state, { type: ACCEPT_ACTION, payload: currentStack(state)[0] });
+    expect(state.running).toBe(false);
+  });
+
+  it('an async action alone does not keep running', () => {
+    const state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [{ type: 'background', async: true }] });
+    expect(state.async[0].status).toBe(ActionStatus.STATUS_RUNNING);
+    expect(currentStack(state)).toEqual([]);
+    expect(state.running).toBe(false);
+  });
+
+  it('RUN_ACTION of an async action does not set running', () => {
+    let state = actionsReducer(undefined, { type: ADD_ACTION, payload: { id: 'bg', type: 'bg', async: true } });
+    state = actionsReducer(state, { type: RUN_ACTION, payload: { id: 'bg', async: true } });
+    expect(state.async[0].status).toBe(ActionStatus.STATUS_RUNNING);
+    expect(state.running).toBe(false);
   });
 
   it('START_ACTION sets status STARTED and adds startDate', () => {

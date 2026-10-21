@@ -71,11 +71,11 @@ function getExpandedKeys(optionList) {
  * @returns {object} Item
  */
 function optionToItem(option, props) {
-  const { t, deleteStack, addActionsTop, currentOption, disabled } = props;
+  const { t, deleteStack, addActionsTop, currentOption } = props;
   const { separator, name, label, description, icon, options, actions } = option;
   let children = optionsToItems(options, props);
   return separator ? getSeparatorModel(option, t) : {
-    name, disabled,
+    name,
     key: name,
     active: name === currentOption.option,
     label: translateLabel(label, t),
@@ -140,7 +140,6 @@ function AweMenu(props) {
   const componentModule = useComponentState('module');
   const currentOption = useView("report") || {};
   const options = useMenuOptions();
-  const disabled = useSelector(state => state.actions.running);
   // Menu option search is enabled unless the 'menuSearchEnabled' setting is explicitly false
   const searchEnabled = useSelector(state => state.settings.menuSearchEnabled) !== false;
   const module = componentModule?.model ? componentModule : { model: { values: [] } };
@@ -150,11 +149,10 @@ function AweMenu(props) {
   const helperProps = useMemo(() => ({
     t,
     currentOption,
-    disabled,
     module,
     addActionsTop: (actions) => dispatch(addActionsTop(actions)),
     deleteStack: () => dispatch(deleteStack()),
-  }), [t, currentOption, disabled, module, dispatch]);
+  }), [t, currentOption, module, dispatch]);
 
   // Initialize expanded keys and breadcrumbs on mount
   useEffect(() => {
@@ -201,7 +199,7 @@ function AweMenu(props) {
     return (
       <div className="awe-menu-container awe-menu-container-vertical">
         {search}
-        <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
+        <PanelMenu className="w-full md:w-20rem"
           expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
           model={model} pt={panelMenuPassThrough(model)} />
       </div>
@@ -210,7 +208,7 @@ function AweMenu(props) {
     return (
       <div className="awe-menu-container awe-menu-container-horizontal">
         {search}
-        <Menubar aria-disabled={disabled} model={model} pt={menubarPassThrough()} />
+        <Menubar model={model} pt={menubarPassThrough()} />
       </div>
     );
   }

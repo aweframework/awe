@@ -6,14 +6,39 @@ import { getIconCode, translateLabel } from "../utilities";
 import { useTranslation } from "react-i18next";
 import { useInvalidValues, usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
+import { selectActionsRunning } from "../redux/selectors/stateSelectors";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 
+/**
+ * Steps disabled while actions run. It is the only part of the wizard that reads the running flag, so a running/idle
+ * transition does not render the wizard panel again
+ */
+function AweStepList({ values, activeIndex, disabled, onChange, itemRenderer }) {
+  const running = useSelector(selectActionsRunning);
+  return <Steps model={values.map((item, index) => ({
+    ...item,
+    disabled: running || disabled || index > activeIndex,
+    template: (item) => itemRenderer(item, index)
+  }))}
+    activeIndex={activeIndex}
+    onSelect={onChange}
+    readOnly={false}
+  />;
+}
+
+AweStepList.propTypes = {
+  values: PropTypes.array,
+  activeIndex: PropTypes.number,
+  disabled: PropTypes.bool,
+  onChange: PropTypes.func,
+  itemRenderer: PropTypes.func
+};
+
 function AweSteps(props) {
   const { id, elementList = [] } = props;
   const { model = { values: [] }, address, attributes } = useComponentState(id);
-  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
   const invalid = useInvalidValues(id);
@@ -56,15 +81,8 @@ function AweSteps(props) {
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
   return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`} criterion-id={id}>
-    <Steps model={values.map((item, index) => ({
-      ...item,
-      disabled: globalDisabled || disabled || index > activeIndex,
-      template: (item) => itemRenderer(item, index)
-    }))}
-      activeIndex={activeIndex}
-      onSelect={onChange}
-      readOnly={false}
-    />
+    <AweStepList values={values} activeIndex={activeIndex} disabled={disabled} onChange={onChange}
+      itemRenderer={itemRenderer} />
     {elementList
       .filter(item => item.elementType === "WizardPanel")
       .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}

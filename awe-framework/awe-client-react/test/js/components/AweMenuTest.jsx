@@ -9940,4 +9940,25 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
     expect(document.querySelector(".p-menubar")).toBeDefined();
   });
 
+  it('is not disabled while actions run, as in the AngularJS engine', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}},
+      actions: {running: true, sync: [[]], async: []},
+      menu: {options, breadcrumbs: []},
+      components: {
+        menu: {
+          address: {component: 'menu', view: 'base'},
+          model: {values: []},
+          attributes: {}
+        }
+      }
+    };
+
+    renderWithProviders(<AweMenu id="menu"/>, {preloadedState});
+
+    expect(document.querySelector(".p-menubar").getAttribute("aria-disabled")).not.toBe("true");
+    expect(document.querySelectorAll(".p-menubar .p-disabled").length).toBe(0);
+  });
+
 });

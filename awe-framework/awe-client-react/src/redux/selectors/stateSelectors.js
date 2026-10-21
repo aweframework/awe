@@ -16,3 +16,10 @@ export const selectSettings = (state) => state.settings;
  * @returns {object} Messages
  */
 export const selectMessages = (state) => state.messages;
+
+/**
+ * Actions running flag: true while a sync action that is not silent runs
+ * @param {object} state Redux state
+ * @returns {boolean} Actions are running
+ */
+export const selectActionsRunning = (state) => state.actions.running;
