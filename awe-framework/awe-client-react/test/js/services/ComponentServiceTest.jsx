@@ -50,7 +50,7 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
   });
 
   it('should get all component actions', () => {
-    expect(Object.keys(actions).length).toBe(21);
+    expect(Object.keys(actions).length).toBe(22);
   });
 
   it('should add points to the chart serie', async () => {

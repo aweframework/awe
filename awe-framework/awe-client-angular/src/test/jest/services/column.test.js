@@ -91,4 +91,28 @@ describe("Column", () => {
     expect(gridComponent.updateCellModel).toHaveBeenCalledWith(component);
     expect($control.publishModelChanged).toHaveBeenLastCalledWith(component.address, {selected: null});
   });
+
+  it("opens the context menu of the owner grid under its button for the row of the cell", () => {
+    const {component, gridComponent, attributes} = createColumnFixture();
+    gridComponent.showRowContextMenu = jest.fn();
+    const column = new Column(attributes);
+    column.init(component);
+    component.element = $("<div><button></button></div>");
+
+    component.onShowContextMenu();
+
+    expect(gridComponent.showRowContextMenu).toHaveBeenCalledTimes(1);
+    const [row, anchor] = gridComponent.showRowContextMenu.mock.calls[0];
+    expect(row).toBe("2");
+    expect(anchor.is("button")).toBe(true);
+  });
+
+  it("finishes the show-context-menu action when the grid has no menu to open", () => {
+    const {component, attributes} = createColumnFixture();
+    const column = new Column(attributes);
+    column.init(component);
+    component.element = $("<div><button></button></div>");
+
+    expect(() => component.onShowContextMenu()).not.toThrow();
+  });
 });

@@ -55,6 +55,7 @@ module.exports = {
     '**/utilities/componentsTest.{js,jsx}',
     '**/utilities/revealTest.{js,jsx}',
     '**/utilities/chartRegistryTest.{js,jsx}',
+    '**/utilities/contextMenuRegistryTest.{js,jsx}',
     '**/utilities/chartFormatTest.{js,jsx}',
     '**/i18n/chartLocalesTest.{js,jsx}',
     '**/utilities/echartsOptionTest.{js,jsx}',
@@ -134,6 +135,7 @@ module.exports = {
     '**/components/ElementHelpTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
     '**/components/ContextMenuFamiliesTest.{js,jsx}',
+    '**/components/ShowContextMenuActionTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'
   ],
   transform: {

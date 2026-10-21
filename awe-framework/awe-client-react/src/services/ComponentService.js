@@ -20,6 +20,7 @@ import {
   toggleMenuAction,
   toggleNavbarAction,
 } from "../redux/thunks/components";
+import {showContextMenuAction} from "../redux/thunks/contextMenu";
 import {useDispatch} from "react-redux";
 
 /**
@@ -92,9 +93,12 @@ const useComponentService = () => {
 
   const changeMenu = (action) => dispatch(changeMenuAction(action));
 
+  const showContextMenu = (action) => dispatch(showContextMenuAction(action));
+
   const getActions = () => ({
     // Button
     "click": onButtonClick,
+    "show-context-menu": showContextMenu,
     // Uploader
     "file-uploaded": onUploaderFinishUpload,
     "clear-file": onUploaderDelete,

@@ -15,6 +15,9 @@ aweApplication.directive('aweColumnButton',
           const column = new Column(attrs);
           const component = new Button(scope, column.id, elem);
 
+          // The show-context-menu action anchors the menu on the button
+          component.element = elem;
+
           // Initialize criterion and column
           column.init(component).asButton();
 

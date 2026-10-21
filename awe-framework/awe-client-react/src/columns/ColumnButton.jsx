@@ -9,6 +9,7 @@ import {updateModelWithDependencies} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
 import {getFirstDefinedValue} from "../utilities/general";
 import PropTypes from "prop-types";
+import {useContextMenuAnchor} from "../hooks/useContextMenu";
 import {TestIds, testHook} from "../utilities/testIds";
 
 const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
@@ -20,6 +21,7 @@ function ColumnButton(props) {
   const classes = classNames('p-button-sm', 'p-1', style, cellStyle, {"hidden": !visible});
   const dispatch = useDispatch();
   const { t} = useTranslation();
+  const buttonRef = useContextMenuAnchor(address);
 
   const onClick = useCallback(() => {
     // Change click event
@@ -34,6 +36,7 @@ function ColumnButton(props) {
   }, []);
 
   return <Button
+    ref={buttonRef}
     id={address.component}
     type="button"
     className={classes}

@@ -164,6 +164,8 @@
       <xs:enumeration value="select-last-row" />
       <xs:enumeration value="select-all-rows" />
       <xs:enumeration value="unselect-all-rows" />
+      <!-- Open the context menu under the button: the one of its grid when the button is in a grid row, its own otherwise -->
+      <xs:enumeration value="show-context-menu" />
       <xs:enumeration value="toggle-menu" />
       <xs:enumeration value="toggle-navbar" />
       <xs:enumeration value="logout" />

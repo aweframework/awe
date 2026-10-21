@@ -138,6 +138,31 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Grid test: a row button with the show-context-menu action opens the context menu of the grid for its row
+   */
+  @Test
+  void t043_gridTestRowButtonContextMenu() {
+    // Title
+    setTestTitle("Grid test: row button that opens the context menu");
+
+    // Go to screen
+    openMatrixScreen();
+
+    // Click on tab
+    clickTab("TabSelMat", "Multioption");
+
+    // A left click on the button of a row selects the row and opens the menu of the grid under it
+    clickGridCellButton("GrdMuo", "3", "CtxBtn");
+
+    // The options that depend on the selected row are shown
+    waitForContextButton("CtxGrdMuoAddSel");
+
+    // The option runs its action over the selected row
+    clickContextButton("CtxGrdMuoDel");
+    checkGridIconVisible("GrdMuo", "RowIco", "trash");
+  }
+
+  /**
    * Grid test: multiselect grid
    */
   @Test

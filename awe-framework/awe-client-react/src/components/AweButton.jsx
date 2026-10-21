@@ -11,7 +11,7 @@ import { updateModelWithDependencies as updateThunk } from "../redux/thunks/comp
 import PropTypes from "prop-types";
 import { ButtonSkeleton } from "./AweSkeleton";
 import { TestIds, testHook } from "../utilities/testIds";
-import { useContextMenu } from "../hooks/useContextMenu";
+import { useContextMenu, useContextMenuAnchor } from "../hooks/useContextMenu";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
 
@@ -35,6 +35,7 @@ function AweButton(props) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
+  const buttonRef = useContextMenuAnchor(address);
 
   const onClick = useCallback(() => {
     // Change click event
@@ -58,6 +59,7 @@ function AweButton(props) {
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
     <ActionsRunningButton
+      ref={buttonRef}
       id={id}
       type="button"
       className={classes}

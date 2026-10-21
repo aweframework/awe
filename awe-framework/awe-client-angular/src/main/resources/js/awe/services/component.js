@@ -663,6 +663,30 @@ aweApplication.factory('Component',
           }
         },
         /**
+         * Show the context menu under an element
+         * @param {jQuery} anchor Element the menu hangs from
+         */
+        showContextMenuUnder: function (anchor) {
+          if (this.scope.contextMenu) {
+            this.scope.contextMenu.showUnder(anchor);
+          }
+        },
+        /**
+         * Element the context menu hangs from when an action opens it (the component root by default)
+         * @returns {jQuery} Anchor element
+         */
+        getContextMenuAnchor: function () {
+          return this.element ? $(this.element) : $();
+        },
+        /**
+         * Action show-context-menu: open the menu of the component under it. Nothing to open, nothing done
+         */
+        onShowContextMenu: function () {
+          if (this.scope.contextMenu && this.scope.contextMenu.hasVisibleOptions()) {
+            this.showContextMenuUnder(this.getContextMenuAnchor());
+          }
+        },
+        /**
          * Hide the context menu
          */
         hideContextMenu: function () {

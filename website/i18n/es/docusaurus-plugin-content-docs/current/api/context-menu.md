@@ -9,8 +9,23 @@ El motor de Awe permite definir un menú contextual dentro de un *grid*, *tree g
 
 El menú se abre con un clic derecho sobre el componente que lo declara: *grids*, *tree grids*, gráficas, botones, criterios, pestañas y *wizards*.
 
-- Cuando ninguna de las opciones es visible (por ejemplo, por sus dependencias), el menú no se abre y se muestra el menú del navegador.
+- Cuando ninguna de las opciones es visible (por ejemplo, por sus dependencias), el menú no se abre y se muestra el menú del navegador. Los *grids* y *tree grids* son la excepción: las opciones de un *grid* suelen depender de la fila seleccionada, y esas dependencias se resuelven después de que el clic seleccione la fila, así que un *grid* abre su menú siempre que declare opciones.
 - Cuando un componente está dentro de otro que también declara un menú contextual (un criterio dentro de una pestaña), prevalece el menú del componente interior sobre el de su contenedor.
+
+### Abrir el menú desde un botón {#opening-the-menu-from-a-button}
+
+Un botón abre un menú contextual con la acción de cliente `show-context-menu`. Es la forma de dar a cada fila de un *grid* un botón que abre con clic izquierdo el menú contextual del *grid*:
+
+```xml
+<column name="Actions" label="" component="button" icon="ellipsis-v" charlength="12">
+  <button-action type="show-context-menu"/>
+</column>
+```
+
+- El botón de una fila de *grid* selecciona su fila, como hace el clic derecho sobre la fila, y abre el menú contextual del *grid* justo debajo del botón.
+- Cualquier otro botón abre su propio menú contextual (los elementos `context-button` declarados dentro del botón), justo debajo de sí mismo.
+- Cuando no hay nada que abrir la acción solo termina y las siguientes acciones continúan. Para un botón fuera de un *grid* significa que no declara opciones o que ninguna es visible. Un *grid* abre su menú siempre que declare opciones, aunque ninguna sea visible en ese momento, porque sus dependencias se resuelven después de seleccionar la fila; solo un *grid* que no declara opciones no tiene nada que abrir (y entonces tampoco se selecciona la fila).
+- La acción funciona en los dos motores de cliente (AngularJS y React) y se permite en cualquier botón. No indiques `target`: la acción siempre actúa sobre el botón que la lanza.
 
 <img alt="Menú contextual de grid" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 

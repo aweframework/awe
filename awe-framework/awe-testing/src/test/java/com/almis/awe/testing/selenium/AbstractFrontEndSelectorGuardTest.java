@@ -221,6 +221,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridSaveButton(grid)", () -> i.getGridSaveButton(GRID));
     catalog.put("getGridCellText(row)", () -> i.getGridCellText(GRID, ROW, COLUMN, TEXT));
     catalog.put("getGridCellText(selected)", () -> i.getGridCellText(GRID, null, COLUMN, TEXT));
+    catalog.put("getGridCellButton", () -> i.getGridCellButton(GRID, ROW, COLUMN));
     catalog.put("findGridCell(grid)", () -> i.findGridCell(GRID, TEXT));
     catalog.put("findGridCell(any grid)", () -> i.findGridCell(null, TEXT));
     catalog.put("findGridRowSelection(grid)", () -> i.findGridRowSelection(GRID, TEXT));

@@ -6,13 +6,13 @@ import { selectActionsRunning } from "../redux/selectors/stateSelectors";
 
 /**
  * Button disabled while actions run. It is the only part of a button that reads the running flag, so a running/idle
- * transition renders this button again but not the component that holds it
+ * transition renders this button again but not the component that holds it. The ref reaches the PrimeReact button
  * @category Components
  */
-function ActionsRunningButton({ disabled, ...props }) {
+const ActionsRunningButton = React.forwardRef(function ActionsRunningButton({ disabled, ...props }, ref) {
   const running = useSelector(selectActionsRunning);
-  return <Button {...props} disabled={running || disabled} />;
-}
+  return <Button {...props} ref={ref} disabled={running || disabled} />;
+});
 
 ActionsRunningButton.propTypes = {
   disabled: PropTypes.bool

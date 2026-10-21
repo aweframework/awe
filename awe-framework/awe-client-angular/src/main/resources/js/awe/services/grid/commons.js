@@ -1622,6 +1622,25 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           component.showContextMenu(event);
         };
         /**
+         * Select a row and show the context menu under an element (action show-context-menu of a row button)
+         *
+         * @param {String} rowId Row identifier
+         * @param {jQuery} anchor Element the menu hangs from
+         */
+        component.showRowContextMenu = function (rowId, anchor) {
+          // A grid that declares no options has nothing to open: the row is not selected either. A grid that does
+          // declare them opens its menu even if none is visible yet, as their dependencies resolve after the selection
+          if (!(component.controller.contextMenu || []).length) {
+            return;
+          }
+          const data = component.model.values;
+          const rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
+          if (rowIndex > -1) {
+            component.selectRow(data[rowIndex]);
+            component.showContextMenuUnder(anchor);
+          }
+        };
+        /**
          * Click over viewport
          *
          * @param {type} event

@@ -43,6 +43,10 @@ aweApplication.factory('Button',
         this.id = id;
         this.element = element;
         this.component = new Component(scope, id);
+        // The context menu action hangs the menu from the button itself
+        this.component.getContextMenuAnchor = function () {
+          return element.is("button") ? element : element.find("button").first();
+        };
         // Store mouse down
         this.component.pendingActions = false;
         const button = this;
