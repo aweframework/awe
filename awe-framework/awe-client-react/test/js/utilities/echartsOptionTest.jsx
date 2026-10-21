@@ -275,6 +275,30 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
 
         expect(buildEChartsOption(model, values, context()).xAxis[0].minInterval).toBe(3600000);
       });
+
+      it('should run in a time zone that is not UTC', () => {
+        expect(new Date(Date.UTC(2024, 0, 1)).getTimezoneOffset()).toBe(-60);
+      });
+
+      it('should not tick once per day when the points are midnight in UTC but not in local time', () => {
+        // ECharts draws local time, so day ticks would not line up with these points
+        const rows = dayRows([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)]);
+
+        expect(build("ChrLinTst", rows).xAxis[0].minInterval).toBeUndefined();
+      });
+
+      it('should not tick once per day when the date strings are midnight in UTC', () => {
+        const rows = dayRows(["2024-01-01T00:00:00Z", "2024-01-02T00:00:00Z"]);
+
+        expect(build("ChrLinTst", rows).xAxis[0].minInterval).toBeUndefined();
+      });
+
+      it('should tick once per day on local midnights across a daylight saving time change', () => {
+        const rows = dayRows([new Date(2024, 2, 30).getTime(), new Date(2024, 2, 31).getTime(),
+          new Date(2024, 3, 1).getTime()]);
+
+        expect(build("ChrLinTst", rows).xAxis[0].minInterval).toBe(DAY_MS);
+      });
     });
 
     it('should hide overlapping labels of value axes, which a fixed interval can crowd', () => {

@@ -550,8 +550,8 @@ function hasLabelHints(axis) {
 }
 
 /**
- * Check if a time value is a whole day: midnight in the local time zone or in UTC. The value is a timestamp in
- * milliseconds or a date string
+ * Check if a time value is a whole day: midnight in the local time zone, where ECharts draws the day ticks (a UTC
+ * midnight elsewhere would sit hours away from its tick). The value is a timestamp in milliseconds or a date string
  * @param {number|string|Date} value Value of a point
  * @returns {boolean} The value is a whole day
  */
@@ -561,8 +561,7 @@ function isWholeDay(value) {
     return false;
   }
   const date = new Date(time);
-  return time % DAY_MS === 0 || (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0
-    && date.getMilliseconds() === 0);
+  return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
 }
 
 /**
