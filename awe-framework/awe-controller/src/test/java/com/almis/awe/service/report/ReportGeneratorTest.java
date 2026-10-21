@@ -8,6 +8,7 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.Screen;
+import com.almis.awe.service.observation.ExecutionObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -104,5 +107,24 @@ class ReportGeneratorTest {
 
     verify(designer, times(1)).getPrintDesign(reportStructure, parameters, false);
     verify(designer, never()).getPrintDesign(any(), any(), eq(true));
+  }
+
+  @Test
+  void eachExportedFormatIsObservedWithTheScreenAndItsFormat() throws Exception {
+    List<String> observed = new ArrayList<>();
+    reportGenerator.setExecutionObserver(new ExecutionObserver() {
+      @Override
+      public <T> T observe(ExecutionType type, String id, Map<String, String> tags, Execution<T> execution) throws com.almis.awe.exception.AWException {
+        observed.add(type + ":" + id + ":" + tags);
+        return execution.execute();
+      }
+    });
+    when(screen.getId()).thenReturn("ScrRep");
+    parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("pdf").add("XLSX").add("<script>"));
+
+    ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
+
+    assertEquals(3, context.reportFiles().size());
+    assertEquals(List.of("EXPORT:ScrRep:{format=pdf}", "EXPORT:ScrRep:{format=xlsx}", "EXPORT:ScrRep:{format=other}"), observed);
   }
 }

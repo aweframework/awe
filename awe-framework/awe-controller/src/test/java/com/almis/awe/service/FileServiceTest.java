@@ -6,10 +6,18 @@ import com.almis.awe.model.dto.FileData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
@@ -42,11 +50,22 @@ class FileServiceTest {
   @Mock
   private EncodeService encodeService;
 
+  @TempDir
+  Path tempDir;
+
+  private BaseConfigProperties.Component component;
+  private final List<String> transfers = new ArrayList<>();
+
   @BeforeEach
   void setUp() {
-    BaseConfigProperties.Component component = new BaseConfigProperties.Component();
+    component = new BaseConfigProperties.Component();
     component.setUploadFilePath(UPLOAD_ROOT);
     lenient().when(baseConfigProperties.getComponent()).thenReturn(component);
+    lenient().when(baseConfigProperties.getPaths()).thenReturn(new BaseConfigProperties.Paths());
+  }
+
+  private void observeTransfers() {
+    fileService.setFileTransferObserver((direction, bytes) -> transfers.add(direction + ":" + bytes));
   }
 
   private FileData staged(String fileName, String relativePath, String basePath) {
@@ -93,5 +112,44 @@ class FileServiceTest {
   @Test
   void forgedAbsoluteRelativePathIsRejected() {
     assertFalse(fileService.isPathWithinUploadArea(staged("avatar.png", "/etc", UPLOAD_ROOT)));
+  }
+
+  @Test
+  void uploadedFileIsObservedWithItsSize() throws Exception {
+    component.setUploadFilePath(tempDir.toString() + "/");
+    observeTransfers();
+
+    FileData fileData = fileService.uploadFile(new MockMultipartFile("file", "data.txt", "text/plain", new byte[]{1, 2, 3, 4, 5}), "folder");
+
+    assertEquals(5L, fileData.getFileSize());
+    assertEquals(List.of("UPLOAD:5"), transfers);
+  }
+
+  @Test
+  void emptyUploadIsNotObserved() throws Exception {
+    component.setUploadFilePath(tempDir.toString() + "/");
+    observeTransfers();
+
+    fileService.uploadFile(new MockMultipartFile("file", "data.txt", "text/plain", new byte[0]), "folder");
+
+    assertTrue(transfers.isEmpty());
+  }
+
+  @Test
+  void downloadedFileIsObservedWithTheBytesSent() throws Exception {
+    observeTransfers();
+    FileData fileData = staged("data.txt", "folder", tempDir.toString() + "/");
+    fileData.setMimeType("text/plain");
+    fileData.setFileStream(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+
+    assertEquals(3, fileService.downloadFile(fileData, 1).getBody().length);
+    assertEquals(List.of("DOWNLOAD:3"), transfers);
+  }
+
+  @Test
+  void transfersWithoutObserverRunAsBefore() throws Exception {
+    component.setUploadFilePath(tempDir.toString() + "/");
+
+    assertEquals(2L, fileService.uploadFile(new MockMultipartFile("file", "data.txt", "text/plain", new byte[]{1, 2}), "folder").getFileSize());
   }
 }

@@ -23,4 +23,91 @@ public class AweObservabilityProperties {
    * connector as down.
    */
   private Duration healthTimeout = Duration.ofSeconds(2);
+
+  /**
+   * Maximum number of distinct values of the id and screen tags of each AWE meter. Values beyond it are reported as
+   * other, so a forged or unexpected identifier never adds series.
+   */
+  private int maxTagValues = 1000;
+
+  /**
+   * Usage metrics: screens opened, exports, files and connected users.
+   */
+  private Usage usage = new Usage();
+
+  /**
+   * Usage metric families. Each one can be switched off on its own.
+   */
+  @Data
+  public static class Usage {
+
+    /**
+     * Screens opened from the menu (awe.screen).
+     */
+    private Screens screens = new Screens();
+
+    /**
+     * Prints and exports of the screens (awe.export).
+     */
+    private Exports exports = new Exports();
+
+    /**
+     * Files uploaded and downloaded (awe.files).
+     */
+    private Files files = new Files();
+
+    /**
+     * Users connected right now (awe.users.connected and awe.connections.active).
+     */
+    private Users users = new Users();
+  }
+
+  /**
+   * Screens family
+   */
+  @Data
+  public static class Screens {
+
+    /**
+     * Count and time the screens built for a menu option (awe.screen timer, tagged by option and screen).
+     */
+    private boolean enabled = true;
+  }
+
+  /**
+   * Exports family
+   */
+  @Data
+  public static class Exports {
+
+    /**
+     * Count and time the prints and exports of the screens (awe.export timer, tagged by screen and format).
+     */
+    private boolean enabled = true;
+  }
+
+  /**
+   * Files family
+   */
+  @Data
+  public static class Files {
+
+    /**
+     * Count the files uploaded and downloaded and sum their bytes (awe.files summary, tagged by direction).
+     */
+    private boolean enabled = true;
+  }
+
+  /**
+   * Users family
+   */
+  @Data
+  public static class Users {
+
+    /**
+     * Publish the users connected and the connections open right now (awe.users.connected and
+     * awe.connections.active gauges, per instance).
+     */
+    private boolean enabled = true;
+  }
 }

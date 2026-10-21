@@ -1,10 +1,11 @@
 {
   "uid": "awe-observability",
   "title": "AWE Observability",
-  "description": "Executions of AWE queries, maintains and actions, from the awe-observability-spring-boot-starter",
+  "description": "Operations and usage of an AWE application: executions, durations and errors of queries, maintains and actions; screens opened, connected users, logins, exports and files, from the awe-observability-spring-boot-starter",
   "tags": [
     "awe",
-    "observability"
+    "observability",
+    "usage"
   ],
   "editable": true,
   "graphTooltip": 1,
@@ -44,9 +45,9 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(awe_query_seconds_count, application)",
+        "definition": "label_values({__name__=~\"awe_(screen|export|maintain|action|query)_seconds_count|awe_security_audit_events_total\"}, application)",
         "query": {
-          "query": "label_values(awe_query_seconds_count, application)",
+          "query": "label_values({__name__=~\"awe_(screen|export|maintain|action|query)_seconds_count|awe_security_audit_events_total\"}, application)",
           "refId": "application"
         },
         "current": {},
@@ -71,6 +72,34 @@
         "query": {
           "query": "label_values({__name__=~\"awe_(query|maintain|action)_seconds_count\",application=\"$application\"}, id)",
           "refId": "id"
+        },
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "options": [],
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1
+      },
+      {
+        "name": "option",
+        "label": "Option",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(awe_screen_seconds_count{application=\"$application\"}, id)",
+        "query": {
+          "query": "label_values(awe_screen_seconds_count{application=\"$application\"}, id)",
+          "refId": "option"
         },
         "current": {
           "selected": true,
@@ -352,6 +381,1235 @@
       ]
     },
     {
+      "id": 27,
+      "type": "row",
+      "title": "Usage",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 28,
+      "type": "stat",
+      "title": "Users connected",
+      "description": "Users with at least one open connection now. Counted per instance: a user connected to two instances counts twice",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(awe_users_connected{application=\"$application\"})",
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "type": "stat",
+      "title": "Open connections",
+      "description": "Open connections now (one per browser tab)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(awe_connections_active{application=\"$application\"})",
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "type": "stat",
+      "title": "Screens opened",
+      "description": "Screens opened in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum((clamp_min(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} - awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} offset $__range, 0) unless resets(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__range]) > 0 or (increase(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__range]) and awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} offset $__range) or awe_screen_seconds_count{application=\"$application\",id=~\"$option\"})) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "type": "stat",
+      "title": "Logins",
+      "description": "Successful logins in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum((clamp_min(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"} - awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"} offset $__range, 0) unless resets(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"}[$__range]) > 0 or (increase(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"}[$__range]) and awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"} offset $__range) or awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"SUCCESS\"})) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "type": "stat",
+      "title": "Failed logins",
+      "description": "Failed login attempts in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum((clamp_min(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"} - awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"} offset $__range, 0) unless resets(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"}[$__range]) > 0 or (increase(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"}[$__range]) and awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"} offset $__range) or awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\",outcome=\"FAILURE\"})) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "type": "stat",
+      "title": "Exports",
+      "description": "Prints and exports in the selected time range (one per format). Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum((clamp_min(awe_export_seconds_count{application=\"$application\"} - awe_export_seconds_count{application=\"$application\"} offset $__range, 0) unless resets(awe_export_seconds_count{application=\"$application\"}[$__range]) > 0 or (increase(awe_export_seconds_count{application=\"$application\"}[$__range]) and awe_export_seconds_count{application=\"$application\"} offset $__range) or awe_export_seconds_count{application=\"$application\"})) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "type": "row",
+      "title": "Screens",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "panels": []
+    },
+    {
+      "id": 35,
+      "type": "table",
+      "title": "Most opened options",
+      "description": "Times each option was opened in the selected time range, with the screen it shows. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 11
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Opened",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "id": "Option",
+              "screen": "Screen",
+              "Value": "Opened"
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(15, sum by (id, screen) (clamp_min(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} - awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} offset $__range, 0) unless resets(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__range]) > 0 or (increase(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__range]) and awe_screen_seconds_count{application=\"$application\",id=~\"$option\"} offset $__range) or awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}))",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "type": "timeseries",
+      "title": "Screens opened per minute (top 10)",
+      "description": "Options opened per minute, the ten most opened",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 11
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "opm",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(10, 60 * sum by (id) (rate(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__rate_interval])))",
+          "legendFormat": "{{id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "type": "table",
+      "title": "Screens with errors",
+      "description": "Options whose screen failed to build in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Errors",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "id": "Option",
+              "screen": "Screen",
+              "Value": "Errors"
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(15, sum by (id, screen) (clamp_min(awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"} - awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"} offset $__range, 0) unless resets(awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"}[$__range]) > 0 or (increase(awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"}[$__range]) and awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"} offset $__range) or awe_screen_seconds_count{application=\"$application\",id=~\"$option\",outcome=\"error\"}) > 0)",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "type": "timeseries",
+      "title": "Mean time to build the screen (top 10)",
+      "description": "Average time the server takes to build each option, the ten slowest on average",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(10, sum by (id) (rate(awe_screen_seconds_sum{application=\"$application\",id=~\"$option\"}[$__rate_interval])) / sum by (id) (rate(awe_screen_seconds_count{application=\"$application\",id=~\"$option\"}[$__rate_interval])))",
+          "legendFormat": "{{id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Longest time to build the screen (top 10)",
+      "description": "Longest build of each option, the ten slowest",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(10, max by (id) (awe_screen_seconds_max{application=\"$application\",id=~\"$option\"}))",
+          "legendFormat": "{{id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "Users and sessions",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "panels": []
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "Users connected",
+      "description": "Users with at least one open connection and open connections, over time",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 28
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(awe_users_connected{application=\"$application\"})",
+          "legendFormat": "Users",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(awe_connections_active{application=\"$application\"})",
+          "legendFormat": "Connections",
+          "range": true,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Logins by channel",
+      "description": "Login attempts by channel (WEB, SSO, REST) and outcome, one bar per interval (at least one minute) so the legend total is the real count",
+      "interval": "1m",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 28
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (channel, outcome) (clamp_min(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"} - awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"} offset $__interval, 0) unless resets(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"}[$__interval]) > 0 or (increase(awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"}[$__interval]) and awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"} offset $__interval) or awe_security_audit_events_total{application=\"$application\",type=\"LOGIN\"})",
+          "legendFormat": "{{channel}} {{outcome}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "type": "timeseries",
+      "title": "Logouts by cause",
+      "description": "Session ends by cause: EXPLICIT (the user), PROVIDER (identity provider) and EXPIRED (session timeout), one bar per interval (at least one minute) so the legend total is the real count",
+      "interval": "1m",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 28
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (cause) (clamp_min(awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"} - awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"} offset $__interval, 0) unless resets(awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"}[$__interval]) > 0 or (increase(awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"}[$__interval]) and awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"} offset $__interval) or awe_security_audit_events_total{application=\"$application\",type=\"LOGOUT\"})",
+          "legendFormat": "{{cause}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "type": "row",
+      "title": "Exports and files",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "panels": []
+    },
+    {
+      "id": 45,
+      "type": "bargauge",
+      "title": "Exports by format",
+      "description": "Prints and exports of each format in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 37
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (format) (clamp_min(awe_export_seconds_count{application=\"$application\"} - awe_export_seconds_count{application=\"$application\"} offset $__range, 0) unless resets(awe_export_seconds_count{application=\"$application\"}[$__range]) > 0 or (increase(awe_export_seconds_count{application=\"$application\"}[$__range]) and awe_export_seconds_count{application=\"$application\"} offset $__range) or awe_export_seconds_count{application=\"$application\"})",
+          "legendFormat": "{{format}}",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "type": "table",
+      "title": "Most exported screens",
+      "description": "Prints and exports of each screen in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 37
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Exports",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "id": "Screen",
+              "Value": "Exports"
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_export_seconds_count{application=\"$application\"} - awe_export_seconds_count{application=\"$application\"} offset $__range, 0) unless resets(awe_export_seconds_count{application=\"$application\"}[$__range]) > 0 or (increase(awe_export_seconds_count{application=\"$application\"}[$__range]) and awe_export_seconds_count{application=\"$application\"} offset $__range) or awe_export_seconds_count{application=\"$application\"}))",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "type": "timeseries",
+      "title": "Export duration by format",
+      "description": "Mean and longest time to generate an export, by format",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 37
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (format) (rate(awe_export_seconds_sum{application=\"$application\"}[$__rate_interval])) / sum by (format) (rate(awe_export_seconds_count{application=\"$application\"}[$__rate_interval]))",
+          "legendFormat": "mean {{format}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "max by (format) (awe_export_seconds_max{application=\"$application\"})",
+          "legendFormat": "max {{format}}",
+          "range": true,
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "type": "timeseries",
+      "title": "Files uploaded and downloaded",
+      "description": "Files transferred by direction (upload, download), one bar per interval (at least one minute) so the legend total is the real count",
+      "interval": "1m",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 45
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (direction) (clamp_min(awe_files_bytes_count{application=\"$application\"} - awe_files_bytes_count{application=\"$application\"} offset $__interval, 0) unless resets(awe_files_bytes_count{application=\"$application\"}[$__interval]) > 0 or (increase(awe_files_bytes_count{application=\"$application\"}[$__interval]) and awe_files_bytes_count{application=\"$application\"} offset $__interval) or awe_files_bytes_count{application=\"$application\"})",
+          "legendFormat": "{{direction}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "type": "timeseries",
+      "title": "Bytes uploaded and downloaded",
+      "description": "Bytes transferred by direction (upload, download), one bar per interval (at least one minute) so the legend total is the real count",
+      "interval": "1m",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 45
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (direction) (clamp_min(awe_files_bytes_sum{application=\"$application\"} - awe_files_bytes_sum{application=\"$application\"} offset $__interval, 0) unless resets(awe_files_bytes_sum{application=\"$application\"}[$__interval]) > 0 or (increase(awe_files_bytes_sum{application=\"$application\"}[$__interval]) and awe_files_bytes_sum{application=\"$application\"} offset $__interval) or awe_files_bytes_sum{application=\"$application\"})",
+          "legendFormat": "{{direction}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
+    },
+    {
       "id": 6,
       "type": "row",
       "title": "Queries",
@@ -360,7 +1618,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 53
       },
       "panels": []
     },
@@ -377,7 +1635,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 6
+        "y": 54
       },
       "fieldConfig": {
         "defaults": {
@@ -437,7 +1695,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 6
+        "y": 54
       },
       "fieldConfig": {
         "defaults": {
@@ -497,7 +1755,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 6
+        "y": 54
       },
       "fieldConfig": {
         "defaults": {
@@ -548,7 +1806,7 @@
       "id": 10,
       "type": "table",
       "title": "Most executed query ids",
-      "description": "Executions of each query id in the selected time range",
+      "description": "Executions of each query id in the selected time range. It counts every query execution, whatever launched it: the target action of the data actions, the initial loads, the maintains and services that run queries, and the queries of the framework itself. A query served from the cache is not an execution and is not counted. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -557,17 +1815,19 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 14
+        "y": 62
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Executions",
             "desc": true
           }
         ]
@@ -581,7 +1841,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Executions"
             }
           }
         }
@@ -593,7 +1853,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_query_seconds_count{application=\"$application\",id=~\"$id\"}[$__range])))",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_query_seconds_count{application=\"$application\",id=~\"$id\"} - awe_query_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range, 0) unless resets(awe_query_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) > 0 or (increase(awe_query_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) and awe_query_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range) or awe_query_seconds_count{application=\"$application\",id=~\"$id\"}))",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -606,7 +1866,7 @@
       "id": 11,
       "type": "table",
       "title": "Queries with errors",
-      "description": "Query ids that failed in the selected time range",
+      "description": "Query ids that failed in the selected time range, with the number of failed executions. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -615,17 +1875,19 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 14
+        "y": 62
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Errors",
             "desc": true
           }
         ]
@@ -639,7 +1901,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Errors"
             }
           }
         }
@@ -651,7 +1913,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range])) > 0)",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} - awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range, 0) unless resets(awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) > 0 or (increase(awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) and awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range) or awe_query_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}) > 0)",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -673,7 +1935,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 14
+        "y": 62
       },
       "fieldConfig": {
         "defaults": {
@@ -729,7 +1991,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 70
       },
       "panels": []
     },
@@ -746,7 +2008,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 23
+        "y": 71
       },
       "fieldConfig": {
         "defaults": {
@@ -806,7 +2068,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 23
+        "y": 71
       },
       "fieldConfig": {
         "defaults": {
@@ -866,7 +2128,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 23
+        "y": 71
       },
       "fieldConfig": {
         "defaults": {
@@ -917,7 +2179,7 @@
       "id": 17,
       "type": "table",
       "title": "Most executed maintain ids",
-      "description": "Executions of each maintain id in the selected time range",
+      "description": "Executions of each maintain target id (business operation) in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -926,17 +2188,19 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 31
+        "y": 79
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Executions",
             "desc": true
           }
         ]
@@ -950,7 +2214,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Executions"
             }
           }
         }
@@ -962,7 +2226,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"}[$__range])))",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"} - awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range, 0) unless resets(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) > 0 or (increase(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) and awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range) or awe_maintain_seconds_count{application=\"$application\",id=~\"$id\"}))",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -975,7 +2239,7 @@
       "id": 18,
       "type": "table",
       "title": "Maintains with errors",
-      "description": "Maintain ids that failed in the selected time range",
+      "description": "Maintain target ids that failed in the selected time range, with the number of failed executions. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -984,17 +2248,19 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 31
+        "y": 79
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Errors",
             "desc": true
           }
         ]
@@ -1008,7 +2274,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Errors"
             }
           }
         }
@@ -1020,7 +2286,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range])) > 0)",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} - awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range, 0) unless resets(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) > 0 or (increase(awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) and awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range) or awe_maintain_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}) > 0)",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -1042,7 +2308,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 31
+        "y": 79
       },
       "fieldConfig": {
         "defaults": {
@@ -1098,7 +2364,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 87
       },
       "panels": []
     },
@@ -1115,7 +2381,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 40
+        "y": 88
       },
       "fieldConfig": {
         "defaults": {
@@ -1175,7 +2441,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 40
+        "y": 88
       },
       "fieldConfig": {
         "defaults": {
@@ -1235,7 +2501,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 40
+        "y": 88
       },
       "fieldConfig": {
         "defaults": {
@@ -1286,7 +2552,7 @@
       "id": 24,
       "type": "table",
       "title": "Most executed action ids",
-      "description": "Executions of each action id in the selected time range",
+      "description": "Executions of each action id in the selected time range. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1295,17 +2561,19 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 48
+        "y": 96
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Executions",
             "desc": true
           }
         ]
@@ -1319,7 +2587,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Executions"
             }
           }
         }
@@ -1331,7 +2599,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_action_seconds_count{application=\"$application\",id=~\"$id\"}[$__range])))",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_action_seconds_count{application=\"$application\",id=~\"$id\"} - awe_action_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range, 0) unless resets(awe_action_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) > 0 or (increase(awe_action_seconds_count{application=\"$application\",id=~\"$id\"}[$__range]) and awe_action_seconds_count{application=\"$application\",id=~\"$id\"} offset $__range) or awe_action_seconds_count{application=\"$application\",id=~\"$id\"}))",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -1344,7 +2612,7 @@
       "id": 25,
       "type": "table",
       "title": "Actions with errors",
-      "description": "Action ids that failed in the selected time range",
+      "description": "Action ids that failed in the selected time range, with the number of failed executions. Exact, including the series that first appear in the range; if the application restarted inside the range, the count of the series it reset is the Prometheus estimate (increase)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1353,17 +2621,19 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 48
+        "y": 96
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "decimals": 0
+        },
         "overrides": []
       },
       "options": {
         "showHeader": true,
         "sortBy": [
           {
-            "displayName": "Value",
+            "displayName": "Errors",
             "desc": true
           }
         ]
@@ -1377,7 +2647,7 @@
             },
             "renameByName": {
               "id": "Id",
-              "Value": "Value"
+              "Value": "Errors"
             }
           }
         }
@@ -1389,7 +2659,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(15, sum by (id) (increase(awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range])) > 0)",
+          "expr": "topk(15, sum by (id) (clamp_min(awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} - awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range, 0) unless resets(awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) > 0 or (increase(awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}[$__range]) and awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"} offset $__range) or awe_action_seconds_count{application=\"$application\",id=~\"$id\",outcome=\"error\"}) > 0)",
           "legendFormat": "",
           "range": false,
           "refId": "A",
@@ -1411,7 +2681,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 48
+        "y": 96
       },
       "fieldConfig": {
         "defaults": {

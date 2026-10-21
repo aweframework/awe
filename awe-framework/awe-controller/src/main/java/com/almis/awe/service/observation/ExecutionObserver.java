@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Extension point to observe the executions of AWE queries, maintains and actions (metrics, traces, auditing...).
+ * Extension point to observe the executions of AWE queries, maintains, actions, screens and exports (metrics, traces,
+ * auditing...).
  *
  * <p>AWE calls {@link #observe} around each execution at the point where every way of reaching it converges, so
  * one execution is reported once whatever started it (client request, service, scheduler or listener). When the
@@ -43,7 +44,15 @@ public interface ExecutionObserver {
     /**
      * Action launched by the action service
      */
-    ACTION
+    ACTION,
+    /**
+     * Screen built by the screen service for an option of the menu (the screen opened by the user)
+     */
+    SCREEN,
+    /**
+     * Screen report generated in one output format (print or export)
+     */
+    EXPORT
   }
 
   /**
@@ -67,7 +76,7 @@ public interface ExecutionObserver {
    * let its exception through.
    *
    * @param type      Kind of execution
-   * @param id        Identifier of the query, maintain target or action, as defined in the application
+   * @param id        Identifier of the query, maintain target, action, option or screen, as defined in the application
    * @param tags      Extra low-cardinality information (for example the query connector)
    * @param execution Execution to run
    * @param <T>       Result type
@@ -87,7 +96,7 @@ public interface ExecutionObserver {
    * {@code INFO} are business messages.</p>
    *
    * @param type       Kind of execution
-   * @param id         Identifier of the query, maintain target or action, as defined in the application
+   * @param id         Identifier of the query, maintain target, action, option or screen, as defined in the application
    * @param tags       Extra low-cardinality information (for example the query connector)
    * @param execution  Execution to run
    * @param answerType Answer type of a result of the execution (it may return null)

@@ -23,6 +23,7 @@ import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.service.observation.ExecutionObserver;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -332,5 +333,60 @@ class ScreenServiceTest {
     lenient().when(elements.getLocaleWithLanguage(any(), any(), any(Object[].class))).thenReturn("not found");
 
     assertThrows(AWENotFoundException.class, () -> screenService.getDeferredDataAction());
+  }
+
+  private final List<String> observed = new ArrayList<>();
+
+  private final ExecutionObserver recordingObserver = new ExecutionObserver() {
+    @Override
+    public <T> T observe(ExecutionType type, String id, Map<String, String> tags, Execution<T> execution) throws AWException {
+      observed.add(type + ":" + id + ":" + tags);
+      return execution.execute();
+    }
+  };
+
+  private void prepareScreenRequest() throws AWException {
+    when(menuService.getMenu()).thenReturn(new Menu());
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(aweSession.getUser()).thenReturn("testUser");
+    when(aweSession.isAuthenticated()).thenReturn(true);
+    when(applicationContext.getBean(AweClientTracker.class)).thenReturn(aweClientTracker);
+    when(aweRequest.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
+  }
+
+  @Test
+  void screenBuildIsObservedWithItsOptionAndScreen() throws Exception {
+    prepareScreenRequest();
+    when(menuService.getAvailableOptionScreen(eq("MatTst"), any(Menu.class))).thenReturn(new ScreenBuilder().setId("test-screen").build());
+    screenService.setExecutionObserver(recordingObserver);
+
+    assertNotNull(screenService.getScreenData("MatTst", false));
+
+    assertEquals(List.of("SCREEN:MatTst:{screen=test-screen}"), observed);
+  }
+
+  @Test
+  void defaultScreenBuildIsObservedWithTheScreenAsOption() throws Exception {
+    prepareScreenRequest();
+    when(menuService.getDefaultScreen(any(Menu.class))).thenReturn(new ScreenBuilder().setId("default-screen").build());
+    screenService.setExecutionObserver(recordingObserver);
+
+    assertNotNull(screenService.getScreenData(null, true));
+
+    assertEquals(List.of("SCREEN:default-screen:{screen=default-screen}"), observed);
+  }
+
+  @Test
+  void unknownOptionIsNotObserved() throws Exception {
+    when(menuService.getMenu()).thenReturn(new Menu());
+    AWException notAvailable = new AWException("title", "message");
+    when(menuService.getAvailableOptionScreen(eq("random-1234"), any(Menu.class))).thenThrow(notAvailable);
+    screenService.setExecutionObserver(recordingObserver);
+
+    AWException thrown = assertThrows(AWException.class, () -> screenService.getScreenData("random-1234", false));
+
+    assertEquals(notAvailable, thrown);
+    assertTrue(observed.isEmpty());
   }
 }
