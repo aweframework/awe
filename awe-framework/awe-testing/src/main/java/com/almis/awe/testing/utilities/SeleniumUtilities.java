@@ -3750,6 +3750,15 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a pivot table is drawn and displayed
+   *
+   * @param pivotTableId Pivot table identifier
+   */
+  protected void checkPivotTableVisible(String pivotTableId) {
+    checkVisible(locator(frontEndInstructions.getPivotTable(pivotTableId)));
+  }
+
+  /**
    * Check that a chart is displayed
    *
    * @param chartId Chart identifier

@@ -341,6 +341,11 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheDrawnTableOfAPivotTableThroughItsComponentId() {
+    assertThat(instructions.getPivotTable("listaDatos")).hasToString("By.cssSelector: #listaDatos table.pvtTable");
+  }
+
+  @Test
   void shouldLocateAZoomedChartThroughItsHook() {
     assertThat(instructions.getChartZoomed("ChrLinTst")).hasToString("By.cssSelector: "
       + "[data-testid='chart'][chart-id='ChrLinTst'][data-zoomed='true']");

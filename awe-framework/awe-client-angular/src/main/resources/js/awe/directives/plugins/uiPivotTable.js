@@ -3,6 +3,7 @@ import {ClientActions} from "../../data/actions";
 import "jquery-ui-sortable-npm";
 import "PivotTable";
 import {buildCustomAggregators} from "./pivotCustomAggregators";
+import {resolvePivotLocale} from "./pivotLocale";
 
 // Pivot table plugin
 aweApplication.directive('uiPivotTable',
@@ -107,7 +108,7 @@ aweApplication.directive('uiPivotTable',
             destroyPlugin();
 
             // Initialize element with options
-            elem.pivotUI(scope.datasource, config, update, language);
+            elem.pivotUI(scope.datasource, config, update, resolvePivotLocale(language, $.pivotUtilities.locales));
 
             // Set initialized as true
             initialized = true;

@@ -53,4 +53,19 @@ describe("uiPivotTable directive", () => {
     [{n: 10, d: 100}, {n: 20, d: 100}, {n: 30, d: 100}].forEach((record) => instance.push(record));
     expect(instance.format(1234.5)).toBe("1.234,50");
   });
+
+  it("renders with the pivot locale of the AWE language (en-GB is registered by the pivot as en)", () => {
+    const registered = $.pivotUtilities.locales;
+    $.pivotUtilities.locales = {en: {aggregators: {}, renderers: {}, localeStrings: {}}};
+    try {
+      inject(["AweSettings", function ($settings) {
+        $settings.update({language: "en-GB"});
+      }]);
+      compilePivot({});
+
+      expect(pivotUI.mock.calls[0][3]).toBe("en");
+    } finally {
+      $.pivotUtilities.locales = registered;
+    }
+  });
 });

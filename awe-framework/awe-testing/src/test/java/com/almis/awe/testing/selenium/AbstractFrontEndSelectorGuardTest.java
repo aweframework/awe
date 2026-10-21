@@ -286,6 +286,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getUploaderCapture", () -> i.getUploaderCapture(CRITERION));
     catalog.put("getUploaderCaptureInput", () -> i.getUploaderCaptureInput(CRITERION));
     catalog.put("getChartZoomed", () -> i.getChartZoomed("Chr"));
+    catalog.put("getPivotTable", () -> i.getPivotTable("Pvt"));
     catalog.put("getLogViewer", i::getLogViewer);
     catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
     catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));

@@ -675,6 +675,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkTabInvalid(String tabId, boolean invalid)` | Comprueba que un criterio de pestañas marca una pestaña como que contiene campos que han fallado la validación (`true`), o que no marca ninguna (`false`) |
 | `checkWizardStepInvalid(String wizardId, boolean invalid)` | Lo mismo para los pasos de un asistente |
 | `checkChartVisible(String chartId)` | Comprueba que un gráfico se muestra (el gráfico se ha dibujado) |
+| `checkPivotTableVisible(String pivotTableId)` | Comprueba que una tabla dinámica se muestra (su tabla se ha dibujado) |
 | `zoomChart(String chartId)` | Hace zoom en un gráfico con la rueda del ratón sobre su centro |
 | `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
 | `checkLogViewerContains(String text)` | Espera hasta que el visor de logs muestra un texto |
