@@ -323,6 +323,19 @@ export function dialogPassThrough(owner, open = true) {
 }
 
 /**
+ * Pass-through of a side panel
+ * @param {string} owner Id of the side panel component
+ * @param {boolean} [open] Whether the side panel is open
+ * @returns {object} Sidebar pt
+ */
+export function sidePanelPassThrough(owner, open = true) {
+  return {
+    root: testHook(TestIds.sidePanel, { owner, open }),
+    closeButton: testHook(TestIds.sidePanelClose)
+  };
+}
+
+/**
  * Pass-through of the context menu of a grid. PrimeReact does not expose the item to the pass-through of an option,
  * so the link (rendered through the item template) carries the "option-id".
  * @returns {object} ContextMenu pt

@@ -4,6 +4,7 @@ import SubView from "./SubView";
 import Empty from "./Empty";
 import AweWindow from "./AweWindow";
 import AweDialog from "./AweDialog";
+import AweSidePanel from "./AweSidePanel";
 import AweMenu from "./AweMenu";
 import AweInfoDropdown from "./AweInfoDropdown";
 import AweInfoButton from "./AweInfoButton";
@@ -36,6 +37,7 @@ export const ComponentList = {
   "View": SubView,
   "Window": AweWindow,
   "Dialog": AweDialog,
+  "SidePanel": AweSidePanel,
   "Grid": AweGrid,
   "TreeGrid": AweTreeGrid,
   "PivotTable": AwePivotTable,

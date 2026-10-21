@@ -92,6 +92,17 @@ public class TagListBuilder extends AbstractComponentBuilder<TagListBuilder, Tag
   }
 
   /**
+   * Add side panel
+   *
+   * @param sidePanel Side panel builders
+   * @return this
+   */
+  public TagListBuilder addSidePanel(SidePanelBuilder... sidePanel) {
+    addAllElements(sidePanel);
+    return this;
+  }
+
+  /**
    * Add frame
    *
    * @param frame

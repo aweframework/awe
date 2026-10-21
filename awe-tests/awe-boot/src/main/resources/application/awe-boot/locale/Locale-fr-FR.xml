@@ -281,4 +281,12 @@
   <locale name="COLUMN_SPARKLINE_MARKS" value="Marks"/>
   <locale name="SCREEN_TITLE_GRID_SPARKLINE" value="Sparkline columns"/>
   <locale name="MENU_TEST_MATRIX_SPARKLINE" value="Sparkline column"/>
+  <locale name="MENU_TEST_MATRIX_SIDE_PANEL" value="Panneaux latéraux"/>
+  <locale name="SCREEN_TITLE_SIDE_PANEL" value="Panneaux latéraux"/>
+  <locale name="BUTTON_SIDE_PANEL_RIGHT" value="Panneau droit"/>
+  <locale name="BUTTON_SIDE_PANEL_LEFT" value="Panneau gauche"/>
+  <locale name="SIDE_PANEL_TITLE_RIGHT" value="Détail de l&apos;enregistrement"/>
+  <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtres"/>
+  <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Résultat"/>
+  <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Colonnes dans un panneau latéral"/>
 </locales>

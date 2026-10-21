@@ -115,6 +115,8 @@ describe("test id vocabulary", () => {
       logViewer: "log-viewer",
       dialog: "dialog",
       dialogClose: "dialog-close",
+      sidePanel: "side-panel",
+      sidePanelClose: "side-panel-close",
       confirmDialog: "confirm-dialog",
       confirmAccept: "confirm-accept",
       confirmCancel: "confirm-cancel",

@@ -66,6 +66,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | empty-text          | Optional     | String  | Text of the [empty state](#empty-state) of the grid                                                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated explanation text                 |
 | empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
 | show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out                                        |
+| columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`dialog`) |
 
 
 ### Toolbar
@@ -92,6 +93,19 @@ Some rules keep a stored layout valid when the screen changes:
   leaves its group, even if the stored layout says otherwise. Groups are not reordered as blocks.
 - The group headers are computed from the visible columns of each group, so hiding any column of a group (also the
   first one) keeps the headers aligned, and a group without visible columns is not shown.
+
+With `columns-panel="side-panel"` the Columns open in a panel anchored to the right edge of the screen instead of a modal
+dialog, with the same list and actions. The panel keeps the keyboard focus inside, closes with Esc, its *Close* action or
+a click outside, and gives the focus back to the *Columns* button.
+The grids that do not set `columns-panel` use the application property
+[`awe.application.component.grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel)
+(`dialog` by default), so an application can show the Columns of all its grids as a side panel.
+
+```xml
+<grid id="UserGrid" columns-panel="side-panel" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
 
 Set `show-toolbar="false"` to opt a grid out of the toolbar; the grid then always uses the XML definition.
 

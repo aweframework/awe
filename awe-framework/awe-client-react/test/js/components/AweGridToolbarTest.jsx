@@ -415,4 +415,78 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
 
     expect(within(dialog).getAllByRole("checkbox").length).toBeGreaterThanOrEqual(4);
   });
+
+  describe("columns panel (#843)", () => {
+    it("opens the Columns as a modal dialog by default", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const dialog = await openDialog();
+
+      expect(dialog.classList.contains("p-dialog")).toBe(true);
+      expect(dialog.getAttribute("data-type")).toBe("dialog");
+      expect(document.querySelector(".p-sidebar")).toBeNull();
+    });
+
+    it("opens the Columns as a side panel on the right with columns-panel side-panel", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "side-panel" }) });
+      const panel = await openDialog();
+
+      expect(panel.classList.contains("p-sidebar")).toBe(true);
+      expect(document.querySelector(".p-sidebar-right")).not.toBeNull();
+      expect(panel.getAttribute("data-type")).toBe("side-panel");
+      expect(panel.getAttribute("data-testid-owner")).toBe("grid");
+      expect(document.querySelector(".p-dialog")).toBeNull();
+    });
+
+    it("lists the columns and the actions in the side panel as in the dialog", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "side-panel" }) });
+      const panel = await openDialog();
+
+      expect(itemNames(panel)).toEqual(["a", "b", "c", "d"]);
+      ["grid-columns-counter", "grid-columns-show-all", "grid-columns-reset", "grid-columns-save", "grid-columns-close"]
+        .forEach(id => expect(panel.querySelector(hook(id))).not.toBeNull());
+    });
+
+    it("hides a column from the grid in the side panel", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "side-panel" }) });
+      const panel = await openDialog();
+
+      fireEvent.click(itemOf(panel, "b").querySelector("input[type='checkbox']"));
+
+      await waitFor(() => expect(headerNames()).toEqual(["A", "C", "D"]));
+    });
+
+    it("keeps the dialog as the default of the application settings", () => {
+      expect(DEFAULT_SETTINGS.gridColumnsPanel).toBe("dialog");
+    });
+
+    it("opens the Columns of a grid without columns-panel as the application settings say", async () => {
+      const state = gridState();
+      state.settings = { ...state.settings, gridColumnsPanel: "side-panel" };
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: state });
+      const panel = await openDialog();
+
+      expect(panel.getAttribute("data-type")).toBe("side-panel");
+    });
+
+    it("lets the columns-panel of the grid win over the application settings", async () => {
+      const state = gridState({ columnsPanel: "dialog" });
+      state.settings = { ...state.settings, gridColumnsPanel: "side-panel" };
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: state });
+      const dialog = await openDialog();
+
+      expect(dialog.getAttribute("data-type")).toBe("dialog");
+    });
+
+    it("closes the side panel with its Close action and gives the focus back to the Columns button", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "side-panel" }) });
+      const button = document.querySelector(hook("grid-columns-button"));
+      button.focus();
+      const panel = await openDialog();
+
+      fireEvent.click(panel.querySelector(hook("grid-columns-close")));
+
+      await waitFor(() => expect(document.querySelector(hook("grid-columns-dialog"))).toBeNull());
+      expect(document.activeElement).toBe(button);
+    });
+  });
 });

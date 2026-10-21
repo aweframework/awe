@@ -308,6 +308,18 @@ class AngularAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheSidePanelItsCloseButtonAndTheSizedChildOfItsLayer() {
+    assertThat(instructions.getSidePanelCss("Pnl")).isEqualTo("[data-testid='side-panel'][data-testid-owner='Pnl']");
+    assertThat(instructions.getOpenSidePanel("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true']");
+    assertThat(instructions.getSidePanelClose("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-close']");
+    assertThat(instructions.getSidePanelPanel("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true'] > *");
+    assertThat(instructions.getButtonCss("ButAct")).isEqualTo("#ButAct");
+  }
+
+  @Test
   void shouldLocateTheSparklineOfAGridCell() {
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).endsWith(" svg.awe-sparkline");
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).contains("Grd").contains("1").contains("Col");

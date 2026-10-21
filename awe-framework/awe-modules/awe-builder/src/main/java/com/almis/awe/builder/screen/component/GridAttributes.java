@@ -1,5 +1,6 @@
 package com.almis.awe.builder.screen.component;
 
+import com.almis.awe.builder.enumerates.ColumnsPanel;
 import com.almis.awe.builder.screen.base.AbstractAttributes;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
@@ -20,6 +21,7 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
   private boolean sendOperations;
   private boolean showTotals;
   private boolean showToolbar = true;
+  private ColumnsPanel columnsPanel;
   private boolean treeGrid;
   private boolean validateOnSave;
   private Integer initialLevel;
@@ -62,7 +64,8 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
       .setPagerValues(getPagerValues())
       .setTreeId(getTreeId())
       .setTreeLeaf(getTreeLeaf())
-      .setTreeParent(getTreeParent());
+      .setTreeParent(getTreeParent())
+      .setColumnsPanel(getColumnsPanel() == null ? null : getColumnsPanel().toString());
   }
 
   /**

@@ -1074,6 +1074,46 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the css of a side panel, open or not
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel css selector
+   */
+  default String getSidePanelCss(String panelId) {
+    return TestIds.css(TestIds.SIDE_PANEL) + TestAttributes.css(TestAttributes.OWNER, panelId);
+  }
+
+  /**
+   * Get an open side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Open side panel selector
+   */
+  default By getOpenSidePanel(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get the close button of the header of a side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel close button selector
+   */
+  default By getSidePanelClose(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_CLOSE));
+  }
+
+  /**
+   * Get the css of a button, the element that takes the focus
+   *
+   * @param buttonId Button identifier
+   * @return Button css selector
+   */
+  default String getButtonCss(String buttonId) {
+    return "#" + buttonId;
+  }
+
+  /**
    * Get a button whatever its state (enabled or disabled)
    *
    * @param buttonId Button identifier
@@ -1427,6 +1467,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the open Columns of a grid shown as a modal dialog or as a side panel (grid attribute columns-panel)
+   *
+   * @param gridId Grid identifier
+   * @param panel  dialog or side-panel
+   * @return Columns selector
+   */
+  default By getGridColumnsPanel(String gridId, String panel) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css(TestAttributes.TYPE, panel));
+  }
+
+  /**
    * Get the counter of the Columns dialog of a grid ("N of M visible") when it has the given numbers
    *
    * @param gridId  Grid identifier
@@ -1544,6 +1596,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By getDialogPanel(String dialogId) {
     return getOpenDialog(dialogId);
+  }
+
+  /**
+   * Get the panel of an open side panel, the element that has its size and its place. By default it is the side panel
+   * itself
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel panel selector
+   */
+  default By getSidePanelPanel(String panelId) {
+    return getOpenSidePanel(panelId);
   }
 
   /**

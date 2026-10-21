@@ -99,7 +99,7 @@
       <xs:field xpath="@id" />
     </xs:unique>
     <xs:unique name="DialogIdUnique">
-      <xs:selector xpath=".//dialog" />
+      <xs:selector xpath=".//dialog|.//side-panel" />
       <xs:field xpath="@id" />
     </xs:unique>
   </xs:element>
@@ -141,6 +141,13 @@
 
   <!-- Dialog Element -->
   <xs:element name="dialog" type="dialogType" />
+
+  <!-- Side Panel Element -->
+  <xs:element name="side-panel" type="sidePanelType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Panel anchored to the left or right edge of the screen, with a header, a scrollable body and an optional footer (a child with style modal-footer). It is opened and closed as a dialog (button-action type dialog, close and close-cancel), it closes with its close button, a click outside or Esc, and it keeps the focus inside while it is open. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Include Element -->
   <xs:element name="include" type="includeType" />
@@ -929,6 +936,11 @@
         <xs:documentation xml:lang="en">Shows the grid toolbar, with the Columns dialog (show, hide and reorder columns, saved per user) and the Maximize button. Set it to false to opt out. Default: true.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="columns-panel" type="gridColumnsPanelEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the toolbar shows the Columns of the grid: dialog (a modal dialog in the middle of the screen) or side-panel (a panel anchored to the right edge). Both engines. Default: the property awe.application.component.grid-columns-panel (dialog unless the application changes it).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="empty-title" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Title (locale or text) shown in the empty state of the grid. Default: a translated "No records" title</xs:documentation>
@@ -1331,6 +1343,20 @@
     </xs:attribute>
   </xs:attributeGroup>
 
+  <!-- Side Panel Attributes -->
+  <xs:attributeGroup name="sidePanelAttr">
+    <xs:attribute name="position" type="sidePanelPositionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Edge of the screen the panel is anchored to. Default: right.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-width" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum width of the panel as a CSS length (480px, 30rem, 50vw...). The panel takes the width of the screen up to this maximum. Default: 40rem.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
   <!-- Tab Container (tab page) Attributes -->
   <xs:attributeGroup name="tabcontainerAttr">
     <xs:attribute name="deferred" type="booleanEnum">
@@ -1374,6 +1400,7 @@
       <xs:element ref="javascript" />
       <xs:element ref="include" />
       <xs:element ref="dialog" />
+      <xs:element ref="side-panel" />
       <xs:element ref="info" />
       <xs:element ref="info-button" />
       <xs:element ref="info-criteria" />
@@ -1764,6 +1791,16 @@
     <xs:complexContent>
       <xs:extension base="elementType">
         <xs:attributeGroup ref="dialogAttr" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Side Panel Element -->
+  <xs:complexType name="sidePanelType">
+    <xs:complexContent>
+      <xs:extension base="elementType">
+        <xs:attributeGroup ref="dialogAttr" />
+        <xs:attributeGroup ref="sidePanelAttr" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -2344,6 +2381,22 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="accept" />
       <xs:enumeration value="reject" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Grid Columns panel enum -->
+  <xs:simpleType name="gridColumnsPanelEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dialog" />
+      <xs:enumeration value="side-panel" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Side panel position enum -->
+  <xs:simpleType name="sidePanelPositionEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="left" />
+      <xs:enumeration value="right" />
     </xs:restriction>
   </xs:simpleType>
 

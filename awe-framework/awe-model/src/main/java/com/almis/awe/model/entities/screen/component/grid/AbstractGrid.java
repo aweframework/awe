@@ -134,6 +134,13 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean showToolbar;
 
+  // How the toolbar shows the Columns: a modal dialog or a side panel (sent only when the grid sets it, so the
+  // clients fall back to the application default)
+  @XStreamAlias("columns-panel")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String columnsPanel;
+
   // Identifier of the screen the grid was generated for: the key, with the grid id, of the layout of the user
   @JsonProperty("screenId")
   @JsonInclude(JsonInclude.Include.NON_NULL)

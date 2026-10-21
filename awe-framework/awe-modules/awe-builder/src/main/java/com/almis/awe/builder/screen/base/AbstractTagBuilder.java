@@ -89,6 +89,17 @@ public abstract class AbstractTagBuilder<T, I extends Element> extends AbstractE
   }
 
   /**
+   * Add side panel
+   *
+   * @param sidePanel Side panel builders
+   * @return this
+   */
+  public T addSidePanel(SidePanelBuilder... sidePanel) {
+    addAllElements(sidePanel);
+    return (T) this;
+  }
+
+  /**
    * Add frame
    *
    * @param frame

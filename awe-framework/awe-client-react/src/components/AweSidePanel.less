@@ -1,0 +1,31 @@
+// Side panel (#843): the header and the footer stay in view, the body scrolls between them
+.side-panel {
+  .p-sidebar-header {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--surface-border, #dee2e6);
+  }
+
+  .side-panel-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .p-sidebar-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // The footer (a child with style modal-footer) sticks to the bottom of the panel
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 0.75rem 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background: inherit;
+    background-color: var(--surface-overlay, #ffffff);
+    border-top: 1px solid var(--surface-border, #dee2e6);
+  }
+}

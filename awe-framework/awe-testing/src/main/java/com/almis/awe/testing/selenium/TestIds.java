@@ -146,6 +146,9 @@ public final class TestIds {
   // Modal dialogs (owner: dialog id)
   public static final String DIALOG = "dialog";
   public static final String DIALOG_CLOSE = "dialog-close";
+  // Side panels anchored to an edge of the screen and their close button (owner: side panel id)
+  public static final String SIDE_PANEL = "side-panel";
+  public static final String SIDE_PANEL_CLOSE = "side-panel-close";
 
   // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";

@@ -465,6 +465,12 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `closeDialog(String dialogId)` | Closes a modal dialog with the close icon of its header, as a user dismissing it without its buttons |
 | `checkDialogClosed(String dialogId)` | Checks that a modal dialog has been closed |
 | `checkDialogWidth(String dialogId, int width)` | Checks the width in pixels of an open dialog, give or take two. Use it to check the size classes `modal-sm`, `modal-md` and `modal-lg` |
+| `closeSidePanel(String panelId)` | Closes a side panel with the close button of its header |
+| `closeSidePanelWithEscape(String panelId)` | Closes an open side panel pressing Esc and checks that it has been closed |
+| `checkSidePanelClosed(String panelId)` | Checks that a side panel has been closed |
+| `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Checks that a side panel is open against its edge (`left` or `right`) and as wide as its maximum width (a css length the browser resolves, capped by the screen width), give or take two pixels |
+| `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Presses Tab the given times and checks that the keyboard focus never leaves the side panel |
+| `checkButtonFocused(String buttonId)` | Checks that a button has the keyboard focus (for instance the one that opened a dialog or a side panel, once it is closed) |
 | `checkValidationErrorVisible()` | Checks that the screen shows validation errors |
 
 ### Criteria: writing and reading
@@ -633,6 +639,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
 | `openGridColumns(String gridId)` | Opens the Columns dialog of the toolbar of a grid |
 | `closeGridColumns(String gridId)` | Closes the Columns dialog of a grid |
+| `checkGridColumnsPanel(String gridId, String panel)` | Checks that the Columns of a grid are open as a modal dialog (`dialog`) or as a side panel (`side-panel`), as the grid attribute `columns-panel` sets |
 | `checkGridColumnsCounter(String gridId, int visible, int total)` | Checks the "N of M visible" counter of the Columns dialog |
 | `checkGridColumnsListed(String gridId, String columnId)` | Checks that the Columns dialog lists a column |
 | `checkGridColumnsNotListed(String gridId, String columnId)` | Checks that the Columns dialog does not list a column. The columns that the screen hides never appear in it |

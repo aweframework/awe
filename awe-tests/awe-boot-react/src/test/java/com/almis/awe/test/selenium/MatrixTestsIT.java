@@ -626,6 +626,47 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Side panel test (#843): a panel opens against its edge as wide as its maximum width, keeps the focus inside while it
+   * is shown, closes with Esc, its buttons or its close button and gives the focus back to the button that opened it
+   */
+  @Test
+  void t117_sidePanelEdgeWidthFocusAndClose() {
+    // Title
+    setTestTitle("Side panel: edge, width, focus and close");
+
+    // Go to screen
+    openMatrixOption("matrix-test-side-panel");
+
+    // Right panel: on the right edge, as wide as its maximum width, Tab goes round inside it
+    clickButton("ButPnlRight");
+    checkSidePanelOpen("PnlRight", "right", "30rem");
+    checkSidePanelKeepsTheFocus("PnlRight", 8);
+
+    // Esc closes it and the focus goes back to the button that opened it
+    closeSidePanelWithEscape("PnlRight");
+    checkButtonFocused("ButPnlRight");
+
+    // Accept closes it and runs its actions
+    clickButton("ButPnlRight");
+    checkSidePanelOpen("PnlRight", "right", "30rem");
+    clickButton("ButPnlRightAccept");
+    checkSidePanelClosed("PnlRight");
+    checkCriterionContents("CrtPnlResult", "accepted");
+
+    // Left panel: on the left edge, it closes with the close button of its header
+    clickButton("ButPnlLeft");
+    checkSidePanelOpen("PnlLeft", "left", "20rem");
+    closeSidePanel("PnlLeft");
+    checkSidePanelClosed("PnlLeft");
+
+    // A grid with columns-panel="side-panel" opens its Columns as a side panel
+    openGridColumns("GrdPnlCols");
+    checkGridColumnsPanel("GrdPnlCols", "side-panel");
+    checkGridColumnsCounter("GrdPnlCols", 4, 4);
+    closeGridColumns("GrdPnlCols");
+  }
+
+  /**
    * Sparkline columns test: the series of every row is drawn as a small chart, whatever the type, and the series that
    * cannot be drawn leave the cell empty
    */

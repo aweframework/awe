@@ -11,11 +11,11 @@ module.exports = {
   // In CI the job shares the runner with other jobs: Jest's default of one worker per CPU gets workers killed (SIGKILL)
   // when memory is short, and saturates the CPU of a small runner (a 4 vCPU VM on a host shared with other VMs, with a
   // low-power 10 W laptop CPU, shows 10-16 % steal with 4 workers). CI runs half the CPUs as workers, at most 4 (the
-  // previous fixed value) and at least 1. Even then a slow shared runner can push a slow suite (the LESS compilation of
-  // styles/skeleton) past the 5 s default, so CI allows 15 s per test and hook. Local runs keep Jest's defaults, so a
-  // slow test still shows up.
+  // previous fixed value) and at least 1. Even then a slow shared runner can push the tests that compile the whole LESS
+  // (styles/designTokens, styles/skeleton) far past the 5 s default (over 15 s seen in CI), so CI allows 30 s per test
+  // and hook. Local runs keep Jest's defaults, so a slow test still shows up.
   ...(process.env.CI
-    ? {maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2))), testTimeout: 15000}
+    ? {maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2))), testTimeout: 30000}
     : {}),
   testEnvironment: "jsdom",
   cacheDirectory: path.join(__dirname, "target", ".cache", "jest"),
