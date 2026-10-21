@@ -67,6 +67,9 @@ public final class TestIds {
   public static final String GRID_GROUP_HEADER = "grid-group-header";
   public static final String GRID_COLUMNS_BUTTON = "grid-columns-button";
   public static final String GRID_MAXIMIZE_BUTTON = "grid-maximize-button";
+  // Windows: the window root (identified by its owner) and its Maximize button
+  public static final String WINDOW = "window";
+  public static final String WINDOW_MAXIMIZE_BUTTON = "window-maximize-button";
   public static final String GRID_COLUMNS_DIALOG = "grid-columns-dialog";
   public static final String GRID_COLUMN_GROUP = "grid-column-group";
   public static final String GRID_COLUMN_ITEM = "grid-column-item";

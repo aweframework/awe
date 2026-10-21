@@ -41,7 +41,7 @@ Estos estilos van en el atributo `style` de los hijos de un contenedor expandibl
 | `expand`              | El hijo ocupa su parte del espacio libre                                                                            |
 | `expand-2x`           | El hijo ocupa el doble de espacio que un único `expand`                                                             |
 | `expand-3x` ... `expand-12x` | El hijo ocupa tres, cuatro... hasta doce veces el espacio de un único `expand`                               |
-| `expand-maximize`     | El hijo se expande **solo** cuando la [ventana](window.md) *padre* está maximizada. Solo en el motor AngularJS      |
+| `expand-maximize`     | El hijo se expande **solo** cuando la [ventana](window.md) *padre* está maximizada                                  |
 
 Los hijos sin ninguno de estos estilos mantienen su propio tamaño.
 
@@ -136,7 +136,7 @@ El atributo `expandible` y los estilos `expand` funcionan en ambos motores, con 
 | `expandible` de un `tag` sin `type`      | Se pierde: un tag sin `type` no genera ningún elemento | Se aplica al `div` que genera el tag de React     |
 | `expandible` de un `window`              | Se aplica (vertical por defecto)                      | Se ignora: la ventana es siempre vertical          |
 | `expandible` de un tag con `source`      | Se aplica (si el tag tiene un `type`)                 | Se ignora: la plantilla solo usa el `style`        |
-| `expand-maximize`                        | Se aplica                                             | Se ignora: la ventana no tiene maximizar           |
+| `expand-maximize`                        | Se aplica                                             | Se aplica                                          |
 
 Para que una pantalla siga funcionando en ambos motores, da un `type` a los tags con `expandible`, y pon los layouts horizontales
 dentro de un `tag` en lugar de directamente en una ventana o en un tag con source.

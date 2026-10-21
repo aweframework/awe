@@ -45,7 +45,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 | style      | Opcional | String  | Clases CSS de la ventana                             | **Nota:** Aquí puedes usar la clase `expand` para hacer la ventana expandible                 |
 | icon       | Opcional | String  | Identificador del icono                              | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla de [iconos](icons.md) |
 | expandible | Opcional | String  | Cómo [expandir](layout.md) los hijos de la ventana   | `vertical`, `horizontal`                                                                      |
-| maximize   | Opcional | Boolean | Si se muestra o no el icono de maximizar             |                                                                                               |
+| maximize   | Opcional | Boolean | Si se muestra o no el icono de maximizar             | **Nota:** Solo se puede maximizar una ventana con `label`                                     |
 | help       | Opcional | String  | Texto de ayuda del criterio                          | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)                 |
 | help-image | Opcional | String  | Imagen de ayuda del criterio                         | Esto **debe** ser una ruta de imagen                                                          |
 
@@ -79,7 +79,9 @@ Ambos motores tratan `expandible` y `maximize` de la misma forma:
 
 * `expandible` establece la dirección en la que la ventana reparte el espacio entre sus hijos (`vertical` por defecto).
 * `maximize="true"` muestra un botón en la barra de título que maximiza la ventana sobre el contenido de la pantalla y la
-  restaura. Mientras la ventana está maximizada, el contenido con el estilo `expand-maximize` ocupa el espacio libre.
+  restaura. La ventana ocupa el área de contenido, manteniendo visibles el menú y la barra superior, y las ventanas
+  hermanas se ocultan mientras está maximizada. El botón Restaurar la devuelve a su tamaño; no hay atajo con la tecla
+  Escape. El contenido con el estilo `expand-maximize` ocupa el espacio libre mientras la ventana está maximizada.
 
 Las diferencias son solo visuales: el motor AngularJS usa iconos de Font Awesome para el botón de maximizar y el motor React
 usa PrimeIcons, y el motor React muestra el `icon` de la ventana a la derecha de la barra de título.

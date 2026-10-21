@@ -150,6 +150,9 @@ export const TestIds = Object.freeze({
   errorBoundaryDetails: "error-boundary-details",
   errorBoundaryRetry: "error-boundary-retry",
   errorBoundaryReload: "error-boundary-reload",
+  // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
+  window: "window",
+  windowMaximizeButton: "window-maximize-button",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
   loader: "loader",
   loadingSpinner: "loading-spinner"

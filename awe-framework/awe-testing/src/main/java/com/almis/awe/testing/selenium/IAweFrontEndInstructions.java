@@ -1374,6 +1374,38 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a window
+   *
+   * @param windowId Window identifier
+   * @return Window selector
+   */
+  default By getWindow(String windowId) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId));
+  }
+
+  /**
+   * Get a window in a state: it fills the content area or it does not
+   *
+   * @param windowId  Window identifier
+   * @param maximized True for a maximized window
+   * @return Window selector
+   */
+  default By getWindow(String windowId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get the button of a window that maximizes it and restores it
+   *
+   * @param windowId Window identifier
+   * @return Maximize button selector
+   */
+  default By getWindowMaximizeButton(String windowId) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId) + " " + TestIds.css(TestIds.WINDOW_MAXIMIZE_BUTTON));
+  }
+
+  /**
    * Get the Columns dialog of a grid
    *
    * @param gridId Grid identifier

@@ -45,6 +45,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
   /** Representative arguments */
   protected static final String CRITERION = "Crit";
   protected static final String GRID = "Grd";
+  protected static final String WINDOW = "Win";
   protected static final String ROW = "Row";
   protected static final String COLUMN = "Col";
   protected static final String LABEL = "Label";
@@ -313,6 +314,9 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridColumnsButton", () -> i.getGridColumnsButton(GRID));
     catalog.put("getGridMaximizeButton", () -> i.getGridMaximizeButton(GRID));
     catalog.put("getGridToolbarMaximized", () -> i.getGridToolbarMaximized(GRID, true));
+    catalog.put("getWindow", () -> i.getWindow(WINDOW));
+    catalog.put("getWindowMaximized", () -> i.getWindow(WINDOW, true));
+    catalog.put("getWindowMaximizeButton", () -> i.getWindowMaximizeButton(WINDOW));
     catalog.put("getGridColumnsDialog", () -> i.getGridColumnsDialog(GRID));
     catalog.put("getGridColumnsCounter", () -> i.getGridColumnsCounter(GRID, "24", "26"));
     catalog.put("getGridColumnsItem", () -> i.getGridColumnsItem(GRID, COLUMN));
