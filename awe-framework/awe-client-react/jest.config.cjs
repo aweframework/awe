@@ -7,10 +7,11 @@ process.env.TZ = 'Europe/Madrid';
 // Maven and CI invoke `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution
 // and LCOV reports under target/reports/jest (the paths declared in this module's pom.xml).
 module.exports = {
-  // In CI the job shares the CPUs of the runner with other jobs (and may run emulated on an arm64 host): Jest's default of
-  // one worker per CPU starves the slow suites (the editor render) past their timeout, so CI runs 4 workers. Local runs
-  // keep Jest's default.
-  ...(process.env.CI ? {maxWorkers: 4} : {}),
+  // In CI the job shares the CPUs of the runner with other jobs (and may run emulated on an arm64 host): Jest's default
+  // of one worker per CPU starves the slow suites (the editor render) past their timeout. CI runs 2 workers, which also
+  // fit the slow medium runner (a 4 vCPU VM on a shared host). Even then a slow shared runner can push a test past the
+  // 5 s default, so CI allows 15 s per test and hook. Local runs keep Jest's defaults, so a slow test still shows up.
+  ...(process.env.CI ? {maxWorkers: 2, testTimeout: 15000} : {}),
   // In CI the transform cache lives in the project so the pipeline can keep it between jobs (.gitlab-ci.yml)
   ...(process.env.CI ? {cacheDirectory: '<rootDir>/.jest-cache'} : {}),
   testEnvironment: '<rootDir>/test/js/jest.environment.cjs',
