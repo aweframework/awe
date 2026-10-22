@@ -25,7 +25,8 @@ import java.util.stream.Stream;
  *   others are discarded without being written. Open it with {@code npx playwright show-trace file.zip}.</li>
  *   <li><b>Video.</b> The page is recorded while the context lasts, which is the whole test class, since its ordered tests
  *   share the login and the data. When the context is closed the video is kept as {@code <class>.webm} if a test of the
- *   class failed and deleted otherwise, and {@code <class>.video-times.txt} says where each test starts in it.</li>
+ *   class failed and deleted otherwise, and {@code <class>.video-times.txt} says where each test starts in it. A rerun of
+ *   the class never overwrites them: its video is {@code <class>-2.webm}, then {@code <class>-3.webm}...</li>
  * </ul>
  */
 @Slf4j
@@ -180,7 +181,7 @@ class PlaywrightEvidence {
   private void keepVideo(boolean failed) {
     try {
       // The name of a test class can carry what a file name cannot (a display name with a slash, a colon...)
-      String name = testClass == null ? "playwright" : testClass.replaceAll("[^A-Za-z0-9._-]", "_");
+      String name = freeName(testClass == null ? "playwright" : testClass.replaceAll("[^A-Za-z0-9._-]", "_"));
       Files.createDirectories(evidenceDir);
       Path target = evidenceDir.resolve(name + VIDEO_EXTENSION);
       video.saveAs(target);
@@ -190,6 +191,16 @@ class PlaywrightEvidence {
     } catch (IOException | RuntimeException exc) {
       log.warn("The Playwright video could not be stored. The test result is not affected", exc);
     }
+  }
+
+  // The rerun of a failed test (rerunFailingTestsCount) is a new session of the same class: its video goes next to the one of
+  // the run before (<class>-2, <class>-3...) instead of over it. That run is the one with the context of the failure
+  private String freeName(String name) {
+    String free = name;
+    for (int attempt = 2; Files.exists(evidenceDir.resolve(free + VIDEO_EXTENSION)); attempt++) {
+      free = name + "-" + attempt;
+    }
+    return free;
   }
 
   private List<String> times() {

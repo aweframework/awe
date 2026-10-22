@@ -205,6 +205,27 @@ class PlaywrightEvidenceTest {
   }
 
   @Test
+  void theRerunOfAFailedClassKeepsItsVideoNextToTheOneOfTheFirstRun() throws IOException {
+    // The first run left its video and its times; the rerun of the failed test (rerunFailingTestsCount) opens a new session
+    Files.createDirectories(evidenceDir);
+    Files.writeString(evidenceDir.resolve("LoginIT.webm"), "first run");
+    Files.writeString(evidenceDir.resolve("LoginIT.video-times.txt"), "first run");
+    Files.writeString(evidenceDir.resolve("LoginIT-2.webm"), "first rerun");
+    PlaywrightEvidence evidence = evidence(EvidenceMode.OFF, EvidenceMode.ON_FAILURE);
+    evidence.testStarted("LoginIT", "t020_next");
+    evidence.testFinished("t020_next", "n2", true);
+
+    evidence.finishVideo();
+
+    verify(video).saveAs(evidenceDir.resolve("LoginIT-3.webm"));
+    assertThat(evidenceDir.resolve("LoginIT.webm")).hasContent("first run");
+    assertThat(evidenceDir.resolve("LoginIT.video-times.txt")).hasContent("first run");
+    assertThat(Files.readAllLines(evidenceDir.resolve("LoginIT-3.video-times.txt")))
+      .anySatisfy(line -> assertThat(line).contains("FAILED").contains("t020_next"));
+    assertThat(announced).containsExactly("Failure video|LoginIT-3.webm|false");
+  }
+
+  @Test
   void aClassWithoutFailuresDeletesItsVideo() {
     PlaywrightEvidence evidence = evidence(EvidenceMode.OFF, EvidenceMode.ON_FAILURE);
     evidence.testStarted("LoginIT", "t010_login");
