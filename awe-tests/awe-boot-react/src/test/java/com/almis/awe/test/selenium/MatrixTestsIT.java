@@ -984,6 +984,8 @@ class MatrixTestsIT extends AbstractSessionTests {
     openMatrixOption("matrix-test-layout");
     openGridColumns("GrdLayoutTst");
     clickGridColumnsReset("GrdLayoutTst");
+    // The layout is removed when the server answers. Its message is closed so that it does not cover the dialog
+    checkAndCloseMessage("success");
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
     checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
@@ -1028,6 +1030,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickGridColumnsSave("GrdLayoutTst");
     // The layout is stored when the server answers: the screen is opened again only after that
     checkMessageTitle("success", "Operation successful");
+    checkAndCloseMessage("success");
     closeGridColumns("GrdLayoutTst");
     openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
@@ -1048,6 +1051,8 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Reset goes back to the definition of the screen and removes the layout that was saved
     openGridColumns("GrdLayoutTst");
     clickGridColumnsReset("GrdLayoutTst");
+    // The layout is removed when the server answers. Its message is closed so that it does not cover the dialog
+    checkAndCloseMessage("success");
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
     openMatrixOption(MATRIX_PAGER_OPTION);
