@@ -80,6 +80,9 @@ export const TestIds = Object.freeze({
   // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
   columnIcon: "column-icon",
   // Tab criterion (the tab list, a tab header with its link and label, the content pane) and the tabdrop "more" menu
+  // The whole tab component (list and content; the instance is identified by the owner) and its Maximize button
+  tabs: "tabs",
+  tabMaximizeButton: "tab-maximize-button",
   tabList: "tab-list",
   tab: "tab",
   tabLink: "tab-link",

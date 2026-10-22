@@ -288,6 +288,11 @@ class AngularAweInstructionsTest {
       .hasToString("By.cssSelector: [data-testid='window'][data-testid-owner='Win'][data-maximized='false']");
     assertThat(instructions.getWindowMaximizeButton("Win"))
       .hasToString("By.cssSelector: [data-testid='window'][data-testid-owner='Win'] [data-testid='window-maximize-button']");
+    assertThat(instructions.getTabComponent("Tabs")).hasToString("By.cssSelector: [data-testid='tabs'][data-testid-owner='Tabs']");
+    assertThat(instructions.getTabComponent("Tabs", false))
+      .hasToString("By.cssSelector: [data-testid='tabs'][data-testid-owner='Tabs'][data-maximized='false']");
+    assertThat(instructions.getTabMaximizeButton("Tabs"))
+      .hasToString("By.cssSelector: [data-testid='tabs'][data-testid-owner='Tabs'] [data-testid='tab-maximize-button']");
     assertThat(instructions.getGridColumnsCounter("Grd", "24", "26")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
       + "[data-testid-owner='Grd'] [data-testid='grid-columns-counter'][data-visible='24'][data-total='26']");
     assertThat(instructions.getGridColumnsCheckbox("Grd", "col01")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"

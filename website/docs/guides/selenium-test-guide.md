@@ -668,7 +668,11 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `maximizeWindow(String windowId)` | Maximizes a window (`maximize="true"` and a label) with its Maximize button |
 | `restoreWindow(String windowId)` | Restores a maximized window with its Restore button |
 | `checkWindowMaximized(String windowId)` | Checks that a window fills the content area of the screen (its maximize target) and the header stays visible |
-| `checkWindowNotMaximized(String windowId)` | Checks that a window is restored |
+| `checkWindowNotMaximized(String windowId)` | Checks that a window is restored (no longer fixed over the content area) |
+| `maximizeTab(String tabId)` | Maximizes a tab component (tab list and content, `maximize="true"`) with its Maximize button |
+| `restoreTab(String tabId)` | Restores a maximized tab component with its Restore button |
+| `checkTabMaximized(String tabId)` | Checks that a tab component fills the content area of the screen (its maximize target) and the header stays visible |
+| `checkTabNotMaximized(String tabId)` | Checks that a tab component is restored (no longer fixed over the content area) |
 | `checkGridIconVisible(String gridId, String columnId, String icon)` | Checks that the icon of an icon column is displayed (`plus`, without the library prefix) |
 | `checkColumnSuccessIcon(String columnId)` | Checks that a column shows a success icon |
 
@@ -800,6 +804,7 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | The empty state of a grid without rows, its title, its text and the button that it offers | Inside the grid |
 | `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | The toolbar of a grid (with `data-testid-owner` = grid id, and `data-maximized`) and its Columns and Maximize buttons | Inside the page |
 | `window`, `window-maximize-button` | A window (with `data-testid-owner` = window id, and `data-maximized`) and its Maximize button | Inside the page |
+| `tabs`, `tab-maximize-button` | A whole tab component, list and content (with `data-testid-owner` = tab id, and `data-maximized`), and its Maximize button | Inside the page |
 | `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | The Columns dialog of a grid (with `data-testid-owner` = grid id), its "N of M visible" counter (`data-visible`, `data-total`) and its actions | Inside the page |
 | `grid-column-group`, `grid-column-item`, `grid-column-checkbox`, `grid-column-handle`, `grid-column-up`, `grid-column-down` | In the Columns dialog: a group of columns (its title is its text), a column (`column-id`) with its checkbox, its drag handle and its arrows | Inside the dialog |
 | `grid-group-header` | A group header of a grid, over its columns | Inside the grid |
@@ -869,7 +874,7 @@ or `"false"`, except `data-type`, `data-container`, `data-icon`, `data-value` an
 | `data-active` | Active tab, wizard step, wizard or tab pane and menu option; the datepicker cell that has the keyboard focus |
 | `data-disabled` | Disabled tab list, context menu link, previous/next page arrow or datepicker cell |
 | `data-open` | Menu option or submenu that is open; help popover that is displayed; dialog that is open. A dialog is `false` again only when its backdrop has been removed, so the screen is interactive |
-| `data-maximized` | Toolbar of a grid or window that fills the content area |
+| `data-maximized` | Toolbar of a grid, window or tab component that fills the content area |
 | `data-expanded`, `data-loading` | Tree row that is expanded, or that is loading its children |
 | `data-completed` | Wizard step that is already done |
 | `data-invalid` | Tab, wizard step or accordion item (AngularJS: the `panel` of the item) that holds fields which failed the validation |

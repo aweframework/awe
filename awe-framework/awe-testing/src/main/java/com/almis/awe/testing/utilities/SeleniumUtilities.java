@@ -4509,6 +4509,18 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkGridNotMaximized(String gridId) {
     waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, false)));
+    checkNotFixed("grid " + gridId, frontEndInstructions.getGrid(gridId));
+  }
+
+  /**
+   * Wait until an element that was maximized is back in the layout of the page (it is no longer fixed over the content area)
+   *
+   * @param description Description of the element for the failure message
+   * @param element     Element selector
+   */
+  private void checkNotFixed(String description, By element) {
+    waitUntil(BrowserCondition.of("the " + description + " to stop being fixed over the content area",
+      browser -> !"fixed".equals(browser.executeScriptOn(locator(element), "return window.getComputedStyle(arguments[0]).position;"))));
   }
 
   /**
@@ -4546,6 +4558,45 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkWindowNotMaximized(String windowId) {
     waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, false)));
+    checkNotFixed("window " + windowId, frontEndInstructions.getWindow(windowId, false));
+  }
+
+  /**
+   * Maximize a tab component (tab list and content) with its Maximize button
+   *
+   * @param tabId Tab identifier
+   */
+  protected void maximizeTab(String tabId) {
+    click(frontEndInstructions.getTabMaximizeButton(tabId));
+  }
+
+  /**
+   * Restore a maximized tab component with its Restore button
+   *
+   * @param tabId Tab identifier
+   */
+  protected void restoreTab(String tabId) {
+    click(frontEndInstructions.getTabMaximizeButton(tabId));
+  }
+
+  /**
+   * Check that a tab component fills the content area of the screen (its maximize target) and keeps the header of the application above it
+   *
+   * @param tabId Tab identifier
+   */
+  protected void checkTabMaximized(String tabId) {
+    waitUntil(toBePresent(frontEndInstructions.getTabComponent(tabId, true)));
+    checkFillsMaximizeTarget("tab " + tabId, frontEndInstructions.getTabComponent(tabId, true));
+  }
+
+  /**
+   * Check that a tab component is not maximized
+   *
+   * @param tabId Tab identifier
+   */
+  protected void checkTabNotMaximized(String tabId) {
+    waitUntil(toBePresent(frontEndInstructions.getTabComponent(tabId, false)));
+    checkNotFixed("tab " + tabId, frontEndInstructions.getTabComponent(tabId, false));
   }
 
   /**

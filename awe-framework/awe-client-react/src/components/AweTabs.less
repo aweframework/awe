@@ -87,3 +87,41 @@
     font-weight: bold;
   }
 }
+
+// A tab component that can be maximized: the button sits at the right end of the tab list. When it is maximized the
+// component is placed over the maximize target (position, top, left, width and height) like a window
+.p-tabmenu-container {
+  &.p-tabmenu-maximizable {
+    position: relative;
+
+    &.orientation-horizontal > .p-tabmenu {
+      padding-right: 3rem;
+    }
+  }
+
+  &.maximized {
+    z-index: 100;
+    margin: 0 !important;
+    background: var(--surface-a, #fff);
+  }
+
+  > .maximize-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
+@media (max-width: 768px) {
+  .p-tabmenu-container > .maximize-button {
+    display: none;
+  }
+}

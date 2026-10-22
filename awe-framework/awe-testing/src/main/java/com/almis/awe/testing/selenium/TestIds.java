@@ -70,6 +70,9 @@ public final class TestIds {
   // Windows: the window root (identified by its owner) and its Maximize button
   public static final String WINDOW = "window";
   public static final String WINDOW_MAXIMIZE_BUTTON = "window-maximize-button";
+  // Tabs: the whole tab component (list and content, identified by its owner) and its Maximize button
+  public static final String TABS = "tabs";
+  public static final String TAB_MAXIMIZE_BUTTON = "tab-maximize-button";
   public static final String GRID_COLUMNS_DIALOG = "grid-columns-dialog";
   public static final String GRID_COLUMN_GROUP = "grid-column-group";
   public static final String GRID_COLUMN_ITEM = "grid-column-item";

@@ -1154,6 +1154,26 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Tab maximize test: a tab with maximize="true" fills the content area of the screen (tab list and content, with the
+   * header of the application visible) and the Restore button brings it back
+   */
+  @Test
+  void t118_tabMaximizeAndRestore() {
+    // Title
+    setTestTitle("Tab: maximize and restore");
+
+    // Go to screen
+    gotoScreen("test", "chart", "queue-test");
+
+    // Maximize fills the content area of the screen and restores the tab component
+    String tabId = "QueTabSel";
+    maximizeTab(tabId);
+    checkTabMaximized(tabId);
+    restoreTab(tabId);
+    checkTabNotMaximized(tabId);
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is

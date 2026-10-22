@@ -15,6 +15,7 @@ import { TestIds, testHook } from "../utilities/testIds";
 import { tabMenuPassThrough } from "../utilities/testPassThrough";
 import AweWindow from "./AweWindow";
 import { useContextMenu } from "../hooks/useContextMenu";
+import useMaximize from "../hooks/useMaximize";
 
 /**
  * Tab menu disabled while actions run. It is the only part of the tabs that reads the running flag, so a running/idle
@@ -44,12 +45,15 @@ AweTabMenu.propTypes = {
 };
 
 function AweTabs(props) {
-  const { id, elementList = [] } = props;
+  const { id, maximize, elementList = [] } = props;
   const { model = { values: [] }, address, attributes = {} } = useComponentState(id);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
   const invalid = useInvalidValues(id);
   const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
+  // The whole tab component (list and content) grows over the maximize target like a window does
+  const { ref: tabsRef, iconMaximized, style: maximizeStyle, className: maximizeClassName, toggle: toggleMaximized } = useMaximize();
+  const maximizable = maximize === true || maximize === "true";
 
   const titleRenderer = (title) => title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
   const labelRenderer = (label) => label ? <span className={`p-tab-title`} {...testHook(TestIds.tabLabel)}>{translateLabel(label, t)}</span> : null;
@@ -74,8 +78,15 @@ function AweTabs(props) {
 
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
-  const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
-  return <div className={className} criterion-id={id} onContextMenu={onContextMenu}>
+  const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation,
+    {"p-tabmenu-maximizable": maximizable}, maximizeClassName);
+  const maximizeTitle = t(iconMaximized ? "SCREEN_TEXT_RESTORE" : "SCREEN_TEXT_MAXIMIZE");
+  return <div className={className} criterion-id={id} ref={tabsRef} style={maximizeStyle} onContextMenu={onContextMenu}
+    {...testHook(TestIds.tabs, { owner: id, maximized: iconMaximized })}>
+    {maximizable && <button type="button" className="maximize-button p-link" title={maximizeTitle} aria-label={maximizeTitle}
+      onClick={toggleMaximized} {...testHook(TestIds.tabMaximizeButton)}>
+      <i className={`pi ${iconMaximized ? "pi-window-minimize" : "pi-window-maximize"}`} />
+    </button>}
     <AweTabMenu id={id} values={values} activeIndex={activeIndex} disabled={disabled} invalid={invalid}
       onChange={onChange} itemRenderer={itemRenderer} />
     {elementList
@@ -87,6 +98,7 @@ function AweTabs(props) {
 
 AweTabs.propTypes = {
   id: PropTypes.string,
+  maximize: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
   elementList: PropTypes.array
 };
 
