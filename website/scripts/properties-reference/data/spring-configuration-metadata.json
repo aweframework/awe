@@ -935,6 +935,36 @@
       "defaultValue": "2s"
     },
     {
+      "name": "awe.observability.max-tag-values",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of distinct values of the id and screen tags of each AWE meter. Values beyond it are reported as other, so a forged or unexpected identifier never adds series.",
+      "defaultValue": 1000
+    },
+    {
+      "name": "awe.observability.usage.exports.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Count and time the prints and exports of the screens (awe.export timer, tagged by screen and format).",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.observability.usage.files.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Count the files uploaded and downloaded and sum their bytes (awe.files summary, tagged by direction).",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.observability.usage.screens.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Count and time the screens built for a menu option (awe.screen timer, tagged by option and screen).",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.observability.usage.users.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Publish the users connected and the connections open right now (awe.users.connected and awe.connections.active gauges, per instance).",
+      "defaultValue": true
+    },
+    {
       "name": "awe.rest.api.auth.mode",
       "type": "com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode",
       "description": "REST authentication mode. \"local-jwt\" authenticates with a token issued by AWE (/api/authenticate); \"oauth2-resource-server\" validates access tokens issued by an external OAuth2/OIDC provider.",
