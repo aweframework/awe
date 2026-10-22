@@ -44,7 +44,7 @@ La lista de pestañas se rellena con los campos `value` y `label` de la consulta
 | initial-load  | **Obligatorio** | String  | Llamada de acción al servidor para cargar los datos de criterio (se lanza al cargar la ventana) | `enum` (para [enumerado](enumerate-definition.md)) o `query` (para [consulta](query-definition.md)) |
 | target-action | **Obligatorio** | String  | Destino al que llamar en el servidor                                                            |                                                                                                     |
 | style         |    Opcional     | String  | Clases CSS de la pestaña                                                                        | **Nota:** Aquí puedes usar la clase `expand` para permitir que la ventana se expanda                |
-| maximize      |    Opcional     | Boolean | Mostrar el icono maximizar o no                                                                 |                                                                                                     |
+| maximize      |    Opcional     | Boolean | Mostrar el icono maximizar o no                                                                 | **Nota:** Funciona en ambos motores como una ventana: la lista de pestañas y su contenido ocupan el área de contenido (el menú y la barra superior siguen visibles) y el botón Restaurar los devuelve a su tamaño; no hay atajo con la tecla Escape |
 | orientation   |    Opcional     | String  | Orientación de los pasos del asistente                                                          | El valor por defecto es `vertical`                                                                  |
 
 

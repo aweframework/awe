@@ -77,6 +77,8 @@ describe("test id vocabulary", () => {
       gridColumnsClose: "grid-columns-close",
       treeIcon: "tree-icon",
       treeHeaderIcon: "tree-header-icon",
+      tabs: "tabs",
+      tabMaximizeButton: "tab-maximize-button",
       tabList: "tab-list",
       tab: "tab",
       tabLink: "tab-link",

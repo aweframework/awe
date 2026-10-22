@@ -1,5 +1,6 @@
 import React from 'react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
+import {act, fireEvent} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import AweTabs from "../../../src/components/AweTabs";
 
@@ -102,6 +103,82 @@ describe('awe-react-client/test/js/components/AweTabsTest.jsx', () => {
         {preloadedState: withPages('pageA', {})});
 
       expect(loaded(store, 'pageA')).toBeUndefined();
+    });
+  });
+
+  describe('maximize (#799)', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    const settle = (time = 600) => act(() => {
+      jest.advanceTimersByTime(time);
+    });
+    const button = () => document.querySelector("button.maximize-button");
+    const container = () => document.querySelector("div.p-tabmenu-container");
+
+    it('renders no maximize button when the tab is not maximizable', () => {
+      renderWithProviders(<AweTabs id="tabs"/>, {preloadedState});
+
+      expect(button()).toBeNull();
+      expect(document.querySelector("[data-testid='tab-maximize-button']")).toBeNull();
+    });
+
+    it.each([true, "true"])('maximizes and restores the whole tab container with the button (maximize=%s)', (maximize) => {
+      renderWithProviders(<AweTabs id="tabs" maximize={maximize}/>, {preloadedState});
+      expect(container().classList).not.toContain("maximized");
+      expect(button().getAttribute("title")).toBe("SCREEN_TEXT_MAXIMIZE");
+      expect(button().querySelector("i").className).toContain("pi-window-maximize");
+
+      fireEvent.click(button());
+      settle();
+      expect(container().classList).toContain("maximized");
+      expect(container().style.position).toBe("fixed");
+      expect(button().getAttribute("title")).toBe("SCREEN_TEXT_RESTORE");
+      expect(button().querySelector("i").className).toContain("pi-window-minimize");
+
+      fireEvent.click(button());
+      settle();
+      expect(container().classList).not.toContain("maximized");
+      expect(container().style.position).toBe("");
+      expect(button().querySelector("i").className).toContain("pi-window-maximize");
+    });
+
+    it('maximizes over the maximize target and minimizes its siblings', () => {
+      renderWithProviders(
+        <div className="maximize-target" id="target">
+          <AweTabs id="tabs" maximize={true}/>
+          <div id="sibling">other</div>
+        </div>, {preloadedState});
+      jest.spyOn(document.getElementById("target"), "getBoundingClientRect")
+        .mockReturnValue({top: 40, left: 10, width: 800, height: 500});
+      const sibling = document.getElementById("sibling");
+
+      fireEvent.click(button());
+      settle();
+      expect([container().style.top, container().style.left, container().style.width, container().style.height])
+        .toEqual(["40px", "10px", "800px", "500px"]);
+      expect(sibling.classList).toContain("minimized");
+
+      fireEvent.click(button());
+      settle();
+      expect(sibling.classList).not.toContain("minimized");
+    });
+
+    it('exposes the tab container and its maximize button as test hooks that follow the state', () => {
+      renderWithProviders(<AweTabs id="tabs" maximize={true}/>, {preloadedState});
+      const hook = document.querySelector("[data-testid='tabs']");
+      expect(hook).toBe(container());
+      expect(hook.getAttribute("data-testid-owner")).toBe("tabs");
+      expect(hook.getAttribute("data-maximized")).toBe("false");
+      expect(button().getAttribute("data-testid")).toBe("tab-maximize-button");
+
+      fireEvent.click(button());
+      settle();
+      expect(hook.getAttribute("data-maximized")).toBe("true");
+
+      fireEvent.click(button());
+      settle();
+      expect(hook.getAttribute("data-maximized")).toBe("false");
     });
   });
 });

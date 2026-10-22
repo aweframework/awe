@@ -61,6 +61,9 @@ import static org.mockito.Mockito.withSettings;
  */
 class SeleniumUtilitiesSemanticStepsTest {
 
+  // Text of the Maximize buttons of grids, windows and tabs
+  private static final String MAXIMIZE = "Maximize";
+
   @TempDir
   Path tempDir;
 
@@ -1954,7 +1957,7 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldMaximizeAndRestoreAGridInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
-      show(instructions.getGridMaximizeButton("Grd"), "Maximize");
+      show(instructions.getGridMaximizeButton("Grd"), MAXIMIZE);
       show(instructions.getGridToolbarMaximized("Grd", true), "");
       show(instructions.getGridToolbarMaximized("Grd", false), "");
       show(instructions.getGrid("Grd"), "");
@@ -1981,7 +1984,7 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldMaximizeAndRestoreAWindowInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
-      show(instructions.getWindowMaximizeButton("Win"), "Maximize");
+      show(instructions.getWindowMaximizeButton("Win"), MAXIMIZE);
       show(instructions.getWindow("Win", true), "");
       show(instructions.getWindow("Win", false), "");
       show(instructions.getWindow("Win"), "");
@@ -1998,6 +2001,41 @@ class SeleniumUtilitiesSemanticStepsTest {
       }).doesNotThrowAnyException();
       when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.5, 40.0);
       assertThrows(AssertionFailedError.class, () -> utilities.checkWindowMaximized("Win"));
+    }
+  }
+
+  @Test
+  void shouldMaximizeAndRestoreATabComponentInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getTabMaximizeButton("Tabs"), MAXIMIZE);
+      show(instructions.getTabComponent("Tabs", true), "");
+      show(instructions.getTabComponent("Tabs", false), "");
+      show(instructions.getTabComponent("Tabs"), "");
+
+      long start = performed();
+      utilities.maximizeTab("Tabs");
+      utilities.restoreTab("Tabs");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.97, 40.0, "static");
+      assertThatCode(() -> {
+        utilities.checkTabMaximized("Tabs");
+        utilities.checkTabNotMaximized("Tabs");
+      }).doesNotThrowAnyException();
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(0.5, 40.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkTabMaximized("Tabs"));
+    }
+  }
+
+  @Test
+  void shouldFailWhenAMaximizedPanelStaysFixedAfterRestoring() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindow("Win", false), "");
+      when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn("fixed");
+
+      assertThrows(AssertionFailedError.class, () -> utilities.checkWindowNotMaximized("Win"));
     }
   }
 

@@ -27,7 +27,7 @@ describe("window directive", () => {
 
   it("renders the window and its maximize button as test hooks that follow the maximized state", () => {
     const target = $("<div class='maximize-target'><div class='sibling'>other</div></div>").appendTo(document.body);
-    const {element, scope} = compileWindow();
+    const {element} = compileWindow();
     target.append(element);
     target.find(".sibling")[0].getClientRects = () => [{}];
     const panel = element.is(hook("window")) ? element : element.find(hook("window")).first();
@@ -39,14 +39,14 @@ describe("window directive", () => {
     expect(panel.attr("data-maximized")).toBe("false");
     expect(button().find("i").hasClass("fa-expand")).toBe(true);
 
-    scope.togglePanel();
+    button().trigger("click");
     refs.$rootScope.$digest();
     expect(panel.attr("data-maximized")).toBe("true");
     expect(panel.hasClass("maximized")).toBe(true);
     expect(target.find(".sibling").hasClass("minimized")).toBe(true);
     expect(button().find("i").hasClass("fa-compress")).toBe(true);
 
-    scope.togglePanel();
+    button().trigger("click");
     refs.$rootScope.$digest();
     expect(panel.attr("data-maximized")).toBe("false");
     expect(target.find(".sibling").hasClass("minimized")).toBe(false);

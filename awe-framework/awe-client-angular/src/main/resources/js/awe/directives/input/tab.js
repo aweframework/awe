@@ -7,7 +7,7 @@ import {TestIds} from "../../data/testIds";
 
 // Template
 const template =
-`<div class="tab-container tab-container-{{::size}} expand expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+`<div data-testid="${TestIds.tabs}" ng-attr-data-testid-owner="{{::tabId}}" ng-attr-data-maximized="{{iconMaximized === true}}" class="tab-container tab-container-{{::size}} expand expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
     <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
     <div class="{{::criterionClass}} expand expandible-vertical">
       <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}" data-testid="${TestIds.tabList}" ng-attr-data-disabled="{{!!isDisabled()}}">
@@ -19,7 +19,7 @@ const template =
         </li>
         <li ng-if="::maximize" class="maximize-handler pull-right active">
           <a>
-            <button role="button" type="button" class="maximize-button" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translate}}">
+            <button role="button" type="button" class="maximize-button" data-testid="${TestIds.tabMaximizeButton}" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translate}}">
               <i class="fa {{iconMaximized ? 'fa-compress' : 'fa-expand'}}"></i>
             </button>
           </a>

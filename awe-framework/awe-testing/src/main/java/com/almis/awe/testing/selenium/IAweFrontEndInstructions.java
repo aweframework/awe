@@ -1559,6 +1559,38 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a tab component (the tab list and its content)
+   *
+   * @param tabId Tab identifier
+   * @return Tab component selector
+   */
+  default By getTabComponent(String tabId) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId));
+  }
+
+  /**
+   * Get a tab component in a state: it fills the content area or it does not
+   *
+   * @param tabId     Tab identifier
+   * @param maximized True for a maximized tab component
+   * @return Tab component selector
+   */
+  default By getTabComponent(String tabId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get the button of a tab component that maximizes it and restores it
+   *
+   * @param tabId Tab identifier
+   * @return Maximize button selector
+   */
+  default By getTabMaximizeButton(String tabId) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId) + " " + TestIds.css(TestIds.TAB_MAXIMIZE_BUTTON));
+  }
+
+  /**
    * Get the button of a window that maximizes it and restores it
    *
    * @param windowId Window identifier
