@@ -21,7 +21,7 @@ const NEXT_ID = "next";
 const COMPONENT_ACTIONS = [
   "click", "file-uploaded", "clear-file",
   "next-step", "prev-step", "first-step", "last-step", "nth-step",
-  "add-points", "add-chart-series", "remove-chart-series", "replace-chart-series",
+  "add-points", "add-chart-series", "remove-chart-series", "replace-chart-series", "polyline",
   "set-pivot-sorters", "set-pivot-group-rows", "set-pivot-group-cols", "toggle-menu", "show-context-menu"
 ];
 

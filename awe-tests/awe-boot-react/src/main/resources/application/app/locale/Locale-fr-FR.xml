@@ -91,6 +91,9 @@
   <locale name="MENU_TEST_BUTTONS" value="Boutons"/>
   <locale name="MENU_TEST_DEPENDENCIES" value="Dépendances"/>
   <locale name="MENU_TEST_CAROUSEL" value="Carousel"/>
+  <locale name="BUTTON_TEST_MAP_ROUTE" value="Tracer l'itinéraire"/>
+  <locale name="PARAMETER_TEST_MAP_SELECTED" value="Lieu sélectionné"/>
+  <locale name="MENU_TEST_MAP" value="Carte"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Série dynamique"/>
   <locale name="MENU_TEST_CHART_ADVANCED" value="Graphiques avancés"/>
   <locale name="MENU_TEST_CHARTS" value="Graphiques"/>

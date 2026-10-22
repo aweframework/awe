@@ -63,4 +63,6 @@ public class WebSettings {
   private WebPivotOptions pivotOptions;
   // Chart options
   private WebChartOptions chartOptions;
+  // Map tile url
+  private String mapTileUrl;
 }

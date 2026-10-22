@@ -153,6 +153,11 @@ public final class TestIds {
   // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";
 
+  // React only: map (the instance is identified by "map-id"; "data-rendered" tells that its markers were drawn), its
+  // markers ("map-id" and "row-id") and its route ("map-id")
+  public static final String MAP = "map";
+  public static final String MAP_MARKER = "map-marker";
+  public static final String MAP_ROUTE = "map-route";
   // React only: tag list (the instance is identified by "tag-list-id")
   public static final String TAG_LIST = "tag-list";
 

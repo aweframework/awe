@@ -50,7 +50,7 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
   });
 
   it('should get all component actions', () => {
-    expect(Object.keys(actions).length).toBe(22);
+    expect(Object.keys(actions).length).toBe(23);
   });
 
   it('should add points to the chart serie', async () => {
@@ -67,6 +67,10 @@ describe('awe-react-client/test/js/services/ComponentServiceTest.jsx', () => {
     await waitFor(() => {
       expect(store.getState().components.chart1.model.values).toEqual([{tutu1: 1, tutu2: 2}]);
     });
+  });
+
+  it('should register the polyline action of the map', () => {
+    expect(typeof actions["polyline"]).toBe("function");
   });
 
   it('should add some series to a chart', async () => {

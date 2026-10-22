@@ -448,6 +448,14 @@
     <java classname="com.almis.awe.test.service.DummyService" method="carousel"/>
   </service>
 
+  <service id="TstMapPoints">
+    <java classname="com.almis.awe.test.service.DummyService" method="mapPoints"/>
+  </service>
+
+  <service id="TstMapRoute">
+    <java classname="com.almis.awe.test.service.DummyService" method="mapRoute"/>
+  </service>
+
   <service id="picklist">
     <java classname="com.almis.awe.test.service.DummyService" method="picklist"/>
   </service>

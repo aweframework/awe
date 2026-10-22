@@ -694,6 +694,11 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkPivotTableVisible(String pivotTableId)` | Comprueba que una tabla dinámica se muestra (su tabla se ha dibujado) |
 | `zoomChart(String chartId)` | Hace zoom en un gráfico con la rueda del ratón sobre su centro |
 | `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
+| `checkMapVisible(String mapId)` | Comprueba que un mapa se muestra con sus marcadores dibujados (solo cliente React) |
+| `checkMapMarkerCount(String mapId, int count)` | Comprueba cuántos marcadores muestra un mapa (solo cliente React) |
+| `clickMapMarker(String mapId, String rowId)` | Hace clic en el marcador de una fila de un mapa (solo cliente React) |
+| `checkMapMarkerSelected(String mapId, String rowId)` | Comprueba que el marcador de una fila de un mapa está seleccionado (solo cliente React) |
+| `checkMapRouteVisible(String mapId)` | Comprueba que un mapa dibuja una ruta (solo cliente React) |
 | `checkLogViewerContains(String text)` | Espera hasta que el visor de logs muestra un texto |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Comprueba un texto dentro del frame que incrusta una aplicación externa. El selector pertenece a esa aplicación, por lo que es el único literal que puedes pasar |
 

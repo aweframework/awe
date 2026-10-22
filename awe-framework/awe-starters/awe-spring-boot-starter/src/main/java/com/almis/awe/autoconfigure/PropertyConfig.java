@@ -120,6 +120,7 @@ public class PropertyConfig {
             .uploadMaxSize(baseConfigProperties.getComponent().getUploadMaxFileSize().toMegabytes())
             .downloadIdentifier(baseConfigProperties.getComponent().getDownloadFileId())
             .helpTimeout(baseConfigProperties.getComponent().getHelpTimeout().toMillis())
+            .mapTileUrl(baseConfigProperties.getMap().getTileUrl())
             // Security settings
             .encodeTransmission(securityConfigProperties.isJsonEncryptEnable())
             .encodeKey(securityConfigProperties.getJsonParameter())

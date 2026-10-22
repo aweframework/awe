@@ -41,4 +41,18 @@ class BaseConfigPropertiesTest {
 
     assertThat(properties.getChartServerUrl()).isEqualTo("http://localhost:7801");
   }
+
+  @Test
+  @DisplayName("Without properties the map tiles come from OpenStreetMap")
+  void defaultMapTileUrl() {
+    assertThat(bind(Map.of()).getMap().getTileUrl()).isEqualTo("https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+  }
+
+  @Test
+  @DisplayName("map.tile-url sets the tile server of the maps")
+  void mapTileUrl() {
+    BaseConfigProperties properties = bind(Map.of("awe.application.map.tile-url", "https://tiles.example.com/{z}/{x}/{y}.png"));
+
+    assertThat(properties.getMap().getTileUrl()).isEqualTo("https://tiles.example.com/{z}/{x}/{y}.png");
+  }
 }

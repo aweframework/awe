@@ -3834,6 +3834,56 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a map is displayed with its markers drawn (React client only)
+   *
+   * @param mapId Map identifier
+   */
+  protected void checkMapVisible(String mapId) {
+    checkVisible(locator(frontEndInstructions.getMap(mapId)));
+  }
+
+  /**
+   * Check how many markers a map shows (React client only)
+   *
+   * @param mapId Map identifier
+   * @param count Expected number of markers
+   */
+  protected void checkMapMarkerCount(String mapId, int count) {
+    Locator markers = locator(frontEndInstructions.getMapMarkers(mapId));
+    waitUntil(BrowserCondition.of("map " + mapId + " to show " + count + " markers",
+      browser -> browser.count(markers) == count));
+  }
+
+  /**
+   * Click on the marker of a row of a map (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   */
+  protected void clickMapMarker(String mapId, String rowId) {
+    click(frontEndInstructions.getMapMarker(mapId, rowId));
+  }
+
+  /**
+   * Check that the marker of a row of a map is selected (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   */
+  protected void checkMapMarkerSelected(String mapId, String rowId) {
+    checkVisible(locator(frontEndInstructions.getMapMarkerSelected(mapId, rowId)));
+  }
+
+  /**
+   * Check that a map draws a route (React client only)
+   *
+   * @param mapId Map identifier
+   */
+  protected void checkMapRouteVisible(String mapId) {
+    checkVisible(locator(frontEndInstructions.getMapRoute(mapId)));
+  }
+
+  /**
    * Zoom a chart in with the mouse wheel over its center
    *
    * @param chartId Chart identifier

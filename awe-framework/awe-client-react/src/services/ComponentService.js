@@ -1,5 +1,6 @@
 import {
   addPointsAction,
+  polylineAction,
   addSeriesAction, changeMenuAction,
   clickButtonAction,
   closeDialogAction,
@@ -75,6 +76,8 @@ const useComponentService = () => {
 
   const onAddPoints = (action) => dispatch(addPointsAction(action));
 
+  const onPolyline = (action) => dispatch(polylineAction(action));
+
   const onAddSeries = (action) => dispatch(addSeriesAction(action));
 
   const onRemoveSeries = (action) => dispatch(removeSeriesAction(action));
@@ -117,6 +120,8 @@ const useComponentService = () => {
     "add-chart-series": onAddSeries,
     "remove-chart-series": onRemoveSeries,
     "replace-chart-series": onReplaceSeries,
+    // Map
+    "polyline": onPolyline,
     // Pivot
     "set-pivot-sorters": onSetPivotSorters,
     "set-pivot-group-rows": onSetPivotGroupRows,

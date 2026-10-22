@@ -14,6 +14,8 @@ const COMPONENT_ACTIONS = new Set([
   "next-step", "prev-step", "first-step", "last-step", "nth-step",
   // Chart
   "add-points", "add-chart-series", "remove-chart-series", "replace-chart-series",
+  // Map
+  "polyline",
   // Pivot
   "set-pivot-sorters", "set-pivot-group-rows", "set-pivot-group-cols",
   // Grid

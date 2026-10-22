@@ -58,6 +58,7 @@
     "i18next": "23.16.8",
     "i18next-http-backend": "4.0.2",
     "immer": "~11.1.21",
+    "leaflet": "1.9.4",
     "lodash": "4.18.1",
     "material-icons": "^1.13.12",
     "primeflex": "3.3.1",

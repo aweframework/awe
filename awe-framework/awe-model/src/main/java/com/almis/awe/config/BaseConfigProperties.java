@@ -214,6 +214,13 @@ public class BaseConfigProperties {
   private Component component = new Component();
 
   /**
+   * Map component configuration parameters.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private MapSettings map = new MapSettings();
+
+  /**
    * Application AWE file manager parameters configuration.
    */
   @NestedConfigurationProperty
@@ -485,6 +492,20 @@ public class BaseConfigProperties {
      * Default value information
      */
     private String initial = "information";
+  }
+
+  /**
+   * Configuration properties of the map component
+   */
+  @Data
+  public static class MapSettings {
+    /**
+     * Url template of the map tiles, with the {z}, {x} and {y} placeholders. Mind the usage policy of the tile server:
+     * the default OpenStreetMap server is meant for light use, so use your own tile server for heavy traffic.
+     * Default value https://tile.openstreetmap.org/{z}/{x}/{y}.png
+     */
+    @NotNull
+    private String tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   }
 
   /**

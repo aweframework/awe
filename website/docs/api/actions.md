@@ -171,7 +171,7 @@ Actions which works over components in the screen.
 | `clear-file`                     | Clear the uploaded file, resetting the uploader component                                                | `uploader`                  |
 | `taglist-data`                   | Load the content of a taglist with the HTML and component data received from the server                  | `taglist`                   |
 | `initial-model`                  | Set the initial model of a component (rows, selected values, defaults) loaded when its [deferred dialog](dialog.md#deferred-loading) or [tab](tab-and-tabcontainer.md#deferred-loading) was first opened, as the screen load does. It is the answer of the `deferred-data` server action | `criteria`, `grid`, `chart` |
-| `polyline`                       | Draw a polyline on a map with the points received on the `rows` parameter (`Lat` and `Lon` fields)       | `map`                       |
+| `polyline`                       | Draw a route on a [map](map.md#route) with the points received on the `rows` parameter (latitude and longitude columns of the map)| `map`                       |
 
 
 #### Component attributes

@@ -345,6 +345,28 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateAMapOnceItsMarkersAreDrawn() {
+    assertThat(instructions.getMap("MapTst")).hasToString("By.cssSelector: "
+      + "[data-testid='map'][map-id='MapTst'][data-rendered='true']");
+  }
+
+  @Test
+  void shouldLocateTheMarkersOfAMapThroughTheirHook() {
+    assertThat(instructions.getMapMarkers("MapTst")).hasToString("By.cssSelector: "
+      + "[data-testid='map-marker'][map-id='MapTst']");
+    assertThat(instructions.getMapMarker("MapTst", "2")).hasToString("By.cssSelector: "
+      + "[data-testid='map-marker'][map-id='MapTst'][row-id='2']");
+    assertThat(instructions.getMapMarkerSelected("MapTst", "2")).hasToString("By.cssSelector: "
+      + "[data-testid='map-marker'][map-id='MapTst'][row-id='2'][data-selected='true']");
+  }
+
+  @Test
+  void shouldLocateTheRouteOfAMapThroughItsHook() {
+    assertThat(instructions.getMapRoute("MapTst")).hasToString("By.cssSelector: "
+      + "[data-testid='map-route'][map-id='MapTst']");
+  }
+
+  @Test
   void shouldLocateTheDrawnTableOfAPivotTableThroughItsComponentId() {
     assertThat(instructions.getPivotTable("listaDatos")).hasToString("By.cssSelector: #listaDatos table.pvtTable");
   }

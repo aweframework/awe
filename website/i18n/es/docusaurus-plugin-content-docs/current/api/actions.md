@@ -171,7 +171,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `clear-file`                     | Borrar el archivo subido, reiniciando el componente de carga de archivos                                                | `uploader`                  |
 | `taglist-data`                   | Cargar el contenido de una lista de etiquetas con el HTML y los datos de componentes recibidos del servidor                  | `taglist`                   |
 | `initial-model`                  | Establecer el modelo inicial de un componente (filas, valores seleccionados y valores por defecto) cargado cuando se abrió por primera vez su [diálogo diferido](dialog.md#deferred-loading) o su [pestaña](tab-and-tabcontainer.md#deferred-loading), como hace la carga de la pantalla. Es la respuesta de la acción de servidor `deferred-data` | `criteria`, `grid`, `chart` |
-| `polyline`                       | Dibujar una polilínea en un mapa con los puntos recibidos en el parámetro `rows` (campos `Lat` y `Lon`)       | `map`                       |
+| `polyline`                       | Dibujar una ruta en un [mapa](map.md#route) con los puntos recibidos en el parámetro `rows` (columnas de latitud y longitud del mapa)       | `map`                       |
 
 
 #### Atributos del componente {#component-attributes}

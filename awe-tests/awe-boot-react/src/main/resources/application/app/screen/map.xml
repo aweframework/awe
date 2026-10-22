@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : map.xml
+    Created on : 20 de Octubre de 2026
+    Author     : Pablo GARCIA
+    Description: Map test screen (Leaflet and OpenStreetMap)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_TEST_MAP">
+    <tag source="buttons">
+        <button id="MapRoute" label="BUTTON_TEST_MAP_ROUTE" icon="mdi:route" button-type="button">
+            <button-action type="server" server-action="maintain-silent" target-action="TstMapRoute"/>
+        </button>
+    </tag>
+    <tag source="center" expandible="vertical">
+        <criteria id="MapSel" label="PARAMETER_TEST_MAP_SELECTED" component="text" readonly="true"
+                  style="col-xs-12 col-sm-4 col-lg-3">
+            <dependency source-type="formule" target-type="input" formule="'[place]'">
+                <dependency-element id="MapTst" column="Lug" attribute="selectedRowValue" alias="place"/>
+            </dependency>
+        </criteria>
+        <tag type="div" expandible="vertical" style="expand">
+            <map id="MapTst" initial-load="query" target-action="TstMapPoints" latitude="Lat" longitude="Lon"
+                 marker-label="Lug" style="expand"/>
+        </tag>
+    </tag>
+</screen>

@@ -3118,6 +3118,9 @@
 
   <query id="picklist" service="picklist"/>
 
+  <!-- FIXED POINTS OF THE MAP TEST SCREEN (four cities) -->
+  <query id="TstMapPoints" service="TstMapPoints"/>
+
   <query id="initial-load-user">
     <table id="ope"/>
     <field id="l1_nom" alias="value"/>
