@@ -73,7 +73,8 @@ variables:
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
   # sonar.scm.use.blame.algorithm=GIT_FILES_BLAME: blame with JGit in one pass instead of one native `git blame` process
-  # per file. The native processes hung the job on mac-awe (amd64 image under Rosetta: Java stops reading their output).
+  # per file. The native processes hung the job on mac-awe when the image was amd64 under Rosetta (Java stopped reading
+  # their output). The images are multi-arch now and run natively on arm64, but JGit stays: it is a single pass anyway.
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN -Dsonar.qualitygate.wait=true -Dsonar.scm.use.blame.algorithm=GIT_FILES_BLAME"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
@@ -316,7 +317,7 @@ stages:
 # of the website build, which has Node.js 24, npm and git.
 .mr-checks:
   tags: [ light ]
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.1@sha256:a7a9e753e0f3f19223e58c4ed17833092202b1788d98c44b4c0be3145e7ba38f
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
   stage: lint
   needs: [ ]
   cache: { }
@@ -406,7 +407,7 @@ Lint · Spotless:
 # lints the Spanish translation in a few seconds without building the site: MDX syntax, parity with the English page
 # (heading anchors, code blocks, front matter id and slug) and relative links. develop and master build every locale.
 Lint · Spanish docs:
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.1@sha256:a7a9e753e0f3f19223e58c4ed17833092202b1788d98c44b4c0be3145e7ba38f
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
   stage: lint
   tags: [ light ]
   needs: [ ]
@@ -430,7 +431,7 @@ Lint · Spanish docs:
 # Docusaurus/MDX or the style of the docs are off in website/.markdownlint-cli2.jsonc. Run it locally with
 # "npm --prefix website run lint:md".
 Lint · Markdown:
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.1@sha256:a7a9e753e0f3f19223e58c4ed17833092202b1788d98c44b4c0be3145e7ba38f
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
   stage: lint
   tags: [ light ]
   needs: [ ]
@@ -512,10 +513,10 @@ Security · Secrets:
 
 # docker-tools images are pinned by version: docker-tools protects its X.Y.Z
 # tags as immutable, so a version always names the same image. Most of them
-# also carry their digest (tag@digest); the sonar image is pinned by its
-# version only. Renovate (#761) tracks and updates these digests.
+# also carry their digest (tag@digest), the digest of the multi-arch index (linux/amd64
+# and linux/arm64), so each runner pulls its own architecture. Renovate (#761) tracks and updates these digests.
 .build-website:
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.1@sha256:a7a9e753e0f3f19223e58c4ed17833092202b1788d98c44b4c0be3145e7ba38f
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
   stage: build
   needs: [ ]
   timeout: 20m
@@ -967,7 +968,7 @@ Integration · Keycloak:
 Unit · AngularJS:
   stage: test
   tags: [ medium ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:1.0.1@sha256:92dbb352e8c9de5b10fb25a04ec4aec41b5e9beb7142bc0bc9ccc77e6d57001a
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
   needs: [ ]
   cache: { }
   # The slow medium runner, when busy, takes close to 15 minutes for the AngularJS suite even when every test passes
@@ -991,10 +992,10 @@ Unit · AngularJS:
 Unit · React:
   stage: test
   tags: [ medium ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:1.0.1@sha256:92dbb352e8c9de5b10fb25a04ec4aec41b5e9beb7142bc0bc9ccc77e6d57001a
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
   needs: [ ]
   # Jest's transform cache (jest.config.cjs puts it in .jest-cache in CI): without it every run transforms the big
-  # dependencies again (quill for the editor), which can take longer than a test's timeout on a busy or emulated runner
+  # dependencies again (quill for the editor), which can take longer than a test's timeout on a busy runner
   cache:
     key: frontend-react-jest-${CI_COMMIT_REF_SLUG}
     fallback_keys:
@@ -1117,7 +1118,7 @@ Docs · Javadoc check:
   services:
     - name: selenoid/firefox:latest@sha256:3490e022beda383963670c9492d0927705f03f951abfa4f40eb59c9c923d8e5f
       alias: browser
-    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:1.0.1@sha256:ebce7f6eeed7f54b06eab4eab0368f53053916d8114486c674f6c6da24556511
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:1.0.2@sha256:54ddb2e5e52a63ffda43d4c0ccbfc940e6ab977102ad2c0de3d364fc3d553259
       alias: recorder
   variables:
     BROWSER: service-firefox
@@ -1127,7 +1128,7 @@ Docs · Javadoc check:
   services:
     - name: selenoid/chrome:latest@sha256:0a3626278323dc19584598fcc9d4209a4c1dc5ef2065b29812f1dc277d6e0640
       alias: browser
-    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:1.0.1@sha256:ebce7f6eeed7f54b06eab4eab0368f53053916d8114486c674f6c6da24556511
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:1.0.2@sha256:54ddb2e5e52a63ffda43d4c0ccbfc940e6ab977102ad2c0de3d364fc3d553259
       alias: recorder
   variables:
     BROWSER: service-chrome
@@ -1591,7 +1592,7 @@ Security · Dependencies:
 ##############################
 
 Analysis · Sonar:
-  image: registry.gitlab.com/aweframework/docker-tools/sonar:1.0.2
+  image: registry.gitlab.com/aweframework/docker-tools/sonar:1.0.3@sha256:978f52cd49b10da35d09b304d90493d50c69d78017418485a782a21b124e91cb
   stage: analysis
   timeout: 20m
   # Some needs are optional: a merge-request pipeline may run Sonar (backend or frontend changed)
@@ -2023,7 +2024,7 @@ Deploy · npm:
 #   production -> https://demo.aweframework.com     and https://react-demo.aweframework.com
 # Both images are set by the digest that "Package · Docker images" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
 .k8s_deploy:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.1@sha256:9b3d7d7c35042f66024fcf9f59c8e9c8f21c623fd57297dad7e1fea238ddb44f
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.2@sha256:84cc4bcdb88e75b591c79730b2ea89ae60c6d4dcc5f03049a04cf1e1072c2e43
   tags: [ light ]
   cache: { }
   interruptible: false
@@ -2137,7 +2138,7 @@ pages:
 
 Release · Notes:
   tags: [ light ]
-  image: registry.gitlab.com/aweframework/docker-tools/ci-release:1.0.1@sha256:b46cecfda206f1ab1ae1cc1d43c4db77e09c2e9542f71c28ff5e4cab9288abe5
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:1.0.2@sha256:3d68a1ee1bdc8d448925ab62777644996bedda38cbb2add19fa23d0054bf5728
   cache: { }
   interruptible: false
   dependencies: [ ]
@@ -2158,7 +2159,7 @@ Release · Notes:
 
 Release · Milestone:
   tags: [ light ]
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.1@sha256:9b3d7d7c35042f66024fcf9f59c8e9c8f21c623fd57297dad7e1fea238ddb44f
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.2@sha256:84cc4bcdb88e75b591c79730b2ea89ae60c6d4dcc5f03049a04cf1e1072c2e43
   stage: release
   interruptible: false
   needs: [ ]
@@ -2173,7 +2174,7 @@ Release · Milestone:
     - <<: *if-tag
 
 Release · Start:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-release:1.0.1@sha256:b46cecfda206f1ab1ae1cc1d43c4db77e09c2e9542f71c28ff5e4cab9288abe5
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:1.0.2@sha256:3d68a1ee1bdc8d448925ab62777644996bedda38cbb2add19fa23d0054bf5728
   cache: { }
   interruptible: false
   timeout: 1h
@@ -2225,7 +2226,7 @@ Release · Start:
 
 Release · Notify:
   tags: [ light ]
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.1@sha256:9b3d7d7c35042f66024fcf9f59c8e9c8f21c623fd57297dad7e1fea238ddb44f
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.2@sha256:84cc4bcdb88e75b591c79730b2ea89ae60c6d4dcc5f03049a04cf1e1072c2e43
   stage: release
   interruptible: false
   # Only announce a release whose artifacts and GitLab release actually exist.
