@@ -237,16 +237,6 @@
       ]
     },
     {
-      "description": "The sonar image of docker-tools is pinned by its version only: docker-tools protects its X.Y.Z tags as immutable, so the version always names the same image and no digest is added.",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "registry.gitlab.com/aweframework/docker-tools/sonar"
-      ],
-      "pinDigests": false
-    },
-    {
       "groupName": "docker compose images",
       "description": "Local tooling stack (observability) described by the docker-compose file under awe-tests.",
       "matchManagers": [
