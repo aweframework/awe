@@ -100,6 +100,17 @@ public abstract class AbstractTagBuilder<T, I extends Element> extends AbstractE
   }
 
   /**
+   * Add popover
+   *
+   * @param popover Popover builders
+   * @return this
+   */
+  public T addPopover(PopoverBuilder... popover) {
+    addAllElements(popover);
+    return (T) this;
+  }
+
+  /**
    * Add frame
    *
    * @param frame

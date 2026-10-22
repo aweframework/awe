@@ -1526,6 +1526,90 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCloseAPopoverWithItsCloseButtonAndCheckThatItIsClosed() {
+    show(instructions.getPopoverClose("Pop"), "");
+    show(instructions.getOpenPopover("Open"), "");
+
+    assertThatCode(() -> {
+      utilities.closePopover("Pop");
+      utilities.checkPopoverClosed("Closed");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.closePopover("Missing"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverClosed("Open"));
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
+  void shouldCloseAnOpenPopoverWithEscape() {
+    WebElement popover = show(instructions.getOpenPopover("Pop"), "");
+    AtomicInteger escapes = new AtomicInteger();
+    when(popover.isDisplayed()).thenAnswer(invocation -> escapes.get() == 0);
+    doAnswer(invocation -> escapes.incrementAndGet()).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.closePopoverWithEscape("Pop")).doesNotThrowAnyException();
+    assertThat(escapes).hasValue(1);
+    // A popover that is not open cannot be closed
+    assertThrows(AssertionFailedError.class, () -> utilities.closePopoverWithEscape("Missing"));
+    assertThat(escapes).hasValue(1);
+  }
+
+  @Test
+  void shouldCheckThatAPopoverIsOpenNextToItsAnchorInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getOpenPopover("Pop"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      // Popover top|right|bottom|left, then anchor top|right|bottom|left: below the anchor, 8 pixels away
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("148|420|300|100|110|180|140|100");
+
+      assertThatCode(() -> utilities.checkPopoverOpen("Pop", "ButPop", "bottom")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "right"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "top"));
+
+      // At the right of the anchor, alongside it
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("90|668|250|188|110|180|140|100");
+      assertThatCode(() -> utilities.checkPopoverOpen("Pop", "ButPop", "right")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "left"));
+
+      // On its side but far from the anchor, or not alongside it, or the anchor is not found
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("200|420|300|100|110|180|140|100");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "bottom"));
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("148|620|300|300|110|180|140|100");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "bottom"));
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn(null);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverOpen("Pop", "Missing", "bottom"));
+    }
+  }
+
+  @Test
+  void shouldMeasureThePopoverAgainstTheAnchorItIsGiven() {
+    show(instructions.getOpenPopover("Pop"), "");
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("148|420|300|100|110|180|140|100");
+
+    utilities.checkPopoverOpen("Pop", "ButPop", "bottom");
+
+    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    verify(executor, atLeast(1)).executeScript(anyString(), arguments.capture());
+    assertThat(arguments.getAllValues()).anySatisfy(values -> assertThat(values).contains("ButPop"));
+    assertThrows(IllegalArgumentException.class, () -> utilities.checkPopoverOpen("Pop", "ButPop", "center"));
+  }
+
+  @Test
+  void shouldCheckThatTheFocusStaysInsideThePopoverWhileTabbing() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    String popoverCss = instructions.getPopoverCss("Pop");
+    when(executor.executeScript(anyString(), eq(popoverCss))).thenReturn(true);
+
+    assertThatCode(() -> utilities.checkPopoverKeepsTheFocus("Pop", 3)).doesNotThrowAnyException();
+    verify((Interactive) driver, times(3)).perform(any());
+
+    when(executor.executeScript(anyString(), eq(popoverCss))).thenReturn(true, false);
+    assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverKeepsTheFocus("Pop", 3));
+  }
+
+  @Test
   void shouldOpenTheUserMenuToSwitchTheColorMode() {
     utilities.switchToDarkMode();
     utilities.switchToLightMode();

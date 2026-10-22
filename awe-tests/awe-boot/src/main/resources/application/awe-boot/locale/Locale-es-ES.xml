@@ -289,4 +289,12 @@
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtros"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Resultado"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columnas en un panel lateral"/>
+  <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
+  <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
+  <locale name="BUTTON_POPOVER_BOTTOM" value="Popover debajo"/>
+  <locale name="BUTTON_POPOVER_RIGHT" value="Popover a la derecha"/>
+  <locale name="POPOVER_TITLE_BOTTOM" value="Edición rápida"/>
+  <locale name="POPOVER_TITLE_RIGHT" value="Notas"/>
+  <locale name="PARAMETER_POPOVER_RESULT" value="Resultado"/>
+  <locale name="PARAMETER_POPOVER_THEME_ID" value="Identificador"/>
 </locales>

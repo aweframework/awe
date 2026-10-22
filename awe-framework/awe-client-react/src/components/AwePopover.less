@@ -1,0 +1,86 @@
+// Popover (#843): a panel next to its anchor, with a header, a body that scrolls and an optional footer
+@popover-gap: 0.5rem;
+
+.awe-popover {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 12rem;
+  max-height: 80vh;
+  background-color: var(--surface-overlay, #ffffff);
+  color: var(--text-color, #495057);
+  border: 1px solid var(--surface-border, #dee2e6);
+  border-radius: var(--border-radius, 6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  &:focus {
+    outline: none;
+  }
+
+  // The gap between the popover and its anchor
+  &.popover-bottom {
+    margin-top: @popover-gap;
+  }
+
+  &.popover-top {
+    margin-top: -@popover-gap;
+  }
+
+  &.popover-left {
+    margin-left: -@popover-gap;
+  }
+
+  &.popover-right {
+    margin-left: @popover-gap;
+  }
+
+  // The anchor is not on the screen: the popover is centered
+  &.popover-unanchored {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--surface-border, #dee2e6);
+  }
+
+  .popover-title {
+    font-weight: 600;
+  }
+
+  .popover-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+  }
+
+  // As much padding as a .panel-body child goes out of its parent (margin: -1rem), or the body scrolls sideways
+  .popover-body {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding: 1rem;
+  }
+
+  // The footer (a child with style modal-footer) sticks to the bottom of the popover
+  .modal-footer {
+    position: sticky;
+    bottom: -1rem;
+    margin: auto -1rem -1rem;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background-color: var(--surface-overlay, #ffffff);
+    border-top: 1px solid var(--surface-border, #dee2e6);
+  }
+}

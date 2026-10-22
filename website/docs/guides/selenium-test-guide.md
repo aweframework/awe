@@ -470,7 +470,12 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkSidePanelClosed(String panelId)` | Checks that a side panel has been closed |
 | `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Checks that a side panel is open against its edge (`left` or `right`) and as wide as its maximum width (a css length the browser resolves, capped by the screen width), give or take two pixels |
 | `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Presses Tab the given times and checks that the keyboard focus never leaves the side panel |
-| `checkButtonFocused(String buttonId)` | Checks that a button has the keyboard focus (for instance the one that opened a dialog or a side panel, once it is closed) |
+| `closePopover(String popoverId)` | Closes a popover anchored to a control with the close button of its header |
+| `closePopoverWithEscape(String popoverId)` | Closes an open popover pressing Esc and checks that it has been closed |
+| `checkPopoverClosed(String popoverId)` | Checks that a popover anchored to a control has been closed |
+| `checkPopoverOpen(String popoverId, String anchorId, String position)` | Checks that a popover is open next to its anchor: on its side of it (`top`, `right`, `bottom` or `left`), at most 16 pixels away and alongside it |
+| `checkPopoverKeepsTheFocus(String popoverId, int presses)` | Presses Tab the given times and checks that the keyboard focus never leaves the popover |
+| `checkButtonFocused(String buttonId)` | Checks that a button has the keyboard focus (for instance the one that opened a dialog, a side panel or a popover, once it is closed) |
 | `checkValidationErrorVisible()` | Checks that the screen shows validation errors |
 
 ### Criteria: writing and reading

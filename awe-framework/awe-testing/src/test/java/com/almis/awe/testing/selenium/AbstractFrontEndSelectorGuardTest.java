@@ -324,6 +324,9 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getSidePanelClose", () -> i.getSidePanelClose("Pnl"));
     catalog.put("getSidePanelPanel", () -> i.getSidePanelPanel("Pnl"));
     catalog.put("getButtonCss", () -> i.getButtonCss("ButId"));
+    catalog.put("getPopoverCss", () -> i.getPopoverCss("Pop"));
+    catalog.put("getOpenPopover", () -> i.getOpenPopover("Pop"));
+    catalog.put("getPopoverClose", () -> i.getPopoverClose("Pop"));
     catalog.put("getGridColumnsButton", () -> i.getGridColumnsButton(GRID));
     catalog.put("getGridMaximizeButton", () -> i.getGridMaximizeButton(GRID));
     catalog.put("getGridToolbarMaximized", () -> i.getGridToolbarMaximized(GRID, true));

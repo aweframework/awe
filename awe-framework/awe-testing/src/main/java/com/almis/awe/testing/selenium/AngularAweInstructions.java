@@ -217,8 +217,10 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
 
   public By getPopover() {
     // Message popovers exist only while they are shown. The help popover (awe-help) is always rendered, so it counts
-    // only while it is open. The mouse must be moved away from both, or they intercept the next click
-    return By.cssSelector(css(TestIds.POPOVER) + "," + css(TestIds.HELP_POPOVER) + stateCss(TestAttributes.OPEN, true));
+    // only while it is open. The mouse must be moved away from both, or they intercept the next click. The popover
+    // containers anchored to a control share the hook but are dialogs, always rendered: they are not help to move away from
+    return By.cssSelector(css(TestIds.POPOVER) + ":not([role='dialog'])," + css(TestIds.HELP_POPOVER)
+      + stateCss(TestAttributes.OPEN, true));
   }
 
   /**

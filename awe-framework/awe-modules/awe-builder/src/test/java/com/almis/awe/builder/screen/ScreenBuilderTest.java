@@ -229,6 +229,58 @@ class ScreenBuilderTest {
   }
 
   /**
+   * Build a single screen with a popover anchored to a button (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addPopover() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addPopover(new PopoverBuilder()
+          .setAnchor("BtnInf")
+          .setPosition(PopoverPosition.RIGHT)
+          .setMaxWidth("20rem")
+          .setOnClose(OnClose.REJECT)
+          .setDeferred(true)
+          .setIcon("info")
+          .setLabel("POPOVER_LABEL")
+          .setId("PopInf")));
+
+    Screen screen = builder.build();
+    Popover popover = (Popover) screen.getElementList().get(0).getElementList().get(0);
+    assertEquals("PopInf", popover.getId());
+    assertEquals("POPOVER_LABEL", popover.getLabel());
+    assertEquals("BtnInf", popover.getAnchor());
+    assertEquals("right", popover.getPosition());
+    assertEquals("20rem", popover.getMaxWidth());
+    assertEquals("info", popover.getIcon());
+    assertTrue(OnClose.REJECT.equalsStr(popover.getOnClose()));
+    assertTrue(popover.isDeferred());
+  }
+
+  /**
+   * A popover built without position opens below its anchor (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addPopoverBelowTheAnchorByDefault() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder().setSource("center").setType("div")
+        .addPopover(new PopoverBuilder().setAnchor("BtnInf")));
+
+    Popover popover = (Popover) builder.build().getElementList().get(0).getElementList().get(0);
+    assertEquals("BtnInf", popover.getAnchor());
+    assertEquals("bottom", popover.getPosition());
+    assertFalse(popover.isDeferred());
+  }
+
+  /**
    * Build a single screen with an include
    *
    * @throws Exception exception

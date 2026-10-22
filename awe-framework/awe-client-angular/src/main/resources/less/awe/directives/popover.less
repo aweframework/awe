@@ -1,0 +1,62 @@
+//
+// Popover (#843): a dialog anchored to a control, placed next to it with fixed coordinates (popover.js). It is not the
+// Bootstrap .popover (text only). The header stays in view, the body scrolls and the footer (a child with style
+// modal-footer) stays at its bottom.
+// --------------------------------------------------
+.awe-popover {
+  position: fixed;
+  // Over the screen and its maximized windows (1050, earlier in the page), and under the modals opened from it (the
+  // Columns side panel of a grid: 1050, later in the page body). Inside a modal it is over the content of the modal
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 12rem;
+  max-height: calc(100vh - 16px);
+  // The panel text color is the one of the panel headers (white on a colored header in some themes)
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-panel);
+  border: 1px solid var(--awe-color-panel-border);
+  border-radius: var(--awe-radius);
+  box-shadow: var(--awe-shadow-lg);
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  .awe-popover-header {
+    flex: 0 0 auto;
+    padding: var(--awe-space-sm) var(--awe-space-md);
+    border-bottom: 1px solid var(--awe-color-panel-border);
+
+    .close {
+      margin-left: var(--awe-space-sm);
+    }
+  }
+
+  .awe-popover-title {
+    margin: 0;
+    font-size: var(--awe-font-size-base);
+    font-weight: var(--awe-font-weight-bold);
+  }
+
+  .awe-popover-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: var(--awe-space-sm) var(--awe-space-md);
+    background-color: var(--awe-color-panel);
+  }
+}

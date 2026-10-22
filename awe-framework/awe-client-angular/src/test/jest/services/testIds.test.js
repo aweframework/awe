@@ -117,6 +117,7 @@ describe("test id vocabulary", () => {
       dialogClose: "dialog-close",
       sidePanel: "side-panel",
       sidePanelClose: "side-panel-close",
+      popoverClose: "popover-close",
       confirmDialog: "confirm-dialog",
       confirmAccept: "confirm-accept",
       confirmCancel: "confirm-cancel",

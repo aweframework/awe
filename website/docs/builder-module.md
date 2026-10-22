@@ -694,6 +694,7 @@ For each component designed in AWE you have a `builder` to define its behaviour:
 - `WindowBuilder`: Builds a `<window>` component.
 - `DialogBuilder`: Builds a `<dialog>` component.
 - `SidePanelBuilder`: Builds a `<side-panel>` component.
+- `PopoverBuilder`: Builds a `<popover>` component.
 - `IncludeBuilder`: Builds a `<include>` component.
 - `MenuContainerBuilder`: Builds a `<menu-container>` component.
 - `MessageBuilder`: Builds a `<message>` component.

@@ -9,6 +9,8 @@ settings) without leaving it. It is opened and closed exactly like a dialog: wit
 [button actions](button.md#button-actions)), and with the `close` and `close-cancel` actions. Both web engines (AngularJS
 and React) support it.
 
+<img alt="Side panel" src={require('@docusaurus/useBaseUrl').default('img/side-panel.png')} />
+
 ---
 
 ## XML skeleton

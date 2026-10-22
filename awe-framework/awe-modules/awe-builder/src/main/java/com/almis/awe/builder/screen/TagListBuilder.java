@@ -103,6 +103,17 @@ public class TagListBuilder extends AbstractComponentBuilder<TagListBuilder, Tag
   }
 
   /**
+   * Add popover
+   *
+   * @param popover Popover builders
+   * @return this
+   */
+  public TagListBuilder addPopover(PopoverBuilder... popover) {
+    addAllElements(popover);
+    return this;
+  }
+
+  /**
    * Add frame
    *
    * @param frame
