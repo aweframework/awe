@@ -425,10 +425,10 @@ aweApplication.factory('GridEvents',
           let  rowsPrintData = [];
           rowsPrintData.push([]);
 
-          // We get visible columns and filter rowNum and chkBox
+          // We get visible columns and filter rowNum, chkBox and the row detail toggle
           component.controller.columnModel
             .filter(c => !c.hidden)
-            .filter(c => ["rowNum", "chkBox", "RowIco"].indexOf(c.id) === -1)
+            .filter(c => ["rowNum", "chkBox", "RowIco", "rowDetailToggle"].indexOf(c.id) === -1)
             .map(c => ({id: c.id, label: c.label}))
             .forEach(c => {
               // We fill the first row with column's names

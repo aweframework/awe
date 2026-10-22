@@ -18,6 +18,17 @@ import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough
 import {TestIds, testHook} from "../utilities/testIds";
 import {useTranslation} from "react-i18next";
 import {gotoPageTemplate} from "./AweGridGotoPage";
+import AweGridRowDetail from "./AweGridRowDetail";
+
+/**
+ * Template of the row expansion of a grid with row detail: the detail of each expanded row
+ * @param {string} gridId Grid identifier
+ * @param {object} rowDetail Row detail of the grid
+ * @returns {function(object): JSX.Element} Row expansion template
+ */
+const getRowExpansionTemplate = (gridId, rowDetail) => function rowExpansionTemplate(rowData) {
+  return <AweGridRowDetail gridId={gridId} rowDetail={rowDetail} rowData={rowData} />;
+};
 
 const PAGINATOR_TEMPLATE = {
   layout: "FirstPageLink PrevPageLink JumpToPageInput NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport",
@@ -29,6 +40,8 @@ function AweGrid(props) {
   const dispatch = useDispatch();
   const {t} = useTranslation();
   const [rowsPerPageOptions, setRowsPerPageOptions] = useState([]);
+  // Rows whose detail is shown, by row id. They stay open while the rows are paged or sorted on the client
+  const [expandedRows, setExpandedRows] = useState({});
 
   const {
     address,
@@ -54,6 +67,20 @@ function AweGrid(props) {
     visibleColumns,
     getHeader
   } = useGrid(id);
+
+  const onToggleRowDetail = useCallback((rowId) => {
+    setExpandedRows(current => {
+      const {[rowId]: open, ...others} = current;
+      return open === undefined ? {...current, [rowId]: true} : others;
+    });
+  }, []);
+
+  // A data reload (filter, reload, server paging or sorting) closes every detail
+  useEffect(() => {
+    if (attributes.loading) {
+      setExpandedRows(current => Object.keys(current).length > 0 ? {} : current);
+    }
+  }, [attributes.loading]);
 
   const onRowDoubleClick = useCallback((event) => {
     const gridId = getGridIdentifier(attributes);
@@ -112,7 +139,7 @@ function AweGrid(props) {
       const header = getHeader();
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
+          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
           {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters))}
           {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
@@ -123,7 +150,7 @@ function AweGrid(props) {
     } else {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
+          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
           {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters))}
           {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
@@ -136,7 +163,7 @@ function AweGrid(props) {
     if (showTotals) {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
+          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
           {visibleColumns.map(col => footerColumnTemplate(col))}
           {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
@@ -158,7 +185,7 @@ function AweGrid(props) {
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
-  const { style, headerModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading } = attributes;
+  const { style, headerModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading, rowDetail } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
@@ -170,8 +197,14 @@ function AweGrid(props) {
   const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers} first={first} />;
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers}
+                                    rowDetail={!!rowDetail} first={first} />;
   }
+  // Only a grid with row detail shows the details under its rows
+  const rowDetailProps = rowDetail ? {
+    expandedRows,
+    rowExpansionTemplate: getRowExpansionTemplate(address?.component, rowDetail)
+  } : {};
 
   return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
                     onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
@@ -204,6 +237,7 @@ function AweGrid(props) {
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
       loadingIcon={gridLoadingIcon(reloading, loadingIcon)}
+      {...rowDetailProps}
       pt={gridPassThrough({
         gridId: address?.component,
         getRowId: () => renderingRowId.current,
@@ -211,7 +245,7 @@ function AweGrid(props) {
         isRowDeleted: () => renderingRowDeleted.current
       })}
     >
-      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
+      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail })}
       {
         visibleColumns
           .map(col => {

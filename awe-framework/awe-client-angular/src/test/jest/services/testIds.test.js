@@ -48,6 +48,8 @@ describe("test id vocabulary", () => {
       gridRowCheckbox: "grid-row-checkbox",
       gridRowSave: "grid-row-save",
       gridRowCancel: "grid-row-cancel",
+      gridRowDetailToggle: "grid-row-detail-toggle",
+      gridRowDetail: "grid-row-detail",
       gridPagination: "grid-pagination",
       gridPagePrevious: "grid-page-previous",
       gridPageNext: "grid-page-next",

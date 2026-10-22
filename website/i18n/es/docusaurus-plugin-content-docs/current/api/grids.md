@@ -29,6 +29,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
   ...
   <context-button ...> ... </context button>
   ...
+  <row-detail> ... </row-detail>
 </grid>
 ```
 ## Estructura de grid {#grid-structure}
@@ -137,6 +138,76 @@ botón, por lo que puede usarse, por ejemplo, para limpiar los criterios de bús
 </grid>
 ```
 
+
+### Detalle de fila {#row-detail}
+
+Un grid puede mostrar un área de detalle bajo cada fila. Con un elemento `<row-detail>` dentro del grid, cada fila empieza
+con un botón que abre, bajo la fila y a lo ancho de todo el grid, un texto construido a partir de una plantilla con los
+datos de la fila. Funciona en **ambos motores de cliente**, y un grid sin `<row-detail>` se muestra exactamente igual que
+antes.
+
+```xml
+<grid id="GrdThemes" style="expand" initial-load="query" server-action="data" target-action="ThemeList" max="10">
+  <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+  <column label="COLUMN_THEME" name="name" align="left" charlength="30"/>
+  <column label="COLUMN_CODE" name="code" hidden="true"/>
+  <column label="COLUMN_ACTIVE" name="active" hidden="true"/>
+  <row-detail style="row-detail-card"><![CDATA[Theme: {name}
+Code: {code}
+Active: {active}]]></row-detail>
+</grid>
+```
+
+El texto del elemento es la plantilla:
+
+- Cada marcador `{name}` se sustituye por el campo `name` de la fila. Se puede usar cualquier campo de la fila, también los
+  de las columnas ocultas (`hidden="true"`), de modo que el detalle puede mostrar datos que el grid no muestra.
+- Cuando el campo es un objeto de celda, se muestra su etiqueta; si no la tiene, su valor.
+- Un campo que la fila no tiene no muestra nada. Un texto entre llaves que no es un nombre de campo válido se mantiene tal
+  cual.
+- El detalle es **texto plano**: el HTML de la plantilla o de los datos se muestra como texto y nunca se interpreta.
+- Se conservan los saltos de línea (los espacios consecutivos se reducen a uno). Utilice una sección `CDATA` para las
+  plantillas de varias líneas y no sangre sus líneas.
+- Declare un único `<row-detail>` por grid. Si hay más, solo se usa el primero.
+
+El elemento `<row-detail>` admite un atributo:
+
+| Atributo | Uso | Tipo | Descripción | Valores |
+|----------|-----|------|-------------|---------|
+| style | Opcional | String | Clases CSS que se añaden al área de detalle de cada fila, junto a su propia clase `grid-row-detail` | Nombres de clase separados por espacios. **Ej.** `row-detail-card` |
+
+Las clases dan estilo a **toda el área** (fondo, borde, márgenes, tipografía); la plantilla sigue siendo texto plano, por
+lo que no se puede dar estilo a sus partes por separado. Defina las clases en los estilos de su aplicación, por ejemplo:
+
+```css
+.grid-row-detail.row-detail-card {
+  padding: 0.75rem 1rem;
+  line-height: 1.7;
+  border-left: 4px solid currentColor;
+}
+```
+
+Comportamiento:
+
+- Puede haber varias filas abiertas a la vez. El botón no selecciona la fila, y seleccionar una fila no abre su detalle.
+- El botón es un botón nativo: se llega a él con la tecla `Tab` y funciona con `Enter` y `Espacio`. Expone `aria-expanded`
+  (`true` mientras el detalle está abierto), `aria-controls` (el identificador del detalle) y una etiqueta traducida
+  (*Mostrar el detalle de la fila* / *Ocultar el detalle de la fila*).
+- Una recarga de los datos cierra todos los detalles: una nueva búsqueda, una recarga, o un cambio de página u orden que
+  resuelve el servidor. En un grid que carga todas sus filas (`load-all="true"`), cambiar de página u ordenar en el cliente
+  mantiene las filas abiertas.
+
+:::note Límites
+- Por ahora la plantilla es la única fuente del detalle. Está previsto construir el detalle a partir de un fragmento de
+  pantalla o de una consulta.
+- Los grids en árbol (`treegrid="true"`) no muestran el detalle de fila en ningún motor.
+- En el motor AngularJS, cuando el grid tiene columnas congeladas (`frozen`), el detalle se muestra solo en la parte con
+  desplazamiento; las filas de la parte congelada no crecen.
+- El motor AngularJS coloca las filas de un grid con una altura fija, así que un grid con detalle de fila dibuja **todas
+  las filas de su página** en lugar de virtualizarlas (el tamaño de página del grid, ver `max`, acota el coste).
+:::
+
+Las aplicaciones de prueba incluyen la pantalla *Row detail* en el menú de pruebas de la matriz.
 
 ## Estructura de columna {#column-structure}
 

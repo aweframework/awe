@@ -23,6 +23,7 @@ class MatrixTestsIT extends AbstractSessionTests {
   private static final String DEFERRED_SELECT = "DefSelect";
   private static final String BUTTON_DEFERRED_SAVE = "ButDefSave";
   private static final String MATRIX_PAGER_OPTION = "matrix-test-pager";
+  private static final String ROW_DETAIL_GRID = "GrdRowDetailTst";
 
   /**
    * Time that a page with wrapping columns may take to render, as a multiple of the time of the same page without wrapping.
@@ -1238,6 +1239,80 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkTabMaximized(tabId);
     restoreTab(tabId);
     checkTabNotMaximized(tabId);
+  }
+
+  /**
+   * Row detail test (#835): the toggle of a row opens its detail under the row with a visible and a hidden column of
+   * the row, several rows stay open, the toggle does not select the row, the keyboard opens and closes it, and a reload
+   * of the data (a sort on the server) closes every detail
+   */
+  @Test
+  void t119_gridRowDetailOpensUnderItsRow() {
+    // Title
+    setTestTitle("Grid row detail: toggle, several rows, keyboard and reload");
+
+    // Go to screen
+    openMatrixOption("matrix-test-row-detail");
+    checkRowContentsGrid(ROW_DETAIL_GRID, "adminflare");
+
+    // The hidden column is not shown and no detail is open
+    checkGridHeaderNotVisible(ROW_DETAIL_GRID, "code");
+    checkNoGridRowDetailOpen(ROW_DETAIL_GRID);
+
+    // The toggle opens the detail under its row with the name (visible column), the code and the active flag (hidden
+    // columns), and keeps the line breaks of the template. The area has the style classes of the row detail. It does
+    // not select the row
+    clickGridRowDetailToggle(ROW_DETAIL_GRID, "12");
+    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
+    checkGridRowDetailHasClass(ROW_DETAIL_GRID, "12", "grid-row-detail row-detail-card");
+    // The style of the row detail reaches the page: the card shows its left accent border
+    checkGridRowDetailComputedStyle(ROW_DETAIL_GRID, "12", "border-left-width", "4px");
+    checkGridRowDetailUnderItsRow(ROW_DETAIL_GRID, "12");
+    checkGridRowNotSelected(ROW_DETAIL_GRID, "12");
+
+    // Several rows can be open at the same time
+    clickGridRowDetailToggle(ROW_DETAIL_GRID, "15");
+    checkRowDetailOpen("15", "Theme: asphalt\nCode: THM-15\nActive: Yes");
+    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
+
+    // The toggle closes the detail of its row only
+    clickGridRowDetailToggle(ROW_DETAIL_GRID, "15");
+    checkRowDetailClosed("15");
+    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
+
+    // The keyboard: Enter on the focused toggle opens the detail and Space closes it
+    pressEnterOnGridRowDetailToggle(ROW_DETAIL_GRID, "10");
+    checkRowDetailOpen("10", "Theme: clean\nCode: THM-10\nActive: Yes");
+    pressSpaceOnGridRowDetailToggle(ROW_DETAIL_GRID, "10");
+    checkRowDetailClosed("10");
+
+    // A reload of the data (a sort on the server) closes every detail
+    sortGrid(ROW_DETAIL_GRID, "name");
+    checkRowContentsGrid(ROW_DETAIL_GRID, "adminflare");
+    checkNoGridRowDetailOpen(ROW_DETAIL_GRID);
+  }
+
+  /**
+   * Check that the detail of a row of the row detail test grid is shown with a text, and that its toggle says so, points
+   * to it and offers to hide it
+   *
+   * @param rowId Row identifier
+   * @param text  Text of the detail, with its line breaks
+   */
+  private void checkRowDetailOpen(String rowId, String text) {
+    checkGridRowDetailOpen(ROW_DETAIL_GRID, rowId, text);
+    checkGridRowDetailToggleLabel(ROW_DETAIL_GRID, rowId, "Hide row details");
+  }
+
+  /**
+   * Check that the detail of a row of the row detail test grid is not shown, and that its toggle says so and offers to
+   * show it
+   *
+   * @param rowId Row identifier
+   */
+  private void checkRowDetailClosed(String rowId) {
+    checkGridRowDetailClosed(ROW_DETAIL_GRID, rowId);
+    checkGridRowDetailToggleLabel(ROW_DETAIL_GRID, rowId, "Show row details");
   }
 
   /**

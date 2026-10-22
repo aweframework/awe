@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
@@ -1392,6 +1393,165 @@ class SeleniumUtilitiesSemanticStepsTest {
   @Test
   void shouldCheckThatTheEmptyStateIsNotShown() {
     assertThatCode(() -> utilities.checkGridEmptyStateNotVisible()).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldOpenTheRowDetailOfAGridRowAndCheckItsTextItsToggleAndItsLabelInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      WebElement toggle = show(instructions.getGridRowDetailToggle("Grd", "12"), "");
+      when(toggle.getAttribute("aria-expanded")).thenReturn("true");
+      when(toggle.getAttribute("aria-controls")).thenReturn("Grd-row-detail-12");
+      when(toggle.getAttribute("aria-label")).thenReturn("Hide row details");
+      WebElement detail = show(instructions.getGridRowDetail("Grd", "12"), "Theme: adminflare\nCode: THM-12");
+      when(detail.getAttribute("id")).thenReturn("Grd-row-detail-12");
+
+      assertThatCode(() -> {
+        utilities.clickGridRowDetailToggle("Grd", "12");
+        utilities.checkGridRowDetailOpen("Grd", "12", "Theme: adminflare\nCode: THM-12");
+        utilities.checkGridRowDetailToggleLabel("Grd", "12", "Hide row details");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailOpen("Grd", "12", "Theme: asphalt"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailToggleLabel("Grd", "12", "Show row details"));
+      assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowDetailToggle("Grd", "15"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailOpen("Grd", "15", "Theme: asphalt"));
+      // The toggle points to another detail, or it says that the detail is closed
+      when(toggle.getAttribute("aria-controls")).thenReturn("Grd-row-detail-15");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailOpen("Grd", "12", "Theme: adminflare"));
+      when(toggle.getAttribute("aria-controls")).thenReturn("Grd-row-detail-12");
+      when(toggle.getAttribute("aria-expanded")).thenReturn("false");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailOpen("Grd", "12", "Theme: adminflare"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheRowDetailOfAGridRowIsClosedAndThatNoneIsOpenInBothClients() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(argThat((String script) -> script != null && script.contains("aria-expanded")), any())).thenReturn(0L);
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      WebElement toggle = show(instructions.getGridRowDetailToggle("Grd", "15"), "");
+      when(toggle.getAttribute("aria-expanded")).thenReturn("false");
+
+      assertThatCode(() -> {
+        utilities.checkGridRowDetailClosed("Grd", "15");
+        utilities.checkNoGridRowDetailOpen("Grd");
+      }).doesNotThrowAnyException();
+      // The toggles are looked up by their hook, and the script reads which ones say that their detail is open
+      verify(executor, atLeast(1)).executeScript(argThat((String script) -> script != null && script.contains("aria-expanded")),
+        eq(instructions.getGridRowDetailToggle("Grd", null).toString().replace("By.cssSelector: ", "")));
+      // The toggle says that the detail is open, or it is missing
+      when(toggle.getAttribute("aria-expanded")).thenReturn("true");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailClosed("Grd", "15"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailClosed("Grd", "12"));
+    }
+
+    // A toggle says that its detail is open
+    when(executor.executeScript(argThat((String script) -> script != null && script.contains("aria-expanded")), any())).thenReturn(1L);
+    assertThrows(AssertionFailedError.class, () -> utilities.checkNoGridRowDetailOpen("Grd"));
+  }
+
+  @Test
+  void shouldFailWhenARowDetailIsShownAlthoughItShouldBeClosed() {
+    when(((JavascriptExecutor) driver).executeScript(anyString(), any())).thenReturn(0L);
+    WebElement toggle = show(instructions.getGridRowDetailToggle("Grd", "15"), "");
+    when(toggle.getAttribute("aria-expanded")).thenReturn("false");
+    show(instructions.getGridRowDetail("Grd", "15"), "Theme: asphalt");
+    show(instructions.getGridRowDetail("Grd", null), "Theme: asphalt");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailClosed("Grd", "15"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkNoGridRowDetailOpen("Grd"));
+  }
+
+  @Test
+  void shouldCheckTheStyleClassesAndTheComputedStyleOfTheRowDetailInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRowDetailWithClass("Grd", "12", "row-detail-card"), "");
+      show(instructions.getGridRowDetail("Grd", "12"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(anyString(), any(Object[].class))).thenReturn("4px");
+
+      assertThatCode(() -> {
+        utilities.checkGridRowDetailHasClass("Grd", "12", "row-detail-card");
+        utilities.checkGridRowDetailComputedStyle("Grd", "12", "border-left-width", "4px");
+      }).doesNotThrowAnyException();
+      ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+      verify(executor, atLeast(1)).executeScript(argThat((String script) -> script.contains("getComputedStyle")),
+        arguments.capture());
+      assertThat(arguments.getValue()).contains("border-left-width");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHasClass("Grd", "12", "other-card"));
+      assertThrows(AssertionFailedError.class,
+        () -> utilities.checkGridRowDetailComputedStyle("Grd", "12", "border-left-width", "1px"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheRowDetailIsRightUnderItsRowAndAsWideAsItInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRow("Grd", "12"), "");
+      show(instructions.getGridRowDetail("Grd", "12"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // Box of the row and box of the detail: top, bottom and width
+      when(executor.executeScript(anyString(), any())).thenReturn("100|132|800", "133|233|790");
+      assertThatCode(() -> utilities.checkGridRowDetailUnderItsRow("Grd", "12")).doesNotThrowAnyException();
+
+      // Far below the row, over the row, or much narrower than the row
+      when(executor.executeScript(anyString(), any())).thenReturn("100|132|800", "160|260|790");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailUnderItsRow("Grd", "12"));
+      when(executor.executeScript(anyString(), any())).thenReturn("100|132|800", "120|220|790");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailUnderItsRow("Grd", "12"));
+      when(executor.executeScript(anyString(), any())).thenReturn("100|132|800", "133|233|600");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailUnderItsRow("Grd", "12"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAGridRowIsNotSelectedInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRowSelected("Grd", "12", false), "");
+
+      assertThatCode(() -> utilities.checkGridRowNotSelected("Grd", "12")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowNotSelected("Grd", "15"));
+    }
+  }
+
+  @Test
+  void shouldToggleTheRowDetailWithEnterAndSpaceOnItsFocusedToggleInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      WebElement toggle = show(instructions.getGridRowDetailToggle("Grd", "10"), "");
+      List<Object> keysPressed = new ArrayList<>();
+      List<Object> pointerActions = new ArrayList<>();
+      doAnswer(invocation -> {
+        ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+          ((List<Map<String, Object>>) sequence.toJson().get("actions")).forEach(action -> {
+            if ("keyDown".equals(action.get("type"))) {
+              keysPressed.add(action.get("value"));
+            } else if ("pointerDown".equals(action.get("type"))) {
+              pointerActions.add(action);
+            }
+          }));
+        return null;
+      }).when((Interactive) driver).perform(any());
+
+      assertThatCode(() -> {
+        utilities.pressEnterOnGridRowDetailToggle("Grd", "10");
+        utilities.pressSpaceOnGridRowDetailToggle("Grd", "10");
+      }).doesNotThrowAnyException();
+
+      // The toggle gets the focus as when the user tabs to it, never a click, which would toggle it too
+      verify((JavascriptExecutor) driver, times(2)).executeScript(argThat((String script) -> script.contains("focus()")), any());
+      assertThat(keysPressed).containsExactly(Keys.ENTER.toString());
+      verify(toggle).sendKeys(" ");
+      assertThat(pointerActions).isEmpty();
+      verify(toggle, times(0)).click();
+      clearInvocations(driver);
+      assertThrows(AssertionFailedError.class, () -> utilities.pressEnterOnGridRowDetailToggle("Grd", "11"));
+    }
   }
 
   @Test

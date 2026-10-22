@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.entities.screen.component.action.Dependency;
 import com.almis.awe.model.entities.screen.component.action.DependencyElement;
 import com.almis.awe.model.entities.screen.component.grid.GroupHeader;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thoughtworks.xstream.annotations.*;
@@ -39,7 +40,7 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @XStreamInclude({Screen.class, Tag.class, Component.class, Menu.class, Message.class, Dependency.class, DependencyElement.class,
-  AbstractAction.class, GroupHeader.class, Include.class, View.class, Message.class})
+  AbstractAction.class, GroupHeader.class, RowDetail.class, Include.class, View.class, Message.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Element implements XMLNode, Copyable {
 

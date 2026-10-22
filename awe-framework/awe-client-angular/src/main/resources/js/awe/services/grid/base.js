@@ -1,5 +1,6 @@
 import {aweApplication} from "../../awe";
 import "./commons";
+import {getRowDetailColumn, initRowDetail} from "./rowDetail";
 
 // Base grid service
 aweApplication.factory('GridBase',
@@ -68,6 +69,11 @@ aweApplication.factory('GridBase',
 
           // Initialize common methods
           this.commons = new GridCommons(this.component);
+
+          // Row detail: an open detail changes the height of the content, so the scroll bars are checked again
+          if (component.controller.rowDetail) {
+            initRowDetail(component, () => Utilities.timeout(component.updateGridScrollBars));
+          }
 
           /******************************************************************************
            * COMPONENT METHODS
@@ -209,6 +215,10 @@ aweApplication.factory('GridBase',
                 sortable: false
               };
               component.controller.columnModel.unshift(rowNumbers);
+            }
+            // Add the row detail toggles first
+            if (component.rowDetail) {
+              component.controller.columnModel.unshift(getRowDetailColumn(component));
             }
           };
 
@@ -902,6 +912,10 @@ aweApplication.factory('GridBase',
           component.api.updateModelValues = function (data) {
             // The grid is known to be empty only once its data has arrived
             component.loaded = true;
+            // New data closes the details of the rows
+            if ("values" in data && component.closeRowDetails) {
+              component.closeRowDetails();
+            }
             if (component.model) {
               _.assign(component.model, data);
               refreshModel();

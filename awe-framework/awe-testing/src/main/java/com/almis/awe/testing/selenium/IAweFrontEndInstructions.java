@@ -1471,6 +1471,79 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a row of a grid
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @return Row selector
+   */
+  default By getGridRow(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW, rowId));
+  }
+
+  /**
+   * Get a row of a grid that is selected or not
+   *
+   * @param gridId     Grid identifier
+   * @param rowId      Row identifier
+   * @param isSelected True for the row that is selected, false for the one that is not
+   * @return Row selector
+   */
+  default By getGridRowSelected(String gridId, String rowId, boolean isSelected) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW, rowId)
+      + TestAttributes.css(TestAttributes.SELECTED, isSelected));
+  }
+
+  /**
+   * Get the button that opens and closes the detail of a row of a grid
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier, or null for the toggle of any row
+   * @return Toggle selector
+   */
+  default By getGridRowDetailToggle(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL_TOGGLE, rowId));
+  }
+
+  /**
+   * Get the detail area that a grid shows under a row
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier, or null for the detail of any row
+   * @return Detail selector
+   */
+  default By getGridRowDetail(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId));
+  }
+
+  /**
+   * Get the detail area under a row of a grid when it has some style classes, as the {@code style} of the row detail of
+   * the grid assigns them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param cssClass Style classes, separated by spaces
+   * @return Detail selector
+   */
+  default By getGridRowDetailWithClass(String gridId, String rowId, String cssClass) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId)
+      + "." + String.join(".", cssClass.trim().split("\\s+")));
+  }
+
+  /**
+   * Css selector of a part of a row of a grid: the row itself, the toggle of its detail or its detail. Both clients
+   * render the identifier of the row on each part
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @param rowId  Row identifier, or null for the part of any row
+   * @return Css selector of the part
+   */
+  private String getGridRowPartCss(String gridId, String testId, String rowId) {
+    return "[grid-id='" + gridId + "'] " + TestIds.css(testId) + (rowId == null ? "" : "[row-id='" + rowId + "']");
+  }
+
+  /**
    * Get a part of the toolbar of a grid. The toolbar and the Columns dialog name their grid as the owner of the hook
    *
    * @param gridId Grid identifier

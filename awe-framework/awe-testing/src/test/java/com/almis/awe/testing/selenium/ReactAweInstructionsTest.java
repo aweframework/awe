@@ -486,4 +486,22 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).endsWith(" svg.awe-sparkline");
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).contains("Grd").contains("1").contains("Col");
   }
+
+  @Test
+  void shouldLocateTheRowsOfAGridAndTheRowDetailWithItsToggle() {
+    assertThat(instructions.getGridRow("Grd", "12"))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row'][row-id='12']");
+    assertThat(instructions.getGridRowSelected("Grd", "12", false))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row'][row-id='12'][data-selected='false']");
+    assertThat(instructions.getGridRowDetailToggle("Grd", "12"))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail-toggle'][row-id='12']");
+    assertThat(instructions.getGridRowDetailToggle("Grd", null))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail-toggle']");
+    assertThat(instructions.getGridRowDetail("Grd", "12"))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12']");
+    assertThat(instructions.getGridRowDetail("Grd", null))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail']");
+    assertThat(instructions.getGridRowDetailWithClass("Grd", "12", "grid-row-detail row-detail-card"))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12'].grid-row-detail.row-detail-card");
+  }
 }

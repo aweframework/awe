@@ -630,6 +630,17 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridEmptyState(String title, String text)` | Checks that a grid without rows shows its empty state, with a title and a text that contain the given ones |
 | `checkGridEmptyStateNotVisible()` | Checks that no grid shows its empty state |
 | `clickGridEmptyAction()` | Clicks the button that the empty state offers |
+| `clickGridRowDetailToggle(String gridId, String rowId)` | Clicks the toggle of the detail of a row, which opens the detail when it is closed and closes it when it is open |
+| `pressEnterOnGridRowDetailToggle(String gridId, String rowId)` | Gives the focus to the toggle of the detail of a row, as when the user tabs to it, and presses Enter |
+| `pressSpaceOnGridRowDetailToggle(String gridId, String rowId)` | Gives the focus to the toggle of the detail of a row, as when the user tabs to it, and presses Space |
+| `checkGridRowDetailOpen(String gridId, String rowId, String text)` | Checks that the detail of a row is open and contains a text (with its line breaks), and that its toggle says so (`aria-expanded`) and points to it (`aria-controls`) |
+| `checkGridRowDetailToggleLabel(String gridId, String rowId, String label)` | Checks the label (`aria-label`) of the toggle of the detail of a row, which tells whether it shows or hides the detail |
+| `checkGridRowDetailClosed(String gridId, String rowId)` | Checks that the detail of a row is not shown and that its toggle says so (`aria-expanded`) |
+| `checkNoGridRowDetailOpen(String gridId)` | Checks that no row of a grid has its detail open: no detail is shown and no toggle says that its detail is open |
+| `checkGridRowDetailHasClass(String gridId, String rowId, String cssClass)` | Checks that the detail of a row has some style classes (separated by spaces), such as the ones of the `style` of the row detail |
+| `checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value)` | Checks the value that the browser computes for a style property of the detail of a row (`border-left-width`, `4px`), which proves that the style rules reach the page |
+| `checkGridRowDetailUnderItsRow(String gridId, String rowId)` | Checks that the detail of a row starts right under its row and is at least 90% as wide as the row |
+| `checkGridRowNotSelected(String gridId, String rowId)` | Checks that a row is shown and not selected |
 | `checkGridHeaderVisible(String gridId, String columnId)` | Checks that the header of a column is displayed |
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Checks that the header of a column is not displayed (grid with the `grid-no-header` class) |
 | `checkGridFirstRowAtTop(String gridId, String rowId, String columnId)` | Checks that the first row starts right under the top of the grid, give or take two pixels: a grid without header (`grid-no-header` class) leaves no empty space where the header was |

@@ -44,6 +44,10 @@ export const TestIds = Object.freeze({
   gridRowCheckbox: "grid-row-checkbox",
   gridRowSave: "grid-row-save",
   gridRowCancel: "grid-row-cancel",
+  // Row detail: the button that shows or hides the detail of a row ("aria-expanded") and the detail under the row
+  // (both carry the "row-id" of their row)
+  gridRowDetailToggle: "grid-row-detail-toggle",
+  gridRowDetail: "grid-row-detail",
   gridPagination: "grid-pagination",
   gridPagePrevious: "grid-page-previous",
   gridPageNext: "grid-page-next",

@@ -98,6 +98,15 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final int POPOVER_MAX_GAP = 16;
   private static final int POPOVER_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
+  // Box of an element as top|bottom|width
+  private static final String BOX_SCRIPT = "var rect = arguments[0].getBoundingClientRect();"
+    + " return rect.top + '|' + rect.bottom + '|' + rect.width;";
+  // The detail of a row starts at most this gap under the row, and is at least this part of the width of the row
+  private static final int ROW_DETAIL_MAX_GAP = 20;
+  private static final double ROW_DETAIL_MIN_WIDTH = 0.9;
+  // Number of toggles of row details (located by the css selector of the first argument) that say that their detail is open
+  private static final String OPEN_ROW_DETAIL_TOGGLES_SCRIPT = "return Array.prototype.filter.call(document.querySelectorAll(arguments[0]),"
+    + " function (toggle) { return toggle.getAttribute('aria-expanded') === 'true'; }).length;";
   private static final int GROUP_HEADER_TOLERANCE = 3;
   private static final double MAXIMIZED_MIN_FILL = 0.9;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
@@ -4217,6 +4226,213 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickGridEmptyAction() {
     click(frontEndInstructions.getGridEmptyAction());
+  }
+
+  /**
+   * Click the toggle of the detail of a row of a grid, which opens the detail when it is closed and closes it when it is
+   * open
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void clickGridRowDetailToggle(String gridId, String rowId) {
+    click(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+  }
+
+  /**
+   * Press Enter on the toggle of the detail of a row of a grid. The toggle gets the focus as when the user tabs to it: a
+   * click would toggle the detail too
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void pressEnterOnGridRowDetailToggle(String gridId, String rowId) {
+    focusGridRowDetailToggle(gridId, rowId);
+    getBrowser().press(Key.ENTER);
+  }
+
+  /**
+   * Press Space on the toggle of the detail of a row of a grid. The toggle gets the focus as when the user tabs to it: a
+   * click would toggle the detail too
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void pressSpaceOnGridRowDetailToggle(String gridId, String rowId) {
+    getBrowser().sendKeys(focusGridRowDetailToggle(gridId, rowId), " ");
+  }
+
+  /**
+   * Give the focus to the toggle of the detail of a row of a grid, without clicking it
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @return Toggle locator
+   */
+  private Locator focusGridRowDetailToggle(String gridId, String rowId) {
+    By toggle = frontEndInstructions.getGridRowDetailToggle(gridId, rowId);
+    waitUntil(toBeVisible(toggle));
+    getBrowser().executeScriptOn(locator(toggle), "arguments[0].focus();");
+    return locator(toggle);
+  }
+
+  /**
+   * Check that the detail of a row of a grid is open with a text, and that its toggle says so ({@code aria-expanded}) and
+   * points to it ({@code aria-controls} is the id of the detail)
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @param text   Text that the detail contains, with its line breaks
+   */
+  protected void checkGridRowDetailOpen(String gridId, String rowId, String text) {
+    Locator toggle = locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+    Locator detail = locator(frontEndInstructions.getGridRowDetail(gridId, rowId));
+    waitUntil(BrowserCondition.allOf(toSayThatTheDetailIs(toggle, true), BrowserCondition.visible(detail),
+      BrowserCondition.textContains(detail, text)));
+    String controls = getBrowser().attribute(toggle, "aria-controls");
+    String detailId = getBrowser().attribute(detail, "id");
+    assertWithScreenshot("The toggle of the row " + rowId + " of " + gridId + " controls '" + controls + "', not its detail '" + detailId + "'",
+      controls != null && controls.equals(detailId));
+  }
+
+  /**
+   * Check the label that the toggle of the detail of a row of a grid gives to assistive technologies ({@code aria-label}),
+   * which tells whether it shows or hides the detail
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @param label  Expected label, in the language of the user
+   */
+  protected void checkGridRowDetailToggleLabel(String gridId, String rowId, String label) {
+    Locator toggle = locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+    waitUntil(BrowserCondition.of("the toggle of the detail of the row " + rowId + " of " + gridId + " to be labelled '" + label + "'",
+      browser -> {
+        try {
+          return label.equals(browser.attribute(toggle, "aria-label"));
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check that the detail of a row of a grid is closed, and that its toggle says so ({@code aria-expanded})
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailClosed(String gridId, String rowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId)), false));
+    checkNotVisible(locator(frontEndInstructions.getGridRowDetail(gridId, rowId)));
+  }
+
+  /**
+   * Check that no row of a grid has its detail open: no detail is shown and no toggle says that its detail is open
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkNoGridRowDetailOpen(String gridId) {
+    String toggles = locator(frontEndInstructions.getGridRowDetailToggle(gridId, null)).expression();
+    waitUntil(BrowserCondition.allOf(
+      BrowserCondition.noneVisible(locator(frontEndInstructions.getGridRowDetail(gridId, null))),
+      BrowserCondition.of("no toggle of the details of the rows of " + gridId + " to say that its detail is open", browser ->
+        browser.executeScript(OPEN_ROW_DETAIL_TOGGLES_SCRIPT, toggles) instanceof Number open && open.intValue() == 0)));
+  }
+
+  /**
+   * Condition: the toggle of the detail of a row is shown and says that the detail is open or closed
+   * ({@code aria-expanded}), which is what assistive technologies announce
+   *
+   * @param toggle Toggle locator
+   * @param isOpen True for an open detail, false for a closed one
+   * @return Condition
+   */
+  private static BrowserCondition toSayThatTheDetailIs(Locator toggle, boolean isOpen) {
+    String expanded = String.valueOf(isOpen);
+    return BrowserCondition.of("toggle located by " + toggle + " to have aria-expanded " + expanded, browser -> {
+      try {
+        return browser.isVisible(toggle) && expanded.equals(browser.attribute(toggle, "aria-expanded"));
+      } catch (ElementReplacedException exc) {
+        return false;
+      }
+    });
+  }
+
+  /**
+   * Check that the detail of a row of a grid has some style classes, as the {@code style} of the row detail of the grid
+   * assigns them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param cssClass Style classes, separated by spaces
+   */
+  protected void checkGridRowDetailHasClass(String gridId, String rowId, String cssClass) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowDetailWithClass(gridId, rowId, cssClass)));
+  }
+
+  /**
+   * Check the value that the browser computes for a style property of the detail of a row of a grid, which proves that
+   * the style rules of its classes reach the page
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param property Css property ({@code border-left-width})
+   * @param value    Expected computed value ({@code 4px})
+   */
+  protected void checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value) {
+    Locator detail = locator(frontEndInstructions.getGridRowDetail(gridId, rowId));
+    waitUntil(BrowserCondition.of("the " + property + " of the detail of the row " + rowId + " of " + gridId + " to be " + value,
+      browser -> browser.isVisible(detail) && value.equals(String.valueOf(
+        browser.executeScriptOn(detail, "return getComputedStyle(arguments[0]).getPropertyValue(arguments[1]);", property)))));
+  }
+
+  /**
+   * Check that the detail of a row of a grid starts right under its row (a few pixels at most) and is about as wide as
+   * the row (90% at least)
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailUnderItsRow(String gridId, String rowId) {
+    By row = frontEndInstructions.getGridRow(gridId, rowId);
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(row), toBeVisible(detail)));
+    String rowBox = String.valueOf(getBrowser().executeScriptOn(locator(row), BOX_SCRIPT));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), BOX_SCRIPT));
+    double[] rowEdges = parseBox(rowBox);
+    double[] detailEdges = parseBox(detailBox);
+    double gap = detailEdges[0] - rowEdges[1];
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ") is not under its row (" + rowBox
+        + "): top|bottom|width", gap >= -1 && gap <= ROW_DETAIL_MAX_GAP && detailEdges[2] >= rowEdges[2] * ROW_DETAIL_MIN_WIDTH);
+  }
+
+  /**
+   * Read the box of an element that {@link #BOX_SCRIPT} returns
+   *
+   * @param box Box as top|bottom|width
+   * @return Top, bottom and width (not numbers when the box is not valid)
+   */
+  private static double[] parseBox(String box) {
+    String[] edges = box.split("\\|");
+    double[] values = {Double.NaN, Double.NaN, Double.NaN};
+    for (int index = 0; index < Math.min(edges.length, values.length); index++) {
+      try {
+        values[index] = Double.parseDouble(edges[index]);
+      } catch (NumberFormatException exc) {
+        values[index] = Double.NaN;
+      }
+    }
+    return values;
+  }
+
+  /**
+   * Check that a row of a grid is shown and not selected
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowNotSelected(String gridId, String rowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowSelected(gridId, rowId, false)));
   }
 
   /**

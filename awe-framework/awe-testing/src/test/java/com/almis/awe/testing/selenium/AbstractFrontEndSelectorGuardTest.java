@@ -319,6 +319,13 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridRadioInput", () -> i.getGridRadioInput(GRID, ROW, COLUMN));
     catalog.put("getGridSparkline", () -> i.getGridSparkline(GRID, ROW, COLUMN));
     catalog.put("getGridCellWithClass", () -> i.getGridCellWithClass(GRID, ROW, COLUMN, "scale-seq-1"));
+    catalog.put("getGridRow", () -> i.getGridRow(GRID, ROW));
+    catalog.put("getGridRowSelected", () -> i.getGridRowSelected(GRID, ROW, false));
+    catalog.put("getGridRowDetailToggle(row)", () -> i.getGridRowDetailToggle(GRID, ROW));
+    catalog.put("getGridRowDetailToggle(any row)", () -> i.getGridRowDetailToggle(GRID, null));
+    catalog.put("getGridRowDetail(row)", () -> i.getGridRowDetail(GRID, ROW));
+    catalog.put("getGridRowDetail(any row)", () -> i.getGridRowDetail(GRID, null));
+    catalog.put("getGridRowDetailWithClass", () -> i.getGridRowDetailWithClass(GRID, ROW, "row-detail-card"));
     catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
     catalog.put("getSidePanelCss", () -> i.getSidePanelCss("Pnl"));
     catalog.put("getOpenSidePanel", () -> i.getOpenSidePanel("Pnl"));
