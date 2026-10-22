@@ -153,7 +153,7 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getMessage("danger"))
       .hasToString("By.cssSelector: [data-testid='alert'][data-type='danger'] [data-testid='alert-close']");
     assertThat(instructions.getPopover())
-      .hasToString("By.cssSelector: [data-testid='popover'],[data-testid='help-popover'][data-open='true']");
+      .hasToString("By.cssSelector: [data-testid='popover']:not([role='dialog']),[data-testid='help-popover'][data-open='true']");
     assertThat(instructions.getLoaderSelector())
       .hasToString("By.cssSelector: [data-testid='loader'],[data-testid='grid-loader']");
     assertThat(instructions.getLoadingBar()).hasToString("By.cssSelector: [data-testid='loading-bar']");
@@ -321,6 +321,15 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getSidePanelPanel("Pnl")).hasToString(
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true'] > *");
     assertThat(instructions.getButtonCss("ButAct")).isEqualTo("#ButAct");
+  }
+
+  @Test
+  void shouldLocateThePopoverAnchoredToAControlApartFromTheHelpAndMessagePopovers() {
+    assertThat(instructions.getPopoverCss("Pop")).isEqualTo("[data-testid='popover'][data-testid-owner='Pop']");
+    assertThat(instructions.getOpenPopover("Pop")).hasToString(
+      "By.cssSelector: [data-testid='popover'][data-testid-owner='Pop'][data-open='true']");
+    assertThat(instructions.getPopoverClose("Pop")).hasToString(
+      "By.cssSelector: [data-testid='popover'][data-testid-owner='Pop'] [data-testid='popover-close']");
   }
 
   @Test

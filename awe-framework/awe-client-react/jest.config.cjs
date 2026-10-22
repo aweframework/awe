@@ -110,6 +110,7 @@ module.exports = {
     '**/components/AweTabsTest.{js,jsx}',
     '**/components/AweDialogTest.{js,jsx}',
     '**/components/AweSidePanelTest.{js,jsx}',
+    '**/components/AwePopoverTest.{js,jsx}',
     '**/components/AweResizableTest.{js,jsx}',
     '**/columns/*Test.{js,jsx}',
     '**/styles/*Test.{js,jsx}',

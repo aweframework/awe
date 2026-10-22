@@ -41,9 +41,9 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Accessors(chain = true)
-@XStreamInclude({Window.class, Resizable.class, AbstractCriteria.class, Dialog.class, SidePanel.class, Container.class,
-  AbstractWidget.class, AbstractChart.class, Info.class, MenuContainer.class, Frame.class, TagList.class, Video.class, GeoMap.class,
-  Link.class, Image.class})
+@XStreamInclude({Window.class, Resizable.class, AbstractCriteria.class, Dialog.class, SidePanel.class, Popover.class,
+  Container.class, AbstractWidget.class, AbstractChart.class, Info.class, MenuContainer.class, Frame.class, TagList.class,
+  Video.class, GeoMap.class, Link.class, Image.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder(alphabetic = true)
 public abstract class Component extends Element {

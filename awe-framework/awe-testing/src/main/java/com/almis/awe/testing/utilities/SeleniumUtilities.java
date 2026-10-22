@@ -84,6 +84,19 @@ public class SeleniumUtilities implements IAweInstructions {
     + " document.body.appendChild(probe); var maximum = Math.min(probe.offsetWidth, viewport); probe.remove();"
     + " return rect.left + '|' + (viewport - rect.right) + '|' + panel.offsetWidth + '|' + maximum;";
   private static final int SIDE_PANEL_TOLERANCE = 2;
+  // Edges of a popover (first argument) and of its anchor (second argument, a component id found as the clients find
+  // it: by the attribute that carries the id of a criterion, a grid, a tree grid or a window, or by the element id), as
+  // top|right|bottom|left of the popover and then of the anchor. Nothing when the anchor is not found
+  private static final String POPOVER_PLACEMENT_SCRIPT = "var id = arguments[1], value = CSS.escape(id), anchor = null;"
+    + " ['criterion-id', 'grid-id', 'tree-grid-id', 'window-id'].forEach(function (name) {"
+    + " anchor = anchor || document.querySelector('[' + name + '=\"' + value + '\"]'); });"
+    + " anchor = anchor || document.getElementById(id); if (!anchor) { return null; }"
+    + " return [arguments[0].getBoundingClientRect(), anchor.getBoundingClientRect()].map(function (rect) {"
+    + " return rect.top + '|' + rect.right + '|' + rect.bottom + '|' + rect.left; }).join('|');";
+  private static final List<String> POPOVER_POSITIONS = List.of("top", "right", "bottom", "left");
+  // A popover opens on its side of the anchor, at most this gap away from it, and alongside it
+  private static final int POPOVER_MAX_GAP = 16;
+  private static final int POPOVER_TOLERANCE = 2;
   private static final int GRID_TOP_TOLERANCE = 2;
   private static final int GROUP_HEADER_TOLERANCE = 3;
   private static final double MAXIMIZED_MIN_FILL = 0.9;
@@ -5071,6 +5084,93 @@ public class SeleniumUtilities implements IAweInstructions {
     for (int press = 1; press <= presses; press++) {
       getBrowser().press(Key.TAB);
       checkFocusInside(panelCss, "the side panel " + panelId + " after " + press + " Tab");
+    }
+  }
+
+  /**
+   * Close a popover anchored to a control with the close button of its header
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void closePopover(String popoverId) {
+    click(frontEndInstructions.getPopoverClose(popoverId));
+  }
+
+  /**
+   * Close an open popover pressing Esc, and check that it has been closed
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void closePopoverWithEscape(String popoverId) {
+    waitUntil(toBeVisible(frontEndInstructions.getOpenPopover(popoverId)));
+    getBrowser().press(Key.ESCAPE);
+    checkPopoverClosed(popoverId);
+  }
+
+  /**
+   * Check that a popover anchored to a control has been closed
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void checkPopoverClosed(String popoverId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenPopover(popoverId)));
+  }
+
+  /**
+   * Check that a popover is open next to its anchor: on its side of the anchor (top, right, bottom or left), at most 16
+   * pixels away from it and alongside it (they overlap on the other axis)
+   *
+   * @param popoverId Popover identifier
+   * @param anchorId  Identifier of the control the popover is anchored to (its anchor attribute)
+   * @param position  Side of the anchor: top, right, bottom or left (its position attribute)
+   */
+  protected void checkPopoverOpen(String popoverId, String anchorId, String position) {
+    int side = POPOVER_POSITIONS.indexOf(position);
+    if (side < 0) {
+      throw new IllegalArgumentException("The position of a popover is top, right, bottom or left, not " + position);
+    }
+    By selector = frontEndInstructions.getOpenPopover(popoverId);
+    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.of("the popover " + popoverId + " to be open at the " + position + " of " + anchorId,
+      browser -> isPopoverPlaced(browser.executeScriptOn(locator(selector), POPOVER_PLACEMENT_SCRIPT, anchorId), side)));
+  }
+
+  private static boolean isPopoverPlaced(Object placement, int side) {
+    if (!(placement instanceof String text)) {
+      return false;
+    }
+    try {
+      double[] edges = Arrays.stream(text.split("\\|")).mapToDouble(Double::parseDouble).toArray();
+      // Edges: 0 top, 1 right, 2 bottom, 3 left of the popover and 4 to 7 of the anchor
+      double gap = switch (side) {
+        case 0 -> edges[4] - edges[2];
+        case 1 -> edges[3] - edges[5];
+        case 2 -> edges[0] - edges[6];
+        default -> edges[7] - edges[1];
+      };
+      boolean vertical = side % 2 == 0;
+      boolean alongside = vertical
+        ? edges[3] < edges[5] && edges[1] > edges[7]
+        : edges[0] < edges[6] && edges[2] > edges[4];
+      return gap >= -POPOVER_TOLERANCE && gap <= POPOVER_MAX_GAP && alongside;
+    } catch (NumberFormatException | ArrayIndexOutOfBoundsException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Press Tab several times on an open popover and check that the focus never leaves it: after the last field it goes
+   * back to the first one
+   *
+   * @param popoverId Popover identifier
+   * @param presses   Times to press Tab (more than the fields of the popover to go round it)
+   */
+  protected void checkPopoverKeepsTheFocus(String popoverId, int presses) {
+    String popoverCss = frontEndInstructions.getPopoverCss(popoverId);
+    checkFocusInside(popoverCss, "the popover " + popoverId);
+    for (int press = 1; press <= presses; press++) {
+      getBrowser().press(Key.TAB);
+      checkFocusInside(popoverCss, "the popover " + popoverId + " after " + press + " Tab");
     }
   }
 

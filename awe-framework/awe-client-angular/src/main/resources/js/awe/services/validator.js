@@ -7,7 +7,7 @@ import {aweApplication} from "../awe";
  * @param {string} id Component identifier
  * @return {Object} Matching nodes
  */
-function findComponentElement($parent, id) {
+export function findComponentElement($parent, id) {
   return $parent.find("[criterion-id], [id]").filter(function () {
     return this.getAttribute("criterion-id") === id || this.id === id;
   });

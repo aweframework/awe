@@ -148,6 +148,9 @@ export const TestIds = Object.freeze({
   // Side panels (dialogs anchored to an edge of the screen) with their close button
   sidePanel: "side-panel",
   sidePanelClose: "side-panel-close",
+  // Popovers (dialogs anchored to a control; owner: popover id) with their close button
+  popover: "popover",
+  popoverClose: "popover-close",
   confirmDialog: "confirm-dialog",
   confirmAccept: "confirm-accept",
   confirmCancel: "confirm-cancel",

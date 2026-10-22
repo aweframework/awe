@@ -1185,6 +1185,37 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the css of a popover anchored to a control, open or not. The AngularJS help and message popovers share the
+   * "popover" hook, so the owner (the popover id) tells them apart
+   *
+   * @param popoverId Popover identifier
+   * @return Popover css selector
+   */
+  default String getPopoverCss(String popoverId) {
+    return TestIds.css(TestIds.POPOVER) + TestAttributes.css(TestAttributes.OWNER, popoverId);
+  }
+
+  /**
+   * Get an open popover anchored to a control
+   *
+   * @param popoverId Popover identifier
+   * @return Open popover selector
+   */
+  default By getOpenPopover(String popoverId) {
+    return By.cssSelector(getPopoverCss(popoverId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get the close button of the header of a popover anchored to a control
+   *
+   * @param popoverId Popover identifier
+   * @return Popover close button selector
+   */
+  default By getPopoverClose(String popoverId) {
+    return By.cssSelector(getPopoverCss(popoverId) + " " + TestIds.css(TestIds.POPOVER_CLOSE));
+  }
+
+  /**
    * Get the css of a button, the element that takes the focus
    *
    * @param buttonId Button identifier

@@ -692,6 +692,73 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Popover test (#843): a popover opens next to its anchor (below it or at its right), keeps the focus inside while it
+   * is shown, closes with Esc, its close button, its buttons or a click on its anchor (which does not open it again) and
+   * gives the focus back to the button that opened it. The grid of the deferred popover is loaded once it opens, its
+   * Columns work inside it, and its Cancel button closes it and leaves the result as it was
+   */
+  @Test
+  void t118_popoverNextToItsAnchorFocusAndClose() {
+    // Title
+    setTestTitle("Popover: anchor, focus and close");
+
+    // Go to screen
+    openMatrixOption("matrix-test-popover");
+
+    // Popover below its anchor with the rows of its grid, Tab goes round inside it (criteria, grid and buttons)
+    clickButton("ButPopBottom");
+    checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
+    checkRowContentsGrid("GrdPopThemes", "adminflare");
+    checkPopoverKeepsTheFocus("PopBottom", 15);
+
+    // Esc closes it and the focus goes back to the button that opened it
+    closePopoverWithEscape("PopBottom");
+    checkButtonFocused("ButPopBottom");
+
+    // The close button of its header closes it too
+    clickButton("ButPopBottom");
+    checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
+    closePopover("PopBottom");
+    checkPopoverClosed("PopBottom");
+    checkButtonFocused("ButPopBottom");
+
+    // The Columns of its grid open over it and hide and show a column, and it stays open (#843 L10). Cancel closes it
+    // and leaves the result as it was
+    clickButton("ButPopBottom");
+    checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
+    openGridColumns("GrdPopThemes");
+    checkGridColumnsPanel("GrdPopThemes", "dialog");
+    hideGridColumn("GrdPopThemes", "name");
+    checkGridColumnNotShown("GrdPopThemes", "name");
+    showGridColumn("GrdPopThemes", "name");
+    closeGridColumns("GrdPopThemes");
+    checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
+    clickButton("ButPopBottomCancel");
+    checkPopoverClosed("PopBottom");
+    checkButtonFocused("ButPopBottom");
+    checkCriterionContents("CrtPopResult", "pending");
+
+    // Accept closes it and runs its actions
+    clickButton("ButPopBottom");
+    checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
+    clickButton("ButPopBottomAccept");
+    checkPopoverClosed("PopBottom");
+    checkCriterionContents("CrtPopResult", "accepted");
+
+    // Popover at the right of its anchor: a click on the anchor closes it and does not open it again
+    clickButton("ButPopRight");
+    checkPopoverOpen("PopRight", "ButPopRight", "right");
+    clickButton("ButPopRight");
+    checkPopoverClosed("PopRight");
+
+    // It opens again and its button closes it
+    clickButton("ButPopRight");
+    checkPopoverOpen("PopRight", "ButPopRight", "right");
+    clickButton("ButPopRightClose");
+    checkPopoverClosed("PopRight");
+  }
+
+  /**
    * Sparkline columns test: the series of every row is drawn as a small chart, whatever the type, and the series that
    * cannot be drawn leave the cell empty
    */

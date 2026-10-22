@@ -9,6 +9,8 @@ cuerpo con desplazamiento y un pie opcional. Úselo para contenido que el usuari
 de tipo `dialog` (ver [acciones de botón](button.md#button-actions)) y con las acciones `close` y `close-cancel`. Lo
 soportan los dos motores web (AngularJS y React).
 
+<img alt="Panel lateral" src={require('@docusaurus/useBaseUrl').default('img/side-panel.png')} />
+
 ---
 
 ## Esqueleto de XML {#xml-skeleton}

@@ -469,7 +469,12 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkSidePanelClosed(String panelId)` | Comprueba que un panel lateral se ha cerrado |
 | `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Comprueba que un panel lateral está abierto contra su borde (`left` o `right`) y tan ancho como su ancho máximo (una longitud css que resuelve el navegador, limitada por el ancho de la pantalla), con dos píxeles de margen |
 | `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Pulsa Tab las veces indicadas y comprueba que el foco del teclado nunca sale del panel lateral |
-| `checkButtonFocused(String buttonId)` | Comprueba que un botón tiene el foco del teclado (por ejemplo el que abrió un diálogo o un panel lateral, una vez cerrado) |
+| `closePopover(String popoverId)` | Cierra un popover anclado a un control con el botón de cierre de su cabecera |
+| `closePopoverWithEscape(String popoverId)` | Cierra un popover abierto pulsando Esc y comprueba que se ha cerrado |
+| `checkPopoverClosed(String popoverId)` | Comprueba que un popover anclado a un control se ha cerrado |
+| `checkPopoverOpen(String popoverId, String anchorId, String position)` | Comprueba que un popover está abierto junto a su ancla: en su lado (`top`, `right`, `bottom` o `left`), a 16 píxeles como mucho y alineado con ella |
+| `checkPopoverKeepsTheFocus(String popoverId, int presses)` | Pulsa Tab las veces indicadas y comprueba que el foco del teclado nunca sale del popover |
+| `checkButtonFocused(String buttonId)` | Comprueba que un botón tiene el foco del teclado (por ejemplo el que abrió un diálogo, un panel lateral o un popover, una vez cerrado) |
 | `checkValidationErrorVisible()` | Comprueba que la pantalla muestra errores de validación |
 
 ### Criterios: escribir y leer {#criteria-writing-and-reading}

@@ -468,6 +468,15 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateThePopoverAndItsCloseButtonWithTheHooksOfAngularJs() {
+    assertThat(instructions.getPopoverCss("Pop")).isEqualTo("[data-testid='popover'][data-testid-owner='Pop']");
+    assertThat(instructions.getOpenPopover("Pop")).hasToString(
+      "By.cssSelector: [data-testid='popover'][data-testid-owner='Pop'][data-open='true']");
+    assertThat(instructions.getPopoverClose("Pop")).hasToString(
+      "By.cssSelector: [data-testid='popover'][data-testid-owner='Pop'] [data-testid='popover-close']");
+  }
+
+  @Test
   void shouldLocateTheSparklineOfAGridCell() {
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).endsWith(" svg.awe-sparkline");
     assertThat(instructions.getGridSparkline("Grd", "1", "Col").toString()).contains("Grd").contains("1").contains("Col");

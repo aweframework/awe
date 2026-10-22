@@ -5,6 +5,8 @@ title: Diálogo
 
 Un diálogo es un elemento gráfico que proporciona la funcionalidad de mostrar una ventana modal con un mensaje y título seleccionados (y un icono, si se quiere). Un cuadro de diálogo debe estar asociado a una acción de botón con tipo "dialog" (Ver [acciones de botón](button.md#button-actions)).
 
+Dos contenedores se abren y se cierran como un diálogo y aceptan sus atributos: el [panel lateral](side-panel.md), anclado al borde izquierdo o derecho de la pantalla, y el [popover](popover.md), anclado a un control.
+
 ---
 
 ## Esqueleto de XML {#xml-skeleton}
