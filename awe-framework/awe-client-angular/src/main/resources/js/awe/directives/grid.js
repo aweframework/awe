@@ -124,7 +124,7 @@ aweApplication.directive('aweGrid',
                 scope.spinOptions = DefaultSpin.big;
 
                 // Update grid styles
-                component.gridStyle = "grid-" + scope.size + " " + (component.controller.style || "") + (component.wrapsText ? " grid-wrap" : "");
+                component.gridStyle = "grid-" + scope.size + " " + (component.controller.style || "") + (component.wrapsText ? " grid-wrap" : "") + (component.rowDetail ? " grid-with-row-detail" : "");
                 component.gridButtonClass = "btn btn-" + scope.size;
                 component.gridPaginationClass = "pagination pagination-" + scope.size;
                 component.enableSorting = !$utilities.isEmpty(component.controller.targetAction) || component.controller.loadAll;
@@ -163,8 +163,8 @@ aweApplication.directive('aweGrid',
                   excessColumns: 10,
                   scrollThreshold: 25,
                   // Rows of different heights cannot be virtualized (ui-grid places the rendered rows by a fixed height), so a grid
-                  // with wrapping columns renders every row of the page
-                  virtualizationThreshold: component.wrapsText ? Number.MAX_SAFE_INTEGER : 50,
+                  // with wrapping columns or row details renders every row of the page
+                  virtualizationThreshold: component.wrapsText || component.rowDetail ? Number.MAX_SAFE_INTEGER : 50,
                   //headerHeight: 28,
                   node: elem,
                   //rowNum: scope.controller.max,

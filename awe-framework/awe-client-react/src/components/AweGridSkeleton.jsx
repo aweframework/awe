@@ -58,21 +58,23 @@ export function gridLoadingIcon(reloading, icon) {
 
 /**
  * Placeholder rows shown in the body of a grid while its rows are loading: one block per visible column, preceded by
- * one for each pre-column the grid shows (selection, then row number, as in the header), so the header stays visible
- * and the placeholders follow its columns
+ * one for each pre-column the grid shows (row detail toggle, selection, then row number, as in the header), so the
+ * header stays visible and the placeholders follow its columns
  * @category Components
  * @subcategory Grid
  * @param {object[]} columns Column model of the grid
  * @param {number} [rows] Page size of the grid (capped to ten rows)
  * @param {boolean} [multiselect] The grid shows the selection column
  * @param {boolean} [rowNumbers] The grid shows the row number column
+ * @param {boolean} [rowDetail] The grid shows the row detail toggle column
  * @param {number} [first] Index of the first row of the page
  * @returns {JSX.Element} Grid skeleton
  */
-function AweGridSkeleton({columns = [], rows, multiselect = false, rowNumbers = false, first = 0}) {
+function AweGridSkeleton({columns = [], rows, multiselect = false, rowNumbers = false, rowDetail = false, first = 0}) {
   const visibleColumns = columns.filter(col => !col.hidden);
   const rowCount = Math.max(1, Math.min(rows || MAX_SKELETON_ROWS, MAX_SKELETON_ROWS));
   const preColumns = [
+    rowDetail && {name: "row-detail", style: getWidthStyle(null, null, SELECTION_COLUMN_WIDTH)},
     multiselect && {name: "multiselect", style: getWidthStyle(null, null, SELECTION_COLUMN_WIDTH)},
     rowNumbers && {name: "row-number", style: getRowNumberWidthStyle(first, rows)}
   ].filter(Boolean);
@@ -96,6 +98,7 @@ AweGridSkeleton.propTypes = {
   rows: PropTypes.number,
   multiselect: PropTypes.bool,
   rowNumbers: PropTypes.bool,
+  rowDetail: PropTypes.bool,
   first: PropTypes.number
 };
 

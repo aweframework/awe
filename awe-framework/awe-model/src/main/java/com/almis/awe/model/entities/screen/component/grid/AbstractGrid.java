@@ -28,6 +28,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -438,6 +439,36 @@ public abstract class AbstractGrid extends AbstractCriteria {
 
     // Return string parameter list
     return buttonModel;
+  }
+
+  /**
+   * Retrieve the row detail of the grid
+   *
+   * @return Row detail, null when the grid has none
+   */
+  @JsonIgnore
+  public RowDetail getRowDetail() {
+    return getElementsByType(RowDetail.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the row detail description for JSON serialization
+   *
+   * @return Row detail (its template and, when set, its style), empty (not sent) when the grid has none
+   */
+  @JsonGetter("rowDetail")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, String> getRowDetailConverter() {
+    RowDetail rowDetail = getRowDetail();
+    if (rowDetail == null) {
+      return Collections.emptyMap();
+    }
+    Map<String, String> description = new LinkedHashMap<>();
+    description.put("template", rowDetail.getContent() == null ? "" : rowDetail.getContent());
+    if (rowDetail.getStyle() != null) {
+      description.put("style", rowDetail.getStyle());
+    }
+    return description;
   }
 
   /**

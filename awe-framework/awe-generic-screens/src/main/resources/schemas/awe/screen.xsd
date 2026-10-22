@@ -189,6 +189,13 @@
     </xs:annotation>
   </xs:element>
 
+  <!-- Row detail Element -->
+  <xs:element name="row-detail" type="rowDetailType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Detail area of a grid row. A toggle at the start of each row opens it under the row, across the whole width of the grid; several rows can be open and a reload of the data closes them. Its text is the template of the detail: each {name} placeholder is replaced with the field name of the row, also of hidden columns (the label of the cell when it has one); missing fields show nothing. The detail is plain text (HTML is shown as text) and keeps the line breaks. Use CDATA for multi-line templates. Declare at most one per grid; only the first one is used. Supported by both client engines; tree grids do not show it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <!-- Column Element -->
   <xs:element name="group-header" type="groupHeaderType">
     <xs:annotation>
@@ -1680,11 +1687,12 @@
   <!-- Grid Type -->
   <xs:complexType name="gridType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, and dependencies, in any order and number.</xs:documentation>
+      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies and an optional row detail, in any order and number.</xs:documentation>
     </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element minOccurs="0" ref="group-header" />
       <xs:element minOccurs="0" ref="column" />
+      <xs:element minOccurs="0" ref="row-detail" />
       <xs:element minOccurs="0" ref="button" />
       <xs:element minOccurs="0" ref="context-button" />
       <xs:element minOccurs="0" ref="context-separator" />
@@ -1712,6 +1720,22 @@
       <xs:element ref="column" />
     </xs:choice>
     <xs:attributeGroup ref="columnGroupHeaderAttr" />
+  </xs:complexType>
+
+  <!-- Row detail Type -->
+  <xs:complexType name="rowDetailType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Template of the row detail (plain text with {name} placeholders) and the CSS classes of its area.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="style" type="xs:string">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">CSS classes added to the area of the detail, to give it a background, a border or a font. The template itself stays plain text.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <!-- Column Type -->

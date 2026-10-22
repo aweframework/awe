@@ -628,6 +628,17 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridEmptyState(String title, String text)` | Comprueba que un grid sin filas muestra su estado vacío, con un título y un texto que contienen los indicados |
 | `checkGridEmptyStateNotVisible()` | Comprueba que ningún grid muestra su estado vacío |
 | `clickGridEmptyAction()` | Pulsa el botón que ofrece el estado vacío |
+| `clickGridRowDetailToggle(String gridId, String rowId)` | Pulsa el botón del detalle de una fila, que abre el detalle cuando está cerrado y lo cierra cuando está abierto |
+| `pressEnterOnGridRowDetailToggle(String gridId, String rowId)` | Da el foco al botón del detalle de una fila, como cuando el usuario llega a él con el tabulador, y pulsa Intro |
+| `pressSpaceOnGridRowDetailToggle(String gridId, String rowId)` | Da el foco al botón del detalle de una fila, como cuando el usuario llega a él con el tabulador, y pulsa la barra espaciadora |
+| `checkGridRowDetailOpen(String gridId, String rowId, String text)` | Comprueba que el detalle de una fila está abierto y contiene un texto (con sus saltos de línea), y que su botón lo indica (`aria-expanded`) y apunta a él (`aria-controls`) |
+| `checkGridRowDetailToggleLabel(String gridId, String rowId, String label)` | Comprueba la etiqueta (`aria-label`) del botón del detalle de una fila, que indica si muestra u oculta el detalle |
+| `checkGridRowDetailClosed(String gridId, String rowId)` | Comprueba que el detalle de una fila no se muestra y que su botón lo indica (`aria-expanded`) |
+| `checkNoGridRowDetailOpen(String gridId)` | Comprueba que ninguna fila de un grid tiene su detalle abierto: no se muestra ningún detalle y ningún botón indica que su detalle está abierto |
+| `checkGridRowDetailHasClass(String gridId, String rowId, String cssClass)` | Comprueba que el detalle de una fila tiene unas clases de estilo (separadas por espacios), como las del `style` del detalle de fila |
+| `checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value)` | Comprueba el valor que el navegador calcula para una propiedad de estilo del detalle de una fila (`border-left-width`, `4px`), lo que demuestra que las reglas de estilo llegan a la página |
+| `checkGridRowDetailUnderItsRow(String gridId, String rowId)` | Comprueba que el detalle de una fila empieza justo debajo de su fila y ocupa al menos el 90% del ancho de la fila |
+| `checkGridRowNotSelected(String gridId, String rowId)` | Comprueba que una fila se muestra y no está seleccionada |
 | `checkGridHeaderVisible(String gridId, String columnId)` | Comprueba que se muestra la cabecera de una columna |
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Comprueba que no se muestra la cabecera de una columna (grid con la clase `grid-no-header`) |
 | `checkGridFirstRowAtTop(String gridId, String rowId, String columnId)` | Comprueba que la primera fila empieza justo bajo el borde superior del grid, con dos píxeles de margen: un grid sin cabecera (clase `grid-no-header`) no deja hueco donde estaba la cabecera |

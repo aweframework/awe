@@ -29,6 +29,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
   ...
   <context-button ...> ... </context button>
   ...
+  <row-detail> ... </row-detail>
 </grid>
 ```
 ## Grid structure
@@ -134,6 +135,74 @@ can be used, for example, to clear the search criteria.
   <button id="ClearSearch" label="BUTTON_CLEAR" icon="eraser" button-type="reset" />
 </grid>
 ```
+
+### Row detail
+
+A grid can show a detail area under each row. With a `<row-detail>` element inside the grid, every row starts with a
+toggle button; it opens, under the row and across the whole width of the grid, a text built from a template with the
+data of the row. It works in **both client engines**, and a grid without `<row-detail>` renders exactly as before.
+
+```xml
+<grid id="GrdThemes" style="expand" initial-load="query" server-action="data" target-action="ThemeList" max="10">
+  <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+  <column label="COLUMN_THEME" name="name" align="left" charlength="30"/>
+  <column label="COLUMN_CODE" name="code" hidden="true"/>
+  <column label="COLUMN_ACTIVE" name="active" hidden="true"/>
+  <row-detail style="row-detail-card"><![CDATA[Theme: {name}
+Code: {code}
+Active: {active}]]></row-detail>
+</grid>
+```
+
+The text of the element is the template:
+
+- Each `{name}` placeholder is replaced with the field `name` of the row. Any field of the row can be used, also the ones
+  of hidden columns (`hidden="true"`), so the detail can show data that the grid does not.
+- When the field is a cell object, its label is shown; if it has no label, its value.
+- A field that the row does not have shows nothing. A text between braces that is not a valid field name is kept as it is.
+- The detail is **plain text**: HTML in the template or in the data is shown as text, never rendered.
+- Line breaks are kept (consecutive spaces collapse into one). Use a `CDATA` section for templates with several lines,
+  and do not indent their lines.
+- Declare one `<row-detail>` per grid. If there are more, only the first one is used.
+
+The `<row-detail>` element accepts one attribute:
+
+| Attribute | Use | Type | Description | Values |
+|-----------|-----|------|-------------|--------|
+| style | Optional | String | CSS classes added to the detail area of every row, next to its own `grid-row-detail` class | Space-separated class names. **Ex.** `row-detail-card` |
+
+The classes style the **whole area** (background, border, spacing, font); the template stays plain text, so its parts
+cannot be styled separately. Define the classes in the styles of your application, for example:
+
+```css
+.grid-row-detail.row-detail-card {
+  padding: 0.75rem 1rem;
+  line-height: 1.7;
+  border-left: 4px solid currentColor;
+}
+```
+
+Behaviour:
+
+- Several rows can be open at the same time. The toggle does not select the row, and selecting a row does not open its
+  detail.
+- The toggle is a button: it is reached with the `Tab` key and works with `Enter` and `Space`. It exposes
+  `aria-expanded` (`true` while the detail is open), `aria-controls` (the identifier of the detail) and a translated
+  label (*Show row details* / *Hide row details*).
+- A reload of the data closes every detail: a new search, a reload, or a change of page or sort order served by the server.
+  In a grid that loads all its rows (`load-all="true"`), changing the page or sorting on the client keeps the open rows.
+
+:::note Limits
+- The template is the only source of the detail for now. Details built from a screen fragment or from a query are
+  planned.
+- Tree grids (`treegrid="true"`) do not show the row detail in either engine.
+- In the AngularJS engine, when the grid has frozen columns (`frozen`), the detail is shown in the scrollable part only;
+  the rows of the frozen part do not grow.
+- The AngularJS engine places the rows of a grid by a fixed height, so a grid with a row detail renders **every row of
+  its page** instead of virtualizing them (the page size of the grid, see `max`, bounds the cost).
+:::
+
+The test applications include the screen *Row detail* in the matrix test menu.
 
 ## Column structure
 

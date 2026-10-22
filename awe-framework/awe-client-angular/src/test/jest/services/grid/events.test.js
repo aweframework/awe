@@ -46,6 +46,18 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/events.js
     expect($log.error).not.toHaveBeenCalled();
   });
 
+  it('does not copy the row detail toggle column', async function () {
+    writeText.mockResolvedValue(undefined);
+    const scope = buildScope();
+    scope.component.controller.columnModel = [{id: "rowDetailToggle", label: ""}, {id: "name", label: "NAME"}];
+
+    GridEvents.onCopySelectedRowsToClipboard({}, scope);
+    await flushPromises();
+
+    expect(writeText).toHaveBeenCalledWith("NAME\nAlice\nBob");
+    expect(scope.component.getColumnPrintData).not.toHaveBeenCalledWith("rowDetailToggle");
+  });
+
   it('logs the rejection when the clipboard write fails', async function () {
     const error = new Error("Write permission denied");
     writeText.mockRejectedValue(error);

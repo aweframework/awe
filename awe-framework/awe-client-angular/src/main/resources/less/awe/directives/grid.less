@@ -712,6 +712,48 @@
   }
 }
 
+// Grid with row detail: ui-grid gives every row and its canvas a fixed height, so the row with an open detail grows to
+// hold it and the canvas grows with its rows (all the rows of the page are rendered, see the grid directive)
+.grid.grid-with-row-detail {
+  .ui-grid-render-container-body .ui-grid-canvas {
+    height: auto !important;
+  }
+
+  .ui-grid-row.grid-row-detail-open {
+    height: auto;
+    // The cells of the row keep their height above the detail
+    > [ui-grid-row] {
+      display: flow-root;
+    }
+  }
+
+  .ui-grid-row-detail {
+    padding: 0;
+  }
+
+  .grid-row-detail-toggle {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    line-height: 1;
+    color: inherit;
+    &:focus-visible {
+      outline: 2px solid @brand-primary;
+      outline-offset: -2px;
+    }
+  }
+
+  .grid-row-detail {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    padding: 6px 12px;
+    border-top: 1px solid @grid-border-color;
+    cursor: auto;
+    user-select: text;
+  }
+}
+
 .grid-cell-tooltip.tooltip {
   position: fixed;
   z-index: 3000;

@@ -12,6 +12,7 @@ import { updateModelWithDependencies as updateThunk } from "../redux/thunks/comp
 import { updateAttributes as updateAttributesAction } from "../redux/actions/components";
 import { useTranslation } from "react-i18next";
 import AweButton from "../components/AweButton";
+import { AweGridRowDetailToggle } from "../components/AweGridRowDetail";
 import useComponent from "./useComponent";
 import { useComponentState } from "./useComponentState";
 import {
@@ -112,6 +113,19 @@ export function useGrid(id) {
       selectionMode="multiple"
       rowSpan={rowSpan}
       pt={selectionColumnPassThrough()}
+      footer={null}
+      style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
+    /> : null
+  );
+
+  // Leading column with the button that shows or hides the detail of each row (grids with row detail only)
+  const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail) => (
+    rowDetail ? <Column
+      key={`row-detail-${place}`}
+      field={`row-detail-${place}`}
+      rowSpan={rowSpan}
+      body={rowData => <AweGridRowDetailToggle gridId={address?.component} rowId={rowData.id}
+        expanded={expandedRows?.[rowData.id] !== undefined} onToggle={onToggleRowDetail} />}
       footer={null}
       style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
     /> : null
@@ -225,8 +239,9 @@ export function useGrid(id) {
   };
 
   const preColumnTemplates = (place, rowSpan, specific) => {
-    // specific includes first, rows, rowNumbers, multiselect flags
+    // specific includes first, rows, rowNumbers, multiselect flags, and the row detail with its open rows
     return [
+      rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail),
       multiselectColumnTemplate(place, rowSpan, specific?.multiselect),
       rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers)
     ].filter(e => !isEmpty(e));
@@ -260,6 +275,7 @@ export function useGrid(id) {
     contextMenuTemplate,
     rowNumberColumnTemplate,
     multiselectColumnTemplate,
+    rowDetailColumnTemplate,
     operationColumnTemplate,
     columnTemplate,
     headerColumnTemplate,
@@ -290,6 +306,7 @@ export function useGrid(id) {
     contextMenuTemplate,
     rowNumberColumnTemplate,
     multiselectColumnTemplate,
+    rowDetailColumnTemplate,
     operationColumnTemplate,
     columnTemplate,
     headerColumnTemplate,

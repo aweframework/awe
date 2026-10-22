@@ -274,3 +274,16 @@
 .awe-ec-btn-danger:hover {
   background: #fdf0ef;
 }
+
+/*
+ * Card look of the row detail of the GrdRowDetailTst screen (<row-detail style="row-detail-card">): the style
+ * classes apply to the whole area, the template stays plain text
+ */
+.p-datatable .grid-row-detail.row-detail-card {
+  padding: 0.75rem 1rem;
+  line-height: 1.7;
+  color: var(--text-color-secondary);
+  background-color: var(--surface-ground);
+  border-left: 4px solid var(--primary-color);
+  border-radius: var(--border-radius);
+}

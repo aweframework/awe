@@ -1265,6 +1265,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_GRID_OF" value="of"/>
   <locale name="SCREEN_TEXT_GRID_PAGE" value="Page"/>
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Previous"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Hide row details"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Show row details"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="View"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identifier or text to search"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Reference currency: {0}"/>

@@ -291,6 +291,10 @@
   <locale name="GRID_EMPTY_TITLE_TST" value="No themes found"/>
   <locale name="GRID_EMPTY_TEXT_TST" value="Clear the search to see the themes again"/>
   <locale name="BUTTON_EMPTY_CLEAR" value="Clear search"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL" value="Row detail"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL" value="Row detail"/>
+  <locale name="COLUMN_ROW_DETAIL_CODE" value="Code"/>
+  <locale name="COLUMN_ROW_DETAIL_ACTIVE" value="Actif"/>
   <locale name="MENU_TEST_MATRIX_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="SCREEN_TITLE_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="MENU_TEST_MATRIX_DEFERRED" value="Deferred load"/>

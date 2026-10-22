@@ -53,6 +53,9 @@ public final class TestIds {
   public static final String GRID_ROW_SAVE = "grid-row-save";
   // React only: button that starts the edition of a row
   public static final String GRID_ROW_EDIT = "grid-row-edit";
+  // Button that opens and closes the detail of a row, and the detail area under the row
+  public static final String GRID_ROW_DETAIL_TOGGLE = "grid-row-detail-toggle";
+  public static final String GRID_ROW_DETAIL = "grid-row-detail";
   public static final String GRID_PAGE_SIZE = "grid-page-size";
   public static final String GRID_PAGE_NEXT = "grid-page-next";
   public static final String GRID_GOTO_PAGE = "grid-goto-page";

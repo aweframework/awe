@@ -3748,6 +3748,17 @@
     <order-by field="Nam" type="ASC"/>
   </query>
 
+  <!-- Themes with a code and an active flag that the grid keeps in hidden columns, for the row detail of a grid
+       (GrdRowDetailTst screen) -->
+  <query id="RowDetailTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Act" alias="active" translate="active-label"/>
+    <computed alias="code" format="THM-[id]"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
   <!-- Themes list without rows, for the empty state of a grid (GrdEmptyTst screen) -->
   <query id="EmptyGridTst">
     <table id="AweThm"/>
