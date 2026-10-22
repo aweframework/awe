@@ -145,6 +145,7 @@ module.exports = {
 				"api/chart",
 				"api/chart-format",
 				"api/chart-parameters",
+				"api/map",
 				"api/widget",
 				"api/actions",
 				"api/dependencies",

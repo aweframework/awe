@@ -1039,6 +1039,60 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a map once its markers have been drawn (React client only)
+   *
+   * @param mapId Map identifier
+   * @return Selector of the drawn map
+   */
+  default By getMap(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP) + "[map-id='" + mapId + "']"
+      + TestAttributes.css(TestAttributes.RENDERED, true));
+  }
+
+  /**
+   * Get the markers of a map (React client only)
+   *
+   * @param mapId Map identifier
+   * @return Selector of the markers
+   */
+  default By getMapMarkers(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "']");
+  }
+
+  /**
+   * Get the marker of a row of a map (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   * @return Selector of the marker
+   */
+  default By getMapMarker(String mapId, String rowId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "'][row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get the marker of a row of a map once it is selected (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   * @return Selector of the selected marker
+   */
+  default By getMapMarkerSelected(String mapId, String rowId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "'][row-id='" + rowId + "']"
+      + TestAttributes.css(TestAttributes.SELECTED, true));
+  }
+
+  /**
+   * Get the route that a map draws (React client only)
+   *
+   * @param mapId Map identifier
+   * @return Selector of the route
+   */
+  default By getMapRoute(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_ROUTE) + "[map-id='" + mapId + "']");
+  }
+
+  /**
    * Get the table of a pivot table once it has been drawn. Both clients render the component with its identifier as
    * the DOM id, and draw the pivot table inside it
    *

@@ -24,6 +24,7 @@ import AweAvatar from "./AweAvatar";
 import AweImage from "./AweImage";
 import AweLink from "./AweLink";
 import AweVideo from "./AweVideo";
+import AweMap from "./AweMap";
 
 export const ComponentList = {
   "Button": AweButton,
@@ -53,7 +54,8 @@ export const ComponentList = {
   "Widget": AweWidget,
   "Image": AweImage,
   "Link": AweLink,
-  "Video": AweVideo
+  "Video": AweVideo,
+  "GeoMap": AweMap
 };
 
 export const IGNORE_COMPONENT_LIST = ["ButtonAction", "Dependency"];

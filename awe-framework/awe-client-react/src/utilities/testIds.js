@@ -122,6 +122,12 @@ export const TestIds = Object.freeze({
   avatarName: "avatar-name",
   // Chart (the instance is identified by "chart-id"); "data-rendered" tells that the chart was drawn
   chart: "chart",
+  // React only: map (the instance is identified by "map-id") and its marker ("row-id" and "map-id"); "data-rendered"
+  // tells that the markers were drawn. The AngularJS map takes them when it is ported
+  map: "map",
+  mapMarker: "map-marker",
+  // React only: the route (polyline) of a map, with the "map-id" of its map
+  mapRoute: "map-route",
   // React only: tag list (the instance is identified by "tag-list-id")
   tagList: "tag-list",
   // Log viewer: the element that holds the text of the log

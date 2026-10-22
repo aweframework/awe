@@ -696,6 +696,11 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkPivotTableVisible(String pivotTableId)` | Checks that a pivot table is displayed (its table has been drawn) |
 | `zoomChart(String chartId)` | Zooms a chart in with the mouse wheel over its center |
 | `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
+| `checkMapVisible(String mapId)` | Checks that a map is displayed with its markers drawn (React client only) |
+| `checkMapMarkerCount(String mapId, int count)` | Checks how many markers a map shows (React client only) |
+| `clickMapMarker(String mapId, String rowId)` | Clicks on the marker of a row of a map (React client only) |
+| `checkMapMarkerSelected(String mapId, String rowId)` | Checks that the marker of a row of a map is selected (React client only) |
+| `checkMapRouteVisible(String mapId)` | Checks that a map draws a route (React client only) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 

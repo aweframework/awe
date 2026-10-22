@@ -17,6 +17,7 @@ import {acceptAction, addActionsTop, addStack, rejectAction, removeStack} from "
 import MenuRegistry from "../registry/MenuRegistry";
 import {getEChartsSerie, mergeSeriesPoints} from "../../utilities/echartsSeries";
 import {getAllComponents} from "../selectors/componentSelectors";
+import {DEFAULT_LATITUDE, DEFAULT_LONGITUDE, toPosition} from "../../utilities/map";
 
 const { BUTTON_RESET } = ButtonTypes;
 
@@ -390,6 +391,29 @@ export const addPointsAction = (action) => {
     dispatch(updateModelWithDependencies(address, {
       values: [...component.model.values, ...points]
     }));
+
+    // Accept action
+    dispatch(acceptAction(action));
+  };
+};
+
+/**
+ * Show a route in a map: the rows of the action (with the latitude and longitude columns of the map) become the
+ * route that the map draws. The route is not a change of the data of the map, so no dependency is checked.
+ * @param {object} action Action with the route rows in "parameters.rows"
+ * @returns {function} Thunk
+ */
+export const polylineAction = (action) => {
+  return (dispatch, getState) => {
+    const components = getAllComponents(getState());
+    const address = getActionAddress(action);
+    const {attributes = {}} = getComponent(components, address) || {};
+    const {latitude = DEFAULT_LATITUDE, longitude = DEFAULT_LONGITUDE} = attributes;
+    const rows = Array.isArray(action.parameters?.rows) ? action.parameters.rows : [];
+    const route = rows.map(row => toPosition(row, latitude, longitude)).filter(Boolean);
+
+    // The reducer needs the settings to update a component of the registry
+    dispatch({...updateModel(address, {route}), settings: getState().settings});
 
     // Accept action
     dispatch(acceptAction(action));

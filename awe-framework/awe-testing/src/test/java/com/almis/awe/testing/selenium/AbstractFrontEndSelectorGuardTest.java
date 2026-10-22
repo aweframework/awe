@@ -288,6 +288,11 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getUploaderClear", () -> i.getUploaderClear(CRITERION));
     catalog.put("getUploaderCapture", () -> i.getUploaderCapture(CRITERION));
     catalog.put("getUploaderCaptureInput", () -> i.getUploaderCaptureInput(CRITERION));
+    catalog.put("getMap", () -> i.getMap("Map"));
+    catalog.put("getMapMarkers", () -> i.getMapMarkers("Map"));
+    catalog.put("getMapMarker", () -> i.getMapMarker("Map", "1"));
+    catalog.put("getMapMarkerSelected", () -> i.getMapMarkerSelected("Map", "1"));
+    catalog.put("getMapRoute", () -> i.getMapRoute("Map"));
     catalog.put("getChartZoomed", () -> i.getChartZoomed("Chr"));
     catalog.put("getPivotTable", () -> i.getPivotTable("Pvt"));
     catalog.put("getLogViewer", i::getLogViewer);

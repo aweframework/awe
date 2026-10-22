@@ -334,6 +334,12 @@
       "defaultValue": true
     },
     {
+      "name": "awe.application.map.tile-url",
+      "type": "java.lang.String",
+      "description": "Url template of the map tiles, with the {z}, {x} and {y} placeholders. Mind the usage policy of the tile server: the default OpenStreetMap server is meant for light use, so use your own tile server for heavy traffic. Default value https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "defaultValue": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+    },
+    {
       "name": "awe.application.menu-search-enabled",
       "type": "java.lang.Boolean",
       "description": "Enable the menu option search box. Default value true",

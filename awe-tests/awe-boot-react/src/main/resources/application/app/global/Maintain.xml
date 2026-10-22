@@ -835,6 +835,11 @@
     <serve service="updateCell"/>
   </target>
 
+  <!-- Route of the map test screen: a polyline client action -->
+  <target name="TstMapRoute">
+    <serve service="TstMapRoute"/>
+  </target>
+
   <!-- Echoes the choices sent by the radio columns of the GrdRadioTst screen -->
   <target name="RadioChoicesEcho">
     <serve service="returnRadioChoices">

@@ -91,6 +91,9 @@
   <locale name="MENU_TEST_BUTTONS" value="Buttons"/>
   <locale name="MENU_TEST_DEPENDENCIES" value="Dependencies"/>
   <locale name="MENU_TEST_CAROUSEL" value="Carousel"/>
+  <locale name="BUTTON_TEST_MAP_ROUTE" value="Draw route"/>
+  <locale name="PARAMETER_TEST_MAP_SELECTED" value="Selected place"/>
+  <locale name="MENU_TEST_MAP" value="Map"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Dynamic series"/>
   <locale name="MENU_TEST_CHART_ADVANCED" value="Advanced charts"/>
   <locale name="MENU_TEST_CHARTS" value="Charts"/>

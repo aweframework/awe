@@ -574,6 +574,44 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
     });
   });
 
+  describe('polylineAction', () => {
+    const run = (parameters, attributes = {}) => {
+      const component = {...mockComponent, attributes: {...mockComponent.attributes, ...attributes}};
+      const state = {...mockState, components: {...mockState.components, comp1: component}};
+      thunks.polylineAction({type: 'polyline', address: mockAddress, parameters})(dispatch, () => state);
+      return dispatch.mock.calls.map(([arg]) => arg);
+    };
+
+    it('should store the route of the rows as latitude and longitude pairs', () => {
+      const [update] = run({rows: [{latitude: 1, longitude: 2}, {latitude: "3.5", longitude: 4}]});
+
+      expect(update.type).toBe('UPDATE_MODEL');
+      expect(update.data.route).toEqual([[1, 2], [3.5, 4]]);
+    });
+
+    it('should skip the rows without coordinates', () => {
+      const [update] = run({rows: [{latitude: 1, longitude: 2}, {latitude: null, longitude: 3}, {latitude: "x", longitude: 3}]});
+
+      expect(update.data.route).toEqual([[1, 2]]);
+    });
+
+    it('should read the columns the map attributes name', () => {
+      const [update] = run({rows: [{lat: 5, lon: 6}]}, {latitude: 'lat', longitude: 'lon'});
+
+      expect(update.data.route).toEqual([[5, 6]]);
+    });
+
+    it('should store an empty route when the action has no rows', () => {
+      expect(run({})[0].data.route).toEqual([]);
+    });
+
+    it('should accept the action once the route is stored', () => {
+      const [, accept] = run({rows: [{latitude: 1, longitude: 2}]});
+
+      expect(accept.type).toBe('ACCEPT_ACTION');
+    });
+  });
+
   describe('chart series actions', () => {
     const lineSeries = (id, extra = {}) => ({
       id, name: id, type: 'spline', xValue: 'date', yValue: id, data: [[1, 10], [2, 20]],

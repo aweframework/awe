@@ -291,6 +291,38 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckAndClickTheMarkersOfAMap() {
+    use(new ReactAweInstructions());
+    show(instructions.getMap("MapTst"), "");
+    show(instructions.getMapMarkers("MapTst"), "");
+    show(instructions.getMapMarker("MapTst", "2"), "");
+    show(instructions.getMapMarkerSelected("MapTst", "2"), "");
+
+    assertThatCode(() -> {
+      utilities.checkMapVisible("MapTst");
+      utilities.checkMapMarkerCount("MapTst", 1);
+      utilities.clickMapMarker("MapTst", "2");
+      utilities.checkMapMarkerSelected("MapTst", "2");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMapVisible("Missing"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMapMarkerCount("MapTst", 4));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickMapMarker("MapTst", "9"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMapMarkerSelected("MapTst", "9"));
+  }
+
+  @Test
+  void shouldCheckTheRouteOfAMapAndThatItHidesTheMarkers() {
+    use(new ReactAweInstructions());
+    show(instructions.getMapRoute("MapTst"), "");
+
+    assertThatCode(() -> {
+      utilities.checkMapRouteVisible("MapTst");
+      utilities.checkMapMarkerCount("MapTst", 0);
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMapRouteVisible("Missing"));
+  }
+
+  @Test
   void shouldCheckThatAPivotTableIsDrawn() {
     show(instructions.getPivotTable("listaDatos"), "");
 
