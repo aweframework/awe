@@ -617,6 +617,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridColumnOrder(String gridId, String columnId, String... expected)` | Comprueba que las filas de un grid están en un orden dado, leyendo los valores de una columna |
 | `checkGridPresent(String gridId)` | Comprueba que un grid existe en la pantalla, aunque esté oculta |
 | `checkGridNotVisible(String gridId)` | Comprueba que un grid no se muestra |
+| `checkGridNotPresent(String gridId)` | Comprueba que un grid no está en la página, ni visible ni oculto, como el grid anidado de un detalle de fila cuando la fila se cierra o su grid se recarga |
 | `checkGridPageSize(String size)` | Comprueba el número de filas que un grid muestra en cada página |
 | `checkGridPaginationInfo(String text)` | Comprueba el texto del paginador que indica el rango de filas mostrado y el total (`View 1 - 10 of 25`) |
 | `clickGridNextPage()` | Va a la página siguiente de un grid con su paginador y espera a la carga. En AngularJS solo funciona con el paginador compacto: el paginador ancho no tiene hook para sus enlaces de página |
@@ -638,6 +639,9 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridRowDetailHasClass(String gridId, String rowId, String cssClass)` | Comprueba que el detalle de una fila tiene unas clases de estilo (separadas por espacios), como las del `style` del detalle de fila |
 | `checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value)` | Comprueba el valor que el navegador calcula para una propiedad de estilo del detalle de una fila (`border-left-width`, `4px`), lo que demuestra que las reglas de estilo llegan a la página |
 | `checkGridRowDetailUnderItsRow(String gridId, String rowId)` | Comprueba que el detalle de una fila empieza justo debajo de su fila y ocupa al menos el 90% del ancho de la fila |
+| `checkGridRowDetailAcrossGrid(String gridId, String rowId)` | Comprueba que el detalle de una fila ocupa al menos el 90% del ancho visible del grid, aunque las columnas sean más estrechas |
+| `checkGridRowDetailHasNestedGrid(String gridId, String rowId, String nestedGridId)` | Comprueba que el detalle de una fila muestra un grid anidado (detalle de fila con componentes). El id del grid anidado es el que el cliente genera para la fila (`GrdOrders-7`) |
+| `checkGridRowDetailHoldsNestedGrid(String gridId, String rowId, String nestedGridId)` | Comprueba que el detalle de una fila contiene el grid anidado entero, hasta su última fila y en todo su ancho, sin recortarlo |
 | `checkGridRowNotSelected(String gridId, String rowId)` | Comprueba que una fila se muestra y no está seleccionada |
 | `checkGridHeaderVisible(String gridId, String columnId)` | Comprueba que se muestra la cabecera de una columna |
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Comprueba que no se muestra la cabecera de una columna (grid con la clase `grid-no-header`) |

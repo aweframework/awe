@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import {cleanupHeavyComponentTest, initHeavyComponentTest} from "./heavyComponentTestUtils";
 import {mountGrid} from "./gridTestUtils";
 
@@ -117,6 +119,13 @@ describe("grid row detail (awe-grid rendered by ui-grid)", () => {
 
     const classes = detailOf("r1").attr("class").split(/\s+/).filter(name => !name.startsWith("ng-"));
     expect(classes).toEqual(["grid-row-detail"]);
+  });
+
+  it("makes the rows of the page at least as wide as the visible grid, so the detail is not cut to the width of the columns", () => {
+    const styles = fs.readFileSync(path.join(__dirname, "../../../main/resources/less/awe/directives/grid.less"), "utf8");
+    const rowDetailRules = /\.grid\.grid-with-row-detail\s*\{([\s\S]*?)\n\}/.exec(styles)?.[1] || "";
+
+    expect(rowDetailRules).toMatch(/\.ui-grid-render-container-body \.ui-grid-canvas\s*\{[^}]*min-width:\s*100%;/);
   });
 
   it("keeps several rows open at once", () => {

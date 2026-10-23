@@ -23,8 +23,9 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
         serverAction,
         targetAction,
         // Form values win over the action parameters (as in the AngularJS client): the action always carries
-        // null target, value and label, which would otherwise wipe a component or column with that name
-        { ...parameters, ...getFormValues(getState(), forPrinting, t) },
+        // null target, value and label, which would otherwise wipe a component or column with that name. The
+        // components of a grid row detail instance also send the values of their instance
+        { ...parameters, ...getFormValues(getState(), forPrinting, t, address) },
         settings.token,
         null
       );
@@ -67,7 +68,7 @@ export function serverDownloadAction(action) {
 
     let parameters = {
       ...action.parameters,
-      ...getFormValues(getState()),
+      ...getFormValues(getState(), false, undefined, address),
       ...(specificAttributes || {}),
     };
 

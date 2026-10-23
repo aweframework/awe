@@ -137,7 +137,8 @@ aweApplication.directive('aweForm',
          */
         server: function (action) {
           // Launch server action with form values
-          ServerData.launchServerAction(action, ServerData.getFormValues(), false);
+          // The components of a grid row detail instance also send the values of their instance
+          ServerData.launchServerAction(action, ServerData.getFormValues(action.attr("callbackTarget")), false);
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
@@ -145,7 +146,7 @@ aweApplication.directive('aweForm',
          */
         serverPrint: function (action) {
           // Launch server action for printing
-          ServerData.launchServerAction(action, ServerData.getFormValuesForPrinting(), true);
+          ServerData.launchServerAction(action, ServerData.getFormValuesForPrinting(action.attr("callbackTarget")), true);
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
@@ -157,7 +158,7 @@ aweApplication.directive('aweForm',
           let  target = action.attr("callbackTarget");
 
           // Store parameters
-          _.merge(parameters, action.attr("parameters"), ServerData.getFormValues());
+          _.merge(parameters, action.attr("parameters"), ServerData.getFormValues(target));
           let  targetAction = parameters[$settings.get("targetActionKey")];
 
           // Retrieve target specific attributes for the server call

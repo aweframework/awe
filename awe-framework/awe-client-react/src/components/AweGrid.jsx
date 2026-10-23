@@ -9,7 +9,7 @@ import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
 import "./AweGridThemeClasses.less";
 import {classNames} from "../utilities/components";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, isSkeletonIcon} from "./AweGridSkeleton";
@@ -19,6 +19,8 @@ import {TestIds, testHook} from "../utilities/testIds";
 import {useTranslation} from "react-i18next";
 import {gotoPageTemplate} from "./AweGridGotoPage";
 import AweGridRowDetail from "./AweGridRowDetail";
+import {getRowDetailInstanceId} from "../utilities/gridRowDetail";
+import {syncRowDetailInstances} from "../redux/thunks/rowDetail";
 
 /**
  * Template of the row expansion of a grid with row detail: the detail of each expanded row
@@ -27,12 +29,28 @@ import AweGridRowDetail from "./AweGridRowDetail";
  * @returns {function(object): JSX.Element} Row expansion template
  */
 const getRowExpansionTemplate = (gridId, rowDetail) => function rowExpansionTemplate(rowData) {
-  return <AweGridRowDetail gridId={gridId} rowDetail={rowDetail} rowData={rowData} />;
+  return <AweGridRowDetail gridId={gridId} rowDetail={rowDetail} rowData={rowData}>
+    {rowDetail.component ? <AweGridRowDetailInstance id={getRowDetailInstanceId(rowDetail.component.id, rowData.id)} /> : null}
+  </AweGridRowDetail>;
 };
 
 const PAGINATOR_TEMPLATE = {
   layout: "FirstPageLink PrevPageLink JumpToPageInput NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport",
   JumpToPageInput: gotoPageTemplate
+};
+
+/**
+ * Instance of the row detail component of a row: the grid is shown once its instance is registered
+ * @param {string} id Instance identifier
+ * @returns {JSX.Element|null} Nested grid
+ */
+function AweGridRowDetailInstance({ id }) {
+  const registered = useSelector(state => Boolean(state.components[id]));
+  return registered ? <AweGrid id={id} /> : null;
+}
+
+AweGridRowDetailInstance.propTypes = {
+  id: PropTypes.string.isRequired,
 };
 
 function AweGrid(props) {
@@ -81,6 +99,23 @@ function AweGrid(props) {
       setExpandedRows(current => Object.keys(current).length > 0 ? {} : current);
     }
   }, [attributes.loading]);
+
+  // With components, each open row has its own instance of them: it is created when the row opens and removed when
+  // it closes, when the grid reloads (which closes every row) and when the grid is gone
+  const detailComponentId = attributes.rowDetail?.component?.id;
+  useEffect(() => {
+    if (detailComponentId) {
+      const openRows = (model.values || []).filter(row => expandedRows[row.id] !== undefined);
+      dispatch(syncRowDetailInstances(address, openRows));
+    }
+  }, [detailComponentId, expandedRows, model.values, address, dispatch]);
+  const instancesAddress = useRef(null);
+  instancesAddress.current = detailComponentId ? address : null;
+  useEffect(() => () => {
+    if (instancesAddress.current) {
+      dispatch(syncRowDetailInstances(instancesAddress.current, []));
+    }
+  }, [dispatch]);
 
   const onRowDoubleClick = useCallback((event) => {
     const gridId = getGridIdentifier(attributes);

@@ -420,6 +420,10 @@
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposition de la grille n&apos;est pas valide ou vous n&apos;êtes pas connecté, elle n&apos;a donc pas été enregistrée"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposition de la grille comporte trop de colonnes pour être enregistrée"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="Le &quot;include&quot; balise à l`écran {0} n&apos;a pas trouvé les suivantes composants: screen: {1}, source: {2}"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="Le &apos;&apos;row-detail&apos;&apos; de la grille &apos;&apos;{0}&apos;&apos; dans l&apos;&apos;écran &apos;&apos;{1}&apos;&apos; contient une &apos;&apos;dependency&apos;&apos;, qui n&apos;&apos;est pas prise en charge dans le détail d&apos;&apos;une ligne"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="La grille dans le &apos;&apos;row-detail&apos;&apos; de la grille &apos;&apos;{0}&apos;&apos; dans l&apos;&apos;écran &apos;&apos;{1}&apos;&apos; doit être en lecture seule : supprimez ses attributs &apos;&apos;editable&apos;&apos; et &apos;&apos;send-operations&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_NOT_A_GRID" value="Le &apos;&apos;row-detail&apos;&apos; de la grille &apos;&apos;{0}&apos;&apos; dans l&apos;&apos;écran &apos;&apos;{1}&apos;&apos; doit contenir une seule &apos;&apos;grid&apos;&apos;, directement ou par un &apos;&apos;include&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_TEMPLATE_AND_COMPONENTS" value="Le &apos;&apos;row-detail&apos;&apos; de la grille &apos;&apos;{0}&apos;&apos; dans l&apos;&apos;écran &apos;&apos;{1}&apos;&apos; a un modèle et des composants : utilisez un seul des deux"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Le format du message pour l&apos;envoy à la queue {0} n&apos;a pas été définie"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Le format de message pour la réception de la queue {0} n&apos;a pas été définie"/>
   <locale name="ERROR_MESSAGE_BLOCKED_PASSWORD" value="Mot de passe est bloqué pour l&apos;utilissateur {0} Contactez votre administrateur système."/>
@@ -631,6 +635,7 @@
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Erreur d&apos;authentification"/>
   <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Image d&apos;avatar trop volumineuse"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Mauvais &quot;include&quot; définition"/>
+  <locale name="ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION" value="Mauvaise définition de &apos;row-detail&apos;"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Erreur dans le format de la queue"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Erreur d&apos;authentification de la base de données"/>
   <locale name="ERROR_TITLE_BLOCKED_PASSWORD" value="Mot de passe verrouillé"/>

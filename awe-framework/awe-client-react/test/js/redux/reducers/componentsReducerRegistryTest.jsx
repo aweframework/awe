@@ -2,7 +2,9 @@ import {components} from '../../../../src/redux/reducers/componentsReducer';
 import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 import {
   CLEAR_COMPONENTS,
+  REGISTER_COMPONENTS,
   RESET_MODEL,
+  UNREGISTER_COMPONENTS,
   UPDATE_ATTRIBUTES,
   UPDATE_COMPONENT,
   UPDATE_VALIDATION,
@@ -31,6 +33,26 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
 
     expect(ComponentRegistry.get('comp')).toEqual(baseComponent);
     expect(next.comp).toEqual({});
+  });
+
+  it('adds components to a loaded view keeping the ones it has, and removes them with all their state', () => {
+    const view = { address: { component: 'comp', view: 'report' }, attributes: { foo: 'bar' } };
+    const added = { address: { component: 'added', view: 'report' }, attributes: { foo: 'baz' } };
+    const loaded = components({}, { type: UPDATE_VIEW_COMPONENTS, view: 'report', data: { comp: view }, settings });
+
+    const registered = components(loaded, { type: REGISTER_COMPONENTS, data: { added }, settings });
+
+    expect(Object.keys(registered)).toEqual(['comp', 'added']);
+    expect(ComponentRegistry.get('comp')).toEqual(view);
+    expect(ComponentRegistry.get('added')).toEqual(added);
+
+    const updated = components(registered, { type: UPDATE_ATTRIBUTES, address: added.address, data: { foo: 'new' }, settings });
+    const unregistered = components(updated, { type: UNREGISTER_COMPONENTS, ids: ['added'], settings });
+
+    expect(Object.keys(unregistered)).toEqual(['comp']);
+    expect(ComponentRegistry.get('added')).toBeNull();
+    expect(ComponentRegistry.getStats().componentsByView).toEqual({ report: 1 });
+    expect(ComponentRegistry.get('comp')).toEqual(view);
   });
 
   it('stores only attribute deltas when updating a component with registry enabled', () => {

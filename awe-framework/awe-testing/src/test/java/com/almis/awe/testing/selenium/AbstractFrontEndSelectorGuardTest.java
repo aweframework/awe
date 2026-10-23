@@ -326,6 +326,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridRowDetail(row)", () -> i.getGridRowDetail(GRID, ROW));
     catalog.put("getGridRowDetail(any row)", () -> i.getGridRowDetail(GRID, null));
     catalog.put("getGridRowDetailWithClass", () -> i.getGridRowDetailWithClass(GRID, ROW, "row-detail-card"));
+    catalog.put("getGridRowDetailNestedGrid", () -> i.getGridRowDetailNestedGrid(GRID, ROW, "GrdCus-Row"));
     catalog.put("getDialogPanel", () -> i.getDialogPanel("Dia"));
     catalog.put("getSidePanelCss", () -> i.getSidePanelCss("Pnl"));
     catalog.put("getOpenSidePanel", () -> i.getOpenSidePanel("Pnl"));

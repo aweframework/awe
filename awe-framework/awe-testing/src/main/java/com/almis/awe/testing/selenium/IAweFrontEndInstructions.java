@@ -1531,6 +1531,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a grid that the detail of a row of a grid shows inside it (a nested grid of a row detail with components)
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   * @return Nested grid selector
+   */
+  default By getGridRowDetailNestedGrid(String gridId, String rowId, String nestedGridId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId) + " [grid-id='" + nestedGridId + "']");
+  }
+
+  /**
    * Css selector of a part of a row of a grid: the row itself, the toggle of its detail or its detail. Both clients
    * render the identifier of the row on each part
    *

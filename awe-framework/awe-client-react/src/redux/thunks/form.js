@@ -113,7 +113,7 @@ export function filterAction(action) {
       const serverAction = component.attributes[settings.serverActionKey] || "data";
       const targetAction = component.attributes[settings.targetActionKey];
       let values = {
-        ...getFormValues(getState()),
+        ...getFormValues(getState(), false, undefined, address),
         ...(component.specificAttributes || {})
       };
 

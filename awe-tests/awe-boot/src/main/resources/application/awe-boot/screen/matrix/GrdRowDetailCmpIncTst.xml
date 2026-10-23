@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdRowDetailCmpIncTst.xml
+    Description: Fragment with the nested grid of the row detail of GrdRowDetailCmpInc (GrdRowDetailCmpTst screen), brought
+                 by an include
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE">
+  <tag source="customers">
+    <grid id="GrdRowDetailCmpIncCus" server-action="data" target-action="RowDetailCmpIncCustomers" max="10">
+      <column label="COLUMN_ROW_DETAIL_CUSTOMER" name="incCustomer" align="left" charlength="20"/>
+    </grid>
+  </tag>
+</screen>

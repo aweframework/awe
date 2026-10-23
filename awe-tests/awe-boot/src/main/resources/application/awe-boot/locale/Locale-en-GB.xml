@@ -257,6 +257,16 @@
   <locale name="SCREEN_TITLE_GRID_ROW_DETAIL" value="Row detail"/>
   <locale name="COLUMN_ROW_DETAIL_CODE" value="Code"/>
   <locale name="COLUMN_ROW_DETAIL_ACTIVE" value="Active"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL_COMPONENTS" value="Row detail with a grid"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS" value="Row detail with a nested grid"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE" value="Row detail from an include"/>
+  <locale name="COLUMN_ROW_DETAIL_CUSTOMER" value="Customer"/>
+  <locale name="COLUMN_ROW_DETAIL_ADDRESS" value="Address"/>
+  <locale name="COLUMN_ROW_DETAIL_SINCE" value="Customer since"/>
+  <locale name="COLUMN_ROW_DETAIL_STATUS" value="Status"/>
+  <locale name="BUTTON_ROW_DETAIL_CUSTOMERS_INFO" value="About customers"/>
+  <locale name="CONFIRM_TITLE_ROW_DETAIL_CUSTOMERS" value="Customers"/>
+  <locale name="CONFIRM_MESSAGE_ROW_DETAIL_CUSTOMERS" value="The nested grid shows the customers of the country of its row"/>
   <locale name="MENU_TEST_MATRIX_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="SCREEN_TITLE_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="MENU_TEST_MATRIX_DEFERRED" value="Deferred load"/>

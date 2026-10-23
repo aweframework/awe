@@ -7,6 +7,8 @@ import {addActionsTop} from "./actions";
 export const CLEAR_COMPONENTS = 'CLEAR_COMPONENTS';
 export const CLEAR_ALL_COMPONENTS = 'CLEAR_ALL_COMPONENTS';
 export const UPDATE_VIEW_COMPONENTS = 'UPDATE_VIEW_COMPONENTS';
+export const REGISTER_COMPONENTS = 'REGISTER_COMPONENTS';
+export const UNREGISTER_COMPONENTS = 'UNREGISTER_COMPONENTS';
 export const UPDATE_COMPONENT = 'UPDATE_COMPONENT';
 export const UPDATE_ATTRIBUTES = 'UPDATE_ATTRIBUTES';
 export const UPDATE_SPECIFIC_ATTRIBUTES = 'UPDATE_SPECIFIC_ATTRIBUTES';
@@ -68,6 +70,24 @@ export function clearAllComponents() {
 
 export function updateViewComponents(view, data) {
   return {type: UPDATE_VIEW_COMPONENTS, view, data};
+}
+
+/**
+ * Add components to a loaded view, keeping the ones it has (the instances of a grid row detail)
+ * @param {object} data Components by id, built as the screen builds its own
+ * @returns {object} Action
+ */
+export function registerComponents(data) {
+  return {type: REGISTER_COMPONENTS, data};
+}
+
+/**
+ * Remove some components and all their state
+ * @param {string[]} ids Component ids
+ * @returns {object} Action
+ */
+export function unregisterComponents(ids) {
+  return {type: UNREGISTER_COMPONENTS, ids};
 }
 
 export function updateComponent(address, data) {

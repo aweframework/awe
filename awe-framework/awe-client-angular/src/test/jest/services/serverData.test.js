@@ -161,6 +161,31 @@ describe("ServerData", function () {
     expect(printComponent.getPrintData).toHaveBeenCalledWith("LANDSCAPE");
   });
 
+  it("leaves grid row detail instances out of the screen values and adds them only for an address of the instance", function () {
+    const marker = {instance: "GrdOrders-7", template: "GrdOrders", parameters: {"GrdProducts.row.id": 7}};
+    const instance = {
+      getData: jest.fn().mockReturnValue({"GrdOrders-7": "o1", "GrdOrders-7.data": {page: 2}, order: ["Order 1"]}),
+      getPrintData: jest.fn().mockReturnValue({"GrdOrders-7.data": {page: 2, visibleColumns: []}})
+    };
+    const stored = {
+      api: {center: {CrtStatus: {getData: () => ({CrtStatus: "ACTIVE"}), getPrintData: () => ({CrtStatus: "ACTIVE"})}, "GrdOrders-7": instance, "ButShow-7": {getData: () => ({buttonValue: "B"})}}},
+      controller: {center: {CrtStatus: {}, "GrdOrders-7": {rowDetailInstance: marker}, "ButShow-7": {rowDetailInstance: marker}}},
+      model: {}
+    };
+    jest.spyOn($storage, "get").mockImplementation(key => stored[key]);
+
+    expect($serverData.getFormValues()).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValues({view: "center", component: "CrtStatus"})).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValuesForPrinting()).toEqual({CrtStatus: "ACTIVE"});
+    const instanceValues = {CrtStatus: "ACTIVE", GrdOrders: "o1", "GrdOrders.data": {page: 2}, order: ["Order 1"], "GrdProducts.row.id": 7};
+    expect($serverData.getFormValues({view: "center", component: "ButShow-7"})).toEqual(instanceValues);
+    expect($serverData.getFormValues({component: "GrdOrders-7", row: "o1", column: "order"})).toEqual(instanceValues);
+    expect($serverData.getFormValuesForPrinting({view: "center", component: "GrdOrders-7"})).toEqual({
+      CrtStatus: "ACTIVE", "GrdOrders.data": {page: 2, visibleColumns: []}, "GrdProducts.row.id": 7
+    });
+    expect(instance.getPrintData).toHaveBeenCalledWith("PORTRAIT");
+  });
+
   it("creates server actions and maintain actions with custom selector parameters", function () {
     jest.spyOn($storage, "get").mockReturnValue({center: {name: "report-screen"}});
     jest.spyOn($actionController, "addActionList").mockReturnValue("maintain-enqueued");

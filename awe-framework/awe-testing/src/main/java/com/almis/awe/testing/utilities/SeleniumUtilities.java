@@ -104,6 +104,16 @@ public class SeleniumUtilities implements IAweInstructions {
   // The detail of a row starts at most this gap under the row, and is at least this part of the width of the row
   private static final int ROW_DETAIL_MAX_GAP = 20;
   private static final double ROW_DETAIL_MIN_WIDTH = 0.9;
+  // Edges of an element as top|bottom|left|right
+  private static final String EDGES_SCRIPT = "var rect = arguments[0].getBoundingClientRect();"
+    + " return rect.top + '|' + rect.bottom + '|' + rect.left + '|' + rect.right;";
+  // Bottom of the last element located by the css selector of the first argument, nothing when there is none
+  private static final String LAST_BOTTOM_SCRIPT = "var all = document.querySelectorAll(arguments[0]);"
+    + " return all.length ? all[all.length - 1].getBoundingClientRect().bottom : null;";
+  // Width of the content of an element, without its scroll bar
+  private static final String CLIENT_WIDTH_SCRIPT = "return arguments[0].clientWidth;";
+  // Pixels that a nested grid may go past the edges of the detail of its row (rounding of the boxes)
+  private static final int ROW_DETAIL_TOLERANCE = 1;
   // Number of toggles of row details (located by the css selector of the first argument) that say that their detail is open
   private static final String OPEN_ROW_DETAIL_TOGGLES_SCRIPT = "return Array.prototype.filter.call(document.querySelectorAll(arguments[0]),"
     + " function (toggle) { return toggle.getAttribute('aria-expanded') === 'true'; }).length;";
@@ -4011,6 +4021,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a grid is not in the page at all, neither shown nor hidden (for instance the nested grid of a row detail
+   * once the row closes or its grid reloads)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotPresent(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGrid(gridId))));
+  }
+
+  /**
    * Check that the cells of a grid show text and nothing active: no script, frame, image, form or event handler, and no
    * link to a script url. The grid has to show at least one cell
    *
@@ -4407,14 +4427,82 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the detail of a row of a grid is about as wide as the visible part of the grid (90% at least), even when
+   * the columns of the grid are narrower
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailAcrossGrid(String gridId, String rowId) {
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    By visiblePart = frontEndInstructions.getGridScrollZone(gridId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(detail), toBeVisible(visiblePart)));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), BOX_SCRIPT));
+    Object visibleWidth = getBrowser().executeScriptOn(locator(visiblePart), CLIENT_WIDTH_SCRIPT);
+    double width = visibleWidth instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ": top|bottom|width) is not as wide"
+      + " as the visible part of the grid (" + visibleWidth + ")", width > 0 && parseBox(detailBox)[2] >= width * ROW_DETAIL_MIN_WIDTH);
+  }
+
+  /**
+   * Check that the detail of a row of a grid shows a nested grid (a row detail with components)
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   */
+  protected void checkGridRowDetailHasNestedGrid(String gridId, String rowId, String nestedGridId) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowDetailNestedGrid(gridId, rowId, nestedGridId)));
+  }
+
+  /**
+   * Check that the detail of a row of a grid holds the whole nested grid that it shows, down to its last row and across
+   * its width: the detail grows with the nested grid and does not cut it
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   */
+  protected void checkGridRowDetailHoldsNestedGrid(String gridId, String rowId, String nestedGridId) {
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    By nested = frontEndInstructions.getGridRowDetailNestedGrid(gridId, rowId, nestedGridId);
+    By nestedRows = frontEndInstructions.getGridRow(nestedGridId, null);
+    waitUntil(BrowserCondition.allOf(toBeVisible(detail), toBeVisible(nested), toBePresent(nestedRows),
+      checkIfGridLoaderIsNotVisible()));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), EDGES_SCRIPT));
+    String nestedBox = String.valueOf(getBrowser().executeScriptOn(locator(nested), EDGES_SCRIPT));
+    Object lastRowBottom = getBrowser().executeScript(LAST_BOTTOM_SCRIPT, locator(nestedRows).expression());
+    double[] outer = parseNumbers(detailBox, 4);
+    double[] inner = parseNumbers(nestedBox, 4);
+    double lastBottom = lastRowBottom instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ") does not hold the nested grid "
+        + nestedGridId + " (" + nestedBox + ") down to its last row (" + lastRowBottom + "): top|bottom|left|right",
+      inner[1] > inner[0] && inner[0] >= outer[0] - ROW_DETAIL_TOLERANCE && inner[1] <= outer[1] + ROW_DETAIL_TOLERANCE
+        && inner[2] >= outer[2] - ROW_DETAIL_TOLERANCE && inner[3] <= outer[3] + ROW_DETAIL_TOLERANCE
+        && lastBottom <= inner[1] + ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
    * Read the box of an element that {@link #BOX_SCRIPT} returns
    *
    * @param box Box as top|bottom|width
    * @return Top, bottom and width (not numbers when the box is not valid)
    */
   private static double[] parseBox(String box) {
-    String[] edges = box.split("\\|");
-    double[] values = {Double.NaN, Double.NaN, Double.NaN};
+    return parseNumbers(box, 3);
+  }
+
+  /**
+   * Read the numbers, separated by {@code |}, that a script returns
+   *
+   * @param numbers Numbers separated by {@code |}
+   * @param count   Number of values to read
+   * @return Values (not numbers when a value is missing or not valid)
+   */
+  private static double[] parseNumbers(String numbers, int count) {
+    String[] edges = numbers.split("\\|");
+    double[] values = new double[count];
+    Arrays.fill(values, Double.NaN);
     for (int index = 0; index < Math.min(edges.length, values.length); index++) {
       try {
         values[index] = Double.parseDouble(edges[index]);

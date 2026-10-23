@@ -6,8 +6,10 @@
          ng-style="Viewport.rowStyle(rowRenderIndex)" ng-right-click="grid.appScope.component.rowContextMenu($event, row)" ng-mouseenter="grid.hover = row.uid" ng-mouseleave="grid.hover = null"
          ng-class="{'ui-grid-row-hover': grid.hover === row.uid, 'grid-row-detail-open': grid.appScope.component.rowDetail && grid.appScope.component.isRowDetailOpen(row) }" ng-attr-id="{{row.entity[grid.appScope.component.constants.ROW_IDENTIFIER]}}">
       <div role="row" class="no-animate" data-testid="grid-row" ng-attr-data-selected="{{!!row.isSelected}}" ui-grid-row="row" row-render-index="rowRenderIndex" ng-attr-row-id="{{row.entity[grid.appScope.component.constants.ROW_IDENTIFIER]}}"></div>
-      <div ng-if="grid.appScope.component.rowDetail && colContainer.name === 'body' && grid.appScope.component.isRowDetailOpen(row)" class="grid-row-detail" ng-class="grid.appScope.component.rowDetail.style" data-testid="grid-row-detail"
+      <div ng-if="grid.appScope.component.rowDetail && !grid.appScope.component.rowDetail.component && colContainer.name === 'body' && grid.appScope.component.isRowDetailOpen(row)" class="grid-row-detail" ng-class="grid.appScope.component.rowDetail.style" data-testid="grid-row-detail"
            ng-attr-id="{{grid.appScope.component.getRowDetailId(row)}}" ng-attr-row-id="{{row.entity[grid.appScope.component.constants.ROW_IDENTIFIER]}}" ng-bind="grid.appScope.component.getRowDetailText(row)"></div>
+      <div ng-if="grid.appScope.component.rowDetail.component && colContainer.name === 'body' && grid.appScope.component.isRowDetailOpen(row)" class="grid-row-detail grid-row-detail-components" ng-class="grid.appScope.component.rowDetail.style" data-testid="grid-row-detail"
+           ng-attr-id="{{grid.appScope.component.getRowDetailId(row)}}" ng-attr-row-id="{{row.entity[grid.appScope.component.constants.ROW_IDENTIFIER]}}" awe-grid-row-detail-instance></div>
     </div>
   </div>
 </div>

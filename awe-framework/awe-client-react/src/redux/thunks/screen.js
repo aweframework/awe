@@ -52,6 +52,40 @@ function getScreenNavigationOptions(isCurrentScreenReload, isRelativeRoute) {
   return { relative: isRelativeRoute ? "path" : false };
 }
 
+/**
+ * Build the state of a component of the screen data (its controller and model) as the screen stores it
+ * @param {string} view View of the component
+ * @param {object} component Screen component ({id, controller, model})
+ * @param {object} settings Application settings
+ * @param {string[]} source Structure path of the component (its context)
+ * @returns {object} Component state
+ */
+export function buildComponent(view, component, settings, source = []) {
+  const isGrid = "columnModel" in component.controller;
+  const address = { view, component: component.id };
+  const model = fixModel(component.model, isGrid);
+  const defaultModel = fixDefaultModel(model, component.model.defaultValues, isGrid);
+  const controller = fixController(component.controller, isGrid, settings);
+  const specificAttributes = getSpecificAttributes(component.controller, isGrid, settings);
+  const validationRules = parseValidationRules(controller.validation, address);
+  return {
+    uid: component.id,
+    address: { ...address },
+    model: { ...model },
+    storedModel: { ...model },
+    defaultModel: { ...defaultModel },
+    attributes: { ...controller },
+    specificAttributes: { ...specificAttributes },
+    storedAttributes: { ...controller },
+    validationRules: { ...validationRules },
+    storedValidationRules: { ...validationRules },
+    actions: component.controller.actions || [],
+    dependencies: component.controller.dependencies || [],
+    contextMenu: component.controller.contextMenu || [],
+    context: { view, source: [...source] }
+  };
+}
+
 export const loadScreen = (view, option, t) => async (dispatch, getState) => {
   try {
     const state = getState();
@@ -92,34 +126,10 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
     dispatch({ ...clearComponents(view), settings });
 
     // Register components with their dependencies.
-    dispatch(updateViewComponentsWithDependencies(view, response.components.reduce((list = {}, component = {}) => {
-      const isGrid = "columnModel" in component.controller;
-      const address = { view, component: component.id };
-      const model = fixModel(component.model, isGrid);
-      const defaultModel = fixDefaultModel(model, component.model.defaultValues, isGrid);
-      const controller = fixController(component.controller, isGrid, settings);
-      const specificAttributes = getSpecificAttributes(component.controller, isGrid, settings);
-      const validationRules = parseValidationRules(controller.validation, address);
-      return {
-        ...list,
-        [component.id]: {
-          uid: component.id,
-          address: { ...address },
-          model: { ...model },
-          storedModel: { ...model },
-          defaultModel: { ...defaultModel },
-          attributes: { ...controller },
-          specificAttributes: { ...specificAttributes },
-          storedAttributes: { ...controller },
-          validationRules: { ...validationRules },
-          storedValidationRules: { ...validationRules },
-          actions: component.controller.actions || [],
-          dependencies: component.controller.dependencies || [],
-          contextMenu: component.controller.contextMenu || [],
-          context: { view: address.view, source: [...(componentStructure[component.id] || [])] }
-        }
-      };
-    }, {})));
+    dispatch(updateViewComponentsWithDependencies(view, response.components.reduce((list = {}, component = {}) => ({
+      ...list,
+      [component.id]: buildComponent(view, component, settings, componentStructure[component.id] || [])
+    }), {})));
 
     const menu = response.components.find((component) => component.id === "MainMenu");
     if (menu) {

@@ -143,8 +143,9 @@ botón, por lo que puede usarse, por ejemplo, para limpiar los criterios de bús
 
 Un grid puede mostrar un área de detalle bajo cada fila. Con un elemento `<row-detail>` dentro del grid, cada fila empieza
 con un botón que abre, bajo la fila y a lo ancho de todo el grid, un texto construido a partir de una plantilla con los
-datos de la fila. Funciona en **ambos motores de cliente**, y un grid sin `<row-detail>` se muestra exactamente igual que
-antes.
+datos de la fila o un grid anidado alimentado con los datos de la fila (ver
+[Detalle con un grid anidado](#detail-with-a-nested-grid)). Funciona en **ambos motores de cliente**, y un grid sin
+`<row-detail>` se muestra exactamente igual que antes.
 
 ```xml
 <grid id="GrdThemes" style="expand" initial-load="query" server-action="data" target-action="ThemeList" max="10">
@@ -187,6 +188,71 @@ lo que no se puede dar estilo a sus partes por separado. Defina las clases en lo
 }
 ```
 
+#### Detalle con un grid anidado {#detail-with-a-nested-grid}
+
+En lugar de una plantilla, el `<row-detail>` puede contener un **grid de solo lectura**, por ejemplo los pedidos del
+producto de la fila abierta. Declárelo dentro del `<row-detail>`:
+
+```xml
+<grid id="GrdProducts" style="expand" initial-load="query" server-action="data" target-action="ProductList" max="10">
+  <column label="COLUMN_PRODUCT" name="name" align="left" charlength="30"/>
+  <column label="COLUMN_PRODUCT_ID" name="product" hidden="true"/>
+  <row-detail style="row-detail-card">
+    <grid id="GrdOrders" server-action="data" target-action="OrdersOfProduct" max="10">
+      <column label="COLUMN_ORDER" name="order" align="left" charlength="15"/>
+      <column label="COLUMN_STATUS" name="status" align="center" charlength="10"/>
+      <button id="ButOrdersHelp" label="BUTTON_HELP" icon="info-circle">
+        <button-action type="confirm" target="OrdersHelpMsg"/>
+      </button>
+    </grid>
+  </row-detail>
+</grid>
+```
+
+o tráigalo de otra pantalla con un [include](include.md) cuyo origen contenga solo ese grid:
+
+```xml
+<row-detail style="row-detail-card">
+  <include target-screen="ProductOrders" target-source="orders"/>
+</row-detail>
+```
+
+El grid anidado es una definición de grid normal: las columnas, los componentes y estilos de columna, la ordenación, la
+paginación y los botones (de la barra y columnas de botón) funcionan como en cualquier grid.
+
+**Datos de la fila padre.** Cada petición de un grid anidado (sus cargas, ordenaciones y cambios de página, y las acciones
+de sus botones) envía cada campo de la fila padre como un valor único con el nombre `<ParentGridId>.row.<column>`,
+también los campos de las columnas ocultas. Su consulta los lee con una `<variable>` cuyo `name` es ese parámetro:
+
+```xml
+<query id="OrdersOfProduct">
+  <table id="Orders"/>
+  <field id="OrderId" alias="id"/>
+  <field id="OrderCode" alias="order"/>
+  <field id="Status" alias="status"/>
+  <where>
+    <and>
+      <filter left-field="ProductId" condition="eq" right-variable="product"/>
+    </and>
+  </where>
+  <variable id="product" type="INTEGER" name="GrdProducts.row.product"/>
+</query>
+```
+
+Un objeto de celda de la fila padre se envía como su valor. Solo las peticiones de ese grid anidado llevan estos valores.
+
+**Comportamiento del grid anidado.**
+
+- Cada fila abierta tiene **su propia instancia** del grid anidado, con sus propios datos, página y orden: ordenar o
+  paginar el grid anidado de una fila no cambia los demás.
+- **No es un componente de la pantalla**: no se carga con la pantalla, se carga al abrir su fila y sus valores no forman
+  parte de los valores del formulario de la pantalla (los demás botones y grids de la pantalla no los envían).
+- El identificador de una instancia es `<nestedGridId>-<rowId>` (por ejemplo `GrdOrders-7`), y el de sus botones
+  `<buttonId>-<rowId>`.
+- La instancia se elimina al cerrar su fila y cuando el grid padre recarga sus datos (una nueva búsqueda, una recarga, o
+  un cambio de página u orden que resuelve el servidor), de modo que no queda ningún estado anidado.
+- El grid anidado tiene una altura fija de `18rem` en ambos motores; sus filas se desplazan dentro de él.
+
 Comportamiento:
 
 - Puede haber varias filas abiertas a la vez. El botón no selecciona la fila, y seleccionar una fila no abre su detalle.
@@ -198,8 +264,15 @@ Comportamiento:
   mantiene las filas abiertas.
 
 :::note Límites
-- Por ahora la plantilla es la única fuente del detalle. Está previsto construir el detalle a partir de un fragmento de
-  pantalla o de una consulta.
+- El detalle es una plantilla o un grid anidado, nunca ambos: un `<row-detail>` con texto y un grid hace que la pantalla
+  no se cargue y muestre un error.
+- Los componentes de un detalle de fila se limitan a **un grid de solo lectura**, directamente o mediante un `include`.
+  Cualquier otro componente, un grid `editable` o con `send-operations`, o una `<dependency>` dentro del `<row-detail>`
+  hacen que la pantalla no se cargue y muestre un error. Los componentes fuera del detalle no pueden apuntar al grid
+  anidado ni a sus botones (`target`).
+- Los nombres de columna del grid anidado deben ser distintos de los de los demás grids de la pantalla, como en cualquier
+  grid (el esquema de pantalla exige nombres de columna únicos).
+- En el motor AngularJS la página de un grid anidado no debe superar las 50 filas (`max`); no se admiten páginas mayores.
 - Los grids en árbol (`treegrid="true"`) no muestran el detalle de fila en ningún motor.
 - En el motor AngularJS, cuando el grid tiene columnas congeladas (`frozen`), el detalle se muestra solo en la parte con
   desplazamiento; las filas de la parte congelada no crecen.
@@ -207,7 +280,8 @@ Comportamiento:
   las filas de su página** en lugar de virtualizarlas (el tamaño de página del grid, ver `max`, acota el coste).
 :::
 
-Las aplicaciones de prueba incluyen la pantalla *Row detail* en el menú de pruebas de la matriz.
+Las aplicaciones de prueba incluyen las pantallas *Row detail* y *Row detail with a grid* (países con los clientes de cada
+país, directamente y mediante un include) en el menú de pruebas de la matriz.
 
 ## Estructura de columna {#column-structure}
 

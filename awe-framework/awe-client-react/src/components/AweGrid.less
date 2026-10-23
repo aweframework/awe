@@ -117,3 +117,13 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
+
+// With components, the detail holds the nested grid of its row: the text rules of a template do not apply to its cells,
+// and the grid gets a fixed height (as in the AngularJS engine), since its flexible table has no height to fill otherwise
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td .grid-row-detail.grid-row-detail-components {
+  white-space: normal;
+  overflow-wrap: normal;
+  > .grid-container {
+    height: 18rem;
+  }
+}

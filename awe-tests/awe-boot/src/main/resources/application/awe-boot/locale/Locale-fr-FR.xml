@@ -257,6 +257,16 @@
   <locale name="SCREEN_TITLE_GRID_ROW_DETAIL" value="Row detail"/>
   <locale name="COLUMN_ROW_DETAIL_CODE" value="Code"/>
   <locale name="COLUMN_ROW_DETAIL_ACTIVE" value="Actif"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL_COMPONENTS" value="Détail de ligne avec grille"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS" value="Détail de ligne avec grille imbriquée"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE" value="Détail de ligne depuis un include"/>
+  <locale name="COLUMN_ROW_DETAIL_CUSTOMER" value="Client"/>
+  <locale name="COLUMN_ROW_DETAIL_ADDRESS" value="Adresse"/>
+  <locale name="COLUMN_ROW_DETAIL_SINCE" value="Client depuis"/>
+  <locale name="COLUMN_ROW_DETAIL_STATUS" value="Statut"/>
+  <locale name="BUTTON_ROW_DETAIL_CUSTOMERS_INFO" value="À propos des clients"/>
+  <locale name="CONFIRM_TITLE_ROW_DETAIL_CUSTOMERS" value="Clients"/>
+  <locale name="CONFIRM_MESSAGE_ROW_DETAIL_CUSTOMERS" value="La grille imbriquée montre les clients du pays de sa ligne"/>
   <locale name="MENU_TEST_MATRIX_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="SCREEN_TITLE_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="MENU_TEST_MATRIX_DEFERRED" value="Deferred load"/>

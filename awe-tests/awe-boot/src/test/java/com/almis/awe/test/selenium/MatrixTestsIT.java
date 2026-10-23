@@ -24,6 +24,10 @@ class MatrixTestsIT extends AbstractSessionTests {
   private static final String BUTTON_DEFERRED_SAVE = "ButDefSave";
   private static final String MATRIX_PAGER_OPTION = "matrix-test-pager";
   private static final String ROW_DETAIL_GRID = "GrdRowDetailTst";
+  private static final String ROW_DETAIL_COMPONENTS_GRID = "GrdRowDetailCmp";
+  private static final String ROW_DETAIL_NESTED_GRID = "GrdRowDetailCmpCus";
+  private static final String ROW_DETAIL_INCLUDE_GRID = "GrdRowDetailCmpInc";
+  private static final String ROW_DETAIL_INCLUDED_GRID = "GrdRowDetailCmpIncCus";
 
   /**
    * Time that a page with wrapping columns may take to render, as a multiple of the time of the same page without wrapping.
@@ -1270,6 +1274,95 @@ class MatrixTestsIT extends AbstractSessionTests {
   private void checkRowDetailClosed(String rowId) {
     checkGridRowDetailClosed(ROW_DETAIL_GRID, rowId);
     checkGridRowDetailToggleLabel(ROW_DETAIL_GRID, rowId, "Show row details");
+  }
+
+  /**
+   * Row detail with components (#884): the detail of a country shows a nested grid with the customers of the country,
+   * read from a hidden column of the parent row. Several rows keep their own nested grid, which sorts on its own, shows
+   * its styled cells and runs its buttons. A reload of the parent closes every detail and removes the nested grids. The
+   * second grid brings its nested grid with an include
+   */
+  @Test
+  void t120_gridRowDetailNestedGrid() {
+    // Title
+    setTestTitle("Grid row detail with a nested grid: own rows, independent sort, buttons, styles, reload and include");
+
+    // Go to screen
+    openMatrixOption("matrix-test-row-detail-components");
+    checkRowContentsGrid(ROW_DETAIL_COMPONENTS_GRID, "Spain");
+
+    // The nested grid is not a screen component: there is none until a row opens
+    checkGridHeaderNotVisible(ROW_DETAIL_COMPONENTS_GRID, "country");
+    checkGridNotPresent(nestedGridId("1"));
+
+    // Spain (1) opens its detail with a nested grid that shows only its two customers, in the order of the query
+    clickGridRowDetailToggle(ROW_DETAIL_COMPONENTS_GRID, "1");
+    checkGridRowDetailHasNestedGrid(ROW_DETAIL_COMPONENTS_GRID, "1", nestedGridId("1"));
+    checkRowContentsGrid(nestedGridId("1"), "Customer2", "Customer3");
+    checkGridColumnOrder(nestedGridId("1"), "customer", "Customer2", "Customer3");
+
+    // The status cells keep the style that the query gives to them
+    checkCellContents(nestedGridId("1"), "2", "status", "Regular");
+    checkCellHasClass(nestedGridId("1"), "2", "status", "scale-seq-2");
+    checkCellContents(nestedGridId("1"), "3", "status", "New");
+    checkCellHasClass(nestedGridId("1"), "3", "status", "scale-pos-3");
+
+    // The detail starts under its row, spans the grid and holds the whole nested grid, down to its last row
+    checkRowDetailWithNestedGrid("1");
+
+    // United Kingdom (6) opens its own nested grid with its only customer; the one of Spain keeps its rows
+    clickGridRowDetailToggle(ROW_DETAIL_COMPONENTS_GRID, "6");
+    checkGridRowDetailHasNestedGrid(ROW_DETAIL_COMPONENTS_GRID, "6", nestedGridId("6"));
+    checkRowContentsGrid(nestedGridId("6"), "Customer1");
+    checkGridColumnOrder(nestedGridId("6"), "customer", "Customer1");
+    checkGridColumnOrder(nestedGridId("1"), "customer", "Customer2", "Customer3");
+    checkRowDetailWithNestedGrid("6");
+
+    // Sorting the nested grid of Spain on the server (descending, on the second click) keeps it on its own customers and
+    // does not touch the nested grid of the United Kingdom
+    sortGrid(nestedGridId("1"), "customer");
+    sortGrid(nestedGridId("1"), "customer");
+    checkGridColumnOrder(nestedGridId("1"), "customer", "Customer3", "Customer2");
+    checkGridColumnOrder(nestedGridId("6"), "customer", "Customer1");
+
+    // The button of a nested grid runs its actions
+    clickButton("ButRowDetailCmpInfo-6");
+    acceptConfirm();
+
+    // A reload of the parent (a sort on the server) closes every detail and leaves no nested grid behind
+    sortGrid(ROW_DETAIL_COMPONENTS_GRID, "name");
+    checkRowContentsGrid(ROW_DETAIL_COMPONENTS_GRID, "Spain");
+    checkNoGridRowDetailOpen(ROW_DETAIL_COMPONENTS_GRID);
+    checkGridNotPresent(nestedGridId("1"));
+    checkGridNotPresent(nestedGridId("6"));
+
+    // The nested grid of an include works the same way
+    clickGridRowDetailToggle(ROW_DETAIL_INCLUDE_GRID, "1");
+    checkGridRowDetailHasNestedGrid(ROW_DETAIL_INCLUDE_GRID, "1", ROW_DETAIL_INCLUDED_GRID + "-1");
+    checkRowContentsGrid(ROW_DETAIL_INCLUDED_GRID + "-1", "Customer2", "Customer3");
+    checkGridColumnOrder(ROW_DETAIL_INCLUDED_GRID + "-1", "incCustomer", "Customer2", "Customer3");
+  }
+
+  /**
+   * Identifier of the nested grid of the detail of a row of the row detail with components test grid
+   *
+   * @param rowId Row identifier
+   * @return Grid identifier
+   */
+  private static String nestedGridId(String rowId) {
+    return ROW_DETAIL_NESTED_GRID + "-" + rowId;
+  }
+
+  /**
+   * Check that the detail of a row of the row detail with components test grid starts right under its row, spans the
+   * visible part of the grid and holds the whole nested grid of the row
+   *
+   * @param rowId Row identifier
+   */
+  private void checkRowDetailWithNestedGrid(String rowId) {
+    checkGridRowDetailUnderItsRow(ROW_DETAIL_COMPONENTS_GRID, rowId);
+    checkGridRowDetailAcrossGrid(ROW_DETAIL_COMPONENTS_GRID, rowId);
+    checkGridRowDetailHoldsNestedGrid(ROW_DETAIL_COMPONENTS_GRID, rowId, nestedGridId(rowId));
   }
 
   /**

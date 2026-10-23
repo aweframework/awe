@@ -139,8 +139,9 @@ can be used, for example, to clear the search criteria.
 ### Row detail
 
 A grid can show a detail area under each row. With a `<row-detail>` element inside the grid, every row starts with a
-toggle button; it opens, under the row and across the whole width of the grid, a text built from a template with the
-data of the row. It works in **both client engines**, and a grid without `<row-detail>` renders exactly as before.
+toggle button; it opens, under the row and across the whole width of the grid, either a text built from a template with
+the data of the row or a nested grid fed with the data of the row (see [Detail with a nested grid](#detail-with-a-nested-grid)).
+It works in **both client engines**, and a grid without `<row-detail>` renders exactly as before.
 
 ```xml
 <grid id="GrdThemes" style="expand" initial-load="query" server-action="data" target-action="ThemeList" max="10">
@@ -182,6 +183,71 @@ cannot be styled separately. Define the classes in the styles of your applicatio
 }
 ```
 
+#### Detail with a nested grid
+
+Instead of a template, the `<row-detail>` can hold a **read-only grid**, for example the orders of the product of the
+open row. Declare it inside the `<row-detail>`:
+
+```xml
+<grid id="GrdProducts" style="expand" initial-load="query" server-action="data" target-action="ProductList" max="10">
+  <column label="COLUMN_PRODUCT" name="name" align="left" charlength="30"/>
+  <column label="COLUMN_PRODUCT_ID" name="product" hidden="true"/>
+  <row-detail style="row-detail-card">
+    <grid id="GrdOrders" server-action="data" target-action="OrdersOfProduct" max="10">
+      <column label="COLUMN_ORDER" name="order" align="left" charlength="15"/>
+      <column label="COLUMN_STATUS" name="status" align="center" charlength="10"/>
+      <button id="ButOrdersHelp" label="BUTTON_HELP" icon="info-circle">
+        <button-action type="confirm" target="OrdersHelpMsg"/>
+      </button>
+    </grid>
+  </row-detail>
+</grid>
+```
+
+or bring it from another screen with an [include](include.md) whose source contains only that grid:
+
+```xml
+<row-detail style="row-detail-card">
+  <include target-screen="ProductOrders" target-source="orders"/>
+</row-detail>
+```
+
+The nested grid is a normal grid definition: columns, column components and styles, sorting, paging and buttons (toolbar
+buttons and button columns) work as in any grid.
+
+**Data of the parent row.** Every request of a nested grid (its loads, sorts and page changes, and the actions of its
+buttons) sends each field of the parent row as a single value named `<ParentGridId>.row.<column>`, also the fields of
+hidden columns. Its query reads them with a `<variable>` whose `name` is that parameter:
+
+```xml
+<query id="OrdersOfProduct">
+  <table id="Orders"/>
+  <field id="OrderId" alias="id"/>
+  <field id="OrderCode" alias="order"/>
+  <field id="Status" alias="status"/>
+  <where>
+    <and>
+      <filter left-field="ProductId" condition="eq" right-variable="product"/>
+    </and>
+  </where>
+  <variable id="product" type="INTEGER" name="GrdProducts.row.product"/>
+</query>
+```
+
+A cell object of the parent row is sent as its value. Only the requests of that nested grid carry these values.
+
+**Behaviour of the nested grid.**
+
+- Each open row gets **its own instance** of the nested grid, with its own data, page and sort order: sorting or paging
+  the nested grid of one row does not change the others.
+- It is **not a screen component**: it is not loaded with the screen, it loads when its row is opened, and its values are
+  not part of the form values of the screen (other buttons and grids of the screen do not send them).
+- The identifier of an instance is `<nestedGridId>-<rowId>` (for example `GrdOrders-7`), and the one of its buttons
+  `<buttonId>-<rowId>`.
+- The instance is removed when its row closes and when the parent grid reloads its data (a new search, a reload, or a
+  change of page or sort order served by the server), so no nested state is left behind.
+- The nested grid has a fixed height of `18rem` in both engines; its rows scroll inside it.
+
 Behaviour:
 
 - Several rows can be open at the same time. The toggle does not select the row, and selecting a row does not open its
@@ -193,8 +259,14 @@ Behaviour:
   In a grid that loads all its rows (`load-all="true"`), changing the page or sorting on the client keeps the open rows.
 
 :::note Limits
-- The template is the only source of the detail for now. Details built from a screen fragment or from a query are
-  planned.
+- The detail is either a template or a nested grid, never both: a `<row-detail>` with text and a grid makes the screen fail
+  to load with an error.
+- The components of a row detail are limited to **one read-only grid**, inline or through an `include`. Any other
+  component, an `editable` or `send-operations` grid, or a `<dependency>` inside the `<row-detail>` makes the screen fail
+  to load with an error. Components outside the detail cannot target the nested grid or its buttons (`target`).
+- The column names of the nested grid must be different from the ones of the other grids of the screen, as for any grid
+  (the screen schema requires unique column names).
+- In the AngularJS engine the page of a nested grid should not exceed 50 rows (`max`); larger pages are not supported.
 - Tree grids (`treegrid="true"`) do not show the row detail in either engine.
 - In the AngularJS engine, when the grid has frozen columns (`frozen`), the detail is shown in the scrollable part only;
   the rows of the frozen part do not grow.
@@ -202,7 +274,8 @@ Behaviour:
   its page** instead of virtualizing them (the page size of the grid, see `max`, bounds the cost).
 :::
 
-The test applications include the screen *Row detail* in the matrix test menu.
+The test applications include the screens *Row detail* and *Row detail with a grid* (countries with the customers of
+each country, inline and through an include) in the matrix test menu.
 
 ## Column structure
 

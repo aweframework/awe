@@ -25,6 +25,7 @@ import com.almis.awe.model.entities.screen.Include;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.Component;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.entities.services.Services;
 import com.almis.awe.model.type.LaunchPhaseType;
@@ -735,7 +736,7 @@ public class AweElements {
     screen = screen.copy();
 
     // Set screen identifier
-    List<Element> elements = screen.getElementsByType(Element.class);
+    List<Element> elements = withRowDetailElements(screen.getElementsByType(Element.class));
     for (Element element : elements) {
 
       // Generate component key if not defined
@@ -752,6 +753,23 @@ public class AweElements {
 
     // Get Action
     return screen;
+  }
+
+  /**
+   * Add to a list of elements the ones inside their row details, which the searches by type do not return
+   *
+   * @param elements Elements
+   * @return Elements and the elements of their row details
+   */
+  private List<Element> withRowDetailElements(List<Element> elements) {
+    List<Element> allElements = new ArrayList<>();
+    for (Element element : elements) {
+      allElements.add(element);
+      if (element instanceof RowDetail rowDetail) {
+        allElements.addAll(withRowDetailElements(rowDetail.getDetailElements()));
+      }
+    }
+    return allElements;
   }
 
   /**

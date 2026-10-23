@@ -257,6 +257,16 @@
   <locale name="SCREEN_TITLE_GRID_ROW_DETAIL" value="Row detail"/>
   <locale name="COLUMN_ROW_DETAIL_CODE" value="Code"/>
   <locale name="COLUMN_ROW_DETAIL_ACTIVE" value="Activo"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL_COMPONENTS" value="Detalle de fila con tabla"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS" value="Detalle de fila con tabla anidada"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE" value="Detalle de fila desde un include"/>
+  <locale name="COLUMN_ROW_DETAIL_CUSTOMER" value="Cliente"/>
+  <locale name="COLUMN_ROW_DETAIL_ADDRESS" value="Dirección"/>
+  <locale name="COLUMN_ROW_DETAIL_SINCE" value="Cliente desde"/>
+  <locale name="COLUMN_ROW_DETAIL_STATUS" value="Estado"/>
+  <locale name="BUTTON_ROW_DETAIL_CUSTOMERS_INFO" value="Acerca de los clientes"/>
+  <locale name="CONFIRM_TITLE_ROW_DETAIL_CUSTOMERS" value="Clientes"/>
+  <locale name="CONFIRM_MESSAGE_ROW_DETAIL_CUSTOMERS" value="La tabla anidada muestra los clientes del país de su fila"/>
   <locale name="MENU_TEST_MATRIX_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="SCREEN_TITLE_DIALOG_SIZE" value="Dialog sizes"/>
   <locale name="MENU_TEST_MATRIX_DEFERRED" value="Deferred load"/>

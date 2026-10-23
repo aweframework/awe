@@ -5,6 +5,7 @@ import {
   KEEP_MODEL,
   KEEP_ROW_MODEL,
   KEEP_VALIDATION,
+  REGISTER_COMPONENTS,
   RESET_MODEL,
   RESET_MULTIPLE_MODEL,
   RESTORE_ATTRIBUTE,
@@ -23,6 +24,7 @@ import {
   UPDATE_ROW_MODEL,
   UPDATE_SPECIFIC_ATTRIBUTES,
   UPDATE_VALIDATION,
+  UNREGISTER_COMPONENTS,
   UPDATE_VIEW_COMPONENTS,
   VALIDATE_COMPONENTS,
   VALIDATE_ROW,
@@ -1993,6 +1995,72 @@ function clearComponents(state, view, settings) {
 }
 
 /**
+ * Remove some components from the state and the registry.
+ * @param {Object} state Current state
+ * @param {string[]} ids Component identifiers
+ * @returns {Object} Updated state
+ */
+function unregisterComponents(state, ids = []) {
+  const removed = new Set(ids);
+  removed.forEach(id => ComponentRegistry.unregister(id));
+  return Object.fromEntries(Object.entries(state).filter(([id]) => !removed.has(id)));
+}
+
+/**
+ * Add new components to the state: their base goes to the registry (when it is used) and their deltas to the state.
+ * @param {Object} clearedState State the components are added to
+ * @param {Object} data Components by id
+ * @param {Object} settings Settings
+ * @param {string} operation Operation name for the diagnostics
+ * @param {string} view Target view for the diagnostics
+ * @returns {Object} Updated state
+ */
+function addComponents(clearedState, data, settings, operation, view) {
+  const updatedData = updateComponentFooters(data);
+  const useRegistry = settings && settings.useComponentRegistry;
+
+  Object.entries(updatedData || {}).forEach(([id, component]) => {
+    if (getAddressType(component?.address) === ComponentAddressType.ADDRESS_INVALID) {
+      warnMalformedComponent({...component, uid: component?.uid ?? id}, {
+        origin: 'reducer',
+        operation,
+        componentKey: id,
+        extra: {
+          registryComponentId: id,
+          useComponentRegistry: !!useRegistry,
+          targetView: view
+        }
+      });
+    }
+  });
+
+  if (useRegistry) {
+    // Registrar componentes en el Registry y calcular deltas para Redux
+    const deltas = Object.entries(updatedData).reduce((acc, [id, component]) => {
+      // Registrar en Registry (estado base)
+      ComponentRegistry.register(id, component);
+
+      // Calcular deltas (lo que realmente guardamos en Redux)
+      const base = ComponentRegistry.get(id);
+      acc[id] = calculateDeltas(base, component);
+
+      return acc;
+    }, {});
+
+    return {
+      ...clearedState,
+      ...deltas
+    };
+  }
+
+  // Modo legacy: guardar todo en Redux
+  return {
+    ...clearedState,
+    ...updatedData
+  };
+}
+
+/**
  * Action handlers map.
  * Each handler is a pure function that takes (state, action) and returns new state.
  */
@@ -2006,49 +2074,12 @@ const actionHandlers = {
 
   [UPDATE_VIEW_COMPONENTS]: (state, action) => {
     const clearedState = action.view === "base" ? {} : clearComponents(state, action.view, action.settings);
-    const updatedData = updateComponentFooters(action.data);
-    const useRegistry = action.settings && action.settings.useComponentRegistry;
-
-    Object.entries(updatedData || {}).forEach(([id, component]) => {
-      if (getAddressType(component?.address) === ComponentAddressType.ADDRESS_INVALID) {
-        warnMalformedComponent({...component, uid: component?.uid ?? id}, {
-          origin: 'reducer',
-          operation: 'updateViewComponents',
-          componentKey: id,
-          extra: {
-            registryComponentId: id,
-            useComponentRegistry: !!useRegistry,
-            targetView: action.view
-          }
-        });
-      }
-    });
-
-    if (useRegistry) {
-      // Registrar componentes en el Registry y calcular deltas para Redux
-      const deltas = Object.entries(updatedData).reduce((acc, [id, component]) => {
-        // Registrar en Registry (estado base)
-        ComponentRegistry.register(id, component);
-
-        // Calcular deltas (lo que realmente guardamos en Redux)
-        const base = ComponentRegistry.get(id);
-        acc[id] = calculateDeltas(base, component);
-
-        return acc;
-      }, {});
-
-      return {
-        ...clearedState,
-        ...deltas
-      };
-    }
-
-    // Modo legacy: guardar todo en Redux
-    return {
-      ...clearedState,
-      ...updatedData
-    };
+    return addComponents(clearedState, action.data, action.settings, 'updateViewComponents', action.view);
   },
+
+  [REGISTER_COMPONENTS]: (state, action) => addComponents(state, action.data, action.settings, 'registerComponents', null),
+
+  [UNREGISTER_COMPONENTS]: (state, action) => unregisterComponents(state, action.ids),
 
   [UPDATE_COMPONENT]: (state, action) =>
     updateComponentData(state, memoizedGetComponentId(action.address), action.data, action.settings),
