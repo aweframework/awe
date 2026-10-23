@@ -209,6 +209,16 @@ class AngularAweInstructionsTest {
   }
 
   @Test
+  void shouldFindThePopoverOfATargetMessageOverItsComponent() {
+    assertThat(instructions.getMessagePopover("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt']");
+    assertThat(instructions.getMessagePopoverTitle("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt'] [data-testid='popover-title']");
+    assertThat(instructions.getMessagePopoverText("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt'] [data-testid='popover-content']");
+  }
+
+  @Test
   void shouldLocateTheElementsOfTheCriteriaAndTheScreen() {
     assertThat(instructions.getMenuOptionItem("test"))
       .hasToString("By.cssSelector: [data-testid='menu-option'][option-name='test']");

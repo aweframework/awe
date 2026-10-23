@@ -254,6 +254,18 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldFindThePopoverOfATargetMessageOverItsComponent() {
+    // The message popover is not a popover to move the mouse away from: hovering does not hide it in React
+    assertThat(instructions.getMessagePopover("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt']");
+    assertThat(instructions.getMessagePopoverTitle("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt'] [data-testid='popover-title']");
+    assertThat(instructions.getMessagePopoverText("Txt"))
+      .hasToString("By.cssSelector: [data-testid='popover'][data-testid-owner='Txt'] [data-testid='popover-content']");
+    assertThat(instructions.getPopover()).isNotEqualTo(instructions.getMessagePopover("Txt"));
+  }
+
+  @Test
   void shouldEscapeQuotesOfTheTextThatTestsSearch() throws Exception {
     assertThat(instructions.getGridCellText("Grd", "R1", "Col", "It's")).hasToString("By.xpath: "
       + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"

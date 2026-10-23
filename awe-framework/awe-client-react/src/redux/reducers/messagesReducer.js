@@ -3,7 +3,9 @@ import {
   CONFIRM_MESSAGE,
   REMOVE_CONFIRM,
   REMOVE_MESSAGE,
+  REMOVE_POPOVER,
   SHOW_MESSAGES,
+  SHOW_POPOVER,
   UPDATE_MESSAGES
 } from '../actions/messages';
 
@@ -58,6 +60,14 @@ export function messages(state = InitialState, action = {}) {
           ...action.data
         }
       };
+    // A target message shows one popover at a time: a new one replaces the previous one
+    case SHOW_POPOVER:
+      return {
+        ...state,
+        popover: {...action.data}
+      };
+    case REMOVE_POPOVER:
+      return state.popover?.id === action.data?.id ? {...state, popover: undefined} : state;
     case REMOVE_CONFIRM:
       return {
         ...state,

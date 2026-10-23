@@ -782,6 +782,51 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the popover of a target message, shown over the component the message points at. It is not the popover that
+   * {@link #getPopover()} moves the mouse away from: the React client does not hide it on hover
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover selector
+   */
+  default By getMessagePopover(String component) {
+    return By.cssSelector(messagePopoverCss(component));
+  }
+
+  /**
+   * Get the title of the popover of a target message
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover title selector
+   */
+  default By getMessagePopoverTitle(String component) {
+    return By.cssSelector(messagePopoverCss(component) + " " + TestIds.css(TestIds.POPOVER_TITLE));
+  }
+
+  /**
+   * Get the text of the popover of a target message
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover text selector
+   */
+  default By getMessagePopoverText(String component) {
+    return By.cssSelector(messagePopoverCss(component) + " " + TestIds.css(TestIds.POPOVER_CONTENT));
+  }
+
+  /**
+   * Get the mask that covers the screen while the popover of a target message is shown, and hides it when it is
+   * clicked. The React client has no mask: its popover hides with the escape key
+   *
+   * @return Message popover mask selector, or null when the client has no mask
+   */
+  default By getMessagePopoverMask() {
+    return By.cssSelector("div.target-message.component-mask");
+  }
+
+  private static String messagePopoverCss(String component) {
+    return TestIds.css(TestIds.POPOVER) + TestAttributes.css(TestAttributes.OWNER, component);
+  }
+
+  /**
    * Get an option of the application menu (the element that holds its link and its children)
    *
    * @param option Option name

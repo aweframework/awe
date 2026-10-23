@@ -149,14 +149,17 @@ export const TestIds = Object.freeze({
   alertTitle: "alert-title",
   alertMessage: "alert-message",
   alertClose: "alert-close",
+  // Popover of a target message, shown over its target component (the owner), with its title and text
+  popover: "popover",
+  popoverTitle: "popover-title",
+  popoverContent: "popover-content",
   // Modal dialogs and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",
   // Side panels (dialogs anchored to an edge of the screen) with their close button
   sidePanel: "side-panel",
   sidePanelClose: "side-panel-close",
-  // Popovers (dialogs anchored to a control; owner: popover id) with their close button
-  popover: "popover",
+  // Popovers (dialogs anchored to a control; owner: popover id) share the "popover" hook above; their close button
   popoverClose: "popover-close",
   confirmDialog: "confirm-dialog",
   confirmAccept: "confirm-accept",

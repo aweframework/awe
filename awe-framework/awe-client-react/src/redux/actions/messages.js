@@ -8,6 +8,8 @@ export const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 export const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 export const CONFIRM_MESSAGE = 'CONFIRM_MESSAGE';
 export const REMOVE_CONFIRM = 'REMOVE_CONFIRM';
+export const SHOW_POPOVER = 'SHOW_POPOVER';
+export const REMOVE_POPOVER = 'REMOVE_POPOVER';
 
 export const MessageType = {
   MESSAGE_OK: 'ok',
@@ -43,4 +45,12 @@ export function confirmMessage(data) {
 
 export function removeConfirm() {
   return {type: REMOVE_CONFIRM};
+}
+
+export function showPopover(data) {
+  return {type: SHOW_POPOVER, data};
+}
+
+export function removePopover(data) {
+  return {type: REMOVE_POPOVER, data};
 }

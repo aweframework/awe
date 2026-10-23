@@ -112,6 +112,16 @@ class SeleniumUtilitiesSemanticStepsTest {
     return element;
   }
 
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> performedActions() {
+    ArgumentCaptor<Collection<Sequence>> captor = ArgumentCaptor.forClass(Collection.class);
+    verify((Interactive) driver, atLeast(0)).perform(captor.capture());
+    return captor.getAllValues().stream()
+      .flatMap(Collection::stream)
+      .flatMap(sequence -> ((List<Map<String, Object>>) sequence.toJson().get("actions")).stream())
+      .toList();
+  }
+
   @Test
   void shouldCheckTheTitleAndTheTextOfAMessageThroughTheInstructions() {
     show(instructions.getMessageTitle("warning"), "Invalid credentials");
@@ -126,6 +136,53 @@ class SeleniumUtilitiesSemanticStepsTest {
   @Test
   void shouldFailWhenTheMessageIsNeverShown() {
     assertThrows(AssertionFailedError.class, () -> utilities.checkMessageTitle("danger", "Title"));
+  }
+
+  @Test
+  void shouldCheckThePopoverOfATargetMessageThroughTheInstructions() {
+    show(instructions.getMessagePopover("Txt"), "Wrong value The value is not valid");
+    show(instructions.getMessagePopoverTitle("Txt"), "Wrong value");
+    show(instructions.getMessagePopoverText("Txt"), "The value is not valid");
+
+    assertThatCode(() -> utilities.checkMessagePopover("Txt", "Wrong value", "The value is not valid"))
+      .doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMessagePopover("Txt", "Wrong value", "Other"));
+    // It stays while it is shown
+    assertThrows(AssertionFailedError.class, () -> utilities.waitForMessagePopoverToHide("Txt"));
+  }
+
+  @Test
+  void shouldDismissThePopoverOfATargetMessageByClickingItsMask() {
+    show(instructions.getMessagePopoverMask(), "");
+
+    assertThatCode(() -> utilities.dismissMessagePopover("Txt")).doesNotThrowAnyException();
+
+    assertThat(performedActions()).extracting(action -> action.get("type")).contains("pointerDown", "pointerUp");
+    assertThat(performedActions()).extracting(action -> action.get("type")).doesNotContain("keyDown");
+  }
+
+  @Test
+  void shouldDismissThePopoverOfATargetMessageWithTheEscapeKeyWhenThereIsNoMask() {
+    use(new ReactAweInstructions());
+
+    assertThatCode(() -> utilities.dismissMessagePopover("Txt")).doesNotThrowAnyException();
+
+    assertThat(instructions.getMessagePopoverMask()).isNull();
+    assertThat(performedActions()).extracting(action -> action.get("type")).contains("keyDown", "keyUp");
+  }
+
+  @Test
+  void shouldFailWhenTheDismissedPopoverOfATargetMessageStays() {
+    use(new ReactAweInstructions());
+    show(instructions.getMessagePopover("Txt"), "Wrong value The value is not valid");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.dismissMessagePopover("Txt"));
+  }
+
+  @Test
+  void shouldFailWhenTheMessagePopoverIsNeverShownAndWaitWhenItIsGone() {
+    assertThrows(AssertionFailedError.class, () -> utilities.checkMessagePopover("Txt", "Title", "Text"));
+    assertThatCode(() -> utilities.waitForMessagePopoverToHide("Txt")).doesNotThrowAnyException();
   }
 
   @Test

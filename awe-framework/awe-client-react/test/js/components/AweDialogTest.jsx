@@ -45,6 +45,12 @@ describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
     expect(root.getAttribute("data-open")).toBe("true");
   });
 
+  it("marks the dialog with its view, as it is rendered outside the view", () => {
+    renderWithProviders(<AweDialog id="dialog" label="Open" elementList={[]} />, { preloadedState });
+
+    expect(document.querySelector("[data-testid='dialog']").getAttribute("view-id")).toBe("report");
+  });
+
   it("calls onHide when closing (dispatch close action)", () => {
     renderWithProviders(
       <AweDialog id="dialog" label="Close me" elementList={[]} />, { preloadedState }

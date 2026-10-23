@@ -57,7 +57,7 @@ function AweDialog(props) {
       visible={attributes?.isShowing}
       onHide={hide}
       focusOnShow={false}
-      pt={dialogPassThrough(id, !!attributes?.isShowing)}
+      pt={dialogPassThrough(id, !!attributes?.isShowing, address.view)}
     >
       {elementList.map((node, index) => Components(node, index))}
     </Dialog>

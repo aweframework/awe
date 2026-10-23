@@ -264,6 +264,10 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getLoginScreenText", i::getLoginScreenText);
     catalog.put("getMessageTitle", () -> i.getMessageTitle("warning"));
     catalog.put("getMessageText", () -> i.getMessageText("warning"));
+    catalog.put("getMessagePopover", () -> i.getMessagePopover(CRITERION));
+    catalog.put("getMessagePopoverTitle", () -> i.getMessagePopoverTitle(CRITERION));
+    catalog.put("getMessagePopoverText", () -> i.getMessagePopoverText(CRITERION));
+    catalog.put("getMessagePopoverMask", i::getMessagePopoverMask);
     catalog.put("getMenuOptionItem", () -> i.getMenuOptionItem(LABEL));
     catalog.put("getLauncherCardDescription", () -> i.getLauncherCardDescription("card"));
     catalog.put("getBreadcrumb", i::getBreadcrumb);

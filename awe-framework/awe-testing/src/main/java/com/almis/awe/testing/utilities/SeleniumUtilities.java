@@ -3745,6 +3745,43 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check the popover of a target message shown over a component
+   *
+   * @param component Id of the component the message points at
+   * @param title     Expected title
+   * @param text      Expected text
+   */
+  protected void checkMessagePopover(String component, String title, String text) {
+    waitForSelector(frontEndInstructions.getMessagePopover(component));
+    checkText(frontEndInstructions.getMessagePopoverTitle(component), title);
+    checkText(frontEndInstructions.getMessagePopoverText(component), text);
+  }
+
+  /**
+   * Wait for the popover of a target message to hide (after the timeout of its type, or when it is dismissed)
+   *
+   * @param component Id of the component the message points at
+   */
+  protected void waitForMessagePopoverToHide(String component) {
+    waitUntil(toBeInvisible(frontEndInstructions.getMessagePopover(component)));
+  }
+
+  /**
+   * Dismiss the popover of a target message before its timeout, as a user does, and wait for it to hide
+   *
+   * @param component Id of the component the message points at
+   */
+  protected void dismissMessagePopover(String component) {
+    By mask = frontEndInstructions.getMessagePopoverMask();
+    if (mask != null) {
+      click(mask);
+    } else {
+      getBrowser().press(Key.ESCAPE);
+    }
+    waitForMessagePopoverToHide(component);
+  }
+
+  /**
    * Check that an option of the application menu is visible and contains a text
    *
    * @param option Option name

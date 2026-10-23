@@ -105,6 +105,9 @@
     </java>
   </service>
 
+  <service id="TestTargetMessage">
+    <java classname="com.almis.awe.test.model.Validation" method="testTargetMessage"/>
+  </service>
   <service id="ValidateBankAccount">
     <java classname="com.almis.awe.test.model.Validation" method="validateBankAccount">
       <service-parameter type="STRING" name="BankAccount" />
