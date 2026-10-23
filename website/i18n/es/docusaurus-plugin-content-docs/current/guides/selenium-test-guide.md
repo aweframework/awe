@@ -460,6 +460,9 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `closeMessages(String messageType, int count)` | Cierra los mensajes de una pila uno a uno. Una pantalla con varios mensajes (uno por consulta fallida) mantiene sus controles bloqueados hasta que se cierran todos |
 | `checkMessageTitle(String messageType, String text)` | Comprueba el título de un mensaje |
 | `checkMessageText(String messageType, String text)` | Comprueba el texto de un mensaje |
+| `checkMessagePopover(String component, String title, String text)` | Comprueba el título y el texto del popover de un target message mostrado sobre un componente |
+| `waitForMessagePopoverToHide(String component)` | Espera a que se oculte el popover de un target message (tras el timeout de su tipo, o al descartarlo) |
+| `dismissMessagePopover(String component)` | Descarta el popover de un target message antes de su timeout (pulsa su máscara en AngularJS y escape en React) y espera a que se oculte |
 | `checkMessageMissing(String messageType)` | Comprueba que no se muestra ningún mensaje del tipo |
 | `closeDialog(String dialogId)` | Cierra un diálogo modal con el icono de cierre de su cabecera, como un usuario que lo descarta sin usar sus botones |
 | `checkDialogClosed(String dialogId)` | Comprueba que se ha cerrado un diálogo modal |
@@ -854,7 +857,7 @@ estos selectores.
 | `data-testid` | Elemento | Dónde encontrarlo |
 |---|---|---|
 | `alert`, `alert-title`, `alert-message`, `alert-close` | Una alerta de la zona de alertas (`data-type` es `success`, `info`, `warning` o `danger`), su título, su texto y su botón de cerrar | Zona de alertas |
-| `popover`, `popover-title`, `popover-content` | **Solo AngularJS**: el cliente React no tiene popover. El mensaje mostrado sobre un componente (`data-type`, y `data-testid-owner` con el componente al que apunta) | Final de `<body>` |
+| `popover`, `popover-title`, `popover-content` | El mensaje mostrado sobre un componente (un popover de Bootstrap en AngularJS, un overlay panel de PrimeReact en React) (`data-type`, y `data-testid-owner` con el componente al que apunta) | Final de `<body>` |
 | `help-popover` | **Solo AngularJS.** La ayuda de un componente, renderizada una vez para toda la aplicación. Se muestra solo mientras `data-open` es `true` | Zona de alertas |
 | `dialog`, `dialog-close` | Un diálogo modal (con `data-testid-owner` = id del diálogo, y `data-open`) y el botón de su cabecera que lo cierra | Dentro de `[dialog-id='X']` |
 | `confirm-dialog`, `confirm-accept`, `confirm-cancel` | El diálogo de confirmación y sus botones | Final de la zona de alertas |
@@ -939,7 +942,7 @@ un autor de pruebas todavía se encuentra, porque son visibles en las pantallas 
 | Gesto de edición | Un solo clic en la fila | Doble clic, reintentado hasta que el editor está abierto | Usa `editRow(...)`. No hagas clic tú mismo en la celda |
 | Números | Nada especial: escribe el valor | El input numérico (`InputNumber` de PrimeReact) toma un `.` o `,` escrito como su **separador decimal** y añade él mismo el separador de miles | Escribe solo los dígitos y el separador decimal, no el separador de miles: `writeText("Unt", "325274,50")`, y después comprueba `325.274,50` con `checkCriterionContents` |
 | Errores de criterio | Se muestran en el contenedor de errores compartido | Se muestran bajo el criterio (`criterion-error`) | Usa `checkValidationErrorVisible()` |
-| Popovers de info | `popover`, `help-popover` | Ninguno | Usa `checkMessageTitle` y `checkMessageText` para los mensajes |
+| Popovers | `popover` (target messages) y `help-popover` (ayuda) | `popover` (target messages, un overlay panel de PrimeReact que no se oculta al pasar el ratón); la ayuda es un tooltip | Usa `checkMessagePopover`, `dismissMessagePopover` y `waitForMessagePopoverToHide` para los target messages, `checkMessageTitle` y `checkMessageText` para los mensajes |
 | Pestañas que no caben | Un menú "más" (`tabdrop`) las contiene | Sin menú "más" | `clickTab` abre el menú cuando el cliente tiene uno |
 | Barra de carga | Una barra de carga en la parte superior de la página | Solo un spinner mientras se carga una vista | Usa `waitForLoadingBar()`, que sabe qué esperar |
 | Tamaño de página de impresión | Un selector nativo | Un desplegable con un selector oculto: el texto repite el valor, por lo que el tamaño de página se expone en `data-value` | Usa `checkGridPageSize(size)` |

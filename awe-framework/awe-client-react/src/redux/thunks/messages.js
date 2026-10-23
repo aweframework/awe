@@ -1,5 +1,7 @@
-import {addMessage, confirmMessage, MessageType, showMessages as showMessagesAction} from "../actions/messages";
+import {addMessage, confirmMessage, MessageType, showPopover} from "../actions/messages";
+import {acceptAction} from "../actions/actions";
 import {translateLabel} from "../../utilities";
+import {findMessageTarget} from "../../utilities/messageTarget";
 
 const { MESSAGE_OK, MESSAGE_WARNING, MESSAGE_ERROR, MESSAGE_WRONG } = MessageType;
 
@@ -77,6 +79,42 @@ export const messageAction = (action, t) => {
       life,
       id: messageId,
       closable: true
+    }));
+
+    messageId++;
+  };
+};
+
+/**
+ * Show a message over the target component of the action (a popover), as the AngularJS client does. The target is the
+ * callback target of the action or, in this client, its address (the server thunk gives every response action the
+ * address of the component that launched the call). A new popover replaces the previous one, whose action finishes.
+ * Without a rendered target the message is shown as a notification.
+ * @param {object} action Target message action
+ * @param {function} t Translate function
+ */
+export const targetMessageAction = (action, t) => {
+  return (dispatch, getState) => {
+    const address = action.callbackTarget || action.address;
+    if (!findMessageTarget(address)) {
+      return messageAction(action, t)(dispatch, getState);
+    }
+
+    const {settings, messages} = getState();
+    const {type} = action.parameters;
+    const {title, message} = getMessage(action.parameters, messages.defined[address.view || action.view]);
+    if (messages.popover) {
+      dispatch(acceptAction(messages.popover.action));
+    }
+
+    dispatch(showPopover({
+      id: messageId,
+      severity: getMessageType(type),
+      summary: translateLabel(title, t),
+      detail: translateLabel(message, t),
+      life: getMessageLife(type, settings),
+      address,
+      action
     }));
 
     messageId++;

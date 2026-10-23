@@ -237,6 +237,84 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
     });
   });
 
+  describe('targetMessageAction', () => {
+    beforeEach(() => {
+      document.body.innerHTML = '<div criterion-id="Crt"></div><div criterion-id="Other"></div>';
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    const targetMessage = (address, parameters = {type: 'warning', title: 'Title', message: 'Text'}) => ({
+      type: 'target-message', id: 'action-1', address, parameters
+    });
+
+    it('shows a popover on the component of the address with the type, text and timeout of the settings', () => {
+      const action = targetMessage({view: 'baseView', component: 'Crt'});
+
+      thunks.targetMessageAction(action, mockTranslate)(dispatch, getState);
+
+      expect(dispatch).toHaveBeenCalledTimes(1);
+      const [[showPopover]] = dispatch.mock.calls;
+      expect(showPopover.type).toBe('SHOW_POPOVER');
+      expect(showPopover.data).toEqual(expect.objectContaining({
+        severity: 'warn',
+        summary: 'translated_Title',
+        detail: 'translated_Text',
+        life: 6000,
+        address: {view: 'baseView', component: 'Crt'},
+        action
+      }));
+      expect(showPopover.data.id).toEqual(expect.any(Number));
+    });
+
+    it('retrieves a predefined message of the view', () => {
+      const action = targetMessage({view: 'baseView', component: 'Crt'}, {type: 'error', target: 'error-message'});
+
+      thunks.targetMessageAction(action, mockTranslate)(dispatch, getState);
+
+      const [[showPopover]] = dispatch.mock.calls;
+      expect(showPopover.data).toEqual(expect.objectContaining({
+        severity: 'error', summary: 'translated_Error_Title', detail: 'translated_Error_Message', life: 0
+      }));
+    });
+
+    it('prefers the callback target of the action over its address', () => {
+      const action = {...targetMessage({view: 'baseView', component: 'Crt'}), callbackTarget: {view: 'baseView', component: 'Other'}};
+
+      thunks.targetMessageAction(action, mockTranslate)(dispatch, getState);
+
+      const [[showPopover]] = dispatch.mock.calls;
+      expect(showPopover.data.address).toEqual({view: 'baseView', component: 'Other'});
+    });
+
+    it('finishes the action of the previous popover before replacing it', () => {
+      const previous = {id: 'previous-action'};
+      mockState.messages.popover = {id: 7, action: previous};
+
+      thunks.targetMessageAction(targetMessage({view: 'baseView', component: 'Crt'}), mockTranslate)(dispatch, getState);
+
+      expect(dispatch.mock.calls.map(([call]) => call.type)).toEqual(['ACCEPT_ACTION', 'SHOW_POPOVER']);
+      expect(dispatch.mock.calls[0][0].payload).toBe(previous);
+    });
+
+    it('shows a notification when the target component is not rendered', () => {
+      thunks.targetMessageAction(targetMessage({view: 'baseView', component: 'Missing'}), mockTranslate)(dispatch, getState);
+
+      const [[addMessage]] = dispatch.mock.calls;
+      expect(addMessage.type).toBe('ADD_MESSAGE');
+      expect(addMessage.data.summary).toBe('translated_Title');
+    });
+
+    it('shows a notification when the action has no target component', () => {
+      thunks.targetMessageAction(targetMessage(undefined), mockTranslate)(dispatch, getState);
+
+      const [[addMessage]] = dispatch.mock.calls;
+      expect(addMessage.type).toBe('ADD_MESSAGE');
+    });
+  });
+
   describe('confirmAction', () => {
     it('debería despachar confirmMessage con título y mensaje', () => {
       const action = {

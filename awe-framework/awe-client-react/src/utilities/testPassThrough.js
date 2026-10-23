@@ -294,6 +294,25 @@ export function menubarPassThrough() {
 const ALERT_TYPES = { success: "success", info: "info", warn: "warning", error: "danger" };
 
 /**
+ * Type of a message in the test hooks and the styles, as the AngularJS client names it
+ * @param {string} severity Message severity (success, info, warn, error)
+ * @returns {string} Message type (success, info, warning, danger)
+ */
+export function alertType(severity) {
+  return ALERT_TYPES[severity] ?? severity;
+}
+
+/**
+ * Pass-through of the popover of a target message
+ * @param {string} severity Message severity
+ * @param {string} [owner] Id of the component the message points at
+ * @returns {object} OverlayPanel pt
+ */
+export function popoverPassThrough(severity, owner) {
+  return { root: testHook(TestIds.popover, { owner, type: alertType(severity) }) };
+}
+
+/**
  * Pass-through of the toast that shows the messages (alerts)
  * @returns {object} Toast pt
  */
@@ -301,7 +320,7 @@ export function toastPassThrough() {
   return {
     message: ({ state, index }) => {
       const severity = state?.messages?.[index]?.message?.severity;
-      return testHook(TestIds.alert, { type: ALERT_TYPES[severity] ?? severity });
+      return testHook(TestIds.alert, { type: alertType(severity) });
     },
     summary: testHook(TestIds.alertTitle),
     detail: testHook(TestIds.alertMessage),
@@ -313,11 +332,12 @@ export function toastPassThrough() {
  * Pass-through of a modal dialog
  * @param {string} owner Id of the dialog component
  * @param {boolean} [open] Whether the dialog is open: the tests find the open dialog by it, as in the AngularJS client
+ * @param {string} [view] View of the dialog: it is rendered outside its view, so it carries the view marker itself
  * @returns {object} Dialog pt
  */
-export function dialogPassThrough(owner, open = true) {
+export function dialogPassThrough(owner, open = true, view = undefined) {
   return {
-    root: testHook(TestIds.dialog, { owner, open }),
+    root: { ...testHook(TestIds.dialog, { owner, open }), ...(view && { "view-id": view }) },
     closeButton: testHook(TestIds.dialogClose)
   };
 }

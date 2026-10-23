@@ -43,6 +43,10 @@
             <dependency-element id="Txt" condition="eq" value="radios"/>
             <dependency-action type="value" target="RadBoxButGrp" value="Radio1"/>
           </dependency>
+          <dependency>
+            <dependency-element id="Txt" condition="eq" value="popover"/>
+            <dependency-action type="server" server-action="control-target-message" target-action="TestTargetMessage"/>
+          </dependency>
         </criteria>
         <criteria label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,maxlength:{value: 4, type: 'integer'}}">
           <dependency source-type="value" target-type="validate" value="{gt:{value:0, type:'integer'}}">

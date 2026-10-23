@@ -142,10 +142,13 @@ public final class TestIds {
   public static final String ALERT_TITLE = "alert-title";
   public static final String ALERT_MESSAGE = "alert-message";
   public static final String ALERT_CLOSE = "alert-close";
-  // Popover of a message or of the help (AngularJS only, the React client has no such popover) and popover containers
-  // anchored to a control (both clients, owner: popover id) with their close button
+  // Popover of a target message (owner: id of the component the message points at) with its title and content, and
+  // popover containers anchored to a control (owner: popover id) with their close button (both clients)
   public static final String POPOVER = "popover";
+  public static final String POPOVER_TITLE = "popover-title";
+  public static final String POPOVER_CONTENT = "popover-content";
   public static final String POPOVER_CLOSE = "popover-close";
+  // AngularJS only: popover of the help (the help of the React client is a tooltip)
   public static final String HELP_POPOVER = "help-popover";
 
   // Modal dialogs (owner: dialog id)

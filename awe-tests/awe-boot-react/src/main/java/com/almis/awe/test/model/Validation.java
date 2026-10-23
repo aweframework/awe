@@ -35,4 +35,13 @@ public class Validation extends ServiceConfig {
     }
     return check;
   }
+
+  /**
+   * Answer always with a warning, that the control-target-message action shows over the launching component
+   * @return Never returns
+   * @throws AWException Warning to show
+   */
+  public ServiceData testTargetMessage() throws AWException {
+    throw new AWException("Target message", "Shown over the criterion", AnswerType.WARNING);
+  }
 }

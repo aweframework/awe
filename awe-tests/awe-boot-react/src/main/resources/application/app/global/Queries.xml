@@ -2358,6 +2358,9 @@
     <variable id="num" type="FLOAT" name="Num.selected"/>
   </query>
 
+  <!-- TestTargetMessage (TEST): always answers with a warning, shown as a target message -->
+  <query id="TestTargetMessage" service="TestTargetMessage"/>
+
   <!-- ValidateBankAccount (TEST) -->
   <query id="ValidateBankAccount" service="ValidateBankAccount">
     <variable id="BankAccount" type="STRING" name="TxtVal"/>

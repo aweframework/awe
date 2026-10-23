@@ -93,6 +93,7 @@ module.exports = {
     '**/utilities/structureCellTest.{js,jsx}',
     '**/utilities/sanitizeHtmlTest.{js,jsx}',
     '**/utilities/testIdsTest.{js,jsx}',
+    '**/utilities/messageTargetTest.{js,jsx}',
     '**/containers/*Test.{js,jsx}',
     '**/templates/*Test.{js,jsx}',
     '**/widgets/WidgetsTest.{js,jsx}',

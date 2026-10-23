@@ -81,7 +81,7 @@ function ViewContainer() {
 
   return view.loading ? <AweScreenSkeleton /> : (
     <ErrorBoundary scope="view" resetKey={`${screenId}-${screenReloadToken}`}>
-      <div className={"expand expandible-vertical"}>
+      <div className={"expand expandible-vertical"} view-id={VIEW}>
         <Helmet>
           <title>{translateLabel(view.title, t)}</title>
         </Helmet>

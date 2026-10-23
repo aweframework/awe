@@ -461,6 +461,9 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `closeMessages(String messageType, int count)` | Closes the messages of a stack one by one. A screen with several messages (one per failed query) keeps its controls blocked until all of them are closed |
 | `checkMessageTitle(String messageType, String text)` | Checks the title of a message |
 | `checkMessageText(String messageType, String text)` | Checks the text of a message |
+| `checkMessagePopover(String component, String title, String text)` | Checks the title and the text of the popover of a target message shown over a component |
+| `waitForMessagePopoverToHide(String component)` | Waits for the popover of a target message to hide (after the timeout of its type, or when it is dismissed) |
+| `dismissMessagePopover(String component)` | Dismisses the popover of a target message before its timeout (clicks its mask in AngularJS, presses escape in React) and waits for it to hide |
 | `checkMessageMissing(String messageType)` | Checks that no message of the type is shown |
 | `closeDialog(String dialogId)` | Closes a modal dialog with the close icon of its header, as a user dismissing it without its buttons |
 | `checkDialogClosed(String dialogId)` | Checks that a modal dialog has been closed |
@@ -856,7 +859,7 @@ these selectors.
 | `data-testid` | Element | Where to find it |
 |---|---|---|
 | `alert`, `alert-title`, `alert-message`, `alert-close` | An alert of the alert zone (`data-type` is `success`, `info`, `warning` or `danger`), its title, its text and its close button | Alert zone |
-| `popover`, `popover-title`, `popover-content` | **AngularJS only**: the React client has no popover. The message shown over a component (`data-type`, and `data-testid-owner` with the component it points at) | End of `<body>` |
+| `popover`, `popover-title`, `popover-content` | The message shown over a component (a Bootstrap popover in AngularJS, a PrimeReact overlay panel in React) (`data-type`, and `data-testid-owner` with the component it points at) | End of `<body>` |
 | `help-popover` | **AngularJS only.** The help of a component, rendered once for the whole application. It is displayed only while `data-open` is `true` | Alert zone |
 | `dialog`, `dialog-close` | A modal dialog (with `data-testid-owner` = dialog id, and `data-open`) and the button of its header that closes it | Inside `[dialog-id='X']` |
 | `confirm-dialog`, `confirm-accept`, `confirm-cancel` | The confirm dialog and its buttons | End of the alert zone |
@@ -941,7 +944,7 @@ writer still meets, because they are visible in the screens and not in the rende
 | Editing gesture | Single click on the row | Double click, retried until the editor is open | Use `editRow(...)`. Do not click the cell yourself |
 | Numbers | Nothing special: type the value | The numeric input (PrimeReact `InputNumber`) takes a typed `.` or `,` as its **decimal separator** and adds the thousands separator by itself | Type the digits and the decimal separator only, not the thousands separator: `writeText("Unt", "325274,50")`, then check `325.274,50` with `checkCriterionContents` |
 | Criterion errors | Shown in the shared error container | Shown under the criterion (`criterion-error`) | Use `checkValidationErrorVisible()` |
-| Info popovers | `popover`, `help-popover` | None | Use `checkMessageTitle` and `checkMessageText` for messages |
+| Popovers | `popover` (target messages) and `help-popover` (help) | `popover` (target messages, a PrimeReact overlay panel that does not hide on hover); the help is a tooltip | Use `checkMessagePopover`, `dismissMessagePopover` and `waitForMessagePopoverToHide` for target messages, `checkMessageTitle` and `checkMessageText` for messages |
 | Tabs that do not fit | A "more" menu (`tabdrop`) holds them | No "more" menu | `clickTab` opens the menu when the client has one |
 | Loading bar | A loading bar on top of the page | Only a spinner while a view loads | Use `waitForLoadingBar()`, which knows what to wait for |
 | Print page size | A native selector | A dropdown with a hidden selector: the text repeats the value, so the page size is exposed in `data-value` | Use `checkGridPageSize(size)` |

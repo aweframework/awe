@@ -100,7 +100,9 @@ describe('awe-react-client/test/js/services/actionContractTest.jsx', () => {
   it('dispatches the server message actions by their contract name', () => {
     expect(reactNames.has("target-message")).toBe(true);
     expect(reactNames.has("targetMessage")).toBe(false);
-    expect(registry["target-message"]).toBe(registry.message);
+    // target-message is a popover on the target component, not the notification of message
+    expect(registry["target-message"]).toEqual(expect.any(Function));
+    expect(registry["target-message"]).not.toBe(registry.message);
   });
 
   it('registers toggle-class in both engines', () => {

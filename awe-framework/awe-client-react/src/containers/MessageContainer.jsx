@@ -13,6 +13,7 @@ import {Toast} from "primereact/toast";
 import {translateLabel} from "../utilities";
 import {TestIds, testHook} from "../utilities/testIds";
 import {toastPassThrough} from "../utilities/testPassThrough";
+import AweTargetMessage from "../components/AweTargetMessage";
 
 const NO_MESSAGES = {};
 const NO_SETTINGS = {};
@@ -29,7 +30,7 @@ function MessageContainer() {
   const dispatch = useDispatch();
   const messages = useSelector(selectMessages) ?? NO_MESSAGES;
   const settings = useSelector(selectSettings) ?? NO_SETTINGS;
-  const { confirm } = messages;
+  const { confirm, popover } = messages;
   const toastRef = useRef(null);
 
   const onClick = (data) => {
@@ -83,6 +84,7 @@ function MessageContainer() {
 
   return <>
     <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition} pt={toastPassThrough()}/>
+    <AweTargetMessage popover={popover}/>
     <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
             modal={true} closable={false} closeOnEscape={false} onHide={onCancel}
             pt={{root: testHook(TestIds.confirmDialog)}}>

@@ -420,6 +420,28 @@ class CriteriaTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Test criteria: a target message is shown as a popover over its criterion
+   */
+  @Test
+  void t019_criteriaTestTargetMessage() {
+
+    // Title
+    setTestTitle("Test criteria: Target message");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // The dependency of the criterion launches a server action that answers with a target message
+    writeText("Txt", "popover");
+
+    // Check the popover over the criterion
+    checkMessagePopover("Txt", "Target message", "Shown over the criterion");
+
+    // Dismiss it as a user does: the test does not depend on the timeout of a warning
+    dismissMessagePopover("Txt");
+  }
+
+  /**
    * Criteria reset test
    */
   @Test

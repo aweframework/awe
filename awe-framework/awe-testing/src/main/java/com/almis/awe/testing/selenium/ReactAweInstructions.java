@@ -563,6 +563,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(css(TestIds.TAG_LIST) + "[tag-list-id='" + tagListId + "']");
   }
 
+  @Override
+  public By getMessagePopoverMask() {
+    // The popover of a target message hides with the keyboard: there is no mask to click
+    return null;
+  }
+
   public By getContextMenuMask() {
     // The context menu closes with the keyboard: there is no mask to click
     return null;
