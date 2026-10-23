@@ -17,23 +17,13 @@ const getComponentDeltas = (state, componentId) =>
 const getAllComponentDeltas = (state) => state.components;
 
 /**
- * Selector base: obtiene settings (para feature flag)
- */
-const getSettings = (state) => state.settings || EMPTY;
-
-/**
  * Factory de selector para un componente individual
  * Crea un selector memoizado que mergea base + deltas
  */
 export const makeGetComponent = () => createSelector(
-    [getComponentDeltas, getSettings, (_, componentId) => componentId],
-    (deltas, settings, componentId) => {
-        // Feature flag: modo legacy
-        if (!settings.useComponentRegistry) {
-            return deltas;
-        }
-
-        // Modo nuevo: mergear base + deltas
+    [getComponentDeltas, (_, componentId) => componentId],
+    (deltas, componentId) => {
+        // Mergear base + deltas
         const base = ComponentRegistry.get(componentId) || {};
         return mergeComponentState(base, deltas);
     }
@@ -44,13 +34,8 @@ export const makeGetComponent = () => createSelector(
  * Usado por useGrid y otros casos que necesitan acceso masivo
  */
 export const getAllComponents = createSelector(
-    [getAllComponentDeltas, getSettings],
-    (deltas, settings) => {
-        // Feature flag: modo legacy
-        if (!settings.useComponentRegistry) {
-            return deltas;
-        }
-
+    [getAllComponentDeltas],
+    (deltas) => {
         // Obtener todos los IDs únicos (de Registry + Redux)
         const registryIds = ComponentRegistry.getAllIds();
         const deltaIds = Object.keys(deltas);
@@ -97,9 +82,9 @@ const makeMergeCache = () => {
 export const makeGetMultipleComponents = (componentIds) => {
     const merge = makeMergeCache();
     return createSelector(
-        [getAllComponentDeltas, getSettings],
-        (deltas, settings) => componentIds.reduce((acc, id) => {
-            acc[id] = settings.useComponentRegistry ? merge(id, deltas[id]) : deltas[id];
+        [getAllComponentDeltas],
+        (deltas) => componentIds.reduce((acc, id) => {
+            acc[id] = merge(id, deltas[id]);
             return acc;
         }, {})
     );
@@ -119,9 +104,8 @@ const mergeContextMenuComponent = makeMergeCache();
  */
 export const getContextMenuAttributes = (state, contextMenu, collected = {}) => {
     const deltas = getAllComponentDeltas(state);
-    const useRegistry = getSettings(state).useComponentRegistry;
     (contextMenu || []).forEach(({ id }) => {
-        const component = useRegistry ? mergeContextMenuComponent(id, deltas[id]) : deltas[id];
+        const component = mergeContextMenuComponent(id, deltas[id]);
         if (component?.attributes && !(id in collected)) {
             collected[id] = component.attributes;
             getContextMenuAttributes(state, component.attributes.contextMenu, collected);

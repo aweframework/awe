@@ -18,9 +18,6 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
                     attributes: { visible: false },
                     model: { values: [4, 5, 6] }
                 }
-            },
-            settings: {
-                useComponentRegistry: true
             }
         };
 
@@ -46,6 +43,14 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
         ComponentRegistry.clearAll();
     });
 
+    describe('state without settings', () => {
+        it('merges base and deltas whatever the settings are', () => {
+            expect(makeGetComponent()(mockState, 'comp2').attributes).toEqual({ label: 'Component 2', visible: false });
+            expect(getAllComponents(mockState).comp2.attributes.visible).toBe(false);
+            expect(makeGetMultipleComponents(['comp2'])(mockState).comp2.attributes.label).toBe('Component 2');
+        });
+    });
+
     describe('makeGetComponent', () => {
         it('debería mergear base + deltas correctamente', () => {
             const selector = makeGetComponent();
@@ -62,15 +67,6 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
 
             expect(result.attributes.label).toBe('Component 2');
             expect(result.attributes.visible).toBe(false); // Del delta
-        });
-
-        it('debería retornar solo deltas en modo legacy', () => {
-            mockState.settings.useComponentRegistry = false;
-            const selector = makeGetComponent();
-            const result = selector(mockState, 'comp1');
-
-            expect(result).toEqual(mockState.components['comp1']);
-            expect(result.address).toBeUndefined();
         });
 
         it('debería manejar componente solo en Registry', () => {
@@ -172,13 +168,6 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             expect(result['comp4'].model).toEqual({ values: [7, 8, 9] });
         });
 
-        it('debería retornar solo deltas en modo legacy', () => {
-            mockState.settings.useComponentRegistry = false;
-            const result = getAllComponents(mockState);
-
-            expect(result).toBe(mockState.components);
-        });
-
         it('debería ser memoizado', () => {
             const result1 = getAllComponents(mockState);
             const result2 = getAllComponents(mockState);
@@ -234,15 +223,6 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             expect(result['nonexistent']).toEqual({});
         });
 
-        it('debería retornar solo deltas en modo legacy', () => {
-            mockState.settings.useComponentRegistry = false;
-            const selector = makeGetMultipleComponents(['comp1', 'comp2']);
-            const result = selector(mockState);
-
-            expect(result['comp1']).toEqual(mockState.components['comp1']);
-            expect(result['comp1'].address).toBeUndefined();
-        });
-
         it('debería ser memoizado', () => {
             const selector = makeGetMultipleComponents(['comp1', 'comp2']);
             const result1 = selector(mockState);
@@ -265,8 +245,7 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             components: { ...state.components, comp3: { attributes: { label: 'Changed' } } }
         });
 
-        it.each([true, false])('keeps the reference of a requested component when another one changes (registry %s)', (useComponentRegistry) => {
-            mockState.settings.useComponentRegistry = useComponentRegistry;
+        it('keeps the reference of a requested component when another one changes', () => {
             const selector = makeGetMultipleComponents(['comp1', 'comp2']);
             const before = selector(mockState);
 
@@ -292,7 +271,6 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
 
     describe('getContextMenuAttributes', () => {
         const state = {
-            settings: { useComponentRegistry: false },
             components: {
                 first: { attributes: { label: 'First', contextMenu: [{ id: 'child' }] } },
                 child: { attributes: { label: 'Child' } },
@@ -305,7 +283,7 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             const result = getContextMenuAttributes(state, [{ id: 'first' }, { id: 'second' }]);
 
             expect(Object.keys(result).sort()).toEqual(['child', 'first', 'second']);
-            expect(result.child).toBe(state.components.child.attributes);
+            expect(result.child).toEqual(state.components.child.attributes);
         });
 
         it('skips the options that do not exist', () => {
@@ -322,7 +300,7 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
                 attributes: { label: 'Base', icon: 'check' }
             });
 
-            const result = getContextMenuAttributes({ ...state, settings: { useComponentRegistry: true } }, [{ id: 'first' }]);
+            const result = getContextMenuAttributes(state, [{ id: 'first' }]);
 
             expect(result.first).toMatchObject({ label: 'First', icon: 'check' });
         });

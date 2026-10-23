@@ -279,16 +279,6 @@ describe("awe-react-client/test/js/components/AweGridRowDetailComponentsTest.jsx
     expect(ComponentRegistry.getAllIds().filter(id => /-(7|8)$/.test(id))).toEqual([]);
   });
 
-  it("removes the instances without the component registry too", () => {
-    const { container, store } = renderScreen({ preloadedState: screenState({ settings: { useComponentRegistry: false } }) });
-    fireEvent.click(toggleOf(container, 7));
-    expect(store.getState().components["GrdOrders-7"].address).toEqual({ view: VIEW, component: "GrdOrders-7" });
-
-    fireEvent.click(toggleOf(container, 7));
-
-    expect(Object.keys(store.getState().components)).toEqual(["CrtName", "ButScreen", "GrdProducts"]);
-  });
-
   it("excludes the instances from the form values of the screen without duplicate warnings", () => {
     const { container, store } = renderScreen({ preloadedState: screenState() });
     fireEvent.click(toggleOf(container, 7));

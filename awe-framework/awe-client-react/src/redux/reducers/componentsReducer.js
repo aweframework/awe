@@ -70,33 +70,30 @@ const InitialState = {};
  * @returns {Object} Updated state
  */
 function updateComponentInState(state, componentId, updates, settings) {
-  const useRegistry = settings?.useComponentRegistry;
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const replaceObjectKeys = new Set(["validationRules", "storedValidationRules"]);
-      // Get current merged state (base + existing delta)
-      const currentFull = mergeComponentState(base, state[componentId]);
-      // Apply updates to the full state (arrays replace instead of merging)
-      const updatedFull = _.mergeWith({}, currentFull, updates, (objValue, srcValue, key) => {
-        if (Array.isArray(srcValue)) {
-          return srcValue;
-        }
-        if (replaceObjectKeys.has(key)) {
-          return srcValue;
-        }
-        return undefined;
-      });
-      // Calculate new delta against base
-      const newDelta = calculateDeltas(base, updatedFull);
-      return {
-        ...state,
-        [componentId]: newDelta
-      };
-    }
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const replaceObjectKeys = new Set(["validationRules", "storedValidationRules"]);
+    // Get current merged state (base + existing delta)
+    const currentFull = mergeComponentState(base, state[componentId]);
+    // Apply updates to the full state (arrays replace instead of merging)
+    const updatedFull = _.mergeWith({}, currentFull, updates, (objValue, srcValue, key) => {
+      if (Array.isArray(srcValue)) {
+        return srcValue;
+      }
+      if (replaceObjectKeys.has(key)) {
+        return srcValue;
+      }
+      return undefined;
+    });
+    // Calculate new delta against base
+    const newDelta = calculateDeltas(base, updatedFull);
+    return {
+      ...state,
+      [componentId]: newDelta
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     [componentId]: {
@@ -116,24 +113,21 @@ function updateComponentInState(state, componentId, updates, settings) {
  * @returns {Object} Updated state
  */
 function updateComponentProperty(state, componentId, propertyName, updates, settings) {
-  const useRegistry = settings?.useComponentRegistry;
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      // Get current merged state
-      const currentFull = mergeComponentState(base, state[componentId]);
-      // Apply property update
-      currentFull[propertyName] = mergeComponentPropertyValue(propertyName, currentFull?.[propertyName], updates);
-      // Calculate new delta
-      const newDelta = calculateDeltas(base, currentFull);
-      return {
-        ...state,
-        [componentId]: newDelta
-      };
-    }
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    // Get current merged state
+    const currentFull = mergeComponentState(base, state[componentId]);
+    // Apply property update
+    currentFull[propertyName] = mergeComponentPropertyValue(propertyName, currentFull?.[propertyName], updates);
+    // Calculate new delta
+    const newDelta = calculateDeltas(base, currentFull);
+    return {
+      ...state,
+      [componentId]: newDelta
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   if (!state[componentId]) return state;
   return {
     ...state,
@@ -213,14 +207,11 @@ function updateComponentValidation(state, componentId, validationUpdates, settin
  */
 function getGridRowContext(state = {}, address = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
-  const base = useRegistry ? ComponentRegistry.get(componentId) : null;
+  const base = ComponentRegistry.get(componentId);
 
-  if (useRegistry && !base) return null;
+  if (!base) return null;
 
-  const component = useRegistry
-    ? mergeComponentState(base, state[componentId])
-    : state[componentId];
+  const component = mergeComponentState(base, state[componentId]);
 
   if (!component) return null;
   const { model, attributes } = component;
@@ -235,7 +226,6 @@ function getGridRowContext(state = {}, address = {}, settings) {
 
   return {
     componentId,
-    useRegistry,
     base,
     component,
     model,
@@ -254,50 +244,33 @@ function getGridRowContext(state = {}, address = {}, settings) {
  * @returns {Object} Updated state
  */
 function updateGridRowValues(state, context, nextValues) {
-  const { componentId, useRegistry, base, component } = context;
+  const { componentId, base, component } = context;
 
-  if (useRegistry) {
-    const currentFull = {
-      ...component,
-      model: {
-        ...component?.model,
-        values: nextValues
-      }
-    };
-
-    return {
-      ...state,
-      [componentId]: calculateDeltas(base, currentFull)
-    };
-  }
+  const currentFull = {
+    ...component,
+    model: {
+      ...component?.model,
+      values: nextValues
+    }
+  };
 
   return {
     ...state,
-    [componentId]: {
-      ...state[componentId],
-      model: {
-        ...state[componentId].model,
-        values: nextValues
-      }
-    }
+    [componentId]: calculateDeltas(base, currentFull)
   };
 }
 
 /**
- * Get the merged component (base + delta) when using the registry.
- * @param {boolean} useRegistry Whether the component registry is enabled
+ * Get the merged component (base + delta).
  * @param {string} componentId Component identifier
  * @param {Object} state Current state
- * @returns {Object|undefined} Merged component or undefined
+ * @returns {Object|undefined} Merged component, or undefined when the component is neither registered nor in the state
  */
-function getMergedComponent(useRegistry, componentId, state) {
-  let component;
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId]);
-  } else {
-    component = state[componentId];
-  }
-  return component;
+function getMergedComponent(componentId, state) {
+  const base = ComponentRegistry.get(componentId);
+  const delta = state[componentId];
+  if (!base && !delta) return undefined;
+  return mergeComponentState(base, delta);
 }
 
 /**
@@ -412,29 +385,26 @@ function mergeColumnNumberFormat(column = {}, data = {}) {
  */
 function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { attributes } = currentFull;
-      const { columnModel = [] } = attributes;
-      const columnIndex = columnModel.findIndex(col => col.name === address.column);
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { attributes } = currentFull;
+    const { columnModel = [] } = attributes;
+    const columnIndex = columnModel.findIndex(col => col.name === address.column);
 
-      currentFull.attributes = {
-        ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, mergeColumnNumberFormat(columnModel[columnIndex], data))
-      };
+    currentFull.attributes = {
+      ...attributes,
+      columnModel: updateArrayElement(columnModel, columnIndex, mergeColumnNumberFormat(columnModel[columnIndex], data))
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { attributes } = state[componentId] || {};
   if (!attributes) return state;
   const columnModel = attributes.columnModel || [];
@@ -489,8 +459,7 @@ function updateAttributeAction(state = {}, action = {}, settings) {
   const baseAddress = action.address?.component ? { view: action.address.view, component: action.address.component } : action.address;
   const componentId = memoizedGetComponentId(baseAddress);
   if (!componentId) return nextState;
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, nextState);
+  const component = getMergedComponent(componentId, nextState);
 
   if ( !isGridComponent(component) ) return nextState;
   return hasFooter(component) ? updateGridFooter(nextState, baseAddress, settings) : nextState;
@@ -506,25 +475,22 @@ function updateAttributeAction(state = {}, action = {}, settings) {
 function updateSpecificAttributes(state = {}, action = {}, settings) {
   const { address, data } = action;
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      currentFull.specificAttributes = {
-        ...currentFull?.specificAttributes,
-        ...data
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    currentFull.specificAttributes = {
+      ...currentFull?.specificAttributes,
+      ...data
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return !(componentId in state) ? state : {
     ...state,
     [componentId]: {
@@ -568,25 +534,22 @@ function keepAttributeComponent(state, component, data, settings) {
  */
 function restoreAttributeComponent(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      currentFull.attributes = {
-        ...currentFull.attributes,
-        [data]: currentFull.storedAttributes?.[data]
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    currentFull.attributes = {
+      ...currentFull.attributes,
+      [data]: currentFull.storedAttributes?.[data]
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     [componentId]: {
@@ -609,30 +572,27 @@ function restoreAttributeComponent(state, address, data, settings) {
  */
 function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { attributes } = currentFull;
-      const { columnModel = [] } = attributes;
-      const columnIndex = columnModel.findIndex(column => column.name === address.column);
-      if (columnIndex < 0) return state;
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { attributes } = currentFull;
+    const { columnModel = [] } = attributes;
+    const columnIndex = columnModel.findIndex(column => column.name === address.column);
+    if (columnIndex < 0) return state;
 
-      currentFull.attributes = {
-        ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, { [data]: currentFull.storedAttributes?.columnModel?.[columnIndex]?.[data] })
-      };
+    currentFull.attributes = {
+      ...attributes,
+      columnModel: updateArrayElement(columnModel, columnIndex, { [data]: currentFull.storedAttributes?.columnModel?.[columnIndex]?.[data] })
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { attributes } = state[componentId] || {};
   if (!attributes) return state;
   const columnModel = attributes.columnModel || [];
@@ -659,46 +619,43 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
  */
 function restoreAttributeCell(state, address, data, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { model, attributes, storedAttributes = {} } = currentFull;
-      const { values } = model;
-      const gridId = memoizedGetGridIdentifier(attributes);
-      const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-      if (rowIndex < 0) return state;
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { model, attributes, storedAttributes = {} } = currentFull;
+    const { values } = model;
+    const gridId = memoizedGetGridIdentifier(attributes);
+    const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
+    if (rowIndex < 0) return state;
 
-      const columnIndex = (attributes.columnModel || []).findIndex(column => column.name === address.column);
-      const storedColumn = storedAttributes.columnModel?.[columnIndex] || {};
-      const defaultValue = storedColumn?.[data];
-      const rowData = values[rowIndex] || {};
-      const cellAttrs = rowData.$attrs?.[address.column] || {};
-      const prevAttrs = rowData.$attrs || {};
+    const columnIndex = (attributes.columnModel || []).findIndex(column => column.name === address.column);
+    const storedColumn = storedAttributes.columnModel?.[columnIndex] || {};
+    const defaultValue = storedColumn?.[data];
+    const rowData = values[rowIndex] || {};
+    const cellAttrs = rowData.$attrs?.[address.column] || {};
+    const prevAttrs = rowData.$attrs || {};
 
-      let newAttr;
-      if (typeof defaultValue !== 'undefined') {
-        newAttr = { ...cellAttrs, [data]: defaultValue };
-      } else {
-        const { [data]: _removed, ...rest } = cellAttrs;
-        newAttr = rest;
-      }
-
-      currentFull.model = {
-        ...model,
-        values: updateArrayElement(values, rowIndex, { ...rowData, $attrs: { ...prevAttrs, [address.column]: newAttr } })
-      };
-
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
+    let newAttr;
+    if (typeof defaultValue !== 'undefined') {
+      newAttr = { ...cellAttrs, [data]: defaultValue };
+    } else {
+      const { [data]: _removed, ...rest } = cellAttrs;
+      newAttr = rest;
     }
+
+    currentFull.model = {
+      ...model,
+      values: updateArrayElement(values, rowIndex, { ...rowData, $attrs: { ...prevAttrs, [address.column]: newAttr } })
+    };
+
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { model, attributes, storedAttributes = {} } = state[componentId] || {};
   if (!model || !attributes) return state;
   const { values } = model;
@@ -792,35 +749,32 @@ function updateValidationComponent(state = {}, address = {}, data = {}, settings
  */
 function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { attributes } = currentFull;
-      const { columnModel = [] } = attributes;
-      const columnIndex = columnModel.findIndex(col => col.name === address.column);
-      if (columnIndex < 0) return state;
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { attributes } = currentFull;
+    const { columnModel = [] } = attributes;
+    const columnIndex = columnModel.findIndex(col => col.name === address.column);
+    if (columnIndex < 0) return state;
 
-      currentFull.attributes = {
-        ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, {
-          validationRules: {
-            ...columnModel[columnIndex]?.validationRules,
-            ...data
-          }
-        })
-      };
+    currentFull.attributes = {
+      ...attributes,
+      columnModel: updateArrayElement(columnModel, columnIndex, {
+        validationRules: {
+          ...columnModel[columnIndex]?.validationRules,
+          ...data
+        }
+      })
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { attributes } = state[componentId] || {};
   if (!attributes) return state;
   const columnModel = attributes.columnModel || [];
@@ -877,8 +831,7 @@ function updateValidationCell(state = {}, address = {}, data = {}, settings) {
  * @returns {Object} Updated state
  */
 function keepValidationComponent(state, componentId, settings) {
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   return updateComponentInState(state, componentId, {
     storedValidationRules: {
@@ -896,8 +849,7 @@ function keepValidationComponent(state, componentId, settings) {
  */
 function restoreValidationComponent(state, address, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
   if (typeof component?.storedValidationRules === "undefined") {
     return state;
   }
@@ -918,7 +870,6 @@ function restoreValidationComponent(state, address, settings) {
  */
 function restoreValidationColumn(state = {}, address = {}, _data = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
   const buildNextColumn = (columnModel = [], storedAttributes = {}) => {
     const columnIndex = columnModel.findIndex(column => column.name === address.column);
@@ -944,29 +895,27 @@ function restoreValidationColumn(state = {}, address = {}, _data = {}, settings)
     };
   };
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { attributes, storedAttributes = {} } = currentFull;
-      const { columnModel = [] } = attributes;
-      const result = buildNextColumn(columnModel, storedAttributes);
-      if (!result) return state;
-      const { columnIndex, nextColumn } = result;
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { attributes, storedAttributes = {} } = currentFull;
+    const { columnModel = [] } = attributes;
+    const result = buildNextColumn(columnModel, storedAttributes);
+    if (!result) return state;
+    const { columnIndex, nextColumn } = result;
 
-      currentFull.attributes = {
-        ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, nextColumn)
-      };
+    currentFull.attributes = {
+      ...attributes,
+      columnModel: updateArrayElement(columnModel, columnIndex, nextColumn)
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { attributes, storedAttributes = {} } = state[componentId] || {};
   if (!attributes) return state;
   const { columnModel = [] } = attributes;
@@ -1027,44 +976,37 @@ function updateComponentData(state, componentId, data, settings) {
   if (componentId == null) {
     warnMalformedComponent(data, {
       origin: 'reducer',
-      operation: 'updateComponentData',
-      extra: {
-        useComponentRegistry: !!settings?.useComponentRegistry
-      }
+      operation: 'updateComponentData'
     });
     return state;
   }
 
-  const useRegistry = settings?.useComponentRegistry;
-
-  if (useRegistry) {
-    // Si data contiene address y attributes, podría ser un componente completo
-    // Si no, es una actualización parcial que debe ir directamente a deltas
-    if (data.address && data.attributes) {
-      // Registrar en Registry (actualizar estado base)
-      if (!data.address) {
-        warnMalformedComponent({...data, uid: data?.uid ?? componentId}, {
-          origin: 'reducer',
-          operation: 'registerComponentBase',
-          extra: {
-            registryComponentId: componentId
-          }
-        });
-      }
-      ComponentRegistry.register(componentId, data);
-
-      // Calcular deltas
-      const base = ComponentRegistry.get(componentId);
-      const deltas = calculateDeltas(base, data);
-
-      return {
-        ...state,
-        [componentId]: {
-          ...state[componentId],
-          ...deltas
+  // Si data contiene address y attributes, podría ser un componente completo
+  // Si no, es una actualización parcial que debe ir directamente a deltas
+  if (data.address && data.attributes) {
+    // Registrar en Registry (actualizar estado base)
+    if (!data.address) {
+      warnMalformedComponent({...data, uid: data?.uid ?? componentId}, {
+        origin: 'reducer',
+        operation: 'registerComponentBase',
+        extra: {
+          registryComponentId: componentId
         }
-      };
+      });
     }
+    ComponentRegistry.register(componentId, data);
+
+    // Calcular deltas
+    const base = ComponentRegistry.get(componentId);
+    const deltas = calculateDeltas(base, data);
+
+    return {
+      ...state,
+      [componentId]: {
+        ...state[componentId],
+        ...deltas
+      }
+    };
   }
 
   // Comportamiento normal o actualización parcial
@@ -1083,12 +1025,11 @@ function updateCellsModel(state, grid, settings) {
   let columns = grid.attributes?.columnModel?.filter(column => column.component) || [];
   let cellComponents = {};
   const gridId = memoizedGetGridIdentifier(grid.attributes);
-  const useRegistry = settings?.useComponentRegistry;
   values
     .forEach(row => columns
       .filter(column => {
         const cellComponentId = memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name });
-        return cellComponentId in state || (useRegistry && ComponentRegistry.get(cellComponentId));
+        return cellComponentId in state || ComponentRegistry.get(cellComponentId);
       })
       .forEach(column => Object.assign(cellComponents,
         getModelUpdate(state,
@@ -1111,34 +1052,31 @@ function updateCellsModel(state, grid, settings) {
  */
 function getModelUpdate(state, address, model, settings) {
   let componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      // Get current merged state
-      const currentFull = mergeComponentState(base, state[componentId]);
-      // Apply model update
-      currentFull.model = {
-        ...currentFull?.model,
-        ...model,
-        changed: true
-      };
-      // Reset error on update
-      currentFull.attributes = {
-        ...currentFull?.attributes,
-        error: null
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    // Get current merged state
+    const currentFull = mergeComponentState(base, state[componentId]);
+    // Apply model update
+    currentFull.model = {
+      ...currentFull?.model,
+      ...model,
+      changed: true
+    };
+    // Reset error on update
+    currentFull.attributes = {
+      ...currentFull?.attributes,
+      error: null
+    };
 
-      // Calculate new delta
-      const newDelta = calculateDeltas(base, currentFull);
-      return {
-        [componentId]: newDelta
-      };
-    }
+    // Calculate new delta
+    const newDelta = calculateDeltas(base, currentFull);
+    return {
+      [componentId]: newDelta
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     [componentId]: {
       ...state[componentId],
@@ -1181,8 +1119,7 @@ function getGroupModelUpdate(state, view, group, model, settings) {
  */
 function getGridModelUpdate(state, address, model, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
   if (!component) return state;
 
   const nextModelVersion = (component?.model?.modelVersion || 0) + 1;
@@ -1213,8 +1150,7 @@ function getGridModelUpdate(state, address, model, update = true, settings) {
  */
 function updateModel(state, address, data, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   if (isEmpty(component)) return state;
 
@@ -1244,34 +1180,31 @@ function updateModel(state, address, data, update = true, settings) {
  */
 function updateColumnModel(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const { attributes } = currentFull;
-      const { columnModel = [] } = attributes;
-      const columnIndex = columnModel.findIndex(column => column.name === address.column);
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const { attributes } = currentFull;
+    const { columnModel = [] } = attributes;
+    const columnIndex = columnModel.findIndex(column => column.name === address.column);
 
-      currentFull.attributes = {
-        ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, {
-          model: {
-            ...columnModel[columnIndex]?.model,
-            ...data
-          }
-        })
-      };
+    currentFull.attributes = {
+      ...attributes,
+      columnModel: updateArrayElement(columnModel, columnIndex, {
+        model: {
+          ...columnModel[columnIndex]?.model,
+          ...data
+        }
+      })
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   const { attributes } = state[componentId] || {};
   if (!attributes) return state;
   const columnModel = attributes.columnModel || [];
@@ -1356,8 +1289,7 @@ function updateCellSelected(state, address, data, settings) {
  */
 function updateSelectedGrid(state, values, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   if (!component || !component.attributes) return state;
 
@@ -1394,8 +1326,7 @@ function updateSelectedGrid(state, values, address, data, settings) {
  */
 function updateSelectedComponent(state, values, address, selected, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   if (!component) return state;
 
@@ -1431,51 +1362,30 @@ function getFilteredValues(values, selected) {
  * @returns {Object} Updated state
  */
 function updateSelectedGroup(state, values, view, group, selected, settings) {
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    // Mergear TODO el estado actual para filtrar por grupo
-    const allIds = [...new Set([...ComponentRegistry.getAllIds(), ...Object.keys(state)])];
-    const groupUpdates = allIds
-      .map(id => {
-        const base = ComponentRegistry.get(id);
-        const delta = state[id] || {};
-        const full = mergeComponentState(base, delta);
-        if (full.address?.view === view && full.attributes?.group === group) {
-          const updatedFull = {
-            ...full,
-            model: {
-              ...full.model,
-              values: (full.model?.values || []).map(value => ({ ...value, selected: selected.includes(value.value) })),
-              changed: true
-            }
-          };
-          return { id, delta: calculateDeltas(base, updatedFull) };
-        }
-        return null;
-      })
-      .filter(u => u !== null);
-
-    return groupUpdates.reduce((acc, u) => ({ ...acc, [u.id]: u.delta }), {});
-  }
-
-  // Legacy behavior
-  return {
-    ...Object.entries(state)
-      .filter(([name, component]) => component.address?.view === view && component.attributes?.group === group)
-      .map(([name, component]) => ({
-        name: name,
-        value: {
-          ...component,
+  // Mergear TODO el estado actual para filtrar por grupo
+  const allIds = [...new Set([...ComponentRegistry.getAllIds(), ...Object.keys(state)])];
+  const groupUpdates = allIds
+    .map(id => {
+      const base = ComponentRegistry.get(id);
+      const delta = state[id] || {};
+      const full = mergeComponentState(base, delta);
+      if (full.address?.view === view && full.attributes?.group === group) {
+        const updatedFull = {
+          ...full,
           model: {
-            ...component.model,
-            values: component.model.values.map(value => ({ ...value, selected: selected.includes(value.value) })),
+            ...full.model,
+            values: (full.model?.values || []).map(value => ({ ...value, selected: selected.includes(value.value) })),
             changed: true
           }
-        }
-      }))
-      .reduce((current, entry) => ({ ...current, [entry.name]: entry.value }), {})
-  };
+        };
+        return { id, delta: calculateDeltas(base, updatedFull) };
+      }
+      return null;
+    })
+    .filter(u => u !== null);
+
+  return groupUpdates.reduce((acc, u) => ({ ...acc, [u.id]: u.delta }), {});
 }
 
 /**
@@ -1508,8 +1418,7 @@ function updateSelected(state, address, data, settings) {
  */
 function getSelectedUpdate(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   let values = (component?.model?.values) || [];
   let selected = asArray(data.selected);
@@ -1587,26 +1496,23 @@ function keepModelComponent(state, componentId, settings, initial = false, defau
  * @returns {Object} State diff for the snapshot
  */
 function getKeepModelComponent(state, componentId, settings, initial = false, defaultModel = null) {
-  const useRegistry = settings?.useComponentRegistry;
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      currentFull.storedModel = {
-        ...currentFull?.model,
-        values: (currentFull.model?.values || []).map(value => ({ ...value }))
-      };
-      if (initial) {
-        const source = defaultModel || currentFull.storedModel;
-        currentFull.defaultModel = { ...source, values: (source.values || []).map(value => ({ ...value })) };
-      }
-      return {
-        [componentId]: calculateDeltas(base, currentFull)
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    currentFull.storedModel = {
+      ...currentFull?.model,
+      values: (currentFull.model?.values || []).map(value => ({ ...value }))
+    };
+    if (initial) {
+      const source = defaultModel || currentFull.storedModel;
+      currentFull.defaultModel = { ...source, values: (source.values || []).map(value => ({ ...value })) };
     }
+    return {
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   if (!state[componentId]) return {};
   const storedModel = {
     ...state[componentId].model,
@@ -1632,8 +1538,7 @@ function getKeepModelComponent(state, componentId, settings, initial = false, de
  */
 function keepRowModel(state, address, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(settings, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   const { model, attributes } = component;
   const { values } = model;
@@ -1646,31 +1551,29 @@ function keepRowModel(state, address, settings) {
   Object.keys(rowValues).forEach(column => {
     let cellAddress = { ...address, column: column };
     let cellComponentId = memoizedGetComponentId(cellAddress);
-    if (cellComponentId in state || (useRegistry && ComponentRegistry.get(cellComponentId))) {
+    if (cellComponentId in state || ComponentRegistry.get(cellComponentId)) {
       cellModel = { ...cellModel, ...getKeepModelComponent(state, cellComponentId, settings) };
     }
   });
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      currentFull.storedModel = {
-        ...currentFull?.storedModel,
-        storedRows: {
-          ...currentFull.storedModel?.storedRows,
-          [address.row]: { ...values[rowIndex] }
-        }
-      };
-      return {
-        ...state,
-        ...cellModel,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    currentFull.storedModel = {
+      ...currentFull?.storedModel,
+      storedRows: {
+        ...currentFull.storedModel?.storedRows,
+        [address.row]: { ...values[rowIndex] }
+      }
+    };
+    return {
+      ...state,
+      ...cellModel,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     ...cellModel,
@@ -1703,8 +1606,7 @@ function restoreModelComponent(state, componentId, settings, initial = false) {
     ...getRestoreModelComponent(state, componentId, settings, initial)
   };
 
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, newState);
+  const component = getMergedComponent(componentId, newState);
 
   // Update footer if is grid and show totals
   if (hasFooter(component)) {
@@ -1747,26 +1649,23 @@ function getRestoredModel(component, initial) {
  * @returns {Object} State diff for the restore
  */
 function getRestoreModelComponent(state, componentId, settings, initial = false) {
-  const useRegistry = settings?.useComponentRegistry;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      const source = getRestoredModel(currentFull, initial);
-      currentFull.model = {
-        ...source,
-        values: (source?.values || []).map(value => ({ ...value })),
-        changed: false
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    const source = getRestoredModel(currentFull, initial);
+    currentFull.model = {
+      ...source,
+      values: (source?.values || []).map(value => ({ ...value })),
+      changed: false
+    };
 
-      return {
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   if (!state[componentId]) return {};
 
   const source = getRestoredModel(state[componentId], initial);
@@ -1792,8 +1691,7 @@ function getRestoreModelComponent(state, componentId, settings, initial = false)
  */
 function resetModel(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   let emptyModel;
   if (!isGridComponent(component)) {
@@ -1809,28 +1707,26 @@ function resetModel(state, address, data, settings) {
     };
   }
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId]);
-      currentFull.attributes = {
-        ...currentFull?.attributes,
-        error: null
-      };
-      currentFull.model = {
-        ...currentFull?.model,
-        ...emptyModel,
-        changed: true
-      };
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId]);
+    currentFull.attributes = {
+      ...currentFull?.attributes,
+      error: null
+    };
+    currentFull.model = {
+      ...currentFull?.model,
+      ...emptyModel,
+      changed: true
+    };
 
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     [componentId]: {
@@ -1858,8 +1754,7 @@ function resetModel(state, address, data, settings) {
  */
 function resetCellModel(state, address, data, settings) {
   const componentId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, state);
+  const component = getMergedComponent(componentId, state);
 
   const { attributes } = component || {};
   if (!attributes) return state;
@@ -1877,22 +1772,19 @@ function resetCellModel(state, address, data, settings) {
  */
 function updateGridFooter(state, address, settings) {
   const componentId = memoizedGetComponentId(address);
-  const useRegistry = settings?.useComponentRegistry;
   let component;
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      component = mergeComponentState(base, state[componentId]);
-      const updatedFull = generateGridFooter(component);
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, updatedFull)
-      };
-    }
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    component = mergeComponentState(base, state[componentId]);
+    const updatedFull = generateGridFooter(component);
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, updatedFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   component = state[componentId];
   return {
     ...state,
@@ -1964,8 +1856,7 @@ function updateModelAction(state = {}, action = {}, settings) {
 
   // Update footer if is grid and show totals
   const componentId = memoizedGetComponentId(action.address);
-  const useRegistry = settings?.useComponentRegistry;
-  const component = getMergedComponent(useRegistry, componentId, modelState);
+  const component = getMergedComponent(componentId, modelState);
 
   if (hasFooter(component)) {
     modelState = updateGridFooter(modelState, action.address, settings);
@@ -1982,16 +1873,9 @@ function updateModelAction(state = {}, action = {}, settings) {
  * @returns {Object} Updated state
  */
 function clearComponents(state, view, settings) {
-  const useRegistry = settings?.useComponentRegistry;
-  if (useRegistry) {
-    const clearedIds = new Set(ComponentRegistry.clear(view));
-    return Object.fromEntries(Object.entries(state)
-      .filter(([id, component]) => !clearedIds.has(id) && (component?.address?.view ?? component?.context?.view) !== view));
-  }
-
-  // Legacy behavior
+  const clearedIds = new Set(ComponentRegistry.clear(view));
   return Object.fromEntries(Object.entries(state)
-    .filter(([, component]) => (component?.address?.view ?? component?.context?.view) !== view));
+    .filter(([id, component]) => !clearedIds.has(id) && (component?.address?.view ?? component?.context?.view) !== view));
 }
 
 /**
@@ -2007,7 +1891,7 @@ function unregisterComponents(state, ids = []) {
 }
 
 /**
- * Add new components to the state: their base goes to the registry (when it is used) and their deltas to the state.
+ * Add new components to the state: their base goes to the registry and their deltas to the state.
  * @param {Object} clearedState State the components are added to
  * @param {Object} data Components by id
  * @param {Object} settings Settings
@@ -2017,7 +1901,6 @@ function unregisterComponents(state, ids = []) {
  */
 function addComponents(clearedState, data, settings, operation, view) {
   const updatedData = updateComponentFooters(data);
-  const useRegistry = settings && settings.useComponentRegistry;
 
   Object.entries(updatedData || {}).forEach(([id, component]) => {
     if (getAddressType(component?.address) === ComponentAddressType.ADDRESS_INVALID) {
@@ -2027,36 +1910,27 @@ function addComponents(clearedState, data, settings, operation, view) {
         componentKey: id,
         extra: {
           registryComponentId: id,
-          useComponentRegistry: !!useRegistry,
           targetView: view
         }
       });
     }
   });
 
-  if (useRegistry) {
-    // Registrar componentes en el Registry y calcular deltas para Redux
-    const deltas = Object.entries(updatedData).reduce((acc, [id, component]) => {
-      // Registrar en Registry (estado base)
-      ComponentRegistry.register(id, component);
+  // Registrar componentes en el Registry y calcular deltas para Redux
+  const deltas = Object.entries(updatedData).reduce((acc, [id, component]) => {
+    // Registrar en Registry (estado base)
+    ComponentRegistry.register(id, component);
 
-      // Calcular deltas (lo que realmente guardamos en Redux)
-      const base = ComponentRegistry.get(id);
-      acc[id] = calculateDeltas(base, component);
+    // Calcular deltas (lo que realmente guardamos en Redux)
+    const base = ComponentRegistry.get(id);
+    acc[id] = calculateDeltas(base, component);
 
-      return acc;
-    }, {});
+    return acc;
+  }, {});
 
-    return {
-      ...clearedState,
-      ...deltas
-    };
-  }
-
-  // Modo legacy: guardar todo en Redux
   return {
     ...clearedState,
-    ...updatedData
+    ...deltas
   };
 }
 

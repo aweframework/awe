@@ -1,4 +1,4 @@
-import { components } from '../../../../src/redux/reducers/componentsReducer';
+import { reduceOnRegistry as components } from './registryReducerHelper';
 import {
   UPDATE_ATTRIBUTES,
   UPDATE_MODEL,
@@ -77,7 +77,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerCellTest.jsx'
       data: { selected: ['A'] }
     });
 
-    expect(next).toBe(state);
+    expect(next).toEqual(state);
   });
 
   it('updates grid footer after updating a row model when totals are enabled', () => {

@@ -51,8 +51,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGroupAndResto
     const next = components({}, {
       type: UPDATE_MODEL,
       address: { component: 'compA', view: 'base' },
-      data: { selected: ['1'] },
-      settings: { useComponentRegistry: true }
+      data: { selected: ['1'] }
     });
 
     expect(next.compA.model.values.map(v => v.selected)).toEqual([true, false]);
@@ -103,8 +102,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGroupAndResto
 
     const next = components({}, {
       type: KEEP_ROW_MODEL,
-      address: { ...gridAddress, row: 1 },
-      settings: { useComponentRegistry: true }
+      address: { ...gridAddress, row: 1 }
     });
 
     expect(next.grid.storedModel.storedRows['1']).toEqual({ id: 1, colA: 'A' });
@@ -139,8 +137,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGroupAndResto
     const next = components({}, {
       type: RESTORE_ATTRIBUTE,
       address: { component: 'comp', view: 'base' },
-      data: 'placeholder',
-      settings: { useComponentRegistry: true }
+      data: 'placeholder'
     });
 
     expect(next.comp.attributes.placeholder).toBe('old');
@@ -182,8 +179,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGroupAndResto
     const next = components({}, {
       type: RESTORE_ATTRIBUTE,
       address: { component: 'grid', view: 'base', column: 'colA' },
-      data: 'width',
-      settings: { useComponentRegistry: true }
+      data: 'width'
     });
 
     expect(next.grid.attributes.columnModel[0].width).toBe(100);
@@ -237,8 +233,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGroupAndResto
     const next = components({}, {
       type: RESTORE_ATTRIBUTE,
       address: { component: 'grid', view: 'base', row: 1, column: 'colA' },
-      data: 'placeholder',
-      settings: { useComponentRegistry: true }
+      data: 'placeholder'
     });
 
     expect(next.grid.model.values[0].$attrs.colA.placeholder).toBe('old');

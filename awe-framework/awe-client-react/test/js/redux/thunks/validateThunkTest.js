@@ -128,8 +128,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       mockState = {
         components: {},
         settings: {
-          serverActionKey: 'serverAction',
-          useComponentRegistry: true
+          serverActionKey: 'serverAction'
         }
       };
       getState = jest.fn(() => mockState);
@@ -191,8 +190,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       mockState = {
         components: {},
         settings: {
-          serverActionKey: 'serverAction',
-          useComponentRegistry: true
+          serverActionKey: 'serverAction'
         }
       };
       getState = jest.fn(() => mockState);

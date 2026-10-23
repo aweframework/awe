@@ -2,6 +2,8 @@ import React from "react";
 import {fireEvent, screen, within} from "@testing-library/react";
 import {Columns} from "../../../src/utilities/structure";
 import {renderWithProviders} from "../test-utils";
+import ComponentRegistry from "../../../src/redux/registry/ComponentRegistry";
+import {getAllComponents} from "../../../src/redux/selectors/componentSelectors";
 
 const VIEW = "report";
 const GRID = "grid1";
@@ -16,7 +18,6 @@ const COLUMN_MODEL = {
 };
 
 const gridState = () => ({
-  settings: {useComponentRegistry: false},
   components: {
     [GRID]: {
       address: {view: VIEW, component: GRID},
@@ -42,9 +43,15 @@ function Cell({row, readonly = false, editing = false, attrs = {}, data, column 
 }
 
 const renderCell = (row, value, props = {}) => renderWithProviders(
-  <Cell row={row} data={{value}} {...props}/>, {preloadedState: gridState()});
+  <Cell row={row} data={{value}} {...props}/>, {preloadedState: registered(gridState())});
 
-const getRow = (store, row) => store.getState().components[GRID].model.values.find(value => value.id === row);
+// The application registers every component as the frozen base and keeps only the changes in Redux
+const registered = (state) => {
+  Object.entries(state.components).forEach(([id, component]) => ComponentRegistry.register(id, _.cloneDeep(component)));
+  return state;
+};
+
+const getRow = (store, row) => getAllComponents(store.getState())[GRID].model.values.find(value => value.id === row);
 const getRadio = (label) => screen.getByRole("radio", {name: label});
 
 describe("awe-react-client/test/js/columns/ColumnRadioTest.jsx", () => {
@@ -113,7 +120,7 @@ describe("awe-react-client/test/js/columns/ColumnRadioTest.jsx", () => {
   it("clears the validation error of the cell once a choice is made", () => {
     const state = gridState();
     state.components[GRID].model.values[1].$attrs = {[COLUMN]: {error: {message: "VALIDATOR_MESSAGE_REQUIRED"}, readonly: false}};
-    const {store} = renderWithProviders(<Cell row="2" data={{value: null}}/>, {preloadedState: state});
+    const {store} = renderWithProviders(<Cell row="2" data={{value: null}}/>, {preloadedState: registered(state)});
 
     fireEvent.click(getRadio("Option B"));
 
@@ -122,11 +129,11 @@ describe("awe-react-client/test/js/columns/ColumnRadioTest.jsx", () => {
 
   it("keeps the model unchanged when the chosen option is clicked again", () => {
     const {store} = renderCell("1", "B");
-    const before = store.getState().components[GRID].model.values;
+    const before = getAllComponents(store.getState())[GRID].model.values;
 
     fireEvent.click(getRadio("Option B"));
 
-    expect(store.getState().components[GRID].model.values).toBe(before);
+    expect(getAllComponents(store.getState())[GRID].model.values).toBe(before);
   });
 
   it("is disabled when the column is readonly", () => {

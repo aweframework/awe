@@ -7,13 +7,12 @@ import {
   UNREGISTER_COMPONENTS,
   UPDATE_ATTRIBUTES,
   UPDATE_COMPONENT,
+  UPDATE_MODEL,
   UPDATE_VALIDATION,
   UPDATE_VIEW_COMPONENTS
 } from '../../../../src/redux/actions/components';
 
 describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.jsx', () => {
-  const settings = { useComponentRegistry: true };
-
   beforeEach(() => {
     ComponentRegistry.clearAll();
   });
@@ -27,8 +26,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_VIEW_COMPONENTS,
       view: 'base',
-      data: { comp: baseComponent },
-      settings
+      data: { comp: baseComponent }
     });
 
     expect(ComponentRegistry.get('comp')).toEqual(baseComponent);
@@ -38,21 +36,34 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
   it('adds components to a loaded view keeping the ones it has, and removes them with all their state', () => {
     const view = { address: { component: 'comp', view: 'report' }, attributes: { foo: 'bar' } };
     const added = { address: { component: 'added', view: 'report' }, attributes: { foo: 'baz' } };
-    const loaded = components({}, { type: UPDATE_VIEW_COMPONENTS, view: 'report', data: { comp: view }, settings });
+    const loaded = components({}, { type: UPDATE_VIEW_COMPONENTS, view: 'report', data: { comp: view } });
 
-    const registered = components(loaded, { type: REGISTER_COMPONENTS, data: { added }, settings });
+    const registered = components(loaded, { type: REGISTER_COMPONENTS, data: { added } });
 
     expect(Object.keys(registered)).toEqual(['comp', 'added']);
     expect(ComponentRegistry.get('comp')).toEqual(view);
     expect(ComponentRegistry.get('added')).toEqual(added);
 
-    const updated = components(registered, { type: UPDATE_ATTRIBUTES, address: added.address, data: { foo: 'new' }, settings });
-    const unregistered = components(updated, { type: UNREGISTER_COMPONENTS, ids: ['added'], settings });
+    const updated = components(registered, { type: UPDATE_ATTRIBUTES, address: added.address, data: { foo: 'new' } });
+    const unregistered = components(updated, { type: UNREGISTER_COMPONENTS, ids: ['added'] });
 
     expect(Object.keys(unregistered)).toEqual(['comp']);
     expect(ComponentRegistry.get('added')).toBeNull();
     expect(ComponentRegistry.getStats().componentsByView).toEqual({ report: 1 });
     expect(ComponentRegistry.get('comp')).toEqual(view);
+  });
+
+  it('does not bring back a component that is neither registered nor in the state when its model arrives late', () => {
+    const state = { other: {} };
+
+    const next = components(state, {
+      type: UPDATE_MODEL,
+      address: { view: 'report', component: 'gone' },
+      data: { values: [{ id: 1 }], records: 1 }
+    });
+
+    expect(next).toBe(state);
+    expect(next).not.toHaveProperty('gone');
   });
 
   it('stores only attribute deltas when updating a component with registry enabled', () => {
@@ -64,8 +75,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_COMPONENT,
       address: { component: 'comp', view: 'base' },
-      data: { attributes: { foo: 'bar', extra: true } },
-      settings
+      data: { attributes: { foo: 'bar', extra: true } }
     });
 
     expect(next.comp.attributes).toEqual({ extra: true });
@@ -80,8 +90,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_ATTRIBUTES,
       address: { component: 'comp', view: 'base' },
-      data: { foo: 'baz' },
-      settings
+      data: { foo: 'baz' }
     });
 
     expect(next.comp.attributes).toEqual({ foo: 'baz' });
@@ -97,8 +106,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_COMPONENT,
       address: { component: 'comp', view: 'base' },
-      data: { model: { values: [] } },
-      settings
+      data: { model: { values: [] } }
     });
 
     expect(next.comp.model.values).toEqual([]);
@@ -117,8 +125,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_ATTRIBUTES,
       address: { component: 'grid', view: 'base', column: 'colA' },
-      data: { width: 250 },
-      settings
+      data: { width: 250 }
     });
 
     expect(next.grid.attributes.columnModel).toEqual([{ name: 'colA', width: 250 }]);
@@ -137,8 +144,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_VALIDATION,
       address: { component: 'grid', view: 'base', column: 'colA' },
-      data: { pattern: '^[0-9]$' },
-      settings
+      data: { pattern: '^[0-9]$' }
     });
 
     expect(next.grid.attributes.columnModel[0].validationRules).toEqual({ required: false, pattern: '^[0-9]$' });
@@ -161,8 +167,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     const next = components({}, {
       type: UPDATE_ATTRIBUTES,
       address: { component: 'grid', view: 'base', row: 1, column: 'colA' },
-      data: { placeholder: 'new' },
-      settings
+      data: { placeholder: 'new' }
     });
 
     expect(next.grid.model.values[0].$attrs.colA.placeholder).toBe('new');
@@ -174,7 +179,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     ComponentRegistry.register('c', { address: { component: 'c', view: 'other' } });
 
     const state = { a: { attributes: { x: 1 } }, b: { attributes: { y: 2 } }, c: { attributes: { z: 3 } } };
-    const next = components(state, { type: CLEAR_COMPONENTS, view: 'base', settings });
+    const next = components(state, { type: CLEAR_COMPONENTS, view: 'base' });
 
     expect(next).toEqual({ c: { attributes: { z: 3 } } });
     expect(ComponentRegistry.get('a')).toBeNull();
@@ -196,8 +201,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
 
     const next = components({}, {
       type: RESET_MODEL,
-      address: { component: 'comp', view: 'base' },
-      settings
+      address: { component: 'comp', view: 'base' }
     });
 
     expect(next.comp.model.values).toEqual([
@@ -221,8 +225,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
         uid: 'broken-uid',
         attributes: { id: 'broken' },
         context: { view: 'broken-view' }
-      },
-      settings
+      }
     });
 
     expect(next).toEqual(state);
@@ -248,8 +251,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
           attributes: { id: 'broken-list' },
           context: { view: 'fallback-view' }
         }
-      },
-      settings
+      }
     });
 
     expect(warnSpy).toHaveBeenCalledWith(
@@ -278,7 +280,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
       }
     };
 
-    const next = components(state, { type: CLEAR_COMPONENTS, view: 'base', settings });
+    const next = components(state, { type: CLEAR_COMPONENTS, view: 'base' });
 
     expect(next).toEqual({
       valid: {
@@ -286,5 +288,35 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
         attributes: { id: 'valid' }
       }
     });
+  });
+
+  it('stores only the delta of a registered component updated by an action without settings', () => {
+    ComponentRegistry.register('comp', {
+      address: { component: 'comp', view: 'base' },
+      attributes: { foo: 'bar', label: 'Label' },
+      model: { values: [{ value: 1 }, { value: 2 }] }
+    });
+
+    const next = components({}, {
+      type: UPDATE_ATTRIBUTES,
+      address: { component: 'comp', view: 'base' },
+      data: { foo: 'baz' }
+    });
+
+    expect(next.comp).toEqual({ attributes: { foo: 'baz' } });
+    expect(ComponentRegistry.get('comp').attributes.foo).toBe('bar');
+  });
+
+  it('operates directly on the Redux entry when the component is not registered', () => {
+    const state = { comp: { attributes: { foo: 'bar' } } };
+
+    const next = components(state, {
+      type: UPDATE_ATTRIBUTES,
+      address: { component: 'comp', view: 'base' },
+      data: { foo: 'baz' }
+    });
+
+    expect(next.comp.attributes).toEqual({ foo: 'baz' });
+    expect(ComponentRegistry.get('comp')).toBeFalsy();
   });
 });

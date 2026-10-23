@@ -1,4 +1,6 @@
-import {components} from '../../../../src/redux/reducers/componentsReducer';
+import { reduceOnRegistry as components } from './registryReducerHelper';
+import { components as reducer } from '../../../../src/redux/reducers/componentsReducer';
+import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 import {
   KEEP_ATTRIBUTE,
   KEEP_MODEL,
@@ -161,7 +163,9 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     const state = {
       comp: {address: {component: 'comp', view: 'base'}, attributes: {placeholder: {text: 'Hint'}}, storedAttributes: {}}
     };
-    const next = components(state, {type: KEEP_ATTRIBUTE, address: {component: 'comp', view: 'base'}, data: 'placeholder'});
+    ComponentRegistry.register('comp', state.comp);
+    // Keeping an attribute reads the Redux entry of the component, so it needs a delta to start from
+    const next = reducer({comp: {attributes: {placeholder: {text: 'Hint'}}}}, {type: KEEP_ATTRIBUTE, address: {component: 'comp', view: 'base'}, data: 'placeholder'});
     expect(next.comp.storedAttributes.placeholder).toEqual({text: 'Hint'});
   });
 

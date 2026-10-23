@@ -8,6 +8,7 @@
     "lint:fix": "eslint . --fix",
     "test": "npm run test:unit",
     "test:unit": "jest --config jest.config.cjs",
+    "bench:registry": "AWE_BENCH=1 node --expose-gc node_modules/jest/bin/jest.js --config jest.config.cjs test/js/performance/RegistryDeltasBenchTest.jsx",
     "test:coverage": "jest --config jest.config.cjs --coverage",
     "verify:version": "node package-version.cjs --verify dist/package.json",
     "docs": "jsdoc -c jsdoc.conf.json",
