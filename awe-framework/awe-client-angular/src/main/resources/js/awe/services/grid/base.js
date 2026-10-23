@@ -1,10 +1,11 @@
 import {aweApplication} from "../../awe";
 import "./commons";
-import {getRowDetailColumn, initRowDetail} from "./rowDetail";
+import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
 
 // Base grid service
 aweApplication.factory('GridBase',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$translate', '$filter', '$log', 'uiGridConstants',
+    'Storage', 'ServerData',
     /**
      * Grid generic methods
      * @param {service} Utilities Utilities service
@@ -16,8 +17,10 @@ aweApplication.factory('GridBase',
      * @param {service} $log Log service
      * @param {service} Component Component service
      * @param {service} uiGridConstants Grid constants
+     * @param {service} Storage Storage service
+     * @param {service} ServerData Server data service
      */
-    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants) {
+    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData) {
 
       /**
        * Grid constructor
@@ -70,9 +73,12 @@ aweApplication.factory('GridBase',
           // Initialize common methods
           this.commons = new GridCommons(this.component);
 
-          // Row detail: an open detail changes the height of the content, so the scroll bars are checked again
+          // Row detail: an open detail changes the height of the content, so the scroll bars are checked again. With
+          // components, each open row has its own instance of them
           if (component.controller.rowDetail) {
-            initRowDetail(component, () => Utilities.timeout(component.updateGridScrollBars));
+            const instances = component.controller.rowDetail.component ?
+              initRowDetailInstances(component, Storage, ServerData.storeComponent) : null;
+            initRowDetail(component, () => Utilities.timeout(component.updateGridScrollBars), instances);
           }
 
           /******************************************************************************

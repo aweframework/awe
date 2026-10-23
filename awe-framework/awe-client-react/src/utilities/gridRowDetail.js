@@ -53,3 +53,41 @@ export function renderRowDetail(template, row) {
   }
   return result + text.substring(position);
 }
+
+/**
+ * Identifier of the instance of a row detail component for a row of its grid (e.g. GrdOrders-7). The buttons of the
+ * instance get their own one from their identifier the same way
+ * @param {string} componentId Identifier of the component in the row detail (or of one of its buttons)
+ * @param {string|number} rowId Identifier of the row of the parent grid
+ * @returns {string} Instance identifier
+ */
+export function getRowDetailInstanceId(componentId, rowId) {
+  return `${componentId}-${rowId}`;
+}
+
+/**
+ * Single values of a row of the parent grid sent with the requests of a row detail instance: every field of the row
+ * (also the ones of hidden columns) as `<parentGridId>.row.<column>`, cell objects as their value. The selection and
+ * the internal fields of the row ($row...) are not columns
+ * @param {string} parentGridId Identifier of the parent grid
+ * @param {object} row Row data
+ * @returns {object} Request parameters
+ */
+export function getRowDetailParameters(parentGridId, row = {}) {
+  return Object.entries(row)
+    .filter(([name]) => name !== "selected" && !name.startsWith("$"))
+    .reduce((parameters, [name, cell]) => ({
+      ...parameters,
+      [`${parentGridId}.row.${name}`]: cell !== null && typeof cell === "object" && !Array.isArray(cell) ? cell.value : cell
+    }), {});
+}
+
+/**
+ * Check whether a component belongs to a row detail instance (the instance or one of its buttons). They are not
+ * screen components: they are not part of the form values of the screen
+ * @param {object} component Component state
+ * @returns {boolean} The component belongs to a row detail instance
+ */
+export function isRowDetailComponent(component) {
+  return Boolean(component?.rowDetailInstance);
+}

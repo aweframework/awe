@@ -420,6 +420,10 @@
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="The &apos;include&apos; tag inside {0} screen hasn`t found the following screen source: screen: {1}, source: {2}"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; contains a &apos;&apos;dependency&apos;&apos;, which is not supported inside a row detail"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="The grid inside the &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; must be read-only: remove its &apos;&apos;editable&apos;&apos; and &apos;&apos;send-operations&apos;&apos; attributes"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_NOT_A_GRID" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; must contain a single &apos;&apos;grid&apos;&apos;, inline or through an &apos;&apos;include&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_TEMPLATE_AND_COMPONENTS" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; has a template and components: use only one of them"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Bad request definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Bad response definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BLOCKED_PASSWORD" value="Password is blocked for user {0}. Contact your system administrator."/>
@@ -631,6 +635,7 @@
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Authenticate error"/>
   <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Avatar image too large"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Bad &apos;include&apos; definition"/>
+  <locale name="ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION" value="Bad &apos;row-detail&apos; definition"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Bad queue definition format"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Database authenticate error"/>
   <locale name="ERROR_TITLE_BLOCKED_PASSWORD" value="Blocked password"/>

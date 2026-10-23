@@ -19,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * The published screen schema accepts one row-detail template inside a grid
+ * The published screen schema accepts one row-detail inside a grid: a template, or a read-only grid inline or through an
+ * include
  */
 class GridRowDetailSchemaTest {
 
@@ -71,6 +72,35 @@ class GridRowDetailSchemaTest {
   @Test
   void rejectsNestedElementsInsideTheTemplate() {
     assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail><column name=\"name\"/></row-detail></grid>"))
+      .isInstanceOf(SAXException.class);
+  }
+
+  @Test
+  void acceptsAGridInsideTheRowDetail() {
+    assertThatCode(() -> validate("<grid id=\"GrdProducts\"><column name=\"id\" label=\"ID\"/>" +
+      "<row-detail style=\"detail-card\">\n  <grid id=\"GrdOrders\" server-action=\"data\" target-action=\"QryOrders\">" +
+      "<column name=\"order\" label=\"ORDER\"/><button id=\"BtnOpen\" label=\"OPEN\"/></grid>\n</row-detail></grid>"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void acceptsAnIncludeInsideTheRowDetail() {
+    assertThatCode(() -> validate("<grid id=\"GrdProducts\"><column name=\"id\" label=\"ID\"/>" +
+      "<row-detail><include target-screen=\"orders\" target-source=\"detail\"/></row-detail></grid>"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void rejectsMoreThanOneComponentInsideTheRowDetail() {
+    assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail><grid id=\"A\"/><grid id=\"B\"/></row-detail></grid>"))
+      .isInstanceOf(SAXException.class);
+  }
+
+  @Test
+  void rejectsComponentsThatAreNotGridsInsideTheRowDetail() {
+    assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail><criteria id=\"Crt\" component=\"text\"/></row-detail></grid>"))
+      .isInstanceOf(SAXException.class);
+    assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail><dependency/></row-detail></grid>"))
       .isInstanceOf(SAXException.class);
   }
 }

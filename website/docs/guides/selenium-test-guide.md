@@ -618,6 +618,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridColumnOrder(String gridId, String columnId, String... expected)` | Checks that the rows of a grid are in a given order, reading the values of one column |
 | `checkGridPresent(String gridId)` | Checks that a grid exists in the screen, even if it is hidden |
 | `checkGridNotVisible(String gridId)` | Checks that a grid is not displayed |
+| `checkGridNotPresent(String gridId)` | Checks that a grid is not in the page at all, neither shown nor hidden, such as the nested grid of a row detail once the row closes or its grid reloads |
 | `checkGridPageSize(String size)` | Checks the number of rows that a grid shows in each page |
 | `checkGridPaginationInfo(String text)` | Checks the text of the paginator that tells the range of rows shown and the total (`View 1 - 10 of 25`) |
 | `clickGridNextPage()` | Goes to the next page of a grid with its paginator and waits for the load. In the AngularJS client it works with the compact pager only: the wide pager has no hook for its page links |
@@ -640,6 +641,9 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridRowDetailHasClass(String gridId, String rowId, String cssClass)` | Checks that the detail of a row has some style classes (separated by spaces), such as the ones of the `style` of the row detail |
 | `checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value)` | Checks the value that the browser computes for a style property of the detail of a row (`border-left-width`, `4px`), which proves that the style rules reach the page |
 | `checkGridRowDetailUnderItsRow(String gridId, String rowId)` | Checks that the detail of a row starts right under its row and is at least 90% as wide as the row |
+| `checkGridRowDetailAcrossGrid(String gridId, String rowId)` | Checks that the detail of a row is at least 90% as wide as the visible part of the grid, even when the columns are narrower |
+| `checkGridRowDetailHasNestedGrid(String gridId, String rowId, String nestedGridId)` | Checks that the detail of a row shows a nested grid (row detail with components). The nested grid id is the one the client renders for the row (`GrdOrders-7`) |
+| `checkGridRowDetailHoldsNestedGrid(String gridId, String rowId, String nestedGridId)` | Checks that the detail of a row holds the whole nested grid, down to its last row and across its width, without cutting it |
 | `checkGridRowNotSelected(String gridId, String rowId)` | Checks that a row is shown and not selected |
 | `checkGridHeaderVisible(String gridId, String columnId)` | Checks that the header of a column is displayed |
 | `checkGridHeaderNotVisible(String gridId, String columnId)` | Checks that the header of a column is not displayed (grid with the `grid-no-header` class) |

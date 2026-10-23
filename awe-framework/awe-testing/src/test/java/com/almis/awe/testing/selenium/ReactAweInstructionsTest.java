@@ -503,5 +503,7 @@ class ReactAweInstructionsTest {
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail']");
     assertThat(instructions.getGridRowDetailWithClass("Grd", "12", "grid-row-detail row-detail-card"))
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12'].grid-row-detail.row-detail-card");
+    assertThat(instructions.getGridRowDetailNestedGrid("Grd", "12", "GrdCus-12"))
+      .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12'] [grid-id='GrdCus-12']");
   }
 }

@@ -1,4 +1,4 @@
-import { renderRowDetail } from "../../../src/utilities/gridRowDetail";
+import { getRowDetailInstanceId, getRowDetailParameters, renderRowDetail } from "../../../src/utilities/gridRowDetail";
 
 describe("awe-react-client/test/js/utilities/gridRowDetailTest.js", () => {
   it("replaces each placeholder with the field of the row", () => {
@@ -53,5 +53,21 @@ describe("awe-react-client/test/js/utilities/gridRowDetailTest.js", () => {
   it("reads a long template in linear time", () => {
     const template = "{".repeat(50000) + "x";
     expect(renderRowDetail(template, {})).toBe(template);
+  });
+
+  it("names the instance of a row detail component after the component and the parent row", () => {
+    expect(getRowDetailInstanceId("GrdOrders", 7)).toBe("GrdOrders-7");
+    expect(getRowDetailInstanceId("ButOrdSee", "r1")).toBe("ButOrdSee-r1");
+  });
+
+  it("sends every field of the parent row as a single value, cell objects as their value, without the internal ones", () => {
+    const row = { id: 7, name: "Chair", hidden: null, code: { value: "C7", label: "Chair code" }, selected: true, $row: { editing: false } };
+
+    expect(getRowDetailParameters("GrdProducts", row)).toEqual({
+      "GrdProducts.row.id": 7,
+      "GrdProducts.row.name": "Chair",
+      "GrdProducts.row.hidden": null,
+      "GrdProducts.row.code": "C7"
+    });
   });
 });

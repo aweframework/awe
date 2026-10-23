@@ -1509,6 +1509,75 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckThatTheRowDetailIsAsWideAsTheVisiblePartOfItsGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRowDetail("Grd", "12"), "");
+      show(instructions.getGridScrollZone("Grd"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // Box of the detail (top, bottom and width) and width of the visible part of the grid
+      when(executor.executeScript(anyString(), any())).thenReturn("133|233|1250", 1260L);
+      assertThatCode(() -> utilities.checkGridRowDetailAcrossGrid("Grd", "12")).doesNotThrowAnyException();
+
+      // Only as wide as the columns of the grid, or a grid without width
+      when(executor.executeScript(anyString(), any())).thenReturn("133|233|390", 1260L);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailAcrossGrid("Grd", "12"));
+      when(executor.executeScript(anyString(), any())).thenReturn("133|233|390", 0L);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailAcrossGrid("Grd", "12"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheRowDetailShowsANestedGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRowDetailNestedGrid("Grd", "1", "GrdCus-1"), "");
+
+      assertThatCode(() -> utilities.checkGridRowDetailHasNestedGrid("Grd", "1", "GrdCus-1")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHasNestedGrid("Grd", "6", "GrdCus-6"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHasNestedGrid("Grd", "1", "GrdCus-6"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatTheRowDetailHoldsItsWholeNestedGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridRowDetail("Grd", "1"), "");
+      show(instructions.getGridRowDetailNestedGrid("Grd", "1", "GrdCus-1"), "");
+      show(instructions.getGridRow("GrdCus-1", null), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // Edges of the detail and of the nested grid (top, bottom, left and right), and bottom of the last nested row
+      when(executor.executeScript(anyString(), any())).thenReturn("100|400|0|1000", "110|390|10|990", 380.0);
+      assertThatCode(() -> utilities.checkGridRowDetailHoldsNestedGrid("Grd", "1", "GrdCus-1")).doesNotThrowAnyException();
+
+      // The detail cuts the nested grid at the bottom or at a side, the last row is out of the nested grid, or the
+      // nested grid has no height
+      when(executor.executeScript(anyString(), any())).thenReturn("100|400|0|1000", "110|450|10|990", 380.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHoldsNestedGrid("Grd", "1", "GrdCus-1"));
+      when(executor.executeScript(anyString(), any())).thenReturn("100|400|0|1000", "110|390|10|1100", 380.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHoldsNestedGrid("Grd", "1", "GrdCus-1"));
+      when(executor.executeScript(anyString(), any())).thenReturn("100|400|0|1000", "110|390|10|990", 420.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHoldsNestedGrid("Grd", "1", "GrdCus-1"));
+      when(executor.executeScript(anyString(), any())).thenReturn("100|400|0|1000", "110|110|10|990", 110.0);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowDetailHoldsNestedGrid("Grd", "1", "GrdCus-1"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAGridIsNotInThePageInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGrid("GrdCus-1"), "");
+
+      assertThatCode(() -> utilities.checkGridNotPresent("GrdCus-6")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridNotPresent("GrdCus-1"));
+    }
+  }
+
+  @Test
   void shouldCheckThatAGridRowIsNotSelectedInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);

@@ -1,4 +1,10 @@
-import {getRowDetailId, renderRowDetail} from "../../../../main/resources/js/awe/services/grid/rowDetail";
+import {
+  getRowDetailId,
+  getRowDetailInstanceData,
+  getRowDetailInstanceId,
+  getRowDetailParameters,
+  renderRowDetail
+} from "../../../../main/resources/js/awe/services/grid/rowDetail";
 
 describe("awe-framework/awe-client-angular/src/main/resources/js/awe/services/grid/rowDetail.js", () => {
   it("replaces each placeholder with the field of the row", () => {
@@ -58,5 +64,42 @@ describe("awe-framework/awe-client-angular/src/main/resources/js/awe/services/gr
   it("builds the identifier of the detail of a row from the grid and the row identifiers", () => {
     expect(getRowDetailId("GrdUsr", "r1")).toBe("GrdUsr-row-detail-r1");
     expect(getRowDetailId("GrdUsr", 7)).toBe("GrdUsr-row-detail-7");
+  });
+  it("builds the identifier of the instance of a row detail component (and of its buttons) for a row", () => {
+    expect(getRowDetailInstanceId("GrdOrders", 7)).toBe("GrdOrders-7");
+    expect(getRowDetailInstanceId("ButShow", "r1")).toBe("ButShow-r1");
+  });
+
+  it("sends every field of the parent row as a single value, cell objects as their value", () => {
+    const row = {id: 7, name: "Chair", code: {value: "C7", label: "Chair code"}, empty: null, list: [1, 2], selected: true, $$hashKey: "h", $row: 1};
+    expect(getRowDetailParameters("GrdProducts", row)).toEqual({
+      "GrdProducts.row.id": 7,
+      "GrdProducts.row.name": "Chair",
+      "GrdProducts.row.code": "C7",
+      "GrdProducts.row.empty": null,
+      "GrdProducts.row.list": [1, 2]
+    });
+    expect(getRowDetailParameters("GrdProducts")).toEqual({});
+  });
+
+  it("sends the data of an instance under the keys of its template", () => {
+    const data = {
+      "GrdOrders-7": ["o1"],
+      "GrdOrders-7.data": {max: 5},
+      "GrdOrders-7-id": ["o1"],
+      "GrdOrders-7.selectedRowAddress": {view: "base", component: "GrdOrders-7", row: "o1"},
+      "GrdOrders-70": "other",
+      order: ["Order 1"],
+      "order.selected": "Order 1"
+    };
+    expect(getRowDetailInstanceData(data, "GrdOrders-7", "GrdOrders")).toEqual({
+      GrdOrders: ["o1"],
+      "GrdOrders.data": {max: 5},
+      "GrdOrders-id": ["o1"],
+      "GrdOrders.selectedRowAddress": {view: "base", component: "GrdOrders-7", row: "o1"},
+      "GrdOrders-70": "other",
+      order: ["Order 1"],
+      "order.selected": "Order 1"
+    });
   });
 });

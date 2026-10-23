@@ -47,6 +47,16 @@ class ComponentRegistry {
     }
 
     /**
+     * Remove a registered component (and its view index entry)
+     * @param {string} componentId - Component id
+     */
+    unregister(componentId) {
+        const view = this.resolveView(this.baseComponents[componentId]);
+        delete this.baseComponents[componentId];
+        this.viewIndex[view]?.delete(componentId);
+    }
+
+    /**
      * Obtiene el estado base de un componente
      * @param {string} componentId - ID del componente
      * @returns {Object|null} Estado base o null si no existe

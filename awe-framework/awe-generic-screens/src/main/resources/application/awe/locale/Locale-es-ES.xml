@@ -423,6 +423,10 @@
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposición del grid no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposición del grid tiene demasiadas columnas para guardarse"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="La etiqueta &apos;include&apos; en la pantalla {0} no ha encontrado los siguientes elementos: screen: {1}, source: {2}"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; contiene una &apos;&apos;dependency&apos;&apos;, que no se admite dentro del detalle de una fila"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="El grid dentro del &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; debe ser de solo lectura: elimine sus atributos &apos;&apos;editable&apos;&apos; y &apos;&apos;send-operations&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_NOT_A_GRID" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; debe contener un único &apos;&apos;grid&apos;&apos;, directamente o mediante un &apos;&apos;include&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_TEMPLATE_AND_COMPONENTS" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; tiene una plantilla y componentes: use solo uno de ellos"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="No se ha definido un mensaje de envío en la cola {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="No se ha definido un mensaje de recepción en la cola {0}"/>
   <locale name="ERROR_MESSAGE_BLOCKED_PASSWORD" value="Contraseña bloqueada para el usuario {0}. Contacta con el administrador del sistema."/>
@@ -634,6 +638,7 @@
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Error en la autenticación"/>
   <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Imagen de avatar demasiado grande"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Definición de &apos;include&apos; incorrecta"/>
+  <locale name="ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION" value="Definición de &apos;row-detail&apos; incorrecta"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Error en el formato de la cola"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Error de autenticación de base de datos"/>
   <locale name="ERROR_TITLE_BLOCKED_PASSWORD" value="Contraseña bloqueada"/>

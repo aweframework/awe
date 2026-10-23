@@ -10,6 +10,7 @@ import {
 } from "./general";
 import {extractCellModel, getGridData, getGridIdentifier} from "./grid";
 import {getChartImage, getPrintOrientation} from "./chartRegistry";
+import {isRowDetailComponent} from "./gridRowDetail";
 
 /**
  * HTML void elements: React refuses to render them with children (not even an empty label)
@@ -127,7 +128,7 @@ export function warnMalformedComponent(component = {}, metadata = {}) {
  * Check whether component can be processed as a top-level form component
  * @param {object} component Component data
  * @param {object} metadata Diagnostic metadata
- * @returns {boolean} True when the component is valid and not grid scoped
+ * @returns {boolean} True when the component is valid, not grid scoped and not part of a grid row detail instance
  */
 export function isTopLevelFormComponent(component = {}, metadata = {}) {
   const address = component?.address;
@@ -135,7 +136,7 @@ export function isTopLevelFormComponent(component = {}, metadata = {}) {
     return warnMalformedComponent(component, metadata);
   }
 
-  return !("row" in address || "column" in address);
+  return !("row" in address || "column" in address) && !isRowDetailComponent(component);
 }
 
 /**

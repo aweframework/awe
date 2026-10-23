@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import _ from "lodash";
+import {getRowDetailInstanceData} from "./grid/rowDetail";
 
 // Server data service
 aweApplication.factory('ServerData',
@@ -249,17 +250,52 @@ aweApplication.factory('ServerData',
           return model;
         },
         /**
-         * Retrieve the updated model
+         * Check whether a component belongs to a grid row detail instance (the instance or one of its buttons). They are
+         * not screen components: they are not part of the form values of the screen
+         * @param {String} view Component view
+         * @param {String} componentId Component identifier
+         * @returns {Boolean} The component belongs to a row detail instance
          */
-        getFormValues: function () {
-          // Retrieve action data
-          let  model = {};
-          let  api = Storage.get("api");
+        isRowDetailComponent: function (view, componentId) {
+          return Boolean(((Storage.get("controller") || {})[view] || {})[componentId]?.rowDetailInstance);
+        },
+        /**
+         * Values of the grid row detail instance an address belongs to (the instance, one of its cells or one of its
+         * buttons): the data of the instance under the keys of its template and the values of its parent row. Other
+         * addresses have none
+         * @param {Object} address Address of the component that sends a request
+         * @param {String} method Method of the api that retrieves the data
+         * @param {*} args Method arguments
+         * @returns {Object} Values of the row detail instance
+         */
+        getRowDetailValues: function (address, method, args) {
+          const controllers = Storage.get("controller") || {};
+          const componentId = address?.component;
+          const view = address?.view in controllers ? address.view : _.findKey(controllers, viewControllers => componentId in viewControllers);
+          const marker = ((controllers[view] || {})[componentId] || {}).rowDetailInstance;
+          if (!marker) {
+            return {};
+          }
+          const api = ((Storage.get("api") || {})[view] || {})[marker.instance] || {};
+          const data = method in api ? api[method](args) : {};
+          return {...getRowDetailInstanceData(data, marker.instance, marker.template), ...marker.parameters};
+        },
+        /**
+         * Retrieve the data of every screen component with an api method
+         * @param {String} method Method to call
+         * @param {*} args Method arguments
+         * @returns {Object} Data of the screen
+         */
+        getScreenValues: function (method, args) {
+          let model = {};
+          let api = Storage.get("api");
 
-          // Retrieve components from each view
-          _.each(api, function (view) {
-            _.each(view, function (component) {
-              model = ServerData.getComponentData(component, model, "getData");
+          // Retrieve components from each view (the row detail instances are not screen components)
+          _.each(api, function (view, viewId) {
+            _.each(view, function (component, componentId) {
+              if (!ServerData.isRowDetailComponent(viewId, componentId)) {
+                model = ServerData.getComponentData(component, model, method, args);
+              }
             });
           });
 
@@ -267,26 +303,26 @@ aweApplication.factory('ServerData',
           return model;
         },
         /**
-         * Retrieve the updated model for printing
+         * Retrieve the updated model
+         * @param {Object} address Address of the component that sends the values: a grid row detail instance adds its own
          */
-        getFormValuesForPrinting: function () {
-          // Retrieve action data
-          let model = {};
-          let api = Storage.get("api");
+        getFormValues: function (address = null) {
+          return {...ServerData.getScreenValues("getData"), ...ServerData.getRowDetailValues(address, "getData")};
+        },
+        /**
+         * Retrieve the updated model for printing
+         * @param {Object} address Address of the component that sends the values: a grid row detail instance adds its own
+         */
+        getFormValuesForPrinting: function (address = null) {
           let fullModel = Storage.get("model");
           let fullModelReport = fullModel["report"] || {};
           let orientationModel = fullModelReport["reportOrientation"] || {};
           let orientation = orientationModel.selected || "PORTRAIT";
 
-          // Retrieve components from each view
-          _.each(api, function (view) {
-            _.each(view, function (component) {
-              model = ServerData.getComponentData(component, model, "getPrintData", orientation);
-            });
-          });
-
-          // Return data
-          return model;
+          return {
+            ...ServerData.getScreenValues("getPrintData", orientation),
+            ...ServerData.getRowDetailValues(address, "getPrintData", orientation)
+          };
         },
         /**
          * Retrieve parameters and send them to the server

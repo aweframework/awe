@@ -192,7 +192,7 @@
   <!-- Row detail Element -->
   <xs:element name="row-detail" type="rowDetailType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Detail area of a grid row. A toggle at the start of each row opens it under the row, across the whole width of the grid; several rows can be open and a reload of the data closes them. Its text is the template of the detail: each {name} placeholder is replaced with the field name of the row, also of hidden columns (the label of the cell when it has one); missing fields show nothing. The detail is plain text (HTML is shown as text) and keeps the line breaks. Use CDATA for multi-line templates. Declare at most one per grid; only the first one is used. Supported by both client engines; tree grids do not show it.</xs:documentation>
+      <xs:documentation xml:lang="en">Detail area of a grid row. A toggle at the start of each row opens it under the row, across the whole width of the grid; several rows can be open and a reload of the data closes them. The detail is either a template or components, never both. Template: its text, where each {name} placeholder is replaced with the field name of the row, also of hidden columns (the label of the cell when it has one); missing fields show nothing. The detail is plain text (HTML is shown as text) and keeps the line breaks. Use CDATA for multi-line templates. Components: a single read-only grid (no editable nor send-operations), inline or through an include whose source contains only that grid. Each open row gets its own instance of the grid, which loads only when the row is opened; its requests send every field of the parent row as [parent grid id].row.[field] (for example GrdProducts.row.id), so a query reads it with a variable of that name. The components of a row detail are not screen components: they cannot have dependencies (the screen fails to load) and cannot be the target of other components. Declare at most one per grid; only the first one is used. Supported by both client engines; tree grids do not show it.</xs:documentation>
     </xs:annotation>
   </xs:element>
 
@@ -1723,19 +1723,19 @@
   </xs:complexType>
 
   <!-- Row detail Type -->
-  <xs:complexType name="rowDetailType">
+  <xs:complexType name="rowDetailType" mixed="true">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Template of the row detail (plain text with {name} placeholders) and the CSS classes of its area.</xs:documentation>
+      <xs:documentation xml:lang="en">Template of the row detail (plain text with {name} placeholders) or its component (a single read-only grid, inline or through an include), and the CSS classes of its area.</xs:documentation>
     </xs:annotation>
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="style" type="xs:string">
-          <xs:annotation>
-            <xs:documentation xml:lang="en">CSS classes added to the area of the detail, to give it a background, a border or a font. The template itself stays plain text.</xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
-      </xs:extension>
-    </xs:simpleContent>
+    <xs:choice minOccurs="0">
+      <xs:element ref="grid" />
+      <xs:element ref="include" />
+    </xs:choice>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes added to the area of the detail, to give it a background, a border or a font. A template itself stays plain text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Column Type -->

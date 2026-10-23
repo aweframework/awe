@@ -24,6 +24,7 @@ import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
 import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.screen.data.*;
 import com.almis.awe.service.GridLayoutService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
 
   private static final String ERROR_MESSAGE_SCREEN_COMPONENT_MAP = "ERROR_MESSAGE_SCREEN_COMPONENT_MAP";
   private static final String ERROR_TITLE_SCREEN_GENERATION_ERROR = "ERROR_TITLE_SCREEN_GENERATION_ERROR";
+  private static final String ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION = "ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION";
 
   // Autowired services
   private final AweRequest aweRequest;
@@ -240,6 +242,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private void generateGrid(String containerId, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList, Map<String, GridColumnLayout> gridLayouts, boolean loadColumns) throws AWException {
     Grid gridController = (Grid) screenComponent.getController();
     generateScreenGrid(gridController, screenComponent, initializationList, loadColumns);
+    generateRowDetail(containerId, gridController);
     if (gridLayouts == null) {
       // Intended: the layout is stored per screen and grid (the save service checks the grid exists in the screen) and the grids of a generated tag list are in no screen, so a toolbar would offer a save that always fails
       gridController.setShowToolbar(false);
@@ -247,6 +250,32 @@ public class ScreenComponentGenerator extends ServiceConfig {
       gridController.setScreenId(containerId);
       gridController.setColumnLayout(gridLayoutService.resolveLayout(gridController, gridLayouts));
     }
+  }
+
+  /**
+   * Generate the component of a grid row detail: the template the clients use to create one instance per open row. It
+   * is generated as a screen component, but it is not one: it is not registered, does not load with the screen and has
+   * no column layout (which is stored by screen and grid)
+   *
+   * @param containerId Container id
+   * @param grid        Grid controller
+   * @throws AWException The row detail definition is not valid
+   */
+  private void generateRowDetail(String containerId, Grid grid) throws AWException {
+    RowDetail rowDetail = grid.getRowDetail();
+    if (rowDetail == null || !rowDetail.isComponentMode()) {
+      return;
+    }
+
+    RowDetail.DefinitionError error = rowDetail.getDefinitionError();
+    if (error != null) {
+      throw new AWException(getLocale(ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION), getLocale(error.getMessage(), grid.getElementKey(), containerId));
+    }
+
+    Map<String, ScreenComponent> detailComponents = new LinkedHashMap<>();
+    Grid detailGrid = rowDetail.getDetailGrid();
+    generateComponent(containerId, detailGrid, Collections.emptyList(), detailComponents, JsonNodeFactory.instance.objectNode(), null, null, true, false);
+    rowDetail.setComponent(detailComponents.get(detailGrid.getElementKey()));
   }
 
   /**

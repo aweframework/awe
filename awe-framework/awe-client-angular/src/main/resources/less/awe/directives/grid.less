@@ -713,10 +713,13 @@
 }
 
 // Grid with row detail: ui-grid gives every row and its canvas a fixed height, so the row with an open detail grows to
-// hold it and the canvas grows with its rows (all the rows of the page are rendered, see the grid directive)
+// hold it and the canvas grows with its rows (all the rows of the page are rendered, see the grid directive). ui-grid also
+// makes the canvas as wide as the columns: it is at least as wide as the visible grid, so the detail of a row spans the
+// whole grid when the columns are narrower, and scrolls with them when they are wider
 .grid.grid-with-row-detail {
   .ui-grid-render-container-body .ui-grid-canvas {
     height: auto !important;
+    min-width: 100%;
   }
 
   .ui-grid-row.grid-row-detail-open {
@@ -751,6 +754,16 @@
     border-top: 1px solid @grid-border-color;
     cursor: auto;
     user-select: text;
+  }
+
+  // With components, the detail holds the nested grid of its row: the text rules of a template do not apply to its
+  // cells, and the grid gets its own height (the detail has none to fill)
+  .grid-row-detail.grid-row-detail-components {
+    white-space: normal;
+    overflow-wrap: normal;
+    > .grid {
+      height: 18rem;
+    }
   }
 }
 

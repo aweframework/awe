@@ -220,3 +220,51 @@ aweApplication.directive('aweGrid',
       };
     }
   ]);
+
+// Instance of the row detail component of an open row (components mode): the nested grid, with its own scope, compiled
+// inside the detail of its row. It loads the first time it is shown; its state lives until the row closes or the parent
+// grid gets new data or is destroyed (see the row detail of the grid service)
+aweApplication.directive('aweGridRowDetailInstance',
+  ['$compile',
+    function ($compile) {
+      return {
+        restrict: 'A',
+        link: function (scope, element) {
+          const parent = scope.grid.appScope.component;
+          const instance = parent.getRowDetailInstance(scope.row);
+
+          // The nested grid is not inside the scopes of the screen: it gets the view and context of its parent
+          const instanceScope = scope.$new();
+          instanceScope.view = parent.address.view;
+          instanceScope.context = parent.context;
+
+          const node = angular.element("<awe-grid></awe-grid>").attr("grid-id", instance.id);
+          instance.buttons.forEach(id => node.append(angular.element("<awe-button></awe-button>").attr("button-id", id)));
+          element.append(node);
+          $compile(node)(instanceScope);
+
+          const nestedScope = element.children().first().isolateScope();
+          const nested = nestedScope?.component;
+          if (nested?.api?.getData && !instance.loaded) {
+            instance.loaded = true;
+            nested.reload();
+          }
+
+          // The row of the parent grows with the rows of the nested grid (the parent broadcasts its own ones too)
+          nestedScope?.$on("rows-rendered", (event, parameters) => {
+            if (parameters?.grid === instance.id) {
+              parent.updateGridScrollBars();
+            }
+          });
+
+          // The context menu of the nested grid is not the one of the parent row
+          element.on("contextmenu", event => event.stopPropagation());
+
+          scope.$on("$destroy", () => {
+            element.off("contextmenu");
+            instanceScope.$destroy();
+          });
+        }
+      };
+    }
+  ]);

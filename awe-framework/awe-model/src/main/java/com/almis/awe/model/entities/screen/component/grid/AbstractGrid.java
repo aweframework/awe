@@ -448,25 +448,31 @@ public abstract class AbstractGrid extends AbstractCriteria {
    */
   @JsonIgnore
   public RowDetail getRowDetail() {
-    return getElementsByType(RowDetail.class).stream().findFirst().orElse(null);
+    return getChildrenByType(RowDetail.class).stream().findFirst().orElse(null);
   }
 
   /**
    * Returns the row detail description for JSON serialization
    *
-   * @return Row detail (its template and, when set, its style), empty (not sent) when the grid has none
+   * @return Row detail, empty (not sent) when the grid has none: its style (when set) and either its template or, when
+   * it has components, the component the clients create for each open row (when it has been generated)
    */
   @JsonGetter("rowDetail")
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Map<String, String> getRowDetailConverter() {
+  public Map<String, Object> getRowDetailConverter() {
     RowDetail rowDetail = getRowDetail();
     if (rowDetail == null) {
       return Collections.emptyMap();
     }
-    Map<String, String> description = new LinkedHashMap<>();
-    description.put("template", rowDetail.getContent() == null ? "" : rowDetail.getContent());
+    Map<String, Object> description = new LinkedHashMap<>();
+    if (!rowDetail.isComponentMode()) {
+      description.put("template", rowDetail.getContent() == null ? "" : rowDetail.getContent());
+    }
     if (rowDetail.getStyle() != null) {
       description.put("style", rowDetail.getStyle());
+    }
+    if (rowDetail.getComponent() != null) {
+      description.put("component", rowDetail.getComponent());
     }
     return description;
   }

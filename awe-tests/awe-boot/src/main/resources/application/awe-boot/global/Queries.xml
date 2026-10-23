@@ -3759,6 +3759,63 @@
     <order-by field="Nam" type="ASC"/>
   </query>
 
+  <!-- Countries with their identifier in a hidden column, for the row detail with a nested grid (GrdRowDetailCmpTst
+       screen) -->
+  <query id="RowDetailCmpCountries">
+    <table id="TST_COUNTRY"/>
+    <field id="ID" alias="id"/>
+    <field id="COUNTRY_NAME" alias="name"/>
+    <field id="COUNTRY_CODE" alias="code"/>
+    <field id="ID" alias="country"/>
+    <order-by field="COUNTRY_NAME" type="ASC"/>
+  </query>
+
+  <!-- Customers of the country of the open row of GrdRowDetailCmp (nested grid of its row detail), read from the hidden
+       column of the parent row. The status is a styled cell: customers since 2021 are new -->
+  <query id="RowDetailCmpCustomers">
+    <table id="TST_CUSTOMER"/>
+    <field id="ID" alias="id"/>
+    <field id="CUSTOMER_NAME" alias="customer"/>
+    <field id="CUSTOMER_ADDRESS" alias="address"/>
+    <field id="CUSTOMER_DATE" alias="since" transform="DATE"/>
+    <compound alias="status">
+      <computed alias="value" format="'[since]'.indexOf('2021') &gt;= 0 ? 'NEW' : 'REGULAR'" eval="true"/>
+      <computed alias="label" format="'[since]'.indexOf('2021') &gt;= 0 ? 'New' : 'Regular'" eval="true"/>
+      <computed alias="style" format="'[since]'.indexOf('2021') &gt;= 0 ? 'scale-pos-3' : 'scale-seq-2'" eval="true"/>
+    </compound>
+    <where>
+      <and>
+        <filter left-field="COUNTRY_ID" condition="eq" right-variable="country"/>
+      </and>
+    </where>
+    <order-by field="CUSTOMER_NAME" type="ASC"/>
+    <variable id="country" type="INTEGER" name="GrdRowDetailCmp.row.country"/>
+  </query>
+
+  <!-- Countries for the grid whose row detail brings its nested grid with an include (GrdRowDetailCmpTst screen) -->
+  <query id="RowDetailCmpIncCountries">
+    <table id="TST_COUNTRY"/>
+    <field id="ID" alias="id"/>
+    <field id="COUNTRY_NAME" alias="incName"/>
+    <field id="ID" alias="incCountry"/>
+    <order-by field="COUNTRY_NAME" type="ASC"/>
+  </query>
+
+  <!-- Customers of the country of the open row of GrdRowDetailCmpInc (nested grid of its row detail, brought by an
+       include from the GrdRowDetailCmpIncTst screen) -->
+  <query id="RowDetailCmpIncCustomers">
+    <table id="TST_CUSTOMER"/>
+    <field id="ID" alias="id"/>
+    <field id="CUSTOMER_NAME" alias="incCustomer"/>
+    <where>
+      <and>
+        <filter left-field="COUNTRY_ID" condition="eq" right-variable="country"/>
+      </and>
+    </where>
+    <order-by field="CUSTOMER_NAME" type="ASC"/>
+    <variable id="country" type="INTEGER" name="GrdRowDetailCmpInc.row.incCountry"/>
+  </query>
+
   <!-- Themes list without rows, for the empty state of a grid (GrdEmptyTst screen) -->
   <query id="EmptyGridTst">
     <table id="AweThm"/>

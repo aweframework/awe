@@ -46,25 +46,29 @@ AweGridRowDetailToggle.propTypes = {
 
 /**
  * Detail of a row, shown under it across the whole grid: the row detail template filled with the data of the row,
- * rendered as plain text with its line breaks. The style classes of the row detail are added to the area
+ * rendered as plain text with its line breaks, or the components of the row detail (its children) when it has them.
+ * The style classes of the row detail are added to the area, and the components mode adds "grid-row-detail-components"
  * @category Components
  * @subcategory Grid
  * @param {string} gridId Grid identifier
- * @param {object} rowDetail Row detail of the grid ({template, style})
+ * @param {object} rowDetail Row detail of the grid ({template, style} or {component, style})
  * @param {object} rowData Row data
+ * @param {node} children Components of the detail of the row (components mode)
  * @returns {JSX.Element} Row detail
  */
-function AweGridRowDetail({gridId, rowDetail = {}, rowData = {}}) {
-  return <div id={getRowDetailId(gridId, rowData.id)} className={classNames("grid-row-detail", rowDetail.style)}
+function AweGridRowDetail({gridId, rowDetail = {}, rowData = {}, children = null}) {
+  return <div id={getRowDetailId(gridId, rowData.id)}
+              className={classNames("grid-row-detail", {"grid-row-detail-components": !!rowDetail.component}, rowDetail.style)}
               {...testHook(TestIds.gridRowDetail, {attributes: {"row-id": rowData.id}})}>
-    {renderRowDetail(rowDetail.template, rowData)}
+    {rowDetail.component ? children : renderRowDetail(rowDetail.template, rowData)}
   </div>;
 }
 
 AweGridRowDetail.propTypes = {
   gridId: PropTypes.string,
   rowDetail: PropTypes.object,
-  rowData: PropTypes.object
+  rowData: PropTypes.object,
+  children: PropTypes.node
 };
 
 export default AweGridRowDetail;

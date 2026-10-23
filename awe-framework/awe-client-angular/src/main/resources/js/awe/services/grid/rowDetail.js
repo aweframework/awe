@@ -1,4 +1,5 @@
 import {TestIds} from "../../data/testIds";
+import _ from "lodash";
 
 /**
  * Row detail of a grid: a toggle per row that shows, under the row and across the whole grid, the text of the
@@ -9,6 +10,10 @@ import {TestIds} from "../../data/testIds";
  *
  * The template is split once by its closing braces: in each piece the last opening brace starts the placeholder, so its
  * time is linear. It does not use regular expressions on the template, only on single names.
+ *
+ * With components (`rowDetail.component`) each open row gets its own instance of the grid of the detail, as the React
+ * client does: a clone of its controller and model stored with its own identifier, loaded once with the fields of its
+ * parent row and removed with all its state when the row closes, the parent gets new data or the parent is destroyed.
  */
 
 const FIELD_NAME = /^[\w.$-]+$/;
@@ -72,6 +77,143 @@ export function getRowDetailId(gridId, rowId) {
 }
 
 /**
+ * Identifier of the instance of a row detail component for a row of its grid (e.g. GrdOrders-7). The buttons of the
+ * instance get their own one from their identifier the same way
+ * @param {string} componentId Identifier of the component in the row detail (or of one of its buttons)
+ * @param {string|number} rowId Identifier of the row of the parent grid
+ * @returns {string} Instance identifier
+ */
+export function getRowDetailInstanceId(componentId, rowId) {
+  return `${componentId}-${rowId}`;
+}
+
+/**
+ * Single values of a row of the parent grid sent with the requests of a row detail instance: every field of the row
+ * (also the ones of hidden columns) as `<parentGridId>.row.<column>`, cell objects as their value. The selection and
+ * the internal fields of the row ($$hashKey...) are not columns
+ * @param {string} parentGridId Identifier of the parent grid
+ * @param {object} row Row data
+ * @returns {object} Request parameters
+ */
+export function getRowDetailParameters(parentGridId, row) {
+  const parameters = {};
+  for (const [name, cell] of Object.entries(row ?? {})) {
+    if (name === "selected" || name.startsWith("$")) {
+      continue;
+    }
+    const isCell = cell !== null && typeof cell === "object" && !Array.isArray(cell);
+    parameters[`${parentGridId}.row.${name}`] = isCell ? cell.value : cell;
+  }
+  return parameters;
+}
+
+/**
+ * Data of a row detail instance under the keys of its template (GrdOrders, GrdOrders.data, GrdOrders-id...), as the
+ * server knows the grid by the identifier of the template. Its column values keep their keys
+ * @param {object} data Data of the instance (getData)
+ * @param {string} instanceId Instance identifier
+ * @param {string} templateId Template identifier
+ * @returns {object} Data with the keys of the template
+ */
+export function getRowDetailInstanceData(data, instanceId, templateId) {
+  return Object.entries(data || {}).reduce((renamed, [key, value]) => {
+    const own = key === instanceId || key.startsWith(`${instanceId}.`) || key.startsWith(`${instanceId}-`);
+    return {...renamed, [own ? templateId + key.substring(instanceId.length) : key]: value};
+  }, {});
+}
+
+/**
+ * Instances of the row detail component of a grid, one per open row. Each one is stored as the screen stores its
+ * components (controller, model and api by view and identifier) with its buttons, and keeps in its controller
+ * (rowDetailInstance) the values of its parent row, so its requests send them and the screen leaves it out of its
+ * form values
+ * @param {object} component Grid component (with controller.rowDetail.component)
+ * @param {object} Storage Storage service
+ * @param {function} storeComponent Stores a component in a view (ServerData.storeComponent)
+ * @returns {{get: function, remove: function, removeAll: function}} Instances by row
+ */
+export function initRowDetailInstances(component, Storage, storeComponent) {
+  const template = component.controller.rowDetail.component;
+  const instances = new Map();
+  const viewOf = kind => (Storage.get(kind) || {})[component.address.view];
+
+  /**
+   * Store the instance of a row: a clone of the template with its own identifier and the ones of its buttons. It loads
+   * only when it is shown (autoload off)
+   * @param {object} entity Row data
+   * @returns {object} Instance
+   */
+  const create = entity => {
+    const rowId = entity[component.constants.ROW_IDENTIFIER];
+    const id = getRowDetailInstanceId(template.id, rowId);
+    const rowDetailInstance = {
+      instance: id,
+      template: template.id,
+      parameters: getRowDetailParameters(component.address.component, entity)
+    };
+    const buttons = (template.controller.buttonModel || []).map(button => ({
+      ..._.cloneDeep(button),
+      id: getRowDetailInstanceId(button.id, rowId),
+      rowDetailInstance
+    }));
+    const controller = {
+      ..._.cloneDeep(template.controller),
+      id,
+      autoload: false,
+      buttonModel: buttons,
+      rowDetailInstance
+    };
+    if (controller.emptyAction) {
+      controller.emptyAction = getRowDetailInstanceId(controller.emptyAction, rowId);
+    }
+    const option = ((Storage.get("screen") || {})[component.address.view] || {}).option;
+    const entries = [
+      // The template has no data: the instance starts on the first page, as its first load asks for it
+      {id, controller, model: {page: 1, ..._.cloneDeep(template.model)}},
+      ...buttons.map(button => ({id: button.id, controller: _.cloneDeep(button), model: {}}))
+    ];
+    entries.forEach(entry => storeComponent(entry, viewOf("model"), viewOf("controller"), viewOf("api"), option));
+    return {
+      id,
+      buttons: buttons.map(button => button.id),
+      entries: entries.map(entry => ({id: entry.id, controller: viewOf("controller")[entry.id]})),
+      loaded: false
+    };
+  };
+
+  /**
+   * Remove the instance of a row with all its state. Only its own entries are removed: a new screen in the same view
+   * may already use the identifiers
+   * @param {string} rowId Row identifier
+   */
+  const remove = rowId => {
+    const instance = instances.get(rowId);
+    instances.delete(rowId);
+    const controllers = viewOf("controller");
+    (instance?.entries || []).filter(entry => controllers && controllers[entry.id] === entry.controller).forEach(entry => {
+      ["controller", "model", "api"].forEach(kind => delete viewOf(kind)?.[entry.id]);
+    });
+  };
+
+  return {
+    /**
+     * Instance of a row, created the first time
+     * @param {object} entity Row data
+     * @returns {object} Instance
+     */
+    get: entity => {
+      const rowId = String(entity[component.constants.ROW_IDENTIFIER]);
+      if (!instances.has(rowId)) {
+        instances.set(rowId, create(entity));
+      }
+      return instances.get(rowId);
+    },
+    remove,
+    removeAll: () => [...instances.keys()].forEach(remove)
+  };
+}
+
+/**
  * Leading column of a grid with row detail: the toggle of each row
  * @param {object} component Grid component
  * @returns {object} Column model
@@ -99,8 +241,9 @@ export function getRowDetailColumn(component) {
  * keeps it across the client-side pages and sorting of the grid, until its data is reloaded
  * @param {object} component Grid component (with controller.rowDetail)
  * @param {function} onChange Called after the detail of a row is shown or hidden (the height of the rows changes)
+ * @param {object} instances Instances of the row detail component (initRowDetailInstances), only with components
  */
-export function initRowDetail(component, onChange) {
+export function initRowDetail(component, onChange, instances = null) {
   const openRows = new Set();
   const rowId = row => String(row.entity[component.constants.ROW_IDENTIFIER]);
 
@@ -139,8 +282,10 @@ export function initRowDetail(component, onChange) {
     const id = rowId(row);
     if (openRows.has(id)) {
       openRows.delete(id);
+      instances?.remove(id);
     } else {
       openRows.add(id);
+      instances?.get(row.entity);
     }
     onChange();
   };
@@ -150,5 +295,18 @@ export function initRowDetail(component, onChange) {
    */
   component.closeRowDetails = function () {
     openRows.clear();
+    instances?.removeAll();
   };
+
+  if (instances) {
+    /**
+     * Instance of the row detail component of an open row
+     * @param {object} row ui-grid row
+     * @returns {object} Instance ({id, buttons, loaded})
+     */
+    component.getRowDetailInstance = row => instances.get(row.entity);
+
+    // The instances go with the grid
+    component.scope.$on("$destroy", () => instances.removeAll());
+  }
 }
