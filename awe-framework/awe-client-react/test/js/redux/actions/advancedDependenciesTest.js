@@ -59,7 +59,12 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         testView: { name: 'Test Screen' }
       }
     };
+
   });
+
+  // The selectors memoize the merge of the components by the reference of the state, but these tests change the
+  // components in place, so every call gets a new state
+  const freshState = () => ({ ...mockState, components: { ...mockState.components } });
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -71,7 +76,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
   describe('checkDependencies', () => {
     it('debería verificar dependencias sin cambios', () => {
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       // Sin cambios, no debería despachar nada
       expect(dispatch).not.toHaveBeenCalled();
@@ -90,14 +95,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
 
       // Primera llamada para inicializar
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
       dispatch.mockClear();
 
       // Cambiar valor
       mockState.components.comp2.model.values = [{ value: 'changed', selected: true }];
 
       // Segunda llamada debería detectar cambios
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -116,14 +121,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
 
     it('debería limpiar valores previos de dependencias', () => {
-      dependencies.initializeDependencies('testView', mockState, dispatch);
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // No debería fallar al reinicializar
       expect(true).toBe(true);
@@ -150,7 +155,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -165,7 +170,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -180,7 +185,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 10, selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -195,7 +200,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 5, selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -210,7 +215,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 10, selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -225,7 +230,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 5, selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -240,7 +245,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'option2', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -255,7 +260,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'option2', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -269,7 +274,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: true, selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -283,7 +288,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -297,7 +302,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -309,7 +314,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         condition: 'invalid-condition',
         checkChanges: true
       }];
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
       const invalidCalls = JSON.stringify(dispatch.mock.calls);
 
       // An unknown condition is evaluated as a condition that does not match
@@ -321,7 +326,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         value: 'a value that does not match',
         checkChanges: true
       }];
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(invalidCalls).toEqual(JSON.stringify(dispatch.mock.calls));
     });
@@ -336,7 +341,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -349,7 +354,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       dispatch.mockClear();
       mockComponent.dependencies = [{ type, elements, target: 'show', initial: true }];
       mockState.components.comp2.model.values = values;
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
       return JSON.stringify(dispatch.mock.calls);
     };
     const element = (condition, value, extra = {}) => ({ id: 'comp2', attribute1: 'value', condition, value, ...extra });
@@ -433,7 +438,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -450,7 +455,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -467,7 +472,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // Con cancel, no debería ejecutarse
       expect(dispatch).not.toHaveBeenCalled();
@@ -492,7 +497,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -505,7 +510,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -519,7 +524,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // required es false, por lo que no debería ejecutarse
       expect(dispatch).not.toHaveBeenCalled();
@@ -534,7 +539,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -548,7 +553,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -602,7 +607,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -616,7 +621,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -630,7 +635,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -644,7 +649,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -658,7 +663,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -672,7 +677,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -688,7 +693,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -712,7 +717,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target show', () => {
       mockComponent.dependencies[0].target = 'show';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasVisibleUpdate = calls.some(([action]) =>
@@ -724,7 +729,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target hide', () => {
       mockComponent.dependencies[0].target = 'hide';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasVisibleUpdate = calls.some(([action]) =>
@@ -736,7 +741,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target enable', () => {
       mockComponent.dependencies[0].target = 'enable';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasDisabledUpdate = calls.some(([action]) =>
@@ -748,7 +753,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target disable', () => {
       mockComponent.dependencies[0].target = 'disable';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasDisabledUpdate = calls.some(([action]) =>
@@ -760,7 +765,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-editable', () => {
       mockComponent.dependencies[0].target = 'set-editable';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasReadonlyUpdate = calls.some(([action]) =>
@@ -772,7 +777,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-readonly', () => {
       mockComponent.dependencies[0].target = 'set-readonly';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasReadonlyUpdate = calls.some(([action]) =>
@@ -784,7 +789,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-required', () => {
       mockComponent.dependencies[0].target = 'set-required';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasRequiredUpdate = calls.some(([action]) =>
@@ -796,7 +801,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-optional', () => {
       mockComponent.dependencies[0].target = 'set-optional';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasRequiredUpdate = calls.some(([action]) =>
@@ -808,7 +813,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-visible', () => {
       mockComponent.dependencies[0].target = 'set-visible';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasInvisibleUpdate = calls.some(([action]) =>
@@ -820,7 +825,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target set-invisible', () => {
       mockComponent.dependencies[0].target = 'set-invisible';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasInvisibleUpdate = calls.some(([action]) =>
@@ -834,7 +839,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'label';
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = 'New Label';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
@@ -848,7 +853,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'unit';
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = 'kg';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasUnitUpdate = calls.some(([action]) =>
@@ -862,7 +867,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'icon';
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = 'fa-check';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasIconUpdate = calls.some(([action]) =>
@@ -876,7 +881,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'input';
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = ['selected1', 'selected2'];
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasInputUpdate = calls.some(([action]) =>
@@ -889,7 +894,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'enable-autorefresh';
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = 5000;
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAutorefreshUpdate = calls.some(([action]) =>
@@ -901,7 +906,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería aplicar target disable-autorefresh', () => {
       mockComponent.dependencies[0].target = 'disable-autorefresh';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAutorefreshUpdate = calls.some(([action]) =>
@@ -913,7 +918,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería manejar target none', () => {
       mockComponent.dependencies[0].target = 'none';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // none no debería generar updates
       expect(dispatch).not.toHaveBeenCalled();
@@ -921,7 +926,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería advertir sobre target no definido', () => {
       mockComponent.dependencies[0].target = 'unknown-target';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(console.warn).toHaveBeenCalled();
     });
@@ -947,7 +952,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     it('debería usar source value', () => {
       mockComponent.dependencies[0].source = 'value';
       mockComponent.dependencies[0].value = 'Fixed Value';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
@@ -960,7 +965,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     it('debería usar source label', () => {
       mockComponent.dependencies[0].source = 'label';
       mockComponent.dependencies[0].label = 'Fixed Label';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
@@ -974,7 +979,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'formule';
       mockComponent.dependencies[0].formule = '[comp2] + 10';
       mockComponent.dependencies[0].elements[0].query = 'comp2';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -983,7 +988,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'criteria-value';
       mockComponent.dependencies[0].query = 'comp2';
       mockComponent.dependencies[0].elements[0].query = 'comp2';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -992,14 +997,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'launcher';
       mockComponent.dependencies[0].query = 'comp2';
       mockComponent.dependencies[0].elements[0].query = 'comp2';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
 
     it('debería usar source reset', () => {
       mockComponent.dependencies[0].source = 'reset';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1008,7 +1013,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'query';
       mockComponent.dependencies[0].target = 'label';
       mockComponent.dependencies[0].serverAction = 'data';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
@@ -1019,7 +1024,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'query';
       mockComponent.dependencies[0].target = 'unit';
       mockComponent.dependencies[0].serverAction = 'data';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
@@ -1030,7 +1035,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'query';
       mockComponent.dependencies[0].target = 'format-number';
       mockComponent.dependencies[0].serverAction = 'data';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
@@ -1041,7 +1046,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'query';
       mockComponent.dependencies[0].target = 'validate';
       mockComponent.dependencies[0].serverAction = 'data';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
@@ -1052,7 +1057,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].source = 'query';
       mockComponent.dependencies[0].target = 'input';
       mockComponent.dependencies[0].serverAction = 'data';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
@@ -1064,7 +1069,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'format-number';
       mockComponent.dependencies[0].serverAction = 'data';
       mockComponent.dependencies[0].elements[0].value = 'wrong';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // No debería despachar ADD_ACTIONS_TOP porque la condición no se cumple
       const calls = dispatch.mock.calls;
@@ -1079,7 +1084,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'validate';
       mockComponent.dependencies[0].serverAction = 'data';
       mockComponent.dependencies[0].elements[0].value = 'wrong';
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasRestoreValidation = calls.some(([action]) =>
@@ -1106,7 +1111,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // Con invert, debería ocultar en vez de mostrar
       const calls = dispatch.mock.calls;
@@ -1138,7 +1143,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) =>
@@ -1166,7 +1171,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAddActionsWithCustom = calls.some(([action]) =>
@@ -1210,7 +1215,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1230,7 +1235,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.event = 'click';
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1248,7 +1253,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.event = 'change';
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).not.toHaveBeenCalled();
     });
@@ -1293,7 +1298,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     });
 
     it('debería procesar dependencias de columnas', () => {
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1301,7 +1306,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     it('debería crear dependencias por fila en columnas', () => {
       mockState.components.gridComp.attributes.columnModel[0].dependencies[0].elements[0].attribute1 = 'currentRow';
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1309,7 +1314,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     it('debería manejar show-column y hide-column para dependencias de columna', () => {
       mockState.components.gridComp.attributes.columnModel[0].dependencies[0].target = 'show';
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasColumnUpdate = calls.some(([action]) =>
@@ -1354,7 +1359,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1375,7 +1380,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1394,7 +1399,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1413,7 +1418,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('nonexistent is not defined'));
     });
@@ -1432,7 +1437,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       // Sin triggers, no debería despachar nada
       expect(dispatch).not.toHaveBeenCalled();
@@ -1474,7 +1479,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1494,7 +1499,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1516,7 +1521,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1537,7 +1542,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1558,7 +1563,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1579,7 +1584,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: false
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
       dispatch.mockClear();
 
       // Another cell of the row changes: the model is updated, but the watched cell keeps its value
@@ -1592,7 +1597,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         ],
         modelVersion: 1
       };
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       expect(dispatch).not.toHaveBeenCalled();
 
@@ -1606,7 +1611,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         ],
         modelVersion: 2
       };
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1632,20 +1637,20 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       beforeEach(() => {
         mockState.components.gridComp.model = withRows(1, 0);
         mockComponent.dependencies = buildDependency();
-        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
         dispatch.mockClear();
       });
 
       it('relaunches the dependency when the selection moves to another row and the count stays the same', () => {
         mockState.components.gridComp.model = withRows(2, 1);
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).toHaveBeenCalled();
       });
 
       it('does not relaunch the dependency when the selection is the same row', () => {
         mockState.components.gridComp.model = withRows(1, 1, 'changed');
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).not.toHaveBeenCalled();
       });
@@ -1678,7 +1683,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         dependencies: []
       };
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
       dispatch.mockClear();
 
       // The user starts editing the second row without changing it
@@ -1689,7 +1694,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         ],
         modelVersion: 1
       };
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       expect(dispatch).not.toHaveBeenCalled();
 
@@ -1701,7 +1706,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         ],
         modelVersion: 2
       };
-      dependencies.checkDependencies(mockState, dispatch);
+      dependencies.checkDependencies(freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1734,14 +1739,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         mockState.components.gridComp = buildGrid('unique', [
           { id: 1, col1: 'value1', $row: {} }
         ]);
-        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
         dispatch.mockClear();
 
         mockState.components.gridComp.model = startEditing([
           { id: 1, col1: 'value1', $row: {} },
           { id: 'new-row-1', col1: 'value1', $row: { editing: true } }
         ]);
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).toHaveBeenCalled();
       });
@@ -1750,14 +1755,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         mockState.components.gridComp = buildGrid('unique', [
           { id: 1, col1: 'value1', $row: {} }
         ]);
-        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
         dispatch.mockClear();
 
         mockState.components.gridComp.model = startEditing([
           { id: 1, col1: 'value1', $row: {} },
           { id: 'copied-row-1', col1: 'value1', $row: { editing: true } }
         ]);
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).toHaveBeenCalled();
       });
@@ -1766,14 +1771,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         mockState.components.gridComp = buildGrid('unique', [
           { id: 1, col1: 'value1', $row: {} }
         ]);
-        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
         dispatch.mockClear();
 
         mockState.components.gridComp.model = startEditing([
           { id: 1, col1: 'value1', $row: {} },
           { id: 7, col1: 'value1', $row: { editing: true, operation: 'INSERT' } }
         ]);
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).toHaveBeenCalled();
       });
@@ -1783,14 +1788,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
           { id: 1, col1: 'same', $row: { editing: true } },
           { id: 2, col1: 'same', $row: {} }
         ]);
-        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
         dispatch.mockClear();
 
         mockState.components.gridComp.model = startEditing([
           { id: 1, col1: 'same', $row: {} },
           { id: 2, col1: 'same', $row: { editing: true } }
         ]);
-        dependencies.checkDependencies(mockState, dispatch);
+        dependencies.checkDependencies(freshState(), dispatch);
 
         expect(dispatch).toHaveBeenCalled();
       });
@@ -1812,7 +1817,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1833,7 +1838,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1852,7 +1857,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1886,7 +1891,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1908,7 +1913,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         initial: true
       }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });
@@ -1932,7 +1937,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).not.toHaveBeenCalled();
     });
@@ -1956,7 +1961,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasChartOptionsUpdate = calls.some(([action]) =>
@@ -1986,7 +1991,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       }];
       mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       const calls = dispatch.mock.calls;
       const hasAttributeUpdate = calls.some(([action]) =>
@@ -2016,7 +2021,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         { value: 'val1', selected: true }
       ];
 
-      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
 
       expect(dispatch).toHaveBeenCalled();
     });

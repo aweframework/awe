@@ -1,4 +1,4 @@
-import {components} from "../../../../src/redux/reducers/componentsReducer";
+import { reduceOnRegistry as components } from './registryReducerHelper';
 import {UPDATE_MODEL, UPDATE_VALIDATION, UPDATE_ATTRIBUTES, RESTORE_ATTRIBUTE} from "../../../../src/redux/actions/components";
 
 /**

@@ -370,37 +370,31 @@ function checkIfValid(component, value, components, settings, column) {
  */
 export function validateComponent(state, component, settings) {
   const componentId = getComponentId(component.address);
-  const useRegistry = settings?.useComponentRegistry;
-  let mergedComponents = state;
 
-  if (useRegistry) {
-    // We need a full view for cross-component validation
-    // Since we are in a reducer, we only have the current deltas (state)
-    // We merge them with registry to get the full view
-    mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
-      acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
-      return acc;
-    }, { ...state });
-  }
+  // We need a full view for cross-component validation
+  // Since we are in a reducer, we only have the current deltas (state)
+  // We merge them with registry to get the full view
+  const mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
+    acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
+    return acc;
+  }, { ...state });
 
   const error = checkIfValid(component, getComponentValue(component), mergedComponents, settings);
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
-      currentFull.attributes = {
-        ...(currentFull.attributes || {}),
-        error
-      };
-      return {
-        ...state,
-        [componentId]: calculateDeltas(base, currentFull)
-      };
-    }
+  const base = ComponentRegistry.get(componentId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[componentId] || {});
+    currentFull.attributes = {
+      ...(currentFull.attributes || {}),
+      error
+    };
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     [componentId]: {
@@ -422,21 +416,12 @@ export function validateComponent(state, component, settings) {
  */
 export function validateRow(state, address, settings) {
   let gridId = address.component;
-  const useRegistry = settings?.useComponentRegistry;
-  let grid;
-  let mergedComponents = state;
-
-  if (useRegistry) {
-    const base = ComponentRegistry.get(gridId);
-    grid = mergeComponentState(base, state[gridId] || {});
-    // Full view for cross-component validation
-    mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
-      acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
-      return acc;
-    }, { ...state });
-  } else {
-    grid = state[gridId];
-  }
+  const grid = mergeComponentState(ComponentRegistry.get(gridId), state[gridId] || {});
+  // Full view for cross-component validation
+  const mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
+    acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
+    return acc;
+  }, { ...state });
 
   if (!grid || !grid.model || !grid.attributes) {
     return state;
@@ -486,22 +471,20 @@ export function validateRow(state, address, settings) {
     ...values.slice(rowIndex + 1)
   ];
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(gridId);
-    if (base) {
-      const currentFull = mergeComponentState(base, state[gridId] || {});
-      currentFull.model = {
-        ...currentFull.model,
-        values: updatedValues
-      };
-      return {
-        ...state,
-        [gridId]: calculateDeltas(base, currentFull)
-      };
-    }
+  const base = ComponentRegistry.get(gridId);
+  if (base) {
+    const currentFull = mergeComponentState(base, state[gridId] || {});
+    currentFull.model = {
+      ...currentFull.model,
+      values: updatedValues
+    };
+    return {
+      ...state,
+      [gridId]: calculateDeltas(base, currentFull)
+    };
   }
 
-  // Legacy behavior
+  // Component not registered: operate directly on the Redux entry
   return {
     ...state,
     [gridId]: {

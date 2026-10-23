@@ -149,7 +149,7 @@ module.exports = {
     '^.+\\.(js|jsx)$': ['babel-jest', { presets: ['@babel/preset-env', '@babel/preset-react'] }]
   },
   setupFiles: ['<rootDir>/test/js/jest.setup.js'],
-  setupFilesAfterEnv: ['@testing-library/jest-dom'],
+  setupFilesAfterEnv: ['@testing-library/jest-dom', '<rootDir>/test/js/jest.setupAfterEnv.js'],
   moduleNameMapper: {
     '\\.(css|less)$': 'identity-obj-proxy'
   },

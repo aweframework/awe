@@ -2,6 +2,8 @@ import React from "react";
 import {fireEvent, screen} from "@testing-library/react";
 import {Columns} from "../../../src/utilities/structure";
 import {renderWithProviders} from "../test-utils";
+import ComponentRegistry from "../../../src/redux/registry/ComponentRegistry";
+import {getAllComponents} from "../../../src/redux/selectors/componentSelectors";
 
 const VIEW = "report";
 const GRID = "grid1";
@@ -16,7 +18,6 @@ const COLUMN_MODEL = {
 };
 
 const gridState = () => ({
-  settings: {useComponentRegistry: false},
   components: {
     [GRID]: {
       address: {view: VIEW, component: GRID},
@@ -31,9 +32,15 @@ const renderCell = (row, value, {readonly = false, attrs = {}, column = COLUMN_M
     ...column,
     readonly,
     address: {view: VIEW, component: GRID, row, column: COLUMN}
-  }, {value}, attrs, false)}</div>, {preloadedState: gridState()});
+  }, {value}, attrs, false)}</div>, {preloadedState: registered(gridState())});
 
-const getRow = (store, row) => store.getState().components[GRID].model.values.find(value => value.id === row);
+// The application registers every component as the frozen base and keeps only the changes in Redux
+const registered = (state) => {
+  Object.entries(state.components).forEach(([id, component]) => ComponentRegistry.register(id, _.cloneDeep(component)));
+  return state;
+};
+
+const getRow = (store, row) => getAllComponents(store.getState())[GRID].model.values.find(value => value.id === row);
 const getRadio = (label) => screen.getByRole("radio", {name: label});
 
 describe("awe-react-client/test/js/columns/ColumnButtonRadioTest.jsx", () => {

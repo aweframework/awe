@@ -1,4 +1,4 @@
-import {components} from "../../../../src/redux/reducers/componentsReducer";
+import { reduceOnRegistry as components } from './registryReducerHelper';
 import {
   CLEAR_ALL_COMPONENTS,
   CLEAR_COMPONENTS,
@@ -60,7 +60,8 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
       attributes: {}
     };
     const newState = components(state.components, { type: UPDATE_VIEW_COMPONENTS, view: "base", data: { component } });
-    expect(newState).toEqual({ component });
+    expect(newState.component).toMatchObject(component);
+    expect(Object.keys(newState)).toEqual(['component', 'component2', 'tutu']);
   });
 
   it('should update a component data', function () {
@@ -68,7 +69,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
       attributes: { test: true }
     };
     const newState = components(state.components, { type: UPDATE_COMPONENT, view: "base", data: component, address: { component: 'component', view: 'base' } });
-    expect(newState.component.attributes).toEqual(component.attributes);
+    expect(newState.component.attributes).toEqual({ something: "12", test: true });
   });
 
   it('should update multiple components', function () {
@@ -88,7 +89,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
   it('should update a component attributes', function () {
     const attributes = { test: true };
     const newState = components(state.components, { type: UPDATE_ATTRIBUTES, view: "base", data: attributes, address: { component: 'component', view: 'base' } });
-    expect(newState.component).toEqual({
+    expect(newState.component).toMatchObject({
       address: { component: 'component', view: 'base' },
       attributes: { something: "12", test: true }
     });
@@ -119,7 +120,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
   it('should update a component specific attributes', function () {
     const attributes = { test: true };
     const newState = components(state.components, { type: UPDATE_SPECIFIC_ATTRIBUTES, view: "base", data: attributes, address: { component: 'component', view: 'base' } });
-    expect(newState.component).toEqual({
+    expect(newState.component).toMatchObject({
       address: { component: 'component', view: 'base' },
       attributes: { something: "12" },
       specificAttributes: { test: true }
@@ -143,7 +144,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
   it('should update a component model', function () {
     const model = { values: [{ value: true }] };
     const newState = components(state.components, { type: UPDATE_MODEL, view: "base", data: model, address: { component: 'component', view: 'base' } });
-    expect(newState.component).toEqual({
+    expect(newState.component).toMatchObject({
       address: { component: 'component', view: 'base' },
       attributes: { something: "12", error: null },
       model: { values: [{ value: true }], changed: true }
@@ -152,7 +153,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
 
   it('should reset a component model', function () {
     const newState = components(state.components, { type: RESET_MODEL, view: "base", address: { component: 'component', view: 'base' } });
-    expect(newState.component).toEqual({
+    expect(newState.component).toMatchObject({
       address: { component: 'component', view: 'base' },
       attributes: { something: "12", error: null },
       model: { values: [], changed: true }
@@ -161,7 +162,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
 
   it('should reset a non-grid model by clearing selections without removing values', function () {
     const newState = components(state.components, { type: RESET_MODEL, view: "base", address: { component: 'component2', view: 'base' } });
-    expect(newState.component2).toEqual({
+    expect(newState.component2).toMatchObject({
       address: { component: 'component2', view: 'base' },
       attributes: { error: null },
       model: { values: [{ selected: false, value: "tutu" }], changed: true }
@@ -170,7 +171,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
 
   it('should keep a component model', function () {
     const newState = components(state.components, { type: KEEP_MODEL, view: "base", address: { component: 'component2', view: 'base' } });
-    expect(newState.component2).toEqual({
+    expect(newState.component2).toMatchObject({
       address: { component: 'component2', view: 'base' },
       attributes: {},
       model: { values: [{ selected: true, value: "tutu" }] },

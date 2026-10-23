@@ -2,6 +2,8 @@ import React from "react";
 import { cleanup, fireEvent, within } from "@testing-library/react";
 import { DEFAULT_SETTINGS } from "../../../src/redux/actions/settings";
 import { renderWithProviders } from "../test-utils";
+import ComponentRegistry from "../../../src/redux/registry/ComponentRegistry";
+import { getAllComponents } from "../../../src/redux/selectors/componentSelectors";
 import AweGrid from "../../../src/components/AweGrid";
 
 const choiceValues = [{ value: "A", label: "Option A" }, { value: "B", label: "Option B" }];
@@ -14,7 +16,7 @@ const columnModel = [
 
 function gridState() {
   return {
-    settings: { ...DEFAULT_SETTINGS, useComponentRegistry: false },
+    settings: DEFAULT_SETTINGS,
     screen: { size: { width: 100, height: 100 } },
     components: {
       Grd: {
@@ -33,14 +35,20 @@ function gridState() {
   };
 }
 
+// The application registers every component as the frozen base and keeps only the changes in Redux
+const registered = (state) => {
+  Object.entries(state.components).forEach(([id, component]) => ComponentRegistry.register(id, _.cloneDeep(component)));
+  return state;
+};
+
 const getRowCells = (container, rowIndex) => within(container.querySelectorAll("tbody tr")[rowIndex]);
-const getValues = (store) => store.getState().components.Grd.model.values;
+const getValues = (store) => getAllComponents(store.getState()).Grd.model.values;
 
 describe("awe-react-client/test/js/components/AweGridRadioColumnTest.jsx", () => {
   afterEach(cleanup);
 
   it("shows the options of the list in every row with the choice of the cell", () => {
-    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     const first = getRowCells(container, 0);
     expect(first.getByRole("radio", { name: "Option B" })).toBeChecked();
@@ -51,20 +59,20 @@ describe("awe-react-client/test/js/components/AweGridRadioColumnTest.jsx", () =>
   });
 
   it("draws the options of a button-radio cell as one joined bar", () => {
-    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     expect(container.querySelectorAll("tbody tr:first-child .column-button-radio")).toHaveLength(1);
     expect(container.querySelectorAll("tbody tr:first-child .column-button-radio .p-button")).toHaveLength(2);
   });
 
   it("does not give the cells of the columns any position class", () => {
-    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     expect(container.querySelector("td[class*='radio-cell']")).toBeNull();
   });
 
   it("marks only the chosen radio as highlighted inside the radio column", () => {
-    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     const checked = getRowCells(container, 0).getByRole("radio", { name: "Option B" });
     expect(checked.closest(".p-radiobutton")).toHaveClass("p-highlight");
@@ -73,7 +81,7 @@ describe("awe-react-client/test/js/components/AweGridRadioColumnTest.jsx", () =>
   });
 
   it("chooses an option in one row without touching the other one", () => {
-    const { container, store } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    const { container, store } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     fireEvent.click(getRowCells(container, 1).getByRole("radio", { name: "Option A" }));
     fireEvent.click(getRowCells(container, 0).getByRole("radio", { name: "Fast" }));
@@ -85,7 +93,7 @@ describe("awe-react-client/test/js/components/AweGridRadioColumnTest.jsx", () =>
   it("does not warn about a missing group", () => {
     const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
 
-    renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState() });
+    renderWithProviders(<AweGrid id="Grd" />, { preloadedState: registered(gridState()) });
 
     expect(warn.mock.calls.filter(([message]) => String(message).includes("group"))).toHaveLength(0);
     warn.mockRestore();
