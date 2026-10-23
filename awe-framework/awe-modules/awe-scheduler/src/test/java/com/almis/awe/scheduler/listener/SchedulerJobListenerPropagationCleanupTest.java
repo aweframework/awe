@@ -21,6 +21,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -219,7 +220,7 @@ class SchedulerJobListenerPropagationCleanupTest {
     // Before cleanup: overlay must be readable
     ObjectNode snapshot = holder.getPendingPropagationSnapshot();
     assertNotNull(snapshot, "Overlay must be readable before jobWasExecuted (during-job window)");
-    assert snapshot.has("boundary-key") : "Overlay must contain 'boundary-key'";
+    assertTrue(snapshot.has("boundary-key"), "Overlay must contain 'boundary-key'");
 
     stubNonSchedulerJob();
 

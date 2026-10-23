@@ -30,7 +30,8 @@
     <!-- Jacoco configuration -->
     <jacoco.base.reports>target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
+    <!-- Anchored to the reactor root, not to ${project.basedir}: Sonar reads it in every module, whatever its depth -->
+    <jacoco.joined.coverage.path>${maven.multiModuleProjectDirectory}/awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
     <plugin-sonar.version>5.8.0.7211</plugin-sonar.version>

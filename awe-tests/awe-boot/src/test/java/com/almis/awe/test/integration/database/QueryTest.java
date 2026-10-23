@@ -1737,8 +1737,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ObjectNode expectedRow2 = (ObjectNode) expectedRows.get(4);
     ObjectNode resultRow2 = (ObjectNode) resultRows.get(0);
 
-    assert (Math.abs(expectedRow1.get("fecha").asLong() - resultRow1.get("fecha").asLong()) < 7200001);
-    assert (Math.abs(expectedRow2.get("fecha").asLong() - resultRow2.get("fecha").asLong()) < 7200001);
+    assertTrue(Math.abs(expectedRow1.get("fecha").asLong() - resultRow1.get("fecha").asLong()) < 7200001);
+    assertTrue(Math.abs(expectedRow2.get("fecha").asLong() - resultRow2.get("fecha").asLong()) < 7200001);
   }
 
   /**

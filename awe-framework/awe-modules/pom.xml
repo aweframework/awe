@@ -14,10 +14,6 @@
   <artifactId>awe-modules</artifactId>
   <packaging>pom</packaging>
 
-  <properties>
-    <jacoco.joined.coverage.path>${project.basedir}/../../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
-  </properties>
-
   <modules>
     <module>awe-annotation</module>
     <module>awe-builder</module>
