@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en" data-awe-primary="emerald" data-awe-density="comfortable">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AWE 5 components · Operations Hub — AWE 5 prototype</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+  <script>
+    // Restore the prototype theme before the first paint (only <html> attributes, classes and inline tokens)
+    try {
+      const t = JSON.parse(localStorage.getItem('awe-prototype-theme') || '{}');
+      const r = document.documentElement;
+      if (t.mode === 'light' || t.mode === 'dark') r.classList.add(t.mode);
+      if (t.primary) r.dataset.awePrimary = t.primary;
+      if (t.surface && t.surface !== 'auto') r.dataset.aweSurface = t.surface;
+      if (t.density) r.dataset.aweDensity = t.density;
+      if (t.primaryHex) r.dataset.protoPrimaryHex = t.primaryHex;
+      if (t.surfaceHex) r.dataset.protoSurfaceHex = t.surfaceHex;
+      // Palettes generated from a custom hex (prototype.js stores them with the theme)
+      Object.entries(t.vars || {}).forEach(([k, v]) => r.style.setProperty(k, v));
+      if (t.brand) r.dataset.protoBrand = t.brand;
+    } catch { /* no stored theme */ }
+  </script>
+  <script src="shell.js" defer></script>
+  <script src="prototype.js" defer></script>
+  <script src="components.js" defer></script>
+</head>
+<body data-page="components">
+<div class="app" id="app" data-menu="expanded">
+  <aside class="sidebar" id="sidebar" aria-label="Main menu"></aside>
+
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content" id="content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="./"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#house"/></svg><span class="sr-only">Home</span></a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><a href="#">Administration</a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><a href="#">Design system</a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><span aria-current="page">AWE 5 components</span></li>
+        </ol>
+      </nav>
+
+      <div class="page-head">
+        <div>
+          <h1>AWE 5 components</h1>
+          <p>Elements that are new in AWE 5, redesigned in the new design language. <b>Done</b> items keep the behaviour of
+            the current implementation; <b>Planned</b> items are proposals from the roadmap.</p>
+        </div>
+        <div class="page-head__actions">
+          <a class="btn btn--outlined" href="./"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#layout-dashboard"/></svg>Sample screen</a>
+          <a class="btn btn--outlined" href="tokens.html"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#swatch-book"/></svg>Design tokens</a>
+          <a class="btn btn--outlined" href="login.html"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#log-out"/></svg>Login page</a>
+        </div>
+      </div>
+
+      <nav class="comp-index" aria-label="Component groups">
+        <a href="#grp-grid"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#table-2"/></svg>Grid features<span class="badge badge--neutral">11</span></a>
+        <a href="#grp-forms"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#list-checks"/></svg>Criteria &amp; forms<span class="badge badge--neutral">7</span></a>
+        <a href="#grp-overlays"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layers-2"/></svg>Overlays &amp; panels<span class="badge badge--neutral">5</span></a>
+        <a href="#grp-nav"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layout-grid"/></svg>Navigation &amp; launchers<span class="badge badge--neutral">1</span></a>
+        <a href="#grp-dataviz"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chart-area"/></svg>Data visualisation<span class="badge badge--neutral">4</span></a>
+        <a href="#grp-feedback"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#loader-circle"/></svg>Feedback &amp; loading<span class="badge badge--neutral">3</span></a>
+      </nav>
+
+      <!-- =============================================================== GRID FEATURES -->
+      <section class="comp-group" id="grp-grid" aria-labelledby="grp-grid-title">
+        <h2 class="section-title" id="grp-grid-title">Grid features</h2>
+        <div class="comp-grid">
+
+          <article class="card comp" id="c-825">
+            <header class="comp__head"><h3 class="comp__title">Multi-line cells with tooltip</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#825</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid grid--wrap">
+                <thead><tr><th>Ticket</th><th>Description</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono muted-cell">SR-3104</td>
+                    <td class="cell-tip is-tooltip-demo" data-tooltip-wrap="Pallet 14 arrived with two damaged cartons. The carrier signed the delivery note with remarks; claim opened with photos attached and the replacement order is waiting for approval."><span class="cell-clamp">Pallet 14 arrived with two damaged cartons. The carrier signed the delivery note with remarks; claim opened with photos attached and the replacement order is waiting for approval.</span></td>
+                    <td><span class="tag tag--warning">Open</span></td></tr>
+                  <tr><td class="mono muted-cell">SR-3099</td>
+                    <td class="cell-tip" data-tooltip-wrap="Customer asks to move every delivery of November to Thursday mornings."><span class="cell-clamp">Customer asks to move every delivery of November to Thursday mornings.</span></td>
+                    <td><span class="tag tag--success">Solved</span></td></tr>
+                  <tr><td class="mono muted-cell">SR-3087</td>
+                    <td class="cell-tip" data-tooltip-wrap="Invoice INV-2026-4398 shows the old price list for 6 items. Credit note requested to finance and a corrected invoice will be sent once the price agreement is renewed."><span class="cell-clamp">Invoice INV-2026-4398 shows the old price list for 6 items. Credit note requested to finance and a corrected invoice will be sent once the price agreement is renewed.</span></td>
+                    <td><span class="tag tag--info">In progress</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">Columns wrap up to a configurable number of lines (here 2); the row grows only as needed, the rest
+              is cut with an ellipsis and the full text shows in a tooltip.</p>
+          </article>
+
+          <article class="card comp" id="c-838">
+            <header class="comp__head"><h3 class="comp__title">Radio and button-bar columns</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#838</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid">
+                <thead><tr><th>Warehouse</th><th>Replenishment</th><th>Priority</th></tr></thead>
+                <tbody>
+                  <tr><td>Madrid Central</td>
+                    <td><div class="choice-group choice-group--cell" role="radiogroup" aria-label="Replenishment for Madrid Central">
+                      <label class="radio"><input type="radio" name="rp1" checked><span class="radio__dot"></span>Auto</label>
+                      <label class="radio"><input type="radio" name="rp1"><span class="radio__dot"></span>Manual</label>
+                      <label class="radio"><input type="radio" name="rp1"><span class="radio__dot"></span>Off</label></div></td>
+                    <td><div class="segmented segmented--sm" role="radiogroup" aria-label="Priority for Madrid Central">
+                      <label><input type="radio" name="pr1"><span>Low</span></label>
+                      <label><input type="radio" name="pr1" checked><span>Medium</span></label>
+                      <label><input type="radio" name="pr1"><span>High</span></label></div></td></tr>
+                  <tr><td>Barcelona Port</td>
+                    <td><div class="choice-group choice-group--cell" role="radiogroup" aria-label="Replenishment for Barcelona Port">
+                      <label class="radio"><input type="radio" name="rp2"><span class="radio__dot"></span>Auto</label>
+                      <label class="radio"><input type="radio" name="rp2" checked><span class="radio__dot"></span>Manual</label>
+                      <label class="radio"><input type="radio" name="rp2"><span class="radio__dot"></span>Off</label></div></td>
+                    <td><div class="segmented segmented--sm" role="radiogroup" aria-label="Priority for Barcelona Port">
+                      <label><input type="radio" name="pr2"><span>Low</span></label>
+                      <label><input type="radio" name="pr2"><span>Medium</span></label>
+                      <label><input type="radio" name="pr2" checked><span>High</span></label></div></td></tr>
+                  <tr><td>Valencia South</td>
+                    <td><div class="choice-group choice-group--cell" role="radiogroup" aria-label="Replenishment for Valencia South">
+                      <label class="radio"><input type="radio" name="rp3"><span class="radio__dot"></span>Auto</label>
+                      <label class="radio"><input type="radio" name="rp3"><span class="radio__dot"></span>Manual</label>
+                      <label class="radio"><input type="radio" name="rp3" checked><span class="radio__dot"></span>Off</label></div></td>
+                    <td><div class="segmented segmented--sm" role="radiogroup" aria-label="Priority for Valencia South">
+                      <label><input type="radio" name="pr3" checked><span>Low</span></label>
+                      <label><input type="radio" name="pr3"><span>Medium</span></label>
+                      <label><input type="radio" name="pr3"><span>High</span></label></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">One column holds a list of options like a select: radios or a joined button bar. Each row sends
+              its value; arrow keys move the choice.</p>
+          </article>
+
+          <article class="card comp comp--wide" id="c-855">
+            <header class="comp__head"><h3 class="comp__title">Sparkline column</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#855</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid" id="spark-grid">
+                <thead><tr><th>Product</th><th>Trend · 12 weeks</th><th>Weekly units</th><th>Margin</th><th class="num">Last</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="comp__note">A mini chart per row (line, bars or area) with negatives in the danger colour and markers for the
+              minimum, maximum and last point.</p>
+          </article>
+
+          <article class="card comp" id="c-835">
+            <header class="comp__head"><h3 class="comp__title">Expandable row detail</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#835</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid" id="expand-grid">
+                <thead><tr><th class="col-check"><span class="sr-only">Expand</span></th><th>Order</th><th>Customer</th><th class="num">Amount</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="col-check"><button class="tree-toggle" type="button" aria-expanded="true" aria-controls="xr-1" aria-label="Collapse SO-58214"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button></td>
+                    <td class="mono">SO-58214</td><td>Acme Industrial Supplies</td><td class="num">6,980.00</td><td><span class="tag tag--success">Shipped</span></td></tr>
+                  <tr class="row-detail" id="xr-1"><td colspan="5">
+                    <div class="row-detail__body">
+                      <dl class="desc-list desc-list--3">
+                        <div><dt>Ship to</dt><dd>Hamburg-Billbrook, dock 4</dd></div>
+                        <div><dt>Carrier</dt><dd>Nordline Freight · SH-20418</dd></div>
+                        <div><dt>Delivered</dt><dd>Expected 24 Oct, 10:00</dd></div>
+                      </dl>
+                      <table class="grid grid--mini">
+                        <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th></tr></thead>
+                        <tbody>
+                          <tr><td>Steel shelving unit 180 cm</td><td class="num">12</td><td class="num">389.00</td></tr>
+                          <tr><td>Pallet wrap, 23 µm</td><td class="num">40</td><td class="num">57.80</td></tr>
+                        </tbody>
+                      </table>
+                    </div></td></tr>
+                  <tr><td class="col-check"><button class="tree-toggle" type="button" aria-expanded="false" aria-controls="xr-2" aria-label="Expand SO-58209"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button></td>
+                    <td class="mono">SO-58209</td><td>Helios Energy BV</td><td class="num">12,400.00</td><td><span class="tag tag--info">Picking</span></td></tr>
+                  <tr class="row-detail" id="xr-2" hidden><td colspan="5"><div class="row-detail__body"><p class="muted">3 lines · ready for picking at Valencia South.</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">A row opens a detail area under it (fields or a nested grid) without leaving the list.</p>
+          </article>
+
+          <article class="card comp" id="c-842">
+            <header class="comp__head"><h3 class="comp__title">Move rows</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#842</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <div class="grid-toolbar">
+                <span class="card__subtitle">Picking sequence · select a stop</span>
+                <span class="spacer"></span>
+                <div class="btn-group" role="group" aria-label="Move selected row">
+                  <button class="btn btn--outlined btn--sm btn--icon" type="button" data-move="top" aria-label="Move to top" data-tooltip="Move to top"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-to-line"/></svg></button>
+                  <button class="btn btn--outlined btn--sm btn--icon" type="button" data-move="up" aria-label="Move up" data-tooltip="Move up"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up"/></svg></button>
+                  <button class="btn btn--outlined btn--sm btn--icon" type="button" data-move="down" aria-label="Move down" data-tooltip="Move down"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-down"/></svg></button>
+                  <button class="btn btn--outlined btn--sm btn--icon" type="button" data-move="bottom" aria-label="Move to bottom" data-tooltip="Move to bottom"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-down-to-line"/></svg></button>
+                </div>
+              </div>
+              <table class="grid" id="move-grid">
+                <thead><tr><th class="num">#</th><th>Stop</th><th>Window</th></tr></thead>
+                <tbody>
+                  <tr><td class="num muted-cell">1</td><td>Acme Industrial · Hamburg</td><td class="muted-cell">08:00–09:00</td></tr>
+                  <tr class="is-selected" aria-selected="true"><td class="num muted-cell">2</td><td>Lumen Retail · Lyon</td><td class="muted-cell">10:30–11:00</td></tr>
+                  <tr><td class="num muted-cell">3</td><td>Brightline Logistics · Zaragoza</td><td class="muted-cell">13:00–14:00</td></tr>
+                  <tr><td class="num muted-cell">4</td><td>Sakura Foods · Barcelona</td><td class="muted-cell">16:00–17:30</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">Toolbar actions move the selected rows up, down, to the top or to the bottom; the order is sent
+              with the grid values.</p>
+          </article>
+
+          <article class="card comp" id="c-831">
+            <header class="comp__head"><h3 class="comp__title">Data bars in cells</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#831</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid" id="databar-grid">
+                <thead><tr><th>Region</th><th class="num">Revenue (EUR)</th><th class="num">Margin vs. plan</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="comp__note">A bar behind the number shows its size against the column maximum; negative values grow to the
+              left in the danger colour. The number stays readable on top.</p>
+          </article>
+
+          <article class="card comp" id="c-832">
+            <header class="comp__head"><h3 class="comp__title">Secondary line, status and tags in cells</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#832</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid">
+                <thead><tr><th>Customer</th><th>Status</th><th>Tags</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="cell-entity"><span class="avatar avatar--sm">AI</span><div class="cell-entity__text"><span class="cell-entity__name">Acme Industrial Supplies</span><span class="cell-entity__meta">Hamburg · since 2019</span></div></div></td>
+                    <td><span class="status-dot status-dot--success">Active</span></td>
+                    <td><span class="tag-list"><span class="tag tag--plain">Enterprise</span><span class="tag tag--plain">Key account</span><span class="tag tag--plain tag--more" data-tooltip="EDI, Net 30, DE">+3</span></span></td></tr>
+                  <tr><td><div class="cell-entity"><span class="avatar avatar--sm avatar--warning">NM</span><div class="cell-entity__text"><span class="cell-entity__name">Nordvik Marine AS</span><span class="cell-entity__meta">Bergen · credit at 92%</span></div></div></td>
+                    <td><span class="status-dot status-dot--warning">On hold</span></td>
+                    <td><span class="tag-list"><span class="tag tag--plain">Enterprise</span><span class="tag tag--plain">Marine</span></span></td></tr>
+                  <tr><td><div class="cell-entity"><span class="avatar avatar--sm avatar--danger">FS</span><div class="cell-entity__text"><span class="cell-entity__name">Ferro &amp; Sons Construction</span><span class="cell-entity__meta">Milan · 3 invoices overdue</span></div></div></td>
+                    <td><span class="status-dot status-dot--danger">Blocked</span></td>
+                    <td><span class="tag-list"><span class="tag tag--plain">SMB</span></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">A cell can carry a muted second line, a status with a coloured dot and a short tag list that
+              collapses into “+n” with a tooltip.</p>
+          </article>
+
+          <article class="card comp comp--wide" id="c-833">
+            <header class="comp__head"><h3 class="comp__title">Row grouping with subtotals</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#833</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid" id="group-grid">
+                <thead><tr><th>Order</th><th>Customer</th><th>Date</th><th class="num">Lines</th><th class="num">Amount (EUR)</th></tr></thead>
+                <tbody>
+                  <tr class="group-row"><td colspan="3"><button class="tree-toggle" type="button" aria-expanded="true" data-group="g-es" aria-label="Collapse Spain"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><b>Spain</b><span class="muted"> · 3 orders</span></td><td class="num">31</td><td class="num">24,315.40</td></tr>
+                  <tr data-in="g-es"><td class="mono">SO-58230</td><td>Brightline Logistics SL</td><td class="muted-cell">21 Oct 2026</td><td class="num">12</td><td class="num">12,980.50</td></tr>
+                  <tr data-in="g-es"><td class="mono">SO-58226</td><td>Sakura Foods Iberia</td><td class="muted-cell">20 Oct 2026</td><td class="num">9</td><td class="num">9,870.40</td></tr>
+                  <tr data-in="g-es"><td class="mono">SO-58219</td><td>Veloria Retail Partners</td><td class="muted-cell">18 Oct 2026</td><td class="num">10</td><td class="num">1,464.50</td></tr>
+                  <tr class="subtotal-row" data-in="g-es"><td colspan="3">Subtotal Spain</td><td class="num">31</td><td class="num">24,315.40</td></tr>
+                  <tr class="group-row"><td colspan="3"><button class="tree-toggle" type="button" aria-expanded="true" data-group="g-de" aria-label="Collapse Germany"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><b>Germany</b><span class="muted"> · 2 orders</span></td><td class="num">26</td><td class="num">89,430.00</td></tr>
+                  <tr data-in="g-de"><td class="mono">SO-58214</td><td>Acme Industrial Supplies</td><td class="muted-cell">23 Oct 2026</td><td class="num">14</td><td class="num">6,980.00</td></tr>
+                  <tr data-in="g-de"><td class="mono">SO-58201</td><td>Atlas Pharma GmbH</td><td class="muted-cell">15 Oct 2026</td><td class="num">12</td><td class="num">82,450.00</td></tr>
+                  <tr class="subtotal-row" data-in="g-de"><td colspan="3">Subtotal Germany</td><td class="num">26</td><td class="num">89,430.00</td></tr>
+                  <tr class="group-row"><td colspan="3"><button class="tree-toggle" type="button" aria-expanded="false" data-group="g-fr" aria-label="Expand France"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><b>France</b><span class="muted"> · 1 order</span></td><td class="num">8</td><td class="num">3,215.90</td></tr>
+                  <tr data-in="g-fr" hidden><td class="mono">SO-58208</td><td>Lumen Retail Group</td><td class="muted-cell">12 Oct 2026</td><td class="num">8</td><td class="num">3,215.90</td></tr>
+                  <tr class="subtotal-row" data-in="g-fr" hidden><td colspan="3">Subtotal France</td><td class="num">8</td><td class="num">3,215.90</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3">Grand total · 6 orders</td><td class="num">65</td><td class="num">116,961.30</td></tr></tfoot>
+              </table>
+            </div>
+            <p class="comp__note">Rows group by a column with a collapsible header that keeps its count and totals; each group
+              ends with a subtotal row and the footer shows the grand total.</p>
+          </article>
+
+          <article class="card comp comp--wide" id="c-834">
+            <header class="comp__head"><h3 class="comp__title">Quick search and value filters with filtered totals</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#834</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <div class="grid-toolbar">
+                <label class="control control--sm grid-search"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg><span class="sr-only">Quick search</span>
+                  <input type="search" id="qs-input" value="" placeholder="Quick search in all columns…"></label>
+                <span class="filter-chip">Status: <b>Open, Overdue</b><button type="button" aria-label="Remove filter Status"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+                <span class="spacer"></span>
+                <span class="card__subtitle" id="qs-count">5 of 8 rows</span>
+              </div>
+              <div class="table-wrap table-wrap--popover">
+                <table class="grid" id="qs-grid">
+                  <thead><tr><th>Invoice</th><th>Customer</th>
+                    <th><span class="th-filter">Status<span class="dropdown is-open" id="value-filter">
+                      <button class="btn btn--ghost btn--icon btn--sm is-active-filter" type="button" data-dropdown aria-expanded="true" aria-label="Filter Status, 2 values selected"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#list-filter"/></svg></button>
+                      <div class="overlay value-filter" role="dialog" aria-label="Filter values of Status">
+                        <label class="control control--sm"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg><input type="search" placeholder="Search values" aria-label="Search values"></label>
+                        <div class="value-filter__list">
+                          <label class="option"><label class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span>Select all</span><span class="trail">8</span></label>
+                          <div class="separator"></div>
+                          <label class="option"><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span>Open</span><span class="trail">3</span></label>
+                          <label class="option"><label class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span>Overdue</span><span class="trail">2</span></label>
+                          <label class="option"><label class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span>Paid</span><span class="trail">2</span></label>
+                          <label class="option"><label class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span>Cancelled</span><span class="trail">1</span></label>
+                        </div>
+                        <div class="value-filter__foot"><button class="btn btn--text btn--sm" type="button">Clear</button><button class="btn btn--primary btn--sm" type="button">Apply</button></div>
+                      </div></span></span></th>
+                    <th class="num">Amount (EUR)</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">INV-2026-4471</td><td>Acme Industrial Supplies</td><td><span class="tag tag--warning">Open</span></td><td class="num">6,980.00</td></tr>
+                    <tr><td class="mono">INV-2026-4466</td><td>Helios Energy BV</td><td><span class="tag tag--warning">Open</span></td><td class="num">12,400.00</td></tr>
+                    <tr><td class="mono">INV-2026-4459</td><td>Ferro &amp; Sons Construction</td><td><span class="tag tag--danger">Overdue</span></td><td class="num">1,250.00</td></tr>
+                    <tr><td class="mono">INV-2026-4452</td><td>Lumen Retail Group</td><td><span class="tag tag--warning">Open</span></td><td class="num">3,215.90</td></tr>
+                    <tr><td class="mono">INV-2026-4447</td><td>Nordvik Marine AS</td><td><span class="tag tag--danger">Overdue</span></td><td class="num">45,120.00</td></tr>
+                  </tbody>
+                  <tfoot><tr><td colspan="3"><span id="qs-total-label">Filtered total · 5 of 8 rows</span> <span class="muted">(all rows: 152,286.40)</span></td><td class="num" id="qs-total">68,965.90</td></tr></tfoot>
+                </table>
+              </div>
+            </div>
+            <p class="comp__note">Quick search filters every column as you type; a column filter lists its values with counts.
+              Footer totals recalculate for the visible rows and say so.</p>
+          </article>
+
+          <article class="card comp" id="c-826">
+            <header class="comp__head"><h3 class="comp__title">Pager with range, total and go to page</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#826</span><span class="tag tag--plain comp__issue">#874</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo">
+              <div class="paginator paginator--standalone">
+                <div class="paginator__group"><span>Rows <b class="num">11–15</b> of <b class="num">18</b></span></div>
+                <div class="pages" role="navigation" aria-label="Pagination">
+                  <button class="page-btn" type="button" aria-label="Previous page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-left"/></svg></button>
+                  <button class="page-btn" type="button">1</button>
+                  <button class="page-btn" type="button">2</button>
+                  <button class="page-btn" type="button" aria-current="page">3</button>
+                  <button class="page-btn" type="button">4</button>
+                  <button class="page-btn" type="button" aria-label="Next page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button>
+                </div>
+                <div class="paginator__group goto">
+                  <span class="control control--sm page-size"><select aria-label="Rows per page"><option>5 / page</option><option>10 / page</option><option>25 / page</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <label for="goto-c">Page</label>
+                  <span class="control control--sm"><input id="goto-c" class="num" type="text" inputmode="numeric" value="3"></span>
+                  <button class="btn btn--outlined btn--sm" type="button">Go</button>
+                </div>
+              </div>
+            </div>
+            <p class="comp__note">The pager says which rows are visible and how many exist, and a page field jumps straight to a
+              page (page 3 of 5-row pages shows rows 11–15).</p>
+          </article>
+
+          <article class="card comp" id="c-813c">
+            <header class="comp__head"><h3 class="comp__title">Columns dialog per user</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#813</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--surface">
+              <div class="modal-preview" role="group" aria-label="Columns dialog preview">
+                <div class="modal__header"><div class="modal__titles"><p class="modal__title">Columns</p><p class="modal__subtitle">Customers grid · saved for Pat Vega</p></div>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Close"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></div>
+                <ul class="col-list" id="col-list">
+                  <li><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Code" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name">Code</span><span class="tag tag--plain">Pinned</span></li>
+                  <li><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Customer" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name">Customer</span></li>
+                  <li class="is-selected"><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Balance" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name">Balance (EUR)</span>
+                    <span class="row-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move up"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move down"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-down"/></svg></button></span></li>
+                  <li><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Status" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name">Status</span></li>
+                  <li><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Tax ID"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name muted">Tax ID</span></li>
+                  <li><span class="col-list__grip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg></span><label class="check"><input type="checkbox" aria-label="Show Account manager"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label><span class="col-list__name muted">Account manager</span></li>
+                </ul>
+                <div class="modal__footer"><button class="btn btn--text btn--sm" type="button" style="margin-right:auto"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#rotate-ccw"/></svg>Restore default</button>
+                  <button class="btn btn--outlined btn--sm" type="button">Cancel</button><button class="btn btn--primary btn--sm" type="button">Save for me</button></div>
+              </div>
+            </div>
+            <p class="comp__note">Users show, hide and reorder columns (drag or arrows) and keep the layout per user; Restore
+              default brings back the screen definition.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================================== CRITERIA & FORMS -->
+      <section class="comp-group" id="grp-forms" aria-labelledby="grp-forms-title">
+        <h2 class="section-title" id="grp-forms-title">Criteria &amp; forms</h2>
+        <div class="comp-grid">
+
+          <article class="card comp" id="c-820">
+            <header class="comp__head"><h3 class="comp__title">Month picker and date formats</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#820</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--split">
+              <div class="field">
+                <label class="label" for="c-month">Billing month</label>
+                <span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-days"/></svg><input id="c-month" type="text" value="Oct 2026" readonly></span>
+                <div class="monthpicker" role="dialog" aria-label="Choose month">
+                  <div class="datepicker__head">
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous year"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-left"/></svg></button>
+                    <span class="datepicker__title">2026</span>
+                    <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next year"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button>
+                  </div>
+                  <div class="monthpicker__grid" id="month-grid"></div>
+                </div>
+              </div>
+              <div class="stack">
+                <div class="field"><label class="label" for="df1">Invoice date <span class="opt">dd/MM/yyyy</span></label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar"/></svg><input id="df1" type="text" value="23/10/2026"></span></div>
+                <div class="field"><label class="label" for="df2">Period <span class="opt">MMM yyyy</span></label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-days"/></svg><input id="df2" type="text" value="Oct 2026"></span></div>
+                <div class="field"><label class="label" for="df3">Export date <span class="opt">yyyy-MM-dd</span></label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar"/></svg><input id="df3" class="num" type="text" value="2026-10-23"></span></div>
+                <div class="field"><label class="label" for="df4">Cut-off <span class="opt">dd MMM yyyy HH:mm</span></label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-clock"/></svg><input id="df4" type="text" value="23 Oct 2026 17:30"></span></div>
+              </div>
+            </div>
+            <p class="comp__note">Date criteria accept a display format and options; a month criterion only picks month and year.</p>
+          </article>
+
+          <article class="card comp" id="c-839">
+            <header class="comp__head"><h3 class="comp__title">Date range with shortcuts</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#839</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo stack">
+              <div class="field">
+                <label class="label" for="dr-from">Order period</label>
+                <span class="control control--range"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-range"/></svg>
+                  <input id="dr-from" type="text" value="23/09/2026" aria-label="From"><span class="range-sep"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-right"/></svg></span>
+                  <input id="dr-to" type="text" value="23/10/2026" aria-label="To"></span>
+                <div class="shortcut-bar" role="group" aria-label="Period shortcuts" id="dr-shortcuts">
+                  <button type="button" class="shortcut" aria-pressed="false" data-days="7">7 days</button>
+                  <button type="button" class="shortcut" aria-pressed="true" data-months="1">1 month</button>
+                  <button type="button" class="shortcut" aria-pressed="false" data-months="3">3 months</button>
+                  <button type="button" class="shortcut" aria-pressed="false" data-ytd="1">Year to date</button>
+                  <button type="button" class="shortcut" aria-pressed="false" data-months="12">12 months</button>
+                  <button type="button" class="shortcut" aria-pressed="false" data-months="36">3 years</button>
+                  <button type="button" class="shortcut" aria-pressed="false" data-all="1">All</button>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="dr2-from">Delivery window <span class="req" aria-hidden="true">*</span></label>
+                <span class="control control--range"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-range"/></svg>
+                  <input id="dr2-from" type="text" value="01/11/2026" aria-label="From" required><span class="range-sep"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-right"/></svg></span>
+                  <input type="text" value="30/11/2026" aria-label="To" required></span>
+                <span class="help">Required, with a default of next month</span>
+              </div>
+            </div>
+            <p class="comp__note">Two linked dates (the end cannot be before the start) and shortcuts for the usual periods.</p>
+          </article>
+
+          <article class="card comp" id="c-841">
+            <header class="comp__head"><h3 class="comp__title">Uploader with drop zone, preview and camera</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#841</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--split">
+              <div class="field">
+                <span class="label">Proof of delivery</span>
+                <div class="upload-preview">
+                  <div class="upload-preview__img" role="img" aria-label="Photo preview: delivery-SH-20418.jpg"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#image"/></svg></div>
+                  <div class="upload-preview__meta"><span class="file-item__name">delivery-SH-20418.jpg</span><span class="file-item__meta">1.8 MB · 4032 × 3024</span></div>
+                  <button class="btn btn--ghost btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg>Clear</button>
+                </div>
+              </div>
+              <div class="stack">
+                <div class="field">
+                  <span class="label">Signed delivery note</span>
+                  <div class="dropzone dropzone--compact">
+                    <p class="dropzone__title"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#cloud-upload"/></svg> Drop a file or <button type="button">browse</button></p>
+                    <div class="demo-row">
+                      <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Choose</button>
+                      <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#camera"/></svg>Take photo</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="label">Contract <span class="opt">Read only</span></span>
+                  <div class="dropzone dropzone--compact is-readonly">
+                    <p class="dropzone__title"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file-text"/></svg> framework-agreement-2026.pdf</p>
+                    <div class="demo-row">
+                      <button class="btn btn--outlined btn--sm" type="button" disabled><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Choose</button>
+                      <button class="btn btn--outlined btn--sm" type="button" disabled><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#camera"/></svg>Take photo</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="comp__note">Drop zone, image preview with clear, and a button that opens the device camera; read-only
+              uploaders show the file but disable the actions.</p>
+          </article>
+
+          <article class="card comp" id="c-827">
+            <header class="comp__head"><h3 class="comp__title">Reveal the first invalid field across tabs</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#827</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <div class="message message--danger message--bar" id="reveal-summary" hidden>
+                <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-x"/></svg><span><strong>1 field needs attention.</strong> Billing › IBAN is required.</span>
+                <button class="btn btn--text btn--sm" type="button" id="reveal-go">Go to field</button>
+              </div>
+              <div class="tabs" data-tabs>
+                <div class="tablist" role="tablist" aria-label="Customer form">
+                  <button class="tab" role="tab" type="button" aria-selected="true" aria-controls="rv-general" id="rv-tab-general">General</button>
+                  <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="rv-billing" id="rv-tab-billing" tabindex="-1">Billing<span class="tab-error" hidden>1</span></button>
+                  <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="rv-shipping" id="rv-tab-shipping" tabindex="-1">Shipping</button>
+                </div>
+                <div class="tabpanel" role="tabpanel" id="rv-general" aria-labelledby="rv-tab-general">
+                  <div class="form-grid form-grid--2">
+                    <div class="field"><label class="label" for="rv-name">Legal name <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="rv-name" type="text" value="Brightline Logistics SL"></span></div>
+                    <div class="field"><label class="label" for="rv-tax">Tax ID <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="rv-tax" type="text" value="ESB86512240"></span></div>
+                  </div>
+                </div>
+                <div class="tabpanel" role="tabpanel" id="rv-billing" aria-labelledby="rv-tab-billing" hidden>
+                  <div class="form-grid form-grid--2">
+                    <div class="field"><label class="label" for="rv-terms">Payment terms</label><span class="control"><input id="rv-terms" type="text" value="Net 30"></span></div>
+                    <div class="field"><label class="label" for="rv-iban">IBAN <span class="req" aria-hidden="true">*</span></label><span class="control" id="rv-iban-control"><input id="rv-iban" type="text" placeholder="ES00 0000 0000 0000 0000 0000" aria-describedby="rv-iban-err"></span>
+                      <span class="error-msg" id="rv-iban-err" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg>IBAN is required</span></div>
+                  </div>
+                </div>
+                <div class="tabpanel" role="tabpanel" id="rv-shipping" aria-labelledby="rv-tab-shipping" hidden>
+                  <p class="muted">Shipping preferences.</p>
+                </div>
+              </div>
+              <div class="card__footer"><button class="btn btn--primary" type="button" id="reveal-validate"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg>Validate</button></div>
+            </div>
+            <p class="comp__note">On validation the tab that holds the first error opens, the tab shows an error count, the field is
+              marked and receives the focus.</p>
+          </article>
+
+          <article class="card comp comp--wide" id="c-840">
+            <header class="comp__head"><h3 class="comp__title">Required to save vs. required to finish</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#840</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo comp__demo--split comp__demo--split-wide">
+              <div class="stack">
+                <p class="req-legend"><span><span class="req">*</span> Required to save</span><span><span class="req-finish" aria-hidden="true"></span> Required to finish</span></p>
+                <div class="form-grid form-grid--2">
+                  <div class="field"><label class="label" for="rq1">Customer <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="rq1" type="text" value="Helios Energy BV"></span></div>
+                  <div class="field"><label class="label" for="rq2">Contract type <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="rq2" type="text" value="Framework"></span></div>
+                  <div class="field"><label class="label" for="rq3">Signed on <span class="req-finish" title="Required to finish"></span></label><span class="control is-pending"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar"/></svg><input id="rq3" type="text" placeholder="dd/mm/yyyy"></span><span class="help help--pending">Needed to finish</span></div>
+                  <div class="field"><label class="label" for="rq4">Legal approval <span class="req-finish" title="Required to finish"></span></label><span class="control is-pending"><input id="rq4" type="text" placeholder="Approver"></span><span class="help help--pending">Needed to finish</span></div>
+                </div>
+              </div>
+              <aside class="pending-list" aria-label="Pending to finish">
+                <p class="pending-list__title"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-dashed"/></svg>Pending to finish <span class="badge badge--neutral">2</span></p>
+                <ul>
+                  <li><a href="#rq3">Signed on</a><span class="muted">General</span></li>
+                  <li><a href="#rq4">Legal approval</a><span class="muted">General</span></li>
+                </ul>
+                <div class="pending-list__actions">
+                  <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#save"/></svg>Save draft</button>
+                  <button class="btn btn--primary btn--sm" type="button" aria-disabled="true" data-tooltip="2 fields pending"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#flag"/></svg>Finish</button>
+                </div>
+              </aside>
+            </div>
+            <p class="comp__note">Two levels of required: “*” blocks saving; the finish marker lets the user save a draft and lists
+              what is still missing before the record can be finished.</p>
+          </article>
+
+          <article class="card comp" id="c-790">
+            <header class="comp__head"><h3 class="comp__title">Advanced search</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#790</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo stack">
+              <div class="query-head">
+                <span>Match</span>
+                <div class="segmented segmented--sm" role="radiogroup" aria-label="Match conditions">
+                  <label><input type="radio" name="qb-match" checked><span>All</span></label>
+                  <label><input type="radio" name="qb-match"><span>Any</span></label>
+                </div>
+                <span>of these conditions</span>
+              </div>
+              <div class="query-row">
+                <span class="control control--sm"><select aria-label="Field"><option>Country</option><option>Segment</option><option>Balance</option><option>Last order</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <span class="control control--sm"><select aria-label="Operator"><option>is</option><option>is not</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <span class="control control--sm"><select aria-label="Value"><option>Spain</option><option>Germany</option><option>France</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
+              </div>
+              <div class="query-row">
+                <span class="control control--sm"><select aria-label="Field"><option>Balance</option><option>Country</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <span class="control control--sm"><select aria-label="Operator"><option>greater than</option><option>less than</option><option>between</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <span class="control control--sm"><span class="affix">€</span><input class="num" type="text" value="10,000.00" aria-label="Value"></span>
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
+              </div>
+              <div class="query-group">
+                <p class="query-group__head"><span class="tag tag--primary tag--plain">Any of</span>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove group"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></p>
+                <div class="query-row">
+                  <span class="control control--sm"><select aria-label="Field"><option>Segment</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <span class="control control--sm"><select aria-label="Operator"><option>is</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <span class="control control--sm"><select aria-label="Value"><option>Enterprise</option><option>Mid-market</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
+                </div>
+                <div class="query-row">
+                  <span class="control control--sm"><select aria-label="Field"><option>Last order</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <span class="control control--sm"><select aria-label="Operator"><option>within the last</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <span class="control control--sm"><input class="num" type="text" value="30" aria-label="Days"><span class="affix">days</span></span>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
+                </div>
+              </div>
+              <div class="demo-row">
+                <button class="btn btn--text btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Add condition</button>
+                <button class="btn btn--text btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layers"/></svg>Add group</button>
+                <span class="spacer"></span>
+                <span class="control control--sm saved-search"><select aria-label="Saved searches"><option>Saved searches…</option><option>Spanish key accounts</option><option>Overdue over 10k</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                <button class="btn btn--primary btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg>Search</button>
+              </div>
+            </div>
+            <p class="comp__note">Conditions on any field with operators, nested All/Any groups and searches saved per user.</p>
+          </article>
+
+          <article class="card comp" id="c-791">
+            <header class="comp__head"><h3 class="comp__title">Visible access restrictions</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#791</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo stack">
+              <div class="message message--info"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock-keyhole"/></svg><span><strong>View only.</strong> This record belongs to Finance; you can read it but not change it.</span></div>
+              <div class="form-grid form-grid--2">
+                <div class="field"><label class="label" for="ar1">Credit limit <svg class="i i--sm lock-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg></label>
+                  <span class="control is-readonly is-locked"><span class="affix">€</span><input id="ar1" class="num" type="text" value="150,000.00" readonly aria-describedby="ar1-why"></span>
+                  <span class="help" id="ar1-why">Only the Finance role can change the credit limit</span></div>
+                <div class="field"><label class="label" for="ar2">Account manager</label>
+                  <span class="control"><input id="ar2" type="text" value="Laura Méndez"></span></div>
+              </div>
+              <div class="tablist tablist--inline" role="tablist" aria-label="Restricted tabs example">
+                <button class="tab" role="tab" type="button" aria-selected="true">Overview</button>
+                <button class="tab" role="tab" type="button" aria-selected="false" aria-disabled="true" data-tooltip="Requires the Payroll role"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg>Payroll</button>
+              </div>
+              <div class="demo-row">
+                <button class="btn btn--outlined" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#pencil"/></svg>Edit contacts</button>
+                <button class="btn btn--danger-outlined" type="button" aria-disabled="true" data-tooltip="Only administrators can delete customers"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg>Delete customer</button>
+              </div>
+            </div>
+            <p class="comp__note">Fields and actions the user cannot use stay visible with a lock and the reason, instead of
+              disappearing or failing on save.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================================== OVERLAYS & PANELS -->
+      <section class="comp-group" id="grp-overlays" aria-labelledby="grp-overlays-title">
+        <h2 class="section-title" id="grp-overlays-title">Overlays &amp; panels</h2>
+        <div class="comp-grid">
+
+          <article class="card comp comp--wide" id="c-801">
+            <header class="comp__head"><h3 class="comp__title">Field context menu and row menu button</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#801</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--split comp__demo--tall">
+              <div class="ctx-demo">
+                <div class="field">
+                  <label class="label" for="ctx-field">Credit limit <span class="opt">Right-click</span></label>
+                  <span class="control"><span class="affix">€</span><input id="ctx-field" class="num" type="text" value="150,000.00"></span>
+                </div>
+                <div class="overlay context-menu is-static" role="menu" aria-label="Credit limit actions" id="ctx-menu">
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#copy"/></svg>Copy value<span class="trail">Ctrl C</span></button>
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#rotate-ccw"/></svg>Reset to default</button>
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#wallet"/></svg>Set from last approval</button>
+                  <div class="separator"></div>
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#clock"/></svg>View change history</button>
+                </div>
+              </div>
+              <div class="ctx-demo">
+                <table class="grid grid--mini">
+                  <thead><tr><th>Line</th><th class="num">Qty</th><th class="col-actions"><span class="sr-only">Menu</span></th></tr></thead>
+                  <tbody>
+                    <tr><td>Steel shelving 180 cm</td><td class="num">12</td><td class="col-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Row menu"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#ellipsis-vertical"/></svg></button></td></tr>
+                    <tr class="is-selected"><td>Pallet wrap 23 µm</td><td class="num">40</td><td class="col-actions"><button class="btn btn--ghost btn--icon btn--sm is-pressed" type="button" aria-label="Row menu" aria-expanded="true"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#ellipsis-vertical"/></svg></button></td></tr>
+                    <tr><td>Corner protectors</td><td class="num">200</td><td class="col-actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Row menu"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#ellipsis-vertical"/></svg></button></td></tr>
+                  </tbody>
+                </table>
+                <div class="overlay context-menu context-menu--row is-static" role="menu" aria-label="Row actions">
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>New line below</button>
+                  <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#copy"/></svg>Duplicate</button>
+                  <div class="separator"></div>
+                  <button class="option option--danger" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Delete line</button>
+                </div>
+              </div>
+            </div>
+            <p class="comp__note">A field, button or tab can declare its own context menu (right-click or Shift+F10); a button
+              inside a row opens that row’s menu with the same options and dependencies as the grid menu.</p>
+          </article>
+
+          <article class="card comp" id="c-799">
+            <header class="comp__head"><h3 class="comp__title">Maximize and restore</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#799</span><span class="tag tag--plain comp__issue">#813</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo">
+              <section class="card maximizable" id="max-card" aria-labelledby="max-title">
+                <div class="card__header card__header--divided">
+                  <h4 class="card__title" id="max-title">Stock by warehouse</h4>
+                  <span class="spacer"></span>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" id="max-toggle" aria-label="Maximize" data-tooltip="Maximize"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#maximize-2"/></svg></button>
+                </div>
+                <table class="grid">
+                  <thead><tr><th>Warehouse</th><th class="num">SKUs</th><th class="num">Units</th><th class="num">Fill rate</th></tr></thead>
+                  <tbody>
+                    <tr><td>Madrid Central</td><td class="num">4,812</td><td class="num">182,340</td><td class="num">87%</td></tr>
+                    <tr><td>Barcelona Port</td><td class="num">3,945</td><td class="num">120,118</td><td class="num">74%</td></tr>
+                    <tr><td>Valencia South</td><td class="num">2,210</td><td class="num">64,902</td><td class="num">91%</td></tr>
+                  </tbody>
+                </table>
+              </section>
+            </div>
+            <p class="comp__note">A window or a grid fills the content area with one click (menu and header stay visible) and
+              Restore, or Esc, brings it back to its place.</p>
+          </article>
+
+          <article class="card comp" id="c-843a">
+            <header class="comp__head"><h3 class="comp__title">Side panel</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#843</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--surface">
+              <div class="mini-screen" aria-hidden="true">
+                <div class="mini-screen__content"><span></span><span></span><span></span><span></span></div>
+                <div class="mini-screen__panel"><b></b><span></span><span></span><span></span><i></i></div>
+              </div>
+              <div class="demo-row demo-row--center"><button class="btn btn--outlined" type="button" data-open-dialog="dlg-side"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#panel-right"/></svg>Open side panel</button></div>
+            </div>
+            <p class="comp__note">A panel slides in from the right edge to edit a record without leaving the screen, with its own
+              footer of actions.</p>
+          </article>
+
+          <article class="card comp" id="c-843b">
+            <header class="comp__head"><h3 class="comp__title">Popover anchored to a button</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#843</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--tall">
+              <div class="dropdown is-open popover-anchor" id="quick-edit">
+                <button class="btn btn--outlined" type="button" data-dropdown aria-expanded="true" aria-haspopup="dialog"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#pencil"/></svg>Quick edit<svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+                <div class="overlay popover" role="dialog" aria-label="Quick edit">
+                  <div class="popover__head"><b>Quick edit</b><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Close" data-close-popover><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></div>
+                  <div class="form-grid form-grid--2">
+                    <div class="field"><label class="label" for="qe-name">Name</label><span class="control control--sm"><input id="qe-name" type="text" value="Q4 renewal"></span></div>
+                    <div class="field"><label class="label" for="qe-user">Owner</label><span class="control control--sm"><select id="qe-user"><option>Laura Méndez</option><option>Pat Vega</option><option>Laurent Bernard</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+                  </div>
+                  <table class="grid grid--mini">
+                    <thead><tr><th>Account</th><th class="num">Value</th></tr></thead>
+                    <tbody><tr><td>Acme Industrial</td><td class="num">82,450</td></tr><tr><td>Helios Energy</td><td class="num">128,900</td></tr></tbody>
+                  </table>
+                  <div class="popover__foot"><button class="btn btn--outlined btn--sm" type="button" data-close-popover>Cancel</button><button class="btn btn--primary btn--sm" type="button" data-close-popover>Accept</button></div>
+                </div>
+              </div>
+            </div>
+            <p class="comp__note">Quick edits open next to the button that launches them (below or to the right), with criteria,
+              a grid and Cancel / Accept.</p>
+          </article>
+
+          <article class="card comp" id="c-844">
+            <header class="comp__head"><h3 class="comp__title">Dialog sizes</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#844</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo stack">
+              <div class="size-ruler" aria-hidden="true">
+                <span style="--w: 22%">sm · 360</span><span style="--w: 34%">md · 560</span><span style="--w: 52%">lg · 800</span><span style="--w: 76%">xl · 1140</span><span style="--w: 100%">full</span>
+              </div>
+              <div class="demo-row">
+                <button class="btn btn--outlined btn--sm" type="button" data-dialog-size="sm">Small</button>
+                <button class="btn btn--outlined btn--sm" type="button" data-dialog-size="md">Medium</button>
+                <button class="btn btn--outlined btn--sm" type="button" data-dialog-size="lg">Large</button>
+                <button class="btn btn--outlined btn--sm" type="button" data-dialog-size="xl">Extra large</button>
+                <button class="btn btn--outlined btn--sm" type="button" data-dialog-size="full">Full screen</button>
+              </div>
+            </div>
+            <p class="comp__note">Dialogs keep the size the screen asks for (small 360 px to full screen); content scrolls inside,
+              header and footer stay fixed.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================================== NAVIGATION & LAUNCHERS -->
+      <section class="comp-group" id="grp-nav" aria-labelledby="grp-nav-title">
+        <h2 class="section-title" id="grp-nav-title">Navigation &amp; launchers</h2>
+        <div class="comp-grid">
+          <article class="card comp comp--wide" id="c-828">
+            <header class="comp__head"><h3 class="comp__title">Launcher pages with descriptions and a third level</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#828</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo">
+              <nav class="breadcrumb" aria-label="Launcher path">
+                <ol id="launcher-crumbs"></ol>
+              </nav>
+              <div class="launcher" id="launcher"></div>
+            </div>
+            <p class="comp__note">Each launcher card can carry a short description, and a launcher can open another launcher:
+              the breadcrumb shows the third level and every step back.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================================== DATA VISUALISATION -->
+      <section class="comp-group" id="grp-dataviz" aria-labelledby="grp-dataviz-title">
+        <h2 class="section-title" id="grp-dataviz-title">Data visualisation</h2>
+        <div class="comp-grid">
+
+          <article class="card comp comp--wide" id="c-821">
+            <header class="comp__head"><h3 class="comp__title">Pivot table with options</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#821</span><span class="tag tag--plain comp__issue">#878</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo stack">
+              <div class="pivot-config">
+                <div class="pivot-zone"><span class="pivot-zone__label">Available fields</span>
+                  <span class="pivot-chip"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Customer</span><span class="pivot-chip"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Segment</span><span class="pivot-chip"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Month</span><span class="pivot-chip"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Carrier</span></div>
+                <div class="pivot-zone"><span class="pivot-zone__label">Rows</span><span class="pivot-chip is-used"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Region<svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+                <div class="pivot-zone"><span class="pivot-zone__label">Columns</span><span class="pivot-chip is-used"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#grip-vertical"/></svg>Quarter<svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Swap rows and columns" data-tooltip="Swap rows and columns"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></div>
+                <div class="pivot-zone"><span class="pivot-zone__label">Values</span>
+                  <span class="control control--sm pivot-agg"><select aria-label="Aggregation"><option>Sum</option><option>Average</option><option>Count</option><option>Minimum</option><option>Maximum</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+                  <span class="control control--sm pivot-agg"><select aria-label="Value field"><option>Revenue (k€)</option><option>Orders</option><option>Margin</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+              </div>
+              <div class="table-wrap">
+                <table class="grid pivot-table">
+                  <thead><tr><th>Region</th><th class="num">Q1</th><th class="num">Q2</th><th class="num">Q3</th><th class="num">Q4</th><th class="num">Total</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">Centre</th><td class="num">412.5</td><td class="num">438.2</td><td class="num">451.9</td><td class="num">398.1</td><td class="num total">1,700.7</td></tr>
+                    <tr><th scope="row">East</th><td class="num">356.0</td><td class="num">371.4</td><td class="num">402.8</td><td class="num">366.3</td><td class="num total">1,496.5</td></tr>
+                    <tr><th scope="row">North</th><td class="num">221.7</td><td class="num">209.3</td><td class="num">236.0</td><td class="num">244.8</td><td class="num total">911.8</td></tr>
+                    <tr><th scope="row">South</th><td class="num">178.4</td><td class="num">190.6</td><td class="num">214.2</td><td class="num">208.9</td><td class="num total">792.1</td></tr>
+                  </tbody>
+                  <tfoot><tr><td>Total</td><td class="num">1,168.6</td><td class="num">1,209.5</td><td class="num">1,304.9</td><td class="num">1,218.1</td><td class="num">4,901.1</td></tr></tfoot>
+                </table>
+              </div>
+            </div>
+            <p class="comp__note">Users drag fields to rows and columns, choose the aggregation and the orientation; the table shows
+              totals per row and per column.</p>
+          </article>
+
+          <article class="card comp" id="c-798">
+            <header class="comp__head"><h3 class="comp__title">Map</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#798</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <div class="map" role="img" aria-label="Map with deliveries in Madrid, Barcelona, Valencia and Sevilla and the planned route Madrid, Zaragoza, Barcelona">
+                <svg viewBox="0 0 640 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect class="map-water" width="640" height="340"/>
+                  <path class="map-land" d="M40 52 C120 30 210 24 268 40 C320 54 360 40 420 44 C480 48 540 58 572 88 C590 108 548 132 528 152 C506 176 512 210 486 236 C456 266 418 290 362 304 C300 318 238 300 190 316 C150 328 112 304 92 276 C70 244 64 210 50 174 C38 140 22 92 40 52 Z"/>
+                  <path class="map-land map-land--far" d="M268 40 C300 22 360 10 420 18 C470 24 520 20 560 40 L572 88 C540 58 480 48 420 44 C360 40 320 54 268 40 Z"/>
+                  <path class="map-border" d="M262 41 C320 52 370 38 430 46 C480 52 530 62 566 82"/>
+                  <ellipse class="map-park" cx="232" cy="128" rx="44" ry="20"/>
+                  <ellipse class="map-park" cx="372" cy="236" rx="30" ry="14"/>
+                  <ellipse class="map-park" cx="150" cy="210" rx="26" ry="16"/>
+                  <g class="map-roads">
+                    <path class="map-road-casing" d="M300 170 L390 112 L500 104 M300 170 L440 200 M300 170 L190 266 M300 170 L292 72 M390 112 L292 72"/>
+                    <path class="map-road" d="M300 170 L390 112 L500 104 M300 170 L440 200 M300 170 L190 266 M300 170 L292 72 M390 112 L292 72"/>
+                  </g>
+                  <path class="map-route" d="M300 170 L390 112 L500 104"/>
+                  <g class="map-markers">
+                    <g transform="translate(300 170)"><circle class="map-marker map-marker--active" r="9"/><circle class="map-marker-dot" r="3.2"/></g>
+                    <g transform="translate(500 104)"><circle class="map-marker" r="8"/><circle class="map-marker-dot" r="3"/></g>
+                    <g transform="translate(440 200)"><circle class="map-marker" r="8"/><circle class="map-marker-dot" r="3"/></g>
+                    <g transform="translate(190 266)"><circle class="map-marker" r="8"/><circle class="map-marker-dot" r="3"/></g>
+                    <g transform="translate(390 112)"><circle class="map-waypoint" r="5"/></g>
+                  </g>
+                  <g class="map-labels">
+                    <text x="316" y="184">Madrid</text><text x="500" y="88" text-anchor="middle">Barcelona</text><text x="454" y="214">Valencia</text>
+                    <text x="204" y="280">Sevilla</text><text x="390" y="134" text-anchor="middle">Zaragoza</text><text x="300" y="66">Bilbao</text>
+                  </g>
+                </svg>
+                <div class="map__controls">
+                  <button class="btn btn--outlined btn--icon btn--sm" type="button" aria-label="Zoom in"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#zoom-in"/></svg></button>
+                  <button class="btn btn--outlined btn--icon btn--sm" type="button" aria-label="Zoom out"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#zoom-out"/></svg></button>
+                  <button class="btn btn--outlined btn--icon btn--sm" type="button" aria-label="Layers"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#layers-2"/></svg></button>
+                </div>
+                <div class="map__panel">
+                  <b>Route MAD → BCN</b><span class="muted">2 stops · 621 km · 6 h 40 min</span>
+                  <button class="btn btn--primary btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#route"/></svg>Draw route</button>
+                </div>
+                <span class="map__attribution">Illustration · in AWE: Leaflet with the configured tile provider</span>
+              </div>
+            </div>
+            <p class="comp__note">A map with markers, popups and a route drawn between points; controls and panels use the same
+              surfaces and buttons as the rest of the screen.</p>
+          </article>
+
+          <article class="card comp" id="c-830">
+            <header class="comp__head"><h3 class="comp__title">Colour scale cells and grid without header</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#830</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo stack">
+              <div class="table-wrap">
+                <table class="grid heatmap" id="heatmap">
+                  <caption class="heatmap__caption">Dock utilisation by weekday (%)</caption>
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="heat-legend" aria-hidden="true"><span>Low</span><i class="scale-1"></i><i class="scale-2"></i><i class="scale-3"></i><i class="scale-4"></i><i class="scale-5"></i><span>High</span></div>
+              <table class="grid grid--headless" aria-label="Warehouse summary">
+                <tbody>
+                  <tr><th scope="row">Warehouse</th><td>Madrid Central</td></tr>
+                  <tr><th scope="row">Open docks</th><td class="num">14 of 16</td></tr>
+                  <tr><th scope="row">Next arrival</th><td>Nordline Freight · 10:40</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="comp__note">The cell colour follows its value on a 5-step scale derived from the primary; a grid can drop its
+              header so the first row sits at the top with no empty band.</p>
+          </article>
+
+          <article class="card comp comp--wide" id="c-836">
+            <header class="comp__head"><h3 class="comp__title">KPI component</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#836</span><span class="tag tag--info">Planned</span></span></header>
+            <div class="comp__demo">
+              <div class="kpi-set">
+                <div class="kpi kpi--card">
+                  <div class="kpi__top"><span class="kpi__label">On-time deliveries</span><span class="tag tag--success tag--plain"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trending-up"/></svg>2.4 pt</span></div>
+                  <div class="kpi__value">96.8%</div>
+                  <svg class="kpi__spark" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true"><path class="spark-area" d="M0 24 L15 22 L30 25 L45 18 L60 19 L75 14 L90 12 L105 9 L120 6 L120 32 L0 32 Z"/><path class="spark-line" d="M0 24 L15 22 L30 25 L45 18 L60 19 L75 14 L90 12 L105 9 L120 6"/></svg>
+                  <div class="kpi__foot">Last 8 weeks · target 95%</div>
+                </div>
+                <div class="kpi kpi--card">
+                  <div class="kpi__top"><span class="kpi__label">Monthly revenue</span><span class="kpi__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#euro"/></svg></span></div>
+                  <div class="kpi__value">€412,600</div>
+                  <div class="kpi__target"><div class="progress"><span style="width: 82%"></span></div><span class="num">82% of €500k</span></div>
+                  <div class="kpi__foot">8 working days left</div>
+                </div>
+                <div class="kpi kpi--card kpi--alert">
+                  <div class="kpi__top"><span class="kpi__label">Overdue balance</span><span class="tag tag--danger tag--plain"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trending-up"/></svg>8.1%</span></div>
+                  <div class="kpi__value">€48,920</div>
+                  <div class="kpi__compare"><span>Last month</span><b class="num">€45,250</b></div>
+                  <div class="kpi__foot"><a href="#">23 invoices past due</a></div>
+                </div>
+                <div class="kpi kpi--card kpi--compact">
+                  <span class="kpi__label">Open orders</span>
+                  <div class="kpi__inline"><span class="kpi__value">342</span><span class="tag tag--primary tag--plain">+12 today</span></div>
+                </div>
+              </div>
+            </div>
+            <p class="comp__note">A KPI shows a value with its label, the change against a period, and optionally a trend, a target
+              progress or a comparison; it links to the detail.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================================== FEEDBACK & LOADING -->
+      <section class="comp-group" id="grp-feedback" aria-labelledby="grp-feedback-title">
+        <h2 class="section-title" id="grp-feedback-title">Feedback &amp; loading</h2>
+        <div class="comp-grid">
+
+          <article class="card comp comp--wide" id="c-856">
+            <header class="comp__head"><h3 class="comp__title">Skeletons: grid, screen and dim</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#856</span><span class="tag tag--plain comp__issue">#869</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo skeleton-set">
+              <figure class="skeleton-demo">
+                <figcaption>Grid · real header, grey rows up to the page size</figcaption>
+                <table class="grid grid--mini">
+                  <thead><tr><th>Customer</th><th>Status</th><th class="num">Balance</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="skeleton" style="width: 80%"></span></td><td><span class="skeleton" style="width: 52px; height: 18px"></span></td><td class="num"><span class="skeleton" style="width: 60px; margin-left: auto"></span></td></tr>
+                    <tr><td><span class="skeleton" style="width: 64%"></span></td><td><span class="skeleton" style="width: 52px; height: 18px"></span></td><td class="num"><span class="skeleton" style="width: 48px; margin-left: auto"></span></td></tr>
+                    <tr><td><span class="skeleton" style="width: 72%"></span></td><td><span class="skeleton" style="width: 52px; height: 18px"></span></td><td class="num"><span class="skeleton" style="width: 56px; margin-left: auto"></span></td></tr>
+                    <tr><td><span class="skeleton" style="width: 58%"></span></td><td><span class="skeleton" style="width: 52px; height: 18px"></span></td><td class="num"><span class="skeleton" style="width: 40px; margin-left: auto"></span></td></tr>
+                  </tbody>
+                </table>
+              </figure>
+              <figure class="skeleton-demo">
+                <figcaption>Screen · first load keeps the layout</figcaption>
+                <div class="screen-skeleton" aria-hidden="true">
+                  <span class="skeleton" style="width: 40%; height: 14px"></span>
+                  <div class="screen-skeleton__fields"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+                  <div class="screen-skeleton__buttons"><span class="skeleton"></span><span class="skeleton"></span></div>
+                  <div class="screen-skeleton__grid"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+                </div>
+              </figure>
+              <figure class="skeleton-demo">
+                <figcaption>Dim · refreshing data that is already shown</figcaption>
+                <div class="dim-demo" aria-busy="true">
+                  <div class="loading-bar"></div>
+                  <table class="grid grid--mini">
+                    <thead><tr><th>Customer</th><th class="num">Balance</th></tr></thead>
+                    <tbody><tr><td>Acme Industrial</td><td class="num">82,450.00</td></tr><tr><td>Brightline Logistics</td><td class="num">12,980.50</td></tr><tr><td>Nordvik Marine</td><td class="num">45,120.00</td></tr></tbody>
+                  </table>
+                  <span class="dim-demo__label"><svg class="i spin" aria-hidden="true"><use href="assets/icons/sprite.svg#loader-circle"/></svg>Refreshing…</span>
+                </div>
+              </figure>
+            </div>
+            <p class="comp__note">Instead of a spinner, loading shows the structure that is coming: the grid keeps its header, the
+              first screen keeps its layout, and a refresh dims the current data.</p>
+          </article>
+
+          <article class="card comp" id="c-837">
+            <header class="comp__head"><h3 class="comp__title">Configurable grid empty state</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#837</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--flush">
+              <table class="grid grid--mini">
+                <thead><tr><th>Shipment</th><th>Carrier</th><th>ETA</th></tr></thead>
+                <tbody><tr><td colspan="3">
+                  <div class="empty empty--sm">
+                    <span class="empty__icon"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#truck"/></svg></span>
+                    <p class="empty__title">No shipments today</p>
+                    <p class="empty__text">Shipments scheduled for today appear here. Plan one now or check tomorrow’s list.</p>
+                    <div class="empty__actions"><button class="btn btn--primary btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Schedule shipment</button></div>
+                  </div></td></tr></tbody>
+              </table>
+            </div>
+            <p class="comp__note">Each grid can set its own empty title, text, icon and action instead of a generic “No data”.</p>
+          </article>
+
+          <article class="card comp" id="c-864">
+            <header class="comp__head"><h3 class="comp__title">Avatar without image and first-load splash</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#864</span><span class="tag tag--success">Done</span></span></header>
+            <div class="comp__demo comp__demo--split">
+              <div class="stack">
+                <p class="demo-label">Avatars</p>
+                <div class="demo-row">
+                  <span class="avatar avatar--lg avatar--photo" role="img" aria-label="Laura Méndez (photo)"></span>
+                  <span class="avatar avatar--lg" aria-label="Pat Vega">PV</span>
+                  <span class="avatar avatar--lg avatar--neutral" role="img" aria-label="User without photo"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#user-round"/></svg></span>
+                  <span class="avatar-stack" aria-label="Laura, Pat, Mia and 3 more">
+                    <span class="avatar avatar--sm avatar--photo"></span><span class="avatar avatar--sm avatar--info">PV</span><span class="avatar avatar--sm avatar--warning">MS</span><span class="avatar avatar--sm avatar--neutral">+3</span>
+                  </span>
+                </div>
+                <p class="help">Photo, initials, or a generic icon when there is no image; never an empty hole.</p>
+              </div>
+              <div class="splash" aria-label="First load splash preview">
+                <svg class="customer-mark" viewBox="0 0 36 36" aria-hidden="true"><rect class="cl-primary" width="36" height="36" rx="9"/><path class="cl-on-primary" d="M9.5 11 17 25.5 24.8 10.6" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="cl-accent" cx="27.2" cy="25.2" r="3.2"/></svg>
+                <b>Operations Hub</b>
+                <div class="progress splash__bar"><span style="width: 62%"></span></div>
+                <span class="muted">Loading your dashboard…</span>
+              </div>
+            </div>
+            <p class="comp__note">Users without a photo get a generic avatar; after login the first screen shows a splash and then
+              its skeleton until the data arrives.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ======================================================================= Dialogs used by the examples -->
+<dialog class="modal drawer" id="dlg-side" aria-labelledby="dlg-side-title">
+  <div class="modal__header">
+    <div class="modal__titles">
+      <h2 class="modal__title" id="dlg-side-title">Edit shipment</h2>
+      <p class="modal__subtitle">SH-20418 · Madrid Central → Hamburg</p>
+    </div>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button>
+  </div>
+  <div class="modal__body">
+    <div class="form-grid form-grid--1">
+      <div class="field"><label class="label" for="sp-carrier">Carrier</label><span class="control"><select id="sp-carrier"><option>Nordline Freight</option><option>Iberia Cargo</option><option>Atlas Road</option></select><svg class="i select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+      <div class="field"><label class="label" for="sp-eta">Estimated arrival</label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-clock"/></svg><input id="sp-eta" type="text" value="24/10/2026 10:00"></span></div>
+      <div class="field"><label class="label" for="sp-pallets">Pallets</label><span class="control"><input id="sp-pallets" class="num" type="text" value="14"></span></div>
+      <div class="field"><label class="label" for="sp-notes">Notes for the driver</label><span class="control control--textarea"><textarea id="sp-notes" rows="4">Dock 4 requires a pallet jack. Call 30 minutes before arrival.</textarea></span></div>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button class="btn btn--outlined" type="button" data-close>Cancel</button>
+    <button class="btn btn--primary" type="button" data-close data-toast-after="success"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#save"/></svg>Save</button>
+  </div>
+</dialog>
+
+<dialog class="modal" id="dlg-size" aria-labelledby="dlg-size-title">
+  <div class="modal__header">
+    <div class="modal__titles"><h2 class="modal__title" id="dlg-size-title">Dialog</h2><p class="modal__subtitle" id="dlg-size-sub"></p></div>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button>
+  </div>
+  <div class="modal__body"><p class="muted">The body scrolls when the content is taller than the dialog; the header and the footer stay in place.</p></div>
+  <div class="modal__footer"><button class="btn btn--primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<div class="toasts" id="toasts" popover="manual" aria-live="polite" aria-relevant="additions"></div>
+</body>
+</html>

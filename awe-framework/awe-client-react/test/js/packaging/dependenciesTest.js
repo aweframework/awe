@@ -15,6 +15,7 @@ const REMOVED = [
   'autoprefixer',
   'deep-freeze',
   'postcss-loader',
+  'react-helmet',
   'react-transition-group',
   'redux-thunk'
 ];
@@ -44,6 +45,12 @@ describe('Dependencies of the React client', () => {
   it('uses Redux Toolkit 2 and react-redux 9', () => {
     expect(major('@reduxjs/toolkit')).toBe(2);
     expect(major('react-redux')).toBe(9);
+  });
+
+  // PrimeReact 11 requires React 19
+  it('uses React 19 for react and react-dom, on the same version', () => {
+    expect(major('react')).toBe(19);
+    expect(packageConfig.dependencies['react-dom']).toBe(packageConfig.dependencies.react);
   });
 
   it('keeps immer on the major Redux Toolkit uses', () => {

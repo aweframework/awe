@@ -4,6 +4,12 @@ title: Design tokens y modo oscuro
 sidebar_label: Design tokens
 ---
 
+:::info Dirección de AWE 5
+Esta página documenta los tokens **actuales**. El sistema de diseño propuesto para AWE 5 (tokens nuevos, modelo
+claro/oscuro, temas como primario + superficie) está en [Sistema de diseño](../design-system/overview.md), con la
+correspondencia desde estos tokens.
+:::
+
 El cliente AngularJS expone su aspecto como un conjunto pequeño de propiedades personalizadas de CSS, los **design
 tokens**, con nombre `--awe-*`. Los componentes, tus propias hojas de estilo, Tailwind (`@theme`) y cualquier cliente
 nuevo leen los tokens; los temas y el modo oscuro solo cambian los valores que hay detrás. Los tokens se emiten desde un

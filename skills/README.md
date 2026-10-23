@@ -64,6 +64,7 @@ Patterns tailored for AWE (Almis Web Engine) development:
 |-------|-------------|
 | `awe-framework` | AWE framework conventions and patterns: XML descriptor authoring (screens, queries, maintain, services, actions), Java service patterns, project structure, and build workflows |
 | `awe-integration-tests` | Commands to run AWE's Spring integration and Selenium test suites locally |
+| `awe-ui` | AWE 5 design system rules for UI and UX work in both engines: tokens only, light and dark, density, components, accessibility |
 
 ## Directory Structure
 

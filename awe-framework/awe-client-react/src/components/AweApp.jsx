@@ -7,20 +7,15 @@ import MessageContainer from "../containers/MessageContainer";
 import {getContextPath} from "../utilities";
 import {useSelector} from "react-redux";
 import {selectSettings} from "../redux/selectors/stateSelectors";
-import {Helmet} from "react-helmet";
+import {useHeadStylesheet} from "../hooks/useDocumentHead";
 
 function AweApp() {
 
   const settings = useSelector(selectSettings);
+  useHeadStylesheet(`${getContextPath()}/css/themes/${settings.theme}/theme.css`);
 
   return (
     <>
-      <Helmet>
-        <link
-          rel="stylesheet"
-          href={`${getContextPath()}/css/themes/${settings.theme}/theme.css`}
-        />
-      </Helmet>
       <MessageContainer/>
       <FormContainer>
         <View

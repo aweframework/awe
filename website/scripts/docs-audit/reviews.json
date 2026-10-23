@@ -1,6 +1,12 @@
 {
 	"rules": [
 		{
+			"paths": ["design-system/"],
+			"reviewed": "2026-10-23",
+			"ref": "#883, MR !1132",
+			"notes": "New section: the proposed AWE 5 design system; implementation in both engines pending (#885)."
+		},
+		{
 			"paths": ["api/pivot-table.md", "api/resizable.md", "api/template.md", "api/include.md", "api/layout.md", "api/tags.md"],
 			"reviewed": "2026-10-09",
 			"ref": "#784 T4, b71abffcb",

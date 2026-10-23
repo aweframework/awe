@@ -4,6 +4,11 @@ title: Design tokens and dark mode
 sidebar_label: Design tokens
 ---
 
+:::info AWE 5 direction
+This page documents the **current** tokens. The proposed AWE 5 design system (new tokens, light/dark model, themes as
+primary + surface) is in [Design system](../design-system/overview.md), with a mapping from these tokens.
+:::
+
 The AngularJS client exposes its look as a small set of CSS custom properties, the **design tokens**, named `--awe-*`.
 Components, your own stylesheets, Tailwind (`@theme`) and any new client read the tokens; the themes and the dark mode
 only change the values behind them. The tokens are emitted from one LESS file,
