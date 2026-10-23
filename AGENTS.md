@@ -129,6 +129,13 @@ mvn test -pl awe-framework/awe-client-angular
 
 ---
 
+### UI and Styles
+
+For any UI, UX or styling work in either engine (screens, components, themes, CSS/LESS), follow the `awe-ui` skill
+(`skills/awe-ui/SKILL.md`): the AWE 5 design system in `website/docs/design-system/`, tokens only, light and dark.
+
+---
+
 ### Test Conventions
 
 #### Java Tests

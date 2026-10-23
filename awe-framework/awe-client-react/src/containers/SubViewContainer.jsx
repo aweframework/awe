@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
-import {Helmet} from "react-helmet";
+import {useDocumentTitle} from "../hooks/useDocumentHead";
 import Templates from "../templates";
 import {useLocation, useParams} from "react-router";
 import {loadScreen} from "../redux/thunks/screen";
@@ -28,6 +28,8 @@ function SubViewContainer() {
   const dispatch = useDispatch();
   const view = useView(VIEW);
   const screenReloadToken = location.state?.screenReloadToken;
+  // The sub view title wins over the view title while it is mounted
+  useDocumentTitle(view.loading ? null : translateLabel(view.title, t), 1);
 
   useEffect(() => {
     // The initial load of the page ends with the sub screen, also when it fails
@@ -40,9 +42,6 @@ function SubViewContainer() {
   return view.loading ? <AweScreenSkeleton /> : (
     <ErrorBoundary scope="view" resetKey={`${subScreenId}-${screenReloadToken}`}>
       <div className={"expand expandible-vertical"} view-id={VIEW}>
-        <Helmet>
-          <title>{translateLabel(view.title, t)}</title>
-        </Helmet>
         <ViewTemplates structure={view.structure}/>
       </div>
     </ErrorBoundary>

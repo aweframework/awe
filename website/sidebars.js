@@ -98,6 +98,20 @@ module.exports = {
 		},
 		{
 			type: "category",
+			label: "Design system",
+			collapsed: true,
+			items: [
+				"design-system/overview",
+				"design-system/color-and-themes",
+				"design-system/foundations",
+				"design-system/layout-and-shell",
+				"design-system/components",
+				"design-system/tokens-reference",
+				"design-system/for-developers",
+			],
+		},
+		{
+			type: "category",
 			label: "API Reference",
 			items: [
 				"api/screens",

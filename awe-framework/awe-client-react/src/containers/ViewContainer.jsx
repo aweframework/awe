@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {selectSettings} from "../redux/selectors/stateSelectors";
-import {Helmet} from "react-helmet";
+import {useDocumentTitle} from "../hooks/useDocumentHead";
 import Templates from "../templates";
 import SizeRegistry from "../redux/registry/SizeRegistry";
 import {addActionsTop} from "../redux/actions/actions";
@@ -38,6 +38,7 @@ function ViewContainer() {
   const view = useView(VIEW);
   const hasSubView = Boolean(useOutlet());
   const screenReloadToken = location.state?.screenReloadToken;
+  useDocumentTitle(view.loading ? null : translateLabel(view.title, t), 0);
 
   const changeLanguage = useCallback((language) => {
     i18n.changeLanguage(language);
@@ -82,9 +83,6 @@ function ViewContainer() {
   return view.loading ? <AweScreenSkeleton /> : (
     <ErrorBoundary scope="view" resetKey={`${screenId}-${screenReloadToken}`}>
       <div className={"expand expandible-vertical"} view-id={VIEW}>
-        <Helmet>
-          <title>{translateLabel(view.title, t)}</title>
-        </Helmet>
         <ViewTemplates structure={view.structure}/>
       </div>
     </ErrorBoundary>

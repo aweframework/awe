@@ -27,6 +27,10 @@
     "message": "Guías",
     "description": "The label for category Guides in sidebar docs"
   },
+  "sidebar.docs.category.Design system": {
+    "message": "Sistema de diseño",
+    "description": "The label for category Design system in sidebar docs"
+  },
   "sidebar.docs.category.API Reference": {
     "message": "Referencia de la API",
     "description": "The label for category API Reference in sidebar docs"
