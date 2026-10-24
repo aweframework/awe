@@ -3,7 +3,7 @@ version: "2"
 services:
 
   tempo:
-    image: grafana/tempo:2.10.8@sha256:f0561deb1c68ec44d6e6e7e4487f30106c4e5e768642077695b37958b105812a
+    image: grafana/tempo:2.10.10@sha256:12b0820f13ffa10ce956b6e9acc3b03f3cffded99109be6cc09d106fe56e5d38
     container_name: tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     restart: unless-stopped
@@ -75,7 +75,7 @@ services:
     command: -config.file=/etc/promtail/promtail.yaml
 
   redis:
-    image: redis:7.4.11@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+    image: redis:7.4.11@sha256:44960b3100c48159a66d28c18b0588c193492e25f7551d60e51dd464fc3eca5b
     container_name: redis-service
     ports:
       - "6379:6379"
