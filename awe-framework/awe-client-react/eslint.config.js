@@ -1,6 +1,7 @@
 const reactHooks = require('eslint-plugin-react-hooks');
+const tseslint = require('typescript-eslint');
 
-module.exports = [
+module.exports = tseslint.config(
   {
     ignores: [
       'dist/**',
@@ -69,8 +70,29 @@ module.exports = [
     }
   },
   {
+    // TypeScript sources: typescript-eslint parser and recommended rules, with the same hooks rules as the JavaScript ones
+    files: ['**/*.{ts,tsx}'],
+    extends: [tseslint.configs.recommended],
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
+    plugins: {
+      'react-hooks': reactHooks
+    },
+    rules: {
+      'react-hooks/rules-of-hooks': 2,
+      'react-hooks/exhaustive-deps': 1,
+      semi: 2,
+      'no-console': 1
+    }
+  },
+  {
     // Tests and their Jest setup log and silence the console on purpose
-    files: ['test/**/*.{js,jsx}'],
+    files: ['test/**/*.{js,jsx,ts,tsx}'],
     rules: {
       'no-console': 0
     }
@@ -82,4 +104,4 @@ module.exports = [
       'no-console': 0
     }
   }
-];
+);

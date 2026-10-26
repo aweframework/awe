@@ -40,7 +40,7 @@ module.exports = {
   externals: [nodeExternals()],
   module: {
     rules: [
-      {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: {loader: 'babel-loader', options: {presets: ['@babel/preset-env', '@babel/preset-react']}}},
+      {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: {loader: 'babel-loader', options: {presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']}}},
       {test: /\.css$/, use: [MiniCssExtractPlugin.loader, "css-loader"]},
       {test: /\.less$/, use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"]},
       {test: /\.(jpg|gif|png|svg)$/, type: 'asset/resource', generator: { filename: 'images/[hash][ext][query]'}},

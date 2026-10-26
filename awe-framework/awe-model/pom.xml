@@ -165,4 +165,65 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <!-- Generates the TypeScript screen contract used by awe-client-react (#808). Not active by default:
+         mvn -Pcontract -pl awe-framework/awe-model process-classes -->
+    <profile>
+      <id>contract</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>cz.habarta.typescript-generator</groupId>
+            <artifactId>typescript-generator-maven-plugin</artifactId>
+            <version>4.1.1</version>
+            <executions>
+              <execution>
+                <id>generate-screen-contract</id>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+                <phase>process-classes</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <jsonLibrary>jackson2</jsonLibrary>
+              <outputKind>module</outputKind>
+              <outputFileType>implementationFile</outputFileType>
+              <outputFile>${project.basedir}/../awe-client-react/src/contract/contract.ts</outputFile>
+              <classes>
+                <class>com.almis.awe.model.entities.screen.data.ScreenData</class>
+                <class>com.almis.awe.model.entities.screen.data.ScreenComponent</class>
+                <class>com.almis.awe.model.entities.screen.data.ComponentModel</class>
+                <class>com.almis.awe.model.entities.actions.ClientAction</class>
+              </classes>
+              <classPatterns>
+                <classPattern>com.almis.awe.model.entities.screen.component.**</classPattern>
+              </classPatterns>
+              <excludeClassPatterns>
+                <excludeClassPattern>**Builder</excludeClassPattern>
+                <excludeClassPattern>**Builder$*</excludeClassPattern>
+                <excludeClassPattern>**BuilderImpl</excludeClassPattern>
+              </excludeClassPatterns>
+              <excludeClasses>
+                <excludeClass>java.io.Serializable</excludeClass>
+                <excludeClass>java.lang.Comparable</excludeClass>
+              </excludeClasses>
+              <sortDeclarations>true</sortDeclarations>
+              <sortTypeDeclarations>true</sortTypeDeclarations>
+              <optionalProperties>useLibraryDefinition</optionalProperties>
+              <customTypeMappings>
+                <mapping>tools.jackson.databind.JsonNode:unknown</mapping>
+                <!-- @JsonValue scalars: serialised as a bare JSON scalar, not as an object -->
+                <mapping>com.almis.awe.model.dto.CellData:(string | number | boolean | null)</mapping>
+                <mapping>com.almis.awe.model.dto.QueryParameter:(string | number | boolean | null)</mapping>
+                <mapping>com.almis.awe.model.entities.screen.component.chart.ChartParameter:(string | number | boolean | null)</mapping>
+                <mapping>com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint:(string | number | boolean | null)</mapping>
+              </customTypeMappings>
+              <noFileComment>true</noFileComment>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -17,10 +17,10 @@ module.exports = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, use: {loader: "babel-loader", options: {presets: [["@babel/preset-env", {targets: {node: "20"}}]]}}}
+      {test: /\.(js|ts)$/, exclude: /node_modules/, use: {loader: "babel-loader", options: {presets: [["@babel/preset-env", {targets: {node: "20"}}], "@babel/preset-typescript"]}}}
     ]
   },
   resolve: {
-    extensions: [".js"]
+    extensions: [".ts", ".js"]
   }
 };

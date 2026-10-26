@@ -1693,5 +1693,45 @@ else
   fail "clean db: a suite starts Maven without cleaning the databases first" "$clean_first"
 fi
 
+# ------------------------------------------------------------
+# Contract drift check (bin/check-contract.sh): a stub "maven" stands for the regeneration
+# ------------------------------------------------------------
+CT="$WORK/contract"
+mkdir -p "$CT/awe-framework/awe-client-react/src/contract"
+printf 'export interface A {}\n' > "$CT/awe-framework/awe-client-react/src/contract/contract.ts"
+printf '#!/bin/sh\nprintf "%%s\\n" "$GENERATED" > "$CONTRACT_ROOT/awe-framework/awe-client-react/src/contract/contract.ts"\n' > "$WORK/stub-regenerate"
+chmod +x "$WORK/stub-regenerate"
+export CONTRACT_ROOT="$CT"
+run env GENERATED='export interface A {}' sh "$BIN_DIR/check-contract.sh" "$WORK/stub-regenerate"
+if [ "$RC" -eq 0 ]; then
+  pass "contract: a regenerated file equal to the committed one passes"
+else
+  fail "contract: an up to date contract is rejected" "$OUT"
+fi
+run env GENERATED='export interface B {}' sh "$BIN_DIR/check-contract.sh" "$WORK/stub-regenerate"
+if [ "$RC" -ne 0 ] && printf '%s' "$OUT" | grep -q 'mvn -Pcontract -pl awe-framework/awe-model process-classes' \
+  && grep -q 'interface A' "$CT/awe-framework/awe-client-react/src/contract/contract.ts"; then
+  pass "contract: a drifted file fails with the regenerate command and the committed file is restored"
+else
+  fail "contract: drift is not reported or the committed file is left modified" "rc=$RC $OUT"
+fi
+printf '#!/bin/sh\nprintf "partial" > "$CONTRACT_ROOT/awe-framework/awe-client-react/src/contract/contract.ts"\nexit 1\n' \
+  > "$WORK/stub-regenerate-fails"
+chmod +x "$WORK/stub-regenerate-fails"
+run sh "$BIN_DIR/check-contract.sh" "$WORK/stub-regenerate-fails"
+if [ "$RC" -ne 0 ] && grep -q 'interface A' "$CT/awe-framework/awe-client-react/src/contract/contract.ts"; then
+  pass "contract: a failed regeneration fails and the committed file is restored"
+else
+  fail "contract: a failed regeneration leaves the committed file modified" "rc=$RC $OUT"
+fi
+rm "$CT/awe-framework/awe-client-react/src/contract/contract.ts"
+run env GENERATED='export interface A {}' sh "$BIN_DIR/check-contract.sh" "$WORK/stub-regenerate"
+if [ "$RC" -ne 0 ] && [ ! -e "$CT/awe-framework/awe-client-react/src/contract/contract.ts" ]; then
+  pass "contract: a contract that cannot be backed up fails and nothing is written over it"
+else
+  fail "contract: a failed backup still writes the contract" "rc=$RC $OUT"
+fi
+unset CONTRACT_ROOT
+
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 [ "$FAILED" -eq 0 ]

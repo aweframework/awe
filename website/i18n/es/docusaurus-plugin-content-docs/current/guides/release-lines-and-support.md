@@ -254,6 +254,24 @@ La compilación de Maven ejecuta el mismo `lint:ci` antes de las pruebas unitari
 con el mismo límite. La CI omite ese paso de Maven (`-Dskip.lint=true`, definido en `MAVEN_CLI_OPTS`), porque
 `Lint · Frontend` ya lo ejecutó: el lint se ejecuta una vez por pipeline.
 
+## Contrato de pantalla en TypeScript (bloqueante) {#typescript-screen-contract}
+
+El cliente React está tipado contra los datos que envía el servidor. El modelo Java de `awe-model` es la fuente de la
+verdad: el perfil de Maven `contract` genera a partir de él `awe-framework/awe-client-react/src/contract/contract.ts` (con
+typescript-generator), y ese fichero se versiona. No lo edite a mano; las adiciones escritas a mano (el controlador de
+componente flexible y la columna plana de las rejillas) viven en `src/contract/index.ts`.
+
+Tras cambiar una clase del modelo de pantalla, regenere el contrato (JDK 21) y haga commit del resultado:
+
+```bash
+mvn -Pcontract -pl awe-framework/awe-model process-classes
+```
+
+`Build · Maven` lo regenera a partir de las clases que acaba de compilar (`bin/check-contract.sh`) y falla si el fichero
+versionado difiere, con el comando anterior en el mensaje. `Lint · Frontend` comprueba los tipos del cliente React contra
+el fichero versionado, así que un cambio de modelo que rompe el cliente hace fallar la merge request en la comprobación de
+deriva o en la de tipos.
+
 ## Ejecutar la pipeline en local {#run-the-pipeline-locally}
 
 `bin/local-ci.sh` ejecuta en tu equipo los jobs que la pipeline de la merge request ejecutaría para tu rama. Los elige con

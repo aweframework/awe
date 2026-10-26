@@ -26,7 +26,7 @@ module.exports = {
   ],
   // The Babel configuration of this module also compiles the shared React sources and the ECharts modules
   transform: {
-    "^.+\\.js$": ["babel-jest", { envName: "jest", configFile: path.join(__dirname, ".babelrc"), babelrc: false }]
+    "^.+\\.(js|ts)$": ["babel-jest", { envName: "jest", configFile: path.join(__dirname, ".babelrc"), babelrc: false }]
   },
   // ECharts is loaded from its CommonJS bundle (moduleNameMapper below): only its locale modules are ES modules to compile
   transformIgnorePatterns: ["/node_modules/(?!echarts/i18n/)"],
@@ -57,7 +57,7 @@ module.exports = {
       }
     ]
   ],
-  moduleFileExtensions: ["js", "json"],
+  moduleFileExtensions: ["js", "ts", "json"],
   moduleNameMapper: {
     "^jquery$": path.join(__dirname, "node_modules", "jquery", "dist", "jquery"),
     "^jquery-ui$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),

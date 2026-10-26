@@ -65,6 +65,9 @@ module.exports = (env = {}, argv = {}) => {
       rules : [
         { test: require.resolve('jquery'), use: [{loader: 'expose-loader', options: {exposes: ['jQuery', '$']}}]},
         { test: /\.jsx?$/, exclude: /node_modules/, use: [{loader: 'babel-loader', options: { envName: mode }}]},
+        // The shared React sources written in TypeScript (#808): the Babel configuration of this module strips their types
+        { test: /\.ts$/, include: [ reactSourcePath ], use: [{loader: 'babel-loader', options: {
+            envName: mode, configFile: path.resolve(__dirname, ".babelrc"), babelrc: false }}]},
         { test : /\.css$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
         { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
             loader: "less-loader", options: { lessOptions: { plugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ] }, sourceMap: false }}]},
@@ -74,7 +77,7 @@ module.exports = (env = {}, argv = {}) => {
       ]
     },
     resolve: {
-      extensions: [".js", ".css", ".less", "*"],
+      extensions: [".js", ".ts", ".css", ".less", "*"],
       // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
       modules: [path.resolve(__dirname, "node_modules"), "node_modules"],
       alias: {
