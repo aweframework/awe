@@ -1,4 +1,4 @@
-import { makeGetComponent, getAllComponents, makeGetMultipleComponents, getContextMenuAttributes } from '../../../../src/redux/selectors/componentSelectors';
+import { getComponentDeltas, makeGetComponent, getAllComponents, makeGetMultipleComponents, getContextMenuAttributes } from '../../../../src/redux/selectors/componentSelectors';
 import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 
 describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', () => {
@@ -236,6 +236,67 @@ describe('awe-react-client/test/js/redux/selectors/componentSelectorsTest.js', (
             const result = selector(mockState);
 
             expect(result).toEqual({});
+        });
+    });
+
+    describe('merged components are reused', () => {
+        it('getAllComponents keeps the reference of a component whose base and delta did not change', () => {
+            const before = getAllComponents(mockState);
+
+            const after = getAllComponents({
+                ...mockState,
+                components: { ...mockState.components, comp2: { model: { values: [9] } } }
+            });
+
+            expect(after).not.toBe(before);
+            expect(after.comp1).toBe(before.comp1);
+            expect(after.comp2).not.toBe(before.comp2);
+            expect(after.comp2.model.values).toEqual([9]);
+        });
+
+        it('getAllComponents builds a new object for a component registered again', () => {
+            const before = getAllComponents(mockState);
+            ComponentRegistry.register('comp1', {
+                address: { view: 'base', component: 'comp1' },
+                attributes: { label: 'Changed' }
+            });
+
+            const after = getAllComponents({ ...mockState, components: { ...mockState.components } });
+
+            expect(after.comp1).not.toBe(before.comp1);
+            expect(after.comp1.attributes.label).toBe('Changed');
+            expect(after.comp2).toBe(before.comp2);
+        });
+
+        it('getAllComponents forgets the components that are neither registered nor in the state', () => {
+            getAllComponents(mockState);
+            ComponentRegistry.unregister('comp1');
+
+            const after = getAllComponents({ components: { comp2: mockState.components.comp2 } });
+
+            expect(Object.keys(after).sort()).toEqual(['comp2']);
+        });
+
+        it('makeGetComponent returns the same object while base and delta are unchanged, whatever the id asked before', () => {
+            const selector = makeGetComponent();
+            const first = selector(mockState, 'comp1');
+            selector(mockState, 'comp2');
+
+            expect(selector(mockState, 'comp1')).toBe(first);
+            expect(selector({ ...mockState, components: { ...mockState.components } }, 'comp1')).toBe(first);
+        });
+
+        it('makeGetComponent returns the same object for a component that does not exist', () => {
+            const selector = makeGetComponent();
+
+            expect(selector(mockState, 'nonexistent')).toBe(selector({ components: {} }, 'nonexistent'));
+        });
+
+        it('does not create a new delta for a component without deltas', () => {
+            const state = { components: {} };
+
+            expect(getComponentDeltas(state, 'missing')).toBe(getComponentDeltas(state, 'other'));
+            expect(Object.isFrozen(getComponentDeltas(state, 'missing'))).toBe(true);
         });
     });
 

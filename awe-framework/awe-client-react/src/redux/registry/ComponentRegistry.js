@@ -2,6 +2,21 @@ import _ from 'lodash';
 import {warnMalformedComponent} from '../../utilities/components';
 
 /**
+ * Freezes an object and everything below it, so a nested mutation of a base throws instead of leaking into every
+ * merged copy that shares it
+ *
+ * @param {Object} value - Cloned value (owned by the registry)
+ * @returns {Object} The same value, frozen
+ */
+const deepFreeze = (value) => {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+        Object.freeze(value);
+        Object.values(value).forEach(deepFreeze);
+    }
+    return value;
+};
+
+/**
  * ComponentRegistry - Singleton para almacenar estado base de componentes
  * 
  * Este registry almacena el estado inmutable de componentes que raramente cambia:
@@ -34,7 +49,7 @@ class ComponentRegistry {
             });
         }
 
-        this.baseComponents[componentId] = Object.freeze(_.cloneDeep({...baseState}));
+        this.baseComponents[componentId] = deepFreeze(_.cloneDeep({...baseState}));
 
         // Indexar por vista para limpieza eficiente
         const view = this.resolveView(baseState);

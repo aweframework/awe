@@ -1,4 +1,4 @@
-import { reduceOnRegistry as components } from './registryReducerHelper';
+import { reduceDeltasOnRegistry, reduceOnRegistry as components } from './registryReducerHelper';
 import {
   UPDATE_ATTRIBUTES,
   UPDATE_MODEL,
@@ -71,13 +71,15 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerCellTest.jsx'
       }
     };
 
-    const next = components(state, {
+    const action = {
       type: UPDATE_MODEL,
       address: { component: 'grid', view: 'base', row: 1, column: 'colA' },
       data: { selected: ['A'] }
-    });
+    };
+    const deltas = {};
 
-    expect(next).toEqual(state);
+    expect(reduceDeltasOnRegistry(state, action, deltas)).toBe(deltas);
+    expect(components(state, action)).toEqual(state);
   });
 
   it('updates grid footer after updating a row model when totals are enabled', () => {

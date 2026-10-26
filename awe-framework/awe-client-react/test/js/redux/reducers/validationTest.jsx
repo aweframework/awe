@@ -333,10 +333,21 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
       const state = repeatGrid(['A', 'A', 'A']);
       state.grid.model.values[0] = {...state.grid.model.values[0], $attrs: {code: {error: staleError}}};
       const result = validateRow(state, {component: 'grid', view: 'base', row: '3'}, {});
-      expect(result.grid.model.values[0].$attrs.code.error).toEqual(staleError);
+      expect(result.grid.model.values[0].$attrs.code.error).toBe(staleError);
       expect(result.grid.model.values[1].$attrs).toBeUndefined();
       expect(result.grid.model.values[2].$attrs.code.error.message).toBe('VALIDATOR_MESSAGE_MAX_REPEAT');
     });
+  });
+
+  it('validates a component whose rules come from the frozen registry base without mutating them', function() {
+    const validationRules = parseValidationRules("{required:{value: true}}", {component: 'component', view: 'base'});
+    ComponentRegistry.register('component', {...state.components.component, validationRules});
+    const base = ComponentRegistry.get('component');
+
+    const result = validateComponent({}, {...base, model: {values: []}}, state.settings);
+
+    expect(result.component.attributes.error.message).toBe('VALIDATOR_MESSAGE_REQUIRED');
+    expect(base.validationRules).toEqual(validationRules);
   });
 
   // Email validation

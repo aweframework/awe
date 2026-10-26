@@ -3,53 +3,18 @@ import ComponentRegistry from '../registry/ComponentRegistry';
 import { mergeComponentState } from '../../utilities/mergeUtils';
 
 // Input selectors must return the same reference for the same state: a new empty object would break the memoization
-const EMPTY = {};
+const EMPTY = Object.freeze({});
 
 /**
  * Selector base: obtiene deltas de un componente específico
  */
-const getComponentDeltas = (state, componentId) =>
+export const getComponentDeltas = (state, componentId) =>
     state.components[componentId] || EMPTY;
 
 /**
  * Selector base: obtiene todos los deltas
  */
 const getAllComponentDeltas = (state) => state.components;
-
-/**
- * Factory de selector para un componente individual
- * Crea un selector memoizado que mergea base + deltas
- */
-export const makeGetComponent = () => createSelector(
-    [getComponentDeltas, (_, componentId) => componentId],
-    (deltas, componentId) => {
-        // Mergear base + deltas
-        const base = ComponentRegistry.get(componentId) || {};
-        return mergeComponentState(base, deltas);
-    }
-);
-
-/**
- * Selector para obtener TODOS los componentes mergeados
- * Usado por useGrid y otros casos que necesitan acceso masivo
- */
-export const getAllComponents = createSelector(
-    [getAllComponentDeltas],
-    (deltas) => {
-        // Obtener todos los IDs únicos (de Registry + Redux)
-        const registryIds = ComponentRegistry.getAllIds();
-        const deltaIds = Object.keys(deltas);
-        const allIds = [...new Set([...registryIds, ...deltaIds])];
-
-        // Mergear cada componente
-        return allIds.reduce((acc, componentId) => {
-            const base = ComponentRegistry.get(componentId) || {};
-            const delta = deltas[componentId] || {};
-            acc[componentId] = mergeComponentState(base, delta);
-            return acc;
-        }, {});
-    }
-);
 
 /**
  * Memoizes the merge of base + deltas of every component: while neither the base nor the delta of a component change
@@ -59,18 +24,55 @@ export const getAllComponents = createSelector(
  */
 const makeMergeCache = () => {
     const cache = new Map();
-    return (componentId, delta) => {
+    const merge = (componentId, delta) => {
         // Compare the registered base itself: a component that is not registered has no base
         const base = ComponentRegistry.get(componentId);
         const cached = cache.get(componentId);
         if (cached && cached.base === base && cached.delta === delta) {
             return cached.value;
         }
-        const value = mergeComponentState(base || {}, delta || {});
+        const value = mergeComponentState(base || {}, delta || EMPTY);
         cache.set(componentId, { base, delta, value });
         return value;
     };
+    // Forgets the components that are gone, so the cache does not grow with every screen
+    merge.retain = (componentIds) => {
+        const keep = new Set(componentIds);
+        cache.forEach((_entry, id) => keep.has(id) || cache.delete(id));
+    };
+    return merge;
 };
+
+const mergeComponent = makeMergeCache();
+
+/**
+ * Factory de selector para un componente individual
+ * The merged component is the same object while its base and its delta do not change, whatever the other
+ * components or the selector instance do
+ */
+export const makeGetComponent = () => (state, componentId) =>
+    mergeComponent(componentId, getComponentDeltas(state, componentId));
+
+const mergeAllComponents = makeMergeCache();
+
+/**
+ * Selector para obtener TODOS los componentes mergeados
+ * Usado por useGrid y otros casos que necesitan acceso masivo. After a change only the components whose base or
+ * delta changed are merged again: the rest keep their reference
+ */
+export const getAllComponents = createSelector(
+    [getAllComponentDeltas],
+    (deltas) => {
+        // Obtener todos los IDs únicos (de Registry + Redux)
+        const allIds = [...new Set([...ComponentRegistry.getAllIds(), ...Object.keys(deltas)])];
+        mergeAllComponents.retain(allIds);
+
+        return allIds.reduce((acc, componentId) => {
+            acc[componentId] = mergeAllComponents(componentId, deltas[componentId]);
+            return acc;
+        }, {});
+    }
+);
 
 /**
  * Selector to get several specific components when not all of them are needed. The result is a new object when any

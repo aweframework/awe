@@ -1,6 +1,7 @@
 import useFormService from "../../../src/services/FormService";
 import {renderWithProviders} from "../test-utils";
 import React from "react";
+import ComponentRegistry from "../../../src/redux/registry/ComponentRegistry";
 
 describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
   let service;
@@ -30,6 +31,19 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
 
   it('should restore the first loaded values on restore-target and the default ones on restore', () => {
     expect(actions['restore-target']).not.toBe(actions['restore']);
+  });
+
+  it('sets a static value without mutating an action that belongs to a registered component', () => {
+    ComponentRegistry.register('button', {
+      address: {view: 'base', component: 'button'},
+      attributes: {},
+      actions: [{type: 'value', value: 'abc', parameters: {target: 'crit'}}]
+    });
+    const action = ComponentRegistry.get('button').actions[0];
+
+    expect(() => actions.value(action)).not.toThrow();
+    expect(action.parameters.values).toBeUndefined();
+    ComponentRegistry.clearAll();
   });
 
 });

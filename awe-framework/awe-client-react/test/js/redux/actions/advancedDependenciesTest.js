@@ -62,9 +62,12 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
   });
 
-  // The selectors memoize the merge of the components by the reference of the state, but these tests change the
-  // components in place, so every call gets a new state
-  const freshState = () => ({ ...mockState, components: { ...mockState.components } });
+  // The selectors memoize the merge of every component by the reference of its delta, but these tests change the
+  // components in place, so every call gets a new reference for each component
+  const freshState = () => ({
+    ...mockState,
+    components: Object.fromEntries(Object.entries(mockState.components).map(([id, component]) => [id, { ...component }]))
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();
