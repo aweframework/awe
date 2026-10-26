@@ -228,8 +228,6 @@ export function launchAddressFunction(cellFunction, columnFunction, componentFun
  * ============================================================================
  */
 
-export const memoizedGetComponentId = _.memoize(getComponentId);
-export const memoizedGetGridIdentifier = _.memoize(getGridIdentifier);
 
 /**
  * Resolve grid row context from an address.
@@ -251,7 +249,7 @@ export function getGridRowContext(state = {}, address = {}, settings = {}) {
   if (!model || !attributes) return null;
 
   const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
+  const gridId = getGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   if (rowIndex < 0) return null;
 
@@ -302,7 +300,7 @@ export function updateGridRowValues(state, context, nextValues) {
  * @returns {Object} Component update map
  */
 export function getModelUpdate(state, address, model, settings) {
-  let componentId = memoizedGetComponentId(address);
+  let componentId = getComponentId(address);
 
   const base = ComponentRegistry.get(componentId);
   if (base) {

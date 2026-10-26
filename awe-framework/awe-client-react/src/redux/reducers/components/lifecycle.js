@@ -9,10 +9,9 @@ import {
 } from '../../actions/components';
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas} from '../../../utilities/mergeUtils';
-import {ComponentAddressType, getAddressType, warnMalformedComponent} from "../../../utilities/components";
+import {ComponentAddressType, getAddressType, getComponentId, warnMalformedComponent} from "../../../utilities/components";
 import {updateComponentFooters} from './gridFooter';
 import {updateComponentData} from './model';
-import {memoizedGetComponentId} from './stateHelpers';
 
 /**
  * Remove all components for a given view.
@@ -105,11 +104,11 @@ export const lifecycleHandlers = {
   [UNREGISTER_COMPONENTS]: (state, action) => unregisterComponents(state, action.ids),
 
   [UPDATE_COMPONENT]: (state, action) =>
-    updateComponentData(state, memoizedGetComponentId(action.address), action.data, action.settings),
+    updateComponentData(state, getComponentId(action.address), action.data, action.settings),
 
   [UPDATE_MULTIPLE_COMPONENTS]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => updateComponentData(newState, memoizedGetComponentId(_action.address), _action, action.settings),
+      (newState, _action) => updateComponentData(newState, getComponentId(_action.address), _action, action.settings),
       state
     ),
 };
