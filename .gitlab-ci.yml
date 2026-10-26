@@ -49,16 +49,20 @@ default:
 #   Security · Secrets, Build · Chromium/Firefox cache, the release API jobs, and the jobs without a build that only download,
 #   copy or push: Deploy · Staging/Production (git + kustomize), pages (cp/mv) and container_scanning (no dind service).
 # - medium: Lint · Spotless, Unit · AngularJS and Unit · React (Jest, jsdom, no real browser; jest.config limits the
-#   workers in CI), the dependency scan, Renovate, Docs · Javadoc check, Build · Website (all locales), Package · React
-#   jar, Deploy · Maven snapshot and the database jobs on an embedded database (Database · H2, H2 · Flyway, HSQL ·
-#   Flyway: no container, no dind service). They passed on the slow medium runner in times close to the big runners.
+#   workers in CI), the dependency scan, Renovate, Docs · Javadoc check, Build · Website and Build · Website (all
+#   locales), Package · React jar, Deploy · Maven snapshot and the database jobs on an embedded database (Database ·
+#   H2, H2 · Flyway, HSQL · Flyway: no container, no dind service). They passed on the slow medium runner in times close to the big runners.
+#   Also medium, with a dind service: Database · MySQL, MySQL · Flyway, PostgreSQL, PostgreSQL · Flyway (one small
+#   database container, about 2-3 minutes) and Package · Docker images (dind only; its client uses the TLS certificates
+#   of the /certs/client volume that the medium runners mount, and it builds for linux/amd64).
 # - large and shared-cache are not requested by any job: Build · Maven and Analysis · Sonar run untagged, so any online
 #   runner that takes untagged jobs can take them. Docs · Javadoc check gets the AWE SNAPSHOT jars as Build · Maven
 #   artifacts. Analysis · Sonar reads the ones Build · Maven leaves in the Maven cache; on a runner outside the shared S3
 #   cache that cache may be empty.
-# - untagged (the big runners): Build · Maven, Unit · Java, Analysis · Sonar, the database jobs with Testcontainers
-#   (dind), Integration · Keycloak, the Selenium and Playwright suites, Package · Docker images (dind), Docs · Javadoc &
-#   schemas, Deploy · Maven Central and npm, dast. They do not need the shared cache: they build what they need or get
+# - untagged (the big runners): Build · Maven, Unit · Java, Analysis · Sonar, Database · Oracle and Database · SQL Server
+#   (and their Flyway jobs: about 2 GB per database plus the JVM, too much for a 4 GB medium runner), Integration ·
+#   Keycloak, the Selenium and Playwright suites (quarantine jobs included: they need a browser and the application),
+#   Docs · Javadoc & schemas, Deploy · Maven Central and npm, dast. They do not need the shared cache: they build what they need or get
 #   the jars as Build · Maven artifacts, and the Playwright jobs download their browser when the cache does not have it.
 #   Runners outside the shared cache can take all of these.
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
@@ -629,6 +633,7 @@ Build · Maven:
 
 Build · Website:
   extends: .build-website
+  tags: [ medium ]
   script:
     - npm --prefix website ci
     # Unit tests of the website scripts: the XSD reference generator and the remark link plugin
@@ -877,6 +882,7 @@ Database · MySQL:
   extends:
     - .database-testing
     - .database-containers
+  tags: [ medium ]
   variables:
     TEST_NAME: mysql
 
@@ -884,6 +890,7 @@ Database · MySQL · Flyway:
   extends:
     - .database-testing
     - .database-containers
+  tags: [ medium ]
   variables:
     TEST_NAME: mysql-flyway
 
@@ -891,6 +898,7 @@ Database · PostgreSQL:
   extends:
     - .database-testing
     - .database-containers
+  tags: [ medium ]
   variables:
     TEST_NAME: postgresql
 
@@ -898,6 +906,7 @@ Database · PostgreSQL · Flyway:
   extends:
     - .database-testing
     - .database-containers
+  tags: [ medium ]
   variables:
     TEST_NAME: postgresql-flyway
 
@@ -1799,6 +1808,7 @@ Package · React jar:
 Package · Docker images:
   image: docker:28.5.2-cli@sha256:625d9431a9f54c5a2bc90f24f0e1c3d55b1349fd857dd85035f98c2c9acbdd4d
   stage: package
+  tags: [ medium ]
   cache: { }
   interruptible: false
   timeout: 15m
