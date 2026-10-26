@@ -31,6 +31,7 @@ module.exports = {
     '**/packaging/packageVersionTest.{js,jsx}',
     '**/packaging/packageLicenseTest.{js,jsx}',
     '**/packaging/babelConfigTest.{js,jsx}',
+    '**/packaging/sonarTsconfigTest.{js,jsx}',
     '**/packaging/dependenciesTest.{js,jsx}',
     '**/packaging/applicationDependenciesTest.{js,jsx}',
     '**/packaging/helpTemplatesTest.{js,jsx}',

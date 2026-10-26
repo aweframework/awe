@@ -51,6 +51,9 @@
     <!-- Binary web fonts are not source; excluding them silences the
          "Invalid character encountered ... for encoding UTF-8" analysis warnings. -->
     <sonar.exclusions>**/fonts/**</sonar.exclusions>
+    <!-- The JavaScript/TypeScript analysis reads a tsconfig without `strict` (see its comments): with the strict build
+         tsconfig every JSDoc type is non-nullable and the null checks of the JavaScript code are reported as bugs -->
+    <sonar.typescript.tsconfigPaths>awe-framework/awe-client-react/tsconfig.sonar.json</sonar.typescript.tsconfigPaths>
     <!-- Framework-agnostic modules mirrored in both web clients. The AngularJS copy is left out of the duplication
          analysis; a Jest parity test in awe-client-angular keeps it identical to the React copy.
          grid/layoutRules.js is the AngularJS adaptation of the React gridLayout.js and differs from it on purpose: it also
