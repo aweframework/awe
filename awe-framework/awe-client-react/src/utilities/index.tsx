@@ -66,7 +66,7 @@ export interface FetchError {
 }
 
 /** An action that the server runs, or an action of the client that sends the parameters to it */
-export interface ServerAction {
+export interface ServerAction extends ActionItem {
   type: "server";
   async: boolean;
   silent: boolean;
@@ -75,7 +75,7 @@ export interface ServerAction {
 }
 
 /** An action that shows a message */
-export interface MessageAction {
+export interface MessageAction extends ActionItem {
   type: "message";
   parameters: { type: string; title: string | null; message: string };
 }
@@ -269,8 +269,13 @@ export function getGroupSelectedValues(
  * @return {boolean|*}
  * @memberOf Utilities
  */
-export function isInsideContext(searchContext: { view?: string; source: string | readonly string[] }, view: string, source: string): boolean {
-  return searchContext.view === view && searchContext.source.includes(source);
+export function isInsideContext(
+  searchContext: { view?: string; source: string | readonly string[] },
+  view: string | undefined,
+  source: string | undefined
+): boolean {
+  // A missing source is looked for as it is
+  return searchContext.view === view && searchContext.source.includes(source as string);
 }
 
 /**
@@ -323,11 +328,11 @@ export function getCookie(cookieName: string): string | undefined {
  * @memberOf Utilities
  */
 export function fetchAction<T = unknown>(
-  serverAction: string,
-  targetAction: string,
+  serverAction: string | undefined,
+  targetAction: string | undefined,
   data: unknown,
   token: string | undefined,
-  signal: AbortSignal | undefined = undefined
+  signal: AbortSignal | null | undefined = undefined
 ): Promise<T | FetchError> {
   return fetchJson<T>("POST", getRestUrl("action", serverAction, targetAction), data, token, signal);
 }
@@ -370,7 +375,7 @@ export function fetchJson<T = unknown>(
   url: string,
   body: unknown,
   token: string | undefined,
-  signal: AbortSignal | undefined = undefined
+  signal: AbortSignal | null | undefined = undefined
 ): Promise<T | FetchError> {
   return fetch(`${getContextPath()}${url}`, {
     signal,

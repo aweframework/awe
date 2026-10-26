@@ -3,10 +3,11 @@ import type {ComponentAddress} from "../contract";
 import type {ComponentState} from "../utilities/mergeUtils";
 import type {ActionItem} from "./actions/actions";
 import type {Settings} from "./actions/settings";
+import type createRootReducer from "./reducers";
 
 /*
- * The reducers are plain JavaScript and stay so: TypeScript infers loose types from them (`Object`, unions of the
- * branches of each `switch`), so the shape of every slice is declared here from their initial states.
+ * The types of the slices live here, and the reducers declare them as their return type: RootState is not written by
+ * hand, it is what the root reducer returns.
  */
 
 /** Actions slice: the sync stacks, the async actions and the running flag */
@@ -65,20 +66,26 @@ export interface RuntimeState {
   lastEvent: RuntimeEvent | null;
 }
 
+/** Screen slice: the data of the screen that is showing */
+export type ScreenState = Record<string, unknown>;
+
+/** Size slice: the sizes the layout has measured */
+export type SizeState = Record<string, unknown>;
+
+/** The data of a view */
+export type ViewData = Record<string, unknown>;
+
+/** View slice: the data of every view by name and the name of the current one */
+export interface ViewState {
+  view?: string;
+  [name: string]: ViewData | string | undefined;
+}
+
 /** Settings slice */
 export type SettingsState = Settings;
 
 /** Whole state of the store, as `createRootReducer` combines it */
-export interface RootState {
-  actions: ActionsState;
-  components: ComponentsState;
-  menu: MenuState;
-  messages: MessagesState;
-  screen: Record<string, unknown>;
-  settings: SettingsState;
-  navigation: NavigationState;
-  runtime: RuntimeState;
-}
+export type RootState = ReturnType<ReturnType<typeof createRootReducer>>;
 
 /** Extra argument every thunk receives: the router `navigate` function, queued until the router is ready */
 export interface ThunkExtra {

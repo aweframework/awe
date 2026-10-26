@@ -78,6 +78,7 @@ module.exports = {
     '**/utilities/sparklineTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/redux/registry/SpecificDependencyRegistryTest.{js,jsx}',
+    '**/redux/registry/registriesTest.{js,jsx}',
     '**/utilities/replaceWildcardTest.{js,jsx}',
     '**/hooks/useGridContextMenuTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',

@@ -113,7 +113,7 @@ interface ControllerSettings {
 }
 
 /** An element of the structure of a screen */
-interface StructureNode {
+export interface StructureNode {
   id?: string;
   elementType?: string;
   treegrid?: boolean;
