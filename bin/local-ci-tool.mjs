@@ -600,11 +600,106 @@ export function coverageSource(file) {
   return null;
 }
 
+// The tokens of TypeScript source for isTypeOnly: words, punctuation and '"' for a string or template literal, each with
+// whether a line break comes before it. Comments are dropped.
+function tsTokens(text) {
+  const tokens = [];
+  const word = /[\w$]+/y;
+  let nl = true;
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (c === '\n') { nl = true; i++; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if (text.startsWith('//', i)) {
+      const end = text.indexOf('\n', i);
+      if (end < 0) break;
+      i = end;
+      continue;
+    }
+    if (text.startsWith('/*', i)) {
+      const end = text.indexOf('*/', i + 2);
+      if (end < 0) break;
+      nl = nl || text.slice(i, end).includes('\n');
+      i = end + 2;
+      continue;
+    }
+    let value;
+    if (c === '"' || c === "'" || c === '`') {
+      let j = i + 1;
+      while (j < text.length && text[j] !== c) j += text[j] === '\\' ? 2 : 1;
+      value = '"';
+      i = j + 1;
+    } else if (text.startsWith('=>', i)) {
+      value = '=>';
+      i += 2;
+    } else {
+      word.lastIndex = i;
+      value = word.test(text) ? text.slice(i, word.lastIndex) : c;
+      i += value.length;
+    }
+    tokens.push({ value, nl });
+    nl = false;
+  }
+  return tokens;
+}
+
+// Tokens that carry a statement over a line break, before or after it (no automatic semicolon there)
+const TS_CONTINUES = new Set(['|', '&', '=', ',', '?', ':', '.', '=>', '<', 'extends']);
+
+// Whether a top-level TypeScript statement emits no JavaScript: ambient declarations, interfaces, type aliases, type-only
+// imports and exports, and "export {}"
+function isTypeStatement(t, i) {
+  const v = (n) => (t[n] ? t[n].value : '');
+  // "declare" and "type" are also plain identifiers ("declare.run()", "import type, {A} from"): a name, "{" or "*"
+  // must follow them
+  const named = (n) => /^[\w$]+$/.test(v(n)) || v(n) === '{' || v(n) === '*';
+  if (v(i) === 'import') return v(i + 1) === 'type' && named(i + 2) && v(i + 2) !== 'from';
+  let k = i;
+  if (v(k) === 'export') {
+    if (v(k + 1) === '{') return v(k + 2) === '}';
+    k += v(k + 1) === 'default' ? 2 : 1;
+  }
+  if (v(k) === 'interface') return true;
+  return (v(k) === 'declare' || v(k) === 'type') && named(k + 1);
+}
+
+// Whether a TypeScript file has no executable code: Jest never emits lcov data for it and Sonar counts no lines to cover
+// (#890). A .d.ts file, or a .ts/.tsx file whose top-level statements are all type-only. Anything else, or anything the
+// scan does not recognise, is code.
+export function isTypeOnly(file, text) {
+  if (file.endsWith('.d.ts')) return true;
+  if (!/\.tsx?$/.test(file)) return false;
+  const t = tsTokens(text);
+  let start = 0;
+  let depth = 0;
+  for (let j = 0; j <= t.length; j++) {
+    // a statement ends with a ";" at depth 0, or at a line break at depth 0 that nothing carries over
+    const ends = j === t.length || (j > start && depth === 0 && t[j].nl
+      && !TS_CONTINUES.has(t[j].value) && !TS_CONTINUES.has(t[j - 1].value));
+    if (ends) {
+      if (j > start && !isTypeStatement(t, start)) return false;
+      start = j;
+    }
+    if (j === t.length) break;
+    const v = t[j].value;
+    if (v === '(' || v === '[' || v === '{') depth++;
+    else if (v === ')' || v === ']' || v === '}') depth--;
+    else if (v === ';' && depth === 0) {
+      if (j > start && !isTypeStatement(t, start)) return false;
+      start = j + 1;
+    }
+  }
+  return true;
+}
+
 // Coverage of the new lines. Sonar's "Coverage on New Code" mixes lines and conditions:
 //   (covered lines + covered conditions) / (lines to cover + conditions)
-export function newCodeCoverage(added, jacoco, lcov) {
+// typeOnly(file) says whether a file without coverage data has no executable code, and so nothing to cover
+export function newCodeCoverage(added, jacoco, lcov, typeOnly = () => false) {
   const files = [];
   const missing = [];
+  const types = [];
   let lines = 0;
   let coveredLines = 0;
   let conditions = 0;
@@ -614,6 +709,10 @@ export function newCodeCoverage(added, jacoco, lcov) {
     if (!source) continue;
     const data = source.kind === 'jacoco' ? jacoco.get(source.key) : lcov.get(file);
     if (!data) {
+      if (typeOnly(file)) {
+        types.push(file);
+        continue;
+      }
       missing.push({ file, lines: numbers.size, kind: source.kind });
       continue;
     }
@@ -635,7 +734,7 @@ export function newCodeCoverage(added, jacoco, lcov) {
   }
   const total = lines + conditions;
   const percent = total === 0 ? null : (100 * (coveredLines + coveredConditions)) / total;
-  return { files, missing, lines, coveredLines, conditions, coveredConditions, percent };
+  return { files, missing, types, lines, coveredLines, conditions, coveredConditions, percent };
 }
 
 // The packages of Playwright's "install-deps --dry-run" output: [sudo -- ]sh -c "apt-get update&& apt-get install -y
@@ -666,6 +765,7 @@ export function formatCoverage(result, threshold) {
     if (f.uncovered.length) out.push(`          uncovered new lines: ${ranges(f.uncovered)}`);
     if (f.partial.length) out.push(`          partly covered branches: ${f.partial.join(', ')}`);
   }
+  for (const file of result.types || []) out.push(`  TYPES    ${file} (type-only TypeScript: no lines to cover, as in Sonar)`);
   for (const m of result.missing) {
     out.push(`  NO DATA  ${m.lines} new lines  ${m.file} (no ${m.kind === 'jacoco' ? 'JaCoCo' : 'Jest lcov'} data: not run, or not loaded by any test)`);
   }
@@ -979,7 +1079,15 @@ function main(argv) {
         const [client, file] = spec.split('=');
         if (fs.existsSync(file)) parseLcov(read(file), client, opts.root, lcov);
       }
-      const result = newCodeCoverage(added, jacoco, lcov);
+      const source = (file) => {
+        const full = path.join(opts.root, file);
+        return fs.existsSync(full) ? read(full) : null;
+      };
+      const typeOnly = (file) => {
+        const text = source(file);
+        return text !== null && isTypeOnly(file, text);
+      };
+      const result = newCodeCoverage(added, jacoco, lcov, typeOnly);
       process.stdout.write(formatCoverage(result, opts.threshold) + '\n');
       if (result.percent === null) return result.missing.length ? 1 : 0;
       return result.percent >= opts.threshold && result.missing.length === 0 ? 0 : 1;

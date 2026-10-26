@@ -443,6 +443,81 @@ run node "$TOOL" coverage --diff "$WORK/docs.diff" --threshold 80
 case "$OUT" in *"nothing to measure"*) text_ok=1 ;; *) text_ok=0 ;; esac
 if [ "$RC" -eq 0 ] && [ "$text_ok" -eq 1 ]; then pass "coverage: no new executable line passes"; else fail "coverage: nothing to measure (exit $RC)" "$OUT"; fi
 
+# Type-only TypeScript (#890): Jest emits no lcov data for declarations, interfaces, type aliases and type-only imports
+# and exports, and Sonar counts no lines to cover in them, so they are not "NO DATA". A file with runtime code still is.
+TS_ROOT="$WORK/ts"
+TS_SRC="$TS_ROOT/awe-framework/awe-client-react/src"
+mkdir -p "$TS_SRC/types"
+cat > "$TS_SRC/types/lib.d.ts" <<'EOF'
+declare module "lib" {
+  export default function lib(data: string): boolean;
+}
+EOF
+cat > "$TS_SRC/types.ts" <<'EOF'
+import type {A} from "./a";
+import type {
+  B,
+  C
+} from "./b";
+// const notCode = 1;
+/* function notCode() { return "}"; } */
+/** An interface with a string that looks like code: "; foo();" */
+export interface State extends A {
+  name?: string;
+  options: Array<{ label: string; value: B }>;
+  [key: string]: unknown;
+}
+export type Kind =
+  | "a; b"
+  | 'c'
+  | `d`
+export type Handler = (state: State) => C
+type Local = Record<string, Kind>;
+export default interface Named { local: Local }
+declare const VERSION: string
+declare global {
+  interface Window { awe: State }
+}
+export type {Local};
+export type * from "./c";
+export {};
+EOF
+cat > "$TS_SRC/runtime.ts" <<'EOF'
+import type {A} from "./a";
+export type Kind = "a" | "b";
+export const kinds: Kind[] = ["a", "b"];
+EOF
+cat > "$TS_SRC/enum.ts" <<'EOF'
+export enum Kind { A, B }
+EOF
+cat > "$TS_SRC/asi.ts" <<'EOF'
+type Kind = "a"
+init()
+EOF
+# "declare" and "type" are also plain identifiers: a call on "declare" and a default import named "type" are code
+cat > "$TS_SRC/ident.ts" <<'EOF'
+declare.run();
+EOF
+cat > "$TS_SRC/import.ts" <<'EOF'
+import type, {A} from "./a";
+EOF
+{
+  for f in types/lib.d.ts types.ts runtime.ts enum.ts asi.ts ident.ts import.ts; do
+    printf '+++ b/awe-framework/awe-client-react/src/%s\n@@ -0,0 +1 @@\n+x\n' "$f"
+  done
+} > "$WORK/ts.diff"
+run node "$TOOL" coverage --diff "$WORK/ts.diff" --root "$TS_ROOT" --threshold 80
+case "$OUT" in *"NO DATA"*"lib.d.ts"*|*"NO DATA"*"src/types.ts"*) text_ok=0 ;; *) text_ok=1 ;; esac
+if [ "$text_ok" -eq 1 ]; then pass "coverage: type-only TypeScript (.d.ts, interfaces, type aliases, type imports) is not NO DATA"; else fail "coverage: type-only files" "$OUT"; fi
+case "$OUT" in *"TYPES"*"src/types.ts"*"TYPES"*"lib.d.ts"*) pass "coverage: type-only files are listed as TYPES" ;; *) fail "coverage: TYPES list" "$OUT" ;; esac
+case "$OUT" in *"NO DATA"*"asi.ts"*"NO DATA"*"enum.ts"*"NO DATA"*"ident.ts"*"NO DATA"*"import.ts"*"NO DATA"*"runtime.ts"*) text_ok=1 ;; *) text_ok=0 ;; esac
+if [ "$RC" -eq 1 ] && [ "$text_ok" -eq 1 ]; then pass "coverage: TypeScript with runtime code and no data still fails"; else fail "coverage: runtime TypeScript without data (exit $RC)" "$OUT"; fi
+head -3 "$WORK/ts.diff" > "$WORK/ts-types.diff"
+printf '+++ b/awe-framework/awe-client-react/src/types.ts\n@@ -0,0 +1 @@\n+x\n' >> "$WORK/ts-types.diff"
+run node "$TOOL" coverage --diff "$WORK/ts-types.diff" --root "$TS_ROOT" --threshold 80
+case "$OUT" in *"nothing to measure"*) text_ok=1 ;; *) text_ok=0 ;; esac
+if [ "$RC" -eq 0 ] && [ "$text_ok" -eq 1 ]; then pass "coverage: a change with only type-only files passes"; else fail "coverage: only type-only files (exit $RC)" "$OUT"; fi
+
 # ------------------------------------------------------------
 # Sonar rules guard
 # ------------------------------------------------------------
