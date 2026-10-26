@@ -15,6 +15,19 @@ export interface ComponentUpdate {
   [key: string]: unknown;
 }
 
+/** A component of a multiple attribute action: its address and the name of the attribute to restore */
+export interface AttributeReference {
+  address: ComponentAddress;
+  data?: string;
+  [key: string]: unknown;
+}
+
+/** Data of a keep model action: the snapshot is also the default model when it is the initial one */
+export interface KeepModelData {
+  initial?: boolean;
+  defaultModel?: Record<string, unknown>;
+}
+
 export const CLEAR_COMPONENTS = 'CLEAR_COMPONENTS' as const;
 export const CLEAR_ALL_COMPONENTS = 'CLEAR_ALL_COMPONENTS' as const;
 export const UPDATE_VIEW_COMPONENTS = 'UPDATE_VIEW_COMPONENTS' as const;
@@ -79,7 +92,7 @@ export function clearAllComponents() {
   return {type: CLEAR_ALL_COMPONENTS};
 }
 
-export function updateViewComponents(view: string, data: Record<string, unknown>) {
+export function updateViewComponents(view: string, data: Record<string, ComponentState>) {
   return {type: UPDATE_VIEW_COMPONENTS, view, data};
 }
 
@@ -153,11 +166,11 @@ export function keepValidation(address: ComponentAddress, data?: ComponentData) 
   return {type: KEEP_VALIDATION, address, data};
 }
 
-export function keepAttribute(address: ComponentAddress, data?: ComponentData) {
+export function keepAttribute(address: ComponentAddress, data?: string) {
   return {type: KEEP_ATTRIBUTE, address, data};
 }
 
-export function keepModel(address: ComponentAddress, data?: ComponentData) {
+export function keepModel(address: ComponentAddress, data?: KeepModelData) {
   return {type: KEEP_MODEL, address, data};
 }
 
@@ -173,11 +186,11 @@ export function restoreMultipleValidation(componentList: ComponentUpdate[]) {
   return {type: RESTORE_MULTIPLE_VALIDATION, componentList};
 }
 
-export function restoreAttribute(address: ComponentAddress, data?: ComponentData) {
+export function restoreAttribute(address: ComponentAddress, data?: string) {
   return {type: RESTORE_ATTRIBUTE, address, data};
 }
 
-export function restoreMultipleAttributes(componentList: ComponentUpdate[]) {
+export function restoreMultipleAttributes(componentList: AttributeReference[]) {
   return {type: RESTORE_MULTIPLE_ATTRIBUTES, componentList};
 }
 

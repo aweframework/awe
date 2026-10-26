@@ -12,7 +12,7 @@ type StatePart = Record<string, unknown>;
  */
 export interface ComponentState {
   address?: ComponentAddress;
-  context?: {view?: string};
+  context?: {view?: string; source?: string[]};
   attributes?: StatePart;
   model?: StatePart;
   validationRules?: StatePart;
