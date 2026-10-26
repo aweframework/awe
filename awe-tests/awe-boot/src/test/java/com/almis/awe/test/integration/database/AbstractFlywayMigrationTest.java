@@ -52,6 +52,11 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
    */
   private static final String SCRIPT_NAME_PATTERN = "^%s_V(\\d+(?:[._]\\d+)*)__.+\\.sql$";
 
+  /**
+   * Flyway module of the test application's own scripts
+   */
+  private static final String APPLICATION_MODULE = "awe-boot";
+
   @Autowired
   private DataSource dataSource;
 
@@ -235,6 +240,40 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
          Statement statement = connection.createStatement();
          ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'GrdCnfKey'")) {
       assertTrue(result.next() && result.getInt(1) == 1, "The GrdCnfKey sequence exists exactly once");
+    }
+  }
+
+  @Test
+  @DisplayName("The test application seeds the data of its totalization grids and chart examples")
+  void testApplicationTestDataIsSeeded() throws Exception {
+    // Only the dialects the application ships scripts for get its test data
+    assumeFalse(shippedVersions(APPLICATION_MODULE).isEmpty(), "The application ships no scripts for " + dialect());
+
+    // QrySitModDbsOrd (SQL and service totalization grids) joins every relation to its site, module and database
+    assertTrue(count("SELECT COUNT(*) FROM AweSitModDbs r JOIN AweSit s ON s.IdeSit = r.IdeSit "
+      + "JOIN AweMod m ON m.IdeMod = r.IdeMod JOIN AweDbs d ON d.IdeDbs = r.IdeDbs") > 0,
+      "The site/module/database relations of the totalization grids reference existing rows on " + dialect());
+    // The chart examples draw one point per distinct date of the database history
+    assertTrue(count("SELECT COUNT(DISTINCT HISdat) FROM HISAweDbs") >= 12,
+      "The database history has enough dates to draw the chart examples on " + dialect());
+    // New sites and relations created from the screens must not collide with the seeded ids
+    assertTrue(keyValue("SitKey") > count("SELECT MAX(IdeSit) FROM AweSit"), "SitKey is past the seeded sites on " + dialect());
+    assertTrue(keyValue("SitModDbsKey") > count("SELECT MAX(IdeSitModDbs) FROM AweSitModDbs"),
+      "SitModDbsKey is past the seeded relations on " + dialect());
+  }
+
+  private int keyValue(String key) throws SQLException {
+    // A missing key would make every comparison with it false: it must exist
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = '" + key + "'"), "Key " + key + " exists on " + dialect());
+    return count("SELECT KeyVal FROM AweKey WHERE KeyNam = '" + key + "'");
+  }
+
+  private int count(String sql) throws SQLException {
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet result = statement.executeQuery(sql)) {
+      assertTrue(result.next(), "No result for " + sql);
+      return result.getInt(1);
     }
   }
 

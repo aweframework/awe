@@ -23,7 +23,7 @@
                 <chart id="chart-analytics" label="PARAMETER_TEXT" type="column" initial-load="query"
                        target-action="QryEdiTst">
                     <chart-legend enabled="true"/>
-                    <x-axis label="Themes"/>
+                    <x-axis label="Themes" type="category"/>
                     <y-axis label="Values"/>
                     <chart-tooltip suffix=" %" number-decimals="2"/>
                     <chart-serie id="serie1" x-value="Txt" y-value="Num" label="Themes"/>

@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class NumericService extends ServiceConfig {
 
-  // Static variables
+  // Static variables: prototypes that are never changed. A NumberFormat is not thread safe and applying a pattern
+  // changes it, so every call that formats or parses works on its own copy (getNumberFormat)
   private static final NumberFormat AMERICAN_NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
   private static final NumberFormat EUROPEAN_NUMBER_FORMAT = NumberFormat.getInstance(Locale.GERMANY);
 
@@ -122,8 +123,7 @@ public class NumericService extends ServiceConfig {
    * @throws ParseException Error parsing number
    */
   public Number parseRawNumericString(String val) throws ParseException {
-    AMERICAN_NUMBER_FORMAT.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
-    return AMERICAN_NUMBER_FORMAT.parse(val);
+    return getNumberFormat(NumericFormatType.AME).parse(val);
   }
 
   /**
@@ -152,7 +152,7 @@ public class NumericService extends ServiceConfig {
   }
 
   /**
-   * Gets the numeric format defined in numeric.properties
+   * Gets a new copy of the numeric format defined in numeric.properties
    *
    * @return numeric format
    */
@@ -163,11 +163,11 @@ public class NumericService extends ServiceConfig {
       case AME:
       case AME_NO:
         // American formatting
-        numberFormat = AMERICAN_NUMBER_FORMAT;
+        numberFormat = (NumberFormat) AMERICAN_NUMBER_FORMAT.clone();
         break;
       default:
         // European formatting
-        numberFormat = EUROPEAN_NUMBER_FORMAT;
+        numberFormat = (NumberFormat) EUROPEAN_NUMBER_FORMAT.clone();
         break;
     }
     // Apply rounding based
