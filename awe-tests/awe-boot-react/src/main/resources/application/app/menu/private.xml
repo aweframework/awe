@@ -175,6 +175,7 @@
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>
     <option name="pivot-test" label="MENU_TEST_PIVOT" screen="pivot-test" icon="table"/>
     <option name="filemanager-test" label="MENU_TEST_FILEMANAGER" screen="filemanager-test" icon="folder"/>
+    <option name="file-viewer-test" label="MENU_TEST_FILE_VIEWER" screen="file-viewer-test" icon="file-text-o"/>
     <option name="no-screen-test" label="MENU_TEST_EMPTY" screen="no-screen-test" icon="mdi:block"/>
   </option>
   <option name="scheduler-separator" separator="true"/>

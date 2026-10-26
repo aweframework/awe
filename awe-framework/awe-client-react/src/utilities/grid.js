@@ -453,6 +453,23 @@ export function getColumnWrap(column = {}) {
 }
 
 /**
+ * Arrange the frozen columns of a grid. Like the pinned columns of AngularJS they go to the left, in their relative
+ * order, whatever their position in the column model. A grid with grouped headers ignores them, as the pinned groups
+ * cannot be kept aligned with a multi-line header.
+ * @param {Object[]} columns Visible columns
+ * @param {Object[]} [headerModel] Grouped headers of the grid
+ * @return {{columns: Object[], hasFrozen: boolean}} Arranged columns and whether the grid has frozen columns
+ * @memberOf Grid
+ */
+export function arrangeFrozenColumns(columns = [], headerModel = []) {
+  const hasFrozen = headerModel.length === 0 && columns.some(column => column.frozen);
+  if (!hasFrozen) {
+    return {columns, hasFrozen: false};
+  }
+  return {columns: [...columns.filter(column => column.frozen), ...columns.filter(column => !column.frozen)], hasFrozen};
+}
+
+/**
  * Calculate footer value
  * @param {Object} column Column to calculate
  * @param {Object[]} values Value list

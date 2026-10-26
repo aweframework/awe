@@ -727,6 +727,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkMapMarkerSelected(String mapId, String rowId)` | Comprueba que el marcador de una fila de un mapa está seleccionado (solo cliente React) |
 | `checkMapRouteVisible(String mapId)` | Comprueba que un mapa dibuja una ruta (solo cliente React) |
 | `checkLogViewerContains(String text)` | Espera hasta que el visor de logs muestra un texto |
+| `checkFileViewerContains(String text)` | Espera hasta que el visor de ficheros muestra un texto |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Comprueba un texto dentro del frame que incrusta una aplicación externa. El selector pertenece a esa aplicación, por lo que es el único literal que puedes pasar |
 
 ### Comprobaciones en bruto {#raw-checks}

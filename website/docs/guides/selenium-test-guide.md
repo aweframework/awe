@@ -729,6 +729,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkMapMarkerSelected(String mapId, String rowId)` | Checks that the marker of a row of a map is selected (React client only) |
 | `checkMapRouteVisible(String mapId)` | Checks that a map draws a route (React client only) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |
+| `checkFileViewerContains(String text)` | Waits until the file viewer shows a text |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 
 ### Raw checks

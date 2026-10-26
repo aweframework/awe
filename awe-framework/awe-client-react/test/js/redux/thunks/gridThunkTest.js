@@ -563,4 +563,48 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  describe('toggleBranchGridAction', () => {
+    const toggledRow = (row, parameters, {loadAll = true, others = [{ id: 2 }]} = {}) => {
+      dispatch.mockClear();
+      // A new state on every call: the component selectors are memoized on the state
+      const component = {
+        ...mockComponent,
+        attributes: { ...mockComponent.attributes, treegrid: true, loadAll, treeId: 'id', treeParent: 'parent' },
+        model: { ...mockComponent.model, values: [{ id: 1, $row: row }, ...others] }
+      };
+      getState.mockReturnValue({ components: { grid1: component } });
+      gridThunks.toggleBranchGridAction({ address: mockAddress, parameters: { row: 1, ...parameters } })(dispatch, getState);
+      const updateModelWithDependencies = dispatch.mock.calls.map(([action]) => action).find(action => typeof action === 'function');
+      const innerDispatch = jest.fn();
+      updateModelWithDependencies(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].data.values[0].$row;
+    };
+    const toggled = (row, parameters) => toggledRow(row, parameters).expanded;
+
+    it('opens a node the view shows closed, whatever the row stored', () => {
+      expect(toggled({ expanded: true }, { expanded: false })).toBe(true);
+    });
+
+    it('does not mark as loaded a node collapsed locally whose branch was never loaded, so reopening it asks the server', () => {
+      expect(toggledRow(undefined, { expanded: true }, { loadAll: false }).loaded).toBeFalsy();
+    });
+
+    it('marks as loaded a node whose branch the server answered empty, so it does not ask again', () => {
+      expect(toggledRow(undefined, { datalist: { rows: [] } }, { loadAll: false }).loaded).toBe(true);
+    });
+
+    it('marks as loaded a collapsed node whose children are already in the grid', () => {
+      expect(toggledRow(undefined, { expanded: true }, { loadAll: false, others: [{ id: 2, parent: 1 }] }).loaded).toBe(true);
+    });
+
+    it('toggles the state stored in the row when the view does not tell what it shows', () => {
+      expect(toggled({ expanded: true })).toBe(false);
+      expect(toggled(undefined)).toBe(true);
+    });
+
+    it('toggles the state the view shows, such as a node expanded by initial-level that stores nothing', () => {
+      expect(toggled(undefined, { expanded: true })).toBe(false);
+    });
+  });
+
 });

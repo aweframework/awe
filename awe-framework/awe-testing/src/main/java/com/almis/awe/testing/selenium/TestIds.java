@@ -175,6 +175,9 @@ public final class TestIds {
   // Log viewer: the element that holds the text of the log
   public static final String LOG_VIEWER = "log-viewer";
 
+  // File viewer: the element that holds the text of the file
+  public static final String FILE_VIEWER = "file-viewer";
+
   // React only: error panel shown by an error boundary when a part of the application failed to render (the
   // instance is identified by "data-scope"), with its title, the message of the error, the component stack and buttons
   public static final String ERROR_BOUNDARY = "error-boundary";

@@ -16,7 +16,7 @@ describe('pivotOptions', () => {
     expect(mapRendererName("Row Heatmap")).toBe("Table Row Heatmap");
     expect(mapRendererName("Col Heatmap")).toBe("Table Col Heatmap");
     expect(mapRendererName("Table Barchart")).toBe(PIVOT_RENDERER_NAMES["Table Barchart"]);
-    expect(mapRendererName("Table Barchart")).toBe("Table");
+    expect(mapRendererName("Table Barchart")).toBe("Table Barchart");
     expect(mapRendererName(undefined)).toBeUndefined();
   });
 

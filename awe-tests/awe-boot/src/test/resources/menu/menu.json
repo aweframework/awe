@@ -1472,6 +1472,27 @@
         },
         {
           "separator": false,
+          "text": "MENU_TEST_FILE_VIEWER",
+          "restricted": false,
+          "label": "MENU_TEST_FILE_VIEWER",
+          "name": "file-viewer-test",
+          "icon": "file-text-o",
+          "actions": [
+            {
+              "type": "screen",
+              "context": "screen/private/home",
+              "target": "file-viewer-test",
+              "parameters": {
+                "target": "file-viewer-test",
+                "serverAction": "screen"
+              }
+            }
+          ],
+          "options": [],
+          "visible": true
+        },
+        {
+          "separator": false,
           "restricted": false,
           "name": "file-manager",
           "actions": [

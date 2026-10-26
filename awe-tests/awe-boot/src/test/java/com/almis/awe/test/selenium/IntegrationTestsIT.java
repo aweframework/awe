@@ -389,6 +389,22 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * File viewer test: the widget shows the text that the test endpoint answers with the created status
+   */
+  @Test
+  void t081_fileViewer() {
+    // Title
+    setTestTitle("File viewer test");
+
+    // Go to screen
+    gotoScreen("test", "file-viewer-test");
+
+    // The widget reads the file on load
+    checkFileViewerContains("FILE VIEWER TEST LINE 1");
+    checkFileViewerContains("FILE VIEWER TEST LINE 3");
+  }
+
+  /**
    * Launcher pages: the cards show the description of the options, a launcher card opens another launcher (3 levels) and
    * the breadcrumb follows the levels. The option without description renders as before (card without description line)
    */

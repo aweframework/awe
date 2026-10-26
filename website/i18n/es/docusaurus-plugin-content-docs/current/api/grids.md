@@ -313,7 +313,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | component  | Opcional        | String  | Tipo de columna (si editable)                                                                                                                          | Ver [componentes](criteria.md#components)                                        |
 | max        | Opcional        | Entero  | Número máximo de registros a recuperar cuando la columna se inicializa con acción de destino                                                           | El valor predeterminado es `30`                                                  |
 | visibility | Opcional        | Boolean | Visibilidad inicial del componente de columna                                                                                                          | El valor predeterminado es `true`                                           |
-| frozen     | Opcional        | Boolean | Mantenga la columna fijada fuera del desplazamiento horizontal. **ADVERTENCIA**: No uses este atributo si el encabezado tiene más de una línea de alto | El valor predeterminado es `false`                                               |
+| frozen     | Opcional        | Boolean | Mantenga la columna fijada fuera del desplazamiento horizontal. **ADVERTENCIA**: No uses este atributo si el encabezado tiene más de una línea de alto. En el motor React las columnas congeladas se mueven a la izquierda y un grid con columnas congeladas mantiene sus filas de una línea (`wrap` y `max-lines` se ignoran); un encabezado agrupado o un grid de árbol todavía no congelan columnas en React | El valor predeterminado es `false`                                               |
 | wrap       | Opcional        | Booleano | El texto de las celdas se divide en varias líneas y la fila crece para ajustarse. Ver [texto en varias líneas](#wrapping-text) | El valor por defecto es `false`                                                  |
 | max-lines  | Opcional        | Entero  | Número máximo de líneas de una celda con texto en varias líneas; implica `wrap`. Ver [texto en varias líneas](#wrapping-text)   | Un número mayor que `0`                                                          |
 
@@ -340,8 +340,8 @@ alta. Funciona en **ambos motores de cliente** y un grid sin estos atributos se 
   `wrap="false"`.
 - El resto de columnas mantienen su única línea. La selección, la ordenación, la edición en línea y los atajos de teclado del
   grid funcionan como siempre con filas más altas.
-- En el motor AngularJS `row-height` es la altura **mínima** de las filas de un grid con columnas de varias líneas. El motor
-  React ignora `row-height`.
+- `row-height` es la altura **mínima** de las filas de un grid, tenga o no columnas de varias líneas, en ambos motores.
+  Los grids en árbol lo ignoran.
 
 Un texto que no se divide y no cabe en el ancho de su columna siempre expone su valor completo: en el motor React, las
 celdas de texto y las cabeceras lo muestran como tooltip (el motor AngularJS ya lo hacía en las celdas).

@@ -103,6 +103,7 @@
   <locale name="MENU_TEST_EMPTY" value="Écran vide"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendrier des événements"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestionnaire de fichiers"/>
+  <locale name="MENU_TEST_FILE_VIEWER" value="Visionneuse de fichiers"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
   <locale name="MENU_TEST_LAUNCHER" value="Lanceur"/>
   <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Pages lanceur dans des pages lanceur"/>

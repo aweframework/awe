@@ -1169,6 +1169,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the element that holds the text of the file viewer
+   *
+   * @return File viewer selector
+   */
+  default By getFileViewer() {
+    return By.cssSelector(TestIds.css(TestIds.FILE_VIEWER));
+  }
+
+  /**
    * Get the frame that embeds an external application in a screen
    *
    * @return Frame selector

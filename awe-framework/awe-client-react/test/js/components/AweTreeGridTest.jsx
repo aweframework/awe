@@ -1,9 +1,28 @@
 import React from 'react';
-import {act, fireEvent, screen} from '@testing-library/react';
+import {act, cleanup, fireEvent, screen} from '@testing-library/react';
 
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweTreeGrid from "../../../src/components/AweTreeGrid";
+
+/**
+ * Queued actions of a type, wherever the actions slice keeps them
+ * @param store Redux store
+ * @param type Action type
+ * @returns {Object[]} Actions
+ */
+function queuedActions(store, type) {
+  const found = [];
+  const visit = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+    } else if (value && typeof value === "object") {
+      value.type === type && "address" in value ? found.push(value) : Object.values(value).forEach(visit);
+    }
+  };
+  visit(store.getState().actions);
+  return found;
+}
 
 describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
 
@@ -899,6 +918,154 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
       renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
 
       expect(screen.getByRole("grid-container")).toBeDefined();
+    });
+  });
+
+  describe('tree options (icons, tree-leaf, initial-level)', () => {
+    const treeState = (values, attributes = {}) => ({
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {values},
+          attributes: {
+            treeId: "id", treeParent: "parent", expandColumn: "name", max: 30,
+            columnModel: [{name: "name"}], headerModel: [], buttonModel: [], ...attributes
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    });
+    const renderTree = (values, attributes) => renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState: treeState(values, attributes)});
+    const rowIds = (container) => Array.from(container.querySelectorAll("[data-testid='grid-row']")).map(row => row.getAttribute("row-id"));
+    const iconOf = (container, id) => container.querySelector(`[data-testid='tree-icon'][row-id='${id}'] i`);
+    const family = [
+      {id: "Root", parent: "", name: "Root"},
+      {id: "Child", parent: "Root", name: "Child"},
+      {id: "Grand", parent: "Child", name: "Grand"}
+    ];
+
+    it('shows the default Font Awesome icons of the AngularJS client for expand, collapse and leaf', () => {
+      const {container} = renderTree([
+        {id: "Open", parent: "", name: "Open", $row: {expanded: true}},
+        {id: "Leaf", parent: "Open", name: "Leaf"},
+        {id: "Closed", parent: "", name: "Closed"},
+        {id: "Hidden", parent: "Closed", name: "Hidden"}
+      ], {loadAll: true});
+
+      expect(iconOf(container, "Open")).toHaveClass("fa", "fa-minus-square");
+      expect(iconOf(container, "Closed")).toHaveClass("fa", "fa-plus-square");
+      expect(iconOf(container, "Leaf")).toHaveClass("fa", "fa-dot-circle-o");
+    });
+
+    it('shows the configured icon-expand, icon-collapse and icon-leaf', () => {
+      const {container} = renderTree([
+        {id: "Open", parent: "", name: "Open", $row: {expanded: true}},
+        {id: "Leaf", parent: "Open", name: "Leaf"},
+        {id: "Closed", parent: "", name: "Closed"},
+        {id: "Hidden", parent: "Closed", name: "Hidden"}
+      ], {loadAll: true, iconExpand: "plus", iconCollapse: "minus", iconLeaf: "circle"});
+
+      expect(iconOf(container, "Open")).toHaveClass("fa-minus");
+      expect(iconOf(container, "Open")).not.toHaveClass("fa-minus-square");
+      expect(iconOf(container, "Closed")).toHaveClass("fa-plus");
+      expect(iconOf(container, "Leaf")).toHaveClass("fa-circle");
+    });
+
+    it('uses the tree-leaf attribute to tell the leaves, parsing its value as a boolean', () => {
+      const {container} = renderTree([
+        {id: "A", parent: "", name: "A", isLeaf: "true", mine: "false"},
+        {id: "B", parent: "", name: "B", isLeaf: "false", mine: "true"},
+        {id: "C", parent: "", name: "C", isLeaf: false, mine: true}
+      ], {treeLeaf: "mine"});
+
+      expect(iconOf(container, "A")).toHaveClass("fa-plus-square");
+      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
+      expect(iconOf(container, "C")).toHaveClass("fa-dot-circle-o");
+    });
+
+    it('takes 1 and "1" as a leaf and 0 and "0" as a branch, like the AngularJS parseBoolean', () => {
+      const {container} = renderTree([
+        {id: "A", parent: "", name: "A", isLeaf: 1},
+        {id: "B", parent: "", name: "B", isLeaf: " 1 "},
+        {id: "C", parent: "", name: "C", isLeaf: 0},
+        {id: "D", parent: "", name: "D", isLeaf: "0"}
+      ]);
+
+      expect(iconOf(container, "A")).toHaveClass("fa-dot-circle-o");
+      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
+      expect(iconOf(container, "C")).toHaveClass("fa-plus-square");
+      expect(iconOf(container, "D")).toHaveClass("fa-plus-square");
+    });
+
+    it('does not take the string "false" of the default isLeaf field as a leaf', () => {
+      const {container} = renderTree([
+        {id: "A", parent: "", name: "A", isLeaf: "false"},
+        {id: "B", parent: "", name: "B", isLeaf: "true"}
+      ]);
+
+      expect(iconOf(container, "A")).toHaveClass("fa-plus-square");
+      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
+    });
+
+    it('expands the loaded nodes above initial-level (level 0 are the roots): 2 opens the roots only', () => {
+      const {container} = renderTree(family, {loadAll: true, initialLevel: 2});
+
+      expect(rowIds(container)).toEqual(["Root", "Child"]);
+      expect(iconOf(container, "Root")).toHaveClass("fa-minus-square");
+      expect(iconOf(container, "Child")).toHaveClass("fa-plus-square");
+    });
+
+    it('expands two levels with initial-level 3 and nothing without it', () => {
+      expect(rowIds(renderTree(family, {loadAll: true, initialLevel: 3}).container)).toEqual(["Root", "Child", "Grand"]);
+      cleanup();
+      expect(rowIds(renderTree(family, {loadAll: true}).container)).toEqual(["Root"]);
+    });
+
+    it('does not expand by initial-level a node whose children are not loaded', () => {
+      const {container} = renderTree([{id: "Root", parent: "", name: "Root", isLeaf: false}], {initialLevel: 5});
+
+      expect(iconOf(container, "Root")).toHaveClass("fa-plus-square");
+    });
+
+    it('lets the expanded field of a row win over initial-level', () => {
+      const {container} = renderTree([
+        {id: "Root", parent: "", name: "Root", expanded: "false"},
+        {id: "Child", parent: "Root", name: "Child"},
+        {id: "Other", parent: "", name: "Other", expanded: "true"},
+        {id: "Inner", parent: "Other", name: "Inner"}
+      ], {loadAll: true, initialLevel: 2});
+
+      expect(rowIds(container)).toEqual(["Root", "Other", "Inner"]);
+    });
+
+    it('keeps the toggled state of the user over initial-level', () => {
+      const values = family.map(row => row.id === "Root" ? {...row, $row: {expanded: false}} : row);
+      const {container} = renderTree(values, {loadAll: true, initialLevel: 3});
+
+      expect(rowIds(container)).toEqual(["Root"]);
+    });
+
+    it('tells the toggle action the state that is shown, so the first click collapses an initially expanded node', () => {
+      const {container, store} = renderTree(family, {loadAll: true, initialLevel: 2});
+
+      fireEvent.click(container.querySelector("[data-testid='tree-icon'][row-id='Root']"));
+
+      expect(queuedActions(store, "tree-branch")).toEqual([expect.objectContaining({
+        parameters: expect.objectContaining({row: "Root", expanded: true})})]);
+    });
+
+    it('collapses locally a node opened by its expanded field even when its branch was not loaded', () => {
+      const {container, store} = renderTree([
+        {id: "Root", parent: "", name: "Root", isLeaf: false, expanded: "true"}
+      ], {targetAction: "TreeBranch"});
+
+      fireEvent.click(container.querySelector("[data-testid='tree-icon'][row-id='Root']"));
+
+      expect(queuedActions(store, "tree-branch")).toEqual([expect.objectContaining({
+        parameters: expect.objectContaining({row: "Root", expanded: true})})]);
+      expect(queuedActions(store, "server")).toEqual([]);
     });
   });
 });

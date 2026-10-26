@@ -87,6 +87,7 @@
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criterios Reset"/>
   <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Criterios Uploader"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestor de ficheros"/>
+  <locale name="MENU_TEST_FILE_VIEWER" value="Visor de ficheros"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendario de eventos"/>
   <locale name="MENU_TEST_LAUNCHER" value="Lanzador"/>
   <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Páginas lanzadoras dentro de páginas lanzadoras"/>

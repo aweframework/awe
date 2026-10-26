@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
-import {generateServerAction} from "../utilities";
+import {generateServerAction, getIconCode} from "../utilities";
 import {getColumnWrap, getWidthStyle, OperationType} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
@@ -18,6 +18,13 @@ import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, i
 import PropTypes from "prop-types";
 import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
+
+// Values of the tree attributes arrive as booleans, numbers or strings: like the AngularJS parseBoolean, only true, "true"
+// and 1 / "1" count as true ("false" and 0 do not)
+const toBoolean = (value) => typeof value === "boolean" ? value : ["true", "1"].includes(String(value ?? "").trim().toLowerCase());
+
+// Default Font Awesome icons, as in the AngularJS client
+const DEFAULT_ICONS = { expand: "plus-square", collapse: "minus-square", leaf: "dot-circle-o" };
 
 function AweTreeGrid(props) {
   const { id } = props;
@@ -51,13 +58,16 @@ function AweTreeGrid(props) {
 
   const treeId = attributes.treeId || "id";
   const treeParent = attributes.treeParent || "parent";
+  const treeLeaf = attributes.treeLeaf || "isLeaf";
+  const initialLevel = parseInt(attributes.initialLevel || "0", 10) || 0;
 
-  const onTogglerClick = useCallback((row) => {
+  const onTogglerClick = useCallback((row, expanded) => {
     const { loadAll, targetAction } = attributes;
     const { values = [] } = model;
     const rowValues = values.find(r => r[treeId] === row) || {};
-    if (loadAll || rowValues.$row?.loaded) {
-      dispatch(addActionsTop([{ type: "tree-branch", address, parameters: { row } }]));
+    // An open node always collapses locally, even when it was opened by its row and its branch was never loaded
+    if (loadAll || rowValues.$row?.loaded || expanded) {
+      dispatch(addActionsTop([{ type: "tree-branch", address, parameters: { row, expanded: !!expanded } }]));
     } else {
       dispatch(addActionsTop([generateServerAction({ expandingBranch: row }, "tree-branch", targetAction, address, false, false, settings)]));
     }
@@ -78,17 +88,30 @@ function AweTreeGrid(props) {
         id: row[treeId],
         $row: { ...(row.$row || {}) },
         data: { ...row },
-        ...(!loadAll && { leaf: !!row.isLeaf } || {}),
+        leaf: treeLeaf in row ? toBoolean(row[treeLeaf]) : !!loadAll,
         level,
         children: formatTreeData(data, row[treeId], level + 1)
       }));
-  }, [attributes, treeId, treeParent]);
+  }, [attributes, treeId, treeParent, treeLeaf]);
 
-  const getExpanded = useCallback((values) => {
-    return values
-      .filter(row => row.$row?.expanded)
-      .reduce((keys, row) => ({ ...keys, [row[treeId]]: true }), {});
-  }, [treeId]);
+  // A node starts expanded (like AngularJS): by the state of the user, by the "expanded" field of its row or, when it
+  // is loaded, while its level (roots are 0) is above the initial level
+  const getExpanded = useCallback((nodes, loadAll, keys = {}) => {
+    nodes.forEach(node => {
+      const { $row = {}, data } = node;
+      let expanded;
+      if (typeof $row.expanded === "boolean") {
+        expanded = $row.expanded;
+      } else if ("expanded" in data) {
+        expanded = toBoolean(data.expanded);
+      } else {
+        expanded = !!(loadAll || $row.loaded || node.children.length > 0) && node.level + 1 < initialLevel;
+      }
+      expanded && (keys[node.key] = true);
+      getExpanded(node.children, loadAll, keys);
+    });
+    return keys;
+  }, [initialLevel]);
 
   const getSelection = useCallback((values) => {
     return (values.find(row => row.selected) || {})[treeId] || null;
@@ -97,9 +120,9 @@ function AweTreeGrid(props) {
   const updateTreeData = useCallback((values) => {
     const n = formatTreeData(values, "", 0);
     setNodes(n);
-    setExpandedKeys(getExpanded(values));
+    setExpandedKeys(getExpanded(n, attributes.loadAll));
     setSelectionKeys(getSelection(values));
-  }, [formatTreeData, getExpanded, getSelection]);
+  }, [formatTreeData, getExpanded, getSelection, attributes.loadAll]);
 
   useEffect(() => {
     updateTreeData(model.values || []);
@@ -155,14 +178,16 @@ function AweTreeGrid(props) {
   }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates]);
 
   const cellTemplate = useCallback((rowData, column) => {
-    const { expandColumn = treeId } = attributes;
-    const iconClassName = classNames('p-treetable-toggler-icon pi pi-fw', { 'pi-chevron-right': !rowData?.$row?.expanded, 'pi-chevron-down': rowData?.$row?.expanded });
-    const style = { marginLeft: rowData.level * 16 + 'px', visibility: (rowData.leaf === false || (rowData.children && rowData.children.length)) ? 'visible' : 'hidden' };
+    const { expandColumn = treeId, iconExpand, iconCollapse, iconLeaf } = attributes;
+    const expanded = !!expandedKeys[rowData.key];
+    const leaf = rowData.leaf === true && !(rowData.children && rowData.children.length);
+    const icon = leaf ? (iconLeaf || DEFAULT_ICONS.leaf) : expanded ? (iconCollapse || DEFAULT_ICONS.collapse) : (iconExpand || DEFAULT_ICONS.expand);
+    const style = { marginLeft: rowData.level * 16 + 'px' };
     if (column === expandColumn) {
       return <div className="p-treetable-expander-column">
-        <button type="button" className="p-treetable-toggler p-link p-unselectable-text" onClick={() => onTogglerClick(rowData.data[treeId])} tabIndex={-1} style={style}
-          {...testHook(TestIds.treeIcon, { expanded: !!rowData?.$row?.expanded, attributes: { "row-id": rowData.data[treeId] } })}>
-          <i className={iconClassName}></i>
+        <button type="button" className="p-treetable-toggler p-link p-unselectable-text" onClick={() => !leaf && onTogglerClick(rowData.data[treeId], expanded)} tabIndex={-1} style={style}
+          {...testHook(TestIds.treeIcon, { expanded, attributes: { "row-id": rowData.data[treeId] } })}>
+          {getIconCode(`fa-${icon}`, "p-treetable-toggler-icon fa-fw")}
           <Ripple />
         </button>
         {baseCellTemplate({ ...rowData.data, id: rowData.data[treeId] }, column)}
@@ -170,7 +195,7 @@ function AweTreeGrid(props) {
     } else {
       return baseCellTemplate({ ...rowData.data, id: rowData.data[treeId] }, column);
     }
-  }, [attributes, onTogglerClick, baseCellTemplate, treeId]);
+  }, [attributes, onTogglerClick, baseCellTemplate, treeId, expandedKeys]);
 
   // PrimeReact evaluates "rowClassName" with the node of a row right before the row pass-through, in the same render:
   // the id of the row being rendered is kept here to give the row its "row-id".
