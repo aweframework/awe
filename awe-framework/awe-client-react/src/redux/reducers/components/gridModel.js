@@ -6,7 +6,8 @@ import _ from 'lodash';
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../../utilities/mergeUtils';
 import {asArray, updateArrayElement} from "../../../utilities";
-import {extractCellModel, extractCellValue, getCellModel} from "../../../utilities/grid";
+import {extractCellModel, extractCellValue, getCellModel, getGridIdentifier} from "../../../utilities/grid";
+import {getComponentId} from "../../../utilities/components";
 import {getFirstDefinedValue, isMultipleComponent} from "../../../utilities/general";
 import {updateGridFooter} from './gridFooter';
 import {
@@ -15,8 +16,6 @@ import {
   getMergedComponent,
   getModelUpdate,
   hasFooter,
-  memoizedGetComponentId,
-  memoizedGetGridIdentifier,
   updateGridRowValues
 } from './stateHelpers';
 
@@ -50,23 +49,23 @@ export function fixCellModel(selected, model) {
  */
 export function updateCellsModel(state, grid, settings) {
   const { values } = grid.model;
-  let columns = grid.attributes?.columnModel?.filter(column => column.component) || [];
-  let cellComponents = {};
-  const gridId = memoizedGetGridIdentifier(grid.attributes);
-  values
-    .forEach(row => columns
-      .filter(column => {
-        const cellComponentId = memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name });
-        return cellComponentId in state || ComponentRegistry.get(cellComponentId);
-      })
-      .forEach(column => Object.assign(cellComponents,
-        getModelUpdate(state,
-          { ...grid.address, row: row[gridId], column: column.name },
-          fixCellModel(row[column.name], column.model),
-          settings
-        )
-      ))
-    );
+  const columns = grid.attributes?.columnModel?.filter(column => column.component) || [];
+  if (columns.length === 0) {
+    return {};
+  }
+  const cellComponents = {};
+  const gridId = getGridIdentifier(grid.attributes);
+  values.forEach(row => {
+    columns.forEach(column => {
+      const cellAddress = { ...grid.address, row: row[gridId], column: column.name };
+      const cellComponentId = getComponentId(cellAddress);
+      if (cellComponentId in state || ComponentRegistry.get(cellComponentId)) {
+        Object.assign(cellComponents,
+          getModelUpdate(state, cellAddress, fixCellModel(row[column.name], column.model), settings)
+        );
+      }
+    });
+  });
   return cellComponents;
 }
 
@@ -95,7 +94,7 @@ export function getGroupModelUpdate(state, view, group, model, settings) {
  * @returns {Object} Component update map
  */
 export function getGridModelUpdate(state, address, model, update = true, settings) {
-  let componentId = memoizedGetComponentId(address);
+  let componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
   if (!component) return state;
 
@@ -234,13 +233,13 @@ export function updateCellSelected(state, address, data, settings) {
  * @returns {Object} Updated state
  */
 export function updateSelectedGrid(state, values, address, data, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
 
   if (!component || !component.attributes) return state;
 
   const { selected = [] } = data;
-  const gridId = memoizedGetGridIdentifier(component.attributes);
+  const gridId = getGridIdentifier(component.attributes);
   let filtered = [...values];
   let toUnselect = values
     .filter(row => row.selected)
@@ -364,7 +363,7 @@ export function keepRowModel(state, address, settings) {
 
   const { model, attributes } = component;
   const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
+  const gridId = getGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   if (rowIndex < 0) return state;
 
@@ -372,7 +371,7 @@ export function keepRowModel(state, address, settings) {
   let cellModel = {};
   Object.keys(rowValues).forEach(column => {
     let cellAddress = { ...address, column: column };
-    let cellComponentId = memoizedGetComponentId(cellAddress);
+    let cellComponentId = getComponentId(cellAddress);
     if (cellComponentId in state || ComponentRegistry.get(cellComponentId)) {
       cellModel = { ...cellModel, ...getKeepModelComponent(state, cellComponentId, settings) };
     }
@@ -428,7 +427,7 @@ export function resetCellModel(state, address, data, settings) {
 
   const { attributes } = component || {};
   if (!attributes) return state;
-  const gridId = memoizedGetGridIdentifier(attributes);
+  const gridId = getGridIdentifier(attributes);
   let columnModel = (attributes.columnModel || []).filter(value => value[gridId] === address.column)[0] || {};
   return updateCellSelected(state, address, { selected: asArray(columnModel.model?.values) }, settings);
 }

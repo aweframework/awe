@@ -8,6 +8,8 @@ import {
 } from '../../actions/components';
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../../utilities/mergeUtils';
+import {getComponentId} from "../../../utilities/components";
+import {getGridIdentifier} from "../../../utilities/grid";
 import {updateArrayElement} from "../../../utilities";
 import {updateGridFooter} from './gridFooter';
 import {
@@ -16,8 +18,6 @@ import {
   hasFooter,
   isGridComponent,
   launchAddressFunction,
-  memoizedGetComponentId,
-  memoizedGetGridIdentifier,
   updateComponentAttributes,
   updateComponentInState,
   updateGridRowValues
@@ -129,7 +129,7 @@ export function updateAttributeCell(state = {}, address = {}, data = {}, setting
 export function updateAttributeAction(state = {}, action = {}, settings = {}) {
   const nextState = launchAddressFunction(updateAttributeCell, updateAttributeColumn, updateAttributeComponent, state, action, settings);
   const baseAddress = action.address?.component ? { view: action.address.view, component: action.address.component } : action.address;
-  const componentId = memoizedGetComponentId(baseAddress);
+  const componentId = getComponentId(baseAddress);
   if (!componentId) return nextState;
   const component = getMergedComponent(componentId, nextState);
 
@@ -146,7 +146,7 @@ export function updateAttributeAction(state = {}, action = {}, settings = {}) {
  */
 export function updateSpecificAttributes(state = {}, action = {}, settings = {}) {
   const { address, data } = action;
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
 
   const base = ComponentRegistry.get(componentId);
   if (base) {
@@ -205,7 +205,7 @@ export function keepAttributeComponent(state, component, data, settings) {
  * @returns {Object} Updated state
  */
 export function restoreAttributeComponent(state, address, data, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
 
   const base = ComponentRegistry.get(componentId);
   if (base) {
@@ -297,7 +297,7 @@ export function restoreAttributeCell(state, address, data, settings) {
     const currentFull = mergeComponentState(base, state[componentId]);
     const { model, attributes, storedAttributes = {} } = currentFull;
     const { values } = model;
-    const gridId = memoizedGetGridIdentifier(attributes);
+    const gridId = getGridIdentifier(attributes);
     const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
     if (rowIndex < 0) return state;
 
@@ -331,7 +331,7 @@ export function restoreAttributeCell(state, address, data, settings) {
   const { model, attributes, storedAttributes = {} } = state[componentId] || {};
   if (!model || !attributes) return state;
   const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
+  const gridId = getGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   if (rowIndex < 0) {
     return state;
@@ -390,7 +390,7 @@ export const attributeHandlers = {
     action.componentList.reduce((newState, _action) => updateAttributeAction(newState, _action, action.settings), state),
 
   [KEEP_ATTRIBUTE]: (state, action) =>
-    keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data, action.settings),
+    keepAttributeComponent(state, getComponentId(action.address), action.data, action.settings),
 
   [RESTORE_ATTRIBUTE]: (state, action) => restoreAttributeAction(state, action, action.settings),
 

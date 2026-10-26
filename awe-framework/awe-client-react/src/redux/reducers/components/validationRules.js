@@ -9,13 +9,13 @@ import {
 } from '../../actions/components';
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../../utilities/mergeUtils';
+import {getComponentId} from "../../../utilities/components";
 import {updateArrayElement} from "../../../utilities";
 import {validateComponent, validateRow} from "../validation";
 import {
   getGridRowContext,
   getMergedComponent,
   launchAddressFunction,
-  memoizedGetComponentId,
   updateComponentInState,
   updateComponentValidation,
   updateGridRowValues
@@ -164,7 +164,7 @@ export function keepValidationComponent(state, componentId, settings) {
  * @returns {Object} Updated state
  */
 export function restoreValidationComponent(state, address, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
   if (component?.storedValidationRules === undefined) {
     return state;
@@ -291,7 +291,7 @@ export const validationRuleHandlers = {
     action.componentList.reduce((newState, _action) => updateValidationAction(newState, _action, action.settings), state),
 
   [KEEP_VALIDATION]: (state, action) =>
-    keepValidationComponent(state, memoizedGetComponentId(action.address), action.settings),
+    keepValidationComponent(state, getComponentId(action.address), action.settings),
 
   [RESTORE_VALIDATION]: (state, action) =>
     restoreValidationAction(state, action, action.settings),

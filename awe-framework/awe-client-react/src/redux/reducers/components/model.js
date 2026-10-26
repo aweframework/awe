@@ -11,7 +11,7 @@ import _ from 'lodash';
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../../utilities/mergeUtils';
 import {asArray} from "../../../utilities";
-import {warnMalformedComponent} from "../../../utilities/components";
+import {getComponentId, warnMalformedComponent} from "../../../utilities/components";
 import {isEmpty} from "../../../utilities/general";
 import {updateGridFooter} from './gridFooter';
 import {
@@ -33,7 +33,6 @@ import {
   isGridComponent,
   isGroup,
   launchAddressFunction,
-  memoizedGetComponentId,
   updateComponentInState
 } from './stateHelpers';
 
@@ -96,7 +95,7 @@ export function updateComponentData(state, componentId, data, settings) {
  * @returns {Object} Updated state
  */
 export function updateModel(state, address, data, update = true, settings) {
-  let componentId = memoizedGetComponentId(address);
+  let componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
 
   if (isEmpty(component)) return state;
@@ -127,7 +126,7 @@ export function updateModel(state, address, data, update = true, settings) {
  * @returns {Object|null} Updated state or null if no changes
  */
 export function updateSelectedComponent(state, values, address, selected, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
 
   if (!component) return state;
@@ -170,7 +169,7 @@ export function updateSelected(state, address, data, settings) {
  * @returns {Object|null} Update to apply
  */
 export function getSelectedUpdate(state, address, data, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
 
   let values = (component?.model?.values) || [];
@@ -296,7 +295,7 @@ export function getRestoreModelComponent(state, componentId, settings, initial =
  * @returns {Object} Updated state
  */
 export function resetModel(state, address, data, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   const component = getMergedComponent(componentId, state);
 
   let emptyModel;
@@ -364,7 +363,8 @@ export function updateModelAction(state = {}, action = {}, settings) {
 
   // Update model if there are properties other than just 'selected'
   if (Object.keys(data).length > 1 || !('selected' in data)) {
-    modelState = launchAddressFunction(updateCellModel, updateColumnModel, updateModel, modelState, {
+    modelState = launchAddressFunction(updateCellModel, updateColumnModel,
+      (s, address, model, cfg) => updateModel(s, address, model, true, cfg), modelState, {
       address: action.address,
       data
     }, settings);
@@ -379,7 +379,7 @@ export function updateModelAction(state = {}, action = {}, settings) {
   }
 
   // Update footer if is grid and show totals
-  const componentId = memoizedGetComponentId(action.address);
+  const componentId = getComponentId(action.address);
   const component = getMergedComponent(componentId, modelState);
 
   if (hasFooter(component)) {
@@ -400,14 +400,14 @@ export const modelHandlers = {
     action.componentList.reduce((newState, _action) => updateModelAction(newState, _action, action.settings), state),
 
   [KEEP_MODEL]: (state, action) =>
-    keepModelComponent(state, memoizedGetComponentId(action.address), action.settings, !!action.data?.initial, action.data?.defaultModel),
+    keepModelComponent(state, getComponentId(action.address), action.settings, !!action.data?.initial, action.data?.defaultModel),
 
   [RESTORE_MODEL]: (state, action) =>
-    restoreModelComponent(state, memoizedGetComponentId(action.address), action.settings, action.initial),
+    restoreModelComponent(state, getComponentId(action.address), action.settings, action.initial),
 
   [RESTORE_MULTIPLE_MODEL]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address), action.settings, action.initial),
+      (newState, _action) => restoreModelComponent(newState, getComponentId(_action.address), action.settings, action.initial),
       state
     ),
 

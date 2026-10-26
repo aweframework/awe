@@ -248,6 +248,20 @@ describe('awe-react-client/test/js/redux/reducers/components/modelTest.js', () =
       expect(get('grid', state).model.values[1].label).toEqual({value: 'z', label: 'z'});
     });
 
+    it('refreshes the cells of a grid when the settings are falsy', () => {
+      ComponentRegistry.clearAll();
+      ComponentRegistry.register('grid', {
+        address,
+        attributes: {id: 'id', columnModel: [{name: 'label', component: 'select', model: {values: [{value: 'a', label: 'A'}]}}]},
+        model: {values: [{id: 1, label: 'a'}]}
+      });
+      ComponentRegistry.register('grid-1-label', {address: {...address, row: 1, column: 'label'}, attributes: {}, model: {values: []}});
+
+      const state = updateModelAction({}, {address, data: {values: [{id: 1, label: 'a'}]}}, null);
+
+      expect(get('grid-1-label', state).model.changed).toBe(true);
+    });
+
     it('updates a column model through the address type', () => {
       const state = updateModelAction({}, {address: {...address, column: 'label'}, data: {values: [{value: 1}]}}, {});
 

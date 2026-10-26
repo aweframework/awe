@@ -1,3 +1,4 @@
+import * as stateHelpers from '../../../../../src/redux/reducers/components/stateHelpers';
 import ComponentRegistry from '../../../../../src/redux/registry/ComponentRegistry';
 import {
   getGridRowContext,
@@ -19,6 +20,25 @@ const address = {view: 'base', component: 'comp'};
 describe('awe-react-client/test/js/redux/reducers/components/stateHelpersTest.js', () => {
   beforeEach(() => {
     ComponentRegistry.clearAll();
+  });
+
+  describe('component id helpers', () => {
+    it('does not keep a cache of the addresses it has seen', () => {
+      expect(stateHelpers.memoizedGetComponentId).toBeUndefined();
+      expect(stateHelpers.memoizedGetGridIdentifier).toBeUndefined();
+    });
+
+    it('resolves the current component when the same address object is reused with another row', () => {
+      ['grid-1-name', 'grid-2-name'].forEach(id => ComponentRegistry.register(id, {model: {values: []}}));
+      const cellAddress = {view: 'base', component: 'grid', row: 1, column: 'name'};
+
+      const first = stateHelpers.getModelUpdate({}, cellAddress, {values: [{value: 'a'}]});
+      cellAddress.row = 2;
+      const second = stateHelpers.getModelUpdate({}, cellAddress, {values: [{value: 'b'}]});
+
+      expect(Object.keys(first)).toEqual(['grid-1-name']);
+      expect(Object.keys(second)).toEqual(['grid-2-name']);
+    });
   });
 
   describe('updateComponentInState', () => {

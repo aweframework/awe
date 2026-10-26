@@ -148,6 +148,51 @@ describe('awe-react-client/test/js/redux/reducers/components/gridModelTest.js', 
 
       expect(Object.keys(update)).toEqual(['grid-2-status']);
     });
+
+    it('returns the same updates for every row and editable column that has a cell', () => {
+      ComponentRegistry.clearAll();
+      ComponentRegistry.register('grid', {
+        address,
+        attributes: {
+          id: 'id',
+          columnModel: [
+            {name: 'status', component: 'select', model: {values: statusOptions}},
+            {name: 'tags', component: 'select-multiple'},
+            {name: 'label'}
+          ]
+        },
+        model: {values: [{id: 1, status: 'a', tags: 'b'}, {id: 2, status: 'b', tags: 'a'}, {id: 3, status: 'a', tags: 'a'}]}
+      });
+      ComponentRegistry.register('grid-1-status', {address: {...address, row: 1, column: 'status'}, attributes: {}, model: {values: []}});
+      ComponentRegistry.register('grid-3-tags', {address: {...address, row: 3, column: 'tags'}, attributes: {}, model: {values: []}});
+      const state = {'grid-2-status': {attributes: {}, model: {values: []}}};
+
+      const update = updateCellsModel(state, getGrid({}), {});
+
+      expect(Object.keys(update).sort()).toEqual(['grid-1-status', 'grid-2-status', 'grid-3-tags']);
+      expect(update['grid-2-status'].model.values).toEqual([
+        {value: 'a', label: 'A', selected: false},
+        {value: 'b', label: 'B', selected: true}
+      ]);
+      expect(update['grid-1-status'].model.changed).toBe(true);
+    });
+
+    it('returns nothing without touching the registry when no column has a component', () => {
+      ComponentRegistry.clearAll();
+      ComponentRegistry.register('grid', {
+        address,
+        attributes: {id: 'id', columnModel: [{name: 'label'}]},
+        model: {values: [{id: 1, label: 'a'}, {id: 2, label: 'b'}]}
+      });
+      const grid = getGrid({});
+      const get = jest.spyOn(ComponentRegistry, 'get');
+
+      const update = updateCellsModel({}, grid, {});
+
+      expect(update).toEqual({});
+      expect(get).not.toHaveBeenCalled();
+      get.mockRestore();
+    });
   });
 
   describe('updateColumnModel', () => {

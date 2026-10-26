@@ -1,7 +1,8 @@
 import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas, mergeComponentState} from '../../../utilities/mergeUtils';
 import {calculateFooterValue} from "../../../utilities/grid";
-import {hasFooter, memoizedGetComponentId} from './stateHelpers';
+import {getComponentId} from "../../../utilities/components";
+import {hasFooter} from './stateHelpers';
 
 /**
  * Update grid footer values based on current grid data.
@@ -11,7 +12,7 @@ import {hasFooter, memoizedGetComponentId} from './stateHelpers';
  * @returns {Object} Updated state
  */
 export function updateGridFooter(state, address, settings) {
-  const componentId = memoizedGetComponentId(address);
+  const componentId = getComponentId(address);
   let component;
 
   const base = ComponentRegistry.get(componentId);
