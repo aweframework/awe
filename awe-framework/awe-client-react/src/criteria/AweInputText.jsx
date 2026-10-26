@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React from "react";
 import {InputText} from 'primereact/inputtext';
 import {classNames} from "../utilities/components";
 import {translateLabel} from "../utilities";
@@ -6,7 +6,7 @@ import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
-import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
+import useEnterKey from "../hooks/useEnterKey";
 import {TestIds, testHook} from "../utilities/testIds";
 
 function AweInputText(props) {
@@ -15,7 +15,7 @@ function AweInputText(props) {
   const { address, attributes, validationRules, value, onChange, onBlur, onSubmit } = useText(id);
 
   const { placeholder, required, readonly, size, error } = attributes;
-  const onKeyDown = useMemo(() => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: onSubmit}]), [onSubmit]);
+  const onKeyDown = useEnterKey(onSubmit);
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (

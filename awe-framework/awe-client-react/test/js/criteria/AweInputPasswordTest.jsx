@@ -56,4 +56,28 @@ describe('awe-react-client/test/js/criteria/AweInputPasswordTest.jsx', () => {
     expect(submitActions(dispatchSpy)).toEqual([]);
   });
 
+  it('cancels Enter so the ancestors do not receive it', () => {
+    const onParentKeyDown = jest.fn();
+    const onWindowKeyDown = jest.fn();
+    window.addEventListener("keydown", onWindowKeyDown);
+    const {dispatchSpy} = renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputPassword id="password"/></div>, {preloadedState, spyDispatch: true});
+    const input = document.querySelector("input#password");
+
+    const notPrevented = fireEvent.keyDown(input, {key: "Enter"});
+    window.removeEventListener("keydown", onWindowKeyDown);
+
+    expect(notPrevented).toBe(false);
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(onWindowKeyDown).not.toHaveBeenCalled();
+    expect(submitActions(dispatchSpy)).toEqual([expect.objectContaining({type: "submit", address: preloadedState.components.password.address})]);
+  });
+
+  it('lets another key reach the ancestors', () => {
+    const onParentKeyDown = jest.fn();
+    renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputPassword id="password"/></div>, {preloadedState});
+
+    expect(fireEvent.keyDown(document.querySelector("input#password"), {key: "a"})).toBe(true);
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+  });
+
 });

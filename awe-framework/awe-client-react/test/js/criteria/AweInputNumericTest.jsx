@@ -93,4 +93,31 @@ describe('awe-react-client/test/js/criteria/AweInputNumericTest.jsx', () => {
     });
   });
 
+  it('commits the typed value with Enter and cancels the event so the ancestors do not receive it', async () => {
+    const onParentKeyDown = jest.fn();
+    const onWindowKeyDown = jest.fn();
+    window.addEventListener("keydown", onWindowKeyDown);
+    const { store } = renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputNumeric id="numeric"/></div>, { preloadedState });
+    const input = document.querySelector("input.p-inputnumber-input");
+
+    fireEvent.change(input, { target: { value: '7' } });
+    const notPrevented = fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+    window.removeEventListener("keydown", onWindowKeyDown);
+
+    expect(notPrevented).toBe(false);
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(onWindowKeyDown).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(store.getState().components.numeric.model.values[0]).toEqual(expect.objectContaining({ value: 7, selected: true }));
+    });
+  });
+
+  it('lets another key reach the ancestors', () => {
+    const onParentKeyDown = jest.fn();
+    renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputNumeric id="numeric"/></div>, { preloadedState });
+
+    fireEvent.keyDown(document.querySelector("input.p-inputnumber-input"), { key: 'ArrowLeft', code: 'ArrowLeft' });
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+  });
+
 });

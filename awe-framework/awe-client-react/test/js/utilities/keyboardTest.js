@@ -1,4 +1,4 @@
-import {ANY, ANY_MODIFIERS, DIGIT_CODES, SHORTCUTS, createKeyHandler, matchesShortcut} from "../../../src/utilities/keyboard";
+import {ANY, ANY_MODIFIERS, DIGIT_CODES, ENTER_SHORTCUT, SHORTCUTS, cancelKeyEvent, createEnterHandler, createKeyHandler, matchesShortcut} from "../../../src/utilities/keyboard";
 
 const press = (init) => new KeyboardEvent("keydown", init);
 
@@ -131,6 +131,61 @@ describe("utilities/keyboard", () => {
     it("handles an empty or missing list of bindings", () => {
       expect(createKeyHandler([])(press({key: "a"}))).toBe(false);
       expect(createKeyHandler()(press({key: "a"}))).toBe(false);
+    });
+  });
+
+  describe("cancelKeyEvent", () => {
+    it("prevents the default action and stops the propagation", () => {
+      const event = new KeyboardEvent("keydown", {key: "Enter", cancelable: true, bubbles: true});
+      const stop = jest.spyOn(event, "stopPropagation");
+      cancelKeyEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(stop).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("createEnterHandler", () => {
+    const cancelable = (init) => new KeyboardEvent("keydown", {cancelable: true, bubbles: true, ...init});
+
+    it("matches Enter whatever modifiers are pressed", () => {
+      expect(ENTER_SHORTCUT).toEqual({key: "Enter", ...ANY_MODIFIERS});
+      expect(Object.isFrozen(ENTER_SHORTCUT)).toBe(true);
+      expect(matchesShortcut(press({key: "Enter", ctrlKey: true, shiftKey: true}), ENTER_SHORTCUT)).toBe(true);
+    });
+
+    it("cancels Enter before running the handler", () => {
+      const event = cancelable({key: "Enter"});
+      const stop = jest.spyOn(event, "stopPropagation");
+      const onEnter = jest.fn(() => {
+        expect(event.defaultPrevented).toBe(true);
+        expect(stop).toHaveBeenCalledTimes(1);
+      });
+      expect(createEnterHandler(onEnter)(event)).toBe(true);
+      expect(onEnter).toHaveBeenCalledWith(event);
+    });
+
+    it("cancels Enter without a handler", () => {
+      const event = cancelable({key: "Enter"});
+      expect(createEnterHandler()(event)).toBe(true);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("leaves other keys untouched", () => {
+      const event = cancelable({key: "a"});
+      const onEnter = jest.fn();
+      expect(createEnterHandler(onEnter)(event)).toBe(false);
+      expect(event.defaultPrevented).toBe(false);
+      expect(onEnter).not.toHaveBeenCalled();
+    });
+
+    it("leaves Enter untouched when the condition is false", () => {
+      const event = cancelable({key: "Enter"});
+      const onEnter = jest.fn();
+      const when = jest.fn(() => false);
+      expect(createEnterHandler(onEnter, {when})(event)).toBe(false);
+      expect(when).toHaveBeenCalledWith(event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(onEnter).not.toHaveBeenCalled();
     });
   });
 

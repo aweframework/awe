@@ -42,7 +42,7 @@ describe('awe-react-client/test/js/criteria/AweInputColorTest.jsx', () => {
     const {dispatchSpy} = renderWithProviders(<AweInputColor id="color"/>, {preloadedState, spyDispatch: true});
     const input = document.querySelector("input#color");
 
-    fireEvent.keyPress(input, {key: "Enter", charCode: 13});
+    fireEvent.keyDown(input, {key: "Enter"});
 
     expect(submitActions(dispatchSpy)).toEqual([expect.objectContaining({type: "submit", address: preloadedState.components.color.address})]);
   });
@@ -51,9 +51,33 @@ describe('awe-react-client/test/js/criteria/AweInputColorTest.jsx', () => {
     const {dispatchSpy} = renderWithProviders(<AweInputColor id="color"/>, {preloadedState, spyDispatch: true});
     const input = document.querySelector("input#color");
 
-    fireEvent.keyPress(input, {key: "a", charCode: 97});
+    fireEvent.keyDown(input, {key: "a"});
 
     expect(submitActions(dispatchSpy)).toEqual([]);
+  });
+
+  it('cancels Enter so the ancestors do not receive it', () => {
+    const onParentKeyDown = jest.fn();
+    const onWindowKeyDown = jest.fn();
+    window.addEventListener("keydown", onWindowKeyDown);
+    const {dispatchSpy} = renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputColor id="color"/></div>, {preloadedState, spyDispatch: true});
+    const input = document.querySelector("input#color");
+
+    const notPrevented = fireEvent.keyDown(input, {key: "Enter"});
+    window.removeEventListener("keydown", onWindowKeyDown);
+
+    expect(notPrevented).toBe(false);
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(onWindowKeyDown).not.toHaveBeenCalled();
+    expect(submitActions(dispatchSpy)).toEqual([expect.objectContaining({type: "submit", address: preloadedState.components.color.address})]);
+  });
+
+  it('lets another key reach the ancestors', () => {
+    const onParentKeyDown = jest.fn();
+    renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputColor id="color"/></div>, {preloadedState});
+
+    expect(fireEvent.keyDown(document.querySelector("input#color"), {key: "a"})).toBe(true);
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
   });
 
 });

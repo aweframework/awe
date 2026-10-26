@@ -56,4 +56,28 @@ describe('awe-react-client/test/js/criteria/AweInputTextTest.jsx', () => {
     expect(submitActions(dispatchSpy)).toEqual([]);
   });
 
+  it('cancels Enter so the ancestors do not receive it', () => {
+    const onParentKeyDown = jest.fn();
+    const onWindowKeyDown = jest.fn();
+    window.addEventListener("keydown", onWindowKeyDown);
+    const {dispatchSpy} = renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputText id="text"/></div>, {preloadedState, spyDispatch: true});
+    const input = document.querySelector("input#text");
+
+    const notPrevented = fireEvent.keyDown(input, {key: "Enter"});
+    window.removeEventListener("keydown", onWindowKeyDown);
+
+    expect(notPrevented).toBe(false);
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(onWindowKeyDown).not.toHaveBeenCalled();
+    expect(submitActions(dispatchSpy)).toEqual([expect.objectContaining({type: "submit", address: preloadedState.components.text.address})]);
+  });
+
+  it('lets another key reach the ancestors', () => {
+    const onParentKeyDown = jest.fn();
+    renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputText id="text"/></div>, {preloadedState});
+
+    expect(fireEvent.keyDown(document.querySelector("input#text"), {key: "a"})).toBe(true);
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+  });
+
 });

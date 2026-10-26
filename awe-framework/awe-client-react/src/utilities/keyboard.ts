@@ -129,6 +129,49 @@ export function createKeyHandler<E extends KeyEventLike = KeyboardEvent>(binding
   };
 }
 
+/**
+ * What cancelling reads of a keyboard event (DOM and React keyboard events fit)
+ */
+export interface CancelableKeyEventLike extends KeyEventLike {
+  preventDefault: () => void;
+  stopPropagation: () => void;
+}
+
+/**
+ * Enter, whatever modifiers are pressed (event.key is also "Enter" for the numeric keypad one)
+ * @type {{key: string, alt: string, shift: string, ctrl: string, meta: string}}
+ */
+export const ENTER_SHORTCUT: Readonly<Shortcut> = Object.freeze({key: "Enter", ...ANY_MODIFIERS});
+
+/**
+ * Cancel a keyboard event: prevent its default action and stop its propagation, as the AngularJS engine does
+ * (Utilities.stopPropagation(event, true)), so the ancestors (grid containers, dialogs, global shortcuts) do not react
+ * to a key that has already been handled
+ * @param {KeyboardEvent} event Keyboard event
+ */
+export function cancelKeyEvent(event: CancelableKeyEventLike): void {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+/**
+ * Create the Enter handler of a criterion. On Enter it cancels the event (see cancelKeyEvent) and then runs onEnter,
+ * which commits or submits. Any other key, or Enter when the condition is false, is left untouched.
+ * @param {function(KeyboardEvent)} [onEnter] Called with the event once it is cancelled
+ * @param {object} [options] Options
+ * @param {function(KeyboardEvent): boolean} [options.when] Extra condition (for example a closed overlay)
+ * @return {function(KeyboardEvent): boolean} Handler for a key event. It returns true when it handled Enter
+ */
+export function createEnterHandler<E extends CancelableKeyEventLike = KeyboardEvent>(
+  onEnter?: (event: E) => void, {when}: {when?: (event: E) => boolean} = {}): (event: E) => boolean {
+  return createKeyHandler<E>([{
+    shortcut: ENTER_SHORTCUT, when, handler: (event) => {
+      cancelKeyEvent(event);
+      onEnter?.(event);
+    }
+  }]);
+}
+
 const entry = (id: string, keys: string, scope: string, description: string): Readonly<ShortcutEntry> => Object.freeze({id, keys, scope, description});
 
 /**
