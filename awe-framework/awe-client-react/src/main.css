@@ -65,6 +65,17 @@ body {
   padding: 1rem;
 }
 
+/* A panel body that is not expandible keeps its lines at their natural height when it expands (they would spread over
+   it otherwise), and an expanding child (a grid) takes a full line. An expandible one is a flex column: the expandible
+   rules lay it out */
+.panel-body:not(.expandible-vertical):not(.expandible-horizontal) {
+  align-content: flex-start;
+}
+
+.panel-body:not(.expandible-vertical):not(.expandible-horizontal) > .expand {
+  flex: 1 1 100%;
+}
+
 /* Text colors */
 .text-primary { color: var(--cyan-800); }
 .text-default { color: var(--surface-600); }

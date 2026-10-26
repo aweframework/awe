@@ -7,6 +7,12 @@
   flex-basis: 0;
 }
 
+// Minimum rows area (header and about three rows): a grid whose container gives it no height (a dialog, a panel that is
+// not expandible) would get a 0px rows area otherwise. The AngularJS engine keeps a minimum grid height too
+.grid-container .p-datatable-wrapper {
+  min-height: 12rem;
+}
+
 .p-datatable.p-datatable-sm .p-datatable-tbody > tr > td.p-cell-editing {
   padding: 1px;
 }
