@@ -814,7 +814,7 @@ export const toggleBranchGridAction = (action) => {
     const { component, values } = getGridAndValues(components, address);
     const { attributes } = component;
     const { loadAll } = attributes;
-    const { row } = action.parameters;
+    const { row, expanded } = action.parameters;
     const gridId = getGridIdentifier(component.attributes);
 
     // Accept action
@@ -831,12 +831,19 @@ export const toggleBranchGridAction = (action) => {
       ];
     }
 
+    // The branch is loaded when the server answered it (even empty), with loadAll, or when its children are already in
+    // the grid; a node opened by its row and collapsed locally keeps asking the server for its branch when reopened
+    const { treeParent = "parent" } = attributes;
+    const serverAnswer = "datalist" in action.parameters;
+    const branchLoaded = serverAnswer || treeValues.some(item => String(item[treeParent]) === String(row));
+
     // Update selected rows
     dispatch(updateModelWithDependencies(address, {
       event: "toggle-row",
       values: treeValues
         .map(item => String(item[gridId]) === String(row) ?
-          ({ ...item, $row: { ...item.$row, expanded: !item.$row?.expanded, loaded: true } }) : ({ ...item }))
+          ({ ...item, $row: { ...item.$row, expanded: typeof expanded === "boolean" ? !expanded : !item.$row?.expanded,
+            loaded: !!(loadAll || item.$row?.loaded || branchLoaded) } }) : ({ ...item }))
     }));
   };
 };

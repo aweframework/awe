@@ -91,10 +91,10 @@ export function useGrid(id) {
     address, contextMenu: attributes.contextMenu, openWithoutVisibleOptions: true
   });
 
-  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers) => {
+  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers, frozen = false) => {
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getRowNumberWidthStyle(first, rows) };
     if (rowNumbers) {
-      return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan}
+      return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan} frozen={frozen}
         body={(_data, options) => options.rowIndex + 1}
         headerClassName={"p-row-number-header"} headerStyle={rowNumberStyle}
         bodyClassName={"p-row-number-cell"} bodyStyle={rowNumberStyle}
@@ -106,12 +106,13 @@ export function useGrid(id) {
     return null;
   };
 
-  const multiselectColumnTemplate = (place, rowSpan, multiselect) => (
+  const multiselectColumnTemplate = (place, rowSpan, multiselect, frozen = false) => (
     multiselect ? <Column
       key={`multiselect-${place}`}
       field={`multiselect-${place}`}
       selectionMode="multiple"
       rowSpan={rowSpan}
+      frozen={frozen}
       pt={selectionColumnPassThrough()}
       footer={null}
       style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
@@ -119,11 +120,12 @@ export function useGrid(id) {
   );
 
   // Leading column with the button that shows or hides the detail of each row (grids with row detail only)
-  const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail) => (
+  const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail, frozen = false) => (
     rowDetail ? <Column
       key={`row-detail-${place}`}
       field={`row-detail-${place}`}
       rowSpan={rowSpan}
+      frozen={frozen}
       body={rowData => <AweGridRowDetailToggle gridId={address?.component} rowId={rowData.id}
         expanded={expandedRows?.[rowData.id] !== undefined} onToggle={onToggleRowDetail} />}
       footer={null}
@@ -161,12 +163,12 @@ export function useGrid(id) {
     </>;
   };
 
-  const columnTemplate = (col, rowSpan, enableFilters) => {
+  const columnTemplate = (col, rowSpan, enableFilters, frozen = false) => {
     const { name, sortField, label, charlength, width, sortable, help, helpImage } = col;
     return <Column key={name} field={sortField || name} header={columnHeader(name, label, help, helpImage)}
       style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
       pt={headerCellPassThrough(name)}
-      sortable={sortable} rowSpan={rowSpan} filter={enableFilters} />;
+      sortable={sortable} rowSpan={rowSpan} filter={enableFilters} frozen={frozen && !!col.frozen} />;
   };
 
   const headerColumnTemplate = (col) => {
@@ -215,18 +217,22 @@ export function useGrid(id) {
   // The headers are computed from the membership of the visible columns, not from their position
   const getHeader = () => buildHeader(visibleColumns, allHeaders, allColumns);
 
-  const footerColumnTemplate = (column) => {
+  const footerColumnTemplate = (column, frozen = false) => {
     const { footer = {} } = model;
     const { charlength, width, align } = column;
-    return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"}
+    return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"} frozen={frozen && !!column.frozen}
       footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
       footer={(footer[column.name] ?? {}).label ?? ""} />;
   };
 
-  const cellTemplate = (rowData, column) => {
+  const cellTemplate = (rowData, column, hasFrozen = false) => {
     const gridId = getGridIdentifier(attributes);
+    const definition = attributes.columnModel?.find(c => c.name === column);
+    // A grid with frozen columns keeps its single-line rows, like in AngularJS
+    const lines = hasFrozen ? { wrap: false, maxLines: null } : {};
     return Columns({
-      ...attributes.columnModel?.find(c => c.name === column),
+      ...definition,
+      ...lines,
       address: { ...address, column, row: rowData[gridId] }
     }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing);
   };
@@ -241,9 +247,9 @@ export function useGrid(id) {
   const preColumnTemplates = (place, rowSpan, specific) => {
     // specific includes first, rows, rowNumbers, multiselect flags, and the row detail with its open rows
     return [
-      rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail),
-      multiselectColumnTemplate(place, rowSpan, specific?.multiselect),
-      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers)
+      rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail, specific?.frozen),
+      multiselectColumnTemplate(place, rowSpan, specific?.multiselect, specific?.frozen),
+      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, specific?.frozen)
     ].filter(e => !isEmpty(e));
   };
 

@@ -914,7 +914,7 @@
     </xs:attribute>
     <xs:attribute name="tree-leaf" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Name of the field that tells whether a row is a leaf. Default: isLeaf. The React engine ignores this attribute and always reads isLeaf.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field that tells whether a row is a leaf. Default: isLeaf.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="expand-column" type="xs:string">
@@ -924,12 +924,12 @@
     </xs:attribute>
     <xs:attribute name="icon-expand" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a collapsed node. Default: plus-square. AngularJS only.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a collapsed node. Default: plus-square. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon-collapse" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of an expanded node. Default: minus-square. AngularJS only.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of an expanded node. Default: minus-square. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon-loading" type="loadingIconEnum">
@@ -939,12 +939,12 @@
     </xs:attribute>
     <xs:attribute name="initial-level" type="xs:integer">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Number of levels expanded after loading: a value of N expands N-1 levels, so 0 and 1 both start collapsed. AngularJS only; React expands only the rows that arrive marked as expanded.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Number of levels expanded after loading: a value of N expands N-1 levels, so 0 and 1 both start collapsed. Both engines; a row that carries an expanded field is expanded or collapsed by it, and only loaded nodes are expanded by the level.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon-leaf" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a node without children. Default: dot-circle-o. AngularJS only.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a node without children. Default: dot-circle-o. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="load-all" type="booleanEnum">
@@ -989,7 +989,7 @@
     </xs:attribute>
     <xs:attribute name="row-height" type="xs:integer">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Height of each row in pixels. AngularJS grids only (default 27); the React engine ignores it.</xs:documentation>
+        <xs:documentation xml:lang="en">Minimum height of each row in pixels. Plain grids in both engines (AngularJS default 27); tree grids ignore it in both.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="show-toolbar" type="booleanEnum">
@@ -1206,7 +1206,7 @@
     </xs:attribute>
     <xs:attribute name="frozen" type="booleanEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Pins the column on the left so it stays out of the horizontal scroll. AngularJS only; do not use it when the header has more than one line. Default: false.</xs:documentation>
+        <xs:documentation xml:lang="en">Pins the column on the left so it stays out of the horizontal scroll. Both client engines; do not use it when the header has more than one line. React moves the frozen columns to the left (with the row number and checkbox columns) and keeps single-line rows; it ignores frozen in a grid with grouped headers and in a tree grid. Default: false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="pagebreak" type="booleanEnum">

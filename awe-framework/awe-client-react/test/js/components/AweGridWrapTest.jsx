@@ -107,6 +107,46 @@ describe("awe-react-client/test/js/components/AweGridWrapTest.jsx", () => {
       expect(container.querySelector("th [title='A really long column title']")).not.toBeNull();
     });
 
+    describe("row-height", () => {
+      const heightOf = (rowHeight) => {
+        const state = gridState([{ name: "code", label: "Code" }], [{ id: "r1", code: "X1" }]);
+        state.components.Grd.attributes.rowHeight = rowHeight;
+        const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: state });
+        return container.querySelector(".grid-container").style.getPropertyValue("--grid-row-height");
+      };
+
+      it("sets the minimum row height of the grid in pixels, like the AngularJS client", () => {
+        expect(heightOf(40)).toBe("40px");
+      });
+
+      it("accepts the height as text and truncates it like parseInt", () => {
+        cleanup();
+        expect(heightOf("32")).toBe("32px");
+        cleanup();
+        expect(heightOf("32.7px")).toBe("32px");
+      });
+
+      it("marks only the grids with a row height, so the cell height rule leaves the other tables alone", () => {
+        const classOf = (rowHeight) => {
+          cleanup();
+          const state = gridState([{ name: "code", label: "Code" }], [{ id: "r1", code: "X1" }]);
+          state.components.Grd.attributes.rowHeight = rowHeight;
+          const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: state });
+          return container.querySelector(".grid-container").classList.contains("grid-row-height");
+        };
+        expect(classOf(40)).toBe(true);
+        expect(classOf(undefined)).toBe(false);
+      });
+
+      it("keeps the default rows when the height is missing or invalid", () => {
+        expect(heightOf(undefined)).toBe("");
+        cleanup();
+        expect(heightOf("x")).toBe("");
+        cleanup();
+        expect(heightOf(0)).toBe("");
+      });
+    });
+
     describe("cut text", () => {
       const clamped = (container) => container.querySelector(".p-cell-clamp");
       const cut = (element, isCut) => {

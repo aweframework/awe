@@ -280,6 +280,14 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldWaitForTheFileViewerToShowTheText() {
+    show(instructions.getFileViewer(), "FILE VIEWER TEST LINE 1");
+
+    assertThatCode(() -> utilities.checkFileViewerContains("TEST LINE 1")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkFileViewerContains("[OTHER]"));
+  }
+
+  @Test
   void shouldCheckTheCriterionLabelAndUnitAndTheActiveWizardStep() {
     show(instructions.getCriterionLabel("Unt"), "Texto Normal");
     show(instructions.getCriterionUnit("Unt"), "EUR");

@@ -3988,6 +3988,17 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Wait until the file viewer shows a text
+   *
+   * @param text Text that the file contains
+   */
+  protected void checkFileViewerContains(String text) {
+    By selector = frontEndInstructions.getFileViewer();
+    waitForText(locator(selector), text);
+    checkTextContains(selector, text);
+  }
+
+  /**
    * Check a text inside the frame that embeds an external application. The frame is the only one of the screen, and the
    * content is the one of the external application, so the selector of the element to read is supplied by the caller
    *

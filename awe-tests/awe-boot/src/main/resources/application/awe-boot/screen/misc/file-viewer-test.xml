@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test screen of the file-viewer widget: it reads a fixed text from the test endpoint /file/test-text, with the
+  autorefresh of the log viewer and the scroll stuck to the bottom
+-->
+<screen template="window" label="MENU_TEST_FILE_VIEWER"
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xsi:noNamespaceSchemaLocation='https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd'>
+  <tag source="center">
+    <window label="SCREEN_TEXT_DATA" style="expand" icon="file-text-o">
+      <widget type="file-viewer" id="FilVwr" style="expand scrollable" server-action="file" target-action="test-text" autoload="true" autorefresh="5">
+        <widget-parameter type="boolean" name="stickBottom" value="true"/>
+      </widget>
+    </window>
+  </tag>
+</screen>

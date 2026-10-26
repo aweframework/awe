@@ -140,20 +140,22 @@ La tabla dinámica se dibuja con una librería distinta en cada motor, y los atr
 | -------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
 | Librería                                                             | PivotTable.js (jQuery), incluida en AWE      | [react-pivottable](https://github.com/plotly/react-pivottable) 0.11 |
 | `rows`, `cols`                                                       | Aplicados                             | Aplicados                                                     |
-| `renderer`, `aggregator`, `aggregation-field`                        | Aplicados                             | Aplicados como valores iniciales (`Table Barchart` usa `Table`) |
+| `renderer`, `aggregator`, `aggregation-field`                        | Aplicados                             | Aplicados como valores iniciales (incluido `Table Barchart`) |
 | `sort-method`                                                        | Aplicado                              | Aplicado                                                      |
-| `total-row-placement`, `total-column-placement`                      | Aplicados                             | **No aplicados**                                              |
+| `total-row-placement`, `total-column-placement`                      | Aplicados                             | **No aplicados**: los totales van siempre a la derecha y abajo |
 | `decimal-numbers`, `thousand-separator`, `decimal-separator`, agregadores personalizados | Aplicados         | Aplicados: los agregadores `Custom ...` existen               |
 | Acciones `set-pivot-group-rows`, `set-pivot-group-cols`, `set-pivot-sorters` | Aplicadas                     | Aplicadas                                                     |
-| Menú contextual (`context-button`)                                   | Disponible                            | No disponible                                                 |
+| Menú contextual (`context-button`)                                   | Disponible                            | Disponible (clic derecho sobre la tabla dinámica)             |
 | `autoload`, `autorefresh`                                            | Aplicados                             | Ignorados                                                     |
 | Textos de la tabla                                                   | Traducidos (inglés, español, euskera, francés) | Siempre en inglés                                    |
 | Número máximo de valores listados en el filtro de un campo           | `awe.application.component.pivot-num-group` (5000) | ajuste `pivotOptions.numGroup` (5000)            |
 
 En el motor React los atributos XML son valores iniciales: el usuario todavía puede cambiar el renderizador y el
-agregador en la tabla, y esas elecciones se mantienen mientras la pantalla está abierta. El motor React aún no soporta
-la posición de los totales (`total-row-placement`, `total-column-placement`), el renderizador `Table Barchart` ni el
-menú contextual. No rompen la pantalla.
+agregador en la tabla, y esas elecciones se mantienen mientras la pantalla está abierta. El renderizador `Table Barchart`
+funciona en ambos motores, con las barras de cada fila (y de la fila de totales) escaladas por separado; los valores
+negativos, y las filas sin máximo positivo, no dibujan barra. La única diferencia que queda es la posición de los totales (`total-row-placement`,
+`total-column-placement`): react-pivottable dibuja siempre los totales a la derecha y abajo, que es lo habitual en
+AngularJS. Los atributos no rompen la pantalla.
 
 ## Páginas relacionadas {#related-pages}
 

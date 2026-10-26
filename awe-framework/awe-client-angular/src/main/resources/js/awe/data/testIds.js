@@ -131,6 +131,8 @@ export const TestIds = Object.freeze({
   helpPopover: "help-popover",
   // Log viewer: the element that holds the text of the log
   logViewer: "log-viewer",
+  // File viewer: the element that holds the text of the file
+  fileViewer: "file-viewer",
   // Modal dialogs: the dialog (owner: dialog id) with its close button, and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",

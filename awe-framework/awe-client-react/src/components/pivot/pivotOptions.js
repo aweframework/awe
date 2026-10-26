@@ -5,14 +5,14 @@ const DEFAULT_MENU_LIMIT = 5000;
 
 /**
  * AngularJS renderer names mapped to react-pivottable renderer names.
- * "Table Barchart" has no react-pivottable equivalent yet: it falls back to "Table".
+ * "Table Barchart" is a custom renderer registered by AwePivotTable (see TableBarchartRenderer).
  */
 export const PIVOT_RENDERER_NAMES = {
   "Table": "Table",
   "Heatmap": "Table Heatmap",
   "Row Heatmap": "Table Row Heatmap",
   "Col Heatmap": "Table Col Heatmap",
-  "Table Barchart": "Table"
+  "Table Barchart": "Table Barchart"
 };
 
 /** XML attributes that react-pivottable does not understand and must not be forwarded */

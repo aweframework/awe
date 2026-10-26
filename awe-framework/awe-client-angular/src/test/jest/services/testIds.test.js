@@ -117,6 +117,7 @@ describe("test id vocabulary", () => {
       helpPopover: "help-popover",
       columnIcon: "column-icon",
       logViewer: "log-viewer",
+      fileViewer: "file-viewer",
       dialog: "dialog",
       dialogClose: "dialog-close",
       sidePanel: "side-panel",
@@ -610,5 +611,14 @@ describe("test ids of the templates", () => {
       "../../../main/resources/templates/angular/logViewer.html"), "utf8");
 
     expect(template).toContain(`<pre class="visible-text" data-testid="${TestIds.logViewer}"></pre>`);
+  });
+
+  it("marks the text of the file viewer, which is the element that the tests read", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const template = fs.readFileSync(path.resolve(__dirname,
+      "../../../main/resources/templates/angular/fileViewer.html"), "utf8");
+
+    expect(template).toContain(`<pre data-testid="${TestIds.fileViewer}">{{content}}</pre>`);
   });
 });

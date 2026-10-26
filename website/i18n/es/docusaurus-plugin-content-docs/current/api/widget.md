@@ -37,12 +37,21 @@ El cliente Angular incluye de serie estos tipos de widget:
 | `file-manager` | Gestor / explorador de archivos          |
 | `pdf-viewer`   | Visor de documentos PDF                  |
 | `log-viewer`   | Visor de logs en tiempo real             |
+| `file-viewer`  | Visor de archivos de texto (ambos motores) |
 | `help-viewer`  | Visor de contenido de ayuda              |
 | `carousel`     | Carrusel de imágenes / contenido         |
 
 ### Cliente React {#react-client}
 
 El cliente React (`awe-react-client`) resuelve el mismo `type` contra un registro del lado del cliente e incluye los mismos tipos de widget. Las aplicaciones añaden los suyos llamando una vez al arrancar a `registerWidget(type, component)` (exportado por `awe-react-client`); los widgets incluidos usan ese mismo mecanismo. Los atributos del nodo widget (`id`, `style`, ...) se pasan al componente como props. Consulta la [guía de widgets personalizados (React)](../guides/custom-widgets-react).
+
+### Visor de archivos {#file-viewer}
+
+El widget `file-viewer` muestra el texto de un archivo dentro de un `<pre>`. Funciona en el cliente Angular y en el React.
+Al cargar envía los valores de la pantalla a `server-action`/`target-action` (por ejemplo `file` / `text`) y muestra la
+respuesta cuando el servidor devuelve estado 201 con contenido. `autoload` lee el archivo al iniciar la pantalla y
+`autorefresh` (segundos) lo vuelve a leer periódicamente. El parámetro de widget `stickBottom` (`boolean`) mantiene la
+vista al final del archivo mientras el usuario está abajo (y en la primera carga).
 
 ## Atributos {#attributes}
 

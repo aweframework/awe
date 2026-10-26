@@ -16,13 +16,17 @@ import "./AweSkeleton.less";
  * @subcategory Grid
  */
 function AweGridContainer(props) {
-  const { id, onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, children } = props;
+  const { id, onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, rowHeight, children } = props;
   const [containerHeight, setContainerHeight] = useState(0);
   const [resizeCount, setResizeCount] = useState(0);
   const screenSize = useScreenSize();
   // The grid grows over the maximize target like a window, and it is measured again when the animation ends
   const onResize = useCallback(() => setResizeCount(count => count + 1), []);
   const {ref: containerRef, iconMaximized, style, className, toggle: toggleMaximized} = useMaximize({onResize});
+
+  // Minimum row height of the grid in pixels (the rows read it in the stylesheet), as the AngularJS client does
+  const rowHeightPx = parseInt(rowHeight, 10);
+  const containerStyle = rowHeightPx > 0 ? { ...style, "--grid-row-height": `${rowHeightPx}px` } : style;
 
   // Escape and Enter work whatever modifiers are pressed. Alt+arrows and Alt+Home/End move the selected row when the grid allows it
   const checkKey = useMemo(() => createKeyHandler([
@@ -63,7 +67,7 @@ function AweGridContainer(props) {
   }, [containerHeight, containerRef]);
 
   return (
-    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading}, className)} ref={containerRef} style={style}
+    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading, "grid-row-height": rowHeightPx > 0}, className)} ref={containerRef} style={containerStyle}
       aria-busy={loading ? "true" : undefined}
       {...(id ? {[TestAttributes.maximized]: String(iconMaximized)} : {})}>
       {id && <AweGridToolbar id={id} maximized={iconMaximized} iconMaximized={iconMaximized} onToggleMaximize={toggleMaximized} />}
@@ -86,6 +90,7 @@ AweGridContainer.propTypes = {
   loading: PropTypes.bool,
   onContextMenu: PropTypes.any,
   reloading: PropTypes.bool,
+  rowHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onKeyCancelRow: PropTypes.any,
   onKeyMoveRow: PropTypes.any,
   onKeySaveRow: PropTypes.any,

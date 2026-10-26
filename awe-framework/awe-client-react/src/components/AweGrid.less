@@ -24,6 +24,12 @@
   table-layout: auto;
 }
 
+// row-height: minimum height of the rows, only on the grids that set it (class and --grid-row-height on the container).
+// Table cells ignore min-height, but their height already works as a minimum: the content can still make them taller
+.grid-row-height .p-datatable .p-datatable-tbody > tr:not(.p-datatable-emptymessage) > td {
+  height: var(--grid-row-height);
+}
+
 .p-cell-text {
   align-self: center;
   min-height: 1rem;

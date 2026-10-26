@@ -58,3 +58,29 @@ export function fetchHelpAction(setHelp, option = null) {
       .catch((reason) => console.error("Error reading help file:", reason));
   };
 }
+
+/**
+ * Read the content of a file through a generic file endpoint (the answer is plain text with status 201)
+ * @param {string} serverAction Server action (endpoint)
+ * @param {string} targetAction Target action
+ * @param {function} setContent Receives the content when the server answers one
+ * @returns {function} Thunk that returns the request promise (always resolved)
+ */
+export function fetchFileContentAction(serverAction, targetAction, setContent) {
+  return (dispatch, getState) => {
+    const {settings} = getState();
+    return fetch(`${getContextPath()}${getRestUrl(serverAction, targetAction)}`, {
+      method: 'POST',
+      body: JSON.stringify(getFormValues(getState())),
+      headers: {
+        "Accept": "*/*",
+        "Authorization": settings.token,
+        "Content-Type": "application/json;charset=UTF-8",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+      }
+    }).then(response => response.status === 201 ? response.text() : null)
+      .then(content => !isEmpty(content) && setContent(content))
+      // eslint-disable-next-line no-console
+      .catch((reason) => console.error("Error reading file:", reason));
+  };
+}

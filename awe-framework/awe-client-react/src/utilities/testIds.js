@@ -139,6 +139,8 @@ export const TestIds = Object.freeze({
   tagList: "tag-list",
   // Log viewer: the element that holds the text of the log
   logViewer: "log-viewer",
+  // File viewer: the element that holds the text of the file
+  fileViewer: "file-viewer",
   // Info dropdowns (the element that carries the id), its toggle and menu, and info buttons
   infoDropdown: "info-dropdown",
   infoDropdownToggle: "info-dropdown-toggle",

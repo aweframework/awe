@@ -1,6 +1,7 @@
 import React from "react";
 import AweFileManager from "./AweFileManager";
 import AweLogViewer from "./AweLogViewer";
+import AweFileViewer from "./AweFileViewer";
 import AweHelpViewer from "./AweHelpViewer";
 import AwePdfViewer from "./AwePdfViewer";
 import AweCarousel from "./AweCarousel";
@@ -29,6 +30,7 @@ export const getWidget = (type) => Widget[type];
 // Built-in widgets register through the same extension mechanism
 registerWidget("file-manager", AweFileManager);
 registerWidget("log-viewer", AweLogViewer);
+registerWidget("file-viewer", AweFileViewer);
 registerWidget("help-viewer", AweHelpViewer);
 registerWidget("pdf-viewer", AwePdfViewer);
 registerWidget("carousel", AweCarousel);

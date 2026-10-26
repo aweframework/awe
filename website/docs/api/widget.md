@@ -37,12 +37,21 @@ The Angular client ships these widget types out of the box:
 | `file-manager` | File manager / browser               |
 | `pdf-viewer`   | PDF document viewer                  |
 | `log-viewer`   | Streaming log viewer                 |
+| `file-viewer`  | Text file viewer (both engines)      |
 | `help-viewer`  | Help content viewer                  |
 | `carousel`     | Image / content carousel             |
 
 ### React client
 
 The React client (`awe-react-client`) resolves the same `type` against a client-side registry and ships the same built-in widget types. Applications add their own by calling `registerWidget(type, component)` (exported by `awe-react-client`) once at startup; the built-in widgets use that same mechanism. The widget node attributes (`id`, `style`, ...) are passed to the component as props. See the [Custom widgets (React) guide](../guides/custom-widgets-react).
+
+### File viewer
+
+The `file-viewer` widget shows the text of a file inside a `<pre>`. It works in both the Angular and the React client. On
+load it posts the screen values to `server-action`/`target-action` (for example `file` / `text`) and shows the answer
+when the server returns status 201 with a content. `autoload` reads the file when the screen starts and `autorefresh`
+(seconds) reads it again periodically. The widget parameter `stickBottom` (`boolean`) keeps the view at the end of the
+file while the user is at the bottom (and on the first load).
 
 ## Attributes
 

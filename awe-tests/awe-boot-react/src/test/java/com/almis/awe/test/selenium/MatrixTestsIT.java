@@ -1418,31 +1418,25 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Click on tab
     clickTab("TabSelMat", gridTab);
 
-    // Click on button
+    // Collapse the roots, opened at load by initial-level (same steps as the AngularJS test)
     clickTreeButton(gridId, "ProAdministrator");
-
-    // Click on button
     clickTreeButton(gridId, "ProGeneral");
-
-    // Click on button
     clickTreeButton(gridId, "ProOperator");
-
-    // Check not visible
-    checkTreeIconNotVisible(gridId, "ProAdministrator-ModBase");
-
-    // Click on button
-    clickTreeButton(gridId, "ProAdministrator");
 
     // Check not visible (the node is collapsed)
     checkTreeRowNotVisible(gridId, "ProAdministrator-ModBase");
 
-    // Click on button
-    clickTreeButton(gridId, "ProGeneral");
+    // Open a root again
+    clickTreeButton(gridId, "ProAdministrator");
 
-    // Check not visible (the node is collapsed)
-    checkTreeRowNotVisible(gridId, "ProGeneral-ModBase");
+    // Check visible
+    checkTreeRowVisible(gridId, "ProAdministrator-ModBase");
 
-    // Click on button
+    // Close and open a branch
+    clickTreeButton(gridId, "ProAdministrator-ModBase");
+    clickTreeButton(gridId, "ProAdministrator-ModBase");
+
+    // Open another root
     clickTreeButton(gridId, "ProGeneral");
 
     // Check visible

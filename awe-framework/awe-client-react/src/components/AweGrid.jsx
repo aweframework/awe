@@ -1,9 +1,9 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {getColumnWrap, getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
+import {arrangeFrozenColumns, getColumnWrap, getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
@@ -82,9 +82,15 @@ function AweGrid(props) {
     buttonsTemplate,
     preColumnTemplates,
     postColumnTemplates,
-    visibleColumns,
+    visibleColumns: layoutColumns,
     getHeader
   } = useGrid(id);
+
+  // The frozen columns go to the left and stay out of the horizontal scroll
+  const { columns: visibleColumns, hasFrozen } = useMemo(
+    () => arrangeFrozenColumns(layoutColumns, attributes.headerModel),
+    [layoutColumns, attributes.headerModel]
+  );
 
   const onToggleRowDetail = useCallback((rowId) => {
     setExpandedRows(current => {
@@ -174,38 +180,38 @@ function AweGrid(props) {
       const header = getHeader();
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
-          {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters))}
+          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, frozen: hasFrozen })}
+          {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters, hasFrozen))}
           {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
         <Row>
-          {header.grouped.map(col => columnTemplate(col, 1, attributes.enableFilters))}
+          {header.grouped.map(col => columnTemplate(col, 1, attributes.enableFilters, hasFrozen))}
         </Row>
       </ColumnGroup>;
     } else {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
-          {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters))}
+          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, frozen: hasFrozen })}
+          {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters, hasFrozen))}
           {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, model, address, visibleColumns, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, model, address, visibleColumns, hasFrozen, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
   const footerTemplate = useCallback(() => {
     const { showTotals } = attributes;
     if (showTotals) {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail })}
-          {visibleColumns.map(col => footerColumnTemplate(col))}
+          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, frozen: hasFrozen })}
+          {visibleColumns.map(col => footerColumnTemplate(col, hasFrozen))}
           {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
     return null;
-  }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
+  }, [attributes, visibleColumns, hasFrozen, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
 
   // PrimeReact does not expose the data of a row to the pass-through of the row, and the order of the rendered rows
   // depends on its own sort and filter. It evaluates "rowClassName" with the row data right before the row pass-through
@@ -242,7 +248,7 @@ function AweGrid(props) {
   } : {};
 
   return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable ? onKeyMoveRow : undefined}
-                    onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
+                    onContextMenu={onContextMenu} loading={loading} reloading={reloading} rowHeight={attributes.rowHeight}>
     <DataTable
       selection={selectedValues}
       selectionMode={multiselect ? null : "single"}
@@ -280,7 +286,7 @@ function AweGrid(props) {
         isRowDeleted: () => renderingRowDeleted.current
       })}
     >
-      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail })}
+      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail, frozen: hasFrozen })}
       {
         visibleColumns
           .map(col => {
@@ -290,8 +296,9 @@ function AweGrid(props) {
               columnKey={name}
               field={sortField || name}
               sortField={sortField || name}
-              body={rowData => cellTemplate(rowData, name)}
-              bodyClassName={`p-cell-editing ${name}${getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`}
+              frozen={hasFrozen && !!col.frozen}
+              body={rowData => cellTemplate(rowData, name, hasFrozen)}
+              bodyClassName={`p-cell-editing ${name}${!hasFrozen && getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`}
               style={{ ...getWidthStyle(charlength, width) }}
               bodyStyle={{ textAlign: align, justifyContent: align }}
               pt={bodyCellPassThrough(name)}

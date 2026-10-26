@@ -307,7 +307,7 @@ each country, inline and through an include) in the matrix test menu.
 | component  | Optional     | String  | Column type (if editable)                                                                                                         | See [components](criteria.md#components)                                         |
 | max        | Optional     | Integer | Max number of records to retrieve when the column is initialized with target-action                                               | Default value is `30`                                                            |
 | visibility | Optional     | Boolean | Initial visibility of the column component                                                                                        | Default value is `true`                                                          |
-| frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height | Default value is `false`                                                         |
+| frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height. In the React engine the frozen columns move to the left, and a grid with frozen columns keeps its single-line rows (`wrap` and `max-lines` are ignored); a grouped header or a tree grid does not freeze columns in React yet | Default value is `false`                                                         |
 | wrap       | Optional     | Boolean | The text of the cells wraps over several lines and the row grows to fit it. See [wrapping text](#wrapping-text)                | Default value is `false`                                                         |
 | max-lines  | Optional     | Integer | Maximum number of lines of a wrapping cell, it implies `wrap`. See [wrapping text](#wrapping-text)                              | A number greater than `0`                                                        |
 
@@ -333,8 +333,8 @@ can declare that its text wraps over several lines, and the row grows to fit the
   the tooltip). `max-lines` implies `wrap`, unless the column declares `wrap="false"`.
 - The rest of the columns keep their single line. Selection, sorting, inline editing and the keyboard shortcuts of the
   grid work as usual with taller rows.
-- In the AngularJS engine `row-height` is the **minimum** height of the rows of a grid with wrapping columns. The React
-  engine ignores `row-height`.
+- `row-height` is the **minimum** height of the rows of a grid, with or without wrapping columns, in both engines. Tree
+  grids ignore it.
 
 A text that does not wrap and does not fit in the width of its column always exposes its whole value: in the React
 engine, text cells and headers show it as a tooltip (the AngularJS engine already did it for cells).
