@@ -14,7 +14,7 @@ import { updateModelWithDependencies as updateThunk } from "../redux/thunks/comp
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import {TestIds, testHook} from "../utilities/testIds";
-import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
+import useEnterKey from "../hooks/useEnterKey";
 
 /**
  * Normalize the text-model value into a number the numeric input can compare against.
@@ -67,10 +67,9 @@ function AweInputNumeric(props) {
     }
   }, [readonly, onValueChange]);
 
-  const onKeyDown = useMemo(
-    () => createKeyHandler([{shortcut: {key: "Enter", ...ANY_MODIFIERS}, handler: () => commit(currentValue)}]),
-    [commit, currentValue]
-  );
+  // PrimeReact commits the typed value on Enter (onValueChange) unless the input key down prevents the default, so
+  // Enter is cancelled on the root, once PrimeReact has handled it, before it leaves the criterion
+  const onKeyDown = useEnterKey();
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules} groupClass={showSlider ? "" : "p-inputgroup"}
@@ -92,8 +91,7 @@ function AweInputNumeric(props) {
         suffix={nf.suffix}
         onValueChange={onValueChange}
         inputStyle={{ textAlign: align || "right" }}
-        pt={{ input: { root: testHook(TestIds.criterionInput) } }}
-        onKeyDown={onKeyDown}
+        pt={{ root: { onKeyDown }, input: { root: testHook(TestIds.criterionInput) } }}
       />
       {showSlider ? (
         <Slider
