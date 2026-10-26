@@ -993,6 +993,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_TOOLS_SCR_CNF" value="Configuración de pantallas"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encriptación"/>
   <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Acceso a pantallas"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Acceso a pantallas por menú"/>
   <locale name="MENU_TOOLS_SECURITY" value="Seguridad"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Configuración de estilos de listados"/>

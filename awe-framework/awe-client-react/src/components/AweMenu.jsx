@@ -65,23 +65,56 @@ function getExpandedKeys(optionList) {
 }
 
 /**
+ * Retrieve the names of the options from the first level down to the given option
+ * @param {object[]} optionList Option list
+ * @param {string} name Option name
+ * @returns {string[]|null} Option names of the path, or null when the option is not in the list
+ */
+export function findOptionPath(optionList, name) {
+  for (const option of optionList || []) {
+    if (option.name === name) {
+      return [option.name];
+    }
+    const path = findOptionPath(option.options, name);
+    if (path) {
+      return [option.name, ...path];
+    }
+  }
+  return null;
+}
+
+/**
+ * Item classes: the option of the open screen is active, and its parent groups are on the active path
+ * @param {string} name Option name
+ * @param {string[]} activePath Option names from the first level down to the open screen option
+ * @returns {string} Item classes
+ */
+function getItemClassName(name, activePath) {
+  const index = activePath.indexOf(name);
+  if (index === -1) {
+    return name;
+  }
+  return name + (index === activePath.length - 1 ? " p-menuitem-active" : " p-menuitem-active-path");
+}
+
+/**
  * Convert an option to item
  * @param {object} option Option data
  * @param {object} props Properties
  * @returns {object} Item
  */
 function optionToItem(option, props) {
-  const { t, deleteStack, addActionsTop, currentOption } = props;
+  const { t, deleteStack, addActionsTop, activePath } = props;
   const { separator, name, label, description, icon, options, actions } = option;
   let children = optionsToItems(options, props);
   return separator ? getSeparatorModel(option, t) : {
     name,
     key: name,
-    active: name === currentOption.option,
+    active: name === activePath[activePath.length - 1],
     label: translateLabel(label, t),
     ...(description ? { title: translateLabel(description, t) } : {}),
     display: true,
-    className: name + (name === currentOption.option ? " p-menuitem-active" : ""),
+    className: getItemClassName(name, activePath),
     icon: getIconCode(icon, "p-menuitem-icon"),
     ...(!isFinalOption(option, children) && children ? { items: children } : {}),
     ...(isFinalOption(option, children) ? {
@@ -146,13 +179,16 @@ function AweMenu(props) {
 
   const [expandedKeys, setExpandedKeys] = useState({});
 
+  const activePath = useMemo(() => findOptionPath(options, currentOption?.option) || [], [options, currentOption?.option]);
+
   const helperProps = useMemo(() => ({
     t,
     currentOption,
+    activePath,
     module,
     addActionsTop: (actions) => dispatch(addActionsTop(actions)),
     deleteStack: () => dispatch(deleteStack()),
-  }), [t, currentOption, module, dispatch]);
+  }), [t, currentOption, activePath, module, dispatch]);
 
   // Initialize expanded keys and breadcrumbs on mount
   useEffect(() => {
@@ -171,6 +207,14 @@ function AweMenu(props) {
       MenuRegistry.setBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []);
     }
   }, [currentOption?.option, options, helperProps]);
+
+  // Keep the groups on the path to the open screen expanded, as the AngularJS menu does
+  useEffect(() => {
+    const groups = activePath.slice(0, -1);
+    if (groups.length > 0) {
+      setExpandedKeys(expanded => groups.reduce((keys, name) => ({ ...keys, [name]: true }), expanded));
+    }
+  }, [activePath]);
 
   const onExpand = (ek) => setExpandedKeys(ek);
 

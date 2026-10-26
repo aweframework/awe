@@ -3,6 +3,9 @@ import React from 'react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweMenu from "../../../src/components/AweMenu";
+import MenuRegistry from "../../../src/redux/registry/MenuRegistry";
+import ViewRegistry from "../../../src/redux/registry/ViewRegistry";
+import {act, fireEvent, waitFor} from "@testing-library/react";
 
 const options = [
   {
@@ -9959,6 +9962,84 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
 
     expect(document.querySelector(".p-menubar").getAttribute("aria-disabled")).not.toBe("true");
     expect(document.querySelectorAll(".p-menubar .p-disabled").length).toBe(0);
+  });
+
+  describe('open screen option in the vertical menu', () => {
+
+    // The registries are global: leave them as they were after every test
+    afterEach(() => {
+      ViewRegistry.setView("report", {loading: true});
+      MenuRegistry.setOptions([]);
+    });
+
+    const renderVerticalMenu = (option) => {
+      MenuRegistry.setOptions(options);
+      ViewRegistry.setView("report", {option, title: option});
+      renderWithProviders(<AweMenu id="menu" style="vertical"/>, {
+        preloadedState: {
+          settings: DEFAULT_SETTINGS,
+          screen: {size: {width: 100, height: 100}},
+          components: {
+            menu: {address: {component: 'menu', view: 'base'}, model: {values: []}, attributes: {}}
+          }
+        }
+      });
+    };
+
+    it('marks the option of the open screen as active', () => {
+      renderVerticalMenu("screen-access");
+
+      const option = document.querySelector("li.screen-access");
+      expect(option).toHaveClass("p-menuitem-active");
+      expect(option).toHaveAttribute("data-active", "true");
+      expect(document.querySelectorAll(".p-menuitem-active")).toHaveLength(1);
+    });
+
+    it('marks the groups on the path to the open screen with a softer marker', () => {
+      renderVerticalMenu("screen-access");
+
+      expect(document.querySelector(".p-panelmenu-panel.settings")).toHaveClass("p-menuitem-active-path");
+      expect(document.querySelector("li.security")).toHaveClass("p-menuitem-active-path");
+      expect(document.querySelector("li.security")).not.toHaveClass("p-menuitem-active");
+      expect(document.querySelector(".p-panelmenu-panel.tools")).not.toHaveClass("p-menuitem-active-path");
+    });
+
+    it('keeps the groups on the path to the open screen expanded', () => {
+      renderVerticalMenu("screen-access");
+
+      expect(document.querySelector(".p-panelmenu-panel.settings .p-panelmenu-header")).toHaveAttribute("aria-expanded", "true");
+      expect(document.querySelector("li.security")).toHaveAttribute("aria-expanded", "true");
+      expect(document.querySelector("a[name='screen-access']")).not.toBeNull();
+    });
+
+    it('moves the marker when another screen is opened', () => {
+      renderVerticalMenu("screen-access");
+
+      act(() => ViewRegistry.setView("report", {option: "databases", title: "Databases"}));
+
+      expect(document.querySelector("li.databases")).toHaveClass("p-menuitem-active");
+      expect(document.querySelector(".p-panelmenu-panel.tools")).toHaveClass("p-menuitem-active-path");
+      expect(document.querySelector("li.screen-access")).not.toHaveClass("p-menuitem-active");
+      expect(document.querySelector(".p-panelmenu-panel.settings")).not.toHaveClass("p-menuitem-active-path");
+    });
+
+    it('does not mark the keyboard focused option as the open screen', async () => {
+      renderVerticalMenu("databases");
+
+      // Focusing an expanded group moves PrimeReact's focus marker to its first option
+      fireEvent.focus(document.querySelector(".p-panelmenu-panel.tools .p-panelmenu-root-list"));
+
+      const focused = await waitFor(() => {
+        const item = document.querySelector(".p-panelmenu .p-menuitem.p-focus");
+        expect(item).not.toBeNull();
+        return item;
+      });
+      expect(focused).toHaveClass("sites");
+      expect(focused).not.toHaveClass("p-menuitem-active");
+      expect(focused).not.toHaveAttribute("data-active", "true");
+      expect(document.querySelector("li.databases")).toHaveClass("p-menuitem-active");
+      expect(document.querySelector("li.sites")).not.toHaveClass("p-menuitem-active");
+    });
   });
 
 });
