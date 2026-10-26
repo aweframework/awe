@@ -2,6 +2,54 @@ import { mergeComponentState, calculateDeltas } from '../../../src/utilities/mer
 
 describe('awe-react-client/test/js/utilities/mergeUtilsTest.js', () => {
     describe('mergeComponentState', () => {
+        describe('without deep clones', () => {
+            const base = {
+                address: { view: 'base', component: 'grid' },
+                attributes: { id: 'id', columnModel: [{ name: 'a' }] },
+                model: { values: [{ id: 1 }, { id: 2 }] }
+            };
+
+            it('shares the nested objects of the base when there are no deltas, in a new object', () => {
+                const result = mergeComponentState(base, {});
+
+                expect(result).not.toBe(base);
+                expect(result.model).not.toBe(base.model);
+                expect(result.attributes).not.toBe(base.attributes);
+                expect(result.model.values).toBe(base.model.values);
+                expect(result.attributes.columnModel).toBe(base.attributes.columnModel);
+                expect(result).toEqual(base);
+            });
+
+            it('shares the nested objects of the deltas when there is no base, in a new object', () => {
+                const deltas = { model: { values: [{ id: 1 }] }, attributes: { visible: false } };
+
+                const result = mergeComponentState({}, deltas);
+
+                expect(result).not.toBe(deltas);
+                expect(result.model).not.toBe(deltas.model);
+                expect(result.model.values).toBe(deltas.model.values);
+                expect(result).toEqual(deltas);
+            });
+
+            it('lets a caller replace the sections of the result without touching the base', () => {
+                const result = mergeComponentState(base, {});
+                result.model = { values: [] };
+                result.attributes.visible = false;
+
+                expect(base.model.values).toHaveLength(2);
+                expect(base.attributes.visible).toBeUndefined();
+            });
+
+            it('shares the nested objects of the base and of the deltas when both exist', () => {
+                const deltas = { model: { values: [{ id: 3 }] } };
+
+                const result = mergeComponentState(base, deltas);
+
+                expect(result.model.values).toBe(deltas.model.values);
+                expect(result.attributes.columnModel).toBe(base.attributes.columnModel);
+            });
+        });
+
         it('debería retornar deltas si no hay base', () => {
             const base = {};
             const deltas = { model: { values: [1, 2, 3] } };

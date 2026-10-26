@@ -129,9 +129,8 @@ function useFormService() {
    * @param {object} action
    */
   const value = (action) => {
-    // Retrieve parameters
-    action.parameters.values = asArray(action.value);
-    select(action);
+    // The action may belong to a registered component: build a new one instead of changing it
+    select({...action, parameters: {...action.parameters, values: asArray(action.value)}});
   };
 
   /**

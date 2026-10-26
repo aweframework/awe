@@ -273,4 +273,27 @@ describe('awe-react-client/test/js/redux/registry/ComponentRegistryTest.js', () 
             expect(ComponentRegistry2.get('comp1').attributes.label).toBe('Component 1');
         });
     });
+
+    describe('immutable base', () => {
+        it('freezes the registered component down to its nested objects', () => {
+            ComponentRegistry.register('comp1', {
+                ...mockComponent1,
+                model: { values: [{ id: 1, nested: { value: 'a' } }] }
+            });
+            const base = ComponentRegistry.get('comp1');
+
+            expect(() => { base.attributes.label = 'changed'; }).toThrow(TypeError);
+            expect(() => { base.model.values.push({ id: 2 }); }).toThrow(TypeError);
+            expect(() => { base.model.values[0].nested.value = 'b'; }).toThrow(TypeError);
+        });
+
+        it('does not freeze the object that was given to register', () => {
+            const model = { values: [{ id: 1 }] };
+
+            ComponentRegistry.register('comp1', { ...mockComponent1, model });
+
+            expect(Object.isFrozen(model)).toBe(false);
+            expect(ComponentRegistry.get('comp1').model).not.toBe(model);
+        });
+    });
 });

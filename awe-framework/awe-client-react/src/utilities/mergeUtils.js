@@ -1,22 +1,46 @@
 import _ from 'lodash';
 
+// Sections of a component that are merged key by key (the rest of the component comes from the base)
+const MERGED_SECTIONS = [
+    'attributes', 'model', 'validationRules', 'storedModel', 'defaultModel', 'storedAttributes',
+    'storedValidationRules', 'specificAttributes'
+];
+
 /**
- * Mergea el estado base con los deltas
- * Los deltas siempre tienen prioridad sobre el base
- * 
- * @param {Object} base - Estado base del ComponentRegistry
- * @param {Object} deltas - Cambios dinámicos de Redux
- * @returns {Object} Estado mergeado
+ * Copies a component one level deep: a new component whose sections are new objects too, so a caller can replace
+ * or assign the sections of the result. Everything below the sections (rows, columns, ...) is shared, never cloned
+ *
+ * @param {Object} component - Component to copy
+ * @returns {Object} Component with new sections
+ */
+const copySections = (component) => {
+    const copy = { ...component };
+    MERGED_SECTIONS.forEach(section => {
+        if (copy[section] && typeof copy[section] === 'object' && !Array.isArray(copy[section])) {
+            copy[section] = { ...copy[section] };
+        }
+    });
+    return copy;
+};
+
+/**
+ * Merges the base state with the deltas, deltas always win.
+ * The result is a new component but it is never a deep clone: whatever lives below the sections (model values,
+ * column model, ...) is shared with the base and the deltas, so callers must replace it, not mutate it
+ *
+ * @param {Object} base - Base state (ComponentRegistry)
+ * @param {Object} deltas - Dynamic changes (Redux)
+ * @returns {Object} Merged state
  */
 export function mergeComponentState(base, deltas = {}) {
-    // Si no hay base, retornar solo deltas
+    // Without base there are only deltas
     if (!base || Object.keys(base).length === 0) {
-        return _.cloneDeep(deltas || {});
+        return copySections(deltas || {});
     }
 
-    // Si no hay deltas, retornar solo base
+    // Without deltas there is only the base
     if (!deltas || Object.keys(deltas).length === 0) {
-        return _.cloneDeep(base);
+        return copySections(base);
     }
 
     return {
