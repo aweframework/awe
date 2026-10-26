@@ -5,12 +5,11 @@ const ROOT = path.join(__dirname, '../../..');
 const packageConfig = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const declared = Object.keys({...packageConfig.dependencies, ...packageConfig.devDependencies});
 
+// @types/react and @types/react-dom are declared again (#808): the TypeScript type check needs them.
 // Dependencies nothing imports or configures: they only add install time, audit noise and published weight
 const REMOVED = [
   '@babel/types',
   '@redux-devtools/extension',
-  '@types/react',
-  '@types/react-dom',
   '@types/react-redux',
   'autoprefixer',
   'deep-freeze',

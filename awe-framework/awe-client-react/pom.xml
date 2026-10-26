@@ -93,6 +93,18 @@
               <skip>${skip.lint}</skip>
             </configuration>
           </execution>
+          <!-- Type-check the TypeScript files (npm run typecheck, no output). Same skip as lint: CI runs it in the "Lint · Frontend" job. -->
+          <execution>
+            <id>typecheck</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>run typecheck</arguments>
+              <skip>${skip.lint}</skip>
+            </configuration>
+          </execution>
           <execution>
             <id>jest</id>
             <goals>

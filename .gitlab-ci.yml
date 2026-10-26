@@ -351,6 +351,7 @@ MR · Script tests:
         - bin/mr-docs.sh
         - bin/mr-translations.sh
         - bin/check-website-anchors.sh
+        - bin/check-contract.sh
         - bin/test-mr-checks.sh
         - bin/test-fixtures/**/*
         - bin/local-ci*.sh
@@ -379,6 +380,7 @@ Lint · Frontend:
       status=0
       npm --prefix awe-framework/awe-client-angular run lint:ci || status=1
       npm --prefix awe-framework/awe-client-react run lint:ci || status=1
+      npm --prefix awe-framework/awe-client-react run typecheck || status=1
       exit $status
   cache:
     key: lint-frontend-npm-${CI_COMMIT_REF_SLUG}
@@ -582,6 +584,10 @@ Build · Maven:
   extends: .build
   script:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
+    # The TypeScript screen contract of the React client is generated from awe-model (#808): regenerate it from the classes just
+    # built and fail when the committed contract.ts differs. "Lint · Frontend" type checks the committed file, so a model change
+    # that breaks the client fails here (drift) or there (typecheck). It runs on every change under awe-framework/ (if-mr-code).
+    - sh bin/check-contract.sh mvn $MAVEN_CLI_OPTS
     # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it).
     - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)

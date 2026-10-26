@@ -511,7 +511,7 @@ step_secret_detection() {
 
 step_spotless() { "${MVN[@]}" spotless:check "-Dspotless.ratchetFrom=$MERGE_BASE"; }
 
-# As the "Lint · Frontend" job: npm ci of both clients, then both lints (one failure does not hide the other)
+# As the "Lint · Frontend" job: npm ci of both clients, then both lints and the React type check (one failure does not hide the other)
 step_lint_frontend() {
   local client status=0
   for client in awe-framework/awe-client-angular awe-framework/awe-client-react; do
@@ -523,11 +523,15 @@ step_lint_frontend() {
     echo "+ npm --prefix $client run lint:ci  (eslint $(node -p "require('./$client/node_modules/eslint/package.json').version"))"
     npm --prefix "$client" run lint:ci || status=1
   done
+  echo "+ npm --prefix awe-framework/awe-client-react run typecheck  (tsc $(node -p "require('./awe-framework/awe-client-react/node_modules/typescript/package.json').version"))"
+  npm --prefix awe-framework/awe-client-react run typecheck || status=1
   return "$status"
 }
 
 step_build() {
   "${MVN[@]}" install -DskipTests || return 1
+  # As "Build · Maven": the TypeScript screen contract committed for the React client must be the one generated from awe-model
+  sh "$ROOT/bin/check-contract.sh" "${MVN[@]}" || return 1
   note "version $("${MVN[@]}" -q help:evaluate -Dexpression=project.version -DforceStdout 2>/dev/null), JDK $(java -version 2>&1 | sed -n 's/.*version "\([^"]*\)".*/\1/p' | head -1)"
 }
 

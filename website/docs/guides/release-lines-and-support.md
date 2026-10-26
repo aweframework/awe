@@ -260,6 +260,23 @@ The Maven build runs the same `lint:ci` before the unit tests, so `mvn test` fai
 same limit. CI skips that Maven step (`-Dskip.lint=true`, set in `MAVEN_CLI_OPTS`), because
 `Lint · Frontend` already ran it: lint runs once per pipeline.
 
+## TypeScript screen contract (blocking) {#typescript-screen-contract}
+
+The React client is typed against the data the server sends. The Java model in `awe-model` is the source of truth: the
+Maven profile `contract` generates `awe-framework/awe-client-react/src/contract/contract.ts` from it (with
+typescript-generator), and that file is committed. Never edit it by hand; the hand-written additions (the loose component
+controller and the flat grid column) live in `src/contract/index.ts`.
+
+After changing a class of the screen model, regenerate the contract (JDK 21) and commit the result:
+
+```bash
+mvn -Pcontract -pl awe-framework/awe-model process-classes
+```
+
+`Build · Maven` regenerates it from the classes it has just built (`bin/check-contract.sh`) and fails when the committed
+file differs, with the command above in the message. `Lint · Frontend` type checks the React client against the committed
+file, so a model change that breaks the client fails the merge request either at the drift check or at the type check.
+
 ## Run the pipeline locally {#run-the-pipeline-locally}
 
 `bin/local-ci.sh` runs on your machine the jobs that the merge request pipeline would run for your branch. It reads the

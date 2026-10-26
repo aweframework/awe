@@ -138,7 +138,7 @@ describe("Jest foundation configuration", () => {
   });
 
   it("uses a Jest Babel environment without Karma's Istanbul preprocessing", () => {
-    expect(jestConfig.transform["^.+\\.js$"][1]).toEqual({
+    expect(jestConfig.transform["^.+\\.(js|ts)$"][1]).toEqual({
       envName: "jest",
       configFile: path.join(__dirname, "..", "..", "..", ".babelrc"),
       babelrc: false

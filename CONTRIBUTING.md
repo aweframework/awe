@@ -194,7 +194,8 @@ and the translation drift.
 | `MR · Script tests` | yes (only runs when those scripts, `.gitlab-ci.yml` or `.gitlab/commitlint` change) | The tests of the four scripts above (`bin/lint-mr-title.sh`, `bin/mr-size.sh`, `bin/mr-docs.sh`, `bin/mr-translations.sh`) and of `bin/check-website-anchors.sh` | `sh bin/test-mr-checks.sh` |
 | `Lint · Markdown` | warning (allowed to fail; when a Markdown file under `website/` changes) | markdownlint of the English and Spanish pages and the blog: heading levels, spaces in emphasis or code, broken tables, undefined references (rules that fight Docusaurus/MDX are off) | `npm --prefix website run lint:md` (after `npm --prefix website ci`) |
 | `Lint · Spotless` | yes (when Java or the Maven reactor changes) | Unused imports, trailing whitespace, final newline and import order in the Java files you changed | `mvn spotless:check -Dspotless.ratchetFrom=$(git merge-base HEAD origin/develop)`; `spotless:apply` fixes it |
-| `Lint · Frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
+| `Lint · Frontend` | yes (when a client changes) | ESLint of `awe-client-angular` and `awe-client-react`, and the `tsc` type check of the React client; errors, or more warnings than the `--max-warnings` of `lint:ci`, fail | `npm --prefix awe-framework/awe-client-angular run lint:ci` and the same for `awe-client-react` (after `npm ci`) |
+| `Build · Maven` (contract step) | yes (when `awe-framework/` changes) | The committed `awe-client-react/src/contract/contract.ts` equals the TypeScript contract generated from `awe-model` | `sh bin/check-contract.sh mvn`; regenerate with `mvn -Pcontract -pl awe-framework/awe-model process-classes` |
 | `Build · Website` | yes (when `website/` changes) | Unit tests of the website scripts, the site builds, and no broken anchor in the current docs (versioned docs excluded) | see below |
 
 Run the website check as CI does (the build log is read by the anchors script; the `bin/website-maintenance-docs.sh` step of
@@ -209,7 +210,9 @@ bin/check-website-anchors.sh website-build.log
 
 The title rules, the size exclusions, the docs and translation checks, the markdown lint and the frontend lint are explained in
 [Merge request title and size](website/docs/guides/release-lines-and-support.md#merge-request-title-and-size) and
-[Frontend lint](website/docs/guides/release-lines-and-support.md#frontend-lint-blocking). Which jobs a merge request gets
+[Frontend lint](website/docs/guides/release-lines-and-support.md#frontend-lint-blocking). The TypeScript screen contract the React
+client is typed against is generated from the Java model and checked for drift, see
+[TypeScript screen contract](website/docs/guides/release-lines-and-support.md#typescript-screen-contract). Which jobs a merge request gets
 depends on the paths it touches (see
 [What runs in CI on each branch](website/docs/guides/release-lines-and-support.md#what-runs-in-ci-on-each-branch)).
 
