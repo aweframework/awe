@@ -111,8 +111,8 @@ describe("awe-react-client/test/js/components/TestIdsNavigationTest.jsx", () => 
     });
 
     it("exposes the open branches, the nested options and the active option", () => {
+      // The group of the open screen option is expanded without clicking it
       const { container } = renderMenu("vertical");
-      fireEvent.click(container.querySelector(`${hook("menu-link")}[name='tools']`));
 
       const tools = container.querySelector(`${hook("menu-option")}[option-name='tools']`);
       expect(tools.getAttribute("data-open")).toBe("true");

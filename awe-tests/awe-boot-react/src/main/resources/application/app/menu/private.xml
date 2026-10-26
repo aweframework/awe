@@ -64,7 +64,7 @@
   <option name="settings" label="MENU_SETTINGS" icon="cog">
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
       <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash"/>
-      <option name="screen-access-upgraded" label="MENU_TOOLS_SCREENS_ACCESS" screen="screen-access" icon="eye-slash"/>
+      <option name="screen-access-upgraded" label="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" screen="screen-access" icon="eye-slash"/>
       <option name="menu-access" label="MENU_TOOLS_MENU_ACCESS" screen="menu-access" icon="eye-slash"/>
       <option name="security-audit" label="MENU_TOOLS_SECURITY_AUDIT" screen="SecAud" icon="shield">
         <option name="view-security-audit-event" screen="SecAudViw" invisible="true"/>

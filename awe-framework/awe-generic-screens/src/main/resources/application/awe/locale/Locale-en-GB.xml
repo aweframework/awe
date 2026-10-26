@@ -990,6 +990,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TOOLS_SCR_CNF" value="Screen configuration"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encrypt Util"/>
   <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Screen access"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Screen access by menu"/>
   <locale name="MENU_TOOLS_SECURITY" value="Security access"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Report style configuration"/>
