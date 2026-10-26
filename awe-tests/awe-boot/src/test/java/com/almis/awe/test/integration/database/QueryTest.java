@@ -3,6 +3,7 @@ package com.almis.awe.test.integration.database;
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import com.almis.awe.test.integration.util.WallClockTime;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,9 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
-import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -2516,20 +2519,20 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     String time = firstRow.get("time").asString();
     String timestamp = firstRow.get("timestamp").asString();
 
-    // Check current date vs retrieved date
-    Date currentDate = new Date();
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-    Date parsedDate = sdf.parse(date + " " + time);
-    logger.debug("Retrieved date: " + parsedDate.toString() + " - Current date: " + currentDate);
-    logger.debug("Difference between dates: " + (currentDate.getTime() - parsedDate.getTime()));
+    // Check current date vs retrieved date. The values are wall-clock times without offset: read them as their earliest
+    // instant, so the repeated hour when summer time ends is not taken as one hour in the future
+    Instant currentDate = Instant.now();
+    ZoneId zone = ZoneId.systemDefault();
+    Instant parsedDate = WallClockTime.earliestInstant(WallClockTime.parse(date, time), zone);
+    logger.debug("Retrieved date: " + parsedDate + " - Current date: " + currentDate);
+    logger.debug("Difference between dates: " + Duration.between(parsedDate, currentDate).toMillis());
 
-    sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
-    Date parsedTimestamp = sdf.parse(timestamp);
-    logger.debug("Difference between timestamp: " + (currentDate.getTime() - parsedTimestamp.getTime()));
+    Instant parsedTimestamp = WallClockTime.earliestInstant(WallClockTime.parseTimestamp(timestamp), zone);
+    logger.debug("Difference between timestamp: " + Duration.between(parsedTimestamp, currentDate).toMillis());
 
-    // Check that the difference is less than a second
-    assertTrue(parsedDate.getTime() - currentDate.getTime() < 1000);
-    assertTrue(parsedTimestamp.getTime() - currentDate.getTime() < 1000);
+    // Check that the retrieved values are not later than now (less than a second ahead)
+    assertTrue(Duration.between(currentDate, parsedDate).toMillis() < 1000);
+    assertTrue(Duration.between(currentDate, parsedTimestamp).toMillis() < 1000);
   }
 
   /**
