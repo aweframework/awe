@@ -6,6 +6,7 @@ import "./rightClick";
 import "./help";
 import "./tagList";
 import "./translateMultiple";
+import "./signin";
 import "./plugins/uiDependency";
 
 import "./window";

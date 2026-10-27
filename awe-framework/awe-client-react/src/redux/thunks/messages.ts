@@ -1,11 +1,13 @@
-import {addMessage, confirmMessage, MessageType, showPopover} from "../actions/messages";
+import {addMessage, confirmMessage, MessageType, showPopover, showSigninAlert} from "../actions/messages";
 import {acceptAction} from "../actions/actions";
 import type {ActionItem} from "../actions/actions";
 import type {Settings} from "../actions/settings";
 import type {ComponentAddress} from "../../contract";
-import {translateLabel} from "../../utilities";
+import {getComponent, translateLabel} from "../../utilities";
 import {findMessageTarget} from "../../utilities/messageTarget";
-import type {AppThunk, MessagesState} from "../types";
+import {inSigninPage, launchesServerAction, LOGIN_ACTION} from "../../utilities/signin";
+import {getAllComponents} from "../selectors/componentSelectors";
+import type {AppThunk, MessagesState, RootState} from "../types";
 import type {ClientAction, Translate} from "./types";
 
 /** The title and the text of a message */
@@ -93,11 +95,42 @@ function getMessage(parameters: MessageClientAction["parameters"], messages: Rec
 const getDefinedMessages = (messages: MessagesState, view: string | undefined): Record<string, unknown> =>
   messages.defined[view as string];
 
+/**
+ * Check whether a message is the answer of a failed login on the sign-in page: a message of the button that launches
+ * the login server action, drawn inside the sign-in page. An answer that goes on to another screen (the change of an
+ * expired password) keeps its toast, which survives the change of screen
+ * @param action Message action
+ * @param state State
+ * @return The sign-in page shows the message in its alert
+ */
+function isSigninLoginMessage(action: MessageClientAction, state: RootState): boolean {
+  const address = action.address;
+  if (!address || !state.components || !inSigninPage(findMessageTarget(address))) {
+    return false;
+  }
+  // The actions of a component are in its registered base, not in the changes the state keeps: merge both
+  const button = getComponent(getAllComponents(state), address);
+  if (!launchesServerAction(button?.actions, LOGIN_ACTION)) {
+    return false;
+  }
+  const stack = state.actions?.sync?.at(-1) ?? [];
+  return !stack.some(pending => pending.type === "screen" && pending.id !== action.id);
+}
+
 export const messageAction = (action: MessageClientAction, t: Translate): AppThunk => {
   return (dispatch, getState) => {
     const {settings, messages} = getState();
     const {type} = action.parameters;
     const {title, message} = getMessage(action.parameters, getDefinedMessages(messages, action.address?.view || action.view));
+
+    // On the sign-in page a failed login is shown in the alert of the form, with the text of the server as it is
+    if (isSigninLoginMessage(action, getState())) {
+      dispatch(showSigninAlert({id: messageId, severity: getMessageType(type), summary: title, detail: message}));
+      messageId++;
+      dispatch(acceptAction(action as ActionItem));
+      return;
+    }
+
     const life = getMessageLife(type, settings);
 
     dispatch(addMessage({

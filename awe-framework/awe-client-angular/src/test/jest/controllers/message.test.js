@@ -47,6 +47,36 @@ describe("controllers/message.js", function() {
     expect(controller.alerts).toHaveLength(0);
   });
 
+  it("lets a screen claim a message to show it itself: no alert, the action ends at once", function() {
+    const callbackTarget = {view: "base", component: "ButLogIn"};
+    const action = actionWith({parameters: {type: "warning", title: "Invalid", message: "Check it"}, callbackTarget});
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+    const claims = [];
+    const stop = scope.$root.$on("claim-message", (event, message) => {
+      claims.push(message);
+      event.preventDefault();
+    });
+
+    controller.MessageActions.message(action);
+    stop();
+
+    expect(claims).toEqual([{type: "warning", title: "Invalid", message: "Check it", target: callbackTarget, view: "base"}]);
+    expect(controller.alerts).toEqual([]);
+    expect(actionController.acceptAction).toHaveBeenCalledWith(action);
+  });
+
+  it("adds the alert when nobody claims the message", function() {
+    const action = actionWith({parameters: {type: "warning", title: "Invalid", message: "Check it"}});
+    const listener = jest.fn();
+    const stop = scope.$root.$on("claim-message", listener);
+
+    controller.MessageActions.message(action);
+    stop();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(controller.alerts).toEqual([{type: "warning", action, title: "Invalid", msg: "Check it"}]);
+  });
+
   it("resolves targeted message text through the control boundary", function() {
     const action = actionWith({parameters: {type: "error", target: "RequiredMessage"}, view: "base"});
     jest.spyOn(control, "getMessageFromScope").mockReturnValue({title: "Invalid", message: "Required"});

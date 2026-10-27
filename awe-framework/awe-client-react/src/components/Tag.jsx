@@ -4,12 +4,15 @@ import {classNames, isVoidElement} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import {renderSafeHtml} from "../utilities/sanitizeHtml";
 import {translateLabel} from "../utilities";
+import {isLoginPage} from "../utilities/signin";
+import SigninPage, {useSigninPart} from "./SigninPage";
 import PropTypes from "prop-types";
 
 function Tag(props) {
   const {type, id, style, label, expand, elementList, value} = props;
   const { t } = useTranslation();
   const classes = classNames({[`expandible-${expand}`]: expand}, style);
+  const signinPart = useSigninPart(style);
 
   // Void elements (hr, br...) cannot have children
   if (isVoidElement(type)) {
@@ -22,6 +25,17 @@ function Tag(props) {
   // A tag without type generates no element: its content goes straight to the parent
   if (!type) {
     return <>{content}</>;
+  }
+
+  // The sign-in page and the other login pages are branded through the settings (awe.application.login.*)
+  if (isLoginPage(id, elementList)) {
+    return <SigninPage id={id} className={classes}>{content}</SigninPage>;
+  }
+
+  if (signinPart) {
+    return React.createElement(type,
+      {id: id, className: classNames(classes, signinPart.className), ...signinPart.attributes},
+      signinPart.before, content, signinPart.after);
   }
 
   return React.createElement(type, {id: id, className: classes}, content);

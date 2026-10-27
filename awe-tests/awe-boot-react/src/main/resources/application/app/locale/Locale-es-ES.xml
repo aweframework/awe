@@ -354,4 +354,5 @@
   <locale name="POPOVER_TITLE_RIGHT" value="Notas"/>
   <locale name="PARAMETER_POPOVER_RESULT" value="Resultado"/>
   <locale name="PARAMETER_POPOVER_THEME_ID" value="Identificador"/>
+  <locale name="LOGIN_DEMO_CREDENTIALS" value="Credenciales de demostración: usuario test, contraseña test"/>
 </locales>

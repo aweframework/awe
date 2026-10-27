@@ -527,6 +527,20 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-login-gradient` | `radial-gradient(110% 70% at 88% 8%, light-dark(var(--awe-primary-300), var(--awe-primary-600)) 0%, transparent 58%), radial-gradient(90% 60% at 8% 92%, light-dark(var(--awe-primary-800), var(--awe-primary-950)) 0%, transparent 62%), linear-gradient(160deg, light-dark(var(--awe-primary-700), var(--awe-primary-900)) 0%, light-dark(var(--awe-primary-500), var(--awe-primary-700)) 100%)` |  |
 | `--awe-login-brand-background` | `radial-gradient(75% 55% at 88% 6%, color-mix(in srgb, var(--awe-primary-500) 42%, transparent) 0%, transparent 70%), radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--awe-primary-700) 45%, transparent) 0%, transparent 72%), linear-gradient(160deg, var(--awe-surface-900) 0%, var(--awe-surface-950) 100%)` |  |
 | `--awe-login-brand-logo-width` | `340px` | `280px` |
+| `--awe-login-card-width` | `480px` | `420px` |
+| `--awe-login-card-padding` | `var(--awe-space-10)` | `var(--awe-space-8)` |
+| `--awe-login-card-background` | `var(--awe-color-surface)` |  |
+| `--awe-login-card-radius` | `var(--awe-radius-modal)` |  |
+| `--awe-login-card-shadow` | `var(--awe-shadow-modal)` |  |
+| `--awe-login-backdrop-veil` | `color-mix(in srgb, var(--awe-palette-slate-950) 35%, transparent)` |  |
+| `--awe-login-microsoft-background` | `var(--awe-color-surface)` |  |
+| `--awe-login-microsoft-border` | `var(--awe-color-border)` |  |
+| `--awe-login-microsoft-text` | `var(--awe-color-text-emphasis)` |  |
+| `--awe-login-microsoft-font-family` | `var(--awe-font-family-base)` |  |
+| `--awe-login-microsoft-font-size` | `var(--awe-font-size-md)` |  |
+| `--awe-login-microsoft-height` | `var(--awe-size-control-lg)` |  |
+| `--awe-login-microsoft-padding` | `var(--awe-space-3)` |  |
+| `--awe-login-microsoft-radius` | `var(--awe-radius-field)` |  |
 
 ### Solo del prototipo {#prototype-only}
 

@@ -8,11 +8,14 @@ import useText from "../hooks/useText";
 import PropTypes from "prop-types";
 import useEnterKey from "../hooks/useEnterKey";
 import {TestIds, testHook} from "../utilities/testIds";
+import {useSigningIn} from "../components/SigninPage";
 
 function AweInputText(props) {
   const { id } = props;
   const { t } = useTranslation();
   const { address, attributes, validationRules, value, onChange, onBlur, onSubmit } = useText(id);
+  // On the sign-in page the field is disabled while the login runs
+  const signingIn = useSigningIn();
 
   const { placeholder, required, readonly, size, error } = attributes;
   const onKeyDown = useEnterKey(onSubmit);
@@ -29,7 +32,7 @@ function AweInputText(props) {
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         required={required}
-        disabled={readonly}
+        disabled={readonly || signingIn}
         {...testHook(TestIds.criterionInput)}
       />
     </AweCriterion>

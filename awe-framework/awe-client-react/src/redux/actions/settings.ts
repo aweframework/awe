@@ -26,6 +26,49 @@ export function getUID(): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
+/** Layout of the sign-in page */
+export type LoginLayout = "split" | "form-only" | "card";
+
+/**
+ * Branding of the sign-in page (awe.application.login.*). An absent text is not shown, an absent image is the AWE one
+ */
+export interface LoginSettings {
+  layout?: LoginLayout | string;
+  logo?: string;
+  logoDark?: string;
+  background?: string;
+  /** Name of a canvas effect the application registers (awe.application.login.background-effect) */
+  backgroundEffect?: string;
+  title?: string;
+  subtitle?: string;
+  panelTitle?: string;
+  panelSubtitle?: string;
+  footerText?: string;
+  poweredBy?: boolean;
+  /** Language selector in the footer */
+  languageSelector?: boolean;
+  /** Light / dark / system mode selector in the footer */
+  modeSelector?: boolean;
+  /** Languages of the language selector (awe.application.language-list) */
+  languages?: string[];
+}
+
+/**
+ * The framework sign-in page: split layout, AWE logo and brand panel, the AWE welcome texts, "Powered by AWE 5" and the
+ * language and mode selectors
+ */
+export const DEFAULT_LOGIN_SETTINGS: LoginSettings = {
+  layout: "split",
+  title: "SCREEN_TEXT_LOGIN_TITLE",
+  subtitle: "SCREEN_TEXT_LOGIN_SUBTITLE",
+  panelTitle: "SCREEN_TEXT_LOGIN_PANEL_TITLE",
+  panelSubtitle: "SCREEN_TEXT_LOGIN_PANEL_SUBTITLE",
+  poweredBy: true,
+  languageSelector: true,
+  modeSelector: true,
+  languages: ["en-GB", "es-ES", "fr-FR"]
+};
+
 /*
  * initial settings
  */
@@ -116,7 +159,9 @@ export const DEFAULT_SETTINGS = {
   },
   activeDependencies: true,
   // Menu option search (command palette) is enabled unless explicitly disabled
-  menuSearchEnabled: true
+  menuSearchEnabled: true,
+  // Sign-in page branding
+  login: DEFAULT_LOGIN_SETTINGS as LoginSettings | undefined
 };
 
 /** Settings of the application, typed from their defaults */

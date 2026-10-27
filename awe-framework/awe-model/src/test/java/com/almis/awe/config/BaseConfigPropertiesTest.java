@@ -88,4 +88,69 @@ class BaseConfigPropertiesTest {
   void defaultNavbarLogoIsTheAwe5Mark() {
     assertThat(bind(Map.of()).getPaths().getImageNavbarLogo()).isEqualTo("../images/logo/awe-logo-mark.svg");
   }
+  @Test
+  @DisplayName("Without properties the sign-in page is the split layout with the AWE logo, panel, texts and selectors")
+  void defaultLogin() {
+    BaseConfigProperties.Login login = bind(Map.of()).getLogin();
+
+    assertThat(login.getLayout()).isEqualTo("split");
+    assertThat(login.getLogo()).isNull();
+    assertThat(login.getLogoDark()).isNull();
+    assertThat(login.getBackground()).isNull();
+    assertThat(login.getTitle()).isEqualTo("SCREEN_TEXT_LOGIN_TITLE");
+    assertThat(login.getSubtitle()).isEqualTo("SCREEN_TEXT_LOGIN_SUBTITLE");
+    assertThat(login.getPanelTitle()).isEqualTo("SCREEN_TEXT_LOGIN_PANEL_TITLE");
+    assertThat(login.getPanelSubtitle()).isEqualTo("SCREEN_TEXT_LOGIN_PANEL_SUBTITLE");
+    assertThat(login.getFooterText()).isNull();
+    assertThat(login.isPoweredBy()).isTrue();
+    assertThat(login.isLanguageSelector()).isTrue();
+    assertThat(login.isModeSelector()).isTrue();
+    assertThat(login.getBackgroundEffect()).isNull();
+  }
+
+  @Test
+  @DisplayName("background-effect is the name of a canvas effect the application registers, any name (S23)")
+  void loginBackgroundEffect() {
+    BaseConfigProperties.Login login = bind(Map.of("awe.application.login.background-effect", "brand-wave")).getLogin();
+
+    assertThat(login.getBackgroundEffect()).isEqualTo("brand-wave");
+  }
+
+  @Test
+  @DisplayName("language-selector and mode-selector hide the selectors of the sign-in footer")
+  void loginSelectors() {
+    BaseConfigProperties.Login login = bind(Map.of(
+      "awe.application.login.language-selector", "false",
+      "awe.application.login.mode-selector", "false")).getLogin();
+
+    assertThat(login.isLanguageSelector()).isFalse();
+    assertThat(login.isModeSelector()).isFalse();
+  }
+
+  @Test
+  @DisplayName("The login.* properties brand the sign-in page")
+  void login() {
+    BaseConfigProperties.Login login = bind(Map.ofEntries(
+      Map.entry("awe.application.login.layout", "card"),
+      Map.entry("awe.application.login.logo", "images/acme.svg"),
+      Map.entry("awe.application.login.logo-dark", "images/acme-dark.svg"),
+      Map.entry("awe.application.login.background", "https://cdn.acme.com/bg.jpg"),
+      Map.entry("awe.application.login.title", "Welcome to Acme"),
+      Map.entry("awe.application.login.subtitle", "ACME_LOGIN_SUBTITLE"),
+      Map.entry("awe.application.login.panel-title", "Operations Hub"),
+      Map.entry("awe.application.login.panel-subtitle", "From the warehouse to the door"),
+      Map.entry("awe.application.login.footer-text", "Acme © 2026"),
+      Map.entry("awe.application.login.powered-by", "false"))).getLogin();
+
+    assertThat(login.getLayout()).isEqualTo("card");
+    assertThat(login.getLogo()).isEqualTo("images/acme.svg");
+    assertThat(login.getLogoDark()).isEqualTo("images/acme-dark.svg");
+    assertThat(login.getBackground()).isEqualTo("https://cdn.acme.com/bg.jpg");
+    assertThat(login.getTitle()).isEqualTo("Welcome to Acme");
+    assertThat(login.getSubtitle()).isEqualTo("ACME_LOGIN_SUBTITLE");
+    assertThat(login.getPanelTitle()).isEqualTo("Operations Hub");
+    assertThat(login.getPanelSubtitle()).isEqualTo("From the warehouse to the door");
+    assertThat(login.getFooterText()).isEqualTo("Acme © 2026");
+    assertThat(login.isPoweredBy()).isFalse();
+  }
 }

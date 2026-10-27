@@ -1233,6 +1233,25 @@
     radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--awe-primary-700) 45%, transparent) 0%, transparent 72%),
     linear-gradient(160deg, var(--awe-surface-900) 0%, var(--awe-surface-950) 100%);
   --awe-login-brand-logo-width: 340px;
+
+  /* Card layout: the form in a card over the full-screen background, under a light veil of the image */
+  --awe-login-card-width: 480px;
+  --awe-login-card-padding: var(--awe-space-10);
+  --awe-login-card-background: var(--awe-color-surface);
+  --awe-login-card-radius: var(--awe-radius-modal);
+  --awe-login-card-shadow: var(--awe-shadow-modal);
+  --awe-login-backdrop-veil: color-mix(in srgb, var(--awe-palette-slate-950) 35%, transparent);
+
+  /* "Sign in with Microsoft" button: the official Microsoft logo and text on a button of the application style */
+  --awe-login-microsoft-background: var(--awe-color-surface);
+  --awe-login-microsoft-border: var(--awe-color-border);
+  --awe-login-microsoft-text: var(--awe-color-text-emphasis);
+  --awe-login-microsoft-font-family: var(--awe-font-family-base);
+  --awe-login-microsoft-font-size: var(--awe-font-size-md);
+  --awe-login-microsoft-height: var(--awe-size-control-lg);
+  --awe-login-microsoft-padding: var(--awe-space-3);
+  --awe-login-microsoft-radius: var(--awe-radius-field);
+
 }
 
 :root[data-awe-density="compact"] {
@@ -1241,6 +1260,8 @@
   --awe-login-padding-x: var(--awe-space-8);
   --awe-login-logo-height: 34px;
   --awe-login-brand-logo-width: 280px;
+  --awe-login-card-width: 420px;
+  --awe-login-card-padding: var(--awe-space-8);
 }
 
 /* ==========================================================================

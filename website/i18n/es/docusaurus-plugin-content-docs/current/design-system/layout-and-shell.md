@@ -113,9 +113,130 @@ para el inicio de sesión único.
 `<img class="login__img">` (`object-fit: cover`). Por defecto: el logo de AWE sobre un degradado oscuro de marca
 (`--awe-login-brand-background`). Otras opciones: un degradado simple del primario (`--awe-login-gradient`) o sin
 imagen (formulario centrado y solo). La capa del pie mantiene su texto por encima de 10:1 con cualquier primario;
-compruébelo con su propia imagen. En el motor AngularJS las propiedades
-`awe.application.paths.image-startup-background` y `awe.application.paths.image-startup-logo` siguen vigentes: cuando
-un producto cambia sus valores por defecto, la imagen llena el panel y el logo sustituye al logo de AWE del formulario.
+compruébelo con su propia imagen.
+
+**Diseños.** Los dos motores construyen la página de inicio de sesión a partir de las propiedades
+`awe.application.login.*`, sin cambiar el XML de inicio de sesión. `awe.application.login.layout` elige el diseño, que
+se indica como `data-awe-login-layout` en la raíz de la página; cualquier otro valor equivale a `split`.
+
+| Diseño | Qué muestra |
+|--------|-------------|
+| `split` (por defecto) | La columna del formulario junto al panel de imagen con su pie; el pie de página bajo el formulario. Por debajo de 960px el panel se oculta. |
+| `form-only` | El formulario solo, centrado, con su pie de página. Sin panel de imagen. |
+| `card` | La imagen de fondo (o el panel de marca de AWE) ocupa toda la pantalla bajo `--awe-login-backdrop-veil`, el formulario queda en una tarjeta centrada y el pie de página bajo la tarjeta, sobre la superficie de la tarjeta. El pie de la imagen se mantiene sobre el fondo y se oculta por debajo de 960px; la tarjeta conserva el fondo. |
+
+**Partes configurables.** Los colores vienen del tema (`awe.application.theme-primary`, `theme-surface`); el login no
+añade ninguna propiedad de color. Un texto vacío oculta su elemento.
+
+| Parte | Propiedad | Por defecto |
+|-------|-----------|-------------|
+| Logo del formulario | `awe.application.login.logo` | El logo de AWE |
+| Logo en modo oscuro | `awe.application.login.logo-dark` | El logo |
+| Imagen del panel (`split`) o del fondo (`card`) | `awe.application.login.background` | El panel de marca de AWE |
+| Efecto canvas del panel de imagen, por el nombre que registra la aplicación | `awe.application.login.background-effect` | Ninguno (la imagen) |
+| Título del formulario y subtítulo bajo él | `awe.application.login.title`, `awe.application.login.subtitle` | `SCREEN_TEXT_LOGIN_TITLE` ("Bienvenido a AWE"), `SCREEN_TEXT_LOGIN_SUBTITLE` ("Introduce tus credenciales para continuar.") |
+| Pie sobre la imagen (título y una línea) | `awe.application.login.panel-title`, `awe.application.login.panel-subtitle` | `SCREEN_TEXT_LOGIN_PANEL_TITLE` ("AWE Framework"), `SCREEN_TEXT_LOGIN_PANEL_SUBTITLE` ("Aplicaciones web funcionales completas con low code") |
+| Texto del pie de página (a la izquierda), por ejemplo el copyright | `awe.application.login.footer-text` | Ninguno |
+| "Powered by AWE 5" (bajo el texto del pie de página) | `awe.application.login.powered-by` | `true` |
+| Selector de idioma (a la derecha del pie), con los idiomas de `awe.application.language-list` | `awe.application.login.language-selector` | `true` |
+| Selector de modo claro, oscuro y sistema (a la derecha del pie) | `awe.application.login.mode-selector` | `true` |
+
+El campo de contraseña tiene un botón para mostrarla u ocultarla y avisa mientras Bloq Mayús está activado. Antes de
+iniciar sesión, el idioma elegido se aplica a la página y el modo elegido se guarda en el navegador (`localStorage`);
+tras iniciar sesión se aplican el idioma y el modo del usuario.
+
+- **Textos**: son una clave de idioma o un literal. Un valor que es una clave de idioma completa muestra su traducción
+  en el idioma del usuario; cualquier otro valor se muestra tal cual.
+- **Imágenes**: admiten una URL relativa a la raíz de la aplicación (`images/acme/logo.svg`), una URL absoluta
+  (`https://cdn.acme.com/bg.jpg`) o una URI `data:`. Un logo configurado sustituye al logo y al nombre de AWE del
+  formulario.
+- **Modo oscuro**: mientras la página está en modo oscuro (el modo del usuario o el del sistema), el formulario muestra
+  `logo-dark` si está definido y, si no, `logo`; cambia cuando cambia el modo.
+- **Powered by AWE 5**: ponga `powered-by` a `false` para ocultarlo; sin él y sin texto de pie no hay pie de página.
+- **Alternativa obsoleta**: cuando `logo` o `background` no están definidas, un valor de
+  `awe.application.paths.image-startup-logo` o `awe.application.paths.image-startup-background` distinto del valor por
+  defecto sigue personalizando la página de inicio de sesión. Páselo a la propiedad de `login`. En AngularJS esas dos
+  propiedades siguen dando estilo a las pantallas de cambio de contraseña y de 2FA, a las que no llega
+  `awe.application.login.*`.
+
+Personalización de un cliente en `application.properties`:
+
+```properties
+awe.application.theme-primary=#0f766e
+awe.application.login.layout=card
+awe.application.login.logo=images/acme/logo.svg
+awe.application.login.logo-dark=images/acme/logo-white.svg
+awe.application.login.background=images/acme/sign-in.jpg
+awe.application.login.subtitle=Portal de clientes
+awe.application.login.panel-title=ACME Logistics
+awe.application.login.panel-subtitle=Todos sus envíos en un solo lugar
+awe.application.login.footer-text=\u00A9 2026 ACME Logistics
+```
+
+Spring Boot lee los ficheros `.properties` en ISO-8859-1: escriba los caracteres que no son ASCII como escapes Unicode (`\u00A9` para ©) o use `application.yml`, que se lee en UTF-8.
+
+**Tokens de la tarjeta.** El diseño `card` lee `--awe-login-card-width` (480px, 420px en densidad compacta),
+`--awe-login-card-padding`, `--awe-login-card-background` (la superficie), `--awe-login-card-radius` y
+`--awe-login-card-shadow` (los de un modal), y `--awe-login-backdrop-veil`, el velo sobre la imagen de fondo. Consulte
+la [referencia de tokens](tokens-reference.md#tier-3-component).
+
+**Efecto de fondo propio.** `awe.application.login.background-effect` recibe el nombre de un efecto canvas que
+registra la aplicación: AWE no incluye ningún efecto, cada producto escribe el suyo. El nombre se recorta; un valor
+vacío, el de por defecto, mantiene la imagen de fondo. El efecto ocupa el lugar del panel de imagen del diseño `split` y
+del fondo del diseño `card`, bajo el velo y el degradado oscuro, con el pie de la imagen encima; el diseño `form-only`
+no tiene fondo, así que no dibuja nada, y en `split` se oculta con el panel por debajo de 960px. El framework no da
+ningún color al canvas: el efecto pinta su propio fondo (opaco, o transparente para que se vea el fondo de la página).
+
+El framework añade `<div class="signin-effect" aria-hidden="true"><canvas></canvas></div>` donde va la imagen de fondo,
+llama al efecto registrado con ese canvas y lo detiene cuando la página desaparece. La raíz de la página lleva
+`data-awe-login-effect="<nombre>"` y, mientras el efecto se está dibujando, `data-awe-login-effect-running`.
+
+| Caso | Qué ocurre |
+|------|------------|
+| Nombre desconocido | No se dibuja nada y se mantiene la imagen de fondo (ningún contenedor tapa el panel) |
+| Efecto registrado después de dibujar la página | Se inicia cuando se registra, así que un bundle que carga más tarde también lo dibuja |
+| Efecto que lanza un error | Se informa con `console.error` (en AngularJS, `$log.error`) y la página y su imagen quedan como estaban |
+| La página desaparece | Se llama a la función que devolvió el efecto (en AngularJS, al recibir `$destroy`) |
+
+El contrato es una función, `effect(canvas) => stop | void`: dibuja en el canvas y devuelve la función que lo detiene
+(cancelar los fotogramas, los observadores y los escuchadores), o nada cuando no tiene nada que detener. El registro es
+común a los dos motores mediante `globalThis.aweLoginEffects`, así que el efecto se escribe una sola vez.
+
+```js
+// Bundle de la aplicación, antes o después de dibujar la página (React)
+import {registerLoginEffect} from "awe-react-client";
+
+registerLoginEffect("brand-wave", canvas => {
+  const context = canvas.getContext("2d");
+  let frame = requestAnimationFrame(function draw() {
+    // Dibuje el fondo y la animación del producto en el canvas
+    frame = requestAnimationFrame(draw);
+  });
+  return () => cancelAnimationFrame(frame);
+});
+```
+
+```js
+// Bundle de la aplicación (AngularJS): el mismo registro global
+aweLoginEffects.register("brand-wave", function (canvas) {
+  var context = canvas.getContext("2d");
+  var frame = requestAnimationFrame(function draw() {
+    frame = requestAnimationFrame(draw);
+  });
+  return function () {
+    cancelAnimationFrame(frame);
+  };
+});
+```
+
+```properties
+awe.application.login.background-effect=brand-wave
+```
+
+El canvas ocupa el panel (el 100% de su ancho y su alto): ajuste su búfer de dibujo con `getBoundingClientRect()` y
+`devicePixelRatio`. Un canvas no resuelve propiedades personalizadas de CSS, así que lea los tokens del producto con
+`getComputedStyle(canvas)`. El movimiento, el movimiento reducido (`prefers-reduced-motion`), la animación y la
+limpieza son responsabilidad del efecto.
 
 **Inicio de sesión único.** El botón es genérico ("Continue with your organization", icono de llave). No use logos ni
 marcas de terceros.

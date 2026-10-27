@@ -340,6 +340,79 @@
       "defaultValue": true
     },
     {
+      "name": "awe.application.login.background",
+      "type": "java.lang.String",
+      "description": "Background image of the sign-in page: the panel of the split layout, the backdrop of the card layout. When empty, awe.application.paths.image-startup-background if changed, else the AWE brand panel. Default value empty"
+    },
+    {
+      "name": "awe.application.login.background-effect",
+      "type": "java.lang.String",
+      "description": "Name of a canvas effect the application registers for the image panel of the sign-in page (the split panel and the card backdrop; the form-only layout has no background). AWE ships no effect: the application registers the effects it writes in its own bundle and selects one here (see \"Custom background effect\" in the design system for the contract and examples). Empty means no effect, so the background image stays. Default value empty"
+    },
+    {
+      "name": "awe.application.login.footer-text",
+      "type": "java.lang.String",
+      "description": "Footer text of the sign-in page, for instance the copyright. Default value empty"
+    },
+    {
+      "name": "awe.application.login.language-selector",
+      "type": "java.lang.Boolean",
+      "description": "Show the language selector in the footer of the sign-in page, with the languages of awe.application.language-list. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.login.layout",
+      "type": "java.lang.String",
+      "description": "Layout of the sign-in page: split (the form column next to the background panel), form-only (the form centred alone) or card (the form in a card over the full-screen background). Any other value is split. Default value split",
+      "defaultValue": "split"
+    },
+    {
+      "name": "awe.application.login.logo",
+      "type": "java.lang.String",
+      "description": "Logo of the sign-in page. When empty, awe.application.paths.image-startup-logo if changed, else the AWE logo. Default value empty"
+    },
+    {
+      "name": "awe.application.login.logo-dark",
+      "type": "java.lang.String",
+      "description": "Logo of the sign-in page in dark mode. Default value empty (the logo)"
+    },
+    {
+      "name": "awe.application.login.mode-selector",
+      "type": "java.lang.Boolean",
+      "description": "Show the light, dark and system colour mode selector in the footer of the sign-in page. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.login.panel-subtitle",
+      "type": "java.lang.String",
+      "description": "Text of the caption over the background image. Default value SCREEN_TEXT_LOGIN_PANEL_SUBTITLE (\"Low coding complete functional web applications\")",
+      "defaultValue": "SCREEN_TEXT_LOGIN_PANEL_SUBTITLE"
+    },
+    {
+      "name": "awe.application.login.panel-title",
+      "type": "java.lang.String",
+      "description": "Title of the caption over the background image. Default value SCREEN_TEXT_LOGIN_PANEL_TITLE (\"AWE Framework\")",
+      "defaultValue": "SCREEN_TEXT_LOGIN_PANEL_TITLE"
+    },
+    {
+      "name": "awe.application.login.powered-by",
+      "type": "java.lang.Boolean",
+      "description": "Show \"Powered by AWE\" in the footer of the sign-in page. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.application.login.subtitle",
+      "type": "java.lang.String",
+      "description": "Subtitle of the sign-in form. Default value SCREEN_TEXT_LOGIN_SUBTITLE (\"Enter your credentials to continue.\")",
+      "defaultValue": "SCREEN_TEXT_LOGIN_SUBTITLE"
+    },
+    {
+      "name": "awe.application.login.title",
+      "type": "java.lang.String",
+      "description": "Title of the sign-in form. Default value SCREEN_TEXT_LOGIN_TITLE (\"Welcome to AWE\")",
+      "defaultValue": "SCREEN_TEXT_LOGIN_TITLE"
+    },
+    {
       "name": "awe.application.map.tile-url",
       "type": "java.lang.String",
       "description": "Url template of the map tiles, with the {z}, {x} and {y} placeholders. Mind the usage policy of the tile server: the default OpenStreetMap server is meant for light use, so use your own tile server for heavy traffic. Default value https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -437,13 +510,13 @@
     {
       "name": "awe.application.paths.image-startup-background",
       "type": "java.lang.String",
-      "description": "Sign-in screen background image. Uses application.paths.images as parent path. Default value ../images/background/signin-bg-1.jpg",
+      "description": "Sign-in screen background image. Uses application.paths.images as parent path. Deprecated for the sign-in page: use awe.application.login.background instead (this value is its fallback); in AngularJS it still styles the change password and two-factor screens. Default value ../images/background/signin-bg-1.jpg",
       "defaultValue": "../images/background/signin-bg-1.jpg"
     },
     {
       "name": "awe.application.paths.image-startup-logo",
       "type": "java.lang.String",
-      "description": "Sign-in screen logo. Uses application.paths.images as parent path. Default value ../images/logo/logo-awe-nuevo.svg",
+      "description": "Sign-in screen logo. Uses application.paths.images as parent path. Deprecated for the sign-in page: use awe.application.login.logo instead (this value is its fallback); in AngularJS it still styles the change password and two-factor screens. Default value ../images/logo/logo-awe-nuevo.svg",
       "defaultValue": "../images/logo/logo-awe-nuevo.svg"
     },
     {
