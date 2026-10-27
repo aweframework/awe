@@ -1487,6 +1487,69 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
       expect(event.preventDefault).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ["before", "1", "4", [2, 3, 1, 4]],
+      ["after", "1", "3", [2, 3, 1, 4]],
+      ["after", "1", "4", [2, 3, 4, 1]],
+      ["before", "4", "1", [4, 1, 2, 3]],
+      ["after", "4", "1", [1, 4, 2, 3]],
+      ["before", "3", "1", [3, 1, 2, 4]]
+    ])('moves the row to the %s of the target row (row %s, target %s)', (position, rowId, targetRowId, expected) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position, rowId, targetRowId)).toBe(true);
+
+      expect(ids(component)).toEqual(expected);
+      expect(component.updateModelSpecific).toHaveBeenCalledTimes(1);
+    });
+
+    it('selects the row moved next to a target once the model is updated', async () => {
+      const component = getMovableComponent([2]);
+
+      component.moveRow("after", "1", "4");
+      await Promise.resolve();
+
+      expect(component.setSelection).toHaveBeenCalledWith([1]);
+    });
+
+    it.each([
+      ["before", "3", "4"],
+      ["after", "3", "2"],
+      ["before", "3", "3"],
+      ["after", "3", "3"],
+      ["before", "3", "99"],
+      ["before", "99", "1"],
+      ["middle", "3", "1"]
+    ])('does nothing when moving the row to the %s of the target row does not change the order (row %s, target %s)', (position, rowId, targetRowId) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position, rowId, targetRowId)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(component.updateModelSpecific).not.toHaveBeenCalled();
+    });
+
+    it('never moves the rows of a tree grid next to a target row', () => {
+      const component = getMovableComponent();
+      component.isTree = true;
+
+      expect(component.moveRow("before", "3", "1")).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+    });
+
+    it('moves the selected row with the keys on a grid with move-rows that is not editable', () => {
+      const component = getMovableComponent();
+      component.editable = false;
+      component.controller.moveRows = true;
+      const event = {key: "ArrowUp", altKey: true, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(true);
+
+      expect(ids(component)).toEqual([1, 3, 2, 4]);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
     it('ignores the keys on a grid that is not editable', () => {
       const component = getMovableComponent();
       component.editable = false;

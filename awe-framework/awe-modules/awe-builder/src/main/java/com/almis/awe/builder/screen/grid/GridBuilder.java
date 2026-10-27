@@ -67,6 +67,17 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   }
 
   /**
+   * Set move rows (drag and drop of rows)
+   *
+   * @param moveRows
+   * @return
+   */
+  public GridBuilder setMoveRows(boolean moveRows) {
+    getGridAttributes().setMoveRows(moveRows);
+    return this;
+  }
+
+  /**
    * Set pagination disabled
    *
    * @param paginationDisabled

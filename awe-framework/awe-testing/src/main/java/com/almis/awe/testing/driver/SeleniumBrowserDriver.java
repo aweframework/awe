@@ -49,6 +49,18 @@ public class SeleniumBrowserDriver implements BrowserDriver {
     + "var rect = arguments[0].getBoundingClientRect();"
     + "if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {"
     + "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});}";
+  // Fires the events of a drag from the first element (dragstart, dragend) onto what lies under the point of the second one
+  // (dragenter, dragover, drop), as a browser does: the point is the horizontal center and the ratio (third argument) of
+  // the height of the target
+  private static final String DRAG_AND_DROP_SCRIPT = "var source = arguments[0], target = arguments[1];"
+    + " var box = target.getBoundingClientRect();"
+    + " var point = {clientX: box.left + box.width / 2, clientY: box.top + box.height * arguments[2]};"
+    + " var over = document.elementFromPoint(point.clientX, point.clientY) || target;"
+    + " var transfer = new DataTransfer();"
+    + " function fire(element, type) { element.dispatchEvent(new DragEvent(type, Object.assign("
+    + "{bubbles: true, cancelable: true, dataTransfer: transfer}, point))); }"
+    + " fire(source, 'dragstart'); fire(over, 'dragenter'); fire(over, 'dragover');"
+    + " fire(over, 'drop'); fire(source, 'dragend');";
   // An element can be inside the viewport but clipped by a container with its own scroll
   private static final String SCROLL_INTO_CONTAINER = "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});";
   // Steps in which a drag moves the pointer
@@ -189,6 +201,19 @@ public class SeleniumBrowserDriver implements BrowserDriver {
       } else {
         new Actions(driver).moveToElement(element).build().perform();
       }
+    });
+  }
+
+  @Override
+  public void dragAndDrop(Locator source, Locator target, double targetYRatio) {
+    // The Actions API does not fire the HTML5 drag events reliably (Firefox never does): the page receives the events of
+    // a drag that a browser fires, with the pointer at the horizontal center of the target and the ratio of its height
+    act(source, sourceElement -> {
+      runScript(SCROLL_NEAREST, sourceElement);
+      act(target, targetElement -> {
+        runScript(SCROLL_NEAREST, targetElement);
+        executor().executeScript(DRAG_AND_DROP_SCRIPT, sourceElement, targetElement, targetYRatio);
+      });
     });
   }
 

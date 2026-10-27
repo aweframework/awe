@@ -68,6 +68,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
 | show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out                                        |
 | columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`dialog`) |
+| move-rows           | Optional     | Boolean | Adds a leading column with a grip to [move the rows by dragging them](#drag-and-drop). Not available in tree grids         | Default value is `false` |
 
 
 ### Toolbar
@@ -806,7 +807,26 @@ With a row selected, both web engines also move it with the keyboard while the g
 | `Alt+Home`       | `move-row-top`  |
 | `Alt+End`        | `move-row-bottom` |
 
-The actions are ignored when the row is already in that position, and tree grids do not support them.
+The actions are ignored when the row is already in that position, and tree grids do not support them. The shortcuts work
+when the grid is `editable` or has [`move-rows`](#drag-and-drop).
+
+#### Drag and drop {#drag-and-drop}
+
+With `move-rows="true"` the grid adds a narrow leading column with a grip on every row, in both web engines. The pointer
+shows the move cursor over the grip. Drag a row by its grip and a line marks where it lands, before or after the row under
+the pointer; drop it to move the row there. Only the grip starts a drag, so the cells keep their text selection and clicks.
+Tree grids do not show the grip.
+
+```xml
+<grid id="GrdSteps" move-rows="true" send-all="true" server-action="data" target-action="StepList">
+  <column name="name" label="COLUMN_NAME" component="text"/>
+</grid>
+```
+
+A drop reorders the rows as the move-row actions do: the grid model keeps the new order in its `values` and the moved row
+ends up selected. The AngularJS engine also stores the `move-row` event, as the actions do. The grid does not need to be
+`editable`, and the Alt+Arrow shortcuts above stay available as the keyboard alternative: the grip has an accessible label
+that mentions them. Grids without `move-rows` look and behave as before.
 
 ## Multioption grid
 

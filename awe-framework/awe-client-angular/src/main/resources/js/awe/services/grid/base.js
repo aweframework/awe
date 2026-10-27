@@ -1,6 +1,7 @@
 import {aweApplication} from "../../awe";
 import "./commons";
 import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
+import {getMoveRowsColumn} from "./rowDrag";
 
 // Base grid service
 aweApplication.factory('GridBase',
@@ -225,6 +226,10 @@ aweApplication.factory('GridBase',
             // Add the row detail toggles first
             if (component.rowDetail) {
               component.controller.columnModel.unshift(getRowDetailColumn(component));
+            }
+            // Add the grips to drag the rows first
+            if (component.controller.moveRows) {
+              component.controller.columnModel.unshift(getMoveRowsColumn(component));
             }
           };
 

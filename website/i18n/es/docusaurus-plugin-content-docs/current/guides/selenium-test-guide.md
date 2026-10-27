@@ -625,6 +625,9 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkCellContents(String gridId, String rowId, String columnId, String search)` | Comprueba el contenido de una celda |
 | `checkGridCellsHaveNoActiveContent(String gridId)` | Comprueba que las celdas de un grid muestran texto y nada activo: ningún script, frame, imagen, formulario, manejador de eventos ni enlace a una url de script. Úsalo con un valor que lleve marcado para demostrar que el grid no lo interpreta |
 | `checkGridColumnOrder(String gridId, String columnId, String... expected)` | Comprueba que las filas de un grid están en un orden dado, leyendo los valores de una columna |
+| `checkGridRowGripShown(String gridId, int rowNumber)` | Comprueba que una fila de un grid con `move-rows` muestra su asa de arrastre (las filas se numeran desde 1) |
+| `dragGridRowBefore(String gridId, int rowNumber, int targetRowNumber)` | Arrastra una fila de un grid con `move-rows` por su asa y la suelta en la mitad superior de otra fila, de modo que queda justo encima |
+| `dragGridRowAfter(String gridId, int rowNumber, int targetRowNumber)` | Arrastra una fila de un grid con `move-rows` por su asa y la suelta en la mitad inferior de otra fila, de modo que queda justo debajo |
 | `checkGridPresent(String gridId)` | Comprueba que un grid existe en la pantalla, aunque esté oculta |
 | `checkGridNotVisible(String gridId)` | Comprueba que un grid no se muestra |
 | `checkGridNotPresent(String gridId)` | Comprueba que un grid no está en la página, ni visible ni oculto, como el grid anidado de un detalle de fila cuando la fila se cierra o su grid se recarga |

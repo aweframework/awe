@@ -1299,6 +1299,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="GRID_COLUMNS_MOVE_UP" value="Subir"/>
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Bajar"/>
   <locale name="GRID_COLUMNS_DRAG" value="Arrastrar para reordenar"/>
+  <locale name="GRID_ROW_DRAG" value="Arrastrar para mover la fila. Con el teclado, selecciónala y pulsa Alt+Arriba, Alt+Abajo, Alt+Inicio o Alt+Fin"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposición del grid no guardada"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="No se ha podido guardar ni eliminar la disposición del grid"/>
   <locale name="GRID_COLUMNS_SAVED" value="Guardado"/>

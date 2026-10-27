@@ -1126,6 +1126,8 @@
   --awe-grid-cell-padding-x: 14px;
   /* Primary line on the left of the edited row and of an open row detail */
   --awe-grid-row-marker-width: 3px;
+  /* Primary line that shows where a dragged row lands in a grid with move-rows */
+  --awe-grid-drop-indicator-width: var(--awe-focus-ring-width);
   /* Minimum height of the rows area: the header and about three rows, for a grid whose container gives it no height */
   --awe-grid-min-body-height: 12rem;
 

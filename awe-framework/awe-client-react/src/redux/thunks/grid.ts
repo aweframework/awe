@@ -15,6 +15,7 @@ import {
   getGridIdentifier,
   getRow,
   moveRowInValues,
+  moveRowNextToRow,
   OperationType,
   RowPositionType
 } from "../../utilities/grid";
@@ -90,6 +91,8 @@ interface RowParameters {
   rowId?: string | number | null;
   row?: Row;
   selectedRow?: string | number;
+  /** Row next to which a dragged row is dropped */
+  targetRowId?: string | number | null;
 }
 
 /** Parameters of the actions that add or replace the columns of a grid: the action always carries them */
@@ -608,7 +611,8 @@ export const addRowGridAction = (action: ClientAction, position: AddRowPosition)
 /**
  * Move the selected row (or the one of the selectedRow parameter) of a grid to the top, one position up or down, or
  * to the bottom. The rows of the model keep the new order, so it is the order the grid sends to the server when it
- * is saved
+ * is saved. When the action has a targetRowId parameter (the drop of a dragged row), BEFORE and AFTER place the row
+ * just before or after that row, and the moved row is the one selected afterwards
  * @param {object} action Action received
  * @param {string} position Where to move the row: FIRST, BEFORE, AFTER or LAST
  */
@@ -624,14 +628,24 @@ export const moveRowGridAction = (action: ClientAction, position: RowPosition): 
     }
     const { values } = component.model;
     const gridId = getGridIdentifier(component.attributes);
-    const { selectedRow, rowId = selectedRow } = (action.parameters || {}) as RowParameters;
+    const { selectedRow, rowId = selectedRow, targetRowId } = (action.parameters || {}) as RowParameters;
     // The identifier of a row is a text or a number
     const movedRowId = rowId ?? values.find(item => item.selected)?.[gridId] as string | number | undefined;
-    const movedValues = moveRowInValues(values, gridId, movedRowId, position);
+    const dropped = targetRowId != null && (position === BEFORE || position === AFTER);
+    const movedValues = dropped
+      ? moveRowNextToRow(values, gridId, movedRowId, targetRowId, position)
+      : moveRowInValues(values, gridId, movedRowId, position);
 
     dispatch(acceptAction(action));
     if (movedValues !== values) {
-      dispatch(updateModelWithDependencies(address, { values: movedValues }));
+      const multiselect = component.attributes?.multiselect;
+      const newValues = dropped
+        ? movedValues.map(item => {
+          const selected = String(item[gridId]) === String(movedRowId) || (multiselect && item.selected);
+          return Boolean(item.selected) === Boolean(selected) ? item : { ...item, selected: Boolean(selected) };
+        })
+        : movedValues;
+      dispatch(updateModelWithDependencies(address, { values: newValues }));
     }
   };
 };

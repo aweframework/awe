@@ -127,6 +127,9 @@ export function getMoveRowKeyPosition(event: KeyboardEvent): RowPosition | null 
   return MOVE_ROW_SHORTCUTS.find(({shortcut}) => matchesShortcut(event, shortcut))?.position ?? null;
 }
 
+/** Identifier of a grid row, absent when there is no row */
+type RowIdentifier = string | number | null | undefined;
+
 /**
  * Move a row of a list of values to a new position
  * @param {Array} values Rows of the grid
@@ -138,7 +141,7 @@ export function getMoveRowKeyPosition(event: KeyboardEvent): RowPosition | null 
 export function moveRowInValues<R extends Record<string, unknown>>(
   values: R[],
   gridId: string,
-  rowId: string | number | null | undefined,
+  rowId: RowIdentifier,
   position: string
 ): R[] {
   const index = values.findIndex(row => rowId != null && String(row[gridId]) === String(rowId));
@@ -155,6 +158,39 @@ export function moveRowInValues<R extends Record<string, unknown>>(
   }
   const moved = [...values];
   moved.splice(target, 0, moved.splice(index, 1)[0]);
+  return moved;
+}
+
+/**
+ * Move a row of a list of values next to another row (drag and drop)
+ * @param {Array} values Rows of the grid
+ * @param {string} gridId Row identifier field of the grid
+ * @param {string|number} rowId Identifier of the row to move
+ * @param {string|number} targetRowId Identifier of the row the moved row ends up next to
+ * @param {string} position BEFORE (just above the target row) or AFTER (just below it)
+ * @returns {Array} New list of rows, or the same list when a row does not exist, the order would not change or the
+ * position is not BEFORE or AFTER
+ */
+export function moveRowNextToRow<R extends Record<string, unknown>>(
+  values: R[],
+  gridId: string,
+  rowId: RowIdentifier,
+  targetRowId: RowIdentifier,
+  position: string
+): R[] {
+  const matches = (row: R, id: RowIdentifier) => id != null && String(row[gridId]) === String(id);
+  const index = values.findIndex(row => matches(row, rowId));
+  const others = values.filter(row => !matches(row, rowId));
+  const targetIndex = others.findIndex(row => matches(row, targetRowId));
+  if (index < 0 || targetIndex < 0 || (position !== RowPositionType.BEFORE && position !== RowPositionType.AFTER)) {
+    return values;
+  }
+  const insertAt = position === RowPositionType.BEFORE ? targetIndex : targetIndex + 1;
+  if (insertAt === index) {
+    return values;
+  }
+  const moved = [...others];
+  moved.splice(insertAt, 0, values[index]);
   return moved;
 }
 

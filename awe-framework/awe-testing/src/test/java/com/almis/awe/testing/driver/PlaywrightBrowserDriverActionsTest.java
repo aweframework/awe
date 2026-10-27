@@ -110,6 +110,37 @@ class PlaywrightBrowserDriverActionsTest extends AbstractPlaywrightBrowserTest {
   }
 
   @Test
+  void shouldDragAnElementOntoTheLowerHalfOfAnotherOneWithNativeDragEvents() {
+    show("<div id='grip' draggable='true' style='width:40px;height:20px'>grip</div>"
+      + "<div id='row' style='margin-top:60px;width:200px;height:40px'>row</div>"
+      + "<script>window.drag = [];"
+      + "document.addEventListener('dragstart', function(e) { window.drag.push('dragstart:' + e.target.id); e.dataTransfer.setData('text/plain', 'x'); });"
+      + "document.getElementById('row').addEventListener('dragover', function(e) { e.preventDefault(); window.lastY = e.clientY; });"
+      + "document.addEventListener('drop', function(e) { e.preventDefault(); window.drag.push('drop:' + e.target.id + ':' + e.clientY); });"
+      + "document.addEventListener('dragend', function(e) { window.drag.push('dragend:' + e.target.id); });</script>");
+
+    browser.dragAndDrop(Locator.css("#grip"), Locator.css("#row"), 0.75);
+
+    // The row spans y 80 to 120: three quarters down is 110
+    String[] events = String.valueOf(eval("window.drag.join(',')")).split(",");
+    assertThat(events).containsExactly("dragstart:grip", "drop:row:110", "dragend:grip");
+  }
+
+  @Test
+  void shouldDropOnTheUpperHalfWhenTheRatioIsSmall() {
+    show("<div id='grip' draggable='true' style='width:40px;height:20px'>grip</div>"
+      + "<div id='row' style='margin-top:60px;width:200px;height:40px'>row</div>"
+      + "<script>window.dropY = -1;"
+      + "document.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', 'x'); });"
+      + "document.getElementById('row').addEventListener('dragover', function(e) { e.preventDefault(); });"
+      + "document.addEventListener('drop', function(e) { e.preventDefault(); window.dropY = e.clientY; });</script>");
+
+    browser.dragAndDrop(Locator.css("#grip"), Locator.css("#row"), 0.25);
+
+    assertThat(((Number) eval("window.dropY")).intValue()).isEqualTo(90);
+  }
+
+  @Test
   void shouldMoveThePointerByAnOffsetAndClickWhereItIs() {
     show(RECORDER + "<button id='item' style='position:absolute;left:100px;top:100px;width:100px;height:60px'>Go</button>");
     browser.hoverInstantly(ITEM);

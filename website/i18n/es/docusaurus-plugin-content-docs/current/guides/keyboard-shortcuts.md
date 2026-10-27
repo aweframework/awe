@@ -22,8 +22,8 @@ El dígito se lee de la tecla física, por lo que también funciona en macOS, do
 
 | Teclas | Acción |
 |--------|--------|
-| `Alt` + `ArrowUp` / `ArrowDown` | Mueve la fila seleccionada hacia arriba o hacia abajo (grid editable). |
-| `Alt` + `Home` / `End` | Mueve la fila seleccionada a la primera o a la última posición (grid editable). |
+| `Alt` + `ArrowUp` / `ArrowDown` | Mueve la fila seleccionada hacia arriba o hacia abajo (grid editable, o grid con [`move-rows`](../api/grids.md#drag-and-drop)). |
+| `Alt` + `Home` / `End` | Mueve la fila seleccionada a la primera o a la última posición (grid editable, o grid con [`move-rows`](../api/grids.md#drag-and-drop)). |
 | `Enter` | Guarda la edición de la fila. |
 | `Escape` | Cancela la edición de la fila. |
 | `Escape` (en una celda cortada) | Oculta el tooltip con el texto completo de la celda. |

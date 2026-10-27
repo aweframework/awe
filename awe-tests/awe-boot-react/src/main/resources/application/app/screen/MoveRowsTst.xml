@@ -8,7 +8,7 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_MOVE_ROWS">
   <tag source="center">
     <window style="expand" label="SCREEN_TITLE_MOVE_ROWS" expandible="vertical">
-      <grid id="GrdMoveRows" style="expand" initial-load="query" server-action="data" target-action="MoveRowTstLst" editable="true" load-all="true" send-all="true" max="10">
+      <grid id="GrdMoveRows" style="expand" initial-load="query" server-action="data" target-action="MoveRowTstLst" editable="true" move-rows="true" load-all="true" send-all="true" max="10">
         <column name="value" hidden="true"/>
         <column label="COLUMN_MOVE_ROW_STEP" name="label" align="left" charlength="20"/>
         <button label="BUTTON_MOVE_ROW_TOP" icon="angle-double-up" id="ButMoveRowTop">

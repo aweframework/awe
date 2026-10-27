@@ -153,6 +153,20 @@ class SeleniumBrowserDriverActionsTest {
   }
 
   @Test
+  void shouldDragAnElementOntoAnotherOneDispatchingTheDragEventsOfTheBrowser() {
+    Locator target = Locator.css(".target");
+    WebElement targetElement = mock(WebElement.class);
+    when(driver.findElement(target.toBy())).thenReturn(targetElement);
+
+    browser.dragAndDrop(ITEM, target, 0.75);
+
+    // Selenium actions do not fire HTML5 drag events reliably: the page receives them from a script
+    ArgumentCaptor<String> script = ArgumentCaptor.forClass(String.class);
+    verify((JavascriptExecutor) driver).executeScript(script.capture(), eq(element), eq(targetElement), eq(0.75));
+    assertThat(script.getValue()).contains("dragstart", "dragenter", "dragover", "drop", "dragend", "clientY");
+  }
+
+  @Test
   void shouldMoveThePointerByAnOffsetAndClickWhereItIs() {
     browser.moveMouseBy(5, -30);
 

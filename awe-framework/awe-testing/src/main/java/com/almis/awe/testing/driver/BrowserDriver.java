@@ -164,6 +164,17 @@ public interface BrowserDriver {
   void hoverInstantly(Locator locator);
 
   /**
+   * Drag the first match of one locator and drop it on the first match of another one, as a user does with a handle (an
+   * element that is draggable, with native drag events)
+   *
+   * @param source        Element that is dragged
+   * @param target        Element it is dropped on
+   * @param targetYRatio  Where it lands vertically on the target, from 0 (top edge) to 1 (bottom edge): 0.25 is the upper
+   *                      half and 0.75 the lower half
+   */
+  void dragAndDrop(Locator source, Locator target, double targetYRatio);
+
+  /**
    * Move the pointer from where it is
    *
    * @param dx Horizontal offset in pixels

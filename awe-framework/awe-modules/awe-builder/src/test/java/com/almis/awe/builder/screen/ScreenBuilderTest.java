@@ -959,6 +959,7 @@ class ScreenBuilderTest {
           .setPagerValues("10,20,30")
           .setPaginationDisabled(true)
           .setRowNumbers(true)
+          .setMoveRows(true)
           .setSendAll(true)
           .setSendOperations(false)
           .setServerAction(ServerAction.DATA)
@@ -1018,6 +1019,7 @@ class ScreenBuilderTest {
     assertEquals("10,20,30", grid.getPagerValues());
     assertSame(true, grid.isDisablePagination());
     assertSame(true, grid.isRowNumbers());
+    assertSame(true, grid.isMoveRows());
     assertSame(true, grid.isSendAll());
     assertSame(false, grid.isMultioperation());
     assertEquals(ServerAction.DATA.toString(), grid.getServerAction());

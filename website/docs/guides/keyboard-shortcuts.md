@@ -22,8 +22,8 @@ The digit is read from the physical key, so it also works on macOS where `Option
 
 | Keys | Action |
 |------|--------|
-| `Alt` + `ArrowUp` / `ArrowDown` | Move the selected row up or down (editable grid). |
-| `Alt` + `Home` / `End` | Move the selected row to the first or last position (editable grid). |
+| `Alt` + `ArrowUp` / `ArrowDown` | Move the selected row up or down (editable grid, or a grid with [`move-rows`](../api/grids.md#drag-and-drop)). |
+| `Alt` + `Home` / `End` | Move the selected row to the first or last position (editable grid, or a grid with [`move-rows`](../api/grids.md#drag-and-drop)). |
 | `Enter` | Save the edition of the row. |
 | `Escape` | Cancel the edition of the row. |
 | `Escape` (on a cut cell) | Hide the tooltip with the full text of the cell. |

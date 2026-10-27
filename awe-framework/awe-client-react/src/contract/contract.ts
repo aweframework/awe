@@ -77,6 +77,7 @@ export interface AbstractGrid extends AbstractCriteria {
     iconExpand?: string;
     iconLeaf?: string;
     initialLevel?: number;
+    moveRows?: boolean;
     multioperation?: boolean;
     multiselect?: boolean;
     pagerValues?: number[];
