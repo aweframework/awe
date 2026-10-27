@@ -34,7 +34,7 @@ class DependencyTestsIT extends AbstractSessionTests {
   @Test
   @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**

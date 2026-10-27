@@ -234,3 +234,105 @@
   justify-content: center;
   height: var(--awe-header-height);
 }
+
+/*******************************************************************************
+ SIDE MENU FOOTER
+*******************************************************************************/
+// Footer of the side menu, as the prototype and the React shell: who powers the application (the AWE mark, muted text
+// and the brand) and the button that collapses the menu, under a line. Here, next to the logos it shows
+.sidebar-footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-2) var(--awe-space-4);
+  border-top: 1px solid var(--awe-menu-border);
+}
+
+.sidebar-powered {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+}
+
+.sidebar-powered::before {
+  flex: none;
+  height: var(--awe-size-icon);
+  aspect-ratio: 580 / 360;
+  margin-right: var(--awe-space-0-5);
+  content: "";
+  background: url('images/logo/awe-logo-mark.svg') no-repeat left center / auto 100%;
+}
+
+.sidebar-powered strong {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text);
+}
+
+// The collapse button: a ghost icon button
+.sidebar-footer .sidebar-collapse {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  padding: 0;
+  color: var(--awe-color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-field);
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.sidebar-footer .sidebar-collapse:hover {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-surface-hover);
+}
+
+.sidebar-footer .sidebar-collapse:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+// The label names the icon button for assistive technologies, out of sight
+.sidebar-footer .sidebar-collapse .button-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.sidebar-footer .sidebar-collapse .button-icon {
+  transition: transform var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+// Collapsed menu, as the prototype: no option search, and the footer keeps only the button, turned to expand the menu
+@media (min-width: @screen-tablet) {
+  .mmc #main-menu.vertical .awe-menu-search {
+    display: none;
+  }
+
+  .mmc .sidebar-footer {
+    justify-content: center;
+    padding: var(--awe-space-2);
+  }
+
+  .mmc .sidebar-powered {
+    display: none;
+  }
+
+  .mmc .sidebar-footer .sidebar-collapse .button-icon {
+    transform: rotate(180deg);
+  }
+}

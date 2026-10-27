@@ -43,9 +43,30 @@ describe('components/AweMenuSearch.jsx', () => {
     renderSearch();
 
     const toggle = screen.getByRole("button");
-    expect(toggle).toHaveAttribute("title", "BUTTON_SEARCH");
+    expect(toggle).toHaveAttribute("title", "MENU_SEARCH_PLACEHOLDER");
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("textbox")).toBeNull();
+  });
+
+  it('invites to find an option in the vertical toggle and in the input, as the AWE 5 prototype', () => {
+    renderSearch();
+
+    const toggle = screen.getByRole("button", { name: "MENU_SEARCH_PLACEHOLDER" });
+    expect(toggle).toHaveTextContent("MENU_SEARCH_PLACEHOLDER");
+    expect(toggle).not.toHaveTextContent("BUTTON_SEARCH");
+
+    const input = openPanel();
+    expect(input).toHaveAttribute("placeholder", "MENU_SEARCH_PLACEHOLDER");
+    expect(input).toHaveAttribute("aria-label", "MENU_SEARCH_PLACEHOLDER");
+  });
+
+  it('keeps the search title on the icon toggle of the horizontal menu', () => {
+    renderSearch({ menuType: "horizontal" });
+
+    const toggle = screen.getByRole("button");
+    expect(toggle).toHaveAttribute("title", "BUTTON_SEARCH");
+    expect(toggle).toHaveAttribute("aria-label", "BUTTON_SEARCH");
+    expect(toggle).toHaveTextContent("");
   });
 
   it('toggles the panel open and closed', () => {

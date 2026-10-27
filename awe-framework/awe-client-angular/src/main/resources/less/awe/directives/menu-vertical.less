@@ -4,8 +4,16 @@
 
 // The AWE 5 side menu (#885): a column on the menu surface under the header, with the width of the menu tokens
 #main-menu.vertical #main-menu-bg {
+  display: flex;
+  flex-direction: column;
   background: var(--awe-menu-background);
   border-right: 1px solid var(--awe-menu-border);
+}
+
+// The options take the room over the footer of the side menu (pages/home.less), and scroll inside it
+#main-menu.vertical #main-menu-bg > awe-menu {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 #main-menu.vertical ul.navigation {
@@ -19,6 +27,11 @@
 // Over the room pixel-admin keeps for its chevron: the chevron is the last item of the row
 #main-menu.vertical ul.navigation > li > a {
   padding: var(--awe-nav-item-padding);
+}
+
+// As the guide, the options of levels 2 and 3 have no icon, in the side menu and in its flyout
+#main-menu.vertical ul.navigation ul .menu-icon {
+  display: none;
 }
 
 // A separator option is a subtle rule between groups of options

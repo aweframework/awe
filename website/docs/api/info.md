@@ -95,6 +95,8 @@ The xml structure of navigation bar component is the following:
 
 > **Note:** avatar element has the same attributes as `button` element. You can see more info [here](button.md#button-attributes).
 
+> **Note:** in the React engine, the avatar shows the `name` of its value when it has one (the label stays as its hint), and its `description` as a second line under it. The `connectedUser` query returns the profile of the user as `description`. Without an image, the avatar shows its `icon` or, without icon, the initials of its label (the first letter of its first and last words).
+
 
 ## Examples
 

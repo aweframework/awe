@@ -55,13 +55,31 @@ Up to **three levels** below a section: section › option › sub-option › su
 Hovering, focusing or clicking a level 1 option opens a **flyout** with its levels 2 and 3. Keyboard: Enter or → opens
 it and focuses the first link, ↑/↓ move, Esc or ← close it and return the focus.
 
+**Footer.** Under a line, "Powered by **AWE** 5" with the AWE mark and a button with `chevrons-left` that collapses
+the menu; on the rail only the button (turned to expand) remains, and the option search is hidden. Both engines style it from the home screen
+markup, after the menu:
+
+```xml
+<tag type="div" style="sidebar-footer">
+  <tag type="span" style="sidebar-powered">
+    <tag type="span" label="SIDEBAR_POWERED_BY"/>
+    <tag type="strong" label="SIDEBAR_POWERED_BRAND"/>
+  </tag>
+  <!-- React: info-button with a toggle-class of layout-static-inactive on .layout-container -->
+  <!-- AngularJS: button with style="sidebar-collapse no-class" and a toggle-menu action -->
+  <info-button id="collapse-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:chevrons-left" style="sidebar-collapse">
+    <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+  </info-button>
+</tag>
+```
+
 **Tablet and below (≤1024px).** The menu becomes a drawer over the content with a mask. The rail is a desktop-only
 affordance.
 
 ## Header
 
 - Light, slightly translucent, sticky, height `--awe-header-height`.
-- Left: menu toggle, global search (`Ctrl K` focuses it).
+- Left: menu toggle (`panel-left` icon), global search (`Ctrl K` focuses it).
 - Right: help, notifications (dot when unread; list in a popover), user menu (profile, preferences, shortcuts, switch
   company, sign out).
 

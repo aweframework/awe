@@ -34,7 +34,10 @@ function AweMenuSearch(props) {
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  const searchTitle = translateLabel("BUTTON_SEARCH", t);
+  // The vertical menu invites to find an option, as the AWE 5 prototype; the icon toggle of the horizontal menu keeps
+  // the search title
+  const placeholder = translateLabel("MENU_SEARCH_PLACEHOLDER", t);
+  const searchTitle = menuType === "vertical" ? placeholder : translateLabel("BUTTON_SEARCH", t);
 
   /**
    * Close the option search panel and reset its state.
@@ -156,7 +159,7 @@ function AweMenuSearch(props) {
         <div className="awe-menu-search-panel">
           <input ref={inputRef} type="text" className="awe-menu-search-input p-inputtext"
             value={query} onChange={(event) => onSearchChange(event.target.value)}
-            onKeyDown={onSearchKeydown} placeholder={searchTitle} aria-label={searchTitle} />
+            onKeyDown={onSearchKeydown} placeholder={placeholder} aria-label={placeholder} />
           {results.length > 0 && (
             <ul className="awe-menu-search-results" role="listbox">
               {results.map((entry, index) => (

@@ -19,7 +19,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
   @Test
   @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**

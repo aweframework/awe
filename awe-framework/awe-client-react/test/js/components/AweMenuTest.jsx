@@ -10042,4 +10042,184 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
     });
   });
 
+  describe('flyout of the collapsed rail', () => {
+    let matchMedia;
+
+    beforeEach(() => {
+      matchMedia = window.matchMedia;
+      window.matchMedia = jest.fn(query => ({matches: query === "(min-width: 1025px)", media: query}));
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      window.matchMedia = matchMedia;
+      MenuRegistry.setOptions([]);
+      ViewRegistry.setView("report", {loading: true});
+    });
+
+    const renderRail = (collapsed = true) => {
+      MenuRegistry.setOptions(options);
+      renderWithProviders(
+        <div className={collapsed ? "layout-container layout-static-inactive" : "layout-container"}>
+          <AweMenu id="menu" style="vertical"/>
+        </div>, {
+          preloadedState: {
+            settings: {...DEFAULT_SETTINGS, menuSearchEnabled: false},
+            screen: {size: {width: 100, height: 100}},
+            components: {menu: {address: {component: 'menu', view: 'base'}, model: {values: []}, attributes: {}}}
+          }
+        });
+    };
+    const panel = name => document.querySelector(`.p-panelmenu-panel.${name}`);
+    const flyout = name => panel(name).querySelector(":scope > .p-toggleable-content");
+
+    it('opens the options of a first level option as a flyout while the pointer is over it', () => {
+      renderRail();
+      expect(flyout("tools")).toBeNull();
+
+      fireEvent.mouseOver(panel("tools").querySelector(".p-panelmenu-header"));
+
+      expect(flyout("tools")).not.toBeNull();
+      expect(flyout("tools").querySelector("li.sites")).not.toBeNull();
+      // The flyout is titled with the option, as the prototype
+      expect(flyout("tools")).toHaveAttribute("data-flyout-title", panel("tools").querySelector(".p-menuitem-text").textContent);
+      expect(panel("tools").querySelector(".p-panelmenu-header")).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it('moves the flyout to the option under the pointer and closes it a moment after the pointer leaves the menu', () => {
+      renderRail();
+      fireEvent.mouseOver(panel("tools").querySelector(".p-panelmenu-header"));
+      fireEvent.mouseOver(panel("settings").querySelector(".p-panelmenu-header"));
+
+      expect(flyout("settings")).not.toBeNull();
+      expect(panel("tools").querySelector(".p-panelmenu-header")).not.toHaveAttribute("aria-expanded", "true");
+
+      fireEvent.mouseLeave(document.querySelector(".awe-menu-container-vertical"));
+      expect(panel("settings").querySelector(".p-panelmenu-header")).toHaveAttribute("aria-expanded", "true");
+      act(() => jest.advanceTimersByTime(300));
+      expect(panel("settings").querySelector(".p-panelmenu-header")).not.toHaveAttribute("aria-expanded", "true");
+    });
+
+    it('opens the flyout of a first level option that gets the keyboard focus', () => {
+      renderRail();
+      fireEvent.focus(panel("tools").querySelector(".p-panelmenu-header"));
+
+      expect(flyout("tools")).not.toBeNull();
+    });
+
+    it('aligns the flyout with its option, inside the window, as the prototype', () => {
+      renderRail();
+      const header = panel("settings").querySelector(".p-panelmenu-header");
+      jest.spyOn(header, "getBoundingClientRect").mockReturnValue({top: 120, bottom: 156, left: 0, right: 68, height: 36});
+
+      fireEvent.mouseOver(header);
+
+      const container = document.querySelector(".awe-menu-container-vertical");
+      expect(container.style.getPropertyValue("--_flyout-top")).toBe("116px");
+    });
+
+    it('closes the flyout when one of its options is launched, until the pointer goes to another option', () => {
+      renderRail();
+      fireEvent.mouseOver(panel("tools").querySelector(".p-panelmenu-header"));
+
+      const toolsHeader = panel("tools").querySelector(".p-panelmenu-header");
+      fireEvent.click(flyout("tools").querySelector("li.sites a"));
+      expect(toolsHeader).not.toHaveAttribute("aria-expanded", "true");
+
+      // The pointer is still on the option: the flyout stays closed
+      fireEvent.mouseOver(toolsHeader);
+      expect(toolsHeader).not.toHaveAttribute("aria-expanded", "true");
+
+      // Another option, or the same one once the pointer has left the menu, opens again
+      fireEvent.mouseOver(panel("settings").querySelector(".p-panelmenu-header"));
+      expect(flyout("settings")).not.toBeNull();
+      fireEvent.mouseLeave(document.querySelector(".awe-menu-container-vertical"));
+      act(() => jest.advanceTimersByTime(300));
+      fireEvent.mouseOver(toolsHeader);
+      expect(toolsHeader).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it('marks only the option of the flyout, not the groups expanded on the path to the open screen', () => {
+      renderRail();
+      act(() => ViewRegistry.setView("report", {option: "sites", title: "Sites"}));
+      const toolsHeader = panel("tools").querySelector(".p-panelmenu-header");
+      // The path to the open screen expands its group, which the rail does not show as a flyout
+      expect(toolsHeader).toHaveAttribute("aria-expanded", "true");
+      expect(panel("tools")).not.toHaveClass("awe-menu-flyout");
+
+      fireEvent.mouseOver(toolsHeader);
+      expect(panel("tools")).toHaveClass("awe-menu-flyout");
+
+      fireEvent.click(flyout("tools").querySelector("li.sites a"));
+      expect(panel("tools")).not.toHaveClass("awe-menu-flyout");
+    });
+
+    it('does not open the options under the pointer while the menu is expanded', () => {
+      renderRail(false);
+      fireEvent.mouseOver(panel("tools").querySelector(".p-panelmenu-header"));
+
+      expect(flyout("tools")).toBeNull();
+      expect(panel("tools").querySelector(".p-panelmenu-header")).not.toHaveAttribute("aria-expanded", "true");
+    });
+  });
+
+  describe('separators of the menu', () => {
+    const screenAction = [{type: "screen", parameters: {}}];
+    const option = (name, extra = {}) => ({
+      name, id: name, label: name.toUpperCase(), visible: true, restricted: false, separator: false,
+      menuScreen: false, actions: screenAction, options: [], ...extra
+    });
+    const separatorOptions = [
+      option("admin-section", {label: "Administration", separator: true, actions: []}),
+      option("tools"),
+      option("help-separator", {label: null, separator: true, actions: []}),
+      option("help")
+    ];
+
+    afterEach(() => MenuRegistry.setOptions([]));
+
+    const renderMenu = (style) => {
+      MenuRegistry.setOptions(separatorOptions);
+      renderWithProviders(<AweMenu id="menu" style={style}/>, {
+        preloadedState: {
+          settings: {...DEFAULT_SETTINGS, menuSearchEnabled: false},
+          screen: {size: {width: 100, height: 100}},
+          components: {
+            menu: {address: {component: 'menu', view: 'base'}, model: {values: []}, attributes: {}}
+          }
+        }
+      });
+    };
+
+    it('shows a separator with label as a section label of the vertical menu', () => {
+      renderMenu("vertical");
+
+      const section = document.querySelector(".p-panelmenu-panel.admin-section");
+      expect(section).toHaveClass("p-menuitem-separator");
+      expect(section).toHaveTextContent("Administration");
+    });
+
+    it('shows a separator without label as a divider line of the vertical menu, not as an option', () => {
+      renderMenu("vertical");
+
+      const panels = [...document.querySelectorAll(".p-panelmenu-panel")];
+      expect(panels.map(panel => panel.classList[1])).toEqual(["admin-section", "tools", "help-separator", "help"]);
+      const divider = document.querySelector(".p-panelmenu-panel.help-separator");
+      expect(divider).toHaveClass("p-menuitem-divider");
+      expect(divider).toHaveAttribute("role", "separator");
+      expect(divider).toHaveTextContent("");
+      expect(divider.querySelector("[tabindex='0']")).toBeNull();
+      expect(divider.querySelector("[role='button']")).toBeNull();
+    });
+
+    it('keeps the separators without label out of the first level of the horizontal menu', () => {
+      renderMenu("horizontal");
+
+      expect(document.querySelector(".p-menubar .help-separator")).toBeNull();
+      expect(document.querySelectorAll(".p-menubar-root-list > [role='separator']")).toHaveLength(0);
+      expect(document.querySelector(".p-menubar li.help")).not.toBeNull();
+    });
+  });
+
 });

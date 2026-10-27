@@ -23,7 +23,7 @@ abstract class AbstractSessionTests extends SeleniumUtilities {
 
   private static final String USER = "test";
   private static final String PASSWORD = "test";
-  private static final String USER_NAME = "Manager (test)";
+  private static final String USER_NAME = "Manager";
   private static final String TEST_MODULE = "Test";
   private static final String TEST_MODULE_MENU = "test";
 

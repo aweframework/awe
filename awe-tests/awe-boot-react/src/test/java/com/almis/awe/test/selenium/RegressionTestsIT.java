@@ -30,7 +30,7 @@ class RegressionTestsIT extends AbstractSessionTests {
   @Test
   @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**
@@ -261,7 +261,7 @@ class RegressionTestsIT extends AbstractSessionTests {
     checkLoginRejected("tutu", "lala", "warning", "Wrong username", "Username -tutu- is wrong or inactive");
 
     // Do right login
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**
@@ -276,7 +276,7 @@ class RegressionTestsIT extends AbstractSessionTests {
     checkLogoutWithConfirmation();
 
     // Do right login
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**

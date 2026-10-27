@@ -3446,7 +3446,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   /**
    * connectedUser must return a null image when the connected user has no AweUserSettings row,
-   * while value/name/label remain unchanged.
+   * while value/name/label remain unchanged and description carries the profile of the user.
    *
    * @throws Exception Test error
    */
@@ -3456,7 +3456,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     setParameter("user", "test");
     String queryName = "connectedUser";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertResultJson(queryName, result, 1);
@@ -3481,7 +3481,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       String queryName = "connectedUser";
       String variables = "";
       String expectedImage = "/avatar?v=" + avatarTokenHash("fake-avatar-token");
-      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"" + expectedImage + "\"}]}}},{\"type\":\"end-load\"}]";
+      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"" + expectedImage + "\"}]}}},{\"type\":\"end-load\"}]";
 
       String result = performRequest(queryName, variables, DATABASE, expected);
       assertResultJson(queryName, result, 1);
@@ -3512,7 +3512,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     try {
       // Prime the queryData cache with the "no avatar" state for both connectedUser and
       // getAvatarToken.
-      String noAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+      String noAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, noAvatarExpected);
       performRequest("getAvatarToken", "", DATABASE);
 
@@ -3529,7 +3529,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       // Re-read through the SAME cached query path: the cache evict must make the new value
       // visible, not a stale "no avatar" result from the primed cache above.
       String firstVersion = avatarTokenHash("fresh-avatar-token");
-      String withAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + firstVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      String withAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"/avatar?v=" + firstVersion + "\"}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, withAvatarExpected);
 
       String tokenExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"avatarToken\":\"fresh-avatar-token\"}]}}},{\"type\":\"end-load\"}]";
@@ -3556,7 +3556,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
         .andExpect(status().isOk());
       String secondVersion = avatarTokenHash("fresh-avatar-token-v2");
       assertNotEquals(firstVersion, secondVersion, "cache-buster version must change when the avatar token changes");
-      String withNewAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + secondVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      String withNewAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"/avatar?v=" + secondVersion + "\"}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, withNewAvatarExpected);
     } finally {
       deleteUserSettingsRowByOpe("test");

@@ -58,6 +58,13 @@
   color: var(--awe-menu-item-icon);
 }
 
+// The flyout of the collapsed menu emphasises the options of its first list, as the prototype; the deeper levels stay
+// muted
+.mmc #main-menu ul.navigation .mmc-dropdown-open-ul > li > a {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
 // The Lucide SVG fills its box: inline, it would sit on the text baseline below the centre line of the row
 #main-menu ul.navigation .menu-icon > svg {
   display: block;

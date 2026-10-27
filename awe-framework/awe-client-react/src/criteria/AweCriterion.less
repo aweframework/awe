@@ -108,6 +108,16 @@
   min-height: var(--awe-size-control);
 }
 
+/* The label of a select field keeps no vertical padding of its own (PrimeReact gives it the padding of a text field and
+   the line height of the page): the field takes the control height, as the text fields do */
+.field .p-dropdown .p-dropdown-label,
+.field .p-multiselect .p-multiselect-label {
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 .field .p-inputtext-sm.p-inputtext,
 .field .p-inputtext-sm .p-inputtext:not(textarea):not(.p-dropdown-label),
 .field .p-inputtext-sm.p-dropdown,

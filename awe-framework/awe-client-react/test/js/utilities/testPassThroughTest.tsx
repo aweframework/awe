@@ -257,7 +257,7 @@ describe("awe-react-client/test/js/utilities/testPassThroughTest.tsx", () => {
 
   describe("menus", () => {
     it("hooks the vertical menu", () => {
-      const model = [{name: "first", title: "First", active: true}, {}];
+      const model = [{name: "first", title: "First", label: "First option", active: true}, {}];
       const pt = panelMenuPassThrough(model);
       expect(pt.root).toEqual({"data-testid": "menu"});
       expect(call(pt.panel, {context: {index: 0, active: true}})).toEqual({
@@ -268,7 +268,13 @@ describe("awe-react-client/test/js/utilities/testPassThroughTest.tsx", () => {
         "data-testid": "menu-option", "data-active": "true", "data-open": "false", "option-name": "nested"
       });
       expect(call(pt.action, {context: {}})).toEqual({"data-testid": "menu-link"});
-      expect(pt.toggleableContent).toEqual({"data-testid": "menu-dropdown"});
+      // The options of a first level option carry its label, the title of the flyout of the collapsed rail
+      expect(call(pt.toggleableContent, {context: {index: 0}})).toEqual({
+        "data-testid": "menu-dropdown", "data-flyout-title": "First option"
+      });
+      expect(call(pt.toggleableContent, {context: {index: 1}})).toEqual({"data-testid": "menu-dropdown"});
+      // PrimeReact gives no context to the nested levels
+      expect(call(pt.toggleableContent, {})).toEqual({"data-testid": "menu-dropdown"});
       expect(pt.menu).toEqual({"data-testid": "menu-submenu"});
     });
 
