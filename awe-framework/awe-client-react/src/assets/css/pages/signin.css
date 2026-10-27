@@ -3,12 +3,18 @@
  * column next to the image panel, with the --awe-login-* tokens. The styles follow the classes of the screen XML (the
  * screen XML, the field ids and the test hooks do not change), so the !important ones beat the PrimeFlex utility
  * classes of that XML (align-self-center, shadow-3, m-0, p-2, mt-5...).
+ *
+ * The login pages are branded through awe.application.login.* (SigninPage.jsx): their layout (data-awe-login-layout:
+ * split, form-only or card), the image (--awe-login-image), the logo, the caption of the image and the footer, and the
+ * form title and subtitle of the sign-in page. With a canvas effect (data-awe-login-effect, drawn while it runs:
+ * data-awe-login-effect-running) the canvas of .signin-effect takes the place of the image panel. SigninPage gives every
+ * login page the class signin-page, and the
+ * column, the brand and the form of the change password and two-factor screens the classes of the sign-in screen XML
+ * (signin-container, signin-info, signin-form), so one set of rules draws them all (S19).
  */
 
 /* Page: the form column and the image panel */
-#page-signin,
-#page-change-expired-password,
-.totp-screen.fullScreen {
+.signin-page {
   display: grid;
   flex: 1;
   grid-template-columns: minmax(var(--awe-login-main-min), 5fr) 7fr;
@@ -18,9 +24,7 @@
 }
 
 /* Image panel: the AWE brand panel, under the image of the product (--awe-login-image), under the scrim */
-#page-signin::after,
-#page-change-expired-password::after,
-.totp-screen.fullScreen > #page-totp-bg {
+.signin-page::after {
   grid-row: 1;
   grid-column: 2;
   min-width: 0;
@@ -32,14 +36,23 @@
     var(--awe-login-brand-background);
 }
 
-.totp-screen.fullScreen > #page-totp-bg > * {
+/* The image panel of the change password and two-factor screens is the panel of the page */
+.signin-page > #page-change-password-bg,
+.signin-page > #page-totp-bg {
   display: none;
 }
 
+/* The footer under the form column, the image panel beside both */
+.signin-page {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.signin-page::after {
+  grid-row: 1 / -1;
+}
+
 /* Form column: the brand at the top, the form in the middle of the free height */
-#page-signin > .signin-container,
-#page-change-expired-password > .signin-container,
-.totp-screen.fullScreen > .totp-container {
+.signin-page > .signin-container {
   display: grid;
   grid-row: 1;
   grid-column: 1;
@@ -54,16 +67,14 @@
   box-shadow: none !important;
 }
 
-.signin-container > .signin-form,
-.totp-container > .totp-form {
+.signin-container > .signin-form {
   align-self: center;
   min-width: 0;
   padding: var(--awe-space-10) 0;
 }
 
 /* Brand: the AWE logo, the mark with its own colours and the wordmark filled with the emphasis text colour */
-.signin-container > .signin-info,
-.totp-container > .totp-header {
+.signin-container > .signin-info {
   position: relative;
   justify-self: start;
   height: var(--awe-login-logo-height);
@@ -73,8 +84,7 @@
   background: url("../../images/logos/awe-logo-mark.svg") no-repeat left center / auto 100%;
 }
 
-.signin-container > .signin-info::after,
-.totp-container > .totp-header::after {
+.signin-container > .signin-info::after {
   position: absolute;
   inset: 0;
   content: "";
@@ -82,10 +92,27 @@
   mask: url("../../images/logos/awe-logo-wordmark.svg") no-repeat left center / auto 100%;
 }
 
+/* Logo of the product: shown alone, instead of the AWE logo */
+.signin-container > .signin-info--logo {
+  aspect-ratio: auto;
+  background: none;
+}
+
+.signin-container > .signin-info--logo::after {
+  content: none;
+}
+
+.signin-info--logo > .signin-logo {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* The name of the client and the slogan stay for assistive technology */
 .signin-info > h1,
-.totp-header > h1,
-.totp-header > .slogan {
+.signin-info > .slogan {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -96,14 +123,78 @@
   clip-path: inset(50%);
 }
 
-/* Step title and text */
-.totp-form > .totp-text {
+/* Title of the change password and two-factor screens */
+.signin-form > .change-password-text,
+.signin-form > .totp-text {
   margin-bottom: var(--awe-space-6);
   font-size: var(--awe-font-size-display);
   font-weight: var(--awe-font-weight-semibold);
   line-height: var(--awe-line-height-tight);
   letter-spacing: var(--awe-letter-spacing-display);
   color: var(--awe-color-text-emphasis);
+}
+
+/* Sign-in title and subtitle */
+.signin-form > .signin-title {
+  margin: 0;
+  font-size: var(--awe-font-size-display);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-display);
+  color: var(--awe-color-text-emphasis);
+}
+
+.signin-form > .signin-subtitle {
+  margin: var(--awe-space-2) 0 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-muted);
+}
+
+.signin-form > :is(.signin-title, .signin-subtitle) + :not(.signin-subtitle) {
+  margin-top: var(--awe-space-8);
+}
+
+/* Failed login: the message of the server in a danger alert above the fields (prototype .message--danger.login__alert) */
+.signin-form > .signin-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text);
+  border-radius: var(--awe-radius-content);
+}
+
+.signin-form > :is(.signin-title, .signin-subtitle) + .signin-alert {
+  margin-top: var(--awe-space-6);
+}
+
+.signin-form > .signin-alert + * {
+  margin-top: var(--awe-space-5);
+}
+
+.signin-alert--danger {
+  background: var(--awe-color-danger-subtle);
+  border: 1px solid var(--awe-color-danger-border);
+}
+
+.signin-alert > .signin-alert-icon {
+  display: inline-flex;
+  flex: none;
+  margin-top: var(--awe-space-0-5);
+}
+
+.signin-alert--danger > .signin-alert-icon {
+  color: var(--awe-color-danger-text);
+}
+
+.signin-alert strong {
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.signin-alert--danger strong {
+  color: var(--awe-color-danger-text);
 }
 
 #page-change-expired-password .signin-form > .p-2:first-child {
@@ -114,21 +205,95 @@
 }
 
 /* Fields: one under the other, large */
-.signin-form > .field,
-.totp-form > .field {
+.signin-form > .field {
   width: 100%;
   padding: 0 0 var(--awe-gap-form-row);
 }
 
 /* More specific than the field size of the criteria, which it overrides */
-.signin-form .field .p-inputtext:not(textarea):not(.p-dropdown-label),
-.totp-form .field .p-inputtext:not(textarea):not(.p-dropdown-label) {
+.signin-form .field .p-inputtext:not(textarea):not(.p-dropdown-label) {
   min-height: var(--awe-size-control-lg);
+}
+
+/* Sign-in fields as the prototype: the label above, the icon inside the field before the text */
+.signin-form .field > .p-inputgroup > .p-inputgroup-addon:first-child {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  min-width: 0;
+  padding: 0 0 0 var(--awe-field-padding-x);
+  color: var(--awe-color-field-icon);
+  background: none;
+  border: 0;
+  pointer-events: none;
+  /* Over the field when it has the focus (PrimeReact raises a focused field of an input group to z-index 1) */
+  z-index: 2;
+}
+
+.signin-form .field > .p-inputgroup > .p-inputgroup-addon:first-child + .p-inputtext {
+  padding-inline-start: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
+  border-radius: var(--awe-radius-field);
+}
+
+/* Password: the show / hide button at the end of the field */
+.signin-form .field .p-inputtext.signin-password {
+  padding-inline-end: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
+  border-radius: var(--awe-radius-field);
+}
+
+.signin-password-toggle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--awe-field-padding-x);
+  color: var(--awe-color-field-icon);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-field);
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.signin-password-toggle:hover {
+  color: var(--awe-color-text);
+}
+
+.signin-password-toggle:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
+
+.signin-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: var(--awe-opacity-disabled);
+}
+
+/* Caps Lock warning under the password (help--warning of the prototype) */
+.signin-caps {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  margin-top: var(--awe-space-1-5);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-warning-text);
+}
+
+.signin-caps > .awe-icon,
+.signin-caps > i {
+  display: inline-flex;
+  flex: none;
 }
 
 /* Actions: full width buttons one under the other, the main one first */
 .signin-form > .p-2:last-child,
-.totp-form > .totp-with .form-actions {
+.signin-form > .change-password-with > .form-actions,
+.signin-form > .totp-with > .form-actions {
   display: flex;
   flex-direction: column;
   gap: var(--awe-space-3);
@@ -136,30 +301,36 @@
   margin-top: var(--awe-space-6) !important;
 }
 
-.signin-form .p-button,
-.totp-form .p-button {
+.signin-form .p-button {
   justify-content: center;
   width: 100%;
   height: var(--awe-size-control-lg);
   margin: 0 !important;
 }
 
-.signin-form .p-button:not(.p-button-outlined),
-.totp-form .p-button:not(.p-button-outlined) {
+.signin-form .p-button:not(.p-button-outlined) {
   font-weight: var(--awe-font-weight-semibold);
 }
 
-/* The confirm button of the two-factor screens carries the bg-primary utility class: keep the states of the theme */
-.totp-form .p-button.bg-primary {
+/* The icon and the text centred together: the label of the theme grows to the free width, the icon at the start. The
+   label takes the weight of its button, not the medium weight that the theme gives it */
+.signin-form .p-button > .p-button-label {
+  flex: none;
+  font-weight: inherit;
+}
+
+/* The confirm button of the change password and two-factor screens carries the bg-primary utility class: keep the
+   states of the theme */
+.signin-form .p-button.bg-primary {
   color: var(--awe-color-on-primary) !important;
   background-color: var(--awe-color-primary) !important;
 }
 
-.totp-form .p-button.bg-primary:enabled:hover {
+.signin-form .p-button.bg-primary:enabled:hover {
   background-color: var(--awe-color-primary-hover) !important;
 }
 
-.totp-form .p-button.bg-primary:enabled:active {
+.signin-form .p-button.bg-primary:enabled:active {
   background-color: var(--awe-color-primary-active) !important;
 }
 
@@ -197,41 +368,432 @@
   border-radius: var(--awe-radius-md);
 }
 
-/* Azure sign-in button: the Microsoft artwork, with the height of a large control */
-.sign-in-azure-btn-light {
-  height: var(--awe-size-control-lg);
-  background-image: url("../../images/backgrounds/azure_signin_light.svg") !important;
-  background-repeat: no-repeat;
-  background-position: left;
-  background-size: contain;
-  border: 0 solid;
+/* Login loading (prototype .btn.is-loading): the spinner and "Signing in..." on the main colour, not faded */
+.signin-form .p-button.is-loading:disabled {
+  cursor: progress;
+  opacity: 1;
 }
 
-.signin-form .p-button.sign-in-azure-btn-light {
-  align-self: center;
+/* "or continue with" divider before the single sign-on buttons (prototype .login__divider) */
+.signin-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  margin: var(--awe-space-3) 0;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted);
+  text-transform: uppercase;
+}
+
+.signin-divider::before,
+.signin-divider::after {
+  flex: 1;
+  height: 1px;
+  content: "";
+  background: var(--awe-color-border);
+}
+
+/*
+ * Sign in with Microsoft: the official Microsoft logo and text of the Microsoft identity platform branding guidelines
+ * in the application style (the --awe-login-microsoft-* tokens), full form width, the logo and the text centred
+ * together. Hover and active as the outlined buttons of the login. The generic SSO button looks the same (neutral
+ * outlined, not the primary colour) with its key icon, and so do the back buttons of the other login pages
+ */
+.signin-form .p-button.signin-microsoft,
+.signin-form .p-button.signin-sso,
+.signin-form .p-button.signin-secondary {
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-login-microsoft-padding);
+  width: 100%;
+  height: var(--awe-login-microsoft-height);
+  padding: 0 var(--awe-login-microsoft-padding);
+  font-family: var(--awe-login-microsoft-font-family);
+  font-size: var(--awe-login-microsoft-font-size);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-login-microsoft-text);
+  background: var(--awe-login-microsoft-background);
+  border: 1px solid var(--awe-login-microsoft-border);
+  border-radius: var(--awe-login-microsoft-radius);
+  box-shadow: none;
+}
+
+.signin-form .p-button.signin-microsoft:enabled:hover,
+.signin-form .p-button.signin-sso:enabled:hover,
+.signin-form .p-button.signin-secondary:enabled:hover {
+  color: var(--awe-login-microsoft-text);
+  background: var(--awe-color-highlight);
+  border-color: var(--awe-login-microsoft-border);
+}
+
+.signin-form .p-button.signin-microsoft:enabled:active,
+.signin-form .p-button.signin-sso:enabled:active,
+.signin-form .p-button.signin-secondary:enabled:active {
+  color: var(--awe-login-microsoft-text);
+  background: var(--awe-color-highlight-focus);
+  border-color: var(--awe-login-microsoft-border);
+}
+
+.signin-form .p-button.signin-microsoft:focus,
+.signin-form .p-button.signin-sso:focus,
+.signin-form .p-button.signin-secondary:focus {
+  box-shadow: none;
+}
+
+.signin-form .p-button.signin-microsoft:focus-visible,
+.signin-form .p-button.signin-sso:focus-visible,
+.signin-form .p-button.signin-secondary:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+.signin-microsoft > .p-button-label,
+.signin-sso > .p-button-label,
+.signin-secondary > .p-button-label {
+  font-weight: inherit;
+}
+
+/* The key icon next to its label at the gap of the button, as the Microsoft logo: without the margin that the theme
+   adds after the left icon of a button */
+.signin-form .p-button.signin-sso > .p-button-icon,
+.signin-form .p-button.signin-secondary > .p-button-icon {
+  flex: none;
+  margin: 0;
+}
+
+/* The official logo at its own size (the 21 x 21 frame of the lockup) */
+.signin-microsoft-logo {
+  display: flex;
+  flex: none;
+}
+
+.signin-microsoft-logo::before {
+  content: url("../../images/logos/microsoft-logo.svg");
+}
+
+/* Caption of the image: a title and one line at the bottom left, over the scrim */
+.signin-page > .signin-caption {
+  position: relative;
+  z-index: 1;
+  grid-row: 1 / -1;
+  grid-column: 2;
+  align-self: end;
+  min-width: 0;
+  padding: var(--awe-space-10);
+  color: var(--awe-login-caption-text);
+}
+
+.signin-caption > .signin-caption-title {
+  margin: 0;
+  font-size: var(--awe-font-size-2xl);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-display);
+}
+
+.signin-caption > .signin-caption-text {
+  max-width: 46ch;
+  margin: var(--awe-space-2) 0 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-login-caption-muted);
+}
+
+/*
+ * Canvas effect of the image panel (awe.application.login.background-effect, S23): while the effect runs
+ * (data-awe-login-effect-running) the canvas the application registered is the image panel instead of the panel of the
+ * page (no image, no brand logo). The effect draws its own colours; the scrim of the caption stays over it
+ */
+.signin-page[data-awe-login-effect-running]::after {
+  content: none;
+}
+
+.signin-page > .signin-effect {
+  position: relative;
+  grid-row: 1 / -1;
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.signin-effect > canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.signin-effect::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: var(--awe-login-scrim);
+}
+
+.signin-page[data-awe-login-layout="form-only"] > .signin-effect {
+  display: none;
+}
+
+/* Footer: the footer text on the left, "Powered by AWE 5" on the right */
+.signin-page > .signin-footer {
+  display: flex;
+  flex-wrap: wrap;
+  grid-row: 2;
+  grid-column: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-3) var(--awe-space-4);
+  min-width: 0;
+  padding: var(--awe-space-4) 0 var(--awe-space-6);
+  margin: 0 var(--awe-login-padding-x);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  border-top: 1px solid var(--awe-color-border);
+}
+
+/* Left column: the footer text over "Powered by AWE 5" */
+.signin-footer > .signin-legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  min-width: 0;
+}
+
+.signin-legal > .signin-powered {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  white-space: nowrap;
+}
+
+/* Right column: the language select and the colour mode segmented control */
+.signin-footer > .signin-prefs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin-inline-start: auto;
+}
+
+.signin-prefs > .signin-language {
+  align-items: center;
+  height: var(--awe-size-control-sm);
+  font-size: var(--awe-font-size-xs);
+}
+
+.signin-prefs > .signin-language:has(input:focus-visible) {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+.signin-language .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  padding: 0 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+}
+
+.signin-language .signin-language-icon {
+  display: inline-flex;
+  color: var(--awe-color-field-icon);
+}
+
+.signin-language .p-dropdown-trigger {
   width: auto;
-  aspect-ratio: 217 / 45;
-  background-color: transparent;
+  padding: 0 var(--awe-space-2);
+}
+
+.signin-mode {
+  display: inline-flex;
+  gap: var(--awe-space-0-5);
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: 1px solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.signin-mode label {
+  position: relative;
+  display: flex;
+  margin: 0;
+  cursor: pointer;
+}
+
+.signin-mode input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.signin-mode label > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px));
+  padding: 0 var(--awe-space-2);
+  color: var(--awe-segmented-text);
+  border: 1px solid transparent;
+  border-radius: var(--awe-radius-sm);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.signin-mode label:hover > span {
+  color: var(--awe-segmented-hover-text);
+}
+
+.signin-mode input:checked + span {
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.signin-mode input:focus-visible + span {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+/* The mark is the left part (560.3 wide) of the 1160.2 x 360 frame of the AWE logo */
+.signin-powered > .signin-powered-mark {
+  flex: none;
+  height: var(--awe-space-3);
+  aspect-ratio: 560.3 / 360;
+  background: url("../../images/logos/awe-logo-mark.svg") no-repeat left center / auto 100%;
+}
+
+/*
+ * Form-only layout: no image panel. The column and the footer take the whole page inside the paddings of the page: the
+ * logo at the top left, the form centred in the free space, the footer and its line over the whole width
+ */
+.signin-page[data-awe-login-layout="form-only"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.signin-page[data-awe-login-layout="form-only"]::after {
+  display: none;
+}
+
+.signin-page[data-awe-login-layout="form-only"] > .signin-container {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.signin-page[data-awe-login-layout="form-only"] > .signin-container > .signin-form {
+  justify-self: center;
+  width: min(var(--awe-login-form-width), 100%);
+}
+
+/* Card layout: the form in a card over the full-screen image (or the AWE brand panel), under the veil */
+.signin-page[data-awe-login-layout="card"] {
+  position: relative;
+  isolation: isolate;
+  grid-template-rows: none;
+  grid-template-columns: minmax(0, var(--awe-login-card-width));
+  align-content: center;
+  justify-content: center;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-6);
+}
+
+.signin-page[data-awe-login-layout="card"]::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  grid-row: auto;
+  grid-column: auto;
+  background:
+    linear-gradient(var(--awe-login-backdrop-veil), var(--awe-login-backdrop-veil)),
+    var(--awe-login-scrim),
+    var(--awe-login-image) center / cover no-repeat,
+    var(--awe-login-brand-background);
+}
+
+.signin-page[data-awe-login-layout="card"] > .signin-container {
+  grid-row: auto;
+  grid-template-rows: auto auto;
+  grid-template-columns: minmax(0, 1fr);
+  padding: var(--awe-login-card-padding) !important;
+  background: var(--awe-login-card-background);
+  border-radius: var(--awe-login-card-radius);
+  box-shadow: var(--awe-login-card-shadow) !important;
+}
+
+.signin-page[data-awe-login-layout="card"] > .signin-container > .signin-form {
+  padding: var(--awe-space-8) 0 0;
+}
+
+/* The effect is the full-screen backdrop, under the veil and the scrim */
+.signin-page[data-awe-login-layout="card"] > .signin-effect {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  grid-row: auto;
+  grid-column: auto;
+}
+
+.signin-page[data-awe-login-layout="card"] > .signin-effect::after {
+  background:
+    linear-gradient(var(--awe-login-backdrop-veil), var(--awe-login-backdrop-veil)),
+    var(--awe-login-scrim);
+}
+
+/* An absolute grid item is placed in its grid area: out of the grid, at the bottom left of the page */
+.signin-page[data-awe-login-layout="card"] > .signin-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: auto;
+  grid-row: auto;
+  grid-column: auto;
+}
+
+/* Under the card the footer keeps the surface of the card, so its text keeps the contrast over any image */
+.signin-page[data-awe-login-layout="card"] > .signin-footer {
+  grid-row: auto;
+  padding: var(--awe-space-3) var(--awe-space-4);
+  margin: 0;
+  background: var(--awe-login-card-background);
+  border-top: 0;
+  border-radius: var(--awe-login-card-radius);
 }
 
 /* Narrow screens: the form alone, centred */
 @media (max-width: 960px) {
-  #page-signin,
-  #page-change-expired-password,
-  .totp-screen.fullScreen {
+  .signin-page {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  #page-signin::after,
-  #page-change-expired-password::after,
-  .totp-screen.fullScreen > #page-totp-bg {
+  .signin-page::after {
     display: none;
   }
 
-  #page-signin > .signin-container,
-  #page-change-expired-password > .signin-container,
-  .totp-screen.fullScreen > .totp-container {
+  .signin-page > .signin-container {
     justify-content: center;
     padding: var(--awe-space-6) !important;
+  }
+
+  .signin-page > .signin-caption {
+    display: none;
+  }
+
+  .signin-page > .signin-footer {
+    margin: 0 var(--awe-space-6);
+  }
+
+  .signin-page > .signin-effect {
+    display: none;
+  }
+
+  /* The card keeps its backdrop */
+  .signin-page[data-awe-login-layout="card"]::after {
+    display: block;
+  }
+
+  .signin-page[data-awe-login-layout="card"] > .signin-effect {
+    display: block;
   }
 }

@@ -1311,6 +1311,17 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_NEW_DATE" value="New date"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Parameter list"/>
   <locale name="SCREEN_TEXT_PASS" value="Password"/>
+  <locale name="SCREEN_TEXT_LOGIN_TITLE" value="Welcome to AWE"/>
+  <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Enter your credentials to continue."/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Low coding complete functional web applications"/>
+  <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Show password"/>
+  <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Hide password"/>
+  <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Caps Lock is on"/>
+  <locale name="SCREEN_TEXT_SIGNING_IN" value="Signing in…"/>
+  <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Sign in with Microsoft"/>
+  <locale name="SCREEN_TEXT_LOGIN_OR" value="or continue with"/>
+  <locale name="SCREEN_TEXT_POWERED_BY" value="Powered by"/>
   <locale name="SCREEN_TEXT_PRINT_EMAIL" value="Print/Mail properties configuration"/>
   <locale name="SCREEN_TEXT_PROFILES" value="Profiles"/>
   <locale name="SCREEN_TEXT_RESTRICTIONS" value="Restrictions"/>

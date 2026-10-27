@@ -12,6 +12,8 @@ export const CONFIRM_MESSAGE = 'CONFIRM_MESSAGE' as const;
 export const REMOVE_CONFIRM = 'REMOVE_CONFIRM' as const;
 export const SHOW_POPOVER = 'SHOW_POPOVER' as const;
 export const REMOVE_POPOVER = 'REMOVE_POPOVER' as const;
+export const SHOW_SIGNIN_ALERT = 'SHOW_SIGNIN_ALERT' as const;
+export const REMOVE_SIGNIN_ALERT = 'REMOVE_SIGNIN_ALERT' as const;
 
 export const MessageType = {
   MESSAGE_OK: 'ok',
@@ -55,4 +57,13 @@ export function showPopover(data: MessageItem) {
 
 export function removePopover(data: MessageItem) {
   return {type: REMOVE_POPOVER, data};
+}
+
+/** Show the message of a failed login in the alert of the sign-in page, instead of a toast */
+export function showSigninAlert(data: MessageItem) {
+  return {type: SHOW_SIGNIN_ALERT, data};
+}
+
+export function removeSigninAlert() {
+  return {type: REMOVE_SIGNIN_ALERT};
 }

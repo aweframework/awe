@@ -1314,6 +1314,17 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_NEW_DATE" value="Nueva fecha"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Listado de parámetros"/>
   <locale name="SCREEN_TEXT_PASS" value="Clave"/>
+  <locale name="SCREEN_TEXT_LOGIN_TITLE" value="Bienvenido a AWE"/>
+  <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Introduce tus credenciales para continuar."/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Aplicaciones web funcionales completas con low code"/>
+  <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Mostrar contraseña"/>
+  <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Ocultar contraseña"/>
+  <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Bloq Mayús está activado"/>
+  <locale name="SCREEN_TEXT_SIGNING_IN" value="Iniciando sesión…"/>
+  <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Iniciar sesión con Microsoft"/>
+  <locale name="SCREEN_TEXT_LOGIN_OR" value="o continúa con"/>
+  <locale name="SCREEN_TEXT_POWERED_BY" value="Desarrollado con"/>
   <locale name="SCREEN_TEXT_PRINT_EMAIL" value="Propiedades de impresión / Envío de correo"/>
   <locale name="SCREEN_TEXT_PROFILES" value="Profiles"/>
   <locale name="SCREEN_TEXT_RESTRICTIONS" value="Restricciones"/>

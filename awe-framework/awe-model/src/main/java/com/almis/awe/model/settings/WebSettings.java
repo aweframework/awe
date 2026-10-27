@@ -73,4 +73,6 @@ public class WebSettings {
   private WebChartOptions chartOptions;
   // Map tile url
   private String mapTileUrl;
+  // Sign-in page branding
+  private WebLoginSettings login;
 }

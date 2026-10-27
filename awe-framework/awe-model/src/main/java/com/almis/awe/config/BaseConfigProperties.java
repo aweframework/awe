@@ -241,6 +241,13 @@ public class BaseConfigProperties {
   private MapSettings map = new MapSettings();
 
   /**
+   * Sign-in page branding: layout, logos, background image and texts.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private Login login = new Login();
+
+  /**
    * Application AWE file manager parameters configuration.
    */
   @NestedConfigurationProperty
@@ -451,7 +458,9 @@ public class BaseConfigProperties {
     private String iconTablet = images + FAVICON_ICON;
 
     /**
-     * Sign-in screen logo. Uses application.paths.images as parent path.
+     * Sign-in screen logo. Uses application.paths.images as parent path. Deprecated for the sign-in page: use
+     * awe.application.login.logo instead (this value is its fallback); in AngularJS it still styles the change
+     * password and two-factor screens.
      * Default value ../images/logo/logo-awe-nuevo.svg
      */
     private String imageStartupLogo = "../" + images + "logo/logo-awe-nuevo.svg";
@@ -463,7 +472,9 @@ public class BaseConfigProperties {
     private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
 
     /**
-     * Sign-in screen background image. Uses application.paths.images as parent path.
+     * Sign-in screen background image. Uses application.paths.images as parent path. Deprecated for the sign-in page:
+     * use awe.application.login.background instead (this value is its fallback); in AngularJS it still styles the
+     * change password and two-factor screens.
      * Default value ../images/background/signin-bg-1.jpg
      */
     private String imageStartupBackground = "../" + images + "background/signin-bg-1.jpg";
@@ -512,6 +523,96 @@ public class BaseConfigProperties {
      * Default value information
      */
     private String initial = "information";
+  }
+
+  /**
+   * Configuration properties of the sign-in page. Texts are a locale key or a literal; an empty text is not shown.
+   * Images are browser-resolvable URLs: relative to the application root, absolute or data URIs.
+   */
+  @Data
+  public static class Login {
+    /**
+     * Layout of the sign-in page: split (the form column next to the background panel), form-only (the form centred
+     * alone) or card (the form in a card over the full-screen background). Any other value is split.
+     * Default value split
+     */
+    private String layout = "split";
+
+    /**
+     * Logo of the sign-in page. When empty, awe.application.paths.image-startup-logo if changed, else the AWE logo.
+     * Default value empty
+     */
+    private String logo;
+
+    /**
+     * Logo of the sign-in page in dark mode.
+     * Default value empty (the logo)
+     */
+    private String logoDark;
+
+    /**
+     * Background image of the sign-in page: the panel of the split layout, the backdrop of the card layout. When
+     * empty, awe.application.paths.image-startup-background if changed, else the AWE brand panel.
+     * Default value empty
+     */
+    private String background;
+
+    /**
+     * Name of a canvas effect the application registers for the image panel of the sign-in page (the split panel and
+     * the card backdrop; the form-only layout has no background). AWE ships no effect: the application registers the
+     * effects it writes in its own bundle and selects one here. Empty means no effect, so the background image stays.
+     * Default value empty
+     */
+    private String backgroundEffect;
+
+    /**
+     * Title of the sign-in form.
+     * Default value SCREEN_TEXT_LOGIN_TITLE ("Welcome to AWE")
+     */
+    private String title = "SCREEN_TEXT_LOGIN_TITLE";
+
+    /**
+     * Subtitle of the sign-in form.
+     * Default value SCREEN_TEXT_LOGIN_SUBTITLE ("Enter your credentials to continue.")
+     */
+    private String subtitle = "SCREEN_TEXT_LOGIN_SUBTITLE";
+
+    /**
+     * Title of the caption over the background image.
+     * Default value SCREEN_TEXT_LOGIN_PANEL_TITLE ("AWE Framework")
+     */
+    private String panelTitle = "SCREEN_TEXT_LOGIN_PANEL_TITLE";
+
+    /**
+     * Text of the caption over the background image.
+     * Default value SCREEN_TEXT_LOGIN_PANEL_SUBTITLE ("Low coding complete functional web applications")
+     */
+    private String panelSubtitle = "SCREEN_TEXT_LOGIN_PANEL_SUBTITLE";
+
+    /**
+     * Footer text of the sign-in page, for instance the copyright.
+     * Default value empty
+     */
+    private String footerText;
+
+    /**
+     * Show "Powered by AWE" in the footer of the sign-in page.
+     * Default value true
+     */
+    private boolean poweredBy = true;
+
+    /**
+     * Show the language selector in the footer of the sign-in page, with the languages of
+     * awe.application.language-list.
+     * Default value true
+     */
+    private boolean languageSelector = true;
+
+    /**
+     * Show the light, dark and system colour mode selector in the footer of the sign-in page.
+     * Default value true
+     */
+    private boolean modeSelector = true;
   }
 
   /**

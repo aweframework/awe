@@ -26,6 +26,7 @@ module.exports = {
     '**/utilities/generalTest.{ts,tsx}',
     '**/utilities/mapTest.{ts,tsx}',
     '**/utilities/testPassThroughTest.{ts,tsx}',
+    '**/utilities/loginEffectsTest.{ts,tsx}',
     '**/contract/contractTest.{ts,tsx}',
     '**/packaging/bootstrapGridCompatTest.{js,jsx}',
     '**/packaging/packageVersionTest.{js,jsx}',

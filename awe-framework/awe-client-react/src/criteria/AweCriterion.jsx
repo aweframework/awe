@@ -13,7 +13,7 @@ import {useContextMenu} from "../hooks/useContextMenu";
 // Pixels added to the width of a character by the size of the criterion
 const SIZE_CHAR_INCREMENT = {md: 1, lg: 3};
 
-const AweCriterion = ({children, address, attributes, validationRules,
+const AweCriterion = ({children, note, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
                         generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field"}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
@@ -113,6 +113,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
         {generateUnit && getUnit()}
       </div>
       {getValidation()}
+      {note}
       {contextMenuTemplate()}
     </div>
   );
@@ -120,6 +121,8 @@ const AweCriterion = ({children, address, attributes, validationRules,
 
 AweCriterion.propTypes = {
   children: PropTypes.node,
+  // Shown under the field (a help or a warning of the criterion)
+  note: PropTypes.node,
   address: PropTypes.object,
   attributes: PropTypes.object,
   validationRules: PropTypes.object,

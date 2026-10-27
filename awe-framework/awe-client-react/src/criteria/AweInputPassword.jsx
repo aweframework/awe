@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useEffect, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
 import {InputText} from "primereact/inputtext";
 import {classNames} from "../utilities/components";
 import {getIconNode, translateLabel} from "../utilities";
@@ -9,22 +10,51 @@ import useCapsLock from "../hooks/useCapsLock";
 import PropTypes from "prop-types";
 import useEnterKey from "../hooks/useEnterKey";
 import {TestIds, testHook} from "../utilities/testIds";
+import {useInSigninPage, useSigninAlert, useSigningIn} from "../components/SigninPage";
+import {updateModelWithDependencies} from "../redux/thunks/components";
 
 function AweInputPassword(props) {
   const { id } = props;
   const { t } = useTranslation();
-  const { address, attributes, validationRules, value, onChange, onBlur, onSubmit } = useText(id);
+  const dispatch = useDispatch();
+  const { address, attributes, validationRules, value, setValue, onChange, onBlur, onSubmit } = useText(id);
   const capsLockOn = useCapsLock();
+  // On the sign-in page the password is drawn as the prototype: a show / hide button and a Caps Lock warning under it
+  const signin = useInSigninPage();
+  // and the field is disabled while the login runs
+  const signingIn = useSigningIn();
+  const [shown, setShown] = useState(false);
+  const input = useRef(null);
+
+  // A failed login on the sign-in page clears the password and gives it the focus, to type it again
+  const alertId = useSigninAlert()?.id;
+  useEffect(() => {
+    if (alertId !== undefined && address) {
+      setValue("");
+      dispatch(updateModelWithDependencies(address, { values: [{ value: "", selected: true }] }));
+      input.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alertId]);
 
   const { placeholder, required, readonly, size, error } = attributes;
   const onKeyDown = useEnterKey(onSubmit);
-  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error, "caps-lock": capsLockOn });
+  const capsId = `${address?.component}-caps`;
+  const capsWarning = signin && capsLockOn;
+  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+    "caps-lock": capsLockOn && !signin, "signin-password": signin });
+
+  const note = capsWarning && <small id={capsId} className="help help--warning signin-caps">
+    {getIconNode("lucide:triangle-alert", {"aria-hidden": "true"})}
+    <span>{t("SCREEN_TEXT_CAPS_LOCK_ON")}</span>
+  </small>;
 
   return (
-    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} note={note}>
       <InputText
+        ref={input}
         id={address?.component}
-        type="password"
+        type={signin && shown ? "text" : "password"}
         value={value}
         className={classes}
         placeholder={translateLabel(placeholder, t)}
@@ -32,10 +62,16 @@ function AweInputPassword(props) {
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         required={required}
-        disabled={readonly}
+        disabled={readonly || signingIn}
+        aria-describedby={capsWarning ? capsId : undefined}
         {...testHook(TestIds.criterionInput)}
       />
-      {capsLockOn && getIconNode("pi-arrow-circle-up", {className: "caps-lock-icon", "aria-hidden": "true"})}
+      {signin && <button type="button" className="signin-password-toggle" aria-controls={address?.component}
+                         aria-pressed={shown} disabled={readonly || signingIn} onClick={() => setShown(show => !show)}
+                         aria-label={t(shown ? "SCREEN_TEXT_HIDE_PASSWORD" : "SCREEN_TEXT_SHOW_PASSWORD")}>
+        {getIconNode(shown ? "lucide:eye-off" : "lucide:eye", {"aria-hidden": "true"})}
+      </button>}
+      {capsLockOn && !signin && getIconNode("pi-arrow-circle-up", {className: "caps-lock-icon", "aria-hidden": "true"})}
     </AweCriterion>
   );
 }

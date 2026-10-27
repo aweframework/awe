@@ -124,6 +124,16 @@ aweApplication.controller("MessageController",
           let timeout;
           let type = getMessageType(parameters.type);
 
+          // A screen may show the message itself (the sign-in page shows a failed login in its form): it claims it by
+          // preventing the default of claim-message, and then there is no alert and the action ends at once
+          const messageText = getMessageText(action.attr("view"), parameters);
+          const claim = $scope.$root.$broadcast("claim-message", {type: parameters.type, title: messageText.title,
+            message: messageText.message, target: action.attr("callbackTarget"), view: action.attr("view")});
+          if (claim.defaultPrevented) {
+            $actionController.acceptAction(action);
+            return;
+          }
+
           // Retrieve timeout
           timeout = $settings.get('messageTimeout')[parameters.type];
 
@@ -133,8 +143,6 @@ aweApplication.controller("MessageController",
             action: action
           };
 
-          // Retrieve message text
-          let  messageText = getMessageText(action.attr("view"), parameters);
           if ("title" in messageText && !$utilities.isEmpty(messageText.title)) {
             messageContent.title = messageText.title;
           }

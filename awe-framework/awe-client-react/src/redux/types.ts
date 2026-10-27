@@ -47,6 +47,8 @@ export interface MessagesState {
   showing: MessageItem[];
   confirm?: MessageItem;
   popover?: MessageItem;
+  /** Message of a failed login shown in the alert of the sign-in page */
+  signinAlert?: MessageItem;
 }
 
 /** Navigation slice */

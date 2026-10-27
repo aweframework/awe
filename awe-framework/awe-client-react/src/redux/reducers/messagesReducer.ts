@@ -4,8 +4,10 @@ import {
   REMOVE_CONFIRM,
   REMOVE_MESSAGE,
   REMOVE_POPOVER,
+  REMOVE_SIGNIN_ALERT,
   SHOW_MESSAGES,
   SHOW_POPOVER,
+  SHOW_SIGNIN_ALERT,
   UPDATE_MESSAGES
 } from '../actions/messages';
 import type {
@@ -14,8 +16,10 @@ import type {
   removeConfirm,
   removeMessage,
   removePopover,
+  removeSigninAlert,
   showMessages,
   showPopover,
+  showSigninAlert,
   updateMessages
 } from '../actions/messages';
 import type {MessagesState} from '../types';
@@ -31,7 +35,8 @@ const InitialState: MessagesState = {
 /** Actions the reducer handles */
 export type MessagesAction = ReturnType<
   typeof addMessage | typeof showMessages | typeof removeMessage | typeof updateMessages | typeof confirmMessage |
-  typeof removeConfirm | typeof showPopover | typeof removePopover>;
+  typeof removeConfirm | typeof showPopover | typeof removePopover | typeof showSigninAlert |
+  typeof removeSigninAlert>;
 
 /**
  * Messages reducer
@@ -88,6 +93,14 @@ export function messages(
       };
     case REMOVE_POPOVER:
       return state.popover?.id === action.data?.id ? {...state, popover: undefined} : state;
+    // The sign-in page shows the message of a failed login in its alert, one at a time
+    case SHOW_SIGNIN_ALERT:
+      return {
+        ...state,
+        signinAlert: {...action.data}
+      };
+    case REMOVE_SIGNIN_ALERT:
+      return state.signinAlert ? {...state, signinAlert: undefined} : state;
     case REMOVE_CONFIRM:
       return {
         ...state,

@@ -12,6 +12,7 @@ import PropTypes from "prop-types";
 import { ButtonSkeleton } from "./AweSkeleton";
 import { TestIds, testHook } from "../utilities/testIds";
 import { useContextMenu, useContextMenuAnchor } from "../hooks/useContextMenu";
+import { useSigninButton } from "./SigninPage";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
 
@@ -36,6 +37,8 @@ function AweButton(props) {
   const dispatch = useDispatch();
   const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
   const buttonRef = useContextMenuAnchor(address);
+  // On the sign-in page the login buttons are drawn as the prototype
+  const signin = useSigninButton(actions, attributes, t, id);
 
   const onClick = useCallback(() => {
     // Change click event
@@ -55,7 +58,7 @@ function AweButton(props) {
   }
 
   const { style, icon, disabled, label, size, visible, help, helpImage, buttonType } = attributes;
-  const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", getButtonType(buttonType), { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style);
+  const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", signin?.variant ?? getButtonType(buttonType), { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style, signin?.className);
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
     <ActionsRunningButton
@@ -63,9 +66,9 @@ function AweButton(props) {
       id={id}
       type="button"
       className={classes}
-      icon={getIconCode(icon, classNames("p-button-icon", "p-c", "p-button-icon-left", { [`text-${size}`]: size }),)}
-      disabled={disabled}
-      label={translateLabel(label, t)}
+      icon={signin?.icon ?? getIconCode(icon || signin?.defaultIcon, classNames("p-button-icon", "p-c", "p-button-icon-left", { [`text-${size}`]: size }),)}
+      disabled={disabled || signin?.disabled}
+      label={signin?.label ?? translateLabel(label, t)}
       iconPos={"left"}
       onClick={onClick}
       onContextMenu={onContextMenu}
@@ -73,6 +76,7 @@ function AweButton(props) {
       data-pr-showdelay={settings.helpTimeout}
       {...testHook(TestIds.button)}
     />
+    {signin?.after}
     {contextMenuTemplate()}
   </>);
 }

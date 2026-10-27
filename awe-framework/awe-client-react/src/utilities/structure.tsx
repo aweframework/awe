@@ -8,6 +8,8 @@ import {renderSafeHtml} from "./sanitizeHtml";
 import {extractCellModel, getColumnWrap} from "./grid";
 import type {CellOption} from "./grid";
 import {ComponentType, getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
+import {isLoginPage} from "./signin";
+import SigninPage from "../components/SigninPage";
 
 /** An element of the structure of a screen, as the screen sends it: its type and its own attributes */
 export interface StructureElement {
@@ -73,6 +75,10 @@ export function getSourceChildren(node: SourceElement | null | undefined = {elem
     return children;
   }
   const className = classNames({[`expandible-${node.expand}`]: node.expand}, node.style);
+  // A login page of the screens shared with the AngularJS engine (the change password and two-factor screens)
+  if (isLoginPage(node.id, node.elementList)) {
+    return <SigninPage id={node.id} className={className || undefined}>{children}</SigninPage>;
+  }
   return React.createElement(node.type, {id: node.id, className: className || undefined}, children);
 }
 
