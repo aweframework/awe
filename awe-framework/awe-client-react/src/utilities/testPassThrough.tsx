@@ -1,6 +1,7 @@
 import React from "react";
-import type { ReactElement, ReactNode } from "react";
+import type { FocusEvent, KeyboardEvent, ReactElement, ReactNode } from "react";
 import { testHook, TestAttributes, TestIds } from "./testIds";
+import { createEnterHandler } from "./keyboard";
 import type { TestHook } from "./testIds";
 
 /**
@@ -47,8 +48,16 @@ export interface MonthYearOptions {
  * Pass-through of a Calendar
  */
 export interface CalendarPassThrough {
-  input: { root: TestHook };
-  panel: TestHook;
+  input: {
+    root: TestHook & {
+      onKeyDownCapture: (event: KeyboardEvent<HTMLInputElement>) => void;
+      onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => unknown;
+    };
+  };
+  panel: TestHook & {
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => unknown;
+    onFocus: (event: FocusEvent<HTMLElement>) => void;
+  };
   day: (options: DayOptions) => TestHook;
   month: (options: MonthYearOptions) => TestHook;
   year: (options: MonthYearOptions) => TestHook;
@@ -219,14 +228,59 @@ export function isDaySelected(value: Date | Date[] | null | undefined, day: Cale
 }
 
 /**
- * Pass-through of a Calendar
+ * Enter on a part of the calendar panel (a day, a month or a year) chooses it and stays in the panel: it must not reach
+ * the ancestors, as a grid that saves the row with Enter (the panel is a portal, but React bubbles through its owner).
+ * The buttons of the panel are left alone: cancelling Enter on a button would stop its click.
+ */
+const panelEnterHandler = createEnterHandler<KeyboardEvent<HTMLElement>>(undefined, {
+  when: (event) => !(event.target as HTMLElement).closest?.("button")
+});
+
+/**
+ * Inputs of a calendar where the down arrow has been pressed: the focus goes into their panel on purpose
+ */
+const keyboardNavigation = new WeakSet<EventTarget>();
+
+/**
+ * Remember that the down arrow is pressed on the input of a calendar. It runs in the capture phase, before PrimeReact
+ * handles the key and moves the focus into the panel.
+ * @param {KeyboardEvent} event Key down event of the input
+ */
+const markKeyboardNavigation = (event: KeyboardEvent<HTMLInputElement>): void => {
+  if (event.key === "ArrowDown") {
+    keyboardNavigation.add(event.currentTarget);
+  }
+};
+
+/**
+ * PrimeReact moves the focus to the first day of the panel whenever it opens, also when it opens because the input got
+ * the focus: what the user types then is lost. The focus goes back to the input unless the user went into the panel
+ * with the down arrow, so the keyboard navigation of the calendar is kept.
+ * @param {FocusEvent} event Focus event of the panel
+ */
+const keepFocusOnInput = (event: FocusEvent<HTMLElement>): void => {
+  const input = event.relatedTarget;
+  if (input instanceof HTMLInputElement && !event.currentTarget.contains(input) && !keyboardNavigation.delete(input)) {
+    input.focus();
+  }
+};
+
+/**
+ * Pass-through of a Calendar. PrimeReact does not forward onKeyDown to the input of a Calendar, so the key handler of
+ * the criterion goes through the pass-through of the input.
  * @param {string} owner Id of the component that owns the calendar overlay
+ * @param {function(KeyboardEvent)} [onKeyDown] Key down handler of the input
+ * @param {object} [inputHook] Test hook of the input (the criterion input by default)
  * @returns {object} Calendar pt
  */
-export function calendarPassThrough(owner: string): CalendarPassThrough {
+export function calendarPassThrough(
+  owner: string,
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => unknown,
+  inputHook: TestHook = testHook(TestIds.criterionInput)
+): CalendarPassThrough {
   return {
-    input: { root: testHook(TestIds.criterionInput) },
-    panel: testHook(TestIds.datepicker, { owner }),
+    input: { root: { ...inputHook, onKeyDownCapture: markKeyboardNavigation, ...(onKeyDown && { onKeyDown }) } },
+    panel: { ...testHook(TestIds.datepicker, { owner }), onKeyDown: panelEnterHandler, onFocus: keepFocusOnInput },
     day: ({ props, context }) => testHook(TestIds.datepickerDay, {
       owner,
       selected: isDaySelected(props?.value, context.date),

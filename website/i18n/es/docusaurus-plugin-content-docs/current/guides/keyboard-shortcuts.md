@@ -35,8 +35,10 @@ El dígito se lee de la tecla física, por lo que también funciona en macOS, do
 
 | Teclas | Acción |
 |--------|--------|
-| `Enter` (texto, contraseña y color) | Envía la pantalla. |
+| `Enter` (texto, contraseña, color, fecha, fecha filtrada, hora y rango de fechas) | Envía la pantalla. |
 | `Enter` (numérico) | Confirma el valor escrito en el criterio. |
+| `Enter` (en un día, mes o año de un calendario) | Lo elige, sin enviar la pantalla ni guardar la fila de un grid. |
+| `ArrowDown` (campo de fecha) | Entra en el calendario. Al abrirse el calendario el foco sigue en el campo, para poder escribir la fecha. |
 | `Space` (suggest vacío) | Abre las opciones del suggest. |
 
 ### Buscador del menú {#menu-search}

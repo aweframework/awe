@@ -531,6 +531,8 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `clickDateRangePreset(String criterionName, String presetCode)` | Clicks a quick preset (`1M`, `YTD`, `ALL`...) |
 | `checkDateRangePresetActive(String criterionName, String presetCode)` | Checks that a preset is the active one (the dates are the ones it set) |
 | `clearDateRangeFrom(String criterionName)` | Clears the start date of a date range criterion |
+| `submitDateRangeFrom(String criterionName, String date)` | Types the start date of a date range criterion (`dd/MM/yyyy`) and presses Enter, which submits the screen |
+| `submitDateRangeTo(String criterionName, String date)` | Types the end date of a date range criterion (`dd/MM/yyyy`) and presses Enter, which submits the screen |
 | `dropFile(String criterionName, String fileName, String mimeType, String base64Content)` | Drops a file on the drop zone of an uploader criterion, as a user dragging it from the desktop |
 | `checkUploadCaptureButton(String criterionName, boolean shown)` | Checks that an uploader criterion offers the button that opens the camera (`true`), or that it does not (`false`) |
 | `chooseCapturedFile(String criterionName, String filePath)` | Chooses a file with the camera input (the one that captures an image) of an uploader criterion. **React only**: AngularJS creates its file input when the camera button is clicked, so there is no input to give the file to |

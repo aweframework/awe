@@ -8,6 +8,7 @@ import {getIconNode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {fromDate, parsePresets, resolvePreset, toDate} from "../utilities/dates";
 import {TestIds, testHook} from "../utilities/testIds";
+import useEnterKey from "../hooks/useEnterKey";
 import {calendarPassThrough} from "../utilities/testPassThrough";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import useText from "../hooks/useText";
@@ -35,7 +36,7 @@ function AweInputDateRange(props) {
   const {id} = props;
   const dispatch = useDispatch();
   const {t} = useTranslation();
-  const {address, model, attributes = {}, validationRules = {}, settings} = useText(id);
+  const {address, model, attributes, validationRules, settings, onSubmit} = useText(id);
   const [applied, setApplied] = useState(null);
 
   const {presets, placeholder, readonly, size, error} = attributes;
@@ -59,10 +60,9 @@ function AweInputDateRange(props) {
   const isActive = (code) => applied?.code === code && applied.from === from && applied.to === to;
 
   const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
-  const passThrough = (testId) => ({
-    ...calendarPassThrough(address?.component),
-    input: {root: testHook(testId)}
-  });
+  // Enter in any of the two inputs submits the screen
+  const onKeyDown = useEnterKey(onSubmit);
+  const passThrough = (testId) => calendarPassThrough(address?.component, onKeyDown, testHook(testId));
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules} groupClass="date-range">

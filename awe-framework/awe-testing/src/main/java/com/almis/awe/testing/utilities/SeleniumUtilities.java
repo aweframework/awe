@@ -5889,6 +5889,39 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Type the start date of a date range criterion and press Enter on it, which submits the screen
+   *
+   * @param criterionName Criterion identifier
+   * @param date          Start date, in the format of the criterion
+   */
+  protected void submitDateRangeFrom(String criterionName, String date) {
+    submitDate(locator(frontEndInstructions.getDateRangeFrom(criterionName)), date);
+  }
+
+  /**
+   * Type the end date of a date range criterion and press Enter on it, which submits the screen
+   *
+   * @param criterionName Criterion identifier
+   * @param date          End date, in the format of the criterion
+   */
+  protected void submitDateRangeTo(String criterionName, String date) {
+    submitDate(locator(frontEndInstructions.getDateRangeTo(criterionName)), date);
+  }
+
+  /**
+   * Replace the date of an input with a typed one and press Enter on it, without leaving the input first
+   *
+   * @param input Date input
+   * @param date  Date to type
+   */
+  private void submitDate(Locator input, String date) {
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, date);
+    getBrowser().press(input, Key.ENTER);
+  }
+
+  /**
    * Clear the start date of a date range criterion
    *
    * @param criterionName Criterion identifier

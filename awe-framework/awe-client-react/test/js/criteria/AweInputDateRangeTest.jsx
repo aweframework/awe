@@ -159,4 +159,68 @@ describe('awe-react-client/test/js/criteria/AweInputDateRangeTest.jsx', () => {
   it('is registered as the date-range criterion', () => {
     expect(CriteriaList["date-range"]).toBe(AweInputDateRange);
   });
+
+  const submitActions = (dispatchSpy) => dispatchSpy.mock.calls
+    .map(([action]) => action)
+    .filter(action => action.type === "ADD_ACTIONS_TOP")
+    .flatMap(action => action.payload)
+    .filter(action => action.type === "submit");
+
+  it.each([[FROM, "05/01/2026", ["05/01/2026", "31/01/2026"]], [TO, "20/01/2026", ["01/01/2026", "20/01/2026"]]])(
+    'commits the typed value of the %s input and submits the screen with Enter', (testId, typed, expected) => {
+      const {store, dispatchSpy} = renderWithProviders(<AweInputDateRange id="period"/>, {preloadedState: stateWith(range("01/01/2026", "31/01/2026")), spyDispatch: true});
+      const input = byTestId(testId)[0];
+
+      fireEvent.input(input, {target: {value: typed}});
+      const notPrevented = fireEvent.keyDown(input, {key: "Enter"});
+
+      expect(notPrevented).toBe(false);
+      expect(modelOf(store)).toEqual(expected);
+      expect(submitActions(dispatchSpy)).toEqual([expect.objectContaining({type: "submit", address})]);
+    });
+
+  it.each([[FROM], [TO]])('keeps the focus on the %s input when its calendar opens, so the date can be typed', async (testId) => {
+    renderWithProviders(<AweInputDateRange id="period"/>, {preloadedState: stateWith([])});
+    const input = byTestId(testId)[0];
+
+    fireEvent.mouseDown(input);
+    act(() => input.focus());
+    fireEvent.mouseUp(input);
+    fireEvent.click(input);
+    await act(() => new Promise(resolve => setTimeout(resolve, 300)));
+
+    expect(document.querySelector('[data-testid="datepicker"]')).not.toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('does not let Enter reach the ancestors', () => {
+    const onParentKeyDown = jest.fn();
+    renderWithProviders(<div onKeyDown={onParentKeyDown}><AweInputDateRange id="period"/></div>, {preloadedState: stateWith(range("", ""))});
+
+    fireEvent.keyDown(byTestId(FROM)[0], {key: "Enter"});
+    fireEvent.keyDown(byTestId(TO)[0], {key: "Enter"});
+
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+  });
+
+  it('does not submit the screen with another key', () => {
+    const {dispatchSpy} = renderWithProviders(<AweInputDateRange id="period"/>, {preloadedState: stateWith(range("", "")), spyDispatch: true});
+
+    fireEvent.keyDown(byTestId(FROM)[0], {key: "a"});
+
+    expect(submitActions(dispatchSpy)).toEqual([]);
+  });
+
+  it('selects a day with Enter in the calendar without submitting the screen', () => {
+    const {store, dispatchSpy} = renderWithProviders(<AweInputDateRange id="period"/>, {preloadedState: stateWith(range("01/01/2026", "")), spyDispatch: true});
+    fireEvent.click(byTestId(TO)[0]);
+
+    const day = document.querySelector('[data-testid="datepicker-day"][data-selected="false"][data-disabled="false"][data-outside-month="false"]');
+    expect(day).not.toBeNull();
+    fireEvent.keyDown(day.querySelector("span"), {key: "Enter", code: "Enter"});
+
+    expect(modelOf(store)[1]).not.toBe("");
+    expect(submitActions(dispatchSpy)).toEqual([]);
+  });
+
 });

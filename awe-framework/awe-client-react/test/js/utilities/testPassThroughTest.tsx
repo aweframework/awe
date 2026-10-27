@@ -51,8 +51,82 @@ describe("awe-react-client/test/js/utilities/testPassThroughTest.tsx", () => {
     const pt = calendarPassThrough("calendar");
 
     it("hooks the input and the overlay", () => {
-      expect(pt.input).toEqual({root: {"data-testid": "criterion-input"}});
-      expect(pt.panel).toEqual({"data-testid": "datepicker", "data-testid-owner": "calendar"});
+      expect(pt.input).toEqual({root: {"data-testid": "criterion-input", onKeyDownCapture: expect.any(Function)}});
+      expect(pt.panel).toEqual({"data-testid": "datepicker", "data-testid-owner": "calendar",
+        onKeyDown: expect.any(Function), onFocus: expect.any(Function)});
+    });
+
+    it("adds the key handler and the test hook of the input", () => {
+      const onKeyDown = jest.fn();
+      const custom = calendarPassThrough("calendar", onKeyDown, {"data-testid": "date-range-from"});
+
+      expect(custom.input.root).toEqual({"data-testid": "date-range-from", onKeyDownCapture: expect.any(Function), onKeyDown});
+    });
+
+    describe("focus of the panel", () => {
+      const panel = document.createElement("div");
+      const input = document.createElement("input");
+      const day = document.createElement("span");
+      panel.appendChild(day);
+      beforeAll(() => document.body.append(panel, input));
+      afterAll(() => {
+        panel.remove();
+        input.remove();
+      });
+      const focusPanel = (relatedTarget: EventTarget | null) => {
+        day.focus = jest.fn();
+        input.focus = jest.fn();
+        pt.panel.onFocus({currentTarget: panel, target: day, relatedTarget} as never);
+      };
+      const press = (key: string) => pt.input.root.onKeyDownCapture({key, currentTarget: input} as never);
+
+      it("gives the focus back to the input when the panel takes it on opening", () => {
+        focusPanel(input);
+        expect(input.focus).toHaveBeenCalled();
+      });
+
+      it("lets the focus into the panel after the down arrow, only once", () => {
+        press("ArrowDown");
+        focusPanel(input);
+        expect(input.focus).not.toHaveBeenCalled();
+
+        focusPanel(input);
+        expect(input.focus).toHaveBeenCalled();
+      });
+
+      it("ignores other keys", () => {
+        press("ArrowUp");
+        focusPanel(input);
+        expect(input.focus).toHaveBeenCalled();
+      });
+
+      it("leaves the focus that does not come from the input", () => {
+        const button = document.createElement("button");
+        panel.appendChild(button);
+        focusPanel(button);
+        focusPanel(null);
+        expect(input.focus).not.toHaveBeenCalled();
+
+        const inner = document.createElement("input");
+        panel.appendChild(inner);
+        inner.focus = jest.fn();
+        pt.panel.onFocus({currentTarget: panel, target: day, relatedTarget: inner} as never);
+        expect(inner.focus).not.toHaveBeenCalled();
+      });
+    });
+
+    it("cancels Enter on the panel, except on its buttons", () => {
+      const event = (target: Element) => ({key: "Enter", code: "Enter", target, preventDefault: jest.fn(), stopPropagation: jest.fn()});
+      const day = event(document.createElement("span"));
+      const button = event(document.createElement("button"));
+
+      pt.panel.onKeyDown(day as never);
+      pt.panel.onKeyDown(button as never);
+
+      expect(day.stopPropagation).toHaveBeenCalled();
+      expect(day.preventDefault).toHaveBeenCalled();
+      expect(button.stopPropagation).not.toHaveBeenCalled();
+      expect(button.preventDefault).not.toHaveBeenCalled();
     });
 
     it("hooks a day with its state", () => {
