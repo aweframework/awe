@@ -12,7 +12,8 @@
   <option name="information" screen="info" invisible="true"/>
   <option module="Inf" name="information-restricted" screen="info" invisible="true"/>
   <option module="Inf Changed" name="information-restricted-changed" screen="info" invisible="true"/>
-  <option name="general" label="General" separator="true"/>
+  <!-- Sections: a separator with label titles the options below it, one without label draws a divider line -->
+  <option name="administration-section" label="MENU_SECTION_ADMINISTRATION" separator="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
     <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
       <option name="new-site" screen="SitNew" invisible="true"/>
@@ -72,6 +73,7 @@
     <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop"/>
   </option>
+  <option module="Test" name="testing-section" label="MENU_SECTION_TESTING" separator="true"/>
   <option module="Test" name="test" label="MENU_TEST" icon="flask">
     <option name="criteria" label="MENU_TEST_CRITERIA" icon="object-group">
       <option name="criteria-test" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
@@ -177,7 +179,7 @@
     <option name="file-viewer-test" label="MENU_TEST_FILE_VIEWER" screen="file-viewer-test" icon="file-text-o"/>
     <option name="no-screen-test" label="MENU_TEST_EMPTY" screen="no-screen-test" icon="mdi:block"/>
   </option>
-  <option name="scheduler-separator" separator="true"/>
+  <option name="automation-section" label="MENU_SECTION_AUTOMATION" separator="true"/>
   <option name="scheduler" label="MENU_SCHEDULER" icon="clock-o">
     <option name="scheduler-management" label="MENU_SCHEDULER_MANAGEMENT" screen="scheduler-management" icon="cogs"/>
     <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="tasks">
@@ -193,7 +195,6 @@
       <option name="update-scheduler-calendar" screen="update-scheduler-calendar" invisible="true" />
     </option>
   </option>
-  <option name="notifier-separator" separator="true"/>
   <option name="user-settings" screen="user-settings" invisible="true"/>
   <option name="notifier" label="MENU_NOTIFIER" icon="flash">
     <option name="subscriptions" screen="subscriptions" label="MENU_NOTIFIER_SUBSCRIPTIONS" icon="ticket">
@@ -202,7 +203,7 @@
     </option>
     <option name="notifications" screen="notifications" label="MENU_NOTIFIER_NOTIFICATIONS" icon="bell" />
   </option>
-  <option name="developer-separator" separator="true"/>
+  <option name="development-section" label="MENU_SECTION_DEVELOPMENT" separator="true"/>
   <option name="developer" label="MENU_DEVELOPER" icon="paint-brush">
     <option name="path-manager" label="MENU_PATH" screen="path-manager" icon="terminal"/>
     <option name="local-manager" label="MENU_LANGUAGES" screen="local-manager" icon="language"/>

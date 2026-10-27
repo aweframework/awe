@@ -25,11 +25,21 @@
           <tag type="div" style="layout-menu-container">
             <menu-container id="MainMenu" style="vertical navigation"/>
           </tag>
+          <!-- Footer of the side menu: who powers the application, and the button that collapses the menu -->
+          <tag type="div" style="sidebar-footer">
+            <tag type="span" style="sidebar-powered">
+              <tag type="span" label="SIDEBAR_POWERED_BY"/>
+              <tag type="strong" label="SIDEBAR_POWERED_BRAND"/>
+            </tag>
+            <info-button id="collapse-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:chevrons-left" style="sidebar-collapse">
+              <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+            </info-button>
+          </tag>
         </tag>
         <tag type="div" style="layout-content-wrapper" expandible="vertical">
           <tag type="div" style="layout-topbar">
             <tag type="div" style="topbar-start">
-              <info-button id="toggle-menu" title="BUTTON_TOGGLE_MENU" icon="mdi:menu">
+              <info-button id="toggle-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:panel-left">
                 <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
               </info-button>
               <tag type="h3" label="APP_NAME"/>
@@ -62,11 +72,12 @@
                     </dependency>
                   </info-button>
                 </info>
-                <avatar id="ButUsrAct" icon="mdi:person_outline" image="/images/logos/logo-awe-nuevo.svg" initial-load="query" target-action="connectedUser" show-label="true">
+                <avatar id="ButUsrAct" image="/images/logos/logo-awe-nuevo.svg" initial-load="query" target-action="connectedUser" show-label="true">
                   <include target-screen="notification-panel" target-source="user-settings"/>
                   <include target-screen="info-buttons" target-source="themeModeSelector"/>
                   <include target-screen="info-buttons" target-source="themeSelector"/>
                   <include target-screen="info-buttons" target-source="languageSelector"/>
+                  <tag type="div" style="dropdown-separator"/>
                   <include target-screen="info-buttons" target-source="logout"/>
                 </avatar>
               </tag>

@@ -178,7 +178,9 @@ export interface TabValue {
 export interface MenuItem {
   name?: string;
   title?: string;
+  label?: string;
   active?: boolean;
+  divider?: boolean;
 }
 
 /**
@@ -201,8 +203,9 @@ export interface PanelMenuOptions {
 export interface PanelMenuPassThrough {
   root: TestHook;
   panel: (options: PanelMenuOptions) => TestHook;
+  header: (options: PanelMenuOptions) => TestHook;
   headerAction: (options: PanelMenuOptions) => TestHook;
-  toggleableContent: TestHook;
+  toggleableContent: (options?: Partial<PanelMenuOptions>) => TestHook;
   menu: TestHook;
   menuitem: (options: PanelMenuOptions) => TestHook;
   action: (options: PanelMenuOptions) => TestHook;
@@ -521,13 +524,23 @@ export function panelMenuPassThrough(model: MenuItem[]): PanelMenuPassThrough {
   const link = (item: MenuItem | undefined) => testHook(TestIds.menuLink, { attributes: optionLink(item) });
   return {
     root: testHook(TestIds.menu),
-    panel: ({ context }) => testHook(TestIds.menuOption, {
+    // A divider line is a separator, not an option: it has no test hook
+    panel: ({ context }) => model[context.index]?.divider ? { role: "separator" } : testHook(TestIds.menuOption, {
       active: !!model[context.index]?.active,
       open: context.active,
       attributes: optionName(model[context.index])
     }),
+    // The empty header of a divider line is no button for assistive technologies
+    header: ({ context }) => model[context.index]?.divider ? {
+      role: undefined, "aria-expanded": undefined, "aria-controls": undefined, "aria-disabled": undefined,
+      "aria-hidden": true
+    } : {},
     headerAction: ({ context }) => link(model[context.index]),
-    toggleableContent: testHook(TestIds.menuDropdown),
+    // The flyout of the collapsed rail is titled with its option (shell.css); the nested levels have no context
+    toggleableContent: (options) => {
+      const label = options?.context ? model[options.context.index]?.label : undefined;
+      return { ...testHook(TestIds.menuDropdown), ...(label ? { "data-flyout-title": label } : {}) };
+    },
     menu: testHook(TestIds.menuSubmenu),
     menuitem: ({ context }) => testHook(TestIds.menuOption, {
       active: !!context.item?.item?.active,

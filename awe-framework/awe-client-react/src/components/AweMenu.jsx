@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Menubar } from "primereact/menubar";
 import { PanelMenu } from "primereact/panelmenu";
@@ -15,6 +15,57 @@ import { useMenuOptions } from "../hooks/useMenuRegistry";
 import AweMenuSearch from "./AweMenuSearch";
 import { menubarPassThrough, panelMenuPassThrough } from "../utilities/testPassThrough";
 
+// The side menu collapses to the rail on desktops only (shell.css): below, the menu is a drawer
+const RAIL_QUERY = "(min-width: 1025px)";
+// Time the pointer has to come back before the flyout of the rail closes, as the prototype
+const FLYOUT_CLOSE_DELAY = 220;
+// The flyout starts a little above its option and keeps this margin inside the window, as the prototype
+const FLYOUT_OFFSET = 4;
+const FLYOUT_MARGIN = 8;
+
+/**
+ * Whether the vertical menu of an element is collapsed to the rail
+ * @param {Element} element Element of the menu
+ * @returns {boolean} The menu is the rail
+ */
+function isRail(element) {
+  const desktop = typeof window.matchMedia === "function" ? window.matchMedia(RAIL_QUERY).matches : true;
+  return desktop && !!element?.closest(".layout-static-inactive");
+}
+
+/**
+ * Top of the flyout of a first level option: aligned with the option and inside the window, as the prototype
+ * @param {Element} container Menu container
+ * @param {number} index Index of the option in the first level
+ * @returns {number|null} Top in pixels, null when the option is not rendered
+ */
+function flyoutTop(container, index) {
+  const panel = container?.querySelectorAll(":scope .p-panelmenu > .p-panelmenu-panel")[index];
+  const header = panel?.querySelector(":scope > .p-panelmenu-header");
+  if (!header) {
+    return null;
+  }
+  const height = panel.querySelector(":scope > .p-toggleable-content")?.offsetHeight || 0;
+  const top = Math.min(header.getBoundingClientRect().top - FLYOUT_OFFSET, window.innerHeight - height - FLYOUT_MARGIN);
+  return Math.max(FLYOUT_MARGIN, top);
+}
+
+/**
+ * Key of the first level option, with options, of the panel that holds an element
+ * @param {Element} element Element of the menu
+ * @param {object[]} model Items of the first level
+ * @returns {string|null|undefined} Key, null when the panel has no options, undefined when the element is in no panel
+ */
+function flyoutPanelKey(element, model) {
+  const panel = element?.closest?.(".p-panelmenu-panel");
+  if (!panel) {
+    return undefined;
+  }
+  const panels = Array.from(panel.parentElement.children).filter(child => child.classList.contains("p-panelmenu-panel"));
+  const item = model[panels.indexOf(panel)];
+  return item?.items ? item.key : null;
+}
+
 /**
  * Check if option has children or is a final option
  * @param option    Option to check
@@ -25,15 +76,28 @@ function isFinalOption(option, children) {
   return menuScreen || (actions.length > 0 && children === undefined);
 }
 
+/**
+ * Convert a separator option to item: with label it is a section label, without label a divider line
+ * @param {object} option Separator option
+ * @param {function} t Translation function
+ * @returns {object} Item
+ */
 function getSeparatorModel(option, t) {
   const { name, label } = option;
   return label ? {
     key: name,
     label: translateLabel(label, t),
-    className: "p-menuitem-separator",
+    className: `${name} p-menuitem-separator`,
     display: true,
     command: () => { }
-  } : { separator: true, display: false };
+  } : {
+    key: name,
+    separator: true,
+    divider: true,
+    disabled: true,
+    className: `${name} p-menuitem-divider`,
+    display: true
+  };
 }
 
 /**
@@ -104,7 +168,7 @@ function getItemClassName(name, activePath) {
  * @returns {object} Item
  */
 function optionToItem(option, props) {
-  const { t, deleteStack, addActionsTop, activePath } = props;
+  const { t, deleteStack, addActionsTop, activePath, onLaunch } = props;
   const { separator, name, label, description, icon, options, actions } = option;
   let children = optionsToItems(options, props);
   return separator ? getSeparatorModel(option, t) : {
@@ -119,6 +183,7 @@ function optionToItem(option, props) {
     ...(!isFinalOption(option, children) && children ? { items: children } : {}),
     ...(isFinalOption(option, children) ? {
       command: () => {
+        onLaunch?.();
         deleteStack();
         addActionsTop(actions);
       }
@@ -178,6 +243,21 @@ function AweMenu(props) {
   const module = componentModule?.model ? componentModule : { model: { values: [] } };
 
   const [expandedKeys, setExpandedKeys] = useState({});
+  // Collapsed rail: the first level option whose options show as a flyout, while the pointer or the focus is on it
+  const [flyoutKey, setFlyoutKey] = useState(null);
+  const flyoutTimer = useRef(null);
+  const flyoutKeyRef = useRef(null);
+  flyoutKeyRef.current = flyoutKey;
+  // Option whose flyout launched an option: it does not open again until the pointer goes to another option
+  const launchedKey = useRef(null);
+  const containerRef = useRef(null);
+
+  // Launching an option of the flyout closes it, as the prototype
+  const onLaunch = useCallback(() => {
+    clearTimeout(flyoutTimer.current);
+    launchedKey.current = flyoutKeyRef.current;
+    setFlyoutKey(null);
+  }, []);
 
   const activePath = useMemo(() => findOptionPath(options, currentOption?.option) || [], [options, currentOption?.option]);
 
@@ -188,7 +268,8 @@ function AweMenu(props) {
     module,
     addActionsTop: (actions) => dispatch(addActionsTop(actions)),
     deleteStack: () => dispatch(deleteStack()),
-  }), [t, currentOption, activePath, module, dispatch]);
+    onLaunch,
+  }), [t, currentOption, activePath, module, dispatch, onLaunch]);
 
 
   // Initialize expanded keys and breadcrumbs on mount
@@ -217,11 +298,34 @@ function AweMenu(props) {
     }
   }, [activePath]);
 
-  const onExpand = (ek) => setExpandedKeys(ek);
+  // The flyout of the rail only shows an option: PanelMenu reports it among its expanded keys, the user did not expand it
+  const onExpand = (ek) => {
+    const key = flyoutKeyRef.current;
+    if (key && !expandedKeys[key]) {
+      const {[key]: flyout, ...expanded} = ek;
+      setExpandedKeys(expanded);
+    } else {
+      setExpandedKeys(ek);
+    }
+  };
 
-  const model = (optionsToItems(options, helperProps) || []).filter(o => o.display);
+  // Stop the pending close of the flyout when the menu goes away
+  useEffect(() => () => clearTimeout(flyoutTimer.current), []);
 
   const menuType = style.includes("vertical") ? "vertical" : "horizontal";
+
+  // The first level of the vertical menu draws the separators without label as divider lines; the horizontal menu
+  // keeps them out of its first level
+  const model = (optionsToItems(options, helperProps) || [])
+    .filter(o => o.display && (menuType === "vertical" || !o.divider));
+
+  // Place the flyout of the rail next to its option once it is rendered, when its height is known
+  useLayoutEffect(() => {
+    const top = flyoutKey ? flyoutTop(containerRef.current, model.findIndex(item => item.key === flyoutKey)) : null;
+    if (top !== null) {
+      containerRef.current.style.setProperty("--_flyout-top", `${top}px`);
+    }
+  });
   // Reuse the exact predicate the menu applies while rendering options, so the
   // search only surfaces options navigable in the current module.
   const moduleValue = (module.model.values.find(item => item.selected) || {}).value || null;
@@ -241,12 +345,37 @@ function AweMenu(props) {
   ) : null;
 
   if (menuType === "vertical") {
+    // Collapsed rail, as the prototype: the options of a first level option open as a flyout while the pointer or the
+    // focus is on it, without changing the options the user expanded
+    const openFlyout = (event) => {
+      const key = isRail(event.currentTarget) ? flyoutPanelKey(event.target, model) : undefined;
+      if (key !== undefined && key !== launchedKey.current) {
+        launchedKey.current = null;
+        clearTimeout(flyoutTimer.current);
+        setFlyoutKey(key);
+      }
+    };
+    const closeFlyout = () => {
+      launchedKey.current = null;
+      clearTimeout(flyoutTimer.current);
+      flyoutTimer.current = setTimeout(() => setFlyoutKey(null), FLYOUT_CLOSE_DELAY);
+    };
+    const onBlur = (event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        closeFlyout();
+      }
+    };
+    const shownKeys = flyoutKey ? {...expandedKeys, [flyoutKey]: true} : expandedKeys;
+    // Only the option of the flyout shows its options on the rail (shell.css), not the groups expanded on the path
+    const shownModel = flyoutKey ? model.map(item => item.key === flyoutKey ?
+      {...item, className: `${item.className} awe-menu-flyout`} : item) : model;
     return (
-      <div className="awe-menu-container awe-menu-container-vertical">
+      <div ref={containerRef} className="awe-menu-container awe-menu-container-vertical"
+        onMouseOver={openFlyout} onFocus={openFlyout} onMouseLeave={closeFlyout} onBlur={onBlur}>
         {search}
         <PanelMenu className="w-full"
-          expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
-          model={model} pt={panelMenuPassThrough(model)} />
+          expandedKeys={shownKeys} onExpandedKeysChange={onExpand}
+          model={shownModel} pt={panelMenuPassThrough(shownModel)} />
       </div>
     );
   } else {

@@ -56,7 +56,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
   @Test
   @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**
@@ -178,7 +178,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
 
     checkLogoutWithConfirmation();
 
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
 
     // Verify that ButPrn button is not visible
     checkMenuOption("test", "Tests");

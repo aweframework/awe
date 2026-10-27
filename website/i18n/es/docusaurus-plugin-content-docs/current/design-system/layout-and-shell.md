@@ -55,13 +55,31 @@ Hasta **tres niveles** por debajo de una sección: sección › opción › subo
 Al pasar el ratón, enfocar o pulsar una opción de nivel 1 se abre un **flyout** con sus niveles 2 y 3. Teclado: Enter o
 → lo abre y enfoca el primer enlace, ↑/↓ se mueven, Esc o ← lo cierran y devuelven el foco.
 
+**Pie.** Bajo una línea, "Powered by **AWE** 5" con la marca de AWE y un botón con `chevrons-left` que pliega el
+menú; en el rail solo queda el botón (girado para desplegar) y se oculta la búsqueda de opciones. Los dos motores le dan estilo a partir del
+marcado de la pantalla home, después del menú:
+
+```xml
+<tag type="div" style="sidebar-footer">
+  <tag type="span" style="sidebar-powered">
+    <tag type="span" label="SIDEBAR_POWERED_BY"/>
+    <tag type="strong" label="SIDEBAR_POWERED_BRAND"/>
+  </tag>
+  <!-- React: info-button con un toggle-class de layout-static-inactive sobre .layout-container -->
+  <!-- AngularJS: button con style="sidebar-collapse no-class" y una acción toggle-menu -->
+  <info-button id="collapse-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:chevrons-left" style="sidebar-collapse">
+    <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+  </info-button>
+</tag>
+```
+
 **Tableta y menor (≤1024px).** El menú pasa a ser un cajón sobre el contenido con máscara. El rail solo existe en
 escritorio.
 
 ## Cabecera {#header}
 
 - Clara, ligeramente translúcida, fija al desplazar, de altura `--awe-header-height`.
-- Izquierda: botón de menú y búsqueda global (`Ctrl K` la enfoca).
+- Izquierda: botón de menú (icono `panel-left`) y búsqueda global (`Ctrl K` la enfoca).
 - Derecha: ayuda, notificaciones (punto cuando hay sin leer; lista en un popover) y menú de usuario (perfil,
   preferencias, atajos, cambiar de empresa, cerrar sesión).
 

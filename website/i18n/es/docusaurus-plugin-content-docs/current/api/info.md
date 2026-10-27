@@ -95,6 +95,8 @@ La estructura XML del componente de barra de navegación es la siguiente:
 
 > **Nota:** el elemento avatar tiene los mismos atributos que el elemento `button`. Puedes ver más información [aquí](button.md#button-attributes).
 
+> **Nota:** en el motor React, el avatar muestra el `name` de su valor cuando lo tiene (la etiqueta queda como su ayuda) y su `description` como una segunda línea debajo. La consulta `connectedUser` devuelve el perfil del usuario como `description`. Sin imagen, el avatar muestra su `icon` o, sin icono, las iniciales de su etiqueta (la primera letra de su primera y su última palabra).
+
 
 ## Ejemplos {#examples}
 

@@ -32,6 +32,13 @@
   color: var(--awe-color-field-icon);
 }
 
+/* The icon fills its box: inline, it would sit on the text baseline below the centre of the field */
+.awe-menu-search-toggle i > .awe-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .awe-menu-search-toggle:hover {
   border-color: var(--awe-color-field-border-hover);
 }

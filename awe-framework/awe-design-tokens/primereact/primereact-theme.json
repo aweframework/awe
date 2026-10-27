@@ -39,6 +39,12 @@
     {"selector": "^\\.p-button\\.p-button-sm$|^\\.p-splitbutton\\.p-button-sm > \\.p-button$", "property": "padding", "value": "var(--awe-space-1-5) var(--awe-space-3)"},
     {"selector": "^\\.p-button\\.p-button-lg$|^\\.p-splitbutton\\.p-button-lg > \\.p-button$", "property": "padding", "value": "var(--awe-space-3) var(--awe-space-4)"},
     {"selector": "^\\.p-button-label$", "property": "font-weight", "value": "var(--awe-font-weight-medium)"},
+    {"selector": "^\\.p-button\\.p-button-outlined$", "property": "background-color", "value": "var(--awe-color-surface)"},
+    {"selector": "^\\.p-button\\.p-button-outlined(:not\\(:disabled\\):(hover|active))?$", "property": "color", "value": "var(--awe-color-text)"},
+    {"selector": "^\\.p-button\\.p-button-outlined$", "property": "border", "value": "1px solid var(--awe-color-field-border)"},
+    {"selector": "^\\.p-button\\.p-button-outlined:not\\(:disabled\\):(hover|active)$", "property": "border", "value": "1px solid var(--awe-color-field-border-hover)"},
+    {"selector": "^\\.p-button\\.p-button-outlined:not\\(:disabled\\):hover$", "property": "background", "value": "var(--awe-color-surface-subtle)"},
+    {"selector": "^\\.p-button\\.p-button-outlined:not\\(:disabled\\):active$", "property": "background", "value": "var(--awe-color-surface-hover)"},
 
     {"selector": "^\\.p-(checkbox|tristatecheckbox)( \\.p-checkbox-box)?$|^\\.p-radiobutton( \\.p-radiobutton-box)?$", "property": "width|height", "value": "var(--awe-size-checkbox)"},
     {"selector": "^\\.p-checkbox \\.p-checkbox-(input|box)$|^\\.p-radiobutton \\.p-radiobutton-(input|box)$", "property": "border", "value": "1px solid var(--awe-color-field-border)"},

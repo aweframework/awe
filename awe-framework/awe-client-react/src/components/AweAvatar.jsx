@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from "react";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { classNames, clickDropdown } from "../utilities/components";
-import {getContextPath, getIconCode, translateLabel} from "../utilities";
+import {getContextPath, getIconCode, getIconNode, translateLabel} from "../utilities";
 
 import "./AweAvatar.less";
 import { Avatar } from "primereact/avatar";
@@ -17,6 +17,18 @@ import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
 import { TestIds, testHook } from "../utilities/testIds";
 
+/**
+ * Initials of a name, as the avatar of the prototype: the first letter of its first and its last word, leaving out the
+ * words that do not start with a letter ("Pat de la Vega" is "PV", "Manager (test)" is "M")
+ * @param {string} name Name
+ * @returns {string} Initials, in upper case
+ */
+export function getInitials(name) {
+  const words = String(name || "").split(/\s+/).filter(word => /^\p{L}/u.test(word));
+  const initials = words.length > 1 ? [words[0], words[words.length - 1]] : words;
+  return initials.map(word => word.charAt(0)).join("").toUpperCase();
+}
+
 function AweAvatar(props) {
   const { id, elementList = [] } = props;
   const { address } = useComponent(id);
@@ -30,13 +42,26 @@ function AweAvatar(props) {
   const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, { "hidden": !visible });
 
   const computedLabel = getFirstDefinedValue(values?.[0]?.label, label);
+  // The name of the value (the name of the user, for example) is the text of the avatar; the label stays as its hint
+  const shownName = translateLabel(values?.[0]?.name || computedLabel, t);
+  const description = values?.[0]?.description;
+  const opensDropdown = actions.length === 0 && elementList.length > 0;
   const imagePath = getFirstDefinedValue(values?.[0]?.image, image);
   // Without an image the avatar shows its icon or the initial of its label, never a request to a "null" image
   const computedImage = imagePath ? `${getContextPath()}${imagePath}` : null;
   const computedIcon = getFirstDefinedValue(values?.[0]?.icon, icon);
   const computedUnit = getFirstDefinedValue(values?.[0]?.unit, unit);
   const unitBadge = computedUnit && <Badge value={computedUnit} />;
-  const labelSpan = showLabel && <span className={"avatar-name"} {...testHook(TestIds.avatarName)}>{translateLabel(computedLabel, t)}</span>;
+  // The label, and the description of the value as a second line (the profile of the user, for example)
+  const labelSpan = showLabel && (
+    <span className="avatar-text">
+      <span className="avatar-name" {...testHook(TestIds.avatarName)}>{shownName}</span>
+      {description && <span className="avatar-description">{translateLabel(description, t)}</span>}
+    </span>
+  );
+  // A chevron tells that the avatar opens a dropdown, as the user menu of the prototype
+  const chevron = showLabel && opensDropdown &&
+    getIconNode("lucide:chevron-down", { className: "avatar-chevron", "aria-hidden": "true" });
 
   const onClick = useCallback((e) => {
     if ((actions || []).length > 0) {
@@ -46,8 +71,8 @@ function AweAvatar(props) {
     }
   }, [actions, address, dispatch, elementList, props]);
 
-  const dropdown = actions.length === 0 && elementList.length > 0 && (
-    <OverlayPanel ref={opRef} dismissable className={"info-dropdown"} pt={{ root: testHook(TestIds.infoDropdownMenu, { owner: id }) }}>
+  const dropdown = opensDropdown && (
+    <OverlayPanel ref={opRef} dismissable className={"info-dropdown avatar-dropdown"} pt={{ root: testHook(TestIds.infoDropdownMenu, { owner: id }) }}>
       {elementList.map((node, index) => Components(node, index))}
     </OverlayPanel>
   );
@@ -62,12 +87,13 @@ function AweAvatar(props) {
         image={computedImage}
         icon={!computedImage && getIconCode(computedIcon, "p-button-icon p-c p-button-icon-left")}
         disabled={disabled}
-        label={!computedImage && !computedIcon && (computedLabel || "").charAt(0).toUpperCase()}
+        label={!computedImage && !computedIcon && getInitials(shownName)}
         title={translateLabel(computedLabel, t)}
         pt={{ root: testHook(TestIds.avatar) }}>
         {unitBadge}
       </Avatar>
       {labelSpan}
+      {chevron}
     </div>
     {dropdown}
   </>);

@@ -87,6 +87,10 @@
   <locale name="MENU_DASHBOARD" value="Dashboard"/>
   <locale name="MENU_GRID_CHART" value="Grids and Charts"/>
   <locale name="MENU_TEST" value="Tests"/>
+  <locale name="MENU_SECTION_ADMINISTRATION" value="Administration"/>
+  <locale name="MENU_SECTION_TESTING" value="Component tests"/>
+  <locale name="MENU_SECTION_AUTOMATION" value="Automation"/>
+  <locale name="MENU_SECTION_DEVELOPMENT" value="Development"/>
   <locale name="MENU_TEST_ACCORDIONS" value="Accordions"/>
   <locale name="MENU_TEST_BUTTONS" value="Buttons"/>
   <locale name="MENU_TEST_DEPENDENCIES" value="Dependencies"/>

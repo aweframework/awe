@@ -180,6 +180,23 @@ describe('AWE theme of PrimeReact (#885)', () => {
     expect(value('.p-treetable .p-treetable-tbody > tr > td .p-treetable-toggler', 'height')).toBe('var(--awe-space-6)');
   });
 
+  it('draws the outlined buttons as the neutral outlined buttons of the prototype, not in the primary colour', () => {
+    const value = (selector, property) => rules.filter(([candidate, name]) => candidate === selector && name === property)
+      .map(([, , declared]) => declared).pop();
+    expect(value('.p-button.p-button-outlined', 'background-color')).toBe('var(--awe-color-surface)');
+    expect(value('.p-button.p-button-outlined', 'color')).toBe('var(--awe-color-text)');
+    expect(value('.p-button.p-button-outlined', 'border')).toBe('1px solid var(--awe-color-field-border)');
+    expect(value('.p-button.p-button-outlined:not(:disabled):hover', 'background')).toBe('var(--awe-color-surface-subtle)');
+    expect(value('.p-button.p-button-outlined:not(:disabled):hover', 'color')).toBe('var(--awe-color-text)');
+    expect(value('.p-button.p-button-outlined:not(:disabled):hover', 'border')).toBe('1px solid var(--awe-color-field-border-hover)');
+    expect(value('.p-button.p-button-outlined:not(:disabled):active', 'background')).toBe('var(--awe-color-surface-hover)');
+    expect(value('.p-button.p-button-outlined:not(:disabled):active', 'color')).toBe('var(--awe-color-text)');
+    // The outlined buttons of a severity (danger outlined...) keep their colour
+    const danger = rules.filter(([selector, name]) => selector.startsWith('.p-button.p-button-danger.p-button-outlined,')
+      && name === 'color').map(([, , declared]) => declared);
+    expect(danger).toEqual(['var(--awe-color-danger-text)']);
+  });
+
   it('draws the dialogs, the popovers, the menus and the tooltips as the overlays of the prototype', () => {
     const value = (selector, property) => rules.filter(([candidate, name]) => candidate === selector && name === property)
       .map(([, , declared]) => declared).pop();

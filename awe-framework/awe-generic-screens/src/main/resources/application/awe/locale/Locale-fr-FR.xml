@@ -35,6 +35,7 @@
   <locale name="BUTTON_EXPORT" value="Exporter"/>
   <locale name="BUTTON_FINISH" value="Finir"/>
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
+  <locale name="BUTTON_TOGGLE_MENU" value="Afficher ou masquer le menu"/>
   <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
@@ -986,6 +987,9 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_REPORT_LIST" value="Visualisation des rapports"/>
   <locale name="MENU_REPORTS" value="Rapports"/>
   <locale name="MENU_SEARCH_EMPTY" value="Aucune option trouvée"/>
+  <locale name="MENU_SEARCH_PLACEHOLDER" value="Rechercher une option…"/>
+  <locale name="SIDEBAR_POWERED_BY" value="Propulsé par"/>
+  <locale name="SIDEBAR_POWERED_BRAND" value="AWE 5"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Réglages"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extracteur"/>

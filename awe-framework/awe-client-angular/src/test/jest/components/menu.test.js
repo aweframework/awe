@@ -88,6 +88,51 @@ describe("components/menu.js", () => {
     expect(scope.status.minimized).toBe(true);
   });
 
+  describe("flyout of the collapsed menu", () => {
+    const groupOptions = [
+      {id: "group", name: "group", label: "Group", visible: true, options: [
+        {id: "child", name: "child", label: "Child", visible: true, actions: []}
+      ]},
+      {id: "other", name: "other", label: "Other", visible: true, options: [
+        {id: "otherChild", name: "otherChild", label: "Other child", visible: true, actions: []}
+      ]}
+    ];
+    const option = (element, name) => element.find(`a[name='${name}']`).parent();
+
+    it("opens the options of a first level option as a flyout while the pointer is over it, as the prototype", () => {
+      angular.element(document.body).addClass("mmc");
+      const {element} = compileMenu({style: "vertical", options: groupOptions});
+
+      option(element, "group").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(true);
+      expect(option(element, "group").find("ul").hasClass("mmc-dropdown-open-ul")).toBe(true);
+
+      // Another option replaces the flyout
+      option(element, "other").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(false);
+      expect(option(element, "other").hasClass("mmc-dropdown-open")).toBe(true);
+
+      // Leaving the option closes it after a moment (the test runs the timeout at once)
+      option(element, "other").triggerHandler("mouseleave");
+      refs.$rootScope.$digest();
+      expect(option(element, "other").hasClass("mmc-dropdown-open")).toBe(false);
+      expect(refs.$utilities.timeout).toHaveBeenCalledWith(expect.any(Function), 220);
+    });
+
+    it("does not open the options under the pointer while the menu is expanded", () => {
+      const {element} = compileMenu({style: "vertical", options: groupOptions});
+
+      option(element, "group").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+
+      expect(option(element, "group").hasClass("open")).toBe(false);
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(false);
+    });
+  });
+
   it("renders only visible allowed menu options", () => {
     const {element} = compileMenu({options: [
       {id: "option1", name: "option1", label: "Option 1", visible: true},

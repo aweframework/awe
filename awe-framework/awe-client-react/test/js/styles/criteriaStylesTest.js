@@ -60,6 +60,15 @@ describe('AWE 5 criteria styles (#885)', () => {
     expect(rule(criterion, '.field .p-dropdown')).toMatch(/min-height: var\(--awe-size-control\);/);
     expect(rule(criterion, '.field .p-inputtext-sm.p-inputtext')).toMatch(/min-height: var\(--awe-size-control-sm\);/);
     expect(rule(criterion, '.field .p-inputtext-lg.p-inputtext')).toMatch(/min-height: var\(--awe-size-control-lg\);/);
+    // The label of a select field keeps no vertical padding of its own: the field takes the control height, as the
+    // text fields do, instead of growing with the line height of the page
+    ['.field .p-dropdown .p-dropdown-label', '.field .p-multiselect .p-multiselect-label'].forEach(selector => {
+      const label = rule(criterion, selector);
+      expect(label).toMatch(/display: flex;/);
+      expect(label).toMatch(/align-items: center;/);
+      expect(label).toMatch(/padding-top: 0;/);
+      expect(label).toMatch(/padding-bottom: 0;/);
+    });
   });
 
   it('marks an invalid field: danger halo on focus, invalid placeholder and the message with its icon', () => {

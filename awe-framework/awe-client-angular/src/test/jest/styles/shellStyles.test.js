@@ -331,6 +331,71 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         });
       });
 
+      it("keeps a footer with the AWE brand and the collapse button under the options, as the prototype", () => {
+        expect(style("#main-menu.vertical #main-menu-bg")).toMatchObject({
+          "display": "flex",
+          "flex-direction": "column"
+        });
+        expect(style("#main-menu.vertical #main-menu-bg > awe-menu")).toMatchObject({
+          "flex": "1 1 auto",
+          "min-height": "0"
+        });
+        expect(style(".sidebar-footer")).toMatchObject({
+          "display": "flex",
+          "flex": "none",
+          "border-top": "1px solid var(--awe-menu-border)"
+        });
+        expect(style(".sidebar-powered")).toMatchObject({
+          "font-size": "var(--awe-font-size-xs)",
+          "color": "var(--awe-color-text-muted)"
+        });
+        expect(style(".sidebar-powered strong")).toMatchObject({"color": "var(--awe-color-text)"});
+        expect(style(".sidebar-powered::before").background).toMatch(/awe-logo-mark\.svg/);
+        // The label names the icon button for assistive technologies, out of sight
+        expect(style(".sidebar-footer .sidebar-collapse .button-text")).toMatchObject({
+          "position": "absolute",
+          "width": "1px",
+          "height": "1px",
+          "overflow": "hidden",
+          "clip-path": "inset(50%)"
+        });
+        // Collapsed, as the prototype: no brand and no option search, only the button, centred
+        expect(style(".mmc .sidebar-powered", DESKTOP)).toMatchObject({"display": "none"});
+        expect(style(".mmc .sidebar-footer", DESKTOP)).toMatchObject({"justify-content": "center"});
+        expect(style(".mmc #main-menu.vertical .awe-menu-search", DESKTOP)).toMatchObject({"display": "none"});
+        // The icon button of the prototype: square with rounded corners
+        expect(style(".sidebar-footer .sidebar-collapse")).toMatchObject({"border-radius": "var(--awe-radius-field)"});
+        expect(style(".mmc .sidebar-footer .sidebar-collapse .button-icon", DESKTOP)).toMatchObject({
+          "transform": "rotate(180deg)"
+        });
+      });
+
+      it("declares the footer in the vertical home screen, after the menu", () => {
+        const xml = fs.readFileSync(path.join(__dirname, "../../../../../awe-generic-screens/src/main/resources/application/awe/screen/home/home_vertical.xml"), "utf8");
+        const footer = xml.indexOf('style="sidebar-footer"');
+        expect(footer).toBeGreaterThan(xml.indexOf("<menu-container"));
+        const markup = xml.slice(footer, xml.indexOf('id="content-wrapper"'));
+        expect(markup).toMatch(/style="sidebar-powered"[\s\S]*label="SIDEBAR_POWERED_BY"[\s\S]*type="strong" label="SIDEBAR_POWERED_BRAND"/);
+        expect(markup).toMatch(/<button label="BUTTON_TOGGLE_MENU" button-type="button" id="collapse-menu" icon="lucide:chevrons-left" style="sidebar-collapse no-class">/);
+        expect(markup).toMatch(/<button-action type="toggle-menu"\s*\/>/);
+      });
+
+      it("toggles the side menu from the header with the panel-left icon of the prototype", () => {
+        ["home_vertical.xml", "public_vertical.xml"].forEach(file => {
+          const xml = fs.readFileSync(path.join(__dirname, "../../../../../awe-generic-screens/src/main/resources/application/awe/screen/home", file), "utf8");
+          expect(xml).toMatch(/id="main-menu-toggle" icon="lucide:panel-left icon navbar-icon"/);
+        });
+      });
+
+      it("emphasises the options of the first list of the flyout of the collapsed menu, as the prototype", () => {
+        expect(style(".mmc #main-menu ul.navigation .mmc-dropdown-open-ul > li > a")).toMatchObject({
+          "font-weight": "var(--awe-font-weight-semibold)",
+          "color": "var(--awe-color-text-emphasis)"
+        });
+        // As the guide (levels 2 and 3 have no icon), in the side menu and in its flyout
+        expect(style("#main-menu.vertical ul.navigation ul .menu-icon")).toMatchObject({"display": "none"});
+      });
+
       it("separates groups of options with a subtle rule", () => {
         expect(style("#main-menu.vertical ul.navigation li.divider")).toMatchObject({
           "height": "0",

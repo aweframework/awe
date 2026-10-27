@@ -3,7 +3,7 @@ import {getIconTemplate} from "../services/component";
 import {TestIds} from "../data/testIds";
 
 const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class="getOptionClasses()" data-testid="${TestIds.menuOption}"
-    ng-attr-data-active="{{isActive()}}" ng-attr-data-open="{{isOpen()}}" ng-cloak>
+    ng-attr-data-active="{{isActive()}}" ng-attr-data-open="{{isOpen()}}" ng-mouseenter="openFlyout()" ng-mouseleave="closeFlyout()" ng-cloak>
   <a ng-if="::!controller.separator" title="{{::optionTitle| translateMultiple}}" name="{{::optionName}}" class="{{::optionStyle}}" data-testid="${TestIds.menuLink}"
      ng-click="optionClick()">
     ${getIconTemplate("menu-icon")}
@@ -15,6 +15,9 @@ const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class
     <awe-option ng-repeat="option in controller.options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}" close-first-level="closeFirstLevel()" first-level="false" selected-option="selectedOption" option-title="{{::option.description || option.title}}" option-name="{{::option.name}}" option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
   </ul>
 </li>`;
+
+// Time the pointer has to come back before the flyout of the collapsed menu closes, as the prototype
+const FLYOUT_CLOSE_DELAY = 220;
 
 // Option directive
 aweApplication.directive('aweOption',
@@ -229,6 +232,40 @@ aweApplication.directive('aweOption',
                 delete scope.selectedOption.opened[scope.optionName];
                 scope.opened = false;
               };
+
+              // Collapsed menu, as the prototype: the options of a first level option open as a flyout while the pointer
+              // is on it (or on the flyout, which is inside the option), and close a moment after it leaves
+              let flyoutTimer = null;
+              const isFlyout = () => scope.firstLevel && scope.status.resolution !== 'mobile' && scope.status.minimized &&
+                scope.hasVisibleChildren();
+              const isFlyoutOpen = () => !!scope.selectedOption?.opened && scope.optionName in scope.selectedOption.opened;
+
+              /**
+               * Open the flyout of the option under the pointer, instead of the open one
+               */
+              scope.openFlyout = function () {
+                if (!isFlyout()) {
+                  return;
+                }
+                $util.timeout.cancel(flyoutTimer);
+                if (!isFlyoutOpen()) {
+                  scope.closeFirstLevel();
+                  scope.opened = true;
+                  scope.selectedOption.opened[scope.optionName] = scope.firstLevel;
+                }
+              };
+
+              /**
+               * Close the flyout a moment after the pointer leaves the option
+               */
+              scope.closeFlyout = function () {
+                if (isFlyout() && isFlyoutOpen()) {
+                  $util.timeout.cancel(flyoutTimer);
+                  flyoutTimer = $util.timeout(() => scope.closeOption(), FLYOUT_CLOSE_DELAY);
+                }
+              };
+
+              scope.$on("$destroy", () => $util.timeout.cancel(flyoutTimer));
             }
           };
         }

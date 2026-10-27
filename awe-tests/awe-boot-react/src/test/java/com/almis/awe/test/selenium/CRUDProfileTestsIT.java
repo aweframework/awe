@@ -22,7 +22,7 @@ class CRUDProfileTestsIT extends AbstractCrudTests {
   @Test
   @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
+    checkLogin("test", "test", "Manager");
   }
 
   /**

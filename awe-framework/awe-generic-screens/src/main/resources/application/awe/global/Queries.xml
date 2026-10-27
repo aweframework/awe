@@ -1885,6 +1885,8 @@
     <field id="l1_nom" alias="value" />
     <field id="OpeNam" alias="name" />
     <computed format="[name] ([value])" alias="label" />
+    <!-- Profile of the user: the second line of the user menu -->
+    <field id="Nam" table="pro" alias="description" />
     <field id="AvatarImage" table="aus" alias="avatarToken" noprint="true"/>
     <!-- Cache-buster: [avatarToken] is substituted post-SQL (GraalVM JS, ComputedColumnProcessor),
          so this is dialect-independent. The version is a non-cryptographic djb2 hash (base36) of
@@ -1899,6 +1901,12 @@
       <and>
         <!-- trim: ope.l1_nom is char(20) (blank-padded on Oracle); without trim the varchar2 vs char comparison never matches on Oracle -->
         <filter condition="eq" left-field="Ope" left-table="aus" right-field="l1_nom" right-table="ope" trim="true" ignorecase="true" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter condition="eq" left-field="IdePro" left-table="ope" right-field="IdePro" right-table="pro" />
       </and>
     </join>
     <where>

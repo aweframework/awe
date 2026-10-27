@@ -17,7 +17,7 @@
     <tag type="div" id="main-wrapper" style="expand" expandible="vertical">
       <tag type="div" id="main-navbar" style="navbar navbar-inverse">
         <!-- Uncomment this to show the menu toggler
-        <button label="BUTTON_HIDE_MENU" button-type="button" id="main-menu-toggle" icon="bars icon navbar-icon" style="no-class">
+        <button label="BUTTON_HIDE_MENU" button-type="button" id="main-menu-toggle" icon="lucide:panel-left icon navbar-icon" style="no-class">
           <button-action type="toggle-menu" />
         </button>
         -->

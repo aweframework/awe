@@ -77,8 +77,44 @@
     }
   }
 }
+// Horizontal tabs as the AWE 5 prototype (Aura): muted medium labels, the active label and a 2px underline in the primary
+// text, a line under the list. The tab is a button of the template of AweTabs, so it takes the font of the page
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav {
+  gap: var(--awe-space-4);
+  background: none;
+  border-width: 0;
+  border-bottom: 1px solid var(--awe-color-border);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+  gap: var(--awe-space-2);
+  height: auto;
+  padding: var(--awe-space-3) var(--awe-space-2);
+  margin: 0 0 -1px;
+  font: inherit;
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover {
+  color: var(--awe-color-text-hover);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+  color: var(--awe-color-primary-text);
+  background: none;
+  border-bottom-color: var(--awe-color-primary-text);
+}
+
 // A tab that holds fields which failed the validation
-.p-tabmenu-container .p-tabmenu .p-tabmenuitem.p-tab-invalid .p-menuitem-link {
+.p-tabmenu-container .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-tab-invalid .p-menuitem-link {
   color: var(--awe-color-danger-text);
 
   &::after {

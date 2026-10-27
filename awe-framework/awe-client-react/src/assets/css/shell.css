@@ -44,6 +44,59 @@
   scrollbar-width: thin;
 }
 
+/* Footer of the side menu, as the prototype: who powers the application (the AWE mark, muted text and the brand) and
+   the button that collapses the menu, under a line */
+.sidebar-footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-2) var(--awe-space-4);
+  border-top: 1px solid var(--awe-menu-border);
+}
+
+.sidebar-powered {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+}
+
+.sidebar-powered::before {
+  flex: none;
+  height: var(--awe-size-icon);
+  aspect-ratio: 580 / 360;
+  margin-right: var(--awe-space-0-5);
+  content: "";
+  background: url("../images/logos/awe-logo-mark.svg") no-repeat left center / auto 100%;
+}
+
+.sidebar-powered strong {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text);
+}
+
+.sidebar-footer .sidebar-collapse {
+  flex: none;
+  color: var(--awe-color-text-muted);
+}
+
+/* The icon buttons of the header and the button that collapses the menu are the icon buttons of the prototype: square
+   with rounded corners */
+.layout-topbar .p-button.p-button-rounded,
+.sidebar-footer .sidebar-collapse.p-button {
+  border-radius: var(--awe-radius-field);
+}
+
+.sidebar-footer .sidebar-collapse .p-button-icon {
+  transition: transform var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
 .layout-content-wrapper {
   min-height: 100vh;
   margin-left: var(--awe-menu-width);
@@ -94,6 +147,7 @@
 
 /* User menu: the avatar and the name of the user as one rounded button */
 .layout-topbar .avatar-component {
+  position: relative;
   align-items: center;
   gap: var(--awe-space-2);
   padding-right: var(--awe-space-2);
@@ -105,11 +159,116 @@
   background: var(--awe-color-surface-hover);
 }
 
+/* Initials of the user, as the avatar of the prototype, as high as the hover of the icon buttons of the header */
+.layout-topbar .avatar-component .p-avatar {
+  width: var(--awe-size-control);
+  height: var(--awe-size-control);
+  margin: 0;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+}
+
+/* Header dropdowns (the user menu and the info dropdowns): their buttons are the list options of the prototype, left
+   aligned with their icon, instead of rounded centred buttons */
+.avatar-dropdown.info-dropdown {
+  width: var(--awe-menu-flyout-width);
+}
+
+.info-dropdown .p-overlaypanel-content {
+  padding: var(--awe-list-padding);
+}
+
+.info-dropdown .p-overlaypanel-content .p-overlay-badge {
+  display: block;
+}
+
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text {
+  justify-content: flex-start;
+  gap: var(--awe-space-2);
+  width: 100%;
+  padding: var(--awe-list-option-padding);
+  margin-bottom: var(--awe-list-gap);
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-color-list-option-text);
+  text-align: left;
+  border-radius: var(--awe-radius-list-option);
+}
+
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text:not(:disabled):hover {
+  color: var(--awe-color-list-option-text-focus);
+  background: var(--awe-color-list-option-focus);
+}
+
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text .p-button-icon {
+  margin: 0;
+  color: var(--awe-color-list-option-icon);
+}
+
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text .p-button-label {
+  flex: none;
+  font-weight: inherit;
+  text-align: left;
+}
+
+/* The danger option (the logout), as the prototype */
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text.dropdown-option-danger,
+.info-dropdown .p-overlaypanel-content .p-button.p-button-text.dropdown-option-danger .p-button-icon {
+  color: var(--awe-color-danger-text);
+}
+
+/* A line across the dropdown separates groups of options */
+.info-dropdown .dropdown-separator {
+  height: 1px;
+  margin: var(--awe-space-1) calc(var(--awe-list-padding) * -1);
+  background: var(--awe-color-overlay-border);
+}
+
+/* A vertical line separates the header icons from the user menu, out of the hover background of the button */
+.layout-topbar .avatar-component:not(:first-child) {
+  margin-left: var(--awe-space-4);
+}
+
+.layout-topbar .avatar-component:not(:first-child)::before {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: calc(-1 * var(--awe-space-2));
+  width: 1px;
+  content: "";
+  background: var(--awe-color-border);
+  pointer-events: none;
+}
+
+/* The name of the user, emphasised, over the profile, muted */
+.layout-topbar .avatar-component .avatar-text {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  line-height: var(--awe-line-height-tight);
+  text-align: left;
+}
+
 .layout-topbar .avatar-component .avatar-name {
   font-size: var(--awe-font-size-sm);
   font-weight: var(--awe-font-weight-semibold);
   line-height: var(--awe-line-height-tight);
   color: var(--awe-color-text-emphasis);
+  white-space: nowrap;
+}
+
+.layout-topbar .avatar-component .avatar-chevron {
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.layout-topbar .avatar-component .avatar-description {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-tight);
+  color: var(--awe-color-text-muted);
   white-space: nowrap;
 }
 
@@ -253,6 +412,16 @@
   color: var(--awe-menu-section-label);
   text-transform: uppercase;
   cursor: default;
+}
+
+/* Divider line: a separator without label, drawn as the footer line of the prototype */
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-divider {
+  margin: var(--awe-space-3) 0;
+  border-top: 1px solid var(--awe-menu-border);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-divider > .p-panelmenu-header {
+  display: none;
 }
 
 /* Active trail: every ancestor of the current option is marked, the option itself is highlighted */
@@ -399,6 +568,24 @@
     display: none;
   }
 
+  /* As the prototype, the rail has no option search and its footer keeps only the button, turned to expand the menu */
+  .layout-static-inactive .awe-menu-search {
+    display: none;
+  }
+
+  .layout-static-inactive .sidebar-footer {
+    justify-content: center;
+    padding: var(--awe-space-2);
+  }
+
+  .layout-static-inactive .sidebar-powered {
+    display: none;
+  }
+
+  .layout-static-inactive .sidebar-collapse .p-button-icon {
+    transform: rotate(180deg);
+  }
+
   /* A section becomes a divider */
   .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator {
     margin: var(--awe-space-3) 0;
@@ -417,12 +604,14 @@
     background: var(--awe-menu-item-active-background);
   }
 
+  /* The menu measures the top of the flyout (--_flyout-top): aligned with its option and inside the window */
   .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel > .p-toggleable-content {
     position: fixed;
+    top: var(--_flyout-top);
     left: var(--awe-menu-width-collapsed);
     z-index: var(--awe-z-dropdown);
     width: var(--awe-menu-flyout-width);
-    max-height: calc(100vh - var(--awe-header-height));
+    max-height: calc(100vh - var(--_flyout-top) - var(--awe-space-2));
     overflow-y: auto;
     padding: var(--awe-list-padding) var(--awe-space-2) var(--awe-space-2);
     color: var(--awe-color-overlay-text);
@@ -432,8 +621,27 @@
     box-shadow: var(--awe-shadow-overlay);
   }
 
-  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel:not(:hover, :focus-within) > .p-toggleable-content {
+  /* Only the option of the flyout (AweMenu marks it) shows its options, not the groups expanded on the path */
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel:not(.awe-menu-flyout) > .p-toggleable-content {
     display: none;
+  }
+
+  /* The flyout emphasises the options of its first list, as the prototype; the deeper levels stay muted */
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-text {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  /* The flyout is titled with its option, as a section label */
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel > .p-toggleable-content::before {
+    display: block;
+    padding: var(--awe-space-1) var(--awe-space-3) var(--awe-space-2);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-semibold);
+    letter-spacing: var(--awe-letter-spacing-caps);
+    color: var(--awe-menu-section-label);
+    text-transform: uppercase;
+    content: attr(data-flyout-title);
   }
 
   /* The flyout has no room for the first indent: its level 2 starts at the left */
