@@ -1,6 +1,12 @@
 {
 	"rules": [
 		{
+			"paths": ["decisions/adr-001-react-modern-client.md"],
+			"reviewed": "2026-10-27",
+			"ref": "#777",
+			"notes": "ADR 001: React is the modern client of AWE 5, AngularJS in compatibility mode, and the React parity checklist."
+		},
+		{
 			"paths": ["design-system/"],
 			"reviewed": "2026-10-23",
 			"ref": "#883, MR !1132",

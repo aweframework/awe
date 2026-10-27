@@ -7,6 +7,10 @@
     "message": "AWE framework",
     "description": "The label for category AWE framework in sidebar docs"
   },
+  "sidebar.docs.category.Architecture decisions": {
+    "message": "Decisiones de arquitectura",
+    "description": "The label for category Architecture decisions in sidebar docs"
+  },
   "sidebar.docs.category.Security": {
     "message": "Seguridad",
     "description": "The label for category Security in sidebar docs"
