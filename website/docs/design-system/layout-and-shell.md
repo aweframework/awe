@@ -93,7 +93,9 @@ password?", full-width primary "Sign in", divider "or continue with", full-width
 **Image slot.** A product sets its own image with `--awe-login-image` (a `url()`) or the `<img class="login__img">`
 slot (`object-fit: cover`). Default: the AWE logo on a dark brand gradient (`--awe-login-brand-background`). Other
 options: a plain gradient of the primary (`--awe-login-gradient`) or no image (form centred alone). The caption scrim
-keeps its text above 10:1 on any primary; check your own image.
+keeps its text above 10:1 on any primary; check your own image. In the AngularJS engine the properties
+`awe.application.paths.image-startup-background` and `awe.application.paths.image-startup-logo` still apply: when a
+product changes them from their defaults, the image fills the panel and the logo replaces the AWE logo of the form.
 
 **Single sign-on.** The button is generic ("Continue with your organization", key icon). Do not use third-party logos
 or trademarks.

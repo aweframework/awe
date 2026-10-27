@@ -912,21 +912,50 @@
 
   <!-- Themes -->
   <target name="ThmNew">
+    <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
+         The service returns one row, read with LIST_TO_STRING -->
+    <retrieve-data service="composeThemeColors">
+      <field id="Pri"/>
+      <field id="Srf"/>
+      <variable id="primaryPalette" type="STRINGN" name="PriPal"/>
+      <variable id="primaryHex" type="STRINGN" name="PriHex"/>
+      <variable id="surfacePalette" type="STRINGN" name="SrfPal"/>
+      <variable id="surfaceHex" type="STRINGN" name="SrfHex"/>
+    </retrieve-data>
     <insert audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" sequence="ThmKey" variable="IdeThm"/>
       <field id="Nam" variable="Nam"/>
+      <field id="Pri" variable="Pri"/>
+      <field id="Srf" variable="Srf"/>
+      <field id="Mde" variable="Mde"/>
       <variable id="IdeThm" type="INTEGER"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
+      <variable id="Pri" type="LIST_TO_STRING" name="Pri"/>
+      <variable id="Srf" type="LIST_TO_STRING" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </insert>
   </target>
 
   <target name="ThmUpd">
+    <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
+         The service returns one row, read with LIST_TO_STRING -->
+    <retrieve-data service="composeThemeColors">
+      <field id="Pri"/>
+      <field id="Srf"/>
+      <variable id="primaryPalette" type="STRINGN" name="PriPal"/>
+      <variable id="primaryHex" type="STRINGN" name="PriHex"/>
+      <variable id="surfacePalette" type="STRINGN" name="SrfPal"/>
+      <variable id="surfaceHex" type="STRINGN" name="SrfHex"/>
+    </retrieve-data>
     <update audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" variable="IdeThm" audit="true"/>
       <field id="Nam" variable="Nam"/>
       <field id="Act" variable="Act"/>
+      <field id="Pri" variable="Pri"/>
+      <field id="Srf" variable="Srf"/>
+      <field id="Mde" variable="Mde"/>
       <where>
         <and>
           <filter left-field="IdeThm" condition="eq" right-variable="IdeThm"/>
@@ -935,6 +964,9 @@
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
       <variable id="Act" type="INTEGER" name="Act"/>
+      <variable id="Pri" type="LIST_TO_STRING" name="Pri"/>
+      <variable id="Srf" type="LIST_TO_STRING" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </update>
   </target>
 
@@ -944,6 +976,9 @@
       <field id="IdeThm" variable="IdeThm" audit="true"/>
       <field id="Nam" variable="Nam" audit="true"/>
       <field id="Act" variable="Act" audit="true"/>
+      <field id="Pri" variable="Pri" audit="true"/>
+      <field id="Srf" variable="Srf" audit="true"/>
+      <field id="Mde" variable="Mde" audit="true"/>
       <where>
         <and>
           <filter left-field="IdeThm" condition="eq" right-variable="IdeThm"/>
@@ -952,6 +987,9 @@
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
       <variable id="Act" type="INTEGER" name="Act"/>
+      <variable id="Pri" type="STRINGN" name="Pri"/>
+      <variable id="Srf" type="STRINGN" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </delete>
   </target>
 
@@ -1631,7 +1669,7 @@
       <field id="Ope" variable="user"/>
       <field id="Opt" variable="option"/>
       <field id="Ord" query="nextOrderForUser"/>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="option"/>
     </insert>
   </target>
@@ -1643,7 +1681,7 @@
         <filter left-field="Ope" condition="eq" right-variable="user"/>
         <filter left-field="Opt" condition="eq" right-variable="option"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="option"/>
     </delete>
   </target>
@@ -1658,7 +1696,7 @@
       <field id="IdeUsrSet" query="nextIdForUserSettings"/>
       <field id="Ope" variable="user"/>
       <field id="AvatarImage" variable="avatarToken"/>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="avatarToken" type="STRING" name="avatarToken"/>
     </insert>
   </target>
@@ -1670,7 +1708,7 @@
       <where>
         <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="avatarToken" type="STRING" name="avatarToken"/>
     </update>
   </target>
@@ -1758,170 +1796,6 @@
   Theme management
   -->
 
-  <target name="customizeTheme">
-    <delete>
-      <table id="AweThmCol"/>
-      <where>
-        <filter left-field="theme" condition="eq" right-variable="theme"/>
-      </where>
-      <variable id="theme" type="STRING" name="Nam"/>
-    </delete>
-    <insert>
-      <table id="AweThmCol"/>
-      <field id="IdeThmCol" query="nextIdForThemeColors"/>
-      <field id="theme" variable="theme"/>
-      <constant id="dark" value="0" type="INTEGER"/>
-      <field id="themeColor" variable="themeColor"/>
-      <field id="textColor" variable="textColor"/>
-      <field id="primaryColor" variable="primaryColor"/>
-      <field id="secondaryColor" variable="secondaryColor"/>
-      <field id="primaryTextColor" variable="primaryTextColor"/>
-      <field id="secondaryTextColor" variable="secondaryTextColor"/>
-      <field id="primaryBackgroundColor" variable="primaryBackgroundColor"/>
-      <field id="secondaryBackgroundColor" variable="secondaryBackgroundColor"/>
-      <field id="primaryMenuColor" variable="primaryMenuColor"/>
-      <field id="secondaryMenuColor" variable="secondaryMenuColor"/>
-      <field id="menuTextColor" variable="menuTextColor"/>
-      <field id="primaryNavbarColor" variable="primaryNavbarColor"/>
-      <field id="secondaryNavbarColor" variable="secondaryNavbarColor"/>
-      <field id="navbarTextColor" variable="navbarTextColor"/>
-      <field id="navbarDropdownColor" variable="navbarDropdownColor"/>
-      <field id="primaryFontSize" variable="primaryFontSize"/>
-      <field id="secondaryFontSize" variable="secondaryFontSize"/>
-      <field id="disabledColor" variable="disabledColor"/>
-      <field id="disabledBorderColor" variable="disabledBorderColor"/>
-      <field id="disabledTextColor" variable="disabledTextColor"/>
-      <field id="headerHeight" variable="headerHeight"/>
-      <field id="panelBackgroundColor" variable="panelBackgroundColor"/>
-      <field id="panelBorderColor" variable="panelBorderColor"/>
-      <field id="panelTextColor" variable="panelTextColor"/>
-      <field id="panelHeaderColor" variable="panelHeaderColor"/>
-      <field id="gridBorderColor" variable="gridBorderColor"/>
-      <field id="gridHeaderColor" variable="gridHeaderColor"/>
-      <field id="dangerColor" variable="dangerColor"/>
-      <field id="warningColor" variable="warningColor"/>
-      <field id="successColor" variable="successColor"/>
-      <field id="infoColor" variable="infoColor"/>
-      <field id="borderColor" variable="borderColor"/>
-      <field id="borderRadius" variable="borderRadius"/>
-      <field id="loadingBarColor" variable="loadingBarColor"/>
-      <field id="requiredColor" variable="requiredColor"/>
-      <variable id="theme" type="STRING" name="Nam"/>
-      <variable id="themeColor" type="STRINGN" name="themeColor"/>
-      <variable id="textColor" type="STRINGN" name="textColor"/>
-      <variable id="primaryColor" type="STRINGN" name="primaryColor"/>
-      <variable id="secondaryColor" type="STRINGN" name="secondaryColor"/>
-      <variable id="primaryTextColor" type="STRINGN" name="primaryTextColor"/>
-      <variable id="secondaryTextColor" type="STRINGN" name="secondaryTextColor"/>
-      <variable id="primaryBackgroundColor" type="STRINGN" name="primaryBackgroundColor"/>
-      <variable id="secondaryBackgroundColor" type="STRINGN" name="secondaryBackgroundColor"/>
-      <variable id="primaryMenuColor" type="STRINGN" name="primaryMenuColor"/>
-      <variable id="secondaryMenuColor" type="STRINGN" name="secondaryMenuColor"/>
-      <variable id="menuTextColor" type="STRINGN" name="menuTextColor"/>
-      <variable id="primaryNavbarColor" type="STRINGN" name="primaryNavbarColor"/>
-      <variable id="secondaryNavbarColor" type="STRINGN" name="secondaryNavbarColor"/>
-      <variable id="navbarTextColor" type="STRINGN" name="navbarTextColor"/>
-      <variable id="navbarDropdownColor" type="STRINGN" name="navbarDropdownColor"/>
-      <variable id="primaryFontSize" type="STRINGN" name="primaryFontSize"/>
-      <variable id="secondaryFontSize" type="STRINGN" name="secondaryFontSize"/>
-      <variable id="disabledColor" type="STRINGN" name="disabledColor"/>
-      <variable id="disabledBorderColor" type="STRINGN" name="disabledBorderColor"/>
-      <variable id="disabledTextColor" type="STRINGN" name="disabledTextColor"/>
-      <variable id="headerHeight" type="STRINGN" name="headerHeight"/>
-      <variable id="panelBackgroundColor" type="STRINGN" name="panelBackgroundColor"/>
-      <variable id="panelBorderColor" type="STRINGN" name="panelBorderColor"/>
-      <variable id="panelTextColor" type="STRINGN" name="panelTextColor"/>
-      <variable id="panelHeaderColor" type="STRINGN" name="panelHeaderColor"/>
-      <variable id="gridBorderColor" type="STRINGN" name="gridBorderColor"/>
-      <variable id="gridHeaderColor" type="STRINGN" name="gridHeaderColor"/>
-      <variable id="dangerColor" type="STRINGN" name="dangerColor"/>
-      <variable id="warningColor" type="STRINGN" name="warningColor"/>
-      <variable id="successColor" type="STRINGN" name="successColor"/>
-      <variable id="infoColor" type="STRINGN" name="infoColor"/>
-      <variable id="borderColor" type="STRINGN" name="borderColor"/>
-      <variable id="borderRadius" type="STRINGN" name="borderRadius"/>
-      <variable id="loadingBarColor" type="STRINGN" name="loadingBarColor"/>
-      <variable id="requiredColor" type="STRINGN" name="requiredColor"/>
-    </insert>
-    <insert>
-      <table id="AweThmCol"/>
-      <field id="IdeThmCol" query="nextIdForThemeColors"/>
-      <field id="theme" variable="theme"/>
-      <constant id="dark" value="1" type="INTEGER"/>
-      <field id="themeColor" variable="themeColor"/>
-      <field id="textColor" variable="textColor"/>
-      <field id="primaryColor" variable="primaryColor"/>
-      <field id="secondaryColor" variable="secondaryColor"/>
-      <field id="primaryTextColor" variable="primaryTextColor"/>
-      <field id="secondaryTextColor" variable="secondaryTextColor"/>
-      <field id="primaryBackgroundColor" variable="primaryBackgroundColor"/>
-      <field id="secondaryBackgroundColor" variable="secondaryBackgroundColor"/>
-      <field id="primaryMenuColor" variable="primaryMenuColor"/>
-      <field id="secondaryMenuColor" variable="secondaryMenuColor"/>
-      <field id="menuTextColor" variable="menuTextColor"/>
-      <field id="primaryNavbarColor" variable="primaryNavbarColor"/>
-      <field id="secondaryNavbarColor" variable="secondaryNavbarColor"/>
-      <field id="navbarTextColor" variable="navbarTextColor"/>
-      <field id="navbarDropdownColor" variable="navbarDropdownColor"/>
-      <field id="primaryFontSize" variable="primaryFontSize"/>
-      <field id="secondaryFontSize" variable="secondaryFontSize"/>
-      <field id="disabledColor" variable="disabledColor"/>
-      <field id="disabledBorderColor" variable="disabledBorderColor"/>
-      <field id="disabledTextColor" variable="disabledTextColor"/>
-      <field id="headerHeight" variable="headerHeight"/>
-      <field id="panelBackgroundColor" variable="panelBackgroundColor"/>
-      <field id="panelBorderColor" variable="panelBorderColor"/>
-      <field id="panelTextColor" variable="panelTextColor"/>
-      <field id="panelHeaderColor" variable="panelHeaderColor"/>
-      <field id="gridBorderColor" variable="gridBorderColor"/>
-      <field id="gridHeaderColor" variable="gridHeaderColor"/>
-      <field id="dangerColor" variable="dangerColor"/>
-      <field id="warningColor" variable="warningColor"/>
-      <field id="successColor" variable="successColor"/>
-      <field id="infoColor" variable="infoColor"/>
-      <field id="borderColor" variable="borderColor"/>
-      <field id="borderRadius" variable="borderRadius"/>
-      <field id="loadingBarColor" variable="loadingBarColor"/>
-      <field id="requiredColor" variable="requiredColor"/>
-      <variable id="theme" type="STRING" name="Nam"/>
-      <variable id="themeColor" type="STRINGN" name="themeColorDark"/>
-      <variable id="textColor" type="STRINGN" name="textColorDark"/>
-      <variable id="primaryColor" type="STRINGN" name="primaryColorDark"/>
-      <variable id="secondaryColor" type="STRINGN" name="secondaryColorDark"/>
-      <variable id="primaryTextColor" type="STRINGN" name="primaryTextColorDark"/>
-      <variable id="secondaryTextColor" type="STRINGN" name="secondaryTextColorDark"/>
-      <variable id="primaryBackgroundColor" type="STRINGN" name="primaryBackgroundColorDark"/>
-      <variable id="secondaryBackgroundColor" type="STRINGN" name="secondaryBackgroundColorDark"/>
-      <variable id="primaryMenuColor" type="STRINGN" name="primaryMenuColorDark"/>
-      <variable id="secondaryMenuColor" type="STRINGN" name="secondaryMenuColorDark"/>
-      <variable id="menuTextColor" type="STRINGN" name="menuTextColorDark"/>
-      <variable id="primaryNavbarColor" type="STRINGN" name="primaryNavbarColorDark"/>
-      <variable id="secondaryNavbarColor" type="STRINGN" name="secondaryNavbarColorDark"/>
-      <variable id="navbarTextColor" type="STRINGN" name="navbarTextColorDark"/>
-      <variable id="navbarDropdownColor" type="STRINGN" name="navbarDropdownColorDark"/>
-      <variable id="primaryFontSize" type="STRINGN" name="primaryFontSizeDark"/>
-      <variable id="secondaryFontSize" type="STRINGN" name="secondaryFontSizeDark"/>
-      <variable id="disabledColor" type="STRINGN" name="disabledColorDark"/>
-      <variable id="disabledBorderColor" type="STRINGN" name="disabledBorderColorDark"/>
-      <variable id="disabledTextColor" type="STRINGN" name="disabledTextColorDark"/>
-      <variable id="headerHeight" type="STRINGN" name="headerHeightDark"/>
-      <variable id="panelBackgroundColor" type="STRINGN" name="panelBackgroundColorDark"/>
-      <variable id="panelBorderColor" type="STRINGN" name="panelBorderColorDark"/>
-      <variable id="panelTextColor" type="STRINGN" name="panelTextColorDark"/>
-      <variable id="panelHeaderColor" type="STRINGN" name="panelHeaderColorDark"/>
-      <variable id="gridBorderColor" type="STRINGN" name="gridBorderColorDark"/>
-      <variable id="gridHeaderColor" type="STRINGN" name="gridHeaderColorDark"/>
-      <variable id="dangerColor" type="STRINGN" name="dangerColorDark"/>
-      <variable id="warningColor" type="STRINGN" name="warningColorDark"/>
-      <variable id="successColor" type="STRINGN" name="successColorDark"/>
-      <variable id="infoColor" type="STRINGN" name="infoColorDark"/>
-      <variable id="borderColor" type="STRINGN" name="borderColorDark"/>
-      <variable id="borderRadius" type="STRINGN" name="borderRadiusDark"/>
-      <variable id="loadingBarColor" type="STRINGN" name="loadingBarColorDark"/>
-      <variable id="requiredColor" type="STRINGN" name="requiredColorDark"/>
-    </insert>
-  </target>
-
   <target name="selectDarkMode">
     <serve service="changeUserMode">
       <variable id="user" type="STRING" session="user"/>
@@ -1936,13 +1810,29 @@
     </serve>
   </target>
 
+  <target name="selectComfortableDensity">
+    <serve service="changeUserDensity">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" value="comfortable"/>
+    </serve>
+  </target>
+
+  <target name="selectCompactDensity">
+    <serve service="changeUserDensity">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" value="compact"/>
+    </serve>
+  </target>
+
   <target name="addUserSettings">
     <insert>
       <table id="AweUsrSet"/>
       <field id="userName" variable="user"/>
       <field id="themeMode" variable="mode"/>
-      <variable id="user" type="STRING" name="user"/>
-      <variable id="mode" type="STRING" name="mode" optional="true"/>
+      <field id="density" variable="density"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="mode" type="STRINGN" name="mode" optional="true"/>
+      <variable id="density" type="STRINGN" name="density" optional="true"/>
     </insert>
   </target>
 
@@ -1953,8 +1843,20 @@
       <where>
         <filter left-field="userName" condition="eq" right-variable="user" ignorecase="true"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" name="mode"/>
+    </update>
+  </target>
+
+  <target name="updateUserDensity">
+    <update>
+      <table id="AweUsrSet"/>
+      <field id="density" variable="density"/>
+      <where>
+        <filter left-field="userName" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" name="density"/>
     </update>
   </target>
 

@@ -2,6 +2,7 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 
 export const templateButtonCheckbox = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': checked, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
@@ -11,7 +12,7 @@ export const templateButtonCheckbox = `<label ng-show="controller.visible" class
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
-    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
     {{controller.label| translateMultiple}}
   </span>
   <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
@@ -24,7 +25,7 @@ export const templateButtonRadio = `<label ng-show="controller.visible" class="c
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
-    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
     {{controller.label| translateMultiple}}
   </span>
   <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
@@ -40,7 +41,7 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
                ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"
                data-testid="${TestIds.criterionInput}"/>
         <span class="lbl label-{{::size}}">
-          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
           {{controller.label| translateMultiple}}
         </span>
         <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
@@ -86,7 +87,7 @@ export const templateRadio = `<div ng-show="controller.visible" class="criterion
                ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
                data-testid="${TestIds.criterionInput}"/>
         <span class="lbl label-{{::size}}">
-          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
           {{controller.label| translateMultiple}}
         </span>
         <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>

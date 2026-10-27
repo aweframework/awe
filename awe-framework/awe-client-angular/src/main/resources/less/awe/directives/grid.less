@@ -1,16 +1,63 @@
 /* Angular grid configuration */
+// AWE 5 grid (#885): the ui-grid markup takes the --awe-grid-* tokens, as the React grid and the design system
+// prototype: rows, borders, hover, selected, sorted header, edited row, footer, paginator, empty state, loading, tree,
+// row detail, toolbar, selection column and columns dialog. ui-grid places its rows by the row height of the grid
+// options, which by default is one line of base text plus the vertical cell padding of the density (grid density
+// service, also on --grid-row-height): the cells centre their line in it, so they pad vertically by density as well
+
+// Height of the editors of the edited row: the small control, or the row minus a small inset when the row is shorter
+@grid-editor-height: ~"min(var(--awe-size-control-sm), calc(var(--grid-row-height, 27px) - 1px - 2 * var(--awe-space-0-5)))";
+
+// The check boxes of the grid (selection and checkbox columns): the box with the field tokens (as the checkboxes of
+// the criteria) and the check of the prototype in the on-primary colour (instead of the glyph of the icon font)
+.grid-check-box() {
+  input.px + .lbl:before {
+    top: 0;
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
+    background: var(--awe-color-field);
+    border: 1px solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-sm);
+    box-shadow: var(--awe-shadow-field);
+  }
+
+  input.px + .lbl:after {
+    top: 0;
+    left: 0;
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
+    font-size: var(--awe-checkbox-icon-size);
+    line-height: var(--awe-size-checkbox);
+    text-align: center;
+    color: var(--awe-color-on-primary);
+    content: "";
+    background: var(--awe-color-on-primary);
+    mask: @awe-check-mark center / var(--awe-checkbox-icon-size) no-repeat;
+  }
+
+  input.px:checked + .lbl:before {
+    background: var(--awe-color-primary);
+    border-color: var(--awe-color-primary);
+  }
+
+  &:hover input.px:not(:checked) + .lbl:before {
+    border-color: var(--awe-color-field-border-hover);
+  }
+}
+
 .grid {
   min-height: 120px;
   position: relative;
   overflow: hidden !important;
   margin-bottom: 0;
   &.grid-bordered {
-    border: 1px solid @grid-border-color;
-    border-radius: 0 0 calc(@border-radius + 1px) calc(@border-radius + 1px);
+    border: 1px solid var(--awe-grid-border);
+    border-radius: 0 0 var(--awe-radius-content) var(--awe-radius-content);
   }
 
   .ui-grid {
-    border-color: @grid-border-color;
+    border-color: var(--awe-grid-border);
+    background-color: var(--awe-grid-row-background);
   }
 
   .table.table-bordered {
@@ -30,12 +77,17 @@
   .fixed-height:after {
     content: "\00a0";
   }
+  // Footer of the grid (buttons and paginator): small muted text on the band of the paginator
   .table-footer {
     border-width: 0;
     border-top-width: 1px;
     margin-top: 0;
     min-height: 30px;
-    border-color: @grid-border-color;
+    font-size: var(--awe-font-size-sm);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    color: var(--awe-color-text-muted);
+    background: var(--awe-grid-row-background);
+    border-color: var(--awe-grid-border);
   }
 
   .frozen-div {
@@ -61,17 +113,46 @@
     overflow: auto;
   }
 
+  // Header: the header type of the grid on its band
   .ui-grid-top-panel {
-    font-weight: 600;
-    border-color: @grid-border-color;
-    background: @grid-header-color;
+    font-size: var(--awe-grid-header-font-size);
+    font-weight: var(--awe-grid-header-font-weight);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-grid-header-text);
+    border-color: var(--awe-grid-border);
+    background: var(--awe-grid-header-background);
   }
 
+  .ui-grid-header-cell .ui-grid-cell-contents {
+    padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+  }
+
+  // The sorted column: emphasis text and a primary arrow, without a fill
+  .ui-grid-header-cell [aria-sort="ascending"],
+  .ui-grid-header-cell [aria-sort="descending"] {
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .ui-grid-header-cell [aria-sort="ascending"] .awe-icon,
+  .ui-grid-header-cell [aria-sort="descending"] .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    margin-right: var(--awe-space-1);
+    vertical-align: middle;
+    color: var(--awe-color-primary-text);
+  }
+
+  // Rows: the row background, a bottom border and no vertical lines between the cells (the border stays, transparent,
+  // so the widths of ui-grid do not change)
   .ui-grid-cell {
     cursor: pointer;
-    border-right: 1px solid @grid-border-color;
+    border-right: 1px solid transparent;
+    border-right-color: transparent;
+    // The line fills the row but its bottom border, so the text is centred in any row height
+    line-height: calc(var(--grid-row-height, 27px) - 1px);
     .ui-grid-cell-contents {
-      padding: 0 4px;
+      padding: 0 var(--awe-grid-cell-padding-x);
+      font-variant-numeric: var(--awe-font-variant-numeric);
       &.component {
         padding: 0;
         .column-input {
@@ -170,7 +251,7 @@
             }
           }
           &.has-error > label.btn {
-            border-color: @state-danger-border;
+            border-color: var(--awe-color-field-border-invalid);
           }
         }
       }
@@ -178,34 +259,110 @@
   }
 
   .ui-grid-row:last-child .ui-grid-cell {
-    border-color: @grid-border-color;
+    border-bottom-color: var(--awe-grid-border);
   }
 
   .ui-grid-header-cell-primary-focus {
     outline: 0;
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(-1 * var(--awe-focus-ring-width));
+    }
   }
 
   .ui-grid-row {
-    border-bottom: 1px solid @grid-border-color;
+    color: var(--awe-color-text);
+    background-color: var(--awe-grid-row-background);
+    border-bottom: 1px solid var(--awe-grid-border);
     overflow: hidden;
+    transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+  }
+
+  .ui-grid-row.ui-grid-row-hover {
+    background-color: var(--awe-grid-row-hover-background);
+  }
+
+  .ui-grid-row.ui-grid-row-selected {
+    color: var(--awe-grid-row-selected-text);
+    background-color: var(--awe-grid-row-selected-background);
+  }
+
+  // The cells take the background of the row (selected or edited) instead of the selected colour of ui-grid
+  .ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell {
+    background-color: inherit;
+  }
+
+  // Edited row (the selected row with its cell editors shown): a primary outline and the row marker on its left, over
+  // the cells. The editors keep their sizes
+  .ui-grid-row.ui-grid-row-selected:has(.edition[style]:not([style*="none"])) {
+    position: relative;
+    color: var(--awe-color-text);
+    background-color: var(--awe-grid-row-background);
+    &::after {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      content: "";
+      pointer-events: none;
+      border-top: 1px solid var(--awe-color-primary);
+      border-bottom: 1px solid var(--awe-color-primary);
+      box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary);
+    }
+  }
+
+  // Row number and multioperation columns: on the header band, in muted text
+  .multioperation-icon,
+  .ui-grid-rownumber {
+    color: var(--awe-color-text-muted);
+    background-color: var(--awe-grid-header-background);
+  }
+
+  // The narrow columns (row number, selection, multioperation, row detail toggle and the row headers of ui-grid) keep
+  // a padding that fits their content: the cell padding of the grid would cut a row number of 1 to 3 digits
+  .ui-grid-cell .ui-grid-cell-contents.ui-grid-rownumber,
+  .ui-grid-cell .ui-grid-cell-contents.ui-grid-checkbox,
+  .ui-grid-cell .ui-grid-cell-contents.multioperation-icon,
+  .ui-grid-cell .ui-grid-cell-contents.ui-grid-row-detail,
+  .ui-grid-row-header-cell .ui-grid-cell-contents {
+    padding: 0 var(--awe-space-1);
+    text-overflow: clip;
   }
 
   .ui-grid-contents-wrapper {
-    background-color: @panel-background-color;
+    background-color: var(--awe-grid-row-background);
   }
 
   .ui-grid-header {
-    border-color: @grid-border-color;
+    border-bottom: 1px solid var(--awe-grid-border);
+    border-color: var(--awe-grid-border);
   }
 
   .ui-grid-header-cell {
     height: 100%;
     vertical-align:middle;
-    border-color: @grid-border-color;
+    border-color: var(--awe-grid-border);
+    border-right-color: transparent;
   }
 
   .ui-grid-header-cell:last-child .ui-grid-column-resizer.right {
-    border-color: @grid-border-color;
+    border-color: var(--awe-grid-border);
+  }
+
+  // Totals: the header band under the rows
+  .ui-grid-footer-panel {
+    font-weight: var(--awe-font-weight-semibold);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    color: var(--awe-color-text-emphasis);
+    background: var(--awe-grid-header-background);
+    border-top: 1px solid var(--awe-grid-border);
+    border-bottom-color: var(--awe-grid-border);
+  }
+
+  .ui-grid-footer-cell {
+    border-right-color: transparent;
+    .ui-grid-cell-contents {
+      padding: 0 var(--awe-grid-cell-padding-x);
+    }
   }
 
   .ui-grid-checkbox,
@@ -218,8 +375,8 @@
     .flex-direction(row);
     .flex-justify(center);
     .checkbox {
-      width: 15px;
-      height: 15px;
+      width: var(--awe-size-checkbox);
+      height: var(--awe-size-checkbox);
       display: inline-block;
       .flex(1);
       .flex-align-self(center);
@@ -228,31 +385,87 @@
         display: none;
       }
       .lbl {
-        width: 15px;
-        height: 15px;
+        width: var(--awe-size-checkbox);
+        height: var(--awe-size-checkbox);
         margin-left: 0;
         &:after, &:before {
           margin: 0 !important;
         }
       }
     }
+
+    .grid-check-box();
   }
 
+  // Header box while some rows (not all) are selected: filled, with the minus of the prototype
+  &:has(.ui-grid-row [data-testid="grid-row-checkbox"][data-selected="true"]) .ui-grid-header-checkbox input.px:not(:checked) + .lbl {
+    &:before {
+      background: var(--awe-color-primary);
+      border-color: var(--awe-color-primary);
+    }
+    &:after {
+      display: block;
+      mask: @awe-minus-mark center / var(--awe-checkbox-icon-size) no-repeat;
+    }
+  }
+
+  // Paginator: ghost page buttons on the small control height, the current page in the highlight (readable in light
+  // and dark with any primary)
   .pagination {
     overflow: hidden;
-    > li {
-        &.active > a {
-          color: var(--primary-text-color);
-          background: var(--primary-color);
-        }
-        > a {
-        border-color: @grid-border-color;
+    margin: 0;
+    vertical-align: middle;
+    > li > a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--awe-size-control-sm);
+      height: var(--awe-size-control-sm);
+      margin: 0 var(--awe-space-0-5) 0 0;
+      padding: 0 var(--awe-space-1-5);
+      font-size: var(--awe-font-size-sm);
+      font-variant-numeric: var(--awe-font-variant-numeric);
+      line-height: 1;
+      color: var(--awe-color-text-muted);
+      background: transparent;
+      border: 0;
+      border-radius: var(--awe-radius-md);
+      &:hover {
+        color: var(--awe-color-text-hover);
+        background: var(--awe-color-surface-hover);
+      }
+      &:focus-visible {
+        outline: var(--awe-focus-ring);
+        outline-offset: calc(-1 * var(--awe-focus-ring-width));
+      }
+      .awe-icon {
+        width: var(--awe-size-icon-sm);
+        height: var(--awe-size-icon-sm);
+      }
+    }
+    > li.active > a {
+      &,
+      &:hover,
+      &:focus {
+        font-weight: var(--awe-font-weight-semibold);
+        color: var(--awe-color-on-highlight);
+        background: var(--awe-color-highlight);
+      }
+    }
+    > li.disabled > a {
+      &,
+      &:hover,
+      &:focus {
+        color: var(--awe-color-text-muted);
+        background: transparent;
+        opacity: var(--awe-opacity-disabled);
+        cursor: not-allowed;
       }
     }
   }
 
   .ui-grid-pinned-container.ui-grid-pinned-container-left .ui-grid-cell:last-child {
-    border-color: @grid-border-color;
+    border-color: var(--awe-grid-border);
   }
 
   .pagination-content {
@@ -262,15 +475,37 @@
 
   .pagination-number {
     display: inline-block;
-    vertical-align:top;
+    padding: 0 var(--awe-space-2);
+    vertical-align: middle;
+  }
+
+  // Go to page and page size: fields on the small control height
+  .pagination-goto,
+  .grid-pager {
+    height: var(--awe-size-control-sm);
+    padding: 0 var(--awe-space-2);
+    font-size: var(--awe-font-size-sm);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    vertical-align: middle;
+    color: var(--awe-color-field-text);
+    background: var(--awe-color-field);
+    border: 1px solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    box-shadow: var(--awe-shadow-field);
+    &:hover {
+      border-color: var(--awe-color-field-border-hover);
+    }
+    &:focus {
+      outline: 0;
+      border-color: var(--awe-color-field-border-focus);
+      box-shadow: var(--awe-shadow-field-focus);
+    }
   }
 
   .pagination-goto {
-    height: 23px;
-    width: 28px;
-    padding-left: 2px;
-    border: 1px solid @grid-border-color;
-    background: var(--secondary-background-color);
+    width: calc(var(--awe-space-12) + var(--awe-space-1));
+    margin-left: var(--awe-space-2);
+    text-align: center;
   }
 
   input[type="number"][class~="pagination-goto"]::-webkit-outer-spin-button, input[type="number"][class~="pagination-goto"]::-webkit-inner-spin-button {
@@ -283,34 +518,24 @@
     overflow:hidden;
     display: inline-block;
     background-color: transparent;
-    padding: 0 7px;
-    font-size: 12px;
-    border-radius: @border-radius;
+    padding: 0;
+    font-size: var(--awe-font-size-sm);
     width: auto;
-    margin-left:15px;
+    margin-left: var(--awe-space-3);
   }
 
   &.grid-sm {
-    font-size: @font-size-small;
+    font-size: var(--awe-font-size-base);
     .ui-grid-cell-contents.component {
       .column-input {
-        height: @input-height-small;
-        textarea {
-          height: @input-height-small;
-        }
-        label.checkbox {
-          margin: 0 0 0 6px;
-          top: -12px;
-          position: relative;
-        }
         .visible-value {
           padding: 0 4px;
           line-height: @input-height-small;
         }
       }
     }
-    .ui-grid-cell {
-      line-height: @input-height-small;
+    .table-footer {
+      line-height: var(--awe-size-control-sm);
     }
     /*.table.table-bordered {
       th, td {
@@ -335,14 +560,7 @@
         line-height: @input-height-small - 3px;
       }
     }*/
-    .table-footer {
-      padding: 3px 12px 2px 12px;
-      line-height: 24px;
-      height: 28px;
-    }
     .pagination-content {
-      line-height: 23px;
-
       .text-center {
         display: inline-flex;
         justify-content: center;
@@ -356,26 +574,17 @@
     }
   }
   &.grid-md {
-    font-size: @font-size-base;
+    font-size: var(--awe-font-size-base);
     .ui-grid-cell-contents.component {
       .column-input {
-        textarea {
-          height: @input-height-base;
-        }
-        label.checkbox {
-          margin: 0 0 0 6px;
-          position: relative;
-          top: -14px;
-          height: 32px;
-        }
         .visible-value {
           padding: 0 4px;
           line-height: @input-height-base;
         }
       }
     }
-    .ui-grid-cell {
-      line-height: @input-height-base;
+    .table-footer {
+      line-height: var(--awe-size-control);
     }
     /*.table.table-bordered {
       th, td {
@@ -398,17 +607,6 @@
         line-height: @input-height-base - 3px;
       }
     }*/
-    .table-footer {
-      padding: 2px 12px 2px 12px;
-      line-height: 34px;
-      height: 38px;
-      .pagination-content {
-        font-size: @font-size-base;
-      }
-      .pagination-number {
-        line-height: 32px;
-      }
-    }
     .pagination-content {
       .text-center {
         display: inline-flex;
@@ -423,26 +621,17 @@
     }
   }
   &.grid-lg {
-    font-size: @font-size-large;
+    font-size: var(--awe-font-size-md);
     .ui-grid-cell-contents.component {
       .column-input {
-        textarea {
-          height: @input-height-large;
-        }
-        label.checkbox {
-          margin: 8px 0 0 6px;
-          position: relative;
-          top: -23px;
-          height: 36px;
-        }
         .visible-value {
           padding: 0 4px;
           line-height: @input-height-large;
         }
       }
     }
-    .ui-grid-cell {
-      line-height: @input-height-large;
+    .table-footer {
+      line-height: var(--awe-size-control-lg);
     }
     /*.table.table-bordered {
       th, td {
@@ -465,17 +654,6 @@
         line-height: @input-height-large - 3px;
       }
     }*/
-    .table-footer {
-      padding: 2px 12px 2px 12px;
-      line-height: 38px;
-      height: 42px;
-      .pagination-content {
-        font-size: @font-size-large;
-      }
-      .pagination-number {
-        line-height: 36px;
-      }
-    }
     .pagination-content {
       .text-center {
         display: inline-flex;
@@ -490,10 +668,10 @@
     }
   }
 
-  .pagination-sm {
-    a {
-      padding: 2px 8px;
-    }
+  // The footer grows with its buttons and paginator (its line height follows the size of the grid, above)
+  .table-footer {
+    height: auto;
+    padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
   }
 
   /*input.cbox {
@@ -540,35 +718,166 @@
     }
   }*/
 
+  // Save and cancel buttons of the edited row, under its right end (positioned by the grid)
   .save-button {
     position: absolute;
     top: -10000px;
     left: -10000px;
-    padding: 4px;
-    border: 1px solid @grid-border-color;
+    padding: var(--awe-space-1);
+    background: var(--awe-color-surface);
+    border: 1px solid var(--awe-color-primary);
     border-top: 0;
+    border-radius: 0 0 var(--awe-radius-md) var(--awe-radius-md);
+    box-shadow: var(--awe-shadow-sm);
     white-space: nowrap;
-    z-index: 1;
+    z-index: 2;
   }
 
   // Subtotal grid style
   .SUBTOTAL {
-    background-color: #eee !important;
+    background-color: var(--awe-color-surface-subtle) !important;
   }
 
   // Total grid style
   .TOTAL {
-    background-color:#ddd !important;
-    border-top: solid #ccc 2px;
-    td {
-      font-weight: bold !important;
-    }
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+    background-color: var(--awe-grid-header-background) !important;
+    border-top: 2px solid var(--awe-grid-border);
   }
 
   .DELETE {
-    background-color: #eee;
+    background-color: var(--awe-color-surface-subtle);
     .visible-value {
       text-decoration: line-through;
+    }
+  }
+
+  // Component cells: the component fills the line of the row, as the text cells, so its content is centred in the
+  // row in any density (the radios fill it, the values are on its line). The value of a text view carries the size
+  // of a field (input-sm...), whose height and padding put it at the top of the row: it takes the line of the cell
+  .ui-grid-cell .ui-grid-cell-contents.component > .column-input {
+    height: calc(var(--grid-row-height, 27px) - 1px);
+    > [class*="col-xs-"] {
+      height: auto;
+      padding-top: 0;
+      padding-bottom: 0;
+      line-height: inherit;
+    }
+    // When its row leaves the edition the grid shows the value again with display: block in its style attribute:
+    // as a block it would take the line of a field of its size (on the top of the row), so it takes the cell line
+    > .visible-value {
+      line-height: inherit;
+    }
+  }
+
+  // Edited row (as the React grid): every editor is a small control centred on the row, which keeps its height. The
+  // grid shows the editor of a cell (.edition) with a display in its style attribute, so the column input lays it out
+  .ui-grid-cell .ui-grid-cell-contents.component > .column-input:has(> .edition[style]:not([style*="none"])) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .ui-grid-cell .edition {
+    line-height: var(--awe-line-height-snug);
+    input.form-control,
+    textarea.form-control,
+    .input-group-addon,
+    .select2-container,
+    .select2-container .select2-choice,
+    .pixel-file-input {
+      height: @grid-editor-height;
+      min-height: 0;
+    }
+    input.form-control,
+    .input-group-addon {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .input-group-addon {
+      line-height: 1;
+    }
+    textarea.form-control {
+      padding-top: var(--awe-space-1);
+      padding-bottom: var(--awe-space-1);
+    }
+    .select2-container .select2-choice {
+      display: flex;
+      align-items: center;
+      .select2-chosen {
+        flex: 1;
+        line-height: var(--awe-line-height-snug);
+      }
+    }
+    // The colour editor comes inside a form group: an inline block on the top of its line, so the line adds no room
+    // below it
+    .form-group {
+      margin: 0;
+      vertical-align: top;
+    }
+  }
+
+  // Checkbox and button columns: their control centred on the row, whatever the size of the grid
+  .ui-grid-cell .ui-grid-cell-contents.component > .column-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    label.checkbox,
+    .lbl {
+      display: block;
+      top: 0;
+      margin: 0;
+      padding: 0;
+      width: var(--awe-size-checkbox);
+      height: var(--awe-size-checkbox);
+      &:after,
+      &:before {
+        margin: 0 !important;
+      }
+    }
+    .grid-check-box();
+  }
+
+  .ui-grid-cell .ui-grid-cell-contents.component > .column {
+    display: flex;
+    align-items: center;
+    height: calc(var(--grid-row-height, 27px) - 1px);
+    &.text-center {
+      justify-content: center;
+    }
+    &.text-right {
+      justify-content: flex-end;
+    }
+  }
+
+  // Tree grid: the expander of a branch (and the expand all of the header) as a small icon button. The indent of each
+  // level comes from the grid options (inline padding of --awe-space-6 per level)
+  .ui-grid-tree-base-row-header-buttons .tree-icon,
+  .ui-grid-tree-base-row-header-buttons > i {
+    display: inline-grid;
+    place-items: center;
+    width: var(--awe-space-6);
+    height: var(--awe-space-6);
+    vertical-align: middle;
+    line-height: 1;
+    color: var(--awe-color-text-muted);
+    border-radius: var(--awe-radius-sm);
+    cursor: pointer;
+    transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+    &:hover {
+      color: var(--awe-color-text-hover);
+      background: var(--awe-color-surface-hover);
+    }
+    // The expander of a branch is a keyboard button (Enter and Space)
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(-1 * var(--awe-focus-ring-width));
+    }
+    .awe-icon {
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
     }
   }
 
@@ -599,11 +908,21 @@
   .ui-grid-filter-button {
     top: 5px;
     right: 7px;
-    color: #999;
+    color: var(--awe-color-text-muted);
   }
   input[type="text"].ui-grid-filter-input {
     padding: 2px 6px;
-    background: var(--secondary-background-color);
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-normal);
+    color: var(--awe-color-field-text);
+    background: var(--awe-color-field);
+    border: 1px solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    &:focus {
+      outline: 0;
+      border-color: var(--awe-color-field-border-focus);
+      box-shadow: var(--awe-shadow-field-focus);
+    }
   }
 }
 
@@ -616,8 +935,8 @@
 }
 
 .ui-grid-row.faded {
-  color: #999999;
-  background-color: #eeeeee;
+  color: var(--awe-color-text-muted);
+  background-color: var(--awe-color-surface-subtle);
 }
 
 .icon-fixed-width-grid {
@@ -633,33 +952,91 @@
   user-select: text;
   cursor:auto;
 }
-// Empty state (grid without rows)
+// Empty state (grid without rows), under the header: the icon in a circle, the title, the text and the action. It
+// lies over the rows area, and in a short grid it reaches the footer: the clicks go through it to the footer buttons
+// (New, Delete...), except on its own action
 .grid-empty-state {
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--awe-space-2);
   justify-content: center;
   left: 0;
-  padding: 24px 16px;
+  padding: var(--awe-space-6) var(--awe-space-4);
+  pointer-events: none;
   position: absolute;
   right: 0;
   text-align: center;
-  top: 40px;
+  top: var(--awe-space-10);
+  white-space: normal;
   z-index: 1;
 
   .grid-empty-icon {
-    font-size: 40px;
-    opacity: 0.5;
+    display: inline-grid;
+    place-items: center;
+    width: calc(var(--awe-space-12) + var(--awe-space-1));
+    height: calc(var(--awe-space-12) + var(--awe-space-1));
+    margin-bottom: var(--awe-space-2);
+    font-size: var(--awe-size-icon-lg);
+    color: var(--awe-color-text-muted);
+    background: var(--awe-color-secondary);
+    border-radius: var(--awe-radius-full);
+    box-shadow: 0 0 0 var(--awe-space-2) var(--awe-color-surface-subtle);
+
+    > .awe-icon {
+      width: var(--awe-size-icon-lg);
+      height: var(--awe-size-icon-lg);
+    }
   }
 
   .grid-empty-title {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: var(--awe-font-size-md);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-emphasis);
   }
 
   .grid-empty-text {
-    opacity: 0.7;
+    margin-bottom: var(--awe-space-2);
+    color: var(--awe-color-text-muted);
+  }
+
+  .grid-empty-action {
+    .grid-button();
+    pointer-events: auto;
+  }
+}
+
+// Reload of a grid with rows (dimmed rows, see skeleton.less): a loading bar on the top edge of the grid
+@keyframes awe-grid-loading {
+  from {
+    background-position: -66.67% 0;
+  }
+
+  to {
+    background-position: 166.67% 0;
+  }
+}
+
+.grid.grid-reloading::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: var(--awe-space-0-5);
+  content: "";
+  pointer-events: none;
+  background-color: var(--awe-color-primary-subtle);
+  background-image: linear-gradient(var(--awe-color-loading-bar), var(--awe-color-loading-bar));
+  background-repeat: no-repeat;
+  background-size: 40% 100%;
+  animation: awe-grid-loading calc(var(--awe-motion-duration-expand) * 6) var(--awe-motion-easing-standard) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid.grid-reloading::before {
+    animation: none;
   }
 }
 
@@ -703,8 +1080,8 @@
           -webkit-line-clamp: var(--cell-max-lines);
           line-clamp: var(--cell-max-lines);
           &:focus-visible {
-            outline: 2px solid @brand-primary;
-            outline-offset: -2px;
+            outline: var(--awe-focus-ring);
+            outline-offset: calc(-1 * var(--awe-focus-ring-width));
           }
         }
       }
@@ -742,16 +1119,20 @@
     line-height: 1;
     color: inherit;
     &:focus-visible {
-      outline: 2px solid @brand-primary;
-      outline-offset: -2px;
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(-1 * var(--awe-focus-ring-width));
     }
   }
 
+  // The detail: an area under the row, marked with the primary row marker on its left
   .grid-row-detail {
     white-space: pre-line;
     overflow-wrap: anywhere;
-    padding: 6px 12px;
-    border-top: 1px solid @grid-border-color;
+    padding: var(--awe-space-3) var(--awe-space-4);
+    color: var(--awe-color-text);
+    background: var(--awe-color-surface-subtle);
+    border-top: 1px solid var(--awe-grid-border);
+    border-left: var(--awe-grid-row-marker-width) solid var(--awe-color-primary);
     cursor: auto;
     user-select: text;
   }
@@ -769,7 +1150,7 @@
 
 .grid-cell-tooltip.tooltip {
   position: fixed;
-  z-index: 3000;
+  z-index: var(--awe-z-tooltip);
   max-width: 28rem;
   pointer-events: none;
   .tooltip-inner {
@@ -780,49 +1161,117 @@
   }
 }
 
-// Grid toolbar (Columns and Maximize)
+// The buttons of the grid that are not Bootstrap buttons (toolbar, empty state, columns actions): small outlined
+// buttons, as the React grid toolbar
+.grid-button() {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-space-1-5);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-xs);
+  cursor: pointer;
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  // pixel-admin paints .btn-default:hover/:focus/:active with a light gradient marked !important (unreadable in dark
+  // mode): the states of these buttons stay on the tokens, the same as the buttons of the window (.btn.btn-awe)
+  &:hover,
+  &:focus {
+    color: var(--awe-color-text) !important;
+    background: var(--awe-color-surface-subtle) !important;
+    background-image: none !important;
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:active,
+  &[aria-pressed="true"] {
+    background: var(--awe-color-surface-hover) !important;
+    background-image: none !important;
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: var(--awe-opacity-disabled);
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+// Grid toolbar (Columns and Maximize): small outlined buttons at the end, over the header
 .grid-toolbar {
   display: flex;
-  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
   justify-content: flex-end;
-  padding: 2px 0;
+  // The inset of the footer, with or without border: the last button (Maximize) stays off the edge of the grid
+  padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+
+  .grid-toolbar-button {
+    .grid-button();
+  }
 }
 
 // A maximized grid fills the maximize target like a window (see Maximize service)
 .grid {
   &.maximized {
-    background: #fff;
+    background: var(--awe-color-surface);
+    border: 1px solid var(--awe-color-border);
+    border-radius: var(--awe-radius-content);
+    box-shadow: var(--awe-shadow-card);
     display: flex;
     flex-direction: column;
-    padding: 8px;
+    padding: var(--awe-space-2) var(--awe-space-3);
     position: absolute;
   }
 
   // Animation clone
   &.resizeAnimation {
-    background: #fff;
+    background: var(--awe-color-surface);
     margin: 0;
     position: absolute;
     z-index: 1050;
   }
 }
 
-// Columns dialog
+// Columns dialog: an overlay over the mask
 .grid-columns-backdrop {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--awe-color-mask);
+  backdrop-filter: var(--awe-mask-backdrop-filter);
   bottom: 0;
   left: 0;
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 1050;
+  z-index: var(--awe-z-modal);
 }
 
 // Counter, list and actions of the Columns, shared by the dialog and the side panel
 .grid-columns-content() {
   .grid-columns-counter {
-    font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: var(--awe-space-3);
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    color: var(--awe-color-text-muted);
   }
 
   ul {
@@ -833,65 +1282,124 @@
 
   .grid-column-item {
     align-items: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--awe-color-border-subtle);
+    border-radius: var(--awe-radius-list-option);
     display: flex;
-    gap: 8px;
-    padding: 4px 0;
+    gap: var(--awe-space-2);
+    min-height: var(--awe-size-control);
+    padding: 0 var(--awe-space-1);
+
+    &:hover {
+      background: var(--awe-color-list-option-focus);
+    }
+
+    .grid-column-checkbox {
+      flex: none;
+      width: var(--awe-size-checkbox);
+      height: var(--awe-size-checkbox);
+      margin: 0;
+      accent-color: var(--awe-color-primary);
+      cursor: pointer;
+    }
 
     .grid-column-label {
       flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--awe-color-text);
     }
 
     .grid-column-handle {
       cursor: grab;
-      opacity: 0.6;
+      color: var(--awe-color-text-muted);
+    }
+
+    .grid-column-move {
+      display: inline-grid;
+      place-items: center;
+      width: var(--awe-size-control-sm);
+      height: var(--awe-size-control-sm);
+      padding: 0;
+      color: var(--awe-color-text-muted);
+      border-radius: var(--awe-radius-md);
+
+      &:hover:not([disabled]) {
+        color: var(--awe-color-text-hover);
+        background: var(--awe-color-surface-hover);
+      }
+
+      &:focus-visible {
+        outline: var(--awe-focus-ring);
+        outline-offset: calc(-1 * var(--awe-focus-ring-width));
+      }
+
+      .awe-icon {
+        width: var(--awe-size-icon-sm);
+        height: var(--awe-size-icon-sm);
+      }
     }
 
     .grid-column-move[disabled] {
       cursor: default;
-      opacity: 0.3;
+      opacity: var(--awe-opacity-disabled);
     }
   }
 
   .grid-column-group {
-    border-left: 3px solid #428bca;
-    margin: 8px 0;
-    padding-left: 8px;
+    border-left: var(--awe-grid-row-marker-width) solid var(--awe-color-primary);
+    margin: var(--awe-space-2) 0;
+    padding-left: var(--awe-space-2);
 
     .grid-column-group-title {
-      font-weight: 600;
-      padding: 4px 0;
+      padding: var(--awe-space-1) 0;
+      font-size: var(--awe-font-size-sm);
+      font-weight: var(--awe-font-weight-semibold);
+      color: var(--awe-color-text-emphasis);
     }
   }
 
   .grid-columns-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--awe-space-2);
     justify-content: flex-end;
+
+    > .btn-awe {
+      .grid-button();
+    }
+
+    > .btn-awe.btn-primary {
+      .awe-filled-button(var(--awe-color-primary); var(--awe-color-primary-hover); var(--awe-color-primary-active);
+        var(--awe-color-on-primary));
+    }
   }
 }
 
 .grid-columns-dialog {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-modal);
+  box-shadow: var(--awe-shadow-modal);
   left: 50%;
   max-height: 85vh;
   max-width: 95vw;
   overflow: auto;
-  padding: 16px;
+  padding: var(--awe-modal-padding);
   position: fixed;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 28rem;
-  z-index: 1051;
+  z-index: var(--awe-z-modal);
   .grid-columns-content();
 
   .grid-columns-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+    margin-bottom: var(--awe-space-3);
   }
 
   // The list scrolls inside the dialog, so its actions stay in view with a long list of columns
@@ -901,7 +1409,7 @@
   }
 
   .grid-columns-actions {
-    margin-top: 12px;
+    margin-top: var(--awe-space-3);
   }
 }
 

@@ -307,15 +307,17 @@ describe("Screen", () => {
     expect(missing).toEqual([]);
   });
 
-  it("reloads theme variable stylesheets with a timestamp query string", () => {
-    document.head.innerHTML = '<link rel="stylesheet" id="themeVariables" href="/themes/vars.css?old=1">';
-    jest.spyOn(Date.prototype, "getTime").mockReturnValue(12345);
+  it("reads the theme appearance again from the server when a theme is updated, without touching the stylesheets", () => {
+    document.head.innerHTML = '<link rel="stylesheet" href="/css/styles.css">';
+    jest.spyOn($settings, "refreshAppearance").mockReturnValue(Promise.resolve());
     const themeAction = action();
 
     $screen.updateTheme(themeAction);
 
-    expect(document.querySelector("#themeVariables").getAttribute("href")).toBe("http://localhost/themes/vars.css?reload=12345");
+    expect($settings.refreshAppearance).toHaveBeenCalledTimes(1);
+    expect(document.querySelector("link").getAttribute("href")).toBe("/css/styles.css");
     expect($actionController.acceptAction).toHaveBeenCalledWith(themeAction);
+    document.head.innerHTML = "";
   });
 
   it("uses the action target when parameters do not provide screen or target", () => {

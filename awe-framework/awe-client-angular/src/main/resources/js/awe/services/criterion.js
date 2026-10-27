@@ -2,12 +2,13 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 
 export const templateInputColor = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input-group colorpicker-element {{::validatorGroup}} focus-target">
@@ -23,7 +24,7 @@ export const templateInputColor = `<div ng-show="controller.visible" class="crit
 </div>`;
 
 export const templateColumnColor = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
-  <span class="visible-value" ng-cloak><i class="fa fa-eyedropper" ng-if="component.visibleValue" ng-style="{color: component.visibleValue}"></i>
+  <span class="visible-value" ng-cloak>${iconTemplate("eyedropper", {attributes: 'ng-if="component.visibleValue" ng-style="{color: component.visibleValue}"'})}
     <span class="text-semibold text-xs text-uppercase">{{component.visibleValue}}</span>
   </span>
   <span class="edition">

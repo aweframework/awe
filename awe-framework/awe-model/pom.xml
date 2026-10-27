@@ -157,6 +157,20 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- Icon equivalences shared with both clients (#885), read by IconResolver -->
+      <resource>
+        <directory>${project.basedir}/../awe-design-tokens/icons</directory>
+        <targetPath>com/almis/awe/model/util/icon</targetPath>
+        <includes>
+          <include>icon-equivalences.json</include>
+          <include>lucide-names.json</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <!-- Delombok plugin -->
       <plugin>

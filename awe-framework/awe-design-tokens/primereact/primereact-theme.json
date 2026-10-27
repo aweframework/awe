@@ -1,0 +1,464 @@
+{
+  "$comment": [
+    "Equivalence table of the AWE theme of PrimeReact (#885), read by primereact-theme.cjs.",
+    "Each value of the Lara light theme of primereact 10.9.9 maps to the --awe-* token that replaces it; the tokens follow",
+    "the Aura preset of @primeuix/themes 2.0.3 as the design system prototype does (never --awe-palette-* primitives).",
+    "An entry is a token, a CSS value, or a list of rules {selector, property, value} (regular expressions on the selector",
+    "of the Lara rule and on the property): the first matching rule wins. overrides replace a whole declaration of the",
+    "components whose Aura geometry differs from Lara. structural values are kept as they are. A value of Lara that is not",
+    "mapped here fails the build."
+  ],
+  "source": {
+    "package": "primereact",
+    "version": "10.9.9",
+    "theme": "resources/themes/lara-light-indigo/theme.css"
+  },
+  "structural": ["0", "0px", "1px", "1%", "50%", "100%", "auto", "none", "0 none", "inherit", "transparent"],
+  "rootVariables": {
+    "--border-radius": "--awe-radius-field",
+    "--inline-spacing": "--awe-space-2",
+    "--content-padding": "--awe-content-padding"
+  },
+  "variables": {
+    "font-family": "--awe-font-family-base",
+    "font-feature-settings": "--awe-font-feature-base",
+    "maskbg": "--awe-color-mask"
+  },
+  "overrides": [
+    {"selector": "^\\.p-inputtext$|^\\.p-(multiselect|treeselect|cascadeselect) \\.p-(multiselect|treeselect|cascadeselect)-label$", "property": "padding", "value": "var(--awe-field-padding-y) var(--awe-field-padding-x)"},
+    {"selector": "^\\.p-inputtext\\.p-inputtext-sm$|^\\.p-inputtext-sm \\.p-inputtext$", "property": "padding", "value": "var(--awe-space-1-5) var(--awe-space-2)"},
+    {"selector": "^\\.p-inputtext\\.p-inputtext-lg$|^\\.p-inputtext-lg \\.p-inputtext$", "property": "padding", "value": "var(--awe-space-2) var(--awe-space-3)"},
+    {"selector": "^\\.p-(dropdown|multiselect|treeselect|cascadeselect) \\.p-(dropdown|multiselect|treeselect|cascadeselect)-trigger$|\\.p-autocomplete-dropdown$", "property": "width", "value": "var(--awe-space-10)"},
+    {"selector": "^\\.p-inputgroup-addon$", "property": "padding", "value": "var(--awe-field-padding-y) var(--awe-field-padding-x)"},
+    {"selector": "^\\.p-inputgroup-addon$", "property": "min-width", "value": "var(--awe-size-control)"},
+
+    {"selector": "^\\.p-button$", "property": "padding", "value": "var(--awe-field-padding-y) var(--awe-button-padding-x)"},
+    {"selector": "^\\.p-button\\.p-button-icon-only$", "property": "width", "value": "var(--awe-size-control)"},
+    {"selector": "^\\.p-button\\.p-button-icon-only$", "property": "padding", "value": "var(--awe-field-padding-y) 0"},
+    {"selector": "^\\.p-button\\.p-button-icon-only\\.p-button-rounded$", "property": "height", "value": "var(--awe-size-control)"},
+    {"selector": "^\\.p-button\\.p-button-sm$|^\\.p-splitbutton\\.p-button-sm > \\.p-button$", "property": "padding", "value": "var(--awe-space-1-5) var(--awe-space-3)"},
+    {"selector": "^\\.p-button\\.p-button-lg$|^\\.p-splitbutton\\.p-button-lg > \\.p-button$", "property": "padding", "value": "var(--awe-space-3) var(--awe-space-4)"},
+    {"selector": "^\\.p-button-label$", "property": "font-weight", "value": "var(--awe-font-weight-medium)"},
+
+    {"selector": "^\\.p-(checkbox|tristatecheckbox)( \\.p-checkbox-box)?$|^\\.p-radiobutton( \\.p-radiobutton-box)?$", "property": "width|height", "value": "var(--awe-size-checkbox)"},
+    {"selector": "^\\.p-checkbox \\.p-checkbox-(input|box)$|^\\.p-radiobutton \\.p-radiobutton-(input|box)$", "property": "border", "value": "1px solid var(--awe-color-field-border)"},
+    {"selector": "^\\.p-checkbox \\.p-checkbox-(input|box)$", "property": "border-radius", "value": "var(--awe-radius-sm)"},
+    {"selector": "^\\.p-checkbox \\.p-checkbox-box \\.p-checkbox-icon(\\.p-icon)?$", "property": "font-size|width|height", "value": "var(--awe-checkbox-icon-size)"},
+    {"selector": "^\\.p-radiobutton \\.p-radiobutton-box \\.p-radiobutton-icon$", "property": "width|height", "value": "var(--awe-radio-dot-size)"},
+
+    {"selector": "^\\.p-inputswitch$", "property": "width", "value": "var(--awe-switch-width)"},
+    {"selector": "^\\.p-inputswitch$", "property": "height", "value": "var(--awe-switch-height)"},
+    {"selector": "^\\.p-inputswitch \\.p-inputswitch-slider:before$", "property": "width|height", "value": "var(--awe-switch-handle-size)"},
+    {"selector": "^\\.p-inputswitch \\.p-inputswitch-slider:before$", "property": "left", "value": "calc((var(--awe-switch-height) - var(--awe-switch-handle-size)) / 2 - 1px)"},
+    {"selector": "^\\.p-inputswitch \\.p-inputswitch-slider:before$", "property": "margin-top", "value": "calc(var(--awe-switch-handle-size) / -2)"},
+    {"selector": "^\\.p-inputswitch\\.p-highlight \\.p-inputswitch-slider:before$", "property": "transform", "value": "translateX(calc(var(--awe-switch-width) - var(--awe-switch-height)))"},
+
+    {"selector": "^\\.p-(dropdown|multiselect|autocomplete|cascadeselect|treeselect|mention)-panel \\.p-[a-z]+-items$|^\\.p-listbox \\.p-listbox-list$", "property": "padding", "value": "var(--awe-list-padding)"},
+    {"selector": "^\\.p-(dropdown|multiselect|autocomplete|treeselect|mention)-panel \\.p-[a-z]+-items \\.p-[a-z]+-item(-group)?$|^\\.p-listbox \\.p-listbox-list \\.p-listbox-item(-group)?$|^\\.p-cascadeselect-panel \\.p-cascadeselect-items \\.p-cascadeselect-item \\.p-cascadeselect-item-content$", "property": "padding", "value": "var(--awe-list-option-padding)"},
+    {"selector": "^\\.p-(dropdown|multiselect|autocomplete|treeselect|mention)-panel \\.p-[a-z]+-items \\.p-[a-z]+-item$|^\\.p-listbox \\.p-listbox-list \\.p-listbox-item$|^\\.p-cascadeselect-panel \\.p-cascadeselect-items \\.p-cascadeselect-item$", "property": "border-radius", "value": "var(--awe-radius-list-option)"},
+    {"selector": "^\\.p-(dropdown|multiselect|treeselect)-panel \\.p-(dropdown|multiselect|treeselect)-header$|^\\.p-listbox \\.p-listbox-header$", "property": "padding", "value": "var(--awe-space-2) var(--awe-space-4) var(--awe-space-1)"},
+    {"selector": "-items \\.p-[a-z]+-empty-message$|^\\.p-listbox \\.p-listbox-list \\.p-listbox-empty-message$", "property": "padding", "value": "var(--awe-list-option-padding)"},
+
+    {"selector": "\\.p-menuitem-link$|\\.p-panelmenu-header-link$", "property": "padding", "value": "var(--awe-nav-item-padding)"},
+    {"selector": "\\.p-submenu-header$", "property": "padding", "value": "var(--awe-nav-item-padding)"},
+    {"selector": "^\\.p-(menu|contextmenu|tieredmenu|slidemenu)$|^\\.p-(menubar|contextmenu|tieredmenu) \\.p-submenu-list$|^\\.p-panelmenu \\.p-panelmenu-content$", "property": "padding", "value": "var(--awe-list-padding)"},
+    {"selector": "^\\.p-(menu|contextmenu|tieredmenu|slidemenu|megamenu|menubar|panelmenu)( \\.p-[a-z-]+)* \\.p-menuitem > \\.p-menuitem-content$", "property": "border-radius", "value": "var(--awe-radius-list-option)"},
+    {"selector": "\\.p-menubar-root-list( ul li){5} a$", "property": "padding-left", "value": "calc(var(--awe-menu-indent) * 5)"},
+    {"selector": "\\.p-menubar-root-list( ul li){4} a$", "property": "padding-left", "value": "calc(var(--awe-menu-indent) * 4)"},
+    {"selector": "\\.p-menubar-root-list( ul li){3} a$", "property": "padding-left", "value": "calc(var(--awe-menu-indent) * 3)"},
+    {"selector": "\\.p-menubar-root-list( ul li){2} a$", "property": "padding-left", "value": "calc(var(--awe-menu-indent) * 2)"},
+    {"selector": "\\.p-menubar-root-list ul li a$", "property": "padding-left", "value": "var(--awe-menu-indent)"},
+
+    {"selector": "^\\.p-(dialog|overlaypanel|confirm-popup|contextmenu)$", "property": "border", "value": "1px solid var(--awe-color-overlay-border)"},
+    {"selector": "^\\.p-(overlaypanel|confirm-popup)\\.p-(overlaypanel|confirm-popup)-flipped:before$", "property": "border-top-color", "value": "var(--awe-color-overlay-border)"},
+    {"selector": "^\\.p-overlaypanel \\.p-overlaypanel-content$|^\\.p-confirm-popup \\.p-confirm-popup-content$|^\\.p-datepicker$", "property": "padding", "value": "var(--awe-overlay-padding)"},
+    {"selector": "^\\.p-confirm-popup \\.p-confirm-popup-footer$", "property": "padding", "value": "0 var(--awe-overlay-padding) var(--awe-overlay-padding)"},
+    {"selector": "^\\.p-tooltip \\.p-tooltip-text$", "property": "padding", "value": "var(--awe-space-1) var(--awe-space-2)"},
+    {"selector": "^\\.p-tooltip \\.p-tooltip-text$", "property": "border-radius", "value": "var(--awe-radius-sm)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-header$|^\\.p-sidebar \\.p-sidebar-(header|content)$", "property": "padding", "value": "var(--awe-modal-padding)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-content$", "property": "padding", "value": "0 var(--awe-modal-padding) var(--awe-modal-padding)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-footer$", "property": "padding", "value": "var(--awe-space-3) var(--awe-modal-padding)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-footer$", "property": "background", "value": "var(--awe-color-surface-subtle)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-footer$", "property": "border-top", "value": "1px solid var(--awe-color-border)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-footer button$", "property": "margin", "value": "0"},
+    {"selector": "^\\.p-dialog( \\.p-dialog-(header|content|footer))?(:last-of-type)?$", "property": "border(-[a-z]+)*-radius", "value": "var(--awe-radius-modal)"},
+    {"selector": "^\\.p-dialog \\.p-dialog-header \\.p-dialog-title$", "property": "font-size", "value": "var(--awe-font-size-dialog-title)"},
+
+    {"selector": "^\\.p-toast \\.p-toast-message \\.p-toast-message-content$", "property": "padding", "value": "var(--awe-overlay-padding)"},
+    {"selector": "^\\.p-toast \\.p-toast-message$", "property": "border-radius", "value": "var(--awe-radius-lg)"},
+    {"selector": "^\\.p-toast \\.p-toast-message$", "property": "margin", "value": "0 0 var(--awe-space-2) 0"},
+    {"selector": "^\\.p-toast \\.p-toast-message \\.p-toast-message-content \\.p-toast-message-text$", "property": "margin", "value": "0 0 0 var(--awe-space-3)"},
+    {"selector": "^\\.p-toast \\.p-toast-message \\.p-toast-message-content \\.p-toast-detail$", "property": "margin", "value": "var(--awe-space-0-5) 0 0 0"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-(info|success|warn|error)$|^\\.p-message\\.p-message-(info|success|warn|error)$|^\\.p-inline-message\\.p-inline-message-(info|success|warn|error)$", "property": "border-width", "value": "1px"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-(info|success|warn|error)$|^\\.p-message\\.p-message-(info|success|warn|error)$|^\\.p-inline-message\\.p-inline-message-(info|success|warn|error)$", "property": "color", "value": "var(--awe-color-text)"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-info$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-info-subtle), var(--awe-color-overlay) 40%)"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-success$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-success-subtle), var(--awe-color-overlay) 40%)"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-warn$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-warning-subtle), var(--awe-color-overlay) 40%)"},
+    {"selector": "^\\.p-toast \\.p-toast-message\\.p-toast-message-error$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-danger-subtle), var(--awe-color-overlay) 40%)"},
+    {"selector": "^\\.p-message\\.p-message-info$|^\\.p-inline-message\\.p-inline-message-info$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-info-subtle), var(--awe-color-surface) 45%)"},
+    {"selector": "^\\.p-message\\.p-message-success$|^\\.p-inline-message\\.p-inline-message-success$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-success-subtle), var(--awe-color-surface) 45%)"},
+    {"selector": "^\\.p-message\\.p-message-warn$|^\\.p-inline-message\\.p-inline-message-warn$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-warning-subtle), var(--awe-color-surface) 45%)"},
+    {"selector": "^\\.p-message\\.p-message-error$|^\\.p-inline-message\\.p-inline-message-error$", "property": "background", "value": "color-mix(in srgb, var(--awe-color-danger-subtle), var(--awe-color-surface) 45%)"},
+    {"selector": "^\\.p-message$|^\\.p-inline-message$", "property": "border-radius", "value": "var(--awe-radius-content)"},
+    {"selector": "^\\.p-message \\.p-message-text$|^\\.p-inline-message \\.p-inline-message-text$", "property": "font-size", "value": "var(--awe-font-size-sm)"},
+    {"selector": "^\\.p-toast \\.p-toast-message \\.p-toast-message-content \\.p-toast-message-icon(\\.p-icon)?$|^\\.p-message \\.p-message-icon(\\.p-icon)?$", "property": "font-size|width|height", "value": "var(--awe-size-icon-lg)"},
+    {"selector": "^\\.p-toast \\.p-toast-message \\.p-toast-message-content \\.p-toast-summary$", "property": "font-weight", "value": "var(--awe-font-weight-semibold)"},
+    {"selector": "^\\.p-message \\.p-message-wrapper$|^\\.p-inline-message$", "property": "padding", "value": "var(--awe-space-2) var(--awe-space-3)"},
+
+    {"selector": "^\\.p-(datatable|treetable) \\.p-(datatable|treetable)-(header|footer|thead > tr > th|tbody > tr > td|tfoot > tr > td)$", "property": "padding", "value": "var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x)"},
+    {"selector": "^\\.p-(datatable|treetable)\\.p-(datatable|treetable)-sm ", "property": "padding", "value": "var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x)"},
+    {"selector": "^\\.p-(datatable|treetable)\\.p-(datatable|treetable)-lg ", "property": "padding", "value": "var(--awe-space-4) var(--awe-space-5)"},
+    {"selector": "^\\.p-paginator \\.p-paginator-(first|prev|next|last|current)|^\\.p-paginator \\.p-paginator-pages \\.p-paginator-page$", "property": "min-width|height", "value": "var(--awe-size-control-sm)"},
+    {"selector": "^\\.p-paginator \\.p-paginator-(first|last)|^\\.p-paginator \\.p-paginator-pages \\.p-paginator-page$", "property": "border(-(top|bottom)-(left|right))?-radius", "value": "var(--awe-radius-md)"},
+    {"selector": "^\\.p-paginator \\.p-dropdown$", "property": "height", "value": "var(--awe-size-control-sm)"},
+    {"selector": "^\\.p-datatable \\.p-datatable-tbody > tr > td \\.p-row-toggler, ", "property": "width|height", "value": "var(--awe-size-control-sm)"},
+    {"selector": "^\\.p-datatable \\.p-datatable-tbody > tr > td \\.p-row-toggler, ", "property": "border-radius", "value": "var(--awe-radius-md)"},
+    {"selector": "^\\.p-treetable \\.p-treetable-tbody > tr > td \\.p-treetable-toggler$", "property": "width|height", "value": "var(--awe-space-6)"},
+    {"selector": "^\\.p-treetable \\.p-treetable-tbody > tr > td \\.p-treetable-toggler$", "property": "border-radius", "value": "var(--awe-radius-sm)"},
+
+    {"selector": "^\\.p-tabmenu \\.p-tabmenu-nav \\.p-tabmenuitem \\.p-menuitem-link$|^\\.p-tabview \\.p-tabview-nav li \\.p-tabview-nav-link$", "property": "padding", "value": "var(--awe-space-4)"},
+    {"selector": "^\\.p-tabmenu \\.p-tabmenu-nav( \\.p-tabmenuitem \\.p-menuitem-link)?$|^\\.p-tabview \\.p-tabview-nav( li \\.p-tabview-nav-link)?$", "property": "border-width", "value": "0 0 1px 0"},
+    {"selector": "^\\.p-tabmenu \\.p-tabmenu-nav \\.p-tabmenuitem \\.p-menuitem-link$|^\\.p-tabview \\.p-tabview-nav li \\.p-tabview-nav-link$", "property": "margin", "value": "0 0 -1px 0"},
+    {"selector": "^\\.p-tabmenu \\.p-tabmenu-nav \\.p-tabmenuitem \\.p-menuitem-link$", "property": "height", "value": "calc(100% + 1px)"},
+    {"selector": "^\\.p-slider\\.p-slider-(horizontal|vertical) \\.p-slider-handle$", "property": "margin-(top|left|bottom)", "value": "calc(var(--awe-space-5) / -2)"},
+
+    {"selector": "^\\.p-tag$|^\\.p-badge$", "property": "font-weight", "value": "var(--awe-font-weight-bold)"},
+    {"selector": "^\\.p-tag$", "property": "padding", "value": "var(--awe-space-1) var(--awe-space-2)"},
+    {"selector": "^\\.p-tag$", "property": "font-size", "value": "var(--awe-font-size-sm)"},
+    {"selector": "^\\.p-progressbar$", "property": "height", "value": "var(--awe-space-5)"},
+    {"selector": "^\\.p-progressbar$", "property": "background", "value": "var(--awe-color-secondary)"},
+    {"selector": "^\\.p-progressbar$", "property": "border-radius", "value": "var(--awe-radius-full)"}
+  ],
+  "values": {
+    "box-shadow": {
+      "0 0 0 0.2rem #c7d2fe": [
+        {"selector": "\\.p-(inputtext|dropdown|multiselect|autocomplete|cascadeselect|treeselect|chips|password|inputnumber)(?![-\\w])", "value": "--awe-shadow-field-focus"},
+        {"value": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring)"}
+      ],
+      "0 0 0 0.2rem #e2e8f0": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-on-secondary)",
+      "0 0 0 0.2rem #bfdbfe": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-info)",
+      "0 0 0 0.2rem #bbf7d0": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-success)",
+      "0 0 0 0.2rem #fde68a": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-warning)",
+      "0 0 0 0.2rem #e9d5ff": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-contrast)",
+      "0 0 0 0.2rem #fecaca": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-danger)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #b1b3f8, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #b0b9c6, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-on-secondary)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #83d3f8, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-info)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #88eaac, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-success)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #fcb98b, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-warning)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #d4aafb, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-contrast)",
+      "0 0 0 2px #ffffff, 0 0 0 4px #f7a2a2, 0 1px 2px 0 rgb(0, 0, 0)": "0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface), 0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-danger)",
+      "inset 0 0 0 0.15rem #c7d2fe": "inset 0 0 0 var(--awe-focus-ring-width) var(--awe-color-focus-ring)",
+      "inset 0 0 0 0.2rem #c7d2fe": "inset 0 0 0 var(--awe-focus-ring-width) var(--awe-color-focus-ring)",
+      "inset 0 2px 0 0 #6366f1": "inset 0 var(--awe-focus-ring-width) 0 0 var(--awe-color-primary)",
+      "inset 0 -2px 0 0 #6366f1": "inset 0 calc(-1 * var(--awe-focus-ring-width)) 0 0 var(--awe-color-primary)",
+      "inset 0 2px 0 0 #eef2ff": "inset 0 var(--awe-focus-ring-width) 0 0 var(--awe-color-highlight)",
+      "inset 0 -2px 0 0 #eef2ff": "inset 0 calc(-1 * var(--awe-focus-ring-width)) 0 0 var(--awe-color-highlight)",
+      "0 2px 12px 0 rgba(0, 0, 0, 0.1)": "--awe-shadow-overlay",
+      "0 1px 3px rgba(0, 0, 0, 0.3)": [
+        {"selector": "^\\.p-(dialog|sidebar)$", "value": "--awe-shadow-modal"},
+        {"value": "--awe-shadow-overlay"}
+      ],
+      "0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12)": "--awe-shadow-sm",
+      "0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12)": "--awe-shadow-sm"
+    },
+    "outline": {
+      "0.15rem solid #c7d2fe": "--awe-focus-ring"
+    },
+    "outline-offset": {
+      "-0.15rem": "calc(-1 * var(--awe-focus-ring-width))"
+    }
+  },
+  "colors": {
+    "#ffffff": [
+      {"selector": "radiobutton-icon|\\.p-button \\.p-badge|colorpicker-(color|hue)-handle", "value": "--awe-color-on-primary"},
+      {"selector": "inputswitch-slider:before|slider-handle", "value": "--awe-color-surface-raised"},
+      {"property": "color", "selector": "-secondary(?![-\\w])", "value": "--awe-color-on-secondary"},
+      {"property": "color", "selector": "-success(?![-\\w])", "value": "--awe-color-on-success"},
+      {"property": "color", "selector": "-info(?![-\\w])", "value": "--awe-color-on-info"},
+      {"property": "color", "selector": "-warn(ing)?(?![-\\w])", "value": "--awe-color-on-warning"},
+      {"property": "color", "selector": "-danger(?![-\\w])", "value": "--awe-color-on-danger"},
+      {"property": "color", "selector": "-(help|contrast)(?![-\\w])", "value": "--awe-color-on-contrast"},
+      {"property": "color", "selector": "p-tooltip", "value": "--awe-color-on-tooltip"},
+      {"property": "color", "value": "--awe-color-on-primary"},
+      {"property": "border(-[a-z]+)*", "selector": "p-overlaypanel|p-confirm-popup", "value": "--awe-color-overlay"},
+      {"selector": "^\\.p-(datatable|treetable) \\.p-(datatable|treetable)-tbody > tr$", "value": "--awe-grid-row-background"},
+      {"selector": "\\.p-(inputtext|dropdown|multiselect|autocomplete|cascadeselect|treeselect|chips|password|inputnumber|checkbox-box|radiobutton-box)(?![-\\w])|ql-editor", "value": "--awe-color-field"},
+      {"selector": "-panel(?![-\\w])|-overlay(?![-\\w])|p-overlaypanel|p-confirm-popup|p-datepicker:not|p-contextmenu|p-tieredmenu|p-slidemenu|p-megamenu|p-dialog|p-sidebar|ql-picker-options", "value": "--awe-color-overlay"},
+      {"value": "--awe-color-surface"}
+    ],
+    "#f9fafb": [
+      {"property": "color", "value": "--awe-color-on-contrast"},
+      {"selector": "^\\.p-(datatable|treetable)[^,]*(thead|tfoot|scrollable-header|scrollable-footer)|^\\.p-datatable\\.p-datatable-scrollable >", "value": "--awe-grid-header-background"},
+      {"selector": "-panel [^,]*-header|^\\.p-listbox \\.p-listbox-header|p-column-filter-operator", "value": "--awe-color-overlay"},
+      {"selector": "^\\.p-(panel|accordion|fieldset|fileupload|panelmenu|dataview|datascroller|orderlist|picklist|datatable|treetable)[^,]*(header|legend|footer|buttonbar)|^\\.p-toolbar$", "value": "--awe-color-panel-header"},
+      {"value": "--awe-color-surface-subtle"}
+    ],
+    "#f3f4f6": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-border-subtle"},
+      {"selector": "^\\.p-(datatable|treetable)\\.p-(datatable|treetable)-(selectable|selectable-cell|hoverable-rows) ", "value": "--awe-grid-row-hover-background"},
+      {"selector": "^\\.p-(datatable|treetable) \\.p-sortable-column", "value": "--awe-grid-header-background"},
+      {"selector": "p-variant-filled|p-input-filled", "value": "--awe-color-field-filled"},
+      {"selector": "p-inputgroup-addon", "value": "--awe-color-field"},
+      {"selector": "p-menuitem|p-megamenu|p-menubar", "value": "--awe-color-nav-item-focus"},
+      {"selector": "-item(?![-\\w])|p-column-filter-row-item", "value": "--awe-color-list-option-focus"},
+      {"value": "--awe-color-surface-hover"}
+    ],
+    "#e5e7eb": [
+      {"property": "border(-[a-z]+)*", "selector": "^\\.p-(datatable|treetable) \\.p-(datatable|treetable)-(thead|tbody|tfoot) ", "value": "--awe-grid-border"},
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-border"},
+      {"selector": "p-skeleton", "value": "--awe-color-skeleton"},
+      {"selector": "p-menuitem|p-megamenu|p-menubar|p-tieredmenu|p-contextmenu|p-slidemenu|p-panelmenu", "value": "--awe-color-nav-item-focus"},
+      {"selector": "p-(orderlist|picklist)", "value": "--awe-color-list-option-focus"},
+      {"selector": "p-chip|-token(?![-\\w])|p-avatar", "value": "--awe-color-secondary"},
+      {"selector": "p-button", "value": "--awe-color-surface-hover"},
+      {"value": "--awe-color-border"}
+    ],
+    "#d1d5db": [
+      {"selector": "p-datepicker-today", "value": "--awe-color-secondary-hover"},
+      {"value": "--awe-color-field-border"}
+    ],
+    "#9ca3af": "--awe-color-field-border-hover",
+    "#b7bcc5": "--awe-color-field-border-hover",
+    "#6b7280": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-field-border"},
+      {"selector": "placeholder", "value": "--awe-color-field-placeholder"},
+      {"value": "--awe-color-text-muted"}
+    ],
+    "#4b5563": [
+      {"selector": "p-tooltip", "value": "--awe-color-tooltip"},
+      {"property": "color", "selector": "\\.p-(inputtext|dropdown|multiselect|autocomplete|cascadeselect|treeselect|chips|password|inputnumber)(?![-\\w])", "value": "--awe-color-field-text"},
+      {"property": "color|stroke|fill", "value": "--awe-color-text"},
+      {"value": "--awe-color-contrast"}
+    ],
+    "#374151": [
+      {"property": "color", "selector": "^\\.p-(datatable|treetable) \\.p-sortable-column:not\\(\\.p-highlight\\)[^,]*:hover", "value": "--awe-color-text-hover"},
+      {"property": "color", "selector": "^\\.p-(datatable|treetable)[^,]*(thead|sortable-column)", "value": "--awe-grid-header-text"},
+      {"property": "color", "value": "--awe-color-text-emphasis"},
+      {"value": "--awe-color-contrast"}
+    ],
+    "#1f2937": "--awe-color-contrast",
+    "#f8f8fa": "--awe-color-surface-subtle",
+    "#f2f2f2": "--awe-color-overlay-border",
+    "#f8f9fa": "--awe-color-on-contrast",
+    "#fff": "--awe-color-on-contrast",
+    "#323232": "--awe-color-tooltip",
+    "#191919": "--awe-color-contrast",
+    "#022354": "--awe-color-contrast",
+
+    "#6366f1": [
+      {"property": "color|stroke|fill", "value": "--awe-color-primary-text"},
+      {"property": "border-color", "selector": "\\.p-(inputtext|dropdown|multiselect|autocomplete|cascadeselect|treeselect|chips|password|inputnumber|checkbox|radiobutton|listbox|inputswitch)(?![-\\w])[^,]*hover", "value": "--awe-color-field-border-hover"},
+      {"property": "border-color", "selector": "focus", "value": "--awe-color-field-border-focus"},
+      {"value": "--awe-color-primary"}
+    ],
+    "#4f46e5": "--awe-color-primary-hover",
+    "#4338ca": [
+      {"property": "color", "selector": "^\\.p-(datatable|treetable)[^,]*-tbody > tr", "value": "--awe-grid-row-selected-text"},
+      {"property": "color", "selector": "^\\.p-(datatable|treetable) \\.p-sortable-column\\.p-highlight[^,]*-icon$", "value": "--awe-color-primary-text"},
+      {"property": "color", "selector": "^\\.p-(datatable|treetable) \\.p-sortable-column\\.p-highlight", "value": "--awe-color-text-emphasis"},
+      {"property": "color", "value": "--awe-color-on-highlight"},
+      {"selector": "hover", "value": "--awe-color-primary-hover"},
+      {"value": "--awe-color-primary-active"}
+    ],
+    "#eef2ff": [
+      {"selector": "^\\.p-(datatable|treetable)[^,]*-tbody > tr", "value": "--awe-grid-row-selected-background"},
+      {"selector": "^\\.p-(datatable|treetable) \\.p-sortable-column\\.p-highlight", "value": "--awe-grid-header-background"},
+      {"value": "--awe-color-highlight"}
+    ],
+    "#c7d2fe": "--awe-color-focus-ring",
+    "#b1b3f8": "--awe-color-focus-ring",
+    "rgba(99, 102, 241, 0.24)": "--awe-color-highlight-focus",
+    "rgba(99, 102, 241, 0.16)": "--awe-color-highlight-focus",
+    "rgba(99, 102, 241, 0.04)": "--awe-color-highlight",
+    "#6f91ff": "--awe-color-primary",
+    "#8ba7ff": "--awe-color-primary",
+
+    "#64748b": [
+      {"property": "color", "value": "--awe-color-on-secondary"},
+      {"value": "--awe-color-secondary"}
+    ],
+    "#475569": "--awe-color-secondary-hover",
+    "#334155": "--awe-color-disabled-border",
+    "#e2e8f0": "--awe-color-focus-ring",
+    "#b0b9c6": "--awe-color-focus-ring",
+    "rgba(100, 116, 139, 0.04)": "--awe-color-surface-subtle",
+    "rgba(100, 116, 139, 0.16)": "--awe-color-surface-hover",
+
+    "#0ea5e9": [
+      {"property": "color", "value": "--awe-color-info-text"},
+      {"value": "--awe-color-info"}
+    ],
+    "#0284c7": "--awe-color-info-hover",
+    "#0369a1": "--awe-color-info-hover",
+    "#bfdbfe": "--awe-color-info",
+    "#83d3f8": "--awe-color-info",
+    "rgba(14, 165, 233, 0.04)": "--awe-color-info-subtle",
+    "rgba(14, 165, 233, 0.16)": "--awe-color-info-subtle",
+
+    "#22c55e": [
+      {"property": "color", "value": "--awe-color-success-text"},
+      {"value": "--awe-color-success"}
+    ],
+    "#16a34a": "--awe-color-success-hover",
+    "#15803d": "--awe-color-success-hover",
+    "#bbf7d0": "--awe-color-success",
+    "#88eaac": "--awe-color-success",
+    "rgba(34, 197, 94, 0.04)": "--awe-color-success-subtle",
+    "rgba(34, 197, 94, 0.16)": "--awe-color-success-subtle",
+
+    "#f97316": [
+      {"property": "color", "value": "--awe-color-warning-text"},
+      {"value": "--awe-color-warning"}
+    ],
+    "#ea580c": "--awe-color-warning-hover",
+    "#c2410c": "--awe-color-warning-hover",
+    "#fde68a": "--awe-color-warning",
+    "#fcb98b": "--awe-color-warning",
+    "rgba(249, 115, 22, 0.04)": "--awe-color-warning-subtle",
+    "rgba(249, 115, 22, 0.16)": "--awe-color-warning-subtle",
+
+    "#a855f7": [
+      {"property": "color", "value": "--awe-color-text-emphasis"},
+      {"value": "--awe-color-contrast"}
+    ],
+    "#9333ea": "--awe-color-text-hover",
+    "#7e22ce": "--awe-color-text-emphasis",
+    "#e9d5ff": "--awe-color-contrast",
+    "#d4aafb": "--awe-color-contrast",
+    "rgba(168, 85, 247, 0.04)": "--awe-color-surface-subtle",
+    "rgba(168, 85, 247, 0.16)": "--awe-color-surface-hover",
+
+    "#ef4444": [
+      {"property": "color", "value": "--awe-color-danger-text"},
+      {"value": "--awe-color-danger"}
+    ],
+    "#dc2626": "--awe-color-danger-hover",
+    "#b91c1c": "--awe-color-danger-hover",
+    "#fecaca": "--awe-color-danger",
+    "#f7a2a2": "--awe-color-danger",
+    "rgba(239, 68, 68, 0.04)": "--awe-color-danger-subtle",
+    "rgba(239, 68, 68, 0.16)": "--awe-color-danger-subtle",
+
+    "rgba(31, 41, 55, 0.04)": "--awe-color-surface-subtle",
+    "rgba(31, 41, 55, 0.16)": "--awe-color-surface-hover",
+
+    "#e24c4c": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-field-border-invalid"},
+      {"value": "--awe-color-danger-text"}
+    ],
+    "#ea5455": [
+      {"selector": "p-rating", "value": "--awe-color-danger-text"},
+      {"value": "--awe-color-danger"}
+    ],
+    "#e73d3e": "--awe-color-danger-hover",
+    "#ff9f42": "--awe-color-warning",
+    "#29c76f": "--awe-color-success",
+
+    "rgba(219, 234, 254, 0.7)": "--awe-color-info-subtle",
+    "#3b82f6": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-info-border"},
+      {"value": "--awe-color-info-text"}
+    ],
+    "rgba(228, 248, 240, 0.7)": "--awe-color-success-subtle",
+    "#1ea97c": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-success-border"},
+      {"value": "--awe-color-success-text"}
+    ],
+    "rgba(255, 242, 226, 0.7)": "--awe-color-warning-subtle",
+    "#cc8925": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-warning-border"},
+      {"value": "--awe-color-warning-text"}
+    ],
+    "rgba(255, 231, 230, 0.7)": "--awe-color-danger-subtle",
+    "#ff5757": [
+      {"property": "border(-[a-z]+)*", "value": "--awe-color-danger-border"},
+      {"value": "--awe-color-danger-text"}
+    ],
+
+    "rgba(255, 255, 255, 0)": "transparent",
+    "rgba(255, 255, 255, 0.4)": [
+      {"selector": "p-skeleton", "value": "--awe-color-skeleton-highlight"},
+      {"value": "--awe-color-surface-hover"}
+    ],
+    "rgba(255, 255, 255, 0.1)": "--awe-color-surface-hover",
+    "rgba(255, 255, 255, 0.2)": "--awe-color-border",
+    "rgba(255, 255, 255, 0.5)": "--awe-color-surface-hover",
+    "rgba(255, 255, 255, 0.6)": "--awe-color-surface-hover",
+
+    "rgba(0, 0, 0, 0.4)": "--awe-color-mask",
+    "rgba(0, 0, 0, 0.5)": "--awe-color-mask",
+    "rgba(0, 0, 0, 0.7)": "--awe-color-mask",
+    "rgba(0, 0, 0, 0.8)": "--awe-color-mask",
+    "rgba(0, 0, 0, 0.9)": "--awe-color-mask"
+  },
+  "fontSizes": {
+    "0.75rem": "--awe-font-size-xs",
+    "0.875rem": "--awe-font-size-sm",
+    "1rem": "--awe-font-size-base",
+    "14px": "--awe-font-size-base",
+    "1.125rem": "--awe-font-size-md",
+    "1.143rem": "--awe-font-size-md",
+    "1.25rem": "--awe-font-size-lg",
+    "1.3rem": "--awe-font-size-xl",
+    "1.5rem": "--awe-font-size-2xl",
+    "2rem": "--awe-font-size-3xl"
+  },
+  "fontWeights": {
+    "normal": "--awe-font-weight-normal",
+    "400": "--awe-font-weight-normal",
+    "500": "--awe-font-weight-medium",
+    "600": "--awe-font-weight-semibold",
+    "700": "--awe-font-weight-semibold"
+  },
+  "radii": {
+    "6px": [
+      {"selector": "^\\.p-card", "value": "--awe-radius-card"},
+      {"selector": "-panel$|^\\.p-(overlaypanel|confirm-popup|tooltip|contextmenu|tieredmenu|slidemenu|menu)(?![-\\w])", "value": "--awe-radius-overlay"},
+      {"selector": "\\.p-(inputtext|dropdown|multiselect|autocomplete|cascadeselect|treeselect|chips|password|inputnumber|button)(?![-\\w])", "value": "--awe-radius-field"},
+      {"value": "--awe-radius"}
+    ],
+    "16px": "--awe-radius-full",
+    "30px": "--awe-radius-full",
+    "2rem": "--awe-radius-full",
+    "0.5rem": "--awe-radius-lg"
+  },
+  "lengths": {
+    "2px": "--awe-space-0-5",
+    "0.143rem": "--awe-space-0-5",
+    "0.2em": "--awe-space-0-5",
+    "4px": "--awe-space-1",
+    "0.25rem": "--awe-space-1",
+    "0.286rem": "--awe-space-1",
+    "0.375rem": "--awe-space-1-5",
+    "0.5rem": "--awe-space-2",
+    "0.75rem": "--awe-space-3",
+    "0.875rem": [
+      {"property": "width|height", "value": "--awe-size-icon-sm"},
+      {"value": "--awe-space-4"}
+    ],
+    "0.9rem": "--awe-space-4",
+    "1rem": [
+      {"property": "width|height", "value": "--awe-size-icon"},
+      {"value": "--awe-space-4"}
+    ],
+    "1.143rem": "--awe-space-5",
+    "1.25rem": [
+      {"property": "width|height", "value": "--awe-size-icon-lg"},
+      {"value": "--awe-space-5"}
+    ],
+    "1.3rem": "--awe-space-5",
+    "1.5rem": "--awe-space-6",
+    "1.75rem": "--awe-space-8",
+    "2rem": "--awe-space-8",
+    "2.25rem": "--awe-size-control",
+    "2.5rem": "--awe-space-10",
+    "3rem": "--awe-space-12",
+    "3.5rem": "--awe-space-16",
+    "4rem": "--awe-space-16",
+    "12.5rem": "--awe-menu-flyout-width"
+  },
+  "durations": {
+    "0.2s": "--awe-motion-duration-base"
+  }
+}

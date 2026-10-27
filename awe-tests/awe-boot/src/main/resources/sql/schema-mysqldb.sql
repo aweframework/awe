@@ -24,7 +24,10 @@ CREATE UNIQUE INDEX AweAppParI1 ON AweAppPar (ParNam);
 CREATE TABLE IF NOT EXISTS AweThm (
 IdeThm int NOT NULL PRIMARY KEY, --- Theme key
 Nam varchar(100) not NULL, --- Theme name
-Act int default 1 not NULL --- Active (1) or not (0)
+Act int default 1 not NULL, --- Active (1) or not (0)
+Pri varchar(20) NULL, --- Primary colour
+Srf varchar(20) NULL, --- Surface
+Mde varchar(10) NULL --- Mode
 );
 CREATE UNIQUE INDEX AweThmI1 ON AweThm (Nam);
 
@@ -247,7 +250,7 @@ Act int default 1 not NULL --- Active (1) or not (0)
 --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS HISAweAppPar (HISope varchar(20) not NULL, HISdat timestamp not NULL, HISact varchar(1) not NULL, IdeAweAppPar int NULL, ParNam varchar(40) NULL, ParVal varchar(60) NULL, Cat int NULL, Des varchar(250) NULL, Act int DEFAULT 1 NULL);
 CREATE INDEX HISAweAppParI1 ON HISAweAppPar (HISope, HISdat, HISact);
-CREATE TABLE IF NOT EXISTS HISAweThm (HISope varchar(20) not NULL, HISdat date not NULL, HISact varchar(1) not NULL, IdeThm int NULL, Nam varchar(100) NULL, Act int NULL);
+CREATE TABLE IF NOT EXISTS HISAweThm (HISope varchar(20) not NULL, HISdat date not NULL, HISact varchar(1) not NULL, IdeThm int NULL, Nam varchar(100) NULL, Act int NULL, Pri varchar(20) NULL, Srf varchar(20) NULL, Mde varchar(10) NULL);
 CREATE INDEX HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAwePro (HISope varchar(20) not NULL, HISdat date not NULL, HISact varchar(1) not NULL, IdePro int NULL, Acr varchar(3) NULL, Nam varchar(120) NULL, IdeThm int NULL, ScrIni varchar(40) NULL, Res varchar(40) NULL, Act int NULL);
 CREATE INDEX HISAweProI1 ON HISAwePro (HISope, HISdat, HISact);

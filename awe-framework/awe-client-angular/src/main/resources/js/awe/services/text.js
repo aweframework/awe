@@ -1,13 +1,14 @@
 import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {getIconTemplate} from "./component";
+import {iconMarkup, iconTemplate} from "./icon";
 
 export const textInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}" title="{{controller.title| translateMultiple}}">
@@ -39,7 +40,7 @@ export const textViewInputTemplate = `<div ng-show="controller.visible" class="c
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="input {{classes}} {{::validatorGroup}}">
@@ -70,7 +71,7 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit, 'has-warning has-feedback': $root.status.isCapsLockOn}">
@@ -79,7 +80,7 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="off"
              data-testid="${TestIds.criterionInput}"/>
-      <span ng-show="$root.status.isCapsLockOn" class="fa fa-{{::size}} fa-arrow-circle-up form-control-feedback"></span>
+      <span ng-show="$root.status.isCapsLockOn" class="form-control-feedback">${iconMarkup("arrow-circle-up", "ng-class=\"::'awe-icon-' + size\"")}</span>
       <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
@@ -93,7 +94,7 @@ export const passwordColumnTemplate = `<div ng-show="component.controller.visibl
       <input type="password" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
-      <span ng-show="$root.isCapsLockOn" class="fa fa-{{::size}} fa-arrow-circle-up form-control-feedback"></span>
+      <span ng-show="$root.isCapsLockOn" class="form-control-feedback">${iconMarkup("arrow-circle-up", "ng-class=\"::'awe-icon-' + size\"")}</span>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
   </span>
@@ -104,7 +105,7 @@ export const textareaInputTemplate = `<div ng-show="controller.visible" class="c
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::leftLabelInput}} focus-target">

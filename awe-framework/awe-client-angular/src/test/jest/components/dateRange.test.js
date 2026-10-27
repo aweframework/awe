@@ -61,7 +61,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/dateRange.js
     expect(element.find("input[data-testid='date-range-to']").attr("id")).toBe("period-to");
     expect(element.find("input[data-testid='date-range-from']").val()).toBe(FROM);
     expect(element.find("input[data-testid='date-range-to']").val()).toBe(TO);
-    expect(element.find(".fa-calendar").length).toBe(1);
+    expect(element.find("span.add-on use[href='icons/lucide-sprite.svg#calendar']").length).toBe(1);
   });
 
   it('renders the inputs empty when the model has no dates', function () {

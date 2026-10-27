@@ -95,7 +95,9 @@ para el inicio de sesión único.
 `<img class="login__img">` (`object-fit: cover`). Por defecto: el logo de AWE sobre un degradado oscuro de marca
 (`--awe-login-brand-background`). Otras opciones: un degradado simple del primario (`--awe-login-gradient`) o sin
 imagen (formulario centrado y solo). La capa del pie mantiene su texto por encima de 10:1 con cualquier primario;
-compruébelo con su propia imagen.
+compruébelo con su propia imagen. En el motor AngularJS las propiedades
+`awe.application.paths.image-startup-background` y `awe.application.paths.image-startup-logo` siguen vigentes: cuando
+un producto cambia sus valores por defecto, la imagen llena el panel y el logo sustituye al logo de AWE del formulario.
 
 **Inicio de sesión único.** El botón es genérico ("Continue with your organization", icono de llave). No use logos ni
 marcas de terceros.

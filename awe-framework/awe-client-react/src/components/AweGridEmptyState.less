@@ -1,23 +1,43 @@
+/* Empty state of a grid, inside its body: the icon in a circle, the title, the text and the action */
 .grid-empty-state {
-  align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  gap: var(--awe-space-2);
+  max-width: calc(var(--awe-space-16) * 7);
+  padding: var(--awe-space-10) var(--awe-space-6);
+  margin: 0 auto;
   text-align: center;
+  white-space: normal;
 
   .grid-empty-icon {
-    color: var(--text-color-secondary);
-    font-size: 2.5rem;
+    display: inline-grid;
+    place-items: center;
+    width: calc(var(--awe-space-12) + var(--awe-space-1));
+    height: calc(var(--awe-space-12) + var(--awe-space-1));
+    margin-bottom: var(--awe-space-2);
+    font-size: var(--awe-size-icon-lg);
+    color: var(--awe-color-text-muted);
+    background: var(--awe-color-secondary);
+    border-radius: var(--awe-radius-full);
+    box-shadow: 0 0 0 var(--awe-space-2) var(--awe-color-surface-subtle);
+
+    > .awe-icon {
+      width: var(--awe-size-icon-lg);
+      height: var(--awe-size-icon-lg);
+    }
   }
 
   .grid-empty-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--awe-font-size-md);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-emphasis);
   }
 
   .grid-empty-text {
-    color: var(--text-color-secondary);
+    margin-bottom: var(--awe-space-2);
+    color: var(--awe-color-text-muted);
   }
 }

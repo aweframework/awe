@@ -1,82 +1,280 @@
 /*******************************************************************************
- LOGIN SCREEN
+ LOGIN SCREENS
 *******************************************************************************/
+// The login pages (#885), as the React login and the AWE 5 prototype: the sign-in, change password, expired password
+// and two-factor screens drawn as the form column next to the image panel, with the --awe-login-* tokens. The styles
+// follow the classes of the screen XML (the screen XML, the field ids and the test hooks do not change); the
+// pixel-admin sign-in page is not imported. The two-factor activation (QR code and secret) is in 2fa.less
 
-.page-signin {
-  h1 {
-    background: url('@{application-images-path}/logo/@{signin-logo}') no-repeat center center;
-    /*[+background-image: url("[[${startupLogo}]]");+]*/
+// Page: the form column and the image panel
+.fullScreen:has(> #page-signin-bg),
+.fullScreen:has(> #page-change-password-bg),
+.totp-screen.fullScreen {
+  display: grid;
+  grid-template-columns: minmax(var(--awe-login-main-min), 5fr) 7fr;
+  grid-template-rows: 1fr auto;
+  overflow-y: auto;
+  background: var(--awe-login-background);
+}
+
+// Image panel: the AWE brand panel, under the image of the product (--awe-login-image), under the scrim. The old
+// background photo and its overlay stay in the markup, hidden
+.fullScreen > #page-signin-bg,
+.fullScreen > #page-change-password-bg,
+.totp-screen.fullScreen > #page-totp-bg {
+  position: relative;
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  // Escaped: LESS would divide 44% by the min()
+  background: var(--awe-login-scrim), var(--awe-login-image) center / cover no-repeat,
+    url('images/logo/awe-logo-light-text.svg') ~"center 44% / min(var(--awe-login-brand-logo-width), 70%)" auto no-repeat,
+    var(--awe-login-brand-background);
+}
+
+.fullScreen > #page-signin-bg > *,
+.fullScreen > #page-change-password-bg > *,
+.totp-screen.fullScreen > #page-totp-bg > * {
+  display: none;
+}
+
+// styles.css is a Thymeleaf text template: an application that configures its own start-up background
+// (awe.application.paths.image-startup-background) shows it on the panel, in the layer of --awe-login-image (the
+// layers of the panel: the scrim, the image, the AWE logo and the brand background)
+/*[# th:unless="${#strings.endsWith(startupBackground, 'background/signin-bg-1.jpg')}"]*/
+.fullScreen > #page-signin-bg,
+.fullScreen > #page-change-password-bg,
+.totp-screen.fullScreen > #page-totp-bg {
+  /*[+background-image: var(--awe-login-scrim), url("[[${startupBackground}]]"), none, var(--awe-login-brand-background);+]*/
+}
+/*[/]*/
+
+// Content that an application adds to its sign-in page (a notice, the demo credentials...) stays in the form column
+.fullScreen:has(> #page-signin-bg) > :not(#page-signin-bg):not(.signin-container) {
+  grid-column: 1;
+}
+
+// Form column: the brand at the top, the form in the middle of the free height
+.awe-signin.signin-container,
+.awe-change-password.change-password-container,
+.awe-totp.totp-container {
+  display: grid;
+  grid-row: 1;
+  grid-column: 1;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(0, var(--awe-login-form-width));
+  align-self: stretch;
+  min-width: 0;
+  padding: var(--awe-login-padding-y) var(--awe-login-padding-x) var(--awe-space-6);
+  margin: 0;
+  background: var(--awe-login-background);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.signin-container > .signin-form,
+.change-password-container > .change-password-form,
+.totp-container > .totp-form {
+  align-self: center;
+  min-width: 0;
+  padding: var(--awe-space-10) 0;
+  background: transparent;
+}
+
+// Brand: the AWE logo, the mark with its own colours and the wordmark filled with the emphasis text colour
+.signin-container > .signin-info,
+.change-password-container > .change-password-header,
+.totp-container > .totp-header {
+  position: relative;
+  justify-self: start;
+  height: var(--awe-login-logo-height);
+  aspect-ratio: ~"1160.2 / 360";
+  padding: 0;
+  margin: 0;
+  background: url('images/logo/awe-logo-mark.svg') no-repeat left center / auto 100%;
+}
+
+.signin-container > .signin-info::after,
+.change-password-container > .change-password-header::after,
+.totp-container > .totp-header::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-color: var(--awe-color-text-emphasis);
+  mask: url('images/logo/awe-logo-wordmark.svg') no-repeat left center / auto 100%;
+}
+
+// An application that configures its own start-up logo (awe.application.paths.image-startup-logo) shows it alone,
+// without the AWE wordmark
+/*[# th:unless="${#strings.endsWith(startupLogo, 'logo/logo-awe-nuevo.svg')}"]*/
+.signin-container > .signin-info,
+.change-password-container > .change-password-header,
+.totp-container > .totp-header {
+  background-image: none;
+  /*[+background-image: url("[[${startupLogo}]]");+]*/
+}
+
+.signin-container > .signin-info::after,
+.change-password-container > .change-password-header::after,
+.totp-container > .totp-header::after {
+  display: none;
+}
+/*[/]*/
+
+// The name of the client and the slogan stay for assistive technology
+.signin-info > h1,
+.signin-info > .slogan,
+.change-password-header > h1,
+.change-password-header > .slogan,
+.totp-header > h1,
+.totp-header > .slogan {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+// Step title
+.signin-form > .signin-text,
+.change-password-form > .change-password-text,
+.totp-form > .totp-text {
+  margin: 0 0 var(--awe-space-6);
+  font-size: var(--awe-font-size-display);
+  font-weight: var(--awe-font-weight-semibold);
+  font-style: normal;
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-display);
+  color: var(--awe-color-text-emphasis);
+  text-align: start;
+}
+
+.signin-form > .signin-text::before,
+.change-password-form > .change-password-text::before,
+.totp-form > .totp-text::before {
+  display: none;
+}
+
+// The expired password screen opens with a sentence instead of a title: a muted text, as the React login
+.page-change-expired-password .change-password-form > .change-password-text {
+  font-size: var(--awe-font-size-md);
+  font-weight: var(--awe-font-weight-normal);
+  line-height: var(--awe-line-height-base);
+  letter-spacing: normal;
+  color: var(--awe-color-text-muted);
+}
+
+.signin-form > .signin-text > span,
+.change-password-form > .change-password-text > span,
+.totp-form > .totp-text > span {
+  padding: 0;
+  background: transparent;
+}
+
+// Fields: one under the other, large, the icon inside the large field
+.signin-form,
+.change-password-form,
+.totp-form {
+  > .criterion {
+    width: 100%;
+    padding: 0 0 var(--awe-gap-form-row);
+  }
+
+  > .criterion .form-group {
     margin: 0;
-    padding: 0;
-    height: 100px;
-    filter: drop-shadow(3px 2px 3px #444);
-
-    span {
-      display: none;
-    }
   }
 
-  .overlay-image {
-    background: url('@{application-images-path}/background/signin-bg-1.jpg') no-repeat center center;
-    /*[+background-image: url("[[${startupBackground}]]");+]*/
-    background-size: cover;
-  }
-
-  .signin-with {
-    margin-top: 10px;
-    .form-actions {
-      margin-top: 0;
-    }
-  }
-
-  .awe-signin.signin-container {
-    margin: 20px;
-    .signin-info {
-      background-color: color-mix(in srgb, @primary-color, transparent 20%);
-    }
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-group.w-icon .signin-form-icon {
-    border-right-color: #888;
-    color: #888;
-  }
-
-  .form-group + .form-group {
-    margin: 0;
-  }
-
-  .copyright {
-    color: white;
-    text-shadow: 3px 2px black;
-    font-size: small;
-    z-index: 1000;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    padding: 0 20px 5px 0;
-  }
-
-  .slogan {
-    text-align: center;
-    font-variant: small-caps;
-    font-weight: bold;
-    filter: drop-shadow(2px 2px 1px #444);
-    font-size: medium;
+  .form-group.w-icon .input-group-lg > input {
+    padding-left: var(--awe-size-control-lg) !important;
   }
 }
 
-@media (min-width: 700px) {
-  .page-signin .awe-signin.signin-container {
-    margin: 80px auto;
+// Actions: full width buttons one under the other, the main one first
+.signin-with,
+.change-password-with,
+.totp-with {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.signin-with > .form-actions,
+.change-password-with > .form-actions,
+.totp-with > .form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  margin: var(--awe-space-6) 0 0;
+  padding: 0;
+}
+
+.signin-form,
+.change-password-form,
+.totp-form {
+  .form-actions > div {
+    width: 100%;
+  }
+
+  .form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--awe-gap-inline);
+    width: 100%;
+    height: var(--awe-size-control-lg);
+    margin: 0;
+    padding: 0 var(--awe-button-padding-x);
+    font-size: var(--awe-font-size-md);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: 1;
+    text-shadow: none;
+    border-radius: var(--awe-radius-field);
+  }
+
+  // The text stays on small screens too, where the buttons of the screens show their icon only
+  .form-actions .btn .button-text {
+    display: inline;
+  }
+
+  .form-actions .btn:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+      0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
   }
 }
 
-@media (max-width: @screen-small) {
-  .page-signin .btn .button-text {
-    display: inline-block;
+// The confirm buttons of the change password and two-factor screens are Bootstrap primary buttons (no btn-awe) with
+// the bg-primary utility class: the filled primary button of the theme
+.change-password-form .btn.btn-primary,
+.totp-form .btn.btn-primary {
+  .awe-filled-button(var(--awe-color-primary); var(--awe-color-primary-hover); var(--awe-color-primary-active);
+    var(--awe-color-on-primary));
+}
+
+// Narrow screens: the form alone, centred
+@media (max-width: 960px) {
+  .fullScreen:has(> #page-signin-bg),
+  .fullScreen:has(> #page-change-password-bg),
+  .totp-screen.fullScreen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fullScreen > #page-signin-bg,
+  .fullScreen > #page-change-password-bg,
+  .totp-screen.fullScreen > #page-totp-bg {
+    display: none;
+  }
+
+  .awe-signin.signin-container,
+  .awe-change-password.change-password-container,
+  .awe-totp.totp-container {
+    justify-content: center;
+    padding: var(--awe-space-6);
   }
 }

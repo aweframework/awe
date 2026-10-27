@@ -1,5 +1,6 @@
 import {aweApplication} from "../../awe";
 import "bootstrap-tabdrop";
+import {iconTemplate} from "../../services/icon";
 import {tagTabdrop} from "../../services/testIds";
 
 // Tabdrop plugin
@@ -17,7 +18,7 @@ aweApplication.directive('uiTabdrop',
         compile: function () {
           return function (scope, elem) {
             let  initPlugin = function () {
-              elem.tabdrop();
+              elem.tabdrop({text: iconTemplate("bars")});
               tagTabdrop(elem);
               Utilities.publishDelayed("resize-action", {});
             };

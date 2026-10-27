@@ -151,6 +151,8 @@ public class AweConstants {
   public static final String SESSION_USER = "user";
   public static final String SESSION_FULLNAME = "fullname";
   public static final String SESSION_THEME = "theme";
+  public static final String SESSION_THEME_MODE = "themeMode";
+  public static final String SESSION_DENSITY = "density";
   public static final String SESSION_LANGUAGE = "language";
   public static final String SESSION_INITIAL_SCREEN = "initialScreen";
   public static final String SESSION_LAST_SCREEN = "lastScreen";

@@ -4,7 +4,7 @@ import {Button} from "primereact/button";
 import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import PropTypes from "prop-types";
-import {translateLabel} from "../utilities";
+import {getIconNode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {fromDate, parsePresets, resolvePreset, toDate} from "../utilities/dates";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -80,7 +80,7 @@ function AweInputDateRange(props) {
           pt={passThrough(TestIds.dateRangeFrom)}
           showButtonBar
         />
-        <span className="p-inputgroup-addon date-range-separator"><i className="pi pi-arrow-right"/></span>
+        <span className="p-inputgroup-addon date-range-separator">{getIconNode("pi-arrow-right")}</span>
         <Calendar
           id={`${address?.component}-to`}
           value={toDate(to)}

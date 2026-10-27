@@ -2,7 +2,7 @@ document(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
 <div class="expand expandible-vertical report-container document">
   <div class="window-header">
     <ul class="breadcrumb breadcrumb-page">
-      <div class="breadcrumb-label text-light-gray"><i class="fa fa-home"></i></div>
+      <div class="breadcrumb-label text-light-gray"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></div>
         $breadcrumbs$
         <li class="active" translate-multiple="$title$"></li>
       </ul>
@@ -17,7 +17,7 @@ window(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
 <div class="expand expandible-vertical report-container">
   <div class="window-header">
     <ul class="breadcrumb breadcrumb-page">
-      <div class="breadcrumb-label"><i class="fa fa-home"></i></div>
+      <div class="breadcrumb-label"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></div>
         $breadcrumbs$
         <li class="active" translate-multiple="$title$"></li>
       </ul>
@@ -41,7 +41,7 @@ error(title, message) ::= <<
   <div class="header">
     <a href="/" class="logo"></a>
   </div>
-  <div class="error-code"><i class="fa fa-exclamation-triangle"></i></div>
+  <div class="error-code"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#triangle-alert"></use></svg></i></div>
   <div class="error-text">
     <span class="oops">$title$</span><br>
     <span class="hr"></span><br/>

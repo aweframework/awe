@@ -1,14 +1,15 @@
 import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {createFocusTrap} from "../services/focusTrap";
+import {iconMarkup, iconTemplate} from "../services/icon";
 
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
   <button type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" ng-click="openColumns()">
-    <i class="fa fa-columns"></i>
+    ${iconTemplate("columns")}
     <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
   </button>
   <button type="button" class="btn-awe btn-default grid-toolbar-button grid-maximize-button" data-testid="${TestIds.gridMaximizeButton}" ng-attr-aria-pressed="{{maximized === true}}" title="{{(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE') | translateMultiple}}" ng-click="toggleMaximize()">
-    <i class="fa" ng-class="iconMaximized ? 'fa-compress' : 'fa-expand'"></i>
+    <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
     <span class="button-text" translate-multiple="{{iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE'}}"></span>
   </button>
   <div ng-if="columnsOpen && !sidePanel" class="grid-columns-backdrop" ng-click="closeColumns()"></div>
@@ -55,11 +56,11 @@ const COLUMNS_SIDE_PANEL_TEMPLATE = `<div class="modal fade side-panel side-pane
   </div>
 </div>`;
 
-const COLUMN_ITEM_TEMPLATE = `<span class="grid-column-handle fa fa-bars" draggable="true" data-testid="${TestIds.gridColumnHandle}" title="{{'GRID_COLUMNS_DRAG' | translateMultiple}}"></span>
+const COLUMN_ITEM_TEMPLATE = `${iconTemplate("bars", {tag: "span", classes: "grid-column-handle", attributes: `draggable="true" data-testid="${TestIds.gridColumnHandle}" title="{{'GRID_COLUMNS_DRAG' | translateMultiple}}"`})}
 <input type="checkbox" class="grid-column-checkbox" data-testid="${TestIds.gridColumnCheckbox}" ng-checked="column.visible" ng-click="component.setColumnVisible(column.name, !column.visible)"/>
 <span class="grid-column-label" translate-multiple="{{column.label}}"></span>
-<button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnUp}" title="{{'GRID_COLUMNS_MOVE_UP' | translateMultiple}}" ng-disabled="column.first" ng-click="component.moveColumn(column.name, -1)"><i class="fa fa-arrow-up"></i></button>
-<button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnDown}" title="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" ng-disabled="column.last" ng-click="component.moveColumn(column.name, 1)"><i class="fa fa-arrow-down"></i></button>`;
+<button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnUp}" title="{{'GRID_COLUMNS_MOVE_UP' | translateMultiple}}" ng-disabled="column.first" ng-click="component.moveColumn(column.name, -1)">${iconTemplate("arrow-up")}</button>
+<button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnDown}" title="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" ng-disabled="column.last" ng-click="component.moveColumn(column.name, 1)">${iconTemplate("arrow-down")}</button>`;
 
 // Grid toolbar directive: Columns dialog (or side panel) and Maximize
 aweApplication.directive('aweGridToolbar',

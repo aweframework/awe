@@ -1,7 +1,7 @@
 <div class="help popover" data-testid="help-popover" ng-attr-data-open="{{isShowing}}" ng-class="direction" ng-show="isShowing">
   <div class="arrow"></div>
   <div class="popover-content" ng-mouseleave="hideHelp()">
-    <i class="fa fa-info-circle bg-icon"></i>
+    <i class="bg-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('info-circle' | aweIcon).href}}"></use></svg></i>
     <span class="popover-text" translate-multiple="{{text}}"></span>
     <img ng-if="image" ng-src="{{image| translateMultiple}}" style="width: 100%;"/>
   </div>

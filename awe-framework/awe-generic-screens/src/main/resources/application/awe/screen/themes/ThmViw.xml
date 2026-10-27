@@ -20,6 +20,20 @@
       <tag type="div" style="panel-body static">
         <criteria label="PARAMETER_THEME" id="Nam" component="text" variable="Nam" readonly="true" style="col-xs-12 col-sm-8 col-lg-3" />
         <criteria label="PARAMETER_ACTIVE" id="Act" component="select" initial-load="enum" target-action="Es1Es0" variable="Act" readonly="true" style="col-xs-12 col-sm-4 col-lg-2" />
+        <!-- Each colour is a palette of the select or, when it is custom, the hex of the colour picker -->
+        <criteria label="PARAMETER_THEME_PRIMARY" id="PriPal" component="select" initial-load="enum" target-action="ThmPri" variable="PriPal" readonly="true" style="col-xs-12 col-sm-6 col-lg-3" />
+        <criteria label="PARAMETER_THEME_PRIMARY_HEX" id="PriHex" component="color" variable="PriHex" readonly="true" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PriPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_SURFACE" id="SrfPal" component="select" initial-load="enum" target-action="ThmSrf" variable="SrfPal" readonly="true" style="col-xs-12 col-sm-6 col-lg-3" />
+        <criteria label="PARAMETER_THEME_SURFACE_HEX" id="SrfHex" component="color" variable="SrfHex" readonly="true" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="SrfPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_MODE" id="Mde" component="select" initial-load="enum" target-action="ThmMde" variable="Mde" readonly="true" style="col-xs-12 col-sm-6 col-lg-2" />
       </tag>
     </window>
   </tag>

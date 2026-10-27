@@ -61,10 +61,11 @@ describe("awe-react-client/test/js/components/AweLoaderTest.jsx", () => {
     expect(container.querySelector(".awe-loader")?.children).toHaveLength(0);
   });
 
-  it("renders a font icon for icon", () => {
+  it("renders a spinning icon for icon", () => {
     const {container} = render(<AweLoader icon="icon"/>);
 
-    expect(container.querySelector("i.pi-spinner")).not.toBeNull();
+    const svg = container.querySelector("i > svg.awe-icon.awe-icon-spin");
+    expect(svg.querySelector("use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#loader-circle");
   });
 
   it("applies the pass through attributes to the root", () => {

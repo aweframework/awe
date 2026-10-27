@@ -190,6 +190,7 @@ function AweMenu(props) {
     deleteStack: () => dispatch(deleteStack()),
   }), [t, currentOption, activePath, module, dispatch]);
 
+
   // Initialize expanded keys and breadcrumbs on mount
   useEffect(() => {
     const initialExpanded = getExpandedKeys({ options });
@@ -243,7 +244,7 @@ function AweMenu(props) {
     return (
       <div className="awe-menu-container awe-menu-container-vertical">
         {search}
-        <PanelMenu className="w-full md:w-20rem"
+        <PanelMenu className="w-full"
           expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
           model={model} pt={panelMenuPassThrough(model)} />
       </div>

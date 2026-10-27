@@ -26,7 +26,7 @@
     },
     {
       "name": "awe.application.paths.image-navbar-logo",
-      "defaultValue": "../images/logo/logo-awe-nuevo2.svg"
+      "defaultValue": "../images/logo/awe-logo-mark.svg"
     },
     {
       "name": "awe.application.paths.image-startup-background",

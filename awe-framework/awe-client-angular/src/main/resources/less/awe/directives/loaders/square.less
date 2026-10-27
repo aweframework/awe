@@ -1,29 +1,22 @@
 /*******************************************************************************
  SQUARE LOADER
 *******************************************************************************/
+// AWE 5 (#885), as the React loader: drawn in the primary colour, every size a share of the loader size (loader.less)
 
 .square-loader {
-  width: 40px;
-  height: 40px;
-  background-color: #444;
-  .opacity(0.7);
-
+  width: @loader-size;
+  height: @loader-size;
+  background-color: var(--awe-color-primary);
+  opacity: 0.7;
   margin: auto;
   animation: sk-rotateplane 1.2s infinite ease-in-out;
 }
-
-@-webkit-keyframes sk-rotateplane {
-  0% { transform: perspective(120px) }
-  50% { transform: perspective(120px) rotateY(180deg) }
-  100% { transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
-}
-
 @keyframes sk-rotateplane {
   0% {
-    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+    transform: perspective(calc(@loader-size * 3)) rotateX(0deg) rotateY(0deg);
   } 50% {
-    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+    transform: perspective(calc(@loader-size * 3)) rotateX(-180.1deg) rotateY(0deg);
   } 100% {
-    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    transform: perspective(calc(@loader-size * 3)) rotateX(-180deg) rotateY(-179.9deg);
   }
 }

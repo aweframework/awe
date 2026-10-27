@@ -1,5 +1,29 @@
+// AWE 5 grid (#885): the colours, borders, paddings and states of the rows come from the AWE theme of PrimeReact
+// (--awe-grid-* tokens); these rules add what the theme has not: the header type, the alignment of the header with its
+// column, tabular figures, the edited row, the toolbar, the paginator, the refresh bar and the row detail
+
 .grid-container .p-paginator {
-  border-top: 1px solid var(--surface-c);
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+  font-size: var(--awe-font-size-sm);
+  border-top: 1px solid var(--awe-grid-border);
+  border-radius: 0;
+}
+
+.grid-container .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.grid-container .p-paginator .p-paginator-page,
+.grid-container .p-paginator .p-paginator-current {
+  font-variant-numeric: var(--awe-font-variant-numeric);
+}
+
+.grid-container .p-paginator .p-dropdown .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  padding-block: 0;
+  font-size: var(--awe-font-size-sm);
 }
 
 .p-datatable,
@@ -10,15 +34,62 @@
 // Minimum rows area (header and about three rows): a grid whose container gives it no height (a dialog, a panel that is
 // not expandible) would get a 0px rows area otherwise. The AngularJS engine keeps a minimum grid height too
 .grid-container .p-datatable-wrapper {
-  min-height: 12rem;
+  min-height: var(--awe-grid-min-body-height);
 }
 
-.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td.p-cell-editing {
-  padding: 1px;
+// What scrolls into view in a grid (a row, the header of a nested grid) stops under the sticky header, not behind it:
+// the height of a header row is its padding, the line of its text and its bottom border
+.p-datatable-scrollable > .p-datatable-wrapper {
+  scroll-padding-top: calc(2 * var(--awe-grid-cell-padding-y) + var(--awe-grid-header-font-size) * var(--awe-line-height-snug) + 1px);
+}
+
+// Header: the header type of the grid. A column with an alignment aligns its header like its cells; without one the
+// header stays centred
+.p-datatable .p-datatable-thead > tr > th,
+.p-treetable .p-treetable-thead > tr > th {
+  font-size: var(--awe-grid-header-font-size);
+  font-weight: var(--awe-grid-header-font-weight);
+  line-height: var(--awe-line-height-snug);
 }
 
 .p-datatable .p-column-header-content {
   justify-content: center;
+}
+
+.p-datatable .p-datatable-thead > tr > th.p-align-left > .p-column-header-content,
+.p-treetable .p-treetable-thead > tr > th.p-align-left > .p-column-header-content {
+  justify-content: flex-start;
+}
+
+.p-datatable .p-datatable-thead > tr > th.p-align-right > .p-column-header-content,
+.p-treetable .p-treetable-thead > tr > th.p-align-right > .p-column-header-content {
+  justify-content: flex-end;
+}
+
+// The arrow of a sortable column is faint until the column is sorted (then the theme draws it in the primary)
+.p-datatable .p-sortable-column .p-sortable-column-icon,
+.p-treetable .p-sortable-column .p-sortable-column-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  margin-left: var(--awe-space-1-5);
+}
+
+.p-datatable .p-sortable-column:not(.p-highlight) .p-sortable-column-icon,
+.p-treetable .p-sortable-column:not(.p-highlight) .p-sortable-column-icon {
+  opacity: 0.45;
+}
+
+.p-datatable .p-sortable-column:not(.p-highlight):hover .p-sortable-column-icon,
+.p-treetable .p-sortable-column:not(.p-highlight):hover .p-sortable-column-icon {
+  opacity: 1;
+}
+
+// Cells: figures in tabular numbers, so the numbers of a column line up
+.p-datatable .p-datatable-tbody > tr > td,
+.p-datatable .p-datatable-tfoot > tr > td,
+.p-treetable .p-treetable-tbody > tr > td,
+.p-treetable .p-treetable-tfoot > tr > td {
+  font-variant-numeric: var(--awe-font-variant-numeric);
 }
 
 .p-datatable .p-datatable-tbody > tr.p-datatable-emptymessage > td {
@@ -36,18 +107,56 @@
   height: var(--grid-row-height);
 }
 
+// Text of a cell: one line of the body type
 .p-cell-text {
   align-self: center;
-  min-height: 1rem;
-  line-height: 37px;
+  min-height: calc(var(--awe-font-size-base) * var(--awe-line-height-base));
+  line-height: var(--awe-line-height-base);
 }
 
-.p-datatable-loading-overlay.p-component-overlay  {
-  background-color: rgba(255, 255, 255, 0.5);
+// Edited row: a primary outline, and the fields of its cells at the small control height, so the row keeps the
+// height of the others
+.p-datatable .p-datatable-tbody > tr.editing > td {
+  padding-top: calc(var(--awe-grid-cell-padding-y) + (var(--awe-font-size-base) * var(--awe-line-height-base) - var(--awe-size-control-sm)) / 2);
+  padding-bottom: calc(var(--awe-grid-cell-padding-y) + (var(--awe-font-size-base) * var(--awe-line-height-base) - var(--awe-size-control-sm)) / 2);
+  background: var(--awe-grid-row-background);
+  border-bottom-color: var(--awe-color-primary);
+  box-shadow: inset 0 1px 0 var(--awe-color-primary);
 }
 
-.layout-dark .p-datatable-loading-overlay.p-component-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+.p-datatable .p-datatable-tbody > tr.editing > td:first-child {
+  box-shadow: inset 0 1px 0 var(--awe-color-primary), inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary);
+}
+
+.p-datatable .p-datatable-tbody > tr.editing .p-inputtext:not(textarea),
+.p-datatable .p-datatable-tbody > tr.editing .p-dropdown,
+.p-datatable .p-datatable-tbody > tr.editing .p-multiselect {
+  height: var(--awe-size-control-sm);
+  font-size: var(--awe-font-size-sm);
+}
+
+.p-datatable .p-datatable-tbody > tr.editing .p-inputtext:not(textarea) {
+  padding-block: 0;
+}
+
+.p-datatable .p-datatable-tbody > tr.editing .p-dropdown,
+.p-datatable .p-datatable-tbody > tr.editing .p-multiselect {
+  align-items: center;
+
+  .p-inputtext,
+  .p-multiselect-label {
+    height: auto;
+    padding-block: 0;
+  }
+
+  .p-dropdown-trigger,
+  .p-multiselect-trigger {
+    align-self: stretch;
+  }
+}
+
+.p-datatable-loading-overlay.p-component-overlay {
+  background-color: var(--awe-grid-loading-overlay);
 }
 
 // Wrapping columns (wrap and max-lines): the text wraps over several lines and the row grows to fit it. A maximum
@@ -56,9 +165,9 @@
   display: block;
   white-space: normal;
   overflow-wrap: anywhere;
-  line-height: 1.35;
+  line-height: var(--awe-line-height-snug);
   min-height: 0;
-  margin: 9px 0;
+  margin: 0;
   text-align: inherit;
 }
 
@@ -70,23 +179,66 @@
   overflow: hidden;
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 1px;
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+    border-radius: var(--awe-radius-xs);
   }
 }
 
 .grid-cell-tooltip.p-tooltip {
   position: fixed;
-  z-index: 3000;
-  max-width: 28rem;
+  z-index: var(--awe-z-tooltip);
+  max-width: calc(var(--awe-space-16) * 7);
   pointer-events: none;
 }
 
+// Toolbar of the grid (Columns and Maximize): small outlined buttons at the end, over the header
 .grid-toolbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 0.25rem;
-  padding: 0.25rem 0;
+  align-items: center;
+  gap: var(--awe-space-2);
+  // The inset of the footer: the last button (Maximize) stays off the edge of the grid
+  padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+  border-bottom: 1px solid var(--awe-grid-border);
+}
+
+.grid-toolbar .grid-toolbar-button.p-button {
+  gap: var(--awe-space-1-5);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-xs);
+
+  &:enabled:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-subtle);
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:enabled:active,
+  &[aria-pressed="true"] {
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus-visible {
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+
+  .p-button-label {
+    font-weight: inherit;
+  }
 }
 
 // A maximized grid fills the maximize target like a window (position and size set by useMaximize)
@@ -94,8 +246,11 @@
   z-index: 100;
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
-  background: var(--surface-a, #fff);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  background: var(--awe-color-surface);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-content);
+  box-shadow: var(--awe-shadow-card);
 
   > .grid-contents {
     flex: 1 1 0;
@@ -103,31 +258,77 @@
   }
 }
 
-.grid-container .p-paginator .pagination-goto-page {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0.5rem;
-  white-space: nowrap;
+// Refresh of a grid with rows (skeleton-dim loader): a loading bar between the toolbar and the dimmed rows
+@keyframes awe-grid-loading {
+  from {
+    background-position: -66.67% 0;
+  }
 
-  .pagination-goto {
-    // The padding of the theme inputs, so it is as high as the page size dropdown
-    width: 4rem;
-    text-align: center;
-    -moz-appearance: textfield;
-
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
+  to {
+    background-position: 166.67% 0;
   }
 }
 
-// Row detail: the text of the template keeps its line breaks and wraps to the width of the grid
+.grid-container > .grid-toolbar {
+  order: -1;
+}
+
+.grid-container.grid-reloading::before {
+  flex: none;
+  height: var(--awe-space-0-5);
+  content: "";
+  background-color: var(--awe-color-primary-subtle);
+  background-image: linear-gradient(var(--awe-color-loading-bar), var(--awe-color-loading-bar));
+  background-repeat: no-repeat;
+  background-size: 40% 100%;
+  animation: awe-grid-loading calc(var(--awe-motion-duration-expand) * 6) var(--awe-motion-easing-standard) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-container.grid-reloading::before {
+    animation: none;
+  }
+}
+
+.grid-container .p-paginator .pagination-goto-page {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin: 0 var(--awe-space-2);
+  white-space: nowrap;
+}
+
+// The current page input, at the height of the page buttons
+.grid-container .p-paginator .pagination-goto-page .pagination-goto {
+  width: calc(var(--awe-space-12) + var(--awe-space-1));
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  text-align: center;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+// Row detail: an area under the row, marked with a primary line on its left. The text of the template keeps its line
+// breaks and wraps to the width of the grid. The detail isolates its contents: the sticky header of a nested grid has
+// the z-index of the sticky header of the grid, and would cover it when it scrolls under it
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td {
+  padding: 0;
+  background: var(--awe-color-surface-subtle);
+  isolation: isolate;
+}
+
 .p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td .grid-row-detail {
+  padding: var(--awe-space-3) var(--awe-space-4) var(--awe-space-4) var(--awe-space-12);
   white-space: pre-line;
   overflow-wrap: anywhere;
+  border-left: var(--awe-grid-row-marker-width) solid var(--awe-color-primary);
 }
 
 // With components, the detail holds the nested grid of its row: the text rules of a template do not apply to its cells,
@@ -136,6 +337,10 @@
   white-space: normal;
   overflow-wrap: normal;
   > .grid-container {
-    height: 18rem;
+    height: calc(var(--awe-size-control) * 7);
+    background: var(--awe-color-surface);
+    border: 1px solid var(--awe-color-border);
+    border-radius: var(--awe-radius-md);
+    overflow: hidden;
   }
 }

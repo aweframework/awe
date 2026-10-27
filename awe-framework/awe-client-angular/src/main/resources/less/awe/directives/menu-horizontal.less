@@ -3,7 +3,9 @@
 // --------------------------------------------------
 
 // Variables
-@main-menu-height: 30px;
+// Height of the bar while it shows or hides: one row of options and the bar padding. The options are as high as a
+// small control, so the bar stays low under the header
+@main-menu-height: calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1));
 
 // Styles
 #main-wrapper.horizontal {
@@ -36,6 +38,51 @@
   }
 }
 
+// The AWE 5 menu bar (#885): a row of options under the header, on the menu surface; the first level of an option
+// opens as an overlay under it
+#main-menu.horizontal {
+  background: var(--awe-menu-background);
+  border-bottom: 1px solid var(--awe-menu-border);
+}
+
+#main-menu.horizontal ul.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-list-gap);
+  // Room on the right for the menu search
+  padding: var(--awe-space-1) calc(var(--awe-page-padding) + var(--awe-size-control-sm) + var(--awe-space-2)) var(--awe-space-1) var(--awe-page-padding);
+}
+
+#main-menu.horizontal ul.navigation > li > a {
+  min-height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+}
+
+#main-menu.horizontal ul.navigation > li > ul {
+  min-width: var(--awe-menu-flyout-width);
+  margin-top: var(--awe-space-1);
+  padding: var(--awe-list-padding);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+  z-index: var(--awe-z-dropdown);
+}
+
+#main-menu.horizontal ul.navigation > li > ul > li::before {
+  display: none;
+}
+
+// A separator option is a vertical rule between groups of options
+#main-menu.horizontal ul.navigation > li.divider {
+  height: var(--awe-size-icon);
+  margin: 0 var(--awe-space-1);
+  border-left: 1px solid var(--awe-color-border);
+  opacity: 1;
+}
+
 #main-menu.horizontal {
   &,
   #main-menu-bg {
@@ -48,28 +95,35 @@
 
   ul.navigation {
     & {
-      padding: 0;
-      //height: @main-menu-height;
       margin: 0;
     }
 
+    // Showing or hiding (#885): the bar stays a flex row (the options do not reflow) and its padding collapses with its
+    // height, so it slides to zero without a jump
     &.ng-hide-add,
     &.ng-hide-remove {
-      .transition-multiple (height, ease, 250ms, opacity, ease, 250ms);
-      display:block !important;
+      display: flex !important;
       overflow: hidden !important;
+      transition: height var(--awe-motion-duration-slow) var(--awe-motion-easing-standard),
+        padding-top var(--awe-motion-duration-slow) var(--awe-motion-easing-standard),
+        padding-bottom var(--awe-motion-duration-slow) var(--awe-motion-easing-standard),
+        opacity var(--awe-motion-duration-slow) var(--awe-motion-easing-standard);
     }
 
     &.ng-hide-add.ng-hide-add-active,
     &.ng-hide-remove {
       height: 0;
-      .opacity(0);
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
     }
 
     &.ng-hide-add,
     &.ng-hide-remove.ng-hide-remove-active {
       height: @main-menu-height;
-      .opacity(1);
+      padding-top: var(--awe-space-1);
+      padding-bottom: var(--awe-space-1);
+      opacity: 1;
     }
 
     > li {
@@ -81,38 +135,17 @@
 
       &.divider {
         width: 0 !important;
-        height: 20px;
-        border-left-width: 1px;
-        border-left-style: solid;
-        .opacity(0.4);
-        margin: 0 2px 2px 2px;
-        vertical-align: middle;
       }
 
       > a {
-        display: inline-block;
         border-bottom: 0;
-        padding: 5px 14px 5px 10px;
-      }
-
-      > a:after {
-        top: auto;
-        bottom: 0;
-        height: 4px;
-        right: 0;
-        left: 0;
-        width: 100%;
       }
 
       > ul {
         width: auto;
         position: fixed;
-        z-index: 1900;
         max-height: calc(100% - 110px);
         overflow-y: auto;
-         li {
-          min-width: 150px;
-        }
       }
     }
 
@@ -120,12 +153,8 @@
       border-bottom: 0;
     }
 
-    a {
-      line-height: 18px;
-
-      span{
-        white-space: nowrap;
-      }
+    a span {
+      white-space: nowrap;
     }
 
     > li.mm-dropdown {
@@ -180,25 +209,6 @@
         .opacity(1);
       }
     }
-
-    .mm-dropdown>ul {
-      >li>a {
-        padding-left: 20px;
-      }
-      >.mm-dropdown>ul {
-        >li>a {
-          padding-left: 40px;
-        }
-        >.mm-dropdown>ul {
-          >li>a {
-            padding-left: 60px;
-          }
-          >.mm-dropdown>ul>li>a {
-            padding-left: 80px;
-          }
-        }
-      }
-    }
   }
 }
 
@@ -224,10 +234,6 @@
         }
 
         >a {
-          & {
-            padding: 5px 10px;
-          }
-
           >.mm-text {
             display: none;
           }
@@ -244,5 +250,24 @@
 @media (min-width: @screen-tablet) {
   #main-menu.horizontal .navigation>li>a>.mm-text {
     display: inline-block;
+  }
+}
+// The toggle draws a Lucide SVG (#885): the pixel-admin offsets above were made for a 60px-high font icon and push the
+// SVG out of the top of the button, so it is centred in the button in every menu layout
+#main-navbar #main-menu-toggle svg.navbar-icon,
+.main-menu-right #main-navbar #main-menu-toggle svg.navbar-icon,
+#main-navbar.horizontal #main-menu-toggle svg.navbar-icon,
+.mmc #main-navbar.horizontal #main-menu-toggle svg.navbar-icon {
+  position: absolute;
+  inset: 0;
+  width: var(--awe-size-icon-lg);
+  height: var(--awe-size-icon-lg);
+  margin: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #main-menu.horizontal ul.navigation.ng-hide-add,
+  #main-menu.horizontal ul.navigation.ng-hide-remove {
+    transition: none;
   }
 }

@@ -2,17 +2,17 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <i class="fa fa-warning"></i>
+        <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('warning' | aweIcon).href}}"></use></svg></i>
       </div>
       <div class="modal-title" translate-multiple="{{confirmTitle}}"></div>
       <div class="modal-body" translate-multiple="{{confirmMessage}}"></div>
       <div class="modal-footer">
         <button id="confirm-cancel" data-testid="confirm-cancel" type="button" class="btn btn-awe btn-default btn-{{::confirmSize}}" data-dismiss="modal" title="{{'BUTTON_CANCEL'| translateMultiple}}">
-          <i class="fa fa-close"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('close' | aweIcon).href}}"></use></svg></i>
           <span translate-multiple="BUTTON_CANCEL"></span>
         </button>
         <button id="confirm-accept" data-testid="confirm-accept" type="button" class="btn btn-awe btn-primary btn-{{::confirmSize}}" data-dismiss="modal" ng-click="acceptConfirm()" title="{{'BUTTON_ACCEPT'| translateMultiple}}">
-          <i class="fa fa-check"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('check' | aweIcon).href}}"></use></svg></i>
           <span translate-multiple="BUTTON_ACCEPT"></span>
         </button>
       </div>

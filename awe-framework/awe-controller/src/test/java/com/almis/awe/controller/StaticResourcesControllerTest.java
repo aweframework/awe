@@ -1,74 +1,46 @@
 package com.almis.awe.controller;
 
 import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.dto.Theme;
-import com.almis.awe.model.util.data.DataListUtil;
-import com.almis.awe.service.QueryService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
+/**
+ * Static resources controller: the styles of the application. The theme is on the {@code <html>} attributes since
+ * AWE 5 (#885), so the theme variables stylesheet is not served any more
+ */
 class StaticResourcesControllerTest {
 
-  @InjectMocks
-  private StaticResourcesController staticResourcesController;
-
-  @Mock
-  private QueryService queryService;
-
-  @Mock
   private BaseConfigProperties baseConfigProperties;
+  private MockMvc mockMvc;
 
-  @Test
-  void getThemeVariables() throws Exception {
-    // Mock
-    DataList dataList = DataListUtil.fromBeanList(List.of(new Theme().setName("test"), new Theme().setName("test").setDark(true)));
-    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
-    when(baseConfigProperties.isThemeFollowOsColorScheme()).thenReturn(true);
-
-    // Do
-    String result = staticResourcesController.getThemeVariables("xxx");
-
-    // Verify
-    assertEquals("""
-      .theme-test {
-      }
-
-      .theme-test.dark {
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .theme-test:not(.light):not(.dark) {
-        }
-      }
-      """, result);
+  @BeforeEach
+  void setUp() {
+    baseConfigProperties = new BaseConfigProperties();
+    mockMvc = MockMvcBuilders.standaloneSetup(new StaticResourcesController(baseConfigProperties)).build();
   }
 
   @Test
-  void getThemeVariablesWithoutFollowingTheOperatingSystem() throws Exception {
-    // Mock
-    DataList dataList = DataListUtil.fromBeanList(List.of(new Theme().setName("test").setDark(true)));
-    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
-    when(baseConfigProperties.isThemeFollowOsColorScheme()).thenReturn(false);
+  void stylesTakeTheImagesOfTheApplication() throws Exception {
+    var result = mockMvc.perform(get("/css/styles-123.css")).andReturn();
 
-    // Do
-    String result = staticResourcesController.getThemeVariables("xxx");
+    assertThat(result.getResponse().getStatus()).isEqualTo(200);
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getViewName()).isEqualTo("styles.css");
+    assertThat(result.getModelAndView().getModel())
+      .containsEntry("startupLogo", baseConfigProperties.getPaths().getImageStartupLogo())
+      .containsEntry("startupBackground", baseConfigProperties.getPaths().getImageStartupBackground())
+      .containsEntry("navbarLogo", baseConfigProperties.getPaths().getImageNavbarLogo());
+  }
 
-    // Verify
-    assertEquals("""
-      .theme-test.dark {
-      }
-      """, result);
+  @Test
+  void themeVariablesAreNotServedAnyMore() throws Exception {
+    var result = mockMvc.perform(get("/css/themeVariables-123.css")).andReturn();
+
+    assertThat(result.getResponse().getStatus()).isEqualTo(404);
   }
 }

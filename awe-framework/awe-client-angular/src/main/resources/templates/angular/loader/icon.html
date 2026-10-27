@@ -1,2 +1,1 @@
-<i class="fa {{::loaderIcon}}"></i>
-
+<i class="{{::(loaderIcon | aweIcon).family == 'lucide' ? '' : 'fa ' + loaderIcon}}"><svg ng-if="::(loaderIcon | aweIcon).family == 'lucide'" class="awe-icon" ng-class="::(loaderIcon | aweIcon).classes" aria-hidden="true" focusable="false"><use ng-attr-href="{{::(loaderIcon | aweIcon).href}}"></use></svg></i>

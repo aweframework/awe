@@ -50,6 +50,14 @@
         <targetPath>${project.build.directory}/classes/less</targetPath>
       </resource>
       <resource>
+        <!-- The licence of the Inter font of the AWE 5 type scale (#885), next to the bundled fonts -->
+        <directory>${project.basedir}/../awe-design-tokens/fonts</directory>
+        <targetPath>${project.build.directory}/classes/static/fonts</targetPath>
+        <includes>
+          <include>LICENSE-inter-OFL.txt</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>${project.basedir}/src/main/resources/css</directory>
         <targetPath>${project.build.directory}/classes/static/css</targetPath>
       </resource>

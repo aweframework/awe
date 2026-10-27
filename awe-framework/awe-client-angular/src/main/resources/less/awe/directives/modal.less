@@ -1,0 +1,178 @@
+//
+// Dialogs (#885): the Bootstrap modals of the screen dialogs, the side panels and the confirm take the AWE 5 overlay
+// tokens, as the React dialogs and the design system prototype: an overlay with the modal radius and shadow, a header
+// without band, the title in the dialog title type, the footer as a band and a mask that slightly blurs the page
+// --------------------------------------------------
+.modal-content {
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-modal);
+  box-shadow: var(--awe-shadow-modal);
+}
+
+// The header pads the title with the modal padding and the body goes on under it, as the prototype
+.modal-header {
+  padding: var(--awe-modal-padding);
+  background: transparent;
+  border-bottom: 0;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: var(--awe-font-size-dialog-title);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-snug);
+  letter-spacing: var(--awe-letter-spacing-tight);
+  color: var(--awe-color-text-emphasis);
+}
+
+// Close: a ghost icon button at the end of the header
+.modal-header .close {
+  display: inline-grid;
+  place-items: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  margin: calc(var(--awe-space-1-5) * -1) calc(var(--awe-space-1-5) * -1) 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xl);
+  font-weight: var(--awe-font-weight-normal);
+  line-height: 1;
+  color: var(--awe-color-text-muted);
+  text-shadow: none;
+  opacity: 1;
+  border-radius: var(--awe-radius-md);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+.modal-body {
+  padding: 0 var(--awe-modal-padding) var(--awe-modal-padding);
+}
+
+// A dialog without label has no header: its body pads its top too
+.modal-content > div:first-child > .modal-body:first-child {
+  padding-top: var(--awe-modal-padding);
+}
+
+// Footer: a band under the body with the actions at its end
+.modal-footer {
+  margin: 0;
+  padding: var(--awe-space-3) var(--awe-modal-padding);
+  background: var(--awe-color-surface-subtle);
+  border-top: 1px solid var(--awe-color-border);
+  border-radius: 0 0 var(--awe-radius-modal) var(--awe-radius-modal);
+}
+
+// Mask: the mask colour of the mode (Bootstrap draws a black layer at half opacity) and a slight blur of the page
+.modal-backdrop {
+  background: var(--awe-color-mask);
+  backdrop-filter: var(--awe-mask-backdrop-filter);
+}
+
+.modal-backdrop.in {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal.fade .modal-dialog,
+  .modal-backdrop.fade {
+    transition: none;
+  }
+}
+
+//
+// Confirm (#885): the warning in a 40px round badge next to the title and the message, the actions at the end of the
+// footer band, as the React confirm dialog. pixel-admin centres every part of the alert modals with !important
+// --------------------------------------------------
+.modal.modal-alert {
+  .modal-dialog {
+    width: ~"min(calc(var(--awe-space-16) * 7), calc(100vw - var(--awe-space-8)))";
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .modal-content {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--awe-space-4);
+
+    // The clearfix of the content would be two more cells of the grid
+    &::before,
+    &::after {
+      content: none;
+    }
+  }
+
+  .modal-header {
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    margin: 0;
+    padding: var(--awe-modal-padding) 0 0 var(--awe-modal-padding);
+    text-shadow: none;
+    background: none;
+    border: 0;
+
+    > i {
+      display: grid;
+      place-items: center;
+      width: var(--awe-space-10);
+      height: var(--awe-space-10);
+      font-size: var(--awe-size-icon-lg);
+      color: var(--awe-color-warning-text);
+      background: var(--awe-color-warning-subtle);
+      border-radius: var(--awe-radius-full);
+    }
+  }
+
+  .modal-title {
+    grid-column: 2;
+    margin: 0;
+    padding: var(--awe-modal-padding) var(--awe-modal-padding) 0 0;
+    text-align: start !important;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-emphasis);
+    background: none;
+    border: 0;
+  }
+
+  .modal-body {
+    grid-column: 2;
+    margin: 0;
+    padding: var(--awe-space-1) var(--awe-modal-padding) var(--awe-modal-padding) 0;
+    text-align: start !important;
+    color: var(--awe-color-text-muted);
+    background: none;
+    border: 0;
+  }
+
+  .modal-footer {
+    grid-column: ~"1 / -1";
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--awe-space-2);
+    margin: 0;
+    padding: var(--awe-space-3) var(--awe-modal-padding);
+    background: var(--awe-color-surface-subtle);
+    border: 0;
+    border-top: 1px solid var(--awe-color-border);
+    border-radius: 0 0 var(--awe-radius-modal) var(--awe-radius-modal);
+
+    .btn + .btn {
+      margin-left: 0;
+    }
+  }
+}

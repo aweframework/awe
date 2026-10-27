@@ -382,3 +382,75 @@ describe('components/AweMenu.jsx option descriptions', () => {
     expect(document.querySelector("a[name='plain']")).not.toHaveAttribute("title");
   });
 });
+
+// Menu with a section, a parent, a nested parent and the current option (3 levels), all open
+const trailMenuOptions = [
+  { name: "general", label: "General", separator: true, visible: true, restricted: false, actions: [], options: [] },
+  {
+    id: "tools", name: "tools", label: "Tools", expanded: true, visible: true, restricted: false, separator: false,
+    menuScreen: false, actions: [], options: [
+      {
+        id: "sites", name: "sites", label: "Sites", expanded: true, visible: true, restricted: false, separator: false,
+        menuScreen: false, actions: [], options: [leafOption("site-list", "Site list"), leafOption("site-map", "Site map")]
+      },
+      leafOption("users", "Users")
+    ]
+  },
+  leafOption("plain", "Plain")
+];
+
+describe('components/AweMenu.jsx active trail (#885)', () => {
+
+  // The view registry is global: leave it as it was after every test
+  afterEach(() => ViewRegistry.setView("report", { loading: true }));
+
+  const renderMenu = (option) => {
+    ViewRegistry.setView("report", { option, title: option });
+    MenuRegistry.setOptions(trailMenuOptions);
+    renderWithProviders(<AweMenu id="menu" style="vertical" />, {
+      preloadedState: {
+        settings: DEFAULT_SETTINGS,
+        screen: { view: "report", size: { width: 100, height: 100 }, report: { option, title: option } },
+        menu: { options: trailMenuOptions },
+        components: {
+          menu: {
+            address: { component: 'grid', view: 'report' },
+            screen: { breadcrumbs: [], report: { name: "opcion", option: "opcion" } },
+            model: { values: [] },
+            attributes: {}
+          }
+        }
+      }
+    });
+  };
+  const option = (name) => document.querySelector(`[data-testid='menu-option'][option-name='${name}']`);
+
+  it('marks every ancestor of the current option as its trail and the option itself as active', () => {
+    renderMenu("site-list");
+
+    expect(option("tools")).toHaveClass("p-menuitem-active-path");
+    expect(option("tools")).not.toHaveClass("p-menuitem-active");
+    expect(option("sites")).toHaveClass("p-menuitem-active-path");
+    expect(option("site-list")).toHaveClass("p-menuitem-active");
+    expect(option("site-list")).not.toHaveClass("p-menuitem-active-path");
+    // The active hook of the browser tests stays on the current option only
+    expect(option("site-list")).toHaveAttribute("data-active", "true");
+    expect(option("sites")).not.toHaveAttribute("data-active", "true");
+  });
+
+  it('leaves the options outside the trail unmarked', () => {
+    renderMenu("site-list");
+
+    ["site-map", "users", "plain"].forEach(name => {
+      expect(option(name)).not.toHaveClass("p-menuitem-active-path");
+      expect(option(name)).not.toHaveClass("p-menuitem-active");
+    });
+  });
+
+  it('marks no trail for a first level option', () => {
+    renderMenu("plain");
+
+    expect(option("plain")).toHaveClass("p-menuitem-active");
+    expect(document.querySelectorAll(".p-menuitem-active-path")).toHaveLength(0);
+  });
+});

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.json.JsonCompareMode;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,5 +34,61 @@ class SettingsControllerTest extends AbstractSpringAppIntegrationTest {
                     .accept("application/json"))
             .andExpect(status().isOk())
             .andExpect(content().json(expected));
+  }
+
+  /**
+   * The settings carry the AWE 5 appearance of the application theme (sky: its AweThm row) and the default density
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetSettingsThemeAppearance() throws Exception {
+    String expected = "{\"theme\":\"sky\",\"themePrimary\":\"blue\",\"themeSurface\":\"auto\",\"themeMode\":\"system\",\"density\":\"comfortable\",\"themePalette\":{}}";
+    mockMvc.perform(post("/settings")
+                    .with(csrf())
+                    .content("{\"view\":\"base\"}")
+                    .accept("application/json"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(expected));
+  }
+
+  /**
+   * The appearance endpoint returns only the AWE 5 appearance fields of the settings
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetAppearance() throws Exception {
+    String expected = "{\"themePrimary\":\"blue\",\"themeSurface\":\"auto\",\"themeMode\":\"system\",\"density\":\"comfortable\",\"themePalette\":{}}";
+    mockMvc.perform(post("/settings/appearance")
+                    .with(csrf())
+                    .accept("application/json"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(expected, JsonCompareMode.STRICT));
+  }
+
+  /**
+   * The appearance endpoint is protected against CSRF as the settings are
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetAppearanceWithoutCsrfToken() throws Exception {
+    mockMvc.perform(post("/settings/appearance")
+                    .accept("application/json"))
+            .andExpect(status().isForbidden());
+  }
+
+  /**
+   * Only the settings and the appearance are public: another path under /settings needs an authenticated user
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testOtherSettingsPathIsProtected() throws Exception {
+    mockMvc.perform(post("/settings/other")
+                    .with(csrf())
+                    .accept("application/json"))
+            .andExpect(status().isUnauthorized());
   }
 }

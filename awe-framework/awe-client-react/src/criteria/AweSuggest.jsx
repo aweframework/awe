@@ -7,7 +7,7 @@ import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import { translateLabel } from "../utilities";
-import { getSuggestionLabel, withTextLabels } from "../utilities/suggest";
+import { getSuggestionLabel, getVirtualItemSize, withTextLabels } from "../utilities/suggest";
 import { CriterionSkeleton } from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
@@ -63,7 +63,7 @@ function AweSuggest(props) {
   let virtualSettings = null;
   if (isLargeList && enableVirtualScroll) {
       virtualSettings = {
-          itemSize: 38,
+          itemSize: getVirtualItemSize(),
           overscan: 10
       };
   }

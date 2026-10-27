@@ -1,0 +1,18 @@
+//
+// AWE 5 icons (#885): the Lucide icons of the sprite (<svg class="awe-icon"><use href="icons/lucide-sprite.svg#name"/>)
+// --------------------------------------------------
+// The icon rules (size, stroke, spin) are shared with the React client in awe-design-tokens/icons/awe-icon.css, which
+// awe.less imports before this file; here are the contexts of this client
+
+// Icons their context shows larger than the text: the svg takes the font size the context gives to the glyph
+.grid-empty-icon,
+.bg-icon,
+.menu-screen-button > .button-icon,
+.modal-alert .modal-header > i {
+  > .awe-icon {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+.modal-alert .modal-header > i:extend(.modal-alert .modal-header .fa) {}

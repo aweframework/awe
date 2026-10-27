@@ -1,18 +1,11 @@
 import React from 'react';
 import {render} from '@testing-library/react';
-import {useDocumentTitle, useHeadStylesheet} from '../../../src/hooks/useDocumentHead';
+import {useDocumentTitle} from '../../../src/hooks/useDocumentHead';
 
 function Title({title, level, children}) {
   useDocumentTitle(title, level);
   return <>{children}</>;
 }
-
-function Stylesheet({href}) {
-  useHeadStylesheet(href);
-  return null;
-}
-
-const stylesheets = () => Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'));
 
 describe('awe-react-client/test/js/hooks/useDocumentHeadTest.jsx', () => {
   beforeEach(() => {
@@ -65,30 +58,6 @@ describe('awe-react-client/test/js/hooks/useDocumentHeadTest.jsx', () => {
       rerender(<Title title="Other view" level={0}/>);
       expect(document.title).toBe('Other view');
       unmount();
-    });
-  });
-
-  describe('useHeadStylesheet', () => {
-    it('adds the stylesheet link to the head', () => {
-      const {unmount} = render(<Stylesheet href="/css/themes/sky/theme.css"/>);
-
-      expect(stylesheets().map(link => link.getAttribute('href'))).toEqual(['/css/themes/sky/theme.css']);
-      unmount();
-    });
-
-    it('updates the href when it changes, keeping a single link', () => {
-      const {rerender, unmount} = render(<Stylesheet href="/css/themes/sky/theme.css"/>);
-      rerender(<Stylesheet href="/css/themes/grass/theme.css"/>);
-
-      expect(stylesheets().map(link => link.getAttribute('href'))).toEqual(['/css/themes/grass/theme.css']);
-      unmount();
-    });
-
-    it('removes the link on unmount', () => {
-      const {unmount} = render(<Stylesheet href="/css/themes/sky/theme.css"/>);
-      unmount();
-
-      expect(stylesheets()).toEqual([]);
     });
   });
 });

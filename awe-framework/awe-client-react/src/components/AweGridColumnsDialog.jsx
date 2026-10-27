@@ -4,7 +4,7 @@ import { Dialog } from "primereact/dialog";
 import { Sidebar } from "primereact/sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { translateLabel } from "../utilities";
+import { getIconNode, translateLabel } from "../utilities";
 import { updateAttributes } from "../redux/actions/components";
 import { resetGridLayout, saveGridLayout } from "../redux/thunks/gridLayout";
 import {
@@ -114,19 +114,19 @@ function AweGridColumnsDialog({ address, attributes, visible, onHide }) {
     return <li key={name} className="grid-column-item"
       onDragOver={event => event.preventDefault()} onDrop={event => onDrop(event, name)}
       {...testHook(TestIds.gridColumnItem, { attributes: { "column-id": name } })}>
-      <span className="grid-column-handle pi pi-bars" draggable="true" aria-label={t("GRID_COLUMNS_DRAG")}
-        onDragStart={event => onDragStart(event, name)}
-        {...testHook(TestIds.gridColumnHandle)} />
+      {getIconNode("pi-bars", { tag: "span", className: "grid-column-handle", draggable: "true",
+        "aria-label": t("GRID_COLUMNS_DRAG"), onDragStart: event => onDragStart(event, name),
+        ...testHook(TestIds.gridColumnHandle) })}
       <input type="checkbox" id={`${address.component}-column-${name}`} checked={isVisible}
         onChange={event => onToggle(name, event.target.checked)}
         {...testHook(TestIds.gridColumnCheckbox)} />
       <label htmlFor={`${address.component}-column-${name}`}>{label}</label>
       <button type="button" className="grid-column-move p-link" title={t("GRID_COLUMNS_MOVE_UP")}
         aria-label={t("GRID_COLUMNS_MOVE_UP")} disabled={index <= 0} onClick={() => onMove(name, -1)}
-        {...testHook(TestIds.gridColumnUp)}><i className="pi pi-arrow-up" /></button>
+        {...testHook(TestIds.gridColumnUp)}>{getIconNode("pi-arrow-up")}</button>
       <button type="button" className="grid-column-move p-link" title={t("GRID_COLUMNS_MOVE_DOWN")}
         aria-label={t("GRID_COLUMNS_MOVE_DOWN")} disabled={index >= siblings.length - 1} onClick={() => onMove(name, 1)}
-        {...testHook(TestIds.gridColumnDown)}><i className="pi pi-arrow-down" /></button>
+        {...testHook(TestIds.gridColumnDown)}>{getIconNode("pi-arrow-down")}</button>
     </li>;
   };
 

@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:utext="${title} ?: 'Oops! Something went wrong'">Oops! Something went wrong</title>
+    <!-- The AWE 5 tokens (#885) the generic screens publish: the page follows the colour mode of the system. A plain
+         href: ErrorPageService renders without a request, so a context-relative th:href would fail -->
+    <link rel="stylesheet" href="/css/awe-design-tokens/tokens.css">
     <style>
+        :root {
+            color-scheme: light dark;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,163 +19,126 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--awe-font-family-base);
+            font-size: var(--awe-font-size-base);
+            line-height: var(--awe-line-height-base);
+            color: var(--awe-color-text);
+            background: var(--awe-color-background);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            transition: background 0.3s ease;
+            padding: var(--awe-space-5);
         }
 
         .error-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 500px;
+            background: var(--awe-color-surface);
+            border: 1px solid var(--awe-color-border);
+            border-radius: var(--awe-radius-card);
+            box-shadow: var(--awe-shadow-lg);
+            padding: var(--awe-space-10);
+            max-width: calc(var(--awe-space-16) * 8);
             width: 100%;
             text-align: center;
-            animation: slideUp 0.6s ease-out;
-            transition: all 0.3s ease;
+            animation: slideUp var(--awe-motion-duration-slow) var(--awe-motion-easing-enter);
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+                transform: translateY(var(--awe-space-6));
             }
         }
 
         .error-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 24px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            border-radius: 50%;
+            width: calc(var(--awe-space-16) + var(--awe-space-4));
+            height: calc(var(--awe-space-16) + var(--awe-space-4));
+            margin: 0 auto var(--awe-space-6);
+            background: var(--awe-color-danger-subtle);
+            border-radius: var(--awe-radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: white;
+            font-size: var(--awe-font-size-3xl);
+            color: var(--awe-color-danger-text);
         }
 
         .error-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 16px;
-            transition: color 0.3s ease;
+            font-size: var(--awe-font-size-2xl);
+            font-weight: var(--awe-font-weight-bold);
+            line-height: var(--awe-line-height-tight);
+            letter-spacing: var(--awe-letter-spacing-display);
+            color: var(--awe-color-text-emphasis);
+            margin-bottom: var(--awe-space-4);
         }
 
         .error-message {
-            font-size: 16px;
-            color: #718096;
-            line-height: 1.6;
-            margin-bottom: 32px;
-            padding: 20px;
-            background: #f7fafc;
-            border-radius: 8px;
-            border-left: 4px solid #ff6b6b;
-            transition: all 0.3s ease;
+            font-size: var(--awe-font-size-base);
+            color: var(--awe-color-text);
+            line-height: var(--awe-line-height-base);
+            margin-bottom: var(--awe-space-8);
+            padding: var(--awe-space-4) var(--awe-space-5);
+            background: color-mix(in srgb, var(--awe-color-danger-subtle), var(--awe-color-surface) 45%);
+            border: 1px solid var(--awe-color-danger-border);
+            border-radius: var(--awe-radius-content);
+            text-align: left;
+        }
+
+        .error-message strong {
+            font-weight: var(--awe-font-weight-semibold);
+            color: var(--awe-color-danger-text);
         }
 
         .error-actions {
             display: flex;
-            gap: 16px;
+            gap: var(--awe-space-3);
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            min-height: var(--awe-size-control);
+            padding: var(--awe-field-padding-y) var(--awe-button-padding-x);
+            border-radius: var(--awe-radius-field);
+            font-family: inherit;
+            font-weight: var(--awe-font-weight-medium);
+            font-size: var(--awe-font-size-base);
+            line-height: var(--awe-line-height-base);
+            transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
             cursor: pointer;
-            border: none;
+            border: 1px solid transparent;
+        }
+
+        .btn:focus-visible {
+            outline: var(--awe-focus-ring);
+            outline-offset: var(--awe-focus-ring-offset);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: var(--awe-color-primary);
+            color: var(--awe-color-on-primary);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            background: var(--awe-color-primary-hover);
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: var(--awe-color-secondary);
+            color: var(--awe-color-on-secondary);
         }
 
         .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
-        }
-
-        /* Dark Mode Styles */
-        .layout-dark body {
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-        }
-
-        .layout-dark .error-container {
-            background: #2d3748;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid #4a5568;
-        }
-
-        .layout-dark .error-icon {
-            background: linear-gradient(135deg, #fc8181, #f56565);
-        }
-
-        .layout-dark .error-title {
-            color: #f7fafc;
-        }
-
-        .layout-dark .error-message {
-            background: #1a202c;
-            color: #cbd5e0;
-            border-left: 4px solid #fc8181;
-        }
-
-        .layout-dark .error-message strong {
-            color: #e2e8f0;
-        }
-
-        .layout-dark .btn-primary {
-            background: linear-gradient(135deg, #4c51bf, #553c9a);
-        }
-
-        .layout-dark .btn-primary:hover {
-            box-shadow: 0 8px 20px rgba(76, 81, 191, 0.4);
-        }
-
-        .layout-dark .btn-secondary {
-            background: #4a5568;
-            color: #e2e8f0;
-        }
-
-        .layout-dark .btn-secondary:hover {
-            background: #718096;
+            background: var(--awe-color-secondary-hover);
         }
 
         @media (max-width: 480px) {
             .error-container {
-                padding: 24px;
+                padding: var(--awe-space-6);
             }
 
             .error-title {
-                font-size: 24px;
+                font-size: var(--awe-font-size-xl);
             }
 
             .error-actions {

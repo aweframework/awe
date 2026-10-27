@@ -1,7 +1,10 @@
 import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
 import {TestIds} from "../data/testIds";
+import {getIconTemplate} from "../services/component";
+import {iconMarkup, iconTemplate} from "../services/icon";
 import "./../services/grid/base";
+import {getGridRowHeight} from "../services/grid/density";
 import "./gridHeader";
 import "./gridSkeleton";
 import "./gridToolbar";
@@ -13,21 +16,20 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button">
       <button id="{{::gridId}}-grid-row-cancel" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-danger grid-row-cancel" data-testid="${TestIds.gridRowCancel}" title="{{'BUTTON_CANCEL'| translateMultiple}}" ng-click="onCancelRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
-        <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'cancel' && component.savingRow, 'fa-close': component.rowAction !== 'cancel'}"></i>
+        <i>${iconMarkup("refresh fa-spin", "ng-if=\"component.rowAction === 'cancel' && component.savingRow\"")}${iconMarkup("close", "ng-if=\"component.rowAction !== 'cancel'\"")}</i>
         <span class="button-text" translate-multiple="BUTTON_CANCEL"></span>
       </button>
       <button id="{{::gridId}}-grid-row-save" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-primary grid-row-save" data-testid="${TestIds.gridRowSave}" title="{{'BUTTON_SAVE_ROW'| translateMultiple}}" ng-click="onSaveRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
-        <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'save' && component.savingRow, 'fa-save': component.rowAction !== 'save'}"></i>
+        <i>${iconMarkup("refresh fa-spin", "ng-if=\"component.rowAction === 'save' && component.savingRow\"")}${iconMarkup("save", "ng-if=\"component.rowAction !== 'save'\"")}</i>
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
     </div>
     <div ng-if="component.loaded && !controller.loading && !model.values.length" class="grid-empty-state" data-testid="${TestIds.gridEmpty}" ng-cloak>
-      <span ng-if="emptyState.icon.family == 'fa'" class="grid-empty-icon fa fa-{{emptyState.icon.name}}"></span>
-      <span ng-if="emptyState.icon.family == 'mdi'" class="grid-empty-icon material-icons">{{emptyState.icon.name}}</span>
+      ${getIconTemplate("grid-empty-icon", "span", "emptyState.icon")}
       <div class="grid-empty-title" data-testid="${TestIds.gridEmptyTitle}" translate-multiple="{{emptyState.title}}"></div>
       <div class="grid-empty-text" data-testid="${TestIds.gridEmptyText}" translate-multiple="{{emptyState.text}}"></div>
       <button ng-if="emptyState.button" type="button" class="btn-awe btn-default grid-empty-action" data-testid="${TestIds.gridEmptyAction}" ng-click="onEmptyAction()">
-        <i ng-if="emptyState.button.icon" class="fa fa-{{emptyState.button.icon}}"></i>
+        ${getIconTemplate("", "i", "emptyState.buttonIcon")}
         <span class="button-text" translate-multiple="{{emptyState.button.label}}"></span>
       </button>
     </div>
@@ -55,13 +57,13 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
       <div class="col-xs-12 pagination-content text-right" ng-if="model.records > 0 && !component.bigGrid">
         <ul ng-class="::component.gridPaginationClass">
           <li ng-class="{disabled: model.page <= 1}">
-            <a href="#" data-testid="${TestIds.gridPagePrevious}" ng-attr-data-disabled="{{model.page <= 1}}" ng-click="component.setPage(model.page - 1)" title="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}"><i class="fa fa-arrow-circle-left"></i></a>
+            <a href="#" data-testid="${TestIds.gridPagePrevious}" ng-attr-data-disabled="{{model.page <= 1}}" ng-click="component.setPage(model.page - 1)" title="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}">${iconTemplate("arrow-circle-left")}</a>
           </li>
         </ul>
         <div class="pagination-content pagination-number">{{component.paginationTextSmall}}</div>
         <ul ng-class="::component.gridPaginationClass">
           <li ng-class="{disabled: model.page >= model.total}">
-            <a href="#" data-testid="${TestIds.gridPageNext}" ng-attr-data-disabled="{{model.page >= model.total}}" ng-click="component.setPage(model.page + 1)" title="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}"><i class="fa fa-arrow-circle-right"></i></a>
+            <a href="#" data-testid="${TestIds.gridPageNext}" ng-attr-data-disabled="{{model.page >= model.total}}" ng-click="component.setPage(model.page + 1)" title="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}">${iconTemplate("arrow-circle-right")}</a>
           </li>
         </ul>
       </div>
@@ -157,7 +159,8 @@ aweApplication.directive('aweGrid',
                   flatEntityAccess: true,
                   rowTemplate: "grid/row",
                   paginationTemplate: "grid/pagination",
-                  rowHeight: (parseInt(component.controller.rowHeight, 10) || 27),
+                  // The row height of the screen, or the one of the density (followed by the grid commons)
+                  rowHeight: getGridRowHeight(component.controller),
                   enableMinHeightCheck: false,
                   excessRows: 50,
                   excessColumns: 10,
@@ -170,10 +173,10 @@ aweApplication.directive('aweGrid',
                   //rowNum: scope.controller.max,
                   showColumnFooter: component.controller.showTotals,
                   icons: {
-                    menu: '<i class="fa fa-bars"/>',
-                    filter: '<i class="fa fa-filter"/>',
-                    sortAscending: '<i class="fa fa-sort-alpha-asc"/>',
-                    sortDescending: '<i class="fa fa-sort-alpha-desc"/>'
+                    menu: iconTemplate("bars"),
+                    filter: iconTemplate("filter"),
+                    sortAscending: iconTemplate("sort-alpha-asc"),
+                    sortDescending: iconTemplate("sort-alpha-desc")
                   },
                   onRegisterApi: function (gridApi) {
                     component.grid.api = gridApi;
@@ -189,6 +192,7 @@ aweApplication.directive('aweGrid',
                   text: component.controller.emptyText || "SCREEN_TEXT_GRID_EMPTY_TEXT",
                   button: (component.controller.buttonModel || []).find(button => button.id === component.controller.emptyAction)
                 };
+                scope.emptyState.buttonIcon = $utilities.extractIcon(scope.emptyState.button?.icon);
                 scope.onEmptyAction = function () {
                   // Runs the actions of the grid button like any other click on it, once the digest of this click is over
                   // (the button starts a digest of its own)

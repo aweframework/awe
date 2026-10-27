@@ -10,6 +10,7 @@ import React from "react";
 import { Tooltip } from "primereact/tooltip";
 import { isEmpty } from "./general";
 import { translateLabel } from "./labels";
+import { resolveIcon } from "./iconResolver";
 
 /**
  * Utilities functions
@@ -577,22 +578,139 @@ export function extractIcon(icon: string = ""): { name: string; family: string }
 }
 
 /**
- * Get icon HTML template
- * @param icon Icon to generate
+ * The Lucide sprite of the build (#885). The application copies the static files of the client to its root, so the
+ * sprite is read under the context path, as the theme stylesheets are
+ * @memberOf Utilities
+ */
+export const ICON_SPRITE = "/icons/lucide-sprite.svg";
+
+/** An icon resolved to a Lucide icon of the sprite or to its current font (family and name null without icon) */
+export interface ResolvedIcon {
+  family: string | null;
+  name: string | null;
+  classes?: string;
+}
+
+/** Element of an icon written in the client: its tag and the attributes it keeps */
+export type IconNodeOptions = { tag?: string; className?: string } & Record<string, unknown>;
+
+// Font Awesome and PrimeIcons modifier classes -> classes of the AWE icon (the fixed width ones are dropped: the svg
+// already has a fixed width)
+const ICON_MODIFIERS: Record<string, string> = {
+  "fa-spin": "awe-icon-spin", "fa-pulse": "awe-icon-spin", "pi-spin": "awe-icon-spin", "fa-lg": "awe-icon-lg",
+  "fa-fw": "", "pi-fw": ""
+};
+const NO_ICON: ResolvedIcon = Object.freeze({ family: null, name: null });
+
+// Resolved icons by value: the components ask for the icon on every render
+const icons = new Map<string, ResolvedIcon>();
+
+const classList = (classes: unknown = ""): string[] => String(classes ?? "").split(/\s+/).filter(Boolean);
+const iconClasses = (classes: unknown): string[] => classList(classes)
+  .map(name => name in ICON_MODIFIERS ? ICON_MODIFIERS[name] : name)
+  .filter(Boolean);
+const contextClasses = (classes: unknown): string | undefined =>
+  classList(classes).filter(name => !(name in ICON_MODIFIERS)).join(" ") || undefined;
+const modifierClasses = (classes: unknown): string[] =>
+  iconClasses(classList(classes).filter(name => name in ICON_MODIFIERS).join(" "));
+
+const resolveAweIcon = (icon: string): ResolvedIcon => {
+  const resolved = resolveIcon(icon) as { family: string; name: string; classes: string } | null;
+  if (!resolved) {
+    return NO_ICON;
+  }
+  const classes = resolved.family === "lucide" ? iconClasses(resolved.classes).join(" ") : resolved.classes;
+  return { family: resolved.family, name: resolved.name, classes };
+};
+
+/**
+ * Resolve the icon value of the screen XML or the data
+ * @param {string} icon Icon value (a Font Awesome, mdi:, lucide: or PrimeIcons name) and its extra classes
+ * @returns {{family: string, name: string, classes?: string}} The Lucide icon ({family: "lucide"}) with its extra
+ * classes (the Font Awesome modifiers turned into AWE icon classes), or the family and name of the icon in its current
+ * font; family and name null without icon or for an unknown Lucide name
+ * @memberOf Utilities
+ */
+export function getIcon(icon?: string | null): ResolvedIcon {
+  if (!icon) {
+    return NO_ICON;
+  }
+  if (!icons.has(icon)) {
+    icons.set(icon, Object.freeze(resolveAweIcon(String(icon))));
+  }
+  return icons.get(icon) as ResolvedIcon;
+}
+
+/**
+ * Address of the Lucide sprite, under the context path of the application
+ * @returns {string} Sprite address
+ * @memberOf Utilities
+ */
+export function getIconSprite(): string {
+  return `${getContextPath()}${ICON_SPRITE}`;
+}
+
+// The decorative svg of a Lucide icon of the sprite, as the AngularJS client draws it
+const lucideSvg = (name: string | null, classes: string[]): React.ReactElement => <svg
+  className={["awe-icon", ...classes].join(" ")} aria-hidden="true" focusable="false">
+  <use href={`${getIconSprite()}#${name}`} /></svg>;
+
+// The element of a Lucide icon: it keeps its classes and attributes (layout, behaviour and test hooks) and holds the
+// svg; the modifier classes written next to the icon go to the svg
+const lucideElement = (tag: string, resolved: ResolvedIcon, attributes: Record<string, unknown>): React.ReactElement =>
+  React.createElement(tag,
+    { ...attributes, className: contextClasses(attributes.className) },
+    lucideSvg(resolved.name, [...classList(resolved.classes), ...modifierClasses(attributes.className)]));
+
+/**
+ * Get icon HTML template: the svg of the Lucide sprite inside the icon element for an icon with Lucide equivalence,
+ * the element of its current font otherwise
+ * @param icon Icon to generate ("name", "fa-name", "fa:name", "mdi:name", "lucide:name" and its extra classes)
  * @param extraClasses Extra classes to add to the icon
+ * @memberOf Utilities
  */
 export function getIconCode(icon?: string, extraClasses: string = ""): React.ReactElement | null {
-  const iconValues = extractIcon(icon);
-  if (icon) {
-    switch (iconValues.family) {
-      case "mdi":
-        return <i role="icon" className={`material-icons ${extraClasses}`}>{iconValues.name}</i>;
-      default:
-        return <i role="icon"
-          className={`${iconValues.family} ${iconValues.family}-${iconValues.name} ${extraClasses}`} />;
-    }
+  if (!icon) {
+    return null;
   }
-  return null;
+  const resolved = getIcon(icon);
+  if (resolved.family === "lucide") {
+    return lucideElement("i", resolved, { role: "icon", className: extraClasses });
+  }
+  if (!resolved.family) {
+    return null;
+  }
+  const iconValues = extractIcon(icon);
+  switch (iconValues.family) {
+    case "mdi":
+      return <i role="icon" className={`material-icons ${extraClasses}`}>{iconValues.name}</i>;
+    default:
+      return <i role="icon"
+        className={`${iconValues.family} ${iconValues.family}-${iconValues.name} ${extraClasses}`} />;
+  }
+}
+
+/**
+ * Icon written in the client ("pi-times", "pi-spinner pi-spin"...) in the element that holds it: the element keeps its
+ * classes and attributes and holds the svg of the Lucide icon, or it is the element of its current font
+ * @param {string} icon Icon value
+ * @param {object} [options] Element (tag, "i" by default), its classes (className) and its other attributes
+ * @returns {React.ReactElement|null} Icon element
+ * @memberOf Utilities
+ */
+export function getIconNode(icon?: string | null, { tag = "i", ...attributes }: IconNodeOptions = {}): React.ReactElement | null {
+  const resolved = getIcon(icon);
+  if (resolved.family === "lucide") {
+    return lucideElement(tag, resolved, attributes);
+  }
+  if (!resolved.family) {
+    return null;
+  }
+  const { className, ...others } = attributes;
+  const font = resolved.family === "material" ? ["material-icons"] : [resolved.family, `${resolved.family}-${resolved.name}`];
+  return React.createElement(tag,
+    { className: [...classList(className), ...font, ...classList(resolved.classes)].join(" "), ...others },
+    resolved.family === "material" ? resolved.name : undefined);
 }
 
 /**

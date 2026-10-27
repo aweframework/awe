@@ -290,7 +290,8 @@ describe("icon column test ids", () => {
 
     const icon = element.find(hook(TestIds.columnIcon));
     expect(icon.length).toBe(1);
-    expect(icon.is("span.fa")).toBe(true);
+    expect(icon.is("span.text-success")).toBe(true);
+    expect(icon.find("svg.awe-icon use").attr("href")).toBe("icons/lucide-sprite.svg#plus");
     expect(icon.attr("data-icon")).toBe("fa-plus");
     cleanupHeavyComponentTest();
   });

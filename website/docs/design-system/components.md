@@ -47,7 +47,7 @@ active, disabled, invalid, loading, empty) and works in both densities and both 
 ### Select, multiselect and autocomplete
 
 The native browser list is **not** used: it ignores the theme and the mode. Every select is a combobox with a listbox
-popup in the Aura list style.
+popup in the AWE list style.
 
 | Part | Rule |
 |------|------|

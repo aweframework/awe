@@ -1,6 +1,8 @@
 import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
+import {iconTemplate} from "../services/icon";
 import "../services/grid/tree";
+import {getGridRowHeight, getTreeIndent} from "../services/grid/density";
 import "./gridSkeleton";
 import "./gridToolbar";
 
@@ -87,17 +89,20 @@ aweApplication.directive('aweTreeGrid',
                   flatEntityAccess: true,
                   rowTemplate: "grid/row",
                   paginationTemplate: "grid/pagination",
-                  rowHeight: 27,
+                  // The row height of the screen, or the one of the density (followed by the grid commons)
+                  rowHeight: getGridRowHeight(component.controller),
+                  // Indent of each level
+                  treeIndent: getTreeIndent(),
                   enableMinHeightCheck: false,
                   //headerHeight: 28,
                   node: elem,
                   virtualizationThreshold: 50,
                   showColumnFooter: component.controller.showTotals,
                   icons: {
-                    menu: '<i class="fa fa-bars"/>',
-                    filter: '<i class="fa fa-filter"/>',
-                    sortAscending: '<i class="fa fa-sort-alpha-asc"/>',
-                    sortDescending: '<i class="fa fa-sort-alpha-desc"/>',
+                    menu: iconTemplate("bars"),
+                    filter: iconTemplate("filter"),
+                    sortAscending: iconTemplate("sort-alpha-asc"),
+                    sortDescending: iconTemplate("sort-alpha-desc"),
                     expand: "fa-" + (component.controller.iconExpand || 'plus-square'),
                     collapse: "fa-" + (component.controller.iconCollapse || 'minus-square'),
                     leaf: "fa-" + (component.controller.iconLeaf || 'dot-circle-o'),

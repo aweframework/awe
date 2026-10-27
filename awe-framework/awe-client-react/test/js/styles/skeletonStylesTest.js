@@ -3,14 +3,16 @@ import path from "path";
 
 const SRC = path.join(__dirname, "../../../src");
 const read = (...parts) => fs.readFileSync(path.join(SRC, ...parts), "utf8");
+const PRIMEREACT = path.join(__dirname, "../../../node_modules/primereact");
+const {buildThemeFrom, readPrimeReact, TOKENS_FILE} = require("../../../../awe-design-tokens/primereact/primereact-theme.cjs");
 
 describe("awe-react-client/test/js/styles/skeletonStylesTest.js", () => {
-  it("declares the shared skeleton tokens next to the other AWE tokens", () => {
-    const main = read("main.css");
+  it("takes the skeleton tokens from the AWE 5 token file shared with the AngularJS client", () => {
+    const tokens = fs.readFileSync(TOKENS_FILE, "utf8");
 
-    // Same colors as the AngularJS client: grid border and grid header
-    expect(main).toMatch(/--awe-color-skeleton:\s*var\(--surface-c,\s*#dbdbdb\);/);
-    expect(main).toMatch(/--awe-color-skeleton-highlight:\s*var\(--surface-b,\s*#ebebeb\);/);
+    expect(tokens).toMatch(/--awe-color-skeleton:\s*light-dark\(/);
+    expect(tokens).toMatch(/--awe-color-skeleton-highlight:\s*light-dark\(/);
+    expect(read("main.css")).not.toMatch(/--awe-color-skeleton(-highlight)?\s*:/);
   });
 
   it("disables the skeleton shimmer when the user prefers reduced motion", () => {
@@ -19,10 +21,10 @@ describe("awe-react-client/test/js/styles/skeletonStylesTest.js", () => {
     expect(main).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.p-skeleton::after\s*\{[^}]*animation:\s*none/);
   });
 
-  it.each(["sky", "sunset"])("styles the skeleton of the %s theme with the shared tokens", (theme) => {
-    const css = read("static", "css", "themes", theme, "theme.css");
+  it("styles the PrimeReact skeleton with the shared tokens", () => {
+    const css = buildThemeFrom(readPrimeReact(PRIMEREACT).theme, PRIMEREACT);
 
     expect(css).toMatch(/\.p-skeleton\s*\{[^}]*background-color:\s*var\(--awe-color-skeleton\)/);
-    expect(css).toMatch(/\.p-skeleton::after\s*\{[^}]*linear-gradient\(90deg,\s*var\(--awe-color-skeleton\),\s*var\(--awe-color-skeleton-highlight\),\s*var\(--awe-color-skeleton\)\)/);
+    expect(css).toMatch(/\.p-skeleton:after\s*\{[^}]*linear-gradient\(90deg,\s*transparent,\s*var\(--awe-color-skeleton-highlight\),\s*transparent\)/);
   });
 });

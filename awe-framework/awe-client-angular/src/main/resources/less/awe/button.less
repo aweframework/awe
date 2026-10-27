@@ -1,18 +1,21 @@
-// Azure sign with microsoft
+// Azure sign with microsoft: the Microsoft artwork, with the height of a large control (#885)
 .sign-in-azure-btn-light {
+  height: var(--awe-size-control-lg);
   background-image: url("../awe/images/background/azure_signin_light.svg");
   background-repeat: no-repeat;
   background-position: left;
-  margin-top: 10px;
-  padding: 15px 5px;
-  width: 215px;
-  height: 41px;
+  background-size: contain;
   border: 0 solid;
 }
 
-// Sign with SSO
-.sign-in-sso-btn {
-  background-position: left;
-  margin-top: 10px;
-  padding: 15px 5px;
+// On the sign-in page: centred under the login button, as wide as its artwork
+.signin-form .form-actions .sign-in-azure-btn-light {
+  display: block;
+  width: auto;
+  aspect-ratio: ~"217 / 45";
+  margin: 0 auto;
+  padding: 0;
+  background-color: transparent;
 }
+
+// Sign with SSO: a dark AWE button, drawn by the login page (pages/signin.less)

@@ -37,11 +37,14 @@ public class SecurityEndpoints {
       PathPatternRequestMatcher.withDefaults().matcher("/js/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/fonts/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/images/**"),
+      // The sprite of the Lucide icons, drawn on every page (the sign in included)
+      PathPatternRequestMatcher.withDefaults().matcher("/icons/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/locales/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/error**"),
       PathPatternRequestMatcher.withDefaults().matcher("/websocket/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/template/**"),
       PathPatternRequestMatcher.withDefaults().matcher("/settings"),
+      PathPatternRequestMatcher.withDefaults().matcher("/settings/appearance"),
       PathPatternRequestMatcher.withDefaults().matcher("/locals-*/**")
   };
 

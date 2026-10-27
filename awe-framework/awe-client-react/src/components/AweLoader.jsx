@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import {ProgressSpinner} from "primereact/progressspinner";
 import {Skeleton} from "primereact/skeleton";
+import {getIconNode} from "../utilities";
 import "./AweLoader.less";
 import "./AweSkeleton.less";
 
@@ -49,7 +50,7 @@ function AweLoader({icon, rootProps = {}}) {
 
   let content = null;
   if (icon === "icon") {
-    content = <i className="pi pi-spinner pi-spin" />;
+    content = getIconNode("pi-spinner pi-spin");
   } else if (icon in CSS_LOADERS) {
     content = <div className={`${icon}-loader`}>
       {CSS_LOADERS[icon].map(item => <div key={item} className={item} />)}

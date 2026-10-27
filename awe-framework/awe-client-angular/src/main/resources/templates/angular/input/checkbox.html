@@ -7,7 +7,7 @@
         <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
                ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"/>
         <span class="lbl label-{{::size}}">
-          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          <i ng-if="::controller.help" class="help-target"><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('question-circle' | aweIcon).href}}"></use></svg></i>
           {{controller.label| translateMultiple}}
         </span>
         <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>

@@ -140,6 +140,46 @@
     <option label="ENUM_ENV_PRO" value="Pro" />
   </group>
 
+  <!-- THEME MODE -->
+  <group id="ThmMde">
+    <option label="ENUM_THEME_MODE_LIGHT" value="light" />
+    <option label="ENUM_THEME_MODE_DARK" value="dark" />
+    <option label="ENUM_THEME_MODE_SYSTEM" value="system" />
+  </group>
+
+  <!-- THEME PRIMARY: the AWE 5 palettes in hue order, or custom for a hex -->
+  <group id="ThmPri">
+    <option label="ENUM_THEME_PRIMARY_RED" value="red" />
+    <option label="ENUM_THEME_PRIMARY_ORANGE" value="orange" />
+    <option label="ENUM_THEME_PRIMARY_AMBER" value="amber" />
+    <option label="ENUM_THEME_PRIMARY_YELLOW" value="yellow" />
+    <option label="ENUM_THEME_PRIMARY_LIME" value="lime" />
+    <option label="ENUM_THEME_PRIMARY_GREEN" value="green" />
+    <option label="ENUM_THEME_PRIMARY_EMERALD" value="emerald" />
+    <option label="ENUM_THEME_PRIMARY_TEAL" value="teal" />
+    <option label="ENUM_THEME_PRIMARY_CYAN" value="cyan" />
+    <option label="ENUM_THEME_PRIMARY_SKY" value="sky" />
+    <option label="ENUM_THEME_PRIMARY_BLUE" value="blue" />
+    <option label="ENUM_THEME_PRIMARY_INDIGO" value="indigo" />
+    <option label="ENUM_THEME_PRIMARY_VIOLET" value="violet" />
+    <option label="ENUM_THEME_PRIMARY_PURPLE" value="purple" />
+    <option label="ENUM_THEME_PRIMARY_FUCHSIA" value="fuchsia" />
+    <option label="ENUM_THEME_PRIMARY_PINK" value="pink" />
+    <option label="ENUM_THEME_PRIMARY_ROSE" value="rose" />
+    <option label="ENUM_THEME_COLOR_CUSTOM" value="custom" />
+  </group>
+
+  <!-- THEME SURFACE: auto, the AWE 5 neutral palettes, or custom for a hex -->
+  <group id="ThmSrf">
+    <option label="ENUM_THEME_SURFACE_AUTO" value="auto" />
+    <option label="ENUM_THEME_SURFACE_SLATE" value="slate" />
+    <option label="ENUM_THEME_SURFACE_GRAY" value="gray" />
+    <option label="ENUM_THEME_SURFACE_ZINC" value="zinc" />
+    <option label="ENUM_THEME_SURFACE_NEUTRAL" value="neutral" />
+    <option label="ENUM_THEME_SURFACE_STONE" value="stone" />
+    <option label="ENUM_THEME_COLOR_CUSTOM" value="custom" />
+  </group>
+
   <!-- RESTRICTION ACCESS MODE -->
   <group id="ResAccModSel">
     <option label="ENUM_REST_MODE_RESTRICTED" value="R" />

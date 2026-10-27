@@ -208,7 +208,7 @@ describe("grid toolbar", () => {
 
     // Always set, also before the first toggle
     expect(grid.attr("data-maximized")).toBe("false");
-    expect(toolbar.find(hook("grid-maximize-button")).find("i").hasClass("fa-expand")).toBe(true);
+    expect(toolbar.find(hook("grid-maximize-button")).find("i use").attr("href")).toBe("icons/lucide-sprite.svg#expand");
 
     toolbarScope.toggleMaximize();
     refs.$rootScope.$digest();
@@ -221,7 +221,7 @@ describe("grid toolbar", () => {
     expect(grid.attr("data-maximized")).toBe("true");
     expect(toolbar.attr("data-maximized")).toBe("true");
     expect(target.find(".sibling").hasClass("minimized")).toBe(true);
-    expect(toolbar.find(hook("grid-maximize-button")).find("i").hasClass("fa-compress")).toBe(true);
+    expect(toolbar.find(hook("grid-maximize-button")).find("i use").attr("href")).toBe("icons/lucide-sprite.svg#shrink");
     expect(toolbar.find(hook("grid-maximize-button")).text()).toContain("SCREEN_TEXT_RESTORE");
 
     toolbarScope.toggleMaximize();
@@ -231,7 +231,7 @@ describe("grid toolbar", () => {
     expect(grid.attr("data-maximized")).toBe("false");
     expect(toolbar.attr("data-maximized")).toBe("false");
     expect(target.find(".sibling").hasClass("minimized")).toBe(false);
-    expect(toolbar.find(hook("grid-maximize-button")).find("i").hasClass("fa-expand")).toBe(true);
+    expect(toolbar.find(hook("grid-maximize-button")).find("i use").attr("href")).toBe("icons/lucide-sprite.svg#expand");
     target.remove();
   });
 

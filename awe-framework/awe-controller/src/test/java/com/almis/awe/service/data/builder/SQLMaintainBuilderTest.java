@@ -10,6 +10,7 @@ import com.almis.awe.model.entities.queries.Table;
 import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
+import com.almis.awe.template.FixedOracleTemplates;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -92,6 +93,42 @@ class SQLMaintainBuilderTest {
     assertEquals(List.of("Anonymous", "I", 41, "ROW-MULTI-0", 1), builder.getAuditInsertQueryRowValues(rows.get(0)));
     assertEquals(List.of("Anonymous", "I", 42, "ROW-MULTI-1", 0), builder.getAuditInsertQueryRowValues(rows.get(1)));
     assertEquals(0, builder.getSubqueryInvocationCount());
+  }
+
+  @Test
+  void multipleRowInsertQueryNamesTheColumnsOfEveryRowOfTheOracleBulkInsert() throws Exception {
+    // QueryDSL clears the columns of the clause on every addBatch: Oracle writes one "into" per row, and a row without
+    // its columns fails as soon as the table has more columns than the inserted ones (ORA-00947)
+    SQLInsertClause clause = (SQLInsertClause) multipleRowInsertQueryBuilder(false).build();
+
+    String sql = clause.getSQL().get(0).getSQL();
+    assertEquals(2, countOccurrences(sql, "into AweThm (IdeThm, Nam, Act)"), sql);
+  }
+
+  @Test
+  void multipleRowInsertQueryNamesTheColumnsOfEveryRowOfTheOracleBulkAudit() throws Exception {
+    SQLInsertClause clause = (SQLInsertClause) multipleRowInsertQueryBuilder(true).build();
+
+    String sql = clause.getSQL().get(0).getSQL();
+    assertEquals(2, countOccurrences(sql, "into HISAweThm (HISope, HISdat, HISact, IdeThm, Nam, Act)"), sql);
+  }
+
+  private SQLMaintainBuilder multipleRowInsertQueryBuilder(boolean audit) throws AWException {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    builder.setMaintain(insertQueryMaintain())
+      .setFactory(new SQLQueryFactory(new Configuration(new FixedOracleTemplates()), () -> connection))
+      .setVariables(Map.of())
+      .setParameters(JsonNodeFactory.instance.objectNode())
+      .setAudit(audit)
+      .setOperation(MaintainBuildOperation.NO_BATCH)
+      .setMaterializedInsertQueryRows(List.of(
+        tuple(41, "ROW-MULTI-0", 1),
+        tuple(42, "ROW-MULTI-1", 0)));
+    return builder;
+  }
+
+  private static int countOccurrences(String text, String part) {
+    return text.split(java.util.regex.Pattern.quote(part), -1).length - 1;
   }
 
   @Test

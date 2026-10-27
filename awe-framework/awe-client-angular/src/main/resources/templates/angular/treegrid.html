@@ -5,11 +5,11 @@
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button" ng-cloak>
       <button id="{{::gridId}}-grid-row-cancel" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-danger grid-row-cancel" data-testid="grid-row-cancel" title="{{'BUTTON_CANCEL'| translateMultiple}}" ng-click="onCancelRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow" ng-cloak>
-        <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'cancel' && component.savingRow, 'fa-close': component.rowAction !== 'cancel'}"></i>
+        <i><svg class="awe-icon awe-icon-spin" aria-hidden="true" focusable="false" ng-if="component.rowAction === 'cancel' && component.savingRow"><use ng-attr-href="{{::('refresh' | aweIcon).href}}"></use></svg><svg class="awe-icon" aria-hidden="true" focusable="false" ng-if="component.rowAction !== 'cancel'"><use ng-attr-href="{{::('close' | aweIcon).href}}"></use></svg></i>
         <span class="button-text" translate-multiple="BUTTON_CANCEL"></span>
       </button>
       <button id="{{::gridId}}-grid-row-save" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-primary grid-row-save" data-testid="grid-row-save" title="{{'BUTTON_SAVE_ROW'| translateMultiple}}" ng-click="onSaveRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow" ng-cloak>
-        <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'save' && component.savingRow, 'fa-save': component.rowAction !== 'save'}"></i>
+        <i><svg class="awe-icon awe-icon-spin" aria-hidden="true" focusable="false" ng-if="component.rowAction === 'save' && component.savingRow"><use ng-attr-href="{{::('refresh' | aweIcon).href}}"></use></svg><svg class="awe-icon" aria-hidden="true" focusable="false" ng-if="component.rowAction !== 'save'"><use ng-attr-href="{{::('save' | aweIcon).href}}"></use></svg></i>
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
     </div>

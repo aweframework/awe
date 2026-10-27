@@ -2,7 +2,7 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {RadioButton} from "primereact/radiobutton";
 import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
+import {getIconNode, translateLabel} from "../utilities";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
 import PropTypes from "prop-types";
@@ -30,7 +30,7 @@ function AweInputRadio(props) {
           className={classes}
           pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
         />
-        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && getIconNode("pi-question-circle", {role: "icon", className: "help-icon"})}{translateLabel(label, t)}</label>
       </div>
     </AweCriterion>
   );

@@ -31,27 +31,15 @@ or special users.
 
 ## Themes
 
-Themes screen allows you to define new *CSS themes* for the application. In this screen you can only define the theme name,
-but you also need to generate the new CSS theme files in your application.
+Themes screen allows you to define the *themes* of the application. Each theme has a name, a primary and a surface (a
+palette from a list or, with the custom option, a hex from a colour picker) and a mode, edited in the new and update
+screens. See [Theme configuration](../design-system/for-developers.md).
 
 <img alt="Themes screen" src={require('@docusaurus/useBaseUrl').default('img/ThemesScreen.png')} />
 
-Now you can update the defined color schema for each theme on the `Theme customization` screen.
-Simply select a theme on the `Themes` screen and click on the `Customize` button:
+The AWE 4 `Theme customization` screen is removed in AWE 5 (see the [v5 migration guide](v5-migration.md)).
 
-<img alt="Themes screen" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Themes_screen.png')} />
-
-You will be redirected to the `Theme customization` screen where you can change a set of properties (mostly colors) to 
-customize the theme properties and adapt it to your needing:
-
-<img alt="Themes screen" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Customize_screen.png')} />
-
-When a property has changed, a `save` button will appear to store the modified value and show a preview of the theme on 
-the right panel.
-
-<img alt="Themes screen" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Change_properties.png')} />
-
-Each theme has two modes, `light` and `dark`, which will be switched with the mode button on the navigation bar.
+Each user switches between the `light` and `dark` modes with the mode button on the navigation bar.
 
 The navigation bar buttons are defined on the `info-buttons.xml` screen.
 Here you have the `themeModeSelector` and the `themeSelector`.

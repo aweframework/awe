@@ -6,6 +6,7 @@ import "./multioperation";
 import "./events";
 import "./layout";
 import {getColumnHeaders} from "./layoutRules";
+import {getDensityRowHeight, getExplicitRowHeight, getGridRowHeight, observeDensity} from "./density";
 
 // Add requirements
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
@@ -444,6 +445,37 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.scope.skeletonLoader = ["skeleton", "skeleton-dim"].includes(component.scope.iconLoader);
         component.scope.dimReload = component.scope.iconLoader === "skeleton-dim";
 
+        // Row height of the cells (their line height and the minimum of the wrapping rows)
+        const setRowHeightProperty = (height) => component.element?.[0]?.style.setProperty("--grid-row-height", height + "px");
+
+        /**
+         * Change the row height of the grid: the options, the rows ui-grid has already built and the --grid-row-height
+         * of the cells (their line height and the minimum of the wrapping rows)
+         * @param {number} height Row height in pixels
+         */
+        component.applyRowHeight = function (height) {
+          setRowHeightProperty(height);
+          const options = component.scope.gridOptions;
+          if (!options || options.rowHeight === height) {
+            return;
+          }
+          options.rowHeight = height;
+          const uiGrid = component.grid?.api?.grid;
+          if (uiGrid) {
+            uiGrid.rows.forEach((row) => {
+              row.height = height;
+            });
+            component.updateGridScrollBars();
+          }
+        };
+
+        // Row height: the one of the screen, or the one of the density, read again when the density of the page changes
+        setRowHeightProperty(getGridRowHeight(component.controller));
+        if (!getExplicitRowHeight(component.controller)) {
+          const stopDensity = observeDensity(() => component.scope.$evalAsync(() => component.applyRowHeight(getDensityRowHeight())));
+          component.scope.$on("$destroy", stopDensity);
+        }
+
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();
 
@@ -470,8 +502,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.initWrapCells = function () {
           const element = component.element;
-          const rowHeight = parseInt(component.controller.rowHeight, 10) || 27;
-          element[0].style.setProperty("--grid-row-height", rowHeight + "px");
+          setRowHeightProperty(component.scope.gridOptions?.rowHeight || getGridRowHeight(component.controller));
           let tooltip = null;
           const hide = function () {
             if (tooltip) {

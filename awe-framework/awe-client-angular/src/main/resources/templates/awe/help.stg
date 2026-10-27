@@ -57,7 +57,7 @@ helpChart(e,label,content,developers) ::= <<
   $if(label)$
   $if(developers)$<span class="badge badge-info pull-right">$e.type$</span>$endif$
   <h6 class="text-info text-semibold text-sm">
-    <i class="fa fa-bar-chart fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#chart-column"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="$label$"></span>
     <span translate-multiple="HELP_CHART" class="text-xxs text-uppercase"></span>
     $if(developers)$(<code title="{{'HELP_CHART_IDENTIFIER' | translateMultiple}}">$e.id$</code>)$endif$
@@ -85,7 +85,7 @@ helpCriterion(e,label,content,developers) ::= <<
   $if(e.label)$
   $if(developers)$<span class="badge badge-success pull-right">$e.component$</span>$endif$
   <h6 class="text-success text-semibold text-sm">
-    <i class="fa fa-pencil-square-o fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="$e.label$"></span>
     <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     $if(developers)$(<code title="{{'HELP_CRITERION_IDENTIFIER' | translateMultiple}}">$e.id$</code>)$endif$
@@ -101,7 +101,7 @@ helpDialog(e,label,content,developers) ::= <<
 <div class="padding-sm-vr no-padding-t">
   <div class="panel panel-info">
     <div class="panel-heading">
-      <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+      <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
       <span class="panel-title" translate-multiple="$e.label$"></span>
     </div>
     <div class="panel-body">
@@ -145,7 +145,7 @@ $content$
 helpGrid(e,label,developers,columns,buttons) ::= <<
 <div class="help-snippet padding-sm-vr no-padding-t">
   <h6 class="text-primary text-semibold text-sm">
-    <i class="fa fa-table fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="$label$"></span>
     <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     $if(developers)$(<code title="{{'HELP_GRID_IDENTIFIER' | translateMultiple}}">$id$</code>)$endif$
@@ -160,16 +160,16 @@ helpGrid(e,label,developers,columns,buttons) ::= <<
         </div>
         <div class="stat-cell col-xs-3 padding-sm no-padding-hr">
           <div class="text-xs text-uppercase" translate-multiple="$if(e.treegrid)$HELP_LOADALL$else$HELP_MULTISELECT$endif$"></div>
-          <div class="text-bg"><i class="fa fa-$if(e.loadall)$check text-success$elseif(e.multiselect)$check text-success$else$times text-danger$endif$"></i></div>
+          <div class="text-bg">$if(e.loadall)$<i class="text-success"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#check"></use></svg></i>$elseif(e.multiselect)$<i class="text-success"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#check"></use></svg></i>$else$<i class="text-danger"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#x"></use></svg></i>$endif$</div>
         </div>
         <div class="stat-cell col-xs-3 padding-sm no-padding-hr">
           <div class="text-xs text-uppercase" translate-multiple="$if(e.multioperation)$HELP_MULTIOPERATION$else$HELP_EDITABLE$endif$"></div>
-          <div class="text-bg"><i class="fa fa-$if(e.multioperation)$check text-success$elseif(e.editable)$check text-success$else$times text-danger$endif$"></i></div>
+          <div class="text-bg">$if(e.multioperation)$<i class="text-success"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#check"></use></svg></i>$elseif(e.editable)$<i class="text-success"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#check"></use></svg></i>$else$<i class="text-danger"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#x"></use></svg></i>$endif$</div>
         </div>
         $if(!treegrid)$
         <div class="stat-cell col-xs-3 padding-sm no-padding-hr">
           <div class="text-xs text-uppercase" translate-multiple="HELP_TOTALIZE"></div>
-          <div class="text-bg"><i class="fa fa-$if(e.totalize)$check text-success$else$times text-danger$endif$"></i></div>
+          <div class="text-bg">$if(e.totalize)$<i class="text-success"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#check"></use></svg></i>$else$<i class="text-danger"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#x"></use></svg></i>$endif$</div>
         </div>
         <div class="stat-cell col-xs-3 padding-sm no-padding-hr">
           <div class="text-xs text-uppercase" translate-multiple="HELP_ROWS_PER_PAGE"></div>
@@ -188,7 +188,7 @@ helpGrid(e,label,developers,columns,buttons) ::= <<
   <div class="panel-body no-padding-vr">
     <div class="table-light panel panel-success panel-sm">
       <div class="panel-heading">
-        <i class="panel-title-icon fa fa-columns fa-fw"></i>
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
         <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
       </div>
       <table class="table table-striped">

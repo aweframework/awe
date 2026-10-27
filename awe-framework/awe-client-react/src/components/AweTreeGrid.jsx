@@ -182,7 +182,8 @@ function AweTreeGrid(props) {
     const expanded = !!expandedKeys[rowData.key];
     const leaf = rowData.leaf === true && !(rowData.children && rowData.children.length);
     const icon = leaf ? (iconLeaf || DEFAULT_ICONS.leaf) : expanded ? (iconCollapse || DEFAULT_ICONS.collapse) : (iconExpand || DEFAULT_ICONS.expand);
-    const style = { marginLeft: rowData.level * 16 + 'px' };
+    // Each level indents the toggle by the size of a toggle (AWE 5 tree grid, #885)
+    const style = { marginLeft: `calc(${rowData.level || 0} * var(--awe-space-6))` };
     if (column === expandColumn) {
       return <div className="p-treetable-expander-column">
         <button type="button" className="p-treetable-toggler p-link p-unselectable-text" onClick={() => !leaf && onTogglerClick(rowData.data[treeId], expanded)} tabIndex={-1} style={style}

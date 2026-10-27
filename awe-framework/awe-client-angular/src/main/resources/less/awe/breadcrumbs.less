@@ -1,47 +1,72 @@
 //
 // Breadcrumbs
 // --------------------------------------------------
+// The breadcrumb bar of a screen in the AWE 5 shell (#885): on the page background with the page padding, the home
+// icon, then each menu level muted with a separator, down to the screen title (emphasised, not a link). The screen
+// buttons sit on its right (.window-buttons in base.less)
 
+.window-header {
+  padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-space-3);
+}
+
+// The content keeps the page padding: the windows are cards without side margin (directives/panel.less)
+.window-center {
+  padding: 0 var(--awe-page-padding);
+}
 
 .breadcrumb.breadcrumb-page {
-  margin-left: 0;
-  margin-right: 0;
-  margin-top: 0;
-}
-
-.size-sm .breadcrumb-page {
-  padding-bottom: 6px;
-  padding-top: 6px;
-}
-
-.size-md .breadcrumb {
-  padding: 10px @breadcrumb-padding-horizontal;
-
-  &.breadcrumb-page {
-    padding-bottom: 9px;
-    padding-top: 10px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  min-height: var(--awe-size-control);
+  margin: 0;
+  padding: 0;
+  font-size: var(--awe-font-size-sm);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 
   > li {
-    font-size: @font-size-base;
-    + li:before {
-      padding: 0 5px;
-    }
-  }
-}
-
-.size-lg .breadcrumb {
-  padding: 12px @breadcrumb-padding-horizontal;
-
-  &.breadcrumb-page {
-    padding-bottom: 14px;
-    padding-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-1-5);
+    height: auto;
+    padding: 0;
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-tight);
+    color: var(--awe-color-text-muted);
   }
 
-  > li {
-    font-size: @font-size-large;
-    + li:before {
-      padding: 0 5px;
-    }
+  // Separator before every level, the first one too (it follows the home icon)
+  > li:before {
+    position: static;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    font-family: FontAwesome;
+    content: "\f054";
+    color: var(--awe-color-nav-item-icon);
+  }
+
+  > li.active {
+    padding-left: 0;
+    font-weight: var(--awe-font-weight-medium);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .breadcrumb-label {
+    display: inline-flex;
+    align-items: center;
+    float: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    color: var(--awe-color-text-muted);
   }
 }

@@ -860,6 +860,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    */
   @Test
   void testAddFavourite() throws Exception {
+    // The favourites target takes the user of the session
+    mockMvc.perform(post("/session/set/user").with(csrf()).param("value", "test").session(session))
+      .andExpect(status().isOk());
     String maintainName = "addToFavourites";
     String variables = "\"user\": \"test\", \"option\": \"themes\",";
     String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";

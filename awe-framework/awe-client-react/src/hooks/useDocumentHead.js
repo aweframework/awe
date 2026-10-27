@@ -1,4 +1,4 @@
-import {useEffect, useRef} from "react";
+import {useEffect} from "react";
 
 // Mounted titles: the highest level wins (a sub view over its view), ties go to the most recently set one.
 // Child effects run before parent effects, so the order of the effects alone cannot decide it
@@ -33,26 +33,4 @@ export function useDocumentTitle(title, level = 0) {
       applyTitle();
     };
   }, [title, level]);
-}
-
-/**
- * Keep a stylesheet link in the document head while the component is mounted
- * @param {string} href Stylesheet URL
- */
-export function useHeadStylesheet(href) {
-  const link = useRef(null);
-
-  useEffect(() => {
-    link.current = document.createElement("link");
-    link.current.rel = "stylesheet";
-    document.head.append(link.current);
-    return () => {
-      link.current.remove();
-      link.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    link.current.setAttribute("href", href);
-  }, [href]);
 }

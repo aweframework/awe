@@ -1,3 +1,10 @@
+/* AWE 5 design tokens (#885), shared with the AngularJS client. The AWE theme of PrimeReact reads them too */
+@import "../../awe-design-tokens/tokens.css";
+/* Inter (#885): the font of the type scale, shared with the AngularJS client */
+@import "../../awe-design-tokens/fonts/inter.css";
+/* AWE 5 icons (#885): the Lucide icon rules shared with the AngularJS client */
+@import "../../awe-design-tokens/icons/awe-icon.css";
+
 :root {
   --success-color:#689F38;
   --info-color:#0288D1;
@@ -9,26 +16,6 @@
 
   --animate-duration: 200ms;
   --animate-delay: 0.0s;
-
-  /* AWE design tokens (--awe-*, see the design tokens guide): the ones that have a PrimeReact equivalent, so a page
-     reads the same name in the AngularJS and in the React client. The PrimeReact theme provides the values. */
-  --awe-color-primary: var(--primary-color);
-  --awe-color-on-primary: var(--primary-color-text);
-  --awe-color-text: var(--text-color);
-  --awe-color-background: var(--surface-ground);
-  --awe-color-surface: var(--surface-card);
-  --awe-color-panel: var(--surface-card);
-  --awe-color-border: var(--surface-border);
-  --awe-color-danger: var(--danger-color);
-  --awe-color-warning: var(--warning-color);
-  --awe-color-success: var(--success-color);
-  --awe-color-info: var(--info-color);
-  --awe-font-family-base: var(--font-family);
-  --awe-radius: var(--border-radius);
-  /* Loading skeletons, as in the AngularJS client: the placeholder takes the grid border color (row separator of the
-     PrimeReact grids) and its shimmer the grid header color */
-  --awe-color-skeleton: var(--surface-c, #dbdbdb);
-  --awe-color-skeleton-highlight: var(--surface-b, #ebebeb);
 }
 
 /* The loading skeletons stay still when the user prefers reduced motion */
@@ -36,6 +23,19 @@
   .p-skeleton::after {
     animation: none;
   }
+}
+
+/* Colour mode of the tokens (light-dark()): the system one unless the user chose light or dark (class on <html>) */
+:root {
+  color-scheme: light dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
 }
 
 html {
@@ -47,7 +47,12 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--surface-a);
+  /* The base of the type scale; the html size stays as it is because the PrimeFlex spacing classes use rem */
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-background);
   width: 100%;
   height: 100%;
 }
@@ -77,20 +82,40 @@ body {
 }
 
 /* Text colors */
-.text-primary { color: var(--cyan-800); }
-.text-default { color: var(--surface-600); }
+.text-primary { color: var(--awe-color-primary-text); }
+.text-default { color: var(--awe-color-text-muted); }
 .text-success { color: var(--success-color); }
 .text-info { color: var(--info-color); }
 .text-warning { color: var(--warning-color); }
 .text-danger { color: var(--danger-color); }
 .text-help { color: var(--help-color); }
-.text-secondary { color: var(--text-color-secondary); }
+.text-secondary { color: var(--awe-color-text-muted); }
 .text-light-gray { color: var(--light-grey-color); }
 .text-dark-gray { color: var(--dark-grey-color); }
 
 /* Text styles */
 .text-underline { text-decoration: underline; }
 .text-uppercase { text-transform: uppercase; }
+
+/* The svg of an icon is decorative: its clicks go to the element that holds it, as the clicks on the glyph did. PrimeReact
+   takes a click as a click on a button only when the target or its parent is the button, so a click on the svg of the save
+   button of an edited row would select the row too */
+.awe-icon {
+  pointer-events: none;
+}
+
+/* Icons their context shows larger than the text: the svg takes the font size the context gives to the glyph */
+.grid-empty-icon > .awe-icon,
+.confirm-icon > .awe-icon,
+.animation-dot > .awe-icon {
+  width: 1em;
+  height: 1em;
+}
+
+/* The loading dots of the log viewer are solid, as the glyph was */
+.animation-dot > .awe-icon {
+  fill: currentColor;
+}
 
 /* Material icons default size */
 .material-icons {

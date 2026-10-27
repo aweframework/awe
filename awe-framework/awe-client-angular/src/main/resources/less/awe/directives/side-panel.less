@@ -20,8 +20,9 @@
     height: 100%;
     border: 0;
     border-radius: 0;
-    background-color: var(--awe-color-panel);
-    box-shadow: 0 0 12px rgba(0, 0, 0, .25);
+    // An overlay with the modal shadow (#885), as the React side panel
+    background-color: var(--awe-color-overlay);
+    box-shadow: var(--awe-shadow-modal);
   }
 
   .modal-header {
@@ -40,12 +41,14 @@
     position: sticky;
     bottom: 0;
     margin-top: auto;
-    background-color: var(--awe-color-panel);
+    // Opaque under the body that scrolls behind it, square at the edge of the screen
+    background-color: var(--awe-color-overlay);
+    border-radius: 0;
   }
 
   // Slide in from its edge instead of the Bootstrap drop from the top
   &.fade .modal-dialog {
-    transition: transform .3s ease-out;
+    transition: transform var(--awe-motion-duration-slow) var(--awe-motion-easing-enter);
   }
 
   &.side-panel-right .modal-dialog {

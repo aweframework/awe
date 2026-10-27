@@ -175,9 +175,9 @@ export const OperationType = {
  * @memberOf Grid
  */
 export const OperationIcon = {
-  "INSERT": "pi pi-user-plus text-success",
-  "UPDATE": "pi pi-user-edit text-info",
-  "DELETE": "pi pi-user-minus text-danger"
+  "INSERT": "pi-user-plus text-success",
+  "UPDATE": "pi-user-edit text-info",
+  "DELETE": "pi-user-minus text-danger"
 } as const;
 
 /**

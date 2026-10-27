@@ -1,17 +1,17 @@
 /*******************************************************************************
  CARPET LOADER
 *******************************************************************************/
+// AWE 5 (#885), as the React loader: drawn in the primary colour, every size a share of the loader size (loader.less)
 
 .carpet-loader {
-  width: 40px;
-  height: 40px;
+  width: @loader-size;
+  height: @loader-size;
   margin: auto;
-
   .sk-cube {
     width: 33%;
     height: 33%;
-    background-color: #444;
-    .opacity(0.7);
+    background-color: var(--awe-color-primary);
+    opacity: 0.7;
     float: left;
     animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
   }
@@ -33,17 +33,7 @@
     animation-delay: 0.1s; }
   .sk-cube9 {
     animation-delay: 0.2s; }
-
 }
-
-@-webkit-keyframes sk-cubeGridScaleDelay {
-  0%, 70%, 100% {
-    transform: scale3D(1, 1, 1);
-  } 35% {
-    transform: scale3D(0, 0, 1);
-  }
-}
-
 @keyframes sk-cubeGridScaleDelay {
   0%, 70%, 100% {
     transform: scale3D(1, 1, 1);

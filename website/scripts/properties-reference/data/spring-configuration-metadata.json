@@ -175,6 +175,12 @@
       "defaultValue": "operator"
     },
     {
+      "name": "awe.application.density",
+      "type": "java.lang.String",
+      "description": "Application density: comfortable or compact. The density the user chooses overrides it. Default value comfortable",
+      "defaultValue": "comfortable"
+    },
+    {
       "name": "awe.application.encoding",
       "type": "java.lang.String",
       "description": "Base encoding for all files. Default value UTF-8",
@@ -425,8 +431,8 @@
     {
       "name": "awe.application.paths.image-navbar-logo",
       "type": "java.lang.String",
-      "description": "Navigation bar logo. Uses application.paths.images as parent path. Default value ../images/logo/logo-awe-nuevo2.svg",
-      "defaultValue": "../images/logo/logo-awe-nuevo2.svg"
+      "description": "Navigation bar logo. Uses application.paths.images as parent path. Default value ../images/logo/awe-logo-mark.svg",
+      "defaultValue": "../images/logo/awe-logo-mark.svg"
     },
     {
       "name": "awe.application.paths.image-startup-background",
@@ -603,10 +609,19 @@
       "defaultValue": "sky"
     },
     {
-      "name": "awe.application.theme-follow-os-color-scheme",
-      "type": "java.lang.Boolean",
-      "description": "Dark themes of the database follow the dark color scheme of the operating system while the user did not choose the light or the dark mode. Set to false to ignore the operating system (the LESS counterpart is @awe-follow-os-color-scheme). Default value true",
-      "defaultValue": true
+      "name": "awe.application.theme-mode",
+      "type": "java.lang.String",
+      "description": "Application theme mode: light, dark or system (follows the operating system). It overrides the mode of the theme; the mode the user chooses overrides it. Default value empty (the mode of the theme, else system)"
+    },
+    {
+      "name": "awe.application.theme-primary",
+      "type": "java.lang.String",
+      "description": "Application theme primary colour: one of the AWE 5 palettes (emerald, green, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose, red, orange, amber, yellow, lime) or a hex colour (#RGB or #RRGGBB). It overrides the primary colour of the theme. Default value empty (the primary colour of the theme, else emerald)"
+    },
+    {
+      "name": "awe.application.theme-surface",
+      "type": "java.lang.String",
+      "description": "Application theme surface: one of the AWE 5 neutral palettes (slate, gray, zinc, neutral, stone), auto or a hex colour (#RGB or #RRGGBB). It overrides the surface of the theme. Default value empty (the surface of the theme, else auto)"
     },
     {
       "name": "awe.application.xml-hot-reload",

@@ -1,162 +1,174 @@
 /*
- * Menu option search (command palette)
+ * Menu option search (command palette), AWE 5 shell (#885)
  * --------------------------------------------------
- * Colours reuse the app's own menu/input tokens (--text-color, --component-bg-color,
- * --border-color, --surface-*, --highlight-*) so the toggle, input and results match
- * the rest of the menu on every theme, light or dark, with proper text contrast.
+ * The toggle looks like the search field of the side menu; the panel is an overlay with a field and a list of
+ * options. Tokens only, so it follows the mode, the density and the primary of the theme.
  */
 
 .awe-menu-search-toggle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  color: var(--text-color);
+  gap: var(--awe-space-2);
+  min-height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-field-padding-x);
   font: inherit;
-  padding: 0.75rem 1.25rem;
-  line-height: 1.25;
-  transition: background-color 0.2s, color 0.2s;
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-field-placeholder);
+  cursor: pointer;
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+  transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 }
 
+.awe-menu-search-toggle .awe-icon,
 .awe-menu-search-toggle i {
-  color: var(--text-color-secondary);
-  transition: color 0.2s;
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  color: var(--awe-color-field-icon);
 }
 
-.awe-menu-search-toggle:hover,
-.awe-menu-search-toggle:focus {
-  background-color: var(--surface-hover);
-  color: var(--text-color);
+.awe-menu-search-toggle:hover {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.awe-menu-search-toggle:focus-visible,
+.awe-menu-search.open .awe-menu-search-toggle {
+  border-color: var(--awe-color-field-border-focus);
   outline: none;
-}
-
-.awe-menu-search-toggle:hover i,
-.awe-menu-search-toggle:focus i {
-  color: var(--text-color);
+  box-shadow: var(--awe-shadow-field-focus);
 }
 
 .awe-menu-search-toggle-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .awe-menu-search-panel {
   position: absolute;
-  z-index: 1100;
-  width: 280px;
+  z-index: var(--awe-z-dropdown);
+  width: var(--awe-menu-flyout-width);
   max-width: 90vw;
-  padding: 0.5rem;
-  background-color: var(--menu-bg, var(--surface-overlay));
-  border: 1px solid var(--surface-border);
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: var(--awe-list-padding);
+  margin-top: var(--awe-space-1);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
 }
 
 .awe-menu-search-input {
   width: 100%;
-  color: var(--text-color);
-  background-color: var(--component-bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.6rem 0.75rem;
+  min-height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-field-padding-x);
   font: inherit;
-  box-shadow: none;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-field-text);
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
 }
 
 .awe-menu-search-input::placeholder {
-  color: var(--text-color-secondary);
+  color: var(--awe-color-field-placeholder);
 }
 
 .awe-menu-search-input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 1px var(--primary-color);
+  border-color: var(--awe-color-field-border-focus);
   outline: none;
+  box-shadow: var(--awe-shadow-field-focus);
 }
 
 .awe-menu-search-results {
-  list-style: none;
-  margin: 0.5rem 0 0;
-  padding: 0;
   max-height: 60vh;
+  padding: 0;
+  margin: var(--awe-space-1) 0 0;
   overflow-y: auto;
+  list-style: none;
 }
 
 .awe-menu-search-results > li {
-  margin: 0;
   padding: 0;
+  margin: 0;
 }
 
 .awe-menu-search-result {
   display: block;
   width: 100%;
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-color);
+  padding: var(--awe-list-option-padding);
+  margin-bottom: var(--awe-list-gap);
   font: inherit;
-  transition: background-color 0.15s, color 0.15s;
+  color: var(--awe-color-list-option-text);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 }
 
 .awe-menu-search-result.active,
 .awe-menu-search-result:hover,
 .awe-menu-search-result:focus {
-  background-color: var(--highlight-bg);
-  color: var(--highlight-text-color);
+  color: var(--awe-color-list-option-text-focus);
   outline: none;
+  background: var(--awe-color-list-option-focus);
 }
 
 .awe-menu-search-label {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .awe-menu-search-breadcrumb {
   display: block;
-  font-size: 0.8rem;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-color-secondary);
-}
-
-.awe-menu-search-result.active .awe-menu-search-breadcrumb,
-.awe-menu-search-result:hover .awe-menu-search-breadcrumb,
-.awe-menu-search-result:focus .awe-menu-search-breadcrumb {
-  color: inherit;
-  opacity: 0.85;
 }
 
 .awe-menu-search-empty {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  color: var(--text-color-secondary);
+  padding: var(--awe-list-option-padding);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
 }
 
-/* Vertical menu: full-width search bar shown above the options */
+/* Vertical menu: a full-width search field above the options */
 .awe-menu-search-vertical {
-  display: block;
   position: relative;
+  display: block;
+  margin-bottom: var(--awe-space-2);
 }
 
 .awe-menu-search-vertical .awe-menu-search-toggle {
-  width: 100%;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .awe-menu-search-vertical .awe-menu-search-panel {
-  left: 0;
   right: 0;
+  left: 0;
   width: auto;
 }
 
-/* Horizontal menu: compact icon toggle at the right end of the bar */
+/* Horizontal menu: an icon toggle at the right end of the bar */
 .awe-menu-search-horizontal {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 1100;
+  z-index: var(--awe-z-dropdown);
 }
 
 .awe-menu-search-horizontal .awe-menu-search-toggle {

@@ -6,7 +6,8 @@ import ReactDOM from "react-dom/client";
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
-import 'primereact/resources/themes/saga-blue/theme.css';
+// The AWE theme of PrimeReact (#885): the build turns this Lara theme into the AWE one (PrimeReactThemePlugin)
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/divider';
 
 import './main.css';
@@ -18,6 +19,10 @@ import 'animate.css/animate.css';
 import 'material-icons/iconfont/material-icons.css';
 import './assets/css/layout.css';
 import './assets/css/bootstrap-grid-compat.css';
+// The AWE 5 shell (#885): side menu, header and page of the home screens
+import './assets/css/shell.css';
+// The AWE 5 overlays (#885): dialogs and tooltips beyond the AWE theme of PrimeReact
+import './assets/css/overlays.css';
 
 // Pages
 import './assets/css/pages/signin.css';

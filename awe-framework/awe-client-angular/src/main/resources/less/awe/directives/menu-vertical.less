@@ -2,19 +2,38 @@
 // Main menu vertical
 // --------------------------------------------------
 
+// The AWE 5 side menu (#885): a column on the menu surface under the header, with the width of the menu tokens
+#main-menu.vertical #main-menu-bg {
+  background: var(--awe-menu-background);
+  border-right: 1px solid var(--awe-menu-border);
+}
+
+#main-menu.vertical ul.navigation {
+  padding: calc(var(--awe-header-height) + var(--awe-space-2)) var(--awe-space-3) var(--awe-space-4);
+}
+
+#main-menu.vertical ul.navigation > li + li {
+  margin-top: var(--awe-list-gap);
+}
+
+// Over the room pixel-admin keeps for its chevron: the chevron is the last item of the row
+#main-menu.vertical ul.navigation > li > a {
+  padding: var(--awe-nav-item-padding);
+}
+
+// A separator option is a subtle rule between groups of options
+#main-menu.vertical ul.navigation li.divider {
+  height: 0;
+  margin: var(--awe-space-2) var(--awe-space-3);
+  border-top: 1px solid var(--awe-color-border-subtle);
+  opacity: 1;
+}
+
 #main-menu.vertical {
   ul.navigation {
     li {
       display: block;
       width: auto;
-
-      &.divider {
-        height: 0;
-        border-top-width: 1px;
-        border-top-style: solid;
-        margin: 2px 10px 2px 10px;
-        .opacity(0.4);
-      }
     }
 
     .mm-dropdown-first,
@@ -121,7 +140,7 @@
 @media (min-width: @screen-small) {
   #main-menu.vertical ul.navigation,
   .mme #main-menu.vertical ul.navigation {
-    width: @main-menu-width;
+    width: var(--awe-menu-width);
     height: 100%;
     overflow-y: auto;
   }
@@ -142,12 +161,12 @@
 
       &.menu-minimized,
       &.menu-minimized-add.minimized-add-active {
-        width: @main-menu-collapsed-width;
+        width: var(--awe-menu-width-collapsed);
       }
 
       &,
       &.menu-minimized-remove.minimized-remove-active {
-        width: @main-menu-width;
+        width: var(--awe-menu-width);
       }
 
       li {
@@ -155,5 +174,57 @@
         width: auto;
       }
     }
+  }
+}
+
+// Desktops: the widths of the menu tokens instead of the pixel-admin ones (the menu toggle keeps its pixel-admin box)
+@media (min-width: @screen-tablet) {
+  #main-menu,
+  #main-menu-bg,
+  .mme #main-menu,
+  .mme #main-menu-bg {
+    width: var(--awe-menu-width);
+  }
+
+  .mmc #main-menu,
+  .mmc #main-menu-bg,
+  .mme.mmc #main-menu,
+  .mme.mmc #main-menu-bg {
+    width: var(--awe-menu-width-collapsed);
+  }
+
+  #main-wrapper,
+  .mme #main-wrapper {
+    padding-left: var(--awe-menu-width);
+  }
+
+  .mmc #main-wrapper {
+    padding-left: var(--awe-menu-width-collapsed);
+  }
+
+  #main-menu .mmc-dropdown-open-ul {
+    width: var(--awe-menu-flyout-width);
+  }
+
+  // Collapsed: the centred icons of the options (the label and the chevron are hidden)
+  .mmc #main-menu.vertical ul.navigation {
+    padding-right: var(--awe-space-2);
+    padding-left: var(--awe-space-2);
+  }
+
+  .mmc #main-menu.vertical ul.navigation > li > a {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .mmc #main-menu.vertical ul.navigation > li.mm-dropdown > a:before {
+    display: none;
+  }
+
+  .mmc #main-menu.vertical .awe-menu-search-vertical .awe-menu-search-toggle {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
   }
 }

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
 import {Button} from "primereact/button";
 import {TestIds, testHook} from "../utilities/testIds";
-import {translateLabel} from "../utilities";
+import {getIconCode, translateLabel} from "../utilities";
 
 /**
  * Panel shown instead of a tree that failed to render. The message and the component stack stay in the DOM, so a
@@ -29,9 +29,9 @@ function ErrorPanel({scope, error, componentStack, onRetry, onReload}) {
       <div className="error-boundary-message" {...testHook(TestIds.errorBoundaryMessage)}>{message}</div>
       <pre className="error-boundary-details" {...testHook(TestIds.errorBoundaryDetails)}>{details}</pre>
       <div className="error-boundary-actions">
-        <Button type="button" label={translateLabel("BUTTON_RETRY", t)} icon="pi pi-refresh" onClick={onRetry}
+        <Button type="button" label={translateLabel("BUTTON_RETRY", t)} icon={getIconCode("pi-refresh", "p-button-icon p-c p-button-icon-left")} onClick={onRetry}
                 pt={{root: testHook(TestIds.errorBoundaryRetry)}}/>
-        <Button type="button" label={translateLabel("BUTTON_RELOAD", t)} icon="pi pi-sync" outlined onClick={onReload}
+        <Button type="button" label={translateLabel("BUTTON_RELOAD", t)} icon={getIconCode("pi-sync", "p-button-icon p-c p-button-icon-left")} outlined onClick={onReload}
                 pt={{root: testHook(TestIds.errorBoundaryReload)}}/>
       </div>
     </div>

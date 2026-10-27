@@ -7,6 +7,7 @@ import {clearComponents} from "../actions/components";
 import type {FetchError} from "../../utilities";
 import {
   fetchFile,
+  fetchJson,
   fetchScreen,
   generateMessageAction,
   getComponentValue,
@@ -31,6 +32,7 @@ import type {Settings} from "../actions/settings";
 import {getAllComponents} from "../selectors/componentSelectors";
 import {getFirstDefinedAndNotNullValue} from "../../utilities/general";
 import {clearClassChanges} from "../../utilities/classChanges";
+import {pickThemeAppearance} from "../../utilities/themeAppearance";
 import {navigationActions} from "../actions/navigation";
 import type {ActionItem} from "../actions/actions";
 import type {AppThunk, MenuOption} from "../types";
@@ -60,6 +62,7 @@ interface ScreenClientAction extends ClientAction {
 
 let downloadIdentifier = 0;
 let screenReloadIdentifier = 0;
+let themeAppearanceRequest = 0;
 
 function getScreenReloadState(): { screenReloadToken: number } {
   return { screenReloadToken: ++screenReloadIdentifier };
@@ -275,6 +278,32 @@ export const changeThemeAction = (action: ClientAction): AppThunk => {
       dispatch(updateSettings({ theme: theme || targetTheme as string }));
     }
     dispatch(acceptAction(action));
+    if (theme || targetTheme) {
+      dispatch(refreshThemeAppearanceAction());
+    }
+  };
+};
+
+/**
+ * Read the theme appearance (primary, surface, mode, density and palette) of the session again from the server, after
+ * the theme, the user or the mode of the user changed. Only the response of the last request is kept
+ * @returns {function} Thunk (returns the request promise)
+ */
+export const refreshThemeAppearanceAction = () => {
+  return (dispatch, getState) => {
+    const request = ++themeAppearanceRequest;
+    const { settings } = getState();
+    // A request that cannot start rejects too, so it never breaks the action that asked for it
+    return new Promise((resolve) => resolve(fetchJson("POST", "/settings/appearance", {}, settings.token)))
+      .then((serverSettings) => {
+        if (request === themeAppearanceRequest) {
+          const appearance = pickThemeAppearance(serverSettings);
+          if (Object.keys(appearance).length) {
+            dispatch(updateSettings(appearance));
+          }
+        }
+      })
+      .catch((reason) => console.error("Error reading the theme appearance:", reason));
   };
 };
 

@@ -441,10 +441,13 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `openUserMenu()` | Abre o cierra el menú de usuario (el avatar del usuario conectado), donde están el tema, el modo de color y el idioma |
 | `clickUserMenuOption(String optionId)` | Hace clic en una opción del menú de usuario abierto (`dark-mode`, `light-mode`). Solo AngularJS |
 | `switchToDarkMode()`, `switchToLightMode()` | Abre el menú de usuario (salvo que ya esté abierto) y elige el modo oscuro o el claro. Solo AngularJS |
+| `switchToLightModeIfDark()` | Abre el menú de usuario (salvo que ya esté abierto) y, si ofrece el modo claro (el usuario está en el modo oscuro), lo elige y espera a que la página sea clara; si no, mantiene el modo. Un test empieza en el modo claro sea cual sea el modo con el que empieza la sesión. Solo AngularJS |
 | `selectTheme(String themeName)` | Abre el menú de usuario (salvo que ya esté abierto), elige un tema y espera a que la pantalla cargue. Solo AngularJS |
 | `checkThemeApplied(String themeName)` | Comprueba que un tema está aplicado a la página. Solo AngularJS |
 | `checkColorMode(String mode)` | Comprueba que el usuario eligió el modo `dark` o `light` (gana al sistema operativo, así que también prueba que la elección llegó a la página). Solo AngularJS |
 | `checkDesignToken(String token, String value)` | Comprueba el valor de un [design token](design-tokens-guide.md) (`--awe-color-primary`) en la página, sin distinguir mayúsculas ni espacios. Es el que le dan el tema y el modo aplicados. Solo AngularJS |
+| `checkThemeAppearance(String mode, String primary)` | Comprueba que `<html>` lleva la clase del modo `dark` o `light` (y no la del otro) y la paleta primaria del tema en `data-awe-primary` (`red`, `blue`...), como pintan los dos motores el tema de AWE 5 |
+| `checkComputedStyle(String cssSelector, String property, String value)` | Comprueba el valor calculado de una propiedad CSS del primer elemento que encaja con el selector (`body`, `background-color`, `rgb(248, 250, 252)`), sin distinguir mayúsculas ni espacios. Los colores llegan como `rgb(...)` |
 | `clickContextButton(String... contextButtonOptionList)` | Hace clic en las opciones de un menú contextual en orden |
 | `closeContextMenu()` | Cierra el menú contextual abierto sin elegir una opción |
 | `checkContextMenuNotVisible()` | Comprueba que no se muestra ningún menú contextual |

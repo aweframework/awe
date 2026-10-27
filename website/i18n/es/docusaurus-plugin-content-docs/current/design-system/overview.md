@@ -27,7 +27,6 @@ definida en XML se ve igual en AngularJS y en React.
 |----------|---------------|
 | Un producto nuevo | AWE 5 debe parecer un producto nuevo, no un AWE 4 con otros colores: cambian tipografía, espaciado, formas, iconos, estructura y componentes. |
 | Los dos motores a la par | Un contrato de tokens (`--awe-*`) y las mismas reglas de componentes para AngularJS y React. |
-| Inspirado en Aura | Los valores proceden del preset Aura de PrimeTek (`@primeuix/themes` 2.0.3, MIT). El CSS es propio de AWE. |
 | Claro y oscuro | Cada token de color tiene un valor claro y uno oscuro. Elige el usuario o, si no elige, el sistema operativo. |
 | Temas sencillos | Un tema es una paleta **primaria** más una paleta de **superficie**. No hay nada más que configurar. |
 | Accesible | El texto cumple WCAG 2.2 AA (4,5:1) en los dos modos y con cualquier primario. El foco siempre es visible. |

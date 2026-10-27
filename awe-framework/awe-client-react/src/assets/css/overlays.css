@@ -1,0 +1,18 @@
+/* AWE 5 overlays (#885): what the AWE theme of PrimeReact cannot give, because Lara has no declaration to map */
+
+/* Dialog: the title of the prototype and a slight blur of the page under the mask */
+.p-dialog .p-dialog-header .p-dialog-title {
+  line-height: var(--awe-line-height-snug);
+  letter-spacing: var(--awe-letter-spacing-tight);
+}
+
+.p-dialog-mask.p-component-overlay {
+  backdrop-filter: var(--awe-mask-backdrop-filter);
+}
+
+/* Tooltip: the small medium type of the prototype */
+.p-tooltip .p-tooltip-text {
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+}

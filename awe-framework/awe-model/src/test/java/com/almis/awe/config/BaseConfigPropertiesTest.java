@@ -55,4 +55,37 @@ class BaseConfigPropertiesTest {
 
     assertThat(properties.getMap().getTileUrl()).isEqualTo("https://tiles.example.com/{z}/{x}/{y}.png");
   }
+
+  @Test
+  @DisplayName("Without properties the theme appearance comes from the theme name and the density is comfortable")
+  void defaultThemeAppearance() {
+    BaseConfigProperties properties = bind(Map.of());
+
+    assertThat(properties.getTheme()).isEqualTo("sky");
+    assertThat(properties.getThemePrimary()).isNull();
+    assertThat(properties.getThemeSurface()).isNull();
+    assertThat(properties.getThemeMode()).isNull();
+    assertThat(properties.getDensity()).isEqualTo("comfortable");
+  }
+
+  @Test
+  @DisplayName("theme-primary, theme-surface, theme-mode and density set the theme appearance")
+  void themeAppearance() {
+    BaseConfigProperties properties = bind(Map.of(
+      "awe.application.theme-primary", "#1a73e8",
+      "awe.application.theme-surface", "slate",
+      "awe.application.theme-mode", "dark",
+      "awe.application.density", "compact"));
+
+    assertThat(properties.getThemePrimary()).isEqualTo("#1a73e8");
+    assertThat(properties.getThemeSurface()).isEqualTo("slate");
+    assertThat(properties.getThemeMode()).isEqualTo("dark");
+    assertThat(properties.getDensity()).isEqualTo("compact");
+  }
+
+  @Test
+  @DisplayName("The default navigation bar logo is the AWE 5 mark (#885), whose wordmark the AWE theme fills")
+  void defaultNavbarLogoIsTheAwe5Mark() {
+    assertThat(bind(Map.of()).getPaths().getImageNavbarLogo()).isEqualTo("../images/logo/awe-logo-mark.svg");
+  }
 }

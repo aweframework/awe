@@ -1,6 +1,7 @@
 import React, {useCallback} from "react";
 import "./Actions.css";
 import {classNames} from "../utilities/components";
+import {getIconCode} from "../utilities";
 
 import {ActionStatus} from "../redux/actions/actions";
 import {Button} from "primereact/button";
@@ -20,12 +21,15 @@ const getStyle = (status) => {
   }
 };
 
+// Classes PrimeReact gives to the icon of a button with label
+const ICON_CLASSES = "p-button-icon p-c p-button-icon-left";
+
 const getIcon = (status) => {
   switch (status) {
     case STATUS_STARTED:
-      return "pi pi-spin pi-spinner";
+      return getIconCode("pi-spinner pi-spin", ICON_CLASSES);
     case STATUS_RUNNING:
-      return "pi pi-play";
+      return getIconCode("pi-play", ICON_CLASSES);
     default:
       return null;
   }

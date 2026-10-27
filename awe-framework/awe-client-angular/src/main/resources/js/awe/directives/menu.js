@@ -3,6 +3,7 @@ import {ClientActions} from "../data/actions";
 import {searchOptions} from "../data/menuSearch";
 import _ from "lodash";
 import {TestIds} from "../data/testIds";
+import {iconTemplate} from "../services/icon";
 
 function getResolutionType(width) {
   if (width <= 640) {
@@ -26,7 +27,7 @@ aweApplication.directive('aweMenu',
             <div class="awe-menu-search awe-menu-search-{{::menuType}}" ng-class="{'open': search.open}" ng-if="searchEnabled && isVisible()" ng-cloak>
               <button type="button" class="awe-menu-search-toggle" ng-click="toggleSearch()"
                       title="{{'BUTTON_SEARCH'| translateMultiple}}" aria-label="{{'BUTTON_SEARCH'| translateMultiple}}">
-                <i class="fa fa-search"></i>
+                ${iconTemplate("search")}
               </button>
               <div class="awe-menu-search-panel" ng-if="search.open">
                 <input type="text" class="awe-menu-search-input form-control" ng-model="search.query" ng-change="onSearchChange()"

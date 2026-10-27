@@ -1924,6 +1924,30 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldChooseTheLightModeWhenTheUserMenuOffersIt() {
+    show(instructions.getUserMenuOption("light-mode"), "Light mode");
+    show(instructions.getColorModePage("light"), "");
+
+    utilities.switchToLightModeIfDark();
+
+    assertThat(utilities.events).containsExactly("user-menu", "option:light-mode");
+  }
+
+  @Test
+  void shouldFailWhenTheChosenLightModeIsNeverApplied() {
+    show(instructions.getUserMenuOption("light-mode"), "Light mode");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.switchToLightModeIfDark());
+  }
+
+  @Test
+  void shouldKeepTheModeWhenTheUserMenuDoesNotOfferTheLightMode() {
+    utilities.switchToLightModeIfDark();
+
+    assertThat(utilities.events).containsExactly("user-menu");
+  }
+
+  @Test
   void shouldSelectAThemeFromTheUserMenu() {
     utilities.selectTheme("sunset");
 
@@ -1940,6 +1964,30 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThrows(AssertionFailedError.class, () -> utilities.checkThemeApplied("sky"));
     assertThrows(AssertionFailedError.class, () -> utilities.checkColorMode("light"));
     assertThrows(IllegalArgumentException.class, () -> utilities.checkColorMode("blue"));
+  }
+
+  @Test
+  void shouldCheckTheModeAndThePrimaryOfTheThemeOnTheHtmlElement() {
+    show(By.cssSelector("html.dark:not(.light)[data-awe-primary='red']"), "");
+
+    assertThatCode(() -> utilities.checkThemeAppearance("dark", "red")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkThemeAppearance("light", "red"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkThemeAppearance("dark", "blue"));
+    assertThrows(IllegalArgumentException.class, () -> utilities.checkThemeAppearance("blue", "red"));
+  }
+
+  @Test
+  void shouldCheckTheComputedStyleOfAnElementIgnoringCaseAndSpaces() {
+    when(((JavascriptExecutor) driver).executeScript(anyString(), eq("body"), eq("background-color")))
+      .thenReturn(" RGB(248, 250, 252) ");
+
+    assertThatCode(() -> utilities.checkComputedStyle("body", "background-color", "rgb(248, 250, 252)"))
+      .doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class,
+      () -> utilities.checkComputedStyle("body", "background-color", "rgb(9, 9, 11)"));
+    // An element that is not on the page has no style
+    assertThrows(AssertionFailedError.class,
+      () -> utilities.checkComputedStyle(".missing", "background-color", "null"));
   }
 
   @Test

@@ -3,9 +3,12 @@ const webpack = require("webpack");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const {LucideSpritePlugin} = require('../awe-design-tokens/icons/lucide-sprite.cjs');
 
 const dir = path.join(__dirname, "src", "main", "resources", "webpack");
 const styleDir = path.resolve(__dirname, "src", "main", "resources", "less");
+// The Inter face of the AWE 5 type scale (#885), shared with the React engine
+const fontsDir = path.resolve(__dirname, "..", "awe-design-tokens", "fonts");
 const srcPath = path.resolve(__dirname, "src", "main", "resources", "js", "awe");
 const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib");
 // The chart utilities of the React client (ECharts option builder, events, SVG render) are shared with this client
@@ -68,7 +71,7 @@ module.exports = (env = {}, argv = {}) => {
         // The shared React sources written in TypeScript (#808): the Babel configuration of this module strips their types
         { test: /\.ts$/, include: [ reactSourcePath ], use: [{loader: 'babel-loader', options: {
             envName: mode, configFile: path.resolve(__dirname, ".babelrc"), babelrc: false }}]},
-        { test : /\.css$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
+        { test : /\.css$/, include : [ styleDir, fontsDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
         { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
             loader: "less-loader", options: { lessOptions: { plugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ] }, sourceMap: false }}]},
         { test : /\.(jpg|gif|png)$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './images/[hash][ext][query]' }},
@@ -95,6 +98,11 @@ module.exports = (env = {}, argv = {}) => {
       new LodashModuleReplacementPlugin,
       new webpack.ProvidePlugin({
         "window.constructor": "constructor"
+      }),
+      // The AWE 5 icons (#885): every Lucide icon of the pinned lucide-static in one sprite, generated on each build
+      new LucideSpritePlugin({
+        lucideDir: path.resolve(__dirname, "node_modules", "lucide-static"),
+        filename: "icons/lucide-sprite.svg"
       })
     ]
   };

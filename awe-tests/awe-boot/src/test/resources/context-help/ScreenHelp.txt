@@ -1,5 +1,5 @@
 <h1 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
-  <i role="icon" class="help-icon text-primary fa fa-sitemap fa-fw"></i>
+  <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#network"></use></svg></i>
   {{'SCREEN_TITLE_SIT'| translateMultiple}}
 </h1>
 <hr class="help-header-separator"/>
@@ -44,13 +44,13 @@
   </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_BUTTON"></p>
 </div><div class="help-snippet padding-sm-vr no-padding-t">
   <h6 class="text-success text-semibold text-sm">
-    <i class="fa fa-pencil-square-o fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NAME"></span>
     <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
   </h6>
 </div><div class="help-snippet padding-sm-vr no-padding-t">
   <h6 class="text-success text-semibold text-sm">
-    <i class="fa fa-pencil-square-o fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
     <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
   </h6>
@@ -68,14 +68,14 @@
   </h6><p class=" no-margin text-justify" translate-multiple="HELP_SEARCH_BUTTON"></p>
 </div><div class="help-snippet padding-sm-vr no-padding-t">
   <h6 class="text-primary text-semibold text-sm">
-    <i class="fa fa-table fa-fw"></i>
+    <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
     <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DATA"></span>
     <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
   </h6>
   <div class="panel-body no-padding-vr">
     <div class="table-light panel panel-success panel-sm">
       <div class="panel-heading">
-        <i class="panel-title-icon fa fa-columns fa-fw"></i>
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
         <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
       </div>
       <table class="table table-striped">
@@ -107,7 +107,7 @@
 </div><div class="padding-sm-vr no-padding-t">
   <div class="panel panel-info">
     <div class="panel-heading">
-      <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+      <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
       <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
     </div>
     <div class="panel-body">
@@ -126,7 +126,7 @@
 </div><div class="padding-sm-vr no-padding-t">
   <div class="panel panel-info">
     <div class="panel-heading">
-      <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+      <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
       <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
     </div>
     <div class="panel-body">
@@ -140,35 +140,35 @@
       </div>
       <div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>
         <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
       </div><div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>
         <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
       </div><div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>
         <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
       </div><div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>
         <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
       </div><div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>
@@ -181,7 +181,7 @@
       </div>
       <div class="help-snippet padding-sm-vr no-padding-t">
         <h6 class="text-success text-semibold text-sm">
-          <i class="fa fa-pencil-square-o fa-fw"></i>
+          <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
           <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
           <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
         </h6>

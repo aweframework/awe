@@ -5,12 +5,17 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.settings.WebSettings;
+import com.almis.awe.model.util.theme.ThemeAppearance;
 import com.almis.awe.service.InitService;
 import com.almis.awe.service.MenuService;
+import com.almis.awe.service.ThemeService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Manage settings request
@@ -23,17 +28,21 @@ public class SettingsController extends ServiceConfig {
   private final MenuService menuService;
   private final InitService initService;
   private final BaseConfigProperties baseConfigProperties;
+  private final ThemeService themeService;
 
   /**
    * Initialize controller
    * @param menuService Menu service
    * @param initService Init service
    * @param baseConfigProperties Base properties
+   * @param themeService Theme service
    */
-  public SettingsController(MenuService menuService, InitService initService, BaseConfigProperties baseConfigProperties) {
+  public SettingsController(MenuService menuService, InitService initService, BaseConfigProperties baseConfigProperties,
+                            ThemeService themeService) {
     this.menuService = menuService;
     this.initService = initService;
     this.baseConfigProperties = baseConfigProperties;
+    this.themeService = themeService;
   }
 
   /**
@@ -61,6 +70,24 @@ public class SettingsController extends ServiceConfig {
   }
 
   /**
+   * Retrieve the AWE 5 theme appearance of the session, with the field names of the settings. Unlike the settings, it
+   * does not launch the client start services: the clients read it again after a theme or a mode change
+   *
+   * @return themePrimary, themeSurface, themeMode, density and themePalette
+   */
+  @PostMapping("/appearance")
+  public Map<String, Object> getAppearance() {
+    ThemeAppearance appearance = themeService.getAppearance();
+    Map<String, Object> fields = new LinkedHashMap<>();
+    fields.put("themePrimary", appearance.primary());
+    fields.put("themeSurface", appearance.surface());
+    fields.put("themeMode", appearance.mode());
+    fields.put("density", appearance.density());
+    fields.put("themePalette", appearance.palette());
+    return fields;
+  }
+
+  /**
    * Overwrite setting parameters
    *
    * @param settings Settings
@@ -76,6 +103,12 @@ public class SettingsController extends ServiceConfig {
     } else {
       settings.setTheme(baseConfigProperties.getTheme());
     }
+    ThemeAppearance appearance = themeService.getAppearance();
+    settings.setThemePrimary(appearance.primary())
+      .setThemeSurface(appearance.surface())
+      .setThemeMode(appearance.mode())
+      .setDensity(appearance.density())
+      .setThemePalette(appearance.palette());
     if (getSession().getParameter(String.class, AweConstants.SESSION_INITIAL_URL) != null) {
       settings.setInitialURL(getSession().getParameter(String.class, AweConstants.SESSION_INITIAL_URL));
     } else {

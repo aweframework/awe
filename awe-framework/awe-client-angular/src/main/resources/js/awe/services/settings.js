@@ -1,5 +1,14 @@
 import {aweApplication} from "../awe";
 import {DefaultSettings} from "../data/options";
+import {
+  applyThemeAppearance,
+  observeModeClasses,
+  pickThemeAppearance,
+  THEME_APPEARANCE_FIELDS
+} from "awe-client-react/utilities/themeAppearance";
+
+// One observer of the mode classes of the body for the whole page
+let stopModeObserver = () => undefined;
 
 // $settings service
 aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtilities', '$http', '$location', '$rootScope', '$state', '$injector',
@@ -7,6 +16,7 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
     let tokenKey = "token";
     let initialize = $utilities.q.defer();
     let $connection = null;
+    let appearanceRequest = 0;
     const $settings = {
       /**
        * Initialize $settings from server
@@ -28,7 +38,29 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
         }).catch(function (error) {
           $log.error("FATAL ERROR: Application settings retrieval failure", error);
         });
+
+        // The mode selector of the info buttons sets the dark or light class of the body
+        stopModeObserver();
+        stopModeObserver = observeModeClasses(document.body, ["dark", "light"], () => $settings.refreshAppearance());
         return initialize.promise;
+      },
+      /**
+       * Read the theme appearance (primary, surface, mode, density and palette) of the session again from the server,
+       * after the theme, the user or the mode of the user changed. Only the response of the last request is kept
+       * @returns {Promise} Request
+       */
+      refreshAppearance: function () {
+        let request = ++appearanceRequest;
+        return $http({
+          method: 'POST',
+          url: $settings.get("pathServer") + "settings/appearance"
+        }).then(function (response) {
+          if (request === appearanceRequest) {
+            $settings.update(pickThemeAppearance(angular.fromJson(response.data)));
+          }
+        }).catch(function (error) {
+          $log.warn("The theme appearance could not be read", error);
+        });
       },
       /**
        * Initialize $settings from server
@@ -78,10 +110,16 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
        * @returns {object} $settings
        */
       update: function (settings = {}) {
-        $storage.putRoot("settings", {
+        let newSettings = {
           ...$storage.getRoot("settings") || {},
           ...settings
-        });
+        };
+        $storage.putRoot("settings", newSettings);
+
+        // Render the theme appearance on <html> when it changes
+        if (THEME_APPEARANCE_FIELDS.some((field) => field in settings)) {
+          applyThemeAppearance(newSettings);
+        }
       },
       /**
        * Store session token

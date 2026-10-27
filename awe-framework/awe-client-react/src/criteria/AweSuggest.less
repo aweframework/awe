@@ -2,36 +2,42 @@
   z-index: 1;
 }
 
+// The dropdown button of the suggest sits inside the field, over its right end
 .p-autocomplete .p-autocomplete-dropdown {
   background: transparent;
-  color: var(--text-color-secondary);
-  width: 30px;
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
+  color: var(--awe-color-field-icon);
+  width: var(--awe-space-8);
+  border-top-right-radius: var(--awe-radius-field);
+  border-bottom-right-radius: var(--awe-radius-field);
   border-width: 0;
   border-color: transparent;
-  margin-right: -30px;
+  margin-right: calc(-1 * var(--awe-space-8));
   position: relative;
-  left: -35px;
+  left: calc(-1 * (var(--awe-space-8) + var(--awe-space-1)));
   z-index: 1;
 
   &:enabled:hover, &:enabled:focus {
     background: transparent;
-    color: var(--text-color-secondary);
+    color: var(--awe-color-text-muted);
   }
 
 }
 
 .p-autocomplete.p-autocomplete-dd .p-autocomplete-input {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
+  border-top-right-radius: var(--awe-radius-field);
+  border-bottom-right-radius: var(--awe-radius-field);
 }
 
+// An option of a long (virtual) list has the fixed height of the virtual scroller: its text is centred in it
+.p-virtualscroller .p-autocomplete-item {
+  display: flex;
+  align-items: center;
+}
+
+// An option of a long (virtual) list: one line, cut with an ellipsis (its tooltip shows the whole text)
 .awe-virtual-item {
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: -15px;
-  line-height: 38px;
-  padding: 0 5px;
 }

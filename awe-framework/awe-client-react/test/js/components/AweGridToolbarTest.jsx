@@ -345,7 +345,7 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
         .toEqual(["fixed", "40px", "10px", "800px", "500px"]);
       expect(document.getElementById("sibling").classList.contains("minimized")).toBe(true);
       expect(button().textContent).toBe("SCREEN_TEXT_RESTORE");
-      expect(button().querySelector("i").className).toContain("pi-window-minimize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#minimize");
 
       fireEvent.click(button());
       // The state is exposed once it settles: until the restore animation ends the grid is still hidden under the clone

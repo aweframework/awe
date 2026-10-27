@@ -23,7 +23,10 @@ CREATE TABLE AweThm
     IdeThm number(5)
         CONSTRAINT pk_AweThm PRIMARY KEY NOT NULL, --- Theme key
     Nam    varchar2(100)                 not NULL, --- Theme name
-    Act    number(5) default 1           not NULL  --- Active (1) or not (0)
+    Act    number(5) default 1           not NULL, --- Active (1) or not (0)
+    Pri    varchar2(20)                      NULL, --- Primary colour
+    Srf    varchar2(20)                      NULL, --- Surface
+    Mde    varchar2(10)                      NULL  --- Mode
 );
 CREATE UNIQUE INDEX AweThmI1 ON AweThm (Nam);
 
@@ -316,7 +319,10 @@ CREATE TABLE HISAweThm
     HISact varchar2(1)   not NULL,
     IdeThm number(5)     NULL,
     Nam    varchar2(100) NULL,
-    Act    number(5)     NULL
+    Act    number(5)     NULL,
+    Pri    varchar2(20)  NULL,
+    Srf    varchar2(20)  NULL,
+    Mde    varchar2(10)  NULL
 );
 CREATE INDEX HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);
 CREATE TABLE HISAwePro

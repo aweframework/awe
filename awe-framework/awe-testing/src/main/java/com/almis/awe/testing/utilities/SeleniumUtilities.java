@@ -1876,6 +1876,18 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Choose the light mode in the user menu when the menu offers it (the user is in the dark mode) and wait until the page
+   * is light, so a test starts in the light mode whatever mode the session starts in. Otherwise the mode is kept
+   */
+  protected void switchToLightModeIfDark() {
+    openUserMenuIfClosed();
+    if (isVisibleNow(locator(frontEndInstructions.getUserMenuOption("light-mode")))) {
+      clickUserMenuOption("light-mode");
+      checkColorMode("light");
+    }
+  }
+
+  /**
    * Choose a theme in the user menu, as a user does
    *
    * @param themeName Theme name
@@ -1905,6 +1917,39 @@ public class SeleniumUtilities implements IAweInstructions {
       throw new IllegalArgumentException("The color mode is dark or light, not " + mode);
     }
     waitUntil(BrowserCondition.present(locator(frontEndInstructions.getColorModePage(mode))));
+  }
+
+  /**
+   * Check the theme appearance on the page root, the same in both engines (#885): the {@code <html>} element carries the
+   * class of the mode (and not the other one) and the primary palette of the theme in {@code data-awe-primary}
+   *
+   * @param mode    Color mode: dark or light
+   * @param primary Primary palette (red, blue, sky...)
+   */
+  protected void checkThemeAppearance(String mode, String primary) {
+    if (!"dark".equals(mode) && !"light".equals(mode)) {
+      throw new IllegalArgumentException("The color mode is dark or light, not " + mode);
+    }
+    String otherMode = "dark".equals(mode) ? "light" : "dark";
+    waitUntil(BrowserCondition.present(locator(By.cssSelector(
+      String.format("html.%s:not(.%s)[data-awe-primary='%s']", mode, otherMode, primary)))));
+  }
+
+  /**
+   * Check the computed value of a CSS property of the first element that matches a selector (rgb(...) for the colors).
+   * The case and the spaces around the value are ignored
+   *
+   * @param cssSelector CSS selector of the element
+   * @param property    CSS property (background-color)
+   * @param value       Expected computed value (rgb(248, 250, 252))
+   */
+  protected void checkComputedStyle(String cssSelector, String property, String value) {
+    waitUntil(BrowserCondition.of("computed " + property + " of " + cssSelector + " to be " + value, browser -> {
+      Object computed = browser.executeScript(
+        "const element = document.querySelector(arguments[0]);"
+          + "return element ? getComputedStyle(element).getPropertyValue(arguments[1]).trim() : null;", cssSelector, property);
+      return computed != null && value.trim().equalsIgnoreCase(String.valueOf(computed).trim());
+    }));
   }
 
   /**

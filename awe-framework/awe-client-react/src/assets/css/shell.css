@@ -1,0 +1,471 @@
+/*
+ * AWE 5 application shell (#885): the side menu, the header and the page of the home screens (home-sidebar.xml), as
+ * website/docs/design-system/layout-and-shell.md describes them. The screen XML keeps its classes; this file reads
+ * tokens only, so light and dark mode and both densities come from the token file. The brand slot artwork lives in
+ * pages/home.css. The AWE theme of PrimeReact is in a cascade layer, so these rules win over it.
+ */
+
+/* Frame -------------------------------------------------------------------- */
+.layout-container {
+  min-height: 100vh;
+  background: var(--awe-color-background);
+}
+
+.layout-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--awe-z-menu);
+  display: flex;
+  flex-direction: column;
+  width: var(--awe-menu-width);
+  background: var(--awe-menu-background);
+  border-right: 1px solid var(--awe-menu-border);
+  transition: width var(--awe-motion-duration-expand) var(--awe-motion-easing-expand),
+    transform var(--awe-motion-duration-expand) var(--awe-motion-easing-expand);
+}
+
+/* Brand slot: as high as the header, so their bottom borders line up */
+.sidebar-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: var(--awe-header-height);
+  padding: 0 var(--awe-space-4);
+  overflow: hidden;
+  border-bottom: 1px solid var(--awe-menu-border);
+}
+
+.layout-menu-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.layout-content-wrapper {
+  min-height: 100vh;
+  margin-left: var(--awe-menu-width);
+  transition: margin-left var(--awe-motion-duration-expand) var(--awe-motion-easing-expand);
+}
+
+/* Header ------------------------------------------------------------------- */
+.layout-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--awe-z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-3);
+  height: var(--awe-header-height);
+  padding: 0 var(--awe-page-padding) 0 var(--awe-space-3);
+  background: var(--awe-header-background);
+  border-bottom: 1px solid var(--awe-header-border);
+  backdrop-filter: var(--awe-header-backdrop-filter);
+}
+
+.topbar-start {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  min-width: 0;
+}
+
+.topbar-start h3 {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-tight);
+  color: var(--awe-color-text-emphasis);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* User menu: the avatar and the name of the user as one rounded button */
+.layout-topbar .avatar-component {
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding-right: var(--awe-space-2);
+  border-radius: var(--awe-radius-full);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.layout-topbar .avatar-component:hover {
+  background: var(--awe-color-surface-hover);
+}
+
+.layout-topbar .avatar-component .avatar-name {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  color: var(--awe-color-text-emphasis);
+  white-space: nowrap;
+}
+
+/* Page --------------------------------------------------------------------- */
+.layout-content {
+  padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-page-padding);
+}
+
+/* Breadcrumb: home icon, then each menu level down to the page, which is not highlighted as a link */
+.p-breadcrumb-container {
+  align-items: center;
+  gap: var(--awe-space-3);
+  padding-bottom: var(--awe-space-3);
+}
+
+.p-breadcrumb-container .p-breadcrumb {
+  display: flex;
+  align-items: center;
+  min-height: var(--awe-size-control);
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list {
+  flex-wrap: wrap;
+  gap: var(--awe-space-1-5);
+  font-size: var(--awe-font-size-sm);
+}
+
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link .p-menuitem-text,
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link .p-menuitem-icon {
+  color: var(--awe-color-text-muted);
+}
+
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link:hover .p-menuitem-text,
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link:hover .p-menuitem-icon {
+  color: var(--awe-color-text-hover);
+}
+
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li.p-menuitem-separator {
+  margin: 0;
+  color: var(--awe-color-nav-item-icon);
+}
+
+.p-breadcrumb-container .p-breadcrumb .p-breadcrumb-list li:last-child .p-menuitem-text {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+/* Side menu: section > option (level 1) > sub-option (level 2) > sub-sub-option (level 3) --------------------------- */
+.awe-menu-container-vertical {
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-4);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel {
+  margin-bottom: var(--awe-list-gap);
+}
+
+/* Level 1: icon + label (+ chevron when it has children) */
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-content {
+  color: var(--awe-menu-item-text);
+  background: none;
+  border: 0;
+  border-radius: var(--awe-menu-item-radius);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-content .p-panelmenu-header-link {
+  gap: var(--awe-nav-item-gap);
+  min-height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: inherit;
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-link .p-menuitem-icon {
+  margin: 0;
+  color: var(--awe-menu-item-icon);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-link .p-submenu-icon,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem-link .p-submenu-icon {
+  order: 1;
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  margin: 0 0 0 auto;
+  color: var(--awe-menu-item-icon);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-menuitem-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  line-height: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header:not(.p-disabled):hover .p-panelmenu-header-content,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header:not(.p-disabled).p-highlight:hover .p-panelmenu-header-content {
+  color: var(--awe-color-nav-item-text-active);
+  background: var(--awe-menu-item-hover-background);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header:not(.p-disabled).p-highlight .p-panelmenu-header-content {
+  color: var(--awe-menu-item-text);
+  background: none;
+  border-radius: var(--awe-menu-item-radius);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-header:not(.p-disabled):hover .p-menuitem-icon {
+  color: var(--awe-color-nav-item-icon-active);
+}
+
+/* Section label: small uppercase muted text, not an option */
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator:not(:first-child) {
+  margin-top: var(--awe-space-4);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator > .p-panelmenu-header {
+  cursor: default;
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator > .p-panelmenu-header .p-panelmenu-header-content,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator > .p-panelmenu-header:hover .p-panelmenu-header-content {
+  background: none;
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator .p-panelmenu-header-content .p-panelmenu-header-link,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-separator > .p-menuitem-content .p-menuitem-link {
+  min-height: 0;
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-1-5);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-menu-section-label);
+  text-transform: uppercase;
+  cursor: default;
+}
+
+/* Active trail: every ancestor of the current option is marked, the option itself is highlighted */
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active-path > .p-panelmenu-header .p-panelmenu-header-content {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active-path > .p-panelmenu-header .p-menuitem-icon,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active > .p-panelmenu-header .p-menuitem-icon {
+  color: var(--awe-menu-item-active-icon);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active > .p-panelmenu-header .p-panelmenu-header-content,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active > .p-panelmenu-header:hover .p-panelmenu-header-content {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-menu-item-active-text);
+  background: var(--awe-menu-item-active-background);
+}
+
+/* Levels 2 and 3: no icon, indented, smaller and muted, with a vertical guide line per level */
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content {
+  padding: 0 0 var(--awe-space-1);
+  color: var(--awe-menu-item-sub-text);
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.awe-menu-container-vertical .p-panelmenu-root-list {
+  --_guide: calc(var(--awe-menu-guide-l2) - var(--awe-menu-indent));
+
+  padding-left: var(--awe-menu-indent);
+}
+
+.awe-menu-container-vertical .p-panelmenu-root-list .p-submenu-list {
+  --_guide: calc(var(--awe-menu-guide-l3) - var(--awe-menu-indent-l3));
+
+  padding-left: var(--awe-menu-indent-l3);
+}
+
+/* A new formatting context keeps the gap under the option (its content margin) inside the item, so the guide line,
+   which spans the item, has no cut between options */
+.awe-menu-container-vertical .p-panelmenu-content .p-menuitem {
+  position: relative;
+  display: flow-root;
+}
+
+.awe-menu-container-vertical .p-panelmenu-content .p-menuitem::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--_guide);
+  width: 1px;
+  content: "";
+  background: var(--awe-menu-guide);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem > .p-menuitem-content {
+  position: relative;
+  margin-bottom: var(--awe-list-gap);
+  border-radius: var(--awe-menu-item-radius);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem > .p-menuitem-content .p-menuitem-link {
+  gap: var(--awe-nav-item-gap);
+  min-height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding);
+  line-height: var(--awe-line-height-snug);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-text {
+  color: var(--awe-menu-item-sub-text);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem:not(.p-disabled) > .p-menuitem-content:hover .p-menuitem-link .p-menuitem-text {
+  color: var(--awe-color-text-hover);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem-link .p-menuitem-icon {
+  display: none;
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-submenu-list .p-menuitem-link {
+  font-size: var(--awe-font-size-sm);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active-path:not(.p-disabled) > .p-menuitem-content .p-menuitem-link .p-menuitem-text {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active:not(.p-disabled) > .p-menuitem-content,
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active:not(.p-disabled) > .p-menuitem-content:hover {
+  background: var(--awe-menu-item-active-background);
+}
+
+.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active:not(.p-disabled) > .p-menuitem-content .p-menuitem-link .p-menuitem-text {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-menu-item-active-text);
+}
+
+/* The accent bar of the trail and the current option sits on the guide line of its level */
+.awe-menu-container-vertical .p-panelmenu-content .p-menuitem.p-menuitem-active-path > .p-menuitem-content::before,
+.awe-menu-container-vertical .p-panelmenu-content .p-menuitem.p-menuitem-active > .p-menuitem-content::before {
+  position: absolute;
+  top: var(--awe-space-1-5);
+  bottom: var(--awe-space-1-5);
+  left: calc(var(--_guide) - 1px);
+  z-index: 1;
+  width: var(--awe-space-0-5);
+  content: "";
+  background: var(--awe-menu-guide-active);
+  border-radius: var(--awe-radius-full);
+}
+
+/* Collapsed rail (desktop): the menu toggle collapses the side menu to its icons; the nested levels of an option open
+   as a flyout next to the rail while the option is hovered or focused */
+@media (min-width: 1025px) {
+  .layout-static-inactive .layout-sidebar {
+    width: var(--awe-menu-width-collapsed);
+  }
+
+  .layout-static-inactive .layout-content-wrapper {
+    margin-left: var(--awe-menu-width-collapsed);
+  }
+
+  .layout-static-inactive .sidebar-header {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical {
+    padding: var(--awe-space-2);
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-link {
+    justify-content: center;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-header .p-menuitem-text,
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-header .p-panelmenu-header-link .p-submenu-icon,
+  .layout-static-inactive .awe-menu-search-toggle-label {
+    display: none;
+  }
+
+  /* A section becomes a divider */
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator {
+    margin: var(--awe-space-3) 0;
+    border-top: 1px solid var(--awe-color-border-subtle);
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator:first-child {
+    display: none;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-separator > .p-panelmenu-header {
+    display: none;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active-path > .p-panelmenu-header .p-panelmenu-header-content {
+    background: var(--awe-menu-item-active-background);
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel > .p-toggleable-content {
+    position: fixed;
+    left: var(--awe-menu-width-collapsed);
+    z-index: var(--awe-z-dropdown);
+    width: var(--awe-menu-flyout-width);
+    max-height: calc(100vh - var(--awe-header-height));
+    overflow-y: auto;
+    padding: var(--awe-list-padding) var(--awe-space-2) var(--awe-space-2);
+    color: var(--awe-color-overlay-text);
+    background: var(--awe-color-overlay);
+    border: 1px solid var(--awe-color-overlay-border);
+    border-radius: var(--awe-radius-lg);
+    box-shadow: var(--awe-shadow-overlay);
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel:not(:hover, :focus-within) > .p-toggleable-content {
+    display: none;
+  }
+
+  /* The flyout has no room for the first indent: its level 2 starts at the left */
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-root-list {
+    --_guide: calc(var(--awe-menu-guide-l3-flyout) - var(--awe-menu-indent));
+
+    padding-left: 0;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-root-list > .p-menuitem::before {
+    display: none;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-root-list .p-submenu-list {
+    --_guide: calc(var(--awe-menu-guide-l3-flyout) - var(--awe-menu-indent));
+
+    padding-left: var(--awe-menu-indent);
+  }
+}
+
+/* Tablet and below: the side menu is a drawer over the content, opened by the menu toggle */
+@media (max-width: 1024px) {
+  .layout-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .layout-content-wrapper {
+    margin-left: 0;
+  }
+
+  .layout-static-inactive .layout-sidebar {
+    transform: none;
+    box-shadow: var(--awe-shadow-modal), 0 0 0 100vmax var(--awe-color-mask);
+  }
+}
