@@ -28,6 +28,7 @@ const GENERATED = new Set(['properties.md', 'rest-api.md', PAGE]);
 
 const AREAS = {
 	api: 'API reference',
+	decisions: 'Architecture decisions',
 	'design-system': 'Design system',
 	guides: 'Guides',
 	security: 'Security',
@@ -66,6 +67,7 @@ const TEXT = {
 		review: (rule) => (rule.reviewed === 'generated' ? 'generada a partir de las fuentes' : `${rule.reviewed} (${rule.ref})`),
 		areas: {
 			api: 'Referencia de la API',
+			decisions: 'Decisiones de arquitectura',
 			'design-system': 'Sistema de diseño',
 			guides: 'Guías',
 			security: 'Seguridad',

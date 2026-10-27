@@ -28,6 +28,12 @@ module.exports = {
 						"security/security-audit",
 					],
 				},
+				{
+					type: "category",
+					label: "Architecture decisions",
+					collapsed: true,
+					items: ["decisions/adr-001-react-modern-client"],
+				},
 			],
 		},
 		{

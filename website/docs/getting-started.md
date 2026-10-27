@@ -22,12 +22,14 @@ Start here if you want the fastest path from zero to a running AWE application. 
 
 ## Choose your archetype
 
-Use the frontend that matches your project.
+React is the modern client of AWE 5 and the recommended one for new projects. The AngularJS client stays supported in
+compatibility mode through the whole 5.x line, so existing AngularJS projects keep it when they upgrade. See
+[ADR 001: React is the modern client of AWE 5](decisions/adr-001-react-modern-client.md).
 
 | Option | Archetype | Use it when |
 | --- | --- | --- |
-| AngularJS | `awe-boot-angular-archetype` | You want the classic AWE AngularJS stack |
-| React | `awe-boot-react-archetype` | You want the AWE React starter |
+| React (recommended) | `awe-boot-react-archetype` | You start a new project |
+| AngularJS | `awe-boot-angular-archetype` | You keep the classic AWE AngularJS stack, for example to match an existing project |
 
 Use the current AWE version from Maven Central: [![Version](https://img.shields.io/maven-central/v/com.almis.awe/awe-starter-parent.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.almis.awe%22%20AND%20a:%22awe-starter-parent%22)
 
