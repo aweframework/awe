@@ -42,7 +42,7 @@ describe("uiSelect2", () => {
     try {
       $httpBackend && $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend && $httpBackend.verifyNoOutstandingRequest();
-    } catch (error) {
+    } catch {
       // These focused specs do not flush settings; keep cleanup best-effort.
     }
     delete $.fn.select2;

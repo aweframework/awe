@@ -68,4 +68,14 @@ describe("uiPivotTable directive", () => {
       $.pivotUtilities.locales = registered;
     }
   });
+  it("drops the id column of the new values and renders the pivot again when the model changes", () => {
+    const element = compilePivot({});
+    const scope = element.scope();
+    pivotUI.mockClear();
+
+    scope.onModelChanged({values: [{id: 1, a: 3}, {id: 2, a: 4}]});
+
+    expect(scope.datasource).toEqual([{a: 3}, {a: 4}]);
+    expect(pivotUI).toHaveBeenCalled();
+  });
 });

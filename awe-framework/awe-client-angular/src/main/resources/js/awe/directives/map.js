@@ -13,7 +13,7 @@ aweApplication.directive('aweMap',
         scope: {
           'mapId': '@'
         },
-        link: function ($scope, elem, attr) {
+        link: function ($scope) {
           // Init as component
           let  component = new Component($scope, $scope.mapId);
           if (!component.asComponent()) {

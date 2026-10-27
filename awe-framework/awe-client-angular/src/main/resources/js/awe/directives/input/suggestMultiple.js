@@ -12,7 +12,7 @@ aweApplication.directive('aweInputSuggestMultiple',
         scope: {
           'criterionId': '@inputSuggestMultipleId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize criterion
           new Selector(scope, scope.criterionId, elem).asSuggestMultiple(true);
         }

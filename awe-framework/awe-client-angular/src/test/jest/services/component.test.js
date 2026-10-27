@@ -53,7 +53,7 @@ describe("Component", () => {
     try {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
-    } catch (error) {
+    } catch {
       // Keep cleanup best-effort; these focused specs do not trigger settings requests.
     }
   });

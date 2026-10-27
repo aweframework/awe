@@ -106,10 +106,6 @@ describe('awe-framework/awe-client-angular/src/test/jest/singletons/actionContro
 
   it("manages null data on action list", function() {
     // Mock
-    let accept = jest.fn().mockName("accept");
-    let reject = jest.fn().mockName("reject");
-    let abort = jest.fn().mockName("abort");
-    let action = {accept: accept, reject: reject, abort: abort, attr: () => ({})};
     jest.spyOn($actionController, "runNext").mockReturnValue(false);
 
     // Launch

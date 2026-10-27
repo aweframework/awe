@@ -5,7 +5,7 @@ import "../../../main/resources/webpack/locals-es-ES.config";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js', function () {
-  let $rootScope, $injector, $control, $utilities, Criterion, $httpBackend;
+  let $injector, $control, Criterion, $httpBackend;
   let address = {"component": "comp1", "view": "report"};
   let scopedFunctions = {};
   let scope = {view: "report", $parent: {$parent: {}}, $on: (k, fn) => scopedFunctions[k] = fn, $emit: () => null};
@@ -17,9 +17,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js',
 
     inject(["$injector", function (__$injector__) {
       $injector = __$injector__;
-      $rootScope = $injector.get('$rootScope');
       $control = $injector.get('Control');
-      $utilities = $injector.get('AweUtilities');
       Criterion = $injector.get('Criterion');
       $httpBackend = $injector.get("$httpBackend");
 

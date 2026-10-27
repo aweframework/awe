@@ -1146,14 +1146,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           }
         };
         /**
-         * On update cell data
+         * On update cell data (empty hook, overrides receive the parameters below)
          *
          * @param {type} rowId
          * @param {type} columnId
          * @param {type} value
          * @param {type} style
          */
-        component.updateCellSpecific = function (rowId, columnId, value, style) {
+        component.updateCellSpecific = function () {
         };
         /**
          * Retrieve column index

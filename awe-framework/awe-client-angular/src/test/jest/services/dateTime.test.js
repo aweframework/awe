@@ -2,10 +2,8 @@ import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
 
-import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
-
 describe('awe-framework/awe-client-angular/src/test/jest/services/dateTime.js', function() {
-  let $injector, $utilities, $settings, $control, $rootScope, $translate, $httpBackend, $log, $actionController, $criterion, $dateTime;
+  let $injector, $control, $rootScope, $dateTime;
   let controller = {};
   let model = {};
 
@@ -16,13 +14,6 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/dateTime.js', 
     inject(["$injector", function(__$injector__) {
       $injector = __$injector__;
       $rootScope = $injector.get('$rootScope');
-      $utilities = $injector.get('AweUtilities');
-      $settings = $injector.get('AweSettings');
-      $criterion = $injector.get('Criterion');
-      $translate = $injector.get('$translate');
-      $httpBackend = $injector.get('$httpBackend');
-      $log = $injector.get('$log');
-      $actionController = $injector.get('ActionController');
       $control = $injector.get('Control');
       $dateTime = $injector.get('DateTime');
     }]);

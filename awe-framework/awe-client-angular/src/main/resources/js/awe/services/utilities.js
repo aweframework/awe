@@ -367,7 +367,7 @@ aweApplication.factory('AweUtilities',
           let c = "constructor";
           try {
             return $window[c][c]("return " + expression + ";")();
-          } catch (e) {
+          } catch {
             return jsonify(expression);
           }
         },
@@ -399,8 +399,6 @@ aweApplication.factory('AweUtilities',
          * @returns {String} expression evaluated
          */
         replaceWildcard: function (text, values) {
-          /* Get value */
-          let value = null;
           let replaced = text || null;
 
           /* Replace text parameters */

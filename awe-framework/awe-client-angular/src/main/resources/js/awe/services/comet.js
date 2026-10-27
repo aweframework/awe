@@ -101,7 +101,7 @@ aweApplication.factory('Comet',
           $comet.setConnection(client);
 
           // On connection
-          client.onConnect = function (frame) {
+          client.onConnect = function () {
             // Subscribe to all broadcasted messages
             $comet.subscribe("broadcast");
 

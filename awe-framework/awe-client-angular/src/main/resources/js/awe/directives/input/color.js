@@ -16,7 +16,7 @@ aweApplication.directive('aweInputColor',
         scope: {
           'criterionId': '@inputColorId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new Criterion(scope, scope.criterionId, elem).asCriterion();
         }

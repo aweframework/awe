@@ -5,7 +5,7 @@ import "../../../main/resources/webpack/locals-eu-ES.config";
 import "../../../main/resources/webpack/locals-fr-FR.config";
 
 describe('awe-framework/awe-client-angular/src/test/jest/controllers/download.js', function() {
-  let scope, controller, $utilities, $actionController, $dependencyController, $screen;
+  let scope, controller, $utilities, $actionController;
 
   // Mock module
   beforeEach(function() {

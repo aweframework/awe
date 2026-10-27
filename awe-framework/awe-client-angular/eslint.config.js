@@ -80,7 +80,8 @@ module.exports = [
     rules: {
       semi: 2,
       'no-unused-vars': 1,
-      eqeqeq: 1
+      // `x == null` is the intended null-or-undefined check; strict equality would change its behaviour
+      eqeqeq: [1, 'always', { null: 'ignore' }]
     }
   },
   {

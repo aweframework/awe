@@ -133,14 +133,13 @@ export const textareaColumnTemplate = `<div ng-show="component.controller.visibl
 
 // Text service
 aweApplication.factory('Text',
-  ['Criterion', 'AweUtilities', 'Control',
+  ['Criterion', 'AweUtilities',
     /**
      * Criterion generic methods
      * @param {Service} Criterion
      * @param {Service} Utilities Utilities service
-     * @param {Control} Control Control service
      */
-    function (Criterion, Utilities, Control) {
+    function (Criterion, Utilities) {
       /**
        * Text constructor
        * @param {Scope} scope Numeric scope
