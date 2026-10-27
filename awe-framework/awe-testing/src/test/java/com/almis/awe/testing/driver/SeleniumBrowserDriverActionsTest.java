@@ -162,6 +162,23 @@ class SeleniumBrowserDriverActionsTest {
   }
 
   @Test
+  void shouldDragAnElementByAnOffsetPressingMovingAndReleasing() {
+    browser.drag(ITEM, 53, -20);
+
+    verify((JavascriptExecutor) driver).executeScript(contains("block: 'nearest'"), eq(element));
+    List<Map<String, Object>> actions = performedActions();
+    List<Object> types = types(actions);
+    assertThat(types).contains("pointerDown", "pointerUp");
+    assertThat(types.indexOf("pointerDown")).isLessThan(types.lastIndexOf("pointerMove"));
+    assertThat(types.lastIndexOf("pointerMove")).isLessThan(types.indexOf("pointerUp"));
+    List<Map<String, Object>> steps = actions.stream()
+      .filter(action -> "pointerMove".equals(action.get("type")) && "pointer".equals(action.get("origin"))).toList();
+    assertThat(steps.size()).isGreaterThanOrEqualTo(2);
+    assertThat(steps.stream().mapToInt(action -> ((Number) action.get("x")).intValue()).sum()).isEqualTo(53);
+    assertThat(steps.stream().mapToInt(action -> ((Number) action.get("y")).intValue()).sum()).isEqualTo(-20);
+  }
+
+  @Test
   void shouldClickWhereThePointerIs() {
     browser.clickAtPointer();
 

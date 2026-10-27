@@ -157,6 +157,8 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
     + "ready = box.every((value, index) => value === last[index]) && receives(box) ? ready + 1 : 0; last = box;"
     + "if (ready >= limits.frames) { clearTimeout(timer); resolve(true); } else { requestAnimationFrame(frame); } };"
     + "requestAnimationFrame(frame); })";
+  // Steps in which a drag moves the pointer
+  private static final int DRAG_STEPS = 5;
   // An element can be inside the viewport but clipped by a container with its own scroll
   private static final String SCROLL_NEAREST = "e => e.scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'})";
   // A suggest panel opens aligned to its search box, so a scroll after that would leave it misplaced
@@ -456,6 +458,25 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   public void moveMouseBy(int dx, int dy) {
     movePointer(pointerX + dx, pointerY + dy);
     pause(CLICK_PAUSE_MILLIS);
+  }
+
+  @Override
+  public void drag(Locator locator, int dx, int dy) {
+    act(locator, handle -> {
+      runScript(handle, SCROLL_NEAREST);
+      BoundingBox center = pointAt(locator, handle);
+      mouse().down();
+      try {
+        // The pointer travels in equal steps, so the page receives the moves on the way and not one jump
+        for (int step = 1; step <= DRAG_STEPS; step++) {
+          movePointer(center.x + (double) dx * step / DRAG_STEPS, center.y + (double) dy * step / DRAG_STEPS);
+        }
+      } finally {
+        // Whatever happens while it is held (the page navigates, the frame goes away), the button is never left pressed
+        mouse().up();
+      }
+      pause(CLICK_PAUSE_MILLIS);
+    });
   }
 
   @Override

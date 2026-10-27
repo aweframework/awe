@@ -9,6 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.almis.awe.test.selenium.PaneBoxes.HEIGHT;
+import static com.almis.awe.test.selenium.PaneBoxes.LEFT;
+import static com.almis.awe.test.selenium.PaneBoxes.SPLITTER_DRAG;
+import static com.almis.awe.test.selenium.PaneBoxes.TOLERANCE;
+import static com.almis.awe.test.selenium.PaneBoxes.TOP;
+import static com.almis.awe.test.selenium.PaneBoxes.WIDTH;
+import static com.almis.awe.test.selenium.PaneBoxes.checkClose;
+import static com.almis.awe.test.selenium.PaneBoxes.describe;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -1470,5 +1478,69 @@ class MatrixTestsIT extends AbstractSessionTests {
 
     // Check visible
     checkTreeRowVisible(gridId, "ProOperator-ModBase");
+  }
+
+  /**
+   * Split layout test (#892): on the Grid dependencies tab the two upper grids sit side by side with a splitter between
+   * them and the lower grid under both, with a splitter above it. Each splitter follows the pointer: the pane before it
+   * grows, the pane after it shrinks by the same amount, and the outer edges of both stay where they were, also when one
+   * of them reaches its minimum size
+   */
+  @Test
+  void t121_gridDependenciesSplitLayout() {
+    // Title
+    setTestTitle("Grid dependencies: split layout with draggable splitters");
+
+    // Go to screen
+    openMatrixScreen();
+    clickTab("TabSelMat", "Grid dependencies");
+
+    // The panes: the resizable of the first grid, the second grid next to its handle, and the third grid under the
+    // resizable of the upper row
+    String firstGrid = "MatSel";
+
+    // The upper grids share a row, and the lower grid is under both
+    double[] leftBox = getResizableBounds(firstGrid, "right");
+    double[] rightBox = getResizableNeighbourBounds(firstGrid, "right");
+    double[] bottomBox = getResizableNeighbourBounds(firstGrid, "bottom");
+    checkClose("top of the second grid next to the first one", rightBox[TOP], leftBox[TOP]);
+    assertTrue(rightBox[LEFT] >= leftBox[LEFT] + leftBox[WIDTH] - TOLERANCE,
+      "The second grid " + describe(rightBox) + " is not on the right of the first one " + describe(leftBox));
+    assertTrue(bottomBox[TOP] >= Math.max(leftBox[TOP] + leftBox[HEIGHT], rightBox[TOP] + rightBox[HEIGHT]) - TOLERANCE,
+      "The third grid " + describe(bottomBox) + " is not under the other two");
+
+    // The vertical splitter moves the edge between the upper grids
+    dragResizable(firstGrid, "right", SPLITTER_DRAG);
+    double[] leftDragged = getResizableBounds(firstGrid, "right");
+    double[] rightDragged = getResizableNeighbourBounds(firstGrid, "right");
+    checkClose("left edge of the first grid", leftDragged[LEFT], leftBox[LEFT]);
+    checkClose("width of the first grid", leftDragged[WIDTH], leftBox[WIDTH] + SPLITTER_DRAG);
+    checkClose("width of the second grid", rightDragged[WIDTH], rightBox[WIDTH] - SPLITTER_DRAG);
+    checkClose("right edge of the second grid", rightDragged[LEFT] + rightDragged[WIDTH], rightBox[LEFT] + rightBox[WIDTH]);
+
+    // The horizontal splitter moves the edge between the upper grids and the lower one. The heights are measured again:
+    // a wider first grid fits its pager in one line, so the upper row is lower now
+    double[] bottomDragged = getResizableNeighbourBounds(firstGrid, "bottom");
+    dragResizable(firstGrid, "bottom", SPLITTER_DRAG);
+    double[] leftLowered = getResizableBounds(firstGrid, "right");
+    double[] bottomLowered = getResizableNeighbourBounds(firstGrid, "bottom");
+    checkClose("top of the first grid", leftLowered[TOP], leftBox[TOP]);
+    checkClose("height of the first grid", leftLowered[HEIGHT], leftDragged[HEIGHT] + SPLITTER_DRAG);
+    checkClose("height of the third grid", bottomLowered[HEIGHT], bottomDragged[HEIGHT] - SPLITTER_DRAG);
+    checkClose("bottom edge of the third grid", bottomLowered[TOP] + bottomLowered[HEIGHT], bottomDragged[TOP] + bottomDragged[HEIGHT]);
+
+    // Up past the minimum height of the upper row: the splitter moves up, stops there before the end of the drag, and the
+    // lower grid takes only what it gave
+    int raise = 3 * SPLITTER_DRAG;
+    dragResizable(firstGrid, "bottom", -raise);
+    double[] leftRaised = getResizableBounds(firstGrid, "right");
+    double[] bottomRaised = getResizableNeighbourBounds(firstGrid, "bottom");
+    double raised = leftLowered[HEIGHT] - leftRaised[HEIGHT];
+    assertTrue(raised > TOLERANCE && raised < raise - TOLERANCE,
+      "The upper row got " + raised + "px shorter for a drag of " + raise + "px: it should stop at its minimum height");
+    checkClose("top of the first grid", leftRaised[TOP], leftBox[TOP]);
+    checkClose("bottom edge of the third grid", bottomRaised[TOP] + bottomRaised[HEIGHT], bottomDragged[TOP] + bottomDragged[HEIGHT]);
+    checkClose("height of the upper row and the third grid", leftRaised[HEIGHT] + bottomRaised[HEIGHT],
+      leftLowered[HEIGHT] + bottomLowered[HEIGHT]);
   }
 }

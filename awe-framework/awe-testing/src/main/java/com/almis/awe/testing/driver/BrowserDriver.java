@@ -172,6 +172,16 @@ public interface BrowserDriver {
   void moveMouseBy(int dx, int dy);
 
   /**
+   * Drag from the center of the first match: press the main button there, move the pointer by an offset in a few steps
+   * (so the page receives the moves on the way) and release it. The pointer stays where it was released
+   *
+   * @param locator Locator
+   * @param dx      Horizontal offset in pixels
+   * @param dy      Vertical offset in pixels
+   */
+  void drag(Locator locator, int dx, int dy);
+
+  /**
    * Click where the pointer is
    */
   void clickAtPointer();

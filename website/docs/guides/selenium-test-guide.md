@@ -471,6 +471,10 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `closeDialog(String dialogId)` | Closes a modal dialog with the close icon of its header, as a user dismissing it without its buttons |
 | `checkDialogClosed(String dialogId)` | Checks that a modal dialog has been closed |
 | `checkDialogWidth(String dialogId, int width)` | Checks the width in pixels of an open dialog, give or take two. Use it to check the size classes `modal-sm`, `modal-md` and `modal-lg` |
+| `dragResizable(String elementId, String direction, int offset)` | Drags the handle of a side (`top`, `right`, `bottom`, `left`) of the closest resizable around an element by `offset` pixels along its axis (positive to the right or down) |
+| `getResizableBounds(String elementId, String direction)` | Returns the box of the closest resizable around an element, with a handle on that side, as `{left, top, width, height}` |
+| `getResizableNeighbourBounds(String elementId, String direction)` | Returns the box of the element next to that resizable on the side of its handle: the one that gives or takes the size of a drag |
+| `getResizableOppositeNeighbourBounds(String elementId, String direction)` | Returns the box of the element next to that resizable on the other side: a drag does not move it |
 | `closeSidePanel(String panelId)` | Closes a side panel with the close button of its header |
 | `closeSidePanelWithEscape(String panelId)` | Closes an open side panel pressing Esc and checks that it has been closed |
 | `checkSidePanelClosed(String panelId)` | Checks that a side panel has been closed |

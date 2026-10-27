@@ -5440,6 +5440,70 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Drag the handle of a side of the closest resizable around an element, along the axis of that side
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @param offset    Pixels to drag: positive to the right or down, negative to the left or up
+   */
+  protected void dragResizable(String elementId, String direction, int offset) {
+    boolean horizontal = "right".equals(direction) || "left".equals(direction);
+    dragBy(frontEndInstructions.getResizableHandle(elementId, direction), horizontal ? offset : 0, horizontal ? 0 : offset);
+  }
+
+  /**
+   * Get the box of the closest resizable around an element
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizable(elementId, direction));
+  }
+
+  /**
+   * Get the box of the element next to the closest resizable around an element, on the side of its handle: the one that
+   * gives or takes the size when the handle is dragged
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableNeighbourBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizableNeighbour(elementId, direction, true));
+  }
+
+  /**
+   * Get the box of the element next to the closest resizable around an element, on the side opposite to its handle
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableOppositeNeighbourBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizableNeighbour(elementId, direction, false));
+  }
+
+  /**
+   * Drag an element: press on its center, move the pointer by an offset and release it
+   */
+  private void dragBy(By selector, int dx, int dy) {
+    waitUntil(toBeVisible(selector));
+    getBrowser().drag(locator(selector), dx, dy);
+  }
+
+  /**
+   * Get the box of an element in the viewport, as left, top, width and height in pixels
+   */
+  private double[] getBounds(By selector) {
+    waitUntil(toBeVisible(selector));
+    String box = String.valueOf(getBrowser().executeScriptOn(locator(selector), "var rect = arguments[0].getBoundingClientRect();"
+      + " return rect.left + '|' + rect.top + '|' + rect.width + '|' + rect.height;"));
+    return parseNumbers(box, 4);
+  }
+
+  /**
    * Check the width of an open dialog, give or take two pixels. It is the layout width, so the transition that opens the
    * dialog (it grows from a smaller scale) does not change it
    *

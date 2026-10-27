@@ -95,6 +95,21 @@ styles turn the grabber off when the screen is narrow, so on a phone the contain
 When the user releases the grabber the client launches a resize, so grids and charts inside the screen adapt to their
 new size.
 
+## How a drag shares the space
+
+When the parent lays out along the dragged side (a right or left grabber in an `expandible-horizontal` parent, a top or
+bottom grabber in an `expandible-vertical` one), the grabber works as a splitter: it follows the pointer, and only the
+element next to it on that side (the next one for `right` and `bottom`, the previous one for `left` and `top`) gives or
+takes the size that the resizable gains or loses. The other elements of the parent do not move.
+
+The drag stops when either of the two reaches its minimum: the resizable does not get under 160 px, the element next to
+it does not get under its own `min-width` or `min-height`, under 160 px (unless it was smaller already) or under its
+content (a grid keeps its minimum rows area). After a drag both keep their size along that axis, and the other
+expanding elements of the parent take the changes of the window size.
+
+When the parent lays out across the dragged side, or there is no element next to the grabber, the drag only resizes
+the resizable.
+
 ## AngularJS and React engines
 
 Both engines draw the resizable in the same way: the container itself is resized by dragging the sides listed in
@@ -105,6 +120,7 @@ Both engines draw the resizable in the same way: the container itself is resized
 | What is dragged         | The sides listed in `directions` of the container     | The same                                              |
 | Several directions      | Allowed (`directions="right bottom"`)                 | Allowed                                               |
 | One or several children | The children are stacked inside the container         | The same: the children are **not** split in panels    |
+| Element next to it      | Gives or takes the size, the others do not move       | The same                                              |
 | `no-resizable-*` styles | Applied                                               | Applied                                               |
 | Implementation          | Own directive                                         | Own component, same stylesheet rules                  |
 

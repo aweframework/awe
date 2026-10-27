@@ -1,9 +1,39 @@
 import {aweApplication} from "../awe";
 
-// Resizable directive
+// Resizable directive: the handle of a side resizes the element and, when the parent lays out along that axis,
+// the sibling on the handle side follows (it gives or takes the size) so the splitter stays under the pointer
 aweApplication.directive('aweResizable',
   ['ServerData', 'Component', 'AweUtilities',
     function (ServerData, Component, Utilities) {
+
+      // Minimum size of the resizable (as in the stylesheet) and of the neighbour when it has no min-width/min-height
+      const MIN_SIZE = 160;
+
+      /**
+       * Get the sibling on the handle side (next one for right/bottom, previous one for left/top) when the parent
+       * lays out along the axis of the handle and the sibling takes space. This sibling follows the splitter.
+       * @param {HTMLElement} container Resizable element
+       * @param {string} direction Handle direction
+       * @param {string} axis Handle axis (x/y)
+       * @returns {{element: HTMLElement, size: number, min: number}|null} Neighbour data
+       */
+      function findNeighbour(container, direction, axis) {
+        const parent = container.parentElement;
+        const parentStyle = parent ? window.getComputedStyle(parent) : null;
+        // Only a flex parent lays out along an axis: a block parent computes flex-direction: row too
+        const parentDirection = parentStyle && (parentStyle.display || "").includes("flex") ? parentStyle.flexDirection || "" : "";
+        if (!parentDirection.startsWith(axis === 'x' ? 'row' : 'column')) {
+          return null;
+        }
+        const element = direction === 'right' || direction === 'bottom'
+          ? container.nextElementSibling : container.previousElementSibling;
+        const size = element ? element.getBoundingClientRect()[axis === 'x' ? 'width' : 'height'] : 0;
+        if (!element || !(size > 0)) {
+          return null;
+        }
+        const cssMin = parseFloat(window.getComputedStyle(element)[axis === 'x' ? 'minWidth' : 'minHeight']);
+        return {element, size, min: Math.max(Number.isFinite(cssMin) ? cssMin : 0, Math.min(MIN_SIZE, size))};
+      }
 
       /**
        * Manage drag event
@@ -11,37 +41,60 @@ aweApplication.directive('aweResizable',
        * @param dragOptions Drag options
        */
       function drag(e, dragOptions) {
-        const {element, scope, w, h, vx, vy, start, dragDir, axis} = dragOptions;
-        let offset = axis === 'x' ? start - e.clientX : start - e.clientY;
+        const {element, scope, w, h, vx, vy, start, dragDir, axis, neighbour} = dragOptions;
+        const offset = axis === 'x' ? start - e.clientX : start - e.clientY;
+        const initial = axis === 'x' ? w : h;
+        let size;
         switch (dragDir) {
           case 'top':
-            if (scope.flex) {
-              element[0].style.flexBasis = h + (offset * vy) + 'px';
-            } else {
-              element[0].style.height = h + (offset * vy) + 'px';
-            }
+            size = h + (offset * vy);
             break;
           case 'right':
-            if (scope.flex) {
-              element[0].style.flexBasis = w - (offset * vx) + 'px';
-            } else {
-              element[0].style.width = w - (offset * vx) + 'px';
-            }
+            size = w - (offset * vx);
             break;
           case 'bottom':
-            if (scope.flex) {
-              element[0].style.flexBasis = h - (offset * vy) + 'px';
-            } else {
-              element[0].style.height = h - (offset * vy) + 'px';
-            }
+            size = h - (offset * vy);
             break;
           case 'left':
-            if (scope.flex) {
-              element[0].style.flexBasis = w + (offset * vx) + 'px';
-            } else {
-              element[0].style.width = w + (offset * vx) + 'px';
-            }
+            size = w + (offset * vx);
             break;
+        }
+
+        let neighbourSize = 0;
+        if (neighbour) {
+          // The neighbour takes what the container gains; when it hits its minimum the container stops growing, and the
+          // container does not get under its own minimum either
+          size = Math.max(MIN_SIZE, size);
+          neighbourSize = Math.max(neighbour.min, neighbour.size - (size - initial));
+          size = initial + neighbour.size - neighbourSize;
+          neighbour.element.style.flex = `0 0 ${neighbourSize}px`;
+        }
+
+        const dimension = dragDir === 'left' || dragDir === 'right' ? 'width' : 'height';
+        const applySize = () => {
+          if (scope.flex) {
+            element[0].style.flexBasis = size + 'px';
+          } else {
+            element[0].style[dimension] = size + 'px';
+          }
+        };
+        applySize();
+
+        if (neighbour) {
+          // A flex item does not get smaller than its content (min-height: auto, a grid keeps its minimum rows area): when
+          // one of the two kept more than it was given, the other one gives that back, so the outer edges do not move
+          const total = initial + neighbour.size;
+          const keptByNeighbour = neighbour.element.getBoundingClientRect()[dimension];
+          const keptByContainer = element[0].getBoundingClientRect()[dimension];
+          if (keptByNeighbour > neighbourSize) {
+            size = total - keptByNeighbour;
+            neighbour.element.style.flex = `0 0 ${keptByNeighbour}px`;
+            applySize();
+          } else if (keptByContainer > size) {
+            size = keptByContainer;
+            neighbour.element.style.flex = `0 0 ${total - keptByContainer}px`;
+            applySize();
+          }
         }
       }
 
@@ -58,6 +111,9 @@ aweApplication.directive('aweResizable',
         dragOptions.start = dragOptions.axis === 'x' ? e.clientX : e.clientY;
         dragOptions.w = parseInt(style.getPropertyValue("width"));
         dragOptions.h = parseInt(style.getPropertyValue("height"));
+
+        // The neighbour gets a fixed size from the first move on, so a press without a move leaves it fluid
+        dragOptions.neighbour = findNeighbour(element[0], direction, dragOptions.axis);
 
         //prevent transition while dragging
         element.addClass('no-transition');

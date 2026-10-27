@@ -5,6 +5,12 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static com.almis.awe.test.selenium.PaneBoxes.LEFT;
+import static com.almis.awe.test.selenium.PaneBoxes.TOLERANCE;
+import static com.almis.awe.test.selenium.PaneBoxes.WIDTH;
+import static com.almis.awe.test.selenium.PaneBoxes.checkClose;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
  * so a failing test does not leave the next ones without a session or a screen. The wrong login test logs out and in again:
@@ -541,5 +547,40 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Check suggest value
     // The database of the React test application has no user "pei", so the dependency selects only the user "test"
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
+  }
+
+  /**
+   * Split layout test (#892): on the Layout 1 screen the splitter of the middle pane follows the pointer. The middle pane
+   * grows from its left edge, which does not move, the pane after the splitter shrinks by the same amount, and the pane
+   * before the middle one keeps its width
+   */
+  @Test
+  void t060_layoutSplitterResizesItsNeighbours() {
+    // Title
+    setTestTitle("Layout 1: the splitter resizes the panes on its two sides");
+
+    // Go to screen
+    gotoScreen("test", "layout", "layout-test");
+
+    // The middle pane is the resizable around the first inner window
+    String middlePane = "ButPru";
+
+    double[] middleBox = getResizableBounds(middlePane, "right");
+    double[] beforeBox = getResizableOppositeNeighbourBounds(middlePane, "right");
+    double[] afterBox = getResizableNeighbourBounds(middlePane, "right");
+
+    // The pane after the splitter is narrow on this screen and may reach its minimum before the end of the drag: it gives
+    // part or all of the drag, and the middle pane takes exactly that
+    int drag = 50;
+    dragResizable(middlePane, "right", drag);
+
+    double[] middleDragged = getResizableBounds(middlePane, "right");
+    double[] beforeDragged = getResizableOppositeNeighbourBounds(middlePane, "right");
+    double[] afterDragged = getResizableNeighbourBounds(middlePane, "right");
+    double moved = middleDragged[WIDTH] - middleBox[WIDTH];
+    assertTrue(moved > TOLERANCE && moved <= drag + TOLERANCE, "The middle pane grew " + moved + "px for a drag of " + drag + "px");
+    checkClose("left edge of the middle pane", middleDragged[LEFT], middleBox[LEFT]);
+    checkClose("width of the pane before the middle one", beforeDragged[WIDTH], beforeBox[WIDTH]);
+    checkClose("width of the pane after the splitter", afterDragged[WIDTH], afterBox[WIDTH] - moved);
   }
 }

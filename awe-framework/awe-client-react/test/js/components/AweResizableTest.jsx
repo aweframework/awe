@@ -203,6 +203,201 @@ describe('awe-react-client/test/js/components/AweResizableTest.jsx', () => {
       expect(container.style.width).toBe("");
     });
 
+    describe('with an adjacent sibling on the handle side', () => {
+      // Rects by element id, so the siblings have their own size along both axes
+      // A sibling laid out with a fixed flex basis gets it along the axis, unless its content does not let it be smaller
+      const withSiblings = (direction, {flexDirection = "row", display = "flex", next = {width: 400, height: 300},
+        prev = {width: 250, height: 150}, nextMinWidth = "", nextMinHeight = "", nextContentMin = 0, ownContentMin = 0} = {}) => {
+        const sizes = {next, prev};
+        const contentMin = {next: nextContentMin, prev: 0};
+        const along = flexDirection.startsWith("row") ? "width" : "height";
+        jest.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function () {
+          if (this.classList.contains("resizable")) {
+            const own = parseFloat(this.style.flexBasis);
+            return Number.isFinite(own) ? {...OWN, [along]: Math.max(own, ownContentMin)} : {...OWN};
+          }
+          if (!sizes[this.id]) {
+            return {...PARENT};
+          }
+          const basis = parseFloat((this.style.flex || "").split(" ")[2]);
+          return Number.isFinite(basis)
+            ? {...sizes[this.id], [along]: Math.max(basis, contentMin[this.id])}
+            : {...sizes[this.id]};
+        });
+        const result = renderResizable({directions: direction});
+        const container = document.querySelector(".resizable");
+        const parent = container.parentElement;
+        parent.style.display = display;
+        parent.style.flexDirection = flexDirection;
+        const before = document.createElement("div");
+        before.id = "prev";
+        const after = document.createElement("div");
+        after.id = "next";
+        after.style.minWidth = nextMinWidth;
+        after.style.minHeight = nextMinHeight;
+        parent.insertBefore(before, container);
+        parent.appendChild(after);
+        return {...result, container, before, after, handle: document.querySelector(`.rg-${direction}`)};
+      };
+
+      it('grows the container and shrinks only the next sibling of a right handle', () => {
+        const {container, before, after, handle} = withSiblings("right");
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        expect(container.style.width).toBe("350px");
+        expect(container.style.flexBasis).toBe("350px");
+        expect(after.style.flex).toBe("0 0 350px");
+        expect(before.style.flex).toBe("");
+      });
+
+      it('leaves the neighbour fluid after a press on the handle without a move', () => {
+        const {container, after, handle} = withSiblings("right");
+
+        point("pointerdown", handle, 100, 0);
+        point("pointerup", handle, 100, 0);
+
+        expect(after.style.flex).toBe("");
+        expect(container.style.width).toBe("");
+      });
+
+      it('grows the next sibling when the right handle moves back', () => {
+        const {container, after, handle} = withSiblings("right");
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 40, 0);
+
+        expect(container.style.width).toBe("240px");
+        expect(after.style.flex).toBe("0 0 460px");
+      });
+
+      it('uses the previous sibling for a left handle', () => {
+        const {container, before, after, handle} = withSiblings("left");
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 60, 0);
+
+        expect(container.style.width).toBe("340px");
+        expect(before.style.flex).toBe("0 0 210px");
+        expect(after.style.flex).toBe("");
+      });
+
+      it('uses the next sibling for a bottom handle and the previous one for a top handle', () => {
+        const bottom = withSiblings("bottom", {flexDirection: "column"});
+        point("pointerdown", bottom.handle, 0, 50);
+        point("pointermove", bottom.handle, 0, 80);
+        expect(bottom.container.style.height).toBe("230px");
+        expect(bottom.after.style.flex).toBe("0 0 270px");
+        expect(bottom.before.style.flex).toBe("");
+        cleanup();
+
+        const top = withSiblings("top", {flexDirection: "column", prev: {width: 250, height: 250}});
+        point("pointerdown", top.handle, 0, 50);
+        point("pointermove", top.handle, 0, 20);
+        expect(top.container.style.height).toBe("230px");
+        expect(top.before.style.flex).toBe("0 0 220px");
+        expect(top.after.style.flex).toBe("");
+      });
+
+      it('stops the container when the neighbour reaches its minimum size', () => {
+        const {container, after, handle} = withSiblings("right");
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 900, 0);
+
+        // The neighbour keeps MIN_SIZE and the container takes the rest of what the neighbour had
+        expect(after.style.flex).toBe("0 0 160px");
+        expect(container.style.width).toBe("540px");
+      });
+
+      it('respects the min-width of the neighbour when it is higher than the minimum size', () => {
+        const {container, after, handle} = withSiblings("right", {nextMinWidth: "300px"});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 900, 0);
+
+        expect(after.style.flex).toBe("0 0 300px");
+        expect(container.style.width).toBe("400px");
+      });
+
+      it('gives back what the neighbour cannot shrink below its content, so its outer edge does not move', () => {
+        const {container, after, handle} = withSiblings("right", {nextContentMin: 380});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        // The neighbour asked for 350px stays at the 380px of its content: the container only takes the 20px it gave
+        expect(after.style.flex).toBe("0 0 380px");
+        expect(container.style.width).toBe("320px");
+        expect(container.style.flexBasis).toBe("320px");
+      });
+
+      it('takes back from the neighbour what the container cannot shrink below its content', () => {
+        const {container, after, handle} = withSiblings("right", {ownContentMin: 280});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 50, 0);
+
+        // The container asked for 250px stays at the 280px of its content: the neighbour only grows the 20px it got
+        expect(container.style.width).toBe("280px");
+        expect(after.style.flex).toBe("0 0 420px");
+      });
+
+      it('does not force a neighbour that is already smaller than the minimum size', () => {
+        const {container, after, handle} = withSiblings("right", {next: {width: 100, height: 100}});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        expect(after.style.flex).toBe("0 0 100px");
+        expect(container.style.width).toBe("300px");
+      });
+
+      it('keeps the previous behaviour when the parent lays out across the axis of the handle', () => {
+        const {container, before, after, handle} = withSiblings("right", {flexDirection: "column"});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        expect(container.style.width).toBe("350px");
+        expect(container.style.flexBasis).toBe("");
+        expect(after.style.flex).toBe("");
+        expect(before.style.flex).toBe("");
+      });
+
+      it('keeps the previous behaviour when the parent is not a flex container', () => {
+        // A block parent still computes flex-direction: row, so the display decides
+        const {container, after, handle} = withSiblings("right", {display: "block"});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        expect(container.style.width).toBe("350px");
+        expect(after.style.flex).toBe("");
+      });
+
+      it('keeps the previous behaviour when the neighbour is not rendered', () => {
+        const {container, after, handle} = withSiblings("right", {next: {width: 0, height: 0}});
+
+        point("pointerdown", handle, 100, 0);
+        point("pointermove", handle, 150, 0);
+
+        expect(container.style.width).toBe("350px");
+        expect(after.style.flex).toBe("");
+      });
+    });
+
+    it('keeps the previous behaviour when there is no sibling on the handle side', () => {
+      const {container, handle} = setup("right");
+
+      point("pointerdown", handle, 100, 0);
+      point("pointermove", handle, 150, 0);
+
+      expect(container.style.width).toBe("350px");
+      expect(container.style.flexBasis).toBe("350px");
+    });
+
     it('does not leave document listeners behind when it is unmounted while dragging', () => {
       const add = jest.spyOn(document, "addEventListener");
       const {unmount, handle} = setup("right");

@@ -12,6 +12,7 @@ import javax.xml.xpath.XPathFactory;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * The selectors of {@link ReactAweInstructions}: each component is located with the AWE attribute that identifies the
@@ -518,5 +519,31 @@ class ReactAweInstructionsTest {
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12'].grid-row-detail.row-detail-card");
     assertThat(instructions.getGridRowDetailNestedGrid("Grd", "12", "GrdCus-12"))
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row-detail'][row-id='12'] [grid-id='GrdCus-12']");
+  }
+
+  @Test
+  void shouldLocateAResizableAroundAnElementItsHandleAndItsNeighbours() throws XPathExpressionException {
+    String resizable = "//*[@id='MatSel']/ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' resizable ')"
+      + " and contains(concat(' ', normalize-space(@class), ' '), ' right ')][1]";
+    assertThat(instructions.getResizable("MatSel", "right")).hasToString("By.xpath: " + resizable);
+    assertThat(instructions.getResizableHandle("MatSel", "right"))
+      .hasToString("By.xpath: " + resizable + "/div[contains(@class,'rg-right')]");
+    assertThat(instructions.getResizableNeighbour("MatSel", "right", true)).hasToString("By.xpath: " + resizable + "/following-sibling::*[1]");
+    assertThat(instructions.getResizableNeighbour("MatSel", "right", false)).hasToString("By.xpath: " + resizable + "/preceding-sibling::*[1]");
+    assertThat(instructions.getResizableNeighbour("MatSel", "left", true).toString()).endsWith("/preceding-sibling::*[1]");
+    assertThat(instructions.getResizableNeighbour("MatSel", "top", false).toString()).endsWith("/following-sibling::*[1]");
+
+    // An identifier with an apostrophe still makes a valid expression
+    String quoted = instructions.getResizable("Mat'Sel", "bottom").toString().replace("By.xpath: ", "");
+    assertThat(quoted).startsWith("//*[@id=\"Mat'Sel\"]");
+    assertThat(XPathFactory.newInstance().newXPath().compile(quoted)).isNotNull();
+  }
+
+  @Test
+  void shouldRejectASideOfAResizableThatDoesNotExist() {
+    assertThatThrownBy(() -> instructions.getResizableHandle("MatSel", "diagonal"))
+      .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("diagonal");
+    assertThatThrownBy(() -> instructions.getResizable("MatSel", null))
+      .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("null");
   }
 }

@@ -470,6 +470,10 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `closeDialog(String dialogId)` | Cierra un diálogo modal con el icono de cierre de su cabecera, como un usuario que lo descarta sin usar sus botones |
 | `checkDialogClosed(String dialogId)` | Comprueba que se ha cerrado un diálogo modal |
 | `checkDialogWidth(String dialogId, int width)` | Comprueba el ancho en píxeles de un diálogo abierto, con dos de margen. Úsalo para comprobar las clases de tamaño `modal-sm`, `modal-md` y `modal-lg` |
+| `dragResizable(String elementId, String direction, int offset)` | Arrastra el tirador de un lado (`top`, `right`, `bottom`, `left`) del redimensionable más cercano que rodea a un elemento, `offset` píxeles en su eje (positivo hacia la derecha o hacia abajo) |
+| `getResizableBounds(String elementId, String direction)` | Devuelve la caja del redimensionable más cercano que rodea a un elemento, con tirador en ese lado, como `{left, top, width, height}` |
+| `getResizableNeighbourBounds(String elementId, String direction)` | Devuelve la caja del elemento junto a ese redimensionable en el lado de su tirador: el que cede o toma el tamaño de un arrastre |
+| `getResizableOppositeNeighbourBounds(String elementId, String direction)` | Devuelve la caja del elemento junto a ese redimensionable en el otro lado: un arrastre no lo mueve |
 | `closeSidePanel(String panelId)` | Cierra un panel lateral con el botón de cierre de su cabecera |
 | `closeSidePanelWithEscape(String panelId)` | Cierra un panel lateral abierto pulsando Esc y comprueba que se ha cerrado |
 | `checkSidePanelClosed(String panelId)` | Comprueba que un panel lateral se ha cerrado |

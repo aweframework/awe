@@ -51,6 +51,8 @@ public class SeleniumBrowserDriver implements BrowserDriver {
     + "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});}";
   // An element can be inside the viewport but clipped by a container with its own scroll
   private static final String SCROLL_INTO_CONTAINER = "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});";
+  // Steps in which a drag moves the pointer
+  private static final int DRAG_STEPS = 5;
   // The Actions API does not scroll: Firefox refuses to move to an element outside the viewport
   private static final String SCROLL_NEAREST = "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});";
 
@@ -193,6 +195,23 @@ public class SeleniumBrowserDriver implements BrowserDriver {
   @Override
   public void moveMouseBy(int dx, int dy) {
     new Actions(driver).moveByOffset(dx, dy).pause(CLICK_PAUSE_MILLIS).perform();
+  }
+
+  @Override
+  public void drag(Locator locator, int dx, int dy) {
+    act(locator, element -> {
+      runScript(SCROLL_NEAREST, element);
+      // The pointer travels in equal steps (the remainder goes with the last one), so the page receives the moves on the way
+      // and not one jump from the press to the release
+      Actions actions = new Actions(driver).moveToElement(element).clickAndHold();
+      int stepX = dx / DRAG_STEPS;
+      int stepY = dy / DRAG_STEPS;
+      for (int step = 1; step < DRAG_STEPS; step++) {
+        actions = actions.moveByOffset(stepX, stepY);
+      }
+      actions.moveByOffset(dx - stepX * (DRAG_STEPS - 1), dy - stepY * (DRAG_STEPS - 1))
+        .release().pause(CLICK_PAUSE_MILLIS).perform();
+    });
   }
 
   @Override
