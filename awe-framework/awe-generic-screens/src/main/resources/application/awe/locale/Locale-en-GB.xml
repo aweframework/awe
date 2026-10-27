@@ -1296,6 +1296,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_COLUMNS_MOVE_UP" value="Move up"/>
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Move down"/>
   <locale name="GRID_COLUMNS_DRAG" value="Drag to reorder"/>
+  <locale name="GRID_ROW_DRAG" value="Drag to move the row. With the keyboard, select it and press Alt+Up, Alt+Down, Alt+Home or Alt+End"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
   <locale name="GRID_COLUMNS_SAVED" value="Saved"/>

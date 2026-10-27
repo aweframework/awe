@@ -119,6 +119,23 @@ export function useGrid(id) {
     /> : null
   );
 
+  // Leading column with the grip that drags each row (grids with move-rows only). Only the grip starts the drag
+  const moveRowsColumnTemplate = (place, rowSpan, moveRows, onRowDragStart, onRowDragEnd, frozen = false) => (
+    moveRows ? <Column
+      key={`move-rows-${place}`}
+      field={`move-rows-${place}`}
+      rowSpan={rowSpan}
+      frozen={frozen}
+      body={rowData => <span className="grid-row-grip" role="img" draggable="true"
+        title={t("GRID_ROW_DRAG")} aria-label={t("GRID_ROW_DRAG")}
+        onDragStart={event => onRowDragStart?.(event, rowData.id)} onDragEnd={onRowDragEnd}>
+        {getIconNode("pi-bars", { "aria-hidden": "true" })}
+      </span>}
+      footer={null}
+      style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
+    /> : null
+  );
+
   // Leading column with the button that shows or hides the detail of each row (grids with row detail only)
   const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail, frozen = false) => (
     rowDetail ? <Column
@@ -246,8 +263,9 @@ export function useGrid(id) {
   };
 
   const preColumnTemplates = (place, rowSpan, specific) => {
-    // specific includes first, rows, rowNumbers, multiselect flags, and the row detail with its open rows
+    // specific includes first, rows, rowNumbers, multiselect flags, the grips to move rows and the row detail with its open rows
     return [
+      moveRowsColumnTemplate(place, rowSpan, specific?.moveRows, specific?.onRowDragStart, specific?.onRowDragEnd, specific?.frozen),
       rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail, specific?.frozen),
       multiselectColumnTemplate(place, rowSpan, specific?.multiselect, specific?.frozen),
       rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, specific?.frozen)

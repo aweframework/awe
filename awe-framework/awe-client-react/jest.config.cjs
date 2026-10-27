@@ -155,6 +155,7 @@ module.exports = {
     '**/components/AweGridToolbarTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',
     '**/components/AweGridRowDetailTest.{js,jsx}',
+    '**/components/AweGridMoveRowsTest.{js,jsx}',
     '**/components/AweGridRowDetailComponentsTest.{js,jsx}',
     '**/components/ElementHelpTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',

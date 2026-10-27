@@ -115,6 +115,11 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean rowNumbers;
 
+  // Allow moving rows by dragging them
+  @XStreamAlias("move-rows")
+  @XStreamAsAttribute
+  private Boolean moveRows;
+
   // Show calculated totals
   @XStreamAlias("show-totals")
   @XStreamAsAttribute
@@ -344,6 +349,16 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("validateOnSave")
   public boolean isValidateOnSave() {
     return validateOnSave == null || validateOnSave;
+  }
+
+  /**
+   * Check if the grid lets the user drag its rows to move them
+   *
+   * @return Grid allows moving rows
+   */
+  @JsonGetter("moveRows")
+  public boolean isMoveRows() {
+    return moveRows != null && moveRows;
   }
 
   /**

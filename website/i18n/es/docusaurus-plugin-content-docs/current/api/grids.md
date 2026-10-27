@@ -68,6 +68,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla                                                                                                      |
 | columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho          | `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`dialog`) |
+| move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
 
 ### Barra de herramientas {#toolbar}
 
@@ -812,7 +813,26 @@ Con una fila seleccionada, ambos motores web también la mueven con el teclado m
 | `Alt+Home`       | `move-row-top`    |
 | `Alt+End`        | `move-row-bottom` |
 
-Las acciones se ignoran cuando la fila ya está en esa posición, y los grids en árbol no las soportan.
+Las acciones se ignoran cuando la fila ya está en esa posición, y los grids en árbol no las soportan. Los atajos
+funcionan cuando el grid es `editable` o tiene [`move-rows`](#drag-and-drop).
+
+#### Arrastrar y soltar {#drag-and-drop}
+
+Con `move-rows="true"` el grid añade una columna inicial estrecha con un asa en cada fila, en ambos motores web. El
+puntero muestra el cursor de mover sobre el asa. Arrastre una fila por su asa y una línea marca dónde caerá, antes o
+después de la fila que hay bajo el puntero; al soltarla, la fila se mueve a esa posición. Solo el asa inicia el arrastre,
+de modo que las celdas conservan la selección de texto y los clics. Los grids en árbol no muestran el asa.
+
+```xml
+<grid id="GrdSteps" move-rows="true" send-all="true" server-action="data" target-action="StepList">
+  <column name="name" label="COLUMN_NAME" component="text"/>
+</grid>
+```
+
+Al soltar, las filas se reordenan igual que con las acciones de mover fila: el modelo del grid conserva el nuevo orden en
+sus `values` y la fila movida queda seleccionada. El motor AngularJS además almacena el evento `move-row`, como hacen las
+acciones. El grid no necesita ser `editable`, y los atajos Alt+flecha anteriores siguen disponibles como alternativa de
+teclado: el asa tiene una etiqueta accesible que los menciona. Los grids sin `move-rows` se ven y se comportan como antes.
 
 ## Multiopción de grid {#multioption-grid}
 

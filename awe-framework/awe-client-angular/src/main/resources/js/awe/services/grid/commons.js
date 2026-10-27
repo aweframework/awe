@@ -30,7 +30,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
   function (GridComponents, GridEditable, GridMultioperation, GridEvents, GridLayout, $translate, $settings, Control, Utilities, $log) {
     // Retrieve $settings
 
-    // Keys that move the selected row of an editable grid while the Alt key is held
+    // Keys that move the selected row of an editable grid (or one with move-rows) while the Alt key is held
     const MOVE_ROW_KEYS = {ArrowUp: "before", ArrowDown: "after", Home: "first", End: "last"};
 
     // Selector of the cells whose text is cut by their maximum number of lines
@@ -1356,23 +1356,32 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * Move a row to a new position of the grid. The rows of the model keep the new order, so it is the order
          * the grid sends to the server when it is saved
          *
-         * @param {string} position Where to move the row: first, before (one up), after (one down) or last
-         * @param {string} rowId Row identifier (the selected row by default)
+         * @param {string} position Where to move the row: first, before (one up), after (one down) or last. With a
+         * target row, before or after that row
+         * @param {string} [rowId] Row identifier (the selected row by default)
+         * @param {string} [targetRowId] Row next to which the row lands (drag and drop), instead of the grid positions
          * @return {boolean} The row has been moved (the rows of a tree grid follow its structure and never move)
          */
-        component.moveRow = function (position, rowId) {
+        component.moveRow = function (position, rowId, targetRowId) {
           const values = component.model.values;
           const row = rowId || component.getSelectedRow();
           const index = row === null || row === undefined ? -1 : Utilities.getRowIndex(values, row, component.constants.ROW_IDENTIFIER);
-          const targets = {first: 0, before: index - 1, after: index + 1, last: values.length - 1};
-          const target = targets[position];
+          const hasTarget = targetRowId !== undefined;
+          let target = {first: 0, before: index - 1, after: index + 1, last: values.length - 1}[position];
+          if (hasTarget) {
+            // The target row, once the moved one is out of the list, tells where the moved row lands
+            const others = values.filter((value, valueIndex) => valueIndex !== index);
+            const targetIndex = index < 0 ? -1 : Utilities.getRowIndex(others, targetRowId, component.constants.ROW_IDENTIFIER);
+            const offset = {before: 0, after: 1}[position];
+            target = targetIndex < 0 || offset === undefined ? undefined : targetIndex + offset;
+          }
           if (component.isTree || index < 0 || target === undefined || target < 0 || target >= values.length || target === index) {
             return false;
           }
 
-          // Move the row and keep it selected once the grid shows the new order
+          // Move the row and keep it selected (a dropped row is the one selected) once the grid shows the new order
           // The grid watches only the reference and the length of its data (fastWatch), so the model gets a new array
-          const selection = component.model.selected;
+          const selection = hasTarget ? [values[index][component.constants.ROW_IDENTIFIER]] : component.model.selected;
           const reordered = [...values];
           reordered.splice(target, 0, reordered.splice(index, 1)[0]);
           component.model.values = reordered;
@@ -1388,7 +1397,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.onMoveRowKeyDown = function (event) {
           const position = MOVE_ROW_KEYS[event.key];
-          if (!component.editable || !position || !event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+          if (!(component.editable || component.controller?.moveRows) || !position || !event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
             return false;
           }
           event.preventDefault();

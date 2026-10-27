@@ -57,6 +57,9 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final Duration LOGGED_USER_NAME_TIMEOUT = Duration.ofSeconds(3);
   private static final Duration MENU_CLICK_EFFECT_TIMEOUT = Duration.ofSeconds(5);
   private static final int MENU_CLICK_RETRIES = 2;
+  // Where a dragged row lands on the row it is dropped on, as a share of its height
+  private static final double DROP_UPPER_HALF = 0.25;
+  private static final double DROP_LOWER_HALF = 0.75;
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final int CLOSE_COLUMNS_ATTEMPTS = 3;
@@ -4155,6 +4158,46 @@ public class SeleniumUtilities implements IAweInstructions {
         }
       });
     waitUntil(BrowserCondition.allOf(inOrder, checkIfGridLoaderIsNotVisible()));
+  }
+
+  /**
+   * Check that a row of a grid with move-rows shows the grip that drags it
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   */
+  protected void checkGridRowGripShown(String gridId, int rowNumber) {
+    waitUntil(BrowserCondition.visible(locator(frontEndInstructions.getGridRowGrip(gridId, rowNumber))));
+  }
+
+  /**
+   * Drag a row of a grid with move-rows by its grip and drop it on the upper half of another row, so it lands just above it
+   *
+   * @param gridId          Grid identifier
+   * @param rowNumber       Position of the row that is dragged, starting at 1
+   * @param targetRowNumber Position of the row it is dropped on, starting at 1
+   */
+  protected void dragGridRowBefore(String gridId, int rowNumber, int targetRowNumber) {
+    dragGridRow(gridId, rowNumber, targetRowNumber, DROP_UPPER_HALF);
+  }
+
+  /**
+   * Drag a row of a grid with move-rows by its grip and drop it on the lower half of another row, so it lands just below it
+   *
+   * @param gridId          Grid identifier
+   * @param rowNumber       Position of the row that is dragged, starting at 1
+   * @param targetRowNumber Position of the row it is dropped on, starting at 1
+   */
+  protected void dragGridRowAfter(String gridId, int rowNumber, int targetRowNumber) {
+    dragGridRow(gridId, rowNumber, targetRowNumber, DROP_LOWER_HALF);
+  }
+
+  private void dragGridRow(String gridId, int rowNumber, int targetRowNumber, double targetYRatio) {
+    Locator grip = locator(frontEndInstructions.getGridRowGrip(gridId, rowNumber));
+    Locator target = locator(frontEndInstructions.getGridRowFirstCell(gridId, targetRowNumber));
+    waitUntil(BrowserCondition.visible(grip));
+    getBrowser().dragAndDrop(grip, target, targetYRatio);
+    waitUntil(checkIfGridLoaderIsNotVisible());
   }
 
   /**

@@ -315,6 +315,22 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       });
     });
 
+    it("draws the row grip and the drop line of a grid with move-rows with the grid tokens (#888)", () => {
+      expect(style(".grid .ui-grid-row-grip .grid-row-grip")).toMatchObject({
+        "cursor": "move",
+        "color": "var(--awe-color-text-muted)"
+      });
+      expect(style(".grid .ui-grid-row-grip .grid-row-grip:hover")).toMatchObject({
+        "color": "var(--awe-color-primary)"
+      });
+      expect(style(".grid .ui-grid-row.grid-row-drop-before .ui-grid-cell")).toMatchObject({
+        "box-shadow": "inset 0 var(--awe-grid-drop-indicator-width) 0 0 var(--awe-color-primary)"
+      });
+      expect(style(".grid .ui-grid-row.grid-row-drop-after .ui-grid-cell")).toMatchObject({
+        "box-shadow": "inset 0 calc(-1 * var(--awe-grid-drop-indicator-width)) 0 0 var(--awe-color-primary)"
+      });
+    });
+
     it("marks the row detail with the primary row marker", () => {
       expect(style(".grid.grid-with-row-detail .grid-row-detail")).toMatchObject({
         "padding": "var(--awe-space-3) var(--awe-space-4)",

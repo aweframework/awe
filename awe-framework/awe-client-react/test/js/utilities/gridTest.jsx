@@ -10,6 +10,7 @@ import {
   getMoveRowKeyPosition,
   getWidthStyle,
   moveRowInValues,
+  moveRowNextToRow,
   RowPositionType,
   sortRow
 } from '../../../src/utilities/grid';
@@ -214,6 +215,45 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     it('does not modify the original list', () => {
       const values = rows();
       moveRowInValues(values, "id", 3, RowPositionType.FIRST);
+      expect(ids(values)).toEqual([1, 2, 3, 4]);
+    });
+  });
+
+  describe('moveRowNextToRow', () => {
+    const rows = () => [{id: 1}, {id: 2}, {id: 3}, {id: 4}];
+    const ids = (values) => values.map(row => row.id);
+
+    it.each([
+      [1, 3, RowPositionType.BEFORE, [2, 1, 3, 4]],
+      [1, 3, RowPositionType.AFTER, [2, 3, 1, 4]],
+      [4, 2, RowPositionType.BEFORE, [1, 4, 2, 3]],
+      [4, 1, RowPositionType.BEFORE, [4, 1, 2, 3]],
+      [2, 4, RowPositionType.AFTER, [1, 3, 4, 2]]
+    ])('moves row %s next to row %s (%s)', (rowId, targetRowId, position, expected) => {
+      expect(ids(moveRowNextToRow(rows(), "id", rowId, targetRowId, position))).toEqual(expected);
+    });
+
+    it('compares the identifiers as text', () => {
+      expect(ids(moveRowNextToRow(rows(), "id", "4", "1", RowPositionType.BEFORE))).toEqual([4, 1, 2, 3]);
+    });
+
+    it.each([
+      [2, 2, RowPositionType.BEFORE],
+      [2, 3, RowPositionType.BEFORE],
+      [3, 2, RowPositionType.AFTER],
+      [99, 2, RowPositionType.BEFORE],
+      [2, 99, RowPositionType.BEFORE],
+      [null, 2, RowPositionType.BEFORE],
+      [2, null, RowPositionType.AFTER],
+      [2, 3, RowPositionType.FIRST]
+    ])('keeps the same list when moving row %s next to row %s (%s) changes nothing', (rowId, targetRowId, position) => {
+      const values = rows();
+      expect(moveRowNextToRow(values, "id", rowId, targetRowId, position)).toBe(values);
+    });
+
+    it('does not modify the original list', () => {
+      const values = rows();
+      moveRowNextToRow(values, "id", 4, 1, RowPositionType.BEFORE);
       expect(ids(values)).toEqual([1, 2, 3, 4]);
     });
   });

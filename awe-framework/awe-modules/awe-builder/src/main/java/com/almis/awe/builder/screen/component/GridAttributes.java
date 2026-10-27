@@ -14,6 +14,7 @@ import lombok.experimental.Accessors;
 public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B> {
   private boolean checkMultiselect;
   private boolean editable;
+  private boolean moveRows;
   private boolean multiselect;
   private boolean paginationDisabled;
   private boolean rowNumbers = true;
@@ -48,6 +49,7 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
     return (E) element
       .setCheckboxMultiselect(isCheckMultiselect())
       .setEditable(isEditable())
+      .setMoveRows(isMoveRows())
       .setMultiselect(isMultiselect())
       .setDisablePagination(isPaginationDisabled())
       .setRowNumbers(isRowNumbers())

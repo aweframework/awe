@@ -125,6 +125,7 @@ export interface GridPassThroughOptions {
   getRowId?: () => unknown;
   isRowEditing?: () => unknown;
   isRowDeleted?: () => unknown;
+  getRowProps?: (rowId: unknown) => Record<string, unknown>;
 }
 
 /**
@@ -346,9 +347,11 @@ export function paginatorPassThrough(): PaginatorPassThrough {
  * @param {function} [options.getRowId] Function that returns the id of the row PrimeReact is rendering (set by its "rowClassName")
  * @param {function} [options.isRowEditing] Function that tells if the row PrimeReact is rendering is being edited
  * @param {function} [options.isRowDeleted] Function that tells if the row PrimeReact is rendering is marked to be deleted
+ * @param {function} [options.getRowProps] Function that returns extra props (style class, drag events) for the row with
+ * the identifier it receives (DataTable only)
  * @returns {object} DataTable or TreeTable pt
  */
-export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, isRowDeleted }: GridPassThroughOptions): GridPassThrough {
+export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, isRowDeleted, getRowProps }: GridPassThroughOptions): GridPassThrough {
   const pt: GridPassThrough = {
     root: testHook(TestIds.grid, { attributes: { [tree ? "tree-grid-id" : "grid-id"]: gridId } }),
     paginator: paginatorPassThrough()
@@ -358,12 +361,15 @@ export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, 
   // The rows are "bodyRow" in a DataTable and "row" in a TreeTable
   pt[tree ? "row" : "bodyRow"] = ({ context }) => {
     const rowId = getRowId?.();
-    return testHook(TestIds.gridRow, {
-      selected: context.selected,
-      editing: isRowEditing ? !!isRowEditing() : undefined,
-      deleted: isRowDeleted ? !!isRowDeleted() : undefined,
-      attributes: rowId !== undefined && rowId !== null ? { "row-id": rowId } : {}
-    });
+    return {
+      ...testHook(TestIds.gridRow, {
+        selected: context.selected,
+        editing: isRowEditing ? !!isRowEditing() : undefined,
+        deleted: isRowDeleted ? !!isRowDeleted() : undefined,
+        attributes: rowId !== undefined && rowId !== null ? { "row-id": rowId } : {}
+      }),
+      ...getRowProps?.(rowId)
+    };
   };
   return pt;
 }

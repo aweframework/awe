@@ -464,6 +464,7 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-grid-cell-padding-y` | `11px` | = light |
 | `--awe-grid-cell-padding-x` | `14px` | = light |
 | `--awe-grid-row-marker-width` | `3px` | = light |
+| `--awe-grid-drop-indicator-width` | `var(--awe-focus-ring-width)` | = light |
 | `--awe-grid-min-body-height` | `12rem` | = light |
 | `--awe-menu-width` | `var(--awe-size-menu-width)` | = light |
 | `--awe-menu-width-collapsed` | `68px` | = light |

@@ -540,6 +540,46 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
         .toEqual([1, 3, 2]);
     });
 
+    describe('next to a target row (drag and drop)', () => {
+      it('moves the row before the target row and selects it', () => {
+        const values = movedValues(moveRow(
+          { parameters: { rowId: 3, targetRowId: 1 }, address: mockAddress }, RowPositionType.BEFORE));
+
+        expect(values.map(row => row.id)).toEqual([3, 1, 2]);
+        expect(values.filter(row => row.selected).map(row => row.id)).toEqual([3]);
+      });
+
+      it('moves the row after the target row', () => {
+        const values = movedValues(moveRow(
+          { parameters: { rowId: 1, targetRowId: 3 }, address: mockAddress }, RowPositionType.AFTER));
+
+        expect(values.map(row => row.id)).toEqual([2, 3, 1]);
+      });
+
+      it('keeps the other selected rows of a multiselect grid', () => {
+        mockComponent.attributes = { ...mockComponent.attributes, multiselect: true };
+        const values = movedValues(moveRow(
+          { parameters: { rowId: 3, targetRowId: 1 }, address: mockAddress }, RowPositionType.BEFORE));
+
+        expect(values.filter(row => row.selected).map(row => row.id).sort()).toEqual([2, 3]);
+      });
+
+      it('ignores the target for the top and bottom positions', () => {
+        const values = movedValues(moveRow(
+          { parameters: { rowId: 3, targetRowId: 2 }, address: mockAddress }, RowPositionType.FIRST));
+
+        expect(values.map(row => row.id)).toEqual([3, 1, 2]);
+      });
+
+      it.each([[1, 1], [1, 2], [2, 1]])('accepts the action without changing the model when row %s is dropped next to row %s', (rowId, targetRowId) => {
+        const position = rowId < targetRowId ? RowPositionType.BEFORE : RowPositionType.AFTER;
+        const calls = moveRow({ parameters: { rowId, targetRowId }, address: mockAddress }, position);
+
+        expect(calls).toHaveLength(1);
+        expect(calls[0][0].type).toBe('ACCEPT_ACTION');
+      });
+    });
+
     it('accepts the action without changing the model when the row cannot move', () => {
       const calls = moveRow({ parameters: { rowId: 1 }, address: mockAddress }, RowPositionType.FIRST);
 

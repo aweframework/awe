@@ -1536,6 +1536,34 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the grip that drags a row of a grid with move-rows, by the position of the row in the grid
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   * @return Grip selector
+   */
+  default By getGridRowGrip(String gridId, int rowNumber) {
+    return By.xpath(getGridRowByNumberXpath(gridId, rowNumber)
+      + "//*[contains(concat(' ', normalize-space(@class), ' '), ' grid-row-grip ')]");
+  }
+
+  /**
+   * Get the first cell of a row of a grid, by the position of the row in the grid. A cell is as tall as its row in both
+   * clients, while the hook of the row is on an element without height in AngularJS: it is where a dragged row is dropped
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   * @return Cell selector
+   */
+  default By getGridRowFirstCell(String gridId, int rowNumber) {
+    return By.xpath("(" + getGridRowByNumberXpath(gridId, rowNumber) + "//*[" + TestIds.xpath(TestIds.GRID_CELL) + "])[1]");
+  }
+
+  private String getGridRowByNumberXpath(String gridId, int rowNumber) {
+    return String.format("(//*[@grid-id=%s]//*[%s])[%d]", XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_ROW), rowNumber);
+  }
+
+  /**
    * Get a row of a grid that is selected or not
    *
    * @param gridId     Grid identifier

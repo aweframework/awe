@@ -344,3 +344,23 @@
     overflow: hidden;
   }
 }
+
+// Grid with move-rows: the grip that drags a row and the line that shows where it will land
+.p-datatable .grid-row-grip {
+  display: inline-flex;
+  cursor: move;
+  color: var(--awe-color-text-muted);
+}
+
+.p-datatable .grid-row-grip:hover {
+  color: var(--awe-color-primary);
+}
+
+.p-datatable .p-datatable-tbody > tr.grid-row-drop-before > td {
+  box-shadow: inset 0 var(--awe-grid-drop-indicator-width) 0 0 var(--awe-color-primary);
+}
+
+.p-datatable .p-datatable-tbody > tr.grid-row-drop-after > td {
+  box-shadow: inset 0 calc(-1 * var(--awe-grid-drop-indicator-width)) 0 0 var(--awe-color-primary);
+}
+

@@ -917,6 +917,11 @@
         <xs:documentation xml:lang="en">Adds a first column with the row number. Not shown in tree grids. Default: true.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="move-rows" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Adds a leading column with a grip to move the rows by dragging them. The Alt+arrow shortcuts to move the selected row are also enabled. Not available in tree grids. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="treegrid" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Shows the data as a tree grid instead of a plain grid. The rows are related by the tree-id and tree-parent fields. Default: false.</xs:documentation>

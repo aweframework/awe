@@ -45,6 +45,13 @@ class MatrixTestsIT extends AbstractSessionTests {
    * a median of 1.37, up to 1.55)
    */
   private static final double WRAP_RENDER_TIME_LIMIT = 1.35;
+  private static final String MOVE_ROWS_GRID = "GrdMoveRows";
+  private static final String MOVE_ROWS_COLUMN = "label";
+  private static final String STEP_ONE = "Step one";
+  private static final String STEP_TWO = "Step two";
+  private static final String STEP_THREE = "Step three";
+  private static final String STEP_FOUR = "Step four";
+  private static final String STEP_FIVE = "Step five";
 
   MatrixTestsIT() {
     super(Session.TEST_MODULE);
@@ -277,7 +284,8 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Grid test: move the selected row of an editable grid to the top, up, down and to the bottom
+   * Grid test: move the selected row of an editable grid to the top, up, down and to the bottom, and drag the rows by
+   * their grip (grids with move-rows)
    */
   @Test
   void t062_gridTestMoveRows() {
@@ -288,23 +296,41 @@ class MatrixTestsIT extends AbstractSessionTests {
     gotoScreen("test", "matrix", "matrix-test-move-rows");
 
     // The rows come in the order of the query
-    checkGridColumnOrder("GrdMoveRows", "label", "Step one", "Step two", "Step three", "Step four", "Step five");
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_TWO, STEP_THREE, STEP_FOUR, STEP_FIVE);
 
     // Move the third row to the top
-    clickRowContents("GrdMoveRows", "Step three");
+    clickRowContents(MOVE_ROWS_GRID, STEP_THREE);
     clickButton("ButMoveRowTop");
-    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step four", "Step five");
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_THREE, STEP_ONE, STEP_TWO, STEP_FOUR, STEP_FIVE);
 
     // Move the fourth row one position up and down: the row stays selected
-    clickRowContents("GrdMoveRows", "Step four");
+    clickRowContents(MOVE_ROWS_GRID, STEP_FOUR);
     clickButton("ButMoveRowUp");
-    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step four", "Step two", "Step five");
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_THREE, STEP_ONE, STEP_FOUR, STEP_TWO, STEP_FIVE);
     clickButton("ButMoveRowDown");
-    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step four", "Step five");
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_THREE, STEP_ONE, STEP_TWO, STEP_FOUR, STEP_FIVE);
 
     // Move it to the bottom
     clickButton("ButMoveRowBottom");
-    checkGridColumnOrder("GrdMoveRows", "label", "Step three", "Step one", "Step two", "Step five", "Step four");
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_THREE, STEP_ONE, STEP_TWO, STEP_FIVE, STEP_FOUR);
+
+    // Every row shows the grip that drags it
+    checkGridRowGripShown(MOVE_ROWS_GRID, 1);
+    checkGridRowGripShown(MOVE_ROWS_GRID, 5);
+
+    // Drag the first row below the third one
+    dragGridRowAfter(MOVE_ROWS_GRID, 1, 3);
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_TWO, STEP_THREE, STEP_FIVE, STEP_FOUR);
+
+    // Drag the last row above the second one
+    dragGridRowBefore(MOVE_ROWS_GRID, 5, 2);
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_FOUR, STEP_TWO, STEP_THREE, STEP_FIVE);
+
+    // Drag them back to the order of the query
+    dragGridRowAfter(MOVE_ROWS_GRID, 2, 5);
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_TWO, STEP_THREE, STEP_FIVE, STEP_FOUR);
+    dragGridRowAfter(MOVE_ROWS_GRID, 5, 3);
+    checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_TWO, STEP_THREE, STEP_FOUR, STEP_FIVE);
   }
 
   /**

@@ -626,6 +626,9 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkCellContents(String gridId, String rowId, String columnId, String search)` | Checks the content of a cell |
 | `checkGridCellsHaveNoActiveContent(String gridId)` | Checks that the cells of a grid show text and nothing active: no script, frame, image, form, event handler or link to a script url. Use it with a value that carries markup to prove that the grid does not interpret it |
 | `checkGridColumnOrder(String gridId, String columnId, String... expected)` | Checks that the rows of a grid are in a given order, reading the values of one column |
+| `checkGridRowGripShown(String gridId, int rowNumber)` | Checks that a row of a grid with `move-rows` shows its grip (rows are numbered from 1) |
+| `dragGridRowBefore(String gridId, int rowNumber, int targetRowNumber)` | Drags a row of a grid with `move-rows` by its grip and drops it on the upper half of another row, so it lands just above it |
+| `dragGridRowAfter(String gridId, int rowNumber, int targetRowNumber)` | Drags a row of a grid with `move-rows` by its grip and drops it on the lower half of another row, so it lands just below it |
 | `checkGridPresent(String gridId)` | Checks that a grid exists in the screen, even if it is hidden |
 | `checkGridNotVisible(String gridId)` | Checks that a grid is not displayed |
 | `checkGridNotPresent(String gridId)` | Checks that a grid is not in the page at all, neither shown nor hidden, such as the nested grid of a row detail once the row closes or its grid reloads |

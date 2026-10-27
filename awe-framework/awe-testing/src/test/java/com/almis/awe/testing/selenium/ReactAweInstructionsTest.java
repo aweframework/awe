@@ -505,6 +505,10 @@ class ReactAweInstructionsTest {
   void shouldLocateTheRowsOfAGridAndTheRowDetailWithItsToggle() {
     assertThat(instructions.getGridRow("Grd", "12"))
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row'][row-id='12']");
+    assertThat(instructions.getGridRowFirstCell("Grd", 2))
+      .hasToString("By.xpath: ((//*[@grid-id='Grd']//*[@data-testid='grid-row'])[2]//*[@data-testid='grid-cell'])[1]");
+    assertThat(instructions.getGridRowGrip("Grd", 2))
+      .hasToString("By.xpath: (//*[@grid-id='Grd']//*[@data-testid='grid-row'])[2]//*[contains(concat(' ', normalize-space(@class), ' '), ' grid-row-grip ')]");
     assertThat(instructions.getGridRowSelected("Grd", "12", false))
       .hasToString("By.cssSelector: [grid-id='Grd'] [data-testid='grid-row'][row-id='12'][data-selected='false']");
     assertThat(instructions.getGridRowDetailToggle("Grd", "12"))

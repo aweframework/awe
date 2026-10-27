@@ -5,6 +5,7 @@ import {getIconTemplate} from "../services/component";
 import {iconMarkup, iconTemplate} from "../services/icon";
 import "./../services/grid/base";
 import {getGridRowHeight} from "../services/grid/density";
+import {initRowDrag} from "../services/grid/rowDrag";
 import "./gridHeader";
 import "./gridSkeleton";
 import "./gridToolbar";
@@ -134,6 +135,11 @@ aweApplication.directive('aweGrid',
                 // The grid has its own maximize state, also when the toolbar is hidden or shown later: it never reads the one of a window
                 // (the animation clone does not copy the content of the grid)
                 Maximize.initMaximize(scope, elem, {contentSelector: ".grid-container"});
+
+                // Rows moved with drag and drop, from the grip of their leading column
+                if (component.controller.moveRows) {
+                  initRowDrag(component, elem);
+                }
 
                 // Fix column model
                 component.fixColumnModel(true);

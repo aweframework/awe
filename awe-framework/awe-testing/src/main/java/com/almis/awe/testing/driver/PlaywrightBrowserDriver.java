@@ -70,6 +70,8 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
   private static final int TYPE_PAUSE_MILLIS = 200;
   // What a user holds the right button for, at the very least: browsers fire contextmenu when it is pressed
   private static final int CONTEXT_PRESS_MILLIS = 100;
+  // Steps in which a drag and drop moves the pointer from the source to the target
+  private static final int DRAG_AND_DROP_STEPS = 10;
   private static final int FRAMES_GIVE_UP_MILLIS = 500;
   private static final String VALUE = "value";
   private static final String BACKSPACE = "Backspace";
@@ -451,6 +453,32 @@ public class PlaywrightBrowserDriver implements BrowserDriver {
     act(locator, handle -> {
       runScript(handle, SCROLL_NEAREST);
       pointAt(locator, handle);
+    });
+  }
+
+  @Override
+  public void dragAndDrop(Locator source, Locator target, double targetYRatio) {
+    // The real pointer: press on the source, travel to the target in steps (a drag needs the pointer to move to start)
+    // and release over the point of the target
+    act(source, sourceHandle -> {
+      runScript(sourceHandle, SCROLL_NEAREST);
+      pointAt(source, sourceHandle);
+      mouse().down();
+      try {
+        act(target, targetHandle -> {
+          runScript(targetHandle, SCROLL_NEAREST);
+          BoundingBox box = boundingBoxOf(target, targetHandle);
+          double x = box.x + box.width / 2;
+          double y = box.y + box.height * targetYRatio;
+          mouse().move(x, y, new Mouse.MoveOptions().setSteps(DRAG_AND_DROP_STEPS));
+          pointerX = x;
+          pointerY = y;
+        });
+      } finally {
+        // Whatever happens while it is held, the button is never left pressed
+        mouse().up();
+      }
+      pause(CLICK_PAUSE_MILLIS);
     });
   }
 

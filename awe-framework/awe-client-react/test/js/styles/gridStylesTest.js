@@ -64,6 +64,15 @@ describe('AWE 5 grid styles (#885)', () => {
     expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td')).toMatch(/background: var\(--awe-color-surface-subtle\);/);
   });
 
+  it('draws the row grip and the drop line of a grid with move-rows with the grid tokens (#888)', () => {
+    expect(rule(grid, '.p-datatable .grid-row-grip')).toMatch(/color: var\(--awe-color-text-muted\);/);
+    expect(rule(grid, '.p-datatable .grid-row-grip:hover')).toMatch(/color: var\(--awe-color-primary\);/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.grid-row-drop-before > td'))
+      .toMatch(/box-shadow: inset 0 var\(--awe-grid-drop-indicator-width\) 0 0 var\(--awe-color-primary\);/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.grid-row-drop-after > td'))
+      .toMatch(/box-shadow: inset 0 calc\(-1 \* var\(--awe-grid-drop-indicator-width\)\) 0 0 var\(--awe-color-primary\);/);
+  });
+
   it('keeps the sticky header of a grid over the nested grid of a row detail that scrolls under it', () => {
     // Both sticky headers take the same z-index from PrimeReact: the detail isolates the nested one
     expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td')).toMatch(/isolation: isolate;/);
