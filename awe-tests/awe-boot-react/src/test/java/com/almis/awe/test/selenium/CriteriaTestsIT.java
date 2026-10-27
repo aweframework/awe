@@ -590,6 +590,12 @@ class CriteriaTestsIT extends AbstractSessionTests {
     checkDateRange(DATE_RANGE, "", "");
     checkDateRangePresetActive(DATE_RANGE, "ALL");
 
+    // Enter on a typed date submits the screen with it, from the start and from the end date
+    submitDateRangeFrom(DATE_RANGE, "02/01/2026");
+    checkRowContents("02/01/2026", REQUIRED_FROM, REQUIRED_TO);
+    submitDateRangeTo(DATE_RANGE, "30/01/2026");
+    checkRowContents("02/01/2026", "30/01/2026", REQUIRED_FROM, REQUIRED_TO);
+
     // Clear the start of the required range and search: the validation fails
     clearDateRangeFrom(DATE_RANGE_REQUIRED);
     clickButton(DATE_RANGE_SEARCH);

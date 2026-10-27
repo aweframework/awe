@@ -530,6 +530,8 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `clickDateRangePreset(String criterionName, String presetCode)` | Hace clic en un preajuste rápido (`1M`, `YTD`, `ALL`...) |
 | `checkDateRangePresetActive(String criterionName, String presetCode)` | Comprueba que un preajuste es el activo (las fechas son las que ha establecido) |
 | `clearDateRangeFrom(String criterionName)` | Borra la fecha de inicio de un criterio de rango de fechas |
+| `submitDateRangeFrom(String criterionName, String date)` | Escribe la fecha de inicio de un criterio de rango de fechas (`dd/MM/yyyy`) y pulsa Intro, que envía la pantalla |
+| `submitDateRangeTo(String criterionName, String date)` | Escribe la fecha de fin de un criterio de rango de fechas (`dd/MM/yyyy`) y pulsa Intro, que envía la pantalla |
 | `dropFile(String criterionName, String fileName, String mimeType, String base64Content)` | Suelta un archivo en la zona de arrastre de un criterio cargador, como un usuario que lo arrastra desde el escritorio |
 | `checkUploadCaptureButton(String criterionName, boolean shown)` | Comprueba que un criterio cargador ofrece el botón que abre la cámara (`true`), o que no lo ofrece (`false`) |
 | `chooseCapturedFile(String criterionName, String filePath)` | Elige un archivo con el campo de cámara (el que captura una imagen) de un criterio cargador. **Solo React**: AngularJS crea su campo de archivo al hacer clic en el botón de la cámara, así que no hay un campo al que dar el archivo |

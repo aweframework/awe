@@ -55,19 +55,27 @@ interface UpdateControllerParameters {
 const getModelValues = (component: ComponentState | undefined): ModelRow[] =>
   (component?.model?.values as ModelRow[] | undefined) || [];
 
+/**
+ * Submit button that Enter on a criterion clicks, as the AngularJS engine finds it: the visible submit button of the
+ * container of the criterion, and else the first visible submit button of its view (the buttons bar of a screen is
+ * usually outside of the window of its criteria).
+ * @param {object} action Submit action
+ * @param {object} components Components of the screen
+ * @returns {object|undefined} Submit button
+ */
+const findSubmitButton = (action: ClientAction, components: ContextComponents) => {
+  const { view } = getActionAddress(action);
+  const source = getActionSource(action, components);
+  const submitButtons = Object.values(components).filter((component) => {
+    const attributes = component.attributes as Record<string, unknown>;
+    return attributes.buttonType === BUTTON_SUBMIT && attributes.visible !== false && component.context.view === view;
+  });
+  return submitButtons.find((component) => isInsideContext(component.context, view, source)) ?? submitButtons[0];
+};
+
 export function submitAction(action: ClientAction): AppThunk {
   return (dispatch, getState) => {
-    const components = getAllComponents(getState()) as ContextComponents;
-    const address = getActionAddress(action);
-    const submitButton = Object.values(components).find(
-      (component) =>
-        (component.attributes as Record<string, unknown>).buttonType === BUTTON_SUBMIT &&
-        isInsideContext(
-          component.context,
-          address.view,
-          getActionSource(action, components)
-        )
-    );
+    const submitButton = findSubmitButton(action, getAllComponents(getState()) as ContextComponents);
     if (submitButton) {
       // Every component has its address
       const buttonAddress = submitButton.address as ComponentAddress;

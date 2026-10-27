@@ -9,13 +9,14 @@ import {updateModelWithDependencies as updateThunk} from "../redux/thunks/compon
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
+import useEnterKey from "../hooks/useEnterKey";
 import {calendarPassThrough} from "../utilities/testPassThrough";
 
 function AweInputFilteredDate(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { address, model, attributes = {}, validationRules = {}, settings } = useText(id);
+  const { address, model, attributes, validationRules, settings, onSubmit } = useText(id);
 
   const [disabledDates, setDisabledDates] = useState([]);
   const [maxDate, setMaxDate] = useState(null);
@@ -38,6 +39,8 @@ function AweInputFilteredDate(props) {
     setMinDate(getMinDate(availableDates));
   }, [model?.values]);
 
+  const onKeyDown = useEnterKey(onSubmit);
+
   const { placeholder, required, readonly, size, error } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
@@ -59,7 +62,7 @@ function AweInputFilteredDate(props) {
         required={required}
         disabled={readonly}
         locale={settings.language}
-        pt={calendarPassThrough(address?.component)}
+        pt={calendarPassThrough(address?.component, onKeyDown)}
         showButtonBar
       />
     </AweCriterion>

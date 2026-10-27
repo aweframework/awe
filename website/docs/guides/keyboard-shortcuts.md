@@ -35,8 +35,10 @@ The digit is read from the physical key, so it also works on macOS where `Option
 
 | Keys | Action |
 |------|--------|
-| `Enter` (text, password and color) | Submit the screen. |
+| `Enter` (text, password, color, date, filtered date, time and date range) | Submit the screen. |
 | `Enter` (numeric) | Commit the value typed in the criterion. |
+| `Enter` (on a day, month or year of a calendar) | Choose it, without submitting the screen or saving the row of a grid. |
+| `ArrowDown` (date input) | Go into the calendar. Opening the calendar keeps the focus on the input, so the date can be typed. |
 | `Space` (suggest, empty) | Open the options of the suggest. |
 
 ### Menu search

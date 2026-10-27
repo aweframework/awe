@@ -9,6 +9,7 @@ import {updateModelWithDependencies as updateThunk} from "../redux/thunks/compon
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
+import useEnterKey from "../hooks/useEnterKey";
 import {calendarPassThrough} from "../utilities/testPassThrough";
 
 function AweInputTime(props) {
@@ -16,13 +17,15 @@ function AweInputTime(props) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const settings = useSelector(state => state.settings);
-  const { address, attributes = {}, validationRules = {}, value } = useText(id);
+  const { address, attributes, validationRules, value, onSubmit } = useText(id);
 
   const onChange = useCallback((e) => {
     const newDate = e?.value ?? e?.target?.value ?? null;
     const fixed = fromTime(newDate) || "";
     dispatch(updateThunk(address, { values: [{ value: fixed, label: fixed, selected: true }] }));
   }, [dispatch, address]);
+
+  const onKeyDown = useEnterKey(onSubmit);
 
   const { placeholder, required, readonly, size, error } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
@@ -38,7 +41,7 @@ function AweInputTime(props) {
         required={required}
         disabled={readonly}
         locale={settings.language}
-        pt={calendarPassThrough(address?.component)}
+        pt={calendarPassThrough(address?.component, onKeyDown)}
         timeOnly
         showSeconds
       />

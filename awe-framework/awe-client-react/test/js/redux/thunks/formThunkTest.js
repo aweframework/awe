@@ -82,6 +82,49 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
+
+    describe('with the criterion in a window and the submit buttons outside of it', () => {
+      const criterion = {
+        address: {view: 'base', component: 'DatRng'},
+        context: {view: 'base', source: ['WinDatRng', 'DatRng']},
+        attributes: {}
+      };
+      const button = (id, attributes = {}, view = 'base', source = [id]) => ({
+        address: {view, component: id},
+        context: {view, source},
+        attributes: {buttonType: 'submit', ...attributes}
+      });
+      const submitWith = (components) => {
+        getState = jest.fn(() => ({...mockState, components: {DatRng: criterion, ...components}}));
+        formThunks.submitAction({type: 'submit', target: 'WinDatRng', address: criterion.address})(dispatch, getState);
+        return dispatch.mock.calls.map(([dispatched]) => dispatched)
+          .filter(dispatched => dispatched.type === 'ADD_ACTIONS_TOP')
+          .flatMap(dispatched => dispatched.payload)
+          .map(clicked => clicked.target);
+      };
+
+      it('clicks the first visible submit button of the view, as the AngularJS engine does', () => {
+        expect(submitWith({ButSea: button('ButSea'), ButOth: button('ButOth')})).toEqual(['ButSea']);
+      });
+
+      it('prefers the submit button of the container of the criterion', () => {
+        expect(submitWith({ButSea: button('ButSea'), ButWin: button('ButWin', {}, 'base', ['WinDatRng', 'ButWin'])}))
+          .toEqual(['ButWin']);
+      });
+
+      it('skips the hidden submit buttons and the ones of another view', () => {
+        expect(submitWith({
+          ButHid: button('ButHid', {visible: false}),
+          ButRep: button('ButRep', {}, 'report'),
+          ButSea: button('ButSea')
+        })).toEqual(['ButSea']);
+      });
+
+      it('clicks nothing when the view has no visible submit button', () => {
+        expect(submitWith({ButHid: button('ButHid', {visible: false})})).toEqual([]);
+        expect(dispatch.mock.calls.at(-1)[0].type).toBe('ACCEPT_ACTION');
+      });
+    });
   });
 
   describe('resetAction', () => {

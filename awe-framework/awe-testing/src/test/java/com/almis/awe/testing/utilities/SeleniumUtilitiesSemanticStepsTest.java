@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -1279,6 +1280,34 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     when(to.isEnabled()).thenReturn(true);
     assertThrows(AssertionFailedError.class, () -> utilities.checkDateRangeDisabled("Rng"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void shouldTypeTheDatesOfADateRangeAndSubmitThemWithEnter() {
+    WebElement from = show(instructions.getDateRangeFrom("Rng"), "");
+    WebElement to = show(instructions.getDateRangeTo("Rng"), "");
+    when(from.getAttribute("value")).thenReturn("01/01/2026");
+    when(to.getAttribute("value")).thenReturn("31/01/2026");
+    List<Object> keysPressed = new ArrayList<>();
+    doAnswer(invocation -> {
+      ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+        ((List<Map<String, Object>>) sequence.toJson().get("actions")).stream()
+          .filter(action -> "keyDown".equals(action.get("type"))).forEach(action -> keysPressed.add(action.get("value"))));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> {
+      utilities.submitDateRangeFrom("Rng", "02/01/2026");
+      utilities.submitDateRangeTo("Rng", "30/01/2026");
+    }).doesNotThrowAnyException();
+
+    // Each date replaces the previous one and is submitted with Enter, as the user does (the keys go one by one)
+    verify(from).clear();
+    verify(to).clear();
+    assertThat(keysPressed.stream().map(String::valueOf).collect(Collectors.joining()))
+      .isEqualTo("02/01/2026" + Keys.ENTER + "30/01/2026" + Keys.ENTER);
+    assertThrows(AssertionFailedError.class, () -> utilities.submitDateRangeFrom("Missing", "02/01/2026"));
   }
 
   @Test
