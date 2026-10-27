@@ -25,13 +25,6 @@
         <dependency-element id="GrdThmLst" condition="ne" value="1" />
       </dependency>
     </button>
-    <button label="BUTTON_CUSTOMIZE" icon="paint-brush" id="ButCus" help="HELP_CUSTOM_BUTTON">
-      <button-action type="check-one-selected" target="GrdThmLst" />
-      <button-action type="screen" target="customize-theme" />
-      <dependency target-type="disable" initial="true">
-        <dependency-element id="GrdThmLst" condition="ne" value="1" />
-      </dependency>
-    </button>
     <button label="BUTTON_UPDATE" icon="edit" id="ButUpd" help="HELP_UPDATE_BUTTON">
       <button-action type="check-one-selected" target="GrdThmLst" />
       <button-action type="screen" target="update-theme" />
@@ -82,6 +75,13 @@
         <column label="PARAMETER_THEME" name="Nam" sort-field="NamVal" align="center" charlength="20" />
         <column name="Act" sort-field="Act" hidden="true" />
         <column label="PARAMETER_ACTIVE" name="ActIco" sort-field="Act" align="center" component="icon" charlength="10" />
+        <column name="Pri" hidden="true" />
+        <column name="Srf" hidden="true" />
+        <column name="PriPal" hidden="true" />
+        <column name="PriHex" hidden="true" />
+        <column name="SrfPal" hidden="true" />
+        <column name="SrfHex" hidden="true" />
+        <column name="Mde" hidden="true" />
       </grid>
     </window>
   </tag>

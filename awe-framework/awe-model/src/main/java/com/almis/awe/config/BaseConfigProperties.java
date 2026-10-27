@@ -60,12 +60,32 @@ public class BaseConfigProperties {
   private String theme = "sky";
 
   /**
-   * Dark themes of the database follow the dark color scheme of the operating system while the user did not choose the
-   * light or the dark mode. Set to false to ignore the operating system (the LESS counterpart
-   * is @awe-follow-os-color-scheme).
-   * Default value true
+   * Application theme primary colour: one of the AWE 5 palettes (emerald, green, teal, cyan, sky, blue, indigo, violet,
+   * purple, fuchsia, pink, rose, red, orange, amber, yellow, lime) or a hex colour (#RGB or #RRGGBB). It overrides the
+   * primary colour of the theme.
+   * Default value empty (the primary colour of the theme, else emerald)
    */
-  private boolean themeFollowOsColorScheme = true;
+  private String themePrimary;
+
+  /**
+   * Application theme surface: one of the AWE 5 neutral palettes (slate, gray, zinc, neutral, stone), auto or a hex
+   * colour (#RGB or #RRGGBB). It overrides the surface of the theme.
+   * Default value empty (the surface of the theme, else auto)
+   */
+  private String themeSurface;
+
+  /**
+   * Application theme mode: light, dark or system (follows the operating system). It overrides the mode of the theme;
+   * the mode the user chooses overrides it.
+   * Default value empty (the mode of the theme, else system)
+   */
+  private String themeMode;
+
+  /**
+   * Application density: comfortable or compact. The density the user chooses overrides it.
+   * Default value comfortable
+   */
+  private String density = "comfortable";
 
   /**
    * Application acronym (in lowercase).
@@ -438,9 +458,9 @@ public class BaseConfigProperties {
 
     /**
      * Navigation bar logo. Uses application.paths.images as parent path.
-     * Default value ../images/logo/logo-awe-nuevo2.svg
+     * Default value ../images/logo/awe-logo-mark.svg
      */
-    private String imageNavbarLogo = "../" + images + "logo/logo-awe-nuevo2.svg";
+    private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
 
     /**
      * Sign-in screen background image. Uses application.paths.images as parent path.

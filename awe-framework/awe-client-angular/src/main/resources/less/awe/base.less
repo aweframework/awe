@@ -2,81 +2,45 @@
 // awe base definition
 // --------------------------------------------------
 
-// Default variables
-:root {
-  --text-color: #333333;
-  --primary-color: #7a6f6f;
-  --secondary-color: #e8e6e6;
-  --primary-text-color: #fff;
-  --secondary-text-color: #333333;
-  --primary-background-color: #C75858;
-  --secondary-background-color: #9D4444;
-  --primary-menu-color: #9D4444;
-  --secondary-menu-color: #823939;
-  --menu-text-color: #dfb5b5;
-  --primary-navbar-color: #ffffff;
-  --secondary-navbar-color: #9D4444;
-  --navbar-text-color: #555;
-  --navbar-dropdown-color: #fff;
-  --primary-font-size: 13px;
-  --secondary-font-size: 10px;
-  --disabled-color: #ccc;
-  --disabled-border-color: #aaa;
-  --disabled-text-color: #aaa;
-  --header-height: 46px;
-  --panel-background-color: #fff;
-  --panel-header-color: #7a6f6f;
-  --panel-border-color: #b13b3b;
-  --danger-color: #e66454;
-  --warning-color: #f4b04f;
-  --success-color: #5ebd5e;
-  --info-color: #5bc0de;
-  --border-color: #d3cece;
-  --border-radius: 3px;
-  --loading-bar-color: #7a6f6f;
-  --shadow-color: rgba(0, 0, 0, 0.2);
-
-  .dark {
-    --shadow-color: rgba(255, 255, 255, 0.2);
-  }
-}
-
-// Default less variables
-@theme-color: var(--theme-color, #9D4444);
-@text-color: var(--text-color, #000000);
-@primary-color: var(--primary-color, #7a6f6f);
-@secondary-color: var(--secondary-color, #e8e6e6);
-@primary-text-color: var(--primary-text-color, #fff);
-@secondary-text-color: var(--secondary-text-color, #333333);
-@primary-background-color: var(--primary-background-color, #C75858);
-@secondary-background-color: var(--secondary-background-color, #9D4444);
-@primary-menu-color: var(--primary-menu-color, #9D4444);
-@secondary-menu-color: var(--secondary-menu-color, #9D4444);
-@menu-text-color: var(--menu-text-color, #9D4444);
-@primary-navbar-color: var(--primary-navbar-color, #9D4444);
-@secondary-navbar-color: var(--secondary-navbar-color, #9D4444);
-@navbar-text-color: var(--navbar-text-color, #9D4444);
-@navbar-dropdown-color: var(--navbar-dropdown-color, #FFF);
-@primary-font-size: var(--primary-font-size, 13px);
-@secondary-font-size: var(--secondary-font-size, 10px);
-@disabled-color: var(--disabled-color, #ccc);
-@disabled-border-color: var(--disabled-border-color, #aaa);
-@disabled-text-color: var(--disabled-text-color, #aaa);
-@main-navbar-height: var(--header-height, 46px);
-@panel-background-color: var(--panel-background-color, #fff);
-@panel-header-color: var(--panel-header-color, #7a6f6f);
-@panel-border-color: var(--panel-border-color, #666);
-@panel-text-color: var(--panel-text-color, #fff);
-@grid-header-color: var(--grid-header-color, #ebebeb);
-@grid-border-color: var(--grid-border-color, #dbdbdb);
-@danger-color: var(--danger-color, #ff4444);
-@warning-color: var(--warning-color, #dddd00);
-@success-color: var(--success-color, #00dd00);
-@info-color: var(--info-color, #9999ff);
-@border-color: var(--border-color, #666);
-@border-radius: var(--border-radius, 6px);
-@loading-bar-color: var(--loading-bar-color, #7a6f6f);
-@required-color: var(--required-color, #dfd);
+// Default less variables: the Bootstrap 3, pixel-admin and AWE rules (and the products) read the AWE 5 tokens through
+// them, so every theme preset, mode and density applies (#885). A product can still override any of them
+@theme-color: var(--awe-color-theme);
+@text-color: var(--awe-color-text);
+@primary-color: var(--awe-color-primary);
+@secondary-color: var(--awe-color-secondary);
+@primary-text-color: var(--awe-color-on-primary);
+@secondary-text-color: var(--awe-color-on-secondary);
+@primary-background-color: var(--awe-color-background);
+@secondary-background-color: var(--awe-color-surface);
+@primary-menu-color: var(--awe-color-menu);
+@secondary-menu-color: var(--awe-color-menu-accent);
+@menu-text-color: var(--awe-color-menu-text);
+@primary-navbar-color: var(--awe-color-navbar);
+@secondary-navbar-color: var(--awe-color-navbar-accent);
+@navbar-text-color: var(--awe-color-navbar-text);
+@navbar-dropdown-color: var(--awe-color-navbar-dropdown);
+@primary-font-size: var(--awe-font-size-base);
+@secondary-font-size: var(--awe-font-size-small);
+@disabled-color: var(--awe-color-disabled);
+@disabled-border-color: var(--awe-color-disabled-border);
+@disabled-text-color: var(--awe-color-disabled-text);
+@main-navbar-height: var(--awe-size-header-height);
+@panel-background-color: var(--awe-color-panel);
+@panel-header-color: var(--awe-color-panel-header);
+@panel-border-color: var(--awe-color-panel-border);
+@panel-text-color: var(--awe-color-panel-text);
+@grid-header-color: var(--awe-color-grid-header);
+@grid-border-color: var(--awe-color-grid-border);
+@danger-color: var(--awe-color-danger);
+@warning-color: var(--awe-color-warning);
+@success-color: var(--awe-color-success);
+@info-color: var(--awe-color-info);
+@border-color: var(--awe-color-border);
+@border-radius: var(--awe-radius);
+@loading-bar-color: var(--awe-color-loading-bar);
+// The tint of the required fields and of today in the date picker: in AWE 5 --awe-color-required is the colour of the
+// required mark, so the tint reads the highlight (primary subtle) until the forms are restyled
+@required-color: var(--awe-color-highlight);
 @input-bg: @panel-background-color;
 @input-bg-disabled: @disabled-color;
 @input-border: @border-color;
@@ -211,13 +175,8 @@
 .ui-tabs-theme(@primary-color);
 .ui-datepicker-theme(@primary-color);*/
 
-// Define panel and button default
-.panel-awe {
-  .pixel-panel(@panel-header-color, @panel-text-color, @panel-border-color);
-}
-.btn-default {
-  .pixel-button(@color: @secondary-color, @font-color: @secondary-text-color);
-}
+// The windows (.panel-awe) and the buttons (.btn-awe, .btn-default) take the AWE 5 tokens in directives/panel.less
+// and directives/button.less (#885)
 
 // Mixins
 /*.awe-main-menu(@primary-menu-color, @menu-text-color);
@@ -228,6 +187,12 @@
 .awe-loading-bar(@loading-bar-color);
 .awe-theme-color(@primary-color);
 .awe-menu-color(@primary-menu-color);*/
+
+// The AWE 5 type scale (#885): Inter at the base size and line height of the tokens
+body {
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base);
+}
 
 html, body {
   margin:0;
@@ -395,11 +360,11 @@ html, body {
 }
 
 @media (min-width: @screen-sm-min) {
-  // Window buttons in full screen
+  // Window buttons in full screen: on the right of the breadcrumb bar (breadcrumbs.less), with the page padding
   .window-buttons {
     z-index: 5;
-    right: 10px;
-    top: 3px;
+    right: var(--awe-page-padding);
+    top: var(--awe-space-4);
     position: absolute;
   }
 

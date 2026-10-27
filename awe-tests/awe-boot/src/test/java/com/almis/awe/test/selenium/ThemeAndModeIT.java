@@ -1,21 +1,39 @@
 package com.almis.awe.test.selenium;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Themes, dark mode and design tokens (#770): the user chooses a theme and a mode in the user menu and the page shows
- * the values that theme and mode give to the design tokens. The values are those of the LESS themes, so the test also
- * catches a theme that stops rendering with its colors. The test user starts with the sunset theme.
+ * Themes and dark mode with the AWE 5 tokens (#770, #885): the user chooses a theme and a mode in the user menu, the
+ * page root carries the mode class and the primary palette of the theme preset, and the page shows the colors the
+ * tokens give them. The test user starts with the sunset theme; each test starts in the light mode, whatever mode the
+ * session starts in (another session of the same user may have left the dark one).
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class ThemeAndModeIT extends AbstractSessionTests {
 
   private static final String USER_THEME = "sunset";
+
+  // Elements whose computed colors the tests check
+  private static final String BODY = "body";
+  private static final String PRIMARY_BUTTON = ".btn-awe.btn-primary";
+  private static final String BACKGROUND_COLOR = "background-color";
+  private static final String COLOR = "color";
+
+  // Token values: surface auto is slate in light and zinc in dark
+  private static final String LIGHT_BACKGROUND = "rgb(248, 250, 252)";
+  private static final String LIGHT_TEXT = "rgb(51, 65, 85)";
+  private static final String DARK_BACKGROUND = "rgb(9, 9, 11)";
+  private static final String DARK_TEXT = "rgb(255, 255, 255)";
+
+  // Red primary: the fill (600) in light, the 400 shade in dark
+  private static final String RED_PRIMARY_LIGHT = "rgb(220, 38, 38)";
+  private static final String RED_PRIMARY_DARK = "rgb(248, 113, 113)";
 
   /**
    * Set while a test has changed the theme or chosen the dark mode, so the cleanup puts them back even when it fails
@@ -25,6 +43,14 @@ class ThemeAndModeIT extends AbstractSessionTests {
 
   ThemeAndModeIT() {
     super(Session.LOGGED_IN);
+  }
+
+  /**
+   * Start in the light mode: the user menu offers the dark mode only to a user who is not in it
+   */
+  @BeforeEach
+  void startInLightMode() {
+    switchToLightModeIfDark();
   }
 
   /**
@@ -47,12 +73,13 @@ class ThemeAndModeIT extends AbstractSessionTests {
   }
 
   /**
-   * The default theme shows the tokens of its dark mode and of its light mode. The user menu offers the light mode only
-   * after the dark one, so the test chooses both and does not depend on what the operating system of the runner prefers
+   * The default theme (sky preset) shows the colors of its dark mode and of its light mode. The user menu offers the
+   * light mode only after the dark one, so the test chooses both and does not depend on what the operating system of
+   * the runner prefers or on the mode the session starts in
    */
   @Test
-  void t001_darkModeChangesTheTokensOfTheDefaultTheme() {
-    setTestTitle("Dark mode changes the tokens of the default theme");
+  void t001_darkModeChangesTheColorsOfTheDefaultTheme() {
+    setTestTitle("Dark mode changes the colors of the default theme");
 
     themeChanged = true;
     selectTheme("default");
@@ -62,43 +89,48 @@ class ThemeAndModeIT extends AbstractSessionTests {
     darkChosen = true;
     switchToDarkMode();
     checkColorMode("dark");
-    checkDesignToken("--awe-color-text", "#eee");
-    checkDesignToken("--awe-color-background", "#060606");
+    checkThemeAppearance("dark", "sky");
+    checkComputedStyle(BODY, BACKGROUND_COLOR, DARK_BACKGROUND);
+    checkComputedStyle(BODY, COLOR, DARK_TEXT);
 
     // Light mode chosen: the page has the light class and not the dark one (it wins over the operating system)
     switchToLightMode();
     darkChosen = false;
     checkColorMode("light");
-    checkDesignToken("--awe-color-text", "#333333");
-    checkDesignToken("--awe-color-background", "#f4f6f7");
+    checkThemeAppearance("light", "sky");
+    checkComputedStyle(BODY, BACKGROUND_COLOR, LIGHT_BACKGROUND);
+    checkComputedStyle(BODY, COLOR, LIGHT_TEXT);
   }
 
   /**
-   * Another theme shows its own tokens in both modes, and the mode stays when the theme changes
+   * Another theme shows its own primary in both modes, and the mode stays when the theme changes
    */
   @Test
-  void t002_themeChangesTheTokensInBothModes() {
-    setTestTitle("Another theme changes the tokens in both modes");
+  void t002_themeChangesThePrimaryInBothModes() {
+    setTestTitle("Another theme changes the primary in both modes");
 
-    // Sunset, dark mode and then light mode
+    // Sunset (red preset), dark mode and then light mode
     themeChanged = true;
     selectTheme("sunset");
     checkThemeApplied("sunset");
     darkChosen = true;
     switchToDarkMode();
     checkColorMode("dark");
-    checkDesignToken("--awe-color-theme", "#721717");
+    checkThemeAppearance("dark", "red");
+    checkComputedStyle(PRIMARY_BUTTON, BACKGROUND_COLOR, RED_PRIMARY_DARK);
     switchToLightMode();
     darkChosen = false;
     checkColorMode("light");
-    checkDesignToken("--awe-color-theme", "#d05a5a");
+    checkThemeAppearance("light", "red");
+    checkComputedStyle(PRIMARY_BUTTON, BACKGROUND_COLOR, RED_PRIMARY_LIGHT);
 
-    // Another theme in the dark mode
+    // Another theme (blue preset) in the dark mode
     darkChosen = true;
     switchToDarkMode();
     selectTheme("sky");
     checkThemeApplied("sky");
     checkColorMode("dark");
-    checkDesignToken("--awe-color-background", "#060606");
+    checkThemeAppearance("dark", "blue");
+    checkComputedStyle(BODY, BACKGROUND_COLOR, DARK_BACKGROUND);
   }
 }

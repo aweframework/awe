@@ -48,7 +48,7 @@ incremento opcionales.
 ### Select, selección múltiple y autocompletar {#select-multiselect-and-autocomplete}
 
 La lista nativa del navegador **no** se usa: ignora el tema y el modo. Cada select es un combobox con una lista
-desplegable al estilo de las listas de Aura.
+desplegable al estilo de las listas de AWE.
 
 | Parte | Regla |
 |-------|-------|

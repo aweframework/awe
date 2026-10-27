@@ -5,7 +5,7 @@
   overflow: hidden !important;
   margin-bottom: 0;
   &.grid-bordered {
-    border: 1px solid @table-border-color;
+    border: 1px solid var(--awe-grid-border);
   }
 
   .table.table-bordered {
@@ -253,7 +253,8 @@
     top: -10000px;
     left: -10000px;
     padding: 4px;
-    border: 1px solid @table-border-color;
+    background: var(--awe-color-surface);
+    border: 1px solid var(--awe-grid-border);
     border-top: 0;
     white-space: nowrap;
     z-index: 1;
@@ -261,15 +262,16 @@
 
   // Subtotal grid style
   tr.SUBTOTAL {
-    background-color: #eee !important;
+    background-color: var(--awe-color-surface-subtle) !important;
   }
 
   // Total grid style
   tr.TOTAL {
-    background-color:#ddd !important;
-    border-top: solid #ccc 2px;
+    background-color: var(--awe-grid-header-background) !important;
+    border-top: 2px solid var(--awe-grid-border);
     td {
-      font-weight: bold !important;
+      font-weight: var(--awe-font-weight-semibold) !important;
+      color: var(--awe-color-text-emphasis);
     }
   }
 

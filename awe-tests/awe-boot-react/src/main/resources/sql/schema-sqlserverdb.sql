@@ -40,7 +40,10 @@ CREATE TABLE AweThm
 (
     IdeThm int           NOT NULL PRIMARY KEY, --- Theme key
     Nam    varchar(100)  not NULL,             --- Theme name
-    Act    int default 1 not NULL              --- Active (1) or not (0)
+    Act    int default 1 not NULL,             --- Active (1) or not (0)
+    Pri    varchar(20)       NULL,             --- Primary colour
+    Srf    varchar(20)       NULL,             --- Surface
+    Mde    varchar(10)       NULL              --- Mode
 );
 IF NOT EXISTS(SELECT *
               FROM sys.indexes
@@ -393,7 +396,10 @@ CREATE TABLE HISAweThm
     HISact varchar(1)   not NULL,
     IdeThm int          NULL,
     Nam    varchar(100) NULL,
-    Act    int          NULL
+    Act    int          NULL,
+    Pri    varchar(20)  NULL,
+    Srf    varchar(20)  NULL,
+    Mde    varchar(10)  NULL
 );
 IF NOT EXISTS(SELECT *
               FROM sys.indexes

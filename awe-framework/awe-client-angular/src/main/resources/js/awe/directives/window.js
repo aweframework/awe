@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
+import {iconMarkup} from "../services/icon";
 import {TestIds} from "../data/testIds";
 
 const template = `<div data-testid="${TestIds.window}" ng-attr-data-testid-owner="{{::windowId}}" ng-attr-data-maximized="{{iconMaximized === true}}" class="panel panel-awe {{::panelClass + ' panel-' + size}} expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ng-cloak>
@@ -8,7 +9,7 @@ const template = `<div data-testid="${TestIds.window}" ng-attr-data-testid-owner
     <span translate-multiple="{{::panelTitle}}"></span>
     <div ng-if="::maximize" class="btn-group pull-right">
       <button role="button" type="button" class="maximize-button" data-testid="${TestIds.windowMaximizeButton}" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translateMultiple}}">
-        <i class="fa {{iconMaximized ? 'fa-compress' : 'fa-expand'}}"></i>
+        <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
       </button>
     </div>
   </div>

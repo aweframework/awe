@@ -2,7 +2,7 @@
   <div class="header">
     <a href="/" class="logo"></a>
   </div>
-  <div class="error-code"><i class="fa fa-exclamation-triangle"></i></div>
+  <div class="error-code"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#triangle-alert"></use></svg></i></div>
   <div class="error-text">
     <span class="oops">Option not defined</span><br>
     <span class="hr"></span><br/>

@@ -25,7 +25,6 @@ one token contract apply to **both** engines, so a screen defined in XML looks t
 |------|---------------|
 | A new product | AWE 5 must look like a new product, not a recoloured AWE 4: type, spacing, shapes, icons, shell and components change. |
 | Both engines on par | One token contract (`--awe-*`) and the same component rules for AngularJS and React. |
-| Aura-inspired | The values come from the Aura preset of PrimeTek (`@primeuix/themes` 2.0.3, MIT). The CSS is AWE's own. |
 | Light and dark | Every colour token has a light and a dark value. The user chooses, or the operating system decides. |
 | Simple themes | A theme is a **primary** palette plus a **surface** palette. Nothing else to configure. |
 | Accessible | Text meets WCAG 2.2 AA (4.5:1) in both modes and with every primary. Focus is always visible. |

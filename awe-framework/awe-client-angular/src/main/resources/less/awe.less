@@ -51,7 +51,9 @@
 @import "./awe/variables.less";
 @import "./awe/mixins.less";
 
-// ### awe design tokens (--awe-* custom properties)
+// ### awe design tokens (--awe-* custom properties): the AWE 5 token file shared with the React engine, then the
+// current token names (they keep following the active theme until the engine adopts the AWE 5 values)
+@import (inline) "../../../../../awe-design-tokens/tokens.css";
 @import "./awe/tokens.less";
 
 // ### awe custom stylesheets
@@ -59,6 +61,9 @@
 @import "./awe/breadcrumbs.less";
 @import "./awe/font.less";
 @import "./awe/icon.less";
+// The AWE 5 icons (#885): the rules shared with the React engine, then the contexts of this engine
+@import (inline) "../../../../../awe-design-tokens/icons/awe-icon.css";
+@import "./awe/awe-icon.less";
 @import "./awe/offset.less";
 @import "./awe/no-label.less";
 @import "./awe/button.less";

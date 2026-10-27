@@ -5,6 +5,8 @@ const GeneratePackageJsonPlugin = require('generate-package-json-webpack-plugin'
 const CopyPlugin = require("copy-webpack-plugin");
 const PACKAGE = require('./package.json');
 const {resolvePackageVersion} = require('./package-version.cjs');
+const {LucideSpritePlugin} = require('../awe-design-tokens/icons/lucide-sprite.cjs');
+const {PrimeReactThemePlugin} = require('../awe-design-tokens/primereact/primereact-theme.cjs');
 
 const basePackage = {
   ...PACKAGE,
@@ -37,7 +39,11 @@ module.exports = {
   },
   //target: 'node',
   externalsPresets: { node: true },
-  externals: [nodeExternals()],
+  externals: [nodeExternals({
+    // The AWE theme of PrimeReact is built from this Lara theme (PrimeReactThemePlugin): bundled in css/main.css, never
+    // left to the application, which would load the Lara theme as it is
+    allowlist: ['primereact/resources/themes/lara-light-indigo/theme.css']
+  })],
   module: {
     rules: [
       {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: {loader: 'babel-loader', options: {presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']}}},
@@ -71,7 +77,18 @@ module.exports = {
         {from: "README.md", to: "[name][ext]"},
         // The licence of the AWE repository travels with the published package
         {from: "../../LICENSE.md", to: "[name][ext]"},
+        // The SIL Open Font License travels with the Inter font of the bundle (#885)
+        {from: "../awe-design-tokens/fonts/LICENSE-inter-OFL.txt", to: "fonts/[name][ext]"},
       ]
+    }),
+    // The AWE 5 icons (#885): every Lucide icon of the pinned lucide-static in one sprite, generated on each build
+    new LucideSpritePlugin({
+      lucideDir: path.resolve(__dirname, "node_modules", "lucide-static"),
+      filename: "static/icons/lucide-sprite.svg"
+    }),
+    // The AWE theme of PrimeReact (#885): the Lara theme imported by main.jsx is bundled with the AWE token values
+    new PrimeReactThemePlugin({
+      primereactDir: path.resolve(__dirname, "node_modules", "primereact")
     })
   ]
 };

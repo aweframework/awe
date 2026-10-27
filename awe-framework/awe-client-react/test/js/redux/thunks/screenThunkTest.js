@@ -123,6 +123,71 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       const [update] = dispatch.mock.calls.map(a => a[0]).filter(a => a.type === 'UPDATE_SETTINGS');
       expect(update.payload.theme).toBe('light');
     });
+
+    it('reads the theme appearance again from the server after the theme change', () => {
+      screenThunks.changeThemeAction({ parameters: { theme: 'sky' } })(dispatch, getState);
+
+      const calls = dispatch.mock.calls.map(a => a[0]);
+      expect(calls).toHaveLength(3);
+      expect(typeof calls[2]).toBe('function');
+    });
+
+    it('does not read the theme appearance when there is no theme', () => {
+      screenThunks.changeThemeAction({ parameters: {} })(dispatch, getState);
+
+      expect(dispatch.mock.calls.map(a => a[0].type)).toEqual(['ACCEPT_ACTION']);
+    });
+  });
+
+  describe('refreshThemeAppearanceAction', () => {
+    const response = (body) => ({ ok: true, json: () => Promise.resolve(body) });
+
+    it('reads the appearance endpoint and stores only its appearance fields', async () => {
+      getState.mockReturnValue({ settings: { token: 'token-1' }, components: {} });
+      global.fetch.mockResolvedValue(response({
+        theme: 'sky', cometUID: 'other', reloadCurrentScreen: true, initialURL: '/x',
+        themePrimary: '#4f46e5', themeSurface: 'auto', themeMode: 'dark', density: 'compact',
+        themePalette: { '--awe-primary-500': '#4f46e5' }
+      }));
+
+      await screenThunks.refreshThemeAppearanceAction()(dispatch, getState);
+
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/\/settings\/appearance$/),
+        expect.objectContaining({ method: 'POST', headers: expect.objectContaining({ Authorization: 'token-1' }) }));
+      expect(dispatch.mock.calls.map(a => a[0])).toEqual([{
+        type: 'UPDATE_SETTINGS',
+        payload: {
+          themePrimary: '#4f46e5', themeSurface: 'auto', themeMode: 'dark', density: 'compact',
+          themePalette: { '--awe-primary-500': '#4f46e5' }
+        }
+      }]);
+    });
+
+    it('keeps only the response of the last request', async () => {
+      let resolveFirst;
+      global.fetch
+        .mockReturnValueOnce(new Promise(resolve => { resolveFirst = resolve; }))
+        .mockResolvedValueOnce(response({ themeMode: 'dark' }));
+
+      const first = screenThunks.refreshThemeAppearanceAction()(dispatch, getState);
+      await screenThunks.refreshThemeAppearanceAction()(dispatch, getState);
+      resolveFirst(response({ themeMode: 'light' }));
+      await first;
+
+      expect(dispatch.mock.calls.map(a => a[0].payload)).toEqual([{ themeMode: 'dark' }]);
+    });
+
+    it('logs a failed request and does not change the settings', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const error = new Error('offline');
+      global.fetch.mockRejectedValue(error);
+
+      await screenThunks.refreshThemeAppearanceAction()(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+      expect(consoleError).toHaveBeenCalledWith('Error reading the theme appearance:', error);
+      consoleError.mockRestore();
+    });
   });
 
   describe('reloadScreenAction', () => {

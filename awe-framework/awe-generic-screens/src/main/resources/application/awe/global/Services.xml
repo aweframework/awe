@@ -355,6 +355,21 @@
       <service-parameter type="STRING" name="mode" />
     </java>
   </service>
+  <service id="changeUserDensity">
+    <java classname="com.almis.awe.service.UserService" method="changeUserDensity">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="density" />
+    </java>
+  </service>
+  <!-- Primary colour and surface of a theme from the palette selects and colour pickers of the theme screens -->
+  <service id="composeThemeColors">
+    <java classname="com.almis.awe.service.ThemeService" method="composeColors">
+      <service-parameter type="STRING" name="primaryPalette" />
+      <service-parameter type="STRING" name="primaryHex" />
+      <service-parameter type="STRING" name="surfacePalette" />
+      <service-parameter type="STRING" name="surfaceHex" />
+    </java>
+  </service>
   <!-- Email service -->
   <service id="reloadMailServers">
     <java classname="com.almis.awe.service.EmailService" method="reloadMailServers"/>

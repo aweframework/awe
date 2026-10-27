@@ -3,28 +3,17 @@
 // --------------------------------------------------
 .awe-theme {
 
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@panel-header-color, @panel-text-color, @panel-border-color);
-  }
-  .btn-default {
-    .pixel-button(@color: @secondary-color, @font-color: @secondary-text-color);
-  }
-
-  // Mixins
-  .awe-main-menu(@primary-menu-color, @menu-text-color);
-  .awe-grid(@secondary-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@secondary-color, @primary-color, @font-color: @secondary-text-color);
-  .awe-loading-bar(@loading-bar-color);
+  // Mixins (the main menu and the breadcrumb take the AWE 5 shell tokens in their own files, #885: .awe-main-menu and
+  // .awe-breadcrumbs stay defined for the products that call them). The windows, the buttons, the select fields and
+  // the file inputs take the AWE 5 tokens in their directive files (#885): .awe-buttons stays defined too. The grids
+  // take the AWE 5 grid tokens in directives/grid.less (#885): .awe-grid stays defined too. The dialogs and the loading
+  // bar take the AWE 5 overlay tokens in directives/modal.less and directives/overlay.less (#885): .awe-loading-bar
+  // stays defined too. The login pages take the AWE 5 login tokens in pages/signin.less (#885):
+  // .awe-change-password-page stays defined too
   .awe-theme-color(@primary-color);
   .awe-menu-color(@primary-menu-color);
   .table-color(@primary-color, @panel-background-color, @primary-text-color);
 
-  .modal-content {
-    background: @panel-background-color;
-  }
   .panel-footer {
     background: @secondary-background-color;
   }
@@ -38,9 +27,7 @@
   .ui-datepicker-theme(@primary-color);
 
   // Plugins
-  .select2-theme(@primary-color, @primary-text-color);
   .switcher-theme(@primary-color);
-  .pixel-file-input-theme(@primary-color);
   .bootstrap-datepicker-theme(@primary-color);
   .bootstrap-timepicker-theme(@primary-color);
   .datepaginator-theme(@primary-color);
@@ -340,7 +327,7 @@
 
 // Buttons theme
 //
-.awe-buttons(@default, @primary, @font-color: var(--secondary-text-color), @primary-font-color: var(--primary-text-color)) {
+.awe-buttons(@default, @primary, @font-color: var(--awe-color-on-secondary), @primary-font-color: var(--awe-color-on-primary)) {
   .btn-awe {
     .pixel-button(@color: @default, @gradient: 5%, @hover: 2%, @border: 4%, @font-color: @font-color);
   }

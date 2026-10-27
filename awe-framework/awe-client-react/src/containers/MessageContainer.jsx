@@ -10,12 +10,14 @@ import {ESC_KEY_HANDLING_PRIORITIES, useGlobalOnEscapeKey} from "primereact/hook
 import {Button} from "primereact/button";
 import {useTranslation} from "react-i18next";
 import {Toast} from "primereact/toast";
-import {translateLabel} from "../utilities";
+import {getIconCode, getIconNode, translateLabel} from "../utilities";
 import {TestIds, testHook} from "../utilities/testIds";
 import {toastPassThrough} from "../utilities/testPassThrough";
 import AweTargetMessage from "../components/AweTargetMessage";
 
 const NO_MESSAGES = {};
+// Classes PrimeReact gives to the icon of a button with label
+const BUTTON_ICON = "p-button-icon p-c p-button-icon-left";
 const NO_SETTINGS = {};
 // The confirm is modal and shown over everything: Escape cancels it before closing any overlay below it (the menu that
 // launched the action, for instance)
@@ -58,10 +60,10 @@ function MessageContainer() {
   };
 
   const confirmFooter =() => {
-    return <div className={"flex justify-content-between flex-wrap"}>
-      <Button id="confirm-cancel" label={translateLabel("BUTTON_CANCEL", t)} icon="pi pi-times" onClick={onCancel} className="p-button-secondary"
+    return <div className="confirm-footer">
+      <Button id="confirm-cancel" label={translateLabel("BUTTON_CANCEL", t)} icon={getIconCode("pi-times", BUTTON_ICON)} onClick={onCancel} className="p-button-secondary"
               {...testHook(TestIds.confirmCancel)}/>
-      <Button id="confirm-accept" label={translateLabel("BUTTON_ACCEPT", t)} icon="pi pi-check" onClick={onAccept}
+      <Button id="confirm-accept" label={translateLabel("BUTTON_ACCEPT", t)} icon={getIconCode("pi-check", BUTTON_ICON)} onClick={onAccept}
               {...testHook(TestIds.confirmAccept)}/>
     </div>;
   };
@@ -86,9 +88,9 @@ function MessageContainer() {
     <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition} pt={toastPassThrough()}/>
     <AweTargetMessage popover={popover}/>
     <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
-            modal={true} closable={false} closeOnEscape={false} onHide={onCancel}
+            modal={true} closable={false} closeOnEscape={false} onHide={onCancel} className="awe-confirm-dialog"
             pt={{root: testHook(TestIds.confirmDialog)}}>
-      <i className="pi pi-exclamation-triangle m-3 text-center text-warning" style={{fontSize: '8rem'}}/>
+      {getIconNode("pi-exclamation-triangle", {className: "confirm-icon"})}
       <span>{translateLabel(message, t)}</span>
     </Dialog>
   </>;

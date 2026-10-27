@@ -4,7 +4,7 @@ import PrimeReact from "primereact/api";
 import { ZIndexUtils } from "primereact/utils";
 import { Components } from "../utilities/structure";
 import { classNames } from "../utilities/components";
-import { translateLabel } from "../utilities";
+import { getIconNode, translateLabel } from "../utilities";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
@@ -211,7 +211,7 @@ function AwePopover(props) {
         <span className="popover-title">{title}</span>
         <button type="button" className="popover-close p-link" onClick={hide}
           aria-label={translateLabel("BUTTON_CLOSE", t)} {...testHook(TestIds.popoverClose)}>
-          <span className="pi pi-times" aria-hidden="true"/>
+          {getIconNode("pi-times", { tag: "span", "aria-hidden": "true" })}
         </button>
       </div>
       <div className="popover-body">

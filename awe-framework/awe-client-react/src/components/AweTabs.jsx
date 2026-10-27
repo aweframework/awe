@@ -1,7 +1,7 @@
 import React from "react";
 import { TabMenu } from "primereact/tabmenu";
 import { Components } from "../utilities/structure";
-import { getIconCode, translateLabel } from "../utilities";
+import { getIconCode, getIconNode, translateLabel } from "../utilities";
 import { classNames } from "../utilities/components";
 import "./AweTabs.less";
 import { Badge } from "primereact/badge";
@@ -85,7 +85,7 @@ function AweTabs(props) {
     {...testHook(TestIds.tabs, { owner: id, maximized: iconMaximized })}>
     {maximizable && <button type="button" className="maximize-button p-link" title={maximizeTitle} aria-label={maximizeTitle}
       onClick={toggleMaximized} {...testHook(TestIds.tabMaximizeButton)}>
-      <i className={`pi ${iconMaximized ? "pi-window-minimize" : "pi-window-maximize"}`} />
+      {getIconNode(iconMaximized ? "pi-window-minimize" : "pi-window-maximize")}
     </button>}
     <AweTabMenu id={id} values={values} activeIndex={activeIndex} disabled={disabled} invalid={invalid}
       onChange={onChange} itemRenderer={itemRenderer} />

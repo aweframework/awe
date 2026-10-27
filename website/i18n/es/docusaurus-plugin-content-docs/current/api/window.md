@@ -83,5 +83,5 @@ Ambos motores tratan `expandible` y `maximize` de la misma forma:
   hermanas se ocultan mientras está maximizada. El botón Restaurar la devuelve a su tamaño; no hay atajo con la tecla
   Escape. El contenido con el estilo `expand-maximize` ocupa el espacio libre mientras la ventana está maximizada.
 
-Las diferencias son solo visuales: el motor AngularJS usa iconos de Font Awesome para el botón de maximizar y el motor React
-usa PrimeIcons, y el motor React muestra el `icon` de la ventana a la derecha de la barra de título.
+Las diferencias son solo visuales: el botón de maximizar muestra los iconos Lucide `expand` y `shrink` en el motor
+AngularJS y `maximize` y `minimize` en el motor React, y el motor React muestra el `icon` de la ventana a la derecha de la barra de título.

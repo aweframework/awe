@@ -1,6 +1,8 @@
 /*******************************************************************************
  UPLOADER DIRECTIVES
 *******************************************************************************/
+// The uploader of the AWE 5 design system (#885): the file input is a field with its buttons on the right, the drop
+// zone a dashed field border that turns primary while a file is dragged over it
 
 .criterion {
   .uploaderForm {
@@ -11,107 +13,148 @@
   }
 
   .pixel-file-input {
-    color: @text-color;
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-2);
+    min-height: var(--awe-size-control);
+    padding: 0 var(--awe-field-padding-x);
+    font-size: var(--awe-font-size-base);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-field-text);
+    background: var(--awe-color-field);
+    border: 1px solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    box-shadow: var(--awe-shadow-field);
+    transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+    &:hover {
+      border-color: var(--awe-color-field-border-hover);
+    }
+
+    &:focus-within {
+      border-color: var(--awe-color-field-border-focus);
+      box-shadow: var(--awe-shadow-field-focus);
+    }
+
+    .pfi-filename {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pfi-placeholder {
+      color: var(--awe-color-field-placeholder);
+    }
+
+    .pfi-actions {
+      position: static;
+      display: flex;
+      flex: none;
+      gap: var(--awe-space-1);
+      margin-right: calc(var(--awe-space-1-5) - var(--awe-field-padding-x));
+      padding: 0;
+      background: transparent;
+    }
+
+    .pfi-actions .btn {
+      height: calc(var(--awe-size-control) - 2 * var(--awe-space-1));
+      padding: 0 var(--awe-space-2);
+      font-size: var(--awe-font-size-sm);
+    }
   }
 
   &.uploader {
     .progress-bar {
-      .transition(width 100ms ease);
-    }
-  }
-
-  // VALIDATION
-  &.has-error {
-    .pixel-file-input {
-      border:1px solid @danger-color !important;
+      transition: width var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
     }
   }
 
   // DROP ZONE, PREVIEW AND CAPTURE
   .upload-drop-zone {
-    padding: 6px;
-    border: 2px dashed @input-border;
-    border-radius: 4px;
+    padding: var(--awe-space-1-5);
+    border: 2px dashed var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 
     &.upload-drop-zone-active {
-      border-color: @primary-color;
+      border-color: var(--awe-color-primary);
+      background: var(--awe-color-highlight);
     }
 
     .upload-drop-hint {
-      margin-bottom: 4px;
-      font-size: 12px;
-      opacity: 0.7;
+      margin-bottom: var(--awe-space-1);
+      font-size: var(--awe-font-size-xs);
+      color: var(--awe-color-field-help);
     }
   }
 
   .pfi-capture {
-    margin-top: 4px;
+    margin-top: var(--awe-space-1);
   }
 
   .upload-preview {
     display: block;
     max-width: 100%;
     max-height: 12rem;
-    margin-top: 4px;
-    border-radius: 4px;
+    margin-top: var(--awe-space-1);
+    border-radius: var(--awe-radius-md);
     object-fit: contain;
   }
 
-  // READONLY
+  // READONLY: readable on the filled field
   .pixel-file-input[disabled] {
-    cursor: @cursor-disabled;
-    background-color: @input-bg-disabled;
+    cursor: not-allowed;
+    background: var(--awe-color-field-filled);
+    border-color: var(--awe-color-field-border) !important;
+    box-shadow: none;
     .opacity(1);
-    border-color: @input-border !important;
   }
 
   // Uploading bar
   .uploading-sm {
-    height: @input-height-small;
-    padding: 7px 0;
+    display: flex;
+    align-items: center;
+    height: var(--awe-size-control-sm);
   }
   .uploading-md {
-    height: @input-height-base;
-    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    height: var(--awe-size-control);
   }
   .uploading-lg {
-    height: @input-height-large;
-    padding: 13px 0;
+    display: flex;
+    align-items: center;
+    height: var(--awe-size-control-lg);
   }
 
   .pixel-file-input {
-    .pfi-actions {
-      background: transparent;
-    }
-    .btn {
-      height: 22px;
-      padding: 3px 7px;
-      line-height: 14px;
-    }
-
     &.pixel-file-input-sm {
-      height: @input-height-small;
-      padding: 3px 12px;
-      .pfi-actions {
-        top: 1px;
-        padding: 0 1px 0 10px;
-      }
-    }
-    &.pixel-file-input-md {
-      height: @input-height-base;
-      padding: 6px 12px;
-      .pfi-actions {
-        top: 4px;
-        padding: 0 4px 0 10px;
+      min-height: var(--awe-size-control-sm);
+      padding: 0 var(--awe-space-2);
+      font-size: var(--awe-font-size-sm);
+
+      .pfi-actions .btn {
+        height: calc(var(--awe-size-control-sm) - 2 * var(--awe-space-1));
       }
     }
     &.pixel-file-input-lg {
-      height: @input-height-large;
-      padding: 9px 12px;
-      .pfi-actions {
-        top: 7px;
-        padding: 0 7px 0 10px;
+      min-height: var(--awe-size-control-lg);
+      padding: 0 var(--awe-space-3);
+      font-size: var(--awe-font-size-md);
+
+      .pfi-actions .btn {
+        height: calc(var(--awe-size-control-lg) - 2 * var(--awe-space-1-5));
       }
+    }
+  }
+
+  // VALIDATION
+  &.has-error {
+    .pixel-file-input {
+      border-color: var(--awe-color-field-border-invalid) !important;
     }
   }
 }

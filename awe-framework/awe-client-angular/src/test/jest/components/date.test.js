@@ -47,7 +47,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/date.js', fu
 
     expect(element.find(".validator").length).toBe(1);
     expect(element.attr("input-date-id")).toEqual("Date");
-    expect(element.find(".fa-calendar").length).toBe(1);
+    expect(element.find("span.add-on use[href='icons/lucide-sprite.svg#calendar']").length).toBe(1);
   });
 
   it('initializes a date', function(done) {
@@ -72,7 +72,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/date.js', fu
 
       expect(element.attr("criterion-id")).toBe("Date");
       expect(element.find(".form-group.group-md").length).toBe(1);
-      expect(element.find(".validator > span.add-on .fa.fa-calendar").length).toBe(1);
+      expect(element.find(".validator > span.add-on > i > svg.awe-icon > use[href='icons/lucide-sprite.svg#calendar']").length).toBe(1);
       expect(element.find(".validator > input[id='Date']").length).toBe(1);
       done();
     });

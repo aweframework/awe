@@ -164,10 +164,14 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Change theme from parameters
   it('should change theme from parameters', async function() {
+    // The theme change reads the theme appearance again from the server
+    global.fetch = jest.fn(() => new Promise(() => {}));
     actions["change-theme"]({parameters:{theme: 'gray'}}, props);
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/\/settings\/appearance$/), expect.objectContaining({method: 'POST'}));
+    delete global.fetch;
   });
 
   // Change theme from component

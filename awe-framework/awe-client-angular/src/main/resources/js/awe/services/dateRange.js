@@ -4,6 +4,7 @@ import "../directives/plugins/uiDateRange";
 import dayjs from "dayjs";
 import {getIconTemplate} from "./component";
 import {parseDate} from "./dateUtils";
+import {iconTemplate} from "./icon";
 
 // Format of the dates of the criterion (the one the server reads)
 export const DATE_RANGE_FORMAT = "DD/MM/YYYY";
@@ -79,7 +80,7 @@ export const dateRangeInputTemplate =
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label | translateMultiple}}
     </label>
     <div class="validator input-group input-daterange date {{::validatorGroup}} focus-target" ui-date-range="aweDateOptions"
@@ -90,7 +91,7 @@ export const dateRangeInputTemplate =
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
              ng-model="range.from" ng-change="onRangeChange()" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-press-enter="submit($event)" data-testid="${TestIds.dateRangeFrom}"/>
-      <span class="input-group-addon add-on"><i class="fa fa-long-arrow-right"></i></span>
+      <span class="input-group-addon add-on">${iconTemplate("long-arrow-right")}</span>
       <input type="text" class="form-control {{classes}}" autoComplete="off" ng-click="click($event)"
              placeholder="{{'DATE_RANGE_TO' | translateMultiple}}"
              ng-attr-id="{{::controller.id}}-to" ng-attr-name="{{::controller.id}}-to" ng-disabled="controller.readonly"
@@ -98,7 +99,7 @@ export const dateRangeInputTemplate =
              ng-focus="focus()" ng-blur="blur()" ng-press-enter="submit($event)" data-testid="${TestIds.dateRangeTo}"/>
       <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
-        <i class="fa fa-calendar"></i>
+        ${iconTemplate("calendar")}
       </span>
     </div>
     <div class="date-range-presets" ng-if="presets.length > 0">

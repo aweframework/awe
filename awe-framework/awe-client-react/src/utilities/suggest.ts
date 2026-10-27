@@ -51,3 +51,14 @@ export function withTextLabel(value: Suggestion | Suggestion[] | string | null |
   }
   return value && typeof value === "object" && "label" in value ? {...value, label: getSuggestionLabel(value)} : value;
 }
+
+// Height (px) of an option of a long suggest list: the virtual scroller gives every option this fixed height, so it is
+// the height of an option of the AWE theme (padding + line height) in the density of <html> (#885)
+const VIRTUAL_ITEM_SIZE: Record<string, number> = {comfortable: 38, compact: 32};
+
+/**
+ * Height of an option of a long (virtual) suggest list in the current density
+ * @returns Option height in px
+ */
+export const getVirtualItemSize = (): number => VIRTUAL_ITEM_SIZE[document.documentElement.dataset.aweDensity ?? ""]
+  ?? VIRTUAL_ITEM_SIZE.comfortable;

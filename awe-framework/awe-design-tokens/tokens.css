@@ -1,0 +1,1221 @@
+/*
+ * AWE 5 design tokens: the single token file of both engines (#885). See website/docs/design-system/tokens-reference.md
+ *
+ * Token architecture:
+ *   Tier 1  primitive palettes      --awe-palette-<color>-50..950
+ *           configurable palettes   --awe-primary-50..950 / --awe-surface-0..950, selected on <html> with
+ *                                   data-awe-primary="<color>" and data-awe-surface="<neutral>"
+ *   Tier 2  semantic tokens         --awe-color-* (existing AWE vocabulary + Aura semantics), typography, spacing,
+ *                                   radius, elevation, focus, motion, density
+ *   Tier 3  component tokens        --awe-<component>-<property>, only where a component needs them
+ *
+ * Colour mode: every mode-dependent colour is written once as light-dark(<light>, <dark>), resolved with the
+ * color-scheme of the element that reads the token. The engines set the mode on <html>; until then light-dark()
+ * resolves the light value.
+ *
+ * Density: comfortable by default; <html data-awe-density="compact"> for 13px and tighter paddings.
+ *
+ * Transition: each engine still declares its current token names (AngularJS less/awe/tokens.less, React main.css)
+ * after this file, so they keep following the active theme until the engine adopts the AWE 5 values.
+ *
+ * The values are those of the design system prototype (website/static/design-system/prototype/tokens.css), checked
+ * by the token tests of both engines. Reference values: Aura preset of @primeuix/themes 2.0.3 (MIT, PrimeTek).
+ */
+
+/* ==========================================================================
+   Tier 1 - Primitive palettes (Aura values, @primeuix/themes 2.0.3, MIT)
+   Never used directly by components: they feed the configurable palettes.
+   ========================================================================== */
+:root {
+  --awe-palette-emerald-50: #ecfdf5;
+  --awe-palette-emerald-100: #d1fae5;
+  --awe-palette-emerald-200: #a7f3d0;
+  --awe-palette-emerald-300: #6ee7b7;
+  --awe-palette-emerald-400: #34d399;
+  --awe-palette-emerald-500: #10b981;
+  --awe-palette-emerald-600: #059669;
+  --awe-palette-emerald-700: #047857;
+  --awe-palette-emerald-800: #065f46;
+  --awe-palette-emerald-900: #064e3b;
+  --awe-palette-emerald-950: #022c22;
+
+  --awe-palette-green-50: #f0fdf4;
+  --awe-palette-green-100: #dcfce7;
+  --awe-palette-green-200: #bbf7d0;
+  --awe-palette-green-300: #86efac;
+  --awe-palette-green-400: #4ade80;
+  --awe-palette-green-500: #22c55e;
+  --awe-palette-green-600: #16a34a;
+  --awe-palette-green-700: #15803d;
+  --awe-palette-green-800: #166534;
+  --awe-palette-green-900: #14532d;
+  --awe-palette-green-950: #052e16;
+
+  --awe-palette-lime-50: #f7fee7;
+  --awe-palette-lime-100: #ecfccb;
+  --awe-palette-lime-200: #d9f99d;
+  --awe-palette-lime-300: #bef264;
+  --awe-palette-lime-400: #a3e635;
+  --awe-palette-lime-500: #84cc16;
+  --awe-palette-lime-600: #65a30d;
+  --awe-palette-lime-700: #4d7c0f;
+  --awe-palette-lime-800: #3f6212;
+  --awe-palette-lime-900: #365314;
+  --awe-palette-lime-950: #1a2e05;
+
+  --awe-palette-red-50: #fef2f2;
+  --awe-palette-red-100: #fee2e2;
+  --awe-palette-red-200: #fecaca;
+  --awe-palette-red-300: #fca5a5;
+  --awe-palette-red-400: #f87171;
+  --awe-palette-red-500: #ef4444;
+  --awe-palette-red-600: #dc2626;
+  --awe-palette-red-700: #b91c1c;
+  --awe-palette-red-800: #991b1b;
+  --awe-palette-red-900: #7f1d1d;
+  --awe-palette-red-950: #450a0a;
+
+  --awe-palette-orange-50: #fff7ed;
+  --awe-palette-orange-100: #ffedd5;
+  --awe-palette-orange-200: #fed7aa;
+  --awe-palette-orange-300: #fdba74;
+  --awe-palette-orange-400: #fb923c;
+  --awe-palette-orange-500: #f97316;
+  --awe-palette-orange-600: #ea580c;
+  --awe-palette-orange-700: #c2410c;
+  --awe-palette-orange-800: #9a3412;
+  --awe-palette-orange-900: #7c2d12;
+  --awe-palette-orange-950: #431407;
+
+  --awe-palette-amber-50: #fffbeb;
+  --awe-palette-amber-100: #fef3c7;
+  --awe-palette-amber-200: #fde68a;
+  --awe-palette-amber-300: #fcd34d;
+  --awe-palette-amber-400: #fbbf24;
+  --awe-palette-amber-500: #f59e0b;
+  --awe-palette-amber-600: #d97706;
+  --awe-palette-amber-700: #b45309;
+  --awe-palette-amber-800: #92400e;
+  --awe-palette-amber-900: #78350f;
+  --awe-palette-amber-950: #451a03;
+
+  --awe-palette-yellow-50: #fefce8;
+  --awe-palette-yellow-100: #fef9c3;
+  --awe-palette-yellow-200: #fef08a;
+  --awe-palette-yellow-300: #fde047;
+  --awe-palette-yellow-400: #facc15;
+  --awe-palette-yellow-500: #eab308;
+  --awe-palette-yellow-600: #ca8a04;
+  --awe-palette-yellow-700: #a16207;
+  --awe-palette-yellow-800: #854d0e;
+  --awe-palette-yellow-900: #713f12;
+  --awe-palette-yellow-950: #422006;
+
+  --awe-palette-teal-50: #f0fdfa;
+  --awe-palette-teal-100: #ccfbf1;
+  --awe-palette-teal-200: #99f6e4;
+  --awe-palette-teal-300: #5eead4;
+  --awe-palette-teal-400: #2dd4bf;
+  --awe-palette-teal-500: #14b8a6;
+  --awe-palette-teal-600: #0d9488;
+  --awe-palette-teal-700: #0f766e;
+  --awe-palette-teal-800: #115e59;
+  --awe-palette-teal-900: #134e4a;
+  --awe-palette-teal-950: #042f2e;
+
+  --awe-palette-cyan-50: #ecfeff;
+  --awe-palette-cyan-100: #cffafe;
+  --awe-palette-cyan-200: #a5f3fc;
+  --awe-palette-cyan-300: #67e8f9;
+  --awe-palette-cyan-400: #22d3ee;
+  --awe-palette-cyan-500: #06b6d4;
+  --awe-palette-cyan-600: #0891b2;
+  --awe-palette-cyan-700: #0e7490;
+  --awe-palette-cyan-800: #155e75;
+  --awe-palette-cyan-900: #164e63;
+  --awe-palette-cyan-950: #083344;
+
+  --awe-palette-sky-50: #f0f9ff;
+  --awe-palette-sky-100: #e0f2fe;
+  --awe-palette-sky-200: #bae6fd;
+  --awe-palette-sky-300: #7dd3fc;
+  --awe-palette-sky-400: #38bdf8;
+  --awe-palette-sky-500: #0ea5e9;
+  --awe-palette-sky-600: #0284c7;
+  --awe-palette-sky-700: #0369a1;
+  --awe-palette-sky-800: #075985;
+  --awe-palette-sky-900: #0c4a6e;
+  --awe-palette-sky-950: #082f49;
+
+  --awe-palette-blue-50: #eff6ff;
+  --awe-palette-blue-100: #dbeafe;
+  --awe-palette-blue-200: #bfdbfe;
+  --awe-palette-blue-300: #93c5fd;
+  --awe-palette-blue-400: #60a5fa;
+  --awe-palette-blue-500: #3b82f6;
+  --awe-palette-blue-600: #2563eb;
+  --awe-palette-blue-700: #1d4ed8;
+  --awe-palette-blue-800: #1e40af;
+  --awe-palette-blue-900: #1e3a8a;
+  --awe-palette-blue-950: #172554;
+
+  --awe-palette-indigo-50: #eef2ff;
+  --awe-palette-indigo-100: #e0e7ff;
+  --awe-palette-indigo-200: #c7d2fe;
+  --awe-palette-indigo-300: #a5b4fc;
+  --awe-palette-indigo-400: #818cf8;
+  --awe-palette-indigo-500: #6366f1;
+  --awe-palette-indigo-600: #4f46e5;
+  --awe-palette-indigo-700: #4338ca;
+  --awe-palette-indigo-800: #3730a3;
+  --awe-palette-indigo-900: #312e81;
+  --awe-palette-indigo-950: #1e1b4b;
+
+  --awe-palette-violet-50: #f5f3ff;
+  --awe-palette-violet-100: #ede9fe;
+  --awe-palette-violet-200: #ddd6fe;
+  --awe-palette-violet-300: #c4b5fd;
+  --awe-palette-violet-400: #a78bfa;
+  --awe-palette-violet-500: #8b5cf6;
+  --awe-palette-violet-600: #7c3aed;
+  --awe-palette-violet-700: #6d28d9;
+  --awe-palette-violet-800: #5b21b6;
+  --awe-palette-violet-900: #4c1d95;
+  --awe-palette-violet-950: #2e1065;
+
+  --awe-palette-purple-50: #faf5ff;
+  --awe-palette-purple-100: #f3e8ff;
+  --awe-palette-purple-200: #e9d5ff;
+  --awe-palette-purple-300: #d8b4fe;
+  --awe-palette-purple-400: #c084fc;
+  --awe-palette-purple-500: #a855f7;
+  --awe-palette-purple-600: #9333ea;
+  --awe-palette-purple-700: #7e22ce;
+  --awe-palette-purple-800: #6b21a8;
+  --awe-palette-purple-900: #581c87;
+  --awe-palette-purple-950: #3b0764;
+
+  --awe-palette-fuchsia-50: #fdf4ff;
+  --awe-palette-fuchsia-100: #fae8ff;
+  --awe-palette-fuchsia-200: #f5d0fe;
+  --awe-palette-fuchsia-300: #f0abfc;
+  --awe-palette-fuchsia-400: #e879f9;
+  --awe-palette-fuchsia-500: #d946ef;
+  --awe-palette-fuchsia-600: #c026d3;
+  --awe-palette-fuchsia-700: #a21caf;
+  --awe-palette-fuchsia-800: #86198f;
+  --awe-palette-fuchsia-900: #701a75;
+  --awe-palette-fuchsia-950: #4a044e;
+
+  --awe-palette-pink-50: #fdf2f8;
+  --awe-palette-pink-100: #fce7f3;
+  --awe-palette-pink-200: #fbcfe8;
+  --awe-palette-pink-300: #f9a8d4;
+  --awe-palette-pink-400: #f472b6;
+  --awe-palette-pink-500: #ec4899;
+  --awe-palette-pink-600: #db2777;
+  --awe-palette-pink-700: #be185d;
+  --awe-palette-pink-800: #9d174d;
+  --awe-palette-pink-900: #831843;
+  --awe-palette-pink-950: #500724;
+
+  --awe-palette-rose-50: #fff1f2;
+  --awe-palette-rose-100: #ffe4e6;
+  --awe-palette-rose-200: #fecdd3;
+  --awe-palette-rose-300: #fda4af;
+  --awe-palette-rose-400: #fb7185;
+  --awe-palette-rose-500: #f43f5e;
+  --awe-palette-rose-600: #e11d48;
+  --awe-palette-rose-700: #be123c;
+  --awe-palette-rose-800: #9f1239;
+  --awe-palette-rose-900: #881337;
+  --awe-palette-rose-950: #4c0519;
+
+  --awe-palette-slate-50: #f8fafc;
+  --awe-palette-slate-100: #f1f5f9;
+  --awe-palette-slate-200: #e2e8f0;
+  --awe-palette-slate-300: #cbd5e1;
+  --awe-palette-slate-400: #94a3b8;
+  --awe-palette-slate-500: #64748b;
+  --awe-palette-slate-600: #475569;
+  --awe-palette-slate-700: #334155;
+  --awe-palette-slate-800: #1e293b;
+  --awe-palette-slate-900: #0f172a;
+  --awe-palette-slate-950: #020617;
+
+  --awe-palette-gray-50: #f9fafb;
+  --awe-palette-gray-100: #f3f4f6;
+  --awe-palette-gray-200: #e5e7eb;
+  --awe-palette-gray-300: #d1d5db;
+  --awe-palette-gray-400: #9ca3af;
+  --awe-palette-gray-500: #6b7280;
+  --awe-palette-gray-600: #4b5563;
+  --awe-palette-gray-700: #374151;
+  --awe-palette-gray-800: #1f2937;
+  --awe-palette-gray-900: #111827;
+  --awe-palette-gray-950: #030712;
+
+  --awe-palette-zinc-50: #fafafa;
+  --awe-palette-zinc-100: #f4f4f5;
+  --awe-palette-zinc-200: #e4e4e7;
+  --awe-palette-zinc-300: #d4d4d8;
+  --awe-palette-zinc-400: #a1a1aa;
+  --awe-palette-zinc-500: #71717a;
+  --awe-palette-zinc-600: #52525b;
+  --awe-palette-zinc-700: #3f3f46;
+  --awe-palette-zinc-800: #27272a;
+  --awe-palette-zinc-900: #18181b;
+  --awe-palette-zinc-950: #09090b;
+
+  --awe-palette-neutral-50: #fafafa;
+  --awe-palette-neutral-100: #f5f5f5;
+  --awe-palette-neutral-200: #e5e5e5;
+  --awe-palette-neutral-300: #d4d4d4;
+  --awe-palette-neutral-400: #a3a3a3;
+  --awe-palette-neutral-500: #737373;
+  --awe-palette-neutral-600: #525252;
+  --awe-palette-neutral-700: #404040;
+  --awe-palette-neutral-800: #262626;
+  --awe-palette-neutral-900: #171717;
+  --awe-palette-neutral-950: #0a0a0a;
+
+  --awe-palette-stone-50: #fafaf9;
+  --awe-palette-stone-100: #f5f5f4;
+  --awe-palette-stone-200: #e7e5e4;
+  --awe-palette-stone-300: #d6d3d1;
+  --awe-palette-stone-400: #a8a29e;
+  --awe-palette-stone-500: #78716c;
+  --awe-palette-stone-600: #57534e;
+  --awe-palette-stone-700: #44403c;
+  --awe-palette-stone-800: #292524;
+  --awe-palette-stone-900: #1c1917;
+  --awe-palette-stone-950: #0c0a09;
+}
+
+/* ==========================================================================
+   Configurable palettes - primary
+   <html data-awe-primary="<color>">; emerald when the attribute is not set (Aura default).
+   --awe-primary-fill*: the shades used for filled primary surfaces in the light mode, chosen per palette so the
+   label on them reaches WCAG AA (Aura uses primary.500 + white, below 4.5:1 for most palettes).
+   ========================================================================== */
+:root,
+:root[data-awe-primary="emerald"] {
+  --awe-primary-50: var(--awe-palette-emerald-50);
+  --awe-primary-100: var(--awe-palette-emerald-100);
+  --awe-primary-200: var(--awe-palette-emerald-200);
+  --awe-primary-300: var(--awe-palette-emerald-300);
+  --awe-primary-400: var(--awe-palette-emerald-400);
+  --awe-primary-500: var(--awe-palette-emerald-500);
+  --awe-primary-600: var(--awe-palette-emerald-600);
+  --awe-primary-700: var(--awe-palette-emerald-700);
+  --awe-primary-800: var(--awe-palette-emerald-800);
+  --awe-primary-900: var(--awe-palette-emerald-900);
+  --awe-primary-950: var(--awe-palette-emerald-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="green"] {
+  --awe-primary-50: var(--awe-palette-green-50);
+  --awe-primary-100: var(--awe-palette-green-100);
+  --awe-primary-200: var(--awe-palette-green-200);
+  --awe-primary-300: var(--awe-palette-green-300);
+  --awe-primary-400: var(--awe-palette-green-400);
+  --awe-primary-500: var(--awe-palette-green-500);
+  --awe-primary-600: var(--awe-palette-green-600);
+  --awe-primary-700: var(--awe-palette-green-700);
+  --awe-primary-800: var(--awe-palette-green-800);
+  --awe-primary-900: var(--awe-palette-green-900);
+  --awe-primary-950: var(--awe-palette-green-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="lime"] {
+  --awe-primary-50: var(--awe-palette-lime-50);
+  --awe-primary-100: var(--awe-palette-lime-100);
+  --awe-primary-200: var(--awe-palette-lime-200);
+  --awe-primary-300: var(--awe-palette-lime-300);
+  --awe-primary-400: var(--awe-palette-lime-400);
+  --awe-primary-500: var(--awe-palette-lime-500);
+  --awe-primary-600: var(--awe-palette-lime-600);
+  --awe-primary-700: var(--awe-palette-lime-700);
+  --awe-primary-800: var(--awe-palette-lime-800);
+  --awe-primary-900: var(--awe-palette-lime-900);
+  --awe-primary-950: var(--awe-palette-lime-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="red"] {
+  --awe-primary-50: var(--awe-palette-red-50);
+  --awe-primary-100: var(--awe-palette-red-100);
+  --awe-primary-200: var(--awe-palette-red-200);
+  --awe-primary-300: var(--awe-palette-red-300);
+  --awe-primary-400: var(--awe-palette-red-400);
+  --awe-primary-500: var(--awe-palette-red-500);
+  --awe-primary-600: var(--awe-palette-red-600);
+  --awe-primary-700: var(--awe-palette-red-700);
+  --awe-primary-800: var(--awe-palette-red-800);
+  --awe-primary-900: var(--awe-palette-red-900);
+  --awe-primary-950: var(--awe-palette-red-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="orange"] {
+  --awe-primary-50: var(--awe-palette-orange-50);
+  --awe-primary-100: var(--awe-palette-orange-100);
+  --awe-primary-200: var(--awe-palette-orange-200);
+  --awe-primary-300: var(--awe-palette-orange-300);
+  --awe-primary-400: var(--awe-palette-orange-400);
+  --awe-primary-500: var(--awe-palette-orange-500);
+  --awe-primary-600: var(--awe-palette-orange-600);
+  --awe-primary-700: var(--awe-palette-orange-700);
+  --awe-primary-800: var(--awe-palette-orange-800);
+  --awe-primary-900: var(--awe-palette-orange-900);
+  --awe-primary-950: var(--awe-palette-orange-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="amber"] {
+  --awe-primary-50: var(--awe-palette-amber-50);
+  --awe-primary-100: var(--awe-palette-amber-100);
+  --awe-primary-200: var(--awe-palette-amber-200);
+  --awe-primary-300: var(--awe-palette-amber-300);
+  --awe-primary-400: var(--awe-palette-amber-400);
+  --awe-primary-500: var(--awe-palette-amber-500);
+  --awe-primary-600: var(--awe-palette-amber-600);
+  --awe-primary-700: var(--awe-palette-amber-700);
+  --awe-primary-800: var(--awe-palette-amber-800);
+  --awe-primary-900: var(--awe-palette-amber-900);
+  --awe-primary-950: var(--awe-palette-amber-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="yellow"] {
+  --awe-primary-50: var(--awe-palette-yellow-50);
+  --awe-primary-100: var(--awe-palette-yellow-100);
+  --awe-primary-200: var(--awe-palette-yellow-200);
+  --awe-primary-300: var(--awe-palette-yellow-300);
+  --awe-primary-400: var(--awe-palette-yellow-400);
+  --awe-primary-500: var(--awe-palette-yellow-500);
+  --awe-primary-600: var(--awe-palette-yellow-600);
+  --awe-primary-700: var(--awe-palette-yellow-700);
+  --awe-primary-800: var(--awe-palette-yellow-800);
+  --awe-primary-900: var(--awe-palette-yellow-900);
+  --awe-primary-950: var(--awe-palette-yellow-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="teal"] {
+  --awe-primary-50: var(--awe-palette-teal-50);
+  --awe-primary-100: var(--awe-palette-teal-100);
+  --awe-primary-200: var(--awe-palette-teal-200);
+  --awe-primary-300: var(--awe-palette-teal-300);
+  --awe-primary-400: var(--awe-palette-teal-400);
+  --awe-primary-500: var(--awe-palette-teal-500);
+  --awe-primary-600: var(--awe-palette-teal-600);
+  --awe-primary-700: var(--awe-palette-teal-700);
+  --awe-primary-800: var(--awe-palette-teal-800);
+  --awe-primary-900: var(--awe-palette-teal-900);
+  --awe-primary-950: var(--awe-palette-teal-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="cyan"] {
+  --awe-primary-50: var(--awe-palette-cyan-50);
+  --awe-primary-100: var(--awe-palette-cyan-100);
+  --awe-primary-200: var(--awe-palette-cyan-200);
+  --awe-primary-300: var(--awe-palette-cyan-300);
+  --awe-primary-400: var(--awe-palette-cyan-400);
+  --awe-primary-500: var(--awe-palette-cyan-500);
+  --awe-primary-600: var(--awe-palette-cyan-600);
+  --awe-primary-700: var(--awe-palette-cyan-700);
+  --awe-primary-800: var(--awe-palette-cyan-800);
+  --awe-primary-900: var(--awe-palette-cyan-900);
+  --awe-primary-950: var(--awe-palette-cyan-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="sky"] {
+  --awe-primary-50: var(--awe-palette-sky-50);
+  --awe-primary-100: var(--awe-palette-sky-100);
+  --awe-primary-200: var(--awe-palette-sky-200);
+  --awe-primary-300: var(--awe-palette-sky-300);
+  --awe-primary-400: var(--awe-palette-sky-400);
+  --awe-primary-500: var(--awe-palette-sky-500);
+  --awe-primary-600: var(--awe-palette-sky-600);
+  --awe-primary-700: var(--awe-palette-sky-700);
+  --awe-primary-800: var(--awe-palette-sky-800);
+  --awe-primary-900: var(--awe-palette-sky-900);
+  --awe-primary-950: var(--awe-palette-sky-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="blue"] {
+  --awe-primary-50: var(--awe-palette-blue-50);
+  --awe-primary-100: var(--awe-palette-blue-100);
+  --awe-primary-200: var(--awe-palette-blue-200);
+  --awe-primary-300: var(--awe-palette-blue-300);
+  --awe-primary-400: var(--awe-palette-blue-400);
+  --awe-primary-500: var(--awe-palette-blue-500);
+  --awe-primary-600: var(--awe-palette-blue-600);
+  --awe-primary-700: var(--awe-palette-blue-700);
+  --awe-primary-800: var(--awe-palette-blue-800);
+  --awe-primary-900: var(--awe-palette-blue-900);
+  --awe-primary-950: var(--awe-palette-blue-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="indigo"] {
+  --awe-primary-50: var(--awe-palette-indigo-50);
+  --awe-primary-100: var(--awe-palette-indigo-100);
+  --awe-primary-200: var(--awe-palette-indigo-200);
+  --awe-primary-300: var(--awe-palette-indigo-300);
+  --awe-primary-400: var(--awe-palette-indigo-400);
+  --awe-primary-500: var(--awe-palette-indigo-500);
+  --awe-primary-600: var(--awe-palette-indigo-600);
+  --awe-primary-700: var(--awe-palette-indigo-700);
+  --awe-primary-800: var(--awe-palette-indigo-800);
+  --awe-primary-900: var(--awe-palette-indigo-900);
+  --awe-primary-950: var(--awe-palette-indigo-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="violet"] {
+  --awe-primary-50: var(--awe-palette-violet-50);
+  --awe-primary-100: var(--awe-palette-violet-100);
+  --awe-primary-200: var(--awe-palette-violet-200);
+  --awe-primary-300: var(--awe-palette-violet-300);
+  --awe-primary-400: var(--awe-palette-violet-400);
+  --awe-primary-500: var(--awe-palette-violet-500);
+  --awe-primary-600: var(--awe-palette-violet-600);
+  --awe-primary-700: var(--awe-palette-violet-700);
+  --awe-primary-800: var(--awe-palette-violet-800);
+  --awe-primary-900: var(--awe-palette-violet-900);
+  --awe-primary-950: var(--awe-palette-violet-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="purple"] {
+  --awe-primary-50: var(--awe-palette-purple-50);
+  --awe-primary-100: var(--awe-palette-purple-100);
+  --awe-primary-200: var(--awe-palette-purple-200);
+  --awe-primary-300: var(--awe-palette-purple-300);
+  --awe-primary-400: var(--awe-palette-purple-400);
+  --awe-primary-500: var(--awe-palette-purple-500);
+  --awe-primary-600: var(--awe-palette-purple-600);
+  --awe-primary-700: var(--awe-palette-purple-700);
+  --awe-primary-800: var(--awe-palette-purple-800);
+  --awe-primary-900: var(--awe-palette-purple-900);
+  --awe-primary-950: var(--awe-palette-purple-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="fuchsia"] {
+  --awe-primary-50: var(--awe-palette-fuchsia-50);
+  --awe-primary-100: var(--awe-palette-fuchsia-100);
+  --awe-primary-200: var(--awe-palette-fuchsia-200);
+  --awe-primary-300: var(--awe-palette-fuchsia-300);
+  --awe-primary-400: var(--awe-palette-fuchsia-400);
+  --awe-primary-500: var(--awe-palette-fuchsia-500);
+  --awe-primary-600: var(--awe-palette-fuchsia-600);
+  --awe-primary-700: var(--awe-palette-fuchsia-700);
+  --awe-primary-800: var(--awe-palette-fuchsia-800);
+  --awe-primary-900: var(--awe-palette-fuchsia-900);
+  --awe-primary-950: var(--awe-palette-fuchsia-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="pink"] {
+  --awe-primary-50: var(--awe-palette-pink-50);
+  --awe-primary-100: var(--awe-palette-pink-100);
+  --awe-primary-200: var(--awe-palette-pink-200);
+  --awe-primary-300: var(--awe-palette-pink-300);
+  --awe-primary-400: var(--awe-palette-pink-400);
+  --awe-primary-500: var(--awe-palette-pink-500);
+  --awe-primary-600: var(--awe-palette-pink-600);
+  --awe-primary-700: var(--awe-palette-pink-700);
+  --awe-primary-800: var(--awe-palette-pink-800);
+  --awe-primary-900: var(--awe-palette-pink-900);
+  --awe-primary-950: var(--awe-palette-pink-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="rose"] {
+  --awe-primary-50: var(--awe-palette-rose-50);
+  --awe-primary-100: var(--awe-palette-rose-100);
+  --awe-primary-200: var(--awe-palette-rose-200);
+  --awe-primary-300: var(--awe-palette-rose-300);
+  --awe-primary-400: var(--awe-palette-rose-400);
+  --awe-primary-500: var(--awe-palette-rose-500);
+  --awe-primary-600: var(--awe-palette-rose-600);
+  --awe-primary-700: var(--awe-palette-rose-700);
+  --awe-primary-800: var(--awe-palette-rose-800);
+  --awe-primary-900: var(--awe-palette-rose-900);
+  --awe-primary-950: var(--awe-palette-rose-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+/* ==========================================================================
+   Configurable palettes - surface
+   <html data-awe-surface="<neutral>">; when the attribute is not set: slate in light, zinc in dark (Aura).
+   ========================================================================== */
+:root {
+  --awe-surface-0: #ffffff;
+  --awe-surface-50: light-dark(var(--awe-palette-slate-50), var(--awe-palette-zinc-50));
+  --awe-surface-100: light-dark(var(--awe-palette-slate-100), var(--awe-palette-zinc-100));
+  --awe-surface-200: light-dark(var(--awe-palette-slate-200), var(--awe-palette-zinc-200));
+  --awe-surface-300: light-dark(var(--awe-palette-slate-300), var(--awe-palette-zinc-300));
+  --awe-surface-400: light-dark(var(--awe-palette-slate-400), var(--awe-palette-zinc-400));
+  --awe-surface-500: light-dark(var(--awe-palette-slate-500), var(--awe-palette-zinc-500));
+  --awe-surface-600: light-dark(var(--awe-palette-slate-600), var(--awe-palette-zinc-600));
+  --awe-surface-700: light-dark(var(--awe-palette-slate-700), var(--awe-palette-zinc-700));
+  --awe-surface-800: light-dark(var(--awe-palette-slate-800), var(--awe-palette-zinc-800));
+  --awe-surface-900: light-dark(var(--awe-palette-slate-900), var(--awe-palette-zinc-900));
+  --awe-surface-950: light-dark(var(--awe-palette-slate-950), var(--awe-palette-zinc-950));
+}
+
+:root[data-awe-surface="slate"] {
+  --awe-surface-50: var(--awe-palette-slate-50);
+  --awe-surface-100: var(--awe-palette-slate-100);
+  --awe-surface-200: var(--awe-palette-slate-200);
+  --awe-surface-300: var(--awe-palette-slate-300);
+  --awe-surface-400: var(--awe-palette-slate-400);
+  --awe-surface-500: var(--awe-palette-slate-500);
+  --awe-surface-600: var(--awe-palette-slate-600);
+  --awe-surface-700: var(--awe-palette-slate-700);
+  --awe-surface-800: var(--awe-palette-slate-800);
+  --awe-surface-900: var(--awe-palette-slate-900);
+  --awe-surface-950: var(--awe-palette-slate-950);
+}
+
+:root[data-awe-surface="gray"] {
+  --awe-surface-50: var(--awe-palette-gray-50);
+  --awe-surface-100: var(--awe-palette-gray-100);
+  --awe-surface-200: var(--awe-palette-gray-200);
+  --awe-surface-300: var(--awe-palette-gray-300);
+  --awe-surface-400: var(--awe-palette-gray-400);
+  --awe-surface-500: var(--awe-palette-gray-500);
+  --awe-surface-600: var(--awe-palette-gray-600);
+  --awe-surface-700: var(--awe-palette-gray-700);
+  --awe-surface-800: var(--awe-palette-gray-800);
+  --awe-surface-900: var(--awe-palette-gray-900);
+  --awe-surface-950: var(--awe-palette-gray-950);
+}
+
+:root[data-awe-surface="zinc"] {
+  --awe-surface-50: var(--awe-palette-zinc-50);
+  --awe-surface-100: var(--awe-palette-zinc-100);
+  --awe-surface-200: var(--awe-palette-zinc-200);
+  --awe-surface-300: var(--awe-palette-zinc-300);
+  --awe-surface-400: var(--awe-palette-zinc-400);
+  --awe-surface-500: var(--awe-palette-zinc-500);
+  --awe-surface-600: var(--awe-palette-zinc-600);
+  --awe-surface-700: var(--awe-palette-zinc-700);
+  --awe-surface-800: var(--awe-palette-zinc-800);
+  --awe-surface-900: var(--awe-palette-zinc-900);
+  --awe-surface-950: var(--awe-palette-zinc-950);
+}
+
+:root[data-awe-surface="neutral"] {
+  --awe-surface-50: var(--awe-palette-neutral-50);
+  --awe-surface-100: var(--awe-palette-neutral-100);
+  --awe-surface-200: var(--awe-palette-neutral-200);
+  --awe-surface-300: var(--awe-palette-neutral-300);
+  --awe-surface-400: var(--awe-palette-neutral-400);
+  --awe-surface-500: var(--awe-palette-neutral-500);
+  --awe-surface-600: var(--awe-palette-neutral-600);
+  --awe-surface-700: var(--awe-palette-neutral-700);
+  --awe-surface-800: var(--awe-palette-neutral-800);
+  --awe-surface-900: var(--awe-palette-neutral-900);
+  --awe-surface-950: var(--awe-palette-neutral-950);
+}
+
+:root[data-awe-surface="stone"] {
+  --awe-surface-50: var(--awe-palette-stone-50);
+  --awe-surface-100: var(--awe-palette-stone-100);
+  --awe-surface-200: var(--awe-palette-stone-200);
+  --awe-surface-300: var(--awe-palette-stone-300);
+  --awe-surface-400: var(--awe-palette-stone-400);
+  --awe-surface-500: var(--awe-palette-stone-500);
+  --awe-surface-600: var(--awe-palette-stone-600);
+  --awe-surface-700: var(--awe-palette-stone-700);
+  --awe-surface-800: var(--awe-palette-stone-800);
+  --awe-surface-900: var(--awe-palette-stone-900);
+  --awe-surface-950: var(--awe-palette-stone-950);
+}
+
+/* ==========================================================================
+   Tier 2 - Semantic colours: light-dark(<light>, <dark>)
+   Keeps the existing --awe-color-* vocabulary of the AngularJS tokens.less and adds the Aura semantics.
+   ========================================================================== */
+:root {
+  /* Brand ---------------------------------------------------------------- */
+  --awe-color-primary: light-dark(var(--awe-primary-fill), var(--awe-primary-400));
+  --awe-color-primary-hover: light-dark(var(--awe-primary-fill-hover), var(--awe-primary-300));
+  --awe-color-primary-active: light-dark(var(--awe-primary-fill-active), var(--awe-primary-200));
+  --awe-color-on-primary: light-dark(var(--awe-primary-on-fill), var(--awe-surface-900));
+  /* Primary used as text or as a thin line on the page (links, active tab, focus ring) */
+  --awe-color-primary-text: light-dark(var(--awe-primary-700), var(--awe-primary-400));
+  --awe-color-primary-subtle: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-500), transparent 84%));
+  --awe-color-on-primary-subtle: light-dark(var(--awe-primary-700), var(--awe-primary-300));
+  --awe-color-theme: var(--awe-color-primary);
+  --awe-color-secondary: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-secondary-hover: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-on-secondary: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Text ----------------------------------------------------------------- */
+  --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-text-emphasis: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+  --awe-color-text-muted: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-text-hover: light-dark(var(--awe-surface-800), var(--awe-surface-0));
+  --awe-color-text-muted-hover: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Page and content ----------------------------------------------------- */
+  --awe-color-background: light-dark(var(--awe-surface-50), var(--awe-surface-950));
+  --awe-color-surface: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-surface-hover: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-surface-subtle: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), transparent 50%));
+  /* An element raised over a secondary track (checked segment, switch handle) */
+  --awe-color-surface-raised: light-dark(var(--awe-surface-0), var(--awe-surface-600));
+  --awe-color-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-border-subtle: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-shadow: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.45));
+  --awe-color-shadow-soft: light-dark(rgb(18 18 23 / 0.05), rgb(0 0 0 / 0.3));
+  --awe-color-content: var(--awe-color-surface);
+  --awe-color-content-hover: var(--awe-color-surface-hover);
+  --awe-color-content-border: var(--awe-color-border);
+  --awe-color-mask: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.6));
+
+  /* Highlight (selected option, selected row, active menu option) -------- */
+  --awe-color-highlight: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400), transparent 84%));
+  --awe-color-highlight-focus: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400), transparent 76%));
+  --awe-color-on-highlight: light-dark(var(--awe-primary-700), rgb(255 255 255 / 0.87));
+  --awe-color-on-highlight-focus: light-dark(var(--awe-primary-800), rgb(255 255 255 / 0.87));
+
+  /* Main menu, navbar, panels and grids (existing AWE vocabulary) -------- */
+  --awe-color-menu: var(--awe-color-surface);
+  --awe-color-menu-accent: var(--awe-color-highlight);
+  --awe-color-menu-text: var(--awe-color-text);
+  --awe-color-navbar: var(--awe-color-surface);
+  --awe-color-navbar-accent: var(--awe-color-surface-hover);
+  --awe-color-navbar-text: var(--awe-color-text);
+  --awe-color-navbar-dropdown: var(--awe-color-overlay);
+  --awe-color-panel: var(--awe-color-surface);
+  --awe-color-panel-header: var(--awe-color-surface);
+  --awe-color-panel-border: var(--awe-color-border);
+  --awe-color-panel-text: var(--awe-color-text);
+  --awe-color-grid-header: var(--awe-color-surface-subtle);
+  --awe-color-grid-border: var(--awe-color-border);
+  --awe-color-skeleton: light-dark(var(--awe-surface-200), var(--awe-surface-800));
+  --awe-color-skeleton-highlight: light-dark(var(--awe-surface-100), var(--awe-surface-700));
+
+  /* Overlays (select panels, popovers, menus, dialogs) ------------------- */
+  --awe-color-overlay: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-overlay-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-overlay-text: var(--awe-color-text);
+  --awe-color-tooltip: light-dark(var(--awe-surface-800), var(--awe-surface-700));
+  --awe-color-on-tooltip: var(--awe-surface-0);
+
+  /* Form fields ---------------------------------------------------------- */
+  --awe-color-field: light-dark(var(--awe-surface-0), var(--awe-surface-950));
+  --awe-color-field-filled: light-dark(var(--awe-surface-50), var(--awe-surface-800));
+  --awe-color-field-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-field-border-hover: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-field-border-focus: var(--awe-color-primary);
+  --awe-color-field-border-invalid: light-dark(var(--awe-palette-red-500), var(--awe-palette-red-300));
+  --awe-color-field-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-field-placeholder: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-field-placeholder-invalid: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-field-icon: var(--awe-surface-400);
+  --awe-color-field-label: var(--awe-color-text-emphasis);
+  --awe-color-field-help: var(--awe-color-text-muted);
+  --awe-color-field-focus-halo: color-mix(in srgb, var(--awe-color-primary), transparent 80%);
+  --awe-color-field-invalid-halo: color-mix(in srgb, var(--awe-color-danger), transparent 82%);
+
+  /* List options (select, autocomplete, menus) --------------------------- */
+  --awe-color-list-option-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-list-option-selected: var(--awe-color-highlight);
+  --awe-color-list-option-selected-focus: var(--awe-color-highlight-focus);
+  --awe-color-list-option-text: var(--awe-color-text);
+  --awe-color-list-option-text-focus: var(--awe-color-text-hover);
+  --awe-color-list-option-text-selected: var(--awe-color-on-highlight);
+  --awe-color-list-option-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-list-option-group: var(--awe-color-text-muted);
+
+  /* Navigation items (side menu, breadcrumb, tabs, user menu) ------------ */
+  --awe-color-nav-item-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-active: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-text: var(--awe-color-text);
+  --awe-color-nav-item-text-active: var(--awe-color-text-hover);
+  --awe-color-nav-item-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-nav-item-icon-active: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-nav-submenu-label: var(--awe-color-text-muted);
+
+  /* States --------------------------------------------------------------- */
+  --awe-color-disabled: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-disabled-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-disabled-text: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-required: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-loading-bar: var(--awe-color-primary);
+
+  /* Status: solid (buttons, badges), subtle (tags, messages), text, border */
+  --awe-color-danger: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-danger-hover: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-on-danger: light-dark(#ffffff, var(--awe-palette-red-950));
+  --awe-color-danger-subtle: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-500), transparent 84%));
+  --awe-color-danger-text: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-danger-border: light-dark(var(--awe-palette-red-200), color-mix(in srgb, var(--awe-palette-red-700), transparent 64%));
+
+  --awe-color-success: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-400));
+  --awe-color-success-hover: light-dark(var(--awe-palette-green-800), var(--awe-palette-green-300));
+  --awe-color-on-success: light-dark(#ffffff, var(--awe-palette-green-950));
+  --awe-color-success-subtle: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500), transparent 84%));
+  --awe-color-success-text: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-300));
+  --awe-color-success-border: light-dark(var(--awe-palette-green-200), color-mix(in srgb, var(--awe-palette-green-700), transparent 64%));
+
+  --awe-color-warning: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-400));
+  --awe-color-warning-hover: light-dark(var(--awe-palette-orange-800), var(--awe-palette-orange-300));
+  --awe-color-on-warning: light-dark(#ffffff, var(--awe-palette-orange-950));
+  --awe-color-warning-subtle: light-dark(var(--awe-palette-orange-100), color-mix(in srgb, var(--awe-palette-orange-500), transparent 84%));
+  --awe-color-warning-text: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-300));
+  --awe-color-warning-border: light-dark(var(--awe-palette-orange-200), color-mix(in srgb, var(--awe-palette-orange-700), transparent 64%));
+
+  --awe-color-info: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-400));
+  --awe-color-info-hover: light-dark(var(--awe-palette-sky-800), var(--awe-palette-sky-300));
+  --awe-color-on-info: light-dark(#ffffff, var(--awe-palette-sky-950));
+  --awe-color-info-subtle: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500), transparent 84%));
+  --awe-color-info-text: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-300));
+  --awe-color-info-border: light-dark(var(--awe-palette-sky-200), color-mix(in srgb, var(--awe-palette-sky-700), transparent 64%));
+
+  --awe-color-neutral-subtle: var(--awe-color-secondary);
+  --awe-color-neutral-text: var(--awe-color-on-secondary);
+  --awe-color-contrast: light-dark(var(--awe-surface-950), var(--awe-surface-0));
+  --awe-color-on-contrast: light-dark(var(--awe-surface-0), var(--awe-surface-950));
+}
+
+/* ==========================================================================
+   Tier 2 - Data visualisation colours (colour scale cells, data bars, sparklines, map)
+   The scale has 5 steps derived from the primary; --awe-color-on-scale-<n> is the text on each step.
+   ========================================================================== */
+:root {
+  --awe-color-scale-1: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400) 12%, var(--awe-surface-900)));
+  --awe-color-scale-2: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 22%, var(--awe-surface-900)));
+  --awe-color-scale-3: light-dark(var(--awe-primary-200), color-mix(in srgb, var(--awe-primary-400) 34%, var(--awe-surface-900)));
+  --awe-color-scale-4: light-dark(var(--awe-primary-300), color-mix(in srgb, var(--awe-primary-400) 48%, var(--awe-surface-900)));
+  --awe-color-scale-5: var(--awe-color-primary);
+  --awe-color-on-scale-1: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-2: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-3: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-4: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-5: var(--awe-color-on-primary);
+
+  --awe-color-data-bar: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 35%, transparent));
+  --awe-color-data-bar-negative: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-400) 35%, transparent));
+  --awe-color-chart-line: var(--awe-color-primary-text);
+  --awe-color-chart-area: color-mix(in srgb, var(--awe-color-primary-text) 18%, transparent);
+  --awe-color-chart-negative: var(--awe-color-danger);
+  --awe-color-chart-axis: var(--awe-color-border);
+
+  --awe-color-map-water: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500) 16%, var(--awe-surface-950)));
+  --awe-color-map-land: light-dark(var(--awe-surface-50), var(--awe-surface-900));
+  --awe-color-map-park: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500) 14%, var(--awe-surface-900)));
+  --awe-color-map-road: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-color-map-road-casing: light-dark(var(--awe-surface-300), var(--awe-surface-800));
+  --awe-color-map-border: light-dark(var(--awe-surface-400), var(--awe-surface-600));
+  --awe-color-map-label: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+}
+
+/* ==========================================================================
+   Tier 2 - Typography
+   ========================================================================== */
+:root {
+  --awe-font-family-base: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --awe-font-family-monospace: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Type scale (comfortable) */
+  --awe-font-size-xs: 12px;
+  --awe-font-size-sm: 13px;
+  --awe-font-size-base: 14px;
+  --awe-font-size-md: 16px;
+  --awe-font-size-lg: 18px;
+  --awe-font-size-xl: 20px;
+  --awe-font-size-2xl: 24px;
+  --awe-font-size-3xl: 30px;
+  --awe-font-size-small: var(--awe-font-size-sm);
+
+  /* Roles */
+  --awe-font-size-page-title: var(--awe-font-size-2xl);
+  --awe-font-size-section-title: var(--awe-font-size-md);
+  --awe-font-size-dialog-title: var(--awe-font-size-lg);
+  /* Display title of standalone pages (login, errors) */
+  --awe-font-size-display: var(--awe-font-size-3xl);
+  --awe-font-size-label: var(--awe-font-size-sm);
+  --awe-font-size-caption: var(--awe-font-size-xs);
+
+  --awe-font-weight-normal: 400;
+  --awe-font-weight-medium: 500;
+  --awe-font-weight-semibold: 600;
+  --awe-font-weight-bold: 700;
+
+  --awe-line-height-tight: 1.25;
+  --awe-line-height-snug: 1.375;
+  --awe-line-height-base: 1.5;
+
+  --awe-letter-spacing-tight: -0.011em;
+  --awe-letter-spacing-display: -0.022em;
+  --awe-letter-spacing-caps: 0.06em;
+
+  /* Inter features: contextual alternates and the disambiguated capital I; tabular figures for numeric cells */
+  --awe-font-feature-base: 'cv05', 'calt';
+  --awe-font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Tier 2 - Spacing (4px grid), radius, elevation, focus, motion, layers
+   ========================================================================== */
+:root {
+  /* Numeric scale: --awe-space-<n> = n x 4px */
+  --awe-space-0: 0;
+  --awe-space-0-5: 2px;
+  --awe-space-1: 4px;
+  --awe-space-1-5: 6px;
+  --awe-space-2: 8px;
+  --awe-space-3: 12px;
+  --awe-space-4: 16px;
+  --awe-space-5: 20px;
+  --awe-space-6: 24px;
+  --awe-space-8: 32px;
+  --awe-space-10: 40px;
+  --awe-space-12: 48px;
+  --awe-space-16: 64px;
+  /* Existing t-shirt names, now on the 4px grid */
+  --awe-space-2xs: var(--awe-space-0-5);
+  --awe-space-xs: var(--awe-space-1);
+  --awe-space-sm: var(--awe-space-2);
+  --awe-space-md: var(--awe-space-3);
+  --awe-space-lg: var(--awe-space-4);
+  --awe-space-xl: var(--awe-space-6);
+  --awe-space-2xl: var(--awe-space-8);
+
+  /* Radius (Aura scale) */
+  --awe-radius-none: 0;
+  --awe-radius-xs: 2px;
+  --awe-radius-sm: 4px;
+  --awe-radius-md: 6px;
+  --awe-radius-lg: 8px;
+  --awe-radius-xl: 12px;
+  --awe-radius-full: 9999px;
+  --awe-radius: var(--awe-radius-md);
+  --awe-radius-field: var(--awe-radius-md);
+  --awe-radius-content: var(--awe-radius-md);
+  --awe-radius-card: var(--awe-radius-xl);
+  --awe-radius-overlay: var(--awe-radius-md);
+  --awe-radius-modal: var(--awe-radius-xl);
+  --awe-radius-list-option: var(--awe-radius-sm);
+
+  /* Elevation (Aura shadows) */
+  --awe-shadow-xs: 0 1px 2px 0 var(--awe-color-shadow-soft);
+  --awe-shadow-sm: 0 1px 3px 0 var(--awe-color-shadow), 0 1px 2px -1px var(--awe-color-shadow);
+  --awe-shadow-md: 0 4px 6px -1px var(--awe-color-shadow), 0 2px 4px -2px var(--awe-color-shadow);
+  --awe-shadow-lg: 0 20px 25px -5px var(--awe-color-shadow), 0 8px 10px -6px var(--awe-color-shadow);
+  --awe-shadow-field: var(--awe-shadow-xs);
+  --awe-shadow-card: var(--awe-shadow-xs);
+  --awe-shadow-overlay: var(--awe-shadow-md);
+  --awe-shadow-modal: var(--awe-shadow-lg);
+
+  /* Focus ring (keyboard focus); form fields show the focus border plus a soft halo */
+  --awe-color-focus-ring: var(--awe-color-primary-text);
+  --awe-focus-ring-width: 2px;
+  --awe-focus-ring-style: solid;
+  --awe-focus-ring-offset: 2px;
+  --awe-focus-ring: var(--awe-focus-ring-width) var(--awe-focus-ring-style) var(--awe-color-focus-ring);
+  --awe-shadow-field-focus: 0 0 0 3px var(--awe-color-field-focus-halo);
+  --awe-shadow-field-invalid: 0 0 0 3px var(--awe-color-field-invalid-halo);
+
+  /* Motion */
+  --awe-motion-duration-fast: 120ms;
+  --awe-motion-duration-base: 200ms;
+  --awe-motion-duration-slow: 300ms;
+  --awe-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --awe-motion-easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --awe-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* Expand / collapse of disclosure content (menu levels, accordions): a short ease-out */
+  --awe-motion-duration-expand: 240ms;
+  --awe-motion-easing-expand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layers */
+  --awe-z-header: 100;
+  --awe-z-menu: 110;
+  --awe-z-dropdown: 1000;
+  --awe-z-modal: 1100;
+  --awe-z-toast: 1200;
+  --awe-z-tooltip: 1300;
+
+  --awe-opacity-disabled: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --awe-motion-duration-fast: 0ms;
+    --awe-motion-duration-base: 0ms;
+    --awe-motion-duration-slow: 0ms;
+    --awe-motion-duration-expand: 0ms;
+  }
+}
+
+/* ==========================================================================
+   Tier 2 - Density: comfortable (default) and compact
+   ========================================================================== */
+:root {
+  --awe-size-control: 36px;
+  --awe-size-control-sm: 30px;
+  --awe-size-control-lg: 44px;
+  --awe-size-icon: 16px;
+  --awe-size-icon-sm: 14px;
+  --awe-size-icon-lg: 20px;
+  --awe-size-checkbox: 18px;
+  --awe-size-header-height: 60px;
+  --awe-size-menu-width: 264px;
+
+  --awe-field-padding-x: 12px;
+  --awe-field-padding-y: 8px;
+  --awe-button-padding-x: 14px;
+  --awe-gap-label: 6px;
+  --awe-gap-inline: 8px;
+  --awe-gap-form-row: 18px;
+  --awe-gap-form-column: 20px;
+
+  --awe-content-padding: 20px;
+  --awe-layout-gap: 20px;
+  --awe-page-padding: 28px;
+
+  --awe-list-padding: 4px;
+  --awe-list-gap: 2px;
+  --awe-list-option-padding: 8px 12px;
+  --awe-nav-item-padding: 8px 12px;
+  --awe-nav-item-gap: 10px;
+  --awe-overlay-padding: 12px;
+  --awe-modal-padding: 20px;
+}
+
+:root[data-awe-density="compact"] {
+  --awe-font-size-xs: 11px;
+  --awe-font-size-sm: 12px;
+  --awe-font-size-base: 13px;
+  --awe-font-size-md: 15px;
+  --awe-font-size-page-title: var(--awe-font-size-xl);
+  --awe-font-size-display: var(--awe-font-size-2xl);
+
+  --awe-size-control: 30px;
+  --awe-size-control-sm: 26px;
+  --awe-size-control-lg: 36px;
+  --awe-size-icon: 14px;
+  --awe-size-icon-sm: 12px;
+  --awe-size-icon-lg: 18px;
+  --awe-size-checkbox: 16px;
+  --awe-size-header-height: 52px;
+  --awe-size-menu-width: 240px;
+
+  --awe-field-padding-x: 9px;
+  --awe-field-padding-y: 5px;
+  --awe-button-padding-x: 10px;
+  --awe-gap-label: 4px;
+  --awe-gap-inline: 6px;
+  --awe-gap-form-row: 12px;
+  --awe-gap-form-column: 14px;
+
+  --awe-content-padding: 14px;
+  --awe-layout-gap: 12px;
+  --awe-page-padding: 16px;
+
+  --awe-list-option-padding: 6px 10px;
+  --awe-nav-item-padding: 6px 10px;
+  --awe-nav-item-gap: 8px;
+  --awe-overlay-padding: 10px;
+  --awe-modal-padding: 16px;
+}
+
+/* ==========================================================================
+   Tier 3 - Component tokens (only where a component needs its own knobs)
+   ========================================================================== */
+:root {
+  /* Grid */
+  --awe-grid-header-background: var(--awe-color-grid-header);
+  --awe-grid-header-text: var(--awe-color-text-muted);
+  --awe-grid-header-font-size: var(--awe-font-size-sm);
+  --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-border: var(--awe-color-grid-border);
+  --awe-grid-row-background: var(--awe-color-surface);
+  --awe-grid-row-hover-background: var(--awe-color-surface-subtle);
+  --awe-grid-row-selected-background: var(--awe-color-highlight);
+  --awe-grid-row-selected-text: var(--awe-color-text);
+  /* Veil over the rows while the grid loads: the surface at half opacity, in light and dark mode */
+  --awe-grid-loading-overlay: color-mix(in srgb, var(--awe-color-surface) 50%, transparent);
+  --awe-grid-cell-padding-y: 11px;
+  --awe-grid-cell-padding-x: 14px;
+  /* Primary line on the left of the edited row and of an open row detail */
+  --awe-grid-row-marker-width: 3px;
+  /* Minimum height of the rows area: the header and about three rows, for a grid whose container gives it no height */
+  --awe-grid-min-body-height: 12rem;
+
+  /* Side menu */
+  --awe-menu-width: var(--awe-size-menu-width);
+  --awe-menu-width-collapsed: 68px;
+  --awe-menu-background: var(--awe-color-menu);
+  --awe-menu-border: var(--awe-color-border);
+  --awe-menu-item-text: var(--awe-color-nav-item-text);
+  --awe-menu-item-icon: var(--awe-color-nav-item-icon);
+  --awe-menu-item-hover-background: var(--awe-color-nav-item-focus);
+  --awe-menu-item-active-background: var(--awe-color-menu-accent);
+  --awe-menu-item-active-text: var(--awe-color-on-highlight);
+  --awe-menu-item-active-icon: var(--awe-color-primary-text);
+  --awe-menu-item-radius: var(--awe-radius-md);
+  --awe-menu-section-label: var(--awe-color-nav-submenu-label);
+  --awe-menu-item-height: 36px;
+  --awe-menu-item-sub-text: var(--awe-color-text-muted);
+  /* Nested levels: indentation of each level and x position of its guide line (under the parent icon / text) */
+  --awe-menu-indent: 30px;
+  --awe-menu-indent-l3: 22px;
+  --awe-menu-guide-l2: 20px;
+  --awe-menu-guide-l3: 14px;
+  --awe-menu-guide-l3-flyout: 16px;
+  --awe-menu-guide: var(--awe-color-border);
+  --awe-menu-guide-active: var(--awe-color-primary-text);
+  --awe-menu-flyout-width: 264px;
+
+  /* Header and brand slot */
+  --awe-header-height: var(--awe-size-header-height);
+  --awe-header-background: color-mix(in srgb, var(--awe-color-navbar), transparent 15%);
+  --awe-header-border: var(--awe-color-border);
+  /* The header blurs the content that scrolls under it (it is slightly translucent) */
+  --awe-header-backdrop-filter: saturate(1.4) blur(10px);
+  --awe-header-search-width: 380px;
+  --awe-header-logo-height: 34px;
+
+  /* Overlays: the mask under a dialog and the toasts (slightly translucent in the dark mode) blur what they cover */
+  --awe-mask-backdrop-filter: blur(2px);
+  --awe-toast-backdrop-filter: blur(8px);
+
+  /* Segmented control (button radio, button-bar grid column, theme switches): Aura toggle button values with a
+     bordered selected segment so the selection reads in both modes */
+  --awe-segmented-track: light-dark(var(--awe-surface-100), var(--awe-surface-950));
+  --awe-segmented-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-segmented-text: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+  --awe-segmented-hover-text: var(--awe-color-text-emphasis);
+  --awe-segmented-selected: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-segmented-selected-border: var(--awe-surface-500);
+  --awe-segmented-selected-text: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+
+  /* Choice controls: the check mark and the radio dot inside --awe-size-checkbox, and the switch track and handle */
+  --awe-checkbox-icon-size: 12px;
+  --awe-radio-dot-size: 8px;
+  --awe-switch-width: 36px;
+  --awe-switch-height: 20px;
+  --awe-switch-handle-size: 16px;
+}
+
+:root[data-awe-density="compact"] {
+  --awe-grid-cell-padding-y: 6px;
+  --awe-grid-cell-padding-x: 10px;
+  --awe-menu-width-collapsed: 60px;
+  --awe-menu-item-height: 30px;
+  --awe-menu-indent: 26px;
+  --awe-menu-indent-l3: 18px;
+  --awe-menu-guide-l2: 17px;
+  --awe-menu-guide-l3: 11px;
+  --awe-menu-guide-l3-flyout: 13px;
+  --awe-menu-flyout-width: 240px;
+  --awe-header-search-width: 320px;
+  --awe-header-logo-height: 30px;
+}
+
+/* ==========================================================================
+   Tier 3 - Login page
+   The image panel shows --awe-login-image (a url() the product sets) over the default AWE brand panel; the caption
+   sits on a dark scrim so its text keeps AA contrast over any image, in light and dark mode.
+   ========================================================================== */
+:root {
+  --awe-login-main-min: 440px;
+  --awe-login-form-width: 420px;
+  --awe-login-padding-y: var(--awe-space-10);
+  --awe-login-padding-x: var(--awe-space-12);
+  --awe-login-logo-height: 40px;
+  --awe-login-background: var(--awe-color-surface);
+  --awe-login-image: none;
+  --awe-login-scrim: linear-gradient(to top,
+    color-mix(in srgb, var(--awe-palette-slate-950) 86%, transparent) 0%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 62%, transparent) 22%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 0%, transparent) 50%);
+  --awe-login-caption-text: #ffffff;
+  --awe-login-caption-muted: color-mix(in srgb, #ffffff 88%, transparent);
+  --awe-login-gradient:
+    radial-gradient(110% 70% at 88% 8%, light-dark(var(--awe-primary-300), var(--awe-primary-600)) 0%, transparent 58%),
+    radial-gradient(90% 60% at 8% 92%, light-dark(var(--awe-primary-800), var(--awe-primary-950)) 0%, transparent 62%),
+    linear-gradient(160deg, light-dark(var(--awe-primary-700), var(--awe-primary-900)) 0%,
+      light-dark(var(--awe-primary-500), var(--awe-primary-700)) 100%);
+
+  /* Default panel: the AWE brand logo over a dark surface lit by the primary, in both modes */
+  --awe-login-brand-background:
+    radial-gradient(75% 55% at 88% 6%, color-mix(in srgb, var(--awe-primary-500) 42%, transparent) 0%, transparent 70%),
+    radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--awe-primary-700) 45%, transparent) 0%, transparent 72%),
+    linear-gradient(160deg, var(--awe-surface-900) 0%, var(--awe-surface-950) 100%);
+  --awe-login-brand-logo-width: 340px;
+}
+
+:root[data-awe-density="compact"] {
+  --awe-login-form-width: 380px;
+  --awe-login-padding-y: var(--awe-space-8);
+  --awe-login-padding-x: var(--awe-space-8);
+  --awe-login-logo-height: 34px;
+  --awe-login-brand-logo-width: 280px;
+}

@@ -274,7 +274,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     insertClause.columns(fieldPaths.toArray(new Path[0]));
     if (((Insert) getQuery()).getQuery() != null) {
       if (materializedInsertQueryRowsLoaded) {
-        addBaseInsertQueryRows(insertClause);
+        addBaseInsertQueryRows(insertClause, fieldPaths.toArray(new Path[0]));
       } else {
         insertClause.select(getSubquery(((Insert) getQuery()).getQuery()));
       }
@@ -518,12 +518,13 @@ public class SQLMaintainBuilder extends SQLBuilder {
     return hasInsertQuerySource() && ((MaintainQuery) getQuery()).getAuditTable() != null;
   }
 
-  private void addBaseInsertQueryRows(SQLInsertClause insertClause) throws AWException {
+  private void addBaseInsertQueryRows(SQLInsertClause insertClause, Path<?>[] columns) throws AWException {
     List<Tuple> rows = getMaterializedInsertQueryRows();
     List<SqlField> insertFields = getInsertableFields();
 
-    for (Tuple row : rows) {
-      Object[] values = getMaterializedRowValues(row);
+    for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+      restoreBatchColumns(insertClause, columns, rowIndex);
+      Object[] values = getMaterializedRowValues(rows.get(rowIndex));
       validateMaterializedInsertQueryRowWidth(insertFields, values);
       List<Expression> rowValues = mapMaterializedRowValues(values);
       for (int index = 0; index < insertFields.size(); index++) {
@@ -540,9 +541,11 @@ public class SQLMaintainBuilder extends SQLBuilder {
   private void addAuditInsertQueryRows(SQLInsertClause insertClause) throws AWException {
     List<Tuple> rows = getMaterializedInsertQueryRows();
     List<SqlField> insertFields = getInsertableFields();
+    Path<?>[] columns = getAuditFieldPaths();
 
-    for (Tuple row : rows) {
-      Object[] values = getMaterializedRowValues(row);
+    for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+      restoreBatchColumns(insertClause, columns, rowIndex);
+      Object[] values = getMaterializedRowValues(rows.get(rowIndex));
       validateMaterializedInsertQueryRowWidth(insertFields, values);
 
       addAuditInsertQueryRow(insertClause, insertFields, values);
@@ -623,6 +626,21 @@ public class SQLMaintainBuilder extends SQLBuilder {
     insertClause.values((Object[]) values.toArray(new Expression[0]));
     if (shouldAddBatch()) {
       insertClause.addBatch();
+    }
+  }
+
+  /**
+   * QueryDSL clears the columns of the clause on every batch: every row after the first names them again, so a bulk
+   * insert that writes one "into" per row (Oracle "insert all") keeps its columns in every row
+   *
+   * @param insertClause Insert clause
+   * @param columns      Columns of the rows
+   * @param rowIndex     Index of the row about to be added
+   * @throws AWException AWE exception
+   */
+  private void restoreBatchColumns(SQLInsertClause insertClause, Path<?>[] columns, int rowIndex) throws AWException {
+    if (rowIndex > 0 && shouldAddBatch()) {
+      insertClause.columns(columns);
     }
   }
 

@@ -3,6 +3,7 @@ import "../plugins/uiTabdrop";
 import "../tabcontainer";
 import "../../services/panelable";
 import {getIconTemplate} from "../../services/component";
+import {iconMarkup} from "../../services/icon";
 import {TestIds} from "../../data/testIds";
 
 // Template
@@ -20,7 +21,7 @@ const template =
         <li ng-if="::maximize" class="maximize-handler pull-right active">
           <a>
             <button role="button" type="button" class="maximize-button" data-testid="${TestIds.tabMaximizeButton}" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translate}}">
-              <i class="fa {{iconMaximized ? 'fa-compress' : 'fa-expand'}}"></i>
+              <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
             </button>
           </a>
         </li>

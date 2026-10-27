@@ -13,7 +13,8 @@ module.exports = merge(common, {
       name: "main",
       cacheGroups: {
         commons: {
-          test: /[\\/]node_modules[\\/]/,
+          // The AWE theme of PrimeReact stays in css/main.css, the stylesheet the applications import
+          test: /[\\/]node_modules[\\/](?!primereact[\\/]resources[\\/]themes[\\/])/,
           name: 'commons',
           chunks: 'all'
         }

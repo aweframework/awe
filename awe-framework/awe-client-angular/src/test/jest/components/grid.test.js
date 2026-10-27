@@ -110,7 +110,8 @@ describe("components/grid.js", () => {
       expect(element.find(EMPTY).length).toBe(1);
       expect(scope.emptyState.title).toBe("SCREEN_TEXT_GRID_EMPTY_TITLE");
       expect(scope.emptyState.text).toBe("SCREEN_TEXT_GRID_EMPTY_TEXT");
-      expect(scope.emptyState.icon).toEqual({name: "inbox", family: "fa"});
+      expect(scope.emptyState.icon).toEqual({family: "lucide", name: "inbox", classes: "", href: "icons/lucide-sprite.svg#inbox"});
+      expect(element.find(`${EMPTY} span.grid-empty-icon > svg.awe-icon > use`).attr("href")).toBe("icons/lucide-sprite.svg#inbox");
       expect(scope.emptyState.button).toBeUndefined();
     });
 
@@ -141,6 +142,7 @@ describe("components/grid.js", () => {
       document.body.removeChild(domButton);
 
       expect(scope.emptyState.button).toEqual(clearButton);
+      expect(scope.emptyState.buttonIcon).toEqual({family: "lucide", name: "eraser", classes: "", href: "icons/lucide-sprite.svg#eraser"});
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 

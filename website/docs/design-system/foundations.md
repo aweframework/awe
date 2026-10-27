@@ -84,7 +84,7 @@ it for free if they use the size, padding and gap tokens. Never write a componen
 
 ## Shape
 
-Radius scale (Aura):
+Radius scale:
 
 | Token | Value | Use |
 |-------|-------|-----|
@@ -146,16 +146,17 @@ need no change. Example:
 |----------|--------|
 | `fa-search` | `search` |
 | `fa-plus` | `plus` |
-| `fa-trash` | `trash-2` |
+| `fa-trash` | `trash` |
 | `fa-pencil`, `fa-edit` | `pencil` |
 | `fa-floppy-o` | `save` |
-| `fa-filter` | `filter` |
+| `fa-filter` | `funnel` |
 | `fa-download` | `download` |
 | `fa-print` | `printer` |
 | `fa-times` | `x` |
 | `fa-cog` | `settings` |
 
-The full table, the fallback for unmapped names and the handling of `mdi-*` icons are implementation work.
+The [Icons](../api/icons.md#equivalence-table) page has the full table, the `mdi:` names, the names that keep their
+current font during the transition and the `lucide:` family for new screens.
 
 Rules:
 

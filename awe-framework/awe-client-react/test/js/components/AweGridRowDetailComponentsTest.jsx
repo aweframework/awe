@@ -346,7 +346,7 @@ describe("awe-react-client/test/js/components/AweGridRowDetailComponentsTest.jsx
     const styles = fs.readFileSync(path.join(__dirname, "../../../src/components/AweGrid.less"), "utf8");
     const rule = /\.grid-row-detail\.grid-row-detail-components\s*\{([\s\S]*?)\n\}/.exec(styles)?.[1] || "";
 
-    expect(rule).toMatch(/>\s*\.grid-container\s*\{\s*height:\s*18rem;/);
+    expect(rule).toMatch(/>\s*\.grid-container\s*\{\s*height:\s*calc\(var\(--awe-size-control\) \* 7\);/);
     expect(rule).toMatch(/white-space:\s*normal;/);
   });
 

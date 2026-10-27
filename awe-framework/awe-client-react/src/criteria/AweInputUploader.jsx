@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {InputText} from 'primereact/inputtext';
-import {generateMessageAction, getContextPath, getRestUrl, getSizeString, translateLabel} from "../utilities";
+import {generateMessageAction, getContextPath, getIconCode, getRestUrl, getSizeString, translateLabel} from "../utilities";
 import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
 import {FileUpload} from "primereact/fileupload";
@@ -155,7 +155,7 @@ function AweInputUploader(props) {
             <Button
               className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== INITIAL })}
               type="button"
-              icon={"pi pi-camera"}
+              icon={getIconCode("pi-camera", "p-button-icon p-c p-button-icon-left")}
               label={translateLabel("BUTTON_CAPTURE", t)}
               onClick={onOpenCamera}
               disabled={readonly}
@@ -180,7 +180,7 @@ function AweInputUploader(props) {
         <Button
           className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== UPLOADED, "p-invalid": error })}
           type="button"
-          icon={"pi pi-times"}
+          icon={getIconCode("pi-times", "p-button-icon p-c p-button-icon-left")}
           label={translateLabel("BUTTON_CLEAR", t)}
           onClick={onDelete}
           disabled={readonly}

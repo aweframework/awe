@@ -1,5 +1,5 @@
 .p-menubar .p-submenu-list {
-  z-index: 10;
+  z-index: var(--awe-z-dropdown);
 }
 
 /* Positioning context for the menu option search panel */
@@ -8,37 +8,15 @@
 }
 
 /*
- * Vertical menu (PanelMenu) states, as in the AngularJS menu:
- * - The option of the open screen is highlighted, and the groups on its path get a softer marker.
- * - PanelMenu moves its keyboard focus marker (p-focus) to the first option of every group it expands, and the theme
- *   paints it like a selection: show it only while navigating with the keyboard, as a focus ring.
- * The container class raises the specificity over the theme rules, which are loaded later.
+ * Vertical menu (PanelMenu) keyboard focus: PanelMenu moves its focus marker (p-focus) to the first option of every
+ * group it expands, and the theme paints it like a selection: show it only while navigating with the keyboard, as a
+ * focus ring. The open screen option and the groups on its path (p-menuitem-active, p-menuitem-active-path) are styled
+ * with the menu tokens in assets/css/shell.css (#885). The container class raises the specificity over the theme rules.
  */
 .awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem:not(.p-highlight):not(.p-disabled).p-focus > .p-menuitem-content:not(:hover) {
   background: transparent;
 }
 
 .awe-menu-container-vertical .p-panelmenu .p-panelmenu-root-list:focus-visible .p-menuitem.p-focus > .p-menuitem-content {
-  box-shadow: inset var(--focus-ring, 0 0 0 0.15rem var(--primary-color));
-}
-
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active:not(.p-disabled) > .p-menuitem-content,
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active:not(.p-disabled) > .p-menuitem-content:hover {
-  background: var(--highlight-bg, color-mix(in srgb, var(--primary-color) 15%, transparent));
-  box-shadow: inset 3px 0 0 var(--primary-color);
-}
-
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active > .p-menuitem-content .p-menuitem-link .p-menuitem-text,
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active > .p-menuitem-content .p-menuitem-link .p-menuitem-icon {
-  color: var(--highlight-text-color, var(--primary-color));
-  font-weight: 600;
-}
-
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active-path > .p-panelmenu-header .p-panelmenu-header-content .p-menuitem-text,
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-content .p-menuitem.p-menuitem-active-path > .p-menuitem-content .p-menuitem-link .p-menuitem-text {
-  font-weight: 600;
-}
-
-.awe-menu-container-vertical .p-panelmenu .p-panelmenu-panel.p-menuitem-active-path > .p-panelmenu-header .p-panelmenu-header-content .p-menuitem-icon {
-  color: var(--primary-color);
+  box-shadow: inset 0 0 0 var(--awe-focus-ring-width) var(--awe-color-focus-ring);
 }

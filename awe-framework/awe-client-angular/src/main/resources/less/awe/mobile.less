@@ -23,21 +23,20 @@
     margin-left: -6px;
     float: none;
     .btn-group-justified;
+    // The icon above its text, in a bar of buttons as high as a large control (#885: the buttons are flex boxes)
     .btn {
-      .btn-lg;
+      flex-direction: column;
+      gap: var(--awe-space-0-5);
+      height: auto;
+      min-height: var(--awe-size-control-lg);
+      padding: var(--awe-space-1) var(--awe-space-1);
       border-radius: 0 !important;
       overflow: hidden;
-      i {
-        position: relative;
-        top: -6px;
-      }
       .button-text {
         display: block;
-        font-size: 10px;
-        line-height: 0;
+        font-size: var(--awe-font-size-xs);
+        line-height: var(--awe-line-height-tight);
         text-align: center;
-        margin-left: -16px;
-        margin-right: -16px;
       }
     }
   }

@@ -2,6 +2,7 @@ import React, {useEffect, useRef} from "react";
 import SizeRegistry from "../redux/registry/SizeRegistry";
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
+import {getIconNode} from "../utilities";
 import PropTypes from "prop-types";
 import "./AweResizable.less";
 
@@ -95,7 +96,7 @@ function Resizable(props) {
     {handles.map(direction => <div key={`handle-${direction}`} className={`rg-${direction}`}
       onPointerDown={(event) => startDrag(event, direction)} onPointerMove={drag}
       onPointerUp={(event) => stopDragging(event, true)} onPointerCancel={(event) => stopDragging(event, false)}>
-      <span className={`pi ${isHorizontalAxis(direction) ? "pi-ellipsis-v" : "pi-ellipsis-h"}`}/>
+      {getIconNode(isHorizontalAxis(direction) ? "pi-ellipsis-v" : "pi-ellipsis-h", {tag: "span"})}
     </div>)}
   </div>;
 }

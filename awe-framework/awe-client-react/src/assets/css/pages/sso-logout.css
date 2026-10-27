@@ -4,7 +4,7 @@
 
 /* sso logout screen background - solid color for light mode */
 html body .sso-logout-screen {
-    background: var(--surface-a) !important;
+    background: var(--awe-color-surface) !important;
     min-height: 100vh;
 }
 
@@ -21,7 +21,7 @@ html body .sso-logout-screen {
 
 /* sso solid overlay */
 #page-sso-logout-bg .sso-overlay {
-    background: var(--surface-b);
+    background: var(--awe-color-surface-subtle);
     bottom: 0;
     left: 0;
     position: absolute;
@@ -31,7 +31,7 @@ html body .sso-logout-screen {
 
 /* Static background pattern */
 #page-sso-logout-bg .sso-pattern {
-    background-color: var(--surface-a);
+    background-color: var(--awe-color-surface);
     bottom: 0;
     left: 0;
     position: absolute;
@@ -53,7 +53,7 @@ html body .sso-logout-screen {
 
 /* Main container with sso card design */
 .sso-logout-screen .sso-logout-container {
-    background: var(--surface-a);
+    background: var(--awe-color-surface);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     display: block;
@@ -67,7 +67,7 @@ html body .sso-logout-screen {
 
 /* sso header with solid color */
 .sso-logout-screen .sso-logout-header {
-    background: var(--primary-color);
+    background: var(--awe-color-primary);
     display: block;
     overflow: hidden;
     padding: 40px 30px;
@@ -76,7 +76,7 @@ html body .sso-logout-screen {
 }
 
 .sso-logout-screen .sso-logout-header .logo {
-    color:var(--surface-a);
+    color:var(--awe-color-on-primary);
     font-size: 28px;
     font-weight: 700;
     opacity: 1;
@@ -90,7 +90,7 @@ html body .sso-logout-screen {
 }
 
 .sso-logout-screen .sso-logout-header .slogan {
-    color: var(--surface-b);
+    color: var(--awe-color-on-primary);
     margin-top: 10px;
     text-align: center;
     font-variant: small-caps;
@@ -103,7 +103,7 @@ html body .sso-logout-screen {
 
 /* sso form section */
 .sso-logout-screen .sso-logout-form {
-    background: var(--surface-a);
+    background: var(--awe-color-surface);
     display: block;
     padding: 40px 30px;
     position: relative;
@@ -119,12 +119,12 @@ html body .sso-logout-screen {
 }
 
 .sso-logout-screen .sso-logout-form > div:first-child span {
-    color: var(--primary-color);
+    color: var(--awe-color-primary-text);
 }
 
 /* Secondary text styling */
 .sso-logout-screen .sso-logout-form .sso-logout-text {
-    color: var(--text-color);
+    color: var(--awe-color-text);
     font-size: 16px;
     line-height: 1.6;
     margin-bottom: 30px;
@@ -141,7 +141,7 @@ html body .sso-logout-screen {
 
 /* sso button styling */
 .sso-logout-screen .sso-logout-form .sso-logout-actions .sso-logout-btn {
-    background: var(--primary-color);
+    background: var(--awe-color-primary);
     border: none;
     border-radius: 50px;
     color: #fff;
@@ -159,7 +159,7 @@ html body .sso-logout-screen {
 
 /* Simple hover effect */
 .sso-logout-screen .sso-logout-form .sso-logout-actions .sso-logout-btn:hover {
-    background: var(--hover-color);
+    background: var(--awe-color-primary-hover);
 }
 
 /* Icon styling */

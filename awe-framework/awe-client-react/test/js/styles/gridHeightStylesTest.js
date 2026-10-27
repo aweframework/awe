@@ -17,7 +17,7 @@ describe("awe-react-client/test/js/styles/gridHeightStylesTest.js", () => {
 
     // A grid in a dialog or a non-expandible panel has no height to fill: its rows area would measure 0px
     expect(body).not.toBeNull();
-    expect(body).toMatch(/min-height:\s*\d+(\.\d+)?rem;/);
+    expect(body).toMatch(/min-height:\s*var\(--awe-grid-min-body-height\);/);
   });
 
   // A panel body that is also expandible is a flex column: these rules would narrow its lines and fight the expand rules

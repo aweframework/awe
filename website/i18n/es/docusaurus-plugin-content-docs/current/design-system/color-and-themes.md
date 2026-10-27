@@ -15,14 +15,14 @@ semántico      --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-s
      │
 configurable   --awe-surface-700: var(--awe-palette-slate-700)      ← data-awe-surface="slate"
      │
-primitivo      --awe-palette-slate-700: #334155                     ← valor de Aura, no cambia nunca
+primitivo      --awe-palette-slate-700: #334155                     ← valor fijo, no cambia nunca
 ```
 
 ## Los tres niveles {#the-three-tiers}
 
 | Nivel | Patrón de nombre | Quién lo fija | Quién lo lee |
 |-------|------------------|---------------|--------------|
-| 1 · Primitivo | `--awe-palette-<color>-<50..950>` | AWE (valores fijos de Aura) | Solo los tokens configurables del nivel 1 |
+| 1 · Primitivo | `--awe-palette-<color>-<50..950>` | AWE (valores fijos) | Solo los tokens configurables del nivel 1 |
 | 1 · Configurable | `--awe-primary-<50..950>`, `--awe-primary-fill*`, `--awe-surface-<0..950>` | El tema (`data-awe-primary`, `data-awe-surface`) | Los tokens semánticos |
 | 2 · Semántico | `--awe-color-*`, `--awe-font-*`, `--awe-space-*`, `--awe-radius-*`, `--awe-shadow-*`, `--awe-motion-*`, `--awe-size-*` | AWE | Componentes y CSS de producto |
 | 3 · Componente | `--awe-<componente>-<propiedad>` (`--awe-grid-*`, `--awe-menu-*`, `--awe-header-*`, `--awe-segmented-*`, `--awe-login-*`) | AWE | Solo ese componente |
@@ -49,8 +49,8 @@ Veintidós paletas primitivas, cada una con 11 tonos (de 50 a 950):
 
 ### Por qué el primario tiene tokens de relleno {#why-the-primary-has-fill-tokens}
 
-Aura rellena los botones primarios con el tono 500 y texto blanco. En la mayoría de paletas eso queda por debajo de
-4,5:1 (emerald 500 con blanco da 2,54:1). AWE añade cuatro tokens configurables elegidos **por paleta** para que el
+Rellenar los botones primarios con el tono 500 y texto blanco queda por debajo de 4,5:1 en la mayoría de paletas
+(emerald 500 con blanco da 2,54:1). AWE añade cuatro tokens configurables elegidos **por paleta** para que el
 texto sobre una superficie rellena alcance siempre AA en modo claro:
 
 | Paletas | `--awe-primary-fill` | Texto sobre el relleno |
@@ -60,8 +60,8 @@ texto sobre una superficie rellena alcance siempre AA en modo claro:
 | `lime`, `amber`, `yellow` | 500 | tono 950 |
 
 `--awe-primary-fill-hover`, `--awe-primary-fill-active` y `--awe-primary-on-fill` siguen la misma tabla. En modo oscuro
-el primario es el tono 400 con texto oscuro, como en Aura. Consecuencia: el emerald por defecto se ve más oscuro que en
-Aura.
+el primario es el tono 400 con texto oscuro. Consecuencia: en modo claro el emerald por defecto es un tono más oscuro
+(700).
 
 ## Claro y oscuro {#light-and-dark}
 
@@ -140,13 +140,52 @@ Hex probados, en claro y en oscuro (2.736 parejas): primarios `#575C9C`, `#E11D4
 da un primario gris: es válido, pero los controles rellenos destacan menos sobre la página. El panel **Theme** del
 prototipo tiene una opción *Custom* para probar cualquier hex.
 
-Un tema llega a la página de una de estas dos formas (planificado, ver
-[Para desarrolladores](for-developers.md#configure-the-theme-of-a-product)):
+Un tema llega a la página de una de estas dos formas (implementado en el servidor y pintado en `<html>`; las pantallas
+mantienen el aspecto clásico hasta el nuevo aspecto de los motores, ver [Para desarrolladores](for-developers.md#configure-the-theme-of-a-product)):
 
 - **Por nombre**, como hoy: un nombre de tema (`sky`, `sunset`…) es un preset de primario, superficie y modo por
   defecto, y se elige con el tema del usuario, el del perfil, `awe.application.theme` y el selector de temas.
 - **Por propiedades**: las propiedades de la aplicación fijan directamente el primario, la superficie, el modo y la
   densidad.
+
+### Presets de los temas clásicos {#presets-of-the-classic-themes}
+
+Cada nombre de tema clásico se corresponde con la paleta de AWE 5 más cercana a su color de marca actual:
+
+1. El color de marca es el más cromático de `--theme-color` y `--primary-color` del tema.
+2. Se toman las 2 paletas más cercanas por tono OKLCH y, de ellas, gana la más cercana en OKLab.
+3. Una marca gris (croma OKLCH menor que 0,05) no tiene tono más cercano: conserva su hex, que genera su paleta.
+4. La superficie es `auto` salvo que el fondo clásico esté teñido: cálido da `stone` y azul da `slate`.
+5. El modo es `system`.
+
+| Tema | Primario | Superficie | Modo |
+|------|----------|------------|------|
+| `default` | `sky` | `auto` | `system` |
+| `asphalt` | `teal` | `auto` | `system` |
+| `purple-hills` | `violet` | `auto` | `system` |
+| `dust` | `#948787` | `stone` | `system` |
+| `frost` | `cyan` | `slate` | `system` |
+| `fresh` | `lime` | `auto` | `system` |
+| `silver` | `cyan` | `auto` | `system` |
+| `clean` | `emerald` | `auto` | `system` |
+| `white` | `cyan` | `auto` | `system` |
+| `adminflare` | `blue` | `auto` | `system` |
+| `orange` | `red` | `stone` | `system` |
+| `sunset` | `red` | `auto` | `system` |
+| `grass` | `cyan` | `auto` | `system` |
+| `sky` | `blue` | `auto` | `system` |
+| `eclipse` | `sky` | `auto` | `system` |
+| `sunny` | `yellow` | `auto` | `system` |
+| `sea` | `blue` | `slate` | `system` |
+| `ferrari` | `red` | `auto` | `system` |
+| `amazonia` | `#948787` | `stone` | `system` |
+
+La paleta más cercana no siempre es el nombre esperado: `orange` da `red` y `grass` da `cyan`, porque sus colores de
+marca están más cerca de esas paletas. `dust` y `amazonia` tienen una marca gris y conservan su hex.
+
+Estado: implementado. El servidor aplica el preset cuando un tema no tiene fila en `AweThm` (`amazonia` solo existe en
+LESS) o su fila no tiene un valor válido, y la migración `AWE_V1.5.0` escribe los mismos valores en las filas clásicas
+de `AweThm`. Los motores lo pintan en `<html>`; las pantallas mantienen el aspecto clásico hasta el nuevo aspecto de los motores.
 
 ## Colores semánticos {#semantic-colours}
 
@@ -178,7 +217,7 @@ Medido para 17 primarios × 6 ajustes de superficie × 2 modos con los tokens de
 | Anillo de foco contra su fondo | 3:1 (WCAG 1.4.11) | Se cumple (anillo de 2px en `--awe-color-primary-text`). |
 | Texto deshabilitado | Exento (WCAG 1.4.3) | 3,76:1 en claro, 4,04:1 en oscuro. Aceptado. |
 | Primario relleno contra la página (`lime`, `amber`, `yellow`) | 3:1 (WCAG 1.4.11) | De 1,9:1 a 2,2:1. Aceptado: el texto sobre el relleno da 7:1 y el control tiene texto. |
-| Borde de los campos | 3:1 (WCAG 1.4.11) | 1,47:1 en claro y 2,53:1 en oscuro. Aceptado: se mantiene el borde de Aura; la etiqueta, el anillo de foco y el estado inválido identifican el campo. |
+| Borde de los campos | 3:1 (WCAG 1.4.11) | 1,47:1 en claro y 2,53:1 en oscuro. Aceptado: se mantiene el borde suave; la etiqueta, el anillo de foco y el estado inválido identifican el campo. |
 
 ## Visualización de datos {#data-visualisation}
 

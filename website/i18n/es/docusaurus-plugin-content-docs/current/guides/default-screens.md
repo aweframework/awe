@@ -24,23 +24,13 @@ En la pantalla de perfiles se pueden administrar nuevos *perfiles* para agrupar 
 
 ## Temas {#themes}
 
-La pantalla de temas permite definir nuevos *temas en CSS* para la aplicación. En esta pantalla sólo puede definir el nombre del tema, pero también es necesario generar los nuevos archivos CSS del tema en su aplicación.
+La pantalla de temas permite definir los *temas* de la aplicación. Cada tema tiene un nombre, un primario y una superficie (una paleta de una lista o, con la opción personalizada, un hex elegido con un selector de color) y un modo, que se editan en las pantallas de alta y modificación. Consulte [Configuración del tema](../design-system/for-developers.md).
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/ThemesScreen.png')} />
 
-Ahora puede actualizar el esquema de colores definido para cada tema en la pantalla `Theme customization`. Basta con seleccionar un tema en la pantalla `Themes` y hacer clic en el botón `Customize`:
+La pantalla `Theme customization` de AWE 4 se elimina en AWE 5 (consulte la [guía de migración a v5](v5-migration.md)).
 
-<img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Themes_screen.png')} />
-
-Será redirigido a la pantalla `Theme customization`, donde puede cambiar un conjunto de propiedades (principalmente colores) para personalizar el tema y adaptarlo a sus necesidades:
-
-<img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Customize_screen.png')} />
-
-Cuando se modifica una propiedad, aparece un botón `save` para almacenar el valor modificado y mostrar una vista previa del tema en el panel derecho.
-
-<img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/theme_customization/Change_properties.png')} />
-
-Cada tema tiene dos modos, `light` y `dark`, que se alternan con el botón de modo de la barra de navegación.
+Cada usuario alterna entre los modos `light` y `dark` con el botón de modo de la barra de navegación.
 
 Los botones de la barra de navegación se definen en la pantalla `info-buttons.xml`. Aquí se encuentran el `themeModeSelector` y el `themeSelector`.
 

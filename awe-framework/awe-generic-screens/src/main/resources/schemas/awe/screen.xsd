@@ -426,7 +426,11 @@
   <xs:attributeGroup name="linkAttr">
     <xs:attributeGroup ref="elementAttr" />
     <xs:attribute name="url" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
@@ -571,7 +575,7 @@
     </xs:attribute>
     <xs:attribute name="icon" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Icon class (Font Awesome) shown next to the input. React does not show it in a textarea.</xs:documentation>
+        <xs:documentation xml:lang="en">Icon shown next to the input (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). React does not show it in a textarea.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="unit" type="xs:string">
@@ -780,7 +784,11 @@
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="size" type="xs:string" />
     <xs:attribute name="button-type" type="buttonTypes" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
@@ -795,7 +803,11 @@
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="size" type="xs:string" />
     <xs:attribute name="button-type" type="buttonTypes" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="image" type="xs:string" />
@@ -807,7 +819,11 @@
   <xs:attributeGroup name="windowAttr">
     <xs:attribute name="id" type="nameEnum" />
     <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
@@ -819,7 +835,11 @@
   <xs:attributeGroup name="resizableAttr">
     <xs:attribute name="id" type="nameEnum" />
     <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="directions" type="xs:string" />
@@ -924,12 +944,12 @@
     </xs:attribute>
     <xs:attribute name="icon-expand" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a collapsed node. Default: plus-square. Both engines.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of a collapsed node (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: plus-square. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon-collapse" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of an expanded node. Default: minus-square. Both engines.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of an expanded node (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: minus-square. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon-loading" type="loadingIconEnum">
@@ -944,7 +964,7 @@
     </xs:attribute>
     <xs:attribute name="icon-leaf" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Tree grid only. Icon (Font Awesome name) of a node without children. Default: dot-circle-o. Both engines.</xs:documentation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of a node without children (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: dot-circle-o. Both engines.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="load-all" type="booleanEnum">
@@ -1086,7 +1106,7 @@
     </xs:attribute>
     <xs:attribute name="icon" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Icon class (Font Awesome) shown in the cell. Used by text-view and button columns; an icon or unit sent in the cell data overrides it.</xs:documentation>
+        <xs:documentation xml:lang="en">Icon shown in the cell (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Used by text-view and button columns; an icon or unit sent in the cell data overrides it.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="unit" type="xs:string">
@@ -1349,7 +1369,11 @@
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="dropdown-style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="session" type="xs:string" />
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="property" type="xs:string" />
@@ -1393,7 +1417,11 @@
   <!-- Dialog Attributes -->
   <xs:attributeGroup name="dialogAttr">
     <xs:attribute name="modal" type="booleanEnum" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="on-close" type="onCloseEnum" />

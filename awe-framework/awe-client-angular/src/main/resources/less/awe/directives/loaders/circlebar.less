@@ -1,37 +1,28 @@
 /*******************************************************************************
  CIRCLEBAR LOADER
 *******************************************************************************/
+// AWE 5 (#885), as the React loader: drawn in the primary colour, every size a share of the loader size (loader.less)
 
 .circlebar-loader {
   margin: auto;
-  width: 70px;
+  width: calc(@loader-size * 1.75);
   text-align: center;
-
   > div {
-    width: 18px;
-    height: 18px;
-    background-color: #444;
-    .opacity(0.7);
-
+    width: calc(@loader-size * 0.45);
+    height: calc(@loader-size * 0.45);
+    background-color: var(--awe-color-primary);
+    opacity: 0.7;
     border-radius: 100%;
     display: inline-block;
     animation: sk-bouncedelay 1.4s infinite ease-in-out both;
   }
-
   .bounce1 {
     animation-delay: -0.32s;
   }
-
   .bounce2 {
     animation-delay: -0.16s;
   }
-
 }
-@-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { transform: scale(0) }
-  40% { transform: scale(1.0) }
-}
-
 @keyframes sk-bouncedelay {
   0%, 80%, 100% {
     transform: scale(0);

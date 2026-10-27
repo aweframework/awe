@@ -37,14 +37,14 @@ describe("window directive", () => {
     expect(panel.length).toBe(1);
     expect(panel.attr("data-testid-owner")).toBe("w1");
     expect(panel.attr("data-maximized")).toBe("false");
-    expect(button().find("i").hasClass("fa-expand")).toBe(true);
+    expect(button().find("i use").attr("href")).toBe("icons/lucide-sprite.svg#expand");
 
     button().trigger("click");
     refs.$rootScope.$digest();
     expect(panel.attr("data-maximized")).toBe("true");
     expect(panel.hasClass("maximized")).toBe(true);
     expect(target.find(".sibling").hasClass("minimized")).toBe(true);
-    expect(button().find("i").hasClass("fa-compress")).toBe(true);
+    expect(button().find("i use").attr("href")).toBe("icons/lucide-sprite.svg#shrink");
 
     button().trigger("click");
     refs.$rootScope.$digest();

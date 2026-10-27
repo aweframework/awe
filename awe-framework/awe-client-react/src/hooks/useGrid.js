@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { Column } from "primereact/column";
 import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
-import { getHelpTooltipNode, translateLabel } from "../utilities";
+import { getHelpTooltipNode, getIconNode, translateLabel } from "../utilities";
 import { useContextMenu } from "./useContextMenu";
 import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH } from "../utilities/grid";
 import { isEmpty } from "../utilities/general";
@@ -140,9 +140,8 @@ export function useGrid(id) {
       style={{ textAlign: "center" }}
       footer={null}
       pt={bodyCellPassThrough("RowIco")}
-      body={rowData => <i role={rowData?.$row?.operation}
-        className={OperationIcon[rowData?.$row?.operation]}
-        {...testHook(TestIds.columnIcon, { attributes: { [TestAttributes.icon]: OperationIconName[rowData?.$row?.operation] } })} />} /> : null
+      body={rowData => getIconNode(OperationIcon[rowData?.$row?.operation], {role: rowData?.$row?.operation,
+        ...testHook(TestIds.columnIcon, { attributes: { [TestAttributes.icon]: OperationIconName[rowData?.$row?.operation] } })})} /> : null
   );
 
   // The header of a column is cut by its width: it shows its full text as tooltip
@@ -158,15 +157,17 @@ export function useGrid(id) {
     return <>
       {getHelpTooltipNode(help, helpImage, t, `.${target}`)}
       <span className={target} style={{ cursor: "pointer" }}>
-        <i role="icon" className="help-icon pi pi-question-circle" />{headerLabel(text)}
+        {getIconNode("pi-question-circle", { role: "icon", className: "help-icon" })}{headerLabel(text)}
       </span>
     </>;
   };
 
   const columnTemplate = (col, rowSpan, enableFilters, frozen = false) => {
-    const { name, sortField, label, charlength, width, sortable, help, helpImage } = col;
+    const { name, sortField, label, charlength, width, sortable, help, helpImage, align } = col;
+    // A column with an alignment aligns its header like its cells (AWE 5 grid, #885); without one it stays centred
     return <Column key={name} field={sortField || name} header={columnHeader(name, label, help, helpImage)}
-      style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
+      alignHeader={align || undefined}
+      style={{ textAlign: align || "center", ...getWidthStyle(charlength, width) }}
       pt={headerCellPassThrough(name)}
       sortable={sortable} rowSpan={rowSpan} filter={enableFilters} frozen={frozen && !!col.frozen} />;
   };

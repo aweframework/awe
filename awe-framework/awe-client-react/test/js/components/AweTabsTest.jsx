@@ -127,20 +127,20 @@ describe('awe-react-client/test/js/components/AweTabsTest.jsx', () => {
       renderWithProviders(<AweTabs id="tabs" maximize={maximize}/>, {preloadedState});
       expect(container().classList).not.toContain("maximized");
       expect(button().getAttribute("title")).toBe("SCREEN_TEXT_MAXIMIZE");
-      expect(button().querySelector("i").className).toContain("pi-window-maximize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#maximize");
 
       fireEvent.click(button());
       settle();
       expect(container().classList).toContain("maximized");
       expect(container().style.position).toBe("fixed");
       expect(button().getAttribute("title")).toBe("SCREEN_TEXT_RESTORE");
-      expect(button().querySelector("i").className).toContain("pi-window-minimize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#minimize");
 
       fireEvent.click(button());
       settle();
       expect(container().classList).not.toContain("maximized");
       expect(container().style.position).toBe("");
-      expect(button().querySelector("i").className).toContain("pi-window-maximize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#maximize");
     });
 
     it('maximizes over the maximize target and minimizes its siblings', () => {

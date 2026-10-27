@@ -57,7 +57,7 @@ Acciones genéricas que se lanzan en el navegador. Estas acciones no necesitan a
 | `value`                    | Establece un valor a un criterio                                                                                                                     |
 | `wait`                     | Espera una cantidad de milisegundos definidos en el atributo `target`                                                                                |
 | `close-window`             | Intenta cerrar la ventana actual del navegador (a veces pedirá permiso al usuario)                                                                   |
-| `update-theme`             | Recargar la hoja de estilos del tema para obtener los cambios del tema sin recargar la pantalla                                                                   |
+| `update-theme`             | Volver a aplicar a la página los ajustes del tema (modo, color primario, superficie, densidad) sin recargar la pantalla                                           |
 | `get-file`                 | Descargar un archivo del servidor. El archivo a obtener se identifica mediante el parámetro `filename`                                                      |
 | `change-menu`              | Sustituir las opciones de menú actuales por las opciones recibidas en el parámetro `options`                                                                |
 

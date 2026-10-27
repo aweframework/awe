@@ -2,7 +2,7 @@ import React from "react";
 import {Panel} from 'primereact/panel';
 import {useTranslation} from 'react-i18next';
 import "./AweWindow.less";
-import {getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
+import {getHelpTooltipNode, getIconCode, getIconNode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -31,7 +31,7 @@ function AweWindow(props) {
     const title = t(iconMaximized ? "SCREEN_TEXT_RESTORE" : "SCREEN_TEXT_MAXIMIZE");
     return <button type="button" className="maximize-button p-link" title={title} aria-label={title}
       onClick={toggleMaximized} {...testHook(TestIds.windowMaximizeButton)}>
-      <i className={`pi ${iconMaximized ? "pi-window-minimize" : "pi-window-maximize"}`}/>
+      {getIconNode(iconMaximized ? "pi-window-minimize" : "pi-window-maximize")}
     </button>;
   };
 
@@ -39,7 +39,7 @@ function AweWindow(props) {
 
   const getHelpIcon = () => {
     if (help || helpImage) {
-      return <i role="note" className={`help-icon pi pi-question-circle`} />;
+      return getIconNode("pi-question-circle", {role: "note", className: "help-icon"});
     } else {
       return null;
     }

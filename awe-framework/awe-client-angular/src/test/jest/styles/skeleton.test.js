@@ -1,7 +1,9 @@
-import {compileStyles} from "./support/compileStyles";
-import {getRuleVariables} from "./support/themeVariables";
+import fs from "fs";
+import path from "path";
+import {compileStyles, ROOT} from "./support/compileStyles";
+import {parseRules} from "./support/tokenRules";
 
-const TOKEN_SELECTOR = ":root, .base-theme";
+const SHARED_TOKENS = path.join(ROOT, "..", "awe-design-tokens", "tokens.css");
 
 describe("awe-framework/awe-client-angular/src/test/jest/styles/skeleton", () => {
   let css;
@@ -9,12 +11,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/skeleton", () =>
 
   beforeAll(async () => {
     css = await compileStyles();
-    tokens = getRuleVariables(css, TOKEN_SELECTOR) || {};
+    tokens = Object.assign({}, ...parseRules(fs.readFileSync(SHARED_TOKENS, "utf8")).map(rule => rule.declarations));
   });
 
-  it("derives the skeleton colors from the grid colors of the active theme and mode", () => {
-    expect(tokens["--awe-color-skeleton"]).toMatch(/var\(--grid-border-color/);
-    expect(tokens["--awe-color-skeleton-highlight"]).toMatch(/var\(--grid-header-color/);
+  it("takes the skeleton colors of the light and the dark mode from the AWE 5 token file", () => {
+    expect(tokens["--awe-color-skeleton"]).toMatch(/^light-dark\(var\(--awe-surface-/);
+    expect(tokens["--awe-color-skeleton-highlight"]).toMatch(/^light-dark\(var\(--awe-surface-/);
   });
 
   it("paints the skeleton bars with the tokens and a shimmer animation", () => {

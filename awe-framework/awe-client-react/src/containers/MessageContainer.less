@@ -1,4 +1,59 @@
+// Toasts (#885): over the page in the toast layer, the title in the colour of the type and the detail in the text colour
 .p-toast {
-  z-index: 10000;
+  z-index: var(--awe-z-toast);
 }
 
+// The toast is slightly translucent in the dark mode: it blurs what it covers
+.p-toast .p-toast-message {
+  backdrop-filter: var(--awe-toast-backdrop-filter);
+}
+
+.p-toast .p-toast-message-info .p-toast-summary {
+  color: var(--awe-color-info-text);
+}
+
+.p-toast .p-toast-message-success .p-toast-summary {
+  color: var(--awe-color-success-text);
+}
+
+.p-toast .p-toast-message-warn .p-toast-summary {
+  color: var(--awe-color-warning-text);
+}
+
+.p-toast .p-toast-message-error .p-toast-summary {
+  color: var(--awe-color-danger-text);
+}
+
+.p-toast .p-toast-message .p-toast-detail {
+  font-size: var(--awe-font-size-sm);
+}
+
+// Confirm (#885): the warning in a round badge next to the message, the actions at the end of the footer
+.awe-confirm-dialog {
+  width: min(calc(var(--awe-space-16) * 7), calc(100vw - var(--awe-space-8)));
+}
+
+.awe-confirm-dialog .p-dialog-content {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-4);
+}
+
+.awe-confirm-dialog .confirm-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--awe-space-10);
+  height: var(--awe-space-10);
+  font-size: var(--awe-size-icon-lg);
+  color: var(--awe-color-warning-text);
+  background: var(--awe-color-warning-subtle);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-confirm-dialog .confirm-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+}

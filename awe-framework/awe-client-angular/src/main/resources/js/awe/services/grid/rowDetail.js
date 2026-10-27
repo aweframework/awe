@@ -1,4 +1,5 @@
 import {TestIds} from "../../data/testIds";
+import {iconMarkup} from "../icon";
 import _ from "lodash";
 
 /**
@@ -30,7 +31,7 @@ const TOGGLE_CELL_TEMPLATE = `<div class="no-animate ui-grid-cell-contents ui-gr
           ng-attr-aria-controls="{{grid.appScope.component.getRowDetailId(row)}}"
           ng-attr-aria-label="{{(grid.appScope.component.isRowDetailOpen(row) ? 'SCREEN_TEXT_GRID_ROW_DETAIL_HIDE' : 'SCREEN_TEXT_GRID_ROW_DETAIL_SHOW') | translateMultiple}}"
           ng-click="grid.appScope.component.toggleRowDetail(row, $event)">
-    <i class="fa" ng-class="grid.appScope.component.isRowDetailOpen(row) ? 'fa-chevron-down' : 'fa-chevron-right'" aria-hidden="true"></i>
+    <i aria-hidden="true">${iconMarkup("chevron-down", 'ng-if="grid.appScope.component.isRowDetailOpen(row)"')}${iconMarkup("chevron-right", 'ng-if="!grid.appScope.component.isRowDetailOpen(row)"')}</i>
   </button>
 </div>`;
 

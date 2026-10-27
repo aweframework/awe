@@ -72,15 +72,15 @@ describe('awe-react-client/test/js/containers/ActionsContainerTest.jsx', () => {
     // RUNNING action -> p-button-info and play icon
     const runBtn = Array.from(container.querySelectorAll('.action')).find(el => el.textContent.includes('save'));
     expect(runBtn.className).toContain('p-button-info');
-    // Icon element from primereact should have classes containing pi-play
-    const runIcon = runBtn.querySelector('.pi-play');
-    expect(runIcon).not.toBeNull();
+    // The Lucide icon of the play glyph
+    const runIcon = runBtn.querySelector('i.p-button-icon > svg.awe-icon > use');
+    expect(runIcon.getAttribute('href')).toBe('/icons/lucide-sprite.svg#play');
 
     // STARTED action -> p-button-warning and spinner icon
     const startedBtn = Array.from(container.querySelectorAll('.action')).find(el => el.textContent.includes('load'));
     expect(startedBtn.className).toContain('p-button-warning');
-    const spinIcon = startedBtn.querySelector('.pi-spinner');
-    expect(spinIcon).not.toBeNull();
+    const spinIcon = startedBtn.querySelector('i.p-button-icon > svg.awe-icon.awe-icon-spin > use');
+    expect(spinIcon.getAttribute('href')).toBe('/icons/lucide-sprite.svg#loader-circle');
 
     // DEFAULT (initial) action -> p-button-help and no icon
     const defaultBtn = Array.from(container.querySelectorAll('.action')).find(el => el.textContent === 'noop');

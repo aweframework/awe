@@ -1,9 +1,18 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 
-export function getIconTemplate(style = "", tag = "span") {
-  return `<${tag} ng-if="getIcon().family == 'fa'" class="${style} fa fa-{{getIcon().name}}" ng-cloak></${tag}>
-          <${tag} ng-if="getIcon().family == 'mdi'" class="${style} material-icons" ng-cloak>{{getIcon().name}}</${tag}>`;
+/**
+ * Template of the icon of the screen XML or the data: a Lucide icon is an svg of the sprite inside the element of the
+ * icon (which keeps the classes of the component); the icons without Lucide equivalence keep their current font
+ * @param {string} style Classes of the element of the icon
+ * @param {string} tag Element of the icon
+ * @param {string} icon Expression of the icon ({family, name, classes, href}, see services/icon)
+ * @returns {string} Template
+ */
+export function getIconTemplate(style = "", tag = "span", icon = "getIcon()") {
+  return `<${tag} ng-if="${icon}.family == 'lucide'" class="${style}" ng-cloak><svg class="awe-icon" ng-class="${icon}.classes" aria-hidden="true" focusable="false"><use ng-attr-href="{{${icon}.href}}"></use></svg></${tag}>
+          <${tag} ng-if="${icon}.family == 'fa'" class="${style} fa fa-{{${icon}.name}}" ng-cloak></${tag}>
+          <${tag} ng-if="${icon}.family == 'mdi'" class="${style} material-icons" ng-cloak>{{${icon}.name}}</${tag}>`;
 }
 
 // Component service

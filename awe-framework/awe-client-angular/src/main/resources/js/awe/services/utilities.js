@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import {getUID} from "../data/options";
+import {getIcon} from "./icon";
 import _ from 'lodash';
 
 /**
@@ -1016,29 +1017,10 @@ aweApplication.factory('AweUtilities',
           return endpoint;
         },
         /**
-         * Extract icon name and family
+         * Extract icon name and family: the Lucide icon of the value, or the icon in its current font (see services/icon)
          * @param icon
          */
-        extractIcon: function(icon) {
-          if (icon) {
-            const iconValues = icon.split(":");
-            if (iconValues.length === 2) {
-              return {
-                name: iconValues[1],
-                family: iconValues[0]
-              };
-            } else {
-              return {
-                name: iconValues[0],
-                family: "fa"
-              };
-            }
-          }
-          return {
-            name: null,
-            family: null
-          };
-        },
+        extractIcon: getIcon,
         /**
          * Retrieve row index
          * @param {array} values Grid model

@@ -1,0 +1,41 @@
+/* AWE 5 icons (#885), shared by both clients: the Lucide icons of the sprite
+   (<svg class="awe-icon" aria-hidden="true" focusable="false"><use href="<sprite>#name"/></svg>).
+   The element that held the glyph holds the svg and keeps its classes, so the icon sits where the glyph sat; the sprite
+   has no presentation attributes, the stroke comes from here as in the prototype */
+
+.awe-icon {
+  display: inline-block;
+  width: var(--awe-size-icon);
+  height: var(--awe-size-icon);
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+
+.awe-icon-sm {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.awe-icon-lg {
+  width: var(--awe-size-icon-lg);
+  height: var(--awe-size-icon-lg);
+}
+
+/* The fa-spin of the icon value: the rotation of the Font Awesome icons (both clients still load Font Awesome 4 for
+   the names without Lucide equivalence, and with it the fa-spin keyframes), stopped when the user prefers reduced
+   motion */
+.awe-icon-spin {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awe-icon-spin {
+    animation: none;
+  }
+}

@@ -1,19 +1,48 @@
 /*******************************************************************************
  COLUMN PROGRESS DIRECTIVE
 *******************************************************************************/
+// AWE 5 progress column (#885), as the React one: a thin bar on the secondary track filled with the primary, without
+// stripes, and its value beside it in the text colour (readable in light and dark mode)
 
 .column-progress {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  height: 100%;
+
   .progress-text {
-    position: absolute;
-    width: 100%;
-    line-height: 18px;
-    color: white;
-    font-weight: bold;
-    text-shadow: 0 0 5px #000;
+    position: static;
+    order: 1;
+    flex: none;
+    width: auto;
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-medium);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text);
+    text-shadow: none;
   }
+
   .progress {
-    margin: 4px;
-    height: 18px;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: var(--awe-space-2);
+    margin: 0;
+    background-color: var(--awe-color-secondary);
+    border-radius: var(--awe-radius-full);
+    box-shadow: none;
+  }
+
+  .progress .progress-bar:not([class*="progress-bar-"]) {
+    background-color: var(--awe-color-primary);
+  }
+
+  .progress.progress-striped .progress-bar {
+    background-image: none;
+    border: 0;
+    border-radius: var(--awe-radius-full);
+    box-shadow: none;
+    animation: none;
   }
 }

@@ -15,14 +15,14 @@ semantic       --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-su
      │
 configurable   --awe-surface-700: var(--awe-palette-slate-700)      ← data-awe-surface="slate"
      │
-primitive      --awe-palette-slate-700: #334155                     ← Aura value, never changes
+primitive      --awe-palette-slate-700: #334155                     ← fixed value, never changes
 ```
 
 ## The three tiers
 
 | Tier | Name pattern | Who sets it | Who reads it |
 |------|--------------|-------------|--------------|
-| 1 · Primitive | `--awe-palette-<color>-<50..950>` | AWE (fixed Aura values) | Only tier 1 configurable tokens |
+| 1 · Primitive | `--awe-palette-<color>-<50..950>` | AWE (fixed values) | Only tier 1 configurable tokens |
 | 1 · Configurable | `--awe-primary-<50..950>`, `--awe-primary-fill*`, `--awe-surface-<0..950>` | The theme (`data-awe-primary`, `data-awe-surface`) | Semantic tokens |
 | 2 · Semantic | `--awe-color-*`, `--awe-font-*`, `--awe-space-*`, `--awe-radius-*`, `--awe-shadow-*`, `--awe-motion-*`, `--awe-size-*` | AWE | Components, product CSS |
 | 3 · Component | `--awe-<component>-<property>` (`--awe-grid-*`, `--awe-menu-*`, `--awe-header-*`, `--awe-segmented-*`, `--awe-login-*`) | AWE | That component only |
@@ -46,8 +46,8 @@ Twenty-two primitive palettes, each with 11 shades (50 to 950):
 
 ### Why the primary has fill tokens
 
-Aura fills primary buttons with shade 500 and white text. For most palettes that is below 4.5:1 (emerald 500 with
-white is 2.54:1). AWE adds four configurable tokens chosen **per palette** so the label of a filled surface always
+Filling primary buttons with shade 500 and white text is below 4.5:1 for most palettes (emerald 500 with white is
+2.54:1). AWE adds four configurable tokens chosen **per palette** so the label of a filled surface always
 reaches AA in light mode:
 
 | Palettes | `--awe-primary-fill` | Text on the fill |
@@ -57,7 +57,7 @@ reaches AA in light mode:
 | `lime`, `amber`, `yellow` | 500 | shade 950 |
 
 `--awe-primary-fill-hover`, `--awe-primary-fill-active` and `--awe-primary-on-fill` follow the same table. In dark mode
-the primary is shade 400 with dark text, as in Aura. Consequence: the default emerald looks darker than in Aura.
+the primary is shade 400 with dark text. Consequence: in light mode the default emerald is a darker shade (700).
 
 ## Light and dark
 
@@ -133,12 +133,52 @@ are the accepted exceptions of [Contrast rules](#contrast-rules). A near-white o
 it is valid, but the filled controls stand out less from the page. The prototype's **Theme** panel has a *Custom*
 option to try any hex.
 
-A theme reaches the page in one of two ways (planned, see
+A theme reaches the page in one of two ways (implemented on the server and rendered on `<html>`; the screens keep the
+classic look until the new look of the engines, see
 [For developers](for-developers.md#configure-the-theme-of-a-product)):
 
 - **By name**, as today: a theme name (`sky`, `sunset`…) is a preset of primary, surface and default mode, chosen
   through the user theme, the profile theme, `awe.application.theme` and the theme selector.
 - **By properties**: the application properties set the primary, the surface, the mode and the density directly.
+
+### Presets of the classic themes {#presets-of-the-classic-themes}
+
+Each classic theme name maps to the AWE 5 palette nearest to its current brand colour:
+
+1. The brand colour is the more chromatic of the theme's `--theme-color` and `--primary-color`.
+2. The 2 palettes nearest to it by OKLCH hue are taken, and of those the nearest in OKLab wins.
+3. A grey brand (OKLCH chroma below 0.05) has no nearest hue: it keeps its hex, which generates its palette.
+4. The surface is `auto` unless the classic background is tinted: warm gives `stone`, blue gives `slate`.
+5. The mode is `system`.
+
+| Theme | Primary | Surface | Mode |
+|-------|---------|---------|------|
+| `default` | `sky` | `auto` | `system` |
+| `asphalt` | `teal` | `auto` | `system` |
+| `purple-hills` | `violet` | `auto` | `system` |
+| `dust` | `#948787` | `stone` | `system` |
+| `frost` | `cyan` | `slate` | `system` |
+| `fresh` | `lime` | `auto` | `system` |
+| `silver` | `cyan` | `auto` | `system` |
+| `clean` | `emerald` | `auto` | `system` |
+| `white` | `cyan` | `auto` | `system` |
+| `adminflare` | `blue` | `auto` | `system` |
+| `orange` | `red` | `stone` | `system` |
+| `sunset` | `red` | `auto` | `system` |
+| `grass` | `cyan` | `auto` | `system` |
+| `sky` | `blue` | `auto` | `system` |
+| `eclipse` | `sky` | `auto` | `system` |
+| `sunny` | `yellow` | `auto` | `system` |
+| `sea` | `blue` | `slate` | `system` |
+| `ferrari` | `red` | `auto` | `system` |
+| `amazonia` | `#948787` | `stone` | `system` |
+
+The nearest palette is not always the expected name: `orange` maps to `red` and `grass` to `cyan`, because their
+brand colours are nearer to those palettes. `dust` and `amazonia` have a grey brand and keep its hex.
+
+Status: implemented. The server applies the preset when a theme has no `AweThm` row (`amazonia` only exists in LESS)
+or its row has no valid value, and the `AWE_V1.5.0` migration writes the same values on the classic rows of `AweThm`.
+The engines render it on `<html>`; the screens keep the classic look until the new look of the engines.
 
 ## Semantic colours
 
@@ -169,7 +209,7 @@ Measured for 17 primaries × 6 surface settings × 2 modes with the prototype to
 | Focus ring against its background | 3:1 (WCAG 1.4.11) | Met (2px ring in `--awe-color-primary-text`). |
 | Disabled text | Exempt (WCAG 1.4.3) | 3.76:1 light, 4.04:1 dark. Accepted. |
 | Filled primary against the page (`lime`, `amber`, `yellow`) | 3:1 (WCAG 1.4.11) | 1.9:1 to 2.2:1. Accepted: the label on the fill is 7:1 and the control has text. |
-| Form field border | 3:1 (WCAG 1.4.11) | 1.47:1 light, 2.53:1 dark. Accepted: Aura's border is kept; the label, the focus ring and the invalid state identify the field. |
+| Form field border | 3:1 (WCAG 1.4.11) | 1.47:1 light, 2.53:1 dark. Accepted: the subtle border is kept; the label, the focus ring and the invalid state identify the field. |
 
 ## Data visualisation
 

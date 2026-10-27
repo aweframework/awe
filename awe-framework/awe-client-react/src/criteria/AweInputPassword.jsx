@@ -1,7 +1,7 @@
 import React from "react";
 import {InputText} from "primereact/inputtext";
 import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
+import {getIconNode, translateLabel} from "../utilities";
 import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
@@ -35,7 +35,7 @@ function AweInputPassword(props) {
         disabled={readonly}
         {...testHook(TestIds.criterionInput)}
       />
-      {capsLockOn && <i className="caps-lock-icon pi pi-arrow-circle-up" aria-hidden="true" />}
+      {capsLockOn && getIconNode("pi-arrow-circle-up", {className: "caps-lock-icon", "aria-hidden": "true"})}
     </AweCriterion>
   );
 }

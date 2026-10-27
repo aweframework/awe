@@ -34,7 +34,8 @@
   .crear-grid(~"@{size}-offset-right"; margin-right; 12);
 }
 
-@gutter: 0.5rem;
+// Half of the form gaps of the density on each side of a column: two neighbours are one gap apart
+@gutter: ~"calc(var(--awe-gap-form-row) / 2) calc(var(--awe-gap-form-column) / 2)";
 @sm: 576px;
 @md: 768px;
 @lg: 992px;
@@ -58,19 +59,26 @@
   .grid-size(xl);
 }
 
-.validation-message {
-  float: left;
-  line-height: 0;
-  position: relative;
-  top: 5px;
-  left: 15px;
-  margin: -5px;
+/* Criterion (#885): the label above the field, the field and its message, with the AWE 5 tokens. The column padding
+   spaces the criteria, so the criterion itself has no margin */
+.field {
+  margin-bottom: 0;
+}
+
+/* Label, and the empty label of a criterion without label, which keeps the height of a label */
+.field > label,
+.field > div.block {
+  margin: 0 0 var(--awe-gap-label);
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-field-label);
 }
 
 .required label:after,
 .required .p-placeholder:after {
   content: " *";
-  color: #A6AAAF;
+  color: var(--awe-color-required);
 }
 
 .invisible {
@@ -82,14 +90,160 @@
 }
 
 .help-icon {
-  padding-right: var(--inline-spacing);
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
+  margin-right: var(--awe-space-1);
+  color: var(--awe-color-field-help);
 }
 
-/* Label on the left (left-label): the width of the label is set by the criterion */
+.help-icon > .awe-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  vertical-align: text-bottom;
+}
+
+/* Field: the control height of the density (the padding, border and radius come from the AWE theme of PrimeReact).
+   The label of a dropdown is a borderless input inside the field, so the dropdown takes the height */
+.field .p-inputtext:not(textarea):not(.p-dropdown-label),
+.field .p-dropdown,
+.field .p-multiselect {
+  min-height: var(--awe-size-control);
+}
+
+.field .p-inputtext-sm.p-inputtext,
+.field .p-inputtext-sm .p-inputtext:not(textarea):not(.p-dropdown-label),
+.field .p-inputtext-sm.p-dropdown,
+.field .p-inputtext-sm.p-multiselect {
+  min-height: var(--awe-size-control-sm);
+}
+
+.field .p-inputtext-lg.p-inputtext,
+.field .p-inputtext-lg .p-inputtext:not(textarea):not(.p-dropdown-label),
+.field .p-inputtext-lg.p-dropdown,
+.field .p-inputtext-lg.p-multiselect {
+  min-height: var(--awe-size-control-lg);
+}
+
+/* Invalid: danger border (AWE theme of PrimeReact), danger halo on focus, placeholder in the danger tone */
+.field .p-inputtext.p-invalid:enabled:focus,
+.field .p-invalid > .p-inputtext:enabled:focus,
+.field .p-dropdown.p-invalid.p-focus,
+.field .p-multiselect.p-invalid.p-focus {
+  border-color: var(--awe-color-danger);
+  box-shadow: var(--awe-shadow-field-invalid);
+}
+
+.field .p-invalid::placeholder,
+.field .p-invalid > .p-inputtext::placeholder,
+.field .p-invalid .p-placeholder {
+  color: var(--awe-color-field-placeholder-invalid);
+}
+
+/* Validation message under the field, with its icon */
+.field > small.p-invalid {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--awe-space-1);
+  margin-top: var(--awe-gap-label);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-danger-text);
+}
+
+.criterion-error-icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.criterion-error-icon > .awe-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+/* Read-only criterion (its control is disabled): the label and the value stay readable and the field is filled,
+   instead of fading the whole criterion. Checkboxes, radios and buttons keep the disabled look of their control */
+.field.p-disabled {
+  opacity: 1;
+}
+
+.field .p-inputtext:disabled,
+.field .p-inputtext.p-disabled,
+.field .p-dropdown.p-disabled,
+.field .p-multiselect.p-disabled {
+  opacity: 1;
+  color: var(--awe-color-field-text);
+  background: var(--awe-color-field-filled);
+  box-shadow: none;
+}
+
+/* Checkbox, radio and switch: the control and its label on one line at the height of the fields of the row */
+.field .field-checkbox,
+.field .field-radiobutton {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-gap-inline);
+  min-height: var(--awe-size-control);
+  margin: 0;
+}
+
+.field .field-checkbox > label,
+.field .field-radiobutton > label {
+  margin: 0;
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text);
+}
+
+/* Button radio and button checkbox: a segmented control whose segments wrap instead of clipping */
+.field .p-selectbutton.p-buttonset {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-0-5);
+  max-width: 100%;
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: 1px solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.field .p-selectbutton.p-buttonset .p-button {
+  flex: 1 0 auto;
+  justify-content: center;
+  height: calc(var(--awe-size-control) - 2 * (var(--awe-space-0-5) + 1px));
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-segmented-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--awe-radius-sm);
+}
+
+.field .p-selectbutton.p-buttonset .p-button:not(.p-disabled):not(.p-highlight):hover {
+  color: var(--awe-segmented-hover-text);
+  background: transparent;
+  border-color: transparent;
+}
+
+.field .p-selectbutton.p-buttonset .p-button.p-highlight {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.field .p-selectbutton.p-buttonset .p-button .p-button-label {
+  font-weight: inherit;
+}
+
+.field .p-selectbutton.p-buttonset.p-invalid {
+  border-color: var(--awe-color-field-border-invalid);
+}
+
+/* Label on the left (left-label): the width of the label is set by the criterion, up to half of the criterion so the
+   field keeps the rest in a narrow column (the criterion is the container its label is measured against) */
 @media screen and (min-width: @sm) {
   .field.label-left {
+    container-type: inline-size;
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     align-items: center;
@@ -99,7 +253,8 @@
     > div.block {
       grid-column: 1;
       margin: 0;
-      padding: 0 10px;
+      padding: 0 var(--awe-space-2);
+      max-width: 50cqi;
       text-align: right;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -117,14 +272,14 @@
 /* Caps lock warning of the password criterion */
 .p-inputgroup .caps-lock-icon {
   position: absolute;
-  right: 0.75rem;
+  right: var(--awe-field-padding-x);
   top: 50%;
   transform: translateY(-50%);
-  color: var(--orange-500, #f0ad4e);
+  color: var(--awe-color-warning-text);
   pointer-events: none;
 }
 
 .p-inputtext.caps-lock {
-  border-color: var(--orange-500, #f0ad4e);
-  padding-right: 2.25rem;
+  border-color: var(--awe-color-warning);
+  padding-right: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
 }

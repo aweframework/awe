@@ -56,18 +56,7 @@
         </info>
     </tag>
     <tag source="themeModeSelector">
-        <criteria component="hidden" id="currentMode" session="themeMode">
-            <dependency initial="true">
-                <dependency-element id="currentMode" condition="ne" value="dark"/>
-                <dependency-action type="remove-class" target="body" target-action="layout-dark" silent="true" async="true"/>
-                <dependency-action type="add-class" target="body" target-action="layout-light" silent="true" async="true"/>
-            </dependency>
-            <dependency initial="true">
-                <dependency-element id="currentMode" condition="eq" value="dark"/>
-                <dependency-action type="add-class" target="body" target-action="layout-dark" silent="true" async="true"/>
-                <dependency-action type="remove-class" target="body" target-action="layout-light" silent="true" async="true"/>
-            </dependency>
-        </criteria>
+        <criteria component="hidden" id="currentMode" session="themeMode"/>
         <info-button label="BUTTON_DARK_MODE" id="dark-mode" icon="mdi:dark_mode" style="col-xs-12">
             <button-action type="server" server-action="maintain-silent" target-action="selectDarkMode" silent="true" async="true"/>
             <dependency target-type="show" initial="true">

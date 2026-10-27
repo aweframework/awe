@@ -18,28 +18,95 @@
 /*******************************************************************************
  NAVIGATION BAR
 *******************************************************************************/
+// Brand slot (#885), as the React shell: the AWE logo in two layers of the same artwork, the mark with its own colours
+// and the wordmark as a mask filled with the emphasis text colour, so it reads in light and dark mode. An application
+// shows its own logo by giving this element another background (and no ::after)
 .navbar-header h1 {
-  background: url('@{application-images-path}/logo/@{application-logo}') no-repeat left center;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  height: var(--awe-header-logo-height);
+  aspect-ratio: 1160.2 / 360;
+  margin: calc((@main-navbar-height - var(--awe-header-logo-height)) / 2) 0 0 10px;
+  padding: 0;
+  background: url('images/logo/awe-logo-mark.svg') no-repeat left center / auto 100%;
   /*[+background-image: url("[[${navbarLogo}]]");+]*/
-  margin:0;
-  padding:0;
-  margin-left:10px;
-  height:@main-navbar-height;
-  width: 190px;
-  filter: drop-shadow( 2px 1px 2px #444 );
-  background-size: contain;
 }
+
+.navbar-header h1::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-color: var(--awe-color-text-emphasis);
+  mask: url('images/logo/awe-logo-wordmark.svg') no-repeat left center / auto 100%;
+}
+
+// styles.css is a Thymeleaf text template: an application that configures its own navigation bar logo
+// (awe.application.paths.image-navbar-logo) shows it alone, without the AWE wordmark
+/*[# th:unless="${#strings.endsWith(navbarLogo, 'awe-logo-mark.svg')}"]*/
+.navbar-header h1::after {
+  display: none;
+}
+/*[/]*/
 
 .navbar-header h1 span {
   display:none;
 }
 
-.navbar-header h1 span {
-  display:none;
+// Header (#885), as the React shell: light, slightly translucent, as high as the header token, with the brand slot as
+// wide as the side menu. pixel-admin keeps the geometry of the bar
+#main-navbar {
+  min-height: var(--awe-header-height);
+  color: var(--awe-color-text);
+  background: var(--awe-header-background);
+  border-bottom: 1px solid var(--awe-header-border);
+  backdrop-filter: var(--awe-header-backdrop-filter);
 }
 
 #main-navbar .navbar-header {
-  min-width: 250px;
+  min-width: var(--awe-menu-width);
+}
+
+// Menu toggle: muted icon, darker on hover, inset ring on keyboard focus (pixel-admin removes its outline)
+#main-navbar #main-menu-toggle {
+  color: var(--awe-color-text-muted);
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+#main-navbar #main-menu-toggle:hover {
+  color: var(--awe-color-text-hover);
+}
+
+#main-navbar #main-menu-toggle:focus-visible {
+  box-shadow: inset 0 0 0 var(--awe-focus-ring-width) var(--awe-color-focus-ring);
+}
+
+// Header dropdowns (info buttons and user menu): overlays with list options
+#main-navbar .dropdown-menu {
+  margin-top: var(--awe-space-1);
+  padding: var(--awe-list-padding);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+#main-navbar .dropdown-menu > li > a {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  min-height: var(--awe-size-control);
+  padding: 0 var(--awe-space-3);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-overlay-text);
+  border-radius: var(--awe-radius-list-option);
+}
+
+#main-navbar .dropdown-menu > li > a:hover,
+#main-navbar .dropdown-menu > li > a:focus {
+  color: var(--awe-color-list-option-text-focus);
+  background: var(--awe-color-list-option-focus);
 }
 
 .mme #main-navbar #main-menu-toggle .button-text {
@@ -72,14 +139,79 @@
   }
 }
 
+// Phones: the header items are listed under the bar, on the surface
+@media (max-width: @screen-xs-max) {
+  #main-navbar .main-navbar-collapse {
+    background: var(--awe-color-surface);
+    border-top: 1px solid var(--awe-header-border);
+    border-bottom: 1px solid var(--awe-header-border);
+  }
+
+  #main-navbar .right-navbar-nav > li > a {
+    color: var(--awe-color-text);
+  }
+
+  #main-navbar .right-navbar-nav > li > a:hover,
+  #main-navbar .right-navbar-nav > li.open > a {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover);
+  }
+}
+
 @media (min-width: 768px) {
   #main-navbar #main-menu-toggle .button-text {
     .opacity(0);
     .no-transition;
   }
 
+  #main-navbar .navbar-header {
+    width: var(--awe-menu-width);
+  }
+
   #main-navbar .right {
-    padding-right: 16px;
+    padding-right: var(--awe-page-padding);
+  }
+
+  // Info buttons: ghost icon buttons centred in the header
+  #main-navbar .right-navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-1);
+    height: var(--awe-header-height);
+  }
+
+  #main-navbar .right-navbar-nav > li > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--awe-space-2);
+    height: var(--awe-size-control);
+    min-width: var(--awe-size-control);
+    margin-top: calc((var(--awe-header-height) - var(--awe-size-control)) / 2);
+    padding: 0 var(--awe-space-2);
+    line-height: var(--awe-line-height-tight);
+    color: var(--awe-color-text-muted);
+    border-radius: var(--awe-radius-md);
+    transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+  }
+
+  #main-navbar .right-navbar-nav > li > a:hover,
+  #main-navbar .right-navbar-nav > li.open > a {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover);
+  }
+
+  #main-navbar .right-navbar-nav > li > a:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  // User menu: the avatar and the name of the user as one rounded button
+  #main-navbar .right-navbar-nav > li.avatar > a {
+    gap: var(--awe-space-2);
+    padding: 0 var(--awe-space-2) 0 var(--awe-space-1);
+    border-radius: var(--awe-radius-full);
   }
 
   .navbar-form {
@@ -93,4 +225,12 @@
       margin-bottom: 0 !important;
     }
   }
+}
+// The collapse toggle of the narrow navbar draws a Lucide SVG (#885): pixel-admin sized it with a font icon as high as
+// the navbar, so it takes the height of the header and centres its icon
+#main-navbar .navbar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--awe-header-height);
 }

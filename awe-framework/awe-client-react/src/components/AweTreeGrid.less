@@ -1,8 +1,4 @@
 .p-treetable {
-  &.p-treetable-sm .p-treetable-tbody > tr > td.p-cell-editing {
-    padding: 1px;
-  }
-
   .p-column-header-content {
     justify-content: center;
   }
@@ -28,18 +24,25 @@
     }
   }
 
+  // The expand column: the toggle (indented by the level of the row, see AweTreeGrid) and the cell
   .p-treetable-expander-column {
     display: flex;
     flex-flow: nowrap;
     align-items: center;
+    gap: var(--awe-space-1-5);
+  }
+
+  .p-treetable-tbody > tr > td .p-treetable-toggler {
+    flex: none;
+    margin-right: 0;
+
+    .awe-icon {
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+    }
   }
 }
 
-
-.p-treetable-loading-overlay.p-component-overlay  {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-.layout-dark .p-treetable-loading.p-component-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+.p-treetable-loading-overlay.p-component-overlay {
+  background-color: var(--awe-grid-loading-overlay);
 }

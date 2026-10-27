@@ -152,6 +152,57 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
       expect($actionController.finishAction).toHaveBeenCalledWith("open", true);
     });
 
+    describe("keyboard and focus", () => {
+      let opener;
+
+      beforeEach(() => {
+        opener = document.createElement("button");
+        document.body.appendChild(opener);
+        opener.focus();
+      });
+
+      afterEach(() => {
+        $(".modal").modal("hide");
+        $(document.body).removeClass("modal-open");
+      });
+
+      // The dialog shown by Bootstrap, as the delayed modalChange of the opening does
+      const open = (extra = {}) => {
+        const element = compile("awe-dialog", {accept: false, acceptOnClose: false, openAction: "open", ...extra});
+        changeController(element, {opened: true});
+        refs.$rootScope.$broadcast("modalChange", true);
+        refs.$rootScope.$digest();
+        return element.find(hook(TestIds.dialog));
+      };
+      const pressEscape = () => document.activeElement.dispatchEvent(new window.KeyboardEvent("keydown",
+        {key: "Escape", keyCode: 27, which: 27, bubbles: true, cancelable: true}));
+
+      it("moves the focus into the dialog once it is shown", () => {
+        const dialog = open();
+
+        expect(document.activeElement).toBe(dialog.find(hook(TestIds.dialogClose))[0]);
+      });
+
+      it("closes with Escape as with its close button, and gives the focus back to the opener", () => {
+        open();
+
+        pressEscape();
+
+        expect($actionController.finishAction).toHaveBeenCalledWith("open", false);
+        expect(document.activeElement).toBe(opener);
+      });
+
+      it("does not close with Escape when it has no close button (no title)", () => {
+        const dialog = open({label: null});
+        expect(dialog[0].contains(document.activeElement)).toBe(true);
+
+        pressEscape();
+
+        expect(dialog.attr("data-open")).toBe("true");
+        expect($actionController.finishAction).not.toHaveBeenCalled();
+      });
+    });
+
     it("keeps its modal markup", () => {
       const dialog = compile("awe-dialog").find(hook(TestIds.dialog));
 

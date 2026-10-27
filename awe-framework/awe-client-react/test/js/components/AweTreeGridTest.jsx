@@ -316,6 +316,10 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     // The hook is the row itself, so a context menu or a click on the row reaches the grid, not only its first cell
     expect(Array.from(rows).map(row => row.tagName)).toEqual(["TR", "TR"]);
     expect(container.querySelectorAll("[tree-grid-id='grid'] [data-testid='grid-row'] [data-testid='grid-row']")).toHaveLength(0);
+
+    // Each level indents the toggle of its row by the size of a toggle
+    const toggles = Array.from(container.querySelectorAll("[tree-grid-id='grid'] .p-treetable-toggler"));
+    expect(toggles.map(toggle => toggle.style.marginLeft)).toEqual(["calc(0 * var(--awe-space-6))", "calc(1 * var(--awe-space-6))"]);
   });
 
   it('tells which row of the tree is selected', () => {
@@ -940,6 +944,8 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     const renderTree = (values, attributes) => renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState: treeState(values, attributes)});
     const rowIds = (container) => Array.from(container.querySelectorAll("[data-testid='grid-row']")).map(row => row.getAttribute("row-id"));
     const iconOf = (container, id) => container.querySelector(`[data-testid='tree-icon'][row-id='${id}'] i`);
+    // The Lucide icon of the sprite that the toggle draws (#885: the Font Awesome names resolve to Lucide)
+    const iconName = (container, id) => iconOf(container, id)?.querySelector("use")?.getAttribute("href")?.split("#")[1];
     const family = [
       {id: "Root", parent: "", name: "Root"},
       {id: "Child", parent: "Root", name: "Child"},
@@ -954,9 +960,9 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         {id: "Hidden", parent: "Closed", name: "Hidden"}
       ], {loadAll: true});
 
-      expect(iconOf(container, "Open")).toHaveClass("fa", "fa-minus-square");
-      expect(iconOf(container, "Closed")).toHaveClass("fa", "fa-plus-square");
-      expect(iconOf(container, "Leaf")).toHaveClass("fa", "fa-dot-circle-o");
+      expect(iconName(container, "Open")).toBe("square-minus");
+      expect(iconName(container, "Closed")).toBe("square-plus");
+      expect(iconName(container, "Leaf")).toBe("circle-dot");
     });
 
     it('shows the configured icon-expand, icon-collapse and icon-leaf', () => {
@@ -967,10 +973,10 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         {id: "Hidden", parent: "Closed", name: "Hidden"}
       ], {loadAll: true, iconExpand: "plus", iconCollapse: "minus", iconLeaf: "circle"});
 
-      expect(iconOf(container, "Open")).toHaveClass("fa-minus");
-      expect(iconOf(container, "Open")).not.toHaveClass("fa-minus-square");
-      expect(iconOf(container, "Closed")).toHaveClass("fa-plus");
-      expect(iconOf(container, "Leaf")).toHaveClass("fa-circle");
+      expect(iconName(container, "Open")).toBe("minus");
+      expect(iconName(container, "Open")).not.toBe("square-minus");
+      expect(iconName(container, "Closed")).toBe("plus");
+      expect(iconName(container, "Leaf")).toBe("circle");
     });
 
     it('uses the tree-leaf attribute to tell the leaves, parsing its value as a boolean', () => {
@@ -980,9 +986,9 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         {id: "C", parent: "", name: "C", isLeaf: false, mine: true}
       ], {treeLeaf: "mine"});
 
-      expect(iconOf(container, "A")).toHaveClass("fa-plus-square");
-      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
-      expect(iconOf(container, "C")).toHaveClass("fa-dot-circle-o");
+      expect(iconName(container, "A")).toBe("square-plus");
+      expect(iconName(container, "B")).toBe("circle-dot");
+      expect(iconName(container, "C")).toBe("circle-dot");
     });
 
     it('takes 1 and "1" as a leaf and 0 and "0" as a branch, like the AngularJS parseBoolean', () => {
@@ -993,10 +999,10 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         {id: "D", parent: "", name: "D", isLeaf: "0"}
       ]);
 
-      expect(iconOf(container, "A")).toHaveClass("fa-dot-circle-o");
-      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
-      expect(iconOf(container, "C")).toHaveClass("fa-plus-square");
-      expect(iconOf(container, "D")).toHaveClass("fa-plus-square");
+      expect(iconName(container, "A")).toBe("circle-dot");
+      expect(iconName(container, "B")).toBe("circle-dot");
+      expect(iconName(container, "C")).toBe("square-plus");
+      expect(iconName(container, "D")).toBe("square-plus");
     });
 
     it('does not take the string "false" of the default isLeaf field as a leaf', () => {
@@ -1005,16 +1011,16 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
         {id: "B", parent: "", name: "B", isLeaf: "true"}
       ]);
 
-      expect(iconOf(container, "A")).toHaveClass("fa-plus-square");
-      expect(iconOf(container, "B")).toHaveClass("fa-dot-circle-o");
+      expect(iconName(container, "A")).toBe("square-plus");
+      expect(iconName(container, "B")).toBe("circle-dot");
     });
 
     it('expands the loaded nodes above initial-level (level 0 are the roots): 2 opens the roots only', () => {
       const {container} = renderTree(family, {loadAll: true, initialLevel: 2});
 
       expect(rowIds(container)).toEqual(["Root", "Child"]);
-      expect(iconOf(container, "Root")).toHaveClass("fa-minus-square");
-      expect(iconOf(container, "Child")).toHaveClass("fa-plus-square");
+      expect(iconName(container, "Root")).toBe("square-minus");
+      expect(iconName(container, "Child")).toBe("square-plus");
     });
 
     it('expands two levels with initial-level 3 and nothing without it', () => {
@@ -1026,7 +1032,7 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     it('does not expand by initial-level a node whose children are not loaded', () => {
       const {container} = renderTree([{id: "Root", parent: "", name: "Root", isLeaf: false}], {initialLevel: 5});
 
-      expect(iconOf(container, "Root")).toHaveClass("fa-plus-square");
+      expect(iconName(container, "Root")).toBe("square-plus");
     });
 
     it('lets the expanded field of a row win over initial-level', () => {

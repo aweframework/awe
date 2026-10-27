@@ -6,6 +6,7 @@ import {
   formatMessage,
   generateMessageAction,
   getContextPath,
+  getIconCode,
   getRestUrl,
   getSizeString, translateLabel
 } from "../utilities";
@@ -93,7 +94,7 @@ function ColumnUploader(props) {
       <Button
         className={classNames("p-button-secondary", {"hidden": status !== UPLOADED})}
         type="button"
-        icon={"pi pi-times"}
+        icon={getIconCode("pi-times", "p-button-icon p-c")}
         label={""}
         onClick={onDelete}
         disabled={getFirstDefinedValue(cellReadonly, readonly, false)}

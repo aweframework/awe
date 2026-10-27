@@ -87,7 +87,7 @@ sola densidad.
 
 ## Forma {#shape}
 
-Escala de radios (Aura):
+Escala de radios:
 
 | Token | Valor | Uso |
 |-------|-------|-----|
@@ -149,17 +149,17 @@ que las pantallas actuales no cambian. Ejemplo:
 |---------------|--------|
 | `fa-search` | `search` |
 | `fa-plus` | `plus` |
-| `fa-trash` | `trash-2` |
+| `fa-trash` | `trash` |
 | `fa-pencil`, `fa-edit` | `pencil` |
 | `fa-floppy-o` | `save` |
-| `fa-filter` | `filter` |
+| `fa-filter` | `funnel` |
 | `fa-download` | `download` |
 | `fa-print` | `printer` |
 | `fa-times` | `x` |
 | `fa-cog` | `settings` |
 
-La tabla completa, la alternativa para nombres sin equivalencia y el tratamiento de los iconos `mdi-*` son trabajo de
-implementación.
+La página de [Iconos](../api/icons.md#equivalence-table) tiene la tabla completa, los nombres `mdi:`, los nombres que
+mantienen su fuente actual durante la transición y la familia `lucide:` para las pantallas nuevas.
 
 Reglas:
 

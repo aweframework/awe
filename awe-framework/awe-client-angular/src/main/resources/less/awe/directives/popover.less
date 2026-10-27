@@ -12,13 +12,13 @@
   flex-direction: column;
   width: max-content;
   min-width: 12rem;
-  max-height: calc(100vh - 16px);
-  // The panel text color is the one of the panel headers (white on a colored header in some themes)
+  max-height: calc(100vh - var(--awe-space-4));
+  // An overlay (#885), as the React popover. The text keeps the text colour (the overlay text colour is the same)
   color: var(--awe-color-text);
-  background-color: var(--awe-color-panel);
-  border: 1px solid var(--awe-color-panel-border);
-  border-radius: var(--awe-radius);
-  box-shadow: var(--awe-shadow-lg);
+  background-color: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
 
   &[hidden] {
     display: none;
@@ -31,7 +31,7 @@
   .awe-popover-header {
     flex: 0 0 auto;
     padding: var(--awe-space-sm) var(--awe-space-md);
-    border-bottom: 1px solid var(--awe-color-panel-border);
+    border-bottom: 1px solid var(--awe-color-overlay-border);
 
     .close {
       margin-left: var(--awe-space-sm);
@@ -41,7 +41,8 @@
   .awe-popover-title {
     margin: 0;
     font-size: var(--awe-font-size-base);
-    font-weight: var(--awe-font-weight-bold);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
   }
 
   .awe-popover-body {
@@ -57,6 +58,8 @@
     bottom: 0;
     margin-top: auto;
     padding: var(--awe-space-sm) var(--awe-space-md);
-    background-color: var(--awe-color-panel);
+    background-color: var(--awe-color-overlay);
+    border-top: 1px solid var(--awe-color-overlay-border);
+    border-radius: 0 0 var(--awe-radius-overlay) var(--awe-radius-overlay);
   }
 }

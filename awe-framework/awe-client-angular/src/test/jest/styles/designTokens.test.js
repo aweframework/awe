@@ -1,95 +1,92 @@
 import fs from "fs";
 import path from "path";
-import {compileStyles, LESS_DIR} from "./support/compileStyles";
-import {getOsDarkVariables, getRuleVariables, getThemeNames, getThemeSnapshot} from "./support/themeVariables";
+import {compileStyles, LESS_DIR, ROOT} from "./support/compileStyles";
+import {parseRules} from "./support/tokenRules";
 
-const BASELINE = JSON.parse(fs.readFileSync(path.join(__dirname, "support", "themes.baseline.json"), "utf8"));
-const DOCUMENTATION = path.join(__dirname, "../../../../../../website/docs/guides/design-tokens-guide.md");
+const SHARED_TOKENS = path.join(ROOT, "..", "awe-design-tokens", "tokens.css");
 
-const TOKEN_PREFIX = "--awe-";
-const TOKEN_SELECTOR = ":root, .base-theme";
-const OS_DARK_THEME_RULE = /prefers-color-scheme:\s*dark\)\s*\{\s*\.theme-[a-z-]+:not\(\.light\):not\(\.dark\)/;
-const TOKEN_GROUPS = ["color", "font-size", "font-family", "line-height", "font-weight", "space", "radius", "shadow", "size"];
+// The theme variables of the classic themes and of /css/themeVariables.css, replaced by the AWE 5 tokens (#885)
+const LEGACY_VARIABLES = ["theme-color", "text-color", "primary-color", "secondary-color", "primary-text-color",
+  "secondary-text-color", "primary-background-color", "secondary-background-color", "primary-menu-color",
+  "secondary-menu-color", "menu-text-color", "menu-color", "primary-navbar-color", "secondary-navbar-color",
+  "navbar-text-color", "navbar-dropdown-color", "primary-font-size", "secondary-font-size", "disabled-color",
+  "disabled-border-color", "disabled-text-color", "header-height", "panel-background-color", "panel-header-color",
+  "panel-border-color", "panel-text-color", "grid-header-color", "grid-border-color", "danger-color", "warning-color",
+  "success-color", "info-color", "border-color", "border-radius", "loading-bar-color", "required-color", "shadow-color",
+  "text-color-secondary"];
+
+// What a LESS variable of the engine (read by the Bootstrap 3 / pixel-admin rules and by the products) resolves to
+const LESS_VARIABLES = {
+  "@primary-color": "var(--awe-color-primary)",
+  "@primary-text-color": "var(--awe-color-on-primary)",
+  "@text-color": "var(--awe-color-text)",
+  "@primary-background-color": "var(--awe-color-background)",
+  "@secondary-background-color": "var(--awe-color-surface)",
+  "@panel-background-color": "var(--awe-color-panel)",
+  "@primary-menu-color": "var(--awe-color-menu)",
+  "@primary-navbar-color": "var(--awe-color-navbar)",
+  "@border-color": "var(--awe-color-border)",
+  "@border-radius": "var(--awe-radius)",
+  "@primary-font-size": "var(--awe-font-size-base)",
+  "@main-navbar-height": "var(--awe-size-header-height)",
+  "@danger-color": "var(--awe-color-danger)"
+};
+
+const read = file => fs.readFileSync(file, "utf8");
 
 describe("awe-framework/awe-client-angular/src/test/jest/styles/designTokens", () => {
   let css;
-  let tokens;
+  let engineCss;
 
   beforeAll(async () => {
     css = await compileStyles();
-    tokens = getRuleVariables(css, TOKEN_SELECTOR) || {};
+    // The stylesheet of the engine without the shared token file
+    engineCss = css.replace(read(SHARED_TOKENS).trim(), "");
   });
 
-  describe("theme variables (what the themes override)", () => {
-    it("keeps the 19 theme names", () => {
-      expect(getThemeNames(css).sort()).toEqual(Object.keys(BASELINE).sort());
-      expect(Object.keys(BASELINE)).toHaveLength(19);
+  describe("the AWE 5 tokens are the only theme (#885)", () => {
+    it("declares the --awe-* tokens only in the shared token file (no bridge of the engine)", () => {
+      expect(engineCss.match(/--awe-[a-z0-9-]+\s*:/g)).toBeNull();
     });
 
-    it("keeps the variables of every theme, light and dark, exactly as before the tokens", () => {
-      expect(getThemeSnapshot(css)).toEqual(BASELINE);
+    it("has no classic theme rule: the classic names are presets resolved by the server", () => {
+      expect(engineCss.match(/\.theme-[a-z-]+/g)).toBeNull();
     });
 
-    it.each(Object.keys(BASELINE))("applies the dark variables of %s when the OS prefers dark and the user did not choose", theme => {
-      expect(getOsDarkVariables(css, theme)).toEqual(BASELINE[theme].dark);
+    it("neither declares nor reads the theme variables of the classic themes", () => {
+      const legacy = LEGACY_VARIABLES.filter(name => new RegExp(`--${name}\\s*[:,)]`).test(engineCss));
+      expect(legacy).toEqual([]);
     });
 
-    it("does not apply the OS preference when the user chose the light mode or the dark mode", () => {
-      expect(css).toMatch(OS_DARK_THEME_RULE);
-      expect(css).not.toMatch(/prefers-color-scheme: dark\)\s*\{\s*\.theme-[a-z-]+\s*\{/);
-      expect(css).not.toMatch(/prefers-color-scheme: dark\)\s*\{\s*\.theme-[a-z-]+\.dark/);
-    });
-  });
-
-  describe("token layer (what the components and Tailwind read)", () => {
-    it("emits every token on the base theme, so each theme and each mode resolves its own values", () => {
-      const names = Object.keys(tokens).filter(name => name.startsWith(TOKEN_PREFIX));
-      expect(names.length).toBeGreaterThanOrEqual(50);
-      TOKEN_GROUPS.forEach(group => {
-        expect(names.some(name => name.startsWith(`${TOKEN_PREFIX}${group}-`))).toBe(true);
-      });
+    it("takes the colour mode of the tokens from <html>: the system one unless the user chose light or dark", () => {
+      const rules = parseRules(engineCss);
+      const colorScheme = selector => rules.find(rule => rule.selector === selector)?.declarations["color-scheme"];
+      expect(colorScheme(":root")).toBe("light dark");
+      expect(colorScheme(":root.light")).toBe("light");
+      expect(colorScheme(":root.dark")).toBe("dark");
     });
 
-    it("follows the theme variable that a theme, a database theme or a product overrides", () => {
-      expect(tokens["--awe-color-primary"]).toMatch(/var\(--primary-color/);
-      expect(tokens["--awe-color-text"]).toMatch(/var\(--text-color/);
-      expect(tokens["--awe-color-panel"]).toMatch(/var\(--panel-background-color/);
-      expect(tokens["--awe-color-border"]).toMatch(/var\(--border-color/);
-      expect(tokens["--awe-radius"]).toMatch(/var\(--border-radius/);
-      expect(tokens["--awe-font-size-base"]).toMatch(/var\(--primary-font-size/);
-    });
-
-    it("derives the radius, shadow and spacing scales from the base tokens", () => {
-      expect(tokens["--awe-radius-sm"]).toMatch(/var\(--awe-radius\)/);
-      expect(tokens["--awe-shadow-md"]).toMatch(/var\(--awe-color-shadow\)/);
-      expect(tokens["--awe-space-md"]).toBe("15px");
-    });
-
-    it("has a fallback on the document root for the elements outside the themed body", () => {
-      expect(getRuleVariables(css, TOKEN_SELECTOR)).not.toBeNull();
-    });
-
-    it("documents every token in the design tokens guide", () => {
-      const guide = fs.readFileSync(DOCUMENTATION, "utf8");
-      const undocumented = Object.keys(tokens)
-        .filter(name => name.startsWith(TOKEN_PREFIX))
-        .filter(name => !guide.includes(`\`${name}\``));
-      expect(undocumented).toEqual([]);
+    it("does not follow the operating system through theme media rules any more", () => {
+      expect(engineCss).not.toMatch(/prefers-color-scheme:\s*dark\)\s*\{\s*\.theme-/);
     });
   });
 
   describe("compatibility with the products", () => {
+    const compileWith = extra => compileStyles(`${read(path.join(LESS_DIR, "awe.less"))}\n${extra}\n`);
+
+    it.each(Object.entries(LESS_VARIABLES))("resolves the LESS variable %s to the token %s", async (name, token) => {
+      const product = await compileWith(`.product-check { color: ${name}; }`);
+      expect(product).toMatch(new RegExp(`\\.product-check\\s*\\{\\s*color:\\s*${token.replace(/[()]/g, "\\$&")};`));
+    });
+
     it("keeps compiling with the LESS variables of a product and uses them", async () => {
-      const source = fs.readFileSync(path.join(LESS_DIR, "awe.less"), "utf8");
-      const product = await compileStyles(`${source}\n@screen-small: 800px;\n@border-color: #123456;\n`);
+      const product = await compileWith("@screen-small: 800px;\n@border-color: #123456;");
       expect(product).toMatch(/#123456/);
     });
 
-    it("lets a product switch the OS preference off", async () => {
-      const source = fs.readFileSync(path.join(LESS_DIR, "awe.less"), "utf8");
-      const product = await compileStyles(`${source}\n@awe-follow-os-color-scheme: false;\n`);
-      expect(product).not.toMatch(OS_DARK_THEME_RULE);
-      expect(getThemeSnapshot(product)).toEqual(BASELINE);
+    it("keeps compiling when a product still sets the removed OS preference switch", async () => {
+      const product = await compileWith("@awe-follow-os-color-scheme: false;");
+      expect(product).toContain(read(SHARED_TOKENS).trim());
     });
   });
 });

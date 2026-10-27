@@ -147,9 +147,10 @@ aweApplication.factory("Screen",
             theme = model[view][target].selected;
           }
 
-          // If language has been received, update it
+          // If theme has been received, update it and read its appearance from the server
           if (theme) {
             $settings.update({theme: theme});
+            $settings.refreshAppearance();
           }
 
           // Finish screen action
@@ -157,15 +158,11 @@ aweApplication.factory("Screen",
         },
 
         /**
-         * Reload the theme variable css class
+         * A theme was updated: read the theme appearance of the session again from the server
          * @param {object} action Action received
          */
         updateTheme: function (action) {
-          // Reload themeVariable css
-          let queryString = '?reload=' + new Date().getTime();
-          $('link[rel="stylesheet"]#themeVariables').each(function () {
-            this.href = this.href.replace(/\?.*|$/, queryString);
-          });
+          $settings.refreshAppearance();
 
           // Finish screen action
           $actionController.acceptAction(action);

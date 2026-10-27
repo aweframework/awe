@@ -57,7 +57,7 @@ Actions retrieved by the application to execute a generic action. These actions 
 | `value`                    | Set a value to a criterion                                                                                                                    |
 | `wait`                     | Wait an amount of milliseconds defined on `target` attribute                                                                                  |
 | `close-window`             | Tries to close the current browser window (sometimes it'll ask to the user)                                                                   |
-| `update-theme`             | Reload the theme stylesheet to retrieve theme changes without reloading the screen                                                            |
+| `update-theme`             | Apply the theme settings (mode, primary colour, surface, density) to the page again without reloading the screen                              |
 | `get-file`                 | Download a file from the server. The file to retrieve is identified by the `filename` parameter                                               |
 | `change-menu`              | Replace the current menu options with the options received on the `options` parameter                                                        |
 

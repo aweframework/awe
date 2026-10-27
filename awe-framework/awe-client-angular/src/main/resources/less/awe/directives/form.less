@@ -1,56 +1,71 @@
 /*******************************************************************************
  FORM ATTRIBUTES
 *******************************************************************************/
+// The criterion icon, the checkbox and radio controls, the invalid state and the validation message of the AWE 5 design
+// system over the Bootstrap 3 / pixel-admin markup (#885)
 
-// CRITERIA ICONS
+// CRITERIA ICONS: inside the field, on its left, muted
 .form-group.w-icon {
   .form-icon {
-    border-right: 1px solid #888;
-    color: #888;
-    display: block;
-    font-size: 14px;
-    left: 0;
-    line-height: 26px;
     position: absolute;
-    text-align: center;
-    top: 3px;
-    width: 35px;
+    top: 0;
+    left: 0;
     z-index: 3;
-    .transition(opacity, ease-in-out, 0.3s);
-    .opacity(0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--awe-size-control);
+    height: var(--awe-size-control);
+    font-size: var(--awe-font-size-base);
+    line-height: 1;
+    color: var(--awe-color-field-icon);
+    border-right: 0;
+    pointer-events: none;
+
+    > .awe-icon {
+      width: var(--awe-size-icon);
+      height: var(--awe-size-icon);
+    }
   }
-  .input>input,
-  .input>textarea,
-  .input-group>input {
-    padding-left: 45px !important;
+  .form-icon.criterion-icon-sm {
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+  }
+  .form-icon.criterion-icon-lg {
+    width: var(--awe-size-control-lg);
+    height: var(--awe-size-control-lg);
+  }
+  .input > input,
+  .input > textarea,
+  .input-group > input {
+    padding-left: var(--awe-size-control) !important;
   }
   .select2-chosen {
-    padding-left: 30px !important;
+    padding-left: calc(var(--awe-size-control) - var(--awe-field-padding-x)) !important;
   }
   .select2-choices {
-    padding-left: 36px !important;
+    padding-left: var(--awe-size-control) !important;
   }
 
   .focused + .form-icon {
-    .opacity(1);
-  }
-
-  .form-icon.w-label {
-    /*top: 26px;*/
+    color: var(--awe-color-text);
   }
 
   .help-block {
-    margin-left: 34px;
+    margin-left: var(--awe-size-control);
   }
 }
-// Form group without icon
-.form-group {
-  .checkbox,
-  .radio {
-    margin-top: 3px;
-    margin-bottom: 3px;
-  }
 
+// CHECKBOX AND RADIO: the control and its label on one line at the height of the fields of the row
+.criterion .form-group .checkbox,
+.criterion .form-group .radio {
+  display: flex;
+  align-items: center;
+  min-height: var(--awe-size-control);
+  margin: 0;
+}
+
+.form-group {
   .checkbox > .lbl:extend(.text-normal) {
     cursor: pointer;
   }
@@ -59,20 +74,94 @@
   }
 }
 
-.gt-ie8 input.px+.lbl {
-  border-color: @border-color;
-  border-radius: @border-radius;
-  background: @panel-background-color;
+.gt-ie8 .form-group input.px + .lbl {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--awe-size-checkbox);
+  margin-left: 0;
+  padding-left: calc(var(--awe-size-checkbox) + var(--awe-space-2));
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text);
 }
 
-.gt-ie8 input.px+.lbl:before,
-.gt-ie8 input.px+.lbl:after {
-  margin-top: 1px !important;
-  cursor: pointer;
+.gt-ie8 .form-group input.px + .lbl:before {
+  top: 50%;
+  left: 0;
+  width: var(--awe-size-checkbox);
+  height: var(--awe-size-checkbox);
+  margin: 0 !important;
+  transform: translateY(-50%);
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  box-shadow: var(--awe-shadow-field);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 }
 
-.gt-ie8 input[type="radio"].px+.lbl:after {
-  background-color: @text-color;
+.gt-ie8 .form-group input.px + .lbl:after {
+  top: 50%;
+  margin: 0 !important;
+  transform: translateY(-50%);
+}
+
+.gt-ie8 .form-group input[type="checkbox"].px + .lbl:before {
+  border-radius: var(--awe-radius-sm);
+}
+
+.gt-ie8 .form-group input[type="radio"].px + .lbl:before {
+  border-radius: var(--awe-radius-full);
+}
+
+.gt-ie8 .form-group .checkbox:hover > input.px:not(:disabled) + .lbl:before,
+.gt-ie8 .form-group .radio:hover > input.px:not(:disabled) + .lbl:before {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.gt-ie8 .form-group input.px:checked + .lbl:before {
+  background: var(--awe-color-primary);
+  border-color: var(--awe-color-primary);
+}
+
+// The check mark of a checked checkbox and the dot of a checked radio
+.gt-ie8 .form-group input[type="checkbox"].px + .lbl:after {
+  left: 0;
+  width: var(--awe-size-checkbox);
+  height: var(--awe-size-checkbox);
+  font-family: inherit;
+  font-size: var(--awe-checkbox-icon-size);
+  line-height: var(--awe-size-checkbox);
+  color: var(--awe-color-on-primary);
+  content: "";
+  background: var(--awe-color-on-primary);
+  mask: @awe-check-mark center / var(--awe-checkbox-icon-size) no-repeat;
+}
+
+.gt-ie8 .form-group input[type="radio"].px + .lbl:after {
+  left: calc((var(--awe-size-checkbox) - var(--awe-radio-dot-size)) / 2);
+  width: var(--awe-radio-dot-size);
+  height: var(--awe-radio-dot-size);
+  background: var(--awe-color-on-primary);
+  border-radius: var(--awe-radius-full);
+}
+
+.gt-ie8 .form-group input.px:focus-visible + .lbl:before {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+// Read-only: pixel-admin draws the disabled box; the mark keeps its place in the disabled text colour
+.gt-ie8 .form-group input[type="checkbox"].px:disabled + .lbl:after {
+  color: var(--awe-color-disabled-text);
+  background: var(--awe-color-disabled-text) !important;
+  opacity: 1 !important;
+}
+
+.gt-ie8 .form-group input[type="radio"].px:disabled + .lbl:after {
+  opacity: 1 !important;
+}
+
+.gt-ie8 .form-group input.px:disabled + .lbl {
+  color: var(--awe-color-disabled-text);
 }
 
 .error-container {
@@ -81,7 +170,7 @@
   z-index: 1100;
   &.ng-hide-add,
   &.ng-hide-remove {
-    .transition(opacity, ease-in-out, 200ms);
+    transition: opacity var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
     display: block !important;
   }
 
@@ -96,26 +185,82 @@
   }
 }
 
-.required {
-  background-color: @required-color;
+@media (prefers-reduced-motion: reduce) {
+  .error-container.ng-hide-add,
+  .error-container.ng-hide-remove {
+    transition: none;
+  }
 }
 
-.select2-container.required {
+// VALIDATION: danger border and halo on the field, the label keeps its colour (as in React)
+.criterion.has-error {
+  .control-label {
+    color: var(--awe-color-field-label);
+  }
+
+  .checkbox,
+  .radio {
+    color: var(--awe-color-text);
+  }
+
+  .form-control,
   .select2-choice,
-  .select2-choices {
-    background-color: transparent;
+  .select2-choices,
+  .pixel-file-input {
+    border-color: var(--awe-color-field-border-invalid);
+  }
+
+  .form-control:focus,
+  .select2-container-active .select2-choice,
+  .select2-container-active .select2-choices {
+    border-color: var(--awe-color-danger);
+    box-shadow: var(--awe-shadow-field-invalid);
+  }
+
+  .form-control::placeholder {
+    color: var(--awe-color-field-placeholder-invalid);
+  }
+
+  .input-group-addon {
+    color: var(--awe-color-text-muted);
+    background-color: var(--awe-color-field);
+    border-color: var(--awe-color-field-border-invalid);
+  }
+
+  // pixel-admin draws the disabled box with !important; a checked box keeps its primary fill
+  .lbl:before {
+    border-color: var(--awe-color-field-border-invalid) !important;
   }
 }
 
-// VALIDATION
-.has-error {
-  .help-block {
-    .opacity(1);
-  }
-  .checkbox, .radio {
-    .lbl:before {
-      border:1px solid @danger-color !important;
-      background-color: color-mix(in srgb, @danger-color, @primary-background-color 80%) !important;
-    }
-  }
+// Validation message: shown under the invalid field (Validator.showValidationError), small, in the danger tone
+.error-container.has-error .help-block {
+  max-width: 20rem;
+  margin-top: var(--awe-gap-label);
+  padding: var(--awe-space-1-5) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-danger-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-danger-border);
+  border-radius: var(--awe-radius-md);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+.error-container.has-error .help-block:before {
+  border-bottom-color: var(--awe-color-danger-border);
+}
+
+.error-container.has-error .help-block:after {
+  border-bottom-color: var(--awe-color-overlay);
+}
+
+// Caps lock warning of the password criterion
+.criterion .has-warning .form-control {
+  border-color: var(--awe-color-warning);
+}
+
+.criterion .has-warning .form-control-feedback {
+  color: var(--awe-color-warning-text);
 }

@@ -1,3 +1,4 @@
+// Text view (grid column and criterion): a text that launches the actions of its column on click, drawn as plain text
 .text-view {
   all: unset;
   display: flex;
@@ -5,11 +6,18 @@
   width: 100%;
   > span {
     display: inline-flex;
-    margin: 0 5px;
+    margin: 0 var(--awe-space-1);
     flex: 0;
     align-self: center;
   }
   > span.text-view-text {
     flex: 1;
   }
+}
+
+// all: unset removes the focus outline of the button: the focus ring of the design system draws it again
+.text-view:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+  border-radius: var(--awe-radius-xs);
 }

@@ -28,7 +28,7 @@ Cómo leer las tablas:
 
 ### Nivel 1: paletas primitivas {#tier-1-primitive}
 
-Nombre: `--awe-palette-<paleta>-<tono>`. 22 paletas × 11 tonos = 242 tokens. Valores de Aura.
+Nombre: `--awe-palette-<paleta>-<tono>`. 22 paletas × 11 tonos = 242 tokens.
 
 | Paleta | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -448,7 +448,7 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 
 ### Nivel 3: componentes {#tier-3-component}
 
-**Grid, menú lateral, cabecera, control segmentado**
+**Grid, menú lateral, cabecera, capas superpuestas, control segmentado**
 
 | Token | Claro | Oscuro |
 |---|---|---|
@@ -461,8 +461,11 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-grid-row-hover-background` | `var(--awe-color-surface-subtle)` | = claro |
 | `--awe-grid-row-selected-background` | `var(--awe-color-highlight)` | = claro |
 | `--awe-grid-row-selected-text` | `var(--awe-color-text)` | = claro |
+| `--awe-grid-loading-overlay` | `color-mix(in srgb, var(--awe-color-surface) 50%, transparent)` | = claro |
 | `--awe-grid-cell-padding-y` | `11px` | = claro |
 | `--awe-grid-cell-padding-x` | `14px` | = claro |
+| `--awe-grid-row-marker-width` | `3px` | = claro |
+| `--awe-grid-min-body-height` | `12rem` | = claro |
 | `--awe-menu-width` | `var(--awe-size-menu-width)` | = claro |
 | `--awe-menu-width-collapsed` | `68px` | = claro |
 | `--awe-menu-background` | `var(--awe-color-menu)` | = claro |
@@ -488,8 +491,11 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-header-height` | `var(--awe-size-header-height)` | = claro |
 | `--awe-header-background` | `color-mix(in srgb, var(--awe-color-navbar), transparent 15%)` | = claro |
 | `--awe-header-border` | `var(--awe-color-border)` | = claro |
+| `--awe-header-backdrop-filter` | `saturate(1.4) blur(10px)` | = claro |
 | `--awe-header-search-width` | `380px` | = claro |
 | `--awe-header-logo-height` | `34px` | = claro |
+| `--awe-mask-backdrop-filter` | `blur(2px)` | = claro |
+| `--awe-toast-backdrop-filter` | `blur(8px)` | = claro |
 | `--awe-segmented-track` | `var(--awe-surface-100)` | `var(--awe-surface-950)` |
 | `--awe-segmented-border` | `var(--awe-surface-200)` | `var(--awe-surface-700)` |
 | `--awe-segmented-text` | `var(--awe-surface-600)` | `var(--awe-surface-300)` |
@@ -497,6 +503,11 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-segmented-selected` | `var(--awe-surface-0)` | `var(--awe-surface-700)` |
 | `--awe-segmented-selected-border` | `var(--awe-surface-500)` | = claro |
 | `--awe-segmented-selected-text` | `var(--awe-surface-900)` | `var(--awe-surface-0)` |
+| `--awe-checkbox-icon-size` | `12px` | = claro |
+| `--awe-radio-dot-size` | `8px` | = claro |
+| `--awe-switch-width` | `36px` | = claro |
+| `--awe-switch-height` | `20px` | = claro |
+| `--awe-switch-handle-size` | `16px` | = claro |
 
 **Página de login**
 
@@ -529,6 +540,41 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-customer-logo-muted` | `var(--awe-palette-slate-500)` | `var(--awe-palette-slate-400)` |
 
 
+## Fichero de tokens de los motores {#token-file-of-the-engines}
+
+Los dos motores cargan un único fichero, `awe-framework/awe-design-tokens/tokens.css`: el motor AngularJS lo incluye
+en su hoja de estilos (`less/awe.less`) y el motor React lo importa desde `src/main.css`. Contiene todos los tokens
+del prototipo salvo los exclusivos del prototipo, con los mismos valores; las pruebas de tokens de los dos motores lo
+comprueban. Deja fuera la fuente Inter y las reglas del modo de color (`color-scheme`). La fuente tiene su propio fichero
+compartido, `awe-framework/awe-design-tokens/fonts/inter.css`, junto a la fuente y su licencia SIL Open Font License;
+el motor React lo importa desde `src/main.css` y publica la licencia con la fuente (`fonts/` del paquete). Cada motor
+fija el modo (`color-scheme: light dark`, o `light` / `dark` con la clase de `<html>`): el motor React en
+`src/main.css` y el motor AngularJS en `less/awe/tokens.less`. El motor AngularJS mantiene su fuente actual hasta que
+cargue Inter.
+
+Ningún motor declara tokens propios. El motor AngularJS no tiene temas clásicos, ni `/css/themeVariables.css`, ni
+puente de nombres: sus variables LESS (`@primary-color`...) leen los tokens, así que sus reglas de Bootstrap 3 y
+pixel-admin siguen a los atributos de `<html>`. Los componentes de PrimeReact del motor React leen los tokens a través
+del tema AWE de PrimeReact.
+
+La página de error del servidor (`templates/error.html` de `awe-generic-screens`), común a los dos motores, enlaza una
+copia del mismo fichero que `awe-generic-screens` publica como `css/awe-design-tokens/tokens.css`. La página no tiene
+atributos en `<html>`: fija `color-scheme: light dark`, así que sigue el modo de color del sistema con las paletas por
+defecto.
+
+### Tema AWE de PrimeReact {#primereact-theme}
+
+El motor React carga un único tema para PrimeReact 10, generado a partir de los tokens en cada compilación; sustituye a
+`saga-blue` y a los 18 temas compilados, y el nombre del tema solo elige el preset de los atributos de `<html>`.
+`awe-framework/awe-design-tokens/primereact/primereact-theme.cjs` lee el tema Lara claro del `primereact` fijado
+(10.9.9, MIT) solo por sus selectores y sustituye cada color, tamaño y peso de letra, espaciado, tamaño, radio, sombra,
+anillo de foco y transición por un token `--awe-*`, mediante la tabla de equivalencias `primereact-theme.json` que está
+a su lado. Los valores siguen el preset Aura de `@primeuix/themes` 2.0.3 (MIT, solo como valores de referencia), como
+hace el prototipo. Un valor de Lara que la tabla no traduce, o un token que el fichero de tokens no declara, hace fallar
+la compilación, de modo que una actualización de PrimeReact no puede traer su propio aspecto. `primeReactThemeTest.js`
+comprueba el resultado: ningún color ni medida literal, solo tokens del fichero de tokens y las reglas de cada
+componente de PrimeReact que usa el motor.
+
 ## Correspondencia con los tokens actuales {#mapping-from-the-current-tokens}
 
 Qué ocurre con los tokens y las variables de tema de AWE 4 y de la rama actual de AWE 5. Los tokens actuales están
@@ -536,7 +582,8 @@ documentados en [Design tokens](../guides/design-tokens-guide.md).
 
 ### Tokens actuales del motor AngularJS {#mapping-angular}
 
-Los 56 tokens de `tokens.less`. **Ninguno se elimina ni cambia de nombre**; algunos cambian de valor o de significado.
+Los 56 tokens que `tokens.less` declaraba hasta que el motor AngularJS adoptó los valores de AWE 5. **Ninguno se
+elimina ni cambia de nombre**; algunos cambian de valor o de significado.
 
 | Token | AWE 5 | Nota |
 |---|---|---|
@@ -591,17 +638,17 @@ Los 56 tokens de `tokens.less`. **Ninguno se elimina ni cambia de nombre**; algu
 | `--awe-radius-sm` | Se mantiene, valor nuevo | 4px fijo (antes la mitad del radio). |
 | `--awe-radius-lg` | Se mantiene, valor nuevo | 8px fijo (antes el doble del radio). |
 | `--awe-radius-full` | Se mantiene |  |
-| `--awe-shadow-sm` | Se mantiene, valor nuevo | Sombra de Aura. |
-| `--awe-shadow-md` | Se mantiene, valor nuevo | Sombra de Aura. |
-| `--awe-shadow-lg` | Se mantiene, valor nuevo | Sombra de Aura. |
+| `--awe-shadow-sm` | Se mantiene, valor nuevo | Nueva escala de sombras. |
+| `--awe-shadow-md` | Se mantiene, valor nuevo | Nueva escala de sombras. |
+| `--awe-shadow-lg` | Se mantiene, valor nuevo | Nueva escala de sombras. |
 | `--awe-size-header-height` | Se mantiene, valor nuevo | 60px; 52px en compacta. |
 | `--awe-size-menu-width` | Se mantiene, valor nuevo | 264px; 240px en compacta. |
 
 ### Tokens actuales del motor React {#mapping-react}
 
-Los 15 tokens de `awe-client-react/src/main.css` leen hoy variables de PrimeReact. En AWE 5 se declaran en el fichero de tokens común y el tema de PrimeReact 10 lee los tokens (al revés que hoy).
+Los 15 tokens que declaraba `awe-client-react/src/main.css` leían variables de PrimeReact. Ahora solo los declara el fichero de tokens común y el [tema AWE de PrimeReact](#primereact-theme) lee los tokens (al revés que antes).
 
-| Token | Hoy lee | AWE 5 |
+| Token | Leía | AWE 5 |
 |---|---|---|
 | `--awe-color-primary` | `--primary-color` | Se mantiene |
 | `--awe-color-on-primary` | `--primary-color-text` | Se mantiene |
@@ -621,9 +668,9 @@ Los 15 tokens de `awe-client-react/src/main.css` leen hoy variables de PrimeReac
 
 ### Variables de tema y temas de base de datos {#mapping-themes}
 
-Las variables de tema de AngularJS (temas LESS) y los campos de los temas de base de datos (`Theme.java`, tabla `AweThm`, servidos en `/css/themeVariables.css`) tienen los mismos nombres. En AWE 5 **ninguno se configura**: un tema es primario + superficie y el resto se deriva.
+Las variables de tema de AngularJS (temas LESS) y los campos de color de los temas de base de datos (tabla `AweThmCol`, servidos por AWE 4 en `/css/themeVariables.css`, eliminado en AWE 5) tienen los mismos nombres. En AWE 5 **ninguno se configura**: un tema es primario + superficie y el resto se deriva.
 
-| Campo de `Theme` | Variable de tema | AWE 5 | Estado |
+| Campo de `AweThmCol` | Variable de tema | AWE 5 | Estado |
 |---|---|---|---|
 | `themeColor` | `--theme-color` | `--awe-color-theme` → `--awe-color-primary` | Eliminado: derivado |
 | `textColor` | `--text-color` | `--awe-color-text` | Eliminado: derivado |
@@ -662,6 +709,14 @@ Las variables de tema de AngularJS (temas LESS) y los campos de los temas de bas
 | `requiredColor` | `--required-color` | `--awe-color-required` | Eliminado: derivado |
 | `dark` |  | `light-dark()` en cada token | Sustituido por el modo |
 
-Nuevo en el tema de AWE 5: paleta de superficie (`data-awe-surface`) y, opcionalmente, modo y densidad por defecto. La migración de los datos de `AweThm` es trabajo de implementación (pendiente).
+Nuevo en el tema de AWE 5: paleta de superficie (`data-awe-surface`) y, opcionalmente, modo y densidad por defecto.
 
-Las hojas `theme.css` compiladas de PrimeReact que elige hoy el cliente React se sustituyen por **un** `theme.css` de PrimeReact 10 que lee los tokens.
+La migración de Flyway `AWE_V1.5.0` (en las 6 bases de datos) añade las columnas `Pri` (primario), `Srf` (superficie) y `Mde` (modo) a `AweThm` y `HISAweThm`, y `density` a `AweUsrSet`. Después rellena los temas:
+
+1. Los nombres de tema clásicos toman su [preset](color-and-themes.md#presets-of-the-classic-themes).
+2. Un tema con un juego de colores claro en `AweThmCol` toma su `primaryColor` cuando es un hex (`#RGB` o `#RRGGBB`).
+3. Cada valor que sigue vacío toma el valor por defecto: `emerald`, `auto` y `system`.
+
+No se borra nada: `AweThmCol` se conserva tal cual, sin uso, y se elimina en una versión posterior. La densidad del usuario queda vacía (la densidad de la aplicación) hasta que el usuario elige una.
+
+El cliente React ya no carga las hojas `theme.css` compiladas de PrimeReact (`saga-blue` y los 18 temas clásicos): incluye **un** [tema AWE de PrimeReact](#primereact-theme) que lee los tokens.

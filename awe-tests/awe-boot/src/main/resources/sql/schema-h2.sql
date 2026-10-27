@@ -29,7 +29,10 @@ CREATE TABLE IF NOT EXISTS AweThm
     IdeThm int
         CONSTRAINT pk_AweThm PRIMARY KEY NOT NULL, --  Theme key
     Nam    varchar(100)                  not NULL, --  Theme name
-    Act    int default 1                 not NULL  --  Active (1) or not (0)
+    Act    int default 1                 not NULL, --  Active (1) or not (0)
+    Pri    varchar(20)                       NULL, --  Primary colour
+    Srf    varchar(20)                       NULL, --  Surface
+    Mde    varchar(10)                       NULL  --  Mode
 );
 CREATE UNIQUE INDEX IF NOT EXISTS AweThmI1 ON AweThm (Nam);
 
@@ -295,7 +298,10 @@ CREATE TABLE IF NOT EXISTS HISAweThm
     HISact varchar(1)   not NULL,
     IdeThm int          NULL,
     Nam    varchar(100) NULL,
-    Act    int          NULL
+    Act    int          NULL,
+    Pri    varchar(20)  NULL,
+    Srf    varchar(20)  NULL,
+    Mde    varchar(10)  NULL
 );
 CREATE INDEX IF NOT EXISTS HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAwePro

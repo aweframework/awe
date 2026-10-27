@@ -29,17 +29,104 @@
   }
 }
 
-.tab-container {
-  .nav-tabs {
-    > li > a {
-      cursor: pointer;
-    }
-    &.disabled > li > a {
-      cursor: not-allowed;
-      .opacity(.6);
-    }
+// Tabs of the AWE 5 design system (#885): an underlined tab list, the selected tab in the primary text with its
+// underline, as the prototype and the React tabs
+.tab-container .nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  // bootstrap-tabdrop moves into its menu every tab whose offsetTop is not 0: the tabs of a row stretch to its height
+  // (the toggle of tabdrop, an icon, may be taller than a text tab), so only the wrapped ones move
+  align-items: stretch;
+  gap: var(--awe-space-3);
+  margin: 0;
+  border-bottom: 1px solid var(--awe-color-border);
+
+  &:before,
+  &:after {
+    display: none;
   }
 
+  > li {
+    display: flex;
+    float: none;
+    margin: 0;
+  }
+
+  // The tabdrop toggle is prepended to the list: it shows at its end
+  > li.tabdrop {
+    order: 1;
+  }
+
+  > li > a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-2);
+    padding: var(--awe-space-3) var(--awe-space-2);
+    margin: 0 0 -1px;
+    font-weight: var(--awe-font-weight-medium);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+  }
+
+  > li > a:hover,
+  > li > a:focus {
+    color: var(--awe-color-text-hover);
+    background: transparent;
+    border-color: transparent;
+  }
+
+  > li > a:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(-1 * var(--awe-focus-ring-width));
+  }
+
+  > li.active:not(.maximize-handler) > a,
+  > li.active:not(.maximize-handler) > a:hover,
+  > li.active:not(.maximize-handler) > a:focus {
+    color: var(--awe-color-primary-text);
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--awe-color-primary-text);
+    border-bottom-color: var(--awe-color-primary-text);
+  }
+
+  > li > a .panel-title-icon {
+    display: inline-flex;
+  }
+
+  > li > a .panel-title-icon > .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+
+  // The maximize button sits at the end of the list
+  > li.maximize-handler {
+    margin-left: auto;
+  }
+
+  > li.maximize-handler > a,
+  > li.maximize-handler > a:hover,
+  > li.maximize-handler > a:focus {
+    padding: var(--awe-space-1) 0;
+    background: transparent;
+    border: 0;
+  }
+
+  &.disabled > li > a {
+    cursor: not-allowed;
+    opacity: var(--awe-opacity-disabled);
+  }
+}
+
+.tab-container {
   /* Animation styles */
   &.resizeAnimation {
     position: absolute;
@@ -48,50 +135,44 @@
       z-index: 1049;
     }
     margin: 0;
-    //.opacity(0.8);
 
     .maximize-content {
-      background: white;
+      background: var(--awe-color-surface);
       .panel-bordered;
     }
   }
 
-  .maximize-handler > a {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    margin-right: 0;
+  .tab-content {
+    padding-top: var(--awe-layout-gap);
   }
 }
 
 .tab-container-sm {
-  margin: @panel-margin-sm;
-  margin-top: 0;
+  margin: 0 0 var(--awe-layout-gap);
   .nav-tabs > li > a {
-    padding: 5px 20px;
-    font-size: @font-size-small;
+    padding: var(--awe-space-2) var(--awe-space-1-5);
+    font-size: var(--awe-font-size-sm);
   }
 }
 
 .tab-container-md {
-  margin: @panel-margin-md;
-  margin-top: 0;
+  margin: 0 0 var(--awe-layout-gap);
 }
 
 .tab-container-lg {
-  margin: @panel-margin-lg;
-  margin-top: 0;
+  margin: 0 0 var(--awe-layout-gap);
   .nav-tabs > li > a {
-    padding: 10px 20px;
-    font-size: @font-size-large;
+    padding: var(--awe-space-4) var(--awe-space-3);
+    font-size: var(--awe-font-size-md);
   }
 }
 // A tab that holds fields which failed the validation
 .nav-tabs > li.tab-invalid > a {
-  color: @danger-color;
+  color: var(--awe-color-danger-text);
 
   &::after {
     content: "!";
-    margin-left: 5px;
-    font-weight: bold;
+    margin-left: var(--awe-space-1);
+    font-weight: var(--awe-font-weight-bold);
   }
 }

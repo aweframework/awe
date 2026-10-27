@@ -438,6 +438,19 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Theme service
+   *
+   * @param queryService         Query service
+   * @param baseConfigProperties Base configuration properties
+   * @return Theme service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ThemeService themeService(QueryService queryService, BaseConfigProperties baseConfigProperties) {
+    return new ThemeService(queryService, baseConfigProperties);
+  }
+
+  /**
    * Favourite service
    *
    * @param queryService    Query service

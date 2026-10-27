@@ -56,7 +56,7 @@ describe("awe-react-client/test/js/components/AweGridEmptyStateTest.jsx", () => 
     const empty = container.querySelector(EMPTY);
     expect(empty.querySelector(hook("grid-empty-title")).textContent).toBe("MY_TITLE");
     expect(empty.querySelector(hook("grid-empty-text")).textContent).toBe("MY_TEXT");
-    expect(empty.querySelector("i.fa-filter")).not.toBeNull();
+    expect(empty.querySelector("i.grid-empty-icon > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#funnel");
   });
 
   it("does not show the empty state when the grid has rows", () => {
@@ -84,7 +84,7 @@ describe("awe-react-client/test/js/components/AweGridEmptyStateTest.jsx", () => 
 
     const action = container.querySelector(EMPTY).querySelector(hook("grid-empty-action"));
     expect(action.textContent).toBe("BUTTON_CLEAR");
-    expect(action.querySelector("i.fa-eraser")).not.toBeNull();
+    expect(action.querySelector("i.p-button-icon > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#eraser");
     fireEvent.click(action);
 
     expect(onClick).toHaveBeenCalledTimes(1);

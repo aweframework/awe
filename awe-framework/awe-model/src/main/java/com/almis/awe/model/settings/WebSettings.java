@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Map;
+
 /**
  * WebSettings component
  *
@@ -22,6 +24,12 @@ public class WebSettings {
   private String initialURL;
   private String language;
   private String theme;
+  // AWE 5 theme appearance
+  private String themePrimary;
+  private String themeSurface;
+  private String themeMode;
+  private String density;
+  private Map<String, String> themePalette;
   private String charset;
   private String applicationName;
   private String dataSuffix;

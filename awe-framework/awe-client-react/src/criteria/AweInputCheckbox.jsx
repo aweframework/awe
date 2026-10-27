@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {Checkbox} from "primereact/checkbox";
 import {classNames} from "../utilities/components";
 import {InputSwitch} from "primereact/inputswitch";
-import {translateLabel} from "../utilities";
+import {getIconNode, translateLabel} from "../utilities";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
 import PropTypes from "prop-types";
@@ -36,7 +36,7 @@ function AweInputCheckbox(props) {
             className={classes}
             pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
           />
-          <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
+          <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && getIconNode("pi-question-circle", {role: "icon", className: "help-icon"})}{translateLabel(label, t)}</label>
         </div>
       </AweCriterion>
     );
@@ -55,7 +55,7 @@ function AweInputCheckbox(props) {
           className={classes}
           pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
         />
-        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && <i role="icon" className="help-icon pi pi-question-circle" />}{translateLabel(label, t)}</label>
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && getIconNode("pi-question-circle", {role: "icon", className: "help-icon"})}{translateLabel(label, t)}</label>
       </div>
     </AweCriterion>
   );

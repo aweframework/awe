@@ -8,7 +8,8 @@ module.exports = merge(common, {
     splitChunks: {
       cacheGroups: {
         primereact: {
-          test: /[\\/]node_modules[\\/]/,
+          // The AWE theme of PrimeReact stays in css/main.css, the stylesheet the applications import
+          test: /[\\/]node_modules[\\/](?!primereact[\\/]resources[\\/]themes[\\/])/,
           name: "primereact",
           chunks: "all",
           enforce: true,

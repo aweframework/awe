@@ -1,9 +1,17 @@
 //
 // Menu commons
 // --------------------------------------------------
+// The main menu of the AWE 5 shell (#885), on par with the React side menu: option > sub-option > sub-sub-option, the
+// nested levels indented by their list with a guide line per level, the current option highlighted and its ancestors
+// (the trail) emphasised. pixel-admin keeps the geometry of each layout (menu-vertical.less, menu-horizontal.less)
 
+// Floating levels (dropdowns and flyouts) are overlays; the menu itself has no shadow
 .menu-shadow {
-  box-shadow: 0 2px 2px rgba(0,0,0,.05),0 1px 0 rgba(0,0,0,.05);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+#main-menu.menu-shadow {
+  box-shadow: none;
 }
 
 #main-menu {
@@ -17,6 +25,167 @@
     overflow: visible !important;
     .no-transition;
   }
+}
+
+// Option: icon + label (+ chevron when it has children) in a rounded row
+#main-menu ul.navigation li > a {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-nav-item-gap);
+  min-height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-menu-item-text);
+  text-decoration: none;
+  border-radius: var(--awe-menu-item-radius);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+#main-menu ul.navigation > li > a {
+  font-weight: var(--awe-font-weight-medium);
+}
+
+#main-menu ul.navigation .menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--awe-size-icon);
+  height: var(--awe-size-icon);
+  margin: 0;
+  color: var(--awe-menu-item-icon);
+}
+
+// The Lucide SVG fills its box: inline, it would sit on the text baseline below the centre line of the row
+#main-menu ul.navigation .menu-icon > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#main-menu ul.navigation .mm-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// The chevron of an option with children: the last item of the row (pixel-admin places it absolutely)
+#main-menu ul.navigation .mm-dropdown > a:before {
+  position: static;
+  order: 1;
+  flex: none;
+  margin-left: auto;
+  color: var(--awe-menu-item-icon);
+}
+
+// Nested levels: no icon offset, indented by their list (pixel-admin indents each level with the left padding of its
+// links, so every depth it styles is reset here)
+#main-menu ul.navigation .mm-dropdown > ul > li > a,
+#main-menu ul.navigation .mm-dropdown > ul > .mm-dropdown > ul > li > a,
+#main-menu ul.navigation .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > li > a,
+#main-menu ul.navigation .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > li > a,
+#main-menu ul.navigation .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > .mm-dropdown > ul > li > a {
+  padding: var(--awe-nav-item-padding);
+}
+
+#main-menu ul.navigation .mm-dropdown > ul {
+  padding: 0 0 var(--awe-space-1) var(--awe-menu-indent);
+  background: none;
+}
+
+#main-menu ul.navigation .mm-dropdown > ul .mm-dropdown > ul {
+  padding-left: var(--awe-menu-indent-l3);
+}
+
+#main-menu ul.navigation .mm-dropdown > ul > li {
+  position: relative;
+}
+
+// A guide line per level, on the left of its options
+#main-menu ul.navigation .mm-dropdown > ul > li::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--awe-menu-guide-l2) - var(--awe-menu-indent));
+  width: 1px;
+  content: "";
+  background: var(--awe-menu-guide);
+}
+
+#main-menu ul.navigation .mm-dropdown > ul .mm-dropdown > ul > li::before {
+  left: calc(var(--awe-menu-guide-l3) - var(--awe-menu-indent-l3));
+}
+
+// Levels 2 and 3 are smaller in weight and muted
+#main-menu ul.navigation .mm-dropdown > ul a {
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-menu-item-sub-text);
+}
+
+#main-menu ul.navigation .mm-dropdown > ul .mm-dropdown > ul a {
+  font-size: var(--awe-font-size-sm);
+}
+
+// States: hover, keyboard focus, the trail (every ancestor of the current option) and the current option
+#main-menu ul.navigation li > a:hover {
+  color: var(--awe-color-nav-item-text-active);
+  background: var(--awe-menu-item-hover-background);
+}
+
+#main-menu ul.navigation li > a:hover .menu-icon {
+  color: var(--awe-color-nav-item-icon-active);
+}
+
+#main-menu ul.navigation li > a:focus-visible {
+  box-shadow: inset 0 0 0 var(--awe-focus-ring-width) var(--awe-color-focus-ring);
+}
+
+#main-menu ul.navigation li.mm-dropdown:has(li.active) > a {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+#main-menu ul.navigation li.mm-dropdown:has(li.active) > a .menu-icon {
+  color: var(--awe-menu-item-active-icon);
+}
+
+#main-menu ul.navigation li.active > a,
+#main-menu ul.navigation li.active > a:hover {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-menu-item-active-text);
+  background: var(--awe-menu-item-active-background);
+}
+
+#main-menu ul.navigation li.active > a .menu-icon {
+  color: var(--awe-menu-item-active-icon);
+}
+
+// Flyout of the collapsed vertical menu: an overlay with the levels of the option, no indent nor guide at its level
+#main-menu ul.navigation .mm-dropdown > ul.mmc-dropdown-open-ul {
+  padding: var(--awe-list-padding);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+#main-menu ul.navigation .mm-dropdown > ul.mmc-dropdown-open-ul > li::before {
+  display: none;
+}
+
+// The title of the flyout: small uppercase muted text, as a section label
+#main-menu .mmc-dropdown-open-ul > .mmc-title {
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-1-5);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-menu-section-label);
+  text-transform: uppercase;
 }
 
 .size-sm {

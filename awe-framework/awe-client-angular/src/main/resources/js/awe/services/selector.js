@@ -2,6 +2,7 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiSelect";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 import {
   ensureSuggestVisibleOptions,
   filterSuggestModel as normalizeSuggestSelection,
@@ -29,7 +30,7 @@ export const templateSelector =
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">

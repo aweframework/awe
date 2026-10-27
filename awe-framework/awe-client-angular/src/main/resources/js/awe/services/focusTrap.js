@@ -88,12 +88,14 @@ const focusContainer = container => {
 
 /**
  * Keep the keyboard focus inside a container while it is active (a side panel), and give it back to the control which
- * had it when the trap was activated. Tab and Shift+Tab cycle through the focusable controls of the container.
+ * had it when the trap was activated. Tab and Shift+Tab cycle through the focusable controls of the container, unless
+ * trapTab is false (only the focus moved in and given back).
  *
  * @param {function(): HTMLElement} getContainer Returns the container element
+ * @param {{trapTab: boolean}} [options] Options
  * @returns {{activate: function, focusFirst: function, deactivate: function}} Focus trap
  */
-export function createFocusTrap(getContainer) {
+export function createFocusTrap(getContainer, {trapTab = true} = {}) {
   trackFocus();
   let opener = null;
   let active = false;
@@ -130,7 +132,9 @@ export function createFocusTrap(getContainer) {
       if (!active) {
         active = true;
         opener = getOpener();
-        document.addEventListener("keydown", onKeyDown, true);
+        if (trapTab) {
+          document.addEventListener("keydown", onKeyDown, true);
+        }
       }
     },
     /**

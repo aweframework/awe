@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useComponentState } from "../hooks/useComponentState";
 import AweGridColumnsDialog from "./AweGridColumnsDialog";
 import { TestIds, testHook } from "../utilities/testIds";
+import { getIconNode } from "../utilities";
 
 /**
  * Toolbar of a grid: the Columns dialog and the Maximize toggle. A grid opts out with show-toolbar="false".
@@ -22,15 +23,15 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize }) {
 
   const maximizeLabel = t(iconMaximized ? "SCREEN_TEXT_RESTORE" : "SCREEN_TEXT_MAXIMIZE");
   return <div className="grid-toolbar" {...testHook(TestIds.gridToolbar, { owner: address.component, maximized: !!maximized })}>
-    <button type="button" className="p-button p-component p-button-text p-button-sm grid-toolbar-button"
+    <button type="button" className="p-button p-component p-button-outlined p-button-sm grid-toolbar-button"
       title={t("GRID_COLUMNS_TITLE")} onClick={() => setColumnsOpen(true)}
       {...testHook(TestIds.gridColumnsButton)}>
-      <i className="pi pi-table" /> <span className="p-button-label">{t("GRID_COLUMNS_BUTTON")}</span>
+      {getIconNode("pi-table")} <span className="p-button-label">{t("GRID_COLUMNS_BUTTON")}</span>
     </button>
-    <button type="button" className="p-button p-component p-button-text p-button-sm grid-toolbar-button"
+    <button type="button" className="p-button p-component p-button-outlined p-button-sm grid-toolbar-button"
       title={maximizeLabel} aria-pressed={!!maximized} onClick={onToggleMaximize}
       {...testHook(TestIds.gridMaximizeButton, { attributes: { "aria-label": maximizeLabel } })}>
-      <i className={`pi ${iconMaximized ? "pi-window-minimize" : "pi-window-maximize"}`} />
+      {getIconNode(iconMaximized ? "pi-window-minimize" : "pi-window-maximize")}
       <span className="p-button-label">{maximizeLabel}</span>
     </button>
     {columnsOpen && <AweGridColumnsDialog address={address} attributes={attributes} visible

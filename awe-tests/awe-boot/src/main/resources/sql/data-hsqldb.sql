@@ -93,6 +93,26 @@ Insert into AweThm (IdeThm, Nam, Act) values ('15','asphalt','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('16','orange','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('17','sea','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('18','ferrari','1');
+-- Theme presets: primary colour, surface and mode of the classic themes
+UPDATE AweThm SET Pri = 'sky',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'default';
+UPDATE AweThm SET Pri = 'teal',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'asphalt';
+UPDATE AweThm SET Pri = 'violet',  Srf = 'auto',  Mde = 'system' WHERE Nam = 'purple-hills';
+UPDATE AweThm SET Pri = '#948787', Srf = 'stone', Mde = 'system' WHERE Nam = 'dust';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'slate', Mde = 'system' WHERE Nam = 'frost';
+UPDATE AweThm SET Pri = 'lime',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'fresh';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'silver';
+UPDATE AweThm SET Pri = 'emerald', Srf = 'auto',  Mde = 'system' WHERE Nam = 'clean';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'white';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'adminflare';
+UPDATE AweThm SET Pri = 'red',     Srf = 'stone', Mde = 'system' WHERE Nam = 'orange';
+UPDATE AweThm SET Pri = 'red',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'sunset';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'grass';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'sky';
+UPDATE AweThm SET Pri = 'sky',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'eclipse';
+UPDATE AweThm SET Pri = 'yellow',  Srf = 'auto',  Mde = 'system' WHERE Nam = 'sunny';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'slate', Mde = 'system' WHERE Nam = 'sea';
+UPDATE AweThm SET Pri = 'red',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'ferrari';
+UPDATE AweThm SET Pri = '#948787', Srf = 'stone', Mde = 'system' WHERE Nam = 'amazonia';
 -- Update ThmKey
 UPDATE AweKey SET KeyVal = '19' where KeyNam = 'ThmKey';
 

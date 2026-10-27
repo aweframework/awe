@@ -6,12 +6,13 @@ import "./WindowTemplate.css";
 import {useMenuBreadcrumbs} from "../hooks/useMenuRegistry";
 import PropTypes from "prop-types";
 import {TestIds, testHook} from "../utilities/testIds";
+import {getIconCode} from "../utilities";
 
 function WindowTemplate(props) {
 
   const { elementList = [] } = props;
   const breadcrumbs = useMenuBreadcrumbs();
-  const home = {icon: 'pi pi-home'};
+  const home = {icon: getIconCode("pi-home", "p-menuitem-icon")};
   const sourceCenter = getSource("center", elementList);
   const sourceModal = getSource("modal", elementList);
   const sourceHidden = getSource("hidden", elementList);

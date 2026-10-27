@@ -7,11 +7,11 @@
   width: max-content;
   min-width: 12rem;
   max-height: 80vh;
-  background-color: var(--surface-overlay, #ffffff);
-  color: var(--text-color, #495057);
-  border: 1px solid var(--surface-border, #dee2e6);
-  border-radius: var(--border-radius, 6px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--awe-color-overlay);
+  color: var(--awe-color-text);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
 
   &:focus {
     outline: none;
@@ -47,11 +47,12 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--surface-border, #dee2e6);
+    border-bottom: 1px solid var(--awe-color-overlay-border);
   }
 
   .popover-title {
-    font-weight: 600;
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
   }
 
   .popover-close {
@@ -80,7 +81,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
-    background-color: var(--surface-overlay, #ffffff);
-    border-top: 1px solid var(--surface-border, #dee2e6);
+    background-color: var(--awe-color-overlay);
+    border-top: 1px solid var(--awe-color-overlay-border);
   }
 }

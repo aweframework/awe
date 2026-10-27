@@ -1,0 +1,233 @@
+//
+// Overlays (#885): the Bootstrap popovers (target messages, help), the tooltips, the dropdown menus (context menus,
+// tabdrop, info dropdowns) and the loading bar take the AWE 5 overlay tokens, as the React engine and the design
+// system prototype
+// --------------------------------------------------
+
+// Popover: an overlay with a title in emphasis and the content in the small size
+.popover {
+  max-width: calc(var(--awe-space-16) * 5);
+  padding: 0;
+  font-size: var(--awe-font-size-base);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  .popover-title {
+    margin: 0;
+    padding: var(--awe-space-3) var(--awe-space-3) 0;
+    font-size: var(--awe-font-size-base);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-emphasis);
+    background: transparent;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+
+  .popover-content {
+    padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-3);
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-base);
+    color: var(--awe-color-text);
+  }
+}
+
+// The tip: an outlined square turned over the edge that faces the target (the prototype popover), centred on it by
+// the plugin
+.popover > .arrow {
+  width: var(--awe-space-2);
+  height: var(--awe-space-2);
+  background: var(--awe-color-overlay);
+  border: 0;
+  rotate: 45deg;
+
+  &:after {
+    display: none;
+  }
+}
+
+.popover.bottom > .arrow {
+  top: calc(var(--awe-space-1) * -1 - 1px);
+  margin-left: calc(var(--awe-space-1) * -1);
+  border-top: 1px solid var(--awe-color-overlay-border);
+  border-left: 1px solid var(--awe-color-overlay-border);
+}
+
+.popover.top > .arrow {
+  bottom: calc(var(--awe-space-1) * -1 - 1px);
+  margin-left: calc(var(--awe-space-1) * -1);
+  border-right: 1px solid var(--awe-color-overlay-border);
+  border-bottom: 1px solid var(--awe-color-overlay-border);
+}
+
+.popover.right > .arrow {
+  left: calc(var(--awe-space-1) * -1 - 1px);
+  margin-top: calc(var(--awe-space-1) * -1);
+  border-bottom: 1px solid var(--awe-color-overlay-border);
+  border-left: 1px solid var(--awe-color-overlay-border);
+}
+
+.popover.left > .arrow {
+  right: calc(var(--awe-space-1) * -1 - 1px);
+  margin-top: calc(var(--awe-space-1) * -1);
+  border-top: 1px solid var(--awe-color-overlay-border);
+  border-right: 1px solid var(--awe-color-overlay-border);
+}
+
+// Target message: the popover follows its mask (.target-message.popover-<type>); its edge and its title carry the
+// colour of the message type, as the React target message
+.target-message-type(@type) {
+  .target-message.popover-@{type} + .popover {
+    border-left: var(--awe-space-1) solid ~"var(--awe-color-@{type})";
+  }
+
+  .target-message.popover-@{type} + .popover .popover-title {
+    color: ~"var(--awe-color-@{type}-text)";
+    background: transparent;
+  }
+}
+
+.target-message-type(success);
+.target-message-type(info);
+.target-message-type(warning);
+.target-message-type(danger);
+
+// Tooltip: the small medium type of the prototype on the tooltip colour, over every other layer
+.tooltip {
+  z-index: var(--awe-z-tooltip);
+  font-size: var(--awe-font-size-xs);
+
+  &.in {
+    opacity: 1;
+  }
+}
+
+.tooltip-inner {
+  padding: var(--awe-space-1) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-on-tooltip);
+  background-color: var(--awe-color-tooltip);
+  border-radius: var(--awe-radius-sm);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.tooltip.top .tooltip-arrow,
+.tooltip.top-left .tooltip-arrow,
+.tooltip.top-right .tooltip-arrow {
+  border-top-color: var(--awe-color-tooltip);
+}
+
+.tooltip.bottom .tooltip-arrow,
+.tooltip.bottom-left .tooltip-arrow,
+.tooltip.bottom-right .tooltip-arrow {
+  border-bottom-color: var(--awe-color-tooltip);
+}
+
+.tooltip.left .tooltip-arrow {
+  border-left-color: var(--awe-color-tooltip);
+}
+
+.tooltip.right .tooltip-arrow {
+  border-right-color: var(--awe-color-tooltip);
+}
+
+// Dropdown menus (context menus, tabdrop, info dropdowns): overlays with list options, as the header dropdowns
+// (pages/home.less). The date and time pickers, also .dropdown-menu, keep their own layout
+ul.dropdown-menu {
+  padding: var(--awe-list-padding);
+  font-size: var(--awe-font-size-base);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+
+  > li > a {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-2);
+    min-height: var(--awe-size-control);
+    margin: 0;
+    padding: 0 var(--awe-space-3);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-list-option-text);
+    border-radius: var(--awe-radius-list-option);
+
+    &:hover,
+    &:focus {
+      color: var(--awe-color-list-option-text-focus);
+      background: var(--awe-color-list-option-focus);
+      text-decoration: none;
+    }
+  }
+
+  > .active > a {
+    &,
+    &:hover,
+    &:focus {
+      color: var(--awe-color-list-option-text-selected);
+      background: var(--awe-color-list-option-selected);
+    }
+  }
+
+  > .disabled > a {
+    &,
+    &:hover,
+    &:focus {
+      color: var(--awe-color-text-muted);
+      background: transparent;
+      opacity: var(--awe-opacity-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  .divider {
+    height: 1px;
+    margin: var(--awe-space-1) 0;
+    background-color: var(--awe-color-border-subtle);
+    border: 0;
+  }
+}
+
+// The tabdrop menu opens under the tabs as a separate overlay (Bootstrap joins it to the tab border)
+.nav-tabs ul.dropdown-menu {
+  margin-top: var(--awe-space-1);
+  border-radius: var(--awe-radius-lg);
+}
+
+// Loading bar of the requests (angular-loading-bar) and its spinner, in the loading bar colour
+#loading-bar .bar {
+  height: var(--awe-space-0-5);
+  background: var(--awe-color-loading-bar);
+  border-radius: 0 var(--awe-radius-full) var(--awe-radius-full) 0;
+}
+
+#loading-bar .peg {
+  height: var(--awe-space-0-5);
+  box-shadow: 0 0 var(--awe-space-1-5) var(--awe-color-loading-bar);
+}
+
+#loading-bar-spinner .spinner-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  border-width: var(--awe-space-0-5);
+  border-top-color: var(--awe-color-loading-bar);
+  border-left-color: var(--awe-color-loading-bar);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loading-bar,
+  #loading-bar .bar,
+  #loading-bar-spinner {
+    transition: none;
+  }
+
+  #loading-bar-spinner .spinner-icon {
+    animation: none;
+  }
+}

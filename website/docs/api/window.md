@@ -83,5 +83,5 @@ Both engines handle `expandible` and `maximize` in the same way:
   hidden while it is maximized. The Restore button brings it back; there is no Escape key shortcut. The content with the
   `expand-maximize` style takes the free space while the window is maximized.
 
-The differences are only visual: the AngularJS engine uses Font Awesome icons for the maximize button and the React
-engine uses PrimeIcons, and the React engine shows the `icon` of the window at the right of the title bar.
+The differences are only visual: the maximize button shows the Lucide `expand` and `shrink` icons in the AngularJS
+engine and `maximize` and `minimize` in the React engine, and the React engine shows the `icon` of the window at the right of the title bar.

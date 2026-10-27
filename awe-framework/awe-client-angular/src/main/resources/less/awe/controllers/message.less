@@ -1,53 +1,155 @@
 /*******************************************************************************
  MESSAGE ATTRIBUTES
 *******************************************************************************/
-
-.alert .close {
-  outline: 0;
-}
+// AWE 5 messages (#885): the alerts of the message zone are toasts, as the React engine and the design system
+// prototype: stacked at the top right under the header, tinted with the colours of their type, the title in that
+// colour and the detail under it. The zone lies over the page in the toast layer (it also holds the confirm and the
+// help popover): only its children catch the clicks, not the empty zone around the toasts
 
 .alert-zone {
   position: absolute;
-  z-index: 2000;
+  z-index: var(--awe-z-toast);
   width: 100%;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 }
 
 .alert.alert-awe {
-  margin-bottom: 0;
-  border-radius: 0;
-  border-top-width: 0;
-  border-left-width: 0;
-  border-right-width: 0;
+  position: relative;
+  top: calc(var(--awe-header-height) + var(--awe-space-3));
+  display: flex;
+  align-items: flex-start;
+  gap: var(--awe-space-3);
+  width: ~"min(calc(var(--awe-space-16) * 6), calc(100vw - var(--awe-space-8)))";
+  margin: 0 var(--awe-space-4) var(--awe-space-2) auto;
+  padding: var(--awe-space-3) var(--awe-space-3) var(--awe-space-3) var(--awe-space-4);
   overflow: hidden;
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text);
+  text-shadow: none;
+  border: 1px solid var(--awe-color-info-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+  backdrop-filter: var(--awe-toast-backdrop-filter);
+  background: color-mix(in srgb, var(--awe-color-info-subtle), var(--awe-color-overlay) 40%);
+
+  // The content (title and detail) takes the width the close button leaves
+  > div {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  strong {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-info-text);
+  }
+
+  .description {
+    display: block;
+    margin-top: var(--awe-space-0-5);
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text);
+  }
+
+  // Close: a ghost icon button at the end of the toast
+  .close {
+    order: 1;
+    position: static;
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+    margin: calc(var(--awe-space-1) * -1) calc(var(--awe-space-0-5) * -1) 0 0;
+    font-size: var(--awe-font-size-xl);
+    font-weight: var(--awe-font-weight-normal);
+    line-height: 1;
+    color: var(--awe-color-text-muted);
+    opacity: 1;
+    text-shadow: none;
+    border-radius: var(--awe-radius-md);
+    outline: 0;
+
+    &:hover {
+      color: var(--awe-color-text-hover);
+      background: var(--awe-color-surface-hover);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+  }
 }
 
-.alert-awe.alert-danger span.description {
-  display: block;
+// The types of message (pixel-admin paints the dark alerts with stripes)
+.alert-awe-type(@type) {
+  .alert.alert-awe.alert-@{type} {
+    background: color-mix(in srgb, ~"var(--awe-color-@{type}-subtle)", var(--awe-color-overlay) 40%);
+    border-color: ~"var(--awe-color-@{type}-border)";
+  }
+
+  .alert.alert-awe.alert-@{type} strong {
+    color: ~"var(--awe-color-@{type}-text)";
+  }
 }
 
-@media (min-width: 768px) {
+.alert-awe-type(success);
+.alert-awe-type(info);
+.alert-awe-type(warning);
+.alert-awe-type(danger);
+
+@media (min-width: @screen-sm-min) {
   .alert-awe.alert-danger span.description {
     white-space: pre-wrap;
   }
 }
 
-/* Alert animations */
+/* Alert animations: the toasts slide in from the side and fade out */
 .alert.ng-enter,
 .alert.ng-leave {
-  .transition-multiple (margin-top, ease, 300ms, opacity, ease, 300ms);
-  display: block;
-  position: relative;
-  overflow: hidden !important;
+  transition: opacity var(--awe-motion-duration-slow) var(--awe-motion-easing-enter),
+    translate var(--awe-motion-duration-slow) var(--awe-motion-easing-enter);
 }
 
-.alert.ng-enter.ng-enter-active,
-.alert.ng-leave {
-  margin-top: 0;
-  .opacity(1);
+.alert.ng-enter,
+.alert.ng-leave.ng-leave-active {
+  opacity: 0;
+  translate: var(--awe-space-4) 0;
 }
 
-.alert.ng-leave.ng-leave-active,
-.alert.ng-enter {
-  margin-top: -30%;
-  .opacity(0);
+.alert.ng-leave,
+.alert.ng-enter.ng-enter-active {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert.ng-enter,
+  .alert.ng-leave {
+    transition: none;
+  }
+}
+
+.notification,
+.notifications-link {
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  border-width: 1px 0 0 0;
+  border-radius: 0;
+  background-color: transparent;
+  button {
+    all: unset;
+    outline: none;
+  }
+}
+
+.notifications-list {
+  max-height: 60vh;
 }

@@ -1,7 +1,7 @@
-/* Popover of a target message: the border carries the colour of the message type */
+/* Popover of a target message: its edge and its title carry the colour of the message type */
 .target-message {
-  max-width: 320px;
-  border-left: 4px solid var(--awe-color-info);
+  max-width: calc(var(--awe-space-16) * 5);
+  border-left: var(--awe-space-1) solid var(--awe-color-info);
 }
 
 .target-message-success {
@@ -17,6 +17,23 @@
 }
 
 .target-message-title {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--awe-space-1);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-info-text);
+}
+
+.target-message-success .target-message-title {
+  color: var(--awe-color-success-text);
+}
+
+.target-message-warning .target-message-title {
+  color: var(--awe-color-warning-text);
+}
+
+.target-message-danger .target-message-title {
+  color: var(--awe-color-danger-text);
+}
+
+.target-message-content {
+  font-size: var(--awe-font-size-sm);
 }

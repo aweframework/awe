@@ -61,7 +61,11 @@
     <xs:attribute name="name" use="required" type="xs:string"/>
     <xs:attribute name="screen" type="xs:string"/>
     <xs:attribute name="separator" type="booleanEnum"/>
-    <xs:attribute name="icon" type="xs:string"/>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="menu-screen" type="booleanEnum"/>
     <xs:attribute name="dynamic-screen" type="booleanEnum"/>
     <xs:attribute name="dynamic-screen-service" type="xs:string"/>

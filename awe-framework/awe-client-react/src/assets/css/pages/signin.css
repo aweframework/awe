@@ -1,33 +1,237 @@
-#page-signin {
-  background: url("../../images/backgrounds/background01.jpg");
-  background-size: cover;
+/*
+ * Login pages (#885): the sign-in, expired password and two-factor screens drawn as the AWE 5 prototype login, the form
+ * column next to the image panel, with the --awe-login-* tokens. The styles follow the classes of the screen XML (the
+ * screen XML, the field ids and the test hooks do not change), so the !important ones beat the PrimeFlex utility
+ * classes of that XML (align-self-center, shadow-3, m-0, p-2, mt-5...).
+ */
+
+/* Page: the form column and the image panel */
+#page-signin,
+#page-change-expired-password,
+.totp-screen.fullScreen {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(var(--awe-login-main-min), 5fr) 7fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--awe-login-background);
 }
 
-.signin-info {
-  background: url("../../images/logos/awe-logo2.svg") no-repeat center center;
-  height: 62px;
-  margin-bottom: 60px;
+/* Image panel: the AWE brand panel, under the image of the product (--awe-login-image), under the scrim */
+#page-signin::after,
+#page-change-expired-password::after,
+.totp-screen.fullScreen > #page-totp-bg {
+  grid-row: 1;
+  grid-column: 2;
+  min-width: 0;
+  content: "";
+  background:
+    var(--awe-login-scrim),
+    var(--awe-login-image) center / cover no-repeat,
+    url("../../images/logos/awe-logo-light-text.svg") center 44% / min(var(--awe-login-brand-logo-width), 70%) auto no-repeat,
+    var(--awe-login-brand-background);
 }
 
-.signin-info h1 {
+.totp-screen.fullScreen > #page-totp-bg > * {
   display: none;
 }
 
-.signin-container {
-  margin: auto;
-  width: 350px;
-  padding: 40px 60px 60px 60px;
-  border-radius: 8px;
-  background-color: var(--surface-a);
+/* Form column: the brand at the top, the form in the middle of the free height */
+#page-signin > .signin-container,
+#page-change-expired-password > .signin-container,
+.totp-screen.fullScreen > .totp-container {
+  display: grid;
+  grid-row: 1;
+  grid-column: 1;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(0, var(--awe-login-form-width));
+  align-self: stretch !important;
+  min-width: 0;
+  padding: var(--awe-login-padding-y) var(--awe-login-padding-x) var(--awe-space-6) !important;
+  margin: 0 !important;
+  background: var(--awe-login-background);
+  border-radius: 0;
+  box-shadow: none !important;
 }
 
-/* Azure sso buttons */
+.signin-container > .signin-form,
+.totp-container > .totp-form {
+  align-self: center;
+  min-width: 0;
+  padding: var(--awe-space-10) 0;
+}
+
+/* Brand: the AWE logo, the mark with its own colours and the wordmark filled with the emphasis text colour */
+.signin-container > .signin-info,
+.totp-container > .totp-header {
+  position: relative;
+  justify-self: start;
+  height: var(--awe-login-logo-height);
+  aspect-ratio: 1160.2 / 360;
+  padding: 0;
+  margin: 0;
+  background: url("../../images/logos/awe-logo-mark.svg") no-repeat left center / auto 100%;
+}
+
+.signin-container > .signin-info::after,
+.totp-container > .totp-header::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-color: var(--awe-color-text-emphasis);
+  mask: url("../../images/logos/awe-logo-wordmark.svg") no-repeat left center / auto 100%;
+}
+
+/* The name of the client and the slogan stay for assistive technology */
+.signin-info > h1,
+.totp-header > h1,
+.totp-header > .slogan {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/* Step title and text */
+.totp-form > .totp-text {
+  margin-bottom: var(--awe-space-6);
+  font-size: var(--awe-font-size-display);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-display);
+  color: var(--awe-color-text-emphasis);
+}
+
+#page-change-expired-password .signin-form > .p-2:first-child {
+  padding: 0 !important;
+  margin-bottom: var(--awe-space-6);
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-muted);
+}
+
+/* Fields: one under the other, large */
+.signin-form > .field,
+.totp-form > .field {
+  width: 100%;
+  padding: 0 0 var(--awe-gap-form-row);
+}
+
+/* More specific than the field size of the criteria, which it overrides */
+.signin-form .field .p-inputtext:not(textarea):not(.p-dropdown-label),
+.totp-form .field .p-inputtext:not(textarea):not(.p-dropdown-label) {
+  min-height: var(--awe-size-control-lg);
+}
+
+/* Actions: full width buttons one under the other, the main one first */
+.signin-form > .p-2:last-child,
+.totp-form > .totp-with .form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: 0 !important;
+  margin-top: var(--awe-space-6) !important;
+}
+
+.signin-form .p-button,
+.totp-form .p-button {
+  justify-content: center;
+  width: 100%;
+  height: var(--awe-size-control-lg);
+  margin: 0 !important;
+}
+
+.signin-form .p-button:not(.p-button-outlined),
+.totp-form .p-button:not(.p-button-outlined) {
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+/* The confirm button of the two-factor screens carries the bg-primary utility class: keep the states of the theme */
+.totp-form .p-button.bg-primary {
+  color: var(--awe-color-on-primary) !important;
+  background-color: var(--awe-color-primary) !important;
+}
+
+.totp-form .p-button.bg-primary:enabled:hover {
+  background-color: var(--awe-color-primary-hover) !important;
+}
+
+.totp-form .p-button.bg-primary:enabled:active {
+  background-color: var(--awe-color-primary-active) !important;
+}
+
+/* Two-factor activation: the help texts, the QR code and the secret code */
+.totp-form .panel-padding {
+  margin: var(--awe-space-4) 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.totp-form .qr-code-container {
+  display: flex;
+  justify-content: center;
+}
+
+.totp-form .qr-code {
+  width: calc(var(--awe-space-16) * 3);
+  max-width: 100%;
+  height: auto;
+  padding: var(--awe-space-2);
+  background: var(--awe-color-surface);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.totp-form .panel-body {
+  padding: var(--awe-space-3);
+  font-family: var(--awe-font-family-monospace);
+  font-size: var(--awe-font-size-md);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+  background: var(--awe-color-surface-subtle);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+}
+
+/* Azure sign-in button: the Microsoft artwork, with the height of a large control */
 .sign-in-azure-btn-light {
-    background-image: url("../../images/backgrounds/azure_signin_light.svg") !important;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: left;
-    width: 217px;
-    height: 45px;
-    border: 0 solid;
+  height: var(--awe-size-control-lg);
+  background-image: url("../../images/backgrounds/azure_signin_light.svg") !important;
+  background-repeat: no-repeat;
+  background-position: left;
+  background-size: contain;
+  border: 0 solid;
+}
+
+.signin-form .p-button.sign-in-azure-btn-light {
+  align-self: center;
+  width: auto;
+  aspect-ratio: 217 / 45;
+  background-color: transparent;
+}
+
+/* Narrow screens: the form alone, centred */
+@media (max-width: 960px) {
+  #page-signin,
+  #page-change-expired-password,
+  .totp-screen.fullScreen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #page-signin::after,
+  #page-change-expired-password::after,
+  .totp-screen.fullScreen > #page-totp-bg {
+    display: none;
+  }
+
+  #page-signin > .signin-container,
+  #page-change-expired-password > .signin-container,
+  .totp-screen.fullScreen > .totp-container {
+    justify-content: center;
+    padding: var(--awe-space-6) !important;
+  }
 }

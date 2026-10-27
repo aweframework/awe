@@ -4,32 +4,38 @@
   position: relative;
   .p-inputnumber-input {
     width: 100%;
+    font-variant-numeric: var(--awe-font-variant-numeric);
   }
 }
 
 .validation-tooltip.p-tooltip.p-tooltip-bottom {
   .p-tooltip-arrow {
-    border-bottom-color: var(--red-500);
+    border-bottom-color: var(--awe-color-danger);
   }
   .p-tooltip-text {
-    background-color: var(--red-500);
+    color: var(--awe-color-on-danger);
+    background-color: var(--awe-color-danger);
   }
 }
 
+// An invalid editor shows a warning mark at its end, hidden while the editor has the focus
 .column-editor.p-invalid {
   &::before {
     content: "⚠";
-    font-size: 1.5em;
-    line-height: 1.5em;
     position: absolute;
-    padding-right: 4px;
-    right: 0;
+    top: 50%;
+    right: var(--awe-space-2);
+    translate: 0 -50%;
+    font-size: var(--awe-font-size-md);
+    line-height: 1;
+    color: var(--awe-color-danger-text);
+    pointer-events: none;
   }
   &.p-dropdown::before {
-    right: 1.5em;
+    right: var(--awe-space-10);
   }
   &.p-autocomplete::before {
-    right: 1.5em;
+    right: var(--awe-space-10);
     z-index: 1;
   }
 
@@ -48,12 +54,12 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 4px 14px;
+  gap: var(--awe-space-1) var(--awe-space-3);
 
   .column-radio-option {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--awe-space-1-5);
   }
 
   .column-radio-label {
@@ -62,70 +68,109 @@
   }
 
   .p-radiobutton {
-    width: 20px;
-    height: 20px;
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
 
     .p-radiobutton-box {
-      width: 20px;
-      height: 20px;
+      width: var(--awe-size-checkbox);
+      height: var(--awe-size-checkbox);
     }
 
     &.p-highlight .p-radiobutton-box,
     &.p-highlight:not(.p-disabled):has(.p-radiobutton-input:hover) .p-radiobutton-box {
-      border-color: var(--primary-color);
-      background: var(--primary-color);
+      border-color: var(--awe-color-primary);
+      background: var(--awe-color-primary);
 
       .p-radiobutton-icon {
-        width: 10px;
-        height: 10px;
-        background-color: var(--surface-a, #fff);
+        width: var(--awe-radio-dot-size);
+        height: var(--awe-radio-dot-size);
+        background-color: var(--awe-color-on-primary);
       }
     }
   }
 }
 
-// Button radio column: the options of the cell are one joined bar of buttons (the segmented control of the
-// button-radio criterion): adjacent buttons share their borders and only the ends of the bar are rounded
+// Button radio column: the options of the cell are a segmented control (the one of the button-radio criterion) at the
+// small control height of a cell
 .column-button-radio {
   display: inline-flex;
+  gap: var(--awe-space-0-5);
   max-width: 100%;
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: 1px solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
 
-  .p-button {
-    flex: 0 1 auto;
-    justify-content: center;
-    cursor: pointer;
-    margin: 0;
-    border-radius: 0;
-    white-space: nowrap;
+.column-button-radio .p-button {
+  flex: 0 1 auto;
+  justify-content: center;
+  height: calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px));
+  padding: 0 var(--awe-space-2);
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-segmented-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--awe-radius-sm);
+}
 
-    &:first-child {
-      border-top-left-radius: var(--border-radius, 6px);
-      border-bottom-left-radius: var(--border-radius, 6px);
-    }
+.column-button-radio .p-button:not(.p-disabled):not(.p-highlight):hover {
+  color: var(--awe-segmented-hover-text);
+  background: transparent;
+  border-color: transparent;
+}
 
-    &:last-child {
-      border-top-right-radius: var(--border-radius, 6px);
-      border-bottom-right-radius: var(--border-radius, 6px);
-    }
+.column-button-radio .p-button.p-highlight {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
 
-    // The border between two joined buttons is drawn once
-    &:not(:first-child) {
-      border-left-width: 0;
-    }
+.column-button-radio .p-button:focus-within {
+  z-index: 1;
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
 
-    &:focus-within {
-      z-index: 1;
-      box-shadow: 0 0 0 0.2rem var(--primary-200, rgba(0, 123, 255, 0.35));
-    }
+.column-button-radio .p-button.p-disabled {
+  cursor: default;
+}
 
-    &.p-disabled {
-      cursor: default;
-    }
+.column-button-radio .p-button .p-button-label {
+  font-weight: inherit;
+}
+
+.column-button-radio.p-invalid {
+  border-color: var(--awe-color-field-border-invalid);
+}
+
+// Progress column: a thin bar with its value, inside the height of a row of text
+.column-progress.p-progressbar {
+  height: var(--awe-space-4);
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  border-radius: var(--awe-radius-full);
+
+  .p-progressbar-value {
+    border-radius: var(--awe-radius-full);
   }
 
-  &.p-invalid .p-button {
-    border-color: var(--red-500);
+  .p-progressbar-label {
+    line-height: var(--awe-space-4);
   }
+}
+
+// Image column: the image inside the height of a row of text
+.grid-image {
+  max-height: var(--awe-size-control);
+  vertical-align: middle;
+  border-radius: var(--awe-radius-sm);
 }
 
 .column-sparkline {

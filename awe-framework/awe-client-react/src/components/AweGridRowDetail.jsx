@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {classNames} from "../utilities/components";
 import {renderRowDetail} from "../utilities/gridRowDetail";
 import {TestIds, testHook} from "../utilities/testIds";
+import {getIconNode} from "../utilities";
 
 /**
  * Identifier of the detail of a row, referenced by the "aria-controls" of its toggle
@@ -33,7 +34,7 @@ export function AweGridRowDetailToggle({gridId, rowId, expanded = false, onToggl
                  aria-label={t(expanded ? "SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" : "SCREEN_TEXT_GRID_ROW_DETAIL_SHOW")}
                  onClick={() => onToggle(rowId)}
                  {...testHook(TestIds.gridRowDetailToggle, {attributes: {"row-id": rowId}})}>
-    <i className={expanded ? "pi pi-chevron-down" : "pi pi-chevron-right"} aria-hidden="true"/>
+    {getIconNode(expanded ? "pi-chevron-down" : "pi-chevron-right", {"aria-hidden": "true"})}
   </button>;
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {classNames} from "../utilities/components";
-import {formatMessage, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
+import {formatMessage, getHelpTooltipNode, getIconCode, getIconNode, translateLabel} from "../utilities";
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import {selectSettings} from "../redux/selectors/stateSelectors";
@@ -29,7 +29,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
 
   const getHelpIcon = () => {
     if (help || helpImage) {
-      return <i role="icon" className={`help-icon pi pi-question-circle`} />;
+      return getIconNode("pi-question-circle", {role: "icon", className: "help-icon"});
     }
     return null;
   };
@@ -54,7 +54,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
         </>
       );
     } else {
-      return <div className="block mb-2" style={labelWidth}>&nbsp;</div>;
+      return <div className="block" style={labelWidth}>&nbsp;</div>;
     }
   };
 
@@ -76,7 +76,12 @@ const AweCriterion = ({children, address, attributes, validationRules,
 
   const getValidation = () => {
     if (error) {
-      return <small className="p-invalid" {...testHook(TestIds.criterionError)}>{formatMessage(error, t)}</small>;
+      return (
+        <small className="p-invalid" {...testHook(TestIds.criterionError)}>
+          {getIconNode("lucide:circle-alert", {className: "criterion-error-icon", "aria-hidden": "true"})}
+          {formatMessage(error, t)}
+        </small>
+      );
     }
     return null;
   };

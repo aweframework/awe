@@ -66,6 +66,15 @@
         <targetPath>${project.build.directory}/classes/templates</targetPath>
         <filtering>false</filtering>
       </resource>
+      <!-- AWE 5 token file shared with both clients (#885), linked by the error page template -->
+      <resource>
+        <directory>${project.basedir}/../awe-design-tokens</directory>
+        <targetPath>${project.build.directory}/classes/static/css/awe-design-tokens</targetPath>
+        <filtering>false</filtering>
+        <includes>
+          <include>tokens.css</include>
+        </includes>
+      </resource>
     </resources>
 
     <plugins>

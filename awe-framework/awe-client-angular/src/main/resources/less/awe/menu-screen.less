@@ -4,18 +4,23 @@
   padding: 10px;
   font-weight: bold;
   margin: 6px;
-  border-bottom: 2px solid var(--primary-color);
-  color: var(--primary-color);
+  border-bottom: 2px solid var(--awe-color-primary);
+  color: var(--awe-color-primary);
 }
 
-.menu-screen-button {
+// Over the AWE button rules (directives/button.less, #885): a launcher is a tile, not an outlined button
+.menu-screen-button,
+.btn.btn-awe.menu-screen-button {
+  display: inline-block;
   height: 120px;
   font-size: 16px;
   width: 6vw;
   margin-bottom: 6px;
   vertical-align: top;
+  white-space: normal;
   border: 0;
   background: transparent !important;
+  box-shadow: none;
   > .button-icon {
     display: block;
     text-align: center;
@@ -34,6 +39,11 @@
   }
 }
 
+.btn.btn-awe.menu-screen-button:focus-visible {
+  box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+    0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
+}
+
 // Launcher card: the button and its description (secondary line). The description never widens the card
 .menu-screen-card {
   display: inline-block;
@@ -50,7 +60,7 @@
   font-size: small;
   line-height: 1.2;
   text-align: center;
-  color: var(--text-color-secondary, #6c757d);
+  color: var(--awe-color-text-muted);
 }
 
 @media (min-width: 2001px) {

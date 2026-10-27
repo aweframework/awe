@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 
 import { searchOptions } from "../utilities/menuSearch";
-import { translateLabel } from "../utilities";
+import { getIconNode, translateLabel } from "../utilities";
 import { ANY_MODIFIERS, createKeyHandler } from "../utilities/keyboard";
 import "./AweMenuSearch.css";
 
@@ -147,7 +147,7 @@ function AweMenuSearch(props) {
     <div ref={containerRef} className={`awe-menu-search awe-menu-search-${menuType}${open ? " open" : ""}`}>
       <button type="button" className="awe-menu-search-toggle" onClick={toggleSearch}
         title={searchTitle} aria-label={searchTitle} aria-expanded={open}>
-        <i className="pi pi-search" aria-hidden="true" />
+        {getIconNode("pi-search", { "aria-hidden": "true" })}
         {menuType === "vertical" && (
           <span className="awe-menu-search-toggle-label">{searchTitle}</span>
         )}

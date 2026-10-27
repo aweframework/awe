@@ -49,6 +49,33 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     expect(screen.getByRole("table")).toBeDefined();
   });
 
+  it('aligns the header of a column with an alignment like its cells and keeps the others centred', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {values: [{id: 1, name: "Chair", amount: 3}]},
+          attributes: {
+            columnModel: [{name: "name", label: "Name", align: "left"}, {name: "amount", label: "Amount", align: "right"},
+              {name: "code", label: "Code"}],
+            headerModel: [],
+            buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+    const header = column => container.querySelector(`th[column-id='${column}']`);
+
+    expect(header("name")).toHaveClass("p-align-left");
+    expect(header("amount")).toHaveClass("p-align-right");
+    expect(header("code").className).not.toMatch(/p-align-/);
+  });
+
   it('renders Awe Grid component with buttons', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

@@ -6,10 +6,10 @@
 		"email.xsd": 8,
 		"enumerated.xsd": 3,
 		"locale.xsd": 2,
-		"menu.xsd": 18,
+		"menu.xsd": 17,
 		"profile.xsd": 3,
 		"queues.xsd": 18,
-		"screen.xsd": 242,
+		"screen.xsd": 235,
 		"services.xsd": 24,
 		"variable.xsd": 8
 	}

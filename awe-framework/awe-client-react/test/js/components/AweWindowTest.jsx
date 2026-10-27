@@ -75,12 +75,12 @@ describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
       fireEvent.click(button());
       settle();
       expect(panel().classList).toContain("maximized");
-      expect(button().querySelector("i").className).toContain("pi-window-minimize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#minimize");
 
       fireEvent.click(button());
       settle();
       expect(panel().classList).not.toContain("maximized");
-      expect(button().querySelector("i").className).toContain("pi-window-maximize");
+      expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#maximize");
     });
 
     it('maximizes over the maximize target of the template, not over a resizable that contains the window', () => {
