@@ -1571,6 +1571,53 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the closest resizable around an element that has a handle on a side. Both engines draw a resizable as a
+   * {@code resizable} container with the side as a class and a {@code rg-<side>} handle
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @return Resizable selector
+   */
+  default By getResizable(String elementId, String direction) {
+    return By.xpath(resizableXpath(elementId, direction));
+  }
+
+  /**
+   * Get the handle of a side of the closest resizable around an element
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @return Handle selector
+   */
+  default By getResizableHandle(String elementId, String direction) {
+    return By.xpath(resizableXpath(elementId, direction) + "/div[contains(@class,'rg-" + direction + "')]");
+  }
+
+  /**
+   * Get the element next to the closest resizable around an element: on the side of the handle (the next one for right
+   * and bottom, the previous one for left and top), or on the other side
+   *
+   * @param elementId  Identifier of an element inside the resizable
+   * @param direction  Side of the handle: top, right, bottom or left
+   * @param handleSide The neighbour on the side of the handle, or the one on the other side
+   * @return Neighbour selector
+   */
+  default By getResizableNeighbour(String elementId, String direction, boolean handleSide) {
+    boolean next = "right".equals(direction) || "bottom".equals(direction);
+    String axis = next == handleSide ? "following-sibling" : "preceding-sibling";
+    return By.xpath(resizableXpath(elementId, direction) + "/" + axis + "::*[1]");
+  }
+
+  private static String resizableXpath(String elementId, String direction) {
+    // The side is also a class of the resizable and the suffix of its handle, so only the four sides are accepted
+    if (direction == null || !List.of("top", "right", "bottom", "left").contains(direction)) {
+      throw new IllegalArgumentException("Unknown side of a resizable: " + direction + " (top, right, bottom or left)");
+    }
+    return "//*[@id=" + XpathLiterals.of(elementId) + "]/ancestor::div[contains(concat(' ', normalize-space(@class), ' '),"
+      + " ' resizable ') and contains(concat(' ', normalize-space(@class), ' '), ' " + direction + " ')][1]";
+  }
+
+  /**
    * Get the detail area under a row of a grid when it has some style classes, as the {@code style} of the row detail of
    * the grid assigns them
    *

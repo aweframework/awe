@@ -123,6 +123,22 @@ class PlaywrightBrowserDriverActionsTest extends AbstractPlaywrightBrowserTest {
   }
 
   @Test
+  void shouldDragAnElementByAnOffsetPressingMovingAndReleasing() {
+    show("<script>window.drag = [];"
+      + "['pointerdown','pointermove','pointerup'].forEach(function(type) {"
+      + "document.addEventListener(type, function(e) { window.drag.push(type + ':' + Math.round(e.clientX) + ':' + Math.round(e.clientY)); }, true);});</script>"
+      + "<div id='item' style='position:absolute;left:100px;top:100px;width:100px;height:60px'>Handle</div>");
+
+    browser.drag(ITEM, 80, 20);
+
+    // The center of the handle is (150, 130)
+    String[] drag = String.valueOf(eval("window.drag.join(',')")).split(",");
+    assertThat(drag).contains("pointerdown:150:130").contains("pointerup:230:150");
+    assertThat(java.util.Arrays.stream(drag).filter(event -> event.startsWith("pointermove"))).hasSizeGreaterThanOrEqualTo(2);
+    assertThat(drag[drag.length - 1]).isEqualTo("pointerup:230:150");
+  }
+
+  @Test
   void shouldMoveThePointerFromTheOriginWhenItWasNeverMoved() {
     show(RECORDER + "<button id='item' style='position:absolute;left:10px;top:10px;width:100px;height:60px'>Go</button>");
 

@@ -87,6 +87,21 @@ El redimensionable tiene un tamaño mínimo de 160 px y no puede crecer por enci
 
 Cuando el usuario suelta el tirador, el cliente lanza un redimensionado, de modo que los grids y los gráficos de la pantalla se adaptan a su nuevo tamaño.
 
+## Cómo reparte el espacio un arrastre {#how-a-drag-shares-the-space}
+
+Cuando el padre coloca sus elementos en el eje del lado arrastrado (un tirador derecho o izquierdo en un padre
+`expandible-horizontal`, un tirador superior o inferior en uno `expandible-vertical`), el tirador funciona como un divisor:
+sigue al puntero, y solo el elemento que tiene al lado (el siguiente para `right` y `bottom`, el anterior para `left` y
+`top`) cede o toma el tamaño que gana o pierde el redimensionable. Los demás elementos del padre no se mueven.
+
+El arrastre se detiene cuando cualquiera de los dos llega a su mínimo: el redimensionable no baja de 160 px, y el elemento
+de al lado no baja de su propio `min-width` o `min-height`, de 160 px (salvo que ya fuera más pequeño) ni de su contenido
+(un grid mantiene su área mínima de filas). Tras un arrastre ambos conservan su tamaño en ese eje, y los demás elementos
+que se expanden absorben los cambios del tamaño de la ventana.
+
+Cuando el padre coloca sus elementos en el otro eje, o no hay ningún elemento junto al tirador, el arrastre solo
+redimensiona el redimensionable.
+
 ## Motores AngularJS y React {#angularjs-and-react-engines}
 
 Ambos motores dibujan el redimensionable de la misma forma: el propio contenedor se redimensiona arrastrando los lados
@@ -97,6 +112,7 @@ indicados en `directions` y sus hijos se apilan dentro de él. Los estilos `no-r
 | Qué se arrastra         | Los lados listados en `directions` del contenedor     | Lo mismo                                              |
 | Varias direcciones      | Permitido (`directions="right bottom"`)               | Permitido                                             |
 | Uno o varios hijos      | Los hijos se apilan dentro del contenedor             | Lo mismo: los hijos **no** se dividen en paneles      |
+| Elemento de al lado     | Cede o toma el tamaño, los demás no se mueven         | Lo mismo                                              |
 | Estilos `no-resizable-*` | Aplicados                                            | Aplicados                                             |
 | Implementación          | Directiva propia                                      | Componente propio, mismas reglas de hoja de estilos   |
 

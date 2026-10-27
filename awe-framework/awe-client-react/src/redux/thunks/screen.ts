@@ -289,12 +289,12 @@ export const changeThemeAction = (action: ClientAction): AppThunk => {
  * the theme, the user or the mode of the user changed. Only the response of the last request is kept
  * @returns {function} Thunk (returns the request promise)
  */
-export const refreshThemeAppearanceAction = () => {
+export const refreshThemeAppearanceAction = (): AppThunk<Promise<void>> => {
   return (dispatch, getState) => {
     const request = ++themeAppearanceRequest;
     const { settings } = getState();
     // A request that cannot start rejects too, so it never breaks the action that asked for it
-    return new Promise((resolve) => resolve(fetchJson("POST", "/settings/appearance", {}, settings.token)))
+    return new Promise<object>((resolve) => resolve(fetchJson<object>("POST", "/settings/appearance", {}, settings.token)))
       .then((serverSettings) => {
         if (request === themeAppearanceRequest) {
           const appearance = pickThemeAppearance(serverSettings);

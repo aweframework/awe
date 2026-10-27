@@ -506,11 +506,13 @@
       </tabcontainer>
       <tabcontainer id="DepMat">
         <tag type="div" style="expand expandible-vertical">
-          <resizable directions="bottom">
-            <resizable directions="right" style="p-0">
-              <grid id="MatSel" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
-                <column label="COLUMN_SIT" sort-field="Als" name="Als5" charlength="25" />
-              </grid>
+          <resizable directions="bottom" style="no-resizable-xs height-lg">
+            <tag type="div" style="expand expandible-horizontal">
+              <resizable directions="right" style="col-xs-12 col-sm-4 col-lg-2 p-0 no-resizable-xs">
+                <grid id="MatSel" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
+                  <column label="COLUMN_SIT" sort-field="Als" name="Als5" charlength="25" />
+                </grid>
+              </resizable>
               <grid id="MatPrn" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
                   <column label="COLUMN_SIT" sort-field="Als" name="Als6" charlength="25" />
                   <column label="PARAMETER_TEXT" sort-field="Als" name="Als7" charlength="20">
@@ -614,13 +616,13 @@
                     </dependency>
                   </column>
                 </grid>
-            </resizable>
-            <grid id="MatCol" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
-              <column label="COLUMN_SIT" sort-field="Als" name="Als17" charlength="25" />
-              <column label="COLUMN_MOD" sort-field="Des" name="Des3" charlength="25" />
-              <column label="COLUMN_DBA" sort-field="Prg" name="Prg1" charlength="25" />
-            </grid>
+            </tag>
           </resizable>
+          <grid id="MatCol" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
+            <column label="COLUMN_SIT" sort-field="Als" name="Als17" charlength="25" />
+            <column label="COLUMN_MOD" sort-field="Des" name="Des3" charlength="25" />
+            <column label="COLUMN_DBA" sort-field="Prg" name="Prg1" charlength="25" />
+          </grid>
         </tag>
       </tabcontainer>
     </tab>
