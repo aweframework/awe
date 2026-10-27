@@ -73,10 +73,9 @@ aweApplication.factory('ValidationRules',
       /**
        * Checks whether element is repeated n times in its grid column
        * @param {Object} address Element address
-       * @param {Object} param Times the element is allowed to be repeated
        * @returns {Number} Object with repetitions amount and limit allowed
        */
-      function checkRepeatedElement(address, param) {
+      function checkRepeatedElement(address) {
         let columnAddress = {};
 
         angular.forEach(address, function (value, key) {
@@ -173,7 +172,7 @@ aweApplication.factory('ValidationRules',
                 parameters.values.value1 = getRequiredValue(value, address);
                 break;
               case "maxRepeat":
-                parameters.values.value1 = checkRepeatedElement(address, value);
+                parameters.values.value1 = checkRepeatedElement(address);
                 break;
               case "checkAtLeast":
                 parameters.values.value1 = getObjectsSelectedInGroup(address).length;

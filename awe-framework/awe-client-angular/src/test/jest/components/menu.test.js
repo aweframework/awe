@@ -136,7 +136,7 @@ describe("components/menu.js", () => {
   });
 
   it("toggles a visible menu back to minimized state", () => {
-    const {scope} = compileMenu({style: "vertical"});
+    compileMenu({style: "vertical"});
 
     refs.$rootScope.$broadcast("/action/toggle-menu", createAction());
 

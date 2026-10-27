@@ -6,7 +6,7 @@ import "../../../main/resources/webpack/locals-es-ES.config";
 void DefaultSettings;
 
 describe('awe-framework/awe-client-angular/src/test/jest/services/checkboxRadio.js', function() {
-  let $injector, $utilities, $control, $rootScope, $httpBackend, $criterion, $checkboxRadio, $storage;
+  let $injector, $control, $rootScope, $checkboxRadio, $storage;
   let controller = {};
   let model = {};
 
@@ -17,11 +17,8 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/checkboxRadio.
     inject(["$injector", function(__$injector__) {
       $injector = __$injector__;
       $rootScope = $injector.get('$rootScope');
-      $utilities = $injector.get('AweUtilities');
-      $criterion = $injector.get('Criterion');
       $control = $injector.get('Control');
       $checkboxRadio = $injector.get('CheckboxRadio');
-      $httpBackend = $injector.get('$httpBackend');
       $storage = $injector.get('Storage');
     }]);
 

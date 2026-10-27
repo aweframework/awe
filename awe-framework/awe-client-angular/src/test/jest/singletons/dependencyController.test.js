@@ -56,7 +56,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/singletons/dependencyCo
 
   it('should unregister a view', function () {
     // Mock
-    let belongsTo = function(a,o) { return _.isEqual(this.component.address, a);};
+    let belongsTo = function(a) { return _.isEqual(this.component.address, a);};
     let dependency = {belongsTo: belongsTo, destroy: jest.fn().mockName('destroy')};
     let component1 = {id: 'component1', controller: {optionId: "a"}, address: {component: 'component1', view: 'report'}, view: 'report', dependencies: [dependency]};
     let component2 = {id: 'component2', controller: {optionId: "b"}, address: {component: 'component2', view: 'base'}, view: 'base', dependencies: [dependency, dependency]};
@@ -82,7 +82,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/singletons/dependencyCo
 
   it('should unregister an empty view', function () {
     // Mock
-    let belongsTo = function(a,o) { return _.isEqual(this.component.address, a);};
+    let belongsTo = function(a) { return _.isEqual(this.component.address, a);};
     let dependency = {belongsTo: belongsTo, destroy: jest.fn().mockName('destroy')};
     $dependencyController.dependencies = [];
 

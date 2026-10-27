@@ -5,7 +5,7 @@ import "../../../main/resources/webpack/locals-es-ES.config";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/plugins/uiNumeric.js', function() {
-  let $rootScope, $compile, $httpBackend, $settings, $control, $utilities;
+  let $rootScope, $compile, $httpBackend, $control, $utilities;
   let numericOptions = "{}";
   let controller = {
     numberFormat: "{min: 0}",
@@ -43,12 +43,11 @@ describe('awe-framework/awe-client-angular/src/test/jest/plugins/uiNumeric.js', 
     angular.mock.module('aweApplication');
 
     // Inject controller
-    inject(["$rootScope", "$compile", "$httpBackend", "AweSettings", "AweUtilities", "Control",
-      function (_$rootScope_, _$compile_, _$httpBackend_, __$settings__, __$utilities__, __$control__) {
+    inject(["$rootScope", "$compile", "$httpBackend", "AweUtilities", "Control",
+      function (_$rootScope_, _$compile_, _$httpBackend_, __$utilities__, __$control__) {
         $rootScope = _$rootScope_;
         $compile = _$compile_;
         $httpBackend = _$httpBackend_;
-        $settings = __$settings__;
         $control = __$control__;
         $utilities = __$utilities__;
 

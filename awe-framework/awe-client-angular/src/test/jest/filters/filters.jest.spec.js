@@ -3,16 +3,14 @@ import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
 
 describe('awe-framework/awe-client-angular/src/test/jest/filters/tests.js', function() {
-  let  $filter, $translate, $control, $utilities, $settings;
+  let  $filter, $translate, $settings;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
-    inject(["$filter", "$translate", "Control", "AweUtilities", "AweSettings",
-    function (_$filter_, _$translate_, _$control_, _$utilities_, _$settings_) {
+    inject(["$filter", "$translate", "AweSettings",
+    function (_$filter_, _$translate_, _$settings_) {
       $filter = _$filter_;
       $translate = _$translate_;
-      $control = _$control_;
-      $utilities = _$utilities_;
       $settings = _$settings_;
     }]);
   });

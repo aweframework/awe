@@ -417,7 +417,7 @@ aweApplication.factory('GridBase',
             let  rowIndex = component.model.values.length;
             if (row) {
               let  foundRowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
-              if (foundRowIndex != -1) {
+              if (foundRowIndex !== -1) {
                 rowIndex = foundRowIndex;
               }
             }

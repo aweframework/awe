@@ -16,9 +16,8 @@ aweApplication.directive('awePdfViewer',
         /**
          * Link function
          * @param {Object} scope Directive scope
-         * @param {object} $element Directive node
          */
-        link: function (scope, $element) {
+        link: function (scope) {
           // Init as component
           let  component = new Component(scope, scope.widgetId);
           if (!component.asComponent()) {

@@ -12,7 +12,7 @@ aweApplication.directive('aweInputUploader',
         scope: {
           'criterionId': '@inputUploaderId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new Uploader(scope, scope.criterionId, elem).asUploader();
         }

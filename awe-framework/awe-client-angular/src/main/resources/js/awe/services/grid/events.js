@@ -102,7 +102,7 @@ aweApplication.factory('GridEvents',
          *
          * @param {object} component
          */
-        mapBaseActions: function (component) {
+        mapBaseActions: function () {
         },
         /**
          * Map tree actions

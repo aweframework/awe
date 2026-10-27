@@ -3,8 +3,8 @@ import {textareaInputTemplate} from "../../services/text";
 
 // Textarea directive
 aweApplication.directive('aweInputTextarea',
-  ['ServerData', 'Criterion', '$log',
-    function (serverData, Criterion, $log) {
+  ['ServerData', 'Criterion',
+    function (serverData, Criterion) {
       return {
         restrict: 'E',
         replace: true,

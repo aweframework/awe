@@ -4,7 +4,7 @@ import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import {launchScreenAction} from "../../js/utils";
 
 describe('awe-framework/awe-client-angular/src/test/jest/components/date.js', function() {
-  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $utilities, $settings;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $control, $storage, $utilities, $settings;
   let model = {page:1, records:1, selected: "23/10/1978", total:1, values:[{label: "23/10/1978", value: "23/10/1978"}]};
   let emptyModel = {page:1, records:0, selected: null, total:0, values:[]};
   let controller = {checkInitial: true, checkTarget:false, checked:false, component:"date", contextMenu:[], dependencies:[], icon:"search", id:"Date", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_DATE", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true};
@@ -14,14 +14,13 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/date.js', fu
     angular.mock.module('aweApplication');
 
     // Inject controller
-    inject(["$injector", "$rootScope", "$compile", "$httpBackend", "ActionController", "Screen", "Control", "Storage", "AweUtilities", "AweSettings",
-      function(__$injector__, _$rootScope_, _$compile_, _$httpBackend_, _ActionController_, _Screen_, _Control_, __Storage__, __AweUtilities__, __AweSettings__){
+    inject(["$injector", "$rootScope", "$compile", "$httpBackend", "ActionController", "Control", "Storage", "AweUtilities", "AweSettings",
+      function(__$injector__, _$rootScope_, _$compile_, _$httpBackend_, _ActionController_, _Control_, __Storage__, __AweUtilities__, __AweSettings__){
       $injector = __$injector__;
       $rootScope = _$rootScope_;
       $compile = _$compile_;
       $httpBackend = _$httpBackend_;
       $actionController = _ActionController_;
-      $screen = _Screen_;
       $control = _Control_;
       $storage = __Storage__;
       $utilities = __AweUtilities__;

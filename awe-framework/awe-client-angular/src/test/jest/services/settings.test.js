@@ -36,7 +36,7 @@ describe("AweSettings", () => {
     try {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
-    } catch (error) {
+    } catch {
       // Some specs do not use $httpBackend; keep cleanup best-effort like the existing migrated AngularJS specs.
     }
   });

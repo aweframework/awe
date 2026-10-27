@@ -161,7 +161,7 @@ aweApplication.directive('uiPivotTable',
           scope.onModelChanged = function (changes) {
             scope.datasource = changes.values;
             // Remove id column
-            _.each(scope.datasource, function (data, key) {
+            _.each(scope.datasource, function (data) {
               delete data.id;
             });
             updatePlugin($settings.getLanguage(), true);

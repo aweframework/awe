@@ -3,21 +3,18 @@ import "./lightComponentTestUtils";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/components/loader.js', function () {
-    let  $injector, $rootScope, $templateCache, $compile, $httpBackend, Utilities, ServerData, $storage;
+    let  $rootScope, $templateCache, $compile, $httpBackend, ServerData, $storage;
 
     // Mock module
     beforeEach(function () {
         angular.mock.module('aweApplication');
 
         // Inject controller
-        inject(["$injector", "$rootScope", "$compile", "$templateCache", "$httpBackend", "Storage", "ServerData",  "AweUtilities",
-            function (__$injector__, _$rootScope_, _$compile_, _$templateCache_, _$httpBackend_, _$storage_,  _ServerData_, _Utilities_ ) {
-                $injector = __$injector__;
+        inject(["$rootScope", "$compile", "$templateCache", "$httpBackend", "Storage", "ServerData",  function (_$rootScope_, _$compile_, _$templateCache_, _$httpBackend_, _$storage_,  _ServerData_ ) {
                 $rootScope = _$rootScope_;
                 $compile = _$compile_;
                 $httpBackend = _$httpBackend_;
                 $templateCache = _$templateCache_;
-                Utilities = _Utilities_;
                 ServerData = _ServerData_;
                 $storage = _$storage_;
 
