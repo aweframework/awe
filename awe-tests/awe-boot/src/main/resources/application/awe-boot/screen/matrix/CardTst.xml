@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : CardTst.xml
+    Description: Cards (#899): random figures and a metric filled from queries (reloaded by a button), a static metric whose good trend
+                 is down, a progress towards a target, a chart and a grid in the body of wide cards, a sparkline, a gauge and a feature card
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_CARD">
+  <tag source="buttons">
+    <button id="ButCrdReload" label="PARAMETER_RELOAD" icon="refresh">
+      <button-action type="filter" target="CrdTstLive"/>
+      <button-action type="filter" target="CrdTstThemes"/>
+      <button-action type="filter" target="ChrCrdTst"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <tag type="div" style="awe-card-grid">
+      <card id="CrdTstLive" title="CARD_TST_LIVE" icon="lucide:activity" icon-tone="info" initial-load="query"
+            target-action="CrdTstLive" caption="CARD_TST_LIVE_CAPTION" footer="CARD_TST_LIVE_FOOTER"/>
+      <card id="CrdTstThemes" title="CARD_TST_THEMES" icon="lucide:palette" initial-load="query" target-action="CrdTstThemes"
+            caption="CARD_TST_VS_LAST_MONTH"/>
+      <card id="CrdTstErrors" title="CARD_TST_ERRORS" value="0.42" unit="%" delta="-0.18" delta-unit="pt" good-trend="down"
+            footer="CARD_TST_STATIC"/>
+      <card id="CrdTstTarget" title="CARD_TST_REVENUE" icon="lucide:euro" icon-tone="success" value="412600" unit="€"
+            target="500000" number-decimals="0" delta="6.1" caption="CARD_TST_VS_LAST_MONTH" footer="CARD_TST_DAYS_LEFT"/>
+      <card id="CrdTstOrders" title="CARD_TST_ORDERS" initial-load="query" target-action="CrdTstOrders"
+            footer="CARD_TST_ORDERS_FOOTER"/>
+      <card id="CrdTstDisk" title="CARD_TST_DISK" icon="lucide:hard-drive" icon-tone="warning" value="720" unit="GB"
+            target="1000" progress-style="gauge" footer="CARD_TST_DISK_FOOTER"/>
+      <card id="CrdTstFeature" title="CARD_TST_FEATURE" icon="lucide:plug" icon-tone="info" description="CARD_TST_FEATURE_DESCRIPTION"/>
+      <card id="CrdTstChart" title="CARD_TST_CHART" icon="lucide:chart-pie" style="awe-card-wide">
+        <chart id="ChrCrdTst" type="pie" initial-load="query" target-action="TstChrPieSrc" max="5">
+          <chart-legend enabled="false"/>
+          <chart-serie id="serie1" x-value="names" y-value="serie1" label="CARD_TST_CHART"/>
+        </chart>
+      </card>
+      <card id="CrdTstGrid" title="CARD_TST_GRID" icon="lucide:table" style="awe-card-wide">
+        <grid id="GrdCrdTst" initial-load="query" server-action="data" target-action="QryUniTstId" max="5">
+          <column label="PARAMETER_TEXT" name="Als" sort-field="Als" align="left" charlength="20"/>
+        </grid>
+      </card>
+    </tag>
+  </tag>
+</screen>

@@ -177,6 +177,12 @@ export const TestIds = Object.freeze({
   // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
   window: "window",
   windowMaximizeButton: "window-maximize-button",
+  // Cards (the instance is identified by the owner) with their value, their trend delta and their target progress
+  card: "card",
+  cardValue: "card-value",
+  cardDelta: "card-delta",
+  cardProgress: "card-progress",
+  cardSparkline: "card-sparkline",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
   loader: "loader",
   loadingSpinner: "loading-spinner"

@@ -451,6 +451,23 @@
     <java classname="com.almis.awe.test.service.DummyService" method="carousel"/>
   </service>
 
+  <!-- CARDS OF THE DASHBOARD (#899) -->
+  <service id="DshCardDeliveries">
+    <java classname="com.almis.awe.test.service.DashboardCardService" method="deliveries"/>
+  </service>
+
+  <service id="DshCardDeliveriesTrend">
+    <java classname="com.almis.awe.test.service.DashboardCardService" method="deliveriesTrend"/>
+  </service>
+
+  <service id="DshCardRevenue">
+    <java classname="com.almis.awe.test.service.DashboardCardService" method="revenue"/>
+  </service>
+
+  <service id="DshCardErrors">
+    <java classname="com.almis.awe.test.service.DashboardCardService" method="errors"/>
+  </service>
+
   <service id="TstMapPoints">
     <java classname="com.almis.awe.test.service.DummyService" method="mapPoints"/>
   </service>

@@ -1270,6 +1270,71 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the css of a card. Both clients render the card hook with the card id as owner
+   *
+   * @param cardId Card identifier
+   * @return Card css selector
+   */
+  default String getCardCss(String cardId) {
+    return TestIds.css(TestIds.CARD) + TestAttributes.css(TestAttributes.OWNER, cardId);
+  }
+
+  /**
+   * Get the value of a card (its number and its unit)
+   *
+   * @param cardId Card identifier
+   * @return Card value selector
+   */
+  default By getCardValue(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_VALUE));
+  }
+
+  /**
+   * Get the trend delta of a card, which carries its direction ({@code data-trend}) and its tone ({@code data-tone})
+   *
+   * @param cardId Card identifier
+   * @return Card delta selector
+   */
+  default By getCardDelta(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_DELTA));
+  }
+
+  /**
+   * Get the text of the trend delta of a card (the number and its unit, without the arrow and the hidden trend label).
+   * Both clients share the classes of the card
+   *
+   * @param cardId Card identifier
+   * @return Card delta text selector
+   */
+  default By getCardDeltaText(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_DELTA) + " .awe-card-delta-text");
+  }
+
+  /**
+   * Get the target progress bar of a card, which carries the percent in {@code aria-valuenow}
+   *
+   * @param cardId Card identifier
+   * @return Card progress selector
+   */
+  default By getCardProgress(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_PROGRESS));
+  }
+
+  /**
+   * Get a component in the body of a card, found as the clients identify it: by the attribute that carries the id of a
+   * criterion, a grid or a chart, or by the element id
+   *
+   * @param cardId      Card identifier
+   * @param componentId Component identifier
+   * @return Selector of the component in the body of the card
+   */
+  default By getCardBodyComponent(String cardId, String componentId) {
+    String body = getCardCss(cardId) + " .awe-card-body ";
+    return By.cssSelector(body + "[criterion-id='" + componentId + "']," + body + "[grid-id='" + componentId + "'],"
+      + body + "[chart-id='" + componentId + "']," + body + "#" + componentId);
+  }
+
+  /**
    * Get the css of a button, the element that takes the focus
    *
    * @param buttonId Button identifier

@@ -347,6 +347,12 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getPopoverCss", () -> i.getPopoverCss("Pop"));
     catalog.put("getOpenPopover", () -> i.getOpenPopover("Pop"));
     catalog.put("getPopoverClose", () -> i.getPopoverClose("Pop"));
+    catalog.put("getCardCss", () -> i.getCardCss("Crd"));
+    catalog.put("getCardValue", () -> i.getCardValue("Crd"));
+    catalog.put("getCardDelta", () -> i.getCardDelta("Crd"));
+    catalog.put("getCardDeltaText", () -> i.getCardDeltaText("Crd"));
+    catalog.put("getCardProgress", () -> i.getCardProgress("Crd"));
+    catalog.put("getCardBodyComponent", () -> i.getCardBodyComponent("Crd", "Grd"));
     catalog.put("getGridColumnsButton", () -> i.getGridColumnsButton(GRID));
     catalog.put("getGridMaximizeButton", () -> i.getGridMaximizeButton(GRID));
     catalog.put("getGridToolbarMaximized", () -> i.getGridToolbarMaximized(GRID, true));

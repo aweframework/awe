@@ -1,0 +1,346 @@
+//
+// Card (#899): a KPI tile (title, big value, delta badge, icon tile, target progress) able to hold other components in
+// its body. Same classes as the React card (AweCard). A container with the style awe-card-grid lays its cards out.
+// --------------------------------------------------
+.awe-card-grid {
+  display: grid;
+  // No min(): some LESS versions evaluate it themselves and leave a single column
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--awe-space-16) * 4), 1fr));
+  gap: var(--awe-layout-gap);
+  align-items: stretch;
+}
+
+.awe-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  min-width: 0;
+  height: 100%;
+  padding: var(--awe-content-padding);
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-panel);
+  border: 1px solid var(--awe-color-panel-border);
+  border-radius: var(--awe-radius-card);
+  // No hover state: the card has no action of its own, a hover would tell the user it can be clicked
+  box-shadow: var(--awe-shadow-card);
+}
+
+.awe-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+}
+
+.awe-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  min-width: 0;
+}
+
+.awe-card-title {
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-muted);
+}
+
+.awe-card-subtitle {
+  margin: 0;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+// Tonal square tile of the icon (primary by default, icon-tone otherwise)
+.awe-card-icon {
+  --_card-icon-background: var(--awe-color-primary-subtle);
+  --_card-icon-color: var(--awe-color-on-primary-subtle);
+
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: var(--awe-size-control);
+  height: var(--awe-size-control);
+  margin-left: auto;
+  color: var(--_card-icon-color);
+  background-color: var(--_card-icon-background);
+  border-radius: var(--awe-radius-lg);
+
+  .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+}
+
+.awe-card-icon-success {
+  --_card-icon-background: var(--awe-color-success-subtle);
+  --_card-icon-color: var(--awe-color-success-text);
+}
+
+.awe-card-icon-warning {
+  --_card-icon-background: var(--awe-color-warning-subtle);
+  --_card-icon-color: var(--awe-color-warning-text);
+}
+
+.awe-card-icon-danger {
+  --_card-icon-background: var(--awe-color-danger-subtle);
+  --_card-icon-color: var(--awe-color-danger-text);
+}
+
+.awe-card-icon-info {
+  --_card-icon-background: var(--awe-color-info-subtle);
+  --_card-icon-color: var(--awe-color-info-text);
+}
+
+.awe-card-icon-neutral {
+  --_card-icon-background: var(--awe-color-neutral-subtle);
+  --_card-icon-color: var(--awe-color-neutral-text);
+}
+
+.awe-card-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--awe-space-1);
+  min-width: 0;
+}
+
+.awe-card-number {
+  font-size: var(--awe-font-size-3xl);
+  font-weight: var(--awe-font-weight-bold);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-display);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+}
+
+.awe-card-unit {
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+}
+
+// Sparkline below the value: the SVG fills the width of the card, its strokes keep their width when it stretches
+.awe-card-sparkline {
+  flex: none;
+  line-height: 0;
+  color: var(--awe-color-primary);
+
+  .awe-sparkline {
+    display: block;
+    width: 100%;
+    height: calc(var(--awe-space-16) * 0.75);
+    overflow: visible;
+  }
+
+  .awe-sparkline * {
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.awe-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+
+  // A chart fills the body (it takes the free height of the card), never below a readable height
+  > .chart {
+    flex: 1 1 auto;
+    min-height: calc(var(--awe-space-16) * 1.5);
+  }
+
+  // A grid sizes its rows from the height of its container: it gets room for its toolbar, header, a few rows and pager
+  > .grid {
+    flex: none;
+    height: calc(var(--awe-space-16) * 5);
+  }
+}
+
+// Tonal delta tag: the tone is also told by the arrow and the hidden trend text, not by the colour alone
+.awe-card-delta {
+  --_card-delta-background: var(--awe-color-neutral-subtle);
+  --_card-delta-color: var(--awe-color-neutral-text);
+
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  line-height: var(--awe-line-height-snug);
+  white-space: nowrap;
+  color: var(--_card-delta-color);
+  background-color: var(--_card-delta-background);
+  border-radius: var(--awe-radius-full);
+
+  .awe-card-header > & {
+    margin-left: auto;
+  }
+}
+
+.awe-card-delta-success {
+  --_card-delta-background: var(--awe-color-success-subtle);
+  --_card-delta-color: var(--awe-color-success-text);
+}
+
+.awe-card-delta-warning {
+  --_card-delta-background: var(--awe-color-warning-subtle);
+  --_card-delta-color: var(--awe-color-warning-text);
+}
+
+.awe-card-delta-danger {
+  --_card-delta-background: var(--awe-color-danger-subtle);
+  --_card-delta-color: var(--awe-color-danger-text);
+}
+
+.awe-card-delta-info {
+  --_card-delta-background: var(--awe-color-info-subtle);
+  --_card-delta-color: var(--awe-color-info-text);
+}
+
+.awe-card-progress {
+  height: var(--awe-space-1-5);
+  overflow: hidden;
+  background-color: var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-card-progress-bar {
+  display: block;
+  height: 100%;
+  background-color: var(--awe-color-primary);
+  border-radius: inherit;
+  transition: width var(--awe-motion-duration-slow) var(--awe-motion-easing-standard);
+}
+
+// Half ring of the gauge, centred: the track and the bar share the arc, the percent sits inside it
+.awe-card-gauge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: calc(var(--awe-space-16) * 3);
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.awe-card-gauge-arc {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  path {
+    fill: none;
+    // Width in units of the view box (100 wide)
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+}
+
+.awe-card-gauge-track {
+  stroke: var(--awe-color-secondary);
+}
+
+.awe-card-gauge-bar {
+  stroke: var(--awe-color-primary);
+  transition: stroke-dasharray var(--awe-motion-duration-slow) var(--awe-motion-easing-standard);
+}
+
+.awe-card-gauge-value {
+  position: absolute;
+  bottom: 0;
+  font-size: var(--awe-font-size-2xl);
+  font-weight: var(--awe-font-weight-bold);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  line-height: var(--awe-line-height-tight);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-card-gauge + .awe-card-progress-text {
+  text-align: center;
+}
+
+.awe-card-progress-text,
+.awe-card-description {
+  margin: 0;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.awe-card-description {
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-base);
+}
+
+.awe-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+  margin-top: auto;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.awe-card-footer-end {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awe-card-progress-bar,
+  .awe-card-gauge-bar {
+    transition: none;
+  }
+}
+
+// The progress (bar or gauge) and the sparkline take the tone of the icon tile (primary by default)
+@card-progress-tones: primary, success, warning, danger, info;
+each(@card-progress-tones, {
+  .awe-card-progress-@{value} .awe-card-progress-bar {
+    background-color: ~"var(--awe-color-@{value})";
+  }
+
+  .awe-card-progress-@{value} .awe-card-gauge-bar {
+    stroke: ~"var(--awe-color-@{value})";
+  }
+
+  .awe-card-sparkline-@{value} {
+    color: ~"var(--awe-color-@{value})";
+  }
+});
+
+.awe-card-progress-neutral .awe-card-progress-bar {
+  background-color: var(--awe-color-text-muted);
+}
+
+.awe-card-progress-neutral .awe-card-gauge-bar {
+  stroke: var(--awe-color-text-muted);
+}
+
+.awe-card-sparkline-neutral {
+  color: var(--awe-color-text-muted);
+}
+
+// A wide card takes two columns of the grid (a card with a chart or a grid in its body). On narrow screens the grid has
+// a single column, so it takes the whole row
+.awe-card-grid > .awe-card-wide {
+  @media (min-width: @screen-sm-min) {
+    grid-column: span 2;
+  }
+}

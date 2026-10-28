@@ -494,6 +494,21 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getPopoverClose("Pop")).hasToString(
       "By.cssSelector: [data-testid='popover'][data-testid-owner='Pop'] [data-testid='popover-close']");
   }
+  @Test
+  void shouldLocateTheCardAndItsPartsWithTheHooksOfAngularJs() {
+    assertThat(instructions.getCardCss("Crd")).isEqualTo("[data-testid='card'][data-testid-owner='Crd']");
+    assertThat(instructions.getCardValue("Crd")).hasToString(
+      "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-value']");
+    assertThat(instructions.getCardDelta("Crd")).hasToString(
+      "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-delta']");
+    assertThat(instructions.getCardDeltaText("Crd")).hasToString(
+      "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-delta'] .awe-card-delta-text");
+    assertThat(instructions.getCardProgress("Crd")).hasToString(
+      "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-progress']");
+    String body = "[data-testid='card'][data-testid-owner='Crd'] .awe-card-body ";
+    assertThat(instructions.getCardBodyComponent("Crd", "Grd")).hasToString("By.cssSelector: " + body
+      + "[criterion-id='Grd']," + body + "[grid-id='Grd']," + body + "[chart-id='Grd']," + body + "#Grd");
+  }
 
   @Test
   void shouldLocateTheSparklineOfAGridCell() {

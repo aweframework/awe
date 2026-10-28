@@ -95,6 +95,7 @@ import "./accordion";
 import "./video";
 import "./link";
 import "./image";
+import "./card";
 
 import "./grid";
 import "./treegrid";

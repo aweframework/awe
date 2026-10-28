@@ -1289,6 +1289,10 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_INFORMATION_MESSAGE_2" value="If you want to exit the application, press the logout button on the top right side of the screen."/>
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Loading"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_UP" value="Up"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_DOWN" value="Down"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_FLAT" value="No change"/>
+  <locale name="SCREEN_TEXT_CARD_TARGET_OF" value="of"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximize"/>
   <locale name="GRID_COLUMNS_BUTTON" value="Columns"/>
   <locale name="GRID_COLUMNS_TITLE" value="Grid columns"/>

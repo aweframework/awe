@@ -17,8 +17,25 @@
             <button-action type="reload"/>
         </button>
     </tag>
+    <!-- Fixed height rows (the page scrolls): the key figures, the charts and the grids never squeeze each other -->
     <tag source="center" expandible="vertical">
-        <tag type="div" style="expand" expandible="horizontal">
+        <!-- Key figures (#899): each card is filled from the first row of its query -->
+        <tag type="div" style="awe-card-grid m-2">
+            <card id="CrdDshDeliveries" initial-load="query" target-action="DshCardDeliveries" number-decimals="1">
+                <chart id="ChrDshDeliveries" type="areaspline" initial-load="query" target-action="DshCardDeliveriesTrend">
+                    <chart-legend enabled="false"/>
+                    <x-axis type="category"/>
+                    <y-axis/>
+                    <chart-tooltip suffix=" %" number-decimals="1"/>
+                    <chart-serie id="serie1" x-value="week" y-value="onTime" label="DASHBOARD_CARD_DELIVERIES_TREND"/>
+                </chart>
+            </card>
+            <card id="CrdDshRevenue" icon="lucide:euro" icon-tone="success" initial-load="query"
+                  target-action="DshCardRevenue" number-decimals="0"/>
+            <card id="CrdDshErrors" icon="lucide:bug" icon-tone="warning" good-trend="down" initial-load="query"
+                  target-action="DshCardErrors" number-decimals="2"/>
+        </tag>
+        <tag type="div" style="h-20rem" expandible="horizontal">
             <window label="DASHBOARD_WINDOW_ANALYTICS" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
                 <chart id="chart-analytics" type="column" initial-load="query"
                        target-action="QryEdiTst">
@@ -57,7 +74,7 @@
                 </chart>
             </window>
         </tag>
-        <tag type="div" style="expand" expandible="horizontal">
+        <tag type="div" style="h-30rem" expandible="horizontal">
             <window label="DASHBOARD_WINDOW_FILES" icon="mdi:table_view" style="expand">
                 <grid id="data-grid-1" style="expand" initial-load="query" server-action="data"
                       target-action="QryUniTstId" max="30">

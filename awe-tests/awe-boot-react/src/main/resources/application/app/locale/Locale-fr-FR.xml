@@ -90,6 +90,16 @@
   <locale name="DASHBOARD_WINDOW_DONUT" value="Répartition des thèmes"/>
   <locale name="DASHBOARD_WINDOW_FILES" value="Fichiers"/>
   <locale name="DASHBOARD_WINDOW_SUGGESTIONS" value="Suggestions"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES" value="Livraisons à l'heure"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES_FOOTER" value="8 dernières semaines · objectif 95 %"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES_TREND" value="Livraisons à l'heure (%)"/>
+  <locale name="DASHBOARD_CARD_REVENUE" value="Chiffre d'affaires mensuel"/>
+  <locale name="DASHBOARD_CARD_REVENUE_FOOTER" value="Encore 8 jours ouvrés"/>
+  <locale name="DASHBOARD_CARD_ERRORS" value="Taux d'erreur"/>
+  <locale name="DASHBOARD_CARD_ERRORS_SUBTITLE" value="Requêtes API"/>
+  <locale name="DASHBOARD_CARD_ERRORS_FOOTER" value="7 derniers jours · 1,2 M de requêtes"/>
+  <locale name="DASHBOARD_CARD_VS_LAST_MONTH" value="par rapport au mois dernier"/>
+  <locale name="DASHBOARD_CARD_VS_LAST_WEEK" value="par rapport à la semaine dernière"/>
   <locale name="MENU_GRID_CHART" value="Matrices et graphiques"/>
   <locale name="MENU_TEST" value="Test"/>
   <locale name="MENU_SECTION_ADMINISTRATION" value="Administration"/>
@@ -351,6 +361,25 @@
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtres"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Résultat"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Colonnes dans un panneau latéral"/>
+  <locale name="MENU_TEST_CARDS" value="Cartes"/>
+  <locale name="CARD_TST_LIVE" value="Sessions actives"/>
+  <locale name="CARD_TST_LIVE_CAPTION" value="par rapport au rechargement précédent"/>
+  <locale name="CARD_TST_LIVE_FOOTER" value="Chiffres aléatoires : Recharger les change"/>
+  <locale name="CARD_TST_ORDERS" value="Commandes hebdomadaires"/>
+  <locale name="CARD_TST_ORDERS_FOOTER" value="12 dernières semaines"/>
+  <locale name="CARD_TST_DISK" value="Utilisation du disque"/>
+  <locale name="CARD_TST_DISK_FOOTER" value="Volume de données du serveur de fichiers"/>
+  <locale name="SCREEN_TITLE_CARD" value="Cartes"/>
+  <locale name="CARD_TST_THEMES" value="Thèmes"/>
+  <locale name="CARD_TST_VS_LAST_MONTH" value="par rapport au mois dernier"/>
+  <locale name="CARD_TST_ERRORS" value="Taux d'erreur"/>
+  <locale name="CARD_TST_STATIC" value="Valeurs statiques"/>
+  <locale name="CARD_TST_REVENUE" value="Chiffre d'affaires mensuel"/>
+  <locale name="CARD_TST_DAYS_LEFT" value="Encore 8 jours ouvrés"/>
+  <locale name="CARD_TST_FEATURE" value="Starters enfichables"/>
+  <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Les starters Spring Boot activent uniquement les modules nécessaires : planificateur, notifications, impression, REST."/>
+  <locale name="CARD_TST_CHART" value="Thèmes par poids"/>
+  <locale name="CARD_TST_GRID" value="Derniers enregistrements"/>
   <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
   <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
   <locale name="BUTTON_POPOVER_BOTTOM" value="Popover en dessous"/>

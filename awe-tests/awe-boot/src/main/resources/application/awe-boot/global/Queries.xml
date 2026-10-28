@@ -2423,6 +2423,38 @@
     <computed format="parseInt(Math.random()*100,10)" eval="true" alias="serie1" transform="NUMBER_PLAIN"/>
     <computed format="(parseInt(Math.random()*100,10))+2" eval="true" alias="subserie1" transform="NUMBER_PLAIN"/>
   </query>
+  <!-- SPARKLINE CARD OF THE CARD TEST SCREEN (#899): orders of the last 12 weeks -->
+  <query id="CrdTstOrders">
+    <table id="AweThm"/>
+    <field id="Nam" alias="name"/>
+    <constant value="1284" alias="value" type="INTEGER"/>
+    <constant value="4.2" alias="delta" type="DOUBLE"/>
+    <constant value="[980,1010,995,1060,1040,1105,1090,1150,1175,1160,1230,1284]" alias="sparkline"/>
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="ordersTheme"/>
+    </where>
+    <variable id="ordersTheme" type="STRING" value="sunset"/>
+  </query>
+
+  <!-- LIVE CARD OF THE CARD TEST SCREEN (#899): random figures, so its reload button shows new values -->
+  <query id="CrdTstLive">
+    <table id="AweThm"/>
+    <field id="Nam" alias="name"/>
+    <computed format="parseInt(Math.random()*900,10)+100" eval="true" alias="value" transform="NUMBER_PLAIN"/>
+    <computed format="parseInt(Math.random()*200,10)/10-10" eval="true" alias="delta" transform="NUMBER_PLAIN"/>
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="liveTheme"/>
+    </where>
+    <variable id="liveTheme" type="STRING" value="sunset"/>
+  </query>
+
+  <!-- METRIC CARD OF THE CARD TEST SCREEN (#899): the number of themes -->
+  <query id="CrdTstThemes">
+    <table id="AweThm"/>
+    <field id="IdeThm" function="CNT" alias="value"/>
+    <constant value="12.5" alias="delta"/>
+  </query>
+
   <query id="TstChrPieSrc" distinct="true">
     <table id="AweThm"/>
     <field id="Nam" alias="names"/>

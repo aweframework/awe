@@ -131,7 +131,12 @@ describe("test id vocabulary", () => {
       loader: "loader",
       loadingBar: "loading-bar",
       loadingSpinner: "loading-spinner",
-      chart: "chart"
+      chart: "chart",
+      card: "card",
+      cardValue: "card-value",
+      cardDelta: "card-delta",
+      cardProgress: "card-progress",
+      cardSparkline: "card-sparkline"
     });
     Object.keys(TestIds).map(name => TestIds[name]).forEach(value => expect(value).toMatch(/^[a-z]+(-[a-z]+)*$/));
   });

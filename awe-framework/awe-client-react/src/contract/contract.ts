@@ -132,6 +132,26 @@ export interface Button extends AbstractButton {
 export interface ButtonAction extends AbstractAction {
 }
 
+export interface Card extends Component {
+    caption?: string;
+    delta?: string;
+    deltaUnit?: string;
+    description?: string;
+    footer?: string;
+    goodTrend?: string;
+    iconTone?: string;
+    numberDecimals?: number;
+    progressStyle?: string;
+    sparkline?: string;
+    sparklineType?: string;
+    subtitle?: string;
+    target?: string;
+    tone?: string;
+    trend?: string;
+    unit?: string;
+    value?: string;
+}
+
 export interface Chart extends AbstractChart {
     chartModel?: { [index: string]: any };
     echartsModel?: { [index: string]: any };

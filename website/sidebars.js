@@ -148,6 +148,7 @@ module.exports = {
 				"api/layout",
 				"api/tags",
 				"api/window",
+				"api/card",
 				"api/resizable",
 				"api/button",
 				"api/criteria",
