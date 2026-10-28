@@ -177,4 +177,52 @@ describe("uiSelect2", () => {
       expect(dropdown.attr("data-testid")).toBeUndefined();
     });
   });
+
+  describe("required state", () => {
+    function stubContainer(container) {
+      select2Spy.mockImplementation(function select2(method) {
+        if (typeof method === "object") {
+          $(this).data("select2", {container, dropdown: $("<div></div>")});
+        }
+        return method === "container" ? container : this;
+      });
+    }
+
+    // The Criterion factory sets the helpers on the scope of the criterion, which the plugin scope inherits
+    const required = {requiredMark: () => " *", ariaRequired: () => "true"};
+
+    it("adds the required mark of the component to the translated placeholder", () => {
+      compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {...required, component: {onPluginInit: jest.fn()}, aweSelectOptions: {placeholder: "SCREEN_TEXT_USER"}, initialized: true});
+
+      expect(select2Spy).toHaveBeenNthCalledWith(1, expect.objectContaining({placeholder: "translated:SCREEN_TEXT_USER *"}));
+    });
+
+    it("keeps the placeholder as it is when the component has no required mark", () => {
+      compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {requiredMark: () => "", ariaRequired: () => undefined, component: {onPluginInit: jest.fn()},
+          aweSelectOptions: {placeholder: "SCREEN_TEXT_USER"}, initialized: true});
+
+      expect(select2Spy).toHaveBeenNthCalledWith(1, expect.objectContaining({placeholder: "translated:SCREEN_TEXT_USER"}));
+    });
+
+    it("marks the focusable inputs of the plugin as required", () => {
+      const container = $("<div class='select2-container'><input class='select2-focusser'/><input class='select2-input'/></div>");
+      stubContainer(container);
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {...required, component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.find(".select2-focusser").attr("aria-required")).toBe("true");
+      expect(container.find(".select2-input").attr("aria-required")).toBe("true");
+    });
+
+    it("does not mark the plugin as required when the component is not required", () => {
+      const container = $("<div class='select2-container'><input class='select2-focusser'/></div>");
+      stubContainer(container);
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {ariaRequired: () => undefined, component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.find(".select2-focusser").attr("aria-required")).toBeUndefined();
+    });
+  });
 });

@@ -7,14 +7,14 @@ import {iconTemplate} from "./icon";
 export const templateInputColor = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input-group colorpicker-element {{::validatorGroup}} focus-target">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-press-enter="submit($event)" autocomplete="off" ng-click="click($event)"
-             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-change="component.modelChange()"
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-change="component.modelChange()"
              data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon" colorpicker ng-model="model.selected" ng-change="component.modelChange()" ng-if="!controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
@@ -428,6 +428,35 @@ aweApplication.factory('Criterion',
               });
             }
           }
+
+          /**
+           * Check if the criterion draws its label row: a label, the help icon (it lives in the label), or a left label
+           * that keeps the column of the labels
+           * @returns {boolean} The label row is drawn
+           */
+          component.scope.hasLabelRow = function () {
+            const {label, help, leftLabel} = component.controller;
+            return !!(label || help || leftLabel);
+          };
+
+          /**
+           * Retrieve the asterisk that shows the required state in the placeholder of a required criterion without
+           * visible label (the label draws its own asterisk)
+           * @returns {string} Required mark
+           */
+          component.scope.requiredMark = function () {
+            const attributes = component.controller;
+            const hasLabel = !!attributes.label && String(attributes.style || "").indexOf("no-label") === -1;
+            return attributes.required && attributes.placeholder && !hasLabel ? " *" : "";
+          };
+
+          /**
+           * Retrieve the value of aria-required of the focusable element of the criterion
+           * @returns {string|undefined} "true" when the criterion is required, undefined (no attribute) otherwise
+           */
+          component.scope.ariaRequired = function () {
+            return component.controller.required ? "true" : undefined;
+          };
 
           // Initially update classes
           component.updateClasses();

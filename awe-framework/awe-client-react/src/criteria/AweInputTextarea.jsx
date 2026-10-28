@@ -1,7 +1,7 @@
 import React from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {InputTextarea} from "primereact/inputtextarea";
 import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
 import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
@@ -13,7 +13,7 @@ function AweInputTextarea(props) {
   const { t } = useTranslation();
   const { address, attributes, validationRules, value, onChange, onBlur } = useText(id);
 
-  const { placeholder, required, readonly, size, areaRows, error } = attributes;
+  const {required, readonly, size, areaRows, error } = attributes;
   const classes = classNames("w-full", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
@@ -23,10 +23,11 @@ function AweInputTextarea(props) {
         id={address?.component}
         value={value}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         onChange={onChange}
         onBlur={onBlur}
         required={required}
+        {...requiredAria(attributes, validationRules)}
         disabled={readonly}
         rows={areaRows}
         {...testHook(TestIds.criterionInput)}

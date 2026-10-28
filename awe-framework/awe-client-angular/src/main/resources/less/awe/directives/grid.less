@@ -214,9 +214,15 @@
               border-radius: 50%;
             }
           }
+          // Checked: the circle and the dot of the criteria radios
+          input.px:checked + .lbl:before {
+            background: var(--awe-color-primary);
+            border-color: var(--awe-color-primary);
+          }
           input.px:checked + .lbl:after {
             display: block;
             opacity: 1;
+            background: var(--awe-color-on-primary);
           }
         }
         // Button radio column: the options of the cell are one joined bar of buttons, with adjacent buttons sharing
@@ -232,8 +238,10 @@
             flex: 0 1 auto;
             align-items: center;
             justify-content: center;
-            height: auto;
+            // The buttons have no vertical padding (their height is a token): the bar takes the height of the editors
+            height: @grid-editor-height;
             margin: 0;
+            padding: 0 var(--awe-space-3);
             border-radius: 0;
             cursor: pointer;
             white-space: nowrap;

@@ -1,6 +1,6 @@
 import React, {useCallback} from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Calendar} from "primereact/calendar";
-import {translateLabel} from "../utilities";
 import {fromTime, toTime} from "../utilities/dates";
 import {classNames} from "../utilities/components";
 import {useDispatch, useSelector} from "react-redux";
@@ -27,7 +27,7 @@ function AweInputTime(props) {
 
   const onKeyDown = useEnterKey(onSubmit);
 
-  const { placeholder, required, readonly, size, error } = attributes;
+  const {required, readonly, size, error } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
@@ -36,12 +36,12 @@ function AweInputTime(props) {
         id={address?.component}
         value={toTime(value)}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         onChange={onChange}
         required={required}
         disabled={readonly}
         locale={settings.language}
-        pt={calendarPassThrough(address?.component, onKeyDown)}
+        pt={calendarPassThrough(address?.component, onKeyDown, undefined, requiredAria(attributes, validationRules))}
         timeOnly
         showSeconds
       />

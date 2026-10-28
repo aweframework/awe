@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import { AutoComplete } from "primereact/autocomplete";
 import { classNames } from "../utilities/components";
 import "./AweSuggest.less";
@@ -6,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import { translateLabel } from "../utilities";
 import { getSuggestionLabel, getVirtualItemSize, withTextLabels } from "../utilities/suggest";
 import { CriterionSkeleton } from "../components/AweSkeleton";
 import PropTypes from "prop-types";
@@ -44,7 +44,7 @@ function AweSuggest(props) {
     }
   }, [value, attributes]);
 
-  const { placeholder, required, readonly, timeout, size, error, virtualScroll, openPanelOnMount } = attributes || {};
+  const {required, readonly, timeout, size, error, virtualScroll, openPanelOnMount } = attributes || {};
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
   const isLargeList = suggestions.length > 100;
   const enableVirtualScroll = virtualScroll !== false;
@@ -116,8 +116,9 @@ function AweSuggest(props) {
         ref={autocompleteRef}
         id={id}
         value={value}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
+        {...requiredAria(attributes, validationRules)}
         disabled={readonly}
         onChange={onChange}
         onClear={onClear}

@@ -1,7 +1,7 @@
 import React from "react";
 import {InputText} from 'primereact/inputtext';
 import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
@@ -17,7 +17,7 @@ function AweInputText(props) {
   // On the sign-in page the field is disabled while the login runs
   const signingIn = useSigningIn();
 
-  const { placeholder, required, readonly, size, error } = attributes;
+  const {required, readonly, size, error } = attributes;
   const onKeyDown = useEnterKey(onSubmit);
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
@@ -27,11 +27,12 @@ function AweInputText(props) {
         id={address?.component}
         value={value}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         required={required}
+        {...requiredAria(attributes, validationRules)}
         disabled={readonly || signingIn}
         {...testHook(TestIds.criterionInput)}
       />

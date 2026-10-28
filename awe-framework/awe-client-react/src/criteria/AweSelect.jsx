@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Dropdown} from "primereact/dropdown";
-import {translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
@@ -14,7 +14,7 @@ function AweSelect(props) {
   const {t, ref, address, model, attributes, validationRules, options, selected, onChange} =
     useSelect({id, multiple: false});
 
-  const {placeholder, required, readonly, optional, size, error} = attributes;
+  const {required, readonly, optional, size, error} = attributes;
   useEffect(() => {
     if (optional === false && selected == null && model?.values?.length) {
       onChange({ value: model.values[0].value });
@@ -32,7 +32,7 @@ function AweSelect(props) {
       ref={ref}
       id={id}
       value={selected}
-      placeholder={translateLabel(placeholder, t)}
+      placeholder={criterionPlaceholder(attributes, validationRules, t, false)}
       onChange={onChange}
       required={required}
       disabled={readonly}
@@ -43,7 +43,7 @@ function AweSelect(props) {
       filter={options.length > 5}
       filterBy="label"
       valueTemplate={selectValueTemplate}
-      pt={dropdownPassThrough(id)}
+      pt={{...dropdownPassThrough(id), input: requiredAria(attributes, validationRules)}}
     />
   </AweCriterion>;
 }

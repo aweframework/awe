@@ -275,15 +275,17 @@ const keepFocusOnInput = (event: FocusEvent<HTMLElement>): void => {
  * @param {string} owner Id of the component that owns the calendar overlay
  * @param {function(KeyboardEvent)} [onKeyDown] Key down handler of the input
  * @param {object} [inputHook] Test hook of the input (the criterion input by default)
+ * @param {object} [inputAttributes] Extra attributes of the input (as its aria-required)
  * @returns {object} Calendar pt
  */
 export function calendarPassThrough(
   owner: string,
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => unknown,
-  inputHook: TestHook = testHook(TestIds.criterionInput)
+  inputHook: TestHook = testHook(TestIds.criterionInput),
+  inputAttributes: Record<string, string> = {}
 ): CalendarPassThrough {
   return {
-    input: { root: { ...inputHook, onKeyDownCapture: markKeyboardNavigation, ...(onKeyDown && { onKeyDown }) } },
+    input: { root: { ...inputHook, ...inputAttributes, onKeyDownCapture: markKeyboardNavigation, ...(onKeyDown && { onKeyDown }) } },
     panel: { ...testHook(TestIds.datepicker, { owner }), onKeyDown: panelEnterHandler, onFocus: keepFocusOnInput },
     day: ({ props, context }) => testHook(TestIds.datepickerDay, {
       owner,

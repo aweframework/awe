@@ -79,6 +79,11 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final String SPARKLINE_FOCUS_SCRIPT = "return arguments[0].getAttribute('focusable') + '|' + "
     + "arguments[0].querySelectorAll('[tabindex]').length;";
   private static final int DIALOG_WIDTH_TOLERANCE = 2;
+  // Width of the element (first argument)
+  private static final String WIDTH_SCRIPT = "return arguments[0].getBoundingClientRect().width;";
+  // Distance from the left edge of a criterion where the click that leaves it lands: inside the gutter of its column,
+  // which is the criterion itself and not its control
+  private static final int CRITERION_EDGE_OFFSET = 2;
   // Where a side panel (first argument) is: its gaps to the left and to the right edges of the viewport, its width and
   // its maximum width (second argument, a css length that the browser resolves) capped by the width of the viewport
   private static final String SIDE_PANEL_PLACEMENT_SCRIPT = "var panel = arguments[0], rect = panel.getBoundingClientRect();"
@@ -999,12 +1004,17 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Move mouse out of criterion
+   * Take the focus out of a criterion with a click on its left edge, out of its control. A click above it would land on
+   * whatever the page shows there when the criterion has no label row (the step bar of a wizard, a tab, a button)
+   *
+   * @param criterionCss Criterion selector
    */
-  private void moveMouseOutOfCriterion() {
+  private void moveMouseOutOfCriterion(String criterionCss) {
     try {
-      // Move mouse out of criterion (up)
-      getBrowser().moveMouseBy(0, -30);
+      Locator criterion = Locator.css(criterionCss);
+      double width = ((Number) getBrowser().executeScriptOn(criterion, WIDTH_SCRIPT)).doubleValue();
+      getBrowser().hover(criterion);
+      getBrowser().moveMouseBy(CRITERION_EDGE_OFFSET - (int) (width / 2), 0);
       getBrowser().clickAtPointer();
     } catch (Exception exc) {
       // Assert error moving mouse
@@ -2466,7 +2476,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By criterionSelector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
     waitUntil(toBeVisible(criterionSelector));
     writeTextFromSelector(criterionSelector, text, clearText);
-    moveMouseOutOfCriterion();
+    moveMouseOutOfCriterion(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -5973,7 +5983,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By fromInput = frontEndInstructions.getDateRangeFrom(criterionName);
     waitUntil(toBeVisible(fromInput));
     clearText(fromInput);
-    moveMouseOutOfCriterion();
+    moveMouseOutOfCriterion(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**

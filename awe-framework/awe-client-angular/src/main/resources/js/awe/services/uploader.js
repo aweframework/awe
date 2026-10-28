@@ -11,7 +11,7 @@ aweApplication.requires.push(ngFileUpload);
 export const uploaderInputTemplate = `<div ng-show="controller.visible" class="criterion uploader" ng-class="criterionClass" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="::controller.id" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+    <label ng-attr-for="::controller.id" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>

@@ -169,6 +169,13 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       });
     });
 
+    // The help icon is an <i> around the Lucide icon, and every <i> has the 14px of the old icon font (font.less): with
+    // the line height of the label it made the line of a label with help 2px taller than the others, so the criteria
+    // floats snagged on it and the rows of the criteria grid broke (#898). The icon font set line-height: 1 on it
+    it("keeps the label of a criterion with help as high as the others", () => {
+      expect(style(".criterion .help-target")).toMatchObject({"line-height": "1"});
+    });
+
     it("aligns a left label with the middle of the field", () => {
       const desktop = "@media (min-width: 768px)";
       expect(style(".criterion.label-left label", desktop)).toMatchObject({

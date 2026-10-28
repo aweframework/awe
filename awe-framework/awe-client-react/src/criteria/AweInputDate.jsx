@@ -1,6 +1,6 @@
 import React, {useCallback} from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Calendar} from "primereact/calendar";
-import {translateLabel} from "../utilities";
 import {fromDate, toDate} from "../utilities/dates";
 import useDateOptions from "../hooks/useDateOptions";
 import {classNames} from "../utilities/components";
@@ -30,7 +30,7 @@ function AweInputDate(props) {
 
   const onKeyDown = useEnterKey(onSubmit);
 
-  const { placeholder, required, readonly, size, error } = attributes;
+  const {required, readonly, size, error } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
@@ -39,12 +39,12 @@ function AweInputDate(props) {
         id={address?.component}
         value={toDate(value, format, language)}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         onChange={onChange}
         required={required}
         disabled={readonly}
         locale={settings.language}
-        pt={calendarPassThrough(address?.component, onKeyDown)}
+        pt={calendarPassThrough(address?.component, onKeyDown, undefined, requiredAria(attributes, validationRules))}
         showButtonBar
         {...calendarProps}
       />

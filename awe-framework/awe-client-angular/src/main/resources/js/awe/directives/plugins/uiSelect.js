@@ -23,6 +23,24 @@ aweApplication.directive('uiSelect2',
           // Id of the selector, used as owner of the plugin DOM (the dropdown is appended to the body)
           const getOwner = () => scope.component && scope.component.id || attrs.id;
 
+          // Helper of the criterion scope (the Criterion factory sets it there; this scope inherits it), if any
+          const criterionHelper = (name) => typeof scope[name] === "function" ? scope[name]() : undefined;
+
+          // Placeholder translated, with the required mark of a criterion without label
+          const getPlaceholder = (placeholder) => $translate.instant(placeholder) + (criterionHelper("requiredMark") || "");
+
+          /**
+           * Tell assistive technology that the focusable inputs of the plugin (the focus catcher of a single select and the
+           * search input of a multiple one) are required
+           * @param {jQuery} container Plugin container
+           */
+          const markRequired = (container) => {
+            const required = criterionHelper("ariaRequired");
+            if (container && required) {
+              container.find(".select2-focusser, .select2-input").attr("aria-required", required);
+            }
+          };
+
           // Observe select2 attributes
           let initWatch = scope.$watch(attrs.initialized, initPlugin);
 
@@ -38,13 +56,14 @@ aweApplication.directive('uiSelect2',
               // Create plugin
               let opts = _.merge({}, options, controller);
               if ("placeholder" in opts) {
-                opts.placeholder = $translate.instant(opts.placeholder);
+                opts.placeholder = getPlaceholder(opts.placeholder);
               }
               // Test hooks: wrap the formatters (default markup is preserved) and tag the plugin DOM
               opts.formatResult = wrapSelect2FormatResult(opts.formatResult, getOwner);
               opts.formatSelection = wrapSelect2FormatSelection(opts.formatSelection, getOwner);
               let plugin = elem.select2(opts);
               testIds = bindSelect2TestIds(elem, getOwner);
+              markRequired(elem.data("select2") ? elem.select2("container") : undefined);
 
               // Define management methods
 
@@ -83,7 +102,7 @@ aweApplication.directive('uiSelect2',
             // Update plugin
             let select2 = elem.data("select2");
             if ("placeholder" in opts) {
-              select2.opts.placeholder = $translate.instant(opts.placeholder);
+              select2.opts.placeholder = getPlaceholder(opts.placeholder);
               select2.setPlaceholder?.();
             }
           }

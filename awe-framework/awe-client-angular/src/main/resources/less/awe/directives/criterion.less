@@ -226,8 +226,11 @@ fieldset[disabled] .form-control {
   color: var(--awe-color-required);
 }
 
+// The help icon is an <i> around the Lucide icon, and every <i> has the font size of the old icon font (font.less): the
+// line height of the icon font keeps it from making the line of the label taller than the one of a label without help
 .criterion .help-target {
   margin-right: var(--awe-space-1);
+  line-height: 1;
   color: var(--awe-color-field-help);
 }
 

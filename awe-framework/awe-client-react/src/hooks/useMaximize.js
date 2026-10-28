@@ -29,6 +29,23 @@ const applyRect = (node, rect) => Object.assign(node.style, {
   top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`
 });
 
+// The target as it is once the element is maximized: without the minimized nodes and with the element out of the flow.
+// Measured before, a content taller than the screen would make the target, and the maximized element, taller than it
+// The classes are only taken back from the nodes that did not have them, and the layout is put back even if it fails
+const getMaximizedTargetRect = (element, {targets, parents}) => {
+  const {position} = element.style;
+  const added = [[targets, "minimized"], [parents, "maximizeParent"]].flatMap(([nodes, className]) =>
+    nodes.filter(node => !node.classList.contains(className)).map(node => [node, className]));
+  added.forEach(([node, className]) => node.classList.add(className));
+  element.style.position = "fixed";
+  try {
+    return getTargetRect(element);
+  } finally {
+    element.style.position = position;
+    added.forEach(([node, className]) => node.classList.remove(className));
+  }
+};
+
 // Layer that grows from the initial size to the final one while the real element waits hidden
 const createClone = (rect) => {
   const clone = document.createElement("div");
@@ -118,8 +135,8 @@ export default function useMaximize({onResize} = {}) {
     clone.current = createClone(getRect(element));
     setResizing(true);
     later(() => {
-      const targetRect = getTargetRect(element);
       minimize.current = getElementsToMinimize(element);
+      const targetRect = getMaximizedTargetRect(element, minimize.current);
       minimize.current.targets.forEach(node => {
         node.style.transition = `opacity ${MAXIMIZE_ANIMATION_TIME}ms`;
         node.style.opacity = "0";

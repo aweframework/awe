@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import { InputNumber } from "primereact/inputnumber";
-import { translateLabel } from "../utilities";
 import { formatNumber, translateNumberFormat } from "../utilities/numbers";
 import { classNames } from "../utilities/components";
 import { isEmpty } from "../utilities/general";
@@ -37,7 +37,7 @@ function AweInputNumeric(props) {
   const [sliding, setSliding] = useState(false);
   const [number, setNumber] = useState(Number(valueFromModel));
 
-  const { placeholder, required, readonly, numberFormat, size, align, icon, unit, error = false, showSlider = false } = attributes;
+  const {required, readonly, numberFormat, size, align, icon, unit, error = false, showSlider = false } = attributes;
   const classes = classNames({ "with-icon": icon, "with-unit": unit, "with-slider": showSlider, [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   const nf = useMemo(() => translateNumberFormat(numberFormat), [numberFormat]);
@@ -78,7 +78,7 @@ function AweInputNumeric(props) {
         id={address?.component}
         value={currentValue}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
         disabled={readonly}
         mode="decimal"
@@ -91,7 +91,7 @@ function AweInputNumeric(props) {
         suffix={nf.suffix}
         onValueChange={onValueChange}
         inputStyle={{ textAlign: align || "right" }}
-        pt={{ root: { onKeyDown }, input: { root: testHook(TestIds.criterionInput) } }}
+        pt={{ root: { onKeyDown }, input: { root: {...testHook(TestIds.criterionInput), ...requiredAria(attributes, validationRules)} } }}
       />
       {showSlider ? (
         <Slider
