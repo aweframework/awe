@@ -132,7 +132,9 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
   }
 
   /**
-   * Delete from a screen
+   * Delete from a screen. It is idempotent: when the record is not listed any more, an earlier attempt of the same test
+   * (the Failsafe rerun of a test that failed after the deletion was stored) has already deleted it, so there is nothing
+   * left to do and {@link #verifyDeleted(String)} asserts that it is gone
    *
    * @param criterion Criterion to search
    * @param search    Search text
@@ -144,6 +146,12 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
 
     // Wait for button
     clickButton(RESET_BUTTON);
+
+    // List the grid: a record that is not there was deleted by an earlier attempt
+    searchAndWait();
+    if (!hasRowContents(search)) {
+      return;
+    }
 
     // Suggest on column selector
     suggest(criterion, search, search);

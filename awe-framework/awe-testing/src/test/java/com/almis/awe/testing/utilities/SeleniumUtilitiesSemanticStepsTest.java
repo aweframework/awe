@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -989,6 +991,60 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThatCode(() -> utilities.closeMessages("danger", 3)).doesNotThrowAnyException();
 
     assertThat(stack).isEmpty();
+  }
+
+  @Test
+  void shouldCloseAMessageThatIsShown() {
+    By portSelector = Locator.from(instructions.getMessage("success")).toBy();
+    AtomicBoolean gone = new AtomicBoolean();
+    WebElement message = mock(WebElement.class);
+    when(message.isDisplayed()).thenReturn(true);
+    when(message.isEnabled()).thenReturn(true);
+    when(driver.findElements(argThat(portSelector::equals)))
+      .thenAnswer(invocation -> gone.get() ? Collections.emptyList() : List.of(message));
+    when(driver.findElement(argThat(portSelector::equals))).thenAnswer(invocation -> {
+      if (gone.get()) {
+        throw new NoSuchElementException("message closed");
+      }
+      return message;
+    });
+    // Clicking the message closes it
+    doAnswer(invocation -> gone.getAndSet(true)).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.checkAndCloseMessage("success")).doesNotThrowAnyException();
+
+    verify((Interactive) driver).perform(any());
+  }
+
+  @Test
+  void shouldAcceptAMessageThatClosesItselfBeforeItIsClicked() {
+    By close = instructions.getMessage("success");
+    By portSelector = Locator.from(close).toBy();
+    AtomicBoolean gone = new AtomicBoolean();
+    WebElement message = mock(WebElement.class);
+    when(message.isDisplayed()).thenReturn(true);
+    // The message is seen clickable and leaves on its own right after (messageTimeout)
+    when(message.isEnabled()).thenAnswer(invocation -> {
+      gone.set(true);
+      return true;
+    });
+    when(driver.findElements(argThat(portSelector::equals)))
+      .thenAnswer(invocation -> gone.get() ? Collections.emptyList() : List.of(message));
+    when(driver.findElement(argThat(portSelector::equals))).thenAnswer(invocation -> {
+      if (gone.get()) {
+        throw new NoSuchElementException("message left");
+      }
+      return message;
+    });
+
+    assertThatCode(() -> utilities.checkAndCloseMessage("success")).doesNotThrowAnyException();
+
+    verify((Interactive) driver, never()).perform(any());
+  }
+
+  @Test
+  void shouldFailToCloseAMessageThatIsNeverShown() {
+    assertThrows(AssertionFailedError.class, () -> utilities.checkAndCloseMessage("success"));
   }
 
   @Test

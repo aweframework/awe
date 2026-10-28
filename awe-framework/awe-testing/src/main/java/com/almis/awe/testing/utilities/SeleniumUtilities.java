@@ -2954,18 +2954,37 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Check a message box and close it
+   * Check a message box and close it.
+   *
+   * <p>The message has to be shown: if it never is, the step fails. Once it has been seen, it is allowed to leave on
+   * its own before or while it is clicked. The messages close themselves after a few seconds by design (the
+   * {@code messageTimeout} of each type, 2 seconds for the success ones), so on a slow runner a message can be gone by
+   * the time the test reaches it, and the click would wait for an element that does not exist any more until the
+   * timeout. A message that is gone is the normal end of a self-closing message, as a closed one is, so the step waits
+   * until the message is closed by the click or has left by itself, and then for the loading bar.</p>
    *
    * @param messageType Message type (success (default), info, warning, danger)
    */
   protected void checkAndCloseMessage(String messageType) {
     By messageSelector = frontEndInstructions.getMessage(messageType);
+    Locator message = locator(messageSelector);
 
-    // Wait for message selector
+    // Wait for message selector: it has to be shown at least once
     waitUntil(toBeClickable(messageSelector));
 
-    // Click on message selector
-    click(messageSelector);
+    // Click on it, unless it left by itself or does while it is clicked (it is not waited for again)
+    waitUntil(BrowserCondition.of("message " + message + " to be closed or to close itself", browser -> {
+      if (!browser.exists(message)) {
+        return true;
+      }
+      try {
+        browser.click(message);
+        return true;
+      } catch (ElementReplacedException | ElementNotFoundException exc) {
+        log.debug("The message left while it was clicked, checking again: {}", messageSelector);
+        return false;
+      }
+    }));
 
     // Wait for element not present
     waitUntil(toBeInvisible(messageSelector));
