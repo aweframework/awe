@@ -16,14 +16,17 @@ interface GridLayout {
   hidden: string[];
 }
 
-const ERROR_MESSAGE_TYPES: unknown[] = ["error", "danger"];
+// Messages of the server which tell that the service did not work: a warning too, as in the AngularJS engine
+const FAILURE_MESSAGE_TYPES: unknown[] = ["error", "danger", "warning"];
 
-const isErrorMessage = (action: ClientAction): boolean =>
-  action.type === "message" && ERROR_MESSAGE_TYPES.includes(action.parameters?.type);
+const isFailureMessage = (action: ClientAction): boolean =>
+  action.type === "message" && FAILURE_MESSAGE_TYPES.includes(action.parameters?.type);
 
 /**
  * Call a grid layout service. The user is never sent: the server takes it from the session.
- * The thunk resolves to true when the service worked. When the call fails the user gets an error message.
+ * The thunk resolves to true when the service worked. It uses maintain-silent: no message when it works (only the
+ * warnings and errors of the server), so saving and restoring feel immediate. A warning or an error of the server is a
+ * failure. When the call fails the user gets an error message.
  *
  * @param {string} target Maintain target of the service
  * @param {object} address Address of the grid
@@ -39,10 +42,10 @@ const launchLayoutService = (
   const { settings } = getState();
   try {
     // An error answer has no list of actions: reading it as one fails and ends in the catch, as it always did
-    const response = await fetchAction("maintain", target, parameters, settings.token, null) as ClientAction[];
+    const response = await fetchAction("maintain-silent", target, parameters, settings.token, null) as ClientAction[];
     dispatch(addActionsTop(response.map(action => ({ ...action, address: { ...address, ...(action.address || {}) } }))));
-    // An error of the server is already shown by its own message
-    return !response.some(isErrorMessage);
+    // A warning or an error of the server is already shown by its own message
+    return !response.some(isFailureMessage);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Error in the grid layout service ${target}:`, error);

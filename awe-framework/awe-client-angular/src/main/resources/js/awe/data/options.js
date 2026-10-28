@@ -34,8 +34,8 @@ export const DefaultSettings = {
   defaultComponentSize: "md",
   // Loading indicator of the grids that do not set icon-loading
   gridIconLoading: "skeleton",
-  // How the toolbar shows the Columns of the grids that do not set columns-panel: dialog or side-panel
-  gridColumnsPanel: "dialog",
+  // How the toolbar shows the Columns of the grids that do not set columns-panel: popover, dialog or side-panel
+  gridColumnsPanel: "popover",
   reloadCurrentScreen: false,
   suggestTimeout: 200,
   // Connection

@@ -4731,10 +4731,11 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Check that the Columns of a grid are open as a modal dialog or as a side panel (grid attribute columns-panel)
+   * Check that the Columns of a grid are open as a popover anchored to the Columns button, as a modal dialog or as a
+   * side panel (grid attribute columns-panel)
    *
    * @param gridId Grid identifier
-   * @param panel  dialog or side-panel
+   * @param panel  popover, dialog or side-panel
    */
   protected void checkGridColumnsPanel(String gridId, String panel) {
     waitUntil(toBeVisible(frontEndInstructions.getGridColumnsPanel(gridId, panel)));
@@ -4834,7 +4835,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column identifier
    */
   protected void moveGridColumnUp(String gridId, String columnId) {
-    click(frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
+    clickGridColumnArrow(gridId, columnId, frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
   }
 
   /**
@@ -4844,7 +4845,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column identifier
    */
   protected void moveGridColumnDown(String gridId, String columnId) {
-    click(frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+    clickGridColumnArrow(gridId, columnId, frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+  }
+
+  // The arrows of a column only show on the row under the pointer (or with the focus), as a user sees them: the row
+  // is hovered before its arrow is clicked
+  private void clickGridColumnArrow(String gridId, String columnId, By arrow) {
+    By item = frontEndInstructions.getGridColumnsItem(gridId, columnId);
+    waitUntil(toBeVisible(item));
+    getBrowser().hover(locator(item));
+    click(arrow);
   }
 
   /**
@@ -4879,28 +4889,52 @@ public class SeleniumUtilities implements IAweInstructions {
    * Show all the columns of a grid with the action of its Columns dialog
    *
    * @param gridId Grid identifier
+   * @deprecated The Columns no longer have a Show all action: check each hidden column instead with
+   * {@link #showGridColumn(String, String)}. It stays available through the whole 5.x line and is not removed before 6.0
    */
+  @Deprecated
   protected void clickGridColumnsShowAll(String gridId) {
     click(frontEndInstructions.getGridColumnsShowAll(gridId));
   }
 
   /**
    * Go back to the definition of the screen with the action of the Columns dialog of a grid, which also removes the layout
-   * that the user saved
+   * that the user saved. It is silent (no message when it works): the step waits until the server answers, when the
+   * Columns are no longer {@code aria-busy}. A warning or an error of the server is still shown as a message
    *
    * @param gridId Grid identifier
    */
   protected void clickGridColumnsReset(String gridId) {
     click(frontEndInstructions.getGridColumnsReset(gridId));
+    waitForGridColumnsCall(gridId);
   }
 
   /**
-   * Save the layout of a grid as the default of the user with the action of its Columns dialog
+   * Save the layout of a grid as the default of the user with the action of its Columns dialog. It is silent (no message
+   * when it works) and closes the Columns (popover, dialog or side panel) when the server answers that the layout was
+   * saved: the step waits until they are closed. When the layout is not saved the Columns stay open (a warning or an
+   * error of the server is still shown as a message) and the step fails
    *
    * @param gridId Grid identifier
    */
   protected void clickGridColumnsSave(String gridId) {
     click(frontEndInstructions.getGridColumnsSave(gridId));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
+  }
+
+  private void waitForGridColumnsCall(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsBusy(gridId))));
+  }
+
+  /**
+   * Undo the changes made in the Columns dialog of a grid since it was opened (or since the last reset) with
+   * its Cancel action, which also closes it
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsCancel(String gridId) {
+    click(frontEndInstructions.getGridColumnsCancel(gridId));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
   }
 
   /**

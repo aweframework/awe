@@ -92,4 +92,22 @@ describe("Maximize Jest logging contract", () => {
     expect($scope.maximized).toBe(true);
     target.remove();
   });
+
+  it("keeps the custom properties of the element when it is maximized and restored", () => {
+    const grid = $("<div class='grid'><div class='grid-container'></div></div>");
+    grid[0].style.setProperty("--grid-row-height", "43px");
+    const target = $("<div class='maximize-target'></div>").append(grid).appendTo(document.body);
+    const $scope = {$root: {}, $on: jest.fn(), $emit: jest.fn(), $broadcast: jest.fn()};
+    jest.spyOn(Utilities, "timeout").mockImplementation((fn) => fn());
+    jest.spyOn(Utilities, "animateCSS").mockImplementation((node, size, time, fn) => fn());
+
+    Maximize.initMaximize($scope, grid, {contentSelector: ".grid-container"});
+    $scope.maximizePanel();
+    expect(grid[0].style.getPropertyValue("--grid-row-height")).toBe("43px");
+
+    $scope.restorePanel();
+    expect(grid[0].style.getPropertyValue("--grid-row-height")).toBe("43px");
+    expect(grid[0].style.getPropertyValue("position")).toBe("");
+    target.remove();
+  });
 });

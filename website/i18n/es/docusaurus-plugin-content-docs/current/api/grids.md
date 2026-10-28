@@ -67,23 +67,33 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla                                                                                                      |
-| columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho          | `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`dialog`) |
+| columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un popover anclado al botón de columnas, un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho | `popover`, `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
 
 ### Barra de herramientas {#toolbar}
 
 Todos los grids muestran una barra de herramientas, tanto en el motor AngularJS como en el de React, con dos botones:
 
-- **Columnas** abre un diálogo con la lista de columnas del grid. El usuario muestra u oculta cada columna, la sube o la
-  baja (con las flechas o arrastrando su asa) y ve cuántas columnas están visibles. *Mostrar todas* muestra todas las
-  columnas, *Restablecer* vuelve a la definición del XML de la pantalla y *Guardar como predeterminado* guarda la
-  disposición para el usuario.
+- **Columnas** abre un popover anclado al botón con la lista de columnas del grid. El usuario muestra u oculta cada
+  columna y la sube o la baja (con las flechas o arrastrando su asa); la cabecera muestra cuántas columnas están
+  visibles («N de M visibles»).
 - **Maximizar** hace que el grid ocupe el área de contenido de la pantalla, como el botón de maximizar de una ventana o una pestaña: el grid crece con una animación, la cabecera y el menú de la aplicación siguen visibles y el resto de la pantalla se desvanece hasta que se restaura el grid.
 
-Los cambios del diálogo se aplican al grid de inmediato, pero solo se conservan cuando el usuario elige *Guardar como
-predeterminado*. La disposición guardada pertenece al usuario, así que le acompaña en otros navegadores y dispositivos, y
-se almacena en la tabla `AweUsrGrdCnf` (una fila por usuario, pantalla y grid; la crea una migración de base de datos).
-*Restablecer* la elimina. El usuario siempre se toma de la sesión. La disposición se aplica al generar la pantalla: el
+El popover no tiene fondo: el grid sigue visible y cada cambio se aplica a él de inmediato. Su pie tiene tres acciones:
+
+| Acción | Efecto |
+|---|---|
+| *Restaurar predeterminado* | Vuelve a la definición del XML de la pantalla y elimina la disposición que guardó el usuario |
+| *Cancelar* | Deshace los cambios hechos desde que se abrieron las columnas (o desde el último *Restaurar predeterminado*) y las cierra |
+| *Guardar* | Guarda la disposición actual para el usuario y cierra las columnas. Mientras guarda, el botón muestra un indicador de carga y *Guardando…* y está deshabilitado. Si no se puede guardar, siguen abiertas |
+
+El botón de cierre (x), Esc y un clic fuera cierran el popover y conservan los cambios; el foco vuelve al botón
+*Columnas*. Ya no existe la acción *Mostrar todas*: marque cada columna oculta.
+
+Los cambios solo se conservan para las siguientes visitas cuando el usuario elige *Guardar*. La disposición
+guardada pertenece al usuario, así que le acompaña en otros navegadores y dispositivos, y se almacena en la tabla
+`AweUsrGrdCnf` (una fila por usuario, pantalla y grid; la crea una migración de base de datos). *Restaurar
+predeterminado* la elimina. El usuario siempre se toma de la sesión. La disposición se aplica al generar la pantalla: el
 grid se envía con su `columnModel` original más un `columnLayout` (el orden de las columnas y las ocultas), de modo que
 el primer pintado ya está personalizado.
 
@@ -98,12 +108,13 @@ Algunas reglas mantienen válida una disposición guardada cuando cambia la pant
   columna de un grupo (también la primera) mantiene las cabeceras alineadas, y un grupo sin columnas visibles no se
   muestra.
 
-Con `columns-panel="side-panel"` las columnas se abren en un panel anclado al borde derecho de la pantalla en lugar de
-en un diálogo modal, con la misma lista y las mismas acciones. El panel mantiene el foco del teclado dentro, se cierra con
-Esc, con su acción *Cerrar* o con un clic fuera, y devuelve el foco al botón *Columnas*.
+Con `columns-panel="dialog"` las columnas se abren en un diálogo modal, y con `columns-panel="side-panel"` en un panel
+anclado al borde derecho de la pantalla, ambos con el mismo contenido que el popover. Mantienen el foco del teclado
+dentro, se cierran con Esc, con su botón de cierre (x) o con un clic fuera, y devuelven el foco al botón *Columnas*.
 Los grids que no definen `columns-panel` usan la propiedad de aplicación
 [`awe.application.component.grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel)
-(`dialog` por defecto), de modo que una aplicación puede mostrar las columnas de todos sus grids en un panel lateral.
+(`popover` por defecto), de modo que una aplicación puede mostrar las columnas de todos sus grids en un diálogo modal o
+en un panel lateral.
 
 ```xml
 <grid id="UserGrid" columns-panel="side-panel" server-action="data" target-action="UserList">

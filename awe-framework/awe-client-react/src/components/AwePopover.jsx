@@ -24,7 +24,7 @@ const ANCHOR_ATTRIBUTES = ["criterion-id", "grid-id", "tree-grid-id", "window-id
 
 // Overlays of the controls inside the popover (dropdown panels, calendars...), which are appended to the body, and
 // the dialogs and messages shown over it: a click on them is not a click outside the popover
-const OVERLAYS = [
+export const OVERLAYS = [
   ".p-dropdown-panel", ".p-multiselect-panel", ".p-autocomplete-panel", ".p-datepicker", ".p-overlaypanel",
   ".p-colorpicker-panel", ".p-contextmenu", ".p-tieredmenu", ".p-dialog-mask", ".p-toast"
 ].join(",");
@@ -37,7 +37,7 @@ const CLICK_TIMEOUT = 1000;
  * anchor must not open it again (the dialog action is not accepted while the popover is shown, it would wait forever)
  * @param {HTMLElement} anchor Anchor element
  */
-function swallowAnchorClick(anchor) {
+export function swallowAnchorClick(anchor) {
   const onClick = (event) => {
     document.removeEventListener("click", onClick, true);
     if (anchor.contains(event.target)) {

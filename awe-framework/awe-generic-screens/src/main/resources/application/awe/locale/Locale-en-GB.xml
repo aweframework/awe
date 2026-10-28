@@ -1298,9 +1298,11 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_COLUMNS_TITLE" value="Grid columns"/>
   <locale name="GRID_COLUMNS_VISIBLE" value="visible"/>
   <locale name="GRID_COLUMNS_SHOW_ALL" value="Show all"/>
-  <locale name="GRID_COLUMNS_RESET" value="Reset"/>
-  <locale name="GRID_COLUMNS_SAVE" value="Save as default"/>
+  <locale name="GRID_COLUMNS_RESET" value="Restore default"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Save"/>
+  <locale name="GRID_COLUMNS_SAVING" value="Saving…"/>
   <locale name="GRID_COLUMNS_CLOSE" value="Close"/>
+  <locale name="GRID_COLUMNS_CANCEL" value="Cancel"/>
   <locale name="GRID_COLUMNS_MOVE_UP" value="Move up"/>
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Move down"/>
   <locale name="GRID_COLUMNS_DRAG" value="Drag to reorder"/>

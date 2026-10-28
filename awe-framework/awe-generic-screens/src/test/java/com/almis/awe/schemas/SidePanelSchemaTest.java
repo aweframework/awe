@@ -70,7 +70,8 @@ class SidePanelSchemaTest {
 
   @Test
   void gridChoosesTheColumnsPanel() {
-    assertThatCode(() -> validate("<grid id=\"Grd\" columns-panel=\"side-panel\"/><grid id=\"Grd2\" columns-panel=\"dialog\"/>"))
+    assertThatCode(() -> validate("<grid id=\"Grd\" columns-panel=\"side-panel\"/><grid id=\"Grd2\" columns-panel=\"dialog\"/>"
+      + "<grid id=\"Grd3\" columns-panel=\"popover\"/>"))
       .doesNotThrowAnyException();
     assertThatThrownBy(() -> validate("<grid id=\"Grd\" columns-panel=\"popup\"/>")).hasMessageContaining("popup");
   }

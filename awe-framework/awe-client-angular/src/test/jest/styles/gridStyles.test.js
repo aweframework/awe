@@ -438,6 +438,80 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       });
     });
 
+    it("draws the columns popover as an overlay over the screen and its dialogs, without a mask", () => {
+      expect(style(".grid-columns-popover")).toMatchObject({
+        "position": "fixed",
+        "z-index": "var(--awe-z-modal)",
+        "width": "var(--awe-grid-columns-panel-width)",
+        "max-width": "95vw",
+        "color": "var(--awe-color-text)",
+        "background": "var(--awe-color-overlay)",
+        "border": "1px solid var(--awe-color-overlay-border)",
+        "border-radius": "var(--awe-radius-overlay)",
+        "box-shadow": "var(--awe-shadow-overlay)"
+      });
+      expect(style(".grid-columns-popover .grid-columns-list")).toMatchObject({"overflow-y": "auto"});
+    });
+
+    it("shows the counter as the subtitle of the header of the Columns", () => {
+      expect(style(".grid-columns-popover .grid-columns-counter")).toMatchObject({
+        "font-size": "var(--awe-font-size-sm)",
+        "color": "var(--awe-color-text-muted)"
+      });
+      expect(style(".modal.grid-columns-side-panel .grid-columns-counter")).toMatchObject({
+        "color": "var(--awe-color-text-muted)"
+      });
+    });
+
+    it("mutes the label of a hidden column", () => {
+      expect(style(".grid-columns-popover .grid-column-item .grid-column-label.grid-column-hidden")).toMatchObject({
+        "color": "var(--awe-color-text-muted)"
+      });
+    });
+
+    it("shows the arrows of a column only on the hovered or focused row, keeping them reachable with the keyboard", () => {
+      const arrows = style(".grid-columns-popover .grid-column-item .grid-column-move");
+      expect(arrows).toMatchObject({"opacity": "0"});
+      expect(arrows).not.toHaveProperty("visibility");
+      expect(arrows).not.toHaveProperty("display", "none");
+      for (const state of ["hover", "focus-within"]) {
+        expect(style(`.grid-columns-popover .grid-column-item:${state} .grid-column-move`)).toMatchObject({"opacity": "1"});
+        expect(style(`.grid-columns-popover .grid-column-item:${state} .grid-column-move[disabled]`)).toMatchObject({
+          "opacity": "var(--awe-opacity-disabled)"
+        });
+      }
+      expect(style(".grid-columns-popover .grid-column-item .grid-column-move", REDUCED_MOTION)).toMatchObject({"transition": "none"});
+    });
+
+    it("never shrinks the columns and groups of the list, so a long list scrolls instead of overlapping them", () => {
+      expect(style(".grid-columns-popover .grid-columns-list > li")).toMatchObject({"flex": "none"});
+      expect(style(".grid-columns-popover .grid-column-item")).toMatchObject({"flex": "none"});
+    });
+
+    it("keeps the actions of the Columns in one line", () => {
+      expect(style(".grid-columns-popover .grid-columns-actions")).toMatchObject({"flex-wrap": "nowrap"});
+      expect(style(".grid-columns-popover .grid-columns-actions > .btn-awe")).toMatchObject({
+        "flex": "none",
+        "white-space": "nowrap"
+      });
+    });
+
+    it("keeps Save on its colour while it saves (disabled, not dimmed)", () => {
+      expect(style(".grid-columns-popover .grid-columns-actions > .btn-awe.is-loading[disabled]")).toMatchObject({
+        "cursor": "progress",
+        "opacity": "1"
+      });
+    });
+
+    it("draws Restore default as a text button at the start of the actions", () => {
+      expect(style(".grid-columns-popover .grid-columns-actions > .btn-awe.grid-columns-reset")).toMatchObject({
+        "margin-right": "auto",
+        "color": "var(--awe-color-primary-text)",
+        "background": "transparent",
+        "border-color": "transparent"
+      });
+    });
+
     it("draws a maximized grid as a card", () => {
       expect(style(".grid.maximized")).toMatchObject({
         "background": "var(--awe-color-surface)",

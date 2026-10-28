@@ -1890,15 +1890,29 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get the open Columns of a grid shown as a modal dialog or as a side panel (grid attribute columns-panel)
+   * Get the open Columns of a grid shown as a popover anchored to the Columns button, as a modal dialog or as a side
+   * panel (grid attribute columns-panel)
    *
    * @param gridId Grid identifier
-   * @param panel  dialog or side-panel
+   * @param panel  popover, dialog or side-panel
    * @return Columns selector
    */
   default By getGridColumnsPanel(String gridId, String panel) {
     return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId)
       + TestAttributes.css(TestAttributes.TYPE, panel));
+  }
+
+  /**
+   * Get the Columns of a grid (popover, dialog or side panel) while they wait for the server: Save and Restore default
+   * are silent (no message when they work), so both clients mark the Columns {@code aria-busy="true"} until the server
+   * answers, whatever the answer
+   *
+   * @param gridId Grid identifier
+   * @return Busy Columns selector
+   */
+  default By getGridColumnsBusy(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css("aria-busy", true));
   }
 
   /**
@@ -1964,7 +1978,11 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    *
    * @param gridId Grid identifier
    * @return Show all selector
+   * @deprecated The Columns no longer have a Show all action: show each hidden column with its checkbox
+   * ({@link #getGridColumnsCheckbox(String, String)}). It stays available through the whole 5.x line and is not removed
+   * before 6.0
    */
+  @Deprecated
   default By getGridColumnsShowAll(String gridId) {
     return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SHOW_ALL);
   }
@@ -1987,6 +2005,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By getGridColumnsSave(String gridId) {
     return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SAVE);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that undoes the changes made since it was opened (or since the last
+   * save or reset) and closes it
+   *
+   * @param gridId Grid identifier
+   * @return Cancel selector
+   */
+  default By getGridColumnsCancel(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_CANCEL);
   }
 
   /**

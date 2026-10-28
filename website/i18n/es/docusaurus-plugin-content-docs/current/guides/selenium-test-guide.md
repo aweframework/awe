@@ -374,6 +374,7 @@ la 6.0 (consulta [Compatibilidad de la API](#api-compatibility-of-awe-testing)).
 | `checkVisible(By selector)` | `checkVisible(Locator selector)` |
 | `checkNotVisible(By selector)` | `checkNotVisible(Locator selector)` |
 | `getDriver()` | Los pasos de este catálogo, o `getBrowser()` con un `Locator` |
+| `clickGridColumnsShowAll(String gridId)` (las columnas ya no tienen *Mostrar todas*) | `showGridColumn(String gridId, String columnId)` para cada columna oculta |
 
 Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `checkText(String, String)`...) no están obsoletos.
 :::
@@ -676,20 +677,21 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkRowSelected(String gridId, String search)` | Comprueba que la fila de un grid con un texto está seleccionada |
 | `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
 | `openGridColumns(String gridId)` | Abre el diálogo de columnas de la barra de herramientas de un grid |
-| `closeGridColumns(String gridId)` | Cierra el diálogo de columnas de un grid |
-| `checkGridColumnsPanel(String gridId, String panel)` | Comprueba que las columnas de un grid están abiertas como diálogo modal (`dialog`) o como panel lateral (`side-panel`), según el atributo `columns-panel` del grid |
-| `checkGridColumnsCounter(String gridId, int visible, int total)` | Comprueba el contador «N de M visibles» del diálogo de columnas |
+| `closeGridColumns(String gridId)` | Cierra el diálogo de columnas de un grid con su botón de cierre (x), conservando los cambios |
+| `checkGridColumnsPanel(String gridId, String panel)` | Comprueba que las columnas de un grid están abiertas como popover anclado al botón de columnas (`popover`, el valor por defecto), como diálogo modal (`dialog`) o como panel lateral (`side-panel`), según el atributo `columns-panel` del grid |
+| `checkGridColumnsCounter(String gridId, int visible, int total)` | Comprueba el contador «N de M visibles» de la cabecera del diálogo de columnas |
 | `checkGridColumnsListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas lista una columna |
 | `checkGridColumnsNotListed(String gridId, String columnId)` | Comprueba que el diálogo de columnas no lista una columna. Las columnas que la pantalla oculta nunca aparecen en él |
 | `hideGridColumn(String gridId, String columnId)` | Oculta una columna desmarcándola en el diálogo de columnas (que debe estar abierto) |
 | `showGridColumn(String gridId, String columnId)` | Muestra una columna marcándola en el diálogo de columnas (que debe estar abierto) |
-| `moveGridColumnUp(String gridId, String columnId)` | Sube una columna una posición con su flecha en el diálogo de columnas |
-| `moveGridColumnDown(String gridId, String columnId)` | Baja una columna una posición con su flecha en el diálogo de columnas |
+| `moveGridColumnUp(String gridId, String columnId)` | Sube una columna una posición con su flecha en el diálogo de columnas (antes pasa el ratón por la fila: las flechas solo se ven en la fila bajo el puntero) |
+| `moveGridColumnDown(String gridId, String columnId)` | Baja una columna una posición con su flecha en el diálogo de columnas (antes pasa el ratón por la fila: las flechas solo se ven en la fila bajo el puntero) |
 | `checkGridColumnCannotMoveUp(String gridId, String columnId)` | Comprueba que una columna no puede subir: es la primera de su cabecera de grupo, o la primera sin grupo |
 | `checkGridColumnCannotMoveDown(String gridId, String columnId)` | Comprueba que una columna no puede bajar: es la última de su cabecera de grupo, o la última sin grupo |
-| `clickGridColumnsShowAll(String gridId)` | Pulsa *Mostrar todas* en el diálogo de columnas |
-| `clickGridColumnsReset(String gridId)` | Pulsa *Restablecer* en el diálogo de columnas: vuelve a la definición de la pantalla y se elimina la disposición guardada |
-| `clickGridColumnsSave(String gridId)` | Pulsa *Guardar como predeterminado* en el diálogo de columnas |
+| `clickGridColumnsShowAll(String gridId)` | Obsoleto: las columnas ya no tienen *Mostrar todas*. Usa `showGridColumn(String, String)` para cada columna oculta |
+| `clickGridColumnsReset(String gridId)` | Pulsa *Restaurar predeterminado* en el diálogo de columnas: vuelve a la definición de la pantalla y se elimina la disposición guardada. Es silencioso (sin mensaje cuando funciona): el paso espera a que responda el servidor, cuando las columnas dejan de estar `aria-busy` |
+| `clickGridColumnsCancel(String gridId)` | Pulsa *Cancelar* en el diálogo de columnas: deshace los cambios hechos desde que se abrió (o desde el último *Restaurar predeterminado*) y espera a que se cierre |
+| `clickGridColumnsSave(String gridId)` | Pulsa *Guardar* en el diálogo de columnas: guarda la disposición como la predeterminada del usuario. Es silencioso (sin mensaje cuando funciona) y cierra las columnas cuando la disposición se guarda: el paso espera a que se cierren, y falla si siguen abiertas porque la disposición no se guardó |
 | `checkGridColumnsLeftToRight(String gridId, String... columnIds)` | Comprueba que las columnas se muestran en ese orden, de izquierda a derecha |
 | `checkGridColumnNotShown(String gridId, String columnId)` | Comprueba que una columna no se muestra en el grid |
 | `checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId)` | Comprueba que una cabecera de grupo abarca exactamente desde su primera hasta su última columna visible, con tres píxeles de margen |

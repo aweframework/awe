@@ -127,4 +127,22 @@ describe('AWE 5 grid styles (#885)', () => {
     expect(rule(columns, '.column-button-radio .p-button.p-highlight')).toMatch(/background: var\(--awe-segmented-selected\);/);
     expect(rule(read('columns/ColumnTextView.less'), '.text-view:focus-visible')).toMatch(/outline: var\(--awe-focus-ring\);/);
   });
+
+  it('keeps the actions of the Columns in one line', () => {
+    const css = read('components/AweGridColumnsDialog.less');
+    expect(rule(css, '.grid-columns-actions')).toMatch(/flex-wrap:\s*nowrap/);
+    expect(rule(css, '.grid-columns-actions > .p-button')).toMatch(/flex:\s*none/);
+    expect(rule(css, '.grid-columns-actions > .p-button')).toMatch(/white-space:\s*nowrap/);
+  });
+
+  it('keeps the Save of the Columns on its colour while it saves (disabled, not dimmed)', () => {
+    const css = read('components/AweGridColumnsDialog.less');
+    expect(rule(css, '.grid-columns-actions > .p-button.is-loading:disabled')).toMatch(/opacity:\s*1;/);
+    expect(rule(css, '.grid-columns-actions > .p-button.is-loading:disabled')).toMatch(/cursor:\s*progress;/);
+  });
+
+  it('drops the margin of a grid in a panel when it is maximized, so it covers the maximize target exactly', () => {
+    const css = read('components/AweGrid.less');
+    expect(rule(css, '.p-panel-content > .grid-container.maximized')).toMatch(/margin:\s*0;/);
+  });
 });

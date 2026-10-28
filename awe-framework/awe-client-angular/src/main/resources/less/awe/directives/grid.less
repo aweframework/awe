@@ -1283,7 +1283,7 @@
   }
 }
 
-// Columns dialog: an overlay over the mask
+// Columns dialog (columns-panel="dialog"): an overlay over the mask
 .grid-columns-backdrop {
   background: var(--awe-color-mask);
   backdrop-filter: var(--awe-mask-backdrop-filter);
@@ -1295,14 +1295,66 @@
   z-index: var(--awe-z-modal);
 }
 
-// Counter, list and actions of the Columns, shared by the dialog and the side panel
+// Header, list and actions of the Columns, shared by the popover, the dialog and the side panel (the #813 card of the
+// design system prototype)
 .grid-columns-content() {
-  .grid-columns-counter {
-    margin-bottom: var(--awe-space-3);
-    font-size: var(--awe-font-size-sm);
+  .grid-columns-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--awe-space-2);
+  }
+
+  .grid-columns-titles {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .grid-columns-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
     font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  // The "N of M visible" counter is the subtitle of the header
+  .grid-columns-counter {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
     font-variant-numeric: var(--awe-font-variant-numeric);
     color: var(--awe-color-text-muted);
+  }
+
+  // Ghost icon button
+  .grid-columns-close {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+    margin: calc(-1 * var(--awe-space-1-5)) calc(-1 * var(--awe-space-1-5)) 0 0;
+    padding: 0;
+    color: var(--awe-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--awe-radius-md);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--awe-color-text-hover);
+      background: var(--awe-color-surface-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(-1 * var(--awe-focus-ring-width));
+    }
+
+    .awe-icon {
+      width: var(--awe-size-icon);
+      height: var(--awe-size-icon);
+    }
   }
 
   ul {
@@ -1311,14 +1363,25 @@
     padding: 0;
   }
 
+  .grid-columns-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--awe-list-gap);
+  }
+
+  // The columns and the groups keep their height: a long list scrolls instead of shrinking them over each other
+  .grid-columns-list > li {
+    flex: none;
+  }
+
   .grid-column-item {
+    flex: none;
     align-items: center;
-    border-bottom: 1px solid var(--awe-color-border-subtle);
     border-radius: var(--awe-radius-list-option);
     display: flex;
     gap: var(--awe-space-2);
     min-height: var(--awe-size-control);
-    padding: 0 var(--awe-space-1);
+    padding: 0 var(--awe-space-2);
 
     &:hover {
       background: var(--awe-color-list-option-focus);
@@ -1331,6 +1394,11 @@
       margin: 0;
       accent-color: var(--awe-color-primary);
       cursor: pointer;
+
+      &:focus-visible {
+        outline: var(--awe-focus-ring);
+        outline-offset: var(--awe-focus-ring-offset);
+      }
     }
 
     .grid-column-label {
@@ -1342,11 +1410,24 @@
       color: var(--awe-color-text);
     }
 
-    .grid-column-handle {
-      cursor: grab;
+    // A hidden column is muted
+    .grid-column-label.grid-column-hidden {
       color: var(--awe-color-text-muted);
     }
 
+    .grid-column-handle {
+      display: inline-grid;
+      cursor: grab;
+      color: var(--awe-color-text-muted);
+
+      .awe-icon {
+        width: var(--awe-size-icon-sm);
+        height: var(--awe-size-icon-sm);
+      }
+    }
+
+    // The arrows are shown on the hovered or focused row: transparent, not hidden, so they stay in the tab order and
+    // the keyboard focus shows them
     .grid-column-move {
       display: inline-grid;
       place-items: center;
@@ -1355,6 +1436,8 @@
       padding: 0;
       color: var(--awe-color-text-muted);
       border-radius: var(--awe-radius-md);
+      opacity: 0;
+      transition: opacity var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 
       &:hover:not([disabled]) {
         color: var(--awe-color-text-hover);
@@ -1374,6 +1457,15 @@
 
     .grid-column-move[disabled] {
       cursor: default;
+    }
+
+    &:hover .grid-column-move,
+    &:focus-within .grid-column-move {
+      opacity: 1;
+    }
+
+    &:hover .grid-column-move[disabled],
+    &:focus-within .grid-column-move[disabled] {
       opacity: var(--awe-opacity-disabled);
     }
   }
@@ -1391,20 +1483,127 @@
     }
   }
 
+  // The actions stay in one line: the buttons keep their size and their texts do not wrap
   .grid-columns-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--awe-space-2);
     justify-content: flex-end;
 
     > .btn-awe {
       .grid-button();
+      flex: none;
+      white-space: nowrap;
     }
 
     > .btn-awe.btn-primary {
       .awe-filled-button(var(--awe-color-primary); var(--awe-color-primary-hover); var(--awe-color-primary-active);
         var(--awe-color-on-primary));
     }
+
+    // Save while it waits for the server (the loading look of the login button): the spinner and "Saving…", disabled
+    // but on its colour. The spinner stops with prefers-reduced-motion (.awe-icon-spin)
+    > .btn-awe.is-loading[disabled] {
+      cursor: progress;
+      opacity: 1;
+    }
+
+    // Restore default: a text button at the start
+    > .btn-awe.grid-columns-reset {
+      margin-right: auto;
+      color: var(--awe-color-primary-text);
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+
+      &:hover,
+      &:focus {
+        color: var(--awe-color-primary-text) !important;
+        background: var(--awe-color-highlight) !important;
+        border-color: transparent;
+      }
+
+      &:active {
+        background: var(--awe-color-highlight-focus) !important;
+      }
+
+      .awe-icon {
+        width: var(--awe-size-icon-sm);
+        height: var(--awe-size-icon-sm);
+      }
+    }
+  }
+}
+
+// Touch screens have no hover: the arrows are always shown
+@media (hover: none) {
+  .grid-columns-popover,
+  .grid-columns-dialog,
+  .modal.grid-columns-side-panel {
+    .grid-column-item .grid-column-move {
+      opacity: 1;
+    }
+
+    .grid-column-item .grid-column-move[disabled] {
+      opacity: var(--awe-opacity-disabled);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-columns-popover,
+  .grid-columns-dialog,
+  .modal.grid-columns-side-panel {
+    .grid-column-item .grid-column-move {
+      transition: none;
+    }
+  }
+}
+
+// Columns popover (columns-panel="popover", the default): anchored to the Columns button with fixed coordinates
+// (gridToolbar.js), without a mask, so the grid stays in view while its columns change. An overlay as the popover
+// element (popover.less), over the screen, its maximized grids and its dialogs
+.grid-columns-popover {
+  position: fixed;
+  z-index: var(--awe-z-modal);
+  display: flex;
+  flex-direction: column;
+  width: var(--awe-grid-columns-panel-width);
+  max-width: 95vw;
+  max-height: calc(100vh - var(--awe-space-4));
+  color: var(--awe-color-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+  .grid-columns-content();
+
+  .grid-columns-header {
+    flex: none;
+    padding: var(--awe-overlay-padding) var(--awe-overlay-padding) var(--awe-space-2);
+  }
+
+  // The list scrolls inside the popover, so its header and actions stay in view with a long list of columns
+  .grid-columns-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0 var(--awe-space-2) var(--awe-space-2);
+  }
+
+  .grid-columns-list {
+    min-height: 0;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+
+  .grid-columns-actions {
+    flex: none;
+    padding: var(--awe-space-3) var(--awe-overlay-padding);
+    background: var(--awe-color-surface-subtle);
+    border-top: 1px solid var(--awe-color-overlay-border);
+    border-radius: 0 0 var(--awe-radius-overlay) var(--awe-radius-overlay);
   }
 }
 
@@ -1426,10 +1625,7 @@
   z-index: var(--awe-z-modal);
   .grid-columns-content();
 
-  .grid-columns-title {
-    font-size: var(--awe-font-size-dialog-title);
-    font-weight: var(--awe-font-weight-semibold);
-    color: var(--awe-color-text-emphasis);
+  .grid-columns-header {
     margin-bottom: var(--awe-space-3);
   }
 

@@ -51,8 +51,8 @@
     {
       "name": "awe.application.component.grid-columns-panel",
       "type": "java.lang.String",
-      "description": "How the toolbar of the grids that do not define columns-panel shows their Columns: dialog (a modal dialog) or side-panel (a panel anchored to the right edge of the screen) Default value dialog",
-      "defaultValue": "dialog"
+      "description": "How the toolbar of the grids that do not define columns-panel shows their Columns: popover (anchored to the Columns button), dialog (a modal dialog) or side-panel (a panel anchored to the right edge of the screen) Default value popover",
+      "defaultValue": "popover"
     },
     {
       "name": "awe.application.component.grid-icon-loading",

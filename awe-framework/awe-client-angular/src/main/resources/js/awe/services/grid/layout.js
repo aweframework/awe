@@ -22,20 +22,45 @@ aweApplication.factory('GridLayout',
       /**
        * Call one of the grid layout services. The user is never sent: the server takes it from the session.
        * The request parameter names are specific on purpose: the values of the screen criteria are added to the call.
+       * It is silent (no loading bar) and uses maintain-silent, which shows no message when it works, only warnings and
+       * errors, so saving and restoring feel immediate.
+       * The call ends when the server answers (the action is accepted, after its answer actions are queued), the action
+       * is rejected or aborted, or the call fails (onError, as Ajax.manageError tells the action before the error message).
+       * The service worked when the action queued after the call runs: maintain-silent answers a warning or an error
+       * with a cancel, which deletes the actions left in the stack, and a failed call empties it.
        *
        * @param {string} target Maintain target
        * @param {object} values Service parameters
+       * @param {function} onEnd Called once when the call ends
+       * @param {function} [onSuccess] Called when the service worked
        */
-      function launchLayoutService(target, values) {
-        let action = {
-          type: 'server',
-          async: false,
-          silent: false,
-          parameters: {...values}
+      function launchLayoutService(target, values, onEnd, onSuccess) {
+        let parameters = {...values};
+        parameters[$settings.get("serverActionKey")] = "maintain-silent";
+        parameters[$settings.get("targetActionKey")] = target;
+        const addressData = {address: {}, context: ""};
+        const action = $actionController.generateAction({type: 'server', async: false, silent: true, parameters},
+          addressData, true, false);
+        let ended = false;
+        const end = () => {
+          if (!ended) {
+            ended = true;
+            onEnd();
+          }
         };
-        action.parameters[$settings.get("serverActionKey")] = "maintain";
-        action.parameters[$settings.get("targetActionKey")] = target;
-        $actionController.addActionList([action], true, {address: {}, context: ""});
+        action.attr("deferred").promise.then(end, end);
+        action.onError = end;
+        const actions = [action];
+        if (onSuccess) {
+          // Silent action of no type that only tells that the service worked
+          const worked = $actionController.generateAction({type: 'layout-saved', silent: true}, addressData, true, false);
+          worked.launchAction = function () {
+            onSuccess();
+            this.accept();
+          };
+          actions.push(worked);
+        }
+        $actionController.addActionList(actions, true, addressData);
       }
 
       /**
@@ -242,13 +267,32 @@ aweApplication.factory('GridLayout',
             component.changeColumnLayout({order: currentState().order, hidden: []});
           };
 
+          // Layout calls waiting for the server: the Columns are busy (aria-busy) while there is any
+          let pendingCalls = 0;
+          component.layoutBusy = false;
+
+          /**
+           * Call a layout service, keeping the Columns busy until it ends
+           * @param {string} target Maintain target
+           * @param {object} values Service parameters
+           * @param {function} [onSuccess] Called when the service worked
+           */
+          function callLayoutService(target, values, onSuccess) {
+            pendingCalls++;
+            component.layoutBusy = true;
+            launchLayoutService(target, values, () => {
+              pendingCalls--;
+              component.layoutBusy = pendingCalls > 0;
+            }, onSuccess);
+          }
+
           /**
            * Go back to the definition of the screen and remove the stored layout
            */
           component.resetColumnLayout = function () {
             component.changeColumnLayout(null);
             component.controller.columnLayout = null;
-            launchLayoutService("resetGridLayout", {
+            callLayoutService("resetGridLayout", {
               gridLayoutScreen: component.controller.screenId,
               gridLayoutGrid: component.address.component
             });
@@ -256,15 +300,16 @@ aweApplication.factory('GridLayout',
 
           /**
            * Store the current layout as the default of the user
+           * @param {function} [onSaved] Called when the server answers that the layout was saved
            */
-          component.saveColumnLayout = function () {
+          component.saveColumnLayout = function (onSaved) {
             const state = currentState();
             component.controller.columnLayout = state;
-            launchLayoutService("saveGridLayout", {
+            callLayoutService("saveGridLayout", {
               gridLayoutScreen: component.controller.screenId,
               gridLayoutGrid: component.address.component,
               gridLayoutJson: JSON.stringify(state)
-            });
+            }, onSaved);
           };
 
           // Visible columns of a layout (used by tests and printing helpers)

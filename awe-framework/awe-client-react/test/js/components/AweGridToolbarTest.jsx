@@ -150,16 +150,21 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
     expect(itemOf(dialog, "b").querySelector(hook("grid-column-up")).disabled).toBe(false);
   });
 
-  it("shows all the columns", async () => {
-    renderWithProviders(<AweGrid id="grid" />, {
-      preloadedState: gridState({ columnLayout: { order: ["a", "b", "c", "d"], hidden: ["b", "c"] } })
-    });
-    expect(headerNames()).toEqual(["A", "D"]);
-
+  it("does not offer Show all any more", async () => {
+    renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
     const dialog = await openDialog();
-    fireEvent.click(dialog.querySelector(hook("grid-columns-show-all")));
 
-    expect(headerNames()).toEqual(["A", "B", "C", "D"]);
+    expect(dialog.querySelector(hook("grid-columns-show-all"))).toBeNull();
+  });
+
+  it("mutes the label of a hidden column", async () => {
+    renderWithProviders(<AweGrid id="grid" />, {
+      preloadedState: gridState({ columnLayout: { order: ["a", "b", "c", "d"], hidden: ["b"] } })
+    });
+    const dialog = await openDialog();
+
+    expect(itemOf(dialog, "b").classList.contains("is-hidden")).toBe(true);
+    expect(itemOf(dialog, "a").classList.contains("is-hidden")).toBe(false);
   });
 
   it("applies the layout that comes from the server", () => {
@@ -255,7 +260,7 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       await waitFor(() => expect(dialog.querySelector(hook("grid-columns-status")).getAttribute("data-type")).toBe("error"));
     });
 
-    it("tells that the layout was saved", async () => {
+    it("saves silently: no message when the layout is saved", async () => {
       renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
       const dialog = await openDialog();
 
@@ -263,7 +268,8 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
         fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
       });
 
-      await waitFor(() => expect(dialog.querySelector(hook("grid-columns-status")).getAttribute("data-type")).toBe("saved"));
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+      expect(dialog.querySelector(hook("grid-columns-status"))).toBeNull();
     });
   });
 
@@ -284,7 +290,7 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       });
 
       const { url, body } = lastRequest();
-      expect(url).toContain("/action/maintain/saveGridLayout");
+      expect(url).toContain("/action/maintain-silent/saveGridLayout");
       expect(body.gridLayoutScreen).toBe("Scr");
       expect(body.gridLayoutGrid).toBe("grid");
       expect(JSON.parse(body.gridLayoutJson)).toEqual({ order: ["a", "c", "b", "d"], hidden: ["b"] });
@@ -303,7 +309,7 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
 
       expect(headerNames()).toEqual(["A", "B", "C", "D"]);
       const { url, body } = lastRequest();
-      expect(url).toContain("/action/maintain/resetGridLayout");
+      expect(url).toContain("/action/maintain-silent/resetGridLayout");
       expect(body).toEqual({ gridLayoutScreen: "Scr", gridLayoutGrid: "grid" });
     });
   });
@@ -416,14 +422,445 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
     expect(within(dialog).getAllByRole("checkbox").length).toBeGreaterThanOrEqual(4);
   });
 
-  describe("columns panel (#843)", () => {
-    it("opens the Columns as a modal dialog by default", async () => {
+  describe("columns popover", () => {
+    const columnsButton = () => document.querySelector(hook("grid-columns-button"));
+    const isOpen = () => document.querySelector(hook("grid-columns-dialog")) !== null;
+    const anchorAt = (rect) => jest.spyOn(columnsButton(), "getBoundingClientRect")
+      .mockReturnValue({ width: rect.right - rect.left, height: rect.bottom - rect.top, x: rect.left, y: rect.top, ...rect });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it("opens the Columns as a popover anchored to the Columns button by default, without a modal mask", async () => {
       renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      anchorAt({ top: 100, bottom: 130, left: 500, right: 600 });
+      const popover = await openDialog();
+
+      expect(popover.getAttribute("data-type")).toBe("popover");
+      expect(popover.getAttribute("data-testid-owner")).toBe("grid");
+      expect(popover.getAttribute("role")).toBe("dialog");
+      expect(popover.getAttribute("aria-label")).toBe("GRID_COLUMNS_TITLE");
+      expect(popover.parentElement).toBe(document.body);
+      expect(document.querySelector(".p-dialog")).toBeNull();
+      expect(document.querySelector(".p-dialog-mask")).toBeNull();
+      expect(document.querySelector(".p-component-overlay")).toBeNull();
+      expect(document.querySelector(".p-sidebar")).toBeNull();
+      // Below the button, aligned to its right edge, and stacked over the screen and its dialogs
+      expect(popover.style.position).toBe("fixed");
+      expect(parseFloat(popover.style.top)).toBeGreaterThanOrEqual(130);
+      expect(popover.style.left).toBe("600px");
+      expect(popover.getAttribute("data-placement")).toBe("bottom");
+      expect(Number(popover.style.zIndex)).toBeGreaterThan(0);
+      expect(columnsButton().getAttribute("aria-expanded")).toBe("true");
+    });
+
+    it("fits the room under the Columns button, so a long list of columns scrolls inside it", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      // The button is near the top and the popover would measure 400 x 2000 (many columns)
+      const button = columnsButton();
+      const anchor = { top: 60, bottom: 90, left: 500, right: 600, width: 100, height: 30 };
+      jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function measure() {
+        return this === button ? anchor : { top: 0, bottom: 2000, left: 0, right: 400, width: 400, height: 2000, x: 0, y: 0 };
+      });
+      const popover = await openDialog();
+
+      expect(popover.getAttribute("data-placement")).toBe("bottom");
+      expect(parseFloat(popover.style.top)).toBe(94);
+      expect(popover.style.maxHeight).toBe(`${window.innerHeight - 8 - 94}px`);
+    });
+
+    it("opens above the Columns button when there is no room below it", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      // The button is at the bottom of the viewport and the popover measures 400 x 300
+      const button = columnsButton();
+      const anchor = { top: window.innerHeight - 40, bottom: window.innerHeight - 10, left: 500, right: 600, width: 100, height: 30 };
+      jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function measure() {
+        return this === button ? anchor : { top: 0, bottom: 300, left: 0, right: 400, width: 400, height: 300, x: 0, y: 0 };
+      });
+      const popover = await openDialog();
+
+      expect(popover.getAttribute("data-placement")).toBe("top");
+      expect(parseFloat(popover.style.top) + 300).toBeLessThanOrEqual(window.innerHeight - 40);
+      expect(popover.style.left).toBe("200px");
+    });
+
+    it("shows the title, the counter and the close button in the header", async () => {
+      renderWithProviders(<AweGrid id="grid" />, {
+        preloadedState: gridState({ columnLayout: { order: ["a", "b", "c", "d"], hidden: ["c"] } })
+      });
+      const popover = await openDialog();
+      const header = popover.querySelector(".grid-columns-header");
+
+      expect(header.textContent).toContain("GRID_COLUMNS_TITLE");
+      const counter = header.querySelector(hook("grid-columns-counter"));
+      expect([counter.getAttribute("data-visible"), counter.getAttribute("data-total")]).toEqual(["3", "4"]);
+      expect(counter.textContent).toBe("3 SCREEN_TEXT_GRID_OF 4 GRID_COLUMNS_VISIBLE");
+      const close = header.querySelector(hook("grid-columns-close"));
+      expect(close.getAttribute("aria-label")).toBe("GRID_COLUMNS_CLOSE");
+    });
+
+    it("moves the focus inside when it opens", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+
+      await waitFor(() => expect(popover.contains(document.activeElement)).toBe(true));
+    });
+
+    it("keeps the focus inside while it is open", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+      const save = popover.querySelector(hook("grid-columns-save"));
+      save.focus();
+
+      fireEvent.keyDown(document, { key: "Tab" });
+
+      expect(popover.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement).not.toBe(save);
+    });
+
+    it("cancels the live changes and closes", async () => {
+      const layout = { order: ["a", "b", "c", "d"], hidden: ["d"] };
+      const { store } = renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnLayout: layout }) });
+      const popover = await openDialog();
+      fireEvent.click(itemOf(popover, "b").querySelector(hook("grid-column-checkbox")));
+      fireEvent.click(itemOf(popover, "c").querySelector(hook("grid-column-up")));
+      expect(headerNames()).toEqual(["A", "C"]);
+
+      fireEvent.click(popover.querySelector(hook("grid-columns-cancel")));
+
+      expect(isOpen()).toBe(false);
+      expect(headerNames()).toEqual(["A", "B", "C"]);
+      expect(store.getState().components.grid.attributes.columnLayout).toEqual(layout);
+    });
+
+    it("cancels back to the layout of the last Save when it is opened again", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+      fireEvent.click(itemOf(popover, "b").querySelector(hook("grid-column-checkbox")));
+      await act(async () => {
+        fireEvent.click(popover.querySelector(hook("grid-columns-save")));
+      });
+      await waitFor(() => expect(isOpen()).toBe(false));
+      const reopened = await openDialog();
+      fireEvent.click(itemOf(reopened, "c").querySelector(hook("grid-column-checkbox")));
+
+      fireEvent.click(reopened.querySelector(hook("grid-columns-cancel")));
+
+      expect(headerNames()).toEqual(["A", "C", "D"]);
+    });
+
+    it("cancels back to the definition of the screen after Restore default", async () => {
+      renderWithProviders(<AweGrid id="grid" />, {
+        preloadedState: gridState({ columnLayout: { order: ["d", "c", "b", "a"], hidden: ["c"] } })
+      });
+      const popover = await openDialog();
+      await act(async () => {
+        fireEvent.click(popover.querySelector(hook("grid-columns-reset")));
+      });
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+      fireEvent.click(itemOf(popover, "a").querySelector(hook("grid-column-checkbox")));
+
+      fireEvent.click(popover.querySelector(hook("grid-columns-cancel")));
+
+      expect(headerNames()).toEqual(["A", "B", "C", "D"]);
+    });
+
+    it("closes with its close button keeping the live changes", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+      fireEvent.click(itemOf(popover, "b").querySelector(hook("grid-column-checkbox")));
+
+      fireEvent.click(popover.querySelector(hook("grid-columns-close")));
+
+      expect(isOpen()).toBe(false);
+      expect(headerNames()).toEqual(["A", "C", "D"]);
+    });
+
+    it("closes with Esc keeping the live changes and gives the focus back to the Columns button", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+      fireEvent.click(itemOf(popover, "b").querySelector(hook("grid-column-checkbox")));
+      await waitFor(() => expect(popover.contains(document.activeElement)).toBe(true));
+
+      fireEvent.keyDown(document.activeElement, { key: "Escape" });
+
+      expect(isOpen()).toBe(false);
+      expect(headerNames()).toEqual(["A", "C", "D"]);
+      await waitFor(() => expect(document.activeElement).toBe(columnsButton()));
+    });
+
+    it("closes with a mouse down outside keeping the live changes", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const popover = await openDialog();
+      fireEvent.click(itemOf(popover, "b").querySelector(hook("grid-column-checkbox")));
+
+      fireEvent.mouseDown(popover.querySelector(".grid-columns-list"));
+      expect(isOpen()).toBe(true);
+
+      fireEvent.mouseDown(document.body);
+
+      expect(isOpen()).toBe(false);
+      expect(headerNames()).toEqual(["A", "C", "D"]);
+    });
+
+    it("closes with a mouse down on the Columns button and does not open again with its click", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      await openDialog();
+
+      fireEvent.mouseDown(columnsButton());
+      fireEvent.click(columnsButton());
+
+      expect(isOpen()).toBe(false);
+      expect(columnsButton().getAttribute("aria-expanded")).toBe("false");
+
+      // The next click opens it again
+      fireEvent.click(columnsButton());
+      expect(isOpen()).toBe(true);
+    });
+
+    it("follows the Columns button when the page scrolls", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const rect = anchorAt({ top: 100, bottom: 130, left: 500, right: 600 });
+      const popover = await openDialog();
+      const top = parseFloat(popover.style.top);
+
+      rect.mockReturnValue({ top: 50, bottom: 80, left: 400, right: 500, width: 100, height: 30, x: 400, y: 50 });
+      act(() => { fireEvent.scroll(window); });
+
+      expect(parseFloat(popover.style.top)).toBe(top - 50);
+      expect(popover.style.left).toBe("500px");
+    });
+
+    it("does not let a mouse down inside it reach the popover or dialog where the grid is", async () => {
+      const onOuterMouseDown = jest.fn();
+      document.addEventListener("mousedown", onOuterMouseDown, true);
+      try {
+        renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+        const popover = await openDialog();
+
+        fireEvent.mouseDown(itemOf(popover, "a").querySelector("label"));
+
+        expect(onOuterMouseDown).not.toHaveBeenCalled();
+        expect(isOpen()).toBe(true);
+      } finally {
+        document.removeEventListener("mousedown", onOuterMouseDown, true);
+      }
+    });
+
+    it("closes only the popover with Esc when the grid is inside a popover of the screen", async () => {
+      const onOuterKey = jest.fn();
+      document.addEventListener("keydown", onOuterKey);
+      try {
+        renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+        const popover = await openDialog();
+
+        fireEvent.keyDown(popover, { key: "Escape" });
+
+        expect(isOpen()).toBe(false);
+        expect(onOuterKey).not.toHaveBeenCalled();
+      } finally {
+        document.removeEventListener("keydown", onOuterKey);
+      }
+    });
+  });
+
+  // Save and Restore default are silent: the only sign of the call is aria-busy on the Columns, which the tests wait for
+  describe("busy while the layout is saved or restored", () => {
+    // The server answers when the test says so
+    let answer;
+    const pendingFetch = () => {
+      global.fetch = jest.fn(() => new Promise((resolve, reject) => {
+        answer = { resolve, reject };
+      }));
+    };
+    const ok = (actions = []) => ({ ok: true, status: 200, json: () => Promise.resolve(actions), text: () => Promise.resolve(JSON.stringify(actions)) });
+    const busy = () => document.querySelector(hook("grid-columns-dialog")).getAttribute("aria-busy");
+    const isOpen = () => document.querySelector(hook("grid-columns-dialog")) !== null;
+    const CASES = [["popover", "save"], ["popover", "reset"], ["dialog", "save"], ["side-panel", "reset"]];
+
+    beforeEach(pendingFetch);
+
+    it.each(CASES)("marks the %s busy until the server answers the %s", async (panel, button) => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: panel }) });
+      const dialog = await openDialog();
+      expect(busy()).toBeNull();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook(`grid-columns-${button}`)));
+      });
+      expect(busy()).toBe("true");
+
+      await act(async () => answer.resolve(ok()));
+      if (button === "save") {
+        // A saved layout closes the Columns
+        await waitFor(() => expect(isOpen()).toBe(false));
+      } else {
+        await waitFor(() => expect(busy()).toBeNull());
+        expect(dialog.querySelector(hook("grid-columns-status"))).toBeNull();
+      }
+    });
+
+    it.each(CASES)("marks the %s not busy when the %s call fails", async (panel, button) => {
+      jest.spyOn(console, "error").mockImplementation(() => {});
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: panel }) });
+      const dialog = await openDialog();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook(`grid-columns-${button}`)));
+      });
+      expect(busy()).toBe("true");
+
+      await act(async () => answer.reject(new Error("down")));
+      await waitFor(() => expect(busy()).toBeNull());
+      // The Columns stay open with the error
+      expect(isOpen()).toBe(true);
+      expect(document.querySelector(hook("grid-columns-status")).getAttribute("data-type")).toBe("error");
+    });
+
+    it("marks the popover not busy and keeps it open when the server answers with an error message", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const dialog = await openDialog();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
+      });
+      expect(busy()).toBe("true");
+
+      await act(async () => answer.resolve(ok([{ type: "message", parameters: { type: "error", title: "T", message: "M" } }])));
+      await waitFor(() => expect(busy()).toBeNull());
+      expect(isOpen()).toBe(true);
+      expect(dialog.querySelector(hook("grid-columns-status")).getAttribute("data-type")).toBe("error");
+    });
+
+    it.each(["popover", "dialog", "side-panel"])("closes the %s once the layout is saved and gives the focus back to the Columns button", async (panel) => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: panel }) });
+      const button = document.querySelector(hook("grid-columns-button"));
+      button.focus();
+      const dialog = await openDialog();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
+      });
+      // Open until the server answers
+      expect(isOpen()).toBe(true);
+
+      await act(async () => answer.resolve(ok()));
+      await waitFor(() => expect(isOpen()).toBe(false));
+      await waitFor(() => expect(document.activeElement).toBe(button));
+    });
+
+    it("keeps the Columns open after Restore default", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const dialog = await openDialog();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook("grid-columns-reset")));
+      });
+      await act(async () => answer.resolve(ok()));
+      await waitFor(() => expect(busy()).toBeNull());
+
+      expect(isOpen()).toBe(true);
+    });
+
+    it("keeps the Columns open when the server answers the Save with a warning", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+      const dialog = await openDialog();
+
+      await act(async () => {
+        fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
+      });
+      await act(async () => answer.resolve(ok([{ type: "message", parameters: { type: "warning", title: "T", message: "M" } }])));
+      await waitFor(() => expect(busy()).toBeNull());
+
+      expect(isOpen()).toBe(true);
+      expect(dialog.querySelector(hook("grid-columns-status")).getAttribute("data-type")).toBe("error");
+    });
+
+    // While a Save waits for the server its button shows the loading look: a spinner, "Saving…" and disabled
+    describe("Save button while the layout is saved", () => {
+      const saveButton = () => document.querySelector(hook("grid-columns-save"));
+      const isLoading = () => saveButton().classList.contains("is-loading");
+
+      it.each(["popover", "dialog", "side-panel"])("shows Saving and is disabled in the %s until the server answers", async (panel) => {
+        renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: panel }) });
+        const dialog = await openDialog();
+        expect(saveButton().textContent).toBe("GRID_COLUMNS_SAVE");
+        expect(saveButton().disabled).toBe(false);
+        expect(isLoading()).toBe(false);
+
+        await act(async () => {
+          fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
+        });
+
+        expect(saveButton().textContent).toBe("GRID_COLUMNS_SAVING");
+        expect(saveButton().disabled).toBe(true);
+        expect(isLoading()).toBe(true);
+        expect(saveButton().querySelector(".awe-icon-spin")).not.toBeNull();
+        // Disabled: a second click does not save again
+        fireEvent.click(saveButton());
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+
+        await act(async () => answer.resolve(ok()));
+        await waitFor(() => expect(isOpen()).toBe(false));
+      });
+
+      it("goes back to Save and enabled when the Save fails", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
+        renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+        const dialog = await openDialog();
+
+        await act(async () => {
+          fireEvent.click(dialog.querySelector(hook("grid-columns-save")));
+        });
+        expect(saveButton().textContent).toBe("GRID_COLUMNS_SAVING");
+
+        await act(async () => answer.reject(new Error("down")));
+        await waitFor(() => expect(busy()).toBeNull());
+
+        expect(isOpen()).toBe(true);
+        expect(saveButton().textContent).toBe("GRID_COLUMNS_SAVE");
+        expect(saveButton().disabled).toBe(false);
+        expect(isLoading()).toBe(false);
+        expect(saveButton().querySelector(".awe-icon-spin")).toBeNull();
+      });
+
+      it("does not change the Save button while Restore default waits for the server", async () => {
+        renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+        const dialog = await openDialog();
+
+        await act(async () => {
+          fireEvent.click(dialog.querySelector(hook("grid-columns-reset")));
+        });
+        expect(busy()).toBe("true");
+
+        expect(saveButton().textContent).toBe("GRID_COLUMNS_SAVE");
+        expect(saveButton().disabled).toBe(false);
+        expect(isLoading()).toBe(false);
+        await act(async () => answer.resolve(ok()));
+      });
+    });
+  });
+
+  describe("columns panel (#843)", () => {
+    it("opens the Columns as a modal dialog with columns-panel dialog", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "dialog" }) });
       const dialog = await openDialog();
 
       expect(dialog.classList.contains("p-dialog")).toBe(true);
       expect(dialog.getAttribute("data-type")).toBe("dialog");
+      expect(dialog.querySelector(".grid-columns-header").textContent).toContain("GRID_COLUMNS_TITLE");
+      expect(document.getElementById(dialog.getAttribute("aria-labelledby")).textContent).toBe("GRID_COLUMNS_TITLE");
       expect(document.querySelector(".p-sidebar")).toBeNull();
+    });
+
+    it("cancels the live changes in the dialog and closes it", async () => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "dialog" }) });
+      const dialog = await openDialog();
+      fireEvent.click(itemOf(dialog, "b").querySelector(hook("grid-column-checkbox")));
+
+      fireEvent.click(dialog.querySelector(hook("grid-columns-cancel")));
+
+      expect(headerNames()).toEqual(["A", "B", "C", "D"]);
+      await waitFor(() => expect(document.querySelector(hook("grid-columns-dialog"))).toBeNull());
     });
 
     it("opens the Columns as a side panel on the right with columns-panel side-panel", async () => {
@@ -437,13 +874,19 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       expect(document.querySelector(".p-dialog")).toBeNull();
     });
 
-    it("lists the columns and the actions in the side panel as in the dialog", async () => {
-      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel: "side-panel" }) });
+    it.each(["popover", "dialog", "side-panel"])("lists the same columns and actions in the %s", async (columnsPanel) => {
+      renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState({ columnsPanel }) });
       const panel = await openDialog();
 
+      expect(panel.getAttribute("data-type")).toBe(columnsPanel);
       expect(itemNames(panel)).toEqual(["a", "b", "c", "d"]);
-      ["grid-columns-counter", "grid-columns-show-all", "grid-columns-reset", "grid-columns-save", "grid-columns-close"]
+      ["grid-columns-counter", "grid-columns-reset", "grid-columns-cancel", "grid-columns-save", "grid-columns-close"]
         .forEach(id => expect(panel.querySelector(hook(id))).not.toBeNull());
+      expect(panel.querySelector(hook("grid-columns-show-all"))).toBeNull();
+      const footer = panel.querySelector(".grid-columns-actions");
+      expect(Array.from(footer.querySelectorAll("button")).map(button => button.getAttribute("data-testid")))
+        .toEqual(["grid-columns-reset", "grid-columns-cancel", "grid-columns-save"]);
+      expect(itemOf(panel, "a").querySelector(".grid-column-handle")).not.toBeNull();
     });
 
     it("hides a column from the grid in the side panel", async () => {
@@ -455,8 +898,8 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       await waitFor(() => expect(headerNames()).toEqual(["A", "C", "D"]));
     });
 
-    it("keeps the dialog as the default of the application settings", () => {
-      expect(DEFAULT_SETTINGS.gridColumnsPanel).toBe("dialog");
+    it("makes the popover the default of the application settings", () => {
+      expect(DEFAULT_SETTINGS.gridColumnsPanel).toBe("popover");
     });
 
     it("opens the Columns of a grid without columns-panel as the application settings say", async () => {
@@ -488,5 +931,12 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       await waitFor(() => expect(document.querySelector(hook("grid-columns-dialog"))).toBeNull());
       expect(document.activeElement).toBe(button);
     });
+  });
+
+  it("sizes the Columns with the width token of the panel", async () => {
+    renderWithProviders(<AweGrid id="grid" />, { preloadedState: gridState() });
+    const popover = await openDialog();
+
+    expect(popover.style.width).toBe("var(--awe-grid-columns-panel-width)");
   });
 });

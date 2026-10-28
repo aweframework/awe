@@ -1301,9 +1301,11 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="GRID_COLUMNS_TITLE" value="Columnas del grid"/>
   <locale name="GRID_COLUMNS_VISIBLE" value="visibles"/>
   <locale name="GRID_COLUMNS_SHOW_ALL" value="Mostrar todas"/>
-  <locale name="GRID_COLUMNS_RESET" value="Restablecer"/>
-  <locale name="GRID_COLUMNS_SAVE" value="Guardar como predeterminado"/>
+  <locale name="GRID_COLUMNS_RESET" value="Restaurar predeterminado"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Guardar"/>
+  <locale name="GRID_COLUMNS_SAVING" value="Guardando…"/>
   <locale name="GRID_COLUMNS_CLOSE" value="Cerrar"/>
+  <locale name="GRID_COLUMNS_CANCEL" value="Cancelar"/>
   <locale name="GRID_COLUMNS_MOVE_UP" value="Subir"/>
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Bajar"/>
   <locale name="GRID_COLUMNS_DRAG" value="Arrastrar para reordenar"/>

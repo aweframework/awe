@@ -75,6 +75,7 @@ describe("test id vocabulary", () => {
       gridColumnsCounter: "grid-columns-counter",
       gridColumnsShowAll: "grid-columns-show-all",
       gridColumnsReset: "grid-columns-reset",
+      gridColumnsCancel: "grid-columns-cancel",
       gridColumnsSave: "grid-columns-save",
       gridColumnsClose: "grid-columns-close",
       treeIcon: "tree-icon",

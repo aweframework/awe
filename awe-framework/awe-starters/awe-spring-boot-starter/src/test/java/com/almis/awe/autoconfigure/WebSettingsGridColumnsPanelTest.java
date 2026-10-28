@@ -22,9 +22,17 @@ class WebSettingsGridColumnsPanelTest {
   }
 
   @Test
-  void gridsShowTheirColumnsInADialogByDefault() {
-    assertThat(new BaseConfigProperties().getComponent().getGridColumnsPanel()).isEqualTo("dialog");
-    assertThat(webSettings(new BaseConfigProperties()).getGridColumnsPanel()).isEqualTo("dialog");
+  void gridsShowTheirColumnsInAPopoverByDefault() {
+    assertThat(new BaseConfigProperties().getComponent().getGridColumnsPanel()).isEqualTo("popover");
+    assertThat(webSettings(new BaseConfigProperties()).getGridColumnsPanel()).isEqualTo("popover");
+  }
+
+  @Test
+  void theApplicationCanStillShowTheColumnsOfItsGridsInADialog() {
+    BaseConfigProperties properties = new BaseConfigProperties();
+    properties.getComponent().setGridColumnsPanel("dialog");
+
+    assertThat(webSettings(properties).getGridColumnsPanel()).isEqualTo("dialog");
   }
 
   @Test
