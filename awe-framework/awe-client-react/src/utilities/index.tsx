@@ -528,9 +528,10 @@ export function getSizeString(size: number): string {
 }
 
 /**
- * Get component with address
+ * Get component with address. The address of a grid cell (with column and row) points to its grid, as the actions
+ * launched by a column dependency carry the cell address
  * @param {object[]} components Component list
- * @param {object} address Component address
+ * @param {object} address Component or cell address
  * @return component found
  * @memberOf Utilities
  */
@@ -538,7 +539,8 @@ export function getComponent<C extends { address?: ComponentAddress }>(
   components: Record<string, C> | ArrayLike<C>,
   address: ComponentAddress
 ): C | undefined {
-  return Object.values(components).find(component => _.isEqual(component.address, address));
+  const componentAddress = _.omit(address, ["column", "row"]);
+  return Object.values(components).find(component => _.isEqual(component.address, componentAddress));
 }
 
 /**

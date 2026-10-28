@@ -2,6 +2,7 @@ import {
   fetchHtml,
   fetchJson,
   getBaseHref,
+  getComponent,
   getContextPath,
   getHelpTooltipNode,
   getSizeString
@@ -121,6 +122,24 @@ describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
     delete global.fetch;
     delete window.fetch;
   });
+  describe('getComponent', () => {
+    const grid = {address: {view: 'base', component: 'GrdSta'}};
+    const components = {GrdSta: grid, Other: {address: {view: 'report', component: 'GrdSta'}}};
+
+    it('finds the component of its address', () => {
+      expect(getComponent(components, {view: 'base', component: 'GrdSta'})).toBe(grid);
+    });
+
+    it('finds the grid of the address of one of its cells (#880)', () => {
+      expect(getComponent(components, {view: 'base', component: 'GrdSta', column: 'DwnFil', row: '2'})).toBe(grid);
+      expect(getComponent(components, {view: 'base', component: 'GrdSta', column: 'DwnFil', row: undefined})).toBe(grid);
+    });
+
+    it('does not find a component of another view', () => {
+      expect(getComponent(components, {view: 'help', component: 'GrdSta', column: 'DwnFil'})).toBeUndefined();
+    });
+  });
+
   describe('getBaseHref', () => {
     afterEach(() => {
       document.head.querySelectorAll('base').forEach(base => base.remove());

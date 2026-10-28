@@ -92,6 +92,7 @@ module.exports = {
     '**/hooks/useFocusTrapTest.{js,jsx}',
     '**/hooks/useDocumentHeadTest.{js,jsx}',
     '**/redux/actions/advancedDependenciesTest.{js,jsx}',
+    '**/redux/actions/cellClickDependenciesTest.{js,jsx}',
     '**/redux/actions/dependenciesTest.{js,jsx}',
     '**/redux/actions/settingsTest.{js,jsx}',
     '**/redux/actions/menuTest.{js,jsx}',

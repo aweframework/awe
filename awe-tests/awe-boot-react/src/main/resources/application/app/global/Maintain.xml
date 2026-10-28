@@ -150,7 +150,7 @@
 
   <!-- Reload properties of application -->
   <target name="downloadFileGrid">
-    <serve service="downloadFile">
+    <serve service="downloadGridFile">
       <variable id="fileName" type="STRING" name="DwnFil.selected"/>
     </serve>
   </target>

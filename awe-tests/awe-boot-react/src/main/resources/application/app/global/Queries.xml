@@ -1315,7 +1315,7 @@
     <field id="Des" table="testQuery" alias="Des3"/>
     <compound alias="DwnFil">
       <computed alias="label" format="[Des]"/>
-      <computed alias="value" format="d2ViYXBwLnJhciB8IDk2MjI5MDkgfCBhcHBsaWNhdGlvbi9vY3RldC1zdHJlYW0%3D"/>
+      <computed alias="value" format="grid-file.txt"/>
     </compound>
     <constant value="123456" alias="MulNum" transform="NUMBER" pattern="###,###.00"/>
     <computed alias="PrgVal" format="Math.round(Math.random()*100)" eval="true"/>

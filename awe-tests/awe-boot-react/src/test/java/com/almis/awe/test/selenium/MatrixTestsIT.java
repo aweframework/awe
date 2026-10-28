@@ -183,6 +183,29 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Grid test: a click in a cell only launches the click dependency of its own column (#880). The column DwnFil
+   * downloads the file of the selected row when its cell is clicked: a click in another column downloads nothing
+   */
+  @Test
+  void t044_gridTestCellClickLaunchesOnlyItsColumnDependency() {
+    // Title
+    setTestTitle("Grid test: a cell click only launches the dependency of its column");
+
+    // Go to screen
+    openMatrixScreen();
+    clickTab("TabSelMat", "Static");
+    startRecordingDownloads();
+
+    // A click in another column selects the row and downloads nothing
+    clickRowContents("GrdSta", "awedb3");
+    checkFilesDownloaded(0);
+
+    // A click in the download column of the selected row downloads its file, only once
+    clickCell("GrdSta", "DwnFil");
+    checkFilesDownloaded(1);
+  }
+
+  /**
    * Grid test: multiselect grid
    */
   @Test

@@ -293,6 +293,24 @@ function getComponent(componentId: string, components: Record<string, Dependency
 }
 
 /**
+ * Check if the row of a cell event is the row of the launcher of a trigger. As AngularJS, the launcher of a
+ * "selectedRowValue" element is the cell of the selected row (none when no row is selected); the launcher of the other
+ * elements is the cell of their own row, if they have one
+ * @param {object} trigger Trigger
+ * @param {object} component Component the trigger points to
+ * @param {string} eventRow Row of the cell that raises the event
+ * @return {boolean} The event is raised by the row of the launcher
+ */
+function isLauncherRow(trigger: Trigger, component: DependencyComponent, eventRow: string): boolean {
+  if (trigger.attribute === "selectedRowValue") {
+    const values = component?.model?.values || [];
+    const selectedRow = values[getExistingIndex([getEditingRowIndex(values), getSelectedRowIndex(values)])];
+    return selectedRow !== undefined && String(selectedRow[getGridIdentifier(component.attributes)]) === String(eventRow);
+  }
+  return !trigger.address.row || String(trigger.address.row) === String(eventRow);
+}
+
+/**
  * Check trigger launched
  * @param {object} trigger Triggered state
  * @param {object} state State
@@ -317,13 +335,14 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
     const lastEvent = runtime?.lastEvent;
     const { event, address: eventAddress = {} } = lastEvent ?? {};
 
-    // Check if the event matches the component
+    // Check if the event matches the component. As AngularJS keys the launcher of a grid cell by the cell, an event
+    // raised by a cell only matches an element of its own column, in its own row
     const isSameComponent = eventAddress.component === trigger.address.component;
     const isSameView = !trigger.address.view || eventAddress.view === trigger.address.view;
-    //const isSameRow = !component.address.row || !eventAddress.row || eventAddress.row === component.address.row;
-    //const isSameColumn = !component.address.column || !eventAddress.column || eventAddress.column === component.address.column;
+    const isSameColumn = !eventAddress.column || !trigger.address.column || eventAddress.column === trigger.address.column;
+    const isSameRow = !eventAddress.row || isLauncherRow(trigger, component, eventAddress.row);
 
-    return isSameComponent && isSameView && /*isSameRow && isSameColumn && */ trigger.event === event;
+    return isSameComponent && isSameView && isSameColumn && isSameRow && trigger.event === event;
   }
 
   // Else, check attributes: the row and the column are only there for the attributes of a grid cell

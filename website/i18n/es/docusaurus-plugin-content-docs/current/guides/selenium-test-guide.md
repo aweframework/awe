@@ -742,6 +742,13 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkFileViewerContains(String text)` | Espera hasta que el visor de ficheros muestra un texto |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Comprueba un texto dentro del frame que incrusta una aplicación externa. El selector pertenece a esa aplicación, por lo que es el único literal que puedes pasar |
 
+### Descargas {#downloads}
+
+| Paso | Qué hace |
+|---|---|
+| `startRecordingDownloads()` | Empieza a contar los ficheros que descarga la pantalla a partir de ahora |
+| `checkFilesDownloaded(int count)` | Comprueba que la pantalla ha descargado exactamente `count` ficheros desde `startRecordingDownloads()` |
+
 ### Comprobaciones en bruto {#raw-checks}
 
 Estos pasos reciben un selector CSS. Existen para los ayudantes de tu producto y para componentes que AWE no conoce, no para las
