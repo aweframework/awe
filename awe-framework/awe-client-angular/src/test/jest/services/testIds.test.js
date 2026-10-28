@@ -137,7 +137,8 @@ describe("test id vocabulary", () => {
       cardValue: "card-value",
       cardDelta: "card-delta",
       cardProgress: "card-progress",
-      cardSparkline: "card-sparkline"
+      cardSparkline: "card-sparkline",
+      cardChip: "card-chip"
     });
     Object.keys(TestIds).map(name => TestIds[name]).forEach(value => expect(value).toMatch(/^[a-z]+(-[a-z]+)*$/));
   });

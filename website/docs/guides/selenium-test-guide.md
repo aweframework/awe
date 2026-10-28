@@ -739,6 +739,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
 | `checkCardValue(String cardId, String expectedText)` | Checks the value of a card, its number and its unit (for instance `412,600 €`); the spaces between them do not count |
 | `checkCardDelta(String cardId, String expectedText, String trend, String tone)` | Checks the trend delta of a card: its text (for instance `+12.5%` or `−0.18 pt`, with the minus sign U+2212), its direction (`up`, `down` or `flat`) and its tone (`success`, `warning`, `danger`, `info` or `neutral`) |
+| `checkCardChip(String cardId, String expectedText, String tone)` | Checks the status chip of a card: its text and its tone (`success`, `warning`, `danger`, `info` or `neutral`) |
+| `checkCardChipChangesOnClick(String cardId, String buttonId)` | Clicks a button and checks that the status chip of a card changes its text, with a valid tone (for instance a reload button) |
 | `checkCardProgress(String cardId, int percent)` | Checks the progress of a card towards its target, the percent its progress bar announces |
 | `checkCardBodyComponent(String cardId, String componentId)` | Checks that a component (a criterion, a grid or a chart) is shown in the body of a card |
 | `checkMapVisible(String mapId)` | Checks that a map is displayed with its markers drawn (React client only) |

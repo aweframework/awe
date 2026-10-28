@@ -197,7 +197,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Tabla dinámica | #821, #878 | Done | Zonas para filas, columnas y valores; select de agregación; intercambiar; totales por fila y por columna. |
 | Mapa | #798 | Done | Controles y paneles con las superficies y botones de AWE; marcadores y rutas en el primario. |
 | Celdas con escala de color y grid sin cabecera | #830 | Done | Escala de 5 pasos desde el primario con leyenda; un grid sin cabecera empieza por su primera fila. |
-| Card | #899 | Done | Tarjeta de métrica: título, valor (tabular) con unidad, variación como etiqueta con flecha y texto (tono según `good-trend`), progreso hacia un objetivo opcional y un cuerpo con cualquier componente; se coloca con `awe-card-grid`. |
+| Card | #899 | Done | Tarjeta de métrica: título, valor (tabular) con unidad, variación como etiqueta con flecha y texto (tono según `good-trend`), progreso hacia un objetivo opcional, un chip de estado opcional arriba a la derecha, delante del icono (#836) y un cuerpo con cualquier componente; se coloca con `awe-card-grid`. |
 | KPI | #836 | Planned | Añade el modo filtro sobre la card (#899): un estado seleccionado, y un clic filtra una rejilla mediante dependencias. |
 
 ### Respuesta al usuario y carga {#feedback-and-loading}

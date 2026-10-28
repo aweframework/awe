@@ -431,6 +431,16 @@
         <xs:documentation xml:lang="en">Colour of the icon tile and of the progress bar: success, warning, danger, info or neutral. Default: the primary colour.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="chip" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Status chip shown at the top right, before the icon or the delta (a locale key or a text), as a tag with a dot. The query can return it as a field to change the status.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chip-tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tone of the status chip: success, warning, danger, info or neutral. Default: neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="value" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Main value. A number is formatted in the language of the user with number-decimals.</xs:documentation>

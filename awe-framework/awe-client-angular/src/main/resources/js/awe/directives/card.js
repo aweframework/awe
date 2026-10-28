@@ -12,11 +12,12 @@ const delta = `<span class="awe-card-delta awe-card-delta-{{card.delta.tone}}" d
 const GAUGE_ARC = "M 8 50 A 42 42 0 0 1 92 50";
 
 const template = `<section class="awe-card {{::controller.style}}" ng-attr-id="{{::cardId}}" ng-attr-aria-labelledby="{{card.title ? cardId + '-title' : undefined}}" data-testid="${TestIds.card}" ng-attr-data-testid-owner="{{::cardId}}" ng-show="card.visible" ui-dependency="dependencies" ng-cloak>
-  <header class="awe-card-header" ng-if="card.title || card.subtitle || card.icon || card.deltaInHeader">
+  <header class="awe-card-header" ng-if="card.title || card.subtitle || card.chip || card.icon || card.deltaInHeader">
     <div class="awe-card-heading" ng-if="card.title || card.subtitle">
       <h3 class="awe-card-title" ng-attr-id="{{::cardId}}-title" ng-if="card.title" ng-bind="card.title"></h3>
       <p class="awe-card-subtitle" ng-if="card.subtitle" ng-bind="card.subtitle"></p>
     </div>
+    <span class="awe-card-chip awe-card-chip-{{card.chip.tone}}" data-testid="${TestIds.cardChip}" data-tone="{{card.chip.tone}}" ng-if="card.chip" ng-bind="card.chip.text"></span>
     <span class="awe-card-icon awe-card-icon-{{card.iconTone}}" aria-hidden="true" ng-if="card.icon">${getIconTemplate("awe-card-icon-glyph", "span", "getCardIcon()")}</span>
     ${delta.replace("<span ", '<span ng-if="card.deltaInHeader" ')}
   </header>

@@ -361,4 +361,58 @@ describe("awe-react-client/test/js/components/AweCardTest.jsx", () => {
     expect(part(".awe-card-gauge")).toBeNull();
     expect(part(".awe-card-progress-text")).toBeNull();
   });
+
+  describe("status chip (#836)", () => {
+    const chip = () => part("[data-testid='card-chip']");
+
+    it("shows the chip at the top right, before the icon, with its tone", () => {
+      renderCard({title: "Service status", icon: "server", chip: "Operational", chipTone: "success"});
+
+      expect(chip()).toHaveClass("awe-card-chip", "awe-card-chip-success");
+      expect(chip()).toHaveAttribute("data-tone", "success");
+      expect(chip()).toHaveTextContent(/^Operational$/);
+      expect(chip().parentElement).toHaveClass("awe-card-header");
+      expect(chip().previousElementSibling).toHaveClass("awe-card-heading");
+      expect(chip().nextElementSibling).toHaveClass("awe-card-icon");
+    });
+
+    it("goes before the delta of the header when there is no icon", () => {
+      renderCard({title: "Service status", chip: "Degraded", chipTone: "warning", delta: 2});
+
+      expect(chip().parentElement).toHaveClass("awe-card-header");
+      expect(chip().nextElementSibling).toBe(delta());
+    });
+
+    it("takes the chip and its tone of the first row over the attributes", () => {
+      renderCard({chip: "Operational", chipTone: "success"}, [{chip: "Down", chipTone: "danger"}]);
+
+      expect(chip()).toHaveTextContent(/^Down$/);
+      expect(chip()).toHaveAttribute("data-tone", "danger");
+    });
+
+    it("is neutral without a known tone, and shows a header for a chip without title", () => {
+      renderCard({chip: "Unknown", chipTone: "red"});
+
+      expect(chip()).toHaveClass("awe-card-chip-neutral");
+      expect(chip()).toHaveAttribute("data-tone", "neutral");
+      expect(chip().parentElement).toHaveClass("awe-card-header");
+    });
+
+    it("renders no chip without its text", () => {
+      renderCard({title: "Service status", chipTone: "success"});
+
+      expect(chip()).toBeNull();
+    });
+
+    it("changes when the model values change", () => {
+      const {store} = renderCard({}, [{chip: "Operational", chipTone: "success"}]);
+
+      act(() => {
+        store.dispatch(updateModel({view: "base", component: "CrdCustomers"}, {values: [{chip: "Degraded", chipTone: "warning"}]}));
+      });
+
+      expect(chip()).toHaveTextContent(/^Degraded$/);
+      expect(chip()).toHaveAttribute("data-tone", "warning");
+    });
+  });
 });

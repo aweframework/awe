@@ -2205,6 +2205,9 @@
     <constant value="12.5" alias="delta"/>
   </query>
 
+  <!-- STATUS CARD OF THE CARD TEST SCREEN (#836): the status cycles on every call, so its reload button changes the chip -->
+  <query id="CrdTstStatus" service="CrdTstStatus"/>
+
   <query id="TstChrPieSrc" distinct="true">
     <table id="AweThm"/>
     <field id="Nam" alias="names"/>

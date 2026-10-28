@@ -185,6 +185,7 @@ export const TestIds = Object.freeze({
   cardDelta: "card-delta",
   cardProgress: "card-progress",
   cardSparkline: "card-sparkline",
+  cardChip: "card-chip",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
   loader: "loader",
   loadingSpinner: "loading-spinner"

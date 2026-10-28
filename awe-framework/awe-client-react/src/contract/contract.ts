@@ -134,6 +134,8 @@ export interface ButtonAction extends AbstractAction {
 
 export interface Card extends Component {
     caption?: string;
+    chip?: string;
+    chipTone?: string;
     delta?: string;
     deltaUnit?: string;
     description?: string;

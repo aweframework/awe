@@ -737,6 +737,8 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
 | `checkCardValue(String cardId, String expectedText)` | Comprueba el valor de una tarjeta, su número y su unidad (por ejemplo `412,600 €`); los espacios entre ellos no cuentan |
 | `checkCardDelta(String cardId, String expectedText, String trend, String tone)` | Comprueba la variación de una tarjeta: su texto (por ejemplo `+12.5%` o `−0.18 pt`, con el signo menos U+2212), su dirección (`up`, `down` o `flat`) y su tono (`success`, `warning`, `danger`, `info` o `neutral`) |
+| `checkCardChip(String cardId, String expectedText, String tone)` | Comprueba el chip de estado de una tarjeta: su texto y su tono (`success`, `warning`, `danger`, `info` o `neutral`) |
+| `checkCardChipChangesOnClick(String cardId, String buttonId)` | Pulsa un botón y comprueba que el chip de estado de una tarjeta cambia de texto, con un tono válido (por ejemplo un botón de recarga) |
 | `checkCardProgress(String cardId, int percent)` | Comprueba el progreso de una tarjeta hacia su objetivo, el porcentaje que anuncia su barra de progreso |
 | `checkCardBodyComponent(String cardId, String componentId)` | Comprueba que un componente (un criterio, una rejilla o un gráfico) se muestra en el cuerpo de una tarjeta |
 | `checkMapVisible(String mapId)` | Comprueba que un mapa se muestra con sus marcadores dibujados (solo cliente React) |

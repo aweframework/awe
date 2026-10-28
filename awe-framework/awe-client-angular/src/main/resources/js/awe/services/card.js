@@ -7,10 +7,11 @@ export const CARD_TRENDS = ["up", "down", "flat"];
 // Fields of the card (row or attribute)
 export const CARD_FIELDS = ["title", "label", "subtitle", "icon", "iconTone", "value", "unit", "numberDecimals", "delta",
   "deltaUnit", "trend", "goodTrend", "tone", "caption", "target", "description", "footer", "visible",
-  "sparkline", "sparklineType", "progressStyle"];
+  "sparkline", "sparklineType", "progressStyle", "chip", "chipTone"];
 
 const DEFAULT_DELTA_UNIT = "%";
 const DEFAULT_ICON_TONE = "primary";
+const DEFAULT_CHIP_TONE = "neutral";
 const CARD_SPARKLINE_TYPES = ["line", "area", "bar"];
 const DEFAULT_SPARKLINE_TYPE = "area";
 const CARD_PROGRESS_STYLES = ["bar", "gauge"];
@@ -146,6 +147,10 @@ const getProgress = (value, target, unit, translate, language, decimals, gauge) 
   };
 };
 
+// Status chip at the top right, before the icon or the delta (#836): its text tells the status, the dot and the colour
+// only repeat it. No text, no chip; an unknown tone is neutral
+const getChip = (text, tone) => (text === null ? null : {text, tone: CARD_TONES.includes(tone) ? tone : DEFAULT_CHIP_TONE});
+
 /**
  * Writes the sparkline of a card: the SVG of the grid sparkline column without its fixed size, stretched to the width
  * of the card (the strokes keep their width through the CSS)
@@ -166,7 +171,7 @@ export function cardSparklineMarkup(model) {
  * @param {Object} [row] First row of the model values
  * @param {{language?: string, translate: function}} options User language and translation of the texts (locale key or
  * plain text)
- * @returns {Object} View: texts, value, delta and its placement, sparkline, progress and its style, and visibility (null
+ * @returns {Object} View: texts, status chip, value, delta and its placement, sparkline, progress and its style, and visibility (null
  * for the missing parts)
  */
 export function buildCard(attributes = {}, row = null, {language, translate}) {
@@ -192,6 +197,7 @@ export function buildCard(attributes = {}, row = null, {language, translate}) {
   return {
     title: isPresent(field("title")) ? text("title") : text("label"),
     subtitle: text("subtitle"),
+    chip: getChip(text("chip"), field("chipTone")),
     icon,
     iconTone: isPresent(field("iconTone")) ? String(field("iconTone")) : DEFAULT_ICON_TONE,
     value: valueView,

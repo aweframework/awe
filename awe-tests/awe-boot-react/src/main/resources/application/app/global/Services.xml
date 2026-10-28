@@ -473,6 +473,11 @@
     <java classname="com.almis.awe.test.service.DashboardCardService" method="errors"/>
   </service>
 
+  <!-- STATUS CARD OF THE CARD TEST SCREEN (#836) -->
+  <service id="CrdTstStatus">
+    <java classname="com.almis.awe.test.service.CardStatusService" method="status"/>
+  </service>
+
   <service id="TstMapPoints">
     <java classname="com.almis.awe.test.service.DummyService" method="mapPoints"/>
   </service>

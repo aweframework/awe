@@ -16,7 +16,8 @@ primera fila de su consulta la rellena. Lo soportan los dos motores web (Angular
 ## Esqueleto de XML {#xml-skeleton}
 
 ```xml
-<card id="[card-identifier]" title="[card-title]" subtitle="[card-subtitle]" icon="[card-icon]"
+<card id="[card-identifier]" title="[card-title]" subtitle="[card-subtitle]" chip="[status-text]"
+      chip-tone="[success|warning|danger|info|neutral]" icon="[card-icon]"
       icon-tone="[success|warning|danger|info|neutral]" value="[value]" unit="[unit]" number-decimals="[decimals]"
       delta="[delta]" delta-unit="[delta-unit]" trend="[up|down|flat]" good-trend="[up|down]"
       tone="[success|warning|danger|info|neutral]" caption="[caption]" target="[target]"
@@ -40,7 +41,7 @@ De arriba abajo, una card muestra solo las partes que tienen valor:
 
 | Parte       | Contenido                                                                                                      |
 |-------------|----------------------------------------------------------------------------------------------------------------|
-| Cabecera    | `title` y `subtitle` a la izquierda. A la derecha, el recuadro del `icon` o, si no hay icono, la variación      |
+| Cabecera    | `title` y `subtitle` a la izquierda. A la derecha, el `chip` de estado seguido del recuadro del `icon` o, si no hay icono, la variación      |
 | Valor       | `value` en cifras grandes, seguido de su `unit`                                                                |
 | Cuerpo      | Los hijos de la card (un gráfico, una rejilla, botones...)                                                     |
 | Progreso    | Una barra con el valor frente al `target`, y su texto (`82 % de 500.000 €`)                                    |
@@ -58,6 +59,8 @@ De arriba abajo, una card muestra solo las partes que tienen valor:
 | title           | Opcional        | String  | Título de la card. Si no hay título, se usa `label`                                                            | **Nota:** Puede usar ficheros de [i18n](i18n-internationalization.md) (locales)            |
 | label           | Opcional        | String  | Título de la card cuando no se indica `title`                                                                  | **Nota:** Puede usar ficheros de [i18n](i18n-internationalization.md) (locales)            |
 | subtitle        | Opcional        | String  | Texto secundario debajo del título                                                                             | **Nota:** Puede usar ficheros de [i18n](i18n-internationalization.md) (locales)            |
+| chip            | Opcional        | String  | Estado que se muestra como una etiqueta con un punto arriba a la derecha. Consulte [chip de estado](#status-chip)  | **Nota:** Puede usar ficheros de [i18n](i18n-internationalization.md) (locales)            |
+| chip-tone       | Opcional        | String  | Color del chip de estado                                                                                       | `success`, `warning`, `danger`, `info`, `neutral` (por defecto)                            |
 | icon            | Opcional        | String  | Icono que se muestra en un recuadro arriba a la derecha. Con icono la variación va al pie; sin él, a la cabecera | **Nota:** Puede consultar todos los juegos de iconos en la pantalla de [iconos](icons.md) (`users`, `mdi:name`, `lucide:name`) |
 | icon-tone       | Opcional        | String  | Color del recuadro del icono y de la barra de progreso                                                         | `success`, `warning`, `danger`, `info`, `neutral`. Por defecto: el color primario          |
 | value           | Opcional        | String  | Valor principal. Un número se formatea en el idioma del usuario; cualquier otro texto se muestra tal cual      |                                                                                            |
@@ -89,16 +92,39 @@ De arriba abajo, una card muestra solo las partes que tienen valor:
 
 Los atributos de la card son valores fijos. Cuando la card tiene una consulta (`initial-load="query"` y
 `target-action`), la primera fila de la consulta la rellena: cada campo se llama como el atributo en camelCase
-(`title`, `subtitle`, `icon`, `iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`,
+(`title`, `subtitle`, `chip`, `chipTone`, `icon`, `iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`,
 `goodTrend`, `tone`, `caption`, `target`, `description`, `footer`).
 
 - Un campo de la fila prevalece sobre el atributo cuando está presente y no está vacío; si no, se usa el atributo. Así
   el XML puede contener las partes fijas (`icon`, `unit`, `caption`) y la consulta solo las cifras.
 - El título es `title` o, si no hay, `label`.
-- Los textos (`title`, `subtitle`, `caption`, `description`, `footer`) pueden ser claves de locale o texto plano.
+- Los textos (`title`, `subtitle`, `chip`, `caption`, `description`, `footer`) pueden ser claves de locale o texto plano.
 
 > **Nota:** El tono de la variación llega en el campo `tone`. El campo `style` sigue conteniendo las clases CSS de la
 > card.
+
+## Chip de estado {#status-chip}
+
+El `chip` muestra un estado arriba a la derecha de la card, delante del icono (o de la variación), como una etiqueta con un punto: *Operativo*, *En riesgo*, *Caído*... Su
+color es `chip-tone` (`neutral` si falta o no es válido). Hay un chip por card, y una card sin texto en `chip` no tiene
+chip.
+
+Como cualquier campo, la consulta puede devolver `chip` y `chipTone`, de modo que el estado cambia al refrescar la card.
+Los campos `icon` e `iconTone` pueden cambiar con él:
+
+```xml
+<card id="CrdStatus" title="SCREEN_TEXT_SERVICE_STATUS" initial-load="query" target-action="ServiceStatus"
+      autorefresh="60"/>
+```
+
+```java
+DataListUtil.addColumn(dataList, "chip", List.of("SCREEN_TEXT_DEGRADED"));
+DataListUtil.addColumn(dataList, "chipTone", List.of("warning"));
+DataListUtil.addColumn(dataList, "icon", List.of("lucide:triangle-alert"));
+DataListUtil.addColumn(dataList, "iconTone", List.of("warning"));
+DataListUtil.addColumn(dataList, "value", List.of(97.4));
+DataListUtil.addColumn(dataList, "unit", List.of("%"));
+```
 
 ## Tendencia y tono {#trend-and-tone}
 
@@ -188,6 +214,7 @@ Una card se refresca como cualquier componente que carga datos:
 - El tono no se indica solo con el color: la etiqueta de la variación muestra una flecha (`↗`, `↘` o `→`), el texto de
   la variación y una etiqueta oculta visualmente con la tendencia (*Sube*, *Baja*, *Sin cambios*), que leen los lectores
   de pantalla.
+- El chip de estado indica el estado con su texto; el punto y el color solo lo repiten.
 - La barra de progreso es un `progressbar` con su porcentaje.
 - La card usa los colores del tema, en modo claro y oscuro.
 

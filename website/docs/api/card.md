@@ -16,7 +16,8 @@ engines (AngularJS and React) support it.
 ## XML skeleton
 
 ```xml
-<card id="[card-identifier]" title="[card-title]" subtitle="[card-subtitle]" icon="[card-icon]"
+<card id="[card-identifier]" title="[card-title]" subtitle="[card-subtitle]" chip="[status-text]"
+      chip-tone="[success|warning|danger|info|neutral]" icon="[card-icon]"
       icon-tone="[success|warning|danger|info|neutral]" value="[value]" unit="[unit]" number-decimals="[decimals]"
       delta="[delta]" delta-unit="[delta-unit]" trend="[up|down|flat]" good-trend="[up|down]"
       tone="[success|warning|danger|info|neutral]" caption="[caption]" target="[target]"
@@ -40,7 +41,7 @@ From top to bottom, a card shows only the parts that have a value:
 
 | Part        | Content                                                                                                     |
 |-------------|-------------------------------------------------------------------------------------------------------------|
-| Header      | `title` and `subtitle` on the left. On the right, the `icon` tile or, when there is no icon, the delta       |
+| Header      | `title` and `subtitle` on the left. On the right, the status `chip` followed by the `icon` tile or, when there is no icon, the delta |
 | Value       | `value` in big figures, followed by its `unit`                                                              |
 | Body        | The children of the card (a chart, a grid, buttons...)                                                      |
 | Progress    | A bar with the value against the `target`, and its text (`82 % of 500,000 €`)                               |
@@ -58,6 +59,8 @@ From top to bottom, a card shows only the parts that have a value:
 | title           | Optional     | String  | Title of the card. When there is no title, `label` is used                                                          | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
 | label           | Optional     | String  | Title of the card when `title` is not set                                                                           | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
 | subtitle        | Optional     | String  | Secondary text below the title                                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
+| chip            | Optional     | String  | Status shown as a tag with a dot at the top right. See [status chip](#status-chip)                                | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
+| chip-tone       | Optional     | String  | Colour of the status chip                                                                                           | `success`, `warning`, `danger`, `info`, `neutral` (default)                                |
 | icon            | Optional     | String  | Icon shown in a tile at the top right. With an icon the delta goes to the footer; without it, to the header         | **Note:** You can check all iconsets at [icons](icons.md) screen (`users`, `mdi:name`, `lucide:name`) |
 | icon-tone       | Optional     | String  | Colour of the icon tile and of the progress bar                                                                     | `success`, `warning`, `danger`, `info`, `neutral`. Default: the primary colour             |
 | value           | Optional     | String  | Main value. A number is formatted in the language of the user; any other text is shown as is                        |                                                                                            |
@@ -88,17 +91,40 @@ From top to bottom, a card shows only the parts that have a value:
 ## Static attributes and query fields
 
 The attributes of the card are static values. When the card has a query (`initial-load="query"` and `target-action`),
-the first row of the query fills it: each field is named as the attribute in camelCase (`title`, `subtitle`, `icon`,
-`iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`, `goodTrend`, `tone`, `caption`,
+the first row of the query fills it: each field is named as the attribute in camelCase (`title`, `subtitle`, `chip`,
+`chipTone`, `icon`, `iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`, `goodTrend`, `tone`, `caption`,
 `target`, `description`, `footer`).
 
 - A field of the row wins over the attribute when it is present and not empty; otherwise the attribute is used. So the
   XML can hold the fixed parts (`icon`, `unit`, `caption`) and the query only the figures.
 - The title is `title`, else `label`.
-- The texts (`title`, `subtitle`, `caption`, `description`, `footer`) can be locale keys or plain text.
+- The texts (`title`, `subtitle`, `chip`, `caption`, `description`, `footer`) can be locale keys or plain text.
 
 > **Note:** The tone of the change comes in the `tone` field. The `style` field keeps holding the CSS classes of the
 > card.
+
+## Status chip
+
+The `chip` shows a status at the top right of the card, before the icon (or the delta), as a tag with a dot: *Operational*, *At risk*, *Down*... Its colour is
+`chip-tone` (`neutral` when it is missing or unknown). There is one chip per card, and a card without `chip` text has no
+chip.
+
+Like any field, the query can return `chip` and `chipTone`, so the status changes when the card is refreshed. The
+`icon` and `iconTone` fields can change with it:
+
+```xml
+<card id="CrdStatus" title="SCREEN_TEXT_SERVICE_STATUS" initial-load="query" target-action="ServiceStatus"
+      autorefresh="60"/>
+```
+
+```java
+DataListUtil.addColumn(dataList, "chip", List.of("SCREEN_TEXT_DEGRADED"));
+DataListUtil.addColumn(dataList, "chipTone", List.of("warning"));
+DataListUtil.addColumn(dataList, "icon", List.of("lucide:triangle-alert"));
+DataListUtil.addColumn(dataList, "iconTone", List.of("warning"));
+DataListUtil.addColumn(dataList, "value", List.of(97.4));
+DataListUtil.addColumn(dataList, "unit", List.of("%"));
+```
 
 ## Trend and tone
 
@@ -186,6 +212,7 @@ A card refreshes like any component that loads data:
 - The card is a `section` labelled by its title.
 - The tone is not told by colour alone: the delta tag shows an arrow (`↗`, `↘` or `→`), the delta text and a visually
   hidden label with the trend (*Up*, *Down*, *No change*), read by screen readers.
+- The status chip tells the status with its text; the dot and the colour only repeat it.
 - The progress bar is a `progressbar` with its percent.
 - The card uses the colours of the theme, in light and dark mode.
 

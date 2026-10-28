@@ -13,6 +13,7 @@ import {
   CARD_GAUGE_ARC,
   CARD_TARGET_OF,
   CARD_TREND_LABELS,
+  cardChipTone,
   cardDeltaText,
   cardField,
   cardNumber,
@@ -54,6 +55,7 @@ function AweCard(props) {
   const decimals = field("numberDecimals");
   const title = text("title") || text("label");
   const subtitle = text("subtitle");
+  const chipText = text("chip");
   const icon = field("icon");
   const unit = field("unit");
   const rawValue = field("value");
@@ -94,10 +96,16 @@ function AweCard(props) {
       {getIconCode(icon)}
     </span> : null;
   const headerEnd = icon ? iconTile : delta;
+  const chipTone = cardChipTone(field("chipTone"));
+  // Status chip at the top right, before the icon or the delta (#836): its text tells the status, the dot and the colour only repeat it
+  const chip = chipText ?
+    <span className={`awe-card-chip awe-card-chip-${chipTone}`} data-tone={chipTone} {...testHook(TestIds.cardChip)}>
+      {chipText}
+    </span> : null;
   const footerDelta = icon ? delta : null;
 
   const getHeader = () => {
-    if (!title && !subtitle && !headerEnd) {
+    if (!title && !subtitle && !chip && !headerEnd) {
       return null;
     }
     return <header className="awe-card-header">
@@ -105,6 +113,7 @@ function AweCard(props) {
         {title && <h3 className="awe-card-title" id={titleId}>{title}</h3>}
         {subtitle && <p className="awe-card-subtitle">{subtitle}</p>}
       </div>}
+      {chip}
       {headerEnd}
     </header>;
   };

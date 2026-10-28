@@ -2021,6 +2021,42 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckTheTextAndTheToneOfTheChipOfACard() {
+    WebElement chip = show(instructions.getCardChip("Crd"), "On track");
+    when(chip.getAttribute("data-tone")).thenReturn("success");
+
+    assertThatCode(() -> utilities.checkCardChip("Crd", "On track", "success")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChip("Crd", "Off track", "success"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChip("Crd", "On track", "warning"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChip("Missing", "On track", "success"));
+  }
+
+  @Test
+  void shouldCheckThatTheChipOfACardChangesWhenAButtonIsClicked() {
+    WebElement chip = show(instructions.getCardChip("Crd"), "");
+    // The chip shows the next status once the button is clicked
+    when(chip.getText()).thenAnswer(invocation -> utilities.events.contains("click:ButReload") ? "Degraded" : "Operational");
+    when(chip.getAttribute("data-tone")).thenAnswer(invocation -> utilities.events.contains("click:ButReload") ? "warning" : "success");
+
+    assertThatCode(() -> utilities.checkCardChipChangesOnClick("Crd", "ButReload")).doesNotThrowAnyException();
+    assertThat(utilities.events).containsExactly("click:ButReload");
+  }
+
+  @Test
+  void shouldFailWhenTheChipOfACardDoesNotChangeOrHasAnUnknownToneAfterTheClick() {
+    WebElement chip = show(instructions.getCardChip("Crd"), "Operational");
+    when(chip.getAttribute("data-tone")).thenReturn("success");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChipChangesOnClick("Crd", "ButReload"));
+
+    when(chip.getText()).thenAnswer(invocation -> utilities.events.isEmpty() ? "Operational" : "Degraded");
+    when(chip.getAttribute("data-tone")).thenReturn("orange");
+    utilities.events.clear();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChipChangesOnClick("Crd", "ButReload"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardChipChangesOnClick("Missing", "ButReload"));
+  }
+
+  @Test
   void shouldCheckTheProgressOfACardTowardsItsTarget() {
     WebElement progress = show(instructions.getCardProgress("Crd"), "");
     when(progress.getAttribute("aria-valuenow")).thenReturn("83");

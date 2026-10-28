@@ -352,6 +352,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getCardDelta", () -> i.getCardDelta("Crd"));
     catalog.put("getCardDeltaText", () -> i.getCardDeltaText("Crd"));
     catalog.put("getCardProgress", () -> i.getCardProgress("Crd"));
+    catalog.put("getCardChip", () -> i.getCardChip("Crd"));
     catalog.put("getCardBodyComponent", () -> i.getCardBodyComponent("Crd", "Grd"));
     catalog.put("getGridColumnsButton", () -> i.getGridColumnsButton(GRID));
     catalog.put("getGridMaximizeButton", () -> i.getGridMaximizeButton(GRID));

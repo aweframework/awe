@@ -1,5 +1,6 @@
 import {
   cardDeltaText,
+  cardChipTone,
   cardField,
   cardNumber,
   cardProgress,
@@ -169,6 +170,18 @@ describe("awe-react-client/test/js/utilities/cardTest.js", () => {
 
     it.each([undefined, null, "", "bar", "ring"])("draws a bar with the style %s", style => {
       expect(cardProgressStyle(style)).toBe("bar");
+    });
+  });
+
+  describe("cardChipTone", () => {
+    it("keeps a known tone", () => {
+      ["success", "warning", "danger", "info", "neutral"].forEach(tone => expect(cardChipTone(tone)).toBe(tone));
+    });
+
+    it("is neutral for a missing or unknown tone", () => {
+      expect(cardChipTone(undefined)).toBe("neutral");
+      expect(cardChipTone("")).toBe("neutral");
+      expect(cardChipTone("red")).toBe("neutral");
     });
   });
 });

@@ -155,12 +155,14 @@ export const TestIds = Object.freeze({
   loadingSpinner: "loading-spinner",
   // Chart (the instance is identified by "chart-id")
   chart: "chart",
-  // Cards (owner: card id): the card, its value, its delta badge, its target progress (bar or gauge) and its sparkline
+  // Cards (owner: card id): the card, its value, its delta badge, its target progress (bar or gauge), its sparkline
+  // and its status chip
   card: "card",
   cardValue: "card-value",
   cardDelta: "card-delta",
   cardProgress: "card-progress",
-  cardSparkline: "card-sparkline"
+  cardSparkline: "card-sparkline",
+  cardChip: "card-chip"
 });
 
 /**

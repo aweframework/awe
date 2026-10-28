@@ -380,6 +380,12 @@
   <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Spring Boot starters enable exactly the modules you need: scheduler, notifications, printing, REST."/>
   <locale name="CARD_TST_CHART" value="Themes by weight"/>
   <locale name="CARD_TST_GRID" value="Latest records"/>
+  <locale name="CARD_TST_STATUS" value="Service status"/>
+  <locale name="CARD_TST_STATUS_OPERATIONAL" value="Operational"/>
+  <locale name="CARD_TST_STATUS_DEGRADED" value="Degraded"/>
+  <locale name="CARD_TST_STATUS_DOWN" value="Down"/>
+  <locale name="CARD_TST_STATUS_FOOTER" value="Reload changes the status"/>
+  <locale name="CARD_TST_ON_TRACK" value="On track"/>
   <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
   <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
   <locale name="BUTTON_POPOVER_BOTTOM" value="Popover below"/>
