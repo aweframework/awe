@@ -189,17 +189,17 @@ aweApplication.factory('Chart',
 
           /**
            * Build the ECharts option of the chart
-           * @param {{width: number, height: number, dark: boolean}} environment Size of the chart and dark mode
+           * @param {{width: number, height: number, colors: object}} environment Size of the chart and colors of its chrome (design tokens)
            * @returns {object} ECharts option
            */
-          component.getOption = function ({width, height, dark}) {
+          component.getOption = function ({width, height, colors}) {
             const values = component.model.values || [];
             const texts = getChartTexts($settings.get("language"));
             const tooMuchData = isTooMuchData(values);
             const option = buildEChartsOption(component.echartsModel, tooMuchData ? [] : values, {
               t: translate,
               locale: tooMuchData ? {...texts, noData: texts.tooMuchData} : texts,
-              width, height, dark,
+              width, height, colors,
               drill: component.drill,
               onBack: component.drillUp
             });
@@ -462,7 +462,7 @@ aweApplication.factory('Chart',
           };
           /**
            * Retrieve the data of the component that should be sent to the server for printing actions: the chart
-           * image (SVG) drawn apart, in light colors and with the size of the page
+           * image (SVG) drawn apart, without the colors of the screen and with the size of the page
            * @param {String} orientation Page orientation (LANDSCAPE or PORTRAIT)
            * @return {Object} Data to send to the server
            */
@@ -470,7 +470,7 @@ aweApplication.factory('Chart',
             const size = PRINT_SIZES[orientation] || PRINT_SIZES.PORTRAIT;
             const language = $settings.get("language");
             const option = buildEChartsOption(component.echartsModel, component.model.values || [],
-              {...size, t: translate, locale: getChartTexts(language), dark: false});
+              {...size, t: translate, locale: getChartTexts(language), print: true});
             return {[component.address.component]: {image: renderSvg(option, size, language)}};
           };
           /**********************************************************************/

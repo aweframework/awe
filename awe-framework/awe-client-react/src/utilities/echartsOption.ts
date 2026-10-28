@@ -21,6 +21,7 @@ import {
 import {roundBars} from "./echartsBars";
 import {BuiltLegend, buildLegends, seriesNames} from "./echartsLegend";
 import {fitPieLabels} from "./echartsPie";
+import {ChartColors, applyChartColors} from "./echartsTheme";
 import {TooltipEnvironment, TooltipHints, buildTooltip, createValueText} from "./echartsTooltip";
 
 /**
@@ -52,7 +53,8 @@ export interface OptionLocale extends ChartLocale {
  * @property {number} height Height of the chart in pixels
  * @property {{from: string, to: string}} [drill] Series that is replaced by a drilldown series
  * @property {function} [onBack] Called when the back control of the drilldown is clicked
- * @property {boolean} [dark] The chart is drawn in dark mode
+ * @property {object} [colors] Colors of the chrome of the chart, resolved from the design tokens (see echartsTheme)
+ * @property {boolean} [print] The chart is a static image (print, export): nothing is interactive
  */
 export interface ChartContext {
   t: (key: string) => string;
@@ -61,7 +63,8 @@ export interface ChartContext {
   height: number;
   drill?: {from: string; to: string} | null;
   onBack?: () => void;
-  dark?: boolean;
+  colors?: ChartColors | null;
+  print?: boolean;
 }
 
 /**
@@ -154,15 +157,21 @@ interface Environment extends ChartContext {
 type AxisKey = "xAxis" | "yAxis";
 type Margin = {top: number; right: number; bottom: number; left: number};
 type Layout = {bottom: number};
+type Sizes = typeof LAYOUT | typeof SMALL_LAYOUT;
 
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 const MAX_SYMBOL_POINTS = 40;
 const PIE_RADIUS_FACTOR = 0.8;
+const DEFAULT_PIE_RADIUS = "75%";
 const BUBBLE_SIZE = {min: 10, max: 50};
 const TIME_LEVELS = ["year", "month", "day", "hour", "minute", "second", "millisecond"];
 const MAX_LABELLED_CATEGORIES = 60;
 const DAY_MS = 86400000;
-const CATEGORY_LABEL = {fontSize: 11, charWidth: 7, labelPadding: 6, rotatedCharHeight: 4.7, maxRoom: 70, rotation: 45};
+const CATEGORY_LABEL = {
+  fontSize: 11, charWidth: 7, labelPadding: 6, rotatedCharHeight: 4.7, maxRoom: 70, rotation: 45,
+  // The rotated labels take at most this part of the height of the chart, and a band is never cut below this width
+  maxRoomShare: 0.2, minWidth: 20
+};
 
 /**
  * Default colors of the series (the Highcharts 11 palette), used when the XML does not give a color
@@ -181,6 +190,43 @@ const LAYOUT = {
   slider: 50,
   titleOffset: 12
 };
+
+// A chart that is shorter than this is a small one (a dashboard panel): it uses smaller texts and margins, and its
+// category labels are not rotated
+const SMALL_HEIGHT = 260;
+
+const SMALL_LAYOUT = {
+  margin: 8,
+  title: 22,
+  subtitle: 16,
+  legend: 26,
+  legendTitle: 14,
+  verticalLegend: 84,
+  slider: 36,
+  titleOffset: 12,
+  titleFont: 13,
+  subtitleFont: 11,
+  legendFont: 11,
+  legendItem: {itemWidth: 14, itemHeight: 8, itemGap: 8}
+};
+
+/**
+ * Check if a chart is a small one
+ * @param {{height: number}} size Size of the chart in pixels, 0 when it is not known
+ * @returns {boolean} The chart is measured and is short
+ */
+function isSmall({height}: {height: number}): boolean {
+  return height > 0 && height < SMALL_HEIGHT;
+}
+
+/**
+ * Sizes of the title, the legend and the margins of a chart
+ * @param {{height: number}} size Size of the chart in pixels, 0 when it is not known
+ * @returns {object} Layout
+ */
+function layoutOf(size: {height: number}): Sizes {
+  return isSmall(size) ? SMALL_LAYOUT : LAYOUT;
+}
 
 /**
  * Check if a node has an `awe` key at any depth
@@ -381,8 +427,8 @@ function buildSeries(serie: ModelSeries, environment: Environment, index: number
       // ECharts draws a grey circle for an empty pie, which would cover the "No data" message
       built.showEmptyCircle = false;
     }
-    layoutPie(built, serie, hasTitle, environment.plotArea);
-    fitPieLabels(built, environment);
+    layoutPie(built, serie, hasTitle, environment.plotArea, isSmall(environment));
+    fitPieLabels(built, environment, isSmall(environment));
   }
   return built;
 }
@@ -395,8 +441,15 @@ function buildSeries(serie: ModelSeries, environment: Environment, index: number
  * @param {object} serie Series of the model
  * @param {boolean} hasTitle The chart has a title
  * @param {PlotArea|null} plotArea Plot area of the chart, null when the size of the chart is unknown
+ * @param {boolean} small The chart is a small one: its pie takes the plot area, which leaves room for the title and the
+ * legend, instead of the whole chart
  */
-function layoutPie(built: BuiltSeries, serie: ModelSeries, hasTitle: boolean, plotArea: PlotArea | null | undefined): void {
+function layoutPie(built: BuiltSeries, serie: ModelSeries, hasTitle: boolean, plotArea: PlotArea | null | undefined, small: boolean): void {
+  if (small && plotArea && serie.center === undefined) {
+    built.center = [plotArea.left + plotArea.width / 2, plotArea.top + plotArea.height / 2];
+    built.radius = plotRadius(serie.radius ?? DEFAULT_PIE_RADIUS, Math.min(plotArea.width, plotArea.height) / 2);
+    return;
+  }
   if (Array.isArray(serie.center) && plotArea) {
     built.center = [
       toPlotPixels(serie.center[0], plotArea.left, plotArea.width),
@@ -612,14 +665,27 @@ function categoryLabels(axis: {axisLabel?: ModelNode & {rotate?: number}}, users
   if (names.size === 0 || names.size > MAX_LABELLED_CATEGORIES) {
     return null;
   }
-  const label = {interval: 0, fontSize: CATEGORY_LABEL.fontSize, ...axis.axisLabel};
+  const label: ModelNode & {rotate?: number} = {interval: 0, fontSize: CATEGORY_LABEL.fontSize, ...axis.axisLabel};
   const longest = Math.max(...[...names].map(name => name.length));
   let room = 0;
   // The width is unknown until the chart is measured, so the labels are not rotated before that
   const crowded = environment.width > 0 && longest * CATEGORY_LABEL.charWidth + CATEGORY_LABEL.labelPadding > environment.width / names.size;
   if (label.rotate === undefined && crowded) {
-    label.rotate = CATEGORY_LABEL.rotation;
-    room = Math.min(CATEGORY_LABEL.maxRoom, Math.round(longest * CATEGORY_LABEL.rotatedCharHeight));
+    if (isSmall(environment)) {
+      // The rotated labels would take the plot: the ones that overlap are hidden and the long ones are cut
+      label.hideOverlap = true;
+      label.overflow = "truncate";
+      label.width = Math.max(CATEGORY_LABEL.minWidth, Math.floor(environment.width / names.size) - CATEGORY_LABEL.labelPadding);
+    } else {
+      label.rotate = CATEGORY_LABEL.rotation;
+      const wanted = Math.min(CATEGORY_LABEL.maxRoom, Math.round(longest * CATEGORY_LABEL.rotatedCharHeight));
+      room = Math.min(wanted, Math.round(environment.height * CATEGORY_LABEL.maxRoomShare) || wanted);
+      if (room < wanted) {
+        // The room is less than the labels need: the text of a rotated label is as long as its room divided by the sine
+        label.overflow = "truncate";
+        label.width = Math.round(room / Math.sin(CATEGORY_LABEL.rotation * Math.PI / 180));
+      }
+    }
   }
   return {axisLabel: label, room};
 }
@@ -793,11 +859,11 @@ function legendSide(legend: ModelLegend | undefined): string {
  * @param {string} legendPlace Side of the legend
  * @param {boolean} hasLegendTitle The legend has a title
  */
-function addLegendMargin(margin: Margin, legendPlace: string, hasLegendTitle: boolean): void {
+function addLegendMargin(margin: Margin, legendPlace: string, hasLegendTitle: boolean, layout: Sizes = LAYOUT): void {
   if (legendPlace === "top" || legendPlace === "bottom") {
-    margin[legendPlace] += LAYOUT.legend + (hasLegendTitle ? LAYOUT.legendTitle : 0);
+    margin[legendPlace] += layout.legend + (hasLegendTitle ? layout.legendTitle : 0);
   } else if (legendPlace !== "none") {
-    margin[legendPlace as keyof Margin] += LAYOUT.verticalLegend;
+    margin[legendPlace as keyof Margin] += layout.verticalLegend;
   }
 }
 
@@ -812,12 +878,13 @@ function pieArea(model: ChartModel, {width, height}: {width: number; height: num
   if (!(width > 0 && height > 0)) {
     return null;
   }
-  const margin = {top: LAYOUT.margin, right: LAYOUT.margin, bottom: LAYOUT.margin, left: LAYOUT.margin};
+  const layout = layoutOf({height});
+  const margin = {top: layout.margin, right: layout.margin, bottom: layout.margin, left: layout.margin};
   if (model.title?.text && model.title.top !== "middle") {
-    margin.top += LAYOUT.title + (model.title.subtext ? LAYOUT.subtitle : 0);
+    margin.top += layout.title + (model.title.subtext ? layout.subtitle : 0);
   }
   const legendPlace = legendSide(model.legend);
-  addLegendMargin(margin, legendPlace, Boolean(hintsOf(model.legend).title) && legendPlace !== "none");
+  addLegendMargin(margin, legendPlace, Boolean(hintsOf(model.legend).title) && legendPlace !== "none", layout);
   return {
     left: margin.left, top: margin.top,
     width: Math.max(width - margin.left - margin.right, 0), height: Math.max(height - margin.top - margin.bottom, 0)
@@ -830,19 +897,21 @@ function pieArea(model: ChartModel, {width, height}: {width: number; height: num
  * @param {string} legendPlace Side of the legend
  * @param {boolean} hasLegendTitle The legend has a title
  * @param {number} extraBottom Room that the labels of the axes need below the plot
+ * @param {{height: number}} size Size of the chart
  * @returns {object} Grid
  */
-function buildGrid(model: ChartModel, legendPlace: string, hasLegendTitle: boolean, extraBottom: number): ModelNode {
-  const margin = {top: LAYOUT.margin, right: LAYOUT.margin, bottom: LAYOUT.margin, left: LAYOUT.margin};
+function buildGrid(model: ChartModel, legendPlace: string, hasLegendTitle: boolean, extraBottom: number, size: {height: number}): ModelNode {
+  const layout = layoutOf(size);
+  const margin = {top: layout.margin, right: layout.margin, bottom: layout.margin, left: layout.margin};
   if (model.title?.text) {
-    margin.top += LAYOUT.title;
+    margin.top += layout.title;
   }
   if (model.title?.subtext) {
-    margin.top += LAYOUT.subtitle;
+    margin.top += layout.subtitle;
   }
-  addLegendMargin(margin, legendPlace, hasLegendTitle);
+  addLegendMargin(margin, legendPlace, hasLegendTitle, layout);
   if (asArray<ModelNode>(model.dataZoom).some(zoom => zoom.type === "slider")) {
-    margin.bottom += LAYOUT.slider;
+    margin.bottom += layout.slider;
   }
   margin.bottom += extraBottom;
   return {...margin, outerBoundsMode: "same"};
@@ -860,7 +929,7 @@ function graphicText(text: string | undefined, position: ModelNode, environment:
   return {
     type: "text",
     ...position,
-    style: {text, fontSize: 14, fill: environment.dark ? "#dddddd" : "#555555"},
+    style: {text, fontSize: 14},
     silent: !extra.onclick,
     ...extra
   };
@@ -873,19 +942,32 @@ function graphicText(text: string | undefined, position: ModelNode, environment:
  * @returns {object} Position
  */
 function legendTitlePosition(place: string, height: number): ModelNode {
+  const layout = layoutOf({height});
   switch (place) {
     case "bottom":
-      return {left: "center", bottom: LAYOUT.legend};
+      return {left: "center", bottom: layout.legend};
     case "top":
-      return {right: LAYOUT.margin, top: LAYOUT.title + LAYOUT.margin};
+      return {right: layout.margin, top: layout.title + layout.margin};
     default:
-      return {[place]: LAYOUT.margin, top: Math.max(height / 2 - 70, LAYOUT.margin)};
+      return {[place]: layout.margin, top: Math.max(height / 2 - 70, layout.margin)};
   }
 }
 
 // ------------------------------------------------------------------------------------------------------------
 // Option
 // ------------------------------------------------------------------------------------------------------------
+
+/**
+ * Hide the data labels that would be drawn over others (crowded bubbles, thin bars), unless the model sets the layout
+ * of the labels
+ * @param {object[]} series Series for ECharts, changed
+ */
+function hideOverlappingLabels(series: ModelNode[]): void {
+  series.filter(serie => (serie.label as ModelNode | undefined)?.show && serie.labelLayout === undefined)
+    .forEach(serie => {
+      serie.labelLayout = {hideOverlap: true};
+    });
+}
 
 /**
  * Build the title
@@ -901,9 +983,14 @@ function buildTitle(title: ModelTitle, environment: Environment): ModelNode {
   if (title.subtext) {
     built.subtext = translateLabel(title.subtext, environment.t);
   }
+  if (isSmall(environment)) {
+    // A smaller title leaves room for the plot
+    built.textStyle = {fontSize: SMALL_LAYOUT.titleFont, ...(built.textStyle as object)};
+    built.subtextStyle = {fontSize: SMALL_LAYOUT.subtitleFont, ...(built.subtextStyle as object)};
+  }
   const offsetY = hintsOf(title).offsetY;
   if (title.top === "middle" && Number.isFinite(offsetY) && environment.height > 0) {
-    built.top = environment.height / 2 + (offsetY as number) - LAYOUT.titleOffset;
+    built.top = environment.height / 2 + (offsetY as number) - layoutOf(environment).titleOffset;
   }
   return built;
 }
@@ -946,7 +1033,8 @@ function drillBackControl(model: ChartModel, drill: {from: string}, environment:
   const original = asArray<ModelSeries>(model.series).find(serie => serie.id === drill.from);
   const name = translateLabel(original?.name || "", environment.t);
   const text = (environment.locale?.drillUpText || "{series.name}").replace("{series.name}", name);
-  return graphicText(text, {left: LAYOUT.margin, top: LAYOUT.margin}, environment,
+  const {margin} = layoutOf(environment);
+  return graphicText(text, {left: margin, top: margin}, environment,
     {onclick: () => environment.onBack?.(), cursor: "pointer"});
 }
 
@@ -1020,13 +1108,24 @@ function tooltipEnvironment(model: ChartModel, environment: Environment, series:
 }
 
 /**
- * Build the ECharts option
+ * Build the ECharts option, with the colors of the chrome of the chart when the context has them
  * @param {object} model `echartsModel` sent by the server
  * @param {object[]} values Values of the component
  * @param {ChartContext} context Context
  * @returns {object} ECharts option
  */
 export function buildEChartsOption(model: ChartModel | null | undefined, values: Array<Record<string, unknown>>, context: ChartContext): ChartOption {
+  return applyChartColors(buildOption(model, values, context), context.colors);
+}
+
+/**
+ * Build the ECharts option
+ * @param {object} model `echartsModel` sent by the server
+ * @param {object[]} values Values of the component
+ * @param {ChartContext} context Context
+ * @returns {object} ECharts option
+ */
+function buildOption(model: ChartModel | null | undefined, values: Array<Record<string, unknown>>, context: ChartContext): ChartOption {
   const environment: Environment = {inverted: false, hasTitle: false, tooltipHints: {}, palette: PALETTE, ...context, values};
   const locale = environment.locale || {};
   const noData = () => graphicText(locale.noData, {left: "center", top: "middle"}, environment);
@@ -1049,6 +1148,7 @@ export function buildEChartsOption(model: ChartModel | null | undefined, values:
   const built = buildAllSeries(modelSeries, environment);
   const series = reverseStacks(built);
   roundBars(series, environment);
+  hideOverlappingLabels(series);
   const layout = {bottom: 0};
   const option: ChartOption = {
     backgroundColor: TRANSPARENT, color: environment.palette, aria: {enabled: true}, series,
@@ -1064,7 +1164,14 @@ export function buildEChartsOption(model: ChartModel | null | undefined, values:
     option.tooltip = buildTooltip(model.tooltip, tooltipEnvironment(model, environment, series));
   }
   if (model.legend) {
-    option.legend = buildLegends(model.legend, modelSeries, cartesian, t);
+    option.legend = buildLegends(model.legend, modelSeries, cartesian, t, {
+      // A small chart scrolls its legend, which keeps one row (or column) instead of taking the plot; a static image
+      // cannot scroll, so it lists every entry
+      ...isSmall(environment) ? {
+        type: environment.print ? "plain" : "scroll",
+        textStyle: {fontSize: SMALL_LAYOUT.legendFont}, ...SMALL_LAYOUT.legendItem
+      } : {}
+    });
   }
 
   const legendPlace = legendSide(model.legend);
@@ -1074,7 +1181,7 @@ export function buildEChartsOption(model: ChartModel | null | undefined, values:
       environment));
   }
   if (cartesian) {
-    option.grid = buildGrid(model, legendPlace, graphic.length > 0, layout.bottom);
+    option.grid = buildGrid(model, legendPlace, graphic.length > 0, layout.bottom, environment);
   }
   if (drill) {
     graphic.push(drillBackControl(model, drill, environment));

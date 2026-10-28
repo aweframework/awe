@@ -85,6 +85,11 @@
   <locale name="HELP_SEARCH_REMOVE_SERIE_BUTTON" value="Remove serie of chart"/>
   <locale name="HELP_SEARCH_REPLACE_SERIE_BUTTON" value="Replace all series in a chart"/>
   <locale name="MENU_DASHBOARD" value="Dashboard"/>
+  <locale name="DASHBOARD_WINDOW_ANALYTICS" value="Themes by period"/>
+  <locale name="DASHBOARD_WINDOW_PROFITABILITY" value="Fund profitability"/>
+  <locale name="DASHBOARD_WINDOW_DONUT" value="Themes share"/>
+  <locale name="DASHBOARD_WINDOW_FILES" value="Files"/>
+  <locale name="DASHBOARD_WINDOW_SUGGESTIONS" value="Suggestions"/>
   <locale name="MENU_GRID_CHART" value="Grids and Charts"/>
   <locale name="MENU_TEST" value="Tests"/>
   <locale name="MENU_TEST_ACCORDIONS" value="Accordions"/>

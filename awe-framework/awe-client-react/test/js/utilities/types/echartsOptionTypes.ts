@@ -36,7 +36,7 @@ const always: string = findDrilldownId({}, "a");
 // The context has what the chart needs to know about its environment
 const context: ChartContext = {
   t: (key) => key, locale: {noData: "No data", drillUpText: "Back", decimalPoint: ","}, width: 800, height: 400,
-  drill: {from: "a", to: "b"}, onBack: () => undefined, dark: true
+  drill: {from: "a", to: "b"}, onBack: () => undefined, colors: null
 };
 const lean: ChartContext = {t: (key) => key, width: 0, height: 0, drill: null};
 // @ts-expect-error the translator is needed

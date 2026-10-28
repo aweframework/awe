@@ -13,14 +13,14 @@ import {registerChart, unregisterChart} from "../utilities/chartRegistry";
 import {buildEChartsOption, findDrilldownId} from "../utilities/echartsOption";
 import {linkedNames} from "../utilities/echartsLegend";
 import {parseChartOptions, pointOf, zoomOf, zoomRequests} from "../utilities/echartsEvents";
-import {echarts, getEChartsLocale, isDarkTheme, renderSvg} from "../utilities/echartsSetup";
+import {echarts, getEChartsLocale, renderSvg} from "../utilities/echartsSetup";
+import {observeColorMode, resolveChartColors, sameColors} from "../utilities/echartsTheme";
 
 import {ChartSkeleton, chartHintOf} from "./AweSkeleton";
 import "./AweChart.less";
 
 const RESIZE_DELAY = 50;
 const PLAIN_THEME = null;
-const DARK_THEME = "dark";
 const AXES = ["x", "y"];
 
 /**
@@ -64,13 +64,13 @@ function changedZoom(zoom, attributes) {
 /**
  * Create the ECharts instance of a container and track its drawing
  * @param {HTMLElement} element Element that holds the chart
- * @param {boolean} dark Use the dark theme
  * @param {string} language Language of the application
  * @returns {object|null} ECharts instance, null when it cannot be created
  */
-function createChart(element, dark, language) {
+function createChart(element, language) {
   try {
-    return echarts.init(element, dark ? DARK_THEME : PLAIN_THEME, {
+    // The plain theme: the colors of the chrome come from the design tokens (see echartsTheme)
+    return echarts.init(element, PLAIN_THEME, {
       renderer: "svg",
       locale: getEChartsLocale(language)
     });
@@ -103,7 +103,7 @@ function AweChart(props) {
   const [rendered, setRendered] = useState(false);
   const [size, setSize] = useState({width: 0, height: 0});
   const [drill, setDrill] = useState(null);
-  const [dark, setDark] = useState(false);
+  const [colors, setColors] = useState(null);
   // True while the chart is zoomed by the chart options: its own zoom event must not be sent as a user zoom
   const zooming = useRef(false);
 
@@ -121,9 +121,9 @@ function AweChart(props) {
   }, [echartsModel]);
 
   const option = useMemo(() => {
-    const context = {t, locale, width: size.width, height: size.height, drill, dark, onBack: () => setDrill(null)};
+    const context = {t, locale, width: size.width, height: size.height, drill, colors, onBack: () => setDrill(null)};
     return buildEChartsOption(echartsModel, values, context);
-  }, [echartsModel, values, t, locale, size, drill, dark]);
+  }, [echartsModel, values, t, locale, size, drill, colors]);
   optionRef.current = option;
 
   const applyOption = useCallback(() => {
@@ -134,12 +134,21 @@ function AweChart(props) {
     }
   }, [id]);
 
-  // Create the chart (again when the language or the theme change: the texts of ECharts are set on creation)
+  // The colors of the chrome follow the design tokens: they are resolved again when the mode changes, and the option
+  // is drawn again with them (the chart is not created again)
+  useEffect(() => {
+    const resolve = () => {
+      const resolved = resolveChartColors(containerRef.current);
+      setColors(current => sameColors(current, resolved) ? current : resolved);
+    };
+    resolve();
+    return observeColorMode(resolve);
+  }, []);
+
+  // Create the chart (again when the language changes: the texts of ECharts are set on creation)
   useEffect(() => {
     const element = chartElementRef.current;
-    const darkTheme = isDarkTheme(containerRef.current);
-    setDark(darkTheme);
-    const chart = createChart(element, darkTheme, i18n.language);
+    const chart = createChart(element, i18n.language);
     if (!chart) {
       return undefined;
     }
@@ -171,7 +180,7 @@ function AweChart(props) {
     const handle = {
       getImage: (imageSize) => {
         const {echartsModel: current, values: data, t: translate, locale: texts, language} = latest.current;
-        const printOption = buildEChartsOption(current, data, {...imageSize, t: translate, locale: texts, dark: false});
+        const printOption = buildEChartsOption(current, data, {...imageSize, t: translate, locale: texts, print: true});
         return renderSvg(printOption, imageSize, language);
       }
     };

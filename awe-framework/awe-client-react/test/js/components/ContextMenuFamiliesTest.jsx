@@ -14,7 +14,6 @@ import { echarts } from "../../../src/utilities/echartsSetup";
 jest.mock("../../../src/utilities/echartsSetup", () => ({
   echarts: { init: jest.fn() },
   getEChartsLocale: jest.requireActual("../../../src/utilities/echartsSetup").getEChartsLocale,
-  isDarkTheme: jest.fn(() => false),
   renderSvg: jest.fn(() => "<svg>print</svg>")
 }));
 

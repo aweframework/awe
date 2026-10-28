@@ -3,6 +3,7 @@ import path from "path";
 import "../../../../../main/resources/js/awe/app";
 import {DefaultSettings} from "../../../../../main/resources/js/awe/data/options";
 import {TestAttributes, TestIds} from "../../../../../main/resources/js/awe/data/testIds";
+import {CHART_TOKENS} from "awe-client-react/utilities/echartsTheme";
 
 const TEMPLATE = fs.readFileSync(path.join(__dirname, "..", "..", "..", "..", "..", "main", "resources", "templates",
   "angular", "chart.html"), "utf8");
@@ -396,12 +397,66 @@ describe("Chart (ECharts)", () => {
     expect(texts(component.chartInstance)).toContain("No hay datos a mostrar");
   });
 
-  it("draws in dark mode when the application theme is dark", () => {
-    document.body.style.backgroundColor = "rgb(20, 20, 20)";
-    const {chart} = compileChart({values: []});
+  describe("colors of the design tokens", () => {
+    const LIGHT = {"--awe-color-text": "rgb(10, 10, 10)", "--awe-color-text-emphasis": "rgb(0, 0, 0)"};
+    const DARK = {"--awe-color-text": "rgb(240, 240, 240)", "--awe-color-text-emphasis": "rgb(255, 255, 255)"};
 
-    const noData = chart.getOption().graphic[0].elements[0];
-    expect(noData.style.fill).toBe("#dddddd");
+    // jsdom does not resolve custom properties (it drops `var()` from a color too): the tokens are declared on every
+    // element, and the probes are read in the order of the tokens and give the color of the token in the mode of the page
+    beforeEach(() => {
+      const original = window.getComputedStyle.bind(window);
+      const tokens = Object.values(CHART_TOKENS);
+      let probes = 0;
+      jest.spyOn(window, "getComputedStyle").mockImplementation((node, ...rest) => {
+        if (!(node.tagName === "SPAN" && node.style.display === "none")) {
+          // The tokens are defined in the page (the token file)
+          const style = original(node, ...rest);
+          return new Proxy(style, {
+            get: (target, key) => key === "getPropertyValue"
+              ? (name) => tokens.includes(name) ? "light-dark(a, b)" : target.getPropertyValue(name)
+              : Reflect.get(target, key)
+          });
+        }
+        const palette = document.documentElement.classList.contains("dark") ? DARK : LIGHT;
+        const token = tokens[probes++ % tokens.length];
+        return {color: palette[token] || palette["--awe-color-text"]};
+      });
+    });
+
+    afterEach(() => {
+      document.documentElement.className = "";
+    });
+
+    it("creates the chart with the plain theme and colors its texts with the tokens", () => {
+      const {chart} = compileChart({values: []});
+
+      const noData = chart.getOption().graphic[0].elements[0];
+      expect(noData.style.fill).toBe(LIGHT["--awe-color-text"]);
+      expect(chart.getOption().title[0].textStyle.color).toBe(LIGHT["--awe-color-text-emphasis"]);
+    });
+
+    it("draws the option again with the new colors when the mode of the page changes, with the same chart", async () => {
+      const {chart, component} = compileChart({values: []});
+
+      document.documentElement.classList.add("dark");
+      await flush();
+
+      expect(component.chartInstance).toBe(chart);
+      expect(chart.isDisposed()).toBeFalsy();
+      expect(chart.getOption().graphic[0].elements[0].style.fill).toBe(DARK["--awe-color-text"]);
+      expect(chart.getOption().title[0].textStyle.color).toBe(DARK["--awe-color-text-emphasis"]);
+    });
+
+    it("stops observing the mode when the component is destroyed", async () => {
+      const {chart, scope} = compileChart({values: []});
+      const draw = jest.spyOn(chart, "setOption");
+
+      scope.$destroy();
+      document.documentElement.classList.add("dark");
+      await flush();
+
+      expect(draw).not.toHaveBeenCalled();
+    });
   });
 
   it("disposes the chart when the component is destroyed", () => {

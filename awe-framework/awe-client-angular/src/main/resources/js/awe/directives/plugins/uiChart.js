@@ -1,7 +1,8 @@
 import {aweApplication} from "../../awe";
-import {echarts, getEChartsLocale, isDarkTheme} from "awe-client-react/utilities/echartsSetup";
+import {echarts, getEChartsLocale} from "awe-client-react/utilities/echartsSetup";
+import {observeColorMode, resolveChartColors, sameColors} from "awe-client-react/utilities/echartsTheme";
 
-const DARK_THEME = "dark";
+// The colors of the chrome come from the design tokens (see echartsTheme), so the chart uses the plain theme
 const PLAIN_THEME = null;
 
 /**
@@ -26,7 +27,8 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
       link: function (scope, elem, attrs) {
         const element = elem[0];
         let size = {width: 0, height: 0};
-        let dark = false;
+        let colors = null;
+        let stopObserving = null;
 
         /**
          * Draw the chart option (again)
@@ -37,7 +39,7 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
             return;
           }
           try {
-            chart.setOption(scope.component.getOption({...size, dark}), {notMerge: true});
+            chart.setOption(scope.component.getOption({...size, colors}), {notMerge: true});
           } catch (error) {
             console.error(`[ERROR] The chart '${scope.component.id}' could not be drawn`, error);
           }
@@ -50,6 +52,18 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
           if (!scope.component.rendered) {
             scope.component.rendered = true;
             scope.$applyAsync();
+          }
+        };
+
+        /**
+         * Resolve the colors of the chart again (the mode, the surface or the palette of the application changed) and
+         * draw the option with them
+         */
+        const refreshColors = function () {
+          const resolved = resolveChartColors(element);
+          if (!sameColors(colors, resolved)) {
+            colors = resolved;
+            draw();
           }
         };
 
@@ -70,11 +84,11 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
         const create = function () {
           const component = scope.component;
           dispose();
-          dark = isDarkTheme(element);
+          colors = resolveChartColors(element);
           size = sizeOf(element);
           let chart;
           try {
-            chart = echarts.init(element, dark ? DARK_THEME : PLAIN_THEME, {
+            chart = echarts.init(element, PLAIN_THEME, {
               renderer: "svg",
               locale: getEChartsLocale($settings.get("language"))
             });
@@ -96,6 +110,7 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
           chart.on("datazoom", inDigest(component.onZoom));
           chart.on("legendselectchanged", inDigest(component.onLegendSelect));
           component.render = draw;
+          stopObserving = stopObserving || observeColorMode(refreshColors);
           draw();
         };
 
@@ -139,7 +154,13 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
             create();
           }
         });
-        scope.$on('$destroy', dispose);
+        scope.$on('$destroy', function () {
+          dispose();
+          if (stopObserving) {
+            stopObserving();
+            stopObserving = null;
+          }
+        });
       }
     };
   }]);

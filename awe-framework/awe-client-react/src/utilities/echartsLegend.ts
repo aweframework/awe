@@ -12,6 +12,8 @@ export interface BuiltLegend {
 
 type Translator = (key: string) => string;
 
+const isNode = (value: unknown): value is ModelNode => Boolean(value) && typeof value === "object";
+
 /**
  * Position of the series that a series is linked to (`linkedTo`: `:previous` or the id of an earlier series)
  * @param {object[]} modelSeries Series of the model
@@ -53,10 +55,14 @@ export function seriesNames(modelSeries: ModelSeries[], t: Translator): Array<st
  * @param {object[]} modelSeries Series of the model
  * @param {boolean} cartesian The chart has axes
  * @param {function} t Translator
+ * @param {object} defaults Properties that the model does not set
  * @returns {object} Legend for ECharts
  */
-function buildLegend(legend: ModelNode, modelSeries: ModelSeries[], cartesian: boolean, t: Translator): BuiltLegend {
-  const built: BuiltLegend = withoutAwe(legend);
+function buildLegend(legend: ModelNode, modelSeries: ModelSeries[], cartesian: boolean, t: Translator, defaults: ModelNode): BuiltLegend {
+  const built: BuiltLegend = {...defaults, ...withoutAwe(legend)};
+  if (isNode(defaults.textStyle) && isNode(built.textStyle)) {
+    built.textStyle = {...defaults.textStyle, ...built.textStyle};
+  }
   if (!cartesian || modelSeries.length === 0 || modelSeries.some(isPie)) {
     return built;
   }
@@ -98,10 +104,11 @@ export function linkedNames(modelSeries: ModelSeries[], name: string, t: Transla
  * @param {object[]} modelSeries Series of the model
  * @param {boolean} cartesian The chart has axes
  * @param {function} t Translator
+ * @param {object} [defaults] Properties of the legend that the model does not set (the sizes of a small chart)
  * @returns {object|object[]} Legend for ECharts, or the visible one and the hidden one
  */
-export function buildLegends(legend: ModelNode, modelSeries: ModelSeries[], cartesian: boolean, t: Translator): BuiltLegend | BuiltLegend[] {
-  const built = buildLegend(legend, modelSeries, cartesian, t);
+export function buildLegends(legend: ModelNode, modelSeries: ModelSeries[], cartesian: boolean, t: Translator, defaults: ModelNode = {}): BuiltLegend | BuiltLegend[] {
+  const built = buildLegend(legend, modelSeries, cartesian, t, defaults);
   if (!cartesian || built.show === false) {
     return built;
   }

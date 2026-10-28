@@ -19,8 +19,8 @@
     </tag>
     <tag source="center" expandible="vertical">
         <tag type="div" style="expand" expandible="horizontal">
-            <window label="PARAMETER_TEXT" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
-                <chart id="chart-analytics" label="PARAMETER_TEXT" type="column" initial-load="query"
+            <window label="DASHBOARD_WINDOW_ANALYTICS" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
+                <chart id="chart-analytics" type="column" initial-load="query"
                        target-action="QryEdiTst">
                     <chart-legend enabled="true"/>
                     <x-axis label="Themes" type="category"/>
@@ -30,8 +30,8 @@
                     <chart-serie id="serie2" x-value="Txt" y-value="Num2" label="Other themes" />
                 </chart>
             </window>
-            <window label="PARAMETER_TEXT" icon="mdi:insights" style="expand">
-                <chart id="fundProfitabilityChart" type="line" initial-load="query" target-action="dummyLineQuery" zoom-type="xAxis" max="0" label="PARAMETER_TEXT">
+            <window label="DASHBOARD_WINDOW_PROFITABILITY" icon="mdi:insights" style="expand">
+                <chart id="fundProfitabilityChart" type="line" initial-load="query" target-action="dummyLineQuery" zoom-type="xAxis" max="0">
                     <chart-legend enabled="true"/>
                     <x-axis label="DATE" type="datetime"/>
                     <y-axis label="PROFITABILITY"/>
@@ -39,8 +39,8 @@
                     <chart-serie id="serie1" x-value="dates" y-value="profitability" label="PROFITABILITY"/>
                 </chart>
             </window>
-            <window label="PARAMETER_TEXT" icon="mdi:donut_small" style="expand">
-                <chart id="chart-donut" label="PARAMETER_TEXT" type="donut_3d" initial-load="query"
+            <window label="DASHBOARD_WINDOW_DONUT" icon="mdi:donut_small" style="expand">
+                <chart id="chart-donut" type="donut_3d" initial-load="query"
                        target-action="TstChrPieSrc" max="5"
                        help-image="HELP_CHART_IMAGE_7">
                     <chart-legend enabled="true"/>
@@ -58,7 +58,7 @@
             </window>
         </tag>
         <tag type="div" style="expand" expandible="horizontal">
-            <window label="PARAMETER_TEXT" icon="mdi:table_view" style="expand">
+            <window label="DASHBOARD_WINDOW_FILES" icon="mdi:table_view" style="expand">
                 <grid id="data-grid-1" style="expand" initial-load="query" server-action="data"
                       target-action="QryUniTstId" max="30">
                     <column label="PARAMETER_TEXT" name="Als" sort-field="Als" align="left" charlength="20"
@@ -77,7 +77,7 @@
                     <column label="PARAMETER_TEXT" name="TxtSty" sort-field="Des" align="right" charlength="10"/>
                 </grid>
             </window>
-            <window label="PARAMETER_TEXT" icon="mdi:table_chart" style="expand">
+            <window label="DASHBOARD_WINDOW_SUGGESTIONS" icon="mdi:table_chart" style="expand">
                 <grid id="data-grid-2" style="expand" initial-load="query" server-action="data"
                       target-action="QryEdiTst" max="30">
                     <column label="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" charlength="40"
