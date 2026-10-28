@@ -1540,4 +1540,24 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkCardValue("CrdTstThemes", "18");
     checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
   }
+
+  /**
+   * Card status chip (#836): a static chip at the top right of a card, and a status card filled from a service that
+   * moves to the next status on every call, so each reload shows another chip (text and tone)
+   */
+  @Test
+  void t122_cardStatusChip() {
+    // Title
+    setTestTitle("Card: status chip");
+
+    // Go to screen
+    gotoScreen("test", "layout", "card-test");
+
+    // Static chip from the XML of the card
+    checkCardChip("CrdTstTarget", "On track", "success");
+
+    // The status card shows a chip, and every reload changes it
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+  }
 }

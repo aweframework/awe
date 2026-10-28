@@ -43,6 +43,54 @@
     color: var(--awe-color-text-muted);
   }
 
+  // Status chip at the top right, before the icon or the delta (#836): the tag of the design system, a dot and the
+  // text in the tone of the status. Its left margin takes the free room of the header, so it stays next to the icon
+  .awe-card-chip {
+    display: inline-flex;
+    flex: none;
+    align-self: center;
+    margin-left: auto;
+    align-items: center;
+    gap: var(--awe-space-1-5);
+    padding: var(--awe-space-0-5) var(--awe-space-2);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    white-space: nowrap;
+    color: var(--awe-color-neutral-text);
+    background-color: var(--awe-color-neutral-subtle);
+    border-radius: var(--awe-radius-sm);
+
+    &::before {
+      flex: none;
+      width: var(--awe-space-1-5);
+      height: var(--awe-space-1-5);
+      content: "";
+      background-color: currentColor;
+      border-radius: var(--awe-radius-full);
+    }
+  }
+
+  .awe-card-chip-success {
+    color: var(--awe-color-success-text);
+    background-color: var(--awe-color-success-subtle);
+  }
+
+  .awe-card-chip-warning {
+    color: var(--awe-color-warning-text);
+    background-color: var(--awe-color-warning-subtle);
+  }
+
+  .awe-card-chip-danger {
+    color: var(--awe-color-danger-text);
+    background-color: var(--awe-color-danger-subtle);
+  }
+
+  .awe-card-chip-info {
+    color: var(--awe-color-info-text);
+    background-color: var(--awe-color-info-subtle);
+  }
+
   // Tonal square tile of the icon, primary unless the card gives another tone
   .awe-card-icon {
     display: inline-grid;

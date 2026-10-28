@@ -102,6 +102,7 @@ public class SeleniumUtilities implements IAweInstructions {
     + " return [arguments[0].getBoundingClientRect(), anchor.getBoundingClientRect()].map(function (rect) {"
     + " return rect.top + '|' + rect.right + '|' + rect.bottom + '|' + rect.left; }).join('|');";
   private static final List<String> POPOVER_POSITIONS = List.of("top", "right", "bottom", "left");
+  private static final List<String> CARD_CHIP_TONES = List.of("success", "warning", "danger", "info", "neutral");
   // A popover opens on its side of the anchor, at most this gap away from it, and alongside it
   private static final int POPOVER_MAX_GAP = 16;
   private static final int POPOVER_TOLERANCE = 2;
@@ -5860,6 +5861,49 @@ public class SeleniumUtilities implements IAweInstructions {
         try {
           return browser.isVisible(delta) && expectedText.equals(browser.text(text).strip())
             && trend.equals(browser.attribute(delta, "data-trend")) && tone.equals(browser.attribute(delta, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check the status chip of a card: its text and its tone
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected text of the chip, as the user reads it
+   * @param tone         Expected tone: success, warning, danger, info or neutral
+   */
+  protected void checkCardChip(String cardId, String expectedText, String tone) {
+    Locator chip = locator(frontEndInstructions.getCardChip(cardId));
+    waitUntil(BrowserCondition.of("the chip of the card " + cardId + " to be '" + expectedText + "' and " + tone,
+      browser -> {
+        try {
+          return browser.isVisible(chip) && expectedText.equals(browser.text(chip).strip())
+            && tone.equals(browser.attribute(chip, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check that the status chip of a card changes when a button is clicked (for instance a button that reloads the
+   * card): after the click the chip shows another text, with one of the tones of a chip
+   *
+   * @param cardId   Card identifier
+   * @param buttonId Button that changes the chip
+   */
+  protected void checkCardChipChangesOnClick(String cardId, String buttonId) {
+    Locator chip = locator(frontEndInstructions.getCardChip(cardId));
+    checkVisible(chip);
+    String previous = getBrowser().text(chip).strip();
+    clickButton(buttonId);
+    waitUntil(BrowserCondition.of("the chip of the card " + cardId + " to change from '" + previous + "' after clicking " + buttonId,
+      browser -> {
+        try {
+          return browser.isVisible(chip) && !previous.equals(browser.text(chip).strip())
+            && CARD_CHIP_TONES.contains(browser.attribute(chip, "data-tone"));
         } catch (ElementNotFoundException | ElementReplacedException exc) {
           return false;
         }

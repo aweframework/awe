@@ -1311,6 +1311,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the status chip of a card, next to its title, which carries its tone ({@code data-tone})
+   *
+   * @param cardId Card identifier
+   * @return Card chip selector
+   */
+  default By getCardChip(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_CHIP));
+  }
+
+  /**
    * Get the target progress bar of a card, which carries the percent in {@code aria-valuenow}
    *
    * @param cardId Card identifier

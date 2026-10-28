@@ -165,10 +165,12 @@ public final class TestIds {
   // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";
 
-  // Cards (owner: card id) with their value, their trend delta ("data-trend" and "data-tone") and their target progress
+  // Cards (owner: card id) with their value, their trend delta ("data-trend" and "data-tone"), their target progress and
+  // their status chip ("data-tone")
   public static final String CARD = "card";
   public static final String CARD_VALUE = "card-value";
   public static final String CARD_DELTA = "card-delta";
+  public static final String CARD_CHIP = "card-chip";
   public static final String CARD_PROGRESS = "card-progress";
   public static final String CARD_SPARKLINE = "card-sparkline";
 

@@ -18,6 +18,7 @@ export const CARD_SPARKLINE_TYPES = ["line", "area", "bar"];
 export const CARD_GAUGE_ARC = "M 8 50 A 42 42 0 0 1 92 50";
 
 const DEFAULT_DELTA_UNIT = "%";
+const DEFAULT_CHIP_TONE = "neutral";
 const DEFAULT_SPARKLINE_TYPE = "area";
 const GAUGE = "gauge";
 const BAR = "bar";
@@ -142,6 +143,15 @@ export function cardTone(tone, trend, goodTrend) {
   }
   const good = GOOD_TRENDS.includes(goodTrend) ? goodTrend : DEFAULT_GOOD_TREND;
   return trend === good ? "success" : "danger";
+}
+
+/**
+ * Tone of the status chip (#836)
+ * @param {string} tone Tone given
+ * @return {string} The tone given when it is known, neutral otherwise
+ */
+export function cardChipTone(tone) {
+  return CARD_TONES.includes(tone) ? tone : DEFAULT_CHIP_TONE;
 }
 
 /**

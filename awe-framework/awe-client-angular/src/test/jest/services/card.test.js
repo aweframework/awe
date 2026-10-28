@@ -248,4 +248,22 @@ describe("awe-framework/awe-client-angular/src/test/jest/services/card.test.js",
       expect(build({visible: false}).visible).toBe(false);
     });
   });
+
+  describe("status chip (#836)", () => {
+    it("translates the chip and keeps its tone, the row over the attributes", () => {
+      expect(build({chip: "OK", chipTone: "success"}).chip).toEqual({text: "t(OK)", tone: "success"});
+      expect(build({chip: "OK", chipTone: "success"}, {chip: "DOWN", chipTone: "danger"}).chip)
+        .toEqual({text: "t(DOWN)", tone: "danger"});
+    });
+
+    it("is neutral without a known tone", () => {
+      expect(build({chip: "OK"}).chip.tone).toBe("neutral");
+      expect(build({chip: "OK", chipTone: "red"}).chip.tone).toBe("neutral");
+    });
+
+    it("is null without its text", () => {
+      expect(build({chipTone: "success"}).chip).toBeNull();
+      expect(build({}).chip).toBeNull();
+    });
+  });
 });

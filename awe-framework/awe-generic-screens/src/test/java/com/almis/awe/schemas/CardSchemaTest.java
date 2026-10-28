@@ -153,4 +153,18 @@ class CardSchemaTest {
     assertThatThrownBy(() -> validate("<card title=\"TITLE\"/>"))
       .hasMessageContaining("id");
   }
+
+  @Test
+  void acceptsAChipWithEveryTone() {
+    for (String tone : new String[]{"success", "warning", "danger", "info", "neutral"}) {
+      assertThatCode(() -> validate("<card id=\"Crd\" chip=\"CHIP\" chip-tone=\"" + tone + "\"/>")).as(tone)
+        .doesNotThrowAnyException();
+    }
+  }
+
+  @Test
+  void rejectsAnUnknownChipTone() {
+    assertThatThrownBy(() -> validate("<card id=\"Crd\" chip=\"CHIP\" chip-tone=\"red\"/>"))
+      .hasMessageContaining("red");
+  }
 }

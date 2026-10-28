@@ -364,6 +364,8 @@ class AngularAweInstructionsTest {
       "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-delta'] .awe-card-delta-text");
     assertThat(instructions.getCardProgress("Crd")).hasToString(
       "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-progress']");
+    assertThat(instructions.getCardChip("Crd")).hasToString(
+      "By.cssSelector: [data-testid='card'][data-testid-owner='Crd'] [data-testid='card-chip']");
     String body = "[data-testid='card'][data-testid-owner='Crd'] .awe-card-body ";
     assertThat(instructions.getCardBodyComponent("Crd", "Grd")).hasToString("By.cssSelector: " + body
       + "[criterion-id='Grd']," + body + "[grid-id='Grd']," + body + "[chart-id='Grd']," + body + "#Grd");

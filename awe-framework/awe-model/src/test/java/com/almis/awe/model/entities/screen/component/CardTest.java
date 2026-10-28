@@ -109,4 +109,17 @@ class CardTest {
     assertThat(copy.getElementList()).hasSize(1);
     assertThat(copy.getElementList().getFirst()).isNotSameAs(card.getElementList().getFirst());
   }
+
+  @Test
+  void chipAndChipToneAreReadFromTheXmlAndSentInCamelCase() {
+    Card card = parse("<card id=\"Crd\" chip=\"CHIP\" chip-tone=\"warning\"/>");
+
+    JsonNode json = mapper.valueToTree(card);
+
+    assertThat(card.getChip()).isEqualTo("CHIP");
+    assertThat(card.getChipTone()).isEqualTo("warning");
+    assertThat(json.get("chip").asString()).isEqualTo("CHIP");
+    assertThat(json.get("chipTone").asString()).isEqualTo("warning");
+    assertThat(mapper.valueToTree(new Card()).has("chip")).isFalse();
+  }
 }

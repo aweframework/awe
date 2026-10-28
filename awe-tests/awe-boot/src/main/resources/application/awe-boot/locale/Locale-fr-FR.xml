@@ -324,6 +324,12 @@
   <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Les starters Spring Boot activent uniquement les modules nécessaires : planificateur, notifications, impression, REST."/>
   <locale name="CARD_TST_CHART" value="Thèmes par poids"/>
   <locale name="CARD_TST_GRID" value="Derniers enregistrements"/>
+  <locale name="CARD_TST_STATUS" value="État du service"/>
+  <locale name="CARD_TST_STATUS_OPERATIONAL" value="Opérationnel"/>
+  <locale name="CARD_TST_STATUS_DEGRADED" value="Dégradé"/>
+  <locale name="CARD_TST_STATUS_DOWN" value="En panne"/>
+  <locale name="CARD_TST_STATUS_FOOTER" value="Recharger change l'état"/>
+  <locale name="CARD_TST_ON_TRACK" value="Dans les objectifs"/>
   <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
   <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
   <locale name="BUTTON_POPOVER_BOTTOM" value="Popover en dessous"/>

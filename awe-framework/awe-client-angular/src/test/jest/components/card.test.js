@@ -429,4 +429,54 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/card.test.js
       expect(getCard().find(".awe-card-body > p.child").length).toBe(1);
     });
   });
+
+  describe("status chip (#836)", () => {
+    const getChip = () => getCard().find(hook(TestIds.cardChip));
+
+    it("shows the chip at the top right, before the icon, with its tone", () => {
+      compile({title: "Service status", icon: "server", chip: "Operational", chipTone: "success"});
+      const chip = getChip();
+
+      expect(chip.length).toBe(1);
+      expect(chip.hasClass("awe-card-chip")).toBe(true);
+      expect(chip.hasClass("awe-card-chip-success")).toBe(true);
+      expect(chip.attr("data-tone")).toBe("success");
+      expect(chip.text()).toBe("Operational");
+      expect(chip.parent().hasClass("awe-card-header")).toBe(true);
+      expect(chip.prev().hasClass("awe-card-heading")).toBe(true);
+      expect(chip.next().hasClass("awe-card-icon")).toBe(true);
+    });
+
+    it("goes before the delta of the header when there is no icon", () => {
+      compile({title: "Service status", chip: "Degraded", chipTone: "warning", delta: 2});
+
+      expect(getChip().parent().hasClass("awe-card-header")).toBe(true);
+      expect(getChip().next().attr("data-testid")).toBe(TestIds.cardDelta);
+    });
+
+    it("is neutral without a known tone, and shows a header for a chip without title", () => {
+      compile({chip: "Unknown", chipTone: "red"});
+
+      expect(getChip().hasClass("awe-card-chip-neutral")).toBe(true);
+      expect(getChip().attr("data-tone")).toBe("neutral");
+      expect(getChip().parent().hasClass("awe-card-header")).toBe(true);
+    });
+
+    it("renders no chip without its text", () => {
+      compile({title: "Service status", chipTone: "success"});
+
+      expect(getChip().length).toBe(0);
+    });
+
+    it("changes with the model values (fill, reload)", () => {
+      const element = compile({chip: "Operational", chipTone: "success"}, [{chip: "Degraded", chipTone: "warning"}]);
+      expect(getChip().text()).toBe("Degraded");
+
+      element.isolateScope().component.api.updateModelValues({values: [{chip: "Down", chipTone: "danger"}]});
+      refs.$rootScope.$digest();
+
+      expect(getChip().text()).toBe("Down");
+      expect(getChip().attr("data-tone")).toBe("danger");
+    });
+  });
 });

@@ -43,6 +43,16 @@ public class Card extends Component {
   @XStreamAsAttribute
   private String iconTone;
 
+  // Status chip at the top right, before the icon or the delta (#836)
+  @XStreamAlias("chip")
+  @XStreamAsAttribute
+  private String chip;
+
+  // Tone of the status chip (success, warning, danger, info or neutral)
+  @XStreamAlias("chip-tone")
+  @XStreamAsAttribute
+  private String chipTone;
+
   // Main value
   @XStreamAlias("value")
   @XStreamAsAttribute

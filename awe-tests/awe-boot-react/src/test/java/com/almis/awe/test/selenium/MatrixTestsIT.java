@@ -1672,4 +1672,24 @@ class MatrixTestsIT extends AbstractSessionTests {
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
   }
+
+  /**
+   * Card status chip (#836): a static chip at the top right of a card, and a status card filled from a service that
+   * moves to the next status on every call, so each reload shows another chip (text and tone)
+   */
+  @Test
+  void t124_cardStatusChip() {
+    // Title
+    setTestTitle("Card: status chip");
+
+    // Go to screen
+    gotoScreen("test", "layout", "card-test");
+
+    // Static chip from the XML of the card
+    checkCardChip("CrdTstTarget", "On track", "success");
+
+    // The status card shows a chip, and every reload changes it
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+  }
 }
