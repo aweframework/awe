@@ -304,6 +304,26 @@
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtros"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Resultado"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columnas en un panel lateral"/>
+  <locale name="PARAMETER_RELOAD" value="Recargar"/>
+  <locale name="MENU_TEST_CARDS" value="Tarjetas"/>
+  <locale name="CARD_TST_LIVE" value="Sesiones activas"/>
+  <locale name="CARD_TST_LIVE_CAPTION" value="respecto a la recarga anterior"/>
+  <locale name="CARD_TST_LIVE_FOOTER" value="Cifras aleatorias: Recargar las cambia"/>
+  <locale name="CARD_TST_ORDERS" value="Pedidos semanales"/>
+  <locale name="CARD_TST_ORDERS_FOOTER" value="Últimas 12 semanas"/>
+  <locale name="CARD_TST_DISK" value="Uso de disco"/>
+  <locale name="CARD_TST_DISK_FOOTER" value="Volumen de datos del servidor de ficheros"/>
+  <locale name="SCREEN_TITLE_CARD" value="Tarjetas"/>
+  <locale name="CARD_TST_THEMES" value="Temas"/>
+  <locale name="CARD_TST_VS_LAST_MONTH" value="respecto al mes anterior"/>
+  <locale name="CARD_TST_ERRORS" value="Tasa de errores"/>
+  <locale name="CARD_TST_STATIC" value="Valores estáticos"/>
+  <locale name="CARD_TST_REVENUE" value="Facturación mensual"/>
+  <locale name="CARD_TST_DAYS_LEFT" value="Quedan 8 días laborables"/>
+  <locale name="CARD_TST_FEATURE" value="Starters enchufables"/>
+  <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Los starters de Spring Boot activan solo los módulos que necesitas: planificador, notificaciones, impresión, REST."/>
+  <locale name="CARD_TST_CHART" value="Temas por peso"/>
+  <locale name="CARD_TST_GRID" value="Últimos registros"/>
   <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
   <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
   <locale name="BUTTON_POPOVER_BOTTOM" value="Popover debajo"/>

@@ -735,6 +735,10 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkPivotTableVisible(String pivotTableId)` | Checks that a pivot table is displayed (its table has been drawn) |
 | `zoomChart(String chartId)` | Zooms a chart in with the mouse wheel over its center |
 | `checkChartZoomed(String chartId)` | Checks that a chart is zoomed (it shows a part of its range) |
+| `checkCardValue(String cardId, String expectedText)` | Checks the value of a card, its number and its unit (for instance `412,600 €`); the spaces between them do not count |
+| `checkCardDelta(String cardId, String expectedText, String trend, String tone)` | Checks the trend delta of a card: its text (for instance `+12.5%` or `−0.18 pt`, with the minus sign U+2212), its direction (`up`, `down` or `flat`) and its tone (`success`, `warning`, `danger`, `info` or `neutral`) |
+| `checkCardProgress(String cardId, int percent)` | Checks the progress of a card towards its target, the percent its progress bar announces |
+| `checkCardBodyComponent(String cardId, String componentId)` | Checks that a component (a criterion, a grid or a chart) is shown in the body of a card |
 | `checkMapVisible(String mapId)` | Checks that a map is displayed with its markers drawn (React client only) |
 | `checkMapMarkerCount(String mapId, int count)` | Checks how many markers a map shows (React client only) |
 | `clickMapMarker(String mapId, String rowId)` | Clicks on the marker of a row of a map (React client only) |

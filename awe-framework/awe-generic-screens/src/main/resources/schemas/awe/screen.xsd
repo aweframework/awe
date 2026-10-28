@@ -137,6 +137,13 @@
     </xs:annotation>
   </xs:element>
 
+  <!-- Card Element -->
+  <xs:element name="card" type="cardType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Metric tile: a title, a big value with its unit, an icon, a change (delta) with its trend and caption, a description, a footer and an optional progress towards a target. Its attributes are static values; with initial-load the first row of the target query fills it, and the query fields (named as the attributes in camelCase: title, value, unit, delta, deltaUnit, trend, caption, tone...) override them. Its children (a chart, a grid, buttons...) are shown in its body, below the value. It refreshes with reload, filter and dependencies like any component. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <!-- Link Element -->
   <xs:element name="link" type="linkType" />
 
@@ -384,6 +391,121 @@
     <xs:attribute name="poster" type="xs:string" />
     <xs:attribute name="src" type="xs:string" />
     <xs:attribute name="controls" type="booleanEnum" />
+  </xs:attributeGroup>
+
+  <!-- Card Attributes -->
+  <xs:attributeGroup name="cardAttr">
+    <xs:attribute name="id" type="nameEnum" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the card, unique in the screen. Actions (filter) and dependencies address the card with it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the card, separated by spaces (for example awe-card-wide to take two columns of an awe-card-grid). The query never overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="serverCallAttr" />
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title of the card (a locale key or a text). label is used when there is no title.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title of the card when it has no title (a locale key or a text).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="subtitle" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Secondary text below the title.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown in a tile at the top right (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). With an icon the delta is shown in the footer; without it, in the header.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Colour of the icon tile and of the progress bar: success, warning, danger, info or neutral. Default: the primary colour.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Main value. A number is formatted in the language of the user with number-decimals.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit or suffix of the value and of the target (%, €, ms...).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-decimals" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Decimals of the value and of the target when they are numbers. Default: the decimals they have, up to 2. The delta always keeps up to 2 decimals.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="delta" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Change of the value (for example 4.2), shown as a tag with the trend arrow and its text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="delta-unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit of the change. Default: %.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="trend" type="cardTrendEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Direction of the change: up, down or flat. Default: the sign of the delta (negative down, zero flat, positive up). When it is set, the delta is shown without sign.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="good-trend" type="cardGoodTrendEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Direction that is good news: up (default) or down (error rate, costs, response time). The trend in this direction is shown as success, the opposite as danger and flat as neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tone of the change, used as is instead of the one derived from trend and good-trend: success, warning, danger, info or neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text next to the change (for example vs. last month).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Target of the value. When it is a number, a progress bar shows the value against it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="progress-style" type="cardProgressStyleEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the progress towards the target is drawn: bar (default) or gauge (a half circle with the percent).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Series of numbers drawn as a sparkline below the value, as a JSON array (for example [93.1,93.8,92.6]). The query can return it as a field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-type" type="sparklineTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Type of the sparkline: line, area (default) or bar.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Paragraph below the value and the body.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="footer" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Muted text at the bottom left of the card.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Map Attributes -->
@@ -1496,6 +1618,7 @@
       <xs:element ref="accordion" />
       <xs:element ref="pivot-table" />
       <xs:element ref="window" />
+      <xs:element ref="card" />
       <xs:element ref="resizable" />
       <xs:element ref="tag" />
       <xs:element ref="tab" />
@@ -1709,6 +1832,15 @@
   <xs:complexType name="windowType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="windowAttr" />
+  </xs:complexType>
+
+  <!-- Card Type -->
+  <xs:complexType name="cardType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="elementGroup" />
+      <xs:element ref="dependency" />
+    </xs:choice>
+    <xs:attributeGroup ref="cardAttr" />
   </xs:complexType>
 
   <!-- Resizable Type -->
@@ -2228,6 +2360,42 @@
       <xs:enumeration value="button" />
       <xs:enumeration value="formatted-text" />
       <xs:enumeration value="link" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card trend values -->
+  <xs:simpleType name="cardTrendEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="up" />
+      <xs:enumeration value="down" />
+      <xs:enumeration value="flat" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card good trend values -->
+  <xs:simpleType name="cardGoodTrendEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="up" />
+      <xs:enumeration value="down" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card progress style values -->
+  <xs:simpleType name="cardProgressStyleEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bar" />
+      <xs:enumeration value="gauge" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card tone values -->
+  <xs:simpleType name="cardToneEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="success" />
+      <xs:enumeration value="warning" />
+      <xs:enumeration value="danger" />
+      <xs:enumeration value="info" />
+      <xs:enumeration value="neutral" />
     </xs:restriction>
   </xs:simpleType>
 

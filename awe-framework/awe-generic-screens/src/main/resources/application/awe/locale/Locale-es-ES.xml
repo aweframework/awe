@@ -1292,6 +1292,10 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_INFORMATION_MESSAGE_2" value="Si desea salir de la aplicación, pulse el botón de salir en el extremo superior derecho de la pantalla."/>
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Cargando"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_UP" value="Sube"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_DOWN" value="Baja"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_FLAT" value="Sin cambios"/>
+  <locale name="SCREEN_TEXT_CARD_TARGET_OF" value="de"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximizar"/>
   <locale name="GRID_COLUMNS_BUTTON" value="Columnas"/>
   <locale name="GRID_COLUMNS_TITLE" value="Columnas del grid"/>

@@ -733,6 +733,10 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkPivotTableVisible(String pivotTableId)` | Comprueba que una tabla dinámica se muestra (su tabla se ha dibujado) |
 | `zoomChart(String chartId)` | Hace zoom en un gráfico con la rueda del ratón sobre su centro |
 | `checkChartZoomed(String chartId)` | Comprueba que un gráfico tiene zoom (muestra una parte de su rango) |
+| `checkCardValue(String cardId, String expectedText)` | Comprueba el valor de una tarjeta, su número y su unidad (por ejemplo `412,600 €`); los espacios entre ellos no cuentan |
+| `checkCardDelta(String cardId, String expectedText, String trend, String tone)` | Comprueba la variación de una tarjeta: su texto (por ejemplo `+12.5%` o `−0.18 pt`, con el signo menos U+2212), su dirección (`up`, `down` o `flat`) y su tono (`success`, `warning`, `danger`, `info` o `neutral`) |
+| `checkCardProgress(String cardId, int percent)` | Comprueba el progreso de una tarjeta hacia su objetivo, el porcentaje que anuncia su barra de progreso |
+| `checkCardBodyComponent(String cardId, String componentId)` | Comprueba que un componente (un criterio, una rejilla o un gráfico) se muestra en el cuerpo de una tarjeta |
 | `checkMapVisible(String mapId)` | Comprueba que un mapa se muestra con sus marcadores dibujados (solo cliente React) |
 | `checkMapMarkerCount(String mapId, int count)` | Comprueba cuántos marcadores muestra un mapa (solo cliente React) |
 | `clickMapMarker(String mapId, String rowId)` | Hace clic en el marcador de una fila de un mapa (solo cliente React) |

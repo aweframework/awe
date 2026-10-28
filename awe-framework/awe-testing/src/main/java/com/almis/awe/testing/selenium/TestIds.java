@@ -164,6 +164,13 @@ public final class TestIds {
   // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";
 
+  // Cards (owner: card id) with their value, their trend delta ("data-trend" and "data-tone") and their target progress
+  public static final String CARD = "card";
+  public static final String CARD_VALUE = "card-value";
+  public static final String CARD_DELTA = "card-delta";
+  public static final String CARD_PROGRESS = "card-progress";
+  public static final String CARD_SPARKLINE = "card-sparkline";
+
   // React only: map (the instance is identified by "map-id"; "data-rendered" tells that its markers were drawn), its
   // markers ("map-id" and "row-id") and its route ("map-id")
   public static final String MAP = "map";

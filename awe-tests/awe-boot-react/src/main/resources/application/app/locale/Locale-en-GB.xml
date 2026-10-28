@@ -90,6 +90,16 @@
   <locale name="DASHBOARD_WINDOW_DONUT" value="Themes share"/>
   <locale name="DASHBOARD_WINDOW_FILES" value="Files"/>
   <locale name="DASHBOARD_WINDOW_SUGGESTIONS" value="Suggestions"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES" value="On-time deliveries"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES_FOOTER" value="Last 8 weeks · target 95 %"/>
+  <locale name="DASHBOARD_CARD_DELIVERIES_TREND" value="On-time deliveries (%)"/>
+  <locale name="DASHBOARD_CARD_REVENUE" value="Monthly revenue"/>
+  <locale name="DASHBOARD_CARD_REVENUE_FOOTER" value="8 working days left"/>
+  <locale name="DASHBOARD_CARD_ERRORS" value="Error rate"/>
+  <locale name="DASHBOARD_CARD_ERRORS_SUBTITLE" value="API requests"/>
+  <locale name="DASHBOARD_CARD_ERRORS_FOOTER" value="Last 7 days · 1.2 M requests"/>
+  <locale name="DASHBOARD_CARD_VS_LAST_MONTH" value="vs. last month"/>
+  <locale name="DASHBOARD_CARD_VS_LAST_WEEK" value="vs. last week"/>
   <locale name="MENU_GRID_CHART" value="Grids and Charts"/>
   <locale name="MENU_TEST" value="Tests"/>
   <locale name="MENU_SECTION_ADMINISTRATION" value="Administration"/>
@@ -351,6 +361,25 @@
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filters"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Result"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columns in a side panel"/>
+  <locale name="MENU_TEST_CARDS" value="Cards"/>
+  <locale name="CARD_TST_LIVE" value="Active sessions"/>
+  <locale name="CARD_TST_LIVE_CAPTION" value="vs. previous reload"/>
+  <locale name="CARD_TST_LIVE_FOOTER" value="Random figures: Reload changes them"/>
+  <locale name="CARD_TST_ORDERS" value="Weekly orders"/>
+  <locale name="CARD_TST_ORDERS_FOOTER" value="Last 12 weeks"/>
+  <locale name="CARD_TST_DISK" value="Disk usage"/>
+  <locale name="CARD_TST_DISK_FOOTER" value="Data volume of the file server"/>
+  <locale name="SCREEN_TITLE_CARD" value="Cards"/>
+  <locale name="CARD_TST_THEMES" value="Themes"/>
+  <locale name="CARD_TST_VS_LAST_MONTH" value="vs. last month"/>
+  <locale name="CARD_TST_ERRORS" value="Error rate"/>
+  <locale name="CARD_TST_STATIC" value="Static values"/>
+  <locale name="CARD_TST_REVENUE" value="Monthly revenue"/>
+  <locale name="CARD_TST_DAYS_LEFT" value="8 working days left"/>
+  <locale name="CARD_TST_FEATURE" value="Pluggable starters"/>
+  <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Spring Boot starters enable exactly the modules you need: scheduler, notifications, printing, REST."/>
+  <locale name="CARD_TST_CHART" value="Themes by weight"/>
+  <locale name="CARD_TST_GRID" value="Latest records"/>
   <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
   <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
   <locale name="BUTTON_POPOVER_BOTTOM" value="Popover below"/>

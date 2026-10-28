@@ -1934,6 +1934,53 @@ class SeleniumUtilitiesSemanticStepsTest {
     when(executor.executeScript(anyString(), eq(popoverCss))).thenReturn(true, false);
     assertThrows(AssertionFailedError.class, () -> utilities.checkPopoverKeepsTheFocus("Pop", 3));
   }
+  @Test
+  void shouldCheckTheValueOfACardWhateverTheSpacesBetweenItsNumberAndItsUnitInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getCardValue("Crd"), "412,600\n\u20ac");
+
+      assertThatCode(() -> {
+        utilities.checkCardValue("Crd", "412,600 \u20ac");
+        utilities.checkCardValue("Crd", "412,600\u20ac");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCardValue("Crd", "412,601 \u20ac"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCardValue("Missing", "412,600 \u20ac"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheTextTheTrendAndTheToneOfTheDeltaOfACard() {
+    WebElement delta = show(instructions.getCardDelta("Crd"), "\u2198 \u22120.18 pt Down");
+    when(delta.getAttribute("data-trend")).thenReturn("down");
+    when(delta.getAttribute("data-tone")).thenReturn("success");
+    show(instructions.getCardDeltaText("Crd"), "\u22120.18 pt");
+
+    assertThatCode(() -> utilities.checkCardDelta("Crd", "\u22120.18 pt", "down", "success")).doesNotThrowAnyException();
+    // The minus sign is U+2212, not a hyphen
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardDelta("Crd", "-0.18 pt", "down", "success"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardDelta("Crd", "\u22120.18 pt", "up", "success"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardDelta("Crd", "\u22120.18 pt", "down", "danger"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardDelta("Missing", "\u22120.18 pt", "down", "success"));
+  }
+
+  @Test
+  void shouldCheckTheProgressOfACardTowardsItsTarget() {
+    WebElement progress = show(instructions.getCardProgress("Crd"), "");
+    when(progress.getAttribute("aria-valuenow")).thenReturn("83");
+
+    assertThatCode(() -> utilities.checkCardProgress("Crd", 83)).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardProgress("Crd", 82));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardProgress("Missing", 83));
+  }
+
+  @Test
+  void shouldCheckThatAComponentIsInTheBodyOfACard() {
+    show(instructions.getCardBodyComponent("CrdGrid", "GrdCrd"), "");
+
+    assertThatCode(() -> utilities.checkCardBodyComponent("CrdGrid", "GrdCrd")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCardBodyComponent("CrdChart", "GrdCrd"));
+  }
 
   @Test
   void shouldOpenTheUserMenuToSwitchTheColorMode() {

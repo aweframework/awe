@@ -1289,6 +1289,10 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_INFORMATION_MESSAGE_2" value="Si vous voulez sortir de l&apos;application, bouton sortir dans le coin superieur droit de l&apos;ecran"/>
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Chargement"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_UP" value="Hausse"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_DOWN" value="Baisse"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_FLAT" value="Stable"/>
+  <locale name="SCREEN_TEXT_CARD_TARGET_OF" value="sur"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximiser"/>
   <locale name="GRID_COLUMNS_BUTTON" value="Colonnes"/>
   <locale name="GRID_COLUMNS_TITLE" value="Colonnes de la grille"/>

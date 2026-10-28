@@ -193,7 +193,8 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Pivot table | #821, #878 | Done | Drop zones for rows, columns and values; aggregation select; swap; totals per row and column. |
 | Map | #798 | Done | Controls and panels use AWE surfaces and buttons; markers and routes in the primary. |
 | Colour scale cells and grid without header | #830 | Done | 5-step scale from the primary with a legend; a headerless grid starts with its first row. |
-| KPI | #836 | Planned | Label, value (tabular), change against a period as a tag; optional trend, target progress or comparison; links to the detail. |
+| Card | #899 | Done | Metric tile: title, value (tabular) with unit, change as a tag with arrow and text (tone from `good-trend`), optional target progress and a body with any component; laid out with `awe-card-grid`. |
+| KPI | #836 | Planned | Adds the filter mode on top of the card (#899): a selected state, and a click filters a grid through dependencies. |
 
 ### Feedback and loading
 

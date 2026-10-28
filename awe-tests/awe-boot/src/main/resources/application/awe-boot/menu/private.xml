@@ -114,6 +114,7 @@
     <option name="layout" label="MENU_TEST_LAYOUT" icon="list-alt">
       <option name="layout-test" label="MENU_TEST_LAYOUT 1" screen="layout" icon="th-large"/>
       <option name="layout2-test" label="MENU_TEST_LAYOUT 2" screen="layout2" icon="th-large"/>
+      <option name="card-test" label="MENU_TEST_CARDS" screen="CardTst" icon="th-large"/>
     </option>
     <option name="button-menu" label="MENU_TEST_BUTTON_MENU" icon="th" menu-screen="true" screen="test-button-screen">
       <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:science"  />

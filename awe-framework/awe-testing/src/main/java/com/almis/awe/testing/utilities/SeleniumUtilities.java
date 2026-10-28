@@ -5730,6 +5730,80 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check the value of a card: its number and its unit, as the user reads them. The spaces between them do not count,
+   * because the number and the unit are separate elements and each tool reads the space between them its own way
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected value, for instance {@code 412,600 €}
+   */
+  protected void checkCardValue(String cardId, String expectedText) {
+    Locator value = locator(frontEndInstructions.getCardValue(cardId));
+    String expected = withoutSpaces(expectedText);
+    waitUntil(BrowserCondition.of("the value of the card " + cardId + " to be '" + expectedText + "'", browser -> {
+      try {
+        return browser.isVisible(value) && expected.equals(withoutSpaces(browser.text(value)));
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        return false;
+      }
+    }));
+  }
+
+  /**
+   * Check the trend delta of a card: its text (the number and its unit, for instance {@code +12.5%} or {@code −0.18 pt}
+   * with the minus sign U+2212), its direction and its tone
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected text of the delta
+   * @param trend        Expected direction: up, down or flat
+   * @param tone         Expected tone: success, warning, danger, info or neutral
+   */
+  protected void checkCardDelta(String cardId, String expectedText, String trend, String tone) {
+    Locator delta = locator(frontEndInstructions.getCardDelta(cardId));
+    Locator text = locator(frontEndInstructions.getCardDeltaText(cardId));
+    waitUntil(BrowserCondition.of("the delta of the card " + cardId + " to be '" + expectedText + "', " + trend + " and " + tone,
+      browser -> {
+        try {
+          return browser.isVisible(delta) && expectedText.equals(browser.text(text).strip())
+            && trend.equals(browser.attribute(delta, "data-trend")) && tone.equals(browser.attribute(delta, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check the progress of a card towards its target: the percent its progress bar announces ({@code aria-valuenow})
+   *
+   * @param cardId  Card identifier
+   * @param percent Expected percent (0 to 100)
+   */
+  protected void checkCardProgress(String cardId, int percent) {
+    Locator progress = locator(frontEndInstructions.getCardProgress(cardId));
+    String expected = String.valueOf(percent);
+    waitUntil(BrowserCondition.of("the progress of the card " + cardId + " to be " + percent + " %", browser -> {
+      try {
+        return browser.isVisible(progress) && expected.equals(browser.attribute(progress, "aria-valuenow"));
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        return false;
+      }
+    }));
+  }
+
+  /**
+   * Check that a component (a criterion, a grid or a chart) is shown in the body of a card
+   *
+   * @param cardId      Card identifier
+   * @param componentId Component identifier
+   */
+  protected void checkCardBodyComponent(String cardId, String componentId) {
+    checkVisible(locator(frontEndInstructions.getCardBodyComponent(cardId, componentId)));
+  }
+
+  private static String withoutSpaces(String text) {
+    return text == null ? "" : text.replaceAll("[\\s\\u00A0\\u202F]", "");
+  }
+
+  /**
    * Check that a button has the keyboard focus, for instance the one that opened a dialog once the dialog is closed
    *
    * @param buttonId Button identifier

@@ -1457,4 +1457,49 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Check visible
     checkTreeRowVisible(gridId, "ProOperator-ModBase");
   }
+
+  /**
+   * Card test (#899): the metric cards show their value with its unit, their trend delta with its direction and tone
+   * (the tone follows the good trend of the card, so a falling error rate is good news), and their progress towards the
+   * target. The chart and the grid of the other cards are drawn in their body. The reload button filters the card filled
+   * from a query, which keeps its value and its delta
+   */
+  @Test
+  void t121_cardMetricTrendProgressAndBody() {
+    // Title
+    setTestTitle("Card: metric, trend, progress and body");
+
+    // Go to screen
+    gotoScreen("test", "layout", "card-test");
+
+    // Metric filled from a query: the number of themes, rising (good news)
+    checkCardValue("CrdTstThemes", "18");
+    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
+
+    // Static metric whose good trend is down: a falling error rate is good news, signed with U+2212
+    checkCardValue("CrdTstErrors", "0.42 %");
+    checkCardDelta("CrdTstErrors", "\u22120.18 pt", "down", "success");
+
+    // Progress towards the target: 412,600 of 500,000
+    checkCardValue("CrdTstTarget", "412,600 \u20ac");
+    checkCardDelta("CrdTstTarget", "+6.1%", "up", "success");
+    checkCardProgress("CrdTstTarget", 83);
+
+    // A gauge tells its progress like the bar does, and a sparkline from a query field shows its value
+    checkCardValue("CrdTstDisk", "720GB");
+    checkCardProgress("CrdTstDisk", 72);
+    checkCardValue("CrdTstOrders", "1,284");
+    checkCardDelta("CrdTstOrders", "+4.2%", "up", "success");
+
+    // A chart and a grid in the body of their cards
+    checkCardBodyComponent("CrdTstChart", "ChrCrdTst");
+    checkChartVisible("ChrCrdTst");
+    checkCardBodyComponent("CrdTstGrid", "GrdCrdTst");
+    checkRowContentsGrid("GrdCrdTst", "awedb2");
+
+    // The reload button filters the card filled from a query, which keeps its value and its delta
+    clickButton("ButCrdReload");
+    checkCardValue("CrdTstThemes", "18");
+    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
+  }
 }
