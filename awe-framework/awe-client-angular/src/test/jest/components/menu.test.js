@@ -301,4 +301,104 @@ describe("components/menu.js", () => {
 
     expect(scope.search.open).toBe(false);
   });
+
+  describe("Ctrl K shortcut", () => {
+    const pressShortcut = (init) => {
+      const event = new window.KeyboardEvent("keydown", {key: "k", code: "KeyK", bubbles: true, cancelable: true, ...init});
+      document.dispatchEvent(event);
+      return event;
+    };
+
+    afterEach(() => {
+      angular.element(document.body).removeClass("mmc");
+    });
+
+    it("shows the invitation and the shortcut in the vertical search field", () => {
+      const {element} = compileMenu({style: "vertical"});
+
+      const toggle = element.find(".awe-menu-search-toggle");
+      expect(toggle.attr("aria-keyshortcuts")).toBe("Control+K Meta+K");
+      expect(toggle.attr("title")).toBe("MENU_SEARCH_PLACEHOLDER");
+      expect(toggle.find(".awe-menu-search-toggle-label").text()).toBe("MENU_SEARCH_PLACEHOLDER");
+      const kbd = toggle.find("kbd.awe-menu-search-kbd");
+      expect(kbd.text()).toBe("Ctrl K");
+      expect(kbd.attr("aria-hidden")).toBe("true");
+    });
+
+    it("keeps the icon toggle of the horizontal menu without label or shortcut hint", () => {
+      const {element} = compileMenu({style: "horizontal"});
+
+      const toggle = element.find(".awe-menu-search-toggle");
+      expect(toggle.attr("aria-keyshortcuts")).toBe("Control+K Meta+K");
+      expect(toggle.attr("title")).toBe("BUTTON_SEARCH");
+      expect(toggle.find(".awe-menu-search-toggle-label").length).toBe(0);
+      expect(toggle.find("kbd").length).toBe(0);
+    });
+
+    it.each([["Ctrl", {ctrlKey: true}], ["Meta", {metaKey: true}], ["Ctrl with caps lock", {ctrlKey: true, key: "K"}]])(
+      "opens the search and focuses its input with %s + K", (_name, init) => {
+        const {element, scope} = compileMenu({style: "vertical"});
+        angular.element(document.body).append(element);
+
+        const event = pressShortcut(init);
+        refs.$rootScope.$digest();
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(scope.search.open).toBe(true);
+        expect(document.activeElement).toBe(element.find(".awe-menu-search-input")[0]);
+        element.remove();
+      });
+
+    it("keeps the search open with its query when it is already open", () => {
+      const {scope} = compileMenu({style: "vertical"});
+      scope.openSearch();
+      scope.search.query = "invoice";
+
+      pressShortcut({ctrlKey: true});
+
+      expect(scope.search.open).toBe(true);
+      expect(scope.search.query).toBe("invoice");
+    });
+
+    it.each([["K alone", {}], ["Ctrl + Shift + K", {ctrlKey: true, shiftKey: true}], ["Alt + K", {altKey: true}],
+      ["Ctrl + J", {ctrlKey: true, key: "j", code: "KeyJ"}]])("ignores %s and leaves the event untouched", (_name, init) => {
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut(init);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("ignores the shortcut when the vertical menu is collapsed", () => {
+      angular.element(document.body).addClass("mmc");
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("ignores the shortcut when the option search is disabled", () => {
+      jest.spyOn(getService("AweSettings"), "get")
+        .mockImplementation(key => (key === "menuSearchEnabled" ? false : undefined));
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("stops listening to the shortcut once the menu is destroyed", () => {
+      const {scope} = compileMenu({style: "vertical"});
+      scope.$destroy();
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+  });
 });

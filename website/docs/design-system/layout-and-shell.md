@@ -10,8 +10,8 @@ options and the screen XML do not change; only the presentation does. See it in 
 
 ```text
 ┌──────────────┬──────────────────────────────────────────────────┐
-│ Brand slot   │ Header: menu toggle · global search · help ·     │
-│              │         notifications · user menu                │
+│ Brand slot   │ Header: menu toggle · notifications ·            │
+│              │         user menu                                │
 ├──────────────┼──────────────────────────────────────────────────┤
 │ Menu search  │ Breadcrumb                                       │
 │ Section      │ Page title + actions                             │
@@ -48,7 +48,7 @@ Up to **three levels** below a section: section › option › sub-option › su
 | Levels 2 and 3 | No icon. Indented, with a vertical guide line per level. Smaller and muted. |
 | Active trail | Every ancestor of the current page is marked (weight, accent bar on the guide); the page itself has the highlight background. |
 | Expand / collapse | Per level, animated (`--awe-motion-duration-expand`). Open levels are restored without animation. |
-| Search | Filters at every depth, opens the path of each match and highlights the matched text. |
+| Search | Filters at every depth, opens the path of each match and highlights the matched text. `Ctrl K` (`⌘ K` on macOS) opens it from anywhere, and the field shows the shortcut; on the rail the search is hidden and the key is left to the browser. |
 | Badges | Counters (neutral or danger) and "New". |
 
 **Rail.** The menu collapses to an icon rail (`--awe-menu-width-collapsed`, 68px). The width change is animated.
@@ -79,9 +79,10 @@ affordance.
 ## Header
 
 - Light, slightly translucent, sticky, height `--awe-header-height`.
-- Left: menu toggle (`panel-left` icon), global search (`Ctrl K` focuses it).
-- Right: help, notifications (dot when unread; list in a popover), user menu (profile, preferences, shortcuts, switch
-  company, sign out).
+- Left: menu toggle (`panel-left` icon).
+- Right: the notifications of the [Notifier module](../notifier-module.md) (the `notification-panel` include of the
+  home screen) and the user menu (profile, preferences, shortcuts, switch company, sign out).
+- No help button: AWE shows the help of a screen through the `help` attribute of its components.
 
 ## Page
 

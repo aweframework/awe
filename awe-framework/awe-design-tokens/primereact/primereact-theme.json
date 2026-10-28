@@ -6,13 +6,15 @@
     "An entry is a token, a CSS value, or a list of rules {selector, property, value} (regular expressions on the selector",
     "of the Lara rule and on the property): the first matching rule wins. overrides replace a whole declaration of the",
     "components whose Aura geometry differs from Lara. structural values are kept as they are. A value of Lara that is not",
-    "mapped here fails the build."
+    "mapped here fails the build. focusVisible is the pattern of the selectors (the buttons) whose :focus becomes",
+    ":focus-visible, so their focus ring shows for the keyboard only, as the prototype."
   ],
   "source": {
     "package": "primereact",
     "version": "10.9.9",
     "theme": "resources/themes/lara-light-indigo/theme.css"
   },
+  "focusVisible": "\\.p-button",
   "structural": ["0", "0px", "1px", "1%", "50%", "100%", "auto", "none", "0 none", "inherit", "transparent"],
   "rootVariables": {
     "--border-radius": "--awe-radius-field",

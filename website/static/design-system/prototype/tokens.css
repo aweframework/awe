@@ -775,7 +775,9 @@
   --awe-color-panel-header: var(--awe-color-surface);
   --awe-color-panel-border: var(--awe-color-border);
   --awe-color-panel-text: var(--awe-color-text);
-  --awe-color-grid-header: var(--awe-color-surface-subtle);
+  /* Opaque, as the header and the footer of a grid stay over its rows when they scroll: in dark mode the subtle surface
+     (half transparent) laid over the rows (the surface) */
+  --awe-color-grid-header: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900)));
   --awe-color-grid-border: var(--awe-color-border);
   --awe-color-skeleton: light-dark(var(--awe-surface-200), var(--awe-surface-800));
   --awe-color-skeleton-highlight: light-dark(var(--awe-surface-100), var(--awe-surface-700));

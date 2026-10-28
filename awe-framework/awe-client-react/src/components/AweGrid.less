@@ -43,6 +43,13 @@
   scroll-padding-top: calc(2 * var(--awe-grid-cell-padding-y) + var(--awe-grid-header-font-size) * var(--awe-line-height-snug) + 1px);
 }
 
+// In an editable grid, what scrolls into view (a field of the edited row on a click or on Tab) stops before the row edit
+// column, frozen at the right, not behind it: the width of that column in an edited row (save and cancel buttons, their
+// gap and its padding)
+.p-datatable-scrollable > .p-datatable-wrapper:has(.grid-row-editor-column) {
+  scroll-padding-inline-end: calc(2 * var(--awe-size-control-sm) + var(--awe-space-1) + 2 * var(--awe-space-2));
+}
+
 // Header: the header type of the grid. A column with an alignment aligns its header like its cells; without one the
 // header stays centred
 .p-datatable .p-datatable-thead > tr > th,
@@ -84,12 +91,15 @@
   opacity: 1;
 }
 
-// Cells: figures in tabular numbers, so the numbers of a column line up
+// Cells: figures in tabular numbers, so the numbers of a column line up, and one line of text, as the prototype (not
+// only on the resizable grids, as PrimeReact does: a grid with a grouped header is not resizable). Wrapping columns wrap
+// their own text (p-cell-wrap)
 .p-datatable .p-datatable-tbody > tr > td,
 .p-datatable .p-datatable-tfoot > tr > td,
 .p-treetable .p-treetable-tbody > tr > td,
 .p-treetable .p-treetable-tfoot > tr > td {
   font-variant-numeric: var(--awe-font-variant-numeric);
+  white-space: nowrap;
 }
 
 .p-datatable .p-datatable-tbody > tr.p-datatable-emptymessage > td {
@@ -122,6 +132,55 @@
   background: var(--awe-grid-row-background);
   border-bottom-color: var(--awe-color-primary);
   box-shadow: inset 0 1px 0 var(--awe-color-primary);
+  // The editors stay in their cell: never painted over the next column (their overlays open on the body)
+  overflow: hidden;
+}
+
+// Frozen cells (the row edit column, frozen at the right, and the frozen columns of a screen): PrimeReact gives them the
+// background of their row, half transparent when hovered or selected in dark mode, so the cells scrolling under them
+// would show through. They get an opaque surface with the colour of their row on top
+.p-datatable .p-datatable-tbody > tr > td.p-frozen-column {
+  background: var(--awe-grid-row-background);
+}
+
+.p-datatable .p-datatable-tbody > tr.p-highlight > td.p-frozen-column {
+  background: linear-gradient(var(--awe-grid-row-selected-background), var(--awe-grid-row-selected-background)), var(--awe-grid-row-background);
+}
+
+.p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover > td.p-frozen-column,
+.p-datatable.p-datatable-selectable .p-datatable-tbody > tr.p-selectable-row:not(.p-highlight):hover > td.p-frozen-column {
+  background: linear-gradient(var(--awe-grid-row-hover-background), var(--awe-grid-row-hover-background)), var(--awe-grid-row-background);
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd:not(.p-highlight) > td.p-frozen-column {
+  background: linear-gradient(var(--awe-color-surface-subtle), var(--awe-color-surface-subtle)), var(--awe-grid-row-background);
+}
+
+// The edited row keeps its background in its frozen cells, also when it is selected or hovered
+.p-datatable .p-datatable-tbody > tr.editing > td.p-frozen-column,
+.p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr.editing:hover > td.p-frozen-column,
+.p-datatable.p-datatable-selectable .p-datatable-tbody > tr.p-selectable-row.editing:hover > td.p-frozen-column {
+  background: var(--awe-grid-row-background);
+}
+
+// The row edit column stays narrow: small padding, and a small gap between the save and cancel buttons of the edited
+// row (it only grows at the right end of the grid, so the columns of the data do not move)
+.p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column {
+  padding-inline: var(--awe-space-2);
+}
+
+.p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column .p-row-editor-save {
+  margin-right: var(--awe-space-1);
+}
+
+// The row edit column is frozen at the right (its buttons stay in view in a wide grid): a line separates it from the
+// columns that scroll under it, also in the edited row, under its primary line
+.p-datatable .grid-row-editor-column {
+  box-shadow: inset 1px 0 0 var(--awe-grid-border);
+}
+
+.p-datatable .p-datatable-tbody > tr.editing > td.grid-row-editor-column {
+  box-shadow: inset 0 1px 0 var(--awe-color-primary), inset 1px 0 0 var(--awe-grid-border);
 }
 
 .p-datatable .p-datatable-tbody > tr.editing > td:first-child {
@@ -137,6 +196,35 @@
 
 .p-datatable .p-datatable-tbody > tr.editing .p-inputtext:not(textarea) {
   padding-block: 0;
+}
+
+// The addon of a field (the swatch of the colour editor...): at the small control height of the edited row
+.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup-addon {
+  height: var(--awe-size-control-sm);
+  min-width: var(--awe-size-control-sm);
+  padding-block: 0;
+}
+
+// The choose button of an uploader, and the delete button of its file: addons of its field, as the addon of the colour
+// editor, at the small control height of the edited row (not buttons taller than the field)
+.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup .p-fileupload .p-button,
+.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup > .p-button {
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  border-left: 0;
+  box-shadow: none;
+
+  &:hover {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  .p-button-icon {
+    color: var(--awe-color-field-icon);
+  }
 }
 
 .p-datatable .p-datatable-tbody > tr.editing .p-dropdown,

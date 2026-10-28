@@ -293,3 +293,16 @@
   border-color: var(--awe-color-warning);
   padding-right: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
 }
+
+// The clear icon of a select: smaller than its arrow and muted, so it does not read as a second arrow
+.p-dropdown .p-dropdown-clear-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  margin-top: calc(var(--awe-size-icon-sm) / -2);
+  color: var(--awe-color-field-icon);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text);
+  }
+}

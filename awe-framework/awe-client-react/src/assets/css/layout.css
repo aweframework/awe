@@ -2309,6 +2309,12 @@ body a {
   margin: calc(-1 * var(--awe-space-4));
 }
 
+/* Busy button (prototype .btn.is-loading, #771): the spinner on the colour of the button, not faded */
+.p-button.is-loading:disabled {
+  cursor: progress;
+  opacity: 1;
+}
+
 .menu-screen-button {
   min-height: 8rem;
   justify-content: space-around;

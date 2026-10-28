@@ -681,20 +681,6 @@ a:hover {
   backdrop-filter: saturate(1.4) blur(10px);
 }
 
-.global-search {
-  flex: 0 1 var(--awe-header-search-width);
-  min-width: 0;
-}
-
-.global-search .control {
-  background: var(--awe-color-surface-subtle);
-  box-shadow: none;
-}
-
-.global-search .control:focus-within {
-  background: var(--awe-color-field);
-}
-
 .topbar__actions {
   display: flex;
   align-items: center;
@@ -3744,7 +3730,7 @@ th[aria-sort] .sort .i {
     grid-column: auto;
   }
 
-  .global-search .kbd,
+  .sidebar__search .kbd,
   .topbar .hide-sm {
     display: none;
   }

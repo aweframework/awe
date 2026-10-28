@@ -118,7 +118,8 @@ awe-menu {
   }
 }
 
-// Vertical menu: search row shown above the options
+// Vertical menu: a full-width search field above the options, with the invitation and the Ctrl K hint, as the React
+// engine and the search of the prototype
 .awe-menu-search-vertical {
   display: block;
   margin-bottom: var(--awe-list-gap);
@@ -126,6 +127,71 @@ awe-menu {
   .awe-menu-search-toggle {
     justify-content: flex-start;
     width: 100%;
+    min-height: var(--awe-size-control-sm);
+    padding: 0 var(--awe-field-padding-x);
+    gap: var(--awe-space-2);
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-field-placeholder);
+    background: var(--awe-color-field);
+    border: 1px solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    box-shadow: var(--awe-shadow-field);
+    transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+    i {
+      flex: none;
+      color: var(--awe-color-field-icon);
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--awe-color-field-placeholder);
+      background: var(--awe-color-field);
+      border-color: var(--awe-color-field-border-hover);
+    }
+
+    &:focus-visible {
+      border-color: var(--awe-color-field-border-focus);
+      outline: none;
+      box-shadow: var(--awe-shadow-field-focus);
+    }
+  }
+
+  &.open .awe-menu-search-toggle {
+    border-color: var(--awe-color-field-border-focus);
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+
+  .awe-menu-search-toggle-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Hint of the Ctrl K shortcut at the end of the field
+  .awe-menu-search-kbd {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 0 var(--awe-space-1-5);
+    font-family: var(--awe-font-family-base);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-medium);
+    line-height: var(--awe-line-height-base);
+    color: var(--awe-color-text-muted);
+    white-space: nowrap;
+    background: var(--awe-color-surface-subtle);
+    border: 1px solid var(--awe-color-border);
+    border-radius: var(--awe-radius-sm);
+    box-shadow: none;
+
+    // A touch screen has no keyboard to press the shortcut with
+    @media (hover: none) and (pointer: coarse) {
+      display: none;
+    }
   }
 
   .awe-menu-search-panel {

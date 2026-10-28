@@ -550,6 +550,34 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       });
     });
 
+    it("keeps the hover background for the pointer only, as the prototype: a clicked button does not stay lit", () => {
+      const buttons = {
+        ".btn.btn-awe": "var(--awe-color-surface)",
+        ".btn.btn-default": "var(--awe-color-secondary)",
+        ".btn.btn-awe.btn-primary": "var(--awe-color-primary)",
+        ".btn.btn-awe.btn-danger": "var(--awe-color-danger)",
+        ".btn.btn-awe.btn-success": "var(--awe-color-success)",
+        ".btn.btn-awe.btn-warning": "var(--awe-color-warning)",
+        ".btn.btn-awe.btn-dark": "var(--awe-color-contrast)"
+      };
+      Object.entries(buttons).forEach(([button, background]) => {
+        expect(style(button).background).toBe(background);
+        // pixel-admin lights .btn:focus and .btn.focused with an !important background: they keep the resting one
+        [`${button}:focus`, `${button}.focused`].forEach(selector => {
+          expect(style(selector)).toMatchObject({"background": `${background} !important`,
+            "background-image": "none !important"});
+        });
+        expect(style(`${button}:hover`)).toHaveProperty("background");
+      });
+    });
+
+    it("shows the focus ring when AWE moves the focus to a button (focused class), as the keyboard focus", () => {
+      [".btn.btn-awe", ".btn.btn-default"].forEach(button => {
+        expect(style(`${button}:focus-visible`)).toMatchObject({"box-shadow": FOCUS_RING});
+        expect(style(`${button}.focused`)).toMatchObject({"box-shadow": FOCUS_RING});
+      });
+    });
+
     it("keeps a launcher button a tile with its icon above its text", () => {
       expect(style(".btn.btn-awe.menu-screen-button")).toMatchObject({
         "display": "inline-block",

@@ -494,10 +494,14 @@ export function getDirection(direction: string): 1 | -1 {
 /** Width of the selection (multiselect) pre-column */
 export const SELECTION_COLUMN_WIDTH = "40px";
 
+/** Width of the row edit column: its edit button and the cell padding of the column (the edited row makes it grow) */
+export const EDITOR_COLUMN_WIDTH = "calc(var(--awe-size-control-sm) + 2 * var(--awe-space-2))";
+
 /** Style that gives a column its width */
 interface WidthStyle {
   flex: string;
   width: string;
+  minWidth: string;
 }
 
 /**
@@ -516,7 +520,8 @@ export function getRowNumberWidthStyle(first: number = 0, rows: number = 0): Par
  * @param charLength Length in chars
  * @param width Width in pixels
  * @param fixedWidth Width in other measures
- * @return {{}|{width: string, minWidth: string}}
+ * @return {{}|{flex: string, width: string, minWidth: string}} The minimum width keeps the column at its width: the
+ * table of a grid (automatic layout) would squeeze it to fit, and the grid scrolls instead, as the prototype
  */
 export function getWidthStyle(charLength: number | null = null, width: number | null = null, fixedWidth: string | null = null): Partial<WidthStyle> {
   let calculatedWidth: string;
@@ -527,7 +532,7 @@ export function getWidthStyle(charLength: number | null = null, width: number | 
   } else {
     return {};
   }
-  return {flex: `0 0 ${calculatedWidth}`, width: calculatedWidth};
+  return {flex: `0 0 ${calculatedWidth}`, width: calculatedWidth, minWidth: calculatedWidth};
 }
 
 /**

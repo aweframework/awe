@@ -144,6 +144,16 @@ export interface CancelableKeyEventLike extends KeyEventLike {
 export const ENTER_SHORTCUT: Readonly<Shortcut> = Object.freeze({key: "Enter", ...ANY_MODIFIERS});
 
 /**
+ * Shortcuts that open the menu option search from anywhere: Ctrl + K, and Meta + K (Cmd + K on macOS). The key is read
+ * as typed, so it follows the keyboard layout, and caps lock does not change it
+ * @type {object[]}
+ */
+export const MENU_SEARCH_SHORTCUTS: ReadonlyArray<Readonly<Shortcut>> = Object.freeze([
+  Object.freeze({key: ["k", "K"], ctrl: true}),
+  Object.freeze({key: ["k", "K"], meta: true})
+]);
+
+/**
  * Cancel a keyboard event: prevent its default action and stop its propagation, as the AngularJS engine does
  * (Utilities.stopPropagation(event, true)), so the ancestors (grid containers, dialogs, global shortcuts) do not react
  * to a key that has already been handled
@@ -196,6 +206,7 @@ export const SHORTCUTS: ReadonlyArray<Readonly<ShortcutEntry>> = Object.freeze([
   entry("calendar-day-choose", "Enter", "calendar", "Choose the day, month or year of a calendar without saving the row of a grid"),
   entry("calendar-enter", "ArrowDown", "calendar", "Go from the date input into its calendar (opening it keeps the focus on the input)"),
   entry("suggest-open", "Space", "suggest", "Open the options of an empty suggest"),
+  entry("menu-search-open", "Ctrl+K / Meta+K", "global", "Open the menu option search and focus it (not on the collapsed menu rail)"),
   entry("menu-search-next", "ArrowDown", "menu search", "Go to the next result"),
   entry("menu-search-previous", "ArrowUp", "menu search", "Go to the previous result"),
   entry("menu-search-select", "Enter", "menu search", "Open the active result"),

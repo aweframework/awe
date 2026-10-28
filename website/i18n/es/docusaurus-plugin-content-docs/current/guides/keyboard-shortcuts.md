@@ -15,6 +15,7 @@ columnas radio.
 | Teclas | Acción |
 |--------|--------|
 | `Alt` + `Shift` + `0`..`9` | Muestra la pila de acciones de cliente y servidor (depuración). `0` la oculta. |
+| `Ctrl` + `K` (`⌘` + `K` en macOS) | Abre el buscador del menú y le da el foco. El campo de búsqueda muestra el atajo. Con el menú plegado en el rail el buscador está oculto y el navegador conserva la tecla. |
 
 El dígito se lee de la tecla física, por lo que también funciona en macOS, donde `Option` cambia el carácter escrito.
 

@@ -24,6 +24,15 @@ const importedFiles = (file, pattern) => [...fs.readFileSync(file, 'utf8').match
 describe('AWE 5 token file', () => {
   const shared = declaredTokens(SHARED_TOKENS);
 
+  it('gives the grid header and footer an opaque background, so the rows do not show through them when they scroll', () => {
+    const prototype = declaredTokens(path.join(__dirname, '../../../../../website/static/design-system/prototype/tokens.css'));
+    [shared, prototype].forEach(tokens => {
+      expect(tokens['--awe-color-grid-header']).not.toMatch(/transparent|surface-subtle/);
+      expect(tokens['--awe-grid-header-background']).toBe('var(--awe-color-grid-header)');
+    });
+    expect(shared['--awe-color-grid-header']).toBe(prototype['--awe-color-grid-header']);
+  });
+
   it('is imported by the stylesheet of the React client', () => {
     expect(importedFiles(MAIN_CSS, /@import\s+(?:url\()?["']([^"']+)["']/g)).toContain(SHARED_TOKENS);
   });

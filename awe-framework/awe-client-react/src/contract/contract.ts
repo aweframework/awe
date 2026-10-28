@@ -127,6 +127,7 @@ export interface Avatar extends AbstractButton {
 }
 
 export interface Button extends AbstractButton {
+    showLoading?: boolean;
 }
 
 export interface ButtonAction extends AbstractAction {

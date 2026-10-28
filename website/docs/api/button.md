@@ -49,6 +49,7 @@ When the screen size is too small (mobile devices) the buttons defined on the `b
 | value       | Optional | String | For setting one string value for button    |                                                                            |
 | help-text   | Optional | String | Help text to show in button as help        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | help-image  | Optional | String | Url image to show in button as help        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| show-loading | Optional | Boolean | Busy state of the button. When the action it launched is still running after a short time (about 400 ms), the button shows a spinner instead of its icon (before its label when it has none) and stays disabled until the action ends. Quick actions show nothing | `true` (default) or `false` |
 
 ## Button types
 

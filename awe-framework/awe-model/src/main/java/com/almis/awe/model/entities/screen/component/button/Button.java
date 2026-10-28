@@ -3,6 +3,7 @@ package com.almis.awe.model.entities.screen.component.button;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,20 @@ public class Button extends AbstractButton {
 
   @Serial
   private static final long serialVersionUID = 4537762712903982049L;
+
+  // Busy state: a spinner while the action launched by the button runs (#771). Absent means true
+  @XStreamAlias("show-loading")
+  @XStreamAsAttribute
+  private Boolean showLoading;
+
+  /**
+   * Returns if the button shows its busy state while the action it launched runs. Not a bean getter: the clients only
+   * receive showLoading when the screen sets it
+   * @return The busy state is on (true unless show-loading is false)
+   */
+  public boolean showsLoading() {
+    return getShowLoading() == null || getShowLoading();
+  }
 
   @Override
   public Button copy() {

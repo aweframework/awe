@@ -21,7 +21,11 @@ foco, activo, deshabilitado, inválido, cargando, vacío) y funciona en las dos 
 | Peligro / peligro con borde | Acciones destructivas. Relleno solo en el paso de confirmación. |
 
 - Tamaños: pequeño (`--awe-size-control-sm`), normal (`--awe-size-control`) y grande (`--awe-size-control-lg`, login).
-- Etiqueta con peso 500, icono a la izquierda, 8px de separación. Al cargar muestra un spinner y conserva el ancho.
+- Etiqueta con peso 500, icono a la izquierda, 8px de separación.
+- Ocupado (#771): si la acción que lanzó un botón sigue en curso pasados unos 400 ms, ese botón muestra un spinner
+  en lugar de su icono (antes de su texto si no tiene), sigue deshabilitado y no se atenúa; las acciones rápidas no
+  muestran nada. El resto de botones se deshabilitan mientras corren acciones. `show-loading="false"` lo desactiva en un
+  botón (ver [Botón](../api/button.md)).
 - Los grupos de botones comparten bordes; un botón dividido es un primario más un botón con chevron.
 
 | Hacer | No hacer |

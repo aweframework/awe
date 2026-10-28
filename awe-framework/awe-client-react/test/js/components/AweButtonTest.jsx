@@ -6,6 +6,8 @@ import { ADD_ACTIONS_TOP } from '../../../src/redux/actions/actions';
 import { ButtonTypes } from '../../../src/redux/actions/components';
 import {act, render} from "@testing-library/react";
 import { ButtonSkeleton } from '../../../src/components/AweSkeleton';
+import { toggleActionsRunning } from '../../../src/redux/actions/actions';
+import { BUSY_THRESHOLD } from '../../../src/hooks/useBusy';
 
 function baseState(overrides = {}) {
   const state = {
@@ -209,6 +211,134 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
 
       expect(container.querySelector('button#btn1')).not.toBeNull();
       expect(container.querySelector("[data-testid='loader']")).toBeNull();
+    });
+  });
+  describe('busy state (S2, S3, S5)', () => {
+    const button = (id, attributes = {}) => ({
+      address: { view: 'v', component: id },
+      attributes: { label: `Label ${id}`, visible: true, buttonType: ButtonTypes.BUTTON_NORMAL, ...attributes },
+      actions: [{ type: 'server', parameters: { serverAction: 'maintain', targetAction: 'slow' } }]
+    });
+    const renderButtons = (components) => renderWithProviders(<>
+      {Object.keys(components).map(id => <AweButton key={id} id={id} />)}
+    </>, { preloadedState: { settings: DEFAULT_SETTINGS, actions: { running: false }, components } });
+    const byId = id => document.querySelector(`button#${id}`);
+    const isBusy = id => byId(id).classList.contains('is-loading');
+    // Click a button: its actions start to run
+    const launch = (store, id) => act(() => {
+      byId(id).click();
+      store.dispatch(toggleActionsRunning(true));
+    });
+    const end = store => act(() => store.dispatch(toggleActionsRunning(false)));
+    const wait = time => act(() => jest.advanceTimersByTime(time));
+
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('is one engine constant of 400 ms', () => {
+      expect(BUSY_THRESHOLD).toBe(400);
+    });
+
+    it('shows the spinner instead of the icon when the actions still run after the threshold', () => {
+      const { store } = renderButtons({ btn1: button('btn1', { icon: 'fa-save' }) });
+      launch(store, 'btn1');
+
+      wait(BUSY_THRESHOLD - 1);
+      expect(isBusy('btn1')).toBe(false);
+      expect(byId('btn1').hasAttribute('aria-busy')).toBe(false);
+
+      wait(1);
+      const btn = byId('btn1');
+      expect(isBusy('btn1')).toBe(true);
+      expect(btn.getAttribute('aria-busy')).toBe('true');
+      expect(btn.disabled).toBe(true);
+      expect(btn.textContent).toBe('Label btn1');
+      // The spinner (lucide loader-circle) takes the place of the icon of the button
+      const icons = btn.querySelectorAll('.p-button-icon');
+      expect(icons.length).toBe(1);
+      expect(icons[0].classList.contains('awe-icon-spin')).toBe(true);
+      expect(icons[0].querySelector('svg use').getAttribute('href').split('#')[1]).toBe('loader-circle');
+    });
+
+    it('adds the spinner before the label when the button has no icon', () => {
+      const { store } = renderButtons({ btn1: button('btn1') });
+      launch(store, 'btn1');
+      wait(BUSY_THRESHOLD);
+
+      const btn = byId('btn1');
+      expect(btn.firstElementChild.classList.contains('awe-icon-spin')).toBe(true);
+      expect(btn.textContent).toBe('Label btn1');
+    });
+
+    it('goes back to normal when the actions end', () => {
+      const { store } = renderButtons({ btn1: button('btn1', { icon: 'fa-save' }) });
+      launch(store, 'btn1');
+      wait(BUSY_THRESHOLD);
+      expect(isBusy('btn1')).toBe(true);
+
+      end(store);
+
+      const btn = byId('btn1');
+      expect(isBusy('btn1')).toBe(false);
+      expect(btn.hasAttribute('aria-busy')).toBe(false);
+      expect(btn.disabled).toBe(false);
+      expect(btn.querySelector('.awe-icon-spin')).toBeNull();
+    });
+
+    it('shows nothing when the actions end before the threshold', () => {
+      const { store } = renderButtons({ btn1: button('btn1') });
+      launch(store, 'btn1');
+      wait(BUSY_THRESHOLD - 100);
+      end(store);
+      wait(BUSY_THRESHOLD);
+      expect(isBusy('btn1')).toBe(false);
+
+      // Actions launched later by something else do not make it busy
+      act(() => store.dispatch(toggleActionsRunning(true)));
+      wait(BUSY_THRESHOLD);
+      expect(isBusy('btn1')).toBe(false);
+      expect(byId('btn1').disabled).toBe(true);
+    });
+
+    it('shows nothing when the click launches no running actions', () => {
+      const { store } = renderButtons({ btn1: { ...button('btn1'), actions: [] } });
+      act(() => byId('btn1').click());
+      wait(BUSY_THRESHOLD);
+      act(() => store.dispatch(toggleActionsRunning(true)));
+      wait(BUSY_THRESHOLD);
+
+      expect(isBusy('btn1')).toBe(false);
+    });
+
+    it('shows nothing with show-loading="false"', () => {
+      const { store } = renderButtons({ btn1: button('btn1', { icon: 'fa-save', showLoading: false }) });
+      launch(store, 'btn1');
+      wait(BUSY_THRESHOLD);
+
+      expect(isBusy('btn1')).toBe(false);
+      expect(byId('btn1').hasAttribute('aria-busy')).toBe(false);
+      expect(byId('btn1').querySelector('.awe-icon-spin')).toBeNull();
+      // Disabled while the actions run, as today
+      expect(byId('btn1').disabled).toBe(true);
+    });
+
+    it('is shown only on the button that launched the actions', () => {
+      const { store } = renderButtons({ btn1: button('btn1'), btn2: button('btn2', { showLoading: true }) });
+      launch(store, 'btn1');
+      wait(BUSY_THRESHOLD);
+
+      expect(isBusy('btn1')).toBe(true);
+      expect(isBusy('btn2')).toBe(false);
+      expect(byId('btn2').disabled).toBe(true);
+      expect(byId('btn2').hasAttribute('aria-busy')).toBe(false);
+    });
+
+    it('clears its timer when it unmounts', () => {
+      const { store, unmount } = renderButtons({ btn1: button('btn1') });
+      launch(store, 'btn1');
+      unmount();
+
+      expect(jest.getTimerCount()).toBe(0);
     });
   });
 });

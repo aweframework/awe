@@ -457,6 +457,48 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     expect(Array.from(icons).map(icon => icon.getAttribute("data-icon"))).toEqual(["plus", "edit", "trash"]);
   });
 
+  it.each([["without", []], ["with", [{name: "group", label: "Group", columns: ["test"]}]]])(
+    'keeps the row edit column of an editable grid always in view, frozen at the right (%s a grouped header)', (_name, headerModel) => {
+      const preloadedState = {
+        settings: DEFAULT_SETTINGS,
+        screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+        components: {
+          grid: {
+            address: {component: 'grid', view: 'report'},
+            model: {values: [{id: 1, test: "a"}, {id: 2, test: "b"}]},
+            attributes: {
+              editable: true, loadAll: true, max: 30, showTotals: true,
+              columnModel: [{name: "test"}, {name: "other"}], headerModel, buttonModel: []
+            },
+            specificAttributes: {sort: []}
+          }
+        }
+      };
+
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+
+      const header = container.querySelectorAll("thead .grid-row-editor-column");
+      const cells = container.querySelectorAll("tbody .grid-row-editor-column");
+      const footer = container.querySelectorAll("tfoot .grid-row-editor-column");
+      expect(header).toHaveLength(1);
+      expect(cells).toHaveLength(2);
+      expect(footer).toHaveLength(1);
+      // As narrow as its edit button (the save and cancel buttons of an edited row make it grow at the right end)
+      const narrow = "calc(var(--awe-size-control-sm) + 2 * var(--awe-space-2))";
+      [...header, ...cells, ...footer].forEach(cell => {
+        expect(cell).toHaveClass("p-frozen-column");
+        expect(cell.style.right).toBe("0px");
+        expect(cell.style.width).toBe(narrow);
+        expect(cell.style.minWidth).toBe(narrow);
+      });
+      // The edit button of each row is in it
+      cells.forEach(cell => expect(cell.querySelector(".p-row-editor-init")).not.toBeNull());
+      // It is the last cell of its row, so nothing is left at its right when the grid is scrolled to the end
+      [...header, ...cells, ...footer].forEach(cell => expect(cell.nextElementSibling).toBeNull());
+      // The columns of the data are not frozen
+      expect(container.querySelectorAll("tbody td.p-frozen-column")).toHaveLength(2);
+    });
+
   it('renders Awe Grid component with footer without rows', async () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

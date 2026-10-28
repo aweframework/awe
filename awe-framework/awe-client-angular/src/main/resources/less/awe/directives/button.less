@@ -36,9 +36,18 @@
   box-shadow: var(--awe-shadow-xs);
 }
 
-.btn.btn-awe:hover,
+// The hover background is for the pointer only, as the prototype: a clicked button keeps the focus and must not stay lit.
+// pixel-admin lights .btn:focus and .btn.focused with an !important background, so the focus keeps the resting one
+// (before the hover and the active state, which still apply to a focused button); the focus ring marks the focus
 .btn.btn-awe:focus,
 .btn.btn-awe.focused {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-field-border);
+}
+
+.btn.btn-awe:hover {
   color: var(--awe-color-text);
   background: var(--awe-color-surface-subtle) !important;
   background-image: none !important;
@@ -63,9 +72,15 @@
   box-shadow: none;
 }
 
-.btn.btn-default:hover,
 .btn.btn-default:focus,
 .btn.btn-default.focused {
+  color: var(--awe-color-on-secondary);
+  background: var(--awe-color-secondary) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-secondary);
+}
+
+.btn.btn-default:hover {
   color: var(--awe-color-on-secondary);
   background: var(--awe-color-secondary-hover) !important;
   background-image: none !important;
@@ -88,9 +103,15 @@
   background-image: none;
   border-color: @background;
 
-  &:hover,
   &:focus,
   &.focused {
+    color: @text;
+    background: @background !important;
+    background-image: none !important;
+    border-color: @background;
+  }
+
+  &:hover {
     color: @text;
     background: @hover !important;
     background-image: none !important;
@@ -132,9 +153,12 @@
     var(--awe-color-on-contrast));
 }
 
-// Focus ring (pixel-admin removes the outline of every button)
+// Focus ring (pixel-admin removes the outline of every button): the keyboard focus, and the focus AWE moves to a button
+// (the focused class of the criterion service)
 .btn.btn-awe:focus-visible,
-.btn.btn-default:focus-visible {
+.btn.btn-awe.focused,
+.btn.btn-default:focus-visible,
+.btn.btn-default.focused {
   box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
     0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
 }
@@ -147,6 +171,24 @@
   cursor: not-allowed;
   opacity: var(--awe-opacity-disabled);
   box-shadow: none;
+}
+
+// Busy (#771): the button that launched actions still running after the threshold, as the login loading: the spinner
+// (it stops with prefers-reduced-motion, see awe-icon-spin) instead of its icon, or before its label, disabled but not
+// faded
+.btn-awe.is-loading,
+.btn-awe.is-loading[disabled] {
+  cursor: progress;
+  opacity: 1;
+}
+
+.btn-awe .button-busy {
+  display: inline-flex;
+  line-height: unset;
+}
+
+.btn-awe.is-loading > .button-icon:not(.button-busy) {
+  display: none;
 }
 
 // Sizes

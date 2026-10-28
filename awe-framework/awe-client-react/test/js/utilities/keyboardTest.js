@@ -206,6 +206,10 @@ describe("utilities/keyboard", () => {
       expect(new Set(ids).size).toBe(ids.length);
     });
 
+    it("lists the shortcut that opens the menu search", () => {
+      expect(SHORTCUTS.find((entry) => entry.id === "menu-search-open")).toMatchObject({keys: "Ctrl+K / Meta+K", scope: "global"});
+    });
+
     it("lists the debug actions stack shortcut", () => {
       expect(SHORTCUTS.find((entry) => entry.id === "actions-stack")).toMatchObject({keys: "Alt+Shift+0..9", scope: "global"});
     });

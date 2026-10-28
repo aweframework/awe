@@ -186,7 +186,7 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-color-panel-header` | `var(--awe-color-surface)` | = light |
 | `--awe-color-panel-border` | `var(--awe-color-border)` | = light |
 | `--awe-color-panel-text` | `var(--awe-color-text)` | = light |
-| `--awe-color-grid-header` | `var(--awe-color-surface-subtle)` | = light |
+| `--awe-color-grid-header` | `var(--awe-surface-50)` | `color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900))` |
 | `--awe-color-grid-border` | `var(--awe-color-border)` | = light |
 | `--awe-color-skeleton` | `var(--awe-surface-200)` | `var(--awe-surface-800)` |
 | `--awe-color-skeleton-highlight` | `var(--awe-surface-100)` | `var(--awe-surface-700)` |
@@ -621,7 +621,7 @@ renamed**; some change value or meaning.
 | `--awe-color-panel-header` | Kept, new value | Card headers are not coloured: card surface. |
 | `--awe-color-panel-border` | Kept |  |
 | `--awe-color-panel-text` | Kept |  |
-| `--awe-color-grid-header` | Kept, new value | Subtle surface (`--awe-color-surface-subtle`). |
+| `--awe-color-grid-header` | Kept, new value | The subtle surface, opaque: in dark mode the half transparent subtle surface is laid over the rows, so the sticky header and footer hide the rows that scroll under them. |
 | `--awe-color-grid-border` | Kept |  |
 | `--awe-color-skeleton` | Kept |  |
 | `--awe-color-skeleton-highlight` | Kept |  |
