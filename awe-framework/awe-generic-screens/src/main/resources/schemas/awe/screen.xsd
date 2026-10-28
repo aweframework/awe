@@ -1301,6 +1301,41 @@
         <xs:documentation xml:lang="en">Maximum number of lines of a wrapping cell; it implies wrap unless wrap is false. Line N ends in an ellipsis when the text is longer, and the full text shows on hover and on keyboard focus.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="secondary-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of another field of the row whose value is shown under the main value, smaller and muted. An empty secondary value shows only the main line. Sorting, filtering and export use the main value. Combines with plain text and with status-field; ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="export-secondary" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Print and export add a column right after this one with the value of secondary-field, titled with secondary-label (or the column label without it). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="secondary-label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Label (i18n key) of the column that export-secondary adds to print and export. Default: the column label.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="status-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the tone of the cell: success, warning, danger, info or neutral. The main value is shown as a status, a dot plus the text, so the tone never relies on colour alone. An unknown or empty tone is neutral. Ignored with chips="true" and in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chips" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The main value is split by chip-separator and each item, trimmed and not empty, is shown as a chip. Takes precedence over status-field; ignored in columns with a component. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chip-separator" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text that separates the items of a chips column. Default: , (comma).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-chips" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of chips of a chips column. The first N chips are shown plus a +n chip whose tooltip and accessible label list the hidden items. Default: all the chips.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="sort-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Field used to sort the column. Default: the column name.</xs:documentation>

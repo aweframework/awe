@@ -3,6 +3,7 @@ package com.almis.awe.service.report;
 import com.almis.ade.api.bean.component.Criterion;
 import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.Layout;
+import com.almis.ade.api.bean.component.grid.ReportColumn;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.component.grid.ReportHeader;
 import com.almis.ade.api.bean.input.PrintBean;
@@ -462,6 +463,75 @@ class ReportDesignTest {
     assertFalse(ReportDesigner.isSpreadsheetFormat("TEXT"));
     assertFalse(ReportDesigner.isSpreadsheetFormat("unknown"));
     assertFalse(ReportDesigner.isSpreadsheetFormat(null));
+  }
+
+  /**
+   * Build a grid design with the given visible columns, every field holding one row (issue #832)
+   */
+  private ReportGrid designGrid(List<PrintColumnData> columnDataList, String... fields) throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+    GridBuilder gridBuilder = new GridBuilder().setId("gridId").setLoadAll(true);
+    for (String field : fields) {
+      parameters.set(field, JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", field)));
+      gridBuilder.addColumn(new TextColumnBuilder().setName(field));
+    }
+
+    PrintBean printBean = reportDesigner.getPrintDesign(Collections.singletonList(gridBuilder.build()), parameters);
+    return (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
+  }
+
+  @Test
+  void getPrintDesignExportsTheSecondaryFieldInItsOwnColumnAfterTheMainOne() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail"),
+      new PrintColumnData().setName("city").setLabel("City")), "name", "city");
+
+    assertEquals(Arrays.asList("name", "email", "city"), reportGrid.getFields());
+    assertEquals(3, reportGrid.getGridHeaders().size());
+    ReportColumn main = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(0));
+    ReportColumn secondary = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(1));
+    assertEquals("name", main.getField());
+    assertEquals("Name", main.getLabel());
+    assertEquals("email", secondary.getField());
+    assertEquals("E-mail", secondary.getLabel());
+  }
+
+  @Test
+  void getPrintDesignTitlesTheSecondaryColumnWithTheMainLabelWithoutSecondaryLabel() throws Exception {
+    ReportGrid reportGrid = designGrid(Collections.singletonList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true)), "name");
+
+    assertEquals(Arrays.asList("name", "email"), reportGrid.getFields());
+    ReportColumn secondary = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(1));
+    assertEquals("Name", secondary.getLabel());
+  }
+
+  @Test
+  void getPrintDesignExportsTheSecondaryFieldOfAColumnInsideAHeader() throws Exception {
+    ReportGrid reportGrid = designGrid(Collections.singletonList(
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail")))),
+      "name");
+
+    assertEquals(Arrays.asList("name", "email"), reportGrid.getFields());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(0));
+    assertEquals(2, header.getColumns().size());
+    assertEquals("E-mail", header.getColumns().get(1).getLabel());
+  }
+
+  @Test
+  void getPrintDesignDoesNotExportTheSecondaryFieldUnlessAsked() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email"),
+      new PrintColumnData().setName("city").setLabel("City").setSecondaryField("zip").setExportSecondary(false),
+      new PrintColumnData().setName("phone").setLabel("Phone").setExportSecondary(true)), "name", "city", "phone");
+
+    assertEquals(Arrays.asList("name", "city", "phone"), reportGrid.getFields());
+    assertEquals(3, reportGrid.getGridHeaders().size());
   }
 
   /**

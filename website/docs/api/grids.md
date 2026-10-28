@@ -322,6 +322,13 @@ each country, inline and through an include) in the matrix test menu.
 | frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height. In the React engine the frozen columns move to the left, and a grid with frozen columns keeps its single-line rows (`wrap` and `max-lines` are ignored); a grouped header or a tree grid does not freeze columns in React yet | Default value is `false`                                                         |
 | wrap       | Optional     | Boolean | The text of the cells wraps over several lines and the row grows to fit it. See [wrapping text](#wrapping-text)                | Default value is `false`                                                         |
 | max-lines  | Optional     | Integer | Maximum number of lines of a wrapping cell, it implies `wrap`. See [wrapping text](#wrapping-text)                              | A number greater than `0`                                                        |
+| secondary-field  | Optional | String  | Row field shown under the main value, smaller and muted. See [secondary line, status and chips](#secondary-line-status-and-chips) | Name of another field of the row                                       |
+| export-secondary | Optional | Boolean | The export and print of the grid add a column with the secondary field right after this one                                    | Default value is `false`                                                         |
+| secondary-label  | Optional | String  | Title of the exported secondary column                                                                                          | Default: the label of the column. **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| status-field     | Optional | String  | Row field with the tone of a status: the value shows as a dot of the tone plus the text                                         | `success`, `warning`, `danger`, `info`, `neutral`                                |
+| chips            | Optional | Boolean | The value is a list shown as chips                                                                                              | Default value is `false`                                                         |
+| chip-separator   | Optional | String  | Separator of the items of a `chips` column                                                                                      | Default value is `,`                                                             |
+| max-chips        | Optional | Integer | Number of chips shown; the rest collapse into a "+n" chip                                                                       | A number greater than `0`                                                        |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
 
@@ -360,6 +367,101 @@ engine, text cells and headers show it as a tooltip (the AngularJS engine alread
 
 The test applications include the screens *Wrapping cells* and *Single-line cells* in the matrix test menu, with the same
 100 rows with and without wrapping.
+
+### Secondary line, status and chips
+
+A standard cell can show more than its value without HTML in the data: a secondary line under the main value, a status
+(a dot of a tone plus the text) or a list of chips. It works in **both client engines**, the rows grow to fit (also with
+[wrapping text](#wrapping-text)) and a grid without these attributes renders exactly as before.
+
+<img alt="Grid with a secondary line, statuses and chips" src={require('@docusaurus/useBaseUrl').default('img/GridCellsSecondaryStatusChips.png')} />
+
+```xml
+<grid id="GrdUsers" style="expand" initial-load="query" server-action="data" target-action="UserList">
+  <column label="User" name="user" charlength="30" secondary-field="login" export-secondary="true" secondary-label="Login"/>
+  <column label="Status" name="status" charlength="18" status-field="tone"/>
+  <column label="Teams" name="teams" charlength="24" chips="true" max-chips="2"/>
+  <column label="Login" name="login" hidden="true"/>
+  <column label="Tone" name="tone" hidden="true"/>
+</grid>
+```
+
+| Attribute          | JSON              | Default         | Description                                                                                                  |
+|--------------------|-------------------|-----------------|--------------------------------------------------------------------------------------------------------------|
+| `secondary-field`  | `secondaryField`  |                 | Name of another field of the row, shown under the main value, smaller and muted. Empty: only the main line    |
+| `export-secondary` | `exportSecondary` | `false`         | The export and the print of the grid add a column with the secondary field right after the main one           |
+| `secondary-label`  | `secondaryLabel`  | the column label | Title (i18n key) of the exported secondary column                                                            |
+| `status-field`     | `statusField`     |                 | Name of a field of the row with the tone: `success`, `warning`, `danger`, `info` or `neutral`. The tone is trimmed and lower-cased; an unknown or empty tone is `neutral` |
+| `chips`            | `chips`           | `false`         | The value is split by `chip-separator`, each item is trimmed, the empty ones are dropped and each one shows as a chip |
+| `chip-separator`   | `chipSeparator`   | `,`             | Separator of the items of a `chips` column                                                                   |
+| `max-chips`        | `maxChips`        |                 | Show the first `N` chips and a "+n" chip whose tooltip and accessible label list the hidden items             |
+
+- `chips` and `status-field` are exclusive: with `chips="true"` the status is ignored. `secondary-field` combines with
+  plain text and with a status.
+- Columns with a `component` ignore the three features.
+- The tone of a status is never shown by colour alone: the dot always goes with the text.
+- A status longer than its column ends in an ellipsis, and its tooltip (`title`) shows the whole text.
+- Values are always rendered as **text, never as HTML**: a value like `<b>bold</b>` shows literally.
+- Sorting, filtering and export use the main value. The export writes the main value, and with `export-secondary="true"`
+  the secondary value in its own column, titled with `secondary-label` and with the width and alignment of the main column.
+
+:::note Export of the secondary column
+Grids loaded by query read the secondary value from the row on the server. Grids whose export data is sent by the client
+(`load-all`, editable or multioperation grids) only send their columns, so the secondary column is exported empty unless
+the secondary field is also a column of the grid (it can be `hidden="true"`, as `login` in the example).
+:::
+
+#### Example: users with their account and state
+
+The query returns the main values and the fields the cells read: `account` for the secondary line and `tone` for the
+status (the text of the status stays translatable, the tone does not).
+
+```xml
+<query id="UserStateList">
+  <table id="ope" alias="ope"/>
+  <field id="IdeOpe" table="ope" alias="id"/>
+  <field id="OpeNam" table="ope" alias="name"/>
+  <field id="l1_nom" table="ope" alias="login"/>
+  <field id="EmlAdr" table="ope" alias="email"/>
+  <!-- Secondary line: login and email in one field -->
+  <computed alias="account" format="[login] · [email]"/>
+  <!-- Status: the text and its tone, computed from the active flag -->
+  <case alias="state">
+    <when left-field="l1_act" condition="eq">
+      <right-operand><constant value="0" type="INTEGER"/></right-operand>
+      <then><constant value="Inactive"/></then>
+    </when>
+    <else><constant value="Active"/></else>
+  </case>
+  <case alias="tone">
+    <when left-field="l1_act" condition="eq">
+      <right-operand><constant value="0" type="INTEGER"/></right-operand>
+      <then><constant value="neutral"/></then>
+    </when>
+    <else><constant value="success"/></else>
+  </case>
+</query>
+```
+
+```xml
+<grid id="GrdUserState" style="expand" initial-load="query" server-action="data" target-action="UserStateList">
+  <column label="PARAMETER_USER" name="name" sort-field="name" charlength="30"
+          secondary-field="account" export-secondary="true" secondary-label="PARAMETER_EMAIL"/>
+  <column label="PARAMETER_STATUS" name="state" sort-field="state" charlength="16" status-field="tone"/>
+  <!-- The fields the cells read, also as hidden columns (needed by the export of client-sent grids) -->
+  <column name="account" hidden="true"/>
+  <column name="tone" hidden="true"/>
+</grid>
+```
+
+A list in one field (for example `Sales;Finance;Support`) shows as chips; here with `;` as separator and at most
+three chips plus "+n":
+
+```xml
+<column label="PARAMETER_ROLES" name="roles" charlength="30" width="*" chips="true" chip-separator=";" max-chips="3"/>
+```
+
+The test applications include the screen *Secondary line, status and chips* in the matrix test menu.
 
 ### Printing columns
 

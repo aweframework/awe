@@ -17,7 +17,7 @@ The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwrig
 
 - Browser ITs are ordered and stateful (`t000`→`t999`); run the whole suite tag, never a single method.
 - Run them with Playwright, as the merge request pipeline does: `-Dawe.test.tool=playwright -Dawe.test.allowed-recording=false`. Do not run Selenium unless you reproduce a `master`/`support/*`/schedule job.
-- `verify` on awe-boot starts its own app (`spring-boot:start`, port 8080) and stops it after — free 8080 first; do not leave a manual `spring-boot:run` instance up.
+- `verify` on awe-boot starts its own app (`spring-boot:start`, port 8080) and stops it after — free 8080 first, or move the run to a free port (see Execution Steps); do not leave a manual `spring-boot:run` instance up.
 - **Selenium only, Linux / WSL:** prefix `xvfb-run -a` when there is no X11 `DISPLAY`: the FFmpeg video recorder (forced by `video.properties` `recorder.type=FFMPEG`, `video.mode=ALL`) queries AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
 - **Selenium only, Windows:** no `xvfb-run` — the desktop session is a real display, so no `HeadlessException`. Instead `ffmpeg` must be on the `PATH` (`WindowsFFmpegRecorder` shells out to `ffmpeg gdigrab`), run the command on a single line (`\` is bash-only), and do NOT pass `-Djava.awt.headless=true`. To skip recording entirely (no ffmpeg needed), unset `video.mode` / disable recording in `video.properties`.
 - Playwright needs no display and no recorder (`awe.test.allowed-recording=false`, as in CI). It downloads its own browsers to `~/.cache/ms-playwright` on the first run (needs network); `headless-chrome` runs its Chromium, not the installed Chrome.
@@ -35,6 +35,14 @@ mvn -f awe-tests/awe-boot/pom.xml verify \
 ```
 - `<SUITE_TAG>` (JUnit `@Tag`): `SchedulerIT`, `ApplicationIntegrationIT`, `CRUDCriteriaMatrixIT`, `RegressionWebsocketPrintIT`.
 - `-Dskip.selenium=false` enables the browser ITs whatever the tool (the flag predates Playwright).
+- `-DgenerateIntegrationReport=true` is mandatory on `awe-boot`: its failsafe plugin lives only in the
+  `generate-integration-report` profile, so without it the app starts and stops, **no test runs, and the build still ends
+  in BUILD SUCCESS** (CI passes it in `IT_OPTS`). Never trust the exit code alone: check that the log has
+  `Tests run: N` with N > 0 (reports in `target/surefire-reports/TEST-*IT.xml`).
+- Port 8080 busy (a `spring-boot:run` or hot-reload app up): do not stop it; run on a free port with the flags of
+  `bin/local-ci.sh`, e.g. for port 6311:
+  `SERVER_PORT=6311 mvn ... "-Dspring-boot.run.arguments=--server.port=6311" -Dawe.test.server-port=6311 -Dawe.test.server-host=localhost -Dawe.test.start-url=http://localhost:6311/ -Dawe.test.jmx-port=9311 -Djacoco.port=6321`
+  (another free set per suite run in parallel).
 - Browser: `headless-chrome` (Chromium, the merge request jobs) or `headless-firefox` (the Firefox jobs run on `master` and the nightly `develop` schedule).
 - React test application: `-f awe-tests/awe-boot-react/pom.xml` with the same options.
 - Failure evidence: screenshot, page source, console and the Playwright trace of the failed test.

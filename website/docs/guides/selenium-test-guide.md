@@ -674,8 +674,12 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut)` | Checks that the text of a cell is shown whole, or that it is cut by its maximum number of lines |
 | `checkGridRowTaller(String gridId, String rowId, String otherId, String columnId)` | Checks that a row of a grid is taller than another one |
 | `checkGridRowFitsItsCells(String gridId, String rowId, String columnId)` | Checks that no wrapping text of a row overflows the row |
+| `checkGridRowNotCut(String gridId, String rowId, String columnId)` | Checks that a row is not cut: it is fully inside every element of the grid around it that clips its contents (vertical overflow not `visible`) |
 | `checkGridCellTitle(String gridId, String rowId, String columnId, String text)` | Checks that the whole value of a cell is exposed as the title (tooltip) of its text |
 | `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Checks that the cut text of a cell shows its whole value in a tooltip on hover and on keyboard focus, and that it goes away when they leave |
+| `checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary)` | Checks the main value and the secondary line of a cell of a column with `secondary-field` (`secondary` null: the cell shows only the main line) |
+| `checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone)` | Checks the status of a cell of a column with `status-field`: its tone (`data-tone` and tone class) and its text |
+| `checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden)` | Checks the chips that a cell of a `chips` column shows, in order, and the "+n" chip whose tooltip and accessible label list the hidden ones (empty `hidden`: no "+n" chip) |
 | `checkRowSelected(String gridId, String search)` | Checks that the row of a grid with a text is selected |
 | `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
 | `openGridColumns(String gridId)` | Opens the Columns dialog of the toolbar of a grid |

@@ -190,4 +190,81 @@ public abstract class AbstractColumnBuilder<T extends AbstractColumnBuilder, I e
     getColumnAttributes().setMaxLines(maxLines);
     return (T) this;
   }
+
+  /**
+   * Set the field shown under the main value of the cells
+   *
+   * @param secondaryField Secondary field
+   * @return This
+   */
+  public T setSecondaryField(String secondaryField) {
+    getColumnAttributes().setSecondaryField(secondaryField);
+    return (T) this;
+  }
+
+  /**
+   * Set to print and export the secondary field in its own column
+   *
+   * @param exportSecondary Export the secondary field
+   * @return This
+   */
+  public T setExportSecondary(boolean exportSecondary) {
+    getColumnAttributes().setExportSecondary(exportSecondary);
+    return (T) this;
+  }
+
+  /**
+   * Set the label of the exported secondary column
+   *
+   * @param secondaryLabel Secondary column label
+   * @return This
+   */
+  public T setSecondaryLabel(String secondaryLabel) {
+    getColumnAttributes().setSecondaryLabel(secondaryLabel);
+    return (T) this;
+  }
+
+  /**
+   * Set the field with the status tone of the cells
+   *
+   * @param statusField Status field
+   * @return This
+   */
+  public T setStatusField(String statusField) {
+    getColumnAttributes().setStatusField(statusField);
+    return (T) this;
+  }
+
+  /**
+   * Set to show the cell value as a list of chips
+   *
+   * @param chips Show chips
+   * @return This
+   */
+  public T setChips(boolean chips) {
+    getColumnAttributes().setChips(chips);
+    return (T) this;
+  }
+
+  /**
+   * Set the separator of the chips items
+   *
+   * @param chipSeparator Chips separator
+   * @return This
+   */
+  public T setChipSeparator(String chipSeparator) {
+    getColumnAttributes().setChipSeparator(chipSeparator);
+    return (T) this;
+  }
+
+  /**
+   * Set the maximum number of chips shown
+   *
+   * @param maxChips Maximum number of chips
+   * @return This
+   */
+  public T setMaxChips(Integer maxChips) {
+    getColumnAttributes().setMaxChips(maxChips);
+    return (T) this;
+  }
 }

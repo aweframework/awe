@@ -1049,8 +1049,13 @@
 }
 
 // Grid with wrapping columns (wrap and max-lines): ui-grid gives every row a fixed height, so the rows of these grids
-// are flex lines that grow with the tallest cell, with the row height of the grid as their minimum.
+// are flex lines that grow with the tallest cell, with the row height of the grid as their minimum. The canvas grows
+// with its rows (all the rows of the page are rendered, see the grid directive), as in the grids with row detail.
 .grid.grid-wrap {
+  .ui-grid-render-container-body .ui-grid-canvas {
+    height: auto !important;
+  }
+
   .ui-grid-row,
   .ui-grid-row .ui-grid-cell {
     height: auto;
@@ -1650,4 +1655,102 @@
 // list in its body, which scrolls, and the actions in its footer
 .modal.grid-columns-side-panel {
   .grid-columns-content();
+}
+
+// Cells with a secondary line, a status or chips (#832). The values are text; the rows of the grid grow to fit them
+// (see grid-wrap), with the row height as their minimum.
+.grid .ui-grid-row .ui-grid-cell .ui-grid-cell-contents.cell-rich {
+  line-height: var(--awe-line-height-snug);
+  padding-top: var(--awe-space-1);
+  padding-bottom: var(--awe-space-1);
+}
+
+.awe-cell-lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  min-height: 100%;
+  > .awe-cell-main,
+  > .awe-cell-secondary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.cell-wrap .awe-cell-lines > .awe-cell-main,
+.cell-wrap .awe-cell-lines > .awe-cell-secondary {
+  text-overflow: clip;
+}
+
+.awe-cell-secondary {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+// Status: the tone is never conveyed by colour alone, the dot goes with the text. A text longer than the column ends in
+// an ellipsis (the title holds the whole text)
+.awe-cell-status {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 var(--awe-space-2);
+  border-radius: var(--awe-radius-full);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  vertical-align: middle;
+  color: var(--awe-color-neutral-text);
+  background-color: var(--awe-color-neutral-subtle);
+  &::before {
+    content: "";
+    display: inline-block;
+    width: var(--awe-space-1-5);
+    height: var(--awe-space-1-5);
+    margin-right: var(--awe-space-1-5);
+    border-radius: var(--awe-radius-full);
+    vertical-align: middle;
+    background-color: currentColor;
+  }
+}
+
+.awe-cell-status-tone(@tone) {
+  .awe-cell-status-@{tone} {
+    color: ~"var(--awe-color-@{tone}-text)";
+    background-color: ~"var(--awe-color-@{tone}-subtle)";
+  }
+}
+
+.awe-cell-status-tone(success);
+.awe-cell-status-tone(warning);
+.awe-cell-status-tone(danger);
+.awe-cell-status-tone(info);
+
+.awe-cell-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-1);
+  max-width: 100%;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.awe-cell-chip {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0 var(--awe-space-1-5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: var(--awe-radius-sm);
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-on-secondary);
+  background-color: var(--awe-color-secondary);
+  &.awe-cell-chip-more {
+    font-weight: var(--awe-font-weight-semibold);
+    cursor: default;
+  }
 }

@@ -1812,6 +1812,101 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckTheSecondaryLineOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "1", "Col"), "Javier");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith(".awe-cell-secondary"), any()))
+        .thenReturn("Javier García\njgarcia · j.garcia@almis.example");
+
+      assertThatCode(() -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García",
+        "jgarcia · j.garcia@almis.example")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García", "other"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García", null));
+
+      // Without a secondary value the cell shows only the main line
+      when(executor.executeScript(scriptWith(".awe-cell-secondary"), any()))
+        .thenReturn("Pablo Díaz");
+      assertThatCode(() -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Pablo Díaz", null)).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Pablo Díaz", ""));
+    }
+  }
+
+  @Test
+  void shouldCheckTheStatusOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "1", "Col"), "Locked");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith(".awe-cell-status"), any()))
+        .thenReturn("danger\ntrue\nLocked");
+
+      assertThatCode(() -> utilities.checkGridCellStatus("Grd", "1", "Col", "Locked", "danger")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellStatus("Grd", "1", "Col", "Locked", "neutral"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellStatus("Grd", "1", "Col", "Active", "danger"));
+
+      // The tone class must match the tone, and a cell without status fails
+      when(executor.executeScript(scriptWith(".awe-cell-status"), any()))
+        .thenReturn("danger\nfalse\nLocked");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellStatus("Grd", "1", "Col", "Locked", "danger"));
+      when(executor.executeScript(scriptWith(".awe-cell-status"), any())).thenReturn("");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellStatus("Grd", "1", "Col", "Locked", "danger"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheChipsOfAGridCellInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "1", "Col"), "Sales");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith(".awe-cell-chips"), any()))
+        .thenReturn("Sales\nFinance");
+      when(executor.executeScript(scriptWith(".awe-cell-chip-more"), any()))
+        .thenReturn("+2\nLogistics, Support\n2 more: Logistics, Support");
+
+      assertThatCode(() -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("Sales", "Finance"),
+        List.of("Logistics", "Support"))).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("Sales"),
+        List.of("Logistics", "Support")));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("Sales", "Finance"),
+        List.of("Logistics")));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("Sales", "Finance"),
+        List.of()));
+
+      // Without hidden items there is no "+n" chip
+      when(executor.executeScript(scriptWith(".awe-cell-chips"), any())).thenReturn("A\nB");
+      when(executor.executeScript(scriptWith(".awe-cell-chip-more"), any())).thenReturn("");
+      assertThatCode(() -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("A", "B"), List.of())).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("A", "", "B"), List.of()));
+
+      // A cell without chips fails
+      when(executor.executeScript(scriptWith(".awe-cell-chips"), any())).thenReturn(null);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellChips("Grd", "1", "Col", List.of("A", "B"), List.of()));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAGridRowIsNotCutInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridCell("Grd", "6", "Col"), "Carlos");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // The script walks up from the row to the grid and lists the ancestors that clip it
+      when(executor.executeScript(scriptWith("overflowY"), any())).thenReturn("");
+      assertThatCode(() -> utilities.checkGridRowNotCut("Grd", "6", "Col")).doesNotThrowAnyException();
+
+      // An ancestor that cuts the row, or a cell without its row, fails
+      when(executor.executeScript(scriptWith("overflowY"), any())).thenReturn("DIV.ui-grid-canvas");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowNotCut("Grd", "6", "Col"));
+      when(executor.executeScript(scriptWith("overflowY"), any())).thenReturn(null);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowNotCut("Grd", "6", "Col"));
+    }
+  }
+
+  @Test
   void shouldCheckTheWidthOfAnOpenDialogInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
@@ -2635,6 +2730,10 @@ class SeleniumUtilitiesSemanticStepsTest {
 
       assertThrows(AssertionFailedError.class, () -> utilities.checkWindowNotMaximized("Win"));
     }
+  }
+
+  private static String scriptWith(String text) {
+    return argThat((String script) -> script != null && script.contains(text));
   }
 
   private static class RecordingSeleniumUtilities extends SeleniumUtilities {

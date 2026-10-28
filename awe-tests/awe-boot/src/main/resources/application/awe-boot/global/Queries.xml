@@ -2648,6 +2648,16 @@
   </query>
 
   <!-- Load user Json file -->
+  <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
+  <query id="CellRowsTst" service="loadCellRows">
+    <field id="id" alias="id"/>
+    <field id="user" alias="user"/>
+    <field id="login" alias="login"/>
+    <field id="status" alias="status"/>
+    <field id="tone" alias="tone"/>
+    <field id="teams" alias="teams"/>
+  </query>
+
   <!-- Rows with texts of very different lengths (GrdWrapTst and GrdNoWrapTst screens) -->
   <query id="WrapRowsTst" service="loadWrapRows">
     <field id="id" alias="id"/>

@@ -175,6 +175,11 @@
     <java classname="com.almis.awe.test.model.UserList" method="loadUsersJsonFile" />
   </service>
 
+  <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
+  <service id="loadCellRows">
+    <java classname="com.almis.awe.test.model.CellRows" method="loadCellRows" />
+  </service>
+
   <!-- Rows with texts of very different lengths (wrapping columns test screens) -->
   <service id="loadWrapRows">
     <java classname="com.almis.awe.test.model.WrapRows" method="loadWrapRows" />

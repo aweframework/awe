@@ -46,7 +46,7 @@ merge request pipeline (Selenium only runs on master, support/* and the develop 
 ```bash
 # Browser suite with Playwright (no display needed)
 mvn -f awe-tests/awe-boot/pom.xml verify \
-  -Dskip.junit=true -Dskip.selenium=false -Dawe.test.browser=headless-chrome \
+  -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true -Dawe.test.browser=headless-chrome \
   -Dawe.test.tool=playwright -Dawe.test.allowed-recording=false -Dgroups=SchedulerIT
 ```
 

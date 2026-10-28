@@ -328,6 +328,13 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | frozen     | Opcional        | Boolean | Mantenga la columna fijada fuera del desplazamiento horizontal. **ADVERTENCIA**: No uses este atributo si el encabezado tiene más de una línea de alto. En el motor React las columnas congeladas se mueven a la izquierda y un grid con columnas congeladas mantiene sus filas de una línea (`wrap` y `max-lines` se ignoran); un encabezado agrupado o un grid de árbol todavía no congelan columnas en React | El valor predeterminado es `false`                                               |
 | wrap       | Opcional        | Booleano | El texto de las celdas se divide en varias líneas y la fila crece para ajustarse. Ver [texto en varias líneas](#wrapping-text) | El valor por defecto es `false`                                                  |
 | max-lines  | Opcional        | Entero  | Número máximo de líneas de una celda con texto en varias líneas; implica `wrap`. Ver [texto en varias líneas](#wrapping-text)   | Un número mayor que `0`                                                          |
+| secondary-field  | Opcional | String   | Campo de la fila que se muestra bajo el valor principal, más pequeño y atenuado. Ver [segunda línea, estado y etiquetas](#secondary-line-status-and-chips) | Nombre de otro campo de la fila |
+| export-secondary | Opcional | Booleano | La exportación y la impresión del grid añaden una columna con el campo secundario justo después de esta                        | El valor por defecto es `false`                                                  |
+| secondary-label  | Opcional | String   | Título de la columna secundaria exportada                                                                                       | Por defecto: la etiqueta de la columna. **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales) |
+| status-field     | Opcional | String   | Campo de la fila con el tono de un estado: el valor se muestra como un punto del tono más el texto                              | `success`, `warning`, `danger`, `info`, `neutral`                                |
+| chips            | Opcional | Booleano | El valor es una lista que se muestra como etiquetas (chips)                                                                     | El valor por defecto es `false`                                                  |
+| chip-separator   | Opcional | String   | Separador de los elementos de una columna `chips`                                                                               | El valor por defecto es `,`                                                      |
+| max-chips        | Opcional | Entero   | Número de etiquetas que se muestran; el resto se agrupan en una etiqueta "+n"                                                   | Un número mayor que `0`                                                          |
 
 > **Nota:** Cuando una columna es editable (tiene un *componente*) todos los atributos de criterios pueden ser usados en la columna. Ver **[criterios atributos](criteria.md#criteria-structure)** para más referencias.
 
@@ -367,6 +374,104 @@ celdas de texto y las cabeceras lo muestran como tooltip (el motor AngularJS ya 
 
 Las aplicaciones de prueba incluyen las pantallas *Wrapping cells* y *Single-line cells* en el menú de pruebas de la matriz,
 con las mismas 100 filas con y sin varias líneas.
+
+### Segunda línea, estado y etiquetas {#secondary-line-status-and-chips}
+
+Una celda estándar puede mostrar más que su valor sin HTML en los datos: una segunda línea bajo el valor principal, un
+estado (un punto de un tono más el texto) o una lista de etiquetas (chips). Funciona en **ambos motores de cliente**, las
+filas crecen para ajustarse (también con [texto en varias líneas](#wrapping-text)) y un grid sin estos atributos se
+muestra exactamente igual que antes.
+
+<img alt="Grid con segunda línea, estados y etiquetas" src={require('@docusaurus/useBaseUrl').default('img/GridCellsSecondaryStatusChips.png')} />
+
+```xml
+<grid id="GrdUsers" style="expand" initial-load="query" server-action="data" target-action="UserList">
+  <column label="User" name="user" charlength="30" secondary-field="login" export-secondary="true" secondary-label="Login"/>
+  <column label="Status" name="status" charlength="18" status-field="tone"/>
+  <column label="Teams" name="teams" charlength="24" chips="true" max-chips="2"/>
+  <column label="Login" name="login" hidden="true"/>
+  <column label="Tone" name="tone" hidden="true"/>
+</grid>
+```
+
+| Atributo           | JSON              | Por defecto               | Descripción                                                                                        |
+|--------------------|-------------------|---------------------------|----------------------------------------------------------------------------------------------------|
+| `secondary-field`  | `secondaryField`  |                           | Nombre de otro campo de la fila, que se muestra bajo el valor principal, más pequeño y atenuado. Vacío: solo la línea principal |
+| `export-secondary` | `exportSecondary` | `false`                   | La exportación y la impresión del grid añaden una columna con el campo secundario justo después de la principal |
+| `secondary-label`  | `secondaryLabel`  | la etiqueta de la columna | Título (clave i18n) de la columna secundaria exportada                                             |
+| `status-field`     | `statusField`     |                           | Nombre de un campo de la fila con el tono: `success`, `warning`, `danger`, `info` o `neutral`. El tono se recorta y se pasa a minúsculas; un tono desconocido o vacío es `neutral` |
+| `chips`            | `chips`           | `false`                   | El valor se divide por `chip-separator`, cada elemento se recorta, los vacíos se descartan y cada uno se muestra como una etiqueta |
+| `chip-separator`   | `chipSeparator`   | `,`                       | Separador de los elementos de una columna `chips`                                                  |
+| `max-chips`        | `maxChips`        |                           | Muestra las `N` primeras etiquetas y una etiqueta "+n" cuyo tooltip y etiqueta accesible listan los elementos ocultos |
+
+- `chips` y `status-field` son excluyentes: con `chips="true"` el estado se ignora. `secondary-field` se combina con
+  texto plano y con un estado.
+- Las columnas con `component` ignoran las tres funciones.
+- El tono de un estado nunca se transmite solo con el color: el punto siempre va con el texto.
+- Un estado más largo que su columna termina en puntos suspensivos y su tooltip (`title`) muestra el texto completo.
+- Los valores se muestran siempre como **texto, nunca como HTML**: un valor como `<b>bold</b>` se muestra literalmente.
+- La ordenación, el filtrado y la exportación usan el valor principal. La exportación escribe el valor principal y, con
+  `export-secondary="true"`, el valor secundario en su propia columna, titulada con `secondary-label` y con el ancho y la
+  alineación de la columna principal.
+
+:::note Exportación de la columna secundaria
+Los grids cargados por consulta leen el valor secundario de la fila en el servidor. Los grids cuyos datos de exportación
+envía el cliente (grids `load-all`, editables o multioperación) solo envían sus columnas, así que la columna secundaria se
+exporta vacía salvo que el campo secundario sea también una columna del grid (puede ser `hidden="true"`, como `login` en
+el ejemplo).
+:::
+
+#### Ejemplo: usuarios con su cuenta y su estado {#example-users-with-their-account-and-state}
+
+La query devuelve los valores principales y los campos que leen las celdas: `account` para la segunda línea y `tone`
+para el estado (el texto del estado se puede traducir; el tono no).
+
+```xml
+<query id="UserStateList">
+  <table id="ope" alias="ope"/>
+  <field id="IdeOpe" table="ope" alias="id"/>
+  <field id="OpeNam" table="ope" alias="name"/>
+  <field id="l1_nom" table="ope" alias="login"/>
+  <field id="EmlAdr" table="ope" alias="email"/>
+  <!-- Segunda línea: usuario y email en un solo campo -->
+  <computed alias="account" format="[login] · [email]"/>
+  <!-- Estado: el texto y su tono, calculados a partir del indicador de activo -->
+  <case alias="state">
+    <when left-field="l1_act" condition="eq">
+      <right-operand><constant value="0" type="INTEGER"/></right-operand>
+      <then><constant value="Inactive"/></then>
+    </when>
+    <else><constant value="Active"/></else>
+  </case>
+  <case alias="tone">
+    <when left-field="l1_act" condition="eq">
+      <right-operand><constant value="0" type="INTEGER"/></right-operand>
+      <then><constant value="neutral"/></then>
+    </when>
+    <else><constant value="success"/></else>
+  </case>
+</query>
+```
+
+```xml
+<grid id="GrdUserState" style="expand" initial-load="query" server-action="data" target-action="UserStateList">
+  <column label="PARAMETER_USER" name="name" sort-field="name" charlength="30"
+          secondary-field="account" export-secondary="true" secondary-label="PARAMETER_EMAIL"/>
+  <column label="PARAMETER_STATUS" name="state" sort-field="state" charlength="16" status-field="tone"/>
+  <!-- Los campos que leen las celdas, también como columnas ocultas (los necesita la exportación de los grids que envía el cliente) -->
+  <column name="account" hidden="true"/>
+  <column name="tone" hidden="true"/>
+</grid>
+```
+
+Una lista en un solo campo (por ejemplo `Sales;Finance;Support`) se muestra como etiquetas; aquí con `;` como
+separador y como mucho tres etiquetas más "+n":
+
+```xml
+<column label="PARAMETER_ROLES" name="roles" charlength="30" width="*" chips="true" chip-separator=";" max-chips="3"/>
+```
+
+Las aplicaciones de prueba incluyen la pantalla *Secondary line, status and chips* en el menú de pruebas de la matriz.
 
 ### Columnas de impresión {#printing-columns}
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdCellTst.xml
+    Description: Grid with a secondary line under the user (exported in its own column), a status with a tone and teams shown as chips (two, then "+n")
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_CELLS">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_CELLS" expandible="vertical">
+      <grid id="GrdCellTst" style="expand" initial-load="query" server-action="data" target-action="CellRowsTst" max="30">
+        <column label="COLUMN_CELL_USER" name="user" sort-field="user" align="left" charlength="30" secondary-field="login" export-secondary="true" secondary-label="COLUMN_CELL_LOGIN"/>
+        <column label="COLUMN_CELL_STATUS" name="status" sort-field="status" align="left" charlength="18" status-field="tone"/>
+        <column label="COLUMN_CELL_TEAMS" name="teams" sort-field="teams" align="left" charlength="24" width="*" chips="true" max-chips="2"/>
+        <column label="COLUMN_CELL_LOGIN" name="login" hidden="true"/>
+        <column label="COLUMN_CELL_TONE" name="tone" hidden="true"/>
+      </grid>
+    </window>
+  </tag>
+</screen>
