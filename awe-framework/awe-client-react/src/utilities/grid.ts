@@ -816,9 +816,15 @@ function getFooterData(columnModel: GridColumn[], values: GridRow[]) {
  * @return {object} Visible column data
  */
 function getVisibleColumnData(column: GridColumn, t: Translate | undefined) {
-  const {name, label, type, component, width, charlength, align} = column;
+  const {name, label, type, component, width, charlength, align, secondaryField, exportSecondary, secondaryLabel} = column;
   return {
     name, type, component, width, charlength, align,
-    label: getVisibleTextData(label, t)
+    label: getVisibleTextData(label, t),
+    // The secondary line of the column (#832), so that the export can write it in its own column
+    ...(secondaryField ? {
+      secondaryField,
+      exportSecondary: exportSecondary === true,
+      secondaryLabel: secondaryLabel ? getVisibleTextData(secondaryLabel, t) : null
+    } : {})
   };
 }

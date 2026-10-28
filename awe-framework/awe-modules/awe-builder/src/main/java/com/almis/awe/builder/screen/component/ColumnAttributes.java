@@ -28,6 +28,13 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
   private String width;
   private Boolean wrap;
   private Integer maxLines;
+  private String secondaryField;
+  private Boolean exportSecondary;
+  private String secondaryLabel;
+  private String statusField;
+  private Boolean chips;
+  private String chipSeparator;
+  private Integer maxChips;
 
   public ColumnAttributes(B builder) {
     super(builder);
@@ -54,7 +61,14 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
       .setCharLength(getCharLength())
       .setWidth(getWidth())
       .setWrap(getWrap())
-      .setMaxLines(getMaxLines());
+      .setMaxLines(getMaxLines())
+      .setSecondaryField(getSecondaryField())
+      .setExportSecondary(getExportSecondary())
+      .setSecondaryLabel(getSecondaryLabel())
+      .setStatusField(getStatusField())
+      .setChips(getChips())
+      .setChipSeparator(getChipSeparator())
+      .setMaxChips(getMaxChips());
 
     if (getAlign() != null) {
       column.setAlign(getAlign().toString());

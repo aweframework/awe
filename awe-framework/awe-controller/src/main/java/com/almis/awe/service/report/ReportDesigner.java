@@ -436,15 +436,38 @@ public class ReportDesigner extends ServiceConfig {
         if (!headerColumns.isEmpty()) {
           ReportHeader reportHeader = new ReportHeader(columnData.getLabel())
             .setLabel(columnData.getLabel());
-          headerColumns.forEach(column -> reportHeader.addColumn(getReportColumn(column, fieldList)));
+          headerColumns.forEach(column -> getReportColumns(column, fieldList).forEach(reportHeader::addColumn));
           reportGrid.addGridHeader(reportHeader);
         }
       } else if (includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(columnData)) {
-        reportGrid.addGridHeader(getReportColumn(columnData, fieldList));
+        getReportColumns(columnData, fieldList).forEach(reportGrid::addGridHeader);
       }
     });
 
     return fieldList;
+  }
+
+  /**
+   * Generate the report columns of a print column: the column itself and, when it exports its secondary field, a column
+   * right after it with the secondary field, titled with the secondary label or else the column label
+   *
+   * @param column    Column
+   * @param fieldList Grid field list
+   * @return Report columns
+   */
+  private List<ReportColumn> getReportColumns(PrintColumnData column, List<String> fieldList) {
+    List<ReportColumn> reportColumns = new ArrayList<>();
+    reportColumns.add(getReportColumn(column, fieldList));
+    if (Boolean.TRUE.equals(column.getExportSecondary()) && column.getSecondaryField() != null && !column.getSecondaryField().isEmpty()) {
+      PrintColumnData secondaryColumn = new PrintColumnData()
+        .setName(column.getSecondaryField())
+        .setLabel(Optional.ofNullable(column.getSecondaryLabel()).filter(label -> !label.isEmpty()).orElse(column.getLabel()))
+        .setWidth(column.getWidth())
+        .setCharlength(column.getCharlength())
+        .setAlign(column.getAlign());
+      reportColumns.add(getReportColumn(secondaryColumn, fieldList));
+    }
+    return reportColumns;
   }
 
   /**

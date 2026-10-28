@@ -273,6 +273,110 @@
   }
 }
 
+// Secondary line, status and chips of a cell (#832). Tokens only, the same look in light and dark. Each line is cut with
+// an ellipsis, unless the column wraps (then the lines wrap and the row grows to fit them, like #825)
+.awe-cell-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  min-width: 0;
+  line-height: var(--awe-line-height-snug);
+  text-align: inherit;
+}
+
+.awe-cell-main,
+.awe-cell-secondary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-cell-secondary {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.p-cell-wrapping .awe-cell-main,
+.p-cell-wrapping .awe-cell-secondary {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+// Status: a tag with a dot and its text, so the tone is never told by the colour alone
+.awe-cell-status {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-neutral-text);
+  vertical-align: middle;
+  background-color: var(--awe-color-neutral-subtle);
+  border-radius: var(--awe-radius-full);
+
+  &::before {
+    display: inline-block;
+    width: var(--awe-space-1-5);
+    height: var(--awe-space-1-5);
+    margin-right: var(--awe-space-1-5);
+    vertical-align: middle;
+    content: "";
+    background-color: currentColor;
+    border-radius: var(--awe-radius-full);
+  }
+}
+
+.awe-cell-status-success {
+  color: var(--awe-color-success-text);
+  background-color: var(--awe-color-success-subtle);
+}
+
+.awe-cell-status-warning {
+  color: var(--awe-color-warning-text);
+  background-color: var(--awe-color-warning-subtle);
+}
+
+.awe-cell-status-danger {
+  color: var(--awe-color-danger-text);
+  background-color: var(--awe-color-danger-subtle);
+}
+
+.awe-cell-status-info {
+  color: var(--awe-color-info-text);
+  background-color: var(--awe-color-info-subtle);
+}
+
+// Chips: they wrap and the row grows to fit them; over the maximum, a "+n" chip lists the hidden ones on hover
+.awe-cell-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-1);
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.awe-cell-chip {
+  max-width: 100%;
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-on-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: var(--awe-color-secondary);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-cell-chip-more {
+  font-weight: var(--awe-font-weight-medium);
+  cursor: default;
+}
+
 .grid-cell-tooltip.p-tooltip {
   position: fixed;
   z-index: var(--awe-z-tooltip);

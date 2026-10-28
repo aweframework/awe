@@ -10,6 +10,7 @@ import type {CellOption} from "./grid";
 import {ComponentType, getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
 import {isLoginPage} from "./signin";
 import SigninPage from "../components/SigninPage";
+import {hasRichCell, richCell} from "../components/AweGridCells";
 
 /** An element of the structure of a screen, as the screen sends it: its type and its own attributes */
 export interface StructureElement {
@@ -35,6 +36,11 @@ export interface ColumnElement {
   address: ComponentAddress;
   wrap?: boolean;
   maxLines?: number;
+  secondaryField?: string;
+  statusField?: string;
+  chips?: boolean;
+  chipSeparator?: string;
+  maxChips?: number;
   [key: string]: unknown;
 }
 
@@ -183,10 +189,12 @@ function textCell(visibleValue: string, column: ColumnElement, style?: string): 
  * @param data
  * @param attrs
  * @param editing
+ * @param row Row data, where a column with a secondary line or a status reads them
  * @returns React element
  * @constructor
  */
-export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<string, unknown> = {}, editing = false): React.ReactElement => {
+export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<string, unknown> = {}, editing = false,
+  row?: Record<string, unknown>): React.ReactElement => {
   const {component} = node;
   const isMultiple = isMultipleComponent(component);
   const fixedData = isMultiple ? data : extractCellModel(isSparklineSeries(component, data) ? {value: data} : data);
@@ -217,5 +225,9 @@ export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<s
   const {label, value, style} = fixedData as CellOption;
   // The label or the value of a cell are text, or a number that is shown as it comes
   const visibleValue = getFirstDefinedAndNotNullValue(label, value, "") as string;
+  // A column without a component can show a secondary line, a status or chips (#832)
+  if (hasRichCell(node)) {
+    return richCell(String(visibleValue), node, row, (text: string) => textCell(text, node, style as string | undefined));
+  }
   return textCell(visibleValue, node, style as string | undefined);
 };

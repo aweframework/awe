@@ -7,6 +7,7 @@ import {
   getCellModel,
   getDirection,
   getGridData,
+  getGridPrintData,
   getMoveRowKeyPosition,
   getWidthStyle,
   moveRowInValues,
@@ -333,6 +334,34 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
       const notSendable = {...grid, attributes: {...grid.attributes, columnModel: columnModel.map(column => ({...column, sendable: false}))}};
 
       expect(getGridData(notSendable, model, {}, false)).not.toHaveProperty('choice');
+    });
+  });
+  describe('getGridPrintData visible columns', () => {
+    const printColumns = (columns) => {
+      const grid = {attributes: {id: 'Grd', columnModel: columns}};
+      const t = (key) => `t(${key})`;
+      return getGridPrintData(grid, {values: []}, {t})['Grd.data'].visibleColumns;
+    };
+
+    it('should send the secondary field, its export flag and its translated label when the column has them', () => {
+      const [column] = printColumns([{name: 'name', label: 'NAME', secondaryField: 'email', exportSecondary: true, secondaryLabel: 'EMAIL'}]);
+
+      expect(column).toMatchObject({name: 'name', label: 't(NAME)', secondaryField: 'email', exportSecondary: true, secondaryLabel: 't(EMAIL)'});
+    });
+
+    it('should send a null secondary label when the column has no label for it', () => {
+      const [column] = printColumns([{name: 'name', label: 'NAME', secondaryField: 'email', exportSecondary: true}]);
+
+      expect(column.secondaryLabel).toBeNull();
+    });
+
+    it('should not send the secondary attributes of a column without them', () => {
+      const [column] = printColumns([{name: 'name', label: 'NAME', align: 'left'}]);
+
+      expect(column).not.toHaveProperty('secondaryField');
+      expect(column).not.toHaveProperty('exportSecondary');
+      expect(column).not.toHaveProperty('secondaryLabel');
+      expect(Object.keys(column).sort()).toEqual(['align', 'charlength', 'component', 'label', 'name', 'type', 'width']);
     });
   });
 });

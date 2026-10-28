@@ -258,7 +258,7 @@ export function useGrid(id) {
       ...definition,
       ...lines,
       address: { ...address, column, row: rowData[gridId] }
-    }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing);
+    }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing, rowData);
   };
 
   const buttonsTemplate = () => {

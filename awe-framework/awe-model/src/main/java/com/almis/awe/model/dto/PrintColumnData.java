@@ -19,6 +19,10 @@ public class PrintColumnData {
   String align;
   // Declared `printable` value (`true`, `false`, `excel`) or null when not set
   String printable;
+  // Secondary field, exported in its own column when exportSecondary is true, titled with the translated secondaryLabel
+  String secondaryField;
+  Boolean exportSecondary;
+  String secondaryLabel;
 
   // Header attributes
   boolean header = false;

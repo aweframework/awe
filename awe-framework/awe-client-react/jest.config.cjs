@@ -160,6 +160,7 @@ module.exports = {
     '**/performance/*Test.{js,jsx}',
     '**/components/AweGridEmptyStateTest.{js,jsx}',
     '**/components/AweGridWrapTest.{js,jsx}',
+    '**/components/AweGridCellsTest.{js,jsx}',
     '**/components/AweGridFrozenTest.{js,jsx}',
     '**/components/AweGridToolbarTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',

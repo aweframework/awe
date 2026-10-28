@@ -5369,9 +5369,33 @@ public class SeleniumUtilities implements IAweInstructions {
     waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
     Object overflow = getBrowser().executeScriptOn(locator(cell), "const row = arguments[0].closest('[data-testid=\"grid-row\"]');"
       + " const bottom = row.getBoundingClientRect().bottom + 1;"
-      + " return Array.from(row.querySelectorAll('.p-cell-wrap, .cell-wrap')).filter(e => e.getBoundingClientRect().bottom > bottom).length;");
+      + " return Array.from(row.querySelectorAll('.p-cell-wrap, .cell-wrap, .awe-cell-lines, .awe-cell-chips'))"
+      + ".filter(e => e.getBoundingClientRect().bottom > bottom).length;");
     assertWithScreenshot("The row " + rowId + " of the grid " + gridId + " is shorter than the text of " + overflow + " of its cells",
       overflow instanceof Number n && n.intValue() == 0);
+  }
+
+  /**
+   * Check that the row of a grid is not cut: it is fully inside every element of the grid around it that clips its
+   * contents (an element whose vertical overflow is not visible), as the canvas of a grid whose rows grow
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowNotCut(String gridId, String rowId, String columnId) {
+    String cut = readGridCell(gridId, rowId, columnId, "const row = arguments[0].closest('[data-testid=\"grid-row\"]');"
+      + " const grid = row && row.closest('[grid-id], [tree-grid-id]'); if (!grid) { return null; }"
+      + " const box = row.getBoundingClientRect(); const cuts = [];"
+      + " for (let e = row.parentElement; e && e !== grid && grid.contains(e); e = e.parentElement) {"
+      + "   if (getComputedStyle(e).overflowY === 'visible') { continue; }"
+      + "   const clip = e.getBoundingClientRect();"
+      + "   if (box.bottom > clip.bottom + 1 || box.top < clip.top - 1) {"
+      + "     cuts.push(e.tagName + '.' + Array.from(e.classList).join('.') + ' (' + clip.top + '-' + clip.bottom + ')'); }"
+      + " }"
+      + " return cuts.join(', ');");
+    assertWithScreenshot("The row " + rowId + " of the grid " + gridId + " is cut by "
+      + (cut == null ? "a missing row" : cut), cut != null && cut.isEmpty());
   }
 
   /**
@@ -5429,6 +5453,94 @@ public class SeleniumUtilities implements IAweInstructions {
     getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " text.blur();");
     waitUntil(BrowserCondition.of("the tooltip to go away when the focus leaves",
       browser -> browser.executeScript(tooltip) instanceof String shown && shown.isEmpty()));
+  }
+
+  /**
+   * Read a text of a cell of a grid with a script that receives the cell as {@code arguments[0]}
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param script   Script that returns the text
+   * @return Text, or null if the script returns nothing
+   */
+  private String readGridCell(String gridId, String rowId, String columnId, String script) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    return getBrowser().executeScriptOn(locator(cell), script) instanceof String text ? text : null;
+  }
+
+  /**
+   * Check the main value and the secondary line of a cell of a grid (a column with {@code secondary-field}): the
+   * secondary value is shown under the main one, or the cell shows only the main line
+   *
+   * @param gridId    Grid identifier
+   * @param rowId     Row identifier
+   * @param columnId  Column identifier
+   * @param main      Main value
+   * @param secondary Secondary value, or null when the cell shows only the main line
+   */
+  protected void checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary) {
+    String shown = readGridCell(gridId, rowId, columnId, "const cell = arguments[0];"
+      + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+      + " const main = cell.querySelector('.awe-cell-main'); const secondary = cell.querySelector('.awe-cell-secondary');"
+      + " return text(main || cell) + (secondary ? '\\n' + text(secondary) : '');");
+    String expected = main + (secondary == null ? "" : "\n" + secondary);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows '" + shown
+      + "', not '" + expected + "' (main and secondary line)", expected.equals(shown));
+  }
+
+  /**
+   * Check the status of a cell of a grid (a column with {@code status-field}): a dot of the tone and the text
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text of the status
+   * @param tone     Tone: success, warning, danger, info or neutral
+   */
+  protected void checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone) {
+    String shown = readGridCell(gridId, rowId, columnId, "const status = arguments[0].querySelector('.awe-cell-status');"
+      + " if (!status) { return ''; } const tone = status.getAttribute('data-tone');"
+      + " return tone + '\\n' + status.classList.contains('awe-cell-status-' + tone) + '\\n'"
+      + " + status.textContent.replace(/\\s+/g, ' ').trim();");
+    String expected = tone + "\ntrue\n" + text;
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows the status '"
+      + shown + "', not '" + expected + "' (tone, tone class, text)", expected.equals(shown));
+  }
+
+  /**
+   * Check the chips of a cell of a grid (a column with {@code chips="true"}): the chips it shows, in order, and the
+   * "+n" chip that stands for the hidden ones, whose tooltip and accessible label list them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param chips    Texts of the chips shown
+   * @param hidden   Texts of the hidden chips (empty when there is no "+n" chip)
+   */
+  protected void checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden) {
+    String cellName = "The cell " + columnId + " of the row " + rowId + " of the grid " + gridId;
+    String shown = readGridCell(gridId, rowId, columnId, "const box = arguments[0].querySelector('.awe-cell-chips');"
+      + " return box ? Array.from(box.children).filter(c => !c.classList.contains('awe-cell-chip-more'))"
+      + ".map(c => c.textContent.trim()).join('\\n') : null;");
+    String expected = String.join("\n", chips);
+    assertWithScreenshot(cellName + " shows the chips '" + shown + "', not '" + expected + "'", expected.equals(shown));
+
+    String more = readGridCell(gridId, rowId, columnId, "const more = arguments[0].querySelector('.awe-cell-chip-more');"
+      + " return more ? [more.textContent.trim(), more.getAttribute('title') || '', more.getAttribute('aria-label') || ''].join('\\n') : '';");
+    if (hidden.isEmpty()) {
+      assertWithScreenshot(cellName + " shows the chip '" + more + "' for hidden chips, but none is hidden",
+        more == null || more.isEmpty());
+      return;
+    }
+    String[] parts = more == null ? new String[0] : more.split("\n", -1);
+    String list = String.join(",", hidden);
+    boolean matches = parts.length == 3 && parts[0].equals("+" + hidden.size())
+      && parts[1].replaceAll(",\\s*", ",").equals(list)
+      && parts[2].contains(String.valueOf(hidden.size())) && parts[2].replaceAll(",\\s*", ",").contains(list);
+    assertWithScreenshot(cellName + " shows the chip for hidden chips '" + more + "' (text, tooltip, label), not '+"
+      + hidden.size() + "' listing " + hidden, matches);
   }
 
   /**

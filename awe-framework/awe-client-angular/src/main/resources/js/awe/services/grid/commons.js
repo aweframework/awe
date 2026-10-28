@@ -64,6 +64,90 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         " column-id=\"{{col.name}}\" data-testid=\"grid-cell\" ng-bind-html=\"col.grid.appScope.component.getCellValue(COL_FIELD)\"></div>";
     };
 
+    // Tones of a status cell (any other tone is shown as neutral)
+    const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
+
+    // Component expression of the cell templates
+    const CELL_COMPONENT = "col.grid.appScope.component";
+
+    /**
+     * Check whether a column without component shows its value as a list of chips
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows chips
+     */
+    const hasChips = (column) => !("component" in column) && column.chips === true;
+
+    /**
+     * Check whether a column without component shows a secondary line under its value
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a secondary line
+     */
+    const hasSecondary = (column) => !("component" in column) && !!column.secondaryField;
+
+    /**
+     * Check whether a column without component shows its value as a status (ignored in a column of chips)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a status
+     */
+    const hasStatus = (column) => !("component" in column) && !!column.statusField && !hasChips(column);
+
+    /**
+     * Check whether the cells of a column need more than one line (secondary line or chips), so the rows grow to fit them
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Cells of the column grow
+     */
+    const growsCell = (column) => hasSecondary(column) || hasChips(column);
+
+    /**
+     * Contents of the cell of a column with a secondary line, a status or chips. The values are always bound as text.
+     *
+     * @param {object} column Column model
+     * @returns {string} Contents of the cell
+     */
+    const getRichCellContents = function (column) {
+      const value = CELL_COMPONENT + ".getCellValue(COL_FIELD)";
+      const chips = CELL_COMPONENT + ".getCellChips(COL_FIELD, col.colDef)";
+      const tone = "{{" + CELL_COMPONENT + ".getCellTone(row.entity[col.colDef.statusField])}}";
+      const secondary = CELL_COMPONENT + ".getCellSecondary(row.entity, col.colDef)";
+      let main;
+      if (hasChips(column)) {
+        main = "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
+          "<span class=\"awe-cell-chip awe-cell-chip-more\" ng-if=\"" + chips + ".hidden.length\" title=\"{{" + chips + ".hidden.join(', ')}}\"" +
+          " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
+      } else if (hasStatus(column)) {
+        main = "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"></span>";
+      } else {
+        main = null;
+      }
+      if (!hasSecondary(column)) {
+        return main;
+      }
+      const mainLine = main === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : "<span class=\"awe-cell-main\">" + main + "</span>";
+      return "<div class=\"awe-cell-lines\">" + mainLine + "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"></span></div>";
+    };
+
+    /**
+     * Cell template of a column with a secondary line, a status or chips (null when the column has none of them)
+     *
+     * @param {object} column Column model
+     * @param {{wrap: boolean, maxLines: (number|null)}} wrapping Column wrapping
+     * @returns {string|null} Cell template
+     */
+    const getRichCellTemplate = function (column, wrapping) {
+      const contents = getRichCellContents(column);
+      if (contents === null) {
+        return null;
+      }
+      const clamp = wrapping.maxLines === null ? "" : " cell-clamp\" style=\"--cell-max-lines: " + wrapping.maxLines;
+      const classes = (growsCell(column) ? " cell-rich" : "") + (wrapping.wrap ? " cell-wrap" + clamp : "");
+      return "<div class=\"no-animate ui-grid-cell-contents" + classes + " {{" + CELL_COMPONENT + ".getCellStyle(COL_FIELD)}}\"" +
+        (wrapping.wrap ? "" : " title=\"TOOLTIP\"") + " column-id=\"{{col.name}}\" data-testid=\"grid-cell\">" + contents + "</div>";
+    };
+
     /**
      * Retrieve number of selected lines in grid
      *
@@ -481,7 +565,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
         // Wrapping cells: they need rows of different heights, which a grid with frozen columns (a second container
         // of rows) or a tree cannot keep aligned, so those keep their single-line rows
-        component.wrapsText = !component.hasFrozen && _.some(component.controller.columnModel, (column) => getColumnWrap(column).wrap);
+        component.wrapsText = !component.hasFrozen && _.some(component.controller.columnModel, (column) => getColumnWrap(column).wrap || growsCell(column));
 
         /**
          * Mark the cells whose text is cut as reachable with the keyboard, so their full text shows on focus
@@ -989,11 +1073,19 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           const {name, label, type, component, charlength, align} = column;
           // Hidden columns are rendered with width 0 on screen, so use their initial width for printing
           const width = column.hidden ? column.initialWidth : column.width;
-          return {
+          const translate = (text) => text.split(" ").map(l => $translate.instant(l)).join(" ");
+          const information = {
             name, type, component, width, charlength, align,
             printable: column.printMode,
-            label: (label || "").split(" ").map(l => $translate.instant(l)).join(" ")
+            label: translate(label || "")
           };
+          // Secondary field, which the export may write in its own column
+          if (column.secondaryField) {
+            information.secondaryField = column.secondaryField;
+            information.exportSecondary = column.exportSecondary === true;
+            information.secondaryLabel = column.secondaryLabel ? translate(column.secondaryLabel) : null;
+          }
+          return information;
         }
 
         /**
@@ -1611,10 +1703,13 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           column.footerCellTemplate = column.footerCellTemplate || "grid/footer";
           column.filterHeaderTemplate = column.filterHeaderTemplate || "grid/headerFilter";
 
-          // Text that wraps over several lines
-          if (component.wrapsText && !("component" in column) && column.cellTemplate === "grid/cell") {
-            const wrapping = getColumnWrap(column);
-            if (wrapping.wrap) {
+          // Text that wraps over several lines, secondary line, status and chips
+          if (!("component" in column) && column.cellTemplate === "grid/cell") {
+            const wrapping = component.wrapsText ? getColumnWrap(column) : {wrap: false, maxLines: null};
+            const richTemplate = getRichCellTemplate(column, wrapping);
+            if (richTemplate !== null) {
+              column.cellTemplate = richTemplate;
+            } else if (wrapping.wrap) {
               column.cellTemplate = getWrapCellTemplate(wrapping);
             }
           }
@@ -1717,6 +1812,48 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getCellStyle = function (cell) {
           return component.getCellData(cell, component.constants.CELL_STYLE);
+        };
+
+        /**
+         * Retrieve the tone of a status cell: one of STATUS_TONES, neutral for any other value
+         *
+         * @param {*} cell Cell of the status field
+         * @returns {String} Tone
+         */
+        component.getCellTone = function (cell) {
+          const value = component.getCellData(cell, component.constants.CELL_VALUE);
+          const tone = value == null ? "" : String(value).trim().toLowerCase();
+          return STATUS_TONES.includes(tone) ? tone : "neutral";
+        };
+
+        /**
+         * Retrieve the text of the secondary line of a cell (empty when the row has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Secondary text
+         */
+        component.getCellSecondary = function (row, column) {
+          const secondary = component.getCellValue(row[column.secondaryField]);
+          return Utilities.isNull(secondary) ? "" : String(secondary);
+        };
+
+        /**
+         * Retrieve the chips of a cell: its value split by the separator of the column, trimmed and without empty items.
+         * Over the maximum of the column, the rest are hidden (shown as a "+n" chip).
+         *
+         * @param {*} cell Cell
+         * @param {object} column Column model
+         * @returns {{visible: String[], hidden: String[]}} Visible and hidden chips
+         */
+        component.getCellChips = function (cell, column) {
+          const value = component.getCellValue(cell);
+          const items = Utilities.isNull(value) ? [] : String(value).split(column.chipSeparator || ",")
+            .map(item => item.trim())
+            .filter(item => item !== "");
+          const maxChips = parseInt(column.maxChips, 10);
+          const limit = maxChips > 0 ? maxChips : items.length;
+          return {visible: items.slice(0, limit), hidden: items.slice(limit)};
         };
         /**
          * Edit a row

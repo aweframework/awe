@@ -125,6 +125,41 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Integer maxLines;
 
+  // Field shown under the main value of the cell
+  @XStreamAlias("secondary-field")
+  @XStreamAsAttribute
+  private String secondaryField;
+
+  // Print and export the secondary field in its own column
+  @XStreamAlias("export-secondary")
+  @XStreamAsAttribute
+  private Boolean exportSecondary;
+
+  // Label of the exported secondary column
+  @XStreamAlias("secondary-label")
+  @XStreamAsAttribute
+  private String secondaryLabel;
+
+  // Field with the status tone of the cell
+  @XStreamAlias("status-field")
+  @XStreamAsAttribute
+  private String statusField;
+
+  // Cell value shown as a list of chips
+  @XStreamAlias("chips")
+  @XStreamAsAttribute
+  private Boolean chips;
+
+  // Separator of the chips items
+  @XStreamAlias("chip-separator")
+  @XStreamAsAttribute
+  private String chipSeparator;
+
+  // Maximum number of chips shown
+  @XStreamAlias("max-chips")
+  @XStreamAsAttribute
+  private Integer maxChips;
+
   // Dialog to open
   @XStreamAlias("dialog")
   @XStreamAsAttribute

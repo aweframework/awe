@@ -672,8 +672,12 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut)` | Comprueba que el texto de una celda se muestra completo, o que lo corta su número máximo de líneas |
 | `checkGridRowTaller(String gridId, String rowId, String otherId, String columnId)` | Comprueba que una fila de un grid es más alta que otra |
 | `checkGridRowFitsItsCells(String gridId, String rowId, String columnId)` | Comprueba que ningún texto en varias líneas de una fila se sale de la fila |
+| `checkGridRowNotCut(String gridId, String rowId, String columnId)` | Comprueba que una fila no está cortada: queda entera dentro de cada elemento de la grid que la rodea y recorta su contenido (desbordamiento vertical distinto de `visible`) |
 | `checkGridCellTitle(String gridId, String rowId, String columnId, String text)` | Comprueba que el valor completo de una celda se expone como el título (tooltip) de su texto |
 | `checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text)` | Comprueba que el texto cortado de una celda muestra su valor completo en un tooltip al pasar el ratón y con el foco del teclado, y que desaparece al salir |
+| `checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary)` | Comprueba el valor principal y la segunda línea de una celda de una columna con `secondary-field` (`secondary` null: la celda muestra solo la línea principal) |
+| `checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone)` | Comprueba el estado de una celda de una columna con `status-field`: su tono (`data-tone` y clase del tono) y su texto |
+| `checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden)` | Comprueba las etiquetas que muestra una celda de una columna `chips`, en orden, y la etiqueta "+n" cuyo tooltip y etiqueta accesible listan las ocultas (`hidden` vacía: sin etiqueta "+n") |
 | `checkRowSelected(String gridId, String search)` | Comprueba que la fila de un grid con un texto está seleccionada |
 | `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
 | `openGridColumns(String gridId)` | Abre el diálogo de columnas de la barra de herramientas de un grid |

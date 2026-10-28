@@ -1692,4 +1692,107 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
     checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
   }
+
+  /**
+   * Secondary line test: a column with secondary-field shows the login under the user, and a row without login shows only
+   * the main line
+   */
+  @Test
+  void t124_gridCellSecondaryLine() {
+    // Title
+    setTestTitle("Grid cells: secondary line");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid("GrdCellTst", "Javier García");
+
+    // The secondary value under the main one, and only the main line without it
+    checkGridCellSecondaryLine("GrdCellTst", "1", "user", "Javier García", "jgarcia · j.garcia@almis.example");
+    checkGridCellSecondaryLine("GrdCellTst", "2", "user", "Laura Pérez", "lperez · l.perez@almis.example");
+    checkGridCellSecondaryLine("GrdCellTst", "4", "user", "Pablo Díaz", null);
+  }
+
+  /**
+   * Status test: a column with status-field shows a dot of the tone and the text, and an unknown tone is neutral
+   */
+  @Test
+  void t125_gridCellStatus() {
+    // Title
+    setTestTitle("Grid cells: status");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid("GrdCellTst", "Javier García");
+
+    // Every tone, and the unknown one as neutral
+    checkGridCellStatus("GrdCellTst", "1", "status", "Locked", "danger");
+    checkGridCellStatus("GrdCellTst", "2", "status", "Active", "success");
+    checkGridCellStatus("GrdCellTst", "3", "status", "Pending activation", "info");
+    checkGridCellStatus("GrdCellTst", "4", "status", "Inactive", "neutral");
+    checkGridCellStatus("GrdCellTst", "5", "status", "Under review", "neutral");
+    checkGridCellStatus("GrdCellTst", "6", "status", "Expiring", "warning");
+  }
+
+  /**
+   * Chips test: a column with chips shows each item as a chip, up to max-chips and then a "+n" chip that lists the hidden
+   * ones; empty items are dropped
+   */
+  @Test
+  void t126_gridCellChips() {
+    // Title
+    setTestTitle("Grid cells: chips");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid("GrdCellTst", "Javier García");
+
+    // Two chips and "+2" with the hidden ones
+    checkGridCellChips("GrdCellTst", "1", "teams", List.of("Sales", "Finance"), List.of("Logistics", "Support"));
+
+    // The empty item is dropped
+    checkGridCellChips("GrdCellTst", "2", "teams", List.of("A", "B"), List.of());
+
+    // As many chips as the maximum, without "+n"
+    checkGridCellChips("GrdCellTst", "5", "teams", List.of("Finance", "Support"), List.of());
+    checkGridCellChips("GrdCellTst", "4", "teams", List.of("Sales"), List.of());
+  }
+
+  /**
+   * Text test: the values of the cells are shown as text, never as HTML
+   */
+  @Test
+  void t127_gridCellValuesAreText() {
+    // Title
+    setTestTitle("Grid cells: values are text");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid("GrdCellTst", "Javier García");
+
+    // The HTML of the value shows literally
+    checkGridCellChips("GrdCellTst", "3", "teams", List.of("<b>bold</b>"), List.of());
+    checkGridCellsHaveNoActiveContent("GrdCellTst");
+  }
+
+  /**
+   * Row height test: every row grows to fit its secondary line, status and chips (the height of a row is set by its tallest
+   * cell, so rows are not compared with each other)
+   */
+  @Test
+  void t128_gridCellRowsGrowToFit() {
+    // Title
+    setTestTitle("Grid cells: rows grow to fit");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid("GrdCellTst", "Javier García");
+
+    // Each row fits its cells: the secondary line of the user and the chips that wrap
+    checkGridRowFitsItsCells("GrdCellTst", "1", "user");
+    checkGridRowFitsItsCells("GrdCellTst", "1", "teams");
+    checkGridRowFitsItsCells("GrdCellTst", "4", "user");
+
+    // The grid grows with its rows: the last one is not cut
+    checkGridRowNotCut("GrdCellTst", "6", "user");
+  }
 }
