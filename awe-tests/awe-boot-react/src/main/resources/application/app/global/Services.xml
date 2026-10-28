@@ -118,6 +118,11 @@
       <service-parameter type="STRING" name="filename" />
     </java>
   </service>
+  <service id="downloadGridFile">
+    <java classname="com.almis.awe.test.model.File" method="downloadGridFile">
+      <service-parameter type="STRING" name="fileName" />
+    </java>
+  </service>
   <service id="getFileInfo">
     <java classname="com.almis.awe.test.model.File" method="getFileInfo">
       <service-parameter type="STRING" name="fileName" />

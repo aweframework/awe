@@ -748,6 +748,13 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkFileViewerContains(String text)` | Waits until the file viewer shows a text |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 
+### Downloads
+
+| Step | What it does |
+|---|---|
+| `startRecordingDownloads()` | Starts counting the files the screen downloads from now on |
+| `checkFilesDownloaded(int count)` | Checks that the screen downloaded exactly `count` files since `startRecordingDownloads()` |
+
 ### Raw checks
 
 These steps take a CSS selector. They exist for the helpers of your product and for components AWE does not know, not for

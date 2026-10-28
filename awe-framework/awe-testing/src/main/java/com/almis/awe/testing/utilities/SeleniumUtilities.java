@@ -125,6 +125,20 @@ public class SeleniumUtilities implements IAweInstructions {
   // Number of toggles of row details (located by the css selector of the first argument) that say that their detail is open
   private static final String OPEN_ROW_DETAIL_TOGGLES_SCRIPT = "return Array.prototype.filter.call(document.querySelectorAll(arguments[0]),"
     + " function (toggle) { return toggle.getAttribute('aria-expanded') === 'true'; }).length;";
+  // The page records every download it fetches when it starts, and its answer when it arrives: the name of the file, or
+  // "error" when the file does not arrive
+  private static final String RECORD_DOWNLOADS_SCRIPT = "if (!window.aweDownloads) {"
+    + " window.aweDownloads = {started: 0, files: []}; const pageFetch = window.fetch;"
+    + " window.fetch = function (url) { const answer = pageFetch.apply(this, arguments);"
+    + " if (String(url).indexOf('/file/download/') >= 0) { const downloads = window.aweDownloads; downloads.started++;"
+    + " answer.then(function (response) { downloads.files.push(response.ok ? response.headers.get('Filename') : 'error'); },"
+    + " function () { downloads.files.push('error'); }); }"
+    + " return answer; }; }"
+    + " window.aweDownloads.started = 0; window.aweDownloads.files = [];";
+  // Number of files downloaded once every download started has arrived, or -1 while one is on its way or did not arrive
+  private static final String DOWNLOADED_FILES_SCRIPT = "const downloads = window.aweDownloads || {started: 0, files: []};"
+    + " const arrived = downloads.files.length === downloads.started && downloads.files.indexOf('error') < 0;"
+    + " return String(arrived ? downloads.files.length : -1);";
   private static final int GROUP_HEADER_TOLERANCE = 3;
   private static final double MAXIMIZED_MIN_FILL = 0.9;
   private static final By LOGIN_BUTTON = By.id("ButLogIn");
@@ -2330,6 +2344,24 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickCell(String gridId, String rowId, String columnId) {
     clickRowFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
+  }
+
+  /**
+   * Start recording the files that the page downloads (the downloads it fetches from the file service), forgetting the
+   * ones recorded before
+   */
+  protected void startRecordingDownloads() {
+    getBrowser().executeScript(RECORD_DOWNLOADS_SCRIPT);
+  }
+
+  /**
+   * Check the number of files downloaded since the recording started: every download started has arrived
+   *
+   * @param count Number of files downloaded
+   */
+  protected void checkFilesDownloaded(int count) {
+    waitUntil(BrowserCondition.of(count + " files downloaded", browser ->
+      String.valueOf(count).equals(String.valueOf(browser.executeScript(DOWNLOADED_FILES_SCRIPT)))));
   }
 
   /**
