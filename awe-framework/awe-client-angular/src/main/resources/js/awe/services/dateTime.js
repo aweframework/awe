@@ -11,7 +11,7 @@ export const calendarInputTemplate =
      ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label | translateMultiple}}
     </label>
@@ -19,7 +19,7 @@ export const calendarInputTemplate =
          initialized="initialized" ng-readonly="controller.readonly">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}"
-             placeholder="{{controller.placeholder| translateMultiple}}" autoComplete="off" ng-click="click($event)"
+             placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" autoComplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
              ng-model="model.selected" ng-change="component.modelChange()"
              ng-model-options="{updateOn: 'change'}" ng-focus="focus()" ng-blur="blur()"
@@ -54,7 +54,7 @@ export const timeInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
       ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
@@ -62,7 +62,7 @@ export const timeInputTemplate =
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-model="model.selected"
-             ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
+             ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-press-enter="submit($event)"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"
              data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>

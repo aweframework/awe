@@ -79,7 +79,7 @@ export const dateRangeInputTemplate =
      ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label | translateMultiple}}
     </label>
@@ -87,7 +87,7 @@ export const dateRangeInputTemplate =
          initialized="initialized" ng-readonly="controller.readonly">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" autoComplete="off" ng-click="click($event)"
-             placeholder="{{controller.placeholder || 'DATE_RANGE_FROM' | translateMultiple}}"
+             placeholder="{{controller.placeholder || 'DATE_RANGE_FROM' | translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
              ng-model="range.from" ng-change="onRangeChange()" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-press-enter="submit($event)" data-testid="${TestIds.dateRangeFrom}"/>

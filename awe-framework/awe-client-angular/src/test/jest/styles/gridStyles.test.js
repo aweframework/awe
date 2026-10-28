@@ -118,6 +118,30 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       });
     });
 
+    // #898: the dot of a checked radio was painted by a global rule of pixel-admin that #885 scoped to the criteria
+    // (.form-group), so the radio column drew no dot; it is drawn like the criteria radios now
+    it("draws the checked radio of a radio column like the radios of the criteria", () => {
+      const radio = ".grid .ui-grid-cell .ui-grid-cell-contents.component .column-radio";
+      expect(style(`${radio} input.px:checked + .lbl:before`)).toMatchObject({
+        "background": "var(--awe-color-primary)",
+        "border-color": "var(--awe-color-primary)"
+      });
+      expect(style(`${radio} input.px:checked + .lbl:after`)).toMatchObject({
+        "display": "block",
+        "background": "var(--awe-color-on-primary)"
+      });
+    });
+
+    // #898: the buttons of AWE 5 have no vertical padding (their height is a token), so a joined bar with height: auto
+    // shrank to its text; the buttons take the height of the editors of the row and the padding of the joined criteria
+    it("gives the buttons of a button radio column the height of the row editors", () => {
+      expect(style(".grid .ui-grid-cell .ui-grid-cell-contents.component .column-button-radio > label.btn"))
+        .toMatchObject({
+          "height": "min(var(--awe-size-control-sm), calc(var(--grid-row-height, 27px) - 1px - 2 * var(--awe-space-0-5)))",
+          "padding": "0 var(--awe-space-3)"
+        });
+    });
+
     it("gives the row number, selection and multioperation cells a padding that fits their content", () => {
       [".grid .ui-grid-cell .ui-grid-cell-contents.ui-grid-rownumber",
         ".grid .ui-grid-cell .ui-grid-cell-contents.ui-grid-checkbox",

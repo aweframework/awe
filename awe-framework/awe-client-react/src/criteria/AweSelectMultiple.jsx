@@ -1,5 +1,5 @@
 import React from "react";
-import {translateLabel} from "../utilities";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {MultiSelect} from "primereact/multiselect";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
@@ -13,7 +13,7 @@ function AweSelectMultiple(props) {
   const {t, ref, address, attributes, validationRules, options, selected, onChange} =
     useSelect({id, multiple: true});
 
-    const {placeholder, required, readonly, optional, size, error} = attributes;
+    const {required, readonly, optional, size, error} = attributes;
     const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <MultiSelect
@@ -21,7 +21,7 @@ function AweSelectMultiple(props) {
         id={id}
         inputid={id}
         value={selected}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t, false)}
         onChange={onChange}
         required={required}
         disabled={readonly}
@@ -33,7 +33,7 @@ function AweSelectMultiple(props) {
         optionLabel="name"
         options={options}
         showClear={optional}
-        pt={multiSelectPassThrough(id)}
+        pt={{...multiSelectPassThrough(id), input: requiredAria(attributes, validationRules)}}
       />
     </AweCriterion>;
 }

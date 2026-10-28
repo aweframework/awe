@@ -61,11 +61,10 @@ describe('awe-react-client/test/js/criteria/AweCriterionStatesTest.jsx', () => {
     expect(label).toHaveTextContent("Name");
   });
 
-  it('keeps an empty label the size of a label, without a spacing utility', () => {
+  it('draws no label row for a criterion without label, so the field is the first element', () => {
     renderWithProviders(<AweInputText id="text"/>, {preloadedState: stateWith({label: null})});
 
-    const spacer = criterion().firstElementChild;
-    expect(spacer.tagName).toBe("DIV");
-    expect(spacer.className).toBe("block");
+    expect(criterion().firstElementChild.tagName).not.toBe("LABEL");
+    expect(criterion().querySelector("div.block")).toBeNull();
   });
 });

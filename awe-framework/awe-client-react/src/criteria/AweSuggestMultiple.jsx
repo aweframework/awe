@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {AutoComplete} from "primereact/autocomplete";
 import {classNames} from "../utilities/components";
 import "./AweSuggest.less";
@@ -6,7 +7,6 @@ import {useTranslation} from "react-i18next";
 import {useComponentState} from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import {translateLabel} from "../utilities";
 import {getSuggestionLabel, withTextLabels} from "../utilities/suggest";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
@@ -43,7 +43,7 @@ function AweSuggestMultiple(props) {
     }
   }, [value]);
 
-  const { placeholder, required, readonly, timeout, size, error } = attributes;
+  const {required, readonly, timeout, size, error } = attributes;
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
@@ -52,8 +52,9 @@ function AweSuggestMultiple(props) {
         ref={autocompleteRef}
         id={id}
         value={value.map(item => ({ ...item, label: getSuggestionLabel(item) }))}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
+        {...requiredAria(attributes, validationRules)}
         disabled={readonly}
         onChange={onChange}
         onKeyDown={onKeyPress}

@@ -27,7 +27,8 @@ describe('awe-react-client/test/js/hooks/useMaximizeTest.jsx', () => {
 
   const mountHarness = (onResize = jest.fn()) => {
     const view = render(<Harness onResize={onResize}/>);
-    jest.spyOn(document.getElementById("target"), "getBoundingClientRect").mockImplementation(() => rects.target);
+    jest.spyOn(document.getElementById("target"), "getBoundingClientRect").mockImplementation(() =>
+      typeof rects.target === "function" ? rects.target() : rects.target);
     jest.spyOn(document.getElementById("box"), "getBoundingClientRect").mockImplementation(() => rects.box);
     return view;
   };
@@ -90,6 +91,50 @@ describe('awe-react-client/test/js/hooks/useMaximizeTest.jsx', () => {
     expect(state()).toBe("false-false-false");
     expect(document.getElementById("box").style.position).toBe("");
     expect(document.getElementById("sibling").style.opacity).toBe("");
+  });
+
+  it('fills the target as it is once maximized, not as the content that overflows the screen makes it', () => {
+    mountHarness();
+    // In the flow and next to its siblings the element pushes the target below the screen (a long screen); out of the
+    // flow and with the siblings minimized the target is the content area of the screen
+    rects.target = () => {
+      const box = document.getElementById("box");
+      const sibling = document.getElementById("sibling");
+      const maximizedLayout = box.style.position === "fixed" && sibling.classList.contains("minimized");
+      return {top: 131, left: 10, width: 800, height: maximizedLayout ? 741 : 895};
+    };
+    fireEvent.click(document.getElementById("toggle"));
+
+    run(200);
+    expect(sizeOf(document.querySelector(".maximize-clone"))).toEqual(["131px", "10px", "800px", "741px"]);
+    // The measure leaves nothing behind: the siblings fade out and the element waits in the flow
+    expect(document.getElementById("sibling").classList).not.toContain("minimized");
+    expect(document.getElementById("box").style.position).toBe("");
+
+    run(MAXIMIZE_ANIMATION_TIME);
+    expect(sizeOf(document.getElementById("box"))).toEqual(["131px", "10px", "800px", "741px"]);
+  });
+
+  it('leaves the classes that the nodes already had when it measures the target', () => {
+    mountHarness();
+    // A parent that another maximized element already took out of its positioning keeps it
+    document.getElementById("wrapper").classList.add("maximizeParent");
+    fireEvent.click(document.getElementById("toggle"));
+
+    run(200);
+    expect(document.getElementById("wrapper").classList).toContain("maximizeParent");
+  });
+
+  it('puts the layout back even when the measure of the target fails', () => {
+    mountHarness();
+    rects.target = () => {
+      throw new Error("layout not available");
+    };
+    fireEvent.click(document.getElementById("toggle"));
+
+    expect(() => run(200)).toThrow("layout not available");
+    expect(document.getElementById("sibling").classList).not.toContain("minimized");
+    expect(document.getElementById("box").style.position).toBe("");
   });
 
   it('asks for a resize when the animation ends and follows the target when the window changes', () => {

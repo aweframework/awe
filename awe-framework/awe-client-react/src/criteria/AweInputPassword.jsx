@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {InputText} from "primereact/inputtext";
 import {classNames} from "../utilities/components";
 import {getIconNode, translateLabel} from "../utilities";
@@ -37,7 +38,7 @@ function AweInputPassword(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [alertId]);
 
-  const { placeholder, required, readonly, size, error } = attributes;
+  const {required, readonly, size, error } = attributes;
   const onKeyDown = useEnterKey(onSubmit);
   const capsId = `${address?.component}-caps`;
   const capsWarning = signin && capsLockOn;
@@ -57,11 +58,12 @@ function AweInputPassword(props) {
         type={signin && shown ? "text" : "password"}
         value={value}
         className={classes}
-        placeholder={translateLabel(placeholder, t)}
+        placeholder={criterionPlaceholder(attributes, validationRules, t)}
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         required={required}
+        {...requiredAria(attributes, validationRules)}
         disabled={readonly || signingIn}
         aria-describedby={capsWarning ? capsId : undefined}
         {...testHook(TestIds.criterionInput)}

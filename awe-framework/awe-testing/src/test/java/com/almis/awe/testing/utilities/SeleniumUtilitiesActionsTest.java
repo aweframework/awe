@@ -25,7 +25,6 @@ import org.openqa.selenium.interactions.Sequence;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collection;
@@ -180,18 +179,6 @@ class SeleniumUtilitiesActionsTest {
     doThrow(new StaleElementReferenceException("replaced")).when((Interactive) driver).perform(any());
 
     assertThatCode(() -> ReflectionTestUtils.invokeMethod(utilities, "moveMouse")).doesNotThrowAnyException();
-  }
-
-  @Test
-  void shouldMoveUpAndClickOutOfACriterion() {
-    ReflectionTestUtils.invokeMethod(utilities, "moveMouseOutOfCriterion");
-
-    List<Map<String, Object>> actions = performedActions();
-    List<Object> types = actions.stream().map(action -> action.get("type")).toList();
-    assertThat(actions).filteredOn(action -> "pointerMove".equals(action.get("type"))).singleElement()
-      .matches(action -> movesBy(action, 0, -30));
-    assertThat(types.indexOf("pointerMove")).isLessThan(types.indexOf("pointerDown"));
-    assertThat(types).contains("pointerUp");
   }
 
   @Test

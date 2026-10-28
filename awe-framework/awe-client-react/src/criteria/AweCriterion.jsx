@@ -53,9 +53,12 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
           </label>
         </>
       );
-    } else {
+    } else if (hasLeftLabel) {
+      // The empty label of a left label keeps the column of the labels aligned
       return <div className="block" style={labelWidth}>&nbsp;</div>;
     }
+    // Without label there is no label row: a required criterion shows its state in the placeholder
+    return null;
   };
 
   const getIcon = () => {
