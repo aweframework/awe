@@ -85,6 +85,11 @@
   <locale name="HELP_SEARCH_REMOVE_SERIE_BUTTON" value="Quitar series de un gráfico"/>
   <locale name="HELP_SEARCH_REPLACE_SERIE_BUTTON" value="Reemplazar las series de un gráfico"/>
   <locale name="MENU_DASHBOARD" value="Panel de control"/>
+  <locale name="DASHBOARD_WINDOW_ANALYTICS" value="Temas por periodo"/>
+  <locale name="DASHBOARD_WINDOW_PROFITABILITY" value="Rentabilidad del fondo"/>
+  <locale name="DASHBOARD_WINDOW_DONUT" value="Reparto de temas"/>
+  <locale name="DASHBOARD_WINDOW_FILES" value="Ficheros"/>
+  <locale name="DASHBOARD_WINDOW_SUGGESTIONS" value="Sugerencias"/>
   <locale name="MENU_GRID_CHART" value="Grids y Charts"/>
   <locale name="MENU_TEST" value="Tests"/>
   <locale name="MENU_SECTION_ADMINISTRATION" value="Administración"/>

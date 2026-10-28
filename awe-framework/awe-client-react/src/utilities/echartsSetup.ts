@@ -83,35 +83,3 @@ export function renderSvg(option: EChartsCoreOption, {width, height}: {width: nu
     chart.dispose();
   }
 }
-
-const parseColor = (text: unknown): number[] | null => {
-  const value = String(text || "").trim();
-  const hex = /^#([\da-f]{3}|[\da-f]{6})$/i.exec(value);
-  if (hex) {
-    const digits = hex[1].length === 3 ? [...hex[1]].map(digit => digit + digit).join("") : hex[1];
-    return [0, 2, 4].map(offset => Number.parseInt(digits.substring(offset, offset + 2), 16));
-  }
-  const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,/]+([\d.]+))?/i.exec(value);
-  // A transparent color says nothing about the surface
-  return rgb && Number(rgb[4] ?? 1) > 0 ? [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])] : null;
-};
-
-/**
- * Check if the application theme is dark. The AWE themes are CSS files, so the surface color of the theme
- * (`--surface-a`, or the background of the body when the theme does not define it) is read from the element
- * @param {Element} element Element inside the application
- * @returns {boolean} The surface is dark
- */
-export function isDarkTheme(element?: Element | null): boolean {
-  if (!element || typeof getComputedStyle !== "function") {
-    return false;
-  }
-  const style = getComputedStyle(element);
-  const color = parseColor(style.getPropertyValue("--surface-a")) ||
-    parseColor(getComputedStyle(document.body).backgroundColor);
-  if (!color) {
-    return false;
-  }
-  const [red, green, blue] = color;
-  return (0.299 * red + 0.587 * green + 0.114 * blue) / 255 < 0.5;
-}

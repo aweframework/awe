@@ -71,6 +71,8 @@ module.exports = {
     '**/i18n/chartLocalesTest.{js,jsx}',
     '**/utilities/echartsOptionTest.{js,jsx}',
     '**/utilities/echartsSvgTest.{js,jsx}',
+    '**/utilities/echartsThemeTest.{js,jsx}',
+    '**/utilities/echartsLayoutTest.{js,jsx}',
     '**/utilities/echartsEventsTest.{js,jsx}',
     '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',
     '**/utilities/echartsHelpersTest.{js,jsx}',

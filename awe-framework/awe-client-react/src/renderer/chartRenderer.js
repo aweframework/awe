@@ -61,6 +61,6 @@ export function renderChart({infile, values = [], width, height, language, trans
   }
   const size = {width: width ?? DEFAULT_SIZE.width, height: height ?? DEFAULT_SIZE.height};
   const t = (key) => translations[key] ?? key;
-  const option = buildEChartsOption(infile, values, {...size, t, locale: localeOf(language), dark: false});
+  const option = buildEChartsOption(infile, values, {...size, t, locale: localeOf(language), print: true});
   return renderSvg(option, size, language);
 }

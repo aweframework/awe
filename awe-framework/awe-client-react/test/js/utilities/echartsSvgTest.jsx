@@ -1,6 +1,6 @@
 import models from "../components/fixtures/chrTstEchartsModels.json";
 import {buildEChartsOption} from "../../../src/utilities/echartsOption";
-import {getEChartsLocale, isDarkTheme, renderSvg} from "../../../src/utilities/echartsSetup";
+import {getEChartsLocale, renderSvg} from "../../../src/utilities/echartsSetup";
 
 const day = (day) => new Date(2024, 0, day).getTime();
 const values = Array.from({length: 6}, (_, index) => ({
@@ -48,6 +48,17 @@ describe('awe-react-client/test/js/utilities/echartsSvgTest.jsx', () => {
     expect(error).not.toHaveBeenCalled();
   });
 
+  it.each(Object.keys(models))('should draw %s in a small chart with the real ECharts without warnings', (name) => {
+    const size = {width: 260, height: 165};
+    const option = buildEChartsOption(JSON.parse(JSON.stringify(models[name])), values, {t: (text) => text, locale, ...size});
+
+    const svg = renderSvg(option, size, "es-ES");
+
+    expect(svg).toContain("width=\"260\"");
+    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+  });
+
   it('should leave out the style element of the hover rules, which the PDF renderer (Batik) cannot read', () => {
     const option = buildEChartsOption(JSON.parse(JSON.stringify(models.ChrLinTst)), values,
       {t: (text) => text, locale, width: 800, height: 400});
@@ -85,34 +96,5 @@ describe('awe-react-client/test/js/utilities/echartsSvgTest.jsx', () => {
     expect(getEChartsLocale("en-GB")).toBe("EN");
     expect(getEChartsLocale("de-DE")).toBe("EN");
     expect(getEChartsLocale(undefined)).toBe("EN");
-  });
-
-  describe('isDarkTheme', () => {
-    afterEach(() => {
-      document.body.style.removeProperty("--surface-a");
-      document.body.style.backgroundColor = "";
-    });
-
-    it('should not be dark without theme', () => {
-      expect(isDarkTheme(document.body)).toBe(false);
-      expect(isDarkTheme(null)).toBe(false);
-    });
-
-    it('should read the surface color of the theme', () => {
-      document.body.style.setProperty("--surface-a", "#1e1e1e");
-      expect(isDarkTheme(document.body)).toBe(true);
-
-      document.body.style.setProperty("--surface-a", "#ffffff");
-      expect(isDarkTheme(document.body)).toBe(false);
-
-      document.body.style.setProperty("--surface-a", "#222");
-      expect(isDarkTheme(document.body)).toBe(true);
-    });
-
-    it('should fall back to the background of the page', () => {
-      document.body.style.backgroundColor = "rgb(10, 10, 10)";
-
-      expect(isDarkTheme(document.body)).toBe(true);
-    });
   });
 });

@@ -5,7 +5,8 @@ import {renderWithProviders} from "../test-utils";
 import AweChart from "../../../src/components/AweChart";
 import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
 import {getChartImage} from "../../../src/utilities/chartRegistry";
-import {echarts, isDarkTheme, renderSvg} from "../../../src/utilities/echartsSetup";
+import {echarts, renderSvg} from "../../../src/utilities/echartsSetup";
+import {observeColorMode, resolveChartColors} from "../../../src/utilities/echartsTheme";
 import models from "./fixtures/chrTstEchartsModels.json";
 import advancedModels from "./fixtures/advancedEchartsModels.json";
 import i18n from "../../../src/i18n/i18n";
@@ -16,9 +17,21 @@ import {updateAttributesWithDependencies} from "../../../src/redux/thunks/compon
 jest.mock("../../../src/utilities/echartsSetup", () => ({
   echarts: {init: jest.fn()},
   getEChartsLocale: jest.requireActual("../../../src/utilities/echartsSetup").getEChartsLocale,
-  isDarkTheme: jest.fn(() => false),
   renderSvg: jest.fn(() => "<svg>print</svg>")
 }));
+
+// The colors come from the design tokens of the browser: the test gives them, and records the mode observer
+jest.mock("../../../src/utilities/echartsTheme", () => ({
+  ...jest.requireActual("../../../src/utilities/echartsTheme"),
+  resolveChartColors: jest.fn(),
+  observeColorMode: jest.fn()
+}));
+
+const LIGHT = {text: "rgb(10, 10, 10)", title: "rgb(0, 0, 0)", muted: "rgb(50, 50, 50)", axis: "rgb(100, 100, 100)",
+  split: "rgb(200, 200, 200)", tooltipBackground: "rgb(255, 255, 255)", tooltipBorder: "rgb(220, 220, 220)",
+  tooltipText: "rgb(10, 10, 10)", surface: "rgb(255, 255, 255)"};
+const DARK = {...LIGHT, text: "rgb(240, 240, 240)", title: "rgb(255, 255, 255)", muted: "rgb(180, 180, 180)",
+  surface: "rgb(20, 20, 20)"};
 
 // The events of the chart go through the thunk that writes the attributes and checks the dependencies: it is spied
 jest.mock("../../../src/redux/thunks/components", () => {
@@ -36,6 +49,8 @@ const values = [
 describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   let instances;
   let observers;
+  let onModeChange;
+  let stopObserving;
 
   const fakeChart = () => {
     const handlers = {};
@@ -78,7 +93,14 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
     updateAttributesWithDependencies.mockClear();
     echarts.init.mockReset();
     echarts.init.mockImplementation(fakeChart);
-    isDarkTheme.mockReturnValue(false);
+    resolveChartColors.mockReset();
+    resolveChartColors.mockReturnValue(LIGHT);
+    stopObserving = jest.fn();
+    observeColorMode.mockReset();
+    observeColorMode.mockImplementation((callback) => {
+      onModeChange = callback;
+      return stopObserving;
+    });
     renderSvg.mockClear();
     global.ResizeObserver = class {
       constructor(callback) {
@@ -110,13 +132,22 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(options).toEqual({renderer: "svg", locale: "EN"});
     });
 
-    it('should use the dark theme when the application theme is dark', () => {
-      isDarkTheme.mockReturnValue(true);
+    it('should draw the chrome of the chart with the colors of the design tokens, resolved in its container', () => {
+      renderChart(models.ChrBarTst);
 
-      renderChart(models.ChrLinTst);
-
-      expect(echarts.init.mock.calls[0][1]).toBe("dark");
+      expect(resolveChartColors).toHaveBeenCalledWith(document.querySelector("#chart"));
+      expect(lastOption().title.textStyle.color).toBe(LIGHT.title);
+      expect(lastOption().xAxis[0].axisLabel.color).toBe(LIGHT.muted);
       expect(lastOption().backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    });
+
+    it('should draw a chart without colors when the page gives none', () => {
+      resolveChartColors.mockReturnValue(null);
+
+      renderChart(models.ChrBarTst);
+
+      expect(lastOption().title.textStyle).toBeUndefined();
+      expect(lastOption().series.length).toBeGreaterThan(0);
     });
 
     it('should expose the test hook with the chart identifier, rendered once ECharts finishes', () => {
@@ -265,8 +296,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('print', () => {
-    it('should draw the image of the page size apart, in light colors, from the same model', () => {
-      isDarkTheme.mockReturnValue(true);
+    it('should draw the image of the page size apart, without the colors of the screen, from the same model', () => {
       renderChart(models.ChrLinTst);
 
       expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
@@ -686,6 +716,41 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       });
 
       expect(loader()).toBeNull();
+    });
+  });
+
+  describe('color mode', () => {
+    it('should draw the chart again with the new colors when the mode changes, without creating it again', () => {
+      renderChart(models.ChrBarTst);
+      const chart = lastChart();
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+
+      resolveChartColors.mockReturnValue(DARK);
+      act(() => onModeChange());
+
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+      expect(chart.dispose).not.toHaveBeenCalled();
+      expect(lastOption(chart).title.textStyle.color).toBe(DARK.title);
+      expect(lastOption(chart).yAxis[0].splitLine.lineStyle.color).toBe(DARK.split);
+    });
+
+    it('should not draw the chart again when the colors are the same', () => {
+      renderChart(models.ChrBarTst);
+      const chart = lastChart();
+      const draws = chart.setOption.mock.calls.length;
+
+      resolveChartColors.mockReturnValue({...LIGHT});
+      act(() => onModeChange());
+
+      expect(chart.setOption).toHaveBeenCalledTimes(draws);
+    });
+
+    it('should stop observing the mode when the chart is removed', () => {
+      const {unmount} = renderChart(models.ChrBarTst);
+
+      unmount();
+
+      expect(stopObserving).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -22,6 +22,18 @@ describe('awe-react-client/test/js/utilities/echartsHelpersTest.js', () => {
       expect(built.radius).toEqual([15, 30]);
     });
 
+    it('should keep the label layout that the series sets, also a function', () => {
+      const layout = () => ({hideOverlap: false});
+      const withFunction = {...pie("20%"), labelLayout: layout};
+      const withObject = {...pie("20%"), labelLayout: {moveOverlap: "shiftY"}};
+
+      fitPieLabels(withFunction, {width: 1000, height: 300});
+      fitPieLabels(withObject, {width: 1000, height: 300});
+
+      expect(withFunction.labelLayout).toBe(layout);
+      expect(withObject.labelLayout).toEqual({moveOverlap: "shiftY"});
+    });
+
     it('should keep the radius of a pie that fits', () => {
       const built = pie("20%");
       fitPieLabels(built, {width: 1000, height: 300});

@@ -5,7 +5,8 @@ import {BuiltSeries, DataPoint, Size} from "./echartsContext";
  */
 export type PieSeries = BuiltSeries;
 
-const PIE_LABEL = {charWidth: 7, lineLength: 20, margin: 16, minRadius: 30};
+// Below `minLabelRadius` pixels there is no room for the labels outside the pie: the legend and the tooltip name the slices
+const PIE_LABEL = {charWidth: 7, lineLength: 20, margin: 16, minRadius: 30, minLabelRadius: 44};
 const DEFAULT_RADIUS = "75%";
 
 type Radius = Size | undefined;
@@ -41,11 +42,13 @@ function toPixels(radius: Radius, base: number): number {
 /**
  * Highcharts shrinks a pie until its outer labels fit; ECharts truncates the labels. Cap the outer radius in pixels by
  * the room that is left at the sides of the pie for the longest label (there is always a minimum), and shrink the inner
- * radius of a donut in the same proportion. A wide panel keeps its radius
+ * radius of a donut in the same proportion. A wide panel keeps its radius. The pie of a small chart that has no room for
+ * its labels shows none, and the labels that overlap are hidden
  * @param {object} built Pie series for ECharts, which is changed
  * @param {{width: number, height: number}} environment Size of the chart in pixels, 0 when it is not known
+ * @param {boolean} [small] The chart is a small one, where a pie without room for its labels shows none
  */
-export function fitPieLabels(built: PieSeries, {width, height}: {width: number; height: number}): void {
+export function fitPieLabels(built: PieSeries, {width, height}: {width: number; height: number}, small = false): void {
   const sized = width > 0 && height > 0;
   if (!sized || !built.label?.show || built.label.position === "inside") {
     return;
@@ -58,6 +61,14 @@ export function fitPieLabels(built: PieSeries, {width, height}: {width: number; 
   const [inner, outer] = donut ? built.radius as Size[] : [undefined, built.radius as Radius ?? DEFAULT_RADIUS];
   const outerPixels = toPixels(outer, base);
   const overflows = outerPixels > limit;
+  const radius = overflows ? limit : outerPixels;
+  if (small && radius < PIE_LABEL.minLabelRadius) {
+    // Without labels the pie keeps its radius
+    built.label = {...built.label, show: false};
+    return;
+  }
+  // The labels that still overlap are hidden, unless the series sets the layout of its labels (an object or a function)
+  built.labelLayout ??= {hideOverlap: true};
   if (!overflows) {
     return;
   }
