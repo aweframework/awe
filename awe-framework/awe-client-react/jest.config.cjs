@@ -11,7 +11,10 @@ module.exports = {
   // of one worker per CPU starves the slow suites (the editor render) past their timeout. CI runs 2 workers, which also
   // fit the slow medium runner (a 4 vCPU VM on a shared host). Even then a slow shared runner can push a test past the
   // 5 s default, so CI allows 15 s per test and hook. Local runs keep Jest's defaults, so a slow test still shows up.
-  ...(process.env.CI ? {maxWorkers: 2, testTimeout: 15000} : {}),
+  // The runner also caps the job container's memory (2.5 GB on the medium runner): a worker keeps what every suite it ran
+  // left behind, two of them grew past 1 GB each and the kernel killed them. CI restarts a worker once it holds more
+  // than 700 MB after a test file.
+  ...(process.env.CI ? {maxWorkers: 2, testTimeout: 15000, workerIdleMemoryLimit: '700MB'} : {}),
   // In CI the transform cache lives in the project so the pipeline can keep it between jobs (.gitlab-ci.yml)
   ...(process.env.CI ? {cacheDirectory: '<rootDir>/.jest-cache'} : {}),
   testEnvironment: '<rootDir>/test/js/jest.environment.cjs',
