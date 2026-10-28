@@ -374,6 +374,7 @@ A step that is replaced is marked `@Deprecated` in the source and kept through t
 | `checkVisible(By selector)` | `checkVisible(Locator selector)` |
 | `checkNotVisible(By selector)` | `checkNotVisible(Locator selector)` |
 | `getDriver()` | The steps of this catalogue, or `getBrowser()` with a `Locator` |
+| `clickGridColumnsShowAll(String gridId)` (the Columns no longer have *Show all*) | `showGridColumn(String gridId, String columnId)` for each hidden column |
 
 Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(String, String)`...) are not deprecated.
 :::
@@ -678,20 +679,21 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkRowSelected(String gridId, String search)` | Checks that the row of a grid with a text is selected |
 | `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
 | `openGridColumns(String gridId)` | Opens the Columns dialog of the toolbar of a grid |
-| `closeGridColumns(String gridId)` | Closes the Columns dialog of a grid |
-| `checkGridColumnsPanel(String gridId, String panel)` | Checks that the Columns of a grid are open as a modal dialog (`dialog`) or as a side panel (`side-panel`), as the grid attribute `columns-panel` sets |
-| `checkGridColumnsCounter(String gridId, int visible, int total)` | Checks the "N of M visible" counter of the Columns dialog |
+| `closeGridColumns(String gridId)` | Closes the Columns dialog of a grid with its close button (x), keeping the changes |
+| `checkGridColumnsPanel(String gridId, String panel)` | Checks that the Columns of a grid are open as a popover anchored to the Columns button (`popover`, the default), as a modal dialog (`dialog`) or as a side panel (`side-panel`), as the grid attribute `columns-panel` sets |
+| `checkGridColumnsCounter(String gridId, int visible, int total)` | Checks the "N of M visible" counter in the header of the Columns dialog |
 | `checkGridColumnsListed(String gridId, String columnId)` | Checks that the Columns dialog lists a column |
 | `checkGridColumnsNotListed(String gridId, String columnId)` | Checks that the Columns dialog does not list a column. The columns that the screen hides never appear in it |
 | `hideGridColumn(String gridId, String columnId)` | Hides a column unchecking it in the Columns dialog (that has to be open) |
 | `showGridColumn(String gridId, String columnId)` | Shows a column checking it in the Columns dialog (that has to be open) |
-| `moveGridColumnUp(String gridId, String columnId)` | Moves a column one position up with its arrow in the Columns dialog |
-| `moveGridColumnDown(String gridId, String columnId)` | Moves a column one position down with its arrow in the Columns dialog |
+| `moveGridColumnUp(String gridId, String columnId)` | Moves a column one position up with its arrow in the Columns dialog (it hovers the row first: the arrows only show on the hovered row) |
+| `moveGridColumnDown(String gridId, String columnId)` | Moves a column one position down with its arrow in the Columns dialog (it hovers the row first: the arrows only show on the hovered row) |
 | `checkGridColumnCannotMoveUp(String gridId, String columnId)` | Checks that a column cannot move up: it is the first of its group header, or the first one without group |
 | `checkGridColumnCannotMoveDown(String gridId, String columnId)` | Checks that a column cannot move down: it is the last of its group header, or the last one without group |
-| `clickGridColumnsShowAll(String gridId)` | Clicks *Show all* in the Columns dialog |
-| `clickGridColumnsReset(String gridId)` | Clicks *Reset* in the Columns dialog: back to the definition of the screen, and the stored layout is removed |
-| `clickGridColumnsSave(String gridId)` | Clicks *Save as default* in the Columns dialog |
+| `clickGridColumnsShowAll(String gridId)` | Deprecated: the Columns no longer have *Show all*. Use `showGridColumn(String, String)` for each hidden column |
+| `clickGridColumnsReset(String gridId)` | Clicks *Restore default* in the Columns dialog: back to the definition of the screen, and the stored layout is removed. It is silent (no message when it works): the step waits until the server answers, when the Columns are no longer `aria-busy` |
+| `clickGridColumnsCancel(String gridId)` | Clicks *Cancel* in the Columns dialog: undoes the changes made since it was opened (or since the last *Restore default*) and waits for it to close |
+| `clickGridColumnsSave(String gridId)` | Clicks *Save* in the Columns dialog: saves the layout as the default of the user. It is silent (no message when it works) and closes the Columns when the layout is saved: the step waits for them to close, and fails when they stay open because the layout was not saved |
 | `checkGridColumnsLeftToRight(String gridId, String... columnIds)` | Checks that the columns are shown in that order, from left to right |
 | `checkGridColumnNotShown(String gridId, String columnId)` | Checks that a column is not shown in the grid |
 | `checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId)` | Checks that a group header spans exactly from its first to its last visible column, give or take three pixels |

@@ -160,7 +160,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Agrupación de filas con subtotales | #833 | Planned | Cabecera de grupo plegable con recuento y totales, una fila de subtotal por grupo y el total general en el pie. |
 | Búsqueda rápida y filtros por valor | #834 | Planned | Búsqueda en todas las columnas; filtro de columna con valores y recuentos; los totales del pie indican que están filtrados. |
 | Paginador con rango, total e ir a página | #826, #874 | Done | Ver Grid. |
-| Diálogo de columnas por usuario | #813 | Done | Mostrar, ocultar, reordenar (arrastrando o con flechas), guardar por usuario y restaurar el original. |
+| Diálogo de columnas por usuario | #813 | Done | Popover anclado al botón de columnas por defecto (`columns-panel`: `popover`, `dialog` o `side-panel`), con los cambios aplicados en vivo. Mostrar, ocultar, reordenar (arrastrando o con flechas), Restaurar predeterminado, Cancelar y Guardar. |
 
 ### Criterios y formularios {#criteria-and-forms}
 

@@ -458,6 +458,12 @@ class ReactAweInstructionsTest {
       + "[data-testid-owner='Grd'] [data-testid='grid-column-item'][column-id='col01'] [data-testid='grid-column-up']");
     assertThat(instructions.getGridColumnsSave("Grd")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
       + "[data-testid-owner='Grd'] [data-testid='grid-columns-save']");
+    assertThat(instructions.getGridColumnsCancel("Grd")).hasToString("By.cssSelector: [data-testid='grid-columns-dialog']"
+      + "[data-testid-owner='Grd'] [data-testid='grid-columns-cancel']");
+    assertThat(instructions.getGridColumnsBusy("Grd"))
+      .hasToString("By.cssSelector: [data-testid='grid-columns-dialog'][data-testid-owner='Grd'][aria-busy='true']");
+    assertThat(instructions.getGridColumnsPanel("Grd", "popover"))
+      .hasToString("By.cssSelector: [data-testid='grid-columns-dialog'][data-testid-owner='Grd'][data-type='popover']");
     assertThat(instructions.getGridGroupHeader("Grd", "Group A").toString()).contains("@data-testid='grid-group-header'")
       .contains("normalize-space(.), 'Group A'");
     assertThat(instructions.getGridRadioChecked("Grd", "1", "Rad", null, true).toString())

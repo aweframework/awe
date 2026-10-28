@@ -789,7 +789,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickButton("ButPopBottom");
     checkPopoverOpen("PopBottom", "ButPopBottom", "bottom");
     openGridColumns("GrdPopThemes");
-    checkGridColumnsPanel("GrdPopThemes", "dialog");
+    checkGridColumnsPanel("GrdPopThemes", "popover");
     hideGridColumn("GrdPopThemes", "name");
     checkGridColumnNotShown("GrdPopThemes", "name");
     showGridColumn("GrdPopThemes", "name");
@@ -1178,9 +1178,8 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Go to screen, with no layout saved by a previous run: the definition of the screen
     openMatrixOption("matrix-test-layout");
     openGridColumns("GrdLayoutTst");
+    // The step waits until the server removes the layout (silent: no message)
     clickGridColumnsReset("GrdLayoutTst");
-    // The layout is removed when the server answers. Its message is closed so that it does not cover the dialog
-    checkAndCloseMessage("success");
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
     checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
@@ -1222,11 +1221,10 @@ class MatrixTestsIT extends AbstractSessionTests {
 
     // Save as default: the screen comes back with the layout of the user
     openGridColumns("GrdLayoutTst");
+    // The step waits until the server stores the layout and Save closes the Columns, so the screen is opened again only
+    // after that. It is silent
     clickGridColumnsSave("GrdLayoutTst");
-    // The layout is stored when the server answers: the screen is opened again only after that
-    checkMessageTitle("success", "Operation successful");
-    checkAndCloseMessage("success");
-    closeGridColumns("GrdLayoutTst");
+    checkMessageMissing("success");
     openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04", "c07");
@@ -1234,10 +1232,12 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkGridColumnNotShown("GrdLayoutTst", "c06");
     checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c04");
 
-    // Show all
+    // Show the hidden columns again, one by one
     openGridColumns("GrdLayoutTst");
     checkGridColumnsCounter("GrdLayoutTst", 23, 26);
-    clickGridColumnsShowAll("GrdLayoutTst");
+    showGridColumn("GrdLayoutTst", "c03");
+    showGridColumn("GrdLayoutTst", "c05");
+    showGridColumn("GrdLayoutTst", "c06");
     checkGridColumnsCounter("GrdLayoutTst", 26, 26);
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c03", "c04", "c05", "c06");
@@ -1245,9 +1245,8 @@ class MatrixTestsIT extends AbstractSessionTests {
 
     // Reset goes back to the definition of the screen and removes the layout that was saved
     openGridColumns("GrdLayoutTst");
+    // The step waits until the server removes the layout (silent: no message)
     clickGridColumnsReset("GrdLayoutTst");
-    // The layout is removed when the server answers. Its message is closed so that it does not cover the dialog
-    checkAndCloseMessage("success");
     closeGridColumns("GrdLayoutTst");
     checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
     openMatrixOption(MATRIX_PAGER_OPTION);
@@ -1636,5 +1635,41 @@ class MatrixTestsIT extends AbstractSessionTests {
     clickButton("ButCrdReload");
     checkCardValue("CrdTstThemes", "18");
     checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
+  }
+
+  /**
+   * Grid Columns popover test: a grid without columns-panel opens its Columns in a popover anchored to the Columns
+   * button, where the changes apply to the grid at once. Cancel undoes them and closes it, the close button (x) keeps
+   * them
+   */
+  @Test
+  void t123_gridColumnsPopoverCancelAndClose() {
+    // Title
+    setTestTitle("Grid toolbar: columns popover, cancel and close");
+
+    // Go to screen
+    openMatrixOption("matrix-test-layout");
+
+    // The Columns open as a popover (the default) and hiding a column updates the grid while it is open
+    openGridColumns("GrdLayoutTst");
+    checkGridColumnsPanel("GrdLayoutTst", "popover");
+    hideGridColumn("GrdLayoutTst", "c01");
+    checkGridColumnNotShown("GrdLayoutTst", "c01");
+
+    // Cancel shows the column again and closes the popover
+    clickGridColumnsCancel("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
+
+    // The close button keeps the change
+    openGridColumns("GrdLayoutTst");
+    hideGridColumn("GrdLayoutTst", "c01");
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnNotShown("GrdLayoutTst", "c01");
+
+    // Show the column again so that the grid is left as the screen defines it
+    openGridColumns("GrdLayoutTst");
+    showGridColumn("GrdLayoutTst", "c01");
+    closeGridColumns("GrdLayoutTst");
+    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
   }
 }

@@ -258,6 +258,12 @@
   }
 }
 
+// A grid in a panel goes out of its padding with a negative margin (layout.css); maximized, it is fixed over the
+// maximize target with its exact bounds, so the margin would move it out of the target
+.p-panel-content > .grid-container.maximized {
+  margin: 0;
+}
+
 // Refresh of a grid with rows (skeleton-dim loader): a loading bar between the toolbar and the dimmed rows
 @keyframes awe-grid-loading {
   from {

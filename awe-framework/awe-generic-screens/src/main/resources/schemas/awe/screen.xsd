@@ -1146,7 +1146,7 @@
     </xs:attribute>
     <xs:attribute name="columns-panel" type="gridColumnsPanelEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">How the toolbar shows the Columns of the grid: dialog (a modal dialog in the middle of the screen) or side-panel (a panel anchored to the right edge). Both engines. Default: the property awe.application.component.grid-columns-panel (dialog unless the application changes it).</xs:documentation>
+        <xs:documentation xml:lang="en">How the toolbar shows the Columns of the grid: popover (anchored to the Columns button, the grid stays in view), dialog (a modal dialog in the middle of the screen) or side-panel (a panel anchored to the right edge). Both engines. Default: the property awe.application.component.grid-columns-panel (popover unless the application changes it).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="empty-title" type="xs:string">
@@ -2711,6 +2711,7 @@
   <!-- Grid Columns panel enum -->
   <xs:simpleType name="gridColumnsPanelEnum">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="popover" />
       <xs:enumeration value="dialog" />
       <xs:enumeration value="side-panel" />
     </xs:restriction>

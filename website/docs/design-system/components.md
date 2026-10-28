@@ -156,7 +156,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Row grouping with subtotals | #833 | Planned | Collapsible group header with count and totals, a subtotal row per group, grand total in the footer. |
 | Quick search and value filters | #834 | Planned | Search in every column; column filter with values and counts; footer totals say they are filtered. |
 | Pager with range, total and go to page | #826, #874 | Done | See Grid. |
-| Columns dialog per user | #813 | Done | Show, hide, reorder (drag or arrows), save per user, restore default. |
+| Columns dialog per user | #813 | Done | Popover anchored to the Columns button by default (`columns-panel`: `popover`, `dialog` or `side-panel`), changes applied live. Show, hide, reorder (drag or arrows), Restore default, Cancel, Save. |
 
 ### Criteria and forms
 

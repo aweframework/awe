@@ -70,9 +70,10 @@ export const TestIds = Object.freeze({
   gridEmptyText: "grid-empty-text",
   gridEmptyAction: "grid-empty-action",
   gridLoader: "grid-loader",
-  // Grid toolbar: the toolbar, its Columns and Maximize buttons, and the Columns dialog (the instance is identified by
-  // "grid-id"): its group of columns (the title is its text), a column ("column-id") with its checkbox, handle and
-  // arrows, the "N of M visible" counter ("data-visible" / "data-total") and its actions
+  // Grid toolbar: the toolbar, its Columns and Maximize buttons, and the Columns panel (popover, dialog or side panel,
+  // "data-type"; the instance is identified by "grid-id"): its group of columns (the title is its text), a column
+  // ("column-id") with its checkbox, handle and arrows, the "N of M visible" counter ("data-visible" / "data-total")
+  // and its actions (Show all is no longer shown)
   gridToolbar: "grid-toolbar",
   gridGroupHeader: "grid-group-header",
   gridColumnsButton: "grid-columns-button",
@@ -87,9 +88,10 @@ export const TestIds = Object.freeze({
   gridColumnsCounter: "grid-columns-counter",
   gridColumnsShowAll: "grid-columns-show-all",
   gridColumnsReset: "grid-columns-reset",
+  gridColumnsCancel: "grid-columns-cancel",
   gridColumnsSave: "grid-columns-save",
   gridColumnsClose: "grid-columns-close",
-  // React only: result of the last Save or Reset of the Columns dialog ("data-type": saved or error)
+  // React only: result of the last Save or Reset of the Columns panel ("data-type": saved or error)
   gridColumnsStatus: "grid-columns-status",
   // Tree grids: expand/collapse icon of a row
   treeIcon: "tree-icon",

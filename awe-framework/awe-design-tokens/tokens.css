@@ -1109,6 +1109,8 @@
   --awe-grid-drop-indicator-width: var(--awe-focus-ring-width);
   /* Minimum height of the rows area: the header and about three rows, for a grid whose container gives it no height */
   --awe-grid-min-body-height: 12rem;
+  /* Width of the Columns of the grid toolbar (popover, dialog and side panel): px, the root font size differs by engine */
+  --awe-grid-columns-panel-width: 432px;
 
   /* Side menu */
   --awe-menu-width: var(--awe-size-menu-width);

@@ -87,6 +87,7 @@ public final class TestIds {
   public static final String GRID_COLUMNS_SHOW_ALL = "grid-columns-show-all";
   public static final String GRID_COLUMNS_RESET = "grid-columns-reset";
   public static final String GRID_COLUMNS_SAVE = "grid-columns-save";
+  public static final String GRID_COLUMNS_CANCEL = "grid-columns-cancel";
   public static final String GRID_COLUMNS_CLOSE = "grid-columns-close";
   public static final String TREE_ICON = "tree-icon";
   public static final String COLUMN_ICON = "column-icon";

@@ -47,4 +47,11 @@ class ReactAweInstructionsSelectorGuardTest extends AbstractFrontEndSelectorGuar
       "getTabMenuDropdown", "The React tab list has no \"more\" menu (no tabdrop), so there is no element to locate",
       "getTabMenuDropdownOption", "The React tab list has no \"more\" menu (no tabdrop), so there is no element to locate");
   }
+
+  @Override
+  protected Map<String, String> allowedFragments() {
+    return Map.of(
+      "[aria-busy='true']", "AWE sets it on the Columns of a grid while Save or Restore default wait for the server (not "
+        + "PrimeReact): the silent calls have no other sign that they ended");
+  }
 }

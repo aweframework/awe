@@ -1,9 +1,11 @@
 package com.almis.awe.builder.enumerates;
 
 /**
- * How the toolbar of a grid shows its Columns: a modal dialog or a side panel
+ * How the toolbar of a grid shows its Columns: a popover anchored to the Columns button, a modal
+ * dialog or a side panel
  */
 public enum ColumnsPanel {
+  POPOVER("popover"),
   DIALOG("dialog"),
   SIDE_PANEL("side-panel");
 

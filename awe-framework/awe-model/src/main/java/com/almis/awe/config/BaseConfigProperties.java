@@ -663,11 +663,11 @@ public class BaseConfigProperties {
      */
     private String gridIconLoading = "skeleton";
     /**
-     * How the toolbar of the grids that do not define columns-panel shows their Columns: dialog (a modal dialog) or
-     * side-panel (a panel anchored to the right edge of the screen)
-     * Default value dialog
+     * How the toolbar of the grids that do not define columns-panel shows their Columns: popover (anchored to the Columns
+     * button), dialog (a modal dialog) or side-panel (a panel anchored to the right edge of the screen)
+     * Default value popover
      */
-    private String gridColumnsPanel = "dialog";
+    private String gridColumnsPanel = "popover";
     /**
      * Rows per page in criteria component (Set to 0 to avoid pagination)
      * Default value 100

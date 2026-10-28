@@ -122,13 +122,25 @@ aweApplication.factory('Maximize',
           };
 
           /**
+           * Remove the inline sizes of the maximized element, but keep its custom properties (--*): the grids keep their
+           * row height there (--grid-row-height), which places the text of their cells
+           */
+          const clearInlineStyle = function () {
+            const style = elem[0] && elem[0].style;
+            const custom = style ? Array.from(style).filter(name => name.startsWith("--"))
+              .map(name => [name, style.getPropertyValue(name)]) : [];
+            elem.removeAttr('style');
+            custom.forEach(([name, value]) => elem[0].style.setProperty(name, value));
+          };
+
+          /**
            * Minimize parents and siblings
            * @returns {undefined}
            */
           const minimizeParentsAndSiblings = function () {
             $(minimize.parents).addClass("maximizeParent");
             $(minimize.targets).addClass("minimized");
-            elem.removeAttr('style');
+            clearInlineStyle();
           };
 
           /**
@@ -226,7 +238,7 @@ aweApplication.factory('Maximize',
             $(minimize.targets).removeClass("minimized").fadeIn(animationTime + 150);
             $(minimize.parents).removeClass("maximizeParent").fadeIn(animationTime + 150);
             // Remove minimized class
-            elem.removeAttr('style');
+            clearInlineStyle();
             // Set resizing
             scope.$root.resizing = true;
             scope.panelResizing = true;

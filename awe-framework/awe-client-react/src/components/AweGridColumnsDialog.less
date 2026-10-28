@@ -1,26 +1,58 @@
+// Columns panel of a grid (#813): the same content in the popover, the dialog and the side panel. Header with the title,
+// the "N of M visible" counter and the close button; rows with handle, checkbox, label (muted when hidden) and the
+// arrows; footer with Restore default on the left, Cancel and Save
 .grid-columns-dialog {
+  .grid-columns-header {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    gap: var(--awe-space-3);
+    min-width: 0;
+  }
+
+  .grid-columns-titles {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .grid-columns-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .grid-columns-counter {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    color: var(--awe-color-text-muted);
+  }
+
+  .grid-columns-close {
+    flex: none;
+    margin: calc(var(--awe-space-1-5) * -1) calc(var(--awe-space-1-5) * -1) 0 0;
+  }
+
   .grid-columns-status {
     margin-bottom: var(--awe-space-3);
     font-size: var(--awe-font-size-sm);
     color: var(--awe-color-text-muted);
   }
 
-  .grid-columns-counter {
-    margin-bottom: var(--awe-space-3);
-    font-size: var(--awe-font-size-sm);
-    font-weight: var(--awe-font-weight-semibold);
-    font-variant-numeric: var(--awe-font-variant-numeric);
-    color: var(--awe-color-text-muted);
-  }
-
   .grid-columns-list,
   .grid-columns-list ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--awe-list-gap);
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  // The list scrolls inside the dialog, so its actions stay in view with a long list of columns
+  // The list scrolls inside the panel, so its actions stay in view with a long list of columns
   .grid-columns-list {
     max-height: 55vh;
     overflow-y: auto;
@@ -31,9 +63,8 @@
     align-items: center;
     gap: var(--awe-space-2);
     min-height: var(--awe-size-control);
-    padding: 0 var(--awe-space-1);
-    border-bottom: 1px solid var(--awe-color-border-subtle);
-    border-radius: var(--awe-radius-list-option);
+    padding: 0 var(--awe-space-2);
+    border-radius: var(--awe-radius-sm);
 
     &:hover {
       background: var(--awe-color-list-option-focus);
@@ -46,6 +77,11 @@
       margin: 0;
       accent-color: var(--awe-color-primary);
       cursor: pointer;
+
+      &:focus-visible {
+        outline: var(--awe-focus-ring);
+        outline-offset: var(--awe-focus-ring-offset);
+      }
     }
 
     label {
@@ -57,6 +93,10 @@
       color: var(--awe-color-text);
       cursor: pointer;
     }
+
+    &.is-hidden label {
+      color: var(--awe-color-text-muted);
+    }
   }
 
   .grid-column-handle {
@@ -64,6 +104,27 @@
     place-items: center;
     color: var(--awe-color-text-muted);
     cursor: grab;
+  }
+
+  // The arrows show on the row under the pointer or with the focus; they stay in the tab order, so the keyboard reaches
+  // them (and shows them) from the checkbox of the row
+  .grid-column-actions {
+    display: inline-flex;
+    gap: var(--awe-space-0-5);
+    opacity: 0;
+    transition: opacity var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+  }
+
+  .grid-column-item:hover > .grid-column-actions,
+  .grid-column-item:focus-within > .grid-column-actions {
+    opacity: 1;
+  }
+
+  // Without a pointer that hovers (touch) the arrows are always shown
+  @media (hover: none) {
+    .grid-column-actions {
+      opacity: 1;
+    }
   }
 
   .grid-column-move {
@@ -103,11 +164,95 @@
     }
   }
 
+  // The actions stay in one line: the buttons keep their size and their texts do not wrap
   .grid-columns-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--awe-space-2);
+  }
+
+  .grid-columns-actions > .p-button {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  // Save while it waits for the server (the loading look of the login button): the spinner and "Saving…", disabled
+  // but on its colour. The spinner stops with prefers-reduced-motion (.awe-icon-spin)
+  .grid-columns-actions > .p-button.is-loading:disabled {
+    cursor: progress;
+    opacity: 1;
+  }
+
+  // Restore default stays on the left
+  .grid-columns-reset {
+    gap: var(--awe-space-1-5);
+    margin-right: auto;
+  }
+
+  .grid-columns-reset-icon {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grid-column-actions {
+      transition: none;
+    }
+  }
+}
+
+// Columns as a popover anchored to the Columns button (columns-panel="popover"): the overlay look of the popovers, no
+// mask; the list scrolls between the header and the actions. Its width is the one of the dialog (PANEL_STYLE)
+.grid-columns-popover {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  background-color: var(--awe-color-overlay);
+  color: var(--awe-color-text);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &:focus {
+    outline: none;
+  }
+
+  // The Columns button is not on the screen: the popover is centered
+  &.grid-columns-popover-unanchored {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  > .grid-columns-header {
+    flex: none;
+    padding: var(--awe-modal-padding) var(--awe-modal-padding) var(--awe-space-3);
+  }
+
+  > .grid-columns-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0 var(--awe-space-3) var(--awe-space-3);
+  }
+
+  .grid-columns-status {
+    padding: 0 var(--awe-space-2);
+  }
+
+  .grid-columns-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  > .grid-columns-actions {
+    flex: none;
+    padding: var(--awe-space-3) var(--awe-modal-padding);
+    border-top: 1px solid var(--awe-color-overlay-border);
   }
 }
 
@@ -115,14 +260,7 @@
 // stay at its bottom
 .grid-columns-side-panel {
   .p-sidebar-header {
-    justify-content: space-between;
     border-bottom: 1px solid var(--awe-color-border);
-  }
-
-  .grid-columns-title {
-    font-size: var(--awe-font-size-dialog-title);
-    font-weight: var(--awe-font-weight-semibold);
-    color: var(--awe-color-text-emphasis);
   }
 
   .p-sidebar-content {

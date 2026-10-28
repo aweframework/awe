@@ -467,6 +467,7 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-grid-row-marker-width` | `3px` | = claro |
 | `--awe-grid-drop-indicator-width` | `var(--awe-focus-ring-width)` | = claro |
 | `--awe-grid-min-body-height` | `12rem` | = claro |
+| `--awe-grid-columns-panel-width` | `432px` | = claro |
 | `--awe-menu-width` | `var(--awe-size-menu-width)` | = claro |
 | `--awe-menu-width-collapsed` | `68px` | = claro |
 | `--awe-menu-background` | `var(--awe-color-menu)` | = claro |

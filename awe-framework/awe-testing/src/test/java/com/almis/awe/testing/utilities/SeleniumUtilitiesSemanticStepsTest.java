@@ -2299,6 +2299,19 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckThatTheColumnsOfAGridAreAPopoverInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, "Grd")
+        + TestAttributes.css(TestAttributes.TYPE, "popover")), "");
+
+      assertThatCode(() -> utilities.checkGridColumnsPanel("Grd", "popover")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsPanel("Grd", "dialog"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridColumnsPanel("Grd", "side-panel"));
+    }
+  }
+
+  @Test
   void shouldCheckTheCounterAndTheColumnsOfTheColumnsDialogInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
@@ -2344,13 +2357,15 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldMoveAColumnWithItsArrowsAndCheckItsLimitsInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
+      show(instructions.getGridColumnsItem("Grd", "col05"), "");
       show(instructions.getGridColumnsMoveUp("Grd", "col05"), "");
       show(instructions.getGridColumnsMoveDown("Grd", "col05"), "");
 
+      // The arrows only show on the row under the pointer: each move hovers the row and then clicks the arrow
       long start = performed();
       utilities.moveGridColumnUp("Grd", "col05");
       utilities.moveGridColumnDown("Grd", "col05");
-      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 4);
       assertThrows(AssertionFailedError.class, () -> utilities.moveGridColumnUp("Grd", "other"));
 
       when(((JavascriptExecutor) driver).executeScript(any(String.class), any())).thenReturn(true);
@@ -2367,17 +2382,90 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldClickTheActionsOfTheColumnsDialogInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
-      show(instructions.getGridColumnsShowAll("Grd"), "");
       show(instructions.getGridColumnsReset("Grd"), "");
+      show(instructions.getGridColumnsCancel("Grd"), "");
       show(instructions.getGridColumnsSave("Grd"), "");
 
       long start = performed();
-      utilities.clickGridColumnsShowAll("Grd");
       utilities.clickGridColumnsReset("Grd");
+      utilities.clickGridColumnsCancel("Grd");
       utilities.clickGridColumnsSave("Grd");
 
       assertThat(performed()).isGreaterThanOrEqualTo(start + 3);
       assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsSave("Other"));
+      assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsCancel("Other"));
+    }
+  }
+
+  @Test
+  void shouldWaitForTheResetOfTheColumnsToEndInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      properties.setTimeout(Duration.ofSeconds(2));
+      use(client);
+      show(instructions.getGridColumnsReset("Grd"), "");
+      show(instructions.getGridColumnsBusy("Grd"), "");
+      By busy = Locator.from(instructions.getGridColumnsBusy("Grd")).toBy();
+      WebElement root = driver.findElements(busy).get(0);
+
+      // Restore default is silent: the Columns are aria-busy until the server answers, 300 ms after the click
+      long[] clickedAt = {0};
+      doAnswer(invocation -> {
+        clickedAt[0] = System.currentTimeMillis();
+        return null;
+      }).when((Interactive) driver).perform(any());
+      when(driver.findElements(argThat(busy::equals))).thenAnswer(invocation ->
+        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] < 300 ? List.of(root) : Collections.emptyList());
+
+      utilities.clickGridColumnsReset("Grd");
+      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(300);
+
+      // The server never answers
+      properties.setTimeout(Duration.ofMillis(300));
+      when(driver.findElements(argThat(busy::equals))).thenReturn(List.of(root));
+      assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsReset("Grd"));
+    }
+  }
+
+  @Test
+  void shouldWaitForTheSaveToCloseTheColumnsInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      properties.setTimeout(Duration.ofSeconds(2));
+      use(client);
+      show(instructions.getGridColumnsSave("Grd"), "");
+      show(instructions.getGridColumnsDialog("Grd"), "");
+      By dialog = Locator.from(instructions.getGridColumnsDialog("Grd")).toBy();
+      WebElement root = driver.findElements(dialog).get(0);
+
+      // Save closes the Columns when the server answers that the layout was saved, 300 ms after the click
+      long[] clickedAt = {0};
+      doAnswer(invocation -> {
+        clickedAt[0] = System.currentTimeMillis();
+        return null;
+      }).when((Interactive) driver).perform(any());
+      when(driver.findElements(argThat(dialog::equals))).thenAnswer(invocation ->
+        clickedAt[0] == 0 || System.currentTimeMillis() - clickedAt[0] < 300 ? List.of(root) : Collections.emptyList());
+
+      utilities.clickGridColumnsSave("Grd");
+      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(300);
+
+      // The layout is not saved: the Columns stay open
+      properties.setTimeout(Duration.ofMillis(300));
+      when(driver.findElements(argThat(dialog::equals))).thenReturn(List.of(root));
+      assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsSave("Grd"));
+    }
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void shouldKeepClickingTheDeprecatedShowAllOfTheColumnsInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridColumnsShowAll("Grd"), "");
+
+      long start = performed();
+      utilities.clickGridColumnsShowAll("Grd");
+
+      assertThat(performed()).isGreaterThan(start);
     }
   }
 

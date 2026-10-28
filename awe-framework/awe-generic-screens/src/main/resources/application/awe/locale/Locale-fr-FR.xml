@@ -1298,9 +1298,11 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="GRID_COLUMNS_TITLE" value="Colonnes de la grille"/>
   <locale name="GRID_COLUMNS_VISIBLE" value="visibles"/>
   <locale name="GRID_COLUMNS_SHOW_ALL" value="Tout afficher"/>
-  <locale name="GRID_COLUMNS_RESET" value="Réinitialiser"/>
-  <locale name="GRID_COLUMNS_SAVE" value="Enregistrer par défaut"/>
+  <locale name="GRID_COLUMNS_RESET" value="Rétablir par défaut"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Enregistrer"/>
+  <locale name="GRID_COLUMNS_SAVING" value="Enregistrement…"/>
   <locale name="GRID_COLUMNS_CLOSE" value="Fermer"/>
+  <locale name="GRID_COLUMNS_CANCEL" value="Annuler"/>
   <locale name="GRID_COLUMNS_MOVE_UP" value="Monter"/>
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Descendre"/>
   <locale name="GRID_COLUMNS_DRAG" value="Glisser pour réorganiser"/>

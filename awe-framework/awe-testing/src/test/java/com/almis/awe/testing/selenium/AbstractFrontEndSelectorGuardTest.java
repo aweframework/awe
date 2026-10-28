@@ -364,6 +364,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getTabMaximizeButton", () -> i.getTabMaximizeButton(TABS));
     catalog.put("getGridColumnsDialog", () -> i.getGridColumnsDialog(GRID));
     catalog.put("getGridColumnsPanel", () -> i.getGridColumnsPanel(GRID, "side-panel"));
+    catalog.put("getGridColumnsBusy", () -> i.getGridColumnsBusy(GRID));
     catalog.put("getGridColumnsCounter", () -> i.getGridColumnsCounter(GRID, "24", "26"));
     catalog.put("getGridColumnsItem", () -> i.getGridColumnsItem(GRID, COLUMN));
     catalog.put("getGridColumnsCheckbox", () -> i.getGridColumnsCheckbox(GRID, COLUMN));
@@ -372,6 +373,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridColumnsShowAll", () -> i.getGridColumnsShowAll(GRID));
     catalog.put("getGridColumnsReset", () -> i.getGridColumnsReset(GRID));
     catalog.put("getGridColumnsSave", () -> i.getGridColumnsSave(GRID));
+    catalog.put("getGridColumnsCancel", () -> i.getGridColumnsCancel(GRID));
     catalog.put("getGridColumnsClose", () -> i.getGridColumnsClose(GRID));
     catalog.put("getGridGroupHeader", () -> i.getGridGroupHeader(GRID, "Group"));
     catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
