@@ -55,6 +55,59 @@ describe('AWE 5 grid styles (#885)', () => {
     expect(rule(grid, '.p-treetable .p-treetable-tfoot > tr > td')).toMatch(/font-variant-numeric: var\(--awe-font-variant-numeric\);/);
   });
 
+  it('keeps the cells on one line whatever the grid, as the prototype, and the editors of an edited row in their cell', () => {
+    // Not only on the resizable grids (PrimeReact): a grid with a grouped header is not resizable
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr > td')).toMatch(/white-space: nowrap;/);
+    expect(rule(grid, '.p-datatable .p-cell-text.p-cell-wrap')).toMatch(/white-space: normal;/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.editing > td')).toMatch(/overflow: hidden;/);
+  });
+
+  it('draws the choose button of an uploader in an edited row as an addon of its field, at the small control height', () => {
+    const choose = rule(grid, '.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup .p-fileupload .p-button');
+    // The delete button of an uploaded file too
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup > .p-button')).toBe(choose);
+    expect(choose).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(choose).toMatch(/font-size: var\(--awe-font-size-sm\);/);
+    expect(choose).toMatch(/color: var\(--awe-color-text\);/);
+    expect(choose).toMatch(/background: var\(--awe-color-field\);/);
+    expect(choose).toMatch(/border: 1px solid var\(--awe-color-field-border\);/);
+  });
+
+  it('paints the frozen cells opaque, with the colour of their row on top, so the cells scrolling under them do not show', () => {
+    const layered = token => `background: linear-gradient(var(${token}), var(${token})), var(--awe-grid-row-background);`;
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr > td.p-frozen-column')).toMatch(/background: var\(--awe-grid-row-background\);/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.p-highlight > td.p-frozen-column'))
+      .toContain(layered('--awe-grid-row-selected-background'));
+    expect(rule(grid, '.p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover > td.p-frozen-column'))
+      .toContain(layered('--awe-grid-row-hover-background'));
+    expect(rule(grid, '.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd:not(.p-highlight) > td.p-frozen-column'))
+      .toContain(layered('--awe-color-surface-subtle'));
+  });
+
+  it('keeps the background of the edited row in its frozen cells, also when the row is selected or hovered', () => {
+    const edited = rule(grid, '.p-datatable .p-datatable-tbody > tr.editing > td.p-frozen-column');
+    expect(edited).toMatch(/background: var\(--awe-grid-row-background\);/);
+    expect(rule(grid, '.p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr.editing:hover > td.p-frozen-column')).toBe(edited);
+  });
+
+  it('keeps the row edit column narrow: small padding and a small gap between the save and cancel buttons', () => {
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column')).toMatch(/padding-inline: var\(--awe-space-2\);/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column .p-row-editor-save'))
+      .toMatch(/margin-right: var\(--awe-space-1\);/);
+  });
+
+  it('draws the addon of a field in an edited row at the small control height of the row', () => {
+    const addon = rule(grid, '.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup-addon');
+    expect(addon).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(addon).toMatch(/min-width: var\(--awe-size-control-sm\);/);
+  });
+
+  it('separates the row edit column, frozen at the right, from the columns that scroll under it', () => {
+    expect(rule(grid, '.p-datatable .grid-row-editor-column')).toMatch(/box-shadow: inset 1px 0 0 var\(--awe-grid-border\);/);
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.editing > td.grid-row-editor-column'))
+      .toMatch(/box-shadow: inset 0 1px 0 var\(--awe-color-primary\), inset 1px 0 0 var\(--awe-grid-border\);/);
+  });
+
   it('marks the edited row and the row detail with a primary line on their left', () => {
     expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.editing > td')).toMatch(/border-bottom-color: var\(--awe-color-primary\);/);
     expect(rule(grid, '.p-datatable .p-datatable-tbody > tr.editing > td:first-child'))
@@ -82,6 +135,12 @@ describe('AWE 5 grid styles (#885)', () => {
     // The height of a header row: its padding, the line of its text and its bottom border
     expect(rule(grid, '.p-datatable-scrollable > .p-datatable-wrapper')).toMatch(new RegExp(escape(
       'scroll-padding-top: calc(2 * var(--awe-grid-cell-padding-y) + var(--awe-grid-header-font-size) * var(--awe-line-height-snug) + 1px);')));
+  });
+
+  it('stops what scrolls into view in an editable grid before its row edit column, frozen at the right, not behind it', () => {
+    // The width of the row edit column of an edited row: its save and cancel buttons, their gap and its padding
+    expect(rule(grid, '.p-datatable-scrollable > .p-datatable-wrapper:has(.grid-row-editor-column)')).toMatch(new RegExp(escape(
+      'scroll-padding-inline-end: calc(2 * var(--awe-size-control-sm) + var(--awe-space-1) + 2 * var(--awe-space-2));')));
   });
 
   it('places the toolbar and the paginator inside the grid borders, with the page sizes of the density', () => {

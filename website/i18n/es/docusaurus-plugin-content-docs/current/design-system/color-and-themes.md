@@ -140,8 +140,7 @@ Hex probados, en claro y en oscuro (2.736 parejas): primarios `#575C9C`, `#E11D4
 da un primario gris: es válido, pero los controles rellenos destacan menos sobre la página. El panel **Theme** del
 prototipo tiene una opción *Custom* para probar cualquier hex.
 
-Un tema llega a la página de una de estas dos formas (implementado en el servidor y pintado en `<html>`; las pantallas
-mantienen el aspecto clásico hasta el nuevo aspecto de los motores, ver [Para desarrolladores](for-developers.md#configure-the-theme-of-a-product)):
+Un tema llega a la página de una de estas dos formas (implementado en el servidor y pintado en `<html>`, ver [Para desarrolladores](for-developers.md#configure-the-theme-of-a-product)):
 
 - **Por nombre**, como hoy: un nombre de tema (`sky`, `sunset`…) es un preset de primario, superficie y modo por
   defecto, y se elige con el tema del usuario, el del perfil, `awe.application.theme` y el selector de temas.
@@ -185,7 +184,7 @@ marca están más cerca de esas paletas. `dust` y `amazonia` tienen una marca gr
 
 Estado: implementado. El servidor aplica el preset cuando un tema no tiene fila en `AweThm` (`amazonia` solo existe en
 LESS) o su fila no tiene un valor válido, y la migración `AWE_V1.5.0` escribe los mismos valores en las filas clásicas
-de `AweThm`. Los motores lo pintan en `<html>`; las pantallas mantienen el aspecto clásico hasta el nuevo aspecto de los motores.
+de `AweThm`. Los motores lo pintan en `<html>`.
 
 ## Colores semánticos {#semantic-colours}
 

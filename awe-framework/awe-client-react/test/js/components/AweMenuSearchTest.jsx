@@ -268,6 +268,118 @@ describe('components/AweMenuSearch.jsx', () => {
 
     expect(screen.queryByRole("textbox")).toBeNull();
   });
+
+  describe('Ctrl K shortcut', () => {
+    const pressShortcut = (init) => fireEvent.keyDown(window, { key: "k", code: "KeyK", ...init });
+
+    afterEach(() => {
+      document.body.className = "";
+    });
+
+    it('shows the shortcut in the vertical search field and declares it to assistive technologies', () => {
+      renderSearch();
+
+      const toggle = screen.getByRole("button", { name: "MENU_SEARCH_PLACEHOLDER" });
+      expect(toggle).toHaveAttribute("aria-keyshortcuts", "Control+K Meta+K");
+      expect(toggle.querySelector("kbd.awe-menu-search-kbd")).toHaveTextContent("Ctrl K");
+      expect(toggle.querySelector("kbd.awe-menu-search-kbd")).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it('shows no shortcut hint on the icon toggle of the horizontal menu', () => {
+      renderSearch({ menuType: "horizontal" });
+
+      const toggle = screen.getByRole("button");
+      expect(toggle).toHaveAttribute("aria-keyshortcuts", "Control+K Meta+K");
+      expect(toggle.querySelector("kbd")).toBeNull();
+    });
+
+    it.each([["Ctrl", { ctrlKey: true }], ["Meta", { metaKey: true }], ["Ctrl with caps lock", { ctrlKey: true, key: "K" }]])(
+      'opens the search and focuses its input with %s + K', (_name, init) => {
+        renderSearch();
+
+        const notCancelled = pressShortcut(init);
+
+        expect(notCancelled).toBe(false);
+        expect(screen.getByRole("textbox")).toHaveFocus();
+      });
+
+    it('opens the search of the horizontal menu with Ctrl + K', () => {
+      renderSearch({ menuType: "horizontal" });
+
+      pressShortcut({ ctrlKey: true });
+
+      expect(screen.getByRole("textbox")).toHaveFocus();
+    });
+
+    it('keeps the search open and focuses its input again when it is already open', () => {
+      renderSearch();
+      const input = openPanel();
+      fireEvent.change(input, { target: { value: "invoice" } });
+      input.blur();
+
+      pressShortcut({ ctrlKey: true });
+
+      expect(screen.getByRole("textbox")).toHaveFocus();
+      expect(screen.getByRole("textbox")).toHaveValue("invoice");
+    });
+
+    it.each([["K alone", {}], ["Ctrl + Shift + K", { ctrlKey: true, shiftKey: true }], ["Alt + K", { altKey: true }],
+      ["Ctrl + J", { ctrlKey: true, key: "j", code: "KeyJ" }]])('ignores %s and leaves the event untouched', (_name, init) => {
+      renderSearch();
+
+      const notCancelled = pressShortcut(init);
+
+      expect(notCancelled).toBe(true);
+      expect(screen.queryByRole("textbox")).toBeNull();
+    });
+
+    describe('on the desktop', () => {
+      let matchMedia;
+
+      beforeEach(() => {
+        matchMedia = window.matchMedia;
+        window.matchMedia = jest.fn(query => ({ matches: query === "(min-width: 1025px)", media: query }));
+      });
+
+      afterEach(() => {
+        window.matchMedia = matchMedia;
+      });
+
+      it('ignores the shortcut and leaves the browser one when the menu is collapsed to the rail', () => {
+        document.body.className = "layout-static-inactive";
+        renderSearch();
+
+        const notCancelled = pressShortcut({ ctrlKey: true });
+
+        expect(notCancelled).toBe(true);
+        expect(screen.queryByRole("textbox")).toBeNull();
+      });
+
+      it('opens the search when the menu is expanded', () => {
+        renderSearch();
+
+        pressShortcut({ ctrlKey: true });
+
+        expect(screen.getByRole("textbox")).toHaveFocus();
+      });
+    });
+
+    it('opens the search below the desktop width, where the collapsed menu is a drawer and not the rail', () => {
+      document.body.className = "layout-static-inactive";
+      renderSearch();
+
+      pressShortcut({ ctrlKey: true });
+
+      expect(screen.getByRole("textbox")).toHaveFocus();
+    });
+
+    it('stops listening to the shortcut once unmounted', () => {
+      const { unmount } = renderSearch();
+      unmount();
+
+      expect(pressShortcut({ ctrlKey: true })).toBe(true);
+    });
+  });
 });
 
 describe('components/AweMenu.jsx menu search gating', () => {

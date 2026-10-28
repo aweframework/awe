@@ -31,6 +31,8 @@ const WHOLE_VALUE = /^(box-shadow|outline|outline-offset)$/;
 const TRANSITION = /^transition(-duration)?$/;
 
 const readJson = file => JSON.parse(fs.readFileSync(file, "utf8"));
+// A :focus pseudo-class, not :focus-visible nor :focus-within
+const FOCUS = /:focus(?![-\w])/g;
 const escapeComment = text => text.replace(/\*\//g, "* /");
 
 /**
@@ -144,7 +146,9 @@ const buildTheme = (laraCss, {table, tokensCss, version, license, auraLicense}) 
   const output = [];
   const blocks = [];
   let selectorLines = [];
+  let pendingLines = [];
   let skipDepth = 0;
+  const focusVisible = new RegExp(table.focusVisible);
 
   laraCss.split(/\r?\n/).forEach((line, index) => {
     const trimmed = line.trim();
@@ -155,19 +159,23 @@ const buildTheme = (laraCss, {table, tokensCss, version, license, auraLicense}) 
     // Lara writes one selector of a list per line, and one declaration per line ended by a semicolon
     if (trimmed.endsWith(",")) {
       selectorLines.push(trimmed);
-      output.push(line);
+      pendingLines.push(line);
       return;
     }
     if (trimmed.endsWith("{")) {
       const selector = [...selectorLines, trimmed.slice(0, -1).trim()].join(" ").replace(/\s+/g, " ");
+      const lines = [...pendingLines, line];
       selectorLines = [];
+      pendingLines = [];
       // The palette of Lara and its font faces stay out: the tokens give the colours, the client loads the fonts
       if (blocks.length === 0 && (selector === ":root" || selector === "@font-face")) {
         skipDepth = 1;
         return;
       }
-      blocks.push(selector);
-      output.push(line);
+      // As the prototype, the focus ring of a button is for the keyboard: its :focus rules become :focus-visible
+      const visible = focusVisible.test(selector);
+      blocks.push(visible ? selector.replace(FOCUS, ":focus-visible") : selector);
+      output.push(...lines.map(text => visible ? text.replace(FOCUS, ":focus-visible") : text));
       return;
     }
     if (trimmed === "}") {

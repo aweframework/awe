@@ -10,8 +10,8 @@ opciones de menú y el XML de las pantallas no cambian; solo cambia la presentac
 
 ```text
 ┌──────────────┬──────────────────────────────────────────────────┐
-│ Zona de marca│ Cabecera: menú · búsqueda global · ayuda ·       │
-│              │           notificaciones · menú de usuario       │
+│ Zona de marca│ Cabecera: menú · notificaciones ·                │
+│              │           menú de usuario                        │
 ├──────────────┼──────────────────────────────────────────────────┤
 │ Buscar opción│ Breadcrumb                                       │
 │ Sección      │ Título de página + acciones                      │
@@ -48,7 +48,7 @@ Hasta **tres niveles** por debajo de una sección: sección › opción › subo
 | Niveles 2 y 3 | Sin icono. Con sangría y una línea guía vertical por nivel. Más pequeños y atenuados. |
 | Rastro activo | Cada antecesor de la página actual queda marcado (peso, barra de acento en la guía); la propia página tiene el fondo de resaltado. |
 | Expandir / plegar | Por nivel y animado (`--awe-motion-duration-expand`). Los niveles abiertos se restauran sin animación. |
-| Búsqueda | Filtra a cualquier profundidad, abre la ruta de cada coincidencia y resalta el texto encontrado. |
+| Búsqueda | Filtra a cualquier profundidad, abre la ruta de cada coincidencia y resalta el texto encontrado. `Ctrl K` (`⌘ K` en macOS) la abre desde cualquier sitio y el campo muestra el atajo; en el rail la búsqueda está oculta y la tecla queda para el navegador. |
 | Badges | Contadores (neutros o de peligro) y "New". |
 
 **Rail.** El menú se pliega a una barra de iconos (`--awe-menu-width-collapsed`, 68px) y el cambio de ancho se anima.
@@ -79,9 +79,10 @@ escritorio.
 ## Cabecera {#header}
 
 - Clara, ligeramente translúcida, fija al desplazar, de altura `--awe-header-height`.
-- Izquierda: botón de menú (icono `panel-left`) y búsqueda global (`Ctrl K` la enfoca).
-- Derecha: ayuda, notificaciones (punto cuando hay sin leer; lista en un popover) y menú de usuario (perfil,
-  preferencias, atajos, cambiar de empresa, cerrar sesión).
+- Izquierda: botón de menú (icono `panel-left`).
+- Derecha: las notificaciones del [módulo Notifier](../notifier-module.md) (el `include` `notification-panel` de la
+  pantalla de inicio) y el menú de usuario (perfil, preferencias, atajos, cambiar de empresa, cerrar sesión).
+- Sin botón de ayuda: AWE muestra la ayuda de una pantalla con el atributo `help` de sus componentes.
 
 ## Página {#page}
 

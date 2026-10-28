@@ -23,6 +23,13 @@ describe('AWE 5 criteria styles (#885)', () => {
       'AweInputDateRange.less', 'AweInputNumeric.less', 'AweInputUploader.less', 'AweSuggest.less']));
   });
 
+  it('draws the clear icon of a select smaller than its arrow and muted, so it does not read as a second arrow', () => {
+    const clear = rule(criterion, '.p-dropdown .p-dropdown-clear-icon');
+    expect(clear).toMatch(/width: var\(--awe-size-icon-sm\);/);
+    expect(clear).toMatch(/height: var\(--awe-size-icon-sm\);/);
+    expect(clear).toMatch(/color: var\(--awe-color-field-icon\);/);
+  });
+
   it.each(CRITERIA_STYLES)('styles %s with tokens only: no colour literals, sizes or mode selectors', file => {
     // The breakpoints of the column grid are LESS variables of the media queries (a media query cannot read a token)
     const css = withoutComments(read(file)).replace(/@media[^{]*/g, '').replace(/^@(sm|md|lg|xl):[^;]*;/gm, '');

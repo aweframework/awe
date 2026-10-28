@@ -76,7 +76,8 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
         escapeValue: false
       }
     }).then(() => {
-      const value = {ripple: true};
+      // No ripple on the clicks: as the AWE 5 prototype, a pressed button only darkens its background
+      const value = {ripple: false};
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(
         <ErrorBoundary scope="app">

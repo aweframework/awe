@@ -368,12 +368,6 @@
   border-radius: var(--awe-radius-md);
 }
 
-/* Login loading (prototype .btn.is-loading): the spinner and "Signing in..." on the main colour, not faded */
-.signin-form .p-button.is-loading:disabled {
-  cursor: progress;
-  opacity: 1;
-}
-
 /* "or continue with" divider before the single sign-on buttons (prototype .login__divider) */
 .signin-divider {
   display: flex;

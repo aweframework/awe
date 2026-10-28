@@ -57,7 +57,7 @@ function AweButton(props) {
     return <ButtonSkeleton attributes={attributes} className={propsStyle} />;
   }
 
-  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType } = attributes;
+  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading } = attributes;
   const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", signin?.variant ?? getButtonType(buttonType), { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style, signin?.className);
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
@@ -68,6 +68,8 @@ function AweButton(props) {
       className={classes}
       icon={signin?.icon ?? getIconCode(icon || signin?.defaultIcon, classNames("p-button-icon", "p-c", "p-button-icon-left", { [`text-${size}`]: size }),)}
       disabled={disabled || signin?.disabled}
+      // Busy state unless show-loading="false"; the sign-in page draws its own
+      showLoading={!signin && showLoading !== false}
       label={signin?.label ?? translateLabel(label, t)}
       iconPos={"left"}
       onClick={onClick}

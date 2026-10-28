@@ -9,6 +9,7 @@ import {selectServerActionComponent, selectServerActionRunning} from "../redux/s
 import {getAllComponents} from "../redux/selectors/componentSelectors";
 import {ButtonTypes} from "../redux/actions/components";
 import {useDarkMode} from "../hooks/useDarkMode";
+import {getBusyIcon} from "../hooks/useBusy";
 import {getIconNode} from "../utilities";
 import {classNames} from "../utilities/components";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -167,16 +168,14 @@ export function useSigningIn() {
 }
 
 /**
- * Look of the loading state of a submit button: the spinner instead of its icon, disabled
+ * Look of the loading state of a submit button: the busy look of the buttons (the spinner instead of its icon), disabled
  * @param {boolean} loading The button is loading
  * @returns {{className: string, disabled: boolean, icon?: React.ReactNode}} Look of the button
  */
 const submitLook = loading => ({
   className: classNames("signin-submit", {"is-loading": loading}),
   disabled: loading,
-  icon: loading ? getIconNode("lucide:loader-circle", {
-    className: "p-button-icon p-button-icon-left awe-icon-spin signin-spin", "aria-hidden": "true"
-  }) : undefined
+  icon: loading ? getBusyIcon("signin-spin") : undefined
 });
 
 /**

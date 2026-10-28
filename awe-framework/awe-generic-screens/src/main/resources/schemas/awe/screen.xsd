@@ -1796,6 +1796,11 @@
       <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="buttonAttr" />
+    <xs:attribute name="show-loading" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Busy state (true by default): when the action launched by the button is still running after a short time, the button shows a spinner instead of its icon until it ends. false turns it off.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Context Button Type -->

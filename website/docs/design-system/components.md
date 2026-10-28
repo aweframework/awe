@@ -21,7 +21,11 @@ active, disabled, invalid, loading, empty) and works in both densities and both 
 | Danger / danger outlined | Destructive actions. Filled only in the confirmation step. |
 
 - Sizes: small (`--awe-size-control-sm`), default (`--awe-size-control`), large (`--awe-size-control-lg`, login).
-- Label weight 500, icon on the left, 8px gap. Loading shows a spinner and keeps the width.
+- Label weight 500, icon on the left, 8px gap.
+- Busy (#771): when the action a button launched is still running after about 400 ms, that button shows a spinner
+  instead of its icon (before its label when it has none), stays disabled and is not faded; quick actions show
+  nothing. The other buttons are disabled while actions run. `show-loading="false"` turns it off for a button (see
+  [Button](../api/button.md)).
 - Button groups share borders; a split button is a primary plus a chevron button.
 
 | Do | Don't |

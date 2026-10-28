@@ -88,11 +88,15 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
   });
 
   it('should get width style in px', () => {
-    expect(getWidthStyle(undefined, 200)).toEqual({flex: '0 0 230px', width: "230px"});
+    expect(getWidthStyle(undefined, 200)).toEqual({flex: '0 0 230px', width: "230px", minWidth: "230px"});
   });
 
   it('should get width style in ch', () => {
-    expect(getWidthStyle(3)).toEqual({flex: '0 0 56px', width: "56px"});
+    expect(getWidthStyle(3)).toEqual({flex: '0 0 56px', width: "56px", minWidth: "56px"});
+  });
+
+  it('keeps a column at least as wide as its width, so a grid scrolls instead of squeezing its columns', () => {
+    expect(getWidthStyle(null, null, "32px")).toEqual({flex: '0 0 32px', width: "32px", minWidth: "32px"});
   });
 
   it('should get width style empty', () => {

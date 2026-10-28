@@ -56,6 +56,25 @@
   white-space: nowrap;
 }
 
+/* Hint of the Ctrl K shortcut at the end of the vertical search field, as the search of the prototype */
+.awe-menu-search-kbd {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 var(--awe-space-1-5);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: var(--awe-color-surface-subtle);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+  box-shadow: none;
+}
+
 .awe-menu-search-panel {
   position: absolute;
   z-index: var(--awe-z-dropdown);
@@ -184,4 +203,11 @@
 
 .awe-menu-search-horizontal .awe-menu-search-panel {
   right: 0;
+}
+
+/* A touch screen has no keyboard to press the shortcut with */
+@media (hover: none) and (pointer: coarse) {
+  .awe-menu-search-kbd {
+    display: none;
+  }
 }

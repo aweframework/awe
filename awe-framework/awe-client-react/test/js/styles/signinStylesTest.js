@@ -291,7 +291,8 @@ describe('AWE 5 login page styles (#885)', () => {
   });
 
   it('shows the Login button loading as the prototype: a spinner, opaque, with the progress cursor (S14)', () => {
-    const loading = rule(signin, '.signin-form .p-button.is-loading:disabled');
+    // The busy look of every button (#771), the login one included
+    const loading = rule(read('assets/css/layout.css'), '.p-button.is-loading:disabled');
     expect(loading).toMatch(/cursor: progress;/);
     expect(loading).toMatch(/opacity: 1;/);
   });

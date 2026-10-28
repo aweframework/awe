@@ -1,10 +1,13 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "./component";
 import {TestIds} from "../data/testIds";
+import {busySpinnerTemplate, createBusyState} from "./busyState";
 
 export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>
   <button type="{{::component.buttonType}}" id="{{::buttonId}}" data-testid="${TestIds.button}" title="{{controller.title| translateMultiple}}"
-          class="{{classes}}" ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
+          class="{{classes}}" ng-class="{'is-loading': busy}" ng-attr-aria-busy="{{busy ? 'true' : undefined}}"
+          ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
+    ${busySpinnerTemplate("busy")}
     ${getIconTemplate("button-icon", "i")}
     <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
   </button>
@@ -22,15 +25,16 @@ export const templateColumnButton = `<div ng-show="component.controller.visible"
 
 // Button service
 aweApplication.factory('Button',
-  ['Component', 'Storage', 'ActionController', 'AweUtilities',
+  ['Component', 'Storage', 'ActionController', 'AweUtilities', '$timeout',
     /**
      * Button generic methods
      * @param {Object} Component component
      * @param {Object} Storage service
      * @param {Object} ActionController service
      * @param {Object} Utilities service
+     * @param {Function} $timeout Timeout service
      */
-    function (Component, Storage, ActionController, Utilities) {
+    function (Component, Storage, ActionController, Utilities, $timeout) {
 
       /**
        * Button constructor
@@ -87,6 +91,14 @@ aweApplication.factory('Button',
             component.buttonType = component.controller.buttonType === "reset" ? "button" : component.controller.buttonType;
           }
 
+          // Busy state of the button while the actions it launched run (unless the button sets show-loading="false")
+          const busyState = createBusyState({
+            scope: component.scope,
+            property: "busy",
+            isRunning: () => Storage.get("actions-running"),
+            timeout: $timeout
+          });
+
           //*****************************************************************************
           // SCOPE METHODS
           //****************************************************************************/
@@ -110,6 +122,9 @@ aweApplication.factory('Button',
               address: component.address,
               context: component.context
             });
+            if (component.controller && component.controller.showLoading !== false) {
+              busyState.start();
+            }
             component.storeEvent('click');
           };
 

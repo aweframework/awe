@@ -200,7 +200,8 @@
       <label class="control control--sm">
         ${icon('search', 'i--sm')}
         <span class="sr-only">Filter menu options</span>
-        <input type="search" id="menu-filter" placeholder="Find an option…" autocomplete="off">
+        <input type="search" id="menu-filter" placeholder="Find an option…" autocomplete="off" aria-keyshortcuts="Control+K Meta+K">
+        <span class="kbd" aria-hidden="true">Ctrl K</span>
       </label>
     </div>
     <nav class="nav" id="nav" aria-label="Main menu"></nav>
@@ -403,14 +404,6 @@
     render(topbar, `
       <button class="btn btn--ghost btn--icon" type="button" id="menu-toggle" aria-label="Toggle menu" aria-controls="sidebar"
         data-tooltip="Menu" data-tooltip-pos="bottom">${icon('panel-left')}</button>
-      <div class="global-search" role="search">
-        <label class="control">
-          ${icon('search')}
-          <span class="sr-only">Search</span>
-          <input type="search" id="global-search" placeholder="Search customers, orders, invoices…" autocomplete="off">
-          <span class="kbd" aria-hidden="true">Ctrl K</span>
-        </label>
-      </div>
       <div class="topbar__actions">
         <a class="btn ${onComponents ? 'btn--secondary' : 'btn--ghost'} btn--sm hide-sm" href="components.html"
           ${onComponents ? 'aria-current="page"' : ''}>${icon('blocks', 'i--sm')}AWE 5 components</a>
@@ -461,9 +454,11 @@
   }
 
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    // Ctrl K focuses the menu search, as both engines; on the collapsed rail the search is hidden and the browser keeps it
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && !isRail()) {
       e.preventDefault();
-      $('#global-search')?.focus();
+      if (isDrawer()) app.dataset.drawer = 'open';
+      $('#menu-filter')?.focus();
     }
     if (e.key === 'Escape') {
       if (flyoutFor) closeFlyout(true);

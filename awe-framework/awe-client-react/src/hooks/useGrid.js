@@ -4,7 +4,7 @@ import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import { getHelpTooltipNode, getIconNode, translateLabel } from "../utilities";
 import { useContextMenu } from "./useContextMenu";
-import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH } from "../utilities/grid";
+import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH, EDITOR_COLUMN_WIDTH } from "../utilities/grid";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
 import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
@@ -201,12 +201,17 @@ export function useGrid(id) {
     />;
   };
 
+  // The row edit column is frozen at the right: its buttons stay in view when a wide grid scrolls horizontally. It is as
+  // narrow as its edit button; the save and cancel buttons of an edited row make it grow, at the right end only
+  const EDITOR_COLUMN = {frozen: true, alignFrozen: "right", headerClassName: "grid-row-editor-column",
+    bodyClassName: "grid-row-editor-column", footerClassName: "grid-row-editor-column"};
   const editorColumnTemplate = (place, forBody, rowSpan, editable, multioperation) => {
     if (editable || multioperation) {
       if (forBody) {
         return <Column
           key={`${place}-editor`}
           field={`${place}-editor`}
+          {...EDITOR_COLUMN}
           rowSpan={rowSpan}
           body={(data, row) => <ColumnRowEditor
             key={`${row.rowIndex}-editor`}
@@ -216,10 +221,11 @@ export function useGrid(id) {
             saveRow={saveRow}
             cancelRow={cancelRow} />}
           footer={null}
-          style={getWidthStyle(null, 50)}
-          bodyStyle={{ textAlign: "center", ...getWidthStyle(null, 50) }} />;
+          style={getWidthStyle(null, null, EDITOR_COLUMN_WIDTH)}
+          bodyStyle={{ textAlign: "center", ...getWidthStyle(null, null, EDITOR_COLUMN_WIDTH) }} />;
       } else {
-        return <Column key={`${place}-editor`} field={`${place}-editor`} style={getWidthStyle(null, 50)} rowSpan={rowSpan} />;
+        return <Column key={`${place}-editor`} field={`${place}-editor`} {...EDITOR_COLUMN} style={getWidthStyle(null, null, EDITOR_COLUMN_WIDTH)}
+          rowSpan={rowSpan} />;
       }
     }
     return null;
@@ -273,10 +279,12 @@ export function useGrid(id) {
   };
 
   const postColumnTemplates = (place, rowSpan, forBody = false, editable, multioperation) => {
+    // The filler goes before the row actions: the edit column, frozen at the right, is the last one, and nothing is
+    // left at its right when the grid is scrolled to its end
     return [
+      <Column key={`filler-${place}`} field={`filler-${place}`} rowSpan={rowSpan} />,
       operationColumnTemplate(place, rowSpan, multioperation),
-      editorColumnTemplate(place, forBody, rowSpan, editable, multioperation),
-      <Column key={`filler-${place}`} field={`filler-${place}`} rowSpan={rowSpan} />
+      editorColumnTemplate(place, forBody, rowSpan, editable, multioperation)
     ].filter(e => !isEmpty(e));
   };
 

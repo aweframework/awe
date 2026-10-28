@@ -15,6 +15,7 @@ columns.
 | Keys | Action |
 |------|--------|
 | `Alt` + `Shift` + `0`..`9` | Show the stack of client and server actions (debug). `0` hides it. |
+| `Ctrl` + `K` (`⌘` + `K` on macOS) | Open the menu search and focus it. The search field shows the shortcut. With the menu collapsed to the rail the search is hidden and the browser keeps the key. |
 
 The digit is read from the physical key, so it also works on macOS where `Option` changes the typed character.
 

@@ -187,7 +187,7 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-color-panel-header` | `var(--awe-color-surface)` | = claro |
 | `--awe-color-panel-border` | `var(--awe-color-border)` | = claro |
 | `--awe-color-panel-text` | `var(--awe-color-text)` | = claro |
-| `--awe-color-grid-header` | `var(--awe-color-surface-subtle)` | = claro |
+| `--awe-color-grid-header` | `var(--awe-surface-50)` | `color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900))` |
 | `--awe-color-grid-border` | `var(--awe-color-border)` | = claro |
 | `--awe-color-skeleton` | `var(--awe-surface-200)` | `var(--awe-surface-800)` |
 | `--awe-color-skeleton-highlight` | `var(--awe-surface-100)` | `var(--awe-surface-700)` |
@@ -624,7 +624,7 @@ elimina ni cambia de nombre**; algunos cambian de valor o de significado.
 | `--awe-color-panel-header` | Se mantiene, valor nuevo | Las cabeceras de tarjeta no tienen color: superficie de la tarjeta. |
 | `--awe-color-panel-border` | Se mantiene |  |
 | `--awe-color-panel-text` | Se mantiene |  |
-| `--awe-color-grid-header` | Se mantiene, valor nuevo | Superficie sutil (`--awe-color-surface-subtle`). |
+| `--awe-color-grid-header` | Se mantiene, valor nuevo | La superficie sutil, opaca: en modo oscuro la superficie sutil (semitransparente) se compone sobre las filas, para que la cabecera y el pie fijos tapen las filas que pasan por debajo al hacer scroll. |
 | `--awe-color-grid-border` | Se mantiene |  |
 | `--awe-color-skeleton` | Se mantiene |  |
 | `--awe-color-skeleton-highlight` | Se mantiene |  |

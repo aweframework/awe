@@ -89,7 +89,8 @@ function ColumnUploader(props) {
         onUpload={onUpload}
         disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
         withcredentials={"true"}
-        chooseLabel={""}
+        chooseLabel={translateLabel("BUTTON_CHOOSE", t)}
+        chooseOptions={{icon: getIconCode("lucide:upload", "p-button-icon p-button-icon-left")}}
       />
       <Button
         className={classNames("p-button-secondary", {"hidden": status !== UPLOADED})}

@@ -15,7 +15,21 @@ describe('awe-react-client/test/js/columns/ColumnUploaderTest.jsx', () => {
     }, {value: "test"}, {},true));
 
     // check
-    expect(screen.getByText("Choose")).toBeDefined();
+    expect(screen.getByText("BUTTON_CHOOSE")).toBeDefined();
+  });
+
+  it('shows the upload icon in its choose button, as the uploader of the prototype, not a plus', () => {
+    const {container} = renderWithProviders(Columns({
+      component: 'uploader',
+      model: {values: []},
+      numberFormat: {},
+      address: {component: 'button', view: 'report', column: 'column', row: 'row'},
+      settings: {}
+    }, {value: "test"}, {}, true));
+
+    const choose = container.querySelector(".p-fileupload-choose");
+    expect(choose.querySelector("use").getAttribute("href")).toMatch(/#upload$/);
+    expect(choose).toHaveTextContent("BUTTON_CHOOSE");
   });
 
   it('renders Column Uploader component and deletes a file', () => {

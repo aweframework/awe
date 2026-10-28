@@ -1240,6 +1240,12 @@
     opacity: var(--awe-opacity-disabled);
   }
 
+  // Busy (#771, the save button of the columns): disabled but not faded, as the screen buttons
+  &.is-loading[disabled] {
+    cursor: progress;
+    opacity: 1;
+  }
+
   .awe-icon {
     width: var(--awe-size-icon-sm);
     height: var(--awe-size-icon-sm);

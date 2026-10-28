@@ -4,8 +4,22 @@ import PropTypes from "prop-types";
 
 import { searchOptions } from "../utilities/menuSearch";
 import { getIconNode, translateLabel } from "../utilities";
-import { ANY_MODIFIERS, createKeyHandler } from "../utilities/keyboard";
+import { ANY_MODIFIERS, MENU_SEARCH_SHORTCUTS, createKeyHandler } from "../utilities/keyboard";
+import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import "./AweMenuSearch.css";
+
+// The menu collapses to the rail from this width; below it is a drawer (see AweMenu)
+const RAIL_QUERY = "(min-width: 1025px)";
+
+/**
+ * Whether the search of an element is hidden because its menu is collapsed to the rail
+ * @param {Element} element Element of the search
+ * @returns {boolean} The menu is the rail
+ */
+function isOnRail(element) {
+  const desktop = typeof window.matchMedia === "function" ? window.matchMedia(RAIL_QUERY).matches : true;
+  return desktop && !!element?.closest(".layout-static-inactive");
+}
 
 /**
  * Menu option search (command palette).
@@ -13,7 +27,7 @@ import "./AweMenuSearch.css";
  * Renders a search toggle and, when open, a text input plus a flat list of
  * matching leaf options with their breadcrumb path. Selecting a result launches
  * that option's actions (via the injected onSelect) exactly as clicking it in
- * the menu would. Matching, translation and allowance are delegated to the pure
+ * the menu would. Ctrl + K (or Meta + K) opens it from anywhere, unless the menu is collapsed to the rail. Matching, translation and allowance are delegated to the pure
  * searchOptions helper so this component only owns presentation and interaction.
  *
  * @param {object} props Component properties
@@ -125,6 +139,20 @@ function AweMenuSearch(props) {
   // React does not copy isComposing to its keyboard event: it is read from the native one
   const onSearchKeydown = (event) => event.nativeEvent?.isComposing || event.keyCode === 229 || handleSearchKey(event);
 
+  // Ctrl + K opens the search from anywhere; with the menu on the rail the search is hidden, so the browser keeps the key
+  useKeyboardShortcut([{
+    shortcuts: MENU_SEARCH_SHORTCUTS,
+    when: () => !isOnRail(containerRef.current),
+    handler: (event) => {
+      event.preventDefault();
+      if (open) {
+        inputRef.current?.focus();
+      } else {
+        setOpen(true);
+      }
+    }
+  }]);
+
   // Focus the input when the panel opens
   useEffect(() => {
     if (open && inputRef.current) {
@@ -149,10 +177,13 @@ function AweMenuSearch(props) {
   return (
     <div ref={containerRef} className={`awe-menu-search awe-menu-search-${menuType}${open ? " open" : ""}`}>
       <button type="button" className="awe-menu-search-toggle" onClick={toggleSearch}
-        title={searchTitle} aria-label={searchTitle} aria-expanded={open}>
+        title={searchTitle} aria-label={searchTitle} aria-expanded={open} aria-keyshortcuts="Control+K Meta+K">
         {getIconNode("pi-search", { "aria-hidden": "true" })}
         {menuType === "vertical" && (
-          <span className="awe-menu-search-toggle-label">{searchTitle}</span>
+          <>
+            <span className="awe-menu-search-toggle-label">{searchTitle}</span>
+            <kbd className="awe-menu-search-kbd" aria-hidden="true">Ctrl K</kbd>
+          </>
         )}
       </button>
       {open && (

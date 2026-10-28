@@ -133,8 +133,7 @@ are the accepted exceptions of [Contrast rules](#contrast-rules). A near-white o
 it is valid, but the filled controls stand out less from the page. The prototype's **Theme** panel has a *Custom*
 option to try any hex.
 
-A theme reaches the page in one of two ways (implemented on the server and rendered on `<html>`; the screens keep the
-classic look until the new look of the engines, see
+A theme reaches the page in one of two ways (implemented on the server and rendered on `<html>`, see
 [For developers](for-developers.md#configure-the-theme-of-a-product)):
 
 - **By name**, as today: a theme name (`sky`, `sunset`…) is a preset of primary, surface and default mode, chosen
@@ -178,7 +177,7 @@ brand colours are nearer to those palettes. `dust` and `amazonia` have a grey br
 
 Status: implemented. The server applies the preset when a theme has no `AweThm` row (`amazonia` only exists in LESS)
 or its row has no valid value, and the `AWE_V1.5.0` migration writes the same values on the classic rows of `AweThm`.
-The engines render it on `<html>`; the screens keep the classic look until the new look of the engines.
+The engines render it on `<html>`.
 
 ## Semantic colours
 

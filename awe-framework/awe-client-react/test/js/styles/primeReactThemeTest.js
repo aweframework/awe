@@ -197,6 +197,34 @@ describe('AWE theme of PrimeReact (#885)', () => {
     expect(danger).toEqual(['var(--awe-color-danger-text)']);
   });
 
+  it('shows the focus ring of the buttons for the keyboard only, not on a click, as the prototype', () => {
+    const buttonSelectors = [...new Set(rules.map(([selector]) => selector))].filter(selector => /\.p-button/.test(selector));
+    // Every :focus of a button rule is a :focus-visible (a :focus-within or a :has(...:focus-visible) stays)
+    expect(buttonSelectors.filter(selector => /:focus(?![-\w])/.test(selector))).toEqual([]);
+    const ring = rules.filter(([selector, name]) => selector === '.p-button:focus-visible' && name === 'box-shadow');
+    expect(ring.length).toBeGreaterThan(0);
+    expect(rules.some(([selector]) => /^\.p-button\.p-button-danger:not\(:disabled\):focus-visible/.test(selector))).toBe(true);
+    // A field keeps its ring on a click: it is where the user types
+    expect(rules.some(([selector]) => /^\.p-inputtext:enabled:focus(?![-\w])/.test(selector))).toBe(true);
+  });
+
+  it('turns the :focus of a button into :focus-visible in every selector of a list, and only for buttons', () => {
+    const selectorLines = theme.slice(theme.indexOf('*/') + 2).split('\n').map(line => line.trim())
+      .filter(line => line.endsWith(',') || line.endsWith('{'));
+    expect(selectorLines.filter(line => /\.p-button/.test(line) && /:focus(?![-\w])/.test(line))).toEqual([]);
+    // Every selector of a list is rewritten, not only the first one
+    expect(selectorLines).toContain('.p-button.p-button-danger:not(:disabled):focus-visible, .p-button-group.p-button-danger > '
+      + '.p-button:not(:disabled):focus-visible, .p-splitbutton.p-button-danger > .p-button:not(:disabled):focus-visible, '
+      + '.p-fileupload-choose.p-button-danger:not(:disabled):focus-visible {');
+    expect(selectorLines.some(line => /^\.p-inputtext:enabled:focus(?![-\w])/.test(line))).toBe(true);
+  });
+
+  it('adds no ripple to the clicks, as the prototype', () => {
+    const main = read(path.join(SRC, 'main.jsx'));
+    expect(main).toMatch(/const value = \{ripple: false\};/);
+    expect(main).not.toMatch(/ripple: true/);
+  });
+
   it('draws the dialogs, the popovers, the menus and the tooltips as the overlays of the prototype', () => {
     const value = (selector, property) => rules.filter(([candidate, name]) => candidate === selector && name === property)
       .map(([, , declared]) => declared).pop();

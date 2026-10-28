@@ -49,6 +49,7 @@ Cuando el tamaño de la pantalla es demasiado pequeño (dispositivos móviles) l
 | value           | Opcional | String | Establece un valor para el botón (puede ser utilizado como variable en el servidor) |                                                                                     |
 | help-text       | Opcional | String | Texto para mostrar en el botón como ayuda                                           | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
 | help-image | Opcional | String | URL de imagen para mostrar en el botón como ayuda                                   | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
+| show-loading | Opcional | Booleano | Estado de ocupado del botón. Si la acción que lanzó sigue en curso pasado un momento (unos 400 ms), el botón muestra un spinner en lugar de su icono (antes de su texto si no tiene) y sigue deshabilitado hasta que la acción termina. Las acciones rápidas no muestran nada | `true` (por defecto) o `false` |
 
 ## Tipos de botón {#button-types}
 

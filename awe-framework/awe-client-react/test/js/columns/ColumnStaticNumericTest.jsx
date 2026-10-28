@@ -65,4 +65,21 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
     // fails
     expect(screen.queryByText(/EUR/)).toBeNull();
   });
+  it('keeps the formatted number on one line, cut with an ellipsis and whole in its hint, as the other columns', () => {
+    renderWithProviders(Columns({
+      component: 'numeric',
+      numberFormat: {aSign: ' EUR', decimalCharacter: ',', digitGroupSeparator: '.'},
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
+      address: {component: 'grid', view: 'report', column: 'column', row: 'row'},
+      t: jest.fn(),
+      settings: {}
+    }, {value: 1123123}, false));
+
+    const text = screen.getByText('1.123.123 EUR');
+    expect(text.tagName).toBe('SPAN');
+    expect(text).toHaveClass('p-cell-text', 'white-space-nowrap', 'p-text-truncate');
+    expect(text).toHaveAttribute('title', '1.123.123 EUR');
+  });
 });
