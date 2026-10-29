@@ -3228,6 +3228,8 @@
 
   <query id="load-suggest-2">
     <constant value="DjrHdgPag" alias="SugTst"/>
+    <!-- Not a component of the screen: the client must ignore its selection (#901) -->
+    <constant value="1" alias="NotOnScreen"/>
   </query>
 
   <query id="UsrEmlLstTstMul" distinct="true" cacheable="true">

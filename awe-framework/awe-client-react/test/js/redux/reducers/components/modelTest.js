@@ -121,6 +121,15 @@ describe('awe-react-client/test/js/redux/reducers/components/modelTest.js', () =
       expect(selectedValues('sel', state)).toEqual(['b']);
     });
 
+    it('getSelectedUpdate ignores a component that is not on the screen', () => {
+      const debug = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      const state = {other: {x: 1}};
+
+      expect(getSelectedUpdate(state, {view: 'base', component: 'missing'}, {selected: ['a']})).toBeNull();
+      expect(debug).toHaveBeenCalled();
+      debug.mockRestore();
+    });
+
     it('updateSelected returns the same state when nothing changes', () => {
       const state = {};
 
@@ -232,6 +241,15 @@ describe('awe-react-client/test/js/redux/reducers/components/modelTest.js', () =
       const state = updateModelAction({}, {address: selectAddress, data: {selected: ['b']}}, {});
 
       expect(selectedValues('sel', state)).toEqual(['b']);
+    });
+
+    it('ignores a selection on a component that is not on the screen', () => {
+      jest.spyOn(console, 'debug').mockImplementation(() => {});
+      const state = {sel: {model: {values: options}}};
+
+      expect(updateModelAction(state, {address: {view: 'base', component: 'missing'}, data: {selected: ['a']}}, {})).toBe(state);
+      expect(updateModelAction(state, {address: {view: 'base', component: 'missing'}, data: {values: options, selected: ['a']}}, {})).toBe(state);
+      console.debug.mockRestore();
     });
 
     it('updates the model and then the selection', () => {

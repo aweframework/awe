@@ -511,7 +511,8 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Check suggest value
     checkSuggestContents("SugTst", "DjrRepPth");
 
-    // Click on button
+    // Click on button: its query also returns an alias that is not a component of the screen, whose selection the
+    // client ignores instead of taking the whole application down (#901)
     clickButton("ButtonLoadSuggest2", true);
 
     // Check suggest value

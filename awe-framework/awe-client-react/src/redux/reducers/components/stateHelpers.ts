@@ -335,8 +335,8 @@ export function hasFooter(component?: StateComponent | null): boolean | undefine
  * @param {Object} component Component to inspect
  * @returns {boolean} True if it is a grouped radio component
  */
-export function isGroup(component: StateComponent): boolean {
-  const attributes = component.attributes || {};
+export function isGroup(component?: StateComponent | null): boolean {
+  const attributes = component?.attributes || {};
   return "group" in attributes && (attributes.component || "").includes("radio");
 }
 
