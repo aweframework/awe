@@ -2,7 +2,8 @@
 
 <!--
     Document   : GrdPagerTst.xml
-    Description: Grid with server pagination of five rows, to check the range and the total of the paginator
+    Description: Grid with server pagination of five rows, to check the range and the total of the paginator, and a grid
+                 with pagination disabled, which has no paginator
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_PAGER">
   <tag source="center">
@@ -10,6 +11,10 @@
       <grid id="GrdPagerTst" style="expand" initial-load="query" server-action="data" target-action="ThemeStyleTst" max="5">
         <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
         <column label="COLUMN_RADIO_THEME" name="name" align="left" charlength="30"/>
+      </grid>
+      <!-- Column names are unique in the whole screen, so this grid uses another query -->
+      <grid id="GrdNoPagerTst" initial-load="query" target-action="QryUniTstId" max="5" load-all="true" pagination-disabled="true">
+        <column label="PARAMETER_TEXT" name="Als" align="left" charlength="20"/>
       </grid>
     </window>
   </tag>

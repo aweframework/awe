@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {arrangeFrozenColumns, getColumnWrap, getGridIdentifier, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
+import {arrangeFrozenColumns, getColumnWrap, getGridIdentifier, getPaginatorSettings, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
@@ -249,6 +249,7 @@ function AweGrid(props) {
   const { style, headerModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading, rowDetail } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
+  const { paginator, pageRows } = getPaginatorSettings(attributes, rows, values.length);
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
   const selectedValues = values.filter(item => item.selected);
   const loadingIcon = getGridIconLoading(iconLoading, settings);
@@ -283,11 +284,11 @@ function AweGrid(props) {
       rowClassName={rowClassName}
       dataKey="id"
       emptyMessage={emptyMessage}
-      paginator lazy={!loadAll || showSkeleton}
+      paginator={paginator} lazy={!loadAll || showSkeleton}
       loading={loading && !showSkeleton}
       paginatorTemplate={disablePagination ? "" : PAGINATOR_TEMPLATE}
       currentPageReportTemplate={`${t("SCREEN_TEXT_GRID_VIEW")} {first} - {last} ${t("SCREEN_TEXT_GRID_OF")} {totalRecords}`}
-      first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={onPage}
+      first={first} rows={pageRows} paginatorLeft={buttonsTemplate()} onPage={onPage}
       paginatorRight={<span>&nbsp;</span>} totalRecords={showSkeleton ? Math.max(records, values.length) : records} rowsPerPageOptions={rowsPerPageOptions}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable scrollHeight={"flex"}

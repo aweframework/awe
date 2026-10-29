@@ -9,6 +9,7 @@ import {
   getGridData,
   getGridPrintData,
   getMoveRowKeyPosition,
+  getPaginatorSettings,
   getWidthStyle,
   moveRowInValues,
   moveRowNextToRow,
@@ -362,6 +363,21 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
       expect(column).not.toHaveProperty('exportSecondary');
       expect(column).not.toHaveProperty('secondaryLabel');
       expect(Object.keys(column).sort()).toEqual(['align', 'charlength', 'component', 'label', 'name', 'type', 'width']);
+    });
+  });
+
+  describe('getPaginatorSettings', () => {
+    it('paginates with the rows per page when the pagination is enabled', () => {
+      expect(getPaginatorSettings({buttonModel: []}, 10, 25)).toEqual({paginator: true, pageRows: 10});
+    });
+
+    it('renders no paginator and every row when the pagination is disabled and there are no buttons', () => {
+      expect(getPaginatorSettings({disablePagination: true}, 10, 25)).toEqual({paginator: false, pageRows: 25});
+    });
+
+    it('keeps the paginator bar for the buttons and shows every row when the pagination is disabled', () => {
+      expect(getPaginatorSettings({disablePagination: true, buttonModel: [{id: "ButAdd"}]}, 10, 25))
+        .toEqual({paginator: true, pageRows: 25});
     });
   });
 });

@@ -552,6 +552,26 @@ export function getWidth(charLength: number | null = null, width: number | null 
 }
 
 /**
+ * Retrieve how the paginator of a grid is shown. As in the AngularJS client, a grid with pagination disabled has no
+ * paginator bar unless it has buttons, which live in the bar; then the bar shows only the buttons and every row.
+ * @param {{disablePagination: (boolean|undefined), buttonModel: (Array|undefined)}} attributes Grid attributes
+ * @param {number} rows Rows per page
+ * @param {number} count Number of rows loaded in the grid
+ * @return {{paginator: boolean, pageRows: number}} Whether the paginator is rendered and the rows of each page
+ * @memberOf Grid
+ */
+export function getPaginatorSettings(
+  attributes: {disablePagination?: boolean; buttonModel?: unknown[]} = {},
+  rows: number,
+  count: number
+): {paginator: boolean; pageRows: number} {
+  if (!attributes.disablePagination) {
+    return {paginator: true, pageRows: rows};
+  }
+  return {paginator: (attributes.buttonModel || []).length > 0, pageRows: Math.max(rows || 0, count)};
+}
+
+/**
  * Retrieve how the text of the cells of a column wraps. A column wraps when it declares wrap, or a maximum number of
  * lines (which implies it) unless wrap is explicitly false.
  * @param {{wrap: (boolean|undefined), maxLines: (number|undefined)}} column Column definition

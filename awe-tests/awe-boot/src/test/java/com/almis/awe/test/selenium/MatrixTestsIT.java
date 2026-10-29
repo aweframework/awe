@@ -1843,4 +1843,22 @@ class MatrixTestsIT extends AbstractSessionTests {
     toggleGridGroup("GrdGrpTst", "America");
     checkGridGroupOrder("GrdGrpTst", 2, "America/USA", "America/Mexico", "America/Canada");
   }
+
+  /**
+   * Pagination disabled test: a grid with pagination disabled and without buttons has no paginator bar under its rows
+   * (#908)
+   */
+  @Test
+  void t134_gridWithPaginationDisabledHasNoPaginator() {
+    // Title
+    setTestTitle("Grid with pagination disabled: no paginator");
+
+    // Go to screen
+    openMatrixOption(MATRIX_PAGER_OPTION);
+    checkRowContentsGrid("GrdNoPagerTst", "awedb1");
+
+    // The paged grid keeps its paginator, the grid with pagination disabled has none
+    checkGridPaginationPresent("GrdPagerTst");
+    checkGridPaginationNotPresent("GrdNoPagerTst");
+  }
 }

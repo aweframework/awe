@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {generateServerAction, getIconCode} from "../utilities";
-import {getColumnWrap, getWidthStyle, OperationType} from "../utilities/grid";
+import {getColumnWrap, getPaginatorSettings, getWidthStyle, OperationType} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
@@ -216,6 +216,7 @@ function AweTreeGrid(props) {
 
   const { style, headerModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
   const { first = 0, rows = max } = specificAttributes;
+  const { paginator, pageRows } = getPaginatorSettings(attributes, rows, nodes.length);
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
   const loadingIcon = getGridIconLoading(iconLoading, settings);
   // The skeleton replaces the rows in the body instead of masking them (see AweGrid)
@@ -237,10 +238,10 @@ function AweTreeGrid(props) {
       onContextMenuSelectionChange={onSelectTree}
       headerColumnGroup={headerTemplate()}
       footerColumnGroup={footerTemplate()}
-      paginator lazy={!loadAll || showSkeleton}
+      paginator={paginator} lazy={!loadAll || showSkeleton}
       loading={loading && !showSkeleton}
       paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
-      first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={() => null}
+      first={first} rows={pageRows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
       emptyMessage={emptyMessage}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"

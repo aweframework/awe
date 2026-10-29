@@ -639,6 +639,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridNotPresent(String gridId)` | Checks that a grid is not in the page at all, neither shown nor hidden, such as the nested grid of a row detail once the row closes or its grid reloads |
 | `checkGridPageSize(String size)` | Checks the number of rows that a grid shows in each page |
 | `checkGridPaginationInfo(String text)` | Checks the text of the paginator that tells the range of rows shown and the total (`View 1 - 10 of 25`) |
+| `checkGridPaginationPresent(String gridId)` | Checks that a grid has its paginator |
+| `checkGridPaginationNotPresent(String gridId)` | Checks that a grid has no paginator at all, such as a grid with pagination disabled and without buttons |
 | `clickGridNextPage()` | Goes to the next page of a grid with its paginator and waits for the load. In the AngularJS client it works with the compact pager only: the wide pager has no hook for its page links |
 | `goToGridPage(int page)` | Replaces the page of the "go to page" input of the paginator with the given one, presses Enter and waits for the load. In the AngularJS client the input is in the wide pager only, when the grid has more than one page |
 | `checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId)` | Checks that an option of the radio or button-radio of a cell is the chosen one. The option is identified by its value |

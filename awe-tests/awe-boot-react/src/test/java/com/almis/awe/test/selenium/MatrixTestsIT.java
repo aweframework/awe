@@ -31,6 +31,7 @@ class MatrixTestsIT extends AbstractSessionTests {
   private static final String DEFERRED_SELECT = "DefSelect";
   private static final String BUTTON_DEFERRED_SAVE = "ButDefSave";
   private static final String MATRIX_PAGER_OPTION = "matrix-test-pager";
+  private static final String PAGER_GRID = "GrdPagerTst";
   private static final String ROW_DETAIL_GRID = "GrdRowDetailTst";
   private static final String ROW_DETAIL_COMPONENTS_GRID = "GrdRowDetailCmp";
   private static final String ROW_DETAIL_NESTED_GRID = "GrdRowDetailCmpCus";
@@ -548,7 +549,7 @@ class MatrixTestsIT extends AbstractSessionTests {
     openMatrixOption(MATRIX_PAGER_OPTION);
 
     // First page: five rows of eighteen
-    checkRowContentsGrid("GrdPagerTst", "adminflare");
+    checkRowContentsGrid(PAGER_GRID, "adminflare");
     checkGridPaginationInfo("View 1 - 5 of 18");
 
     // The grid has rows, so it does not show its empty state
@@ -569,7 +570,7 @@ class MatrixTestsIT extends AbstractSessionTests {
 
     // Go to screen
     openMatrixOption(MATRIX_PAGER_OPTION);
-    checkRowContentsGrid("GrdPagerTst", "adminflare");
+    checkRowContentsGrid(PAGER_GRID, "adminflare");
     checkGridPaginationInfo("View 1 - 5 of 18");
 
     // Third page of four
@@ -1974,5 +1975,23 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkGridGroupOrder("GrdGrpTst", 1, "Europe", "America");
     toggleGridGroup("GrdGrpTst", "America");
     checkGridGroupOrder("GrdGrpTst", 2, "America/USA", "America/Mexico", "America/Canada");
+  }
+
+  /**
+   * Pagination disabled test: a grid with pagination disabled and without buttons has no paginator bar under its rows
+   * (#908)
+   */
+  @Test
+  void t134_gridWithPaginationDisabledHasNoPaginator() {
+    // Title
+    setTestTitle("Grid with pagination disabled: no paginator");
+
+    // Go to screen
+    openMatrixOption(MATRIX_PAGER_OPTION);
+    checkRowContentsGrid("GrdNoPagerTst", "awedb1");
+
+    // The paged grid keeps its paginator, the grid with pagination disabled has none
+    checkGridPaginationPresent(PAGER_GRID);
+    checkGridPaginationNotPresent("GrdNoPagerTst");
   }
 }
