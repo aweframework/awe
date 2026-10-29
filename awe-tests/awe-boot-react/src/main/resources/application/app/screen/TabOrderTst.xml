@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : TabOrderTst.xml
+    Description: Tab whose options (an enum) are in another order than its containers, and a container without option
+                 (#906): the page shown is the container whose id is the value of the selected option
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_TAB_ORDER">
+  <tag source="center" expandible="vertical">
+    <tab id="TabOrder" initial-load="enum" target-action="OrderedTabs">
+      <tabcontainer id="TabOrdFirst">
+        <tag type="div" style="panel-body">
+          <criteria label="PARAMETER_TEXT" id="TabOrdFirstTxt" component="text" value="First" readonly="true" style="col-xs-12 col-sm-6"/>
+        </tag>
+      </tabcontainer>
+      <tabcontainer id="TabOrdSecond">
+        <tag type="div" style="panel-body">
+          <criteria label="PARAMETER_TEXT" id="TabOrdSecondTxt" component="text" value="Second" readonly="true" style="col-xs-12 col-sm-6"/>
+        </tag>
+      </tabcontainer>
+      <tabcontainer id="TabOrdThird">
+        <tag type="div" style="panel-body">
+          <criteria label="PARAMETER_TEXT" id="TabOrdThirdTxt" component="text" value="Third" readonly="true" style="col-xs-12 col-sm-6"/>
+        </tag>
+      </tabcontainer>
+      <!-- No option of the enum selects this container, so it is never shown -->
+      <tabcontainer id="TabOrdHidden">
+        <tag type="div" style="panel-body">
+          <criteria label="PARAMETER_TEXT" id="TabOrdHiddenTxt" component="text" value="Hidden" readonly="true" style="col-xs-12 col-sm-6"/>
+        </tag>
+      </tabcontainer>
+    </tab>
+  </tag>
+</screen>

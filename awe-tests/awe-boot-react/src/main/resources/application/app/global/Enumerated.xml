@@ -146,4 +146,11 @@
     <option label="ENUM_DEFERRED_SECOND" value="HeaSecond" />
   </group>
 
+  <!-- Options in another order than the containers of the tab TabOrder (#906) -->
+  <group id="OrderedTabs">
+    <option label="ENUM_TAB_ORDER_FIRST" value="TabOrdFirst" />
+    <option label="ENUM_TAB_ORDER_THIRD" value="TabOrdThird" />
+    <option label="ENUM_TAB_ORDER_SECOND" value="TabOrdSecond" />
+  </group>
+
 </enumerated>

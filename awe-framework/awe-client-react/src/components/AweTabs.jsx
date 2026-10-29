@@ -89,9 +89,10 @@ function AweTabs(props) {
     </button>}
     <AweTabMenu id={id} values={values} activeIndex={activeIndex} disabled={disabled} invalid={invalid}
       onChange={onChange} itemRenderer={itemRenderer} />
+    {/* As in the AngularJS client, the page shown is the container whose id is the value of the selected option */}
     {elementList
-      .filter(item => item.elementType === "TabContainer")
-      .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+      .filter(item => item.elementType === "TabContainer" && item.id === values[activeIndex]?.value)
+      .map((node, index) => Components(node, index))}
     {contextMenuTemplate()}
   </div>;
 }

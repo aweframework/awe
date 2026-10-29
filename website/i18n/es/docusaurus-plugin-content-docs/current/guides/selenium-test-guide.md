@@ -504,6 +504,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `getText(String criterionName)` | Devuelve el texto de un criterio |
 | `checkCriterionContents(String criterionName, String search)` | Comprueba el valor de un criterio de texto |
 | `checkCriterionLabel(String criterionName, String text)` | Comprueba la etiqueta de un criterio |
+| `checkCriterionNotPresent(String criterionName)` | Comprueba que un criterio no está en la página, ni visible ni oculto, como uno de una página de pestaña que no se muestra |
 | `checkCriterionUnit(String criterionName, String text)` | Comprueba el complemento de unidad de un criterio (el texto tras el input) |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Comprueba que unos criterios están marcados (o no) |
 | `clickCheckbox(String criterionName)` | Hace clic en un checkbox o botón de radio |
