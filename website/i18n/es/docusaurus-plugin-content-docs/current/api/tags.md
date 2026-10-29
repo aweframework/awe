@@ -124,6 +124,18 @@ Un tag con `label` escribe texto traducido, y la forma `<text>` escribe el texto
 </tag>
 ```
 
+### Títulos de sección {#section-titles}
+
+El estilo `awe-section-title` convierte un tag de texto en el título de sección del sistema de diseño: una etiqueta
+pequeña en mayúsculas y atenuada, seguida de una línea que ocupa el resto de la fila. Úselo para dividir un formulario
+largo o un cuadro de mando en secciones. Dele un `type` de encabezado (`h2` a `h6`) para que los lectores de pantalla
+anuncien la sección; el estilo quita los márgenes por defecto del encabezado. Se ve igual en los dos motores, en modo
+claro y oscuro:
+
+```xml
+<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
+```
+
 ### Puntos de origen {#source-points}
 
 ```xml

@@ -124,6 +124,17 @@ A tag with a `label` writes translated text, and the `<text>` form writes the te
 </tag>
 ```
 
+### Section titles
+
+The `awe-section-title` style turns a text tag into the section title of the design system: a small uppercase muted
+label followed by a line that fills the rest of the row. Use it to split a long form or a dashboard into sections. Give
+it a heading `type` (`h2` to `h6`) so screen readers announce the section; the style removes the default margins of
+the heading. It looks the same in both engines, in light and dark mode:
+
+```xml
+<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
+```
+
 ### Source points
 
 ```xml

@@ -1,0 +1,23 @@
+// Section title (#910): a style of any tag, <tag type="h3" style="awe-section-title" label="..."/>. A small
+// uppercase muted label followed by a line that fills the row. Same class as the React engine (Tag.less).
+.awe-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  margin: var(--awe-space-4) 0 var(--awe-space-2);
+  padding: 0;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted);
+  text-transform: uppercase;
+}
+
+// The line fills the rest of the row after the label
+.awe-section-title::after {
+  flex: 1;
+  height: 1px;
+  content: "";
+  background: var(--awe-color-border);
+}
