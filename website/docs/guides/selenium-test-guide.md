@@ -439,6 +439,8 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkButtonVisible(String buttonId)` | Checks that a button is displayed, whatever its state |
 | `checkButtonNotVisible(String buttonId)` | Checks that a button is not displayed |
 | `checkButtonDisabled(String buttonId)` | Checks that a button is displayed and disabled |
+| `checkButtonHasClass(String buttonId, String cssClass)` | Checks that a button has a style class, such as one added by an `add-class` action |
+| `checkButtonText(String buttonId, String text)` | Checks the text of a button, whatever its state |
 | `clickInfoButton(String infoButtonName)` | Clicks an info button (the user menu, the module list...) |
 | `openUserMenu()` | Opens or closes the user menu (the avatar of the logged user), where the theme, the color mode and the language are |
 | `clickUserMenuOption(String optionId)` | Clicks an option of the open user menu (`dark-mode`, `light-mode`). AngularJS only |

@@ -1,5 +1,5 @@
 import React from 'react';
-import {waitFor} from "@testing-library/react";
+import {render, waitFor} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import {MemoryRouter} from "react-router";
 import useScreenService from "../../../src/services/ScreenService";
@@ -284,6 +284,48 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
       expect(node.classList.contains("hidden")).toBe(false);
       node.remove();
     }
+  });
+
+  // A class change survives the next render of its node (#905)
+  it('should keep an added css class when the target node renders its classes again', async function() {
+    jest.useFakeTimers();
+
+    actions["add-class"]({target: ".test1", parameters:{targetAction: "is-active"}}, props);
+    jest.advanceTimersByTime(500);
+
+    const node = document.querySelector(".test1");
+    node.className = "test1 rendered";
+    await Promise.resolve();
+
+    expect(node.classList.contains("is-active")).toBe(true);
+    expect(node.classList.contains("rendered")).toBe(true);
+  });
+
+  it('should keep an added css class when React renders the target component again with another className', async function() {
+    jest.useFakeTimers();
+    const Toggle = ({label}) => <button id="ButToggle" className={label === "On" ? "btn btn-on" : "btn"}>{label}</button>;
+    const {rerender} = render(<Toggle label="Off"/>);
+
+    actions["add-class"]({target: "#ButToggle", parameters:{targetAction: "is-active"}}, props);
+    jest.advanceTimersByTime(500);
+    rerender(<Toggle label="On"/>);
+    await Promise.resolve();
+
+    expect(document.querySelector("#ButToggle").className).toBe("btn btn-on is-active");
+  });
+
+  it('should keep the state of a toggled css class when the target node renders its classes again', async function() {
+    jest.useFakeTimers();
+
+    actions["toggle-class"]({target: ".test2", parameters:{targetAction: "tutu lala"}}, props);
+    jest.advanceTimersByTime(500);
+
+    const node = document.querySelector(".test2");
+    node.className = "test2 tutu";
+    await Promise.resolve();
+
+    expect(node.classList.contains("lala")).toBe(true);
+    expect(node.classList.contains("tutu")).toBe(false);
   });
 
   // Redirect action
