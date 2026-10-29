@@ -1497,6 +1497,35 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
       expect(container.querySelector(PAGINATION_INFO)).toBeNull();
     });
+
+    it('does not render the paginator bar when the pagination is disabled and the grid has no buttons', () => {
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {
+        preloadedState: rangeState({attributes: {disablePagination: true}})
+      });
+
+      expect(container.querySelector(".p-paginator")).toBeNull();
+    });
+
+    it('shows every row when the pagination is disabled', () => {
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {
+        preloadedState: rangeState({records: 25, count: 25, attributes: {disablePagination: true, loadAll: true}})
+      });
+
+      expect(container.querySelectorAll("[data-testid='grid-row']")).toHaveLength(25);
+    });
+
+    it('keeps the grid buttons without pagination controls when the pagination is disabled', () => {
+      const state = rangeState({attributes: {disablePagination: true, buttonModel: [{id: "ButGrdAdd"}]}});
+      state.components.ButGrdAdd = {
+        address: {view: 'report', component: 'ButGrdAdd'},
+        attributes: {label: "Add", visible: true, buttonType: "button"},
+        actions: []
+      };
+      const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState: state});
+
+      expect(container.querySelector(".p-paginator #ButGrdAdd")).not.toBeNull();
+      expect(container.querySelector(".p-paginator .p-paginator-pages, .p-paginator .p-paginator-next")).toBeNull();
+    });
   });
 
   describe('go to page', () => {

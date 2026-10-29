@@ -59,6 +59,7 @@ public final class TestIds {
   public static final String GRID_PAGE_SIZE = "grid-page-size";
   public static final String GRID_PAGE_NEXT = "grid-page-next";
   public static final String GRID_GOTO_PAGE = "grid-goto-page";
+  public static final String GRID_PAGINATION = "grid-pagination";
   public static final String GRID_PAGINATION_INFO = "grid-pagination-info";
   public static final String GRID_EMPTY = "grid-empty";
   public static final String GRID_EMPTY_TITLE = "grid-empty-title";

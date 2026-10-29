@@ -638,6 +638,8 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridNotPresent(String gridId)` | Comprueba que un grid no está en la página, ni visible ni oculto, como el grid anidado de un detalle de fila cuando la fila se cierra o su grid se recarga |
 | `checkGridPageSize(String size)` | Comprueba el número de filas que un grid muestra en cada página |
 | `checkGridPaginationInfo(String text)` | Comprueba el texto del paginador que indica el rango de filas mostrado y el total (`View 1 - 10 of 25`) |
+| `checkGridPaginationPresent(String gridId)` | Comprueba que una rejilla tiene su paginador |
+| `checkGridPaginationNotPresent(String gridId)` | Comprueba que una rejilla no tiene paginador, como una rejilla con la paginación desactivada y sin botones |
 | `clickGridNextPage()` | Va a la página siguiente de un grid con su paginador y espera a la carga. En AngularJS solo funciona con el paginador compacto: el paginador ancho no tiene hook para sus enlaces de página |
 | `checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId)` | Comprueba que una opción del radio o del button-radio de una celda es la elegida. La opción se identifica por su valor |
 | `checkGridRadioNoChoice(String gridId, String rowId, String columnId)` | Comprueba que ninguna opción del radio o del button-radio de una celda está elegida |

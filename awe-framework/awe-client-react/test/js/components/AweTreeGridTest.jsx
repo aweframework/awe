@@ -965,6 +965,19 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
       expect(iconName(container, "Leaf")).toBe("circle-dot");
     });
 
+    it('does not render the paginator bar when the pagination is disabled and the grid has no buttons', () => {
+      const {container} = renderTree(family, {loadAll: true, disablePagination: true});
+
+      expect(container.querySelector(".p-paginator")).toBeNull();
+    });
+
+    it('shows every root row when the pagination is disabled', () => {
+      const roots = Array.from({length: 40}, (_, index) => ({id: `R${index}`, parent: "", name: `Root ${index}`}));
+      const {container} = renderTree(roots, {loadAll: true, disablePagination: true});
+
+      expect(rowIds(container)).toHaveLength(40);
+    });
+
     it('shows the configured icon-expand, icon-collapse and icon-leaf', () => {
       const {container} = renderTree([
         {id: "Open", parent: "", name: "Open", $row: {expanded: true}},

@@ -1491,6 +1491,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the paginator of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Paginator selector
+   */
+  default By getGridPagination(String gridId) {
+    return By.cssSelector("[grid-id='" + gridId + "'] " + TestIds.css(TestIds.GRID_PAGINATION));
+  }
+
+  /**
    * Get the text of the paginator of a grid that tells the range of rows shown and the total
    *
    * @return Paginator information selector

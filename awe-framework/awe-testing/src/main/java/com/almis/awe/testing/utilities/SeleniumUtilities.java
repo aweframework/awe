@@ -4337,6 +4337,25 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a grid has its paginator
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPaginationPresent(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridPagination(gridId)));
+  }
+
+  /**
+   * Check that a grid has no paginator at all, neither shown nor hidden (for instance a grid with pagination disabled
+   * and without buttons)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPaginationNotPresent(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridPagination(gridId))));
+  }
+
+  /**
    * Go to the next page of a grid with its paginator and wait for the grid to load. The AngularJS client has a hook for
    * it in its compact pager only
    */
