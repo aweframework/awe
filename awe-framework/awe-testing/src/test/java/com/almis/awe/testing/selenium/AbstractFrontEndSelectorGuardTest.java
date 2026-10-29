@@ -315,6 +315,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridPaginationInfo", i::getGridPaginationInfo);
     catalog.put("getButtonWithClass", () -> i.getButtonWithClass("ButId", "is-active"));
     catalog.put("getGridPagination", () -> i.getGridPagination("Grd"));
+    catalog.put("getCriterion", () -> i.getCriterion("Crt"));
     catalog.put("getGridPageNext", i::getGridPageNext);
     catalog.put("getGridGotoPage", i::getGridGotoPage);
     catalog.put("getGridEmpty", i::getGridEmpty);

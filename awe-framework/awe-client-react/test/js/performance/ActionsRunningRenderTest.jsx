@@ -37,7 +37,8 @@ describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", ()
   const address = (component) => ({component, view: "report"});
   const panelable = (id, elementType) => ({
     address: address(id),
-    model: {values: [{label: "one", value: "one", selected: true}, {label: "two", value: "two"}]},
+    // Each option value is the id of its panel (#906)
+    model: {values: [{label: "one", value: id + "One", selected: true}, {label: "two", value: id + "Two"}]},
     attributes: {},
     elementList: [{elementType, id: id + "One"}, {elementType, id: id + "Two"}]
   });

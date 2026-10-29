@@ -62,6 +62,43 @@ describe('awe-react-client/test/js/components/AweTabsTest.jsx', () => {
     expect(tabs.map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "false"]);
   });
 
+  describe('page of the selected option (#906)', () => {
+    // The containers are declared in another order than the options of the enum, and one has no option
+    const containers = ['TabFirst', 'TabSecond', 'TabThird', 'TabHidden'].map(id => ({
+      elementType: 'TabContainer', id, elementList: [{elementType: 'Tag', type: 'span', label: `Page of ${id}`, id: `Tag${id}`}]
+    }));
+    const withOptions = (options, selected) => ({
+      ...preloadedState,
+      components: {
+        tabs: {
+          ...preloadedState.components.tabs,
+          model: {values: options.map(value => ({label: value, value, selected: value === selected}))}
+        }
+      }
+    });
+    const shownText = (container) => container.textContent;
+
+    it.each([
+      ['TabFirst', 'Page of TabFirst'],
+      ['TabThird', 'Page of TabThird'],
+      ['TabSecond', 'Page of TabSecond']
+    ])('shows the container whose id is the selected value %s, whatever the order of the options', (selected, text) => {
+      const {container} = renderWithProviders(<AweTabs id="tabs" elementList={containers}/>,
+        {preloadedState: withOptions(['TabFirst', 'TabThird', 'TabSecond'], selected)});
+
+      expect(shownText(container)).toContain(text);
+      containers.filter(page => `Page of ${page.id}` !== text)
+        .forEach(page => expect(shownText(container)).not.toContain(`Page of ${page.id}`));
+    });
+
+    it('shows no page for an option without container', () => {
+      const {container} = renderWithProviders(<AweTabs id="tabs" elementList={containers}/>,
+        {preloadedState: withOptions(['TabFirst', 'TabMissing'], 'TabMissing')});
+
+      containers.forEach(page => expect(shownText(container)).not.toContain(`Page of ${page.id}`));
+    });
+  });
+
   describe('deferred loading (#824)', () => {
     const page = (id, attributes = {}) => ({
       address: {component: id, view: 'report'},

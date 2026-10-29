@@ -1331,6 +1331,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a criterion by the attribute that carries its id in both clients
+   *
+   * @param criterionId Criterion identifier
+   * @return Criterion selector
+   */
+  default By getCriterion(String criterionId) {
+    return By.cssSelector("[criterion-id='" + criterionId + "']");
+  }
+
+  /**
    * Get a component in the body of a card, found as the clients identify it: by the attribute that carries the id of a
    * criterion, a grid or a chart, or by the element id
    *

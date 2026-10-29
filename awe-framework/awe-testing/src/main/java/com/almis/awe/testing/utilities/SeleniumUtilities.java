@@ -3937,6 +3937,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a criterion is not in the page at all, neither shown nor hidden (for instance one in a tab page that is
+   * not shown)
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionNotPresent(String criterionName) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getCriterion(criterionName))));
+  }
+
+  /**
    * Check the label of a criterion
    *
    * @param criterionName Criterion name

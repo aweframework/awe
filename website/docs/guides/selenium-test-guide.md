@@ -505,6 +505,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `getText(String criterionName)` | Returns the text of a criterion |
 | `checkCriterionContents(String criterionName, String search)` | Checks the value of a text criterion |
 | `checkCriterionLabel(String criterionName, String text)` | Checks the label of a criterion |
+| `checkCriterionNotPresent(String criterionName)` | Checks that a criterion is not in the page at all, neither shown nor hidden, such as one in a tab page that is not shown |
 | `checkCriterionUnit(String criterionName, String text)` | Checks the unit addon of a criterion (the text after the input) |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Checks that criteria are checked (or not) |
 | `clickCheckbox(String criterionName)` | Clicks a checkbox or radio button |

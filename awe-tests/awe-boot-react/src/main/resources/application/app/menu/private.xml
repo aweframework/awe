@@ -108,6 +108,7 @@
       <option name="matrix-test-popover" label="MENU_TEST_MATRIX_POPOVER" screen="PopoverTst" icon="comment"/>
       <option name="matrix-test-deferred" label="MENU_TEST_MATRIX_DEFERRED" screen="DeferredLoadTst" icon="hourglass-half"/>
       <option name="matrix-test-deferred-heavy" label="MENU_TEST_MATRIX_DEFERRED_HEAVY" screen="DeferredHeavyTst" icon="hourglass-half"/>
+      <option name="matrix-test-tab-order" label="MENU_TEST_MATRIX_TAB_ORDER" screen="TabOrderTst" icon="folder"/>
       <option name="matrix-test-tree" label="MENU_TEST_MATRIX_TREE" screen="test-tree" icon="sitemap"/>
       <option name="matrix-test-move-rows" label="MENU_TEST_MATRIX_MOVE_ROWS" screen="MoveRowsTst" icon="sort"/>
       <option name="matrix-test-xss-cells" label="MENU_TEST_MATRIX_XSS_CELLS" screen="XssGridCells" icon="shield"/>

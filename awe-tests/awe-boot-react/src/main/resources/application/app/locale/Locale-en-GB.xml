@@ -355,6 +355,11 @@
   <locale name="ENUM_DEFERRED_FIRST" value="Loaded with the screen"/>
   <locale name="ENUM_DEFERRED_SECOND" value="Deferred"/>
   <locale name="MENU_TEST_MATRIX_DEFERRED_HEAVY" value="Deferred load (heavy)"/>
+  <locale name="MENU_TEST_MATRIX_TAB_ORDER" value="Tab order"/>
+  <locale name="SCREEN_TITLE_TAB_ORDER" value="Tab order"/>
+  <locale name="ENUM_TAB_ORDER_FIRST" value="First"/>
+  <locale name="ENUM_TAB_ORDER_SECOND" value="Second"/>
+  <locale name="ENUM_TAB_ORDER_THIRD" value="Third"/>
   <locale name="SCREEN_TITLE_DEFERRED_HEAVY" value="Deferred load (heavy)"/>
   <locale name="BUTTON_HEAVY_EAGER" value="Heavy dialog (loaded with the screen)"/>
   <locale name="BUTTON_HEAVY_DEFERRED" value="Heavy deferred dialog"/>

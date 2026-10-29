@@ -1994,4 +1994,29 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkGridPaginationPresent(PAGER_GRID);
     checkGridPaginationNotPresent("GrdNoPagerTst");
   }
+
+  /**
+   * Tab order test: the page shown under a tab is the container whose id is the value of the selected option, whatever
+   * the order of the options and of the containers, and a container without option is never shown (#906)
+   */
+  @Test
+  void t135_tabShowsThePageOfTheSelectedValue() {
+    // Title
+    setTestTitle("Tab: the page of the selected value");
+
+    // Go to screen: the first option is selected
+    openMatrixOption("matrix-test-tab-order");
+    checkCriterionContents("TabOrdFirstTxt", "First");
+
+    // The second option is the third container
+    clickTab("TabOrder", "Third");
+    checkCriterionContents("TabOrdThirdTxt", "Third");
+    checkCriterionNotPresent("TabOrdSecondTxt");
+
+    // The third option is the second container
+    clickTab("TabOrder", "Second");
+    checkCriterionContents("TabOrdSecondTxt", "Second");
+    checkCriterionNotPresent("TabOrdThirdTxt");
+    checkCriterionNotPresent("TabOrdHiddenTxt");
+  }
 }
