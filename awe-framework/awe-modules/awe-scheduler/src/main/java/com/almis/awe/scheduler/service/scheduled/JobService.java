@@ -231,7 +231,10 @@ public abstract class JobService extends ServiceConfig {
     } catch (CancellationException | InterruptedException exc) {
       job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
       job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
-      Thread.currentThread().interrupt();
+      // A timeout cancels the process, not this thread: restore the flag only for a real interruption
+      if (exc instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
     } catch (Exception exc) {
       job.getTask().setStatus(TaskStatus.JOB_ERROR);
       job.getTask().getReport().setReportMessage(exc.getMessage());

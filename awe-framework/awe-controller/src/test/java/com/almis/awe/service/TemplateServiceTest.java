@@ -4,24 +4,34 @@ import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.TagList;
 import com.almis.awe.model.util.data.DataListUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
+import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,6 +69,11 @@ class TemplateServiceTest {
   @BeforeEach
   public void initBeans() throws Exception {
     MockitoAnnotations.openMocks(this);
+  }
+
+  @AfterEach
+  void clearInterruptFlag() {
+    Thread.interrupted();
   }
 
   /**
@@ -120,5 +135,57 @@ class TemplateServiceTest {
     assertEquals("Template lalala tutu lala tututu", templates.get(0));
     assertEquals("Template lerele tutu lala ", templates.get(1));
     assertEquals("Template [value] tutu lala tititi", templates.get(2));
+  }
+
+  /**
+   * Check a failed option help keeps the request thread uninterrupted
+   */
+  @Test
+  void generateApplicationHelpTemplateKeepsThreadUninterruptedWhenAnOptionFails() throws Exception {
+    // Mock
+    Option option = new Option();
+    option.setLabel("Option");
+    option.setElementList(new ArrayList<>());
+    Menu menu = new Menu();
+    menu.setElementList(new ArrayList<>(List.of(option)));
+    when(menuService.getMenuWithAllRestrictions()).thenReturn(menu);
+    for (STGroup templateGroup : List.of(elementsTemplateGroup, helpTemplateGroup, screensTemplateGroup)) {
+      when(templateGroup.createStringTemplate(any())).thenReturn(mock(ST.class));
+    }
+    when(templateDao.generateOptionHelpAsync(any(), any(), anyInt(), anyBoolean()))
+      .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("Broken help")));
+
+    // Run
+    templateService.generateApplicationHelpTemplate(false);
+
+    // Assert
+    assertThat(Thread.currentThread().isInterrupted()).isFalse();
+  }
+
+  /**
+   * Check an interrupted wait for an option help restores the interrupt flag
+   */
+  @Test
+  void generateApplicationHelpTemplateRestoresTheInterruptFlagWhenInterrupted() throws Exception {
+    // Mock
+    @SuppressWarnings("unchecked")
+    Future<ST> interrupted = mock(Future.class);
+    when(interrupted.get()).thenThrow(new InterruptedException("interrupted"));
+    Option option = new Option();
+    option.setLabel("Option");
+    option.setElementList(new ArrayList<>());
+    Menu menu = new Menu();
+    menu.setElementList(new ArrayList<>(List.of(option)));
+    when(menuService.getMenuWithAllRestrictions()).thenReturn(menu);
+    for (STGroup templateGroup : List.of(elementsTemplateGroup, helpTemplateGroup, screensTemplateGroup)) {
+      when(templateGroup.createStringTemplate(any())).thenReturn(mock(ST.class));
+    }
+    when(templateDao.generateOptionHelpAsync(any(), any(), anyInt(), anyBoolean())).thenReturn(interrupted);
+
+    // Run
+    templateService.generateApplicationHelpTemplate(false);
+
+    // Assert
+    assertThat(Thread.currentThread().isInterrupted()).isTrue();
   }
 }

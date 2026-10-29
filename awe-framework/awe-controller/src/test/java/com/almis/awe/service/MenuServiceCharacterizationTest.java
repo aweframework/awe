@@ -235,7 +235,7 @@ class MenuServiceCharacterizationTest {
   }
 
   @Test
-  void getScreenFailedInitialLoadLogsInterruptsAndStillMarksTheScreenInitialized() throws AWException {
+  void getScreenFailedInitialLoadLogsWithoutInterruptingAndStillMarksTheScreenInitialized() throws AWException {
     Tab loaded = (Tab) new Tab().setInitialLoad("query").setTargetAction("broken");
     Screen stored = screen("screen", false);
     stored.addElement(loaded);
@@ -248,7 +248,7 @@ class MenuServiceCharacterizationTest {
 
     assertThat(result.isInitialized()).isTrue();
     assertThat(result.getElementsByType(Tab.class).get(0).getTabValues()).isNull();
-    assertThat(Thread.interrupted()).isTrue();
+    assertThat(Thread.interrupted()).isFalse();
     verify(aweElements).getLocaleWithLanguage(eq("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA"), any(), any());
     verify(aweElements).setScreen(result);
   }
