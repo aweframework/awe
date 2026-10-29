@@ -680,6 +680,19 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary)` | Checks the main value and the secondary line of a cell of a column with `secondary-field` (`secondary` null: the cell shows only the main line) |
 | `checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone)` | Checks the status of a cell of a column with `status-field`: its tone (`data-tone` and tone class) and its text |
 | `checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden)` | Checks the chips that a cell of a `chips` column shows, in order, and the "+n" chip whose tooltip and accessible label list the hidden ones (empty `hidden`: no "+n" chip) |
+| `checkGridGroupRowCount(String gridId, int level, int count)` | Checks how many group rows of a level a grouped grid shows (the groups inside a collapsed group are not shown) |
+| `checkGridGroupOrder(String gridId, int level, String... paths)` | Checks the order of the group rows of a level by their paths: the encoded values of their levels joined by `/`, as `America/USA/New%20York` |
+| `checkGridGroupLabel(String gridId, String path, String label, int count)` | Checks the label of a group row: its value and the number of its data rows (`Europe · 11`) |
+| `checkGridGroupExpanded(String gridId, String path)` | Checks that a group is expanded: its row and its toggle say so and its content follows it |
+| `checkGridGroupCollapsed(String gridId, String path)` | Checks that a group is collapsed: its row and its toggle say so and neither its groups, its rows nor its subtotal are shown |
+| `checkGridNotGrouped(String gridId)` | Checks that a grid shows its data rows without group or subtotal rows |
+| `checkGridGroupCell(String gridId, String path, String columnId, String text)` | Checks a cell of a group row: the aggregate of a column with `summary-type`, or the label and count in the first visible column |
+| `checkGridSubtotalCell(String gridId, String path, String columnId, String text)` | Checks a cell of the subtotal row of a group: the aggregate, or `Subtotal {value}` in the first visible column |
+| `toggleGridGroup(String gridId, String path)` | Expands or collapses a group with its toggle |
+| `expandAllGridGroups(String gridId)` / `collapseAllGridGroups(String gridId)` | Expands or collapses every group with the Expand all / Collapse all buttons of the toolbar |
+| `groupGridBy(String gridId, String... columns)` | Chooses the grouping in the Group by panel of the toolbar: No grouping, then each column in order (no columns: the grid is not grouped), and closes the panel |
+| `checkGridFooterTotal(String gridId, String columnId, String text)` | Checks the total of a column in the footer of a grid with `show-totals` |
+| `watchServerCalls()` / `checkNoServerCalls()` | Starts watching the calls of the page to its server, and checks that none was made since then (a client-side action such as grouping or expanding) |
 | `checkRowSelected(String gridId, String search)` | Checks that the row of a grid with a text is selected |
 | `measureGridSortRender(String gridId, String columnId)` | Sorts a client-side grid with a click on a header and returns the milliseconds that its rows take to render |
 | `openGridColumns(String gridId)` | Opens the Columns dialog of the toolbar of a grid |

@@ -72,6 +72,9 @@ export interface AbstractGrid extends AbstractCriteria {
     emptyTitle?: string;
     enableFilters?: boolean;
     expandColumn?: string;
+    groupBy?: string;
+    groupSelector?: boolean;
+    groupSubtotals?: boolean;
     headerModel?: GroupHeader[];
     iconCollapse?: string;
     iconExpand?: string;

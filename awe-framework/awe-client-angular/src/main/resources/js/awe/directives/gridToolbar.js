@@ -19,6 +19,7 @@ const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen
 
 // The Columns (popover, dialog or side panel) are aria-busy while Save or Restore default wait for the server
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
+  <awe-grid-group-by ng-if="::component.groupingConfigured" class="grid-group-by"></awe-grid-group-by>
   <button type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
@@ -88,7 +89,7 @@ const COLUMN_ITEM_TEMPLATE = `${iconTemplate("bars", {tag: "span", classes: "gri
  * @param {HTMLElement} node Fixed element
  * @returns {{top: number, left: number}} Offset
  */
-const getFixedOffset = node => {
+export const getFixedOffset = node => {
   for (let parent = node.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
     const style = window.getComputedStyle(parent);
     const creates = value => value && value !== "none";

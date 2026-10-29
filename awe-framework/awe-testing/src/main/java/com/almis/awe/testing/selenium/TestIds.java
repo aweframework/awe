@@ -89,6 +89,18 @@ public final class TestIds {
   public static final String GRID_COLUMNS_SAVE = "grid-columns-save";
   public static final String GRID_COLUMNS_CANCEL = "grid-columns-cancel";
   public static final String GRID_COLUMNS_CLOSE = "grid-columns-close";
+  // Row grouping: group and subtotal rows (data-group-path, data-group-level), the toggle of a group, the Expand all
+  // and Collapse all buttons, the Group by button and its panel (owner: the grid), its No grouping action and the
+  // option of a column (data-column)
+  public static final String GRID_GROUP_ROW = "grid-group-row";
+  public static final String GRID_SUBTOTAL_ROW = "grid-subtotal-row";
+  public static final String GRID_GROUP_TOGGLE = "grid-group-toggle";
+  public static final String GRID_GROUP_EXPAND_ALL = "grid-group-expand-all";
+  public static final String GRID_GROUP_COLLAPSE_ALL = "grid-group-collapse-all";
+  public static final String GRID_GROUP_BY = "grid-group-by";
+  public static final String GRID_GROUP_BY_PANEL = "grid-group-by-panel";
+  public static final String GRID_GROUP_NONE = "grid-group-none";
+  public static final String GRID_GROUP_OPTION = "grid-group-option";
   public static final String TREE_ICON = "tree-icon";
   public static final String COLUMN_ICON = "column-icon";
 

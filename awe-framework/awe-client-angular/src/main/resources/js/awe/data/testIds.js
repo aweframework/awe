@@ -80,6 +80,19 @@ export const TestIds = Object.freeze({
   gridColumnsCancel: "grid-columns-cancel",
   gridColumnsSave: "grid-columns-save",
   gridColumnsClose: "grid-columns-close",
+  // Row grouping of a grid (#833): group and subtotal rows (instead of "grid-row", with "data-group-path",
+  // "data-group-level" and, the group rows, "data-expanded"), the toggle of a group, the Expand all / Collapse all
+  // buttons, the Group by button and its panel ("data-testid-owner" is the grid), its "No grouping" option and the
+  // checkbox of a column ("data-column")
+  gridGroupRow: "grid-group-row",
+  gridSubtotalRow: "grid-subtotal-row",
+  gridGroupToggle: "grid-group-toggle",
+  gridGroupExpandAll: "grid-group-expand-all",
+  gridGroupCollapseAll: "grid-group-collapse-all",
+  gridGroupBy: "grid-group-by",
+  gridGroupByPanel: "grid-group-by-panel",
+  gridGroupNone: "grid-group-none",
+  gridGroupOption: "grid-group-option",
   // Tree grids: expand/collapse icon of a row and the expand/collapse all icon of the header
   treeIcon: "tree-icon",
   treeHeaderIcon: "tree-header-icon",
@@ -193,6 +206,10 @@ export const TestAttributes = Object.freeze({
   container: "data-container",
   // Icon shown by an icon column
   icon: "data-icon",
+  // Group rows of a grid with row grouping: path and level of the group, and the column of a "Group by" option
+  groupPath: "data-group-path",
+  groupLevel: "data-group-level",
+  column: "data-column",
   // A chart has been drawn, and it is zoomed (shows a part of its range)
   rendered: "data-rendered",
   zoomed: "data-zoomed"

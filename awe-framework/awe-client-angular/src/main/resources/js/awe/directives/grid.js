@@ -9,6 +9,7 @@ import {initRowDrag} from "../services/grid/rowDrag";
 import "./gridHeader";
 import "./gridSkeleton";
 import "./gridToolbar";
+import "./gridGroupBy";
 
 export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
@@ -40,7 +41,7 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
     <div class="pagination-content grid-buttons fixed-height {{component.footerButtonStyle}}">
       <div ng-transclude></div>
     </div>
-    <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}" data-testid="${TestIds.gridPagination}">
+    <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}" data-testid="${TestIds.gridPagination}" ng-hide="component.grouped">
       <div ng-if="model.records > 0 && component.bigGrid">
         <div class="hidden-xs col-sm-8 text-center pagination-content">
           <ul uib-pagination ng-change="component.changePage()" total-items="model.records" items-per-page="component.getMax()" ng-model="component.currentPage" num-pages="model.total" max-size="5" class="pagination pagination-{{::size}}"
@@ -189,7 +190,9 @@ aweApplication.directive('aweGrid',
                     // Init grid
                     component.initGrid();
                   },
-                  customScroller: (uiGridViewport, scrollHandler) => component.customScroller(uiGridViewport, scrollHandler)
+                  customScroller: (uiGridViewport, scrollHandler) => component.customScroller(uiGridViewport, scrollHandler),
+                  // Row grouping: group rows, no client sort, pagination nor filters while grouped (#833)
+                  ...component.getGroupingOptions()
                 });
                 // Empty state (grid without rows)
                 scope.emptyState = {

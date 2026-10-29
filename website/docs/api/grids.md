@@ -847,6 +847,75 @@ The basic grid is the standard grid without a tree structure. It can be defined 
 | show-totals | Boolean | Show a line with totalizers | Default value is `false` |
 | row-numbers | Boolean | Show the row numbers        | Default value is `false` |
 
+### Row grouping
+
+A basic grid can group its rows by one or more columns, in **both client engines**: each group shows a row with its
+value, its number of rows and the aggregates of the group, can be collapsed and expanded, and ends with a subtotal row.
+The toolbar offers Expand all, Collapse all and, with `group-selector="true"`, a **Group by** panel to change the
+grouping at runtime. A grid without these attributes renders exactly as before.
+
+```xml
+<grid id="GrdSales" style="expand" initial-load="query" server-action="data" target-action="SalesByStore" max="10"
+      group-by="region,country,city" group-selector="true" show-totals="true">
+  <column label="Region" name="region" sort-field="region" charlength="24"/>
+  <column label="Country" name="country" sort-field="country" charlength="14"/>
+  <column label="City" name="city" sort-field="city" charlength="14"/>
+  <column label="Store" name="store" sort-field="store" charlength="12"/>
+  <column label="Sales" name="sales" sort-field="sales" align="right" charlength="12" component="numeric"
+          number-format="{mDec: 0}" summary-type="sum"/>
+  <column label="Average price" name="price" sort-field="price" align="right" charlength="14" component="numeric"
+          number-format="{mDec: 2}" summary-type="avg"/>
+</grid>
+```
+
+| Attribute         | JSON             | Default | Description                                                                                                  |
+|-------------------|------------------|---------|--------------------------------------------------------------------------------------------------------------|
+| `group-by`        | `groupBy`        |         | Comma-separated column names; each one is a grouping level, in order. Unknown names are ignored               |
+| `group-selector`  | `groupSelector`  | `false` | The toolbar shows a **Group by** button whose panel changes the levels at runtime: *No grouping*, or the checked columns in the order they are checked. It offers the visible columns with a label and without `summary-type` |
+| `group-subtotals` | `groupSubtotals` | `true`  | Each expanded group ends with a subtotal row. `false` hides it                                                |
+
+The aggregates reuse the `summary-type` of the columns (`sum`, `avg`, `max` or `min`) and their `number-format`; the
+columns without it show nothing in the group and subtotal rows.
+
+**Loading and pagination.** A grid with `group-by` or `group-selector="true"` loads **every row** of its query, as if it
+had `load-all="true"`, whatever its `load-all`: server pagination is not used. While the rows are grouped the grid does
+not paginate (the pager is hidden, every group is shown with scroll and a group is never split across pages); with *No
+grouping* it paginates its rows on the client again with its `max`. Expand all, Collapse all, a group toggle and the
+Group by panel work on the loaded rows, **without a server call**. Keep grouped grids to the size that a `load-all` grid
+handles well.
+
+**Behaviour**, the same in both engines:
+
+- Group row: the toggle (chevron, with `aria-expanded`), the value of the group (the label of select and suggest cells;
+  an empty value shows a translated *(empty)*) and `{count}`, the data rows of the group, muted and after a space in the first visible column,
+  and the aggregates in their columns. Subtotal row: `Subtotal {value}` and the aggregates.
+- Classes for per-level styling: `grid-group-row grid-group-level-{n}` and `grid-subtotal-row grid-subtotal-level-{n}`
+  (`n` from 1). The default style indents and weights each level with the design tokens, in light and dark.
+- Groups start expanded. A click on a group row (or Enter and Space on its toggle) expands or collapses it and never
+  selects it. Expand all and Collapse all act on every group of every level and set the state of the groups shown later:
+  after Collapse all, the groups shown by expanding their parent are collapsed too. The state of each group is kept
+  across sorting and reloads while the levels stay the same.
+- Ordering: without a sort on them, the groups of each level go by their value, ascending, the empty group last.
+  Sorting by a group-by column orders its level by value in that direction; sorting by a column with `summary-type`
+  orders the groups of every level by that aggregate. Any sort also orders the data rows inside each group.
+- `show-totals="true"` keeps the footer as the **grand total** of all the rows.
+- Group and subtotal rows are display rows: they have no checkbox, row number, edit or context menu actions. The model
+  of the grid keeps the data rows, so the selection, the values sent to the server, the print and the export are those
+  of the data rows, without groups or subtotals.
+- Column filters (`enable-filters`) are not offered while the rows are grouped, and come back with *No grouping*.
+- Grouping is ignored on tree grids and on editable, `send-operations`, `move-rows` and `row-detail` grids.
+
+**Known limits:**
+
+- A column with `summary-type` that is the first visible column shows the label of the group, not its aggregate.
+- Changing the levels with the Group by panel forgets the groups expanded or collapsed one by one.
+- React: `max` over only negative values gives `0` (as its footer); AngularJS gives the true maximum.
+- AngularJS: the footer always sums, whatever the `summary-type` (the group and subtotal rows do use it); while grouped,
+  the select-all checkbox of a multiselect grid selects the rows shown (not the ones inside collapsed groups).
+
+The test applications include the screen *Row grouping* in the matrix test menu (three levels, Group by panel and grand
+total).
+
 
 ## Multiselect grid
 

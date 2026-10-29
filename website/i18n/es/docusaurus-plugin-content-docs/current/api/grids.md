@@ -855,6 +855,78 @@ El grid básico es el grid estándar sin una estructura de árbol. Se puede defi
 | show-totals | Boolean | Mostrar una línea con totalizadores | El valor predeterminado es `false` |
 | row-numbers | Boolean | Mostrar los números de fila         | El valor predeterminado es `false` |
 
+### Agrupación de filas {#row-grouping}
+
+Un grid básico puede agrupar sus filas por una o varias columnas, en **los dos motores cliente**: cada grupo muestra una
+fila con su valor, su número de filas y los agregados del grupo, se puede contraer y expandir, y termina con una fila de
+subtotal. La barra de herramientas ofrece Expandir todo, Contraer todo y, con `group-selector="true"`, un panel
+**Agrupar por** para cambiar la agrupación en tiempo de ejecución. Un grid sin estos atributos se muestra exactamente
+como antes.
+
+```xml
+<grid id="GrdSales" style="expand" initial-load="query" server-action="data" target-action="SalesByStore" max="10"
+      group-by="region,country,city" group-selector="true" show-totals="true">
+  <column label="Region" name="region" sort-field="region" charlength="24"/>
+  <column label="Country" name="country" sort-field="country" charlength="14"/>
+  <column label="City" name="city" sort-field="city" charlength="14"/>
+  <column label="Store" name="store" sort-field="store" charlength="12"/>
+  <column label="Sales" name="sales" sort-field="sales" align="right" charlength="12" component="numeric"
+          number-format="{mDec: 0}" summary-type="sum"/>
+  <column label="Average price" name="price" sort-field="price" align="right" charlength="14" component="numeric"
+          number-format="{mDec: 2}" summary-type="avg"/>
+</grid>
+```
+
+| Atributo          | JSON             | Por defecto | Descripción                                                                                              |
+|-------------------|------------------|-------------|----------------------------------------------------------------------------------------------------------|
+| `group-by`        | `groupBy`        |             | Nombres de columna separados por comas; cada uno es un nivel de agrupación, en orden. Los nombres que no son columnas se ignoran |
+| `group-selector`  | `groupSelector`  | `false`     | La barra de herramientas muestra un botón **Agrupar por** cuyo panel cambia los niveles en tiempo de ejecución: *Sin agrupar*, o las columnas marcadas en el orden en que se marcan. Ofrece las columnas visibles con etiqueta y sin `summary-type` |
+| `group-subtotals` | `groupSubtotals` | `true`      | Cada grupo expandido termina con una fila de subtotal. `false` la oculta                                  |
+
+Los agregados usan el `summary-type` de las columnas (`sum`, `avg`, `max` o `min`) y su `number-format`; las columnas
+sin él no muestran nada en las filas de grupo y de subtotal.
+
+**Carga y paginación.** Un grid con `group-by` o `group-selector="true"` carga **todas las filas** de su consulta, como si
+tuviera `load-all="true"`, sea cual sea su `load-all`: no se usa la paginación de servidor. Mientras las filas están
+agrupadas el grid no pagina (el paginador se oculta, se muestran todos los grupos con desplazamiento y un grupo nunca se
+parte entre páginas); con *Sin agrupar* vuelve a paginar sus filas en el cliente con su `max`. Expandir todo, Contraer
+todo, el conmutador de un grupo y el panel Agrupar por trabajan sobre las filas cargadas, **sin llamar al servidor**.
+Mantenga los grids agrupados en el tamaño que un grid `load-all` maneja bien.
+
+**Comportamiento**, igual en los dos motores:
+
+- Fila de grupo: el conmutador (chevron, con `aria-expanded`), el valor del grupo (la etiqueta de las celdas select y
+  suggest; un valor vacío muestra *(vacío)* traducido) y `{count}`, las filas de datos del grupo, atenuado y tras un espacio en la primera
+  columna visible, y los agregados en sus columnas. Fila de subtotal: `Subtotal {valor}` y los agregados.
+- Clases para dar estilo por nivel: `grid-group-row grid-group-level-{n}` y `grid-subtotal-row grid-subtotal-level-{n}`
+  (`n` desde 1). El estilo por defecto sangra y da peso a cada nivel con los tokens de diseño, en claro y oscuro.
+- Los grupos empiezan expandidos. Un clic en una fila de grupo (o Intro y Espacio en su conmutador) lo expande o lo
+  contrae y nunca la selecciona. Expandir todo y Contraer todo actúan sobre todos los grupos de todos los niveles y fijan
+  el estado de los grupos que se muestren después: tras Contraer todo, los grupos que aparecen al expandir su padre
+  también están contraídos. El estado de cada grupo se mantiene al ordenar y al recargar mientras los niveles no cambien.
+- Orden: sin una ordenación sobre ellos, los grupos de cada nivel van por su valor, ascendente, con el grupo vacío al
+  final. Ordenar por una columna de agrupación ordena su nivel por valor en ese sentido; ordenar por una columna con
+  `summary-type` ordena los grupos de todos los niveles por ese agregado. Cualquier ordenación también ordena las filas
+  de datos dentro de cada grupo.
+- `show-totals="true"` mantiene el pie como el **total general** de todas las filas.
+- Las filas de grupo y de subtotal son filas de presentación: no tienen casilla, número de fila, edición ni acciones del
+  menú contextual. El modelo del grid conserva las filas de datos, así que la selección, los valores enviados al
+  servidor, la impresión y la exportación son los de las filas de datos, sin grupos ni subtotales.
+- Los filtros de columna (`enable-filters`) no se ofrecen mientras las filas están agrupadas, y vuelven con *Sin agrupar*.
+- La agrupación se ignora en los grids de árbol y en los grids editables, `send-operations`, `move-rows` y `row-detail`.
+
+**Límites conocidos:**
+
+- Una columna con `summary-type` que es la primera columna visible muestra la etiqueta del grupo, no su agregado.
+- Cambiar los niveles con el panel Agrupar por olvida los grupos expandidos o contraídos uno a uno.
+- React: `max` sobre valores solo negativos da `0` (como su pie); AngularJS da el máximo real.
+- AngularJS: el pie siempre suma, sea cual sea el `summary-type` (las filas de grupo y de subtotal sí lo usan); mientras
+  las filas están agrupadas, la casilla de seleccionar todo de un grid multiselección selecciona las filas mostradas (no
+  las de los grupos contraídos).
+
+Las aplicaciones de prueba incluyen la pantalla *Row grouping* en el menú de pruebas de la matriz (tres niveles, panel
+Agrupar por y total general).
+
 
 ## Multiselección de grid {#multiselect-grid}
 

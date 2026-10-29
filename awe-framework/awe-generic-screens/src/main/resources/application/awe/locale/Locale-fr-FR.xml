@@ -1307,6 +1307,14 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Descendre"/>
   <locale name="GRID_COLUMNS_DRAG" value="Glisser pour réorganiser"/>
   <locale name="GRID_ROW_DRAG" value="Glisser pour déplacer la ligne. Au clavier, sélectionnez-la et appuyez sur Alt+Haut, Alt+Bas, Alt+Début ou Alt+Fin"/>
+  <locale name="GRID_GROUP_BY" value="Grouper par"/>
+  <locale name="GRID_GROUP_NONE" value="Aucun regroupement"/>
+  <locale name="GRID_GROUP_EXPAND_ALL" value="Développer tous les groupes"/>
+  <locale name="GRID_GROUP_COLLAPSE_ALL" value="Réduire tous les groupes"/>
+  <locale name="GRID_GROUP_EXPAND" value="Développer le groupe"/>
+  <locale name="GRID_GROUP_COLLAPSE" value="Réduire le groupe"/>
+  <locale name="GRID_GROUP_EMPTY" value="(vide)"/>
+  <locale name="GRID_GROUP_SUBTOTAL" value="Sous-total"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposition non enregistrée"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="La disposition de la grille n&apos;a pas pu être enregistrée ni supprimée"/>
   <locale name="GRID_COLUMNS_SAVED" value="Enregistré"/>

@@ -15,13 +15,15 @@ import {useGrid} from "../hooks/useGrid";
 import {useGridRowDrag} from "../hooks/useGridRowDrag";
 import AweGridSkeleton, {getGridIconLoading, gridLoadingIcon, isGridReloading, isSkeletonIcon} from "./AweGridSkeleton";
 import PropTypes from "prop-types";
-import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
+import {bodyCellPassThrough, displayRowHook, gridPassThrough} from "../utilities/testPassThrough";
 import {TestIds, testHook} from "../utilities/testIds";
 import {useTranslation} from "react-i18next";
 import {gotoPageTemplate} from "./AweGridGotoPage";
 import AweGridRowDetail from "./AweGridRowDetail";
 import {getRowDetailInstanceId} from "../utilities/gridRowDetail";
 import {syncRowDetailInstances} from "../redux/thunks/rowDetail";
+import {useGridGrouping} from "../hooks/useGridGrouping";
+import {getDisplayRowClassName, isDisplayRow} from "../utilities/gridGrouping";
 
 /**
  * Template of the row expansion of a grid with row detail: the detail of each expanded row
@@ -92,6 +94,12 @@ function AweGrid(props) {
     () => arrangeFrozenColumns(layoutColumns, attributes.headerModel),
     [layoutColumns, attributes.headerModel]
   );
+
+  // Row grouping (#833): while grouped the grid shows the group and subtotal rows built from its data rows, all of them
+  // (no pagination), sorted here, and without column filters
+  const grouping = useGridGrouping({ address, attributes, sort: specificAttributes.sort, values: model.values,
+    firstColumn: visibleColumns[0]?.name, onSelect, onContextMenu, t });
+  const enableFilters = attributes.enableFilters && !grouping.active;
 
   const onToggleRowDetail = useCallback((rowId) => {
     setExpandedRows(current => {
@@ -186,23 +194,23 @@ function AweGrid(props) {
       return <ColumnGroup>
         <Row>
           {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
-          {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters, hasFrozen))}
+          {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, enableFilters, hasFrozen))}
           {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
         <Row>
-          {header.grouped.map(col => columnTemplate(col, 1, attributes.enableFilters, hasFrozen))}
+          {header.grouped.map(col => columnTemplate(col, 1, enableFilters, hasFrozen))}
         </Row>
       </ColumnGroup>;
     } else {
       return <ColumnGroup>
         <Row>
           {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
-          {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters, hasFrozen))}
+          {visibleColumns.map(col => columnTemplate(col, 1, enableFilters, hasFrozen))}
           {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, model, address, visibleColumns, hasFrozen, moveRows, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, model, address, visibleColumns, hasFrozen, moveRows, enableFilters, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
   const footerTemplate = useCallback(() => {
     const { showTotals } = attributes;
@@ -224,7 +232,14 @@ function AweGrid(props) {
   const renderingRowId = useRef(null);
   const renderingRowEditing = useRef(false);
   const renderingRowDeleted = useRef(false);
+  // Group or subtotal row being rendered (grouped grids): it has its own classes and hook, and no row-id
+  const renderingDisplayRow = useRef(null);
   const rowClassName = useCallback((data) => {
+    if (isDisplayRow(data)) {
+      renderingDisplayRow.current = data;
+      return getDisplayRowClassName(data);
+    }
+    renderingDisplayRow.current = null;
     renderingRowId.current = data.id;
     renderingRowEditing.current = !!data.$row?.editing;
     renderingRowDeleted.current = data.$row?.operation === OperationType.DELETE;
@@ -262,7 +277,7 @@ function AweGrid(props) {
       contextMenuSelection={selectedValues}
       onContextMenuSelectionChange={onSelect}
       id={address?.component}
-      value={showSkeleton ? [] : values} className={classes}
+      value={showSkeleton ? [] : grouping.values} className={classes}
       headerColumnGroup={headerTemplate()}
       footerColumnGroup={footerTemplate()}
       rowClassName={rowClassName}
@@ -284,7 +299,9 @@ function AweGrid(props) {
       filters={filters} filterDisplay={"menu"}
       loadingIcon={gridLoadingIcon(reloading, loadingIcon)}
       {...rowDetailProps}
+      {...grouping.tableProps}
       pt={gridPassThrough({
+        getDisplayRowHook: () => renderingDisplayRow.current && displayRowHook(renderingDisplayRow.current),
         gridId: address?.component,
         getRowId: () => renderingRowId.current,
         isRowEditing: () => renderingRowEditing.current,
@@ -293,7 +310,7 @@ function AweGrid(props) {
       })}
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail, moveRows,
-        onRowDragStart: onGripDragStart, onRowDragEnd: onGripDragEnd, frozen: hasFrozen })}
+        onRowDragStart: onGripDragStart, onRowDragEnd: onGripDragEnd, frozen: hasFrozen, rowNumberOf: grouping.rowNumberOf })}
       {
         visibleColumns
           .map(col => {
@@ -304,7 +321,7 @@ function AweGrid(props) {
               field={sortField || name}
               sortField={sortField || name}
               frozen={hasFrozen && !!col.frozen}
-              body={rowData => cellTemplate(rowData, name, hasFrozen)}
+              body={rowData => isDisplayRow(rowData) ? grouping.renderCell(rowData, name) : cellTemplate(rowData, name, hasFrozen)}
               bodyClassName={`p-cell-editing ${name}${!hasFrozen && getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`}
               style={{ ...getWidthStyle(charlength, width) }}
               bodyStyle={{ textAlign: align, justifyContent: align }}

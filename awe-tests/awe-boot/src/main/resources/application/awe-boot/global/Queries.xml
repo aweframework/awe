@@ -2648,6 +2648,18 @@
   </query>
 
   <!-- Load user Json file -->
+  <!-- Sales of stores by region, country and city (GrdGrpTst screen) -->
+  <query id="GroupRowsTst" service="loadGroupRows">
+    <field id="id" alias="id"/>
+    <field id="region" alias="region"/>
+    <field id="country" alias="country"/>
+    <field id="city" alias="city"/>
+    <field id="store" alias="store"/>
+    <field id="sales" alias="sales"/>
+    <field id="units" alias="units"/>
+    <field id="price" alias="price"/>
+  </query>
+
   <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
   <query id="CellRowsTst" service="loadCellRows">
     <field id="id" alias="id"/>

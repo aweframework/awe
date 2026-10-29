@@ -23,6 +23,9 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
   private boolean showTotals;
   private boolean showToolbar = true;
   private ColumnsPanel columnsPanel;
+  private String groupBy;
+  private Boolean groupSelector;
+  private Boolean groupSubtotals;
   private boolean treeGrid;
   private boolean validateOnSave;
   private Integer initialLevel;
@@ -67,6 +70,9 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
       .setTreeId(getTreeId())
       .setTreeLeaf(getTreeLeaf())
       .setTreeParent(getTreeParent())
+      .setGroupBy(getGroupBy())
+      .setGroupSelector(getGroupSelector())
+      .setGroupSubtotals(getGroupSubtotals())
       .setColumnsPanel(getColumnsPanel() == null ? null : getColumnsPanel().toString());
   }
 
