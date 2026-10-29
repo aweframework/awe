@@ -438,6 +438,8 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkButtonVisible(String buttonId)` | Comprueba que un botón se muestra, sea cual sea su estado |
 | `checkButtonNotVisible(String buttonId)` | Comprueba que un botón no se muestra |
 | `checkButtonDisabled(String buttonId)` | Comprueba que un botón se muestra y está deshabilitado |
+| `checkButtonHasClass(String buttonId, String cssClass)` | Comprueba que un botón tiene una clase de estilo, como una añadida por una acción `add-class` |
+| `checkButtonText(String buttonId, String text)` | Comprueba el texto de un botón, sea cual sea su estado |
 | `clickInfoButton(String infoButtonName)` | Hace clic en un botón de info (el menú de usuario, la lista de módulos...) |
 | `openUserMenu()` | Abre o cierra el menú de usuario (el avatar del usuario conectado), donde están el tema, el modo de color y el idioma |
 | `clickUserMenuOption(String optionId)` | Hace clic en una opción del menú de usuario abierto (`dark-mode`, `light-mode`). Solo AngularJS |

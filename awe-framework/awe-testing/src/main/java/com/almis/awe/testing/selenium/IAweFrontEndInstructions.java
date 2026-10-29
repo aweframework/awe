@@ -1365,6 +1365,17 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a button, enabled or not, that has a style class
+   *
+   * @param buttonId Button identifier
+   * @param cssClass Style class
+   * @return Button selector
+   */
+  default By getButtonWithClass(String buttonId, String cssClass) {
+    return By.cssSelector("#" + buttonId + "." + cssClass);
+  }
+
+  /**
    * Get a disabled button
    *
    * @param buttonId Button identifier

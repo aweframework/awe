@@ -3,7 +3,8 @@
 <!--
     Document   : DepTst.xml
     Description: Dependency test screen (#818): the conditions (contains, not contains, in) and the source events (dialog
-                 open and close, grid check-one-selected and delete-row) that a dependency can use, in either engine
+                 open and close, grid check-one-selected and delete-row) that a dependency can use, in either engine, and
+                 a class added by add-class to a button whose label a dependency changes (#905)
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DEPENDENCY_TEST">
   <tag source="buttons">
@@ -34,6 +35,12 @@
     <button button-type="button" id="ButDepDelete" label="Delete row" icon="trash">
       <button-action type="delete-row" target="GrdDep" silent="true" />
     </button>
+    <!-- A toggle: the click adds the class is-active and counts in DepToggleCount, which changes the label (#905) -->
+    <button button-type="button" id="ButDepToggle" label="Toggle" icon="check">
+      <dependency source-type="formule" target-type="label" initial="true" formule="'Toggle ([DepToggleCount])'">
+        <dependency-element id="DepToggleCount" />
+      </dependency>
+    </button>
   </tag>
   <tag source="center" expandible="vertical">
     <window id="WinDepCrt" label="SCREEN_TEXT_CRITERIA" maximize="true">
@@ -46,6 +53,14 @@
           </dependency>
           <dependency source-type="value" target-type="input" value="Closed">
             <dependency-element id="DlgDep" event="close" />
+          </dependency>
+        </criteria>
+        <criteria id="DepToggleCount" component="hidden" value="0" />
+        <criteria id="DepToggleCtl" component="hidden">
+          <dependency target-type="none">
+            <dependency-element id="ButDepToggle" event="click" />
+            <dependency-action type="add-class" target="#ButDepToggle" target-action="is-active" />
+            <dependency-action type="value" target="DepToggleCount" value="1" />
           </dependency>
         </criteria>
         <criteria label="Grid" id="DepGrd" component="text" style="col-xs-6 col-sm-3 col-lg-2">

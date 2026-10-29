@@ -4153,6 +4153,26 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a button has a style class (for instance one added by an add-class action)
+   *
+   * @param buttonId Button identifier
+   * @param cssClass Style class
+   */
+  protected void checkButtonHasClass(String buttonId, String cssClass) {
+    waitUntil(toBePresent(frontEndInstructions.getButtonWithClass(buttonId, cssClass)));
+  }
+
+  /**
+   * Check the text of a button, enabled or not
+   *
+   * @param buttonId Button identifier
+   * @param text     Expected text
+   */
+  protected void checkButtonText(String buttonId, String text) {
+    checkText(frontEndInstructions.getAnyButton(buttonId), text);
+  }
+
+  /**
    * Check that a button is displayed and disabled
    *
    * @param buttonId Button identifier

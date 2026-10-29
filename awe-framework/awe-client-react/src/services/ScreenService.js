@@ -1,7 +1,7 @@
 import {
   addEventListenerTimeout,
 } from "../utilities";
-import {rememberClassChange} from "../utilities/classChanges";
+import {changeClasses} from "../utilities/classChanges";
 import i18n from "../i18n/i18n";
 import {acceptAction} from "../redux/actions/actions";
 import {useLocation} from "react-router";
@@ -89,11 +89,11 @@ const useScreenService = () => {
     const targetClass = action.parameters[settings.targetActionKey] || "";
     const onAccept = () => dispatch(acceptAction(action));
 
-    // Remember the change: the node may not be mounted yet (inactive tab) or be mounted again later
-    targetClass.split(" ").filter(cssClass => cssClass).forEach(cssClass => rememberClassChange(action.target, cssClass, method));
+    // Change the node and remember the change: the node may not be mounted yet (inactive tab), be mounted again later or
+    // render its classes again
+    changeClasses(tag, action.target, targetClass.split(" "), method);
 
     if (tag) {
-      targetClass.split(" ").forEach(cssClass => tag.classList[method](cssClass));
       addEventListenerTimeout(tag, "transitionend", onAccept, onAccept, 500);
     } else {
       // The change is applied when the node is mounted

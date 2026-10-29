@@ -134,4 +134,21 @@ class DependencyTestsIT extends AbstractSessionTests {
     checkCriterionContents(GRID_RESULT, "Deleted");
     checkRowNotContains("awedb1");
   }
+
+  /**
+   * A class added by add-class stays on its component when the component renders again: the click adds the class to
+   * the button and changes the counter of its label, which renders the button again (#905)
+   */
+  @Test
+  void t050_addedClassSurvivesRender() {
+    setTestTitle("Dependencies: a class added by add-class survives the next render");
+    gotoScreen(MODULE, SCREEN);
+    checkButtonText("ButDepToggle", "Toggle (0)");
+
+    clickButton("ButDepToggle");
+
+    // The label shows the new counter, so the button rendered again, and it keeps the class
+    checkButtonText("ButDepToggle", "Toggle (1)");
+    checkButtonHasClass("ButDepToggle", "is-active");
+  }
 }
