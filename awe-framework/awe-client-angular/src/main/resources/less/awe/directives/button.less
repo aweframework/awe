@@ -153,6 +153,55 @@
     var(--awe-color-on-contrast));
 }
 
+// Ghost (style btn-ghost, #793): no background nor border until the pointer is over it, the muted text, as the toolbar and
+// row actions of the design system
+.btn.btn-awe.btn-ghost {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  background-image: none;
+  border-color: transparent;
+  box-shadow: none;
+
+  &:focus,
+  &.focused {
+    color: var(--awe-color-text-muted);
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+
+  &:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover) !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+
+  &:active,
+  &.active {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-secondary-hover) !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+}
+
+// Icon only (style no-label, #793): a square button with the icon in the middle; the label is its tooltip and its
+// accessible name
+.btn.btn-awe.no-label {
+  width: var(--awe-size-control);
+  padding: 0;
+}
+
+.btn.btn-awe.no-label.btn-sm,
+.btn.btn-awe.no-label.btn-xs {
+  width: var(--awe-size-control-sm);
+}
+
+.btn.btn-awe.no-label.btn-lg {
+  width: var(--awe-size-control-lg);
+}
+
 // Focus ring (pixel-admin removes the outline of every button): the keyboard focus, and the focus AWE moves to a button
 // (the focused class of the criterion service)
 .btn.btn-awe:focus-visible,

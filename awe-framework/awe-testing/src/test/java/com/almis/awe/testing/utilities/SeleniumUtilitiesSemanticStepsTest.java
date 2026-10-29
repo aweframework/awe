@@ -1324,6 +1324,123 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldReadChooseAndCheckTheOptionsOfAGridQuickFilter() {
+    // The text of an option is its label and its count, with the spaces of the markup in between
+    show(instructions.getGridQuickFilterOption("CrtSta", "locked"), " Locked \n 3 ");
+    show(instructions.getGridQuickFilterOptionChosen("CrtSta", "locked"), "");
+
+    assertThatCode(() -> {
+      utilities.checkGridQuickFilterOption("CrtSta", "locked", "Locked 3");
+      utilities.clickGridQuickFilterOption("CrtSta", "locked");
+      utilities.checkGridQuickFilterOptionChosen("CrtSta", "locked");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridQuickFilterOption("CrtSta", "locked", "Locked 4"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridQuickFilterOption("CrtSta", "no2fa", "Without 2FA 1"));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridQuickFilterOption("CrtSta", "no2fa"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridQuickFilterOptionChosen("CrtSta", "no2fa"));
+  }
+
+  @Test
+  void shouldCheckTheSelectionBarOfAGridAndClickItsButtons() {
+    show(instructions.getGridSelectionBar("GrdUsr"), "2 selected Reset 2FA Delete");
+    show(instructions.getGridSelectionCount("GrdUsr"), "2 selected");
+    show(instructions.getGridSelectionButton("GrdUsr", "ButDel"), "Delete");
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      clicks.add(invocation.getArgument(0));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> {
+      utilities.checkGridSelectionBar("GrdUsr", "2 selected");
+      utilities.clickGridSelectionButton("GrdUsr", "ButDel");
+      utilities.checkGridSelectionBarNotVisible("GrdOther");
+    }).doesNotThrowAnyException();
+    assertThat(clicks).isNotEmpty();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridSelectionBar("GrdUsr", "1 selected"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridSelectionBar("GrdOther", "2 selected"));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridSelectionButton("GrdUsr", "ButRst"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridSelectionBarNotVisible("GrdUsr"));
+  }
+
+  @Test
+  void shouldClickTheButtonOfAColumnInTheRowThatContainsAText() {
+    show(instructions.findGridRowButton("GrdUsr", "qfilter inactive", "EdtBtn"), "");
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      clicks.add(invocation.getArgument(0));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.clickGridRowButton("GrdUsr", "qfilter inactive", "EdtBtn")).doesNotThrowAnyException();
+    assertThat(clicks).isNotEmpty();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowButton("GrdUsr", "qfilter locked", "EdtBtn"));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowButton("GrdUsr", "qfilter inactive", "MorBtn"));
+  }
+
+  @Test
+  void shouldCheckThatAButtonShowsOnlyItsIconWithAnAccessibleName() {
+    // PrimeReact keeps a non-breaking space as the label of an icon-only button
+    WebElement help = show(instructions.getButton("ButHlp"), "\u00A0");
+    when(help.getAttribute("aria-label")).thenReturn("Help");
+    WebElement print = show(instructions.getButton("ButPrn"), "Print");
+    when(print.getAttribute("aria-label")).thenReturn("Print");
+    WebElement unnamed = show(instructions.getButton("ButNam"), "");
+    when(unnamed.getAttribute("aria-label")).thenReturn(null);
+
+    assertThatCode(() -> utilities.checkButtonIconOnly("ButHlp", "Help")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkButtonIconOnly("ButHlp", "Screen help"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkButtonIconOnly("ButPrn", "Print"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkButtonIconOnly("ButNam", ""));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkButtonIconOnly("ButNew", "New user"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void shouldSearchTypeAndClearTheSearchOfAGrid() {
+    WebElement input = show(instructions.getGridSearchInput("CrtTxt"), "");
+    when(input.getAttribute("value")).thenReturn("old");
+    show(instructions.getGridSearchClear("CrtTxt"), "");
+    List<Object> keysPressed = new ArrayList<>();
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+        ((List<Map<String, Object>>) sequence.toJson().get("actions")).forEach(action -> {
+          if ("keyDown".equals(action.get("type"))) {
+            keysPressed.add(action.get("value"));
+          } else if ("pointerDown".equals(action.get("type"))) {
+            clicks.add(action);
+          }
+        }));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> {
+      utilities.searchGrid("CrtTxt", "adm");
+      utilities.typeGridSearch("CrtTxt", "ope");
+    }).doesNotThrowAnyException();
+    int clicksBeforeClear = clicks.size();
+    assertThatCode(() -> utilities.clearGridSearch("CrtTxt")).doesNotThrowAnyException();
+
+    // Each search replaces the previous text; Enter filters at once, typing alone waits for the pause of the search
+    verify(input, times(2)).clear();
+    assertThat(keysPressed.stream().map(String::valueOf).collect(Collectors.joining()))
+      .isEqualTo("adm" + Keys.ENTER + "ope");
+    // The clear button is clicked as the user does
+    assertThat(clicks).hasSize(clicksBeforeClear + 1);
+    assertThrows(AssertionFailedError.class, () -> utilities.searchGrid("Missing", "adm"));
+    assertThrows(AssertionFailedError.class, () -> utilities.clearGridSearch("Missing"));
+  }
+
+  @Test
+  void shouldWaitForARowToLeaveTheGrid() {
+    show(instructions.findGridCell("Grd", "still here"), "still here");
+
+    assertThatCode(() -> utilities.checkRowGone("Grd", "gone")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkRowGone("Grd", "still here"));
+  }
+
+  @Test
   void shouldCheckThatADateRangeIsDisabledAndClearItsStartDate() {
     WebElement from = show(instructions.getDateRangeFrom("Rng"), "");
     WebElement to = show(instructions.getDateRangeTo("Rng"), "");
@@ -2131,6 +2248,28 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelClosed("Open"));
 
     verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
+  void shouldCheckTheTitleSubtitleAndTagsOfTheHeaderOfASidePanel() {
+    show(instructions.getSidePanelTitle("Pnl"), " Javier  García ");
+    show(instructions.getSidePanelSubtitle("Pnl"), "jgarcia · Operator");
+    showAll(instructions.getSidePanelTags("Pnl"), "Inactive", " Two-factor  on ");
+    // The first tag is the one whose visibility is checked
+    WebElement firstTag = driver.findElements(Locator.from(instructions.getSidePanelTags("Pnl")).toBy()).get(0);
+    when(driver.findElement(argThat(Locator.from(instructions.getSidePanelTags("Pnl")).toBy()::equals))).thenReturn(firstTag);
+
+    assertThatCode(() -> {
+      utilities.checkSidePanelTitle("Pnl", "Javier García");
+      utilities.checkSidePanelSubtitle("Pnl", "jgarcia · Operator");
+      utilities.checkSidePanelTag("Pnl", "Inactive");
+      utilities.checkSidePanelTag("Pnl", "Two-factor on");
+    }).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelTitle("Pnl", "Javier"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelSubtitle("Pnl", "jgarcia"));
+    // A tag is read whole: "Active" is not the tag "Inactive"
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelTag("Pnl", "Active"));
+    assertThrows(AssertionFailedError.class, () -> utilities.checkSidePanelTitle("Missing", "Javier García"));
   }
 
   @Test

@@ -80,6 +80,8 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-model-options="{updateOn: 'change'}"
              ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="off"
              data-testid="${TestIds.criterionInput}"/>
+      <button type="button" class="password-toggle" ng-click="togglePassword()" ng-disabled="controller.readonly" ng-attr-aria-controls="{{::controller.id}}"
+              aria-pressed="{{passwordShown}}" aria-label="{{(passwordShown ? 'SCREEN_TEXT_HIDE_PASSWORD' : 'SCREEN_TEXT_SHOW_PASSWORD')| translateMultiple}}">${iconMarkup("eye", 'ng-if="!passwordShown"')}${iconMarkup("eye-slash", 'ng-if="passwordShown"')}</button>
       <span ng-show="$root.status.isCapsLockOn" class="form-control-feedback">${iconMarkup("arrow-circle-up", "ng-class=\"::'awe-icon-' + size\"")}</span>
       <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>

@@ -15,6 +15,16 @@ aweApplication.directive('aweInputPassword',
         link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new Criterion(scope, scope.criterionId, elem).asCriterion();
+
+          // Show / hide button: only the type of the input changes, the value and the model stay as they are
+          scope.passwordShown = false;
+          scope.togglePassword = function () {
+            scope.passwordShown = !scope.passwordShown;
+            const input = elem[0].querySelector(".validator > input");
+            if (input) {
+              input.type = scope.passwordShown ? "text" : "password";
+            }
+          };
         }
       };
     }

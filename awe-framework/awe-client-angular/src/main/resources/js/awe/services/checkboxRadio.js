@@ -36,10 +36,12 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" class="control-label label-{{::size}}" ng-cloak></label>
     <div class="validator input">
-      <label class="checkbox" title="{{controller.title | translateMultiple}}" >
+      <label class="checkbox" ng-class="::{'switch': isSwitch}" title="{{controller.title | translateMultiple}}" >
         <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
+               ng-attr-role="{{::isSwitch ? 'switch' : undefined}}" ng-attr-aria-checked="{{isSwitch ? (checked ? 'true' : 'false') : undefined}}"
                ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"
                data-testid="${TestIds.criterionInput}"/>
+        <span ng-if="::isSwitch" class="switch__track" aria-hidden="true"></span>
         <span class="lbl label-{{::size}}">
           ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
           {{controller.label| translateMultiple}}
@@ -96,6 +98,31 @@ export const templateRadio = `<div ng-show="controller.visible" class="criterion
   </div>
 </div>`;
 
+// Keys that move the choice of a group of radios, with the step they take
+const KEY_STEP = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1};
+
+/**
+ * Move the choice of a group of radios (a radio column cell, the quick filters of a grid) to its next or previous
+ * enabled option and focus it. The options are the radio inputs of the group the key was pressed in.
+ * @param {Event} event Key down event on one option
+ */
+export function moveChoice(event) {
+  let  step = KEY_STEP[event.key];
+  if (!step) {
+    return;
+  }
+  let  group = event.target.closest ? event.target.closest("[role=radiogroup]") : null;
+  let  options = Array.from(group ? group.querySelectorAll("input[type=radio]") : []).filter((input) => !input.disabled);
+  let  current = options.indexOf(event.target);
+  if (options.length < 2 || current < 0) {
+    return;
+  }
+  event.preventDefault();
+  let  next = options[(current + step + options.length) % options.length];
+  next.focus();
+  next.click();
+}
+
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',
   ['Criterion', 'Control', 'AweUtilities',
@@ -106,31 +133,6 @@ aweApplication.factory('CheckboxRadio',
      * @param {Utilities} Utilities
      */
     function (Criterion, Control, Utilities) {
-
-      // Keys that move the choice of a radio column cell, with the step they take
-      const KEY_STEP = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1};
-
-      /**
-       * Move the choice of a cell to its next or previous enabled option and focus it.
-       * The options are the radio inputs of the group the key was pressed in.
-       * @param {Event} event Key down event on one option
-       */
-      function moveChoice(event) {
-        let  step = KEY_STEP[event.key];
-        if (!step) {
-          return;
-        }
-        let  group = event.target.closest ? event.target.closest("[role=radiogroup]") : null;
-        let  options = Array.from(group ? group.querySelectorAll("input[type=radio]") : []).filter((input) => !input.disabled);
-        let  current = options.indexOf(event.target);
-        if (options.length < 2 || current < 0) {
-          return;
-        }
-        event.preventDefault();
-        let  next = options[(current + step + options.length) % options.length];
-        next.focus();
-        next.click();
-      }
 
       /**
        * Button constructor
@@ -182,6 +184,9 @@ aweApplication.factory('CheckboxRadio',
 
           // Add group to address
           component.address.group = component.controller.group;
+
+          // style="switch": drawn as a switch (role switch and a track), with the same value
+          component.scope.isSwitch = String(component.controller.style || "").split(/\s+/).includes("switch");
 
           /******************************************************************************
            * COMPONENT METHODS

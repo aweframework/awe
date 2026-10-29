@@ -42,7 +42,7 @@ Cuando el tamaño de la pantalla es demasiado pequeño (dispositivos móviles) l
 | --------------- | -------- | ------ | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | id              | Opcional | String | Identificador del botón. Con fines de referencia                                    |                                                                                     |
 | label           | Opcional | String | Texto del botón                                                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
-| style           | Opcional | String | Clases CSS del botón                                                                |                                                                                     |
+| style           | Opcional | String | Clases CSS del botón. Las clases `btn-*` dan el aspecto del botón y `no-label` lo deja solo con el icono. Ver [estilos del botón](#button-styles) |                                                                                     |
 | icon            | Opcional | String | Identificador de icono                                                              | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)                    |
 | button-type     | Opcional | String | Comportamiento por defecto del botón                                                | `button` (por defecto), `submit` o `reset`. Ver [tipos de botones](#button-types) |
 | size            | Opcional | String | Tamaño del criterio                                                                 | `sm` (por defecto), `md` o `lg`.                                                    |
@@ -50,6 +50,39 @@ Cuando el tamaño de la pantalla es demasiado pequeño (dispositivos móviles) l
 | help-text       | Opcional | String | Texto para mostrar en el botón como ayuda                                           | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
 | help-image | Opcional | String | URL de imagen para mostrar en el botón como ayuda                                   | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                |
 | show-loading | Opcional | Booleano | Estado de ocupado del botón. Si la acción que lanzó sigue en curso pasado un momento (unos 400 ms), el botón muestra un spinner en lugar de su icono (antes de su texto si no tiene) y sigue deshabilitado hasta que la acción termina. Las acciones rápidas no muestran nada | `true` (por defecto) o `false` |
+
+## Estilos del botón {#button-styles}
+
+El atributo `style` recibe clases CSS. Algunas cambian el aspecto del botón en los dos motores cliente (AngularJS y
+React), con el sistema de diseño de AWE 5:
+
+| Estilo        | Aspecto                                                                                            |
+|---------------|----------------------------------------------------------------------------------------------------|
+| (ninguno)     | Botón con borde (un botón `submit` es el principal relleno, un botón `reset` el secundario)        |
+| `btn-primary` | Botón principal relleno: la acción principal de la pantalla, la tarjeta o el diálogo. Uno por zona |
+| `btn-danger`  | Botón de peligro relleno (acciones destructivas)                                                   |
+| `btn-success` | Botón de éxito relleno                                                                             |
+| `btn-warning` | Botón de aviso relleno                                                                             |
+| `btn-dark`    | Botón de contraste relleno                                                                         |
+| `btn-ghost`   | Botón fantasma: sin fondo ni borde hasta que el puntero pasa por encima, texto atenuado. Para acciones de barra de herramientas y de fila |
+| `no-label`    | Botón solo con icono (ver abajo). Se puede combinar con cualquiera de los anteriores               |
+
+Si un estilo tiene varias clases `btn-*` se usa la primera. El resto de clases se añaden al botón tal cual.
+
+### Botones solo con icono {#icon-only-buttons}
+
+`no-label` dibuja solo el icono del botón, como un cuadrado del tamaño del control. La `label` sigue siendo necesaria:
+pasa a ser el **tooltip** del botón y su **nombre accesible** (`aria-label`), de modo que los lectores de pantalla la
+anuncian.
+
+* Si el botón tiene `title`, el tooltip es el `title` en lugar de la etiqueta.
+* Un botón con `help` mantiene su ayuda como tooltip (la etiqueta sigue siendo su nombre accesible).
+
+```xml
+<button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+  <button-action type="dialog" target="HlpOpt" />
+</button>
+```
 
 ## Tipos de botón {#button-types}
 

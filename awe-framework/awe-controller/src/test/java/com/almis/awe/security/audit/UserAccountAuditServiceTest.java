@@ -14,6 +14,7 @@ import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +74,40 @@ class UserAccountAuditServiceTest {
     service.auditUserUpdate(7, 1, 1);
 
     assertThat(audit.events()).extracting("type").containsExactly(SecurityAuditEventType.ACCOUNT_UNLOCKED, SecurityAuditEventType.PASSWORD_RESET);
+  }
+
+  @Test
+  void unlockingSomeUsersIsAuditedPerUser() throws AWException {
+    stubUsers(user("ann", "1"), user("bob", "1"));
+
+    service.auditUserUpdate(List.of(1, 2), 0, 0);
+
+    assertThat(audit.events()).extracting("type", "cause", "username")
+      .containsExactly(tuple(SecurityAuditEventType.ACCOUNT_UNLOCKED, SecurityAuditCause.ADMINISTRATOR, "ann"),
+        tuple(SecurityAuditEventType.ACCOUNT_UNLOCKED, SecurityAuditCause.ADMINISTRATOR, "bob"));
+    verify(attempts).resetFailures("ann");
+    verify(attempts).resetFailures("bob");
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq(UserAccountAuditService.USER_STATUS_QUERY), parameters.capture());
+    assertThat(parameters.getValue().get("IdeOpe").toString()).isEqualTo("[1,2]");
+  }
+
+  @Test
+  void aListUpdateOnlyAuditsTheUsersWhoseLockChanges() throws AWException {
+    stubUsers(user("ann", "0"), user("bob", "1"));
+
+    service.auditUserUpdate(List.of(1, 2), 1, 0);
+
+    assertThat(audit.events()).extracting("type", "username")
+      .containsExactly(tuple(SecurityAuditEventType.ACCOUNT_LOCKED, "ann"));
+  }
+
+  @Test
+  void anEmptyListIsNotAudited() throws AWException {
+    service.auditUserUpdate(List.of(), 0, 0);
+
+    assertThat(audit.events()).isEmpty();
+    verify(queryService, never()).launchPrivateQuery(anyString(), any(ObjectNode.class));
   }
 
   @Test

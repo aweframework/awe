@@ -16,8 +16,9 @@ const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => 
       setValue(e.value);
     }
 
-    // Store suggest data
-    if (e.originalEvent?.type === "click") {
+    // Store the chosen option, whether it was chosen with a click or with the keyboard (Enter or Tab on the highlighted
+    // option): a chosen option is an object (a list of them in a multiple suggest), the text being typed is a string
+    if (e.value !== null && typeof e.value === "object") {
       dispatch(updateModelWithDependencies(address, {
         values: [e.value].flat().map(item => ({ ...item, selected: true }))
       }));

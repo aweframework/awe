@@ -131,6 +131,7 @@ function AweSuggest(props) {
         className={classes}
         appendTo={document.body}
         forceSelection={true}
+        autoHighlight
         virtualScrollerOptions={virtualSettings}
         itemTemplate={itemTemplate}
         pt={autoCompletePassThrough(id)}

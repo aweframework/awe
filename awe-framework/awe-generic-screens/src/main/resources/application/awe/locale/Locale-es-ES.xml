@@ -26,11 +26,13 @@
   <locale name="BUTTON_CLOSE" value="Cerrar"/>
   <locale name="BUTTON_CONFIRM" value="Confirmar"/>
   <locale name="BUTTON_COPY" value="Copiar"/>
+  <locale name="BUTTON_CREATE_USER" value="Crear usuario"/>
   <locale name="BUTTON_DARK_MODE" value="Modo oscuro"/>
   <locale name="BUTTON_DEACTIVATE" value="Desactivar"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactivar tareas seleccionadas"/>
   <locale name="BUTTON_DELETE" value="Borrar"/>
   <locale name="BUTTON_EDIT" value="Editar"/>
+  <locale name="BUTTON_MORE_ACTIONS" value="Más acciones"/>
   <locale name="BUTTON_ENCRYPT" value="Encriptar"/>
   <locale name="BUTTON_EXPORT" value="Exportar"/>
   <locale name="BUTTON_FINISH" value="Terminar"/>
@@ -46,6 +48,7 @@
   <locale name="BUTTON_NEW" value="Nuevo"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 fila debajo"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 fila encima"/>
+  <locale name="BUTTON_NEW_USER" value="Nuevo usuario"/>
   <locale name="BUTTON_NEXT" value="Siguiente"/>
   <locale name="BUTTON_PREVIOUS" value="Anterior"/>
   <locale name="BUTTON_PRINT" value="Imprimir"/>
@@ -58,6 +61,7 @@
   <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restringir acceso"/>
   <locale name="BUTTON_RUN" value="Comenzar"/>
+  <locale name="BUTTON_SAVE_CHANGES" value="Guardar cambios"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Guardar markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Guardar fila"/>
   <locale name="BUTTON_SAVE_TEXT" value="Guardar texto"/>
@@ -66,6 +70,8 @@
   <locale name="BUTTON_SEND" value="Envío"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Desbloquear batch como NO válido"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Desbloquear batch como válido"/>
+  <locale name="BUTTON_UNLOCK" value="Desbloquear"/>
+  <locale name="BUTTON_UNLOCK_ACCOUNT" value="Desbloquear cuenta"/>
   <locale name="BUTTON_UPDATE" value="Modificar"/>
   <locale name="BUTTON_VIEW" value="Consultar"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="Ver mensajes de error"/>
@@ -131,6 +137,7 @@
   <locale name="CONFIRM_MESSAGE_TRIGGER_WITH_CALENDAR_EXIST" value="Los calendarios seleccionados están asociados a una o varias tareas. ¿Está seguro de que quiere continuar?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_KO" value="Se van a desbloquear los batches seleccionados marcándolos como no válidos. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_OK" value="Se van a desbloquear los batches seleccionados marcándolos como válidos. ¿Está de acuerdo?"/>
+  <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="El usuario podrá volver a iniciar sesión. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="Se van a almacenar los datos modificados. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Atención, los datos introducidos se perderán ¿Desea continuar?"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Confirmación de borrado"/>
@@ -141,6 +148,7 @@
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="Confirmación de impresión de fichero"/>
   <locale name="CONFIRM_TITLE_RESET_2FA" value="Restablecimiento de autenticación de dos factores"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Confirmación de envío"/>
+  <locale name="CONFIRM_TITLE_UNLOCK_USER" value="Desbloquear cuenta"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmación de modificación"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Datos modificados"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Directorio"/>
@@ -420,6 +428,12 @@
   <locale name="ENUM_TIT_STL" value="Estilo de título"/>
   <locale name="ENUM_TOP" value="TOPIC"/>
   <locale name="ENUM_TOT_STL" value="Estilo de subtotales"/>
+  <locale name="ENUM_USER_2FA_HEADER_ON" value="2FA activado"/>
+  <locale name="ENUM_USER_2FA_OFF" value="Desactivado"/>
+  <locale name="ENUM_USER_2FA_ON" value="Activado"/>
+  <locale name="ENUM_USER_STATE_ACTIVE" value="Activo"/>
+  <locale name="ENUM_USER_STATE_INACTIVE" value="Inactivo"/>
+  <locale name="ENUM_USER_STATE_LOCKED" value="Bloqueado"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Si"/>
   <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Autenticación"/>
@@ -956,6 +970,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Consulta de tema"/>
   <locale name="HELP_SCREEN_TITLE_TREE_TEST" value="Esta pantalla muestra el uso de datos de árbol no ordenados cargados en una matriz de árbol"/>
   <locale name="HELP_SCREEN_TITLE_UNIKEY" value="Códigos del sistema"/>
+  <locale name="HELP_SCREEN_TITLE_USER_ADMIN" value="Quién puede iniciar sesión, con qué perfil y el estado de su cuenta."/>
   <locale name="HELP_SCREEN_TITLE_USR" value="Gestión de usuarios"/>
   <locale name="HELP_SCREEN_TITLE_USR_NEW" value="Alta de usuario"/>
   <locale name="HELP_SCREEN_TITLE_USR_UPD" value="Modificación de usuario"/>
@@ -1030,6 +1045,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_TOOLS_THEMES" value="Temas"/>
   <locale name="MENU_TOOLS_UNIKEY" value="Códigos del sistema"/>
   <locale name="MENU_TOOLS_USERS" value="Usuarios"/>
+  <locale name="MENU_TOOLS_USER_ADMIN" value="Administración de usuarios"/>
   <locale name="MENU_USER_HELP" value="Manual de usuario"/>
   <locale name="MILLISECONDS" value="{0}ms"/>
   <locale name="MINUTES" value="{0}m"/>
@@ -1129,6 +1145,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frecuencia"/>
   <locale name="PARAMETER_FROM" value="De"/>
+  <locale name="PARAMETER_FULL_NAME" value="Nombre completo"/>
   <locale name="PARAMETER_HOUR_FIN" value="Hora fin"/>
   <locale name="PARAMETER_HOUR_INI" value="Hora inicial"/>
   <locale name="PARAMETER_HOURS" value="Horas"/>
@@ -1281,6 +1298,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Anterior"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Ocultar el detalle de la fila"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Mostrar el detalle de la fila"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} seleccionado"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} seleccionados"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Filas"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificador o el texto de búsqueda"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Divisa de referencia: {0}"/>
@@ -1354,7 +1373,19 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_TOTP_CODE" value="Insertar código aquí"/>
   <locale name="SCREEN_TEXT_USER" value="Usuario"/>
   <locale name="SCREEN_TEXT_USER_DATA" value="Datos del usuario"/>
+  <locale name="SCREEN_TEXT_USER_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_USER_LOCKED_NOTICE" value="Cuenta bloqueada. El usuario no puede iniciar sesión hasta que se desbloquee."/>
+  <locale name="SCREEN_TEXT_USER_SIGN_IN_SECURITY" value="Seguridad de acceso"/>
   <locale name="SCREEN_TEXT_USERS" value="Usuarios"/>
+  <locale name="SCREEN_TEXT_USER_ACCESS" value="Acceso"/>
+  <locale name="SCREEN_TEXT_USER_APPEARANCE_OUTPUT" value="Apariencia y salida"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_LOCKED" value="Bloqueados"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" value="Sin 2FA"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_USER_FILTERS" value="Estado del usuario"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH" value="Usuario, nombre, email o perfil…"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Buscar usuarios"/>
   <locale name="SCREEN_TEXT_VERSION" value="Entorno"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activación de autenticación en dos pasos"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Información del aplicativo"/>
@@ -1429,6 +1460,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_THM_VIW" value="Consulta de tema"/>
   <locale name="SCREEN_TITLE_TREE_TEST" value="Prueba de árbol"/>
   <locale name="SCREEN_TITLE_UNIKEY" value="Códigos del sistema"/>
+  <locale name="SCREEN_TITLE_USER_ADMIN" value="Usuarios"/>
+  <locale name="SCREEN_TITLE_USER_PANEL" value="Usuario"/>
   <locale name="SCREEN_TITLE_USR" value="Gestión de usuarios"/>
   <locale name="SCREEN_TITLE_USR_NEW" value="Alta de usuario"/>
   <locale name="SCREEN_TITLE_USR_UPD" value="Modificación de usuario"/>

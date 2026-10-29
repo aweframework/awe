@@ -42,6 +42,11 @@ public class Tag extends Element {
   @XStreamAsAttribute
   private String source;
 
+  // Icon shown before the label (a section title)
+  @XStreamAlias("icon")
+  @XStreamAsAttribute
+  private String icon;
+
   @Override
   public Tag copy() {
     return this.toBuilder()

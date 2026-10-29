@@ -21,3 +21,28 @@
   content: "";
   background: var(--awe-color-border);
 }
+
+// Form section title (#793): a heading tag with style="awe-form-section-title", its icon (tag icon attribute) and its
+// label in one line, and a separator line above every form section title but the first one of its container. Same
+// class as the React engine (Tag.less).
+.awe-form-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin: 0 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-section-title);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-emphasis);
+
+  .tag-icon {
+    display: inline-flex;
+    color: var(--awe-color-text-muted);
+  }
+}
+
+.awe-form-section-title ~ .awe-form-section-title {
+  margin-top: var(--awe-space-5);
+  padding-top: var(--awe-space-5);
+  border-top: 1px solid var(--awe-color-border-subtle);
+}

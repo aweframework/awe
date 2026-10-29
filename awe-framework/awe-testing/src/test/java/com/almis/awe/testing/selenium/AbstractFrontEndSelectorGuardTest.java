@@ -223,6 +223,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridCellText(row)", () -> i.getGridCellText(GRID, ROW, COLUMN, TEXT));
     catalog.put("getGridCellText(selected)", () -> i.getGridCellText(GRID, null, COLUMN, TEXT));
     catalog.put("getGridCellButton", () -> i.getGridCellButton(GRID, ROW, COLUMN));
+    catalog.put("findGridRowButton", () -> i.findGridRowButton(GRID, TEXT, COLUMN));
     catalog.put("findGridCell(grid)", () -> i.findGridCell(GRID, TEXT));
     catalog.put("findGridCell(any grid)", () -> i.findGridCell(null, TEXT));
     catalog.put("findGridRowSelection(grid)", () -> i.findGridRowSelection(GRID, TEXT));
@@ -287,6 +288,13 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getDateRangePresets", () -> i.getDateRangePresets(CRITERION));
     catalog.put("getDateRangePreset", () -> i.getDateRangePreset(CRITERION, "1M"));
     catalog.put("getDateRangePresetActive", () -> i.getDateRangePresetActive(CRITERION, "1M"));
+    catalog.put("getGridQuickFilterOption", () -> i.getGridQuickFilterOption(CRITERION, "locked"));
+    catalog.put("getGridQuickFilterOptionChosen", () -> i.getGridQuickFilterOptionChosen(CRITERION, "locked"));
+    catalog.put("getGridSearchInput", () -> i.getGridSearchInput(CRITERION));
+    catalog.put("getGridSearchClear", () -> i.getGridSearchClear(CRITERION));
+    catalog.put("getGridSelectionBar", () -> i.getGridSelectionBar(GRID));
+    catalog.put("getGridSelectionCount", () -> i.getGridSelectionCount(GRID));
+    catalog.put("getGridSelectionButton", () -> i.getGridSelectionButton(GRID, "ButDel"));
     catalog.put("getUploaderDropZone", () -> i.getUploaderDropZone(CRITERION));
     catalog.put("getUploaderFilename", () -> i.getUploaderFilename(CRITERION));
     catalog.put("getUploaderPreview", () -> i.getUploaderPreview(CRITERION));
@@ -345,6 +353,9 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getSidePanelCss", () -> i.getSidePanelCss("Pnl"));
     catalog.put("getOpenSidePanel", () -> i.getOpenSidePanel("Pnl"));
     catalog.put("getSidePanelClose", () -> i.getSidePanelClose("Pnl"));
+    catalog.put("getSidePanelTitle", () -> i.getSidePanelTitle("Pnl"));
+    catalog.put("getSidePanelSubtitle", () -> i.getSidePanelSubtitle("Pnl"));
+    catalog.put("getSidePanelTags", () -> i.getSidePanelTags("Pnl"));
     catalog.put("getSidePanelPanel", () -> i.getSidePanelPanel("Pnl"));
     catalog.put("getButtonCss", () -> i.getButtonCss("ButId"));
     catalog.put("getPopoverCss", () -> i.getPopoverCss("Pop"));

@@ -375,6 +375,22 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Find the button of a column in the row of a grid that contains a text (a row action, as the edit button of a row)
+   *
+   * @param gridId   Grid identifier (null for any grid)
+   * @param search   Text of the row
+   * @param columnId Column of the button
+   * @return Button selector (the first matching row)
+   */
+  default By findGridRowButton(String gridId, String search, String columnId) {
+    String grid = Optional.ofNullable(gridId)
+      .map(id -> "//*[@grid-id=" + XpathLiterals.of(id) + " or @tree-grid-id=" + XpathLiterals.of(id) + "]").orElse("");
+    return By.xpath("(" + grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + "][.//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and contains(normalize-space(.)," + XpathLiterals.of(search) + ")]]//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and @column-id=" + XpathLiterals.of(columnId) + "]//button)[1]");
+  }
+
+  /**
    * Find a cell containing a text
    *
    * @param gridId Grid identifier
@@ -1013,6 +1029,105 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get an option of the quick filter of a grid. Its text is its label and its count
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @return Option selector
+   */
+  default By getGridQuickFilterOption(String criterionName, String value) {
+    return By.cssSelector(getGridQuickFilterOptionCss(criterionName, value));
+  }
+
+  /**
+   * Get an option of the quick filter of a grid when it is the chosen one
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @return Chosen option selector
+   */
+  default By getGridQuickFilterOptionChosen(String criterionName, String value) {
+    return By.cssSelector(getGridQuickFilterOptionCss(criterionName, value) + " " + TestIds.css(TestIds.CRITERION_INPUT)
+      + ":checked");
+  }
+
+  /**
+   * Css of an option of the quick filter of a grid
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option
+   * @return Option css
+   */
+  private String getGridQuickFilterOptionCss(String criterionName, String value) {
+    return getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_QUICK_FILTER) + " "
+      + TestIds.css(TestIds.GRID_QUICK_FILTER_OPTION) + "[option-id='" + value + "']";
+  }
+
+  /**
+   * Get the text box of the search of a grid
+   *
+   * @param criterionName Search identifier
+   * @return Text box selector
+   */
+  default By getGridSearchInput(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH) + " "
+      + TestIds.css(TestIds.CRITERION_INPUT));
+  }
+
+  /**
+   * Get the clear button of the search of a grid, shown while the search has text
+   *
+   * @param criterionName Search identifier
+   * @return Clear button selector
+   */
+  default By getGridSearchClear(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH) + " "
+      + TestIds.css(TestIds.GRID_SEARCH_CLEAR));
+  }
+
+  /**
+   * Get the selection bar of a grid: shown between the toolbar and the header while the grid has selected rows, with
+   * their number and the selection buttons of the grid
+   *
+   * @param gridId Grid identifier
+   * @return Selection bar selector
+   */
+  default By getGridSelectionBar(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId));
+  }
+
+  /**
+   * Get the text of the selection bar of a grid, the number of selected rows ("2 selected")
+   *
+   * @param gridId Grid identifier
+   * @return Text selector
+   */
+  default By getGridSelectionCount(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + " " + TestIds.css(TestIds.GRID_SELECTION_COUNT));
+  }
+
+  /**
+   * Get an enabled selection button (selection="true") in the selection bar of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param buttonId Button identifier
+   * @return Button selector
+   */
+  default By getGridSelectionButton(String gridId, String buttonId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + String.format(" #%s:not([disabled])", buttonId));
+  }
+
+  /**
+   * Get the css of the selection bar of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Selection bar css
+   */
+  private static String gridSelectionBarCss(String gridId) {
+    return TestIds.css(TestIds.GRID_SELECTION_BAR) + TestAttributes.css(TestAttributes.OWNER, gridId);
+  }
+
+  /**
    * Get the drop zone of an uploader criterion
    *
    * @param criterionName Criterion identifier
@@ -1236,6 +1351,37 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By getSidePanelClose(String panelId) {
     return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_CLOSE));
+  }
+
+  /**
+   * Get the title of the header of a side panel: its label, or the title of its identity header while one row of its
+   * header grid is selected
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel title selector
+   */
+  default By getSidePanelTitle(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_TITLE));
+  }
+
+  /**
+   * Get the subtitle of the identity header of a side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel subtitle selector
+   */
+  default By getSidePanelSubtitle(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_SUBTITLE));
+  }
+
+  /**
+   * Get the tags of the identity header of a side panel (each tag is an element)
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel tags selector
+   */
+  default By getSidePanelTags(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_TAG));
   }
 
   /**

@@ -81,6 +81,26 @@ describe("grid toolbar with row grouping (#833)", () => {
     });
   });
 
+  describe("place in the toolbar", () => {
+    const PARTS = ["grid-search", "grid-quick-filter", "grid-group-expand-all", "grid-group-collapse-all", "grid-group-by",
+      "grid-columns-button", "grid-maximize-button"].map(hook).concat(".grid-toolbar-spacer").join(", ");
+    const parts = element => element.find(hook("grid-toolbar")).find(PARTS)
+      .map((index, part) => part.getAttribute("data-testid") || "spacer").get();
+
+    it("goes after the search and the quick filters, before the spacer and the Columns and Maximize buttons", () => {
+      const {element} = mount({groupBy: "country", groupSelector: true, search: "CrtTxt", quickFilter: "CrtSta"});
+
+      expect(parts(element)).toEqual(["grid-search", "grid-quick-filter", "grid-group-by", "grid-group-expand-all",
+        "grid-group-collapse-all", "spacer", "grid-columns-button", "grid-maximize-button"]);
+    });
+
+    it("is hidden with the Columns and Maximize buttons when the grid opts out of the toolbar", () => {
+      const {element} = mount({groupBy: "country", groupSelector: true, search: "CrtTxt", showToolbar: false});
+
+      expect(parts(element)).toEqual(["grid-search"]);
+    });
+  });
+
   describe("group by selector", () => {
     it("is not offered without group-selector", () => {
       const {element} = mount({groupBy: "country"});

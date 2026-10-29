@@ -8,7 +8,8 @@ import {translateLabel} from "../utilities";
 import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 /**
- * Move the choice of a cell to its next or previous enabled option and focus it.
+ * Move the choice of a group of radios (a cell, the quick filters of a grid) to its next or previous enabled option and
+ * focus it.
  * The options are the radio inputs of the group the key was pressed in.
  * @param {Event} event Key down event on one option
  * @param {number} step 1 for the next option, -1 for the previous one
@@ -26,8 +27,8 @@ function moveChoice(event, step) {
   next.click();
 }
 
-// The arrows move the choice whatever modifiers are pressed
-const onChoiceKeyDown = createKeyHandler([
+// The arrows move the choice whatever modifiers are pressed (radio columns and the quick filters of a grid)
+export const onChoiceKeyDown = createKeyHandler([
   {shortcut: {key: ["ArrowRight", "ArrowDown"], ...ANY_MODIFIERS}, handler: (event) => moveChoice(event, 1)},
   {shortcut: {key: ["ArrowLeft", "ArrowUp"], ...ANY_MODIFIERS}, handler: (event) => moveChoice(event, -1)}
 ]);

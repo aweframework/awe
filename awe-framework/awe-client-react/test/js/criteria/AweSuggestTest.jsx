@@ -207,6 +207,48 @@ describe('awe-react-client/test/js/criteria/AweSuggestTest.jsx', () => {
         }
     });
 
+    describe('text typed in the suggest (#793)', () => {
+        const ROWS = [
+            {label: 'ADM - Administrator', value: '1', selected: false},
+            {label: 'OPE - Operator', value: '2', selected: false}
+        ];
+
+        const keyboardState = () => ({
+            ...baseState,
+            components: {
+                suggest: {
+                    ...baseState.components.suggest,
+                    attributes: {...baseState.components.suggest.attributes, timeout: 0, openPanelOnMount: true},
+                    model: {values: ROWS}
+                }
+            }
+        });
+
+        const typeAndSuggest = async (text) => {
+            fetchRows = ROWS;
+            let rendered;
+            await act(async () => {
+                rendered = renderWithProviders(<AweSuggest id="suggest"/>, {preloadedState: keyboardState()});
+            });
+            const input = rendered.container.querySelector('#suggest input[aria-autocomplete]');
+            await act(async () => {
+                fireEvent.focus(input);
+                fireEvent.change(input, {target: {value: text}});
+                await waitFor(() => expect(document.querySelector('[data-pc-section="item"]')).not.toBeNull());
+            });
+            return {input, store: rendered.store};
+        };
+
+        const selectedValues = store => store.getState().components.suggest.model.values
+            .filter(item => item.selected).map(item => item.value);
+
+        it('does not store the text typed without choosing a suggestion', async () => {
+            const {store} = await typeAndSuggest('adm');
+
+            expect(selectedValues(store)).toEqual([]);
+        });
+    });
+
     it('activates tooltip logic on hover when text overflows', async () => {
         const largeValues = Array.from({ length: 105 }, (_, i) => ({
             label: `Long Text Item ${i}`,

@@ -1,8 +1,12 @@
 import React from "react";
 import {extractCellModel} from "../utilities/grid";
 import {getFirstDefinedAndNotNullValue} from "../utilities/general";
+import {getInitials} from "../utilities/initials";
+import {getIconNode} from "../utilities";
 
-const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
+// Tones of a status cell and of an avatar (any other tone is shown as neutral)
+export const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
+export const AVATAR_TONES = ["primary", ...STATUS_TONES];
 const DEFAULT_CHIP_SEPARATOR = ",";
 
 /**
@@ -11,7 +15,7 @@ const DEFAULT_CHIP_SEPARATOR = ",";
  * @param {string} field Field name
  * @return {string} Text of the field
  */
-function rowText(row, field) {
+export function rowText(row, field) {
   const {label, value} = extractCellModel(row?.[field]);
   return String(getFirstDefinedAndNotNullValue(label, value, ""));
 }
@@ -23,9 +27,48 @@ function rowText(row, field) {
  * @return {string} Tone
  */
 export function getStatusTone(row, statusField) {
-  const {value} = extractCellModel(row?.[statusField]);
+  return rowTone(row, statusField, STATUS_TONES);
+}
+
+/**
+ * Tone of a field of the row: one of the given tones, neutral otherwise
+ * @param {Object} row Row data
+ * @param {string} field Field of the row with the tone
+ * @param {string[]} tones Known tones
+ * @return {string} Tone
+ */
+export function rowTone(row, field, tones) {
+  const {value} = extractCellModel(row?.[field]);
   const tone = String(value ?? "").trim().toLowerCase();
-  return STATUS_TONES.includes(tone) ? tone : "neutral";
+  return tones.includes(tone) ? tone : "neutral";
+}
+
+/**
+ * Avatar of a cell (#793): the initials of the avatar field of the row on its tone. It is decorative (the main value is
+ * the accessible text); without initials an empty space of the same size keeps the names of the column aligned
+ * @param {Object} column Column definition (avatarField, avatarToneField)
+ * @param {Object} [row] Row data
+ * @return {React.ReactElement} Avatar
+ */
+function avatarCell(column, row) {
+  const initials = getInitials(rowText(row, column.avatarField));
+  if (initials === "") {
+    return <span className="awe-cell-avatar-spacer" aria-hidden="true"/>;
+  }
+  const tone = column.avatarToneField ? rowTone(row, column.avatarToneField, AVATAR_TONES) : "neutral";
+  return <span className={`awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>;
+}
+
+/**
+ * Icon of a cell (#793): the icon of the icon field of the row, decorative (the text of the cell is its accessible value);
+ * null when the row has no icon or an unknown one
+ * @param {Object} row Row data
+ * @param {string} iconField Field of the row with the icon
+ * @return {React.ReactElement|null} Icon
+ */
+export function cellIcon(row, iconField) {
+  const {value} = extractCellModel(row?.[iconField]);
+  return getIconNode(value == null ? "" : String(value), {tag: "span", className: "awe-cell-icon", "aria-hidden": "true"});
 }
 
 /**
@@ -62,30 +105,58 @@ function chipsCell(value, column) {
 }
 
 /**
- * Whether a column shows its cells with a secondary line, a status or chips (only the columns without a component)
+ * Whether a column shows its cells with a secondary line, a status, chips, an avatar or an icon (only the columns without
+ * a component)
  * @param {Object} column Column definition
  * @return {boolean} The column has rich cells
  */
 export function hasRichCell(column = {}) {
-  return !column.component && (!!column.secondaryField || !!column.statusField || column.chips === true);
+  return !column.component && (!!column.secondaryField || !!column.statusField || column.chips === true || !!column.avatarField
+    || !!column.iconField);
 }
 
 /**
- * Cell with a secondary line, a status or chips (#832). The values are always text, never HTML
+ * Cell with a secondary line, a status, chips (#832), an avatar or an icon (#793). The values are always text, never HTML
  * @param {string} value Main text of the cell
  * @param {Object} column Column definition
- * @param {Object} [row] Row data, where the secondary and the status fields are read
+ * @param {Object} [row] Row data, where the secondary, the status and the avatar fields are read
  * @param {function} renderText Renders the main text when it is a plain text
  * @return {React.ReactElement} Cell
  */
 export function richCell(value, column, row, renderText) {
-  const {secondaryField, statusField, chips} = column;
+  if (!column.avatarField) {
+    return textContents(value, column, row, renderText);
+  }
+  return <div className="awe-cell-entity">
+    {avatarCell(column, row)}
+    <div className="awe-cell-entity-text">
+      {textContents(value, column, row, () => <span className="awe-cell-main" title={value}>{value}</span>)}
+    </div>
+  </div>;
+}
+
+/**
+ * Text of a cell: its main value, as a status or chips, with its icon and its secondary line. With an icon field the
+ * status is a plain tag: the icon of the row (if any) takes the place of the dot
+ * @param {string} value Main text of the cell
+ * @param {Object} column Column definition
+ * @param {Object} [row] Row data, where the secondary, the status and the icon fields are read
+ * @param {function} renderText Renders the main text when it is a plain text
+ * @return {React.ReactElement} Text of the cell
+ */
+function textContents(value, column, row, renderText) {
+  const {secondaryField, statusField, chips, iconField} = column;
   let main;
   if (chips === true) {
     main = chipsCell(value, column);
   } else if (statusField && value !== "") {
     const tone = getStatusTone(row, statusField);
-    main = <span className={`awe-cell-status awe-cell-status-${tone}`} data-tone={tone} title={value}>{value}</span>;
+    main = iconField
+      ? <span className={`awe-cell-status awe-cell-status-${tone} awe-cell-status-plain`} data-tone={tone} title={value}>
+        {cellIcon(row, iconField)}{value}</span>
+      : <span className={`awe-cell-status awe-cell-status-${tone}`} data-tone={tone} title={value}>{value}</span>;
+  } else if (iconField) {
+    main = <span className="awe-cell-icon-text" title={value}>{cellIcon(row, iconField)}{value}</span>;
   }
   const secondary = secondaryField ? rowText(row, secondaryField) : "";
   if (secondary === "") {

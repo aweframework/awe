@@ -36,6 +36,10 @@ describe("AngularJS grid row grouping styles (#833)", () => {
     expect(source).not.toMatch(/(?<![\w-])\d+px/);
   });
 
+  it("keeps the grouping controls at the start of the toolbar: a spacer pushes Columns and Maximize to its end", () => {
+    expect(style(".grid-toolbar .grid-toolbar-spacer")).toMatchObject({"flex": "1 1 0", "min-width": "0"});
+  });
+
   it("draws the group rows on the subtle surface with a semibold label and a muted count", () => {
     expect(style(".grid .ui-grid-row.grid-group-row")).toMatchObject({"background-color": "var(--awe-color-surface-subtle)", "cursor": "pointer"});
     expect(style(".grid .grid-group-row .grid-group-label")).toMatchObject({

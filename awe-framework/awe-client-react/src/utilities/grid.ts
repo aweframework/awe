@@ -5,6 +5,7 @@ import {formatNumber, isNumber} from "./numbers";
 import type {NumberFormat} from "./numbers";
 import {ComponentType, isEmpty} from "./general";
 import {matchesShortcut} from "./keyboard";
+import {isActionColumn} from "./gridLayout";
 
 const {
   COMPONENT_NUMERIC,
@@ -491,6 +492,16 @@ export function getDirection(direction: string): 1 | -1 {
   return direction === "asc" ? 1 : -1;
 }
 
+/**
+ * Check if a button of a grid is a selection button (selection="true"): it is shown in the selection bar of the grid
+ * while it has selected rows, not in its footer
+ * @param button Button of the button model of the grid
+ * @returns The button is a selection button
+ */
+export function isSelectionButton(button: {selection?: boolean | string} | null | undefined): boolean {
+  return button?.selection === true || button?.selection === "true";
+}
+
 /** Width of the selection (multiselect) pre-column */
 export const SELECTION_COLUMN_WIDTH = "40px";
 
@@ -502,7 +513,12 @@ interface WidthStyle {
   flex: string;
   width: string;
   minWidth: string;
+  maxWidth: string;
+  overflow: string;
 }
+
+// Width of a column that takes the rest of the width of the grid (width="*")
+const FILL_WIDTH = "*";
 
 /**
  * Width style of the row number pre-column: it grows with the digits of the last row number
@@ -518,15 +534,21 @@ export function getRowNumberWidthStyle(first: number = 0, rows: number = 0): Par
 /**
  * Retrieve width style
  * @param charLength Length in chars
- * @param width Width in pixels
+ * @param width Width in pixels, or "*" for the rest of the width of the grid
  * @param fixedWidth Width in other measures
- * @return {{}|{flex: string, width: string, minWidth: string}} The minimum width keeps the column at its width: the
- * table of a grid (automatic layout) would squeeze it to fit, and the grid scrolls instead, as the prototype
+ * @return {{}|{flex: string, width: string, minWidth: string}|{width: string, maxWidth: string, overflow: string}} The
+ * minimum width keeps the column at its width: the table of a grid (automatic layout) would squeeze it to fit, and the
+ * grid scrolls instead, as the prototype. A column with width "*" takes the rest of the width (whatever its charlength,
+ * as in the AngularJS engine) and shrinks below its content (its text ends in an ellipsis), so the other columns stay
+ * in view
  */
-export function getWidthStyle(charLength: number | null = null, width: number | null = null, fixedWidth: string | null = null): Partial<WidthStyle> {
+export function getWidthStyle(charLength: number | null = null, width: number | string | null = null, fixedWidth: string | null = null): Partial<WidthStyle> {
+  if (width === FILL_WIDTH) {
+    return {width: "100%", maxWidth: "0", overflow: "hidden"};
+  }
   let calculatedWidth: string;
   if (isNumber(charLength) || isNumber(width)) {
-    calculatedWidth = `${getWidth(charLength, width)}px`;
+    calculatedWidth = `${getWidth(charLength, isNumber(width) ? width : null)}px`;
   } else if (fixedWidth != null) {
     calculatedWidth = fixedWidth;
   } else {
@@ -735,7 +757,9 @@ export function getGridPrintData(
   const {values} = model;
   const {id, columnModel = [], showTotals = false} = attributes;
   const {t} = props;
-  const visibleColumns = columnModel.filter(column => !column.hidden);
+  // The columns sent to the report, as in the AngularJS engine: never the action columns (component="button"), and
+  // the declared printable value of each column (see isPrintableColumn)
+  const visibleColumns = columnModel.filter(isPrintableColumn);
   return {
     ...columnModel
       .filter(column => column.sendable)
@@ -835,11 +859,35 @@ function getFooterData(columnModel: GridColumn[], values: GridRow[]) {
  * @param {function} t Translator
  * @return {object} Visible column data
  */
+/**
+ * Check whether a column goes to the report, according to its declared `printable` value, as the AngularJS engine:
+ * never an action column (component="button") nor a column with `printable="false"`; always (also hidden) with
+ * `printable="true"` or `printable="excel"` (the server keeps the excel ones for spreadsheets); else only when visible
+ * @param column Column
+ * @return Column is printed
+ */
+function isPrintableColumn(column: GridColumn): boolean {
+  if (isActionColumn(column) || column.printable === false) {
+    return false;
+  }
+  switch (String(column.printMode ?? "").toLowerCase()) {
+    case "false":
+      return false;
+    case "true":
+    case "excel":
+      return true;
+    default:
+      return !column.hidden;
+  }
+}
+
 function getVisibleColumnData(column: GridColumn, t: Translate | undefined) {
-  const {name, label, type, component, width, charlength, align, secondaryField, exportSecondary, secondaryLabel} = column;
+  const {name, label, type, component, width, charlength, align, secondaryField, exportSecondary, secondaryLabel, printMode} = column;
   return {
     name, type, component, width, charlength, align,
     label: getVisibleTextData(label, t),
+    // The declared printable value, so the server keeps the spreadsheet only columns (excel) out of documents
+    ...(printMode != null ? {printable: printMode} : {}),
     // The secondary line of the column (#832), so that the export can write it in its own column
     ...(secondaryField ? {
       secondaryField,

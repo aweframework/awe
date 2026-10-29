@@ -22,6 +22,24 @@ aweApplication.directive('aweColumnButton',
           column.init(component).asButton();
 
           /**
+           * Tooltip of the cell button: the title of the cell, else the one of the column. A cell without label shows
+           * only its icon and the tooltip is its accessible name too
+           * @returns {string} Tooltip
+           */
+          scope.getCellTitle = function () {
+            const cell = (component.model && component.model.values && component.model.values[0]) || {};
+            return cell.title || (component.controller && component.controller.title) || "";
+          };
+
+          // The button acts on its row: it is selected (only it) before the actions run, as their dependencies and the
+          // parameters they send read the selected row
+          const launchActions = scope.onClick;
+          scope.onClick = function (event) {
+            component.selectCellRow();
+            launchActions(event);
+          };
+
+          /**
            * Click button function
            * @param {Object} event Event
            */

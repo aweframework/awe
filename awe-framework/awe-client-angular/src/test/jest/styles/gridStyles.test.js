@@ -384,6 +384,189 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "color": "var(--awe-color-on-primary)"
       });
     });
+
+    // #793: the rows of a grid with wrapping or two-line cells (grid-wrap) grow, and the single-line cell contents of
+    // these grids take the line height of the row with an automatic height; the selection cell kept only the height of
+    // its checkbox with that line height, so the checkbox was pushed down and cut. It fills the grown cell instead, with
+    // the checkbox centred on it as in the other grids
+    it("keeps the selection checkbox whole and centred in the grown rows of a grid with wrapping or two-line cells", () => {
+      const wrapCell = ".grid.grid-wrap .ui-grid-row .ui-grid-cell .ui-grid-cell-contents";
+      expect(style(wrapCell)).toMatchObject({"height": "auto"});
+      expect(style(`${wrapCell}.ui-grid-checkbox`)).toMatchObject({"height": "100%", "line-height": "100%"});
+    });
+  });
+
+  describe("search", () => {
+    it("draws the search as a small field with the field tokens at the start of the toolbar", () => {
+      expect(style(".grid-search")).toMatchObject({
+        "height": "var(--awe-size-control-sm)",
+        "margin-inline-end": "auto",
+        "font-size": "var(--awe-font-size-sm)",
+        "color": "var(--awe-color-field-text)",
+        "background": "var(--awe-color-field)",
+        "border": "1px solid var(--awe-color-field-border)",
+        "border-radius": "var(--awe-radius-field)",
+        "box-shadow": "var(--awe-shadow-field)"
+      });
+      expect(style(".grid-search:has(+ .grid-quick-filter)")).toMatchObject({"margin-inline-end": "0"});
+      expect(style(".grid-search .grid-search-icon")).toMatchObject({"color": "var(--awe-color-field-icon)"});
+      expect(style(".grid-search input::placeholder")).toMatchObject({"color": "var(--awe-color-field-placeholder)"});
+    });
+
+    it("marks the hovered and focused field and the focused clear button", () => {
+      expect(style(".grid-search:hover")).toMatchObject({"border-color": "var(--awe-color-field-border-hover)"});
+      expect(style(".grid-search:focus-within")).toMatchObject({
+        "border-color": "var(--awe-color-field-border-focus)",
+        "box-shadow": "var(--awe-shadow-field-focus)"
+      });
+      expect(style(".grid-search .grid-search-clear:hover")).toMatchObject({"background": "var(--awe-color-surface-hover)"});
+      expect(style(".grid-search .grid-search-clear:focus-visible")).toMatchObject({"outline": "var(--awe-focus-ring)"});
+      expect(style(".grid-search", REDUCED_MOTION)).toMatchObject({"transition": "none"});
+    });
+  });
+
+  describe("cell icon (#793)", () => {
+    it("draws the icon of a cell as a small icon before the text", () => {
+      expect(style(".awe-cell-icon")).toMatchObject({
+        "display": "inline-flex",
+        "margin-inline-end": "var(--awe-space-1-5)",
+        "vertical-align": "middle"
+      });
+      expect(style(".awe-cell-icon > .awe-icon")).toMatchObject({
+        "width": "var(--awe-size-icon-sm)",
+        "height": "var(--awe-size-icon-sm)"
+      });
+      expect(style(".awe-cell-icon-text")).toMatchObject({"white-space": "nowrap", "text-overflow": "ellipsis"});
+    });
+
+    it("draws a status with icon as a plain tag: the icon takes the place of the dot", () => {
+      expect(style(".awe-cell-status-plain::before")).toMatchObject({"display": "none"});
+    });
+
+    it("draws status tags and chips as rectangles with slightly rounded corners, with a round dot", () => {
+      expect(style(".awe-cell-status")).toMatchObject({"border-radius": "var(--awe-radius-sm)"});
+      expect(style(".awe-cell-chip")).toMatchObject({"border-radius": "var(--awe-radius-sm)"});
+      expect(style(".awe-cell-status::before")).toMatchObject({"border-radius": "var(--awe-radius-full)"});
+    });
+  });
+
+  describe("cell avatar (#793)", () => {
+    it("draws the avatar as a small circle of initials before the text, as the avatar of the prototype", () => {
+      expect(style(".awe-cell-entity")).toMatchObject({"display": "flex", "align-items": "center", "gap": "var(--awe-space-3)"});
+      expect(style(".awe-cell-avatar")).toMatchObject({
+        "width": "var(--awe-size-control-sm)",
+        "height": "var(--awe-size-control-sm)",
+        "flex": "none",
+        "border-radius": "var(--awe-radius-full)",
+        "font-size": "var(--awe-font-size-xs)",
+        "font-weight": "var(--awe-font-weight-semibold)",
+        "color": "var(--awe-color-on-secondary)",
+        "background-color": "var(--awe-color-secondary)"
+      });
+      expect(style(".awe-cell-avatar-spacer")).toMatchObject({"width": "var(--awe-size-control-sm)", "flex": "none"});
+      expect(style(".awe-cell-avatar-spacer")).not.toHaveProperty("background-color");
+    });
+
+    it.each(["info", "success", "warning", "danger"])("draws the %s tone with its text and subtle tokens", tone => {
+      expect(style(`.awe-cell-avatar-${tone}`)).toMatchObject({
+        "color": `var(--awe-color-${tone}-text)`,
+        "background-color": `var(--awe-color-${tone}-subtle)`
+      });
+    });
+
+    it("draws the primary tone on the primary subtle colour", () => {
+      expect(style(".awe-cell-avatar-primary")).toMatchObject({
+        "color": "var(--awe-color-on-primary-subtle)",
+        "background-color": "var(--awe-color-primary-subtle)"
+      });
+    });
+  });
+
+  describe("selection bar", () => {
+    it("draws the bar on the highlight, hidden until there are selected rows", () => {
+      expect(style(".grid-selection-bar")).toMatchObject({
+        "display": "none",
+        "gap": "var(--awe-space-2)",
+        "padding": "var(--awe-space-2) var(--awe-grid-cell-padding-x)",
+        "font-size": "var(--awe-font-size-sm)",
+        "font-weight": "var(--awe-font-weight-medium)",
+        "color": "var(--awe-color-on-highlight)",
+        "background": "var(--awe-color-highlight)",
+        "border-bottom": "1px solid var(--awe-grid-border)"
+      });
+      expect(style(".grid-selection-bar.is-visible")).toMatchObject({
+        "display": "flex",
+        "animation": "awe-grid-selection-bar-in var(--awe-motion-duration-fast) var(--awe-motion-easing-enter)"
+      });
+      expect(style(".grid-selection-bar.is-visible", REDUCED_MOTION)).toMatchObject({"animation": "none"});
+      expect(style(".grid-selection-bar .grid-selection-bar-spacer")).toMatchObject({"flex": "1"});
+    });
+
+    it("draws its buttons small, ghost, and the btn-danger one filled with the danger colour", () => {
+      expect(style(".grid-selection-bar .btn.btn-awe")).toMatchObject({
+        "height": "var(--awe-size-control-sm)",
+        "padding": "0 var(--awe-space-3)",
+        "font-size": "var(--awe-font-size-sm)"
+      });
+      expect(style(".grid-selection-bar .btn.btn-awe:not(.btn-danger)")).toMatchObject({
+        "color": "inherit",
+        "background": "transparent",
+        "border-color": "transparent",
+        "box-shadow": "none"
+      });
+      expect(style(".grid-selection-bar .btn.btn-awe:not(.btn-danger):hover")).toMatchObject({
+        "background": "var(--awe-color-surface-hover) !important"
+      });
+      expect(style(".grid-selection-bar .btn.btn-awe:not(.btn-danger):focus-visible")["box-shadow"])
+        .toContain("var(--awe-color-focus-ring)");
+      // The danger variant is the one of every AWE button with btn-danger
+      expect(style(".btn.btn-awe.btn-danger")).toMatchObject({"background": "var(--awe-color-danger)"});
+      expect(selectors()).not.toContain(".grid-selection-bar .btn.btn-awe.btn-danger");
+    });
+  });
+
+  describe("quick filters", () => {
+    it("draws the quick filters as a small segmented control at the start of the toolbar", () => {
+      expect(style(".grid-quick-filter")).toMatchObject({
+        "margin-inline-end": "auto",
+        "background": "var(--awe-segmented-track)",
+        "border": "1px solid var(--awe-segmented-border)",
+        "border-radius": "var(--awe-radius-md)"
+      });
+      expect(style(".grid-quick-filter .grid-quick-filter-segment")).toMatchObject({
+        "height": "calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px))",
+        "font-size": "var(--awe-font-size-xs)",
+        "color": "var(--awe-segmented-text)"
+      });
+    });
+
+    it("marks the chosen option, the hovered one, the focused one and the disabled ones with the segmented tokens", () => {
+      expect(style(".grid-quick-filter input:checked + .grid-quick-filter-segment")).toMatchObject({
+        "color": "var(--awe-segmented-selected-text)",
+        "background": "var(--awe-segmented-selected)",
+        "border-color": "var(--awe-segmented-selected-border)",
+        "box-shadow": "var(--awe-shadow-sm)"
+      });
+      expect(style(".grid-quick-filter .grid-quick-filter-option:hover > .grid-quick-filter-segment")).toMatchObject({
+        "color": "var(--awe-segmented-hover-text)"
+      });
+      expect(style(".grid-quick-filter input:focus-visible + .grid-quick-filter-segment")).toMatchObject({
+        "outline": "var(--awe-focus-ring)"
+      });
+      expect(style(".grid-quick-filter input:disabled + .grid-quick-filter-segment")).toMatchObject({
+        "opacity": "var(--awe-opacity-disabled)"
+      });
+      expect(style(".grid-quick-filter .grid-quick-filter-segment", REDUCED_MOTION)).toMatchObject({"transition": "none"});
+    });
+
+    it("shows the count muted, or in the colour of its tone", () => {
+      expect(style(".grid-quick-filter .grid-quick-filter-count")).toMatchObject({"color": "var(--awe-color-text-muted)"});
+      ["danger", "warning", "success", "info"].forEach(tone => {
+        expect(style(`.grid-quick-filter .grid-quick-filter-count[data-tone="${tone}"]`)).toMatchObject({
+          "color": `var(--awe-color-${tone}-text)`
+        });
+      });
+    });
   });
 
   describe("toolbar and columns dialog", () => {

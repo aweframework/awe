@@ -101,6 +101,18 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     expect(getWidthStyle(null, null, "32px")).toEqual({flex: '0 0 32px', width: "32px", minWidth: "32px"});
   });
 
+  it('lets a column with width "*" take the rest of the width of the grid, even with a charlength (#793)', () => {
+    // The table of the grid gives it the free width and lets it shrink below its content, so the other columns (the
+    // row actions at the end) stay in view and the grid does not scroll
+    const fill = {width: "100%", maxWidth: "0", overflow: "hidden"};
+    expect(getWidthStyle(30, "*")).toEqual(fill);
+    expect(getWidthStyle(null, "*")).toEqual(fill);
+  });
+
+  it('keeps the width of a column with charlength and no width', () => {
+    expect(getWidthStyle(26, null)).toEqual({flex: '0 0 240px', width: "240px", minWidth: "240px"});
+  });
+
   it('should get width style empty', () => {
     expect(getWidthStyle()).toEqual({});
   });
@@ -354,6 +366,44 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
       const [column] = printColumns([{name: 'name', label: 'NAME', secondaryField: 'email', exportSecondary: true}]);
 
       expect(column.secondaryLabel).toBeNull();
+    });
+
+    it('should never send the button columns: they are actions, not data (#793)', () => {
+      const columns = printColumns([
+        {name: 'name', label: 'NAME'},
+        {name: 'edit', component: 'button', printable: true},
+        {name: 'key', hidden: true},
+        {name: 'more', component: 'button'},
+        {name: 'city', label: 'CITY'}
+      ]);
+
+      expect(columns.map(column => column.name)).toEqual(['name', 'city']);
+    });
+
+    it('should follow the printable attribute of the columns, as the AngularJS engine (#793)', () => {
+      const columns = printColumns([
+        {name: 'shown', label: 'SHOWN'},
+        {name: 'never', label: 'NEVER', printable: false, printMode: 'false'},
+        {name: 'always', label: 'ALWAYS', hidden: true, printMode: 'true'},
+        {name: 'excel', label: 'EXCEL', printMode: 'excel'},
+        {name: 'hiddenKey', hidden: true}
+      ]);
+
+      expect(columns.map(column => column.name)).toEqual(['shown', 'always', 'excel']);
+    });
+
+    it('should send the printable value of a column so the server keeps the spreadsheet only columns out of documents (#793)', () => {
+      const [shown, excel] = printColumns([{name: 'shown', label: 'SHOWN'}, {name: 'excel', label: 'EXCEL', printMode: 'excel'}]);
+
+      expect(shown).not.toHaveProperty('printable');
+      expect(excel.printable).toBe('excel');
+    });
+
+    it('should leave the button columns out of the footer of the totals (#793)', () => {
+      const grid = {attributes: {id: 'Grd', showTotals: true, columnModel: [{name: 'amount'}, {name: 'edit', component: 'button'}]}};
+      const {footer} = getGridPrintData(grid, {values: []}, {t: (key) => key})['Grd.data'];
+
+      expect(Object.keys(footer)).toEqual(['amount']);
     });
 
     it('should not send the secondary attributes of a column without them', () => {

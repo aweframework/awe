@@ -22,7 +22,7 @@ Un botón abre un menú contextual con la acción de cliente `show-context-menu`
 </column>
 ```
 
-- El botón de una fila de *grid* selecciona su fila, como hace el clic derecho sobre la fila, y abre el menú contextual del *grid* justo debajo del botón.
+- El botón de una fila de *grid* selecciona su fila (solo ella, como hace todo [botón de una fila](grids.md#button-column-component)) y abre el menú contextual del *grid* justo debajo del botón.
 - Cualquier otro botón abre su propio menú contextual (los elementos `context-button` declarados dentro del botón), justo debajo de sí mismo.
 - Cuando no hay nada que abrir la acción solo termina y las siguientes acciones continúan. Para un botón fuera de un *grid* significa que no declara opciones o que ninguna es visible. Un *grid* abre su menú siempre que declare opciones, aunque ninguna sea visible en ese momento, porque sus dependencias se resuelven después de seleccionar la fila; solo un *grid* que no declara opciones no tiene nada que abrir (y entonces tampoco se selecciona la fila).
 - La acción funciona en los dos motores de cliente (AngularJS y React) y se permite en cualquier botón. No indiques `target`: la acción siempre actúa sobre el botón que la lanza.

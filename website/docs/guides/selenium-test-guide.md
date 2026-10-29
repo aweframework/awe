@@ -437,6 +437,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `clickButtonAndConfirm(String button)` | Clicks a button, accepts the confirm dialog and closes the `success` message |
 | `clickButtonAndConfirm(String button, String messageType)` | Same, closing a message of another type |
 | `checkButtonVisible(String buttonId)` | Checks that a button is displayed, whatever its state |
+| `checkButtonIconOnly(String buttonName, String accessibleName)` | Checks that a button shows only its icon (style `no-label`): no visible text, and its accessible name (`aria-label`) is the given one |
 | `checkButtonNotVisible(String buttonId)` | Checks that a button is not displayed |
 | `checkButtonDisabled(String buttonId)` | Checks that a button is displayed and disabled |
 | `checkButtonHasClass(String buttonId, String cssClass)` | Checks that a button has a style class, such as one added by an `add-class` action |
@@ -483,6 +484,9 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkSidePanelClosed(String panelId)` | Checks that a side panel has been closed |
 | `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Checks that a side panel is open against its edge (`left` or `right`) and as wide as its maximum width (a css length the browser resolves, capped by the screen width), give or take two pixels |
 | `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Presses Tab the given times and checks that the keyboard focus never leaves the side panel |
+| `checkSidePanelTitle(String panelId, String text)` | Checks the title of the header of a side panel: its label, or the title of its identity header while one row of its `header-grid` is selected |
+| `checkSidePanelSubtitle(String panelId, String text)` | Checks the subtitle of the identity header of a side panel |
+| `checkSidePanelTag(String panelId, String text)` | Checks that one of the tags of the identity header of a side panel reads the text (the whole tag: `Active` does not match `Inactive`) |
 | `closePopover(String popoverId)` | Closes a popover anchored to a control with the close button of its header |
 | `closePopoverWithEscape(String popoverId)` | Closes an open popover pressing Esc and checks that it has been closed |
 | `checkPopoverClosed(String popoverId)` | Checks that a popover anchored to a control has been closed |
@@ -595,6 +599,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `contextMenuOnTab(String tabId)` | Opens the context menu of a tab criterion with a right click on its tab list |
 | `contextMenuOnWizard(String wizardId)` | Opens the context menu of a wizard with a right click on its active step |
 | `clickGridCellButton(String gridId, String rowId, String columnId)` | Clicks the button of a grid cell |
+| `clickGridRowButton(String gridId, String search, String columnId)` | Clicks the button of a column in the row of a grid that contains a text, as the user does with a row action (the pencil of a row): the button selects its row (only it) and runs its actions |
 | `selectAllRowsOfGrid(String gridId)` | Selects every row with the checkbox of the header |
 | `checkAllRowsSelected(String gridId)` | Checks that every row of a grid is selected |
 | `clickGridViewport(String gridId)` | Clicks the area of the grid that shows the rows, outside any row |
@@ -652,6 +657,16 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkGridEmptyState(String title, String text)` | Checks that a grid without rows shows its empty state, with a title and a text that contain the given ones |
 | `checkGridEmptyStateNotVisible()` | Checks that no grid shows its empty state |
 | `clickGridEmptyAction()` | Clicks the button that the empty state offers |
+| `searchGrid(String criterionName, String text)` | Replaces the text of the search of a grid toolbar (`<search>`) with the given one, presses Enter, which filters the grid at once, and waits for the load |
+| `typeGridSearch(String criterionName, String text)` | Replaces the text of the search of a grid as the user types it, without Enter: the grid is filtered after the pause of the search, so wait for its rows (for instance with `checkRowGone`) |
+| `clearGridSearch(String criterionName)` | Empties the search of a grid with its clear button, which filters the grid at once, and waits for the load |
+| `checkGridSelectionBar(String gridId, String text)` | Checks that the selection bar of a grid (its buttons with `selection="true"`) is shown with the text of the number of selected rows, such as `2 selected` |
+| `checkGridSelectionBarNotVisible(String gridId)` | Checks that a grid does not show its selection bar: it has no selected rows |
+| `clickGridSelectionButton(String gridId, String buttonName)` | Clicks a button of the selection bar of a grid as the user does: its actions run, and a confirmation stays open (accept it with `acceptConfirm`) |
+| `checkGridQuickFilterOption(String criterionName, String value, String text)` | Checks the text of an option of the quick filter of a grid (`<quick-filter>`): its label and its count, such as `Locked 3`. It waits for the counts to load. The option is identified by its value (empty for the one that leaves the grid unfiltered) |
+| `clickGridQuickFilterOption(String criterionName, String value)` | Chooses an option of the quick filter of a grid, which filters the grid, and waits for the load |
+| `checkGridQuickFilterOptionChosen(String criterionName, String value)` | Checks that an option of the quick filter of a grid is the chosen one |
+| `checkRowGone(String gridId, String search)` | Waits until a grid, once loaded, no longer shows a text: a filter of the grid has taken the row out |
 | `clickGridRowDetailToggle(String gridId, String rowId)` | Clicks the toggle of the detail of a row, which opens the detail when it is closed and closes it when it is open |
 | `pressEnterOnGridRowDetailToggle(String gridId, String rowId)` | Gives the focus to the toggle of the detail of a row, as when the user tabs to it, and presses Enter |
 | `pressSpaceOnGridRowDetailToggle(String gridId, String rowId)` | Gives the focus to the toggle of the detail of a row, as when the user tabs to it, and presses Space |
@@ -876,6 +891,9 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 | `grid-loader` | Loader of the grid (also the pivot table) | Inside the grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | The empty state of a grid without rows, its title, its text and the button that it offers | Inside the grid |
 | `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | The toolbar of a grid (with `data-testid-owner` = grid id, and `data-maximized`) and its Columns and Maximize buttons | Inside the page |
+| `grid-search`, `grid-search-clear` | The search of a grid toolbar (with `criterion-id` and `data-testid-owner` = grid id; its text box is its `criterion-input`) and its clear button, shown while it has text | Inside the toolbar |
+| `grid-selection-bar`, `grid-selection-count` | The selection bar of a grid (with `data-testid-owner` = grid id and `data-count` = number of selected rows; its buttons keep their ids) and its text | Inside the grid |
+| `grid-quick-filter`, `grid-quick-filter-option` | The quick filter of a grid toolbar (with `criterion-id` and `data-testid-owner` = grid id) and each of its options (`option-id` = its value; its radio is its `criterion-input`) | Inside the toolbar |
 | `window`, `window-maximize-button` | A window (with `data-testid-owner` = window id, and `data-maximized`) and its Maximize button | Inside the page |
 | `tabs`, `tab-maximize-button` | A whole tab component, list and content (with `data-testid-owner` = tab id, and `data-maximized`), and its Maximize button | Inside the page |
 | `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | The Columns dialog of a grid (with `data-testid-owner` = grid id), its "N of M visible" counter (`data-visible`, `data-total`) and its actions | Inside the page |

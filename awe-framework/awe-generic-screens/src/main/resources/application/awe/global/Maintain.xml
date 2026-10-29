@@ -1342,6 +1342,29 @@
     </update>
   </target>
 
+  <!-- Unlock the selected users (users screen): clears the lock flag and the failed logins -->
+  <target name="UsrUnl">
+    <!-- Security audit: launched before the update, it publishes ACCOUNT_UNLOCKED for every locked user -->
+    <serve service="audit-user-update">
+      <variable id="userId" type="INTEGER" name="IdeOpe"/>
+      <variable id="locked" type="INTEGER" value="0"/>
+      <variable id="passwordUpdate" type="INTEGER" value="0"/>
+    </serve>
+    <update multiple="true">
+      <table id="ope"/>
+      <field id="PwdLck" variable="Unlocked"/>
+      <field id="NumLog" variable="NumLog"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="Unlocked" type="INTEGER" value="0"/>
+      <variable id="NumLog" type="INTEGER" value="0"/>
+    </update>
+  </target>
+
   <!-- EMAIL SERVER -->
   <target name="EmlSrvNew">
     <insert audit="HISAweEmlSrv">

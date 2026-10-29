@@ -20,7 +20,8 @@
       <option name="update-module" screen="ModUpd" invisible="true" />
       <option name="view-module" screen="ModViw" invisible="true" />
     </option>
-    <option name="users" label="MENU_TOOLS_USERS" screen="Usr" icon="user">
+    <option name="users" label="MENU_TOOLS_USERS" screen="user-admin" icon="user">
+      <!-- Options of the deprecated Usr screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-user" screen="UsrNew" invisible="true" />
       <option name="update-user" screen="UsrUpd" invisible="true" />
       <option name="view-user" screen="UsrViw" invisible="true" />

@@ -64,6 +64,15 @@ export const TestIds = Object.freeze({
   // ("column-id") with its checkbox, handle and arrows, the "N of M visible" counter of its header ("data-visible" /
   // "data-total"), its close button and its actions (Show all is no longer shown)
   gridToolbar: "grid-toolbar",
+  // Quick filters of the grid toolbar (the owner is the grid) and each of their options ("option-id")
+  gridQuickFilter: "grid-quick-filter",
+  gridQuickFilterOption: "grid-quick-filter-option",
+  // Search of the grid toolbar (the owner is the grid) and its clear button
+  gridSearch: "grid-search",
+  gridSearchClear: "grid-search-clear",
+  // Selection bar of the grid (the owner is the grid; "data-count" is the number of selected rows) and its text
+  gridSelectionBar: "grid-selection-bar",
+  gridSelectionCount: "grid-selection-count",
   gridGroupHeader: "grid-group-header",
   gridColumnsButton: "grid-columns-button",
   gridMaximizeButton: "grid-maximize-button",
@@ -151,9 +160,13 @@ export const TestIds = Object.freeze({
   // Modal dialogs: the dialog (owner: dialog id) with its close button, and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",
-  // Side panels (dialogs anchored to an edge of the screen; owner: side panel id) with their close button
+  // Side panels (dialogs anchored to an edge of the screen; owner: side panel id) with their close button, the title of
+  // their header and the subtitle and tags of their identity header
   sidePanel: "side-panel",
   sidePanelClose: "side-panel-close",
+  sidePanelTitle: "side-panel-title",
+  sidePanelSubtitle: "side-panel-subtitle",
+  sidePanelTag: "side-panel-tag",
   // Popover containers (dialogs anchored to a control; they share the "popover" hook, owner: popover id) close button
   popoverClose: "popover-close",
   confirmDialog: "confirm-dialog",

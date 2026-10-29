@@ -2328,6 +2328,36 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Click the button of a column in the row of a grid that contains a text, as the user does with a row action (the
+   * edit button of a row): the button selects its row and runs its actions
+   *
+   * @param gridId   Grid identifier
+   * @param search   Text of the row
+   * @param columnId Column of the button
+   */
+  protected void clickGridRowButton(String gridId, String search, String columnId) {
+    By button = frontEndInstructions.findGridRowButton(gridId, search, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(button), checkIfGridLoaderIsNotVisible()));
+    clickSelector(button);
+  }
+
+  /**
+   * Check that a button shows only its icon (style no-label): it has no visible text and its accessible name (its
+   * aria-label) is the given one
+   *
+   * @param buttonName     Button identifier
+   * @param accessibleName Accessible name of the button (its label)
+   */
+  protected void checkButtonIconOnly(String buttonName, String accessibleName) {
+    Locator button = locator(frontEndInstructions.getButton(buttonName));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(button),
+      BrowserCondition.of("button " + buttonName + " to show only its icon, named '" + accessibleName + "'",
+        browser -> browser.exists(button) && !accessibleName.isEmpty()
+          && browser.text(button).replace('\u00A0', ' ').trim().isEmpty()
+          && accessibleName.equals(browser.attribute(button, "aria-label")))));
+  }
+
+  /**
    * Click on a cell on selected row
    *
    * @param gridId   Grid id
@@ -6201,6 +6231,55 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check the title of the header of a side panel (spaces collapsed): its label, or the title of its identity header
+   * while one row of its header grid is selected
+   *
+   * @param panelId Side panel identifier
+   * @param text    Title
+   */
+  protected void checkSidePanelTitle(String panelId, String text) {
+    checkSidePanelText(locator(frontEndInstructions.getSidePanelTitle(panelId)), "title", panelId, text);
+  }
+
+  /**
+   * Check the subtitle of the identity header of a side panel (spaces collapsed)
+   *
+   * @param panelId Side panel identifier
+   * @param text    Subtitle
+   */
+  protected void checkSidePanelSubtitle(String panelId, String text) {
+    checkSidePanelText(locator(frontEndInstructions.getSidePanelSubtitle(panelId)), "subtitle", panelId, text);
+  }
+
+  /**
+   * Check that the identity header of a side panel shows a tag with a text (spaces collapsed): one of its tags reads it
+   *
+   * @param panelId Side panel identifier
+   * @param text    Text of the tag
+   */
+  protected void checkSidePanelTag(String panelId, String text) {
+    Locator tags = locator(frontEndInstructions.getSidePanelTags(panelId));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(tags),
+      BrowserCondition.of("the side panel " + panelId + " to show the tag '" + text + "'", browser -> {
+        try {
+          return browser.texts(tags).stream().map(SeleniumUtilities::collapseSpaces).anyMatch(text::equals);
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      })));
+  }
+
+  private void checkSidePanelText(Locator part, String name, String panelId, String text) {
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(part),
+      BrowserCondition.of("the " + name + " of the side panel " + panelId + " to read '" + text + "'",
+        browser -> browser.exists(part) && text.equals(collapseSpaces(browser.text(part))))));
+  }
+
+  private static String collapseSpaces(String text) {
+    return text == null ? "" : text.replaceAll("\\s+", " ").trim();
+  }
+
+  /**
    * Press Tab several times on an open side panel and check that the focus never leaves it: after the last field it goes
    * back to the first one
    *
@@ -6620,6 +6699,135 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkDateRangePresetActive(String criterionName, String presetCode) {
     checkVisible(locator(frontEndInstructions.getDateRangePresetActive(criterionName, presetCode)));
+  }
+
+  /**
+   * Check the text of an option of the quick filter of a grid: its label and its count, such as {@code Locked 3}. It
+   * waits for the counts to load
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @param text          Label and count of the option, separated by a space
+   */
+  protected void checkGridQuickFilterOption(String criterionName, String value, String text) {
+    Locator option = locator(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
+    waitUntil(BrowserCondition.of("quick filter " + criterionName + " option '" + value + "' to read '" + text + "'",
+      browser -> browser.exists(option) && text.equals(browser.text(option).replaceAll("\\s+", " ").trim())));
+  }
+
+  /**
+   * Choose an option of the quick filter of a grid, which filters the grid, and wait for the grid to load
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   */
+  protected void clickGridQuickFilterOption(String criterionName, String value) {
+    clickSelector(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Check that an option of the quick filter of a grid is the chosen one
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   */
+  protected void checkGridQuickFilterOptionChosen(String criterionName, String value) {
+    waitUntil(toBePresent(frontEndInstructions.getGridQuickFilterOptionChosen(criterionName, value)));
+  }
+
+  /**
+   * Search a text in the search of a grid: replace its text and press Enter, which filters the grid at once, and wait
+   * for the grid to load
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to search
+   */
+  protected void searchGrid(String criterionName, String text) {
+    Locator input = typeInGridSearch(criterionName, text);
+    getBrowser().press(input, Key.ENTER);
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Type a text in the search of a grid, replacing its text, as the user does: the grid is filtered after the pause of
+   * the search, so wait for its rows (for instance with {@link #checkRowGone(String, String)})
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to type
+   */
+  protected void typeGridSearch(String criterionName, String text) {
+    typeInGridSearch(criterionName, text);
+  }
+
+  /**
+   * Empty the search of a grid with its clear button, which filters the grid at once, and wait for the grid to load
+   *
+   * @param criterionName Search identifier
+   */
+  protected void clearGridSearch(String criterionName) {
+    clickSelector(frontEndInstructions.getGridSearchClear(criterionName));
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Replace the text of the search of a grid with a typed one
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to type
+   * @return Text box of the search
+   */
+  private Locator typeInGridSearch(String criterionName, String text) {
+    Locator input = locator(frontEndInstructions.getGridSearchInput(criterionName));
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, text);
+    return input;
+  }
+
+  /**
+   * Check that the selection bar of a grid is shown with a text, the number of selected rows ("2 selected")
+   *
+   * @param gridId Grid identifier
+   * @param text   Text of the bar
+   */
+  protected void checkGridSelectionBar(String gridId, String text) {
+    Locator count = locator(frontEndInstructions.getGridSelectionCount(gridId));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(count),
+      BrowserCondition.of("selection bar of " + gridId + " to read '" + text + "'",
+        browser -> browser.exists(count) && text.equals(browser.text(count).replaceAll("\\s+", " ").trim()))));
+  }
+
+  /**
+   * Check that a grid does not show its selection bar: it has no selected rows
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridSelectionBarNotVisible(String gridId) {
+    checkNotVisible(frontEndInstructions.getGridSelectionBar(gridId));
+  }
+
+  /**
+   * Click a selection button (selection="true") in the selection bar of a grid, as the user does: it runs the actions
+   * of the button (a confirmation, if any, stays open)
+   *
+   * @param gridId     Grid identifier
+   * @param buttonName Button identifier
+   */
+  protected void clickGridSelectionButton(String gridId, String buttonName) {
+    click(frontEndInstructions.getGridSelectionButton(gridId, buttonName));
+    moveMouse();
+  }
+
+  /**
+   * Wait until a grid does not show a text any more, once it has loaded: a filter of the grid has taken the row out
+   *
+   * @param gridId Grid identifier
+   * @param search Text of the row
+   */
+  protected void checkRowGone(String gridId, String search) {
+    waitUntil(BrowserCondition.allOf(toBeInvisible(frontEndInstructions.findGridCell(gridId, search)),
+      checkIfGridLoaderIsNotVisible()));
   }
 
   /**

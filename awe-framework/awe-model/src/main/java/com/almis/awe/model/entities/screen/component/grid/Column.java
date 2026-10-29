@@ -160,6 +160,21 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Integer maxChips;
 
+  // Field with the name (or initials) of the avatar shown before the main value
+  @XStreamAlias("avatar-field")
+  @XStreamAsAttribute
+  private String avatarField;
+
+  // Field with the tone of the avatar
+  @XStreamAlias("avatar-tone-field")
+  @XStreamAsAttribute
+  private String avatarToneField;
+
+  // Field with the icon shown before the main value (in place of the dot of a status)
+  @XStreamAlias("icon-field")
+  @XStreamAsAttribute
+  private String iconField;
+
   // Dialog to open
   @XStreamAlias("dialog")
   @XStreamAsAttribute

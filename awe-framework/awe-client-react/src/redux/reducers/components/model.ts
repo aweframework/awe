@@ -22,7 +22,7 @@ import ComponentRegistry from '../../registry/ComponentRegistry';
 import {calculateDeltas} from '../../../utilities/mergeUtils';
 import {asArray} from "../../../utilities";
 import {warnMalformedComponent} from "../../../utilities/components";
-import {isEmpty} from "../../../utilities/general";
+import {ComponentType, isEmpty} from "../../../utilities/general";
 import type {CellOption} from "../../../utilities/grid";
 import type {ComponentsState} from '../../types';
 import {updateGridFooter} from './gridFooter';
@@ -136,6 +136,17 @@ export function updateModel(state: ComponentsState, address: ComponentAddress, d
 }
 
 /**
+ * Check if the values of a component are its options (a select, or the checked value of a checkbox), not its value
+ * @param {Object} component Component
+ * @returns {boolean} The values are the options of the component
+ */
+function hasOptions(component: StateComponent): boolean {
+  const type = component.attributes?.component;
+  return type === ComponentType.COMPONENT_SELECT || type === ComponentType.COMPONENT_SELECT_MULTIPLE
+    || type === ComponentType.COMPONENT_CHECKBOX;
+}
+
+/**
  * Update selection flags for a non-grid component.
  * @param {Object} state Current state
  * @param {Array} values Current values
@@ -154,7 +165,7 @@ export function updateSelectedComponent(
 
   if (!component) return state;
 
-  const filtered = getFilteredValues(values, selected);
+  const filtered = getFilteredValues(values, selected, hasOptions(component));
   if (_.isEqual(filtered, (component.model?.values))) {
     return null;
   }

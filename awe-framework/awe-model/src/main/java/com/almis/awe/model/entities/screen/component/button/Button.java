@@ -42,6 +42,11 @@ public class Button extends AbstractButton {
   @XStreamAsAttribute
   private Boolean showLoading;
 
+  // Selection button of a grid (#793): shown in the selection bar of the grid while it has selected rows, not in its footer
+  @XStreamAlias("selection")
+  @XStreamAsAttribute
+  private Boolean selection;
+
   /**
    * Returns if the button shows its busy state while the action it launched runs. Not a bean getter: the clients only
    * receive showLoading when the screen sets it

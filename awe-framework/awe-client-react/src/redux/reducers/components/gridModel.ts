@@ -10,7 +10,7 @@ import {calculateDeltas} from '../../../utilities/mergeUtils';
 import {asArray, updateArrayElement} from "../../../utilities";
 import {extractCellModel, extractCellValue, getCellModel, getGridIdentifier} from "../../../utilities/grid";
 import type {CellOption} from "../../../utilities/grid";
-import {getFirstDefinedValue, isMultipleComponent} from "../../../utilities/general";
+import {compareEqualValues, getFirstDefinedValue, isMultipleComponent} from "../../../utilities/general";
 import type {ComponentsState} from '../../types';
 import {updateGridFooter} from './gridFooter';
 import {
@@ -275,15 +275,31 @@ export function updateSelectedGrid(state: ComponentsState, values: StateRow[], a
 }
 
 /**
- * Build a values array with selection flags applied.
+ * Check if an option is one of the selected values. As AngularJS, a value matches the option with the same text: a
+ * launcher dependency fills a select with a grid cell (the number 1) whose option holds the text "1"
+ * @param {Array} selected Selected values
+ * @param {*} value Value of the option
+ * @returns {boolean} The option is selected
+ */
+function isSelectedOption(selected: unknown[], value: unknown): boolean {
+  return selected.some(selectedValue => compareEqualValues(selectedValue, value));
+}
+
+/**
+ * Build a values array with selection flags applied. When no value matches, the values are the selected ones (the
+ * value of a text), unless they are the options of a select: then the options are kept unselected, as the next value
+ * may be one of them (a launcher that empties the select when no row is selected and fills it with the next row)
  * @param {Array} values Current values
  * @param {Array} selected Selected values
+ * @param {boolean} options The values are the options of the component
  * @returns {Array} Values with selection applied
  */
-export function getFilteredValues(values: CellOption[], selected: unknown[]): CellOption[] {
-  const filtered = values.map((value) => ({ ...value, selected: selected.includes(value.value) }));
-  return filtered.filter(value => value.selected).length === 0 ?
-    selected.map(value => ({ ...extractCellModel(value), selected: true })) : filtered;
+export function getFilteredValues(values: CellOption[], selected: unknown[], options = false): CellOption[] {
+  const filtered = values.map((value) => ({ ...value, selected: isSelectedOption(selected, value.value) }));
+  if (filtered.some(value => value.selected) || (options && filtered.length > 0)) {
+    return filtered;
+  }
+  return selected.map(value => ({ ...extractCellModel(value), selected: true }));
 }
 
 /**
@@ -315,7 +331,7 @@ export function updateSelectedGroup(
           ...full,
           model: {
             ...full.model,
-            values: (full.model?.values || []).map(value => ({ ...value, selected: selected.includes(value.value) })),
+            values: (full.model?.values || []).map(value => ({ ...value, selected: isSelectedOption(selected, value.value) })),
             changed: true
           }
         };

@@ -117,4 +117,50 @@ describe('awe-react-client/test/js/components/TagTest.jsx', () => {
     expect(tag.querySelector('a').getAttribute('href')).toBeNull();
     expect(tag.innerHTML).not.toContain('onerror');
   });
+
+  describe('icon (#793)', () => {
+    it('draws the icon of a tag with a label before it, hidden from assistive technologies', () => {
+      const { container } = renderWithProviders(
+        <Tag type="h3" id="identity" label="Identity" icon="user" style="col-xs-12 awe-form-section-title" elementList={[]} />,
+        { preloadedState: { settings: DEFAULT_SETTINGS } }
+      );
+
+      const tag = container.querySelector('h3#identity');
+      expect(tag.className).toContain('awe-form-section-title');
+      const icon = tag.firstElementChild;
+      expect(icon.classList.contains('tag-icon')).toBe(true);
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(icon.querySelector('svg use').getAttribute('href')).toMatch(/#user$/);
+      expect(tag.textContent).toBe('Identity');
+    });
+
+    it('resolves the lucide: prefix', () => {
+      const { container } = renderWithProviders(
+        <Tag type="h3" id="security" label="Sign-in security" icon="lucide:key-round" elementList={[]} />,
+        { preloadedState: { settings: DEFAULT_SETTINGS } }
+      );
+
+      expect(container.querySelector('h3#security .tag-icon svg use').getAttribute('href')).toMatch(/#key-round$/);
+    });
+
+    it('draws no icon for a tag without label', () => {
+      const { container } = renderWithProviders(
+        <Tag type="div" id="plain" value="Plain" icon="user" elementList={[]} />,
+        { preloadedState: { settings: DEFAULT_SETTINGS } }
+      );
+
+      expect(container.querySelector('div#plain .tag-icon')).toBeNull();
+      expect(container.querySelector('div#plain').textContent).toBe('Plain');
+    });
+
+    it('draws no icon for a tag without icon', () => {
+      const { container } = renderWithProviders(
+        <Tag type="h3" id="access" label="Access" elementList={[]} />,
+        { preloadedState: { settings: DEFAULT_SETTINGS } }
+      );
+
+      expect(container.querySelector('h3#access .tag-icon')).toBeNull();
+      expect(container.querySelector('h3#access').innerHTML).toBe('Access');
+    });
+  });
 });

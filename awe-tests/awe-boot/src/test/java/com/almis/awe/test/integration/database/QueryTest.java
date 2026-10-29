@@ -3901,4 +3901,65 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       .andReturn();
     mvcResult.getResponse().getContentAsString();
   }
+
+  /**
+   * Rows of the datalist of a query answer
+   *
+   * @param result Answer of the query
+   * @return Rows
+   * @throws Exception Error reading the answer
+   */
+  private List<JsonNode> datalistRows(String result) throws Exception {
+    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    assertEquals("fill", resultList.get(0).get("type").stringValue(), result);
+    List<JsonNode> rows = new ArrayList<>();
+    resultList.get(0).get("parameters").get("datalist").get("rows").forEach(rows::add);
+    return rows;
+  }
+
+  private static String text(JsonNode row, String field) {
+    JsonNode value = row.get(field);
+    return value == null || value.isNull() ? "" : value.asString("");
+  }
+
+  /**
+   * The fields that the user administration screen adds to UsrLst (#793) give the same text on every database: the
+   * secondary line is exactly "login · email" (or the login), with no padding of char columns, no lost separator and no
+   * empty text turned into null, and the state, tone and two-factor codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseUserListFieldsOfTheUserAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("UsrLst", "", DATABASE));
+
+    assertTrue(rows.stream().anyMatch(row -> "test".equals(text(row, "Nom").trim())), "The test user is listed");
+    for (JsonNode row : rows) {
+      String login = text(row, "Nom").trim();
+      String email = text(row, "Eml").trim();
+      assertEquals(email.isEmpty() ? login : login + " · " + email, text(row, "UsrSec"), "Secondary line of " + login);
+      assertTrue(!text(row, "FulNam").isBlank() && !text(row, "Ini").isBlank(), "Name and avatar of " + login);
+      assertTrue(Set.of("active", "inactive", "locked").contains(text(row, "StaCod")), "State of " + login);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + login);
+      assertTrue(Set.of("on", "off").contains(text(row, "2faCod")), "Two-factor of " + login);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("UsrLst", "\"CrtUsrTxt\":\"TEST\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "test".equals(text(row, "Nom").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the user administration screen (#793) run on every database: the four states, and the
+   * count of All is the number of users of UsrLst
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseUserStateCountsOfTheUserAdministrationScreen() throws Exception {
+    int users = datalistRows(performRequest("UsrLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("UsrStaCnt", "", DATABASE));
+
+    assertEquals(4, counts.size(), counts.toString());
+    JsonNode all = counts.stream().filter(row -> text(row, "value").isEmpty()).findFirst().orElseThrow();
+    assertEquals(users, all.get("count").asInt(), counts.toString());
+  }
 }

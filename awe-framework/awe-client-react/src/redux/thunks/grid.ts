@@ -264,6 +264,35 @@ export const selectRows = (
   dispatch(selectRowsUpdate(address, getRowsToSelect(getState, address, values)));
 };
 
+/**
+ * Select the row of a button of a grid before its actions: that row ends being the only selected one. A row that is
+ * already the only selected one is left as it is (an edited row keeps being edited), and an address that is not a row
+ * of a grid (a button out of a grid, the footer) changes nothing
+ * @param {object} address Address of the button (a cell address)
+ */
+export const selectButtonRow = (address: ComponentAddress & { row?: unknown }): AppThunk => {
+  return (dispatch, getState) => {
+    const { view, component, row } = address || {};
+    if (row === undefined || row === null || !component) {
+      return;
+    }
+    const grid = getGrid(getAllComponents(getState()), { view, component } as ComponentAddress);
+    const values = grid?.model?.values;
+    if (!Array.isArray(values)) {
+      return;
+    }
+    const gridId = getGridIdentifier(grid.attributes);
+    if (!values.some(item => String(item[gridId]) === String(row))) {
+      return;
+    }
+    const selected = values.filter(item => item.selected);
+    if (selected.length === 1 && String(selected[0][gridId]) === String(row)) {
+      return;
+    }
+    selectRows(dispatch, getState, { view, component } as ComponentAddress, [row]);
+  };
+};
+
 export const selectRowGridAction = (action: ClientAction): AppThunk => {
   return (dispatch, getState) => {
     const address = getActionAddress(action);

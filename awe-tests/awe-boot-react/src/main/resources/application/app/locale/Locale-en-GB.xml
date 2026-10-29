@@ -314,6 +314,12 @@
   <locale name="COLUMN_CELL_STATUS" value="Status"/>
   <locale name="COLUMN_CELL_TONE" value="Tone"/>
   <locale name="COLUMN_CELL_TEAMS" value="Teams"/>
+  <locale name="MENU_TEST_MATRIX_QUICK_FILTER" value="Quick filters"/>
+  <locale name="SCREEN_TITLE_GRID_QUICK_FILTER" value="Quick filters"/>
+  <locale name="COLUMN_QUICK_FILTER_STATE" value="State"/>
+  <locale name="QUICK_FILTER_ALL" value="All"/>
+  <locale name="QUICK_FILTER_ACTIVE" value="Active"/>
+  <locale name="QUICK_FILTER_INACTIVE" value="Inactive"/>
   <locale name="MENU_TEST_MATRIX_GROUPS" value="Row grouping"/>
   <locale name="SCREEN_TITLE_GRID_GROUPS" value="Row grouping with subtotals"/>
   <locale name="COLUMN_GROUP_REGION" value="Region"/>

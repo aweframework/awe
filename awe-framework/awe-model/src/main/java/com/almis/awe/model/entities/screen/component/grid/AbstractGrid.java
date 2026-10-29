@@ -49,7 +49,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Accessors(chain = true)
-@XStreamInclude({Grid.class, PivotTable.class})
+@XStreamInclude({Grid.class, PivotTable.class, QuickFilter.class, GridSearch.class})
 public abstract class AbstractGrid extends AbstractCriteria {
 
   @Serial
@@ -529,6 +529,50 @@ public abstract class AbstractGrid extends AbstractCriteria {
       description.put("component", rowDetail.getComponent());
     }
     return description;
+  }
+
+  /**
+   * Retrieve the quick filter of the grid
+   *
+   * @return Quick filter, null when the grid has none (only the first one is used)
+   */
+  @JsonIgnore
+  public QuickFilter getQuickFilter() {
+    return getChildrenByType(QuickFilter.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the identifier of the quick filter for JSON serialization: the grid shows it in its toolbar
+   *
+   * @return Quick filter identifier, not sent when the grid has none
+   */
+  @JsonGetter("quickFilter")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getQuickFilterConverter() {
+    QuickFilter quickFilter = getQuickFilter();
+    return quickFilter == null ? null : quickFilter.getElementKey();
+  }
+
+  /**
+   * Retrieve the search of the grid
+   *
+   * @return Search, null when the grid has none (only the first one is used)
+   */
+  @JsonIgnore
+  public GridSearch getSearch() {
+    return getChildrenByType(GridSearch.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the identifier of the search for JSON serialization: the grid shows it in its toolbar
+   *
+   * @return Search identifier, not sent when the grid has none
+   */
+  @JsonGetter("search")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getSearchConverter() {
+    GridSearch search = getSearch();
+    return search == null ? null : search.getElementKey();
   }
 
   /**

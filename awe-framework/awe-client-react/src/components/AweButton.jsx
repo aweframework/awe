@@ -13,6 +13,8 @@ import { ButtonSkeleton } from "./AweSkeleton";
 import { TestIds, testHook } from "../utilities/testIds";
 import { useContextMenu, useContextMenuAnchor } from "../hooks/useContextMenu";
 import { useSigninButton } from "./SigninPage";
+import { getButtonVariant, isIconOnly } from "../utilities/buttons";
+import "./AweButton.less";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
 
@@ -29,7 +31,8 @@ const getButtonType = (buttonType) => {
 };
 
 function AweButton(props) {
-  const { id, style: propsStyle } = props;
+  // className and variant replace the margins and the look of the button where it is placed (the selection bar of a grid)
+  const { id, style: propsStyle, className, variant } = props;
   const state = useComponentState(id);
   const { address = {}, attributes = {}, actions = [] } = state;
   const settings = useSelector(state => state.settings);
@@ -57,8 +60,14 @@ function AweButton(props) {
     return <ButtonSkeleton attributes={attributes} className={propsStyle} />;
   }
 
-  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading } = attributes;
-  const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", signin?.variant ?? getButtonType(buttonType), { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style, signin?.className);
+  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading, title } = attributes;
+  // The btn-* styles of the screen give the look of the button, as in the AngularJS engine; without them, its type does
+  const buttonVariant = signin?.variant ?? variant ?? getButtonVariant(style, getButtonType(buttonType));
+  const classes = classNames(`help-button-${id}`, className ?? ["mr-2", "mt-2"], buttonVariant, { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style, signin?.className);
+  // An icon-only button (style no-label) shows its label as its tooltip (unless it has a help) and accessible name
+  const iconOnly = !signin && isIconOnly(style);
+  const text = translateLabel(label, t);
+  const tooltip = title ? translateLabel(title, t) : (iconOnly && !help && !helpImage ? text : "");
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
     <ActionsRunningButton
@@ -70,7 +79,9 @@ function AweButton(props) {
       disabled={disabled || signin?.disabled}
       // Busy state unless show-loading="false"; the sign-in page draws its own
       showLoading={!signin && showLoading !== false}
-      label={signin?.label ?? translateLabel(label, t)}
+      label={signin?.label ?? (iconOnly ? null : text)}
+      {...(iconOnly && text ? { "aria-label": text } : {})}
+      {...(tooltip ? { title: tooltip } : {})}
       iconPos={"left"}
       onClick={onClick}
       onContextMenu={onContextMenu}
@@ -86,6 +97,8 @@ function AweButton(props) {
 AweButton.propTypes = {
   id: PropTypes.string,
   style: PropTypes.string,
+  className: PropTypes.string,
+  variant: PropTypes.string,
 };
 
 export default AweButton;

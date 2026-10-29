@@ -1,0 +1,48 @@
+// Ghost buttons (style btn-ghost, #793): no background nor border until the pointer is over them, the muted text, as the
+// toolbar and row actions of the design system and the AngularJS engine
+.p-button.btn-ghost {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.p-button.btn-ghost:enabled:focus {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:enabled:hover {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-surface-hover);
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:enabled:active {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-secondary-hover);
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:focus-visible {
+  box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+    0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
+}
+
+// Icon-only buttons (style no-label, #793): a square with the icon in the middle; the label is the tooltip and the
+// accessible name
+.p-button.no-label {
+  justify-content: center;
+  width: var(--awe-size-control);
+  padding: 0;
+}
+
+.p-button.no-label.p-button-sm {
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+}
+
+.p-button.no-label.p-button-lg {
+  width: var(--awe-size-control-lg);
+}

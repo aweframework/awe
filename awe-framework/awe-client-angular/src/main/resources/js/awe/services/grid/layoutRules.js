@@ -2,7 +2,8 @@
  * Grid column layout utilities: the order and visibility of the columns chosen by the user, and the group headers
  * computed from the membership of the columns.
  *
- * The columns the user can manage are the ones the screen does not hide (`hidden` is not set, or the column was hidden by the layout: `layoutHidden`). A column never leaves
+ * The columns the user can manage are the ones the screen does not hide (`hidden` is not set, or the column was hidden by the layout: `layoutHidden`),
+ * except the action columns (`component="button"`), which always stay visible where the screen puts them. A column never leaves
  * its group header: each group keeps the positions it has in the screen and its columns are reordered among them, and
  * the columns without group are reordered among themselves.
  *
@@ -14,8 +15,29 @@ const NO_GROUP = "none";
 // A stored layout that is not well formed (lists that are not lists, ids that are not text) is ignored
 const idList = (value) => (Array.isArray(value) ? value.filter(id => typeof id === "string") : []);
 
-// A column the user hid (layoutHidden) stays manageable, one the screen hides does not
-const getManageable = (columnModel = []) => columnModel.filter(column => !column.hidden || column.layoutHidden);
+/**
+ * Check whether a column is an action column (`component="button"`): it is not data, so it is never listed in the
+ * Columns of the toolbar nor printed or exported
+ *
+ * @param {Object} column Column
+ * @returns {boolean} Column is an action column
+ * @memberOf GridLayout
+ */
+export const isActionColumn = (column) => column?.component === "button";
+
+// A column the screen shows, or the user hid (layoutHidden)
+const isShown = column => !column.hidden || column.layoutHidden;
+
+/**
+ * Retrieve the columns the user can manage: a column the user hid (layoutHidden) stays manageable, one the screen hides
+ * and the action columns do not
+ *
+ * @param {Array} columnModel Whole column model of the grid
+ * @returns {Array} Manageable columns
+ * @memberOf GridLayout
+ */
+export const getManageableColumns = (columnModel = []) => columnModel.filter(column => isShown(column) && !isActionColumn(column));
+const getManageable = getManageableColumns;
 
 /**
  * Retrieve the group header index of each column that belongs to a group
@@ -110,15 +132,19 @@ export function mergeColumnLayout(columnModel = [], headerModel = [], layout) {
  * @memberOf GridLayout
  */
 export function applyColumnLayout(columnModel = [], headerModel = [], layout) {
+  const shown = columnModel.filter(isShown);
   if (!layout) {
-    return getManageable(columnModel);
+    return shown;
   }
   const { order, hidden } = mergeColumnLayout(columnModel, headerModel, layout);
   const byName = {};
   getManageable(columnModel).forEach(column => {
     byName[column.name] = column;
   });
-  return order.filter(name => !hidden.includes(name)).map(name => byName[name]);
+  // The action columns keep their position of the screen and the other columns take their slots in the layout order
+  let next = 0;
+  return shown.map(column => (isActionColumn(column) ? column : byName[order[next++]]))
+    .filter(column => isActionColumn(column) || !hidden.includes(column.name));
 }
 
 /**

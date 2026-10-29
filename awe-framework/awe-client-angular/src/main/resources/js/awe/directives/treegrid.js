@@ -5,6 +5,7 @@ import "../services/grid/tree";
 import {getGridRowHeight, getTreeIndent} from "../services/grid/density";
 import "./gridSkeleton";
 import "./gridToolbar";
+import {getSelectionButtons} from "./gridSelectionBar";
 
 // Treegrid directive
 aweApplication.directive('aweTreeGrid',
@@ -68,6 +69,8 @@ aweApplication.directive('aweTreeGrid',
                 // Update grid styles
                 component.gridStyle = "grid-" + scope.size + " " + (component.controller.style || "");
                 component.gridButtonClass = "btn btn-" + scope.size;
+                // Buttons of the selection bar (selection="true"): out of the footer
+                component.selectionButtons = getSelectionButtons(component.controller);
                 component.enableSorting = false;
 
                 // Fix column model

@@ -6,6 +6,7 @@ import AweGridCellTooltip from "./AweGridCellTooltip";
 import {MOVE_ROW_SHORTCUTS} from "../utilities/grid";
 import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 import AweGridToolbar from "./AweGridToolbar";
+import AweGridSelectionBar from "./AweGridSelectionBar";
 import {classNames} from "../utilities/components";
 import {TestAttributes} from "../utilities/testIds";
 import "./AweSkeleton.less";
@@ -71,6 +72,7 @@ function AweGridContainer(props) {
       aria-busy={loading ? "true" : undefined}
       {...(id ? {[TestAttributes.maximized]: String(iconMaximized)} : {})}>
       {id && <AweGridToolbar id={id} maximized={iconMaximized} iconMaximized={iconMaximized} onToggleMaximize={toggleMaximized} />}
+      {id && <AweGridSelectionBar id={id} />}
       <div
         className="grid-contents expand expandible-vertical"
         role="grid-container"

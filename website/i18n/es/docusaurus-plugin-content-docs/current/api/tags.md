@@ -37,6 +37,7 @@ Existe una forma especial que solo contiene texto:
 | style      | Opcional | String | Clase o clases CSS a aplicar al elemento                 |                                                                             |
 | id         | Opcional | String | Identificador del tag. Útil para referencias externas    |                                                                             |
 | expandible | Opcional | String | Cómo [expandir](layout.md) los hijos del tag             | `vertical`, `horizontal`                                                    |
+| icon       | Opcional | String | Icono decorativo dibujado antes de la `label`. Ver [títulos de sección](#section-titles) | **Nota:** Puedes consultar todos los iconos en la pantalla de [iconos](icons.md) |
 
 Un `source` se puede usar **una vez** por pantalla, y los tags que tienen un `source` son hijos directos de `screen`.
 
@@ -73,6 +74,35 @@ Escribe los tags de modo que el resultado sea claro en ambos motores:
 * Da un `type` a cada tag que tenga un `style` o un `expandible`, para que sea un elemento real.
 * Usa un tag con `label` solo para texto. Si necesitas texto junto a otros elementos, pon cada uno en su propio tag.
 * Usa `<tag source="...">` solo para rellenar un punto de origen. Añade un `type` si necesita un `expandible`.
+
+## Títulos de sección {#section-titles}
+
+Dos estilos de tag convierten un tag de encabezado (`h2` a `h6`, para que los lectores de pantalla anuncien la sección)
+con `label` en un título de sección. Los dos se ven igual en los dos motores cliente, en modo claro y oscuro:
+
+* `awe-section-title` (#910): el título de sección del sistema de diseño, una etiqueta pequeña en mayúsculas y
+  atenuada, seguida de una línea que ocupa el resto de la fila. Úsalo para dividir un formulario largo o un cuadro de
+  mando en secciones; el estilo quita los márgenes por defecto del encabezado.
+* `awe-form-section-title` (#793): el título de una sección de un formulario (un panel lateral, un diálogo, una
+  ventana), como en el panel lateral de la pantalla `user-admin`: su `icon` y su etiqueta en una línea, con el tamaño
+  de título de sección, y una línea de separación encima de cada título de sección de formulario salvo el primero de
+  su contenedor.
+
+```xml
+<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
+```
+
+```xml
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_IDENTITY" icon="user" />
+<criteria label="PARAMETER_FULL_NAME" id="Nam" component="text" style="col-xs-12" />
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_SIGN_IN_SECURITY" icon="lucide:key-round" />
+<criteria label="PARAMETER_PASSWD" id="Pas" component="password" style="col-xs-12" />
+```
+
+El `icon` de un tag es decorativo (oculto para los lectores de pantalla) y solo se dibuja en un tag con `label`, con
+cualquiera de los dos estilos. El separador de `awe-form-section-title` va encima de un título de sección de formulario
+que sigue a otro dentro del mismo contenedor, así que mantén los títulos y los criterios de un formulario como hermanos
+(en el mismo `tag`).
 
 ## Ejemplos {#examples}
 
@@ -122,18 +152,6 @@ Un tag con `label` escribe texto traducido, y la forma `<text>` escribe el texto
 <tag type="p">
   <text>Lorem ipsum dolor sit amet.</text>
 </tag>
-```
-
-### Títulos de sección {#section-titles}
-
-El estilo `awe-section-title` convierte un tag de texto en el título de sección del sistema de diseño: una etiqueta
-pequeña en mayúsculas y atenuada, seguida de una línea que ocupa el resto de la fila. Úselo para dividir un formulario
-largo o un cuadro de mando en secciones. Dele un `type` de encabezado (`h2` a `h6`) para que los lectores de pantalla
-anuncien la sección; el estilo quita los márgenes por defecto del encabezado. Se ve igual en los dos motores, en modo
-claro y oscuro:
-
-```xml
-<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
 ```
 
 ### Puntos de origen {#source-points}

@@ -2,6 +2,7 @@ import {
   applyColumnLayout,
   buildHeader,
   getColumnGroups,
+  isActionColumn,
   mergeColumnLayout,
   moveColumn,
   moveColumnTo,
@@ -173,6 +174,39 @@ describe("awe-react-client/test/js/utilities/gridLayoutTest.js", () => {
     it("keeps at least one column visible", () => {
       const layout = { order: ["a", "b", "c"], hidden: ["a", "b"] };
       expect(setColumnVisible(model, [], layout, "c", false)).toEqual(layout);
+    });
+  });
+
+  describe("action columns (#793)", () => {
+    const button = name => ({ name, label: name.toUpperCase(), component: "button" });
+
+    it("tells a button column is an action column, and no other one", () => {
+      expect(isActionColumn(button("edit"))).toBe(true);
+      expect(isActionColumn({ name: "a" })).toBe(false);
+      expect(isActionColumn({ name: "a", component: "icon" })).toBe(false);
+      expect(isActionColumn(undefined)).toBe(false);
+    });
+
+    it("leaves the button columns out of the layout, whatever its stored entries say", () => {
+      const model = [...cols("a", "b"), button("edit"), ...cols("c")];
+      expect(mergeColumnLayout(model, [], null)).toEqual({ order: ["a", "b", "c"], hidden: [] });
+      expect(mergeColumnLayout(model, [], { order: ["edit", "c", "b", "a"], hidden: ["edit", "b"] }))
+        .toEqual({ order: ["c", "b", "a"], hidden: ["b"] });
+    });
+
+    it("does not let the user hide or move a button column", () => {
+      const model = [...cols("a", "b"), button("edit")];
+      const layout = { order: ["a", "b"], hidden: [] };
+      expect(setColumnVisible(model, [], layout, "edit", false)).toEqual(layout);
+      expect(moveColumn(model, [], layout, "edit", -1)).toEqual(layout);
+      expect(moveColumnTo(model, [], layout, "edit", "a")).toEqual(layout);
+    });
+
+    it("keeps the button columns visible at their position of the screen", () => {
+      const model = [...cols("a", "b"), button("edit"), ...cols("c"), button("more"), { name: "key", hidden: true }];
+      expect(applyColumnLayout(model, [], { order: ["c", "b", "a"], hidden: ["b"] }).map(col => col.name))
+        .toEqual(["c", "edit", "a", "more"]);
+      expect(applyColumnLayout(model, [], null).map(col => col.name)).toEqual(["a", "b", "edit", "c", "more"]);
     });
   });
 });

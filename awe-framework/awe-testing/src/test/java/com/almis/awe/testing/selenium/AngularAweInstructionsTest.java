@@ -67,6 +67,11 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getGridCellButton("Grd", "R1", "Col")).hasToString("By.xpath: "
       + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
       + "//*[@data-testid='grid-cell' and @column-id='Col']//button");
+    // The button of a column in the row that contains a text (the row actions of a grid)
+    assertThat(instructions.findGridRowButton("Grd", "abc", "Col")).hasToString("By.xpath: "
+      + "(//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row']"
+      + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')]]"
+      + "//*[@data-testid='grid-cell' and @column-id='Col']//button)[1]");
     // A row is selected by clicking on its cell
     assertThat(instructions.findGridRowSelection("Grd", "abc")).isEqualTo(instructions.findGridCell("Grd", "abc"));
     // A selected row is edited at once, so its text may be the value of an input
@@ -81,6 +86,33 @@ class AngularAweInstructionsTest {
       "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1'] [data-testid='tree-icon']");
     assertThat(instructions.getTreeButtonLoader())
       .hasToString("By.cssSelector: [data-testid='tree-icon'][data-loading='true']");
+  }
+
+  @Test
+  void shouldLocateTheOptionsOfAGridQuickFilterByTheirValue() {
+    assertThat(instructions.getGridQuickFilterOption("CrtSta", "locked")).hasToString("By.cssSelector: "
+      + "[criterion-id='CrtSta'][data-testid='grid-quick-filter'] [data-testid='grid-quick-filter-option'][option-id='locked']");
+    assertThat(instructions.getGridQuickFilterOptionChosen("CrtSta", "")).hasToString("By.cssSelector: "
+      + "[criterion-id='CrtSta'][data-testid='grid-quick-filter'] [data-testid='grid-quick-filter-option'][option-id=''] "
+      + "[data-testid='criterion-input']:checked");
+  }
+
+  @Test
+  void shouldLocateTheSelectionBarOfAGridItsTextAndItsButtons() {
+    assertThat(instructions.getGridSelectionBar("GrdUsr")).hasToString("By.cssSelector: "
+      + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr']");
+    assertThat(instructions.getGridSelectionCount("GrdUsr")).hasToString("By.cssSelector: "
+      + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr'] [data-testid='grid-selection-count']");
+    assertThat(instructions.getGridSelectionButton("GrdUsr", "ButDel")).hasToString("By.cssSelector: "
+      + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr'] #ButDel:not([disabled])");
+  }
+
+  @Test
+  void shouldLocateTheInputAndTheClearButtonOfAGridSearch() {
+    assertThat(instructions.getGridSearchInput("CrtTxt")).hasToString("By.cssSelector: "
+      + "[criterion-id='CrtTxt'][data-testid='grid-search'] [data-testid='criterion-input']");
+    assertThat(instructions.getGridSearchClear("CrtTxt")).hasToString("By.cssSelector: "
+      + "[criterion-id='CrtTxt'][data-testid='grid-search'] [data-testid='grid-search-clear']");
   }
 
   @Test
@@ -181,7 +213,7 @@ class AngularAweInstructionsTest {
     List<By> locators = List.of(
       instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
       instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
-      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"),
+      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"), instructions.findGridRowButton("Gr'd", "It's", "Co'l"),
       instructions.getGridScrollZone("Gr'd"), instructions.getCellFromDatepicker("day", "It's"),
       instructions.getMenuOpenedChildren("Op't"), instructions.getSelectResult("It's"),
       instructions.getSuggestResult("a'b\"c"), instructions.containsText("cla'ss", "It's"));
@@ -343,6 +375,12 @@ class AngularAweInstructionsTest {
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true']");
     assertThat(instructions.getSidePanelClose("Pnl")).hasToString(
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-close']");
+    assertThat(instructions.getSidePanelTitle("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-title']");
+    assertThat(instructions.getSidePanelSubtitle("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-subtitle']");
+    assertThat(instructions.getSidePanelTags("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-tag']");
     assertThat(instructions.getSidePanelPanel("Pnl")).hasToString(
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true'] > *");
     assertThat(instructions.getButtonCss("ButAct")).isEqualTo("#ButAct");

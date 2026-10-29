@@ -29,6 +29,49 @@
     flex: 0 0 auto;
   }
 
+  // Identity header (#793): the selected row of the header grid, as the panel-identity of the design: a large avatar
+  // (the grid avatar, decorative), the title, a muted subtitle and the tags (the grid status tags)
+  .panel-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-3);
+    min-width: 0;
+  }
+
+  .panel-identity-avatar {
+    width: var(--awe-space-10);
+    height: var(--awe-space-10);
+    font-size: var(--awe-font-size-sm);
+  }
+
+  .panel-identity-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .panel-identity-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+    overflow-wrap: anywhere;
+  }
+
+  .panel-identity-subtitle {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  .panel-identity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--awe-space-1-5);
+    margin-top: var(--awe-space-1);
+  }
+
   .side-panel-body {
     display: flex;
     flex: 1 1 auto;
@@ -37,9 +80,17 @@
     overflow-y: auto;
   }
 
+  // The content keeps its height and the body scrolls: shrunk, the content overflowed its box and the sticky footer,
+  // placed after that box, left the last fields under it (#793)
+  .side-panel-body > * {
+    flex-shrink: 0;
+  }
+
   .modal-footer {
     position: sticky;
     bottom: 0;
+    // Above the icons of the fields that scroll under it (a suggest or select arrow has z-index 1)
+    z-index: 2;
     margin-top: auto;
     // Opaque under the body that scrolls behind it, square at the edge of the screen
     background-color: var(--awe-color-overlay);

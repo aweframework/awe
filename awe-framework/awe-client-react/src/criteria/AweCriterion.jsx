@@ -15,7 +15,7 @@ const SIZE_CHAR_INCREMENT = {md: 1, lg: 3};
 
 const AweCriterion = ({children, note, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
-                        generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field"}) => {
+                        generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field", labelRow = false}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
   const {t} = useTranslation();
   const settings = useSelector(selectSettings);
@@ -107,6 +107,10 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
   return (
     <div className={classes} criterion-id={address.component} onContextMenu={onContextMenu}>
       {generateLabel && getLabel()}
+      {/* A criterion with its label beside the control (checkbox, switch, radio) keeps an empty label row above it, so
+          it lines up with the fields of its row, as in the AngularJS engine; the no-label style removes it */}
+      {!generateLabel && labelRow && !style?.includes("no-label") &&
+        <div className="block" aria-hidden="true">&nbsp;</div>}
       {!generateLabel && getHelpTooltipNode(help, helpImage, t, `.help-target-${address.component}`)}
       <div className={classNames(groupClass, {[`help-target-${address.component}`]: !generateLabel && (help || helpImage)})}
            style={{position: "relative"}}
@@ -133,7 +137,8 @@ AweCriterion.propTypes = {
   generateIcon: PropTypes.bool,
   generateUnit: PropTypes.bool,
   groupClass: PropTypes.string,
-  skeletonKind: PropTypes.string
+  skeletonKind: PropTypes.string,
+  labelRow: PropTypes.bool
 };
 
 export default AweCriterion;

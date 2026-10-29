@@ -4,7 +4,7 @@ import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import { getHelpTooltipNode, getIconNode, translateLabel } from "../utilities";
 import { useContextMenu } from "./useContextMenu";
-import { getGridIdentifier, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH, EDITOR_COLUMN_WIDTH } from "../utilities/grid";
+import { getGridIdentifier, isSelectionButton, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH, EDITOR_COLUMN_WIDTH } from "../utilities/grid";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
 import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
@@ -262,9 +262,10 @@ export function useGrid(id) {
     }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing, rowData);
   };
 
+  // The selection buttons (selection="true") are in the selection bar of the grid, not in its footer
   const buttonsTemplate = () => {
     const { buttonModel = [] } = attributes;
-    return buttonModel.map((button, index) => React.createElement(AweButton, {
+    return buttonModel.filter(button => !isSelectionButton(button)).map((button, index) => React.createElement(AweButton, {
       ...button, key: button.id || `component-${index}`
     }));
   };

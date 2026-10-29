@@ -67,6 +67,8 @@ public class ReportDesigner extends ServiceConfig {
   private static final Integer MIN_GRID_FONT_SIZE = 5;
   private static final Float GRID_FONT_CORRECTION_RATIO = 1.7f;
   private static final String PRINTABLE_SPREADSHEET_ONLY = "excel";
+  private static final String NOT_PRINTABLE = "false";
+  private static final String ACTION_COLUMN_COMPONENT = "button";
 
   // Autowired services
   private final QueryService queryService;
@@ -190,7 +192,7 @@ public class ReportDesigner extends ServiceConfig {
     if (column.isHeader()) {
       return Optional.ofNullable(column.getColumnList()).orElse(List.of()).stream().anyMatch(this::hasSpreadsheetOnlyColumn);
     }
-    return isSpreadsheetOnly(column);
+    return !isActionColumn(column) && isSpreadsheetOnly(column);
   }
 
   /**
@@ -201,6 +203,41 @@ public class ReportDesigner extends ServiceConfig {
    */
   private boolean isSpreadsheetOnly(PrintColumnData column) {
     return PRINTABLE_SPREADSHEET_ONLY.equalsIgnoreCase(column.getPrintable());
+  }
+
+  /**
+   * Check whether a print column is an action column (`component="button"`): it is not data, so it is never printed
+   * nor exported, whatever its `printable` value
+   *
+   * @param column Print column
+   * @return Column is an action column
+   */
+  private boolean isActionColumn(PrintColumnData column) {
+    return ACTION_COLUMN_COMPONENT.equalsIgnoreCase(column.getComponent());
+  }
+
+  /**
+   * Check whether a print column is declared as `printable="false"`: it is never printed nor exported, whatever the
+   * client sends
+   *
+   * @param column Print column
+   * @return Column is not printable
+   */
+  private boolean isNotPrintable(PrintColumnData column) {
+    return NOT_PRINTABLE.equalsIgnoreCase(column.getPrintable());
+  }
+
+  /**
+   * Check whether a print column goes to the report: never an action column nor a column declared not printable, and a
+   * spreadsheet only column only on spreadsheet outputs
+   *
+   * @param column                        Print column
+   * @param includeSpreadsheetOnlyColumns Include columns declared as `printable="excel"`
+   * @return Column is printed
+   */
+  private boolean isPrinted(PrintColumnData column, boolean includeSpreadsheetOnlyColumns) {
+    return !isActionColumn(column) && !isNotPrintable(column)
+      && (includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(column));
   }
 
   /**
@@ -431,7 +468,7 @@ public class ReportDesigner extends ServiceConfig {
     visibleColumns.forEach(columnData -> {
       if (columnData.isHeader()) {
         List<PrintColumnData> headerColumns = columnData.getColumnList().stream()
-          .filter(column -> includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(column))
+          .filter(column -> isPrinted(column, includeSpreadsheetOnlyColumns))
           .toList();
         if (!headerColumns.isEmpty()) {
           ReportHeader reportHeader = new ReportHeader(columnData.getLabel())
@@ -439,7 +476,7 @@ public class ReportDesigner extends ServiceConfig {
           headerColumns.forEach(column -> getReportColumns(column, fieldList).forEach(reportHeader::addColumn));
           reportGrid.addGridHeader(reportHeader);
         }
-      } else if (includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(columnData)) {
+      } else if (isPrinted(columnData, includeSpreadsheetOnlyColumns)) {
         getReportColumns(columnData, fieldList).forEach(reportGrid::addGridHeader);
       }
     });

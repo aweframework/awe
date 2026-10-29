@@ -26,11 +26,13 @@
   <locale name="BUTTON_CLOSE" value="Fermer"/>
   <locale name="BUTTON_CONFIRM" value="Enregister"/>
   <locale name="BUTTON_COPY" value="Copier"/>
+  <locale name="BUTTON_CREATE_USER" value="Créer l&apos;utilisateur"/>
   <locale name="BUTTON_DARK_MODE" value="Mode sombre"/>
   <locale name="BUTTON_DEACTIVATE" value="Désactiver"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactiver taches selectionnees"/>
   <locale name="BUTTON_DELETE" value="Supprimer"/>
   <locale name="BUTTON_EDIT" value="Modifier"/>
+  <locale name="BUTTON_MORE_ACTIONS" value="Plus d&apos;actions"/>
   <locale name="BUTTON_ENCRYPT" value="Encrypt"/>
   <locale name="BUTTON_EXPORT" value="Exporter"/>
   <locale name="BUTTON_FINISH" value="Finir"/>
@@ -46,6 +48,7 @@
   <locale name="BUTTON_NEW" value="Nouveau"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 ligne au-dessous"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 ligne au-dessus"/>
+  <locale name="BUTTON_NEW_USER" value="Nouvel utilisateur"/>
   <locale name="BUTTON_NEXT" value="Suivant"/>
   <locale name="BUTTON_PREVIOUS" value="Précédent"/>
   <locale name="BUTTON_PRINT" value="Imprimer"/>
@@ -58,6 +61,7 @@
   <locale name="BUTTON_RESET_2FA" value="Réinitialiser 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restreindre l&apos;accès"/>
   <locale name="BUTTON_RUN" value="Commencer"/>
+  <locale name="BUTTON_SAVE_CHANGES" value="Enregistrer les modifications"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Enregistrer markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Sauvegarder ligne"/>
   <locale name="BUTTON_SAVE_TEXT" value="Enregistrer le texte"/>
@@ -66,6 +70,8 @@
   <locale name="BUTTON_SEND" value="Envoyer e-mail"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Debloquer batch comme non valide"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Debloquer batch comme valide"/>
+  <locale name="BUTTON_UNLOCK" value="Déverrouiller"/>
+  <locale name="BUTTON_UNLOCK_ACCOUNT" value="Déverrouiller le compte"/>
   <locale name="BUTTON_UPDATE" value="Modifier"/>
   <locale name="BUTTON_VIEW" value="Consulter"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="Voir menssages d&apos;erreur"/>
@@ -128,6 +134,7 @@
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="Imprimer les donnees de l&apos;ecran Etes-vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_RESET_2FA" value="Vous allez réinitialiser l&amp;#39;authentification à deux facteurs sur les utilisateurs sélectionnés. Êtes-vous sûr?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="Un mail va etre envoye aux utlisateurs actives. Etes vous d&apos;accord?"/>
+  <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="L&apos;utilisateur pourra se connecter de nouveau. Êtes-vous d&apos;accord ?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="Donnees modifies vont etre sauvegardees. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Attention, les données modifiées seront perdues. Voulez-vous continuer?"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Confirmation d&apos;effacement"/>
@@ -138,6 +145,7 @@
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="Confirmation d&apos;impression de fichier"/>
   <locale name="CONFIRM_TITLE_RESET_2FA" value="Réinitialisation de l&amp;#39;authentification à deux facteurs"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Confirmation d&apos;envoie"/>
+  <locale name="CONFIRM_TITLE_UNLOCK_USER" value="Déverrouiller le compte"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmatión de la modificatión"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Donees modifiées"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Annuaire"/>
@@ -417,6 +425,12 @@
   <locale name="ENUM_TIT_STL" value="Title style"/>
   <locale name="ENUM_TOP" value="TOPIC"/>
   <locale name="ENUM_TOT_STL" value="Total style"/>
+  <locale name="ENUM_USER_2FA_HEADER_ON" value="2FA activée"/>
+  <locale name="ENUM_USER_2FA_OFF" value="Désactivé"/>
+  <locale name="ENUM_USER_2FA_ON" value="Activé"/>
+  <locale name="ENUM_USER_STATE_ACTIVE" value="Actif"/>
+  <locale name="ENUM_USER_STATE_INACTIVE" value="Inactif"/>
+  <locale name="ENUM_USER_STATE_LOCKED" value="Verrouillé"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Oui"/>
   <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Authentification"/>
@@ -953,6 +967,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Consultation de thème"/>
   <locale name="HELP_SCREEN_TITLE_TREE_TEST" value="Cet écran tests l&apos;utilisation des données non-triés chargées dans un arbre"/>
   <locale name="HELP_SCREEN_TITLE_UNIKEY" value="Códes du systeme"/>
+  <locale name="HELP_SCREEN_TITLE_USER_ADMIN" value="Qui peut se connecter, avec quel profil, et l&apos;état de son compte."/>
   <locale name="HELP_SCREEN_TITLE_USR" value="Gestión des utilisateurs"/>
   <locale name="HELP_SCREEN_TITLE_USR_NEW" value="Insertion des utilisateurs"/>
   <locale name="HELP_SCREEN_TITLE_USR_UPD" value="Modification des utilisateurs"/>
@@ -1027,6 +1042,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_TOOLS_THEMES" value="Thèmes"/>
   <locale name="MENU_TOOLS_UNIKEY" value="Codes du systeme"/>
   <locale name="MENU_TOOLS_USERS" value="Utilisateurs"/>
+  <locale name="MENU_TOOLS_USER_ADMIN" value="Administration des utilisateurs"/>
   <locale name="MENU_USER_HELP" value="Guide utilisateur"/>
   <locale name="MILLISECONDS" value="{0}ms"/>
   <locale name="MINUTES" value="{0}m"/>
@@ -1126,6 +1142,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frequence"/>
   <locale name="PARAMETER_FROM" value="De"/>
+  <locale name="PARAMETER_FULL_NAME" value="Nom complet"/>
   <locale name="PARAMETER_HOUR_FIN" value="Echéance"/>
   <locale name="PARAMETER_HOUR_INI" value="L&apos;heure de début"/>
   <locale name="PARAMETER_HOURS" value="Heures"/>
@@ -1278,6 +1295,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Précédent"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Masquer le détail de la ligne"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Afficher le détail de la ligne"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} sélectionné"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} sélectionnés"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Résultats"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificateur de texte ou de recherche"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Devise de reference: {0}"/>
@@ -1351,7 +1370,19 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_TOTP_CODE" value="Insérer le code ici"/>
   <locale name="SCREEN_TEXT_USER" value="Utilisateur"/>
   <locale name="SCREEN_TEXT_USER_DATA" value="Données d&apos;utilisateur"/>
+  <locale name="SCREEN_TEXT_USER_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_USER_LOCKED_NOTICE" value="Compte verrouillé. L&apos;utilisateur ne peut pas se connecter tant qu&apos;il n&apos;est pas déverrouillé."/>
+  <locale name="SCREEN_TEXT_USER_SIGN_IN_SECURITY" value="Sécurité de connexion"/>
   <locale name="SCREEN_TEXT_USERS" value="Utilisateurs"/>
+  <locale name="SCREEN_TEXT_USER_ACCESS" value="Accès"/>
+  <locale name="SCREEN_TEXT_USER_APPEARANCE_OUTPUT" value="Apparence et sortie"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_LOCKED" value="Verrouillés"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" value="Sans 2FA"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_INACTIVE" value="Inactifs"/>
+  <locale name="SCREEN_TEXT_USER_FILTERS" value="État de l&apos;utilisateur"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH" value="Utilisateur, nom, e-mail ou profil…"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Rechercher des utilisateurs"/>
   <locale name="SCREEN_TEXT_VERSION" value="Contexte"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
@@ -1426,6 +1457,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_THM_VIW" value="Consultation de thème"/>
   <locale name="SCREEN_TITLE_TREE_TEST" value="Test d&apos;arbre"/>
   <locale name="SCREEN_TITLE_UNIKEY" value="Códes du systeme"/>
+  <locale name="SCREEN_TITLE_USER_ADMIN" value="Utilisateurs"/>
+  <locale name="SCREEN_TITLE_USER_PANEL" value="Utilisateur"/>
   <locale name="SCREEN_TITLE_USR" value="Gestión des utilisateurs"/>
   <locale name="SCREEN_TITLE_USR_NEW" value="Insertion des utilisateurs"/>
   <locale name="SCREEN_TITLE_USR_UPD" value="Modification des utilisateurs"/>

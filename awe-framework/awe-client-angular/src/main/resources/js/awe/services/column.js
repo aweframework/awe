@@ -89,6 +89,15 @@ aweApplication.factory('Column',
           };
 
           /**
+           * Select the row of the cell, and only it (the button of a grid row acts on its row)
+           */
+          component.selectCellRow = function () {
+            if (typeof gridComponent.selectButtonRow === "function") {
+              gridComponent.selectButtonRow(component.address.row);
+            }
+          };
+
+          /**
            * Action show-context-menu: select the row of the cell and open the menu of the grid under the cell button
            */
           component.onShowContextMenu = function () {

@@ -63,6 +63,41 @@ describe("grid toolbar", () => {
     expect(compileGrid({showToolbar: false}).element.find(hook("grid-toolbar")).length).toBe(0);
   });
 
+  it("shows the quick filters of the grid first in the toolbar, before Columns and Maximize", () => {
+    const toolbar = compileGrid({quickFilter: "CrtSta"}).element.find(hook("grid-toolbar"));
+
+    const parts = toolbar.children().map((index, child) => child.getAttribute("data-testid")).get();
+    expect(parts.slice(0, 3)).toEqual(["grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
+    expect(toolbar.find(hook("grid-quick-filter")).attr("data-testid-owner")).toBe("Grid");
+    expect(compileGrid().element.find(hook("grid-quick-filter")).length).toBe(0);
+  });
+
+  it("shows the toolbar with only its quick filters when the grid opts out of the toolbar", () => {
+    const toolbar = compileGrid({quickFilter: "CrtSta", showToolbar: false}).element.find(hook("grid-toolbar"));
+
+    expect(toolbar.length).toBe(1);
+    expect(toolbar.find(hook("grid-quick-filter")).length).toBe(1);
+    expect(toolbar.find(hook("grid-columns-button")).length).toBe(0);
+    expect(toolbar.find(hook("grid-maximize-button")).length).toBe(0);
+  });
+
+  it("shows the search of the grid first in the toolbar, before the quick filters, Columns and Maximize", () => {
+    const toolbar = compileGrid({search: "CrtTxt", quickFilter: "CrtSta"}).element.find(hook("grid-toolbar"));
+
+    const parts = toolbar.children().map((index, child) => child.getAttribute("data-testid")).get();
+    expect(parts.slice(0, 4)).toEqual(["grid-search", "grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
+    expect(toolbar.find(hook("grid-search")).attr("data-testid-owner")).toBe("Grid");
+    expect(compileGrid({quickFilter: "CrtSta"}).element.find(hook("grid-search")).length).toBe(0);
+  });
+
+  it("shows the toolbar with only its search when the grid opts out of the toolbar", () => {
+    const toolbar = compileGrid({search: "CrtTxt", showToolbar: false}).element.find(hook("grid-toolbar"));
+
+    expect(toolbar.length).toBe(1);
+    expect(toolbar.find(hook("grid-search")).length).toBe(1);
+    expect(toolbar.find(hook("grid-columns-button")).length).toBe(0);
+  });
+
   it("keeps the order of the screen in the model and orders the grid with the layout of the user", () => {
     const {scope, controller} = compileGrid({columnLayout: {order: ["d", "c", "b", "a"], hidden: ["c"]}});
 
@@ -78,6 +113,28 @@ describe("grid toolbar", () => {
 
     expect(scope.component.layoutNodes.map(node => node.column.name)).toEqual(["a", "b"]);
     expect(scope.component.layoutTotal).toBe(2);
+  });
+
+  it("does not offer the button columns: they are actions, not data (#793)", () => {
+    const {element, scope} = compileGrid({
+      columnModel: [column("a"), column("b"), column("edit", {component: "button"}), column("c"), column("more", {component: "button"})],
+      columnLayout: {order: ["more", "edit", "c", "b", "a"], hidden: ["edit", "b"]}
+    });
+
+    const toolbarScope = angular.element(element.find(hook("grid-toolbar"))).scope();
+    toolbarScope.openColumns();
+    refs.$rootScope.$digest();
+
+    const dialog = element.find(hook("grid-columns-dialog"));
+    expect(dialog.find(hook("grid-column-item")).map((i, item) => item.getAttribute("column-id")).get()).toEqual(["c", "b", "a"]);
+    expect(dialog.find(hook("grid-columns-counter")).attr("data-visible")).toBe("2");
+    expect(dialog.find(hook("grid-columns-counter")).attr("data-total")).toBe("3");
+    // The button columns stay visible where the screen puts them, whatever the stored layout says
+    const shown = ["a", "b", "c", "edit", "more"];
+    expect(visibleNames(scope.gridOptions.columnDefs).filter(name => shown.includes(name))).toEqual(["c", "edit", "a", "more"]);
+
+    scope.component.moveColumn("a", -1);
+    expect(visibleNames(scope.gridOptions.columnDefs).filter(name => shown.includes(name))).toEqual(["c", "a", "edit", "more"]);
   });
 
   it("lists the columns in the Columns panel, nested under their group", () => {

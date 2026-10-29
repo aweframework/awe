@@ -30,6 +30,7 @@ soportan los dos motores web (AngularJS y React).
 | Elemento                             | Uso             | Múltiples instancias | Descripción                                                          |
 |--------------------------------------|-----------------|----------------------|----------------------------------------------------------------------|
 | [side-panel](#side-panel-attributes) | **Obligatorio** | No                   | Nodo global del panel lateral. Define los atributos del panel lateral |
+| [header-tag](#identity-header)       | Opcional        | Sí                   | Etiqueta de la cabecera de identidad (con `header-grid`)             |
 
 ## Atributos del panel lateral {#side-panel-attributes}
 
@@ -43,6 +44,11 @@ soportan los dos motores web (AngularJS y React).
 | max-width | Opcional | String  | Ancho máximo del panel lateral. Ocupa todo el ancho de la pantalla cuando la pantalla es más estrecha                               | Una longitud CSS, por ejemplo `30rem`, `480px` o `50vw`. Por defecto `40rem`                             |
 | on-close  | Opcional | String  | Comportamiento de la pila al cerrar el panel lateral con su botón de cierre, con Esc o con un clic fuera                            | `accept` (por defecto), `reject`. Reject cancela la pila, accept continúa ejecutando sus acciones        |
 | deferred  | Opcional | Boolean | Carga los datos de los componentes del panel lateral la primera vez que se abre, no con la pantalla. Ver [carga diferida](dialog.md#deferred-loading) | `true`, `false` (por defecto)                                                               |
+| header-grid | Opcional | String | Grid de la pantalla cuya fila seleccionada muestra la cabecera. Ver [cabecera de identidad](#identity-header) | Un id de grid |
+| header-title-field | Opcional | String | Campo de la fila seleccionada con el título de la cabecera de identidad | Un campo del grid |
+| header-subtitle-field | Opcional | String | Campo de la fila seleccionada con el subtítulo (atenuado, bajo el título). No se muestra si está vacío | Un campo del grid |
+| header-avatar-field | Opcional | String | Campo de la fila seleccionada del que se toman las iniciales del avatar (como el `avatar-field` de una [columna de grid](grids.md)). Sin avatar si está vacío | Un campo del grid |
+| header-avatar-tone-field | Opcional | String | Campo de la fila seleccionada con el tono del avatar | `primary`, `info`, `success`, `warning`, `danger`, `neutral` (por defecto, cualquier otro valor) |
 
 ## Apertura y cierre {#opening-and-closing}
 
@@ -60,6 +66,35 @@ Se cierra:
   normalmente en los botones de su pie;
 - con el botón de cierre de su cabecera, con Esc o con un clic fuera de él. Estos siguen el atributo `on-close`:
   `accept` (por defecto) se comporta como `close` y `reject` como `close-cancel`.
+
+## Cabecera de identidad {#identity-header}
+
+Con `header-grid` la cabecera del panel lateral muestra la fila seleccionada de ese grid cuando hay **exactamente una**
+fila seleccionada (por ejemplo, el panel lateral que edita el usuario de la fila seleccionada): un avatar grande con las
+iniciales de `header-avatar-field`, el título de `header-title-field`, el subtítulo de `header-subtitle-field` y un
+`header-tag` por cada campo que se muestra como etiqueta, en el orden del XML. Sin filas o con varias filas seleccionadas
+(por ejemplo, el mismo panel lateral abierto para crear un registro nuevo) la cabecera muestra su etiqueta y su icono. La
+cabecera sigue a la fila seleccionada mientras el panel lateral está abierto.
+
+| Atributo de `header-tag` | Uso             | Descripción                                                                                                |
+|--------------------------|-----------------|------------------------------------------------------------------------------------------------------------|
+| field                    | **Obligatorio** | Campo de la fila seleccionada con el texto de la etiqueta. Una etiqueta con el valor vacío no se muestra    |
+| tone-field               | Opcional        | Campo con el tono de la etiqueta: `success`, `warning`, `danger`, `info` o `neutral` (por defecto)          |
+| icon-field               | Opcional        | Campo con el icono de la etiqueta. Con él la etiqueta es plana: el icono ocupa el lugar del punto           |
+
+El avatar y las etiquetas se ven como el avatar y las etiquetas de estado de las [celdas del grid](grids.md). El avatar es
+decorativo; el título es el nombre accesible del panel lateral. Todos los atributos `header-*` son opcionales; sin
+`header-grid` la cabecera no cambia. Lo soportan los dos motores.
+
+```xml
+<side-panel id="PnlUsr" label="SCREEN_TITLE_USER_PANEL" icon="user"
+            header-grid="GrdUsrAdm" header-title-field="FulNam" header-subtitle-field="UsrPro"
+            header-avatar-field="Ini" header-avatar-tone-field="IniTon">
+  <header-tag field="StaTxt" tone-field="StaTon"/>
+  <header-tag field="2faHdr" tone-field="2faTon" icon-field="2faIcn"/>
+  [define the content of the side panel]
+</side-panel>
+```
 
 ## Pie {#footer}
 

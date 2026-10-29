@@ -5,8 +5,10 @@ import "./editable";
 import "./multioperation";
 import "./events";
 import "./layout";
-import {getColumnHeaders} from "./layoutRules";
+import {getColumnHeaders, isActionColumn} from "./layoutRules";
 import {getDensityRowHeight, getExplicitRowHeight, getGridRowHeight, observeDensity} from "./density";
+import {AVATAR_TONES, getInitials, STATUS_TONES, toTone} from "./initials";
+import {getIconTemplate} from "../component";
 
 // Add requirements
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
@@ -64,9 +66,6 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         " column-id=\"{{col.name}}\" data-testid=\"grid-cell\" ng-bind-html=\"col.grid.appScope.component.getCellValue(COL_FIELD)\"></div>";
     };
 
-    // Tones of a status cell (any other tone is shown as neutral)
-    const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
-
     // Component expression of the cell templates
     const CELL_COMPONENT = "col.grid.appScope.component";
 
@@ -95,15 +94,45 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     const hasStatus = (column) => !("component" in column) && !!column.statusField && !hasChips(column);
 
     /**
-     * Check whether the cells of a column need more than one line (secondary line or chips), so the rows grow to fit them
+     * Check whether a column without component shows an avatar before its value
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows an avatar
+     */
+    const hasAvatar = (column) => !("component" in column) && !!column.avatarField;
+
+    /**
+     * Check whether a column without component shows an icon before its value (ignored in a column of chips)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows an icon
+     */
+    const hasIcon = (column) => !("component" in column) && !!column.iconField && !hasChips(column);
+
+    /**
+     * Template of the icon of a cell: the icon of the icon field of the row, decorative (the text is the value of the
+     * cell); nothing when the row has no icon or an unknown one
+     *
+     * @returns {string} Template of the icon
+     */
+    const getCellIconTemplate = () => {
+      const icon = CELL_COMPONENT + ".getCellIcon(row.entity, col.colDef)";
+      // Without the spaces between its alternatives, which would add a space between the icon and the text
+      return getIconTemplate("awe-cell-icon", "span", icon, "aria-hidden=\"true\"").replace(/>\s+</g, "><");
+    };
+
+    /**
+     * Check whether the cells of a column need more than one line (secondary line, chips or avatar), so the rows grow to
+     * fit them
      *
      * @param {object} column Column model
      * @returns {boolean} Cells of the column grow
      */
-    const growsCell = (column) => hasSecondary(column) || hasChips(column);
+    const growsCell = (column) => hasSecondary(column) || hasChips(column) || hasAvatar(column);
 
     /**
-     * Contents of the cell of a column with a secondary line, a status or chips. The values are always bound as text.
+     * Contents of the cell of a column with a secondary line, a status, chips, an avatar or an icon. The values are always
+     * bound as text. With an icon the status is a plain tag: the icon of the row (if any) takes the place of the dot.
      *
      * @param {object} column Column model
      * @returns {string} Contents of the cell
@@ -118,16 +147,34 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         main = "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
           "<span class=\"awe-cell-chip awe-cell-chip-more\" ng-if=\"" + chips + ".hidden.length\" title=\"{{" + chips + ".hidden.join(', ')}}\"" +
           " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
+      } else if (hasStatus(column) && hasIcon(column)) {
+        main = "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\">" +
+          getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
       } else if (hasStatus(column)) {
         main = "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"></span>";
+      } else if (hasIcon(column)) {
+        main = "<span class=\"awe-cell-icon-text\" title=\"{{" + value + "}}\">" + getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
       } else {
         main = null;
       }
-      if (!hasSecondary(column)) {
-        return main;
+      let text;
+      if (hasSecondary(column)) {
+        const mainLine = main === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : "<span class=\"awe-cell-main\">" + main + "</span>";
+        text = "<div class=\"awe-cell-lines\">" + mainLine + "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"></span></div>";
+      } else {
+        text = main;
       }
-      const mainLine = main === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : "<span class=\"awe-cell-main\">" + main + "</span>";
-      return "<div class=\"awe-cell-lines\">" + mainLine + "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"></span></div>";
+      if (!hasAvatar(column)) {
+        return text;
+      }
+      // The avatar is decorative (the name is the accessible text); without initials an empty space keeps the names aligned
+      const initials = CELL_COMPONENT + ".getCellInitials(row.entity, col.colDef)";
+      const avatarTone = "{{" + CELL_COMPONENT + ".getAvatarTone(row.entity[col.colDef.avatarToneField])}}";
+      const mainText = text === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : text;
+      return "<div class=\"awe-cell-entity\"><span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
+        " aria-hidden=\"true\" ng-if=\"" + initials + "\" ng-bind=\"" + initials + "\"></span>" +
+        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + initials + "\"></span>" +
+        "<div class=\"awe-cell-entity-text\">" + mainText + "</div></div>";
     };
 
     /**
@@ -1095,13 +1142,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * - `excel`: always (the server keeps it for spreadsheet outputs only)
          * - not declared: only when the column is visible on screen
          *
-         * Internal ui-grid columns (row numbers, selection checkbox) carry no `printable` flag and are never printed.
+         * Internal ui-grid columns (row numbers, selection checkbox) carry no `printable` flag and are never printed, and
+         * neither are the action columns (`component="button"`), whatever their `printable` value.
          *
          * @param {object} column Column model
          * @returns {boolean} Column must be printed
          */
         function isPrintableColumn(column) {
-          if (!column.printable) {
+          if (!column.printable || isActionColumn(column)) {
             return false;
           }
           switch (String(column.printMode || "").toLowerCase()) {
@@ -1757,6 +1805,24 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           component.showContextMenu(event);
         };
         /**
+         * Select the row of a button of the grid before its actions: that row ends being the only selected one. A row
+         * that is already the only selected one is left as it is (an edited row keeps being edited), and an identifier
+         * that is not a row of the grid (the footer) changes nothing
+         *
+         * @param {String} rowId Row identifier
+         */
+        component.selectButtonRow = function (rowId) {
+          const data = component.model.values || [];
+          if (Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER) === -1) {
+            return;
+          }
+          const selected = component.model.selected || [];
+          if (selected.length === 1 && String(selected[0]) === String(rowId)) {
+            return;
+          }
+          component.setSelection([rowId]);
+        };
+        /**
          * Select a row and show the context menu under an element (action show-context-menu of a row button)
          *
          * @param {String} rowId Row identifier
@@ -1821,9 +1887,41 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {String} Tone
          */
         component.getCellTone = function (cell) {
-          const value = component.getCellData(cell, component.constants.CELL_VALUE);
-          const tone = value == null ? "" : String(value).trim().toLowerCase();
-          return STATUS_TONES.includes(tone) ? tone : "neutral";
+          return toTone(component.getCellData(cell, component.constants.CELL_VALUE), STATUS_TONES);
+        };
+
+        /**
+         * Retrieve the tone of an avatar: one of AVATAR_TONES, neutral for any other value
+         *
+         * @param {*} cell Cell of the avatar tone field
+         * @returns {String} Tone
+         */
+        component.getAvatarTone = function (cell) {
+          return toTone(component.getCellData(cell, component.constants.CELL_VALUE), AVATAR_TONES);
+        };
+
+        /**
+         * Retrieve the icon of a cell, from the icon field of the row (no family when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {{family: String, name: String, classes?: String, href?: String}} Icon
+         */
+        component.getCellIcon = function (row, column) {
+          const icon = component.getCellData(row[column.iconField], component.constants.CELL_VALUE);
+          return Utilities.extractIcon(Utilities.isNull(icon) ? "" : String(icon));
+        };
+
+        /**
+         * Retrieve the initials of the avatar of a cell, built from the avatar field of the row (empty when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Initials
+         */
+        component.getCellInitials = function (row, column) {
+          const name = component.getCellValue(row[column.avatarField]);
+          return Utilities.isNull(name) ? "" : getInitials(String(name));
         };
 
         /**

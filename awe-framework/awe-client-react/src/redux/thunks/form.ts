@@ -163,8 +163,9 @@ export function filterAction(action: ClientAction): AppThunk {
       const attributes = component.attributes as Record<string, unknown>;
       const serverAction = (attributes[settings.serverActionKey] || "data") as string;
       const targetAction = attributes[settings.targetActionKey] as string;
+      const formValues = getFormValues(getState(), false, undefined, address);
       const values = {
-        ...getFormValues(getState(), false, undefined, address),
+        ...formValues,
         ...(component.specificAttributes || {})
       };
 
@@ -172,13 +173,41 @@ export function filterAction(action: ClientAction): AppThunk {
       // The component that is filtered has its view and its name
       const filterAction = generateServerAction(values, serverAction, targetAction, address as Address, action.async, action.silent, settings);
 
-      // Send action list
-      dispatch(addActionsTop([filterAction]));
+      // Send action list (with the reload of the quick filter of a grid)
+      dispatch(addActionsTop([filterAction, ...getQuickFilterReload(components, address, attributes, formValues, settings)]));
     }
 
     // Accept action
     dispatch(acceptAction(action));
   };
+}
+
+/**
+ * The reload of the quick filter of a grid that is filtered: a silent async server action, so the options and their
+ * counts follow the data (after a maintain, a search or another option chosen)
+ * @param {object} components Components of the screen
+ * @param {object} address Address of the filtered component
+ * @param {object} attributes Attributes of the filtered component
+ * @param {object} values Values of the screen sent with the filter
+ * @param {object} settings Settings
+ * @returns {object[]} The reload of the quick filter, none when the component has no quick filter
+ */
+function getQuickFilterReload(
+  components: Record<string, ComponentState>,
+  address: ComponentAddress,
+  attributes: Record<string, unknown>,
+  values: Record<string, unknown>,
+  settings: { serverActionKey: string; targetActionKey: string }
+): ReturnType<typeof generateServerAction>[] {
+  const quickFilterAddress = { view: address.view, component: attributes.quickFilter as string };
+  const quickFilter = attributes.quickFilter ? getComponent(components, quickFilterAddress) : undefined;
+  if (!quickFilter) {
+    return [];
+  }
+  const quickFilterAttributes = quickFilter.attributes as Record<string, unknown>;
+  const serverAction = (quickFilterAttributes[settings.serverActionKey] || "data") as string;
+  const targetAction = quickFilterAttributes[settings.targetActionKey] as string;
+  return [generateServerAction(values, serverAction, targetAction, quickFilterAddress as Address, true, true, settings)];
 }
 
 export function fillAction(action: ClientAction): AppThunk {

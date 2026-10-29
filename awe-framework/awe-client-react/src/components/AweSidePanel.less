@@ -6,8 +6,64 @@
   }
 
   .side-panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-2);
     font-size: 1.15rem;
     font-weight: 600;
+  }
+
+  // Icon of the panel before its title (#793), in the colour of the title as in the AngularJS engine
+  .panel-title-icon {
+    display: inline-flex;
+  }
+
+  .panel-title-icon > .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+
+  // Identity header (#793): the selected row of the header grid, as the panel-identity of the design: a large avatar
+  // (the grid avatar, decorative), the title, a muted subtitle and the tags (the grid status tags)
+  .panel-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-3);
+    min-width: 0;
+  }
+
+  .panel-identity-avatar {
+    width: var(--awe-space-10);
+    height: var(--awe-space-10);
+    font-size: var(--awe-font-size-sm);
+  }
+
+  .panel-identity-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .panel-identity-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+    overflow-wrap: anywhere;
+  }
+
+  .panel-identity-subtitle {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  .panel-identity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--awe-space-1-5);
+    margin-top: var(--awe-space-1);
   }
 
   .p-sidebar-content {
@@ -15,12 +71,19 @@
     flex-direction: column;
   }
 
+  // With a footer the content has no bottom padding: the body would show through it, under the footer
+  .p-sidebar-content:has(> .modal-footer) {
+    padding-bottom: 0;
+  }
+
   // The footer (a child with style modal-footer) sticks to the bottom of the panel
   .modal-footer {
     position: sticky;
     bottom: 0;
+    // Above the icons of the fields that scroll under it (the suggest arrow has z-index 1)
+    z-index: 2;
     margin-top: auto;
-    padding: 0.75rem 0;
+    padding: var(--awe-space-md) 0 var(--awe-space-lg);
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;

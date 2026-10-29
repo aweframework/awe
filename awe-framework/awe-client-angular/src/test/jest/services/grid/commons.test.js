@@ -1107,6 +1107,59 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(visibleColumns.map(column => column.name)).toEqual(["Third"]);
   });
 
+  // Button columns are actions: never printed, whatever their printable value (#793)
+  it('should never print a button column, even when it is declared printable', function () {
+    // Mock
+    let component = getDefaultComponent();
+    component.controller.headerModel = [{startColumnName: "Grouped", numberOfColumns: 2, titleText: "Group"}];
+    let commons = new GridCommons(component);
+    commons.init();
+    component.addColumns([{
+      id: "Name",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "Edit",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true
+    }, {
+      id: "More",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true,
+      printMode: "true"
+    }, {
+      id: "Grouped",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "GroupedButton",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true,
+      printMode: "excel"
+    }, {
+      id: "NotPrinted",
+      hidden: false,
+      charlength: 20,
+      printable: true,
+      printMode: "false"
+    }]);
+
+    // Launch
+    let visibleColumns = component.getVisibleColumns();
+
+    // Assert
+    expect(visibleColumns.map(column => column.name)).toEqual(["Name", "Group"]);
+    expect(visibleColumns[1].columnList.map(column => column.name)).toEqual(["Grouped"]);
+  });
+
   // Get column visible data
   it('should retrieve column visible data', function () {
     // Mock

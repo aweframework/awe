@@ -5,6 +5,8 @@
     Created on : 14 de junio de 2010
     Author     : Pablo GARCIA
     Description: Tools window - New User
+    DEPRECATED since AWE 5.0.0: replaced by the user-admin screen (screen/users/user-admin.xml), which the
+    "users" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_USR_NEW" help="HELP_SCREEN_TITLE_USR_NEW">
   <tag source="hidden">

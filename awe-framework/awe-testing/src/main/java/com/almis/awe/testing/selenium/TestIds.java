@@ -71,6 +71,15 @@ public final class TestIds {
   public static final String GRID_GROUP_HEADER = "grid-group-header";
   public static final String GRID_COLUMNS_BUTTON = "grid-columns-button";
   public static final String GRID_MAXIMIZE_BUTTON = "grid-maximize-button";
+  // Quick filters of the grid toolbar (identified by "criterion-id") and each of their options ("option-id", its value)
+  public static final String GRID_QUICK_FILTER = "grid-quick-filter";
+  public static final String GRID_QUICK_FILTER_OPTION = "grid-quick-filter-option";
+  // Search of the grid toolbar (identified by "criterion-id"; its text box is its criterion input) and its clear button
+  public static final String GRID_SEARCH = "grid-search";
+  public static final String GRID_SEARCH_CLEAR = "grid-search-clear";
+  // Selection bar of the grid (identified by its owner, the grid; "data-count" is the number of selected rows) and its text
+  public static final String GRID_SELECTION_BAR = "grid-selection-bar";
+  public static final String GRID_SELECTION_COUNT = "grid-selection-count";
   // Windows: the window root (identified by its owner) and its Maximize button
   public static final String WINDOW = "window";
   public static final String WINDOW_MAXIMIZE_BUTTON = "window-maximize-button";
@@ -171,9 +180,13 @@ public final class TestIds {
   // Modal dialogs (owner: dialog id)
   public static final String DIALOG = "dialog";
   public static final String DIALOG_CLOSE = "dialog-close";
-  // Side panels anchored to an edge of the screen and their close button (owner: side panel id)
+  // Side panels anchored to an edge of the screen and their close button (owner: side panel id), the title of their
+  // header (the label of the panel, or the title of its identity header) and the subtitle and tags of the identity header
   public static final String SIDE_PANEL = "side-panel";
   public static final String SIDE_PANEL_CLOSE = "side-panel-close";
+  public static final String SIDE_PANEL_TITLE = "side-panel-title";
+  public static final String SIDE_PANEL_SUBTITLE = "side-panel-subtitle";
+  public static final String SIDE_PANEL_TAG = "side-panel-tag";
 
   // Chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
   public static final String CHART = "chart";

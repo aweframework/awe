@@ -132,6 +132,116 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
     });
   });
 
+  // Identity header (#793 S18): while exactly one row of header-grid is selected, the header shows that row
+  describe("identity header", () => {
+    const HEADER = {headerGrid: "GrdUsr", headerTitleField: "FulNam", headerSubtitleField: "UsrPro", headerAvatarField: "Ini",
+      headerAvatarToneField: "IniTon", headerTags: [
+        {field: "StaTxt", toneField: "StaTon"},
+        {field: "2faHdr", toneField: "2faTon", iconField: "2faIcn"}
+      ]};
+    const ROWS = () => [
+      {id: "1", FulNam: "Javier García", UsrPro: "jgarcia · Operator", Ini: "Javier García", IniTon: "warning",
+        StaTxt: "Locked", StaTon: "danger", "2faHdr": "Two-factor on", "2faTon": "neutral", "2faIcn": "lucide:shield-check"},
+      {id: "2", FulNam: {value: "ana", label: "Ana Ruiz"}, UsrPro: "ana", Ini: "Ana Ruiz", IniTon: "unknown",
+        StaTxt: "Active", StaTon: "success", "2faHdr": "", "2faTon": "neutral", "2faIcn": ""}
+    ];
+    let grid;
+
+    const compileWith = (selected, extra = HEADER) => {
+      grid = {values: ROWS(), selected};
+      const element = compile("awe-side-panel", extra);
+      refs.$control.getAddressModel.mockImplementation(address => address.component === "GrdUsr" ? grid : {values: []});
+      refs.$rootScope.$digest();
+      return element;
+    };
+    const header = element => element.find(".modal-header");
+    const dialog = element => element.find(hook(TestIds.sidePanel));
+
+    it("shows the avatar, the title, the subtitle and the tags of the selected row", () => {
+      const element = compileWith(["1"]);
+
+      const identity = header(element).find(".panel-identity");
+      expect(identity.length).toBe(1);
+      expect(header(element).find(".modal-title").length).toBe(0);
+      const avatar = identity.find(".panel-identity-avatar");
+      expect(avatar.text()).toBe("JG");
+      expect(avatar.hasClass("awe-cell-avatar")).toBe(true);
+      expect(avatar.hasClass("awe-cell-avatar-warning")).toBe(true);
+      expect(avatar.attr("aria-hidden")).toBe("true");
+      const title = identity.find(".panel-identity-title");
+      expect(title.text()).toBe("Javier García");
+      expect(title.attr("id")).toBe("Pnl-title");
+      expect(dialog(element).attr("aria-labelledby")).toBe("Pnl-title");
+      expect(identity.find(".panel-identity-subtitle").text()).toBe("jgarcia · Operator");
+      const tags = identity.find(".panel-identity-tags > .awe-cell-status");
+      expect(tags.length).toBe(2);
+      expect(tags.eq(0).text().trim()).toBe("Locked");
+      expect(tags.eq(0).hasClass("awe-cell-status-danger")).toBe(true);
+      expect(tags.eq(0).hasClass("awe-cell-status-plain")).toBe(false);
+      expect(tags.eq(1).text().trim()).toBe("Two-factor on");
+      expect(tags.eq(1).hasClass("awe-cell-status-plain")).toBe(true);
+      expect(tags.eq(1).find(".awe-cell-icon[aria-hidden='true'] use").attr("href")).toContain("shield-check");
+    });
+
+    it("marks the title, the subtitle and each tag of the identity header and the title of the label for the tests", () => {
+      const element = compileWith(["1"]);
+
+      expect(header(element).find(hook(TestIds.sidePanelTitle)).text()).toBe("Javier García");
+      expect(header(element).find(hook(TestIds.sidePanelSubtitle)).text()).toBe("jgarcia · Operator");
+      const tags = header(element).find(hook(TestIds.sidePanelTag));
+      expect(tags.length).toBe(2);
+      expect(tags.eq(0).text().trim()).toBe("Locked");
+      expect(tags.eq(1).text().trim()).toBe("Two-factor on");
+
+      const label = compileWith([]);
+      expect(header(label).find(hook(TestIds.sidePanelTitle)).text()).toContain("PANEL_TITLE");
+      expect(header(label).find(hook(TestIds.sidePanelSubtitle)).length).toBe(0);
+      expect(header(label).find(hook(TestIds.sidePanelTag)).length).toBe(0);
+    });
+
+    it("shows the label and the icon of the panel with no selected row or several", () => {
+      [null, [], ["1", "2"]].forEach(selected => {
+        const element = compileWith(selected);
+
+        expect(header(element).find(".panel-identity").length).toBe(0);
+        expect(header(element).find(".modal-title").text()).toContain("PANEL_TITLE");
+        expect(header(element).find(".modal-title .panel-title-icon").length).toBe(1);
+        expect(header(element).find(".modal-title").attr("id")).toBe("Pnl-title");
+        expect(dialog(element).attr("aria-labelledby")).toBe("Pnl-title");
+      });
+    });
+
+    it("follows the selected row while it is open, hiding the tags with an empty value", () => {
+      const element = compileWith(["1"]);
+
+      grid.selected = ["2"];
+      refs.$rootScope.$digest();
+
+      const identity = header(element).find(".panel-identity");
+      expect(identity.find(".panel-identity-title").text()).toBe("Ana Ruiz");
+      expect(identity.find(".panel-identity-avatar").text()).toBe("AR");
+      expect(identity.find(".panel-identity-avatar").hasClass("awe-cell-avatar-neutral")).toBe(true);
+      const tags = identity.find(".panel-identity-tags > .awe-cell-status");
+      expect(tags.length).toBe(1);
+      expect(tags.eq(0).text().trim()).toBe("Active");
+      expect(tags.eq(0).hasClass("awe-cell-status-success")).toBe(true);
+
+      grid.selected = null;
+      refs.$rootScope.$digest();
+      expect(header(element).find(".panel-identity").length).toBe(0);
+      expect(header(element).find(".modal-title").text()).toContain("PANEL_TITLE");
+    });
+
+    it("does not change without header-grid, even with a selected row in the screen", () => {
+      const element = compileWith(["1"], {});
+
+      expect(header(element).find(".panel-identity").length).toBe(0);
+      expect(header(element).find(".modal-title").text()).toContain("PANEL_TITLE");
+      expect(header(element).find(".modal-title").attr("id")).toBeUndefined();
+      expect(dialog(element).attr("aria-labelledby")).toBeUndefined();
+    });
+  });
+
   describe("dialog (shares the opening and closing)", () => {
     it("opens with a new action stack and the modal shown", () => {
       const element = compile("awe-dialog");

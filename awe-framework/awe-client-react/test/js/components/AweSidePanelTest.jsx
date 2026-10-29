@@ -47,6 +47,24 @@ describe("awe-react-client/test/js/components/AweSidePanelTest.jsx", () => {
     expect(panel().textContent).toContain("inside");
   });
 
+  it("shows the icon of the panel before its title, as a decorative icon (#793)", () => {
+    renderPanel({ label: "User", icon: "user" });
+
+    const title = panel().querySelector(".side-panel-title");
+    const icon = title.querySelector(".panel-title-icon");
+    expect(icon).not.toBeNull();
+    expect(icon).toBe(title.firstElementChild);
+    expect(icon.getAttribute("aria-hidden")).toBe("true");
+    expect(icon.querySelector("svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#user");
+    expect(title.textContent).toBe("User");
+  });
+
+  it("shows only the title without an icon", () => {
+    renderPanel({ label: "Details" });
+
+    expect(panel().querySelector(".side-panel-title").innerHTML).toBe("Details");
+  });
+
   it("is anchored to the right edge by default", () => {
     renderPanel();
 
@@ -115,6 +133,123 @@ describe("awe-react-client/test/js/components/AweSidePanelTest.jsx", () => {
     const { store } = renderPanel({ deferred: true });
 
     expect(store.getState().components.panel.attributes.deferredLoaded).toBe(true);
+  });
+
+  // Identity header (#793 S18): while exactly one row of header-grid is selected, the header shows that row
+  describe("identity header", () => {
+    const HEADER = { headerGrid: "GrdUsr", headerTitleField: "FulNam", headerSubtitleField: "UsrPro", headerAvatarField: "Ini",
+      headerAvatarToneField: "IniTon", headerTags: [
+        { field: "StaTxt", toneField: "StaTon" },
+        { field: "2faHdr", toneField: "2faTon", iconField: "2faIcn" }
+      ] };
+    const rows = (selected) => [
+      { id: "1", FulNam: "Javier García", UsrPro: "jgarcia · Operator", Ini: "Javier García", IniTon: "warning",
+        StaTxt: "Locked", StaTon: "danger", "2faHdr": "Two-factor on", "2faTon": "neutral", "2faIcn": "lucide:shield-check" },
+      { id: "2", FulNam: { value: "ana", label: "Ana Ruiz" }, UsrPro: "ana", Ini: "Ana Ruiz", IniTon: "unknown",
+        StaTxt: "Active", StaTon: "success", "2faHdr": "", "2faTon": "neutral", "2faIcn": "" }
+    ].map(row => ({ ...row, selected: selected.includes(row.id) }));
+    const gridAddress = { component: "GrdUsr", view: "report" };
+    const renderIdentity = (selected, attributes = HEADER) => {
+      const state = stateWith({ label: "User", icon: "user", ...attributes });
+      state.components.GrdUsr = {
+        address: gridAddress,
+        model: { values: rows(selected) },
+        attributes: { columnModel: [{ name: "FulNam" }] },
+        specificAttributes: {},
+        actions: []
+      };
+      return renderWithProviders(
+        <AweSidePanel id="panel" elementList={[{ elementType: "Tag", type: "div", label: "inside", elementList: [] }]}/>,
+        { preloadedState: state }
+      );
+    };
+    const identity = () => panel().querySelector(".panel-identity");
+
+    it("shows the avatar, the title, the subtitle and the tags of the selected row", () => {
+      renderIdentity(["1"]);
+
+      expect(identity()).not.toBeNull();
+      expect(panel().querySelector(".side-panel-title")).toBeNull();
+      const avatar = identity().querySelector(".panel-identity-avatar");
+      expect(avatar.textContent).toBe("JG");
+      expect(avatar.classList.contains("awe-cell-avatar")).toBe(true);
+      expect(avatar.classList.contains("awe-cell-avatar-warning")).toBe(true);
+      expect(avatar.getAttribute("aria-hidden")).toBe("true");
+      const title = identity().querySelector(".panel-identity-title");
+      expect(title.textContent).toBe("Javier García");
+      expect(title.id).toBe("panel-title");
+      expect(panel().getAttribute("aria-labelledby")).toBe("panel-title");
+      expect(identity().querySelector(".panel-identity-subtitle").textContent).toBe("jgarcia · Operator");
+      const tags = identity().querySelectorAll(".panel-identity-tags > .awe-cell-status");
+      expect(tags).toHaveLength(2);
+      expect(tags[0].textContent).toBe("Locked");
+      expect(tags[0].classList.contains("awe-cell-status-danger")).toBe(true);
+      expect(tags[0].classList.contains("awe-cell-status-plain")).toBe(false);
+      expect(tags[1].textContent).toBe("Two-factor on");
+      expect(tags[1].classList.contains("awe-cell-status-plain")).toBe(true);
+      expect(tags[1].querySelector(".awe-cell-icon[aria-hidden='true'] use").getAttribute("href")).toContain("shield-check");
+    });
+
+    it("marks the title, the subtitle and each tag of the identity header for the tests", () => {
+      renderIdentity(["1"]);
+
+      expect(panel().querySelector("[data-testid='side-panel-title']").textContent).toBe("Javier García");
+      expect(panel().querySelector("[data-testid='side-panel-subtitle']").textContent).toBe("jgarcia · Operator");
+      const tags = panel().querySelectorAll("[data-testid='side-panel-tag']");
+      expect(tags).toHaveLength(2);
+      expect(tags[0].textContent).toBe("Locked");
+      expect(tags[1].textContent).toBe("Two-factor on");
+    });
+
+    it("marks the title of the label for the tests without a selected row", () => {
+      renderIdentity([]);
+
+      expect(panel().querySelector("[data-testid='side-panel-title']").textContent).toBe("User");
+      expect(panel().querySelector("[data-testid='side-panel-subtitle']")).toBeNull();
+      expect(panel().querySelector("[data-testid='side-panel-tag']")).toBeNull();
+    });
+
+    it.each([[[]], [["1", "2"]]])("shows the label and the icon of the panel with the selected rows %j", (selected) => {
+      renderIdentity(selected);
+
+      expect(identity()).toBeNull();
+      const title = panel().querySelector(".side-panel-title");
+      expect(title.textContent).toBe("User");
+      expect(title.querySelector(".panel-title-icon")).not.toBeNull();
+      expect(title.id).toBe("panel-title");
+      expect(panel().getAttribute("aria-labelledby")).toBe("panel-title");
+    });
+
+    it("follows the selected row while it is open, hiding the tags with an empty value", () => {
+      const { store } = renderIdentity(["1"]);
+
+      act(() => {
+        store.dispatch({ type: "UPDATE_MODEL", address: gridAddress, data: { selected: ["2"] } });
+      });
+
+      expect(identity().querySelector(".panel-identity-title").textContent).toBe("Ana Ruiz");
+      expect(identity().querySelector(".panel-identity-avatar").textContent).toBe("AR");
+      expect(identity().querySelector(".panel-identity-avatar").classList.contains("awe-cell-avatar-neutral")).toBe(true);
+      const tags = identity().querySelectorAll(".panel-identity-tags > .awe-cell-status");
+      expect(tags).toHaveLength(1);
+      expect(tags[0].textContent).toBe("Active");
+      expect(tags[0].classList.contains("awe-cell-status-success")).toBe(true);
+
+      act(() => {
+        store.dispatch({ type: "UPDATE_MODEL", address: gridAddress, data: { selected: [] } });
+      });
+      expect(identity()).toBeNull();
+      expect(panel().querySelector(".side-panel-title").textContent).toBe("User");
+    });
+
+    it("does not change without header-grid, even with a selected row in the screen", () => {
+      renderIdentity(["1"], {});
+
+      expect(identity()).toBeNull();
+      expect(panel().querySelector(".side-panel-title").textContent).toBe("User");
+      expect(panel().querySelector(".side-panel-title").id).toBe("");
+      expect(panel().hasAttribute("aria-labelledby")).toBe(false);
+    });
   });
 
   describe("focus", () => {

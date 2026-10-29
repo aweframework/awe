@@ -31,8 +31,9 @@ describe('AWE 5 criteria styles (#885)', () => {
   });
 
   it.each(CRITERIA_STYLES)('styles %s with tokens only: no colour literals, sizes or mode selectors', file => {
-    // The breakpoints of the column grid are LESS variables of the media queries (a media query cannot read a token)
-    const css = withoutComments(read(file)).replace(/@media[^{]*/g, '').replace(/^@(sm|md|lg|xl):[^;]*;/gm, '');
+    // The breakpoints of the column grid are LESS variables of the media queries, and the width of a container query
+    // is written in it (neither a media query nor a container query can read a token)
+    const css = withoutComments(read(file)).replace(/@(media|container)[^{]*/g, '').replace(/^@(sm|md|lg|xl):[^;]*;/gm, '');
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(css).not.toMatch(/\b(rgba?|hsla?|oklch|color-mix)\(/);
     expect(css).not.toMatch(/:\s*(white|black)\b/);
@@ -42,6 +43,56 @@ describe('AWE 5 criteria styles (#885)', () => {
     expect(css).not.toMatch(/\.dark\b|\.light\b|data-awe-density|prefers-color-scheme|layout-(dark|light)/);
     (css.match(/var\(--[\w-]+/g) || []).forEach(variable => expect(variable).toMatch(/^var\(--(awe-|_)/));
     expect(css).not.toMatch(/var\(--awe-palette-/);
+  });
+
+  it('draws the handle of a checked switch as the design system switch, and stops it with reduced motion (#793 S19)', () => {
+    const handle = rule(criterion, '.field .field-checkbox .p-inputswitch .p-inputswitch-slider:before');
+    expect(handle).toMatch(/box-shadow: var\(--awe-shadow-sm\);/);
+    expect(rule(criterion, '.field .field-checkbox .p-inputswitch.p-highlight .p-inputswitch-slider:before'))
+      .toMatch(/background: var\(--awe-color-on-primary\);/);
+    const reduced = withoutComments(criterion).match(/@media \(prefers-reduced-motion: reduce\)\s*\{([^@]*?\}\s*)\}/g) || [];
+    expect(reduced.some(block => /\.p-inputswitch-slider[^{]*\{[^}]*transition: none;/.test(block))).toBe(true);
+  });
+
+  it('draws the eye button of a password at the end of the field, as an icon-only ghost button (#793 S17)', () => {
+    const toggle = rule(criterion, '.p-inputgroup > .password-toggle');
+    expect(toggle).toMatch(/position: absolute;/);
+    expect(toggle).toMatch(/inset-inline-end: var\(--awe-space-1\);/);
+    expect(toggle).toMatch(/width: var\(--awe-size-control-sm\);/);
+    expect(toggle).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(toggle).toMatch(/color: var\(--awe-color-field-icon\);/);
+    expect(toggle).toMatch(/background: none;/);
+    expect(toggle).toMatch(/border: 0;/);
+    expect(toggle).toMatch(/border-radius: var\(--awe-radius-sm\);/);
+    // Over the focused field (PrimeReact raises a focused field of an input group to z-index 1)
+    expect(toggle).toMatch(/z-index: 2;/);
+    const hover = rule(criterion, '.p-inputgroup > .password-toggle:hover:not(:disabled)');
+    expect(hover).toMatch(/color: var\(--awe-color-text\);/);
+    expect(hover).toMatch(/background: var\(--awe-color-surface-hover\);/);
+    expect(rule(criterion, '.p-inputgroup > .password-toggle:focus-visible')).toMatch(/outline: var\(--awe-focus-ring\);/);
+    const disabled = rule(criterion, '.p-inputgroup > .password-toggle:disabled');
+    expect(disabled).toMatch(/cursor: not-allowed;/);
+    expect(disabled).toMatch(/opacity: var\(--awe-opacity-disabled\);/);
+    // The text never runs under the button, nor under the Caps Lock icon on its left
+    expect(rule(criterion, '.p-inputtext.password-field'))
+      .toMatch(/padding-inline-end: calc\(var\(--awe-size-control-sm\) \+ 2 \* var\(--awe-space-1\)\);/);
+    expect(rule(criterion, '.p-inputtext.password-field.caps-lock'))
+      .toMatch(/padding-inline-end: calc\(var\(--awe-size-control-sm\) \+ 3 \* var\(--awe-space-1\) \+ var\(--awe-size-icon\)\);/);
+    expect(rule(criterion, '.p-inputgroup .password-field ~ .caps-lock-icon'))
+      .toMatch(/inset-inline-end: calc\(var\(--awe-size-control-sm\) \+ 2 \* var\(--awe-space-1\)\);/);
+  });
+
+  it('hides the eye button of a password in a field too narrow to hold it without covering the text (#793 S17)', () => {
+    // The input group of a password is the container its width is measured against
+    expect(rule(criterion, '.p-inputgroup:has(> .password-toggle)')).toMatch(/container-type: inline-size;/);
+    const narrow = withoutComments(criterion).match(/@container \(width < 6rem\) \{([^]*?)\n\}/);
+    expect(narrow).not.toBeNull();
+    expect(rule(narrow[1], '.p-inputgroup > .password-toggle')).toMatch(/display: none;/);
+    // The field gets back the end padding of a plain field, and the Caps Lock icon its place at the end
+    expect(rule(narrow[1], '.p-inputtext.password-field')).toMatch(/padding-inline-end: var\(--awe-field-padding-x\);/);
+    expect(rule(narrow[1], '.p-inputtext.password-field.caps-lock'))
+      .toMatch(/padding-inline-end: calc\(2 \* var\(--awe-field-padding-x\) \+ var\(--awe-size-icon\)\);/);
+    expect(rule(narrow[1], '.p-inputgroup .password-field ~ .caps-lock-icon')).toMatch(/inset-inline-end: var\(--awe-field-padding-x\);/);
   });
 
   it('spaces the criteria with the form gaps of the density', () => {
