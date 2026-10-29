@@ -124,8 +124,8 @@ export function updateModel(state: ComponentsState, address: ComponentAddress, d
     newModel = getGridModelUpdate(state, address, data, update);
   } else if (isGridComponent(component) && data.selected) {
     newModel = updateSelectedGrid(state, component?.model?.values || [], address, data);
-  } else if (isGroup(component!)) {
-    newModel = getGroupModelUpdate(state, address?.view, component!.attributes?.group, data);
+  } else if (isGroup(component)) {
+    newModel = getGroupModelUpdate(state, address?.view, component?.attributes?.group, data);
   } else {
     newModel = getModelUpdate(state, address, data);
   }
@@ -193,12 +193,20 @@ export function getSelectedUpdate(state: ComponentsState, address: ComponentAddr
   const componentId = resolveComponentId(address);
   const component = getMergedComponent(componentId, state);
 
-  const values = (component?.model?.values) || [];
+  // As the AngularJS client does, a selection on a component that is not on the screen is ignored
+  if (!component) {
+    // Deliberate debug trace: a developer can find out why the selection did nothing
+    // eslint-disable-next-line no-console
+    console.debug(`[MODEL] Selection ignored, '${componentId}' is not on screen`, address);
+    return null;
+  }
+
+  const values = (component.model?.values) || [];
   const selected = asArray(data.selected);
   if (isGridComponent(component)) {
     return updateSelectedGrid(state, values, address, { selected });
-  } else if (isGroup(component!)) {
-    return updateSelectedGroup(state, values, address?.view, component!.attributes?.group, selected);
+  } else if (isGroup(component)) {
+    return updateSelectedGroup(state, values, address?.view, component.attributes?.group, selected);
   } else {
     return updateSelectedComponent(state, values, address, selected);
   }
