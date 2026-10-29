@@ -258,7 +258,7 @@ public class ScreenModelGenerator extends ServiceConfig {
         String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", entry.getKey());
         data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
         log.error(errorMessage, exc);
-        Thread.currentThread().interrupt();
+        restoreInterruptFlag(exc);
       }
     }
   }
@@ -281,6 +281,18 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
       log.error("{}{}", errorMessage, screen, exc);
+      restoreInterruptFlag(exc);
+    }
+  }
+
+  /**
+   * Restore the interrupt flag of the request thread only when it was really interrupted. Re-interrupting after an
+   * ordinary failure leaves the flag set and the servlet container cannot write the response (#894).
+   *
+   * @param exc Caught exception
+   */
+  private void restoreInterruptFlag(Exception exc) {
+    if (exc instanceof InterruptedException) {
       Thread.currentThread().interrupt();
     }
   }
@@ -361,7 +373,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
-      Thread.currentThread().interrupt();
+      restoreInterruptFlag(exc);
     }
   }
 
@@ -460,7 +472,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
-      Thread.currentThread().interrupt();
+      restoreInterruptFlag(exc);
     }
   }
 

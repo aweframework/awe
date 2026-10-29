@@ -280,9 +280,11 @@ public class MenuScreenResolver extends ServiceConfig {
 
         // Set data into panelable
         panelable.setTabValues(panelableData);
-      } catch (Exception exc) {
+      } catch (InterruptedException exc) {
         log.error(getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", panelable.getTargetAction()), exc);
         Thread.currentThread().interrupt();
+      } catch (Exception exc) {
+        log.error(getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", panelable.getTargetAction()), exc);
       }
     }
   }

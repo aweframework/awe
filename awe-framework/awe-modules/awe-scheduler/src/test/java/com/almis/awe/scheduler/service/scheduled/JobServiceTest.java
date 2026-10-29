@@ -14,10 +14,13 @@ import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
+import com.almis.awe.scheduler.enums.TaskStatus;
+import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import com.almis.awe.scheduler.log.ExecutionKey;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -34,10 +37,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +51,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -81,6 +87,47 @@ class JobServiceTest {
     jobService.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     return jobService;
+  }
+
+  @AfterEach
+  void clearInterruptFlag() {
+    Thread.interrupted();
+  }
+
+  @Test
+  void launchBatchDoesNotInterruptTheWorkerThreadWhenTheTimeoutCancelsTheProcess() throws Exception {
+    TestJobService jobService = service();
+    Task task = new Task().setTaskId(8);
+    TaskExecution execution = new TaskExecution().setTaskId(8).setExecutionId(2);
+    SchedulerJob job = mock(SchedulerJob.class);
+    doReturn(task).when(job).getTask();
+    doReturn(execution).when(job).getExecution();
+    @SuppressWarnings("unchecked")
+    Future<ServiceData> process = mock(Future.class);
+    doThrow(new CancellationException("timeout")).when(process).get();
+
+    jobService.launchBatch(job, process);
+
+    assertEquals(TaskStatus.JOB_INTERRUPTED, task.getStatus());
+    assertFalse(Thread.currentThread().isInterrupted());
+  }
+
+  @Test
+  void launchBatchRestoresTheInterruptFlagWhenTheWorkerThreadIsInterrupted() throws Exception {
+    TestJobService jobService = service();
+    Task task = new Task().setTaskId(8);
+    TaskExecution execution = new TaskExecution().setTaskId(8).setExecutionId(2);
+    SchedulerJob job = mock(SchedulerJob.class);
+    doReturn(task).when(job).getTask();
+    doReturn(execution).when(job).getExecution();
+    @SuppressWarnings("unchecked")
+    Future<ServiceData> process = mock(Future.class);
+    doThrow(new InterruptedException("interrupted")).when(process).get();
+
+    jobService.launchBatch(job, process);
+
+    assertEquals(TaskStatus.JOB_INTERRUPTED, task.getStatus());
+    assertTrue(Thread.currentThread().isInterrupted());
   }
 
   @Test

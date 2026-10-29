@@ -181,10 +181,12 @@ public class TemplateService extends ServiceConfig {
     for (Future<ST> content : contents) {
       try {
         applicationTemplate.add(AweConstants.TEMPLATE_CONTENT, content.get());
+      } catch (InterruptedException exc) {
+        log.error("Error generating application help", exc);
+        Thread.currentThread().interrupt();
       } catch (Exception exc) {
         // Only show a log if a screen fails
         log.error("Error generating application help", exc);
-        Thread.currentThread().interrupt();
       }
     }
 
