@@ -169,6 +169,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Month picker and date formats | #820 | Done | See Dates and times. |
 | Date range with shortcuts | #839 | Done | See Dates and times. |
 | Uploader with drop zone, preview and camera | #841 | Done | See Uploader. |
+| Section title | #910 | Done | A small uppercase muted label followed by a line that fills the row splits a long form into sections: the `awe-section-title` style of a tag, best on a heading (`<tag type="h3" style="awe-section-title" label="..."/>`). |
 | Reveal the first invalid field across tabs | #827 | Done | On validation, open the tab with the first error, mark the tab, focus the field, show a summary with "Go to field". |
 | Required to save vs. required to finish | #840 | Planned | `*` blocks saving; a second marker (diamond, warning tone, dashed border) is needed to finish; a pending list with links; Save draft stays enabled. |
 | Advanced search | #790 | Planned | Conditions (field, operator, value), nested All/Any groups, saved searches per user. |

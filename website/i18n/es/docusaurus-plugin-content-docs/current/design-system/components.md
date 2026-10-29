@@ -173,6 +173,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Selector de mes y formatos de fecha | #820 | Done | Ver Fechas y horas. |
 | Rango de fechas con atajos | #839 | Done | Ver Fechas y horas. |
 | Subida con zona de arrastre, vista previa y cámara | #841 | Done | Ver Subida de ficheros. |
+| Título de sección | #910 | Done | Una etiqueta pequeña en mayúsculas y atenuada, seguida de una línea que ocupa el resto de la fila, divide un formulario largo en secciones: el estilo `awe-section-title` de un tag, mejor en un encabezado (`<tag type="h3" style="awe-section-title" label="..."/>`). |
 | Ir al primer campo con error entre pestañas | #827 | Done | Al validar, abrir la pestaña con el primer error, marcar la pestaña, enfocar el campo y mostrar un resumen con "Go to field". |
 | Obligatorio para guardar frente a obligatorio para terminar | #840 | Planned | `*` impide guardar; una segunda marca (rombo, tono de aviso, borde discontinuo) es necesaria para terminar; una lista de pendientes con enlaces; Guardar borrador sigue habilitado. |
 | Búsqueda avanzada | #790 | Planned | Condiciones (campo, operador, valor), grupos anidados Todas/Alguna, búsquedas guardadas por usuario. |

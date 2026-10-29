@@ -7,6 +7,7 @@ import {translateLabel} from "../utilities";
 import {isLoginPage} from "../utilities/signin";
 import SigninPage, {useSigninPart} from "./SigninPage";
 import PropTypes from "prop-types";
+import "./Tag.less";
 
 function Tag(props) {
   const {type, id, style, label, expand, elementList, value} = props;
