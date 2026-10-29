@@ -136,15 +136,49 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
       expect(style(".modal-backdrop.fade", REDUCED_MOTION)).toMatchObject({"transition": "none"});
     });
 
+    it("draws the identity header of a side panel as the design: large avatar, title, muted subtitle and tags (#793 S18)", () => {
+      expect(style(".modal.side-panel .panel-identity")).toMatchObject({
+        "display": "flex",
+        "align-items": "center",
+        "gap": "var(--awe-space-3)"
+      });
+      expect(style(".modal.side-panel .panel-identity-avatar")).toMatchObject({
+        "width": "var(--awe-space-10)",
+        "height": "var(--awe-space-10)",
+        "font-size": "var(--awe-font-size-sm)"
+      });
+      expect(style(".modal.side-panel .panel-identity-title")).toMatchObject({
+        "margin": "0",
+        "font-size": "var(--awe-font-size-dialog-title)",
+        "font-weight": "var(--awe-font-weight-semibold)",
+        "color": "var(--awe-color-text-emphasis)"
+      });
+      expect(style(".modal.side-panel .panel-identity-subtitle")).toMatchObject({
+        "font-size": "var(--awe-font-size-sm)",
+        "color": "var(--awe-color-text-muted)"
+      });
+      expect(style(".modal.side-panel .panel-identity-tags")).toMatchObject({
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "gap": "var(--awe-space-1-5)",
+        "margin-top": "var(--awe-space-1)"
+      });
+    });
+
     it("keeps the side panels and the popover containers opaque under their sticky footer", () => {
       expect(style(".modal.side-panel .modal-content")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",
         "box-shadow": "var(--awe-shadow-modal)",
         "border-radius": "0"
       });
+      // The content of the body keeps its height and the body scrolls: shrunk, the content overflowed its box and the
+      // sticky footer, placed after the box, left the last fields under it (#793)
+      expect(style(".modal.side-panel .side-panel-body > *")).toMatchObject({"flex-shrink": "0"});
       expect(style(".modal.side-panel .modal-footer")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",
-        "border-radius": "0"
+        "border-radius": "0",
+        // Above the icons of the fields that scroll under it (a suggest or select arrow has z-index 1) (#793)
+        "z-index": "2"
       });
       expect(style(".awe-popover")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",

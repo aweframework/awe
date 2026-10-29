@@ -84,10 +84,12 @@ export interface AbstractGrid extends AbstractCriteria {
     multioperation?: boolean;
     multiselect?: boolean;
     pagerValues?: number[];
+    quickFilter?: string;
     rowDetail?: { [index: string]: any };
     rowHeight?: string;
     rowNumbers?: boolean;
     screenId?: string;
+    search?: string;
     sendAll?: boolean;
     showToolbar?: boolean;
     showTotals?: boolean;
@@ -130,6 +132,7 @@ export interface Avatar extends AbstractButton {
 }
 
 export interface Button extends AbstractButton {
+    selection?: boolean;
     showLoading?: boolean;
 }
 
@@ -234,6 +237,8 @@ export interface ClientAction extends Copyable {
 export interface Column extends AbstractCriteria {
     actions?: ButtonAction[];
     align?: string;
+    avatarField?: string;
+    avatarToneField?: string;
     charlength?: number;
     chips?: boolean;
     chipSeparator?: string;
@@ -243,6 +248,7 @@ export interface Column extends AbstractCriteria {
     formatter?: string;
     frozen?: boolean;
     hidden?: boolean;
+    iconField?: string;
     maxChips?: number;
     maxLines?: number;
     movable?: boolean;
@@ -416,6 +422,9 @@ export interface GridColumnLayout {
     order?: string[];
 }
 
+export interface GridSearch extends AbstractCriteria {
+}
+
 export interface GroupHeader extends Element {
     columnNames?: string[];
     numberOfColumns?: number;
@@ -499,6 +508,9 @@ export interface Popover extends Dialog {
     position?: string;
 }
 
+export interface QuickFilter extends AbstractCriteria {
+}
+
 export interface Resizable extends Component {
     directions?: string;
 }
@@ -575,8 +587,20 @@ export interface SeriesTypeResolver {
 }
 
 export interface SidePanel extends Dialog {
+    headerAvatarField?: string;
+    headerAvatarToneField?: string;
+    headerGrid?: string;
+    headerSubtitleField?: string;
+    headerTags?: SidePanelHeaderTag[];
+    headerTitleField?: string;
     maxWidth?: string;
     position?: string;
+}
+
+export interface SidePanelHeaderTag extends Element {
+    field?: string;
+    iconField?: string;
+    toneField?: string;
 }
 
 export interface SortColumn {

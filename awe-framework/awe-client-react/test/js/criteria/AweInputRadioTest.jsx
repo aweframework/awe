@@ -34,4 +34,9 @@ describe('awe-react-client/test/js/criteria/AweInputRadioTest.jsx', () => {
     expect(await screen.findByText("test")).not.toBeNull();
   });
 
+  it('keeps an empty label row above the radio, as the AngularJS engine (#793)', () => {
+    const {container} = renderWithProviders(<AweInputRadio id="radio"/>, {preloadedState});
+
+    expect(container.querySelector('.field > div.block[aria-hidden="true"]')).not.toBeNull();
+  });
 });

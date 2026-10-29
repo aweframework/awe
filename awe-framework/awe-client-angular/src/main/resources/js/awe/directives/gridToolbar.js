@@ -2,6 +2,8 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {createFocusTrap} from "../services/focusTrap";
 import {iconMarkup, iconTemplate} from "../services/icon";
+import "./gridQuickFilter";
+import "./gridSearch";
 
 // Space between the Columns button and the popover, and between the popover and the edges of the window
 const GAP = 8;
@@ -18,13 +20,19 @@ const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen
   </div>`;
 
 // The Columns (popover, dialog or side panel) are aria-busy while Save or Restore default wait for the server
+// The search, the quick filters and the row grouping controls (#833) of the grid go first, then a spacer and the Columns
+// and Maximize buttons at the end. The grouping controls, the Columns and Maximize buttons are hidden when the grid opts
+// out of them (show-toolbar="false"), which shows the toolbar only for its search and quick filters
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
-  <awe-grid-group-by ng-if="::component.groupingConfigured" class="grid-group-by"></awe-grid-group-by>
-  <button type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
+  <awe-grid-search ng-if="component.controller.search" search-id="{{::component.controller.search}}" grid-id="{{::component.address.component}}"></awe-grid-search>
+  <awe-grid-quick-filter ng-if="component.controller.quickFilter" quick-filter-id="{{::component.controller.quickFilter}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
+  <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
+  <span ng-if="component.controller.showToolbar !== false" class="grid-toolbar-spacer" aria-hidden="true"></span>
+  <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
   </button>
-  <button type="button" class="btn-awe btn-default grid-toolbar-button grid-maximize-button" data-testid="${TestIds.gridMaximizeButton}" ng-attr-aria-pressed="{{maximized === true}}" title="{{(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE') | translateMultiple}}" ng-click="toggleMaximize()">
+  <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-maximize-button" data-testid="${TestIds.gridMaximizeButton}" ng-attr-aria-pressed="{{maximized === true}}" title="{{(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE') | translateMultiple}}" ng-click="toggleMaximize()">
     <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
     <span class="button-text" translate-multiple="{{iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE'}}"></span>
   </button>

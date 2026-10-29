@@ -24,7 +24,7 @@ function AweInputCheckbox(props) {
 
   if (isSwitch) {
     return (
-      <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check">
+      <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check" labelRow>
         <div className="field-checkbox">
           <InputSwitch
             inputId={address?.component}
@@ -43,7 +43,7 @@ function AweInputCheckbox(props) {
   }
 
   return (
-    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check">
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check" labelRow>
       <div className="field-checkbox">
         <Checkbox
           inputId={address?.component}

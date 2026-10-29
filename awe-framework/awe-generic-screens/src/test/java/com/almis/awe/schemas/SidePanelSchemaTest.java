@@ -81,4 +81,26 @@ class SidePanelSchemaTest {
     assertThatThrownBy(() -> validate("<side-panel id=\"Pnl\" position=\"top\"/>"))
       .hasMessageContaining("top");
   }
+
+  @Test
+  void acceptsTheIdentityHeaderWithItsTagsAmongTheChildren() {
+    assertThatCode(() -> validate("<side-panel id=\"Pnl\" label=\"LABEL\" icon=\"user\" header-grid=\"Grd\" " +
+      "header-title-field=\"FulNam\" header-subtitle-field=\"UsrPro\" header-avatar-field=\"Ini\" header-avatar-tone-field=\"IniTon\">" +
+      "<header-tag field=\"StaTxt\" tone-field=\"StaTon\"/>" +
+      "<header-tag field=\"2faHdr\" tone-field=\"2faTon\" icon-field=\"2faIcn\"/>" +
+      "<tag type=\"div\" style=\"panel-body\"/><header-tag field=\"Other\"/><tag type=\"div\" style=\"modal-footer\"/></side-panel>"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void headerTagNeedsItsField() {
+    assertThatThrownBy(() -> validate("<side-panel id=\"Pnl\" header-grid=\"Grd\"><header-tag tone-field=\"StaTon\"/></side-panel>"))
+      .hasMessageContaining("field");
+  }
+
+  @Test
+  void headerTagIsOnlyAChildOfASidePanel() {
+    assertThatThrownBy(() -> validate("<window id=\"Win\"><header-tag field=\"StaTxt\"/></window>"))
+      .hasMessageContaining("header-tag");
+  }
 }

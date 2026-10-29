@@ -119,6 +119,12 @@ Basic text input, but the written characters are not shown to the user.
 While the caps lock is on, both engines mark the field with a warning color and an arrow icon. The state comes from the
 last key pressed on the page, so the warning shows even if the caps lock was switched on before the user reached the field.
 
+In both engines the field has a show / hide button at its right end (an eye icon, "Show password" / "Hide password"),
+reachable with the keyboard and disabled while the criterion is read-only. It only changes how the field is drawn: the
+value, the validation and the parameter sent stay the same. A field too narrow to hold the button without covering the
+text (under 6rem, as a password with a long left label in a narrow column) hides it. The sign-in page keeps its own
+button, and a password column of a grid has no button.
+
 ### Textarea criterion
 
 Criterion which allows the user to insert a large text and newlines.
@@ -321,6 +327,15 @@ To fill the picklist the component uses the following columns in a query:
 Shows a checkbox. It sends a `1` (or the value defined in the **[value](#general-attributes)** attribute) if it's checked or `0` if it is unchecked. 
 
 <img alt="Checkboxes" src={require('@docusaurus/useBaseUrl').default('img/Checkboxes.png')} />
+
+With `style="switch"` (it can be combined with the column classes, e.g. `style="col-xs-12 col-sm-6 switch"`) both
+engines draw the checkbox as a switch: a track with a handle and the label beside it. It sends the same values (`1`, or
+the **value** attribute, when on and `0` when off), the Space key toggles it, it is announced as a switch
+(`role="switch"`) with its state, and it is disabled while the criterion is read-only.
+
+```xml
+<criteria label="PARAMETER_ACTIVE" id="Sta" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch" />
+```
 
 ### Radio button criterion
 

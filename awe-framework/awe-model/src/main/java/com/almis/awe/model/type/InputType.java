@@ -45,5 +45,7 @@ public enum InputType {
   WIZARD,
   GRID,
   PICKLIST,
+  QUICK_FILTER,
+  GRID_SEARCH,
   OTHER
 }

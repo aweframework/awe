@@ -436,6 +436,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `clickButtonAndConfirm(String button)` | Hace clic en un botón, acepta el diálogo de confirmación y cierra el mensaje `success` |
 | `clickButtonAndConfirm(String button, String messageType)` | Igual, cerrando un mensaje de otro tipo |
 | `checkButtonVisible(String buttonId)` | Comprueba que un botón se muestra, sea cual sea su estado |
+| `checkButtonIconOnly(String buttonName, String accessibleName)` | Comprueba que un botón muestra solo su icono (estilo `no-label`): sin texto visible, y su nombre accesible (`aria-label`) es el indicado |
 | `checkButtonNotVisible(String buttonId)` | Comprueba que un botón no se muestra |
 | `checkButtonDisabled(String buttonId)` | Comprueba que un botón se muestra y está deshabilitado |
 | `checkButtonHasClass(String buttonId, String cssClass)` | Comprueba que un botón tiene una clase de estilo, como una añadida por una acción `add-class` |
@@ -482,6 +483,9 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkSidePanelClosed(String panelId)` | Comprueba que un panel lateral se ha cerrado |
 | `checkSidePanelOpen(String panelId, String position, String maxWidth)` | Comprueba que un panel lateral está abierto contra su borde (`left` o `right`) y tan ancho como su ancho máximo (una longitud css que resuelve el navegador, limitada por el ancho de la pantalla), con dos píxeles de margen |
 | `checkSidePanelKeepsTheFocus(String panelId, int presses)` | Pulsa Tab las veces indicadas y comprueba que el foco del teclado nunca sale del panel lateral |
+| `checkSidePanelTitle(String panelId, String text)` | Comprueba el título de la cabecera de un panel lateral: su etiqueta, o el título de su cabecera de identidad mientras hay una fila seleccionada de su `header-grid` |
+| `checkSidePanelSubtitle(String panelId, String text)` | Comprueba el subtítulo de la cabecera de identidad de un panel lateral |
+| `checkSidePanelTag(String panelId, String text)` | Comprueba que una de las etiquetas de la cabecera de identidad de un panel lateral tiene el texto (la etiqueta entera: `Active` no coincide con `Inactive`) |
 | `closePopover(String popoverId)` | Cierra un popover anclado a un control con el botón de cierre de su cabecera |
 | `closePopoverWithEscape(String popoverId)` | Cierra un popover abierto pulsando Esc y comprueba que se ha cerrado |
 | `checkPopoverClosed(String popoverId)` | Comprueba que un popover anclado a un control se ha cerrado |
@@ -594,6 +598,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `contextMenuOnTab(String tabId)` | Abre el menú contextual de un criterio de pestañas con un clic derecho sobre su lista de pestañas |
 | `contextMenuOnWizard(String wizardId)` | Abre el menú contextual de un *wizard* con un clic derecho sobre su paso activo |
 | `clickGridCellButton(String gridId, String rowId, String columnId)` | Pulsa el botón de una celda de un grid |
+| `clickGridRowButton(String gridId, String search, String columnId)` | Pulsa el botón de una columna en la fila de un grid que contiene un texto, como hace el usuario con una acción de fila (el lápiz de una fila): el botón selecciona su fila (solo ella) y lanza sus acciones |
 | `selectAllRowsOfGrid(String gridId)` | Selecciona todas las filas con el checkbox de la cabecera |
 | `checkAllRowsSelected(String gridId)` | Comprueba que todas las filas de un grid están seleccionadas |
 | `clickGridViewport(String gridId)` | Hace clic en la zona del grid que muestra las filas, fuera de cualquier fila |
@@ -650,6 +655,16 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridEmptyState(String title, String text)` | Comprueba que un grid sin filas muestra su estado vacío, con un título y un texto que contienen los indicados |
 | `checkGridEmptyStateNotVisible()` | Comprueba que ningún grid muestra su estado vacío |
 | `clickGridEmptyAction()` | Pulsa el botón que ofrece el estado vacío |
+| `searchGrid(String criterionName, String text)` | Sustituye el texto de la búsqueda de la barra de un grid (`<search>`) por el dado, pulsa Intro, que filtra el grid al momento, y espera a la carga |
+| `typeGridSearch(String criterionName, String text)` | Sustituye el texto de la búsqueda de un grid como lo teclea el usuario, sin Intro: el grid se filtra tras la pausa de la búsqueda, así que espera a sus filas (por ejemplo con `checkRowGone`) |
+| `clearGridSearch(String criterionName)` | Vacía la búsqueda de un grid con su botón de borrar, que filtra el grid al momento, y espera a la carga |
+| `checkGridSelectionBar(String gridId, String text)` | Comprueba que la barra de selección de un grid (sus botones con `selection="true"`) se muestra con el texto del número de filas seleccionadas, como `2 seleccionados` |
+| `checkGridSelectionBarNotVisible(String gridId)` | Comprueba que un grid no muestra su barra de selección: no tiene filas seleccionadas |
+| `clickGridSelectionButton(String gridId, String buttonName)` | Pulsa un botón de la barra de selección de un grid como lo hace el usuario: se lanzan sus acciones, y una confirmación queda abierta (acéptala con `acceptConfirm`) |
+| `checkGridQuickFilterOption(String criterionName, String value, String text)` | Comprueba el texto de una opción del filtro rápido de un grid (`<quick-filter>`): su etiqueta y su contador, como `Bloqueados 3`. Espera a que carguen los contadores. La opción se identifica por su valor (vacío para la que deja el grid sin filtrar) |
+| `clickGridQuickFilterOption(String criterionName, String value)` | Elige una opción del filtro rápido de un grid, que filtra el grid, y espera a la carga |
+| `checkGridQuickFilterOptionChosen(String criterionName, String value)` | Comprueba que una opción del filtro rápido de un grid es la elegida |
+| `checkRowGone(String gridId, String search)` | Espera a que un grid, una vez cargado, deje de mostrar un texto: un filtro del grid ha quitado la fila |
 | `clickGridRowDetailToggle(String gridId, String rowId)` | Pulsa el botón del detalle de una fila, que abre el detalle cuando está cerrado y lo cierra cuando está abierto |
 | `pressEnterOnGridRowDetailToggle(String gridId, String rowId)` | Da el foco al botón del detalle de una fila, como cuando el usuario llega a él con el tabulador, y pulsa Intro |
 | `pressSpaceOnGridRowDetailToggle(String gridId, String rowId)` | Da el foco al botón del detalle de una fila, como cuando el usuario llega a él con el tabulador, y pulsa la barra espaciadora |
@@ -874,6 +889,9 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 | `grid-loader` | Cargador del grid (también de la tabla dinámica) | Dentro del grid |
 | `grid-empty`, `grid-empty-title`, `grid-empty-text`, `grid-empty-action` | El estado vacío de un grid sin filas, su título, su texto y el botón que ofrece | Dentro del grid |
 | `grid-toolbar`, `grid-columns-button`, `grid-maximize-button` | La barra de herramientas de un grid (con `data-testid-owner` = id del grid, y `data-maximized`) y sus botones de columnas y maximizar | Dentro de la página |
+| `grid-search`, `grid-search-clear` | La búsqueda de la barra de un grid (con `criterion-id` y `data-testid-owner` = id del grid; su caja de texto es su `criterion-input`) y su botón de borrar, visible mientras tiene texto | Dentro de la barra |
+| `grid-selection-bar`, `grid-selection-count` | La barra de selección de un grid (con `data-testid-owner` = id del grid y `data-count` = número de filas seleccionadas; sus botones conservan sus ids) y su texto | Dentro del grid |
+| `grid-quick-filter`, `grid-quick-filter-option` | El filtro rápido de la barra de un grid (con `criterion-id` y `data-testid-owner` = id del grid) y cada una de sus opciones (`option-id` = su valor; su radio es su `criterion-input`) | Dentro de la barra |
 | `window`, `window-maximize-button` | Una ventana (con `data-testid-owner` = id de la ventana, y `data-maximized`) y su botón de maximizar | Dentro de la página |
 | `tabs`, `tab-maximize-button` | Un componente de pestañas completo, lista y contenido (con `data-testid-owner` = id de la pestaña, y `data-maximized`), y su botón de maximizar | Dentro de la página |
 | `grid-columns-dialog`, `grid-columns-counter`, `grid-columns-show-all`, `grid-columns-reset`, `grid-columns-save`, `grid-columns-close` | El diálogo de columnas de un grid (con `data-testid-owner` = id del grid), su contador «N de M visibles» (`data-visible`, `data-total`) y sus acciones | Dentro de la página |

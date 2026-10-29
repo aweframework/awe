@@ -125,7 +125,7 @@
   <xs:element name="pivot-table" type="pivotTableType" />
 
   <!-- Tag Element -->
-  <xs:element name="tag" type="elementType" />
+  <xs:element name="tag" type="htmlTagType" />
 
   <!-- Video Element -->
   <xs:element name="video" type="videoType" />
@@ -200,6 +200,27 @@
   <xs:element name="row-detail" type="rowDetailType">
     <xs:annotation>
       <xs:documentation xml:lang="en">Detail area of a grid row. A toggle at the start of each row opens it under the row, across the whole width of the grid; several rows can be open and a reload of the data closes them. The detail is either a template or components, never both. Template: its text, where each {name} placeholder is replaced with the field name of the row, also of hidden columns (the label of the cell when it has one); missing fields show nothing. The detail is plain text (HTML is shown as text) and keeps the line breaks. Use CDATA for multi-line templates. Components: a single read-only grid (no editable nor send-operations), inline or through an include whose source contains only that grid. Each open row gets its own instance of the grid, which loads only when the row is opened; its requests send every field of the parent row as [parent grid id].row.[field] (for example GrdProducts.row.id), so a query reads it with a variable of that name. The components of a row detail are not screen components: they cannot have dependencies (the screen fails to load) and cannot be the target of other components. Declare at most one per grid; only the first one is used. Supported by both client engines; tree grids do not show it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Quick filter Element -->
+  <xs:element name="quick-filter" type="quickFilterType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Quick filters of a grid: a group of buttons (a segmented control) at the start of the grid toolbar, one per option, such as All 128 · Locked 3 · Inactive 12. It is a criterion of the screen: its options come from its initial load (a query or an enumerated) with the fields value, label (a localization key), count (optional, shown after the label) and tone (optional, the colour of the count: danger, warning, success or info). Its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows; the option with an empty value (usually the first one, All) leaves the grid unfiltered. Choosing an option filters the grid with no dependency, and every filter of the grid (a search, a filter after a maintain, choosing an option) reloads the options too, so the counts stay current. The arrow keys move the choice. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Grid search Element -->
+  <xs:element name="search" type="gridSearchType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Search field of a grid: a text box with a search icon at the start of the grid toolbar, before the quick filters. It is a text criterion of the screen with no query of its own (no server-action nor target-action): its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows (usually with a like filter on several fields). Typing filters the grid after a short pause (300 ms); Enter filters it at once, and the clear button or Escape empties it and filters the grid again. As every filter of the grid, a search reloads the quick filter of the grid too, so its counts follow the search. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Side panel header tag Element -->
+  <xs:element name="header-tag" type="headerTagType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Tag of the identity header of a side panel (only inside a side-panel with header-grid): a field of the selected row of the header grid shown as a tag after the subtitle, in the order of the XML, with the look of the status cells of a grid (the tone of tone-field and a dot, or the icon of icon-field in place of the dot). A tag whose field is empty in the selected row is not shown. Supported by both client engines.</xs:documentation>
     </xs:annotation>
   </xs:element>
 
@@ -1261,6 +1282,11 @@
         <xs:documentation xml:lang="en">Icon shown in the cell (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Used by text-view and button columns; an icon or unit sent in the cell data overrides it.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tooltip of the buttons of a button column (a locale key); a title sent in the cell data overrides it. A cell button without label shows only its icon and the title is its accessible name. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="unit" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Unit text shown to the right of the cell value (text-view, numeric and text cells). A unit sent in the cell data overrides it.</xs:documentation>
@@ -1349,6 +1375,21 @@
     <xs:attribute name="max-chips" type="xs:positiveInteger">
       <xs:annotation>
         <xs:documentation xml:lang="en">Maximum number of chips of a chips column. The first N chips are shown plus a +n chip whose tooltip and accessible label list the hidden items. Default: all the chips.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="avatar-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the name (or the initials) the avatar is built from. The cell shows a small round avatar with its initials (the first letter of its first and its last word that start with a letter, in upper case) before the main value and its secondary line. An empty value shows no avatar. The avatar is decorative: sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="avatar-tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the tone of the avatar: primary, info, success, warning, danger or neutral. An unknown or empty tone is neutral. Only with avatar-field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with an icon (lucide:name, fa-name...) shown before the main value. With status-field the icon takes the place of the dot, so the status is a plain tag (a row without icon shows the tag without dot nor icon). The icon is decorative: the main value is the accessible text, and sorting, filtering, print and export use it. Ignored with chips="true" and in columns with a component.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="sort-field" type="xs:string">
@@ -1631,6 +1672,31 @@
         <xs:documentation xml:lang="en">Maximum width of the panel as a CSS length (480px, 30rem, 50vw...). The panel takes the width of the screen up to this maximum. Default: 40rem.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="header-grid" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identity header: id of a grid of the screen. While exactly one row of that grid is selected, the header of the panel shows that row (a large avatar, a title, a muted subtitle and the header-tag children) instead of the label and the icon; with no row or several rows selected it shows the label and the icon. The header follows the selected row while the panel is open, and the title is the accessible name of the panel. Without it the header does not change. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-title-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the title of the identity header (for example the full name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-subtitle-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the subtitle of the identity header, shown muted under the title. Not shown when empty.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-avatar-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid the avatar of the identity header is built from: its initials (the first letter of its first and last words), as the avatar-field of a grid column. Decorative. No avatar when it is empty.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-avatar-tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the tone of the avatar: primary, info, success, warning, danger or neutral (any other value, or none, is neutral).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Popover Attributes -->
@@ -1748,6 +1814,17 @@
     <xs:attributeGroup ref="elementAttr" />
   </xs:complexType>
 
+  <!-- HTML Tag Type (the tag element) -->
+  <xs:complexType name="htmlTagType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown before the label of the tag (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name), decorative. With style="section-title" a heading tag (h2, h3, h4) is the title of a section of a form: the icon and the label in one line, and a separator line above every section title but the first one of its container. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <!-- Element Type -->
   <xs:complexType name="videoType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
@@ -1861,6 +1938,11 @@
         <xs:documentation xml:lang="en">Busy state (true by default): when the action launched by the button is still running after a short time, the button shows a spinner instead of its icon until it ends. false turns it off.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="selection" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for the buttons of a grid (false by default). true makes it an action on the selected rows: it is not shown in the footer of the grid but in its selection bar, which appears between the toolbar and the header of the grid while one or more rows are selected, with the number of selected rows and these buttons in the order of the screen, small and at the right. The button keeps all its behaviour (actions, dependencies, confirmations). With style="btn-danger" it is the destructive action (Delete) and is drawn in the danger colour. In a grid without multiselect the bar shows the one selected row. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Context Button Type -->
@@ -1917,18 +1999,84 @@
   <!-- Grid Type -->
   <xs:complexType name="gridType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies and an optional row detail, in any order and number.</xs:documentation>
+      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies, an optional row detail, an optional quick filter and an optional search, in any order and number.</xs:documentation>
     </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element minOccurs="0" ref="group-header" />
       <xs:element minOccurs="0" ref="column" />
       <xs:element minOccurs="0" ref="row-detail" />
+      <xs:element minOccurs="0" ref="quick-filter" />
+      <xs:element minOccurs="0" ref="search" />
       <xs:element minOccurs="0" ref="button" />
       <xs:element minOccurs="0" ref="context-button" />
       <xs:element minOccurs="0" ref="context-separator" />
       <xs:element minOccurs="0" ref="dependency" />
     </xs:choice>
     <xs:attributeGroup ref="gridAttr" />
+  </xs:complexType>
+
+  <!-- Quick filter Type -->
+  <xs:complexType name="quickFilterType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of the quick filters of a grid. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the quick filter. It is also the name of the parameter that sends its value with the requests of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-load" use="required" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Where the options come from: query runs the target query (the usual case, to get the counts) and enum reads the target enumerated. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Query or enumerated that returns the options, one row per option with the fields value, label, count (optional) and tone (optional). The query receives the values of the screen, so its counts can follow the other filters of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action that reloads the options. Default: data.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Option chosen when the screen is opened. Default: empty, the option with an empty value (All); with no option of that value the first option is shown as chosen.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the group of buttons, read by screen readers (a localization key). It is not shown. Default: SCREEN_TEXT_FILTERS.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Grid search Type -->
+  <xs:complexType name="gridSearchType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of the search field of a grid. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the search. It is also the name of the parameter that sends its value with the requests of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="placeholder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown in the empty field, such as "User, name or email…" (a localization key).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the field, read by screen readers (a localization key). It is not shown. Default: BUTTON_SEARCH.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text of the field when the screen is opened. Default: empty, the grid unfiltered.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- PivotTable Type -->
@@ -2140,12 +2288,35 @@
 
   <!-- Side Panel Element -->
   <xs:complexType name="sidePanelType">
-    <xs:complexContent>
-      <xs:extension base="elementType">
-        <xs:attributeGroup ref="dialogAttr" />
-        <xs:attributeGroup ref="sidePanelAttr" />
-      </xs:extension>
-    </xs:complexContent>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="elementGroup" />
+      <xs:element ref="header-tag" />
+    </xs:choice>
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attributeGroup ref="dialogAttr" />
+    <xs:attributeGroup ref="sidePanelAttr" />
+  </xs:complexType>
+
+  <!-- Side panel header tag Type -->
+  <xs:complexType name="headerTagType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of a tag of the identity header of a side panel. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="field" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the text of the tag. The tag is not shown when it is empty. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the tone of the tag: success, warning, danger, info or neutral (any other value, or none, is neutral).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the icon of the tag (an icon name of the Icons page). With it the tag is plain: the icon, if the row has one, takes the place of the dot.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Popover Element -->

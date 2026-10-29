@@ -17,8 +17,22 @@ which has documentation about the full application (based on the menu).
 
 ## Users
 
-User screen allows you to define, update or delete the *users* who can access the application and their default options, 
-like language, mail server, default theme and initial screen.
+The *Users* option of the menu opens the user administration screen (`user-admin`): one screen to find the *users*
+who can access the application, review them, edit them and run the security tasks. It shows the users in a grid with
+their avatar, name, login and email, profile, state and two-factor state, with a search by name, login, email or
+profile and quick filters with their counts (*All*, *Locked*, *Without 2FA*, *Inactive*). Each row has an edit button
+and a menu (edit, unlock, reset the two-factor, delete), and the selected rows show a bar with their actions (reset the
+two-factor, delete). A side panel creates and edits a user, grouped in sections (identity, access, sign-in security,
+appearance and output), and shows the avatar, name and state of the user being edited.
+
+The screen reuses the queries and maintains of the users (`UsrLst`, `UsrNew`, `UsrUpd`, `UsrDel`, `reset2fa`), so an
+application that overrides them keeps its logic. Unlocking uses the `UsrUnl` maintain, which also audits the change.
+
+:::warning Deprecated
+The previous user screens (`Usr`, `UsrNew`, `UsrUpd` and `UsrViw`) are deprecated since AWE 5.0.0 and will be removed in
+the next minor release (5.1.0). Point your own menu options to the `user-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 <img alt="User screen" src={require('@docusaurus/useBaseUrl').default('img/UsersScreen.png')} />
 

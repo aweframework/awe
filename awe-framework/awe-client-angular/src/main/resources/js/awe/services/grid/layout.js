@@ -2,6 +2,7 @@ import {aweApplication} from "../../awe";
 import {
   applyColumnLayout,
   getColumnGroups,
+  getManageableColumns,
   mergeColumnLayout,
   moveColumn,
   moveColumnTo,
@@ -147,9 +148,10 @@ aweApplication.factory('GridLayout',
               }
             });
 
-            // The columns of the screen take the positions they have in the definitions, in the layout order
+            // The columns of the screen take the positions they have in the definitions, in the layout order (the action
+            // columns are not in the layout: they keep their positions)
             const byName = {};
-            getBaseColumns().filter(column => !column.hidden || column.layoutHidden).forEach(column => {
+            getManageableColumns(getBaseColumns()).forEach(column => {
               byName[column.name] = column;
             });
             const positions = [];

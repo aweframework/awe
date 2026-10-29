@@ -143,6 +143,128 @@ describe('AWE 5 grid styles (#885)', () => {
       'scroll-padding-inline-end: calc(2 * var(--awe-size-control-sm) + var(--awe-space-1) + 2 * var(--awe-space-2));')));
   });
 
+  it('draws the selection bar on the highlight, hidden until there are selected rows', () => {
+    const bar = rule(grid, '.grid-selection-bar');
+    expect(bar).toMatch(/display: none;/);
+    expect(bar).toMatch(/padding: var\(--awe-space-2\) var\(--awe-grid-cell-padding-x\);/);
+    expect(bar).toMatch(/font-size: var\(--awe-font-size-sm\);/);
+    expect(bar).toMatch(/color: var\(--awe-color-on-highlight\);/);
+    expect(bar).toMatch(/background: var\(--awe-color-highlight\);/);
+    expect(bar).toMatch(/border-bottom: 1px solid var\(--awe-grid-border\);/);
+    const visible = rule(grid, '.grid-selection-bar.is-visible');
+    expect(visible).toMatch(/display: flex;/);
+    expect(visible).toMatch(/animation: awe-grid-selection-bar-in var\(--awe-motion-duration-fast\) var\(--awe-motion-easing-enter\);/);
+    expect(withoutComments(grid)).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.grid-selection-bar\.is-visible \{\s*animation: none;/);
+    expect(rule(grid, '.grid-selection-bar .grid-selection-bar-spacer')).toMatch(/flex: 1;/);
+  });
+
+  it('draws the buttons of the selection bar small and ghost, and the danger one filled with the danger colour', () => {
+    const small = rule(grid, '.grid-selection-bar .p-button.p-button-sm');
+    expect(small).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(small).toMatch(/font-size: var\(--awe-font-size-sm\);/);
+    const ghost = rule(grid, '.grid-selection-bar .p-button.p-button-text');
+    expect(ghost).toMatch(/color: inherit;/);
+    expect(ghost).toMatch(/background: transparent;/);
+    expect(rule(grid, '.grid-selection-bar .p-button.p-button-text:enabled:hover')).toMatch(/background: var\(--awe-color-surface-hover\);/);
+    const danger = rule(grid, '.grid-selection-bar .p-button.p-button-danger');
+    expect(danger).toMatch(/color: var\(--awe-color-on-danger\);/);
+    expect(danger).toMatch(/background: var\(--awe-color-danger\);/);
+    expect(rule(grid, '.grid-selection-bar .p-button.p-button-danger:enabled:hover')).toMatch(/background: var\(--awe-color-danger-hover\);/);
+    expect(rule(grid, '.grid-selection-bar .p-button:focus-visible')).toMatch(/var\(--awe-color-focus-ring\)/);
+  });
+
+  it('draws the search as a small field with the field tokens at the start of the toolbar', () => {
+    const search = rule(grid, '.grid-search');
+    expect(search).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(search).toMatch(/margin-inline-end: auto;/);
+    expect(search).toMatch(/color: var\(--awe-color-field-text\);/);
+    expect(search).toMatch(/background: var\(--awe-color-field\);/);
+    expect(search).toMatch(/border: 1px solid var\(--awe-color-field-border\);/);
+    expect(search).toMatch(/border-radius: var\(--awe-radius-field\);/);
+    expect(rule(grid, '.grid-search:has(+ .grid-quick-filter)')).toMatch(/margin-inline-end: 0;/);
+    expect(rule(grid, '.grid-search:hover')).toMatch(/border-color: var\(--awe-color-field-border-hover\);/);
+    const focused = rule(grid, '.grid-search:focus-within');
+    expect(focused).toMatch(/border-color: var\(--awe-color-field-border-focus\);/);
+    expect(focused).toMatch(/box-shadow: var\(--awe-shadow-field-focus\);/);
+    expect(rule(grid, '.grid-search .grid-search-icon')).toMatch(/color: var\(--awe-color-field-icon\);/);
+    expect(rule(grid, '.grid-search input::placeholder')).toMatch(/color: var\(--awe-color-field-placeholder\);/);
+    expect(rule(grid, '.grid-search .grid-search-clear:hover')).toMatch(/background: var\(--awe-color-surface-hover\);/);
+    expect(rule(grid, '.grid-search .grid-search-clear:focus-visible')).toMatch(/outline: var\(--awe-focus-ring\);/);
+    expect(withoutComments(grid)).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.grid-search \{\s*transition: none;/);
+  });
+
+  it('draws the icon of a cell as a small icon before the text, and a status with icon as a plain tag without dot (#793)', () => {
+    const icon = rule(grid, '.awe-cell-icon');
+    expect(icon).toMatch(/display: inline-flex;/);
+    expect(icon).toMatch(/margin-inline-end: var\(--awe-space-1-5\);/);
+    expect(icon).toMatch(/vertical-align: middle;/);
+    const svg = rule(grid, '.awe-cell-icon > .awe-icon');
+    expect(svg).toMatch(/width: var\(--awe-size-icon-sm\);/);
+    expect(svg).toMatch(/height: var\(--awe-size-icon-sm\);/);
+    expect(rule(grid, '.awe-cell-status-plain::before')).toMatch(/display: none;/);
+    expect(rule(grid, '.awe-cell-icon-text')).toMatch(/white-space: nowrap;[^]*text-overflow: ellipsis;/);
+  });
+
+  it('centres the icon of the selection bar with its text: its wrapper takes the height of the icon (#793)', () => {
+    expect(rule(grid, '.grid-selection-bar .grid-selection-bar-icon > i')).toMatch(/display: inline-flex;/);
+  });
+
+  it('keeps the icon-only buttons of adjoining cells close, as the row actions of the prototype (#793)', () => {
+    expect(rule(grid, '.p-datatable .p-datatable-tbody > tr > td:has(> .p-button.no-label)'))
+      .toMatch(/padding-inline: var\(--awe-space-0-5\);/);
+  });
+
+  it('draws status tags and chips as rectangles with slightly rounded corners, with a round dot (#793)', () => {
+    expect(rule(grid, '.awe-cell-status')).toMatch(/border-radius: var\(--awe-radius-sm\);/);
+    expect(rule(grid, '.awe-cell-chip')).toMatch(/border-radius: var\(--awe-radius-sm\);/);
+    // The dot is nested in the status rule (&::before) and stays round
+    expect(read('components/AweGrid.less'))
+      .toMatch(/\.awe-cell-status \{[^}]*&::before \{[^}]*border-radius: var\(--awe-radius-full\);/);
+  });
+
+  it('draws the avatar of a cell as a small circle of initials before the text, as the avatar of the prototype (#793)', () => {
+    expect(rule(grid, '.awe-cell-entity')).toMatch(/display: flex;[^]*align-items: center;[^]*gap: var\(--awe-space-3\);/);
+    const avatar = rule(grid, '.awe-cell-avatar');
+    expect(avatar).toMatch(/width: var\(--awe-size-control-sm\);/);
+    expect(avatar).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(avatar).toMatch(/flex: none;/);
+    expect(avatar).toMatch(/border-radius: var\(--awe-radius-full\);/);
+    expect(avatar).toMatch(/font-size: var\(--awe-font-size-xs\);/);
+    expect(avatar).toMatch(/font-weight: var\(--awe-font-weight-semibold\);/);
+    expect(avatar).toMatch(/color: var\(--awe-color-on-secondary\);/);
+    expect(avatar).toMatch(/background-color: var\(--awe-color-secondary\);/);
+    const spacer = rule(grid, '.awe-cell-avatar-spacer');
+    expect(spacer).toMatch(/width: var\(--awe-size-control-sm\);/);
+    expect(spacer).not.toMatch(/background/);
+    expect(rule(grid, '.awe-cell-avatar-primary')).toMatch(/color: var\(--awe-color-on-primary-subtle\);[^]*background-color: var\(--awe-color-primary-subtle\);/);
+    ['info', 'success', 'warning', 'danger'].forEach(tone => expect(rule(grid, `.awe-cell-avatar-${tone}`))
+      .toMatch(new RegExp(`color: var\\(--awe-color-${tone}-text\\);[^]*background-color: var\\(--awe-color-${tone}-subtle\\);`)));
+  });
+
+  it('draws the quick filters as a small segmented control at the start of the toolbar', () => {
+    const group = rule(grid, '.grid-quick-filter');
+    expect(group).toMatch(/margin-inline-end: auto;/);
+    expect(group).toMatch(/background: var\(--awe-segmented-track\);/);
+    expect(group).toMatch(/border: 1px solid var\(--awe-segmented-border\);/);
+    const segment = rule(grid, '.grid-quick-filter .grid-quick-filter-segment');
+    expect(segment).toMatch(/height: calc\(var\(--awe-size-control-sm\) - 2 \* \(var\(--awe-space-0-5\) \+ 1px\)\);/);
+    expect(segment).toMatch(/font-size: var\(--awe-font-size-xs\);/);
+    expect(segment).toMatch(/color: var\(--awe-segmented-text\);/);
+    const chosen = rule(grid, '.grid-quick-filter input:checked + .grid-quick-filter-segment');
+    expect(chosen).toMatch(/color: var\(--awe-segmented-selected-text\);/);
+    expect(chosen).toMatch(/background: var\(--awe-segmented-selected\);/);
+    expect(chosen).toMatch(/border-color: var\(--awe-segmented-selected-border\);/);
+    expect(rule(grid, '.grid-quick-filter .grid-quick-filter-option:hover > .grid-quick-filter-segment'))
+      .toMatch(/color: var\(--awe-segmented-hover-text\);/);
+    expect(rule(grid, '.grid-quick-filter input:focus-visible + .grid-quick-filter-segment')).toMatch(/outline: var\(--awe-focus-ring\);/);
+    expect(rule(grid, '.grid-quick-filter input:disabled + .grid-quick-filter-segment')).toMatch(/opacity: var\(--awe-opacity-disabled\);/);
+    expect(rule(grid, '.grid-quick-filter .grid-quick-filter-count')).toMatch(/color: var\(--awe-color-text-muted\);/);
+    ['danger', 'warning', 'success', 'info'].forEach(tone => {
+      expect(rule(grid, `.grid-quick-filter .grid-quick-filter-count[data-tone="${tone}"]`)).toMatch(new RegExp(`color: var\\(--awe-color-${tone}-text\\);`));
+    });
+    expect(withoutComments(grid)).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.grid-quick-filter \.grid-quick-filter-segment \{\s*transition: none;/);
+  });
+
   it('places the toolbar and the paginator inside the grid borders, with the page sizes of the density', () => {
     const toolbar = rule(grid, '.grid-toolbar');
     expect(toolbar).toMatch(/gap: var\(--awe-space-2\);/);

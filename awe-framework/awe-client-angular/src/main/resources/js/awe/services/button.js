@@ -4,24 +4,35 @@ import {TestIds} from "../data/testIds";
 import {busySpinnerTemplate, createBusyState} from "./busyState";
 
 export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>
-  <button type="{{::component.buttonType}}" id="{{::buttonId}}" data-testid="${TestIds.button}" title="{{controller.title| translateMultiple}}"
+  <button type="{{::component.buttonType}}" id="{{::buttonId}}" data-testid="${TestIds.button}" title="{{getTitle()| translateMultiple}}"
           class="{{classes}}" ng-class="{'is-loading': busy}" ng-attr-aria-busy="{{busy ? 'true' : undefined}}"
+          ng-attr-aria-label="{{iconOnly ? ((controller.label | translateMultiple) || undefined) : undefined}}"
           ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
     ${busySpinnerTemplate("busy")}
     ${getIconTemplate("button-icon", "i")}
-    <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
+    <span ng-if="controller.label && !iconOnly" class="button-text" translate-multiple="{{controller.label}}"></span>
   </button>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 export const templateColumnButton = `<div ng-show="component.controller.visible" class="column text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
-  <button type="button" id="{{component.id}}" data-testid="${TestIds.button}" title="{{component.model.values[0].title| translateMultiple}}"
+  <button type="button" id="{{component.id}}" data-testid="${TestIds.button}" title="{{getCellTitle()| translateMultiple}}"
+          ng-attr-aria-label="{{component.model.values[0].label ? undefined : ((getCellTitle() | translateMultiple) || undefined)}}"
           class="{{classes}} {{component.model.values[0].style}}" ng-disabled="isDisabled()" ng-click="onClick($event)" ng-mousedown="onMouseDown()" ng-cloak>
     ${getIconTemplate("button-icon", "i")}
     <span ng-if="component.model.values[0].label" class="button-text" translate-multiple="{{component.model.values[0].label}}"></span>
   </button>
 </div>`;
+
+/**
+ * Check if a button style makes it icon-only (the no-label class, as for criteria)
+ * @param {string} style Button style
+ * @returns {boolean} The button shows only its icon
+ */
+export function isIconOnly(style) {
+  return String(style || "").split(/\s+/).includes("no-label");
+}
 
 // Button service
 aweApplication.factory('Button',
@@ -129,6 +140,18 @@ aweApplication.factory('Button',
           };
 
           /**
+           * Tooltip of the button: its title; an icon-only button (style no-label) without help shows its label
+           * @returns {string} Tooltip
+           */
+          component.scope.getTitle = function () {
+            const controller = component.controller || {};
+            if (controller.title) {
+              return controller.title;
+            }
+            return component.scope.iconOnly && !("help" in controller) ? controller.label : "";
+          };
+
+          /**
            * Check if button is disabled
            * @returns {boolean} Button is disabled
            */
@@ -232,6 +255,8 @@ aweApplication.factory('Button',
            * Store button classes
            */
           component.updateClasses = function () {
+            // An icon-only button (style no-label) shows only its icon: its label is its tooltip and accessible name
+            component.scope.iconOnly = isIconOnly(component.controller && component.controller.style);
             component.scope.groupClass = getGroupClass();
             component.scope.classes = getClass();
           };

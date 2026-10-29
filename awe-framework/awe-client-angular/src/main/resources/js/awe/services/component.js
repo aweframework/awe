@@ -7,12 +7,14 @@ import {ClientActions} from "../data/actions";
  * @param {string} style Classes of the element of the icon
  * @param {string} tag Element of the icon
  * @param {string} icon Expression of the icon ({family, name, classes, href}, see services/icon)
+ * @param {string} [attributes] Extra attributes of the element of the icon (aria-hidden="true"...)
  * @returns {string} Template
  */
-export function getIconTemplate(style = "", tag = "span", icon = "getIcon()") {
-  return `<${tag} ng-if="${icon}.family == 'lucide'" class="${style}" ng-cloak><svg class="awe-icon" ng-class="${icon}.classes" aria-hidden="true" focusable="false"><use ng-attr-href="{{${icon}.href}}"></use></svg></${tag}>
-          <${tag} ng-if="${icon}.family == 'fa'" class="${style} fa fa-{{${icon}.name}}" ng-cloak></${tag}>
-          <${tag} ng-if="${icon}.family == 'mdi'" class="${style} material-icons" ng-cloak>{{${icon}.name}}</${tag}>`;
+export function getIconTemplate(style = "", tag = "span", icon = "getIcon()", attributes = "") {
+  const extra = attributes ? ` ${attributes}` : "";
+  return `<${tag} ng-if="${icon}.family == 'lucide'" class="${style}"${extra} ng-cloak><svg class="awe-icon" ng-class="${icon}.classes" aria-hidden="true" focusable="false"><use ng-attr-href="{{${icon}.href}}"></use></svg></${tag}>
+          <${tag} ng-if="${icon}.family == 'fa'" class="${style} fa fa-{{${icon}.name}}"${extra} ng-cloak></${tag}>
+          <${tag} ng-if="${icon}.family == 'mdi'" class="${style} material-icons"${extra} ng-cloak>{{${icon}.name}}</${tag}>`;
 }
 
 // Component service

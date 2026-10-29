@@ -27,6 +27,7 @@
       <option name="update-user" screen="UsrUpd" invisible="true"/>
       <option name="view-user" screen="UsrViw" invisible="true"/>
     </option>
+    <option name="user-admin" label="MENU_TOOLS_USER_ADMIN" screen="user-admin" icon="user"/>
     <option name="profiles" label="MENU_TOOLS_PROFILES" screen="Prf" icon="group">
       <option name="new-profile" screen="PrfNew" invisible="true"/>
       <option name="update-profile" screen="PrfUpd" invisible="true"/>
@@ -97,6 +98,7 @@
       <option name="matrix-test-wrap" label="MENU_TEST_MATRIX_WRAP" screen="GrdWrapTst" icon="align-left"/>
       <option name="matrix-test-nowrap" label="MENU_TEST_MATRIX_NOWRAP" screen="GrdNoWrapTst" icon="align-justify"/>
       <option name="matrix-test-cells" label="MENU_TEST_MATRIX_CELLS" screen="GrdCellTst" icon="list"/>
+      <option name="matrix-test-quick-filter" label="MENU_TEST_MATRIX_QUICK_FILTER" screen="GrdQckFltTst" icon="filter"/>
       <option name="matrix-test-groups" label="MENU_TEST_MATRIX_GROUPS" screen="GrdGrpTst" icon="object-group"/>
       <option name="matrix-test-dialog-size" label="MENU_TEST_MATRIX_DIALOG_SIZE" screen="DlgSizeTst" icon="window-maximize"/>
       <option name="matrix-test-side-panel" label="MENU_TEST_MATRIX_SIDE_PANEL" screen="SidePanelTst" icon="columns"/>

@@ -285,10 +285,10 @@
   <service id="SecAudDefFro">
     <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getDefaultDateFrom" />
   </service>
-  <!-- Security audit of user account changes -->
+  <!-- Security audit of user account changes (userId: one identifier or the list sent by a grid) -->
   <service id="audit-user-update">
     <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditUserUpdate">
-      <service-parameter type="INTEGER" name="userId" />
+      <service-parameter type="INTEGER" name="userId" list="true" />
       <service-parameter type="INTEGER" name="locked" />
       <service-parameter type="INTEGER" name="passwordUpdate" />
     </java>

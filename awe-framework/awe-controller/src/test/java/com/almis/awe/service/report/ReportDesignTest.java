@@ -334,8 +334,8 @@ class ReportDesignTest {
   /**
    * Build a grid design with columns declared as spreadsheet only (issue #753)
    */
-  private ReportGrid designGridWithSpreadsheetOnlyColumns(boolean includeSpreadsheetOnlyColumns) throws Exception {
-    List<PrintColumnData> columnDataList = Arrays.asList(
+  private ReportGrid designGridWithSpreadsheetOnlyColumns(boolean includeSpreadsheetOnlyColumns, PrintColumnData... extraColumns) throws Exception {
+    List<PrintColumnData> columnDataList = new ArrayList<>(Arrays.asList(
       new PrintColumnData().setName("visibleColumn").setLabel("visibleColumn"),
       new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"),
       new PrintColumnData().setName("Mixed header").setLabel("Mixed header").setHeader(true).setColumnList(Arrays.asList(
@@ -343,7 +343,8 @@ class ReportDesignTest {
         new PrintColumnData().setName("alwaysInHeader").setLabel("alwaysInHeader").setPrintable("true"))),
       new PrintColumnData().setName("Excel header").setLabel("Excel header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("onlyExcelInHeader").setLabel("onlyExcelInHeader").setPrintable("excel")))
-    );
+    ));
+    columnDataList.addAll(Arrays.asList(extraColumns));
     when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
@@ -352,7 +353,7 @@ class ReportDesignTest {
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set("gridId.data", gridData);
-    for (String field : Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader")) {
+    for (String field : Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader", "edit")) {
       parameters.set(field, JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", 1)));
     }
 
@@ -532,6 +533,59 @@ class ReportDesignTest {
 
     assertEquals(Arrays.asList("name", "city", "phone"), reportGrid.getFields());
     assertEquals(3, reportGrid.getGridHeaders().size());
+  }
+
+  @Test
+  void getPrintDesignNeverPrintsButtonColumnsWhateverTheirPrintableValue() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name"),
+      new PrintColumnData().setName("edit").setLabel("").setComponent("button"),
+      new PrintColumnData().setName("more").setLabel("").setComponent("button").setPrintable("true"),
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Arrays.asList(
+        new PrintColumnData().setName("city").setLabel("City"),
+        new PrintColumnData().setName("open").setLabel("").setComponent("button"))),
+      new PrintColumnData().setName("Buttons").setLabel("Buttons").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("download").setLabel("").setComponent("button")))),
+      "name", "edit", "more", "city", "open", "download");
+
+    assertEquals(Arrays.asList("name", "city"), reportGrid.getFields());
+    assertEquals(2, reportGrid.getGridHeaders().size());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(1));
+    assertEquals(1, header.getColumns().size());
+  }
+
+  @Test
+  void getPrintDesignNeverPrintsColumnsDeclaredNotPrintable() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name"),
+      new PrintColumnData().setName("secret").setLabel("Secret").setPrintable("false"),
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Arrays.asList(
+        new PrintColumnData().setName("city").setLabel("City"),
+        new PrintColumnData().setName("internal").setLabel("Internal").setPrintable("FALSE")))),
+      "name", "secret", "city", "internal");
+
+    assertEquals(Arrays.asList("name", "city"), reportGrid.getFields());
+  }
+
+  @Test
+  void getPrintDesignForSpreadsheetOutputsNeverExportsButtonColumns() throws Exception {
+    ReportGrid reportGrid = designGridWithSpreadsheetOnlyColumns(true, new PrintColumnData().setName("edit").setLabel("")
+      .setComponent("BUTTON").setPrintable("excel"));
+
+    assertEquals(Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader"), reportGrid.getFields());
+  }
+
+  @Test
+  void hasSpreadsheetOnlyColumnsIgnoresButtonColumns() throws Exception {
+    List<PrintColumnData> columnDataList = Collections.singletonList(
+      new PrintColumnData().setName("edit").setLabel("").setComponent("button").setPrintable("excel"));
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+
+    assertFalse(reportDesigner.hasSpreadsheetOnlyColumns(Collections.singletonList(new GridBuilder().setId("gridId").build()), parameters));
   }
 
   /**

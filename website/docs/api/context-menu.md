@@ -22,7 +22,7 @@ A button opens a context menu with the `show-context-menu` client action. It is 
 </column>
 ```
 
-- The button of a grid row selects its row, as a right click on the row does, and opens the context menu of the grid just under the button.
+- The button of a grid row selects its row (only it, as every [button of a row](grids.md#button-column-component) does) and opens the context menu of the grid just under the button.
 - Any other button opens its own context menu (the `context-button` elements declared inside the button), just under itself.
 - When there is nothing to open the action only finishes and the following actions go on. For a button outside a grid that means it declares no options or none of them is visible. A grid opens its menu whenever it declares options, even if none of them is visible at that moment, because their dependencies resolve after the row is selected; only a grid that declares no options has nothing to open (and then the row is not selected either).
 - The action works in both client engines (AngularJS and React) and it is allowed on any button. Do not set a `target`: the action always works on the button that launches it.

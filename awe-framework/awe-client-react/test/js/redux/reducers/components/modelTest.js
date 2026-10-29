@@ -98,6 +98,22 @@ describe('awe-react-client/test/js/redux/reducers/components/modelTest.js', () =
       expect(selectedValues('sel', update)).toEqual(['b']);
     });
 
+    // The value of a checkbox (a switch) set from outside, as a launcher filling it from a grid row (#793 S19): its only
+    // value is the checked one, so 1 checks it and 0 leaves it unchecked, keeping the checked value
+    it('updateSelectedComponent checks a checkbox for its value and unchecks it for any other', () => {
+      ComponentRegistry.register('chk', {
+        address: {view: 'base', component: 'chk'},
+        attributes: {component: 'checkbox', style: 'switch'},
+        model: {values: [{value: '1', label: '1', selected: true}]}
+      });
+
+      const off = updateSelectedComponent({}, get('chk', {}).model.values, {view: 'base', component: 'chk'}, [0]);
+      expect(get('chk', off).model.values).toEqual([{value: '1', label: '1', selected: false}]);
+
+      const on = updateSelectedComponent(off, get('chk', off).model.values, {view: 'base', component: 'chk'}, [1]);
+      expect(get('chk', on).model.values).toEqual([{value: '1', label: '1', selected: true}]);
+    });
+
     it('updateSelectedComponent returns null when nothing changes', () => {
       expect(updateSelectedComponent({}, get('sel', {}).model.values, selectAddress, ['a'])).toBeNull();
     });
@@ -241,6 +257,81 @@ describe('awe-react-client/test/js/redux/reducers/components/modelTest.js', () =
       const state = updateModelAction({}, {address: selectAddress, data: {selected: ['b']}}, {});
 
       expect(selectedValues('sel', state)).toEqual(['b']);
+    });
+
+    it('selects the option of a numeric value keeping the options (a launcher filled from a grid cell)', () => {
+      ComponentRegistry.register('sta', {
+        address: {view: 'base', component: 'sta'},
+        attributes: {component: 'select'},
+        model: {values: [{value: '0', label: 'No'}, {value: '1', label: 'Yes'}]}
+      });
+
+      const state = updateModelAction({}, {address: {view: 'base', component: 'sta'}, data: {selected: 1}}, {});
+
+      expect(get('sta', state).model.values).toEqual([
+        {value: '0', label: 'No', selected: false},
+        {value: '1', label: 'Yes', selected: true}
+      ]);
+    });
+
+    describe('a select keeps its options when the value is none of them', () => {
+      const staAddress = {view: 'base', component: 'sta'};
+      const register = (component, values) => ComponentRegistry.register('sta', {
+        address: staAddress, attributes: {component}, model: {values}
+      });
+      const stored = [{value: '0', label: 'No'}, {value: '1', label: 'Yes', selected: true}];
+
+      it.each(['select', 'select-multiple'])('unselects the options of a %s with an empty value (a row without value)', component => {
+        register(component, stored);
+
+        [null, undefined, '', []].forEach(selected => {
+          const state = updateModelAction({}, {address: staAddress, data: {selected}}, {});
+
+          expect(get('sta', state).model.values).toEqual([
+            {value: '0', label: 'No', selected: false},
+            {value: '1', label: 'Yes', selected: false}
+          ]);
+        });
+      });
+
+      it('unselects the options with a value that is none of them', () => {
+        register('select', stored);
+
+        const state = updateModelAction({}, {address: staAddress, data: {selected: 'x'}}, {});
+
+        expect(get('sta', state).model.values).toEqual([
+          {value: '0', label: 'No', selected: false},
+          {value: '1', label: 'Yes', selected: false}
+        ]);
+      });
+
+      it('selects an option again after an empty value (new, then edit a row)', () => {
+        register('select', stored);
+
+        const emptied = updateModelAction({}, {address: staAddress, data: {selected: null}}, {});
+        const state = updateModelAction(emptied, {address: staAddress, data: {selected: 0}}, {});
+
+        expect(selectedValues('sta', state)).toEqual(['0']);
+        expect(get('sta', state).model.values.map(value => value.label)).toEqual(['No', 'Yes']);
+      });
+
+      it('keeps the value of a select whose options are not loaded yet, for the fill to select it', () => {
+        register('select', []);
+
+        const state = updateModelAction({}, {address: staAddress, data: {selected: 'en-GB'}}, {});
+
+        expect(get('sta', state).model.values).toEqual([{value: 'en-GB', selected: true}]);
+      });
+    });
+
+    it('selects the radio of a numeric value in a group', () => {
+      ComponentRegistry.register('r1', {address: {view: 'base', component: 'r1'}, attributes: {group: 'g', component: 'radio'}, model: {values: [{value: '1'}]}});
+      ComponentRegistry.register('r2', {address: {view: 'base', component: 'r2'}, attributes: {group: 'g', component: 'radio'}, model: {values: [{value: '2'}]}});
+
+      const state = updateModelAction({}, {address: {view: 'base', component: 'r1'}, data: {selected: 2}}, {});
+
+      expect(selectedValues('r1', state)).toEqual([]);
+      expect(selectedValues('r2', state)).toEqual(['2']);
     });
 
     it('ignores a selection on a component that is not on the screen', () => {

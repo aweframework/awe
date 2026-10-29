@@ -357,6 +357,117 @@
       <computed format="[2fa]" alias="style" translate="active-style"/>
     </compound>
     <field id="OpeNam" table="ope" alias="Nam" />
+    <!-- Users screen (user-admin): main line, secondary line (login · email) and state with its label and tone -->
+    <operation operator="COALESCE" alias="FulNam">
+      <field id="OpeNam" table="ope" />
+      <field id="l1_nom" table="ope" function="TRIM" />
+    </operation>
+    <case alias="UsrSec">
+      <when left-field="EmlAdr" left-table="ope" condition="is null">
+        <then>
+          <field id="l1_nom" table="ope" function="TRIM" />
+        </then>
+      </when>
+      <when left-field="EmlAdr" left-table="ope" condition="eq" right-variable="Empty">
+        <then>
+          <field id="l1_nom" table="ope" function="TRIM" />
+        </then>
+      </when>
+      <else>
+        <operation operator="CONCAT">
+          <field id="l1_nom" table="ope" function="TRIM" />
+          <constant value=" · " />
+          <field id="EmlAdr" table="ope" />
+        </operation>
+      </else>
+    </case>
+    <case alias="StaCod">
+      <when left-field="PwdLck" left-table="ope" condition="eq" right-variable="One">
+        <then>
+          <constant value="locked" />
+        </then>
+      </when>
+      <when left-field="l1_act" left-table="ope" condition="eq" right-variable="Zero">
+        <then>
+          <constant value="inactive" />
+        </then>
+      </when>
+      <else>
+        <constant value="active" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="user-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="user-state-tone" />
+    <!-- Two-factor of the user (user-admin): its translated text (On or Off), the icon of its tag (a shield when it is on)
+         and the neutral tone of the tag -->
+    <case alias="2faCod">
+      <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+        <then>
+          <constant value="on" />
+        </then>
+      </when>
+      <else>
+        <constant value="off" />
+      </else>
+    </case>
+    <computed format="[2faCod]" alias="2faTxt" translate="user-2fa-label" />
+    <case alias="2faIcn">
+      <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+        <then>
+          <constant value="lucide:shield-check" />
+        </then>
+      </when>
+      <else>
+        <constant value="" />
+      </else>
+    </case>
+    <constant value="neutral" alias="2faTon" />
+    <!-- Header of the side panel of the users screen (user-admin): the subtitle (login · profile, just the login without a
+         profile) and the two-factor tag, "Two-factor on" only when it is on (empty when it is off: the tag is hidden) -->
+    <case alias="UsrPro">
+      <when left-field="Nam" left-table="Pro" condition="is null">
+        <then>
+          <field id="l1_nom" table="ope" function="TRIM" />
+        </then>
+      </when>
+      <when left-field="Nam" left-table="Pro" condition="eq" right-variable="Empty">
+        <then>
+          <field id="l1_nom" table="ope" function="TRIM" />
+        </then>
+      </when>
+      <else>
+        <operation operator="CONCAT">
+          <field id="l1_nom" table="ope" function="TRIM" />
+          <constant value=" · " />
+          <field id="Nam" table="Pro" />
+        </operation>
+      </else>
+    </case>
+    <case alias="2faHdrCod">
+      <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+        <then>
+          <constant value="on" />
+        </then>
+      </when>
+      <else>
+        <constant value="" />
+      </else>
+    </case>
+    <computed format="[2faHdrCod]" alias="2faHdr" translate="user-2fa-header" />
+    <!-- Avatar of the user (user-admin): the name its initials are taken from (the engine builds them), the full name or
+         the login without one, and a tone that depends only on the identifier, so a user always gets the same colour -->
+    <operation operator="COALESCE" alias="Ini">
+      <operation operator="NULLIF">
+        <field id="OpeNam" table="ope" function="TRIM" />
+        <constant value="" />
+      </operation>
+      <field id="l1_nom" table="ope" function="TRIM" />
+    </operation>
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdeOpe" table="ope" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
     <join>
       <table id="AwePro" alias="Pro" />
       <and>
@@ -380,6 +491,49 @@
         <filter left-field="ScrIni" left-table="ope" condition="eq" right-variable="Scr" ignorecase="true" optional="true" />
         <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" optional="true" />
         <filter left-field="PwdLck" left-table="ope" condition="eq" right-variable="PwdLck" ignorecase="true" optional="true" />
+        <!-- Search of the grid (user-admin): full name, login, email or profile name contain the text, ignoring case -->
+        <or>
+          <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="EmlAdr" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+        </or>
+        <!-- State of the account (locked, inactive, active) or two-factor (no2fa, with2fa): same expressions as UsrStaCnt -->
+        <or>
+          <filter condition="eq" right-variable="UsrSta" optional="true">
+            <left-operand>
+              <case>
+                <when left-field="PwdLck" left-table="ope" condition="eq" right-variable="One">
+                  <then>
+                    <constant value="locked" />
+                  </then>
+                </when>
+                <when left-field="l1_act" left-table="ope" condition="eq" right-variable="Zero">
+                  <then>
+                    <constant value="inactive" />
+                  </then>
+                </when>
+                <else>
+                  <constant value="active" />
+                </else>
+              </case>
+            </left-operand>
+          </filter>
+          <filter condition="eq" right-variable="UsrSta" optional="true">
+            <left-operand>
+              <case>
+                <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+                  <then>
+                    <constant value="with2fa" />
+                  </then>
+                </when>
+                <else>
+                  <constant value="no2fa" />
+                </else>
+              </case>
+            </left-operand>
+          </filter>
+        </or>
       </and>
     </where>
     <variable id="UsrCod" type="INTEGER" name="CrtUsr" optional="true" />
@@ -389,6 +543,247 @@
     <variable id="Thm" type="INTEGER" name="CrtThm" optional="true" />
     <variable id="Scr" type="STRING" name="CrtScr" optional="true" />
     <variable id="PwdLck" type="STRING" name="CrtBlk" optional="true" />
+    <variable id="UsrSch" type="STRINGB" name="CrtUsrTxt" optional="true" />
+    <variable id="UsrSta" type="STRING" name="CrtUsrSta" optional="true" />
+    <variable id="Empty" type="STRING" value="" />
+    <variable id="One" type="INTEGER" value="1" />
+    <variable id="Zero" type="INTEGER" value="0" />
+  </query>
+
+  <!-- Users screen (user-admin): quick filter options (All, Locked, Without 2FA, Inactive) with their counts. Each count
+       is the number of rows UsrLst returns for that option: the same join, search filters (CrtUsr, CrtPro, CrtUsrTxt...) and state
+       and two-factor expressions as UsrLst (a union cannot use subqueries). Keep them in step with UsrLst -->
+  <query id="UsrStaCnt">
+    <table id="ope" alias="ope" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_USER_FILTER_ALL" alias="label" />
+    <field id="IdeOpe" table="ope" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="UsrStaCntLck" />
+    <union type="ALL" query="UsrStaCntNo2fa" />
+    <union type="ALL" query="UsrStaCntIna" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <or>
+          <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="UsrCod" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrTxt" optional="true" />
+        </or>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="Pro" optional="true" />
+        <filter left-field="IdeThm" left-table="ope" condition="eq" right-variable="Thm" optional="true" />
+        <filter left-field="ScrIni" left-table="ope" condition="eq" right-variable="Scr" ignorecase="true" optional="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="PwdLck" left-table="ope" condition="eq" right-variable="PwdLck" ignorecase="true" optional="true" />
+        <!-- Search of the grid (user-admin): full name, login, email or profile name contain the text, ignoring case -->
+        <or>
+          <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="EmlAdr" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="UsrCod" type="INTEGER" name="CrtUsr" optional="true" />
+    <variable id="UsrTxt" type="STRINGB" name="CrtUsr" optional="true" />
+    <variable id="Pro" type="INTEGER" name="CrtPro" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtSta" optional="true" />
+    <variable id="Thm" type="INTEGER" name="CrtThm" optional="true" />
+    <variable id="Scr" type="STRING" name="CrtScr" optional="true" />
+    <variable id="PwdLck" type="STRING" name="CrtBlk" optional="true" />
+    <variable id="UsrSch" type="STRINGB" name="CrtUsrTxt" optional="true" />
+  </query>
+  <query id="UsrStaCntLck">
+    <table id="ope" alias="ope" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="locked" alias="value" />
+    <constant value="SCREEN_TEXT_USER_FILTER_LOCKED" alias="label" />
+    <field id="IdeOpe" table="ope" function="CNT" alias="count" />
+    <constant value="danger" alias="tone" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <or>
+          <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="UsrCod" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrTxt" optional="true" />
+        </or>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="Pro" optional="true" />
+        <filter left-field="IdeThm" left-table="ope" condition="eq" right-variable="Thm" optional="true" />
+        <filter left-field="ScrIni" left-table="ope" condition="eq" right-variable="Scr" ignorecase="true" optional="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="PwdLck" left-table="ope" condition="eq" right-variable="PwdLck" ignorecase="true" optional="true" />
+        <!-- Search of the grid (user-admin): full name, login, email or profile name contain the text, ignoring case -->
+        <or>
+          <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="EmlAdr" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="PwdLck" left-table="ope" condition="eq" right-variable="One">
+                <then>
+                  <constant value="locked" />
+                </then>
+              </when>
+              <when left-field="l1_act" left-table="ope" condition="eq" right-variable="Zero">
+                <then>
+                  <constant value="inactive" />
+                </then>
+              </when>
+              <else>
+                <constant value="active" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="UsrCod" type="INTEGER" name="CrtUsr" optional="true" />
+    <variable id="UsrTxt" type="STRINGB" name="CrtUsr" optional="true" />
+    <variable id="Pro" type="INTEGER" name="CrtPro" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtSta" optional="true" />
+    <variable id="Thm" type="INTEGER" name="CrtThm" optional="true" />
+    <variable id="Scr" type="STRING" name="CrtScr" optional="true" />
+    <variable id="PwdLck" type="STRING" name="CrtBlk" optional="true" />
+    <variable id="UsrSch" type="STRINGB" name="CrtUsrTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="locked" />
+    <variable id="One" type="INTEGER" value="1" />
+    <variable id="Zero" type="INTEGER" value="0" />
+  </query>
+  <query id="UsrStaCntNo2fa">
+    <table id="ope" alias="ope" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="no2fa" alias="value" />
+    <constant value="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" alias="label" />
+    <field id="IdeOpe" table="ope" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <or>
+          <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="UsrCod" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrTxt" optional="true" />
+        </or>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="Pro" optional="true" />
+        <filter left-field="IdeThm" left-table="ope" condition="eq" right-variable="Thm" optional="true" />
+        <filter left-field="ScrIni" left-table="ope" condition="eq" right-variable="Scr" ignorecase="true" optional="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="PwdLck" left-table="ope" condition="eq" right-variable="PwdLck" ignorecase="true" optional="true" />
+        <!-- Search of the grid (user-admin): full name, login, email or profile name contain the text, ignoring case -->
+        <or>
+          <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="EmlAdr" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Tfa">
+          <left-operand>
+            <case>
+              <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+                <then>
+                  <constant value="with2fa" />
+                </then>
+              </when>
+              <else>
+                <constant value="no2fa" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="UsrCod" type="INTEGER" name="CrtUsr" optional="true" />
+    <variable id="UsrTxt" type="STRINGB" name="CrtUsr" optional="true" />
+    <variable id="Pro" type="INTEGER" name="CrtPro" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtSta" optional="true" />
+    <variable id="Thm" type="INTEGER" name="CrtThm" optional="true" />
+    <variable id="Scr" type="STRING" name="CrtScr" optional="true" />
+    <variable id="PwdLck" type="STRING" name="CrtBlk" optional="true" />
+    <variable id="UsrSch" type="STRINGB" name="CrtUsrTxt" optional="true" />
+    <variable id="Tfa" type="STRING" value="no2fa" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+  <query id="UsrStaCntIna">
+    <table id="ope" alias="ope" />
+    <constant value="4" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_USER_FILTER_INACTIVE" alias="label" />
+    <field id="IdeOpe" table="ope" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <or>
+          <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="UsrCod" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrTxt" optional="true" />
+        </or>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="Pro" optional="true" />
+        <filter left-field="IdeThm" left-table="ope" condition="eq" right-variable="Thm" optional="true" />
+        <filter left-field="ScrIni" left-table="ope" condition="eq" right-variable="Scr" ignorecase="true" optional="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="PwdLck" left-table="ope" condition="eq" right-variable="PwdLck" ignorecase="true" optional="true" />
+        <!-- Search of the grid (user-admin): full name, login, email or profile name contain the text, ignoring case -->
+        <or>
+          <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="EmlAdr" left-table="ope" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="UsrSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="PwdLck" left-table="ope" condition="eq" right-variable="One">
+                <then>
+                  <constant value="locked" />
+                </then>
+              </when>
+              <when left-field="l1_act" left-table="ope" condition="eq" right-variable="Zero">
+                <then>
+                  <constant value="inactive" />
+                </then>
+              </when>
+              <else>
+                <constant value="active" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="UsrCod" type="INTEGER" name="CrtUsr" optional="true" />
+    <variable id="UsrTxt" type="STRINGB" name="CrtUsr" optional="true" />
+    <variable id="Pro" type="INTEGER" name="CrtPro" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtSta" optional="true" />
+    <variable id="Thm" type="INTEGER" name="CrtThm" optional="true" />
+    <variable id="Scr" type="STRING" name="CrtScr" optional="true" />
+    <variable id="PwdLck" type="STRING" name="CrtBlk" optional="true" />
+    <variable id="UsrSch" type="STRINGB" name="CrtUsrTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
+    <variable id="Zero" type="INTEGER" value="0" />
   </query>
 
   <!-- USER DATA -->

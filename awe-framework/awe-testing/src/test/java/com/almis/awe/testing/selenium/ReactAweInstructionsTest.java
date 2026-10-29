@@ -83,6 +83,11 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getGridCellButton("Grd", "R1", "Col")).hasToString("By.xpath: "
       + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
       + "//*[@data-testid='grid-cell' and @column-id='Col']//button");
+    // The button of a column in the row that contains a text (the row actions of a grid)
+    assertThat(instructions.findGridRowButton("Grd", "abc", "Col")).hasToString("By.xpath: "
+      + "(//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row']"
+      + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')]]"
+      + "//*[@data-testid='grid-cell' and @column-id='Col']//button)[1]");
     assertThat(instructions.getRowEditBehavior()).isEqualTo(RowEditBehavior.DOUBLE_CLICK);
   }
 
@@ -278,7 +283,7 @@ class ReactAweInstructionsTest {
 
     List<By> locators = List.of(
       instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
-      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"),
+      instructions.getGridCellButton("Gr'd", "R'1", "Co'l"), instructions.findGridRowButton("Gr'd", "It's", "Co'l"),
       instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
       instructions.getCellFromDatepicker("day", "It's"), instructions.getTab("Ta'b", "Men's"),
       instructions.getTabActive("Ta'b", "Men's"), instructions.getMenuOpenedChildren("Op't"),
@@ -489,6 +494,12 @@ class ReactAweInstructionsTest {
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true']");
     assertThat(instructions.getSidePanelClose("Pnl")).hasToString(
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-close']");
+    assertThat(instructions.getSidePanelTitle("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-title']");
+    assertThat(instructions.getSidePanelSubtitle("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-subtitle']");
+    assertThat(instructions.getSidePanelTags("Pnl")).hasToString(
+      "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'] [data-testid='side-panel-tag']");
     // The hook is on the panel itself, which has the size
     assertThat(instructions.getSidePanelPanel("Pnl")).hasToString(
       "By.cssSelector: [data-testid='side-panel'][data-testid-owner='Pnl'][data-open='true']");

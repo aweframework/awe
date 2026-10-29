@@ -37,6 +37,7 @@ There is a special form that only contains text:
 | style      | Optional | String | CSS class or classes to apply to the element             |                                                                             |
 | id         | Optional | String | Tag identifier. Useful for external references           |                                                                             |
 | expandible | Optional | String | How to [expand](layout.md) the children of the tag       | `vertical`, `horizontal`                                                    |
+| icon       | Optional | String | Decorative icon drawn before the `label`. See [section titles](#section-titles) | **Note:** You can check all iconsets at [icons](icons.md) screen |
 
 A `source` can be used **once** per screen, and the tags that have a `source` are direct children of the `screen`.
 
@@ -73,6 +74,33 @@ Write tags so that the result is clear in both engines:
 * Give a `type` to every tag that has a `style` or an `expandible`, so it is a real element.
 * Use a tag with `label` for text only. If you need text next to other elements, put each one in its own tag.
 * Use `<tag source="...">` only to fill a source point. Add a `type` to it if it needs an `expandible`.
+
+## Section titles
+
+Two tag styles turn a heading tag (`h2` to `h6`, so screen readers announce the section) with a `label` into a section
+title. Both look the same in both client engines, in light and dark mode:
+
+* `awe-section-title` (#910): the section title of the design system, a small uppercase muted label followed by a line
+  that fills the rest of the row. Use it to split a long form or a dashboard into sections; the style removes the
+  default margins of the heading.
+* `awe-form-section-title` (#793): the title of a section of a form (a side panel, a dialog, a window), as in the side
+  panel of the `user-admin` screen: its `icon` and its label in one line, in the section title size, and a separator
+  line above every form section title but the first one of its container.
+
+```xml
+<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
+```
+
+```xml
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_IDENTITY" icon="user" />
+<criteria label="PARAMETER_FULL_NAME" id="Nam" component="text" style="col-xs-12" />
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_SIGN_IN_SECURITY" icon="lucide:key-round" />
+<criteria label="PARAMETER_PASSWD" id="Pas" component="password" style="col-xs-12" />
+```
+
+The `icon` of a tag is decorative (hidden from screen readers) and is only drawn for a tag with a `label`, with either
+style. The separator of `awe-form-section-title` goes above a form section title that comes after another one inside
+the same container, so keep the titles and the criteria of a form as siblings (in the same `tag`).
 
 ## Examples
 
@@ -122,17 +150,6 @@ A tag with a `label` writes translated text, and the `<text>` form writes the te
 <tag type="p">
   <text>Lorem ipsum dolor sit amet.</text>
 </tag>
-```
-
-### Section titles
-
-The `awe-section-title` style turns a text tag into the section title of the design system: a small uppercase muted
-label followed by a line that fills the rest of the row. Use it to split a long form or a dashboard into sections. Give
-it a heading `type` (`h2` to `h6`) so screen readers announce the section; the style removes the default margins of
-the heading. It looks the same in both engines, in light and dark mode:
-
-```xml
-<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
 ```
 
 ### Source points

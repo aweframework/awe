@@ -121,6 +121,13 @@ Mientras las mayúsculas están bloqueadas, ambos motores marcan el campo con un
 estado sale de la última tecla pulsada en la página, así que el aviso aparece aunque el usuario activara el bloqueo antes
 de llegar al campo.
 
+En ambos motores el campo tiene un botón para mostrar u ocultar la contraseña en su extremo derecho (un icono de ojo,
+"Mostrar contraseña" / "Ocultar contraseña"), accesible con el teclado y desactivado mientras el criterio es de solo
+lectura. Solo cambia cómo se dibuja el campo: el valor, la validación y el parámetro enviado no cambian. Un campo
+demasiado estrecho para alojar el botón sin tapar el texto (menos de 6rem, como una contraseña con una etiqueta a la
+izquierda larga en una columna estrecha) lo oculta. La página de inicio de sesión mantiene su propio botón, y una columna
+de contraseña de un grid no tiene botón.
+
 ### Criterio de área de texto {#textarea-criterion}
 
 Criterio que permite al usuario insertar un texto grande y nuevas líneas.
@@ -318,6 +325,15 @@ Para rellenar la lista de selección dual, el componente utiliza las siguientes 
 Muestra una casilla de verificación. Envía un `1` (o el valor definido en el atributo **[value](#general-attributes)**) si está marcado o `0` si está desmarcado.
 
 <img alt="Casillas" src={require('@docusaurus/useBaseUrl').default('img/Checkboxes.png')} />
+
+Con `style="switch"` (se puede combinar con las clases de columna, por ejemplo `style="col-xs-12 col-sm-6 switch"`) los
+dos motores dibujan la casilla como un interruptor: una pista con un tirador y la etiqueta a su lado. Envía los mismos
+valores (`1`, o el atributo **value**, cuando está activado y `0` cuando no), la tecla Espacio lo cambia, se anuncia como
+interruptor (`role="switch"`) con su estado y se deshabilita mientras el criterio es de solo lectura.
+
+```xml
+<criteria label="PARAMETER_ACTIVE" id="Sta" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch" />
+```
 
 ### Criterio del botón de radio {#radio-button-criterion}
 

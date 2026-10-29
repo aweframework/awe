@@ -20,6 +20,14 @@ describe('Grid row grouping styles (#833)', () => {
     expect(css).not.toMatch(/var\(--awe-palette-/);
   });
 
+  it('keeps the grouping controls at the start of the toolbar: a spacer pushes Columns and Maximize to its end', () => {
+    const grid = withoutComments(fs.readFileSync(path.join(__dirname, '../../../src/components/AweGrid.less'), 'utf8'));
+    const spacer = grid.match(/\.grid-toolbar-spacer\s*\{([^}]*)\}/);
+    expect(spacer).not.toBeNull();
+    expect(spacer[1]).toMatch(/flex: 1 1 0;/);
+    expect(spacer[1]).toMatch(/min-width: 0;/);
+  });
+
   it('styles the group and subtotal rows and indents the label by level', () => {
     expect(css).toMatch(/tr\.grid-group-row/);
     expect(css).toMatch(/tr\.grid-subtotal-row/);

@@ -30,6 +30,9 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
   <context-button ...> ... </context button>
   ...
   <row-detail> ... </row-detail>
+  ...
+  <search ... />
+  <quick-filter ... />
 </grid>
 ```
 ## Grid structure
@@ -66,7 +69,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | empty-title         | Optional     | String  | Title of the [empty state](#empty-state) of the grid                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated "No records found" title         |
 | empty-text          | Optional     | String  | Text of the [empty state](#empty-state) of the grid                                                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated explanation text                 |
 | empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
-| show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out                                        |
+| show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out (the [quick filters](#quick-filters) of the grid are still shown) |
 | columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a popover anchored to the Columns button, a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `popover`, `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows           | Optional     | Boolean | Adds a leading column with a grip to [move the rows by dragging them](#drag-and-drop). Not available in tree grids         | Default value is `false` |
 
@@ -101,6 +104,9 @@ layout is applied when the screen is generated: the grid is sent with its origin
 Some rules keep a stored layout valid when the screen changes:
 
 - Columns hidden in the XML (`hidden="true"`, for example keys) never appear in the dialog.
+- [Button columns](#button-column-component) (`component="button"`) are actions, not data: they never appear in the
+  dialog nor count in its counter, they always stay visible where the XML puts them, and the entries of a stored layout
+  for them are ignored.
 - Column ids that no longer exist are ignored, and a column added to the XML appears visible at its XML position.
 - A column can only be reordered within its own `group-header`, and ungrouped columns among themselves; a column never
   leaves its group, even if the stored layout says otherwise. Groups are not reordered as blocks.
@@ -129,6 +135,155 @@ Set `show-toolbar="false"` to opt a grid out of the toolbar; the grid then alway
 ```
 
 Excel and PDF exports and printing use the columns of the screen XML, not the layout of the user.
+
+### Search
+
+A grid can show a search field at the start of its [toolbar](#toolbar), before its [quick filters](#quick-filters): a
+text box with a search icon that filters the grid as the user types, such as *User, name, email or profile…*. Declare a
+`<search>` inside the grid. It works in **both client engines**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst">
+  <search id="CrtUsrTxt" placeholder="SCREEN_TEXT_USER_SEARCH"/>
+  <quick-filter id="CrtUsrSta" initial-load="query" target-action="UsrStaCnt" value=""/>
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+</grid>
+```
+
+| Attribute   | Use          | Type   | Description                                                                                    | Values |
+|-------------|--------------|--------|------------------------------------------------------------------------------------------------|--------|
+| id          | **Required** | String | Identifier of the search, and the name of the parameter that sends its text with the grid      |        |
+| placeholder | Optional     | String | Text shown in the empty field                                                                  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| label       | Optional     | String | Accessible name of the field, read by screen readers. It is not shown                          | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default value is `BUTTON_SEARCH` |
+| value       | Optional     | String | Text of the field when the screen is opened                                                    | Default: empty, the grid unfiltered |
+
+**Value.** The search has **no query of its own**: it has no `server-action` nor `target-action`. It is a criterion of
+the screen, so its text is sent with every request of the grid (its own `target-action`) as a variable named like its
+`id`, and the query of the grid reads it like any criterion. Make its filters optional, so an empty search leaves the
+grid unfiltered; with `STRINGB` the text is searched anywhere in the field, and `ignorecase="true"` ignores the case.
+To search several fields, put their filters in an `<or>`:
+
+```xml
+<query id="UsrLst">
+  ...
+  <where>
+    <and>
+      <or>
+        <filter left-field="OpeNam" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+        <filter left-field="l1_nom" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+        <filter left-field="EmlAdr" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+      </or>
+    </and>
+  </where>
+  <variable id="search" type="STRINGB" name="CrtUsrTxt" optional="true"/>
+</query>
+```
+
+**Behaviour.**
+
+- Typing filters the grid after a short pause (300 ms); <kbd>Enter</kbd> filters it at once (and does not submit the
+  screen). The grid is not filtered again for the text it already shows.
+- While it has text, the field shows a clear button; the button and <kbd>Esc</kbd> empty it and filter the grid at once.
+- As every filter of the grid, a search also reloads the [quick filters](#quick-filters), so their counts follow it: give
+  the query of the options the same search filters.
+- It is a `type="search"` field with its accessible name (`label`), the focus ring of the fields, and the tokens of the
+  fields in the light and dark modes and the comfortable and compact densities.
+- The toolbar shows the search also when the grid sets `show-toolbar="false"`: only the row grouping controls and the
+  Columns and Maximize buttons are hidden.
+- Declare at most one per grid; only the first one is used.
+
+### Quick filters
+
+A grid can offer a few predefined filters as a group of buttons (a segmented control) at the start of its
+[toolbar](#toolbar), each one with its count, such as **All 128 · Locked 3 · Without 2FA 41 · Inactive 12**. Declare
+a `<quick-filter>` inside the grid. It works in **both client engines**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst">
+  <quick-filter id="CrtUsrSta" initial-load="query" target-action="UsrStaCnt" value=""/>
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+</grid>
+```
+
+| Attribute     | Use          | Type   | Description                                                                                          | Values |
+|---------------|--------------|--------|------------------------------------------------------------------------------------------------------|--------|
+| id            | **Required** | String | Identifier of the quick filter, and the name of the parameter that sends its value with the grid      |        |
+| initial-load  | **Required** | String | Where the options come from                                                                          | `query` (usually, to get the counts) or `enum` |
+| target-action | **Required** | String | Query or enumerated that returns the options                                                         |        |
+| server-action | Optional     | String | Server action that reloads the options                                                               | Default value is `data` |
+| value         | Optional     | String | Option chosen when the screen is opened                                                              | Default: empty, the option with an empty value (*All*) |
+| label         | Optional     | String | Accessible name of the group of buttons, read by screen readers. It is not shown                     | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default value is `SCREEN_TEXT_FILTERS` |
+
+**Options.** The target returns one row per option, in the order they are shown:
+
+| Field   | Use      | Description |
+|---------|----------|-------------|
+| `value` | Required | Value of the option, sent when it is chosen. The option with an empty value (usually the first one, *All*) leaves the grid unfiltered |
+| `label` | Required | Text of the option. **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `count` | Optional | Number shown after the label. Without it the option shows only its label |
+| `tone`  | Optional | Colour of the count: `danger`, `warning`, `success` or `info`. Without it the count is muted |
+
+The query of the options receives the values of the screen, like any query, so its counts can follow the other filters
+of the grid. For example, *All* and *Locked* users, as the union of one count per option:
+
+```xml
+<query id="UsrStaCnt">
+  <table id="ope"/>
+  <constant value="1" type="INTEGER" alias="pos"/>
+  <constant value="" alias="value"/>
+  <constant value="QUICK_FILTER_ALL" alias="label"/>
+  <field id="IdeOpe" function="CNT" alias="count"/>
+  <constant value="" alias="tone"/>
+  <union type="ALL" query="UsrStaCntLck"/>
+  <order-by field="pos" type="ASC"/>
+</query>
+<query id="UsrStaCntLck">
+  <table id="ope"/>
+  <constant value="2" type="INTEGER" alias="pos"/>
+  <constant value="1" alias="value"/>
+  <constant value="QUICK_FILTER_LOCKED" alias="label"/>
+  <field id="IdeOpe" function="CNT" alias="count"/>
+  <constant value="danger" alias="tone"/>
+  <where>
+    <and>
+      <filter left-field="PwdLck" condition="eq" right-variable="locked"/>
+    </and>
+  </where>
+  <variable id="locked" type="INTEGER" value="1"/>
+</query>
+```
+
+**Value.** The quick filter is a criterion of the screen: its value is sent with every request of the grid as a variable
+named like its `id`, so the query of the grid reads it like any criterion. Make its filter optional, so the empty value
+of *All* leaves the grid unfiltered:
+
+```xml
+<query id="UsrLst">
+  ...
+  <where>
+    <and>
+      <filter left-field="PwdLck" condition="eq" right-variable="state" optional="true"/>
+    </and>
+  </where>
+  <variable id="state" type="INTEGER" name="CrtUsrSta" optional="true"/>
+</query>
+```
+
+**Behaviour.**
+
+- Choosing an option filters the grid; no dependency is needed.
+- Every filter of the grid (a search, a `filter` button action after a maintain, another option chosen) also reloads the
+  options, so the counts stay current. The chosen option is kept.
+- When no option has the value of the quick filter, the first option is shown as chosen.
+- The options are a radio group: <kbd>Tab</kbd> reaches the chosen option and the arrow keys move the choice (and filter
+  the grid). The focused option shows the focus ring.
+- It follows the light and dark modes and the comfortable and compact densities, with the tokens of the segmented
+  control.
+- The toolbar shows the quick filters also when the grid sets `show-toolbar="false"`: only the row grouping controls and
+  the Columns and Maximize buttons are hidden.
+- Declare at most one per grid; only the first one is used.
 
 ### Empty state
 
@@ -309,7 +464,7 @@ each country, inline and through an include) in the matrix test menu.
 | hidden     | Optional     | Boolean | Column is **not** visible on screen. It can still be printed, see [printing columns](#printing-columns)                           | Default value is `false`                                                         |
 | printable  | Optional     | String  | Whether the column is included in the printed report. See [printing columns](#printing-columns)                                   | `true` (default) or `false`                                                      |
 | align      | Optional     | String  | Column is **not** visible                                                                                                         | `left`, `center` or `right`                                                      |
-| width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto. |
+| width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto: the column takes the rest of the width of the grid (its `charlength` is ignored). |
 | sortable   | Optional     | Boolean | Field is sortable (if not treegrid)                                                                                               | Default value is `true`                                                          |
 | movable    | Optional     | Boolean | Allows to move column position in the grid                                                                                        | Default value is `true`                                                          |
 | sendable   | Optional     | Boolean | Column data must be sent to the server                                                                                            | Default value is `true`                                                          |
@@ -329,6 +484,9 @@ each country, inline and through an include) in the matrix test menu.
 | chips            | Optional | Boolean | The value is a list shown as chips                                                                                              | Default value is `false`                                                         |
 | chip-separator   | Optional | String  | Separator of the items of a `chips` column                                                                                      | Default value is `,`                                                             |
 | max-chips        | Optional | Integer | Number of chips shown; the rest collapse into a "+n" chip                                                                       | A number greater than `0`                                                        |
+| avatar-field     | Optional | String  | Row field with the name (or initials) the avatar before the value is built from. See [avatar](#avatar)                         | Name of another field of the row                                                 |
+| avatar-tone-field | Optional | String | Row field with the tone of the avatar                                                                                           | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
+| icon-field       | Optional | String  | Row field with an icon shown before the value; with `status-field` it takes the place of the dot. See [icon](#icon)            | Name of another field of the row                                                 |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
 
@@ -461,7 +619,75 @@ three chips plus "+n":
 <column label="PARAMETER_ROLES" name="roles" charlength="30" width="*" chips="true" chip-separator=";" max-chips="3"/>
 ```
 
-The test applications include the screen *Secondary line, status and chips* in the matrix test menu.
+#### Avatar
+
+A column can show a small round avatar with initials before its value (and its secondary line), as the user list of the
+design system. The avatar is built from a field of the row with a name: the engine takes the first letter of its first
+and its last word that start with a letter, in upper case (`Carmen Fernández` is `CF`, `Pat de la Vega` is `PV`,
+`admin` is `A`), the same rule as the avatar of the React header.
+
+```xml
+<column label="PARAMETER_USER" name="FulNam" sort-field="FulNam" charlength="30" width="*"
+        secondary-field="UsrSec" avatar-field="Ini" avatar-tone-field="IniTon"/>
+<column name="Ini" hidden="true"/>
+<column name="IniTon" hidden="true"/>
+```
+
+| Attribute           | JSON              | Default   | Description                                                                                                  |
+|---------------------|-------------------|-----------|--------------------------------------------------------------------------------------------------------------|
+| `avatar-field`      | `avatarField`     |           | Name of a field of the row with the name (or initials separated by spaces) the avatar is built from. Empty or without letters: no avatar, and an empty space of the same size keeps the values of the column aligned |
+| `avatar-tone-field` | `avatarToneField` | `neutral` | Name of a field of the row with the tone: `primary`, `info`, `success`, `warning`, `danger` or `neutral`. The tone is trimmed and lower-cased; an unknown or empty tone is `neutral` |
+
+- It combines with `secondary-field` and `status-field`; columns with a `component` ignore it.
+- The avatar is decorative (`aria-hidden`): the value of the cell is its accessible text. Its initials are text, never HTML.
+- Sorting, filtering, print and export use the main value only.
+- To give each record a stable colour, compute the tone from its identifier in the query, for example its identifier
+  modulo the number of tones translated with an enumerated group (the users screen does it with `user-avatar-tone`):
+
+```xml
+<operation operator="MOD" alias="IniIdx">
+  <field id="IdeOpe" table="ope"/>
+  <constant value="6" type="INTEGER"/>
+</operation>
+<computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone"/>
+```
+
+#### Icon
+
+A column can show an icon of the row before its value, as the two-factor column of the users screen. The icon is read
+from a field of the row (`lucide:shield-check`, `fa-check`... as any icon of the screens). With `status-field` the icon
+takes the place of the dot, so the status is a plain tag; a row without icon shows the tag with its text only.
+
+```xml
+<column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" charlength="12" status-field="2faTon" icon-field="2faIcn"/>
+<column name="2faTon" hidden="true"/>
+<column name="2faIcn" hidden="true"/>
+```
+
+| Attribute    | JSON        | Default | Description                                                                                                           |
+|--------------|-------------|---------|-----------------------------------------------------------------------------------------------------------------------|
+| `icon-field` | `iconField` |         | Name of a field of the row with the icon. Empty, or an unknown Lucide name: no icon (and, in a status, no dot either) |
+
+- It combines with `status-field`, `secondary-field` and `avatar-field`; columns with `chips="true"` or a `component`
+  ignore it.
+- The icon is decorative (`aria-hidden`): the value of the cell is its accessible text, so give every row a text (for
+  example `On` and `Off`), not only an icon.
+- Sorting, filtering, print and export use the main value only.
+- The users screen computes the three fields in `UsrLst`: the translated text (`user-2fa-label`), the icon only when
+  two-factor is on, and a constant `neutral` tone:
+
+```xml
+<case alias="2faIcn">
+  <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+    <then><constant value="lucide:shield-check"/></then>
+  </when>
+  <else><constant value=""/></else>
+</case>
+<constant value="neutral" alias="2faTon"/>
+```
+
+The test applications include the screen *Secondary line, status and chips* in the matrix test menu (the user column has
+an avatar).
 
 ### Printing columns
 
@@ -474,6 +700,12 @@ the report using the `printable` attribute of the column:
 | `true`      | Always, even if `hidden="true"`    | Always, even if `hidden="true"`    |
 | `excel`     | Never                              | Always, even if `hidden="true"`    |
 | `false`     | Never                              | Never                              |
+
+[Button columns](#button-column-component) (`component="button"`) are never printed nor exported, whatever their
+`printable` value.
+
+Both engines apply these rules and the server applies them again, so a column with `printable="false"` is never in the
+report whatever the client sends.
 
 "On screen" means the column is not `hidden="true"` and it has not been hidden at runtime by a `hide-column`
 dependency action. Declaring `printable="true"`, `printable="excel"` or `printable="false"` takes precedence
@@ -688,6 +920,35 @@ A button column is a component which allows to launch a set of `button-action` d
 | icon      | Icon class to show in the button. You can check all iconsets at [icons](icons.md) screen                               |
 | style     | CSS class to format the contents                                                                                       |
 
+The `label`, `title`, `icon` and `style` can be attributes of the column (the same for every row) or come in the data of
+the cell (they override the ones of the column). The `btn-*` styles and `no-label` of the [button styles](button.md#button-styles)
+apply to the buttons of the column too (`btn-ghost` for row actions).
+
+- **The button acts on its row.** A click on the button of a row selects that row, and only it, before its actions
+  run, so the dependencies on the selected row (a side panel filled with the row, for example) and the parameters the
+  actions send are the ones of that row. A row that is already the only selected one is left as it is (a row being
+  edited keeps being edited). In a multiselect grid the other selected rows are unselected. Both client engines do it.
+- **Icon-only cells.** A cell button without label shows only its icon; its `title` (the one of the cell, else the one
+  of the column) is its tooltip and its accessible name.
+- **Button columns are actions, not data.** They are never listed in the Columns of the [toolbar](#toolbar) and never
+  printed nor exported (Excel, CSV, PDF, print), whatever their `printable` value, in both engines and on the server.
+  Row action columns are usually not sortable and not sent either: `sortable="false" sendable="false"`.
+
+Row actions as in the AWE 5 design system, a pencil that edits the row and an ellipsis that opens the
+[context menu](context-menu.md#opening-the-menu-from-a-button) of the grid:
+
+```xml
+<column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="value" target="PnlMod" value="edit" />
+  <button-action type="dialog" target="PnlUsr" />
+</column>
+<column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="show-context-menu" />
+</column>
+```
+
 #### Radio column component
 
 The `radio` and `button-radio` columns show **all the options of a list in every cell** and the user chooses one of them.
@@ -852,7 +1113,9 @@ The basic grid is the standard grid without a tree structure. It can be defined 
 A basic grid can group its rows by one or more columns, in **both client engines**: each group shows a row with its
 value, its number of rows and the aggregates of the group, can be collapsed and expanded, and ends with a subtotal row.
 The toolbar offers Expand all, Collapse all and, with `group-selector="true"`, a **Group by** panel to change the
-grouping at runtime. A grid without these attributes renders exactly as before.
+grouping at runtime. A grid without these attributes renders exactly as before. The toolbar keeps its order: the
+[search](#search), the [quick filters](#quick-filters) and the grouping controls at its start, the Columns and Maximize
+buttons at its end; `show-toolbar="false"` hides the grouping controls with the Columns and Maximize buttons.
 
 ```xml
 <grid id="GrdSales" style="expand" initial-load="query" server-action="data" target-action="SalesByStore" max="10"
@@ -1048,6 +1311,53 @@ You can add button elements to perform actions over the grids. For instance, a p
   </button>
 </grid>
 ```
+
+### Selection bar
+
+The buttons that act on the selected rows (Reset 2FA, Delete...) can leave the footer and be shown in a **selection
+bar**: it appears between the [toolbar](#toolbar) and the header of the grid while one or more rows are selected, with a
+check, the number of selected rows (*2 selected*) and those buttons at the end, small and in the order of the screen.
+It disappears when no row is selected, also after a reload of the grid that clears the selection. Add
+`selection="true"` to each of these buttons. It works in **both client engines**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst" multiselect="true">
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+  <button label="BUTTON_NEW_USER" icon="plus-circle" id="ButNew">...</button>
+  <button label="BUTTON_RESET_2FA" icon="shield" id="ButRst2fa" selection="true">
+    <button-action type="check-some-selected" target="GrdUsrAdm" />
+    <button-action type="confirm" target="Rst2faMsg" />
+    <button-action type="server" server-action="maintain" target-action="reset2fa" />
+    <button-action type="filter" target="GrdUsrAdm" />
+  </button>
+  <button label="BUTTON_DELETE" icon="trash" id="ButDel" style="btn-danger" selection="true">
+    <button-action type="check-some-selected" target="GrdUsrAdm" />
+    <button-action type="confirm" target="DelMsg" />
+    <button-action type="server" server-action="maintain" target-action="UsrDel" />
+    <button-action type="filter" target="GrdUsrAdm" />
+  </button>
+</grid>
+```
+
+| Attribute | Use      | Type    | Description                                                                    | Values                   |
+|-----------|----------|---------|--------------------------------------------------------------------------------|--------------------------|
+| selection | Optional | Boolean | The button of the grid is shown in its selection bar instead of in its footer | Default value is `false` |
+
+**Behaviour.**
+
+- The buttons keep all their behaviour: their actions, dependencies (enable, show...), confirmations and their id, so
+  the tests and the other buttons that refer to them do not change. Only their place changes. The other buttons of the
+  grid stay in the footer, and a grid without selection buttons has no bar.
+- The buttons are small ghost buttons; the destructive one is the button with the danger style of AWE,
+  `style="btn-danger"`, drawn filled with the danger colour.
+- The text is the locale `SCREEN_TEXT_GRID_SELECTED_ROW` for one row and `SCREEN_TEXT_GRID_SELECTED_ROWS` for more,
+  with `{{count}}` for the number (`{{count}} selected`).
+- In a grid without `multiselect` the bar shows the one selected row.
+- The bar is a polite live region (`aria-live="polite"`), so screen readers announce the number of selected rows; its
+  buttons follow the text in the tab order and are out of it while the bar is hidden. It uses the highlight tokens of
+  the selected rows in the light and dark modes and the comfortable and compact densities, and it appears with a short
+  fade that stops with `prefers-reduced-motion`.
 
 ## Context menu
 

@@ -9,11 +9,13 @@ import {initRowDrag} from "../services/grid/rowDrag";
 import "./gridHeader";
 import "./gridSkeleton";
 import "./gridToolbar";
+import {getSelectionButtons} from "./gridSelectionBar";
 import "./gridGroupBy";
 
 export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <awe-grid-toolbar ng-if="controller.showToolbar !== false"></awe-grid-toolbar>
+  <awe-grid-toolbar ng-if="controller.showToolbar !== false || controller.quickFilter || controller.search"></awe-grid-toolbar>
+  <awe-grid-selection-bar ng-if="::component.selectionButtons.length"></awe-grid-selection-bar>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button">
@@ -130,6 +132,8 @@ aweApplication.directive('aweGrid',
                 // Update grid styles
                 component.gridStyle = "grid-" + scope.size + " " + (component.controller.style || "") + (component.wrapsText ? " grid-wrap" : "") + (component.rowDetail ? " grid-with-row-detail" : "");
                 component.gridButtonClass = "btn btn-" + scope.size;
+                // Buttons of the selection bar (selection="true"): out of the footer
+                component.selectionButtons = getSelectionButtons(component.controller);
                 component.gridPaginationClass = "pagination pagination-" + scope.size;
                 component.enableSorting = !$utilities.isEmpty(component.controller.targetAction) || component.controller.loadAll;
 

@@ -287,11 +287,23 @@ describe('awe-react-client/test/js/templates/SigninPageControlsTest.jsx', () => 
         .toMatch(/#lock$/);
     });
 
-    it('leaves the password fields out of the sign-in page as they are', () => {
+    it('draws a single eye button on the sign-in page: the one of the page, not the one of the criterion (#793 S17)', () => {
+      renderPassword();
+
+      expect(screen.getAllByRole('button', { name: 'Show password' })).toHaveLength(1);
+      expect(document.querySelectorAll('button[aria-controls="pwd_usr"]')).toHaveLength(1);
+      expect(document.querySelector('.password-toggle')).toBeNull();
+      expect(password().classList.contains('password-field')).toBe(false);
+    });
+
+    it('leaves the password fields out of the sign-in page with the eye of the criterion and its Caps Lock icon', () => {
       renderPassword(false);
       fireEvent.keyDown(password(), { key: 'A', modifierCapsLock: true });
 
-      expect(screen.queryByRole('button', { name: 'Show password' })).toBeNull();
+      const toggle = screen.getByRole('button', { name: 'Show password' });
+      expect(toggle.classList.contains('password-toggle')).toBe(true);
+      expect(toggle.classList.contains('signin-password-toggle')).toBe(false);
+      expect(document.querySelectorAll('button[aria-controls="pwd_usr"]')).toHaveLength(1);
       expect(capsWarning()).toBeNull();
       expect(document.querySelector('.caps-lock-icon')).not.toBeNull();
     });

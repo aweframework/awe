@@ -315,6 +315,35 @@
     <option label="ENUM_NO" value="0"/>
     <option label="ENUM_YES" value="1"/>
   </group>
+  <!-- State of a user account (UsrLst StaCod): label and tone of the users screen -->
+  <group id="user-state-label">
+    <option label="ENUM_USER_STATE_ACTIVE" value="active"/>
+    <option label="ENUM_USER_STATE_INACTIVE" value="inactive"/>
+    <option label="ENUM_USER_STATE_LOCKED" value="locked"/>
+  </group>
+  <group id="user-state-tone">
+    <option label="success" value="active"/>
+    <option label="neutral" value="inactive"/>
+    <option label="danger" value="locked"/>
+  </group>
+  <!-- Two-factor of a user account (UsrLst 2faCod): text of the users screen -->
+  <group id="user-2fa-label">
+    <option label="ENUM_USER_2FA_ON" value="on"/>
+    <option label="ENUM_USER_2FA_OFF" value="off"/>
+  </group>
+  <!-- Two-factor tag of the side panel header of the users screen (UsrLst 2faHdrCod): only when it is on -->
+  <group id="user-2fa-header">
+    <option label="ENUM_USER_2FA_HEADER_ON" value="on"/>
+  </group>
+  <!-- Tone of the avatar of a user (user-admin), by its identifier modulo 6 (UsrLst) -->
+  <group id="user-avatar-tone">
+    <option label="primary" value="0"/>
+    <option label="info" value="1"/>
+    <option label="success" value="2"/>
+    <option label="warning" value="3"/>
+    <option label="danger" value="4"/>
+    <option label="neutral" value="5"/>
+  </group>
   <group id="authenticated-icon">
     <option label="fa-unlock" value="0"/>
     <option label="fa-lock" value="1"/>

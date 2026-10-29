@@ -89,6 +89,17 @@ describe('awe-react-client/test/js/redux/reducers/components/gridModelTest.js', 
       ]);
     });
 
+    it('flags the option whose value is the same text as the selected value (number from a grid cell)', () => {
+      expect(getFilteredValues([{value: '0'}, {value: '1'}], [1])).toEqual([
+        {value: '0', selected: false},
+        {value: '1', selected: true}
+      ]);
+      expect(getFilteredValues([{value: 1}, {value: 2}], ['2'])).toEqual([
+        {value: 1, selected: false},
+        {value: 2, selected: true}
+      ]);
+    });
+
     it('builds the values from the selection when none matches', () => {
       expect(getFilteredValues([{value: 1}], [9])).toEqual([{value: 9, selected: true}]);
     });

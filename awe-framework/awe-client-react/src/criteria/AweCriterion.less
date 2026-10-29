@@ -202,6 +202,23 @@
   color: var(--awe-color-text);
 }
 
+/* Switch (checkbox with style="switch", #793): the handle of the design system switch, raised, and on the primary
+   colour when checked; the theme gives the track, its size, hover and focus ring */
+.field .field-checkbox .p-inputswitch .p-inputswitch-slider:before {
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.field .field-checkbox .p-inputswitch.p-highlight .p-inputswitch-slider:before {
+  background: var(--awe-color-on-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field .field-checkbox .p-inputswitch .p-inputswitch-slider,
+  .field .field-checkbox .p-inputswitch .p-inputswitch-slider:before {
+    transition: none;
+  }
+}
+
 /* Button radio and button checkbox: a segmented control whose segments wrap instead of clipping */
 .field .p-selectbutton.p-buttonset {
   display: inline-flex;
@@ -292,6 +309,80 @@
 .p-inputtext.caps-lock {
   border-color: var(--awe-color-warning);
   padding-right: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
+}
+
+/* Show / hide button of the password criterion (#793): an icon-only ghost button at the end of the field, with the
+   field icon colour. The text never runs under it, nor under the Caps Lock icon, which moves to its left */
+.p-inputgroup > .password-toggle {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: var(--awe-space-1);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  padding: 0;
+  translate: 0 -50%;
+  color: var(--awe-color-field-icon);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.p-inputgroup > .password-toggle:hover:not(:disabled) {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-hover);
+}
+
+.p-inputgroup > .password-toggle:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: 0;
+}
+
+.p-inputgroup > .password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: var(--awe-opacity-disabled);
+}
+
+.p-inputtext.password-field {
+  padding-inline-end: calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1));
+}
+
+.p-inputtext.password-field.caps-lock {
+  padding-inline-end: calc(var(--awe-size-control-sm) + 3 * var(--awe-space-1) + var(--awe-size-icon));
+}
+
+.p-inputgroup .password-field ~ .caps-lock-icon {
+  inset-inline-end: calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1));
+}
+
+/* A field too narrow to hold the button without covering the text (as a password with a long left label in a narrow
+   column) hides it: the text and the Caps Lock icon get back the end of the field. A container query cannot read a
+   token, so the width is written in rem (the button and its gaps take a third of it) */
+.p-inputgroup:has(> .password-toggle) {
+  container-type: inline-size;
+}
+
+@container (width < 6rem) {
+  .p-inputgroup > .password-toggle {
+    display: none;
+  }
+
+  .p-inputtext.password-field {
+    padding-inline-end: var(--awe-field-padding-x);
+  }
+
+  .p-inputtext.password-field.caps-lock {
+    padding-inline-end: calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon));
+  }
+
+  .p-inputgroup .password-field ~ .caps-lock-icon {
+    inset-inline-end: var(--awe-field-padding-x);
+  }
 }
 
 // The clear icon of a select: smaller than its arrow and muted, so it does not read as a second arrow

@@ -163,6 +163,12 @@
   background: var(--awe-grid-row-background);
 }
 
+// A cell holding an icon-only button (style no-label) keeps a small padding, so the icon buttons of adjoining cells sit
+// close together, as the row actions of the prototype (#793)
+.p-datatable .p-datatable-tbody > tr > td:has(> .p-button.no-label) {
+  padding-inline: var(--awe-space-0-5);
+}
+
 // The row edit column stays narrow: small padding, and a small gap between the save and cancel buttons of the edited
 // row (it only grows at the right end of the grid, so the columns of the data do not move)
 .p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column {
@@ -316,7 +322,7 @@
   color: var(--awe-color-neutral-text);
   vertical-align: middle;
   background-color: var(--awe-color-neutral-subtle);
-  border-radius: var(--awe-radius-full);
+  border-radius: var(--awe-radius-sm);
 
   &::before {
     display: inline-block;
@@ -350,6 +356,32 @@
   background-color: var(--awe-color-info-subtle);
 }
 
+// Icon before the value of a cell (icon-field, #793): decorative, the text is the value. In a status the icon takes the
+// place of the dot, so the status is a plain tag (as the tag--plain of the prototype)
+.awe-cell-icon {
+  display: inline-flex;
+  margin-inline-end: var(--awe-space-1-5);
+  vertical-align: middle;
+}
+
+.awe-cell-icon > .awe-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.awe-cell-status-plain::before {
+  display: none;
+}
+
+.awe-cell-icon-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 // Chips: they wrap and the row grows to fit them; over the maximum, a "+n" chip lists the hidden ones on hover
 .awe-cell-chips {
   display: inline-flex;
@@ -369,12 +401,78 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   background-color: var(--awe-color-secondary);
-  border-radius: var(--awe-radius-full);
+  border-radius: var(--awe-radius-sm);
 }
 
 .awe-cell-chip-more {
   font-weight: var(--awe-font-weight-medium);
   cursor: default;
+}
+
+// Avatar before the value of a cell (#793): decorative initials on the tone of the row, as the avatar of the prototype.
+// Without initials an empty space of the same size keeps the names of the column aligned (never an empty circle)
+.awe-cell-entity {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  min-width: 0;
+}
+
+.awe-cell-entity-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+
+  > .awe-cell-main {
+    display: block;
+  }
+}
+
+.awe-cell-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: 1;
+  color: var(--awe-color-on-secondary);
+  white-space: nowrap;
+  background-color: var(--awe-color-secondary);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-cell-avatar-spacer {
+  flex: none;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+}
+
+.awe-cell-avatar-primary {
+  color: var(--awe-color-on-primary-subtle);
+  background-color: var(--awe-color-primary-subtle);
+}
+
+.awe-cell-avatar-info {
+  color: var(--awe-color-info-text);
+  background-color: var(--awe-color-info-subtle);
+}
+
+.awe-cell-avatar-success {
+  color: var(--awe-color-success-text);
+  background-color: var(--awe-color-success-subtle);
+}
+
+.awe-cell-avatar-warning {
+  color: var(--awe-color-warning-text);
+  background-color: var(--awe-color-warning-subtle);
+}
+
+.awe-cell-avatar-danger {
+  color: var(--awe-color-danger-text);
+  background-color: var(--awe-color-danger-subtle);
 }
 
 .grid-cell-tooltip.p-tooltip {
@@ -394,6 +492,320 @@
   // The inset of the footer: the last button (Maximize) stays off the edge of the grid
   padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
   border-bottom: 1px solid var(--awe-grid-border);
+}
+
+// Spacer of the toolbar: the search, the quick filters and the row grouping controls stay at the start, the Columns and
+// Maximize buttons at the end (it takes the free space before the auto margins of the search and the quick filters)
+.grid-toolbar-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+// Selection bar of the grid (#793): between the toolbar and the table while there are selected rows, on the highlight
+// of the selected rows, with a check, "N selected" and the selection buttons of the grid (selection="true") at the end:
+// small ghost buttons, the destructive one (style="btn-danger") filled with the danger colour. The text of the ghost
+// buttons is the one of the bar (on-highlight), so it keeps its contrast on the highlight in light and dark
+@keyframes awe-grid-selection-bar-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.grid-selection-bar {
+  display: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-on-highlight);
+  background: var(--awe-color-highlight);
+  border-bottom: 1px solid var(--awe-grid-border);
+}
+
+.grid-selection-bar.is-visible {
+  display: flex;
+  animation: awe-grid-selection-bar-in var(--awe-motion-duration-fast) var(--awe-motion-easing-enter);
+}
+
+.grid-selection-bar .grid-selection-bar-icon {
+  display: inline-flex;
+}
+
+// The icon comes wrapped in an inline <i> as tall as the line: as a flex box it takes the height of the icon, so the
+// icon is centred with the text instead of sitting on the baseline of the line (#793)
+.grid-selection-bar .grid-selection-bar-icon > i {
+  display: inline-flex;
+}
+
+.grid-selection-bar .grid-selection-bar-icon .awe-icon,
+.grid-selection-bar .p-button .awe-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.grid-selection-bar .grid-selection-bar-spacer {
+  flex: 1;
+}
+
+.grid-selection-bar .grid-selection-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+.grid-selection-bar .p-button.p-button-sm {
+  gap: var(--awe-space-1-5);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  border-radius: var(--awe-radius-field);
+}
+
+.grid-selection-bar .p-button.p-button-text {
+  color: inherit;
+  background: transparent;
+  border-color: transparent;
+}
+
+.grid-selection-bar .p-button.p-button-text:enabled:hover {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-surface-hover);
+}
+
+.grid-selection-bar .p-button.p-button-text:enabled:active {
+  background: var(--awe-color-secondary-hover);
+}
+
+.grid-selection-bar .p-button.p-button-danger {
+  color: var(--awe-color-on-danger);
+  background: var(--awe-color-danger);
+  border-color: var(--awe-color-danger);
+}
+
+.grid-selection-bar .p-button.p-button-danger:enabled:hover,
+.grid-selection-bar .p-button.p-button-danger:enabled:active {
+  background: var(--awe-color-danger-hover);
+  border-color: var(--awe-color-danger-hover);
+}
+
+.grid-selection-bar .p-button:focus-visible {
+  box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+    0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-selection-bar.is-visible {
+    animation: none;
+  }
+}
+
+// Search of the grid: a small text field with the search icon at the start of the toolbar, before the quick filters;
+// alone, it pushes the Columns and Maximize buttons to the end like the quick filters do
+.grid-search {
+  position: relative;
+  display: flex;
+  flex: 0 1 32ch;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  min-width: 12ch;
+  height: var(--awe-size-control-sm);
+  margin-inline-end: auto;
+  padding: 0 var(--awe-field-padding-x);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-field-text);
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+  transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.grid-search:has(+ .grid-quick-filter) {
+  margin-inline-end: 0;
+}
+
+.grid-search:hover {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.grid-search:focus-within {
+  border-color: var(--awe-color-field-border-focus);
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.grid-search .grid-search-icon {
+  display: flex;
+  flex: none;
+  color: var(--awe-color-field-icon);
+}
+
+.grid-search svg {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.grid-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  appearance: none;
+}
+
+.grid-search input::placeholder {
+  color: var(--awe-color-field-placeholder);
+  opacity: 1;
+}
+
+// The clear button of the field replaces the one of the browser
+.grid-search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.grid-search input:disabled {
+  cursor: not-allowed;
+}
+
+.grid-search .grid-search-clear {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: calc(var(--awe-size-control-sm) - var(--awe-space-2));
+  height: calc(var(--awe-size-control-sm) - var(--awe-space-2));
+  margin-inline-end: calc(-1 * var(--awe-space-1-5));
+  padding: 0;
+  color: var(--awe-color-field-icon);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+}
+
+.grid-search .grid-search-clear:hover {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-hover);
+}
+
+.grid-search .grid-search-clear:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-search {
+    transition: none;
+  }
+}
+
+// Quick filters of the grid: a small segmented control (one radio per option, "Label N") at the start of the toolbar,
+// the Columns and Maximize buttons stay at its end
+.grid-quick-filter {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-0-5);
+  max-width: 100%;
+  margin-inline-end: auto;
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: 1px solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.grid-quick-filter .grid-quick-filter-option {
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+}
+
+.grid-quick-filter input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.grid-quick-filter .grid-quick-filter-segment {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  height: calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px));
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-segmented-text);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--awe-radius-sm);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.grid-quick-filter .grid-quick-filter-option:hover > .grid-quick-filter-segment {
+  color: var(--awe-segmented-hover-text);
+}
+
+.grid-quick-filter input:checked + .grid-quick-filter-segment {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.grid-quick-filter input:focus-visible + .grid-quick-filter-segment {
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
+
+.grid-quick-filter input:disabled + .grid-quick-filter-segment {
+  cursor: not-allowed;
+  opacity: var(--awe-opacity-disabled);
+}
+
+.grid-quick-filter .grid-quick-filter-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text-muted);
+}
+
+.grid-quick-filter .grid-quick-filter-count[data-tone="danger"] {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-danger-text);
+}
+
+.grid-quick-filter .grid-quick-filter-count[data-tone="warning"] {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-warning-text);
+}
+
+.grid-quick-filter .grid-quick-filter-count[data-tone="success"] {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-success-text);
+}
+
+.grid-quick-filter .grid-quick-filter-count[data-tone="info"] {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-info-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-quick-filter .grid-quick-filter-segment {
+    transition: none;
+  }
 }
 
 .grid-toolbar .grid-toolbar-button.p-button {

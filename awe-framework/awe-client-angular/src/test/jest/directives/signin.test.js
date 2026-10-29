@@ -623,6 +623,19 @@ describe("awe-signin: configurable sign-in page", () => {
       expect(page.querySelectorAll(".signin-caps")).toHaveLength(1);
     });
 
+    it("draws a single eye button: the one of the page replaces the one of the password criterion (#793 S17)", () => {
+      const markup = SIGNIN.replace('aria-describedby="pwd_usr-help">',
+        'aria-describedby="pwd_usr-help"><button type="button" class="password-toggle" aria-controls="pwd_usr"></button>');
+      const {page} = render(serverDefaults, markup);
+      expect(page.querySelectorAll("button[aria-controls=\"pwd_usr\"]")).toHaveLength(1);
+      expect(page.querySelector(".password-toggle")).toBeNull();
+      expect(toggle(page)).not.toBeNull();
+
+      toggle(page).click();
+      expect(password(page).type).toBe("text");
+      expect(toggle(page).getAttribute("aria-label")).toBe("Hide password");
+    });
+
     it("labels the user and password fields above them, with the user and lock icons", () => {
       const xml = fs.readFileSync(SIGNIN_XML, "utf8");
       const criterion = id => xml.match(new RegExp(`<criteria [^>]*id="${id}"[^>]*>`))[0];

@@ -2462,6 +2462,63 @@
     <field id="teams" alias="teams"/>
   </query>
 
+  <!-- Themes of the grid with quick filters, filtered by the value of its quick filter (GrdQckFltTst screen) -->
+  <query id="QckFltTstThm">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Act" alias="state" translate="active-label"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="state" optional="true"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="state" type="INTEGER" name="CrtQckFltSta" optional="true"/>
+  </query>
+
+  <!-- Options of the quick filter of the GrdQckFltTst screen: all the themes, the active ones and the inactive ones
+       (the count in the danger tone), with their counts -->
+  <query id="QckFltTstSta">
+    <table id="AweThm"/>
+    <constant value="1" type="INTEGER" alias="pos"/>
+    <constant value="" alias="value"/>
+    <constant value="QUICK_FILTER_ALL" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <union type="ALL" query="QckFltTstStaAct"/>
+    <union type="ALL" query="QckFltTstStaIna"/>
+    <order-by field="pos" type="ASC"/>
+  </query>
+  <query id="QckFltTstStaAct">
+    <table id="AweThm"/>
+    <constant value="2" type="INTEGER" alias="pos"/>
+    <constant value="1" alias="value"/>
+    <constant value="QUICK_FILTER_ACTIVE" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="active"/>
+      </and>
+    </where>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+  <query id="QckFltTstStaIna">
+    <table id="AweThm"/>
+    <constant value="3" type="INTEGER" alias="pos"/>
+    <constant value="0" alias="value"/>
+    <constant value="QUICK_FILTER_INACTIVE" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="danger" alias="tone"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="inactive"/>
+      </and>
+    </where>
+    <variable id="inactive" type="INTEGER" value="0"/>
+  </query>
+
   <!-- Rows with texts of very different lengths (GrdWrapTst and GrdNoWrapTst screens) -->
   <query id="WrapRowsTst" service="loadWrapRows">
     <field id="id" alias="id"/>

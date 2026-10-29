@@ -69,24 +69,35 @@ public class UserAccountAuditService extends ServiceConfig {
    * @throws AWException Error reading the user
    */
   public ServiceData auditUserUpdate(Integer userId, Integer locked, Integer passwordUpdate) throws AWException {
-    if (!securityAuditService.isEnabled() && !loginAttemptService.isEnabled() || userId == null) {
+    return auditUserUpdate(userId == null ? null : List.of(userId), locked, passwordUpdate);
+  }
+
+  /**
+   * An administrator updates some users (the grid of the users screen sends the identifiers as a list): each user is
+   * audited as {@link #auditUserUpdate(Integer, Integer, Integer)} does.
+   *
+   * @param userIds        User identifiers
+   * @param locked         New lock flag (1 locked)
+   * @param passwordUpdate 1 when the password is reset
+   * @return Empty service data
+   * @throws AWException Error reading the users
+   */
+  public ServiceData auditUserUpdate(List<Integer> userIds, Integer locked, Integer passwordUpdate) throws AWException {
+    if (!securityAuditService.isEnabled() && !loginAttemptService.isEnabled() || userIds == null || userIds.isEmpty()) {
       return new ServiceData();
     }
-    List<UserStatus> users = userStatus(List.of(userId));
-    if (users.isEmpty()) {
-      return new ServiceData();
-    }
-    UserStatus user = users.getFirst();
     boolean reset = Integer.valueOf(1).equals(passwordUpdate);
     boolean nowLocked = !reset && Integer.valueOf(1).equals(locked);
-    if (user.locked() && !nowLocked) {
-      loginAttemptService.resetFailures(user.name());
-      administratorEvent(SecurityAuditEventType.ACCOUNT_UNLOCKED, user.name());
-    } else if (!user.locked() && nowLocked) {
-      administratorEvent(SecurityAuditEventType.ACCOUNT_LOCKED, user.name());
-    }
-    if (reset) {
-      administratorEvent(SecurityAuditEventType.PASSWORD_RESET, user.name());
+    for (UserStatus user : userStatus(userIds)) {
+      if (user.locked() && !nowLocked) {
+        loginAttemptService.resetFailures(user.name());
+        administratorEvent(SecurityAuditEventType.ACCOUNT_UNLOCKED, user.name());
+      } else if (!user.locked() && nowLocked) {
+        administratorEvent(SecurityAuditEventType.ACCOUNT_LOCKED, user.name());
+      }
+      if (reset) {
+        administratorEvent(SecurityAuditEventType.PASSWORD_RESET, user.name());
+      }
     }
     return new ServiceData();
   }

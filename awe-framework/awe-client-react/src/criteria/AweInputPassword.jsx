@@ -20,7 +20,8 @@ function AweInputPassword(props) {
   const dispatch = useDispatch();
   const { address, attributes, validationRules, value, setValue, onChange, onBlur, onSubmit } = useText(id);
   const capsLockOn = useCapsLock();
-  // On the sign-in page the password is drawn as the prototype: a show / hide button and a Caps Lock warning under it
+  // Every password has a show / hide button at the end of the field. On the sign-in page it is drawn as the prototype
+  // (the sign-in toggle) with a Caps Lock warning under the field
   const signin = useInSigninPage();
   // and the field is disabled while the login runs
   const signingIn = useSigningIn();
@@ -43,7 +44,7 @@ function AweInputPassword(props) {
   const capsId = `${address?.component}-caps`;
   const capsWarning = signin && capsLockOn;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
-    "caps-lock": capsLockOn && !signin, "signin-password": signin });
+    "caps-lock": capsLockOn && !signin, "signin-password": signin, "password-field": !signin });
 
   const note = capsWarning && <small id={capsId} className="help help--warning signin-caps">
     {getIconNode("lucide:triangle-alert", {"aria-hidden": "true"})}
@@ -55,7 +56,7 @@ function AweInputPassword(props) {
       <InputText
         ref={input}
         id={address?.component}
-        type={signin && shown ? "text" : "password"}
+        type={shown ? "text" : "password"}
         value={value}
         className={classes}
         placeholder={criterionPlaceholder(attributes, validationRules, t)}
@@ -68,11 +69,12 @@ function AweInputPassword(props) {
         aria-describedby={capsWarning ? capsId : undefined}
         {...testHook(TestIds.criterionInput)}
       />
-      {signin && <button type="button" className="signin-password-toggle" aria-controls={address?.component}
+      {/* The type of the input is only visual: the value, the validation and the model do not change */}
+      <button type="button" className={signin ? "signin-password-toggle" : "password-toggle"} aria-controls={address?.component}
                          aria-pressed={shown} disabled={readonly || signingIn} onClick={() => setShown(show => !show)}
                          aria-label={t(shown ? "SCREEN_TEXT_HIDE_PASSWORD" : "SCREEN_TEXT_SHOW_PASSWORD")}>
         {getIconNode(shown ? "lucide:eye-off" : "lucide:eye", {"aria-hidden": "true"})}
-      </button>}
+      </button>
       {capsLockOn && !signin && getIconNode("pi-arrow-circle-up", {className: "caps-lock-icon", "aria-hidden": "true"})}
     </AweCriterion>
   );

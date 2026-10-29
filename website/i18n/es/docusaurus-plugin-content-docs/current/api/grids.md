@@ -30,6 +30,9 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
   <context-button ...> ... </context button>
   ...
   <row-detail> ... </row-detail>
+  ...
+  <search ... />
+  <quick-filter ... />
 </grid>
 ```
 ## Estructura de grid {#grid-structure}
@@ -66,7 +69,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-title            | Opcional        | String  | Título del [estado vacío](#empty-state) del grid                                                                                                       | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un título traducido "No se han encontrado registros"      |
 | empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
-| show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla                                                                                                      |
+| show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla (los [filtros rápidos](#quick-filters) del grid se siguen mostrando)                                                                                                      |
 | columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un popover anclado al botón de columnas, un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho | `popover`, `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
 
@@ -100,6 +103,9 @@ el primer pintado ya está personalizado.
 Algunas reglas mantienen válida una disposición guardada cuando cambia la pantalla:
 
 - Las columnas ocultas en el XML (`hidden="true"`, por ejemplo las claves) nunca aparecen en el diálogo.
+- Las [columnas de botón](#button-column-component) (`component="button"`) son acciones, no datos: nunca aparecen en el
+  diálogo ni cuentan en su contador, siempre se muestran donde las pone el XML y se ignoran sus entradas en una
+  disposición guardada.
 - Los identificadores de columna que ya no existen se ignoran, y una columna añadida al XML aparece visible en su
   posición del XML.
 - Una columna solo se puede reordenar dentro de su propio `group-header`, y las columnas sin grupo entre sí; una columna
@@ -131,6 +137,157 @@ Use `show-toolbar="false"` para que un grid no tenga barra de herramientas; ento
 ```
 
 Las exportaciones a Excel y PDF y la impresión usan las columnas del XML de la pantalla, no la disposición del usuario.
+
+### Búsqueda {#search}
+
+Un grid puede mostrar un campo de búsqueda al principio de su [barra de herramientas](#toolbar), antes de sus
+[filtros rápidos](#quick-filters): una caja de texto con un icono de búsqueda que filtra el grid mientras el usuario
+escribe, por ejemplo *Usuario, nombre, email o perfil…*. Declare un `<search>` dentro del grid. Funciona en **los dos
+motores de cliente**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst">
+  <search id="CrtUsrTxt" placeholder="SCREEN_TEXT_USER_SEARCH"/>
+  <quick-filter id="CrtUsrSta" initial-load="query" target-action="UsrStaCnt" value=""/>
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+</grid>
+```
+
+| Atributo    | Uso             | Tipo   | Descripción                                                                                  | Valores |
+|-------------|-----------------|--------|----------------------------------------------------------------------------------------------|---------|
+| id          | **Obligatorio** | String | Identificador de la búsqueda, y nombre del parámetro que envía su texto con el grid          |         |
+| placeholder | Opcional        | String | Texto que se muestra en el campo vacío                                                       | **Nota:** Puede utilizar los ficheros de [i18n](i18n-internationalization.md) (locales) |
+| label       | Opcional        | String | Nombre accesible del campo, que leen los lectores de pantalla. No se muestra                 | **Nota:** Puede utilizar los ficheros de [i18n](i18n-internationalization.md) (locales). Por defecto `BUTTON_SEARCH` |
+| value       | Opcional        | String | Texto del campo al abrir la pantalla                                                         | Por defecto: vacío, el grid sin filtrar |
+
+**Valor.** La búsqueda **no tiene consulta propia**: no tiene `server-action` ni `target-action`. Es un criterio de la
+pantalla, así que su texto se envía con cada petición del grid (su propio `target-action`) como una variable con el nombre
+de su `id`, y la consulta del grid lo lee como cualquier criterio. Haga opcionales sus filtros, para que una búsqueda
+vacía deje el grid sin filtrar; con `STRINGB` el texto se busca en cualquier parte del campo, e `ignorecase="true"` no
+distingue mayúsculas de minúsculas. Para buscar en varios campos, ponga sus filtros en un `<or>`:
+
+```xml
+<query id="UsrLst">
+  ...
+  <where>
+    <and>
+      <or>
+        <filter left-field="OpeNam" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+        <filter left-field="l1_nom" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+        <filter left-field="EmlAdr" condition="like" right-variable="search" ignorecase="true" optional="true"/>
+      </or>
+    </and>
+  </where>
+  <variable id="search" type="STRINGB" name="CrtUsrTxt" optional="true"/>
+</query>
+```
+
+**Comportamiento.**
+
+- Al escribir se filtra el grid tras una pausa corta (300 ms); <kbd>Intro</kbd> lo filtra al momento (y no envía la
+  pantalla). El grid no se vuelve a filtrar con el texto que ya muestra.
+- Mientras tiene texto, el campo muestra un botón de borrar; el botón y <kbd>Esc</kbd> lo vacían y filtran el grid al
+  momento.
+- Como cualquier filtrado del grid, una búsqueda recarga también los [filtros rápidos](#quick-filters), así que sus
+  recuentos la siguen: dé a la consulta de las opciones los mismos filtros de búsqueda.
+- Es un campo `type="search"` con su nombre accesible (`label`), el anillo de foco de los campos y los tokens de los
+  campos en los modos claro y oscuro y las densidades cómoda y compacta.
+- La barra de herramientas muestra la búsqueda también cuando el grid usa `show-toolbar="false"`: solo se ocultan los
+  controles de agrupación de filas y los botones de columnas y maximizar.
+- Declare como mucho una por grid; solo se usa la primera.
+
+### Filtros rápidos {#quick-filters}
+
+Un grid puede ofrecer unos pocos filtros predefinidos como un grupo de botones (un control segmentado) al principio de su
+[barra de herramientas](#toolbar), cada uno con su recuento, por ejemplo **Todos 128 · Bloqueados 3 · Sin 2FA 41 ·
+Inactivos 12**. Declare un `<quick-filter>` dentro del grid. Funciona en **los dos motores de cliente**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst">
+  <quick-filter id="CrtUsrSta" initial-load="query" target-action="UsrStaCnt" value=""/>
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+</grid>
+```
+
+| Atributo      | Uso             | Tipo   | Descripción                                                                                              | Valores |
+|---------------|-----------------|--------|----------------------------------------------------------------------------------------------------------|---------|
+| id            | **Obligatorio** | String | Identificador del filtro rápido, y nombre del parámetro que envía su valor con el grid                   |         |
+| initial-load  | **Obligatorio** | String | De dónde salen las opciones                                                                              | `query` (lo habitual, para obtener los recuentos) o `enum` |
+| target-action | **Obligatorio** | String | Consulta o enumerado que devuelve las opciones                                                           |         |
+| server-action | Opcional        | String | Acción de servidor que recarga las opciones                                                              | Por defecto `data` |
+| value         | Opcional        | String | Opción elegida al abrir la pantalla                                                                      | Por defecto: vacío, la opción con valor vacío (*Todos*) |
+| label         | Opcional        | String | Nombre accesible del grupo de botones, que leen los lectores de pantalla. No se muestra                  | **Nota:** Puede usar los ficheros de [i18n](i18n-internationalization.md) (locales). Por defecto `SCREEN_TEXT_FILTERS` |
+
+**Opciones.** El destino devuelve una fila por opción, en el orden en que se muestran:
+
+| Campo   | Uso         | Descripción |
+|---------|-------------|-------------|
+| `value` | Obligatorio | Valor de la opción, que se envía al elegirla. La opción con valor vacío (normalmente la primera, *Todos*) deja el grid sin filtrar |
+| `label` | Obligatorio | Texto de la opción. **Nota:** Puede usar los ficheros de [i18n](i18n-internationalization.md) (locales) |
+| `count` | Opcional    | Número que se muestra tras la etiqueta. Sin él la opción muestra solo su etiqueta |
+| `tone`  | Opcional    | Color del recuento: `danger`, `warning`, `success` o `info`. Sin él el recuento se muestra atenuado |
+
+La consulta de las opciones recibe los valores de la pantalla, como cualquier consulta, así que sus recuentos pueden
+seguir a los demás filtros del grid. Por ejemplo, los usuarios *Todos* y *Bloqueados*, como la unión de un recuento por
+opción:
+
+```xml
+<query id="UsrStaCnt">
+  <table id="ope"/>
+  <constant value="1" type="INTEGER" alias="pos"/>
+  <constant value="" alias="value"/>
+  <constant value="QUICK_FILTER_ALL" alias="label"/>
+  <field id="IdeOpe" function="CNT" alias="count"/>
+  <constant value="" alias="tone"/>
+  <union type="ALL" query="UsrStaCntLck"/>
+  <order-by field="pos" type="ASC"/>
+</query>
+<query id="UsrStaCntLck">
+  <table id="ope"/>
+  <constant value="2" type="INTEGER" alias="pos"/>
+  <constant value="1" alias="value"/>
+  <constant value="QUICK_FILTER_LOCKED" alias="label"/>
+  <field id="IdeOpe" function="CNT" alias="count"/>
+  <constant value="danger" alias="tone"/>
+  <where>
+    <and>
+      <filter left-field="PwdLck" condition="eq" right-variable="locked"/>
+    </and>
+  </where>
+  <variable id="locked" type="INTEGER" value="1"/>
+</query>
+```
+
+**Valor.** El filtro rápido es un criterio de la pantalla: su valor se envía con cada petición del grid como una variable
+con el nombre de su `id`, así que la consulta del grid lo lee como cualquier criterio. Haga opcional su filtro, para que
+el valor vacío de *Todos* deje el grid sin filtrar:
+
+```xml
+<query id="UsrLst">
+  ...
+  <where>
+    <and>
+      <filter left-field="PwdLck" condition="eq" right-variable="state" optional="true"/>
+    </and>
+  </where>
+  <variable id="state" type="INTEGER" name="CrtUsrSta" optional="true"/>
+</query>
+```
+
+**Comportamiento.**
+
+- Al elegir una opción se filtra el grid; no hace falta ninguna dependencia.
+- Cada filtrado del grid (una búsqueda, una acción de botón `filter` tras un mantenimiento, otra opción elegida) recarga
+  también las opciones, así que los recuentos están siempre al día. La opción elegida se mantiene.
+- Cuando ninguna opción tiene el valor del filtro rápido, se muestra elegida la primera.
+- Las opciones son un grupo de radios: <kbd>Tab</kbd> llega a la opción elegida y las flechas mueven la elección (y
+  filtran el grid). La opción con el foco muestra el anillo de foco.
+- Sigue los modos claro y oscuro y las densidades cómoda y compacta, con los tokens del control segmentado.
+- La barra de herramientas muestra los filtros rápidos también cuando el grid usa `show-toolbar="false"`: solo se ocultan
+  los controles de agrupación de filas y los botones de columnas y maximizar.
+- Declare como mucho uno por grid; solo se usa el primero.
 
 ### Estado vacío {#empty-state}
 
@@ -315,7 +472,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | hidden     | Opcional        | Boolean | La columna **no** es visible en pantalla. Aun así puede imprimirse, véase [columnas de impresión](#printing-columns)                                                | El valor predeterminado es `false`                                               |
 | printable | Opcional        | String  | Indica si la columna se incluye en el informe impreso. Véase [columnas de impresión](#printing-columns)                                                        | `true` (por defecto) o `false`                                                      |
 | align      | Opcional        | String  | La columna **no es** visible                                                                                                                           | `left`, `center` o `right`                                                |
-| width      | Opcional        | Entero  | Ancho de la columna en píxeles o en porcentaje.                                                                                                                     | Ej.: `width = "10"` o `width = "20%"` **Nota:** Puede usar el valor '*' para ajuste automático. |
+| width      | Opcional        | Entero  | Ancho de la columna en píxeles o en porcentaje.                                                                                                                     | Ej.: `width = "10"` o `width = "20%"` **Nota:** Puede usar el valor '*' para ajuste automático: la columna ocupa el resto del ancho del grid (se ignora su `charlength`). |
 | sortable   | Opcional        | Boolean | El campo es ordenable (si no es treegrid)                                                                                                              | El valor predeterminado es `true`                                           |
 | movable    | Opcional        | Boolean | Permite mover la posición de la columna en el grid                                                                                               | El valor predeterminado es `true`                                           |
 | sendable   | Opcional        | Boolean | Los datos de columna deben ser enviados al servidor                                                                                                    | El valor predeterminado es `true`                                           |
@@ -335,6 +492,9 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | chips            | Opcional | Booleano | El valor es una lista que se muestra como etiquetas (chips)                                                                     | El valor por defecto es `false`                                                  |
 | chip-separator   | Opcional | String   | Separador de los elementos de una columna `chips`                                                                               | El valor por defecto es `,`                                                      |
 | max-chips        | Opcional | Entero   | Número de etiquetas que se muestran; el resto se agrupan en una etiqueta "+n"                                                   | Un número mayor que `0`                                                          |
+| avatar-field     | Opcional | Cadena   | Campo de la fila con el nombre (o las iniciales) a partir del que se construye el avatar previo al valor. Ver [avatar](#avatar)  | Nombre de otro campo de la fila                                                  |
+| avatar-tone-field | Opcional | Cadena  | Campo de la fila con el tono del avatar                                                                                         | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
+| icon-field       | Opcional | Cadena  | Campo de la fila con un icono que se muestra antes del valor; con `status-field` ocupa el lugar del punto. Véase [icono](#icon) | Nombre de otro campo de la fila                                                  |
 
 > **Nota:** Cuando una columna es editable (tiene un *componente*) todos los atributos de criterios pueden ser usados en la columna. Ver **[criterios atributos](criteria.md#criteria-structure)** para más referencias.
 
@@ -471,7 +631,77 @@ separador y como mucho tres etiquetas más "+n":
 <column label="PARAMETER_ROLES" name="roles" charlength="30" width="*" chips="true" chip-separator=";" max-chips="3"/>
 ```
 
-Las aplicaciones de prueba incluyen la pantalla *Secondary line, status and chips* en el menú de pruebas de la matriz.
+#### Avatar {#avatar}
+
+Una columna puede mostrar un pequeño avatar redondo con iniciales antes de su valor (y de su segunda línea), como la lista
+de usuarios del sistema de diseño. El avatar se construye a partir de un campo de la fila con un nombre: el motor toma la
+primera letra de su primera y de su última palabra que empiezan por una letra, en mayúsculas (`Carmen Fernández` es `CF`,
+`Pat de la Vega` es `PV`, `admin` es `A`), la misma regla que el avatar de la cabecera de React.
+
+```xml
+<column label="PARAMETER_USER" name="FulNam" sort-field="FulNam" charlength="30" width="*"
+        secondary-field="UsrSec" avatar-field="Ini" avatar-tone-field="IniTon"/>
+<column name="Ini" hidden="true"/>
+<column name="IniTon" hidden="true"/>
+```
+
+| Atributo            | JSON              | Por defecto | Descripción                                                                                                |
+|---------------------|-------------------|-------------|------------------------------------------------------------------------------------------------------------|
+| `avatar-field`      | `avatarField`     |             | Nombre de un campo de la fila con el nombre (o las iniciales separadas por espacios) a partir del que se construye el avatar. Vacío o sin letras: sin avatar, y un espacio vacío del mismo tamaño mantiene alineados los valores de la columna |
+| `avatar-tone-field` | `avatarToneField` | `neutral`   | Nombre de un campo de la fila con el tono: `primary`, `info`, `success`, `warning`, `danger` o `neutral`. El tono se recorta y se pasa a minúsculas; un tono desconocido o vacío es `neutral` |
+
+- Se combina con `secondary-field` y `status-field`; las columnas con un `component` lo ignoran.
+- El avatar es decorativo (`aria-hidden`): el valor de la celda es su texto accesible. Sus iniciales son texto, nunca HTML.
+- La ordenación, el filtrado, la impresión y la exportación usan solo el valor principal.
+- Para dar a cada registro un color estable, calcula el tono a partir de su identificador en la consulta, por ejemplo su
+  identificador módulo el número de tonos traducido con un grupo de enumerados (la pantalla de usuarios lo hace con
+  `user-avatar-tone`):
+
+```xml
+<operation operator="MOD" alias="IniIdx">
+  <field id="IdeOpe" table="ope"/>
+  <constant value="6" type="INTEGER"/>
+</operation>
+<computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone"/>
+```
+
+#### Icono {#icon}
+
+Una columna puede mostrar un icono de la fila antes de su valor, como la columna de doble factor de la pantalla de
+usuarios. El icono se lee de un campo de la fila (`lucide:shield-check`, `fa-check`... como cualquier icono de las
+pantallas). Con `status-field` el icono ocupa el lugar del punto, de modo que el estado es una etiqueta sencilla; una fila
+sin icono muestra la etiqueta solo con su texto.
+
+```xml
+<column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" charlength="12" status-field="2faTon" icon-field="2faIcn"/>
+<column name="2faTon" hidden="true"/>
+<column name="2faIcn" hidden="true"/>
+```
+
+| Atributo     | JSON        | Por defecto | Descripción                                                                                                              |
+|--------------|-------------|-------------|--------------------------------------------------------------------------------------------------------------------------|
+| `icon-field` | `iconField` |             | Nombre de un campo de la fila con el icono. Vacío, o un nombre de Lucide desconocido: sin icono (y, en un estado, sin punto) |
+
+- Se combina con `status-field`, `secondary-field` y `avatar-field`; las columnas con `chips="true"` o con un `component`
+  lo ignoran.
+- El icono es decorativo (`aria-hidden`): el valor de la celda es su texto accesible, así que da a cada fila un texto (por
+  ejemplo `Activado` y `Desactivado`), no solo un icono.
+- La ordenación, el filtrado, la impresión y la exportación usan solo el valor principal.
+- La pantalla de usuarios calcula los tres campos en `UsrLst`: el texto traducido (`user-2fa-label`), el icono solo cuando
+  el doble factor está activado y un tono constante `neutral`:
+
+```xml
+<case alias="2faIcn">
+  <when left-field="enable2fa" left-table="ope" condition="eq" right-variable="One">
+    <then><constant value="lucide:shield-check"/></then>
+  </when>
+  <else><constant value=""/></else>
+</case>
+<constant value="neutral" alias="2faTon"/>
+```
+
+Las aplicaciones de prueba incluyen la pantalla *Secondary line, status and chips* en el menú de pruebas de la matriz (la
+columna del usuario tiene un avatar).
 
 ### Columnas de impresión {#printing-columns}
 
@@ -483,6 +713,12 @@ Cuando se imprime una pantalla (véase la [guía del motor de impresión](../gui
 | `true`      | Siempre, incluso si `hidden="true"` | Siempre, incluso si `hidden="true"` |
 | `excel`     | Nunca                               | Siempre, incluso si `hidden="true"` |
 | `false`     | Nunca                               | Nunca                               |
+
+Las [columnas de botón](#button-column-component) (`component="button"`) nunca se imprimen ni se exportan, sea cual sea
+su valor de `printable`.
+
+Los dos motores aplican estas reglas y el servidor las vuelve a aplicar, así que una columna con `printable="false"` nunca
+está en el informe, envíe lo que envíe el cliente.
 
 «En pantalla» significa que la columna no es `hidden="true"` y que no se ha ocultado en tiempo de ejecución mediante una acción de dependencia `hide-column`. Declarar `printable="true"`, `printable="excel"` o `printable="false"` tiene prioridad sobre el estado de la pantalla.
 
@@ -691,6 +927,36 @@ Una columna de botón es un componente que permite lanzar un conjunto de `button
 | icon     | Clase de icono para mostrar en el botón. Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)                           |
 | style    | Clase CSS para formatear el contenido                                                                                     |
 
+`label`, `title`, `icon` y `style` pueden ser atributos de la columna (iguales para todas las filas) o venir en los datos
+de la celda (sustituyen a los de la columna). Los estilos `btn-*` y `no-label` de los [estilos del botón](button.md#button-styles)
+también se aplican a los botones de la columna (`btn-ghost` para las acciones de fila).
+
+- **El botón actúa sobre su fila.** Un clic en el botón de una fila selecciona esa fila, y solo ella, antes de que se
+  ejecuten sus acciones, de modo que las dependencias de la fila seleccionada (un panel lateral que se rellena con la
+  fila, por ejemplo) y los parámetros que envían las acciones son los de esa fila. Una fila que ya es la única
+  seleccionada se deja como está (una fila en edición sigue en edición). En un *grid* multiselección se deseleccionan
+  las demás filas. Lo hacen los dos motores cliente.
+- **Celdas solo con icono.** Un botón de celda sin etiqueta muestra solo su icono; su `title` (el de la celda, si no el
+  de la columna) es su tooltip y su nombre accesible.
+- **Las columnas de botón son acciones, no datos.** Nunca se listan en las Columnas de la [barra de herramientas](#toolbar)
+  y nunca se imprimen ni se exportan (Excel, CSV, PDF, impresión), sea cual sea su valor de `printable`, en ambos motores
+  y en el servidor. Las columnas de acciones de fila tampoco suelen ordenarse ni enviarse: `sortable="false" sendable="false"`.
+
+Acciones de fila como en el sistema de diseño de AWE 5, un lápiz que edita la fila y unos puntos suspensivos que abren el
+[menú contextual](context-menu.md#opening-the-menu-from-a-button) del *grid*:
+
+```xml
+<column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="value" target="PnlMod" value="edit" />
+  <button-action type="dialog" target="PnlUsr" />
+</column>
+<column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="show-context-menu" />
+</column>
+```
+
 #### Componente de columna radio {#radio-column-component}
 
 Las columnas `radio` y `button-radio` muestran **todas las opciones de una lista en cada celda** y el usuario elige una
@@ -861,7 +1127,9 @@ Un grid básico puede agrupar sus filas por una o varias columnas, en **los dos 
 fila con su valor, su número de filas y los agregados del grupo, se puede contraer y expandir, y termina con una fila de
 subtotal. La barra de herramientas ofrece Expandir todo, Contraer todo y, con `group-selector="true"`, un panel
 **Agrupar por** para cambiar la agrupación en tiempo de ejecución. Un grid sin estos atributos se muestra exactamente
-como antes.
+como antes. La barra de herramientas mantiene su orden: la [búsqueda](#search), los [filtros rápidos](#quick-filters) y
+los controles de agrupación al principio, y los botones de columnas y maximizar al final; `show-toolbar="false"` oculta
+los controles de agrupación junto con los botones de columnas y maximizar.
 
 ```xml
 <grid id="GrdSales" style="expand" initial-load="query" server-action="data" target-action="SalesByStore" max="10"
@@ -1060,6 +1328,54 @@ Puede añadir elementos de botón para realizar acciones sobre los grids. Por ej
   </button>
 </grid>
 ```
+
+### Barra de selección {#selection-bar}
+
+Los botones que actúan sobre las filas seleccionadas (Restablecer 2FA, Borrar...) pueden salir del pie y mostrarse en una
+**barra de selección**: aparece entre la [barra de herramientas](#toolbar) y la cabecera del grid mientras hay una o
+más filas seleccionadas, con un check, el número de filas seleccionadas (*2 seleccionados*) y esos botones al final,
+pequeños y en el orden de la pantalla. Desaparece cuando no hay filas seleccionadas, también tras una recarga del grid
+que limpia la selección. Añade `selection="true"` a cada uno de esos botones. Funciona en **los dos motores de
+cliente**.
+
+```xml
+<grid id="GrdUsrAdm" style="expand" initial-load="query" server-action="data" target-action="UsrLst" multiselect="true">
+  <column label="PARAMETER_USER" name="Nom" />
+  ...
+  <button label="BUTTON_NEW_USER" icon="plus-circle" id="ButNew">...</button>
+  <button label="BUTTON_RESET_2FA" icon="shield" id="ButRst2fa" selection="true">
+    <button-action type="check-some-selected" target="GrdUsrAdm" />
+    <button-action type="confirm" target="Rst2faMsg" />
+    <button-action type="server" server-action="maintain" target-action="reset2fa" />
+    <button-action type="filter" target="GrdUsrAdm" />
+  </button>
+  <button label="BUTTON_DELETE" icon="trash" id="ButDel" style="btn-danger" selection="true">
+    <button-action type="check-some-selected" target="GrdUsrAdm" />
+    <button-action type="confirm" target="DelMsg" />
+    <button-action type="server" server-action="maintain" target-action="UsrDel" />
+    <button-action type="filter" target="GrdUsrAdm" />
+  </button>
+</grid>
+```
+
+| Atributo  | Uso      | Tipo    | Descripción                                                                  | Valores                      |
+|-----------|----------|---------|------------------------------------------------------------------------------|------------------------------|
+| selection | Opcional | Boolean | El botón del grid se muestra en su barra de selección en lugar de en su pie | Valor por defecto: `false`   |
+
+**Comportamiento.**
+
+- Los botones conservan todo su comportamiento: sus acciones, dependencias (habilitar, mostrar...), confirmaciones y su
+  id, así que los tests y los otros botones que los usan no cambian. Solo cambia su sitio. Los demás botones del grid
+  siguen en el pie, y un grid sin botones de selección no tiene barra.
+- Los botones son pequeños y sin borde (ghost); el destructivo es el botón con el estilo de peligro de AWE,
+  `style="btn-danger"`, relleno con el color de peligro.
+- El texto es el literal `SCREEN_TEXT_GRID_SELECTED_ROW` para una fila y `SCREEN_TEXT_GRID_SELECTED_ROWS` para más,
+  con `{{count}}` para el número (`{{count}} seleccionados`).
+- En un grid sin `multiselect` la barra muestra la fila seleccionada.
+- La barra es una región viva cortés (`aria-live="polite"`), así que los lectores de pantalla anuncian el número de
+  filas seleccionadas; sus botones siguen al texto en el orden de tabulación y salen de él mientras la barra está
+  oculta. Usa los tokens de resaltado de las filas seleccionadas en los modos claro y oscuro y en las densidades
+  cómoda y compacta, y aparece con un fundido breve que se detiene con `prefers-reduced-motion`.
 
 ## Menú contextual {#context-menu}
 

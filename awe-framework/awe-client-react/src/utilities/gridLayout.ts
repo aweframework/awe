@@ -2,7 +2,8 @@
  * Grid column layout utilities: the order and visibility of the columns chosen by the user, and the group headers
  * computed from the membership of the columns.
  *
- * The columns the user can manage are the ones the screen does not hide (`hidden` is not set). A column never leaves
+ * The columns the user can manage are the ones the screen does not hide (`hidden` is not set), except the action columns
+ * (`component="button"`), which always stay visible where the screen puts them. A column never leaves
  * its group header: each group keeps the positions it has in the screen and its columns are reordered among them, and
  * the columns without group are reordered among themselves.
  *
@@ -16,6 +17,7 @@
 export interface LayoutColumn {
   name: string;
   hidden?: boolean;
+  component?: string;
 }
 
 /**
@@ -54,7 +56,18 @@ const NO_GROUP = "none";
 // A stored layout that is not well formed (lists that are not lists, ids that are not text) is ignored
 const idList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : []);
 
-const getManageable = <C extends LayoutColumn>(columnModel: readonly C[] = []): C[] => columnModel.filter(column => !column.hidden);
+/**
+ * Check whether a column is an action column (`component="button"`): it is not data, so it is never listed in the
+ * Columns of the toolbar nor printed or exported
+ *
+ * @param {Object} column Column
+ * @returns {boolean} Column is an action column
+ * @memberOf GridLayout
+ */
+export const isActionColumn = (column?: {component?: string} | null): boolean => column?.component === "button";
+
+const getManageable = <C extends LayoutColumn>(columnModel: readonly C[] = []): C[] =>
+  columnModel.filter(column => !column.hidden && !isActionColumn(column));
 
 /**
  * Retrieve the group header index of each column that belongs to a group
@@ -161,12 +174,16 @@ export function applyColumnLayout<C extends LayoutColumn>(
   headerModel: readonly LayoutHeader[] = [],
   layout?: Partial<ColumnLayout> | null
 ): C[] {
+  const shown = columnModel.filter(column => !column.hidden);
   if (!layout) {
-    return getManageable(columnModel);
+    return shown;
   }
   const { order, hidden } = mergeColumnLayout(columnModel, headerModel, layout);
   const byName = Object.fromEntries(getManageable(columnModel).map(column => [column.name, column]));
-  return order.filter(name => !hidden.includes(name)).map(name => byName[name]);
+  // The action columns keep their position of the screen and the other columns take their slots in the layout order
+  let next = 0;
+  return shown.map(column => (isActionColumn(column) ? column : byName[order[next++]]))
+    .filter(column => isActionColumn(column) || !hidden.includes(column.name));
 }
 
 /**

@@ -559,6 +559,8 @@ const createPasswordEnhancer = ({scopeId, translated, translate}) => {
       translate();
     });
     showState();
+    // The eye button of the page replaces the one of the password criterion: a single button per field
+    input.parentElement?.querySelector(":scope > .password-toggle")?.remove();
     input.after(toggle);
 
     const capsId = `${input.id || `signin-password-${scopeId}-${count}`}-caps`;

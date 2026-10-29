@@ -123,6 +123,98 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       });
     });
 
+    it("draws a checkbox with style switch as the design system switch (#793 S19)", () => {
+      const track = ".checkbox.switch > .switch__track";
+      expect(style(".criterion .form-group .checkbox.switch")).toMatchObject({"gap": "var(--awe-space-2)"});
+      expect(style(track)).toMatchObject({
+        "width": "var(--awe-switch-width)",
+        "height": "var(--awe-switch-height)",
+        "background": "var(--awe-color-field-border)",
+        "border-radius": "var(--awe-radius-full)"
+      });
+      expect(style(`${track}::after`)).toMatchObject({
+        "top": "calc((var(--awe-switch-height) - var(--awe-switch-handle-size)) / 2)",
+        "width": "var(--awe-switch-handle-size)",
+        "height": "var(--awe-switch-handle-size)",
+        "background": "var(--awe-color-surface-raised)",
+        "box-shadow": "var(--awe-shadow-sm)"
+      });
+      expect(style(".checkbox.switch:hover > input:not(:disabled) + .switch__track"))
+        .toMatchObject({"background": "var(--awe-color-field-border-hover)"});
+      expect(style(".checkbox.switch > input:checked + .switch__track")).toMatchObject({"background": "var(--awe-color-primary)"});
+      expect(style(".checkbox.switch > input:checked + .switch__track::after")).toMatchObject({
+        "background": "var(--awe-color-on-primary)",
+        "translate": "calc(var(--awe-switch-width) - var(--awe-switch-height)) 0"
+      });
+      expect(style(".checkbox.switch > input:focus-visible + .switch__track")).toMatchObject({
+        "outline": "var(--awe-focus-ring)",
+        "outline-offset": "var(--awe-focus-ring-offset)"
+      });
+      expect(style(".checkbox.switch > input:disabled + .switch__track")).toMatchObject({"background": "var(--awe-color-disabled)"});
+      expect(style(track, "@media (prefers-reduced-motion: reduce)")).toMatchObject({"transition": "none"});
+      expect(style(`${track}::after`, "@media (prefers-reduced-motion: reduce)")).toMatchObject({"transition": "none"});
+    });
+
+    it("draws the eye button of a password at the end of the field, as an icon-only ghost button (#793 S17)", () => {
+      const toggle = ".criterion .input > .password-toggle";
+      expect(style(toggle)).toMatchObject({
+        "position": "absolute",
+        "top": "50%",
+        "inset-inline-end": "var(--awe-space-1)",
+        "z-index": "3",
+        "width": "var(--awe-size-control-sm)",
+        "height": "var(--awe-size-control-sm)",
+        "padding": "0",
+        "translate": "0 -50%",
+        "color": "var(--awe-color-field-icon)",
+        "background": "none",
+        "border": "0",
+        "border-radius": "var(--awe-radius-sm)"
+      });
+      expect(style(`${toggle}:hover:not(:disabled)`)).toMatchObject({
+        "color": "var(--awe-color-text)",
+        "background": "var(--awe-color-surface-hover)"
+      });
+      expect(style(`${toggle}:focus-visible`)).toMatchObject({"outline": "var(--awe-focus-ring)"});
+      expect(style(`${toggle}:disabled`)).toMatchObject({
+        "cursor": "not-allowed",
+        "opacity": "var(--awe-opacity-disabled)"
+      });
+      expect(style(`${toggle} > .awe-icon`)).toMatchObject({
+        "width": "var(--awe-size-icon)",
+        "height": "var(--awe-size-icon)"
+      });
+      // The text never runs under the button, nor under the Caps Lock icon, which moves to its left
+      expect(style(".criterion .input:has(> .password-toggle) > input")).toMatchObject({
+        "padding-inline-end": "calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1))"
+      });
+      expect(style(".criterion .input.has-warning:has(> .password-toggle) > input")).toMatchObject({
+        "padding-inline-end": "calc(var(--awe-size-control-sm) + 3 * var(--awe-space-1) + var(--awe-size-icon))"
+      });
+      expect(style(".criterion .input:has(> .password-toggle) > .form-control-feedback")).toMatchObject({
+        "inset-inline-end": "calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1))",
+        "width": "var(--awe-size-icon)",
+        "height": "100%"
+      });
+    });
+
+    it("hides the eye button of a password in a field too narrow to hold it without covering the text (#793 S17)", () => {
+      const narrow = "@container (width < 6rem) ";
+      // The field of a password is the container its width is measured against
+      expect(style(".criterion .input:has(> .password-toggle)")).toMatchObject({"container-type": "inline-size"});
+      expect(style(`${narrow}.criterion .input > .password-toggle`)).toMatchObject({"display": "none"});
+      // The text and the Caps Lock icon get back the end of the field
+      expect(style(`${narrow}.criterion .input:has(> .password-toggle) > input`)).toMatchObject({
+        "padding-inline-end": "var(--awe-field-padding-x)"
+      });
+      expect(style(`${narrow}.criterion .input.has-warning:has(> .password-toggle) > input`)).toMatchObject({
+        "padding-inline-end": "calc(2 * var(--awe-field-padding-x) + var(--awe-size-icon))"
+      });
+      expect(style(`${narrow}.criterion .input:has(> .password-toggle) > .form-control-feedback`)).toMatchObject({
+        "inset-inline-end": "var(--awe-field-padding-x)"
+      });
+    });
+
     it("shows the numbers with tabular figures", () => {
       expect(style(".criterion input[ui-numeric]")).toMatchObject({
         "font-variant-numeric": "var(--awe-font-variant-numeric)"

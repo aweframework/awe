@@ -12,7 +12,24 @@ AWE también permite visualizar una pantalla de ayuda autogenerada basada en la 
 
 ## Usuarios {#users}
 
-La pantalla de usuario le permite definir, actualizar o eliminar los *usuarios* que pueden acceder a la aplicación y sus opciones predeterminadas, como el idioma, el servidor de correo, el tema por defecto y la pantalla inicial.
+La opción *Usuarios* del menú abre la pantalla de administración de usuarios (`user-admin`): una sola pantalla para
+buscar a los *usuarios* que pueden acceder a la aplicación, revisarlos, editarlos y hacer las tareas de seguridad.
+Muestra los usuarios en un grid con su avatar, nombre, login y email, perfil, estado y estado del doble factor, con una
+búsqueda por nombre, login, email o perfil y filtros rápidos con sus contadores (*Todos*, *Bloqueados*, *Sin 2FA*,
+*Inactivos*). Cada fila tiene un botón de edición y un menú (editar, desbloquear, restablecer el doble factor, borrar), y
+las filas seleccionadas muestran una barra con sus acciones (restablecer el doble factor, borrar). Un panel lateral crea
+y edita un usuario, agrupado en secciones (identidad, acceso, seguridad del inicio de sesión, apariencia y salida), y
+muestra el avatar, el nombre y el estado del usuario que se edita.
+
+La pantalla reutiliza las queries y los maintains de los usuarios (`UsrLst`, `UsrNew`, `UsrUpd`, `UsrDel`, `reset2fa`),
+así que una aplicación que los sobrescribe conserva su lógica. El desbloqueo usa el maintain `UsrUnl`, que además audita
+el cambio.
+
+:::warning Deprecadas
+Las pantallas de usuarios anteriores (`Usr`, `UsrNew`, `UsrUpd` y `UsrViw`) están deprecadas desde AWE 5.0.0 y se
+eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `user-admin`; vea la
+[guía de migración a v5](v5-migration.md).
+:::
 
 <img alt="Pantalla de usuario" src={require('@docusaurus/useBaseUrl').default('img/UsersScreen.png')} />
 

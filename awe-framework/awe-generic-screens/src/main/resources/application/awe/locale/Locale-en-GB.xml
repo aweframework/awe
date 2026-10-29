@@ -26,11 +26,13 @@
   <locale name="BUTTON_CLOSE" value="Close"/>
   <locale name="BUTTON_CONFIRM" value="Confirm"/>
   <locale name="BUTTON_COPY" value="Copy"/>
+  <locale name="BUTTON_CREATE_USER" value="Create user"/>
   <locale name="BUTTON_DARK_MODE" value="Dark mode"/>
   <locale name="BUTTON_DEACTIVATE" value="Deactivate"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
+  <locale name="BUTTON_MORE_ACTIONS" value="More actions"/>
   <locale name="BUTTON_ENCRYPT" value="Encrypt"/>
   <locale name="BUTTON_EXPORT" value="Export"/>
   <locale name="BUTTON_FINISH" value="Finish"/>
@@ -46,6 +48,7 @@
   <locale name="BUTTON_NEW" value="New"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 row below selected"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 row above selected"/>
+  <locale name="BUTTON_NEW_USER" value="New user"/>
   <locale name="BUTTON_NEXT" value="Next"/>
   <locale name="BUTTON_PREVIOUS" value="Previous"/>
   <locale name="BUTTON_PRINT" value="Print"/>
@@ -58,6 +61,7 @@
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restrict access"/>
   <locale name="BUTTON_RUN" value="Start"/>
+  <locale name="BUTTON_SAVE_CHANGES" value="Save changes"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Save markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Save row"/>
   <locale name="BUTTON_SAVE_TEXT" value="Save text"/>
@@ -66,6 +70,8 @@
   <locale name="BUTTON_SEND" value="Send"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Unblock batch as NOT valid"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Unblock batch as valid"/>
+  <locale name="BUTTON_UNLOCK" value="Unlock"/>
+  <locale name="BUTTON_UNLOCK_ACCOUNT" value="Unlock account"/>
   <locale name="BUTTON_UPDATE" value="Update"/>
   <locale name="BUTTON_VIEW" value="View"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="View error messages"/>
@@ -128,6 +134,7 @@
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="You will print the screen data. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_RESET_2FA" value="You are going to reset the two-factor authentication on the selected users. Are you sure?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="You will send an email to all active users. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="The user will be able to sign in again. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="You will store the data on the screen. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Warning, changed data will be lost. Do you want to continue?"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Delete confirmation"/>
@@ -138,6 +145,7 @@
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="File print confirmation"/>
   <locale name="CONFIRM_TITLE_RESET_2FA" value="Two-factor authentication reset"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Email send confirmation"/>
+  <locale name="CONFIRM_TITLE_UNLOCK_USER" value="Unlock account"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Update confirmation"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Changed data"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Folder"/>
@@ -417,6 +425,12 @@
   <locale name="ENUM_TIT_STL" value="Title style"/>
   <locale name="ENUM_TOP" value="TOPIC"/>
   <locale name="ENUM_TOT_STL" value="Total style"/>
+  <locale name="ENUM_USER_2FA_HEADER_ON" value="Two-factor on"/>
+  <locale name="ENUM_USER_2FA_OFF" value="Off"/>
+  <locale name="ENUM_USER_2FA_ON" value="On"/>
+  <locale name="ENUM_USER_STATE_ACTIVE" value="Active"/>
+  <locale name="ENUM_USER_STATE_INACTIVE" value="Inactive"/>
+  <locale name="ENUM_USER_STATE_LOCKED" value="Locked"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Yes"/>
   <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Authentication"/>
@@ -953,6 +967,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Displays detailed theme information"/>
   <locale name="HELP_SCREEN_TITLE_TREE_TEST" value="This screen tests the usage of a non-sorted tree data loaded into a tree grid"/>
   <locale name="HELP_SCREEN_TITLE_UNIKEY" value="Manage application unique keys for sequences."/>
+  <locale name="HELP_SCREEN_TITLE_USER_ADMIN" value="Who can sign in, with which profile, and the state of their account."/>
   <locale name="HELP_SCREEN_TITLE_USR" value="Manage application users. Here you can view, add, delete and modify all application users"/>
   <locale name="HELP_SCREEN_TITLE_USR_NEW" value="Register new user"/>
   <locale name="HELP_SCREEN_TITLE_USR_UPD" value="Update user information"/>
@@ -1027,6 +1042,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TOOLS_THEMES" value="Themes"/>
   <locale name="MENU_TOOLS_UNIKEY" value="System codes"/>
   <locale name="MENU_TOOLS_USERS" value="Users"/>
+  <locale name="MENU_TOOLS_USER_ADMIN" value="User administration"/>
   <locale name="MENU_USER_HELP" value="User manual"/>
   <locale name="MILLISECONDS" value="{0}ms"/>
   <locale name="MINUTES" value="{0}m"/>
@@ -1126,6 +1142,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frequency"/>
   <locale name="PARAMETER_FROM" value="From"/>
+  <locale name="PARAMETER_FULL_NAME" value="Full name"/>
   <locale name="PARAMETER_HOUR_FIN" value="End time"/>
   <locale name="PARAMETER_HOUR_INI" value="Start time"/>
   <locale name="PARAMETER_HOURS" value="Hours"/>
@@ -1278,6 +1295,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Previous"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Hide row details"/>
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Show row details"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} selected"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} selected"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="View"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identifier or text to search"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Reference currency: {0}"/>
@@ -1351,7 +1370,19 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_TOTP_CODE" value="Insert code here"/>
   <locale name="SCREEN_TEXT_USER" value="Username"/>
   <locale name="SCREEN_TEXT_USER_DATA" value="User data"/>
+  <locale name="SCREEN_TEXT_USER_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_USER_LOCKED_NOTICE" value="Account locked. The user cannot sign in until it is unlocked."/>
+  <locale name="SCREEN_TEXT_USER_SIGN_IN_SECURITY" value="Sign-in security"/>
   <locale name="SCREEN_TEXT_USERS" value="Users"/>
+  <locale name="SCREEN_TEXT_USER_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_USER_APPEARANCE_OUTPUT" value="Appearance and output"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_LOCKED" value="Locked"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" value="Without 2FA"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_USER_FILTERS" value="User state"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH" value="User, name, email or profile…"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Search users"/>
   <locale name="SCREEN_TEXT_VERSION" value="Environment"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
@@ -1426,6 +1457,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_THM_VIW" value="View theme"/>
   <locale name="SCREEN_TITLE_TREE_TEST" value="Tree test"/>
   <locale name="SCREEN_TITLE_UNIKEY" value="System codes"/>
+  <locale name="SCREEN_TITLE_USER_ADMIN" value="Users"/>
+  <locale name="SCREEN_TITLE_USER_PANEL" value="User"/>
   <locale name="SCREEN_TITLE_USR" value="User management"/>
   <locale name="SCREEN_TITLE_USR_NEW" value="New user"/>
   <locale name="SCREEN_TITLE_USR_UPD" value="Update user"/>

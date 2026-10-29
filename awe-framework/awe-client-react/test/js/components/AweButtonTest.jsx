@@ -8,6 +8,7 @@ import {act, render} from "@testing-library/react";
 import { ButtonSkeleton } from '../../../src/components/AweSkeleton';
 import { toggleActionsRunning } from '../../../src/redux/actions/actions';
 import { BUSY_THRESHOLD } from '../../../src/hooks/useBusy';
+import { getButtonVariant } from '../../../src/utilities/buttons';
 
 function baseState(overrides = {}) {
   const state = {
@@ -339,6 +340,97 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
       unmount();
 
       expect(jest.getTimerCount()).toBe(0);
+    });
+  });
+});
+
+// Styles of the buttons (#793): the btn-* styles of the AngularJS engine and the icon-only buttons (style="no-label")
+const renderStyled = (attributes) => renderWithProviders(<AweButton id="btn1" />, {
+  preloadedState: {
+    settings: DEFAULT_SETTINGS,
+    actions: { running: false },
+    components: {
+      btn1: {
+        address: { view: 'v', component: 'btn1' },
+        attributes: { label: 'New user', icon: 'plus-circle', visible: true, buttonType: ButtonTypes.BUTTON_NORMAL, ...attributes },
+        actions: []
+      }
+    }
+  }
+}).container.querySelector('#btn1');
+
+describe('awe-react-client/test/js/components/AweButtonTest.jsx styles', () => {
+  describe('btn-* styles', () => {
+    it('draws style="btn-primary" as the filled primary button', () => {
+      const button = renderStyled({ style: 'btn-primary' });
+
+      expect(button.className).not.toContain('p-button-outlined');
+      expect(button.className).not.toContain('p-button-secondary');
+      expect(button.className).toContain('btn-primary');
+    });
+
+    it.each([
+      ['btn-danger', 'p-button-danger'],
+      ['btn-success', 'p-button-success'],
+      ['btn-warning', 'p-button-warning'],
+      ['btn-dark', 'p-button-contrast'],
+      ['btn-ghost', 'p-button-text']
+    ])('draws style="%s" as %s, not outlined', (style, variant) => {
+      const button = renderStyled({ style: `col-xs-12 ${style}` });
+
+      expect(button.className).toContain(variant);
+      expect(button.className).not.toContain('p-button-outlined');
+    });
+
+    it('keeps the outlined look of a button without a btn-* style', () => {
+      expect(renderStyled({ style: 'my-style' }).className).toContain('p-button-outlined');
+    });
+
+    it('keeps the look of a submit or a reset button without a btn-* style', () => {
+      expect(renderStyled({ buttonType: ButtonTypes.BUTTON_SUBMIT }).className).not.toContain('p-button-outlined');
+      expect(renderStyled({ buttonType: ButtonTypes.BUTTON_RESET }).className).toContain('p-button-secondary');
+    });
+
+    it('maps the first btn-* style of a style list and ignores the names that only contain it', () => {
+      expect(getButtonVariant('btn-primary-like other', 'p-button-outlined')).toBe('p-button-outlined');
+      expect(getButtonVariant('btn-danger btn-primary', 'p-button-outlined')).toBe('p-button-danger');
+      expect(getButtonVariant(undefined, 'p-button-outlined')).toBe('p-button-outlined');
+    });
+  });
+
+  describe('icon-only buttons (style="no-label")', () => {
+    it('draws only the icon, with the label as tooltip and accessible name', () => {
+      const button = renderStyled({ label: 'Help', icon: 'question-circle', style: 'btn-ghost no-label' });
+
+      // PrimeReact keeps an empty label for the height of the button
+      expect(button.classList.contains('p-button-icon-only')).toBe(true);
+      expect(button.textContent.trim()).toBe('');
+      expect(button.querySelector('.p-button-icon')).not.toBeNull();
+      expect(button.getAttribute('aria-label')).toBe('Help');
+      expect(button.getAttribute('title')).toBe('Help');
+      expect(button.className).toContain('no-label');
+    });
+
+    it('keeps the title of the button as its tooltip', () => {
+      const button = renderStyled({ label: 'Help', style: 'no-label', title: 'Screen help' });
+
+      expect(button.getAttribute('title')).toBe('Screen help');
+      expect(button.getAttribute('aria-label')).toBe('Help');
+    });
+
+    it('leaves the tooltip to the help of the button', () => {
+      const button = renderStyled({ label: 'Help', style: 'no-label', help: 'Opens the help' });
+
+      expect(button.hasAttribute('title')).toBe(false);
+      expect(button.getAttribute('aria-label')).toBe('Help');
+    });
+
+    it('keeps the label of a button without the style as its text and its accessible name', () => {
+      const button = renderStyled({ label: 'Print' });
+
+      expect(button.querySelector('.p-button-label').textContent).toBe('Print');
+      expect(button.getAttribute('aria-label')).toBe('Print');
+      expect(button.hasAttribute('title')).toBe(false);
     });
   });
 });

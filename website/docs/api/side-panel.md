@@ -30,6 +30,7 @@ and React) support it.
 | Element                              | Use          | Multiples instances | Description                                                    |
 |--------------------------------------|--------------|---------------------|----------------------------------------------------------------|
 | [side-panel](#side-panel-attributes) | **Required** | No                  | Global node of the side panel. Defines the side panel attributes |
+| [header-tag](#identity-header)       | Optional     | Yes                 | Tag of the identity header (with `header-grid`)                 |
 
 ## Side panel attributes
 
@@ -43,6 +44,11 @@ and React) support it.
 | max-width | Optional | String  | Maximum width of the side panel. It takes the whole width of the screen when the screen is narrower                              | A CSS length, for instance `30rem`, `480px` or `50vw`. Default `40rem`                                |
 | on-close  | Optional | String  | Behaviour of the stack after closing the side panel with its close button, Esc or a click outside                                 | `accept` (default), `reject`- Reject cancels the stack, accept continues executing stack actions      |
 | deferred  | Optional | Boolean | Load the data of the components of the side panel the first time it is opened, not with the screen. See [deferred loading](dialog.md#deferred-loading) | `true`, `false` (default)                                                              |
+| header-grid | Optional | String | Grid of the screen whose selected row the header shows. See [identity header](#identity-header) | A grid id |
+| header-title-field | Optional | String | Field of the selected row with the title of the identity header | A field of the grid |
+| header-subtitle-field | Optional | String | Field of the selected row with the subtitle (muted, under the title). Not shown when empty | A field of the grid |
+| header-avatar-field | Optional | String | Field of the selected row the initials of the avatar are taken from (as the `avatar-field` of a [grid column](grids.md)). No avatar when empty | A field of the grid |
+| header-avatar-tone-field | Optional | String | Field of the selected row with the tone of the avatar | `primary`, `info`, `success`, `warning`, `danger`, `neutral` (default, any other value) |
 
 ## Opening and closing
 
@@ -60,6 +66,35 @@ It closes:
   usually in the buttons of its footer;
 - with the close button of its header, with Esc or with a click outside it. These follow the `on-close` attribute:
   `accept` (default) behaves as `close`, `reject` as `close-cancel`.
+
+## Identity header
+
+With `header-grid` the header of the side panel shows the selected row of that grid when **exactly one** row is selected
+(for instance, the side panel that edits the user of the selected row): a large avatar with the initials of
+`header-avatar-field`, the title of `header-title-field`, the subtitle of `header-subtitle-field` and a `header-tag` for
+each field to show as a tag, in the order of the XML. With no row or several rows selected (for instance, the same side
+panel opened to create a new record) the header shows its label and its icon. The header follows the selected row while
+the side panel is open.
+
+| Attribute of `header-tag` | Use          | Description                                                                                                |
+|---------------------------|--------------|------------------------------------------------------------------------------------------------------------|
+| field                     | **Required** | Field of the selected row with the text of the tag. A tag whose value is empty is not shown                 |
+| tone-field                | Optional     | Field with the tone of the tag: `success`, `warning`, `danger`, `info` or `neutral` (default)               |
+| icon-field                | Optional     | Field with the icon of the tag. With it the tag is plain: the icon takes the place of the dot              |
+
+The avatar and the tags look like the avatar and the status tags of the [grid cells](grids.md). The avatar is decorative;
+the title is the accessible name of the side panel. All the `header-*` attributes are optional; without `header-grid` the
+header does not change. Both engines support it.
+
+```xml
+<side-panel id="PnlUsr" label="SCREEN_TITLE_USER_PANEL" icon="user"
+            header-grid="GrdUsrAdm" header-title-field="FulNam" header-subtitle-field="UsrPro"
+            header-avatar-field="Ini" header-avatar-tone-field="IniTon">
+  <header-tag field="StaTxt" tone-field="StaTon"/>
+  <header-tag field="2faHdr" tone-field="2faTon" icon-field="2faIcn"/>
+  [define the content of the side panel]
+</side-panel>
+```
 
 ## Footer
 

@@ -66,6 +66,7 @@ function AweSuggestMultiple(props) {
         className={classes}
         appendTo={document.body}
         forceSelection
+        autoHighlight
         pt={autoCompletePassThrough(id, true)}
       />
     </AweCriterion>
