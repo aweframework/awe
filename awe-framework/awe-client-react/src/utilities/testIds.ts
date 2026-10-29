@@ -93,6 +93,18 @@ export const TestIds = Object.freeze({
   gridColumnsClose: "grid-columns-close",
   // React only: result of the last Save or Reset of the Columns panel ("data-type": saved or error)
   gridColumnsStatus: "grid-columns-status",
+  // Row grouping (#833): group and subtotal rows ("data-group-path", "data-group-level"; groups carry "data-expanded")
+  // instead of grid-row, the toggle of a group, the Expand all / Collapse all buttons of the toolbar, and the Group by
+  // button with its panel ("data-testid-owner"): No grouping and an option per column ("data-column")
+  gridGroupRow: "grid-group-row",
+  gridSubtotalRow: "grid-subtotal-row",
+  gridGroupToggle: "grid-group-toggle",
+  gridGroupExpandAll: "grid-group-expand-all",
+  gridGroupCollapseAll: "grid-group-collapse-all",
+  gridGroupBy: "grid-group-by",
+  gridGroupByPanel: "grid-group-by-panel",
+  gridGroupNone: "grid-group-none",
+  gridGroupOption: "grid-group-option",
   // Tree grids: expand/collapse icon of a row
   treeIcon: "tree-icon",
   // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
@@ -233,6 +245,10 @@ export const TestAttributes = Object.freeze({
   container: "data-container",
   // Icon shown by an icon column
   icon: "data-icon",
+  // Group rows of a grid with row grouping: path and level of the group, and the column of a "Group by" option
+  groupPath: "data-group-path",
+  groupLevel: "data-group-level",
+  column: "data-column",
   // React only: value of a control whose text repeats it (the page size of a grid)
   value: "data-value"
 });

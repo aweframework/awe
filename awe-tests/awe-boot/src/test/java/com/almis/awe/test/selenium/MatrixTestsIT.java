@@ -1663,4 +1663,184 @@ class MatrixTestsIT extends AbstractSessionTests {
     // The grid grows with its rows: the last one is not cut
     checkGridRowNotCut("GrdCellTst", "6", "user");
   }
+
+  /**
+   * Open the row grouping screen with its initial state (the client keeps a screen that is opened again from the menu,
+   * with the grouping, expanded groups and sort that a previous test left)
+   */
+  private void openGroupingScreen() {
+    openMatrixOption("matrix-test-cells");
+    openMatrixOption("matrix-test-groups");
+  }
+
+  /**
+   * Row grouping test: a grid grouped by region, country and city shows a group row per group of each level with its
+   * value and its number of rows, ordered by value; collapsed groups hide the groups under them
+   */
+  @Test
+  void t129_gridGroupsThreeLevels() {
+    // Title
+    setTestTitle("Grid row grouping: three levels");
+
+    // Go to screen: every group starts expanded
+    openGroupingScreen();
+    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
+    checkGridGroupExpanded("GrdGrpTst", "America");
+    checkGridGroupLabel("GrdGrpTst", "America/Canada", "Canada", 4);
+    checkGridGroupLabel("GrdGrpTst", "America/Canada/Toronto", "Toronto", 2);
+
+    // The regions, by value
+    collapseAllGridGroups("GrdGrpTst");
+    checkGridGroupRowCount("GrdGrpTst", 1, 2);
+    checkGridGroupRowCount("GrdGrpTst", 2, 0);
+    checkGridGroupOrder("GrdGrpTst", 1, "America", "Europe");
+    checkGridGroupLabel("GrdGrpTst", "Europe", "Europe", 11);
+
+    // The countries of a region and the cities of a country
+    toggleGridGroup("GrdGrpTst", "Europe");
+    checkGridGroupOrder("GrdGrpTst", 2, "Europe/France", "Europe/Spain");
+    checkGridGroupLabel("GrdGrpTst", "Europe/France", "France", 5);
+    checkGridGroupLabel("GrdGrpTst", "Europe/Spain", "Spain", 6);
+    checkGridGroupRowCount("GrdGrpTst", 3, 0);
+    toggleGridGroup("GrdGrpTst", "Europe/Spain");
+    checkGridGroupOrder("GrdGrpTst", 3, "Europe/Spain/Barcelona", "Europe/Spain/Madrid");
+    checkGridGroupLabel("GrdGrpTst", "Europe/Spain/Madrid", "Madrid", 3);
+
+    // After Collapse all, the groups shown by expanding their parent are collapsed too
+    checkGridGroupCollapsed("GrdGrpTst", "Europe/Spain/Madrid");
+    toggleGridGroup("GrdGrpTst", "Europe/Spain/Madrid");
+    checkGridGroupExpanded("GrdGrpTst", "Europe/Spain/Madrid");
+  }
+
+  /**
+   * Subtotals test: the aggregates of the groups of a level add up to their parent group, and the groups of the first
+   * level to the grand total of the footer; each expanded group ends with its subtotal row
+   */
+  @Test
+  void t130_gridGroupSubtotalsAddUp() {
+    // Title
+    setTestTitle("Grid row grouping: subtotals add up to the grand total");
+
+    // Go to screen
+    openGroupingScreen();
+    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
+    collapseAllGridGroups("GrdGrpTst");
+
+    // Regions: 850 + 1.600 = 2.450 (the grand total), and the units
+    checkGridGroupCell("GrdGrpTst", "Europe", "sales", "850");
+    checkGridGroupCell("GrdGrpTst", "America", "sales", "1.600");
+    checkGridFooterTotal("GrdGrpTst", "sales", "2.450");
+    checkGridGroupCell("GrdGrpTst", "Europe", "units", "85");
+    checkGridGroupCell("GrdGrpTst", "America", "units", "160");
+    checkGridFooterTotal("GrdGrpTst", "units", "245");
+
+    // Countries: 500 + 350 = 850 and 800 + 550 + 250 = 1.600
+    toggleGridGroup("GrdGrpTst", "Europe");
+    toggleGridGroup("GrdGrpTst", "America");
+    checkGridGroupCell("GrdGrpTst", "Europe/Spain", "sales", "500");
+    checkGridGroupCell("GrdGrpTst", "Europe/France", "sales", "350");
+    checkGridGroupCell("GrdGrpTst", "America/Canada", "sales", "800");
+    checkGridGroupCell("GrdGrpTst", "America/Mexico", "sales", "550");
+    checkGridGroupCell("GrdGrpTst", "America/USA", "sales", "250");
+
+    // Cities: 300 + 200 = 500, and the average price of the group
+    toggleGridGroup("GrdGrpTst", "Europe/Spain");
+    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Madrid", "sales", "300");
+    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Barcelona", "sales", "200");
+    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Madrid", "price", "20");
+    checkGridGroupCell("GrdGrpTst", "Europe/Spain", "price", "35");
+
+    // The subtotal rows of the expanded groups repeat their aggregates
+    checkGridSubtotalCell("GrdGrpTst", "Europe/Spain", "sales", "500");
+    checkGridSubtotalCell("GrdGrpTst", "Europe/Spain", "region", "Subtotal Spain");
+    checkGridSubtotalCell("GrdGrpTst", "Europe", "sales", "850");
+  }
+
+  /**
+   * Expand and collapse test: a group collapses and expands with its toggle, and every group with Collapse all and
+   * Expand all, without calling the server
+   */
+  @Test
+  void t131_gridGroupExpandAndCollapse() {
+    // Title
+    setTestTitle("Grid row grouping: expand and collapse");
+
+    // Go to screen
+    openGroupingScreen();
+    checkGridGroupExpanded("GrdGrpTst", "America");
+    watchServerCalls();
+
+    // A group hides its groups, rows and subtotal, and shows them again
+    toggleGridGroup("GrdGrpTst", "America");
+    checkGridGroupCollapsed("GrdGrpTst", "America");
+    checkGridGroupExpanded("GrdGrpTst", "Europe");
+    toggleGridGroup("GrdGrpTst", "America");
+    checkGridGroupExpanded("GrdGrpTst", "America");
+
+    // Every group of every level
+    collapseAllGridGroups("GrdGrpTst");
+    checkGridGroupCollapsed("GrdGrpTst", "America");
+    checkGridGroupCollapsed("GrdGrpTst", "Europe");
+    expandAllGridGroups("GrdGrpTst");
+    checkGridGroupExpanded("GrdGrpTst", "America");
+    checkGridGroupExpanded("GrdGrpTst", "America/Canada");
+    checkGridGroupExpanded("GrdGrpTst", "America/Canada/Toronto");
+    checkNoServerCalls();
+  }
+
+  /**
+   * Group by test: the Group by panel changes the grouping levels, or removes them, without calling the server
+   */
+  @Test
+  void t132_gridGroupBySelector() {
+    // Title
+    setTestTitle("Grid row grouping: group by selector");
+
+    // Go to screen
+    openGroupingScreen();
+    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
+    watchServerCalls();
+
+    // One level: the countries
+    groupGridBy("GrdGrpTst", "country");
+    collapseAllGridGroups("GrdGrpTst");
+    checkGridGroupOrder("GrdGrpTst", 1, "Canada", "France", "Mexico", "Spain", "USA");
+    checkGridGroupRowCount("GrdGrpTst", 2, 0);
+    checkGridGroupLabel("GrdGrpTst", "Spain", "Spain", 6);
+    checkGridGroupCell("GrdGrpTst", "Spain", "sales", "500");
+
+    // No grouping: the data rows
+    groupGridBy("GrdGrpTst");
+    checkGridNotGrouped("GrdGrpTst");
+    checkRowContentsGrid("GrdGrpTst", "Store 1");
+
+    // Two levels again, in the order they are chosen
+    groupGridBy("GrdGrpTst", "city", "region");
+    collapseAllGridGroups("GrdGrpTst");
+    checkGridGroupRowCount("GrdGrpTst", 1, 10);
+    toggleGridGroup("GrdGrpTst", "Barcelona");
+    checkGridGroupOrder("GrdGrpTst", 2, "Barcelona/Europe");
+    checkNoServerCalls();
+  }
+
+  /**
+   * Sort test: sorting by a column with summary type orders the groups of every level by their aggregate
+   */
+  @Test
+  void t133_gridGroupSortByAggregate() {
+    // Title
+    setTestTitle("Grid row grouping: sort the groups by their aggregate");
+
+    // Go to screen
+    openGroupingScreen();
+    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
+    collapseAllGridGroups("GrdGrpTst");
+    checkGridGroupOrder("GrdGrpTst", 1, "America", "Europe");
+
+    // By the sales of the groups, ascending: 850 before 1.600, and 250, 550, 800 in America
+    sortGrid("GrdGrpTst", "sales");
+    checkGridGroupOrder("GrdGrpTst", 1, "Europe", "America");
+    toggleGridGroup("GrdGrpTst", "America");
+    checkGridGroupOrder("GrdGrpTst", 2, "America/USA", "America/Mexico", "America/Canada");
+  }
 }

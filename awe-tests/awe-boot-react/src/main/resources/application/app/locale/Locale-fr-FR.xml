@@ -314,6 +314,15 @@
   <locale name="COLUMN_CELL_STATUS" value="Status"/>
   <locale name="COLUMN_CELL_TONE" value="Tone"/>
   <locale name="COLUMN_CELL_TEAMS" value="Teams"/>
+  <locale name="MENU_TEST_MATRIX_GROUPS" value="Regroupement des lignes"/>
+  <locale name="SCREEN_TITLE_GRID_GROUPS" value="Regroupement des lignes avec sous-totaux"/>
+  <locale name="COLUMN_GROUP_REGION" value="Région"/>
+  <locale name="COLUMN_GROUP_COUNTRY" value="Pays"/>
+  <locale name="COLUMN_GROUP_CITY" value="Ville"/>
+  <locale name="COLUMN_GROUP_STORE" value="Magasin"/>
+  <locale name="COLUMN_GROUP_SALES" value="Ventes"/>
+  <locale name="COLUMN_GROUP_UNITS" value="Unités"/>
+  <locale name="COLUMN_GROUP_PRICE" value="Prix moyen"/>
   <locale name="SCREEN_TITLE_GRID_EMPTY" value="Empty grid"/>
   <locale name="GRID_EMPTY_TITLE_TST" value="No themes found"/>
   <locale name="GRID_EMPTY_TEXT_TST" value="Clear the search to see the themes again"/>

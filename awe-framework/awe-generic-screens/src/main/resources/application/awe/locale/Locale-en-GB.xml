@@ -1307,6 +1307,14 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_COLUMNS_MOVE_DOWN" value="Move down"/>
   <locale name="GRID_COLUMNS_DRAG" value="Drag to reorder"/>
   <locale name="GRID_ROW_DRAG" value="Drag to move the row. With the keyboard, select it and press Alt+Up, Alt+Down, Alt+Home or Alt+End"/>
+  <locale name="GRID_GROUP_BY" value="Group by"/>
+  <locale name="GRID_GROUP_NONE" value="No grouping"/>
+  <locale name="GRID_GROUP_EXPAND_ALL" value="Expand all groups"/>
+  <locale name="GRID_GROUP_COLLAPSE_ALL" value="Collapse all groups"/>
+  <locale name="GRID_GROUP_EXPAND" value="Expand group"/>
+  <locale name="GRID_GROUP_COLLAPSE" value="Collapse group"/>
+  <locale name="GRID_GROUP_EMPTY" value="(empty)"/>
+  <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
   <locale name="GRID_COLUMNS_SAVED" value="Saved"/>

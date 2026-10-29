@@ -125,6 +125,24 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean showTotals;
 
+  // Columns that group the rows, comma separated, one grouping level each (sent only when the grid sets it)
+  @XStreamAlias("group-by")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String groupBy;
+
+  // Show the "Group by" control in the toolbar to change the grouping at runtime
+  @XStreamAlias("group-selector")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Boolean groupSelector;
+
+  // Close each group with a subtotal row (the clients show it unless it is false)
+  @XStreamAlias("group-subtotals")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Boolean groupSubtotals;
+
   // Show calculated totals
   @XStreamAlias("enable-filters")
   @XStreamAsAttribute
@@ -369,6 +387,27 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("showTotals")
   public boolean isShowTotals() {
     return showTotals != null && showTotals;
+  }
+
+  /**
+   * Check if the grid can group its rows: it has group-by columns or the group selector (ignored on tree grids)
+   *
+   * @return Grid groups its rows
+   */
+  @JsonIgnore
+  public boolean isGroupable() {
+    return !isTreegrid() && ((groupBy != null && !groupBy.isBlank()) || Boolean.TRUE.equals(groupSelector));
+  }
+
+  /**
+   * Check if the grid loads all its data: a grid that groups its rows always does
+   *
+   * @return Grid loads all the data
+   */
+  @Override
+  @JsonGetter("loadAll")
+  public boolean isLoadAll() {
+    return isGroupable() || super.isLoadAll();
   }
 
   /**

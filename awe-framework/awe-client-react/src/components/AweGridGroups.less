@@ -1,0 +1,159 @@
+// Row grouping of the grids (#833), as the prototype (components.html#c-833): group rows on the subtle surface with the
+// toggle, the label in bold and the muted count, indented by level; subtotal rows with the muted "Subtotal" label and
+// the aggregates in bold. The label of the first column runs over the empty cells at its right.
+.p-datatable .p-datatable-tbody > tr.grid-group-row,
+.p-datatable .p-datatable-tbody > tr.grid-subtotal-row {
+  cursor: default;
+
+  > td {
+    overflow: visible;
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+}
+
+.p-datatable .p-datatable-tbody > tr.grid-group-row {
+  cursor: pointer;
+
+  > td,
+  > td.p-frozen-column {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  &:hover > td,
+  &:hover > td.p-frozen-column {
+    background: var(--awe-color-surface-hover);
+  }
+}
+
+.p-datatable .p-datatable-tbody > tr.grid-subtotal-row > td {
+  border-bottom-color: var(--awe-color-border);
+}
+
+// Label of the first column: the levels under the first one are indented by the width of a toggle each
+.grid-group-label,
+.grid-subtotal-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  padding-left: calc(var(--_group-level, 0) * var(--awe-size-control-sm));
+  white-space: nowrap;
+}
+
+.grid-group-text {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+// The number of rows of the group follows its value after a space, in the muted text
+.grid-group-count {
+  margin-left: var(--awe-space-1-5);
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-color-text-muted);
+}
+
+// The subtotal label lines up with the label of its group (after the toggle), in the muted text
+.grid-subtotal-label {
+  margin-left: calc(var(--awe-size-control-sm) + var(--awe-space-1-5));
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+}
+
+.grid-group-aggregate {
+  font-variant-numeric: var(--awe-font-variant-numeric);
+}
+
+.grid-group-toggle {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  padding: 0;
+  color: var(--awe-color-text-muted);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+
+  &:hover {
+    color: var(--awe-color-text);
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    transition: rotate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+  }
+
+  &[aria-expanded="true"] .awe-icon {
+    rotate: 90deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-group-toggle .awe-icon {
+    transition: none;
+  }
+}
+
+// Expand all and Collapse all of the toolbar: square icon buttons at the toolbar button height
+.grid-toolbar .grid-toolbar-button.p-button.grid-group-icon-button {
+  justify-content: center;
+  width: var(--awe-size-control-sm);
+  padding: 0;
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+// Group by panel of the toolbar: the number of the level of each checked column, and No grouping as the first option
+.grid-group-by-panel {
+  .grid-group-none {
+    width: 100%;
+    font: inherit;
+    color: var(--awe-color-text);
+    text-align: left;
+    cursor: pointer;
+    background: none;
+    border: 0;
+
+    &[aria-pressed="true"] {
+      font-weight: var(--awe-font-weight-semibold);
+      color: var(--awe-color-text-emphasis);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(var(--awe-focus-ring-offset) * -1);
+    }
+  }
+
+  .grid-group-level {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    min-width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+    margin-left: auto;
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    // The digit is centred on its cap height, not on the line box of the text around it
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    color: var(--awe-color-on-primary);
+    background: var(--awe-color-primary);
+    border-radius: var(--awe-radius-full);
+  }
+}

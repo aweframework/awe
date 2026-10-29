@@ -366,9 +366,21 @@
     border-bottom-color: var(--awe-grid-border);
   }
 
+  // The footer row fills the footer panel and its totals are centred in it
+  .ui-grid-footer-panel {
+    .ui-grid-footer,
+    .ui-grid-footer-canvas,
+    .ui-grid-footer-cell-wrapper {
+      height: 100%;
+    }
+  }
+
   .ui-grid-footer-cell {
     border-right-color: transparent;
     .ui-grid-cell-contents {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       padding: 0 var(--awe-grid-cell-padding-x);
     }
   }

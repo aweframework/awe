@@ -1818,10 +1818,10 @@ class SeleniumUtilitiesSemanticStepsTest {
       show(instructions.getGridCell("Grd", "1", "Col"), "Javier");
       JavascriptExecutor executor = (JavascriptExecutor) driver;
       when(executor.executeScript(scriptWith(".awe-cell-secondary"), any()))
-        .thenReturn("Javier García\njgarcia · j.garcia@almis.example");
+        .thenReturn("Javier García\njgarcia j.garcia@almis.example");
 
       assertThatCode(() -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García",
-        "jgarcia · j.garcia@almis.example")).doesNotThrowAnyException();
+        "jgarcia j.garcia@almis.example")).doesNotThrowAnyException();
       assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García", "other"));
       assertThrows(AssertionFailedError.class, () -> utilities.checkGridCellSecondaryLine("Grd", "1", "Col", "Javier García", null));
 
@@ -1904,6 +1904,206 @@ class SeleniumUtilitiesSemanticStepsTest {
       when(executor.executeScript(scriptWith("overflowY"), any())).thenReturn(null);
       assertThrows(AssertionFailedError.class, () -> utilities.checkGridRowNotCut("Grd", "6", "Col"));
     }
+  }
+
+  // Rows that a grouped grid shows, as the script that reads them returns them: two regions, the first one expanded
+  private static final String GROUPED_ROWS = String.join("\n",
+    "group|1|Europe|true|Europe 3",
+    "group|2|Europe/Spain|true|Spain 2",
+    "row|1",
+    "row|2",
+    "subtotal|2|Europe/Spain",
+    "group|2|Europe/France|false|France 1",
+    "subtotal|1|Europe",
+    "group|1|America|false|America 4");
+
+  @Test
+  void shouldCountAndOrderTheGroupRowsOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGrid("Grd"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn(GROUPED_ROWS);
+
+      assertThatCode(() -> {
+        utilities.checkGridGroupRowCount("Grd", 1, 2);
+        utilities.checkGridGroupRowCount("Grd", 2, 2);
+        utilities.checkGridGroupRowCount("Grd", 3, 0);
+        utilities.checkGridGroupOrder("Grd", 1, "Europe", "America");
+        utilities.checkGridGroupOrder("Grd", 2, "Europe/Spain", "Europe/France");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupRowCount("Grd", 1, 3));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupOrder("Grd", 1, "America", "Europe"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupOrder("Grd", 2, "Europe/Spain"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheLabelAndTheStateOfTheGroupsOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGrid("Grd"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn(GROUPED_ROWS);
+
+      assertThatCode(() -> {
+        utilities.checkGridGroupLabel("Grd", "Europe", "Europe", 3);
+        utilities.checkGridGroupLabel("Grd", "Europe/Spain", "Spain", 2);
+        utilities.checkGridGroupExpanded("Grd", "Europe");
+        utilities.checkGridGroupExpanded("Grd", "Europe/Spain");
+        utilities.checkGridGroupCollapsed("Grd", "Europe/France");
+        utilities.checkGridGroupCollapsed("Grd", "America");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupLabel("Grd", "Europe", "Europe", 4));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupLabel("Grd", "Asia", "Asia", 1));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupCollapsed("Grd", "Europe"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupExpanded("Grd", "America"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupExpanded("Grd", "Asia"));
+
+      // A group that says it is collapsed but still shows its rows, or one that is expanded without content
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any()))
+        .thenReturn("group|1|Europe|false|Europe 1\nrow|1\ngroup|1|America|true|America 1\ngroup|1|Asia|true|Asia 1\nrow|2");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupCollapsed("Grd", "Europe"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupExpanded("Grd", "America"));
+      assertThatCode(() -> utilities.checkGridGroupExpanded("Grd", "Asia")).doesNotThrowAnyException();
+    }
+  }
+
+  @Test
+  void shouldCheckThatAGridIsNotGroupedInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGrid("Grd"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn("row|1\nrow|2");
+      assertThatCode(() -> utilities.checkGridNotGrouped("Grd")).doesNotThrowAnyException();
+
+      // Group or subtotal rows, or no row at all
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn(GROUPED_ROWS);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridNotGrouped("Grd"));
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn("row|1\nsubtotal|1|Europe");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridNotGrouped("Grd"));
+      when(executor.executeScript(scriptWith("grid-subtotal-row"), any())).thenReturn("");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridNotGrouped("Grd"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheCellsOfTheGroupAndSubtotalRowsOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridGroupCell("Grd", "Europe/Spain", "sales"), "500");
+      show(instructions.getGridSubtotalCell("Grd", "Europe/Spain", "sales"), "500");
+      show(instructions.getGridSubtotalCell("Grd", "Europe/Spain", "region"), "Subtotal Spain");
+
+      assertThatCode(() -> {
+        utilities.checkGridGroupCell("Grd", "Europe/Spain", "sales", "500");
+        utilities.checkGridSubtotalCell("Grd", "Europe/Spain", "sales", "500");
+        utilities.checkGridSubtotalCell("Grd", "Europe/Spain", "region", "Subtotal Spain");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupCell("Grd", "Europe/Spain", "sales", "350"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridSubtotalCell("Grd", "Europe/France", "sales", "350"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridGroupCell("Grd", "Europe/Spain", "units", "50"));
+    }
+  }
+
+  @Test
+  void shouldLookTheGroupRowsUpByTheirPathInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      String cell = client.getGridGroupCell("Grd", "America/USA/New%20York", "sales").toString();
+      String subtotal = client.getGridSubtotalCell("Grd", "Europe", "sales").toString();
+      String toggle = client.getGridGroupToggle("Grd", "Europe").toString();
+
+      assertThat(cell).contains("[grid-id='Grd']", TestIds.css(TestIds.GRID_GROUP_ROW),
+        "[data-group-path='America/USA/New%20York']", TestIds.css(TestIds.GRID_CELL), "[column-id='sales']");
+      assertThat(subtotal).contains(TestIds.css(TestIds.GRID_SUBTOTAL_ROW), "[data-group-path='Europe']", "[column-id='sales']");
+      assertThat(toggle).contains(TestIds.css(TestIds.GRID_GROUP_ROW), "[data-group-path='Europe']", TestIds.css(TestIds.GRID_GROUP_TOGGLE));
+      // The toolbar and the Group by panel of the grid are named by their owner, and the option of a column is its checkbox
+      assertThat(client.getGridGroupExpandAll("Grd").toString()).contains(TestIds.css(TestIds.GRID_TOOLBAR),
+        TestAttributes.css(TestAttributes.OWNER, "Grd"), TestIds.css(TestIds.GRID_GROUP_EXPAND_ALL));
+      assertThat(client.getGridGroupOption("Grd", "city").toString()).contains(TestIds.css(TestIds.GRID_GROUP_BY_PANEL),
+        TestAttributes.css(TestAttributes.OWNER, "Grd"), "[data-column='city']", "input");
+    }
+  }
+
+  @Test
+  void shouldToggleAGroupAndExpandAndCollapseEveryGroupOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridGroupToggle("Grd", "Europe"), "");
+      show(instructions.getGridGroupExpandAll("Grd"), "");
+      show(instructions.getGridGroupCollapseAll("Grd"), "");
+
+      long start = performed();
+      utilities.toggleGridGroup("Grd", "Europe");
+      long toggled = performed();
+      assertThat(toggled).isGreaterThan(start);
+      utilities.collapseAllGridGroups("Grd");
+      long collapsed = performed();
+      assertThat(collapsed).isGreaterThan(toggled);
+      utilities.expandAllGridGroups("Grd");
+      assertThat(performed()).isGreaterThan(collapsed);
+      assertThrows(AssertionFailedError.class, () -> utilities.toggleGridGroup("Grd", "America"));
+      assertThrows(AssertionFailedError.class, () -> utilities.expandAllGridGroups("Other"));
+    }
+  }
+
+  @Test
+  void shouldChooseTheGroupByColumnsOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGridGroupByButton("Grd"), "Group by");
+      show(instructions.getGridGroupNone("Grd"), "No grouping");
+      show(instructions.getGridGroupOption("Grd", "region"), "");
+      show(instructions.getGridGroupOption("Grd", "city"), "");
+      By panel = Locator.from(instructions.getGridGroupByPanel("Grd")).toBy();
+      show(instructions.getGridGroupByPanel("Grd"), "");
+      // The panel closes on the second click of the Group by button (the fifth click)
+      AtomicInteger clicks = new AtomicInteger();
+      doAnswer(invocation -> {
+        if (clicks.incrementAndGet() == 5) {
+          when(driver.findElements(argThat(panel::equals))).thenReturn(Collections.emptyList());
+        }
+        return null;
+      }).when((Interactive) driver).perform(any());
+
+      // No grouping, then each column in order: the button, None, two options and the button again
+      assertThatCode(() -> utilities.groupGridBy("Grd", "region", "city")).doesNotThrowAnyException();
+      assertThat(clicks.get()).isEqualTo(5);
+      assertThrows(AssertionFailedError.class, () -> utilities.groupGridBy("Other"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheTotalOfTheFooterOfAGridInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getGrid("Grd"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+      when(executor.executeScript(scriptWith("tfoot"), any(), eq("sales"))).thenReturn("2.450");
+
+      assertThatCode(() -> utilities.checkGridFooterTotal("Grd", "sales", "2.450")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridFooterTotal("Grd", "sales", "850"));
+      when(executor.executeScript(scriptWith("tfoot"), any(), eq("sales"))).thenReturn(null);
+      assertThrows(AssertionFailedError.class, () -> utilities.checkGridFooterTotal("Grd", "sales", "2.450"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatNoCallReachedTheServerSinceTheWatchStarted() {
+    JavascriptExecutor executor = (JavascriptExecutor) driver;
+    when(executor.executeScript(scriptWith("clearResourceTimings"))).thenReturn(null);
+    when(executor.executeScript(scriptWith("getEntriesByType"))).thenReturn("");
+
+    assertThatCode(() -> {
+      utilities.watchServerCalls();
+      utilities.checkNoServerCalls();
+    }).doesNotThrowAnyException();
+    verify(executor).executeScript(scriptWith("clearResourceTimings"));
+
+    // A call to the server since the watch started
+    when(executor.executeScript(scriptWith("getEntriesByType"))).thenReturn("http://localhost:8080/action/data/GroupRowsTst");
+    assertThrows(AssertionFailedError.class, () -> utilities.checkNoServerCalls());
   }
 
   @Test

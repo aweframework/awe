@@ -91,11 +91,12 @@ export function useGrid(id) {
     address, contextMenu: attributes.contextMenu, openWithoutVisibleOptions: true
   });
 
-  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers, frozen = false) => {
+  // A grouped grid (#833) gives the number of each row (rowNumberOf): its group and subtotal rows have none
+  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers, frozen = false, rowNumberOf = undefined) => {
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getRowNumberWidthStyle(first, rows) };
     if (rowNumbers) {
       return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan} frozen={frozen}
-        body={(_data, options) => options.rowIndex + 1}
+        body={(data, options) => rowNumberOf ? rowNumberOf(data) : options.rowIndex + 1}
         headerClassName={"p-row-number-header"} headerStyle={rowNumberStyle}
         bodyClassName={"p-row-number-cell"} bodyStyle={rowNumberStyle}
         footer={null}
@@ -274,7 +275,7 @@ export function useGrid(id) {
       moveRowsColumnTemplate(place, rowSpan, specific?.moveRows, specific?.onRowDragStart, specific?.onRowDragEnd, specific?.frozen),
       rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail, specific?.frozen),
       multiselectColumnTemplate(place, rowSpan, specific?.multiselect, specific?.frozen),
-      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, specific?.frozen)
+      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, specific?.frozen, specific?.rowNumberOf)
     ].filter(e => !isEmpty(e));
   };
 

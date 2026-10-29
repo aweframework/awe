@@ -1036,7 +1036,22 @@
     </xs:attribute>
     <xs:attribute name="show-totals" type="booleanEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Shows a footer row with the summary of each column that has a summary-type. AngularJS only calculates sums, whatever the summary-type; React supports sum, avg, max and min. Default: false.</xs:documentation>
+        <xs:documentation xml:lang="en">Shows a footer row with the summary of each column that has a summary-type. AngularJS only calculates sums, whatever the summary-type; React supports sum, avg, max and min. When the rows are grouped, the footer is the grand total of all the rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-by" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma-separated column names that group the rows, one grouping level each, in order; unknown names are ignored. Each group row shows its value, its row count and the aggregates of the columns with a summary-type (sum, avg, max, min) in both engines. A grouped grid loads every row (as load-all) and does not paginate. Ignored on tree grids and on editable, send-operations, move-rows and row-detail grids.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-selector" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a "Group by" control in the toolbar to choose the grouping levels at runtime (visible columns with a label and without summary-type). Like group-by, it makes the grid load every row. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-subtotals" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Closes each group with a subtotal row with the aggregates of the group. Only used when the rows are grouped. Default: true.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="enable-filters" type="booleanEnum">
@@ -1373,7 +1388,7 @@
     </xs:attribute>
     <xs:attribute name="summary-type" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Calculation shown in the grid footer when show-totals is true. AngularJS always calculates a sum; React supports sum, avg, max and min and shows nothing for other values.</xs:documentation>
+        <xs:documentation xml:lang="en">Calculation shown in the grid footer when show-totals is true, and in the group and subtotal rows of a grouped grid (both engines). AngularJS always calculates a sum; React supports sum, avg, max and min and shows nothing for other values.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="number-format" type="xs:string">

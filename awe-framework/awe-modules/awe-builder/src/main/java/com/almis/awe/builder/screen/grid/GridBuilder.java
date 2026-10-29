@@ -133,6 +133,39 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   }
 
   /**
+   * Group the rows by some columns (comma separated, one grouping level each). The grid loads every row
+   *
+   * @param groupBy Column names
+   * @return Grid builder
+   */
+  public GridBuilder setGroupBy(String groupBy) {
+    getGridAttributes().setGroupBy(groupBy);
+    return this;
+  }
+
+  /**
+   * Show the "Group by" control in the toolbar to change the grouping at runtime. The grid loads every row
+   *
+   * @param groupSelector Show the group selector
+   * @return Grid builder
+   */
+  public GridBuilder setGroupSelector(boolean groupSelector) {
+    getGridAttributes().setGroupSelector(groupSelector);
+    return this;
+  }
+
+  /**
+   * Close each group with a subtotal row. It is shown by default
+   *
+   * @param groupSubtotals Show the subtotal rows
+   * @return Grid builder
+   */
+  public GridBuilder setGroupSubtotals(boolean groupSubtotals) {
+    getGridAttributes().setGroupSubtotals(groupSubtotals);
+    return this;
+  }
+
+  /**
    * Set tree grid
    *
    * @param treeGrid

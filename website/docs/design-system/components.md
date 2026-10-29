@@ -157,7 +157,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Move rows | #842 | Done | Toolbar actions: top, up, down, bottom on the selected rows. |
 | Data bars in cells | #831 | Planned | A light bar behind the number; negatives grow to the left in the danger tone. The number stays readable. |
 | Secondary line, status and tags in cells | #832 | Done | Muted second line, status with a dot, tags collapsing into "+n". |
-| Row grouping with subtotals | #833 | Planned | Collapsible group header with count and totals, a subtotal row per group, grand total in the footer. |
+| Row grouping with subtotals | #833 | Done | Collapsible group header with count and totals, a subtotal row per group, grand total in the footer. |
 | Quick search and value filters | #834 | Planned | Search in every column; column filter with values and counts; footer totals say they are filtered. |
 | Pager with range, total and go to page | #826, #874 | Done | See Grid. |
 | Columns dialog per user | #813 | Done | Popover anchored to the Columns button by default (`columns-panel`: `popover`, `dialog` or `side-panel`), changes applied live. Show, hide, reorder (drag or arrows), Restore default, Cancel, Save. |

@@ -1951,6 +1951,122 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Css of a group or subtotal row of a grouped grid, by the path of its group (the encoded values of its levels joined
+   * by "/", as {@code America/USA/New%20York})
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the row: group or subtotal
+   * @param path   Group path
+   * @return Css selector of the row
+   */
+  private static String getGridGroupRowCss(String gridId, String testId, String path) {
+    return "[grid-id='" + gridId + "'] " + TestIds.css(testId) + TestAttributes.css(TestAttributes.GROUP_PATH, path);
+  }
+
+  /**
+   * Get a cell of the group row of a grouped grid: the toggle, label and count of the group in the first visible
+   * column, the aggregate of the group in a column with summary type
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @return Cell selector
+   */
+  default By getGridGroupCell(String gridId, String path, String columnId) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_GROUP_ROW, path) + " " + TestIds.css(TestIds.GRID_CELL)
+      + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get a cell of the subtotal row of a group of a grouped grid
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @return Cell selector
+   */
+  default By getGridSubtotalCell(String gridId, String path, String columnId) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_SUBTOTAL_ROW, path) + " " + TestIds.css(TestIds.GRID_CELL)
+      + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the toggle that expands or collapses a group of a grouped grid
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   * @return Toggle selector
+   */
+  default By getGridGroupToggle(String gridId, String path) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_GROUP_ROW, path) + " " + TestIds.css(TestIds.GRID_GROUP_TOGGLE));
+  }
+
+  /**
+   * Get the button of the toolbar of a grouped grid that expands every group
+   *
+   * @param gridId Grid identifier
+   * @return Expand all selector
+   */
+  default By getGridGroupExpandAll(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_EXPAND_ALL);
+  }
+
+  /**
+   * Get the button of the toolbar of a grouped grid that collapses every group
+   *
+   * @param gridId Grid identifier
+   * @return Collapse all selector
+   */
+  default By getGridGroupCollapseAll(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_COLLAPSE_ALL);
+  }
+
+  /**
+   * Get the Group by button of the toolbar of a grid (grid with group-selector), which opens and closes its panel
+   *
+   * @param gridId Grid identifier
+   * @return Group by button selector
+   */
+  default By getGridGroupByButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_BY);
+  }
+
+  /**
+   * Get the Group by panel of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Panel selector
+   */
+  default By getGridGroupByPanel(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId));
+  }
+
+  /**
+   * Get the No grouping action of the Group by panel of a grid (the panel has to be open)
+   *
+   * @param gridId Grid identifier
+   * @return No grouping selector
+   */
+  default By getGridGroupNone(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_GROUP_NONE));
+  }
+
+  /**
+   * Get the checkbox of a column in the Group by panel of a grid (the panel has to be open). The hook of the option is
+   * the checkbox itself (AngularJS) or the item that holds it (React)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Checkbox selector
+   */
+  default By getGridGroupOption(String gridId, String columnId) {
+    String panel = TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId) + " ";
+    String option = TestIds.css(TestIds.GRID_GROUP_OPTION) + TestAttributes.css(TestAttributes.COLUMN, columnId);
+    return By.cssSelector(panel + "input" + option + ", " + panel + option + " input");
+  }
+
+  /**
    * Get the checkbox that shows or hides a column in the Columns dialog of a grid
    *
    * @param gridId   Grid identifier

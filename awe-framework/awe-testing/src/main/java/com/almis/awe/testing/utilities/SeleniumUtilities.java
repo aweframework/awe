@@ -31,6 +31,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -5541,6 +5542,322 @@ public class SeleniumUtilities implements IAweInstructions {
       && parts[2].contains(String.valueOf(hidden.size())) && parts[2].replaceAll(",\\s*", ",").contains(list);
     assertWithScreenshot(cellName + " shows the chip for hidden chips '" + more + "' (text, tooltip, label), not '+"
       + hidden.size() + "' listing " + hidden, matches);
+  }
+
+  /**
+   * A row that a grouped grid shows, as {@link #GROUPED_ROWS_SCRIPT} reads it: a group row (level, path, expanded state
+   * and the label and count of its first cell), a subtotal row (level and path) or a data row (row identifier)
+   *
+   * @param type     group, subtotal or row
+   * @param level    Level of a group or subtotal row, from 1 (0 for a data row)
+   * @param path     Group path, or the row identifier of a data row
+   * @param expanded Expanded state of a group row: "true", "false" or "mismatch" when the row and its toggle disagree
+   * @param label    Label and count of a group row ("Europe 3")
+   */
+  private record GroupedRow(String type, int level, String path, String expanded, String label) {
+    private static GroupedRow parse(String line) {
+      String[] fields = line.split("\\|", -1);
+      if ("row".equals(fields[0])) {
+        return new GroupedRow("row", 0, fields[1], "", "");
+      }
+      return new GroupedRow(fields[0], Integer.parseInt(fields[1]), fields[2], fields.length > 3 ? fields[3] : "",
+        fields.length > 4 ? fields[4] : "");
+    }
+
+    private boolean isGroup() {
+      return "group".equals(type);
+    }
+
+    private boolean isGroupOfLevel(int groupLevel) {
+      return isGroup() && level == groupLevel;
+    }
+  }
+
+  /**
+   * Rows that a grouped grid shows, in order: group, subtotal and data rows. A row is listed once even when the grid
+   * renders it in more than one container (frozen columns)
+   */
+  private static final String GROUPED_ROWS_SCRIPT = "const grid = arguments[0]; const seen = new Set(); const lines = [];"
+    + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+    + " grid.querySelectorAll('[data-testid=\"grid-row\"], [data-testid=\"grid-group-row\"], [data-testid=\"grid-subtotal-row\"]')"
+    + ".forEach(row => {"
+    + "   const type = row.getAttribute('data-testid'); const path = row.getAttribute('data-group-path');"
+    + "   const key = type + '|' + (type === 'grid-row' ? row.getAttribute('row-id') : path);"
+    + "   if (seen.has(key)) { return; } seen.add(key);"
+    + "   const level = row.getAttribute('data-group-level');"
+    + "   if (type === 'grid-row') { lines.push('row|' + row.getAttribute('row-id')); return; }"
+    + "   if (type === 'grid-subtotal-row') { lines.push('subtotal|' + level + '|' + path); return; }"
+    + "   const toggle = row.querySelector('[data-testid=\"grid-group-toggle\"]'); const expanded = row.getAttribute('data-expanded');"
+    + "   const state = toggle && toggle.getAttribute('aria-expanded') === expanded ? expanded : 'mismatch';"
+    + "   const label = toggle ? Array.from(toggle.parentElement.children).filter(e => e !== toggle).map(text).join(' ') : '';"
+    + "   lines.push(['group', level, path, state, label].join('|'));"
+    + " });"
+    + " return lines.join('\\n');";
+
+  /**
+   * Read the rows that a grouped grid shows
+   *
+   * @param browser Browser
+   * @param grid    Grid locator
+   * @return Rows, in order (none when the grid is not there)
+   */
+  private static List<GroupedRow> readGroupedRows(BrowserDriver browser, Locator grid) {
+    Object rows;
+    try {
+      rows = browser.executeScriptOn(grid, GROUPED_ROWS_SCRIPT);
+    } catch (ElementReplacedException | ElementNotFoundException exc) {
+      return List.of();
+    }
+    if (!(rows instanceof String lines) || lines.isEmpty()) {
+      return List.of();
+    }
+    return Arrays.stream(lines.split("\n")).map(GroupedRow::parse).toList();
+  }
+
+  /**
+   * Wait until the rows that a grouped grid shows meet a check
+   *
+   * @param gridId      Grid identifier
+   * @param description What is waited for
+   * @param check       Check of the rows
+   */
+  private void waitForGroupedRows(String gridId, String description, Predicate<List<GroupedRow>> check) {
+    Locator grid = locator(frontEndInstructions.getGrid(gridId));
+    waitUntil(BrowserCondition.allOf(checkIfGridLoaderIsNotVisible(),
+      BrowserCondition.of("the grid " + gridId + " to show " + description, browser -> check.test(readGroupedRows(browser, grid)))));
+  }
+
+  /**
+   * Find the group row of a path among the rows of a grouped grid
+   *
+   * @param rows Rows
+   * @param path Group path
+   * @return Position of the group row, or -1
+   */
+  private static int indexOfGroup(List<GroupedRow> rows, String path) {
+    for (int index = 0; index < rows.size(); index++) {
+      if (rows.get(index).isGroup() && rows.get(index).path().equals(path)) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Check how many group rows of a level a grouped grid shows (the groups inside a collapsed group are not shown)
+   *
+   * @param gridId Grid identifier
+   * @param level  Level, from 1
+   * @param count  Group rows of the level
+   */
+  protected void checkGridGroupRowCount(String gridId, int level, int count) {
+    waitForGroupedRows(gridId, count + " group rows of level " + level,
+      rows -> rows.stream().filter(row -> row.isGroupOfLevel(level)).count() == count);
+  }
+
+  /**
+   * Check the order of the group rows of a level that a grouped grid shows, by their paths (the encoded values of their
+   * levels joined by "/", as {@code America/USA/New%20York})
+   *
+   * @param gridId Grid identifier
+   * @param level  Level, from 1
+   * @param paths  Paths of the group rows of the level, in the order they are shown
+   */
+  protected void checkGridGroupOrder(String gridId, int level, String... paths) {
+    List<String> expected = List.of(paths);
+    waitForGroupedRows(gridId, "the group rows " + expected + " of level " + level + " in this order",
+      rows -> rows.stream().filter(row -> row.isGroupOfLevel(level)).map(GroupedRow::path).toList().equals(expected));
+  }
+
+  /**
+   * Check the label of a group row of a grouped grid: the value of the group and the number of its data rows
+   * ("Europe 11")
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   * @param label  Value of the group, as it is shown
+   * @param count  Data rows of the group
+   */
+  protected void checkGridGroupLabel(String gridId, String path, String label, int count) {
+    String expected = label + " " + count;
+    waitForGroupedRows(gridId, "the group " + path + " labelled '" + expected + "'", rows -> {
+      int index = indexOfGroup(rows, path);
+      return index >= 0 && rows.get(index).label().equals(expected);
+    });
+  }
+
+  /**
+   * Check that a group of a grouped grid is expanded: its row and its toggle say so and its content follows it
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void checkGridGroupExpanded(String gridId, String path) {
+    waitForGroupedRows(gridId, "the group " + path + " expanded, with its content under it", rows -> {
+      int index = indexOfGroup(rows, path);
+      if (index < 0 || index + 1 >= rows.size() || !"true".equals(rows.get(index).expanded())) {
+        return false;
+      }
+      GroupedRow next = rows.get(index + 1);
+      return "row".equals(next.type()) || (next.isGroup() && next.level() > rows.get(index).level());
+    });
+  }
+
+  /**
+   * Check that a group of a grouped grid is collapsed: its row and its toggle say so and neither its groups, its data
+   * rows nor its subtotal are shown
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void checkGridGroupCollapsed(String gridId, String path) {
+    waitForGroupedRows(gridId, "the group " + path + " collapsed, without its content", rows -> {
+      int index = indexOfGroup(rows, path);
+      if (index < 0 || !"false".equals(rows.get(index).expanded())) {
+        return false;
+      }
+      int level = rows.get(index).level();
+      if (index + 1 >= rows.size()) {
+        return true;
+      }
+      GroupedRow next = rows.get(index + 1);
+      return (next.isGroup() && next.level() <= level) || ("subtotal".equals(next.type()) && next.level() < level);
+    });
+  }
+
+  /**
+   * Check that a grid shows its data rows without grouping: no group or subtotal row
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotGrouped(String gridId) {
+    waitForGroupedRows(gridId, "its data rows without group or subtotal rows",
+      rows -> !rows.isEmpty() && rows.stream().allMatch(row -> "row".equals(row.type())));
+  }
+
+  /**
+   * Check the text of a cell of a group row of a grouped grid: the aggregate of the group in a column with summary
+   * type, or the label and count of the group in the first visible column
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @param text     Text of the cell
+   */
+  protected void checkGridGroupCell(String gridId, String path, String columnId, String text) {
+    By cell = frontEndInstructions.getGridGroupCell(gridId, path, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible(), BrowserCondition.textEquals(locator(cell), text)));
+  }
+
+  /**
+   * Check the text of a cell of the subtotal row of a group of a grouped grid: the aggregate of the group in a column
+   * with summary type, or "Subtotal" and the label of the group in the first visible column
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @param text     Text of the cell
+   */
+  protected void checkGridSubtotalCell(String gridId, String path, String columnId, String text) {
+    By cell = frontEndInstructions.getGridSubtotalCell(gridId, path, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible(), BrowserCondition.textEquals(locator(cell), text)));
+  }
+
+  /**
+   * Expand or collapse a group of a grouped grid with its toggle
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void toggleGridGroup(String gridId, String path) {
+    click(frontEndInstructions.getGridGroupToggle(gridId, path));
+  }
+
+  /**
+   * Expand every group of a grouped grid with the Expand all button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void expandAllGridGroups(String gridId) {
+    click(frontEndInstructions.getGridGroupExpandAll(gridId));
+  }
+
+  /**
+   * Collapse every group of a grouped grid with the Collapse all button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void collapseAllGridGroups(String gridId) {
+    click(frontEndInstructions.getGridGroupCollapseAll(gridId));
+  }
+
+  /**
+   * Group the rows of a grid by some columns with the Group by panel of its toolbar (grid with group-selector): No
+   * grouping, then each column in order, one level each, and the panel is closed. Without columns the grid shows its
+   * rows without grouping
+   *
+   * @param gridId  Grid identifier
+   * @param columns Group-by columns, in the order of their levels
+   */
+  protected void groupGridBy(String gridId, String... columns) {
+    By button = frontEndInstructions.getGridGroupByButton(gridId);
+    By panel = frontEndInstructions.getGridGroupByPanel(gridId);
+    click(button);
+    waitUntil(toBeVisible(panel));
+    click(frontEndInstructions.getGridGroupNone(gridId));
+    for (String column : columns) {
+      click(frontEndInstructions.getGridGroupOption(gridId, column));
+    }
+    click(button);
+    waitUntil(BrowserCondition.not(toBePresent(panel)));
+  }
+
+  // Footer cell of a column of a grid: AngularJS marks it with the column, React has it in the position of its header
+  private static final String FOOTER_CELL_SCRIPT = "const grid = arguments[0]; const column = arguments[1];"
+    + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+    + " const footer = Array.from(grid.querySelectorAll('.ui-grid-footer [column-id]')).find(e => e.getAttribute('column-id') === column);"
+    + " if (footer) { return text(footer); }"
+    + " const header = Array.from(grid.querySelectorAll('thead [data-testid=\"grid-header-cell\"]')).find(e => e.getAttribute('column-id') === column);"
+    + " const cell = header && header.closest('th'); const row = grid.querySelector('tfoot tr');"
+    + " if (!cell || !row) { return null; }"
+    + " const footerCell = row.children[Array.from(cell.parentElement.children).indexOf(cell)];"
+    + " return footerCell ? text(footerCell) : null;";
+
+  /**
+   * Check the total of a column in the footer of a grid with {@code show-totals}
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param text     Text of the total
+   */
+  protected void checkGridFooterTotal(String gridId, String columnId, String text) {
+    Locator grid = locator(frontEndInstructions.getGrid(gridId));
+    waitUntil(BrowserCondition.allOf(checkIfGridLoaderIsNotVisible(), BrowserCondition.of("the footer of the grid " + gridId
+      + " to show '" + text + "' in the column " + columnId, browser -> {
+      try {
+        return text.equals(browser.executeScriptOn(grid, FOOTER_CELL_SCRIPT, columnId));
+      } catch (ElementReplacedException | ElementNotFoundException exc) {
+        return false;
+      }
+    })));
+  }
+
+  /**
+   * Start watching the calls of the page to the server (requests of the scripts of the page to its own origin), to check
+   * later with {@link #checkNoServerCalls()} that a client-side action did not reach the server
+   */
+  protected void watchServerCalls() {
+    getBrowser().executeScript("performance.setResourceTimingBufferSize(10000); performance.clearResourceTimings(); return null;");
+  }
+
+  /**
+   * Check that the page made no call to the server since {@link #watchServerCalls()}
+   */
+  protected void checkNoServerCalls() {
+    Object calls = getBrowser().executeScript("return performance.getEntriesByType('resource')"
+      + ".filter(e => (e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest') && e.name.startsWith(location.origin))"
+      + ".map(e => e.name).join('\\n');");
+    assertWithScreenshot("The page called the server: " + calls, calls == null || "".equals(calls));
   }
 
   /**

@@ -370,6 +370,15 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridColumnsItem", () -> i.getGridColumnsItem(GRID, COLUMN));
     catalog.put("getGridColumnsCheckbox", () -> i.getGridColumnsCheckbox(GRID, COLUMN));
     catalog.put("getGridColumnsMoveUp", () -> i.getGridColumnsMoveUp(GRID, COLUMN));
+    catalog.put("getGridGroupCell", () -> i.getGridGroupCell(GRID, "Europe/Spain", COLUMN));
+    catalog.put("getGridSubtotalCell", () -> i.getGridSubtotalCell(GRID, "Europe/Spain", COLUMN));
+    catalog.put("getGridGroupToggle", () -> i.getGridGroupToggle(GRID, "Europe"));
+    catalog.put("getGridGroupExpandAll", () -> i.getGridGroupExpandAll(GRID));
+    catalog.put("getGridGroupCollapseAll", () -> i.getGridGroupCollapseAll(GRID));
+    catalog.put("getGridGroupByButton", () -> i.getGridGroupByButton(GRID));
+    catalog.put("getGridGroupByPanel", () -> i.getGridGroupByPanel(GRID));
+    catalog.put("getGridGroupNone", () -> i.getGridGroupNone(GRID));
+    catalog.put("getGridGroupOption", () -> i.getGridGroupOption(GRID, COLUMN));
     catalog.put("getGridColumnsMoveDown", () -> i.getGridColumnsMoveDown(GRID, COLUMN));
     catalog.put("getGridColumnsShowAll", () -> i.getGridColumnsShowAll(GRID));
     catalog.put("getGridColumnsReset", () -> i.getGridColumnsReset(GRID));

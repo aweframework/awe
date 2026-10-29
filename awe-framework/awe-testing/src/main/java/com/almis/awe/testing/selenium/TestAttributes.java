@@ -58,6 +58,14 @@ public final class TestAttributes {
    * Number of a wizard step, which the step may replace with an icon. Only the React client renders it
    */
   public static final String STEP_NUMBER = "data-step-number";
+  /**
+   * Path of the group of a group or subtotal row of a grouped grid (the encoded values of its levels joined by "/")
+   */
+  public static final String GROUP_PATH = "data-group-path";
+  /**
+   * Column of an option of the Group by panel of a grid
+   */
+  public static final String COLUMN = "data-column";
 
   private TestAttributes() {
     // Constants only

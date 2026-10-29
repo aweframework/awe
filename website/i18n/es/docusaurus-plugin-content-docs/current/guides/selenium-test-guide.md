@@ -678,6 +678,19 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary)` | Comprueba el valor principal y la segunda línea de una celda de una columna con `secondary-field` (`secondary` null: la celda muestra solo la línea principal) |
 | `checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone)` | Comprueba el estado de una celda de una columna con `status-field`: su tono (`data-tone` y clase del tono) y su texto |
 | `checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden)` | Comprueba las etiquetas que muestra una celda de una columna `chips`, en orden, y la etiqueta "+n" cuyo tooltip y etiqueta accesible listan las ocultas (`hidden` vacía: sin etiqueta "+n") |
+| `checkGridGroupRowCount(String gridId, int level, int count)` | Comprueba cuántas filas de grupo de un nivel muestra una grid agrupada (los grupos dentro de un grupo contraído no se muestran) |
+| `checkGridGroupOrder(String gridId, int level, String... paths)` | Comprueba el orden de las filas de grupo de un nivel por sus rutas: los valores codificados de sus niveles unidos por `/`, como `America/USA/New%20York` |
+| `checkGridGroupLabel(String gridId, String path, String label, int count)` | Comprueba la etiqueta de una fila de grupo: su valor y el número de sus filas de datos (`Europe · 11`) |
+| `checkGridGroupExpanded(String gridId, String path)` | Comprueba que un grupo está expandido: su fila y su conmutador lo indican y su contenido va a continuación |
+| `checkGridGroupCollapsed(String gridId, String path)` | Comprueba que un grupo está contraído: su fila y su conmutador lo indican y no se muestran ni sus grupos, ni sus filas ni su subtotal |
+| `checkGridNotGrouped(String gridId)` | Comprueba que una grid muestra sus filas de datos sin filas de grupo ni de subtotal |
+| `checkGridGroupCell(String gridId, String path, String columnId, String text)` | Comprueba una celda de una fila de grupo: el agregado de una columna con `summary-type`, o la etiqueta y el recuento en la primera columna visible |
+| `checkGridSubtotalCell(String gridId, String path, String columnId, String text)` | Comprueba una celda de la fila de subtotal de un grupo: el agregado, o `Subtotal {valor}` en la primera columna visible |
+| `toggleGridGroup(String gridId, String path)` | Expande o contrae un grupo con su conmutador |
+| `expandAllGridGroups(String gridId)` / `collapseAllGridGroups(String gridId)` | Expande o contrae todos los grupos con los botones Expandir todo / Contraer todo de la barra de herramientas |
+| `groupGridBy(String gridId, String... columns)` | Elige la agrupación en el panel Agrupar por de la barra de herramientas: Sin agrupar y después cada columna en orden (sin columnas: la grid no se agrupa), y cierra el panel |
+| `checkGridFooterTotal(String gridId, String columnId, String text)` | Comprueba el total de una columna en el pie de una grid con `show-totals` |
+| `watchServerCalls()` / `checkNoServerCalls()` | Empieza a vigilar las llamadas de la página a su servidor, y comprueba que no se ha hecho ninguna desde entonces (una acción de cliente como agrupar o expandir) |
 | `checkRowSelected(String gridId, String search)` | Comprueba que la fila de un grid con un texto está seleccionada |
 | `measureGridSortRender(String gridId, String columnId)` | Ordena un grid del cliente con un clic en una cabecera y devuelve los milisegundos que tardan en dibujarse sus filas |
 | `openGridColumns(String gridId)` | Abre el diálogo de columnas de la barra de herramientas de un grid |

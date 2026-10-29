@@ -197,6 +197,11 @@
     <java classname="com.almis.awe.test.UserList" method="loadUsersJsonFile" />
   </service>
 
+  <!-- Sales of stores by region, country and city (GrdGrpTst screen) -->
+  <service id="loadGroupRows">
+    <java classname="com.almis.awe.test.GroupRows" method="loadGroupRows" />
+  </service>
+
   <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
   <service id="loadCellRows">
     <java classname="com.almis.awe.test.CellRows" method="loadCellRows" />

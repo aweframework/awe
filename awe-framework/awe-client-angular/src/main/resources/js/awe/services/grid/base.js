@@ -1,12 +1,13 @@
 import {aweApplication} from "../../awe";
 import "./commons";
+import "./groupingGrid";
 import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
 import {getMoveRowsColumn} from "./rowDrag";
 
 // Base grid service
 aweApplication.factory('GridBase',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$translate', '$filter', '$log', 'uiGridConstants',
-    'Storage', 'ServerData',
+    'Storage', 'ServerData', 'GridGrouping',
     /**
      * Grid generic methods
      * @param {service} Utilities Utilities service
@@ -20,8 +21,9 @@ aweApplication.factory('GridBase',
      * @param {service} uiGridConstants Grid constants
      * @param {service} Storage Storage service
      * @param {service} ServerData Server data service
+     * @param {service} GridGrouping Row grouping
      */
-    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData) {
+    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData, GridGrouping) {
 
       /**
        * Grid constructor
@@ -91,6 +93,10 @@ aweApplication.factory('GridBase',
            * @param {type} row
            */
           component.getRowNumber = function (row) {
+            // Grouped rows are numbered among the data rows they show (#833)
+            if (component.grouped) {
+              return component.getGroupedRowNumber(row);
+            }
             return grid.api.core.getVisibleRows().indexOf(row) + getFirstRecord();
           };
           /**
@@ -163,6 +169,8 @@ aweApplication.factory('GridBase',
             grid.api.core.on.sortChanged(grid.scope, onSort);
             // Manage pagination
             grid.api.pagination.on.paginationChanged(grid.scope, onPagination);
+            // Row grouping (#833)
+            component.initGroupRows();
             // End initialization
             Utilities.timeout(function () {
               // Initialize grid layers
@@ -237,8 +245,8 @@ aweApplication.factory('GridBase',
            * Update the model (specific)
            */
           component.updateModelSpecific = function () {
-            // Update model
-            component.scope.gridOptions.data = component.model.values;
+            // Update model (the display rows of the groups while the rows are grouped, #833)
+            component.scope.gridOptions.data = component.getDisplayValues();
             component.currentPage = component.model.page;
             // On rows rendered, publish
             return component.deferRowsRendered(deferred => {
@@ -822,7 +830,8 @@ aweApplication.factory('GridBase',
 
             // Update total pages
             if (component.controller.loadAll && grid.api) {
-              component.model.total = grid.api.pagination.getTotalPages();
+              // A single page while the rows are grouped (no pagination, #833)
+              component.model.total = grid.api.pagination.getTotalPages() || 1;
             } else {
               let  recordsPerPage = component.getMax();
               component.model.total = recordsPerPage === 0 ? 1 : Math.max(Math.ceil(component.model.records / recordsPerPage), 1);
@@ -940,6 +949,9 @@ aweApplication.factory('GridBase',
           if (!this.commons.init()) {
             return false;
           }
+
+          // Row grouping (#833)
+          GridGrouping.attach(component);
 
           /**********************************************************************/
           /* EVENTS                                                             */

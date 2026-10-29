@@ -135,6 +135,7 @@ export interface GridPassThroughOptions {
   isRowEditing?: () => unknown;
   isRowDeleted?: () => unknown;
   getRowProps?: (rowId: unknown) => Record<string, unknown>;
+  getDisplayRowHook?: () => TestHook | null | undefined;
 }
 
 /**
@@ -408,9 +409,11 @@ export function paginatorPassThrough(): PaginatorPassThrough {
  * @param {function} [options.isRowDeleted] Function that tells if the row PrimeReact is rendering is marked to be deleted
  * @param {function} [options.getRowProps] Function that returns extra props (style class, drag events) for the row with
  * the identifier it receives (DataTable only)
+ * @param {function} [options.getDisplayRowHook] Function that returns the hook of the row PrimeReact is rendering when it
+ * is a group or subtotal row of a grouped grid (set by its "rowClassName"), or nothing for a data row
  * @returns {object} DataTable or TreeTable pt
  */
-export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, isRowDeleted, getRowProps }: GridPassThroughOptions): GridPassThrough {
+export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, isRowDeleted, getRowProps, getDisplayRowHook }: GridPassThroughOptions): GridPassThrough {
   const pt: GridPassThrough = {
     root: testHook(TestIds.grid, { attributes: { [tree ? "tree-grid-id" : "grid-id"]: gridId } }),
     paginator: paginatorPassThrough()
@@ -419,6 +422,11 @@ export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, 
   pt[tree ? "scrollableBody" : "wrapper"] = testHook(TestIds.gridViewport, { container: "body" });
   // The rows are "bodyRow" in a DataTable and "row" in a TreeTable
   pt[tree ? "row" : "bodyRow"] = ({ context }) => {
+    // Group and subtotal rows (#833) are not data rows: they have their own hook and no row-id
+    const displayRowHook = getDisplayRowHook?.();
+    if (displayRowHook) {
+      return displayRowHook;
+    }
     const rowId = getRowId?.();
     return {
       ...testHook(TestIds.gridRow, {
@@ -431,6 +439,20 @@ export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, 
     };
   };
   return pt;
+}
+
+/**
+ * Test hook of a group or subtotal row of a grouped grid (#833): its path and level, and whether a group is expanded
+ * @param {object} row Display row: {$group: {path, level, expanded}} or {$subtotal: {path, level}}
+ * @returns {object} Row hook
+ */
+export function displayRowHook(row: { $group?: { path: string; level: number; expanded: boolean };
+  $subtotal?: { path: string; level: number } }): TestHook {
+  const { path, level } = (row.$group ?? row.$subtotal) as { path: string; level: number };
+  return testHook(row.$group ? TestIds.gridGroupRow : TestIds.gridSubtotalRow, {
+    expanded: row.$group?.expanded,
+    attributes: { "data-group-path": path, "data-group-level": String(level) }
+  });
 }
 
 /**
