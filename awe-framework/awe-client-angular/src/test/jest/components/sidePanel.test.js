@@ -5,6 +5,7 @@ import {
   stubPanelComponent
 } from "./heavyComponentTestUtils";
 import {TestIds} from "../../../main/resources/js/awe/data/testIds";
+import {disposeModal} from "../../../main/resources/js/awe/services/modal";
 
 const hook = testId => `[data-testid='${testId}']`;
 
@@ -118,6 +119,22 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
         last.focus();
         last.dispatchEvent(new window.KeyboardEvent("keydown", {key: "Tab", bubbles: true, cancelable: true}));
         expect(document.activeElement).toBe(panel.find("button").first()[0]);
+      });
+
+      it("shows with the native modal: backdrop, focus inside, and closes with its close button giving the focus back", () => {
+        const element = compile("awe-side-panel");
+        const panel = element.find(hook(TestIds.sidePanel));
+
+        element.isolateScope().$broadcast("modalChange", true);
+        expect(panel.hasClass("in")).toBe(true);
+        expect($(".modal-backdrop").length).toBe(1);
+        expect(panel[0].contains(document.activeElement)).toBe(true);
+
+        panel.find(hook(TestIds.sidePanelClose)).trigger("click");
+        expect(panel.hasClass("in")).toBe(false);
+        expect($(".modal-backdrop").length).toBe(0);
+        expect(panel.attr("data-open")).toBe("false");
+        expect(document.activeElement).toBe(opener);
       });
 
       it("gives the focus back to the control that opened it once it is hidden", () => {
@@ -272,7 +289,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
       });
 
       afterEach(() => {
-        $(".modal").modal("hide");
+        $(".modal").each((index, modal) => disposeModal(modal));
         $(document.body).removeClass("modal-open");
       });
 

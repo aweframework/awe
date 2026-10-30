@@ -97,25 +97,69 @@ describe("controllers/message.js", function() {
     expect(scope.confirmAction).toBe(action);
   });
 
-  it("creates and destroys target popovers without browser plugin fidelity", function() {
+  it("creates, hides and destroys target popovers", function() {
     document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
     const action = actionWith({
       parameters: {type: "warning", title: "Heads up", message: "Check field"},
       callbackTarget: {view: "base", component: "field"}
     });
-    jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
     jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
 
     controller.MessageActions.targetMessage(action);
-    controller.startPopover(controller.popover);
+    expect($("body > .popover").length).toBe(1);
+    expect($("body > .popover .popover-title").text()).toBe("Heads up");
+    expect($("body > .popover .popover-content").text()).toBe("Check field");
     expect(controller.popover.visible).toBe(true);
 
-    controller.hidePopover(controller.popover);
-    expect(controller.popover.visible).toBe(false);
+    const message = controller.popover;
+    controller.hidePopover(message);
+    expect(message.visible).toBe(false);
+    expect($("body > .popover").length).toBe(0);
+  });
 
-    controller.destroyPopover(controller.popover);
+  it("destroys the popover and its mask when it is hidden, and finishes the action", function() {
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    const action = actionWith({
+      parameters: {type: "warning", title: "Heads up", message: "Check field"},
+      callbackTarget: {view: "base", component: "field"}
+    });
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+    controller.MessageActions.targetMessage(action);
+    expect($("body > .target-message").length).toBe(1);
+
+    controller.hidePopover(controller.popover);
+
+    expect($("body > .target-message").length).toBe(0);
+    expect($("body > .popover").length).toBe(0);
+    expect(actionController.acceptAction).toHaveBeenCalledTimes(1);
     expect(actionController.acceptAction).toHaveBeenCalledWith(action);
     expect(controller.popover).toBe(null);
+  });
+
+  it("hides the popover with a click on its mask", function() {
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+    controller.MessageActions.targetMessage(actionWith({
+      parameters: {type: "warning", title: "Heads up", message: "Check field"},
+      callbackTarget: {view: "base", component: "field"}
+    }));
+
+    $("body > .target-message").trigger("click");
+
+    expect($("body > .popover").length).toBe(0);
+    expect(controller.popover).toBe(null);
+  });
+
+  it("shows a malicious title and message as text", function() {
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    controller.MessageActions.targetMessage(actionWith({
+      parameters: {type: "error", title: "<img src=x onerror=\"window.hacked = true\">", message: "<script>window.hacked = true</script>"},
+      callbackTarget: {view: "base", component: "field"}
+    }));
+
+    expect($("body > .popover").find("img, script").length).toBe(0);
+    expect($("body > .popover .popover-title").text()).toBe("<img src=x onerror=\"window.hacked = true\">");
+    expect(window.hacked).toBeUndefined();
   });
 
   it("maps error and wrong message types to danger alerts", function() {
@@ -172,7 +216,6 @@ describe("controllers/message.js", function() {
 
   it("uses body and base view as target-message fallback without a component address", function() {
     document.body.innerHTML = '<div ui-view="base"></div>';
-    jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
     const action = actionWith({parameters: {type: "ok", title: "Body", message: "Base"}});
 
     controller.MessageActions.targetMessage(action);
@@ -184,7 +227,6 @@ describe("controllers/message.js", function() {
 
   it("targets component addresses for target-message popovers", function() {
     document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
-    jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
     const action = actionWith({
       parameters: {type: "warning", title: "Field", message: "Check"},
       callbackTarget: {view: "base", component: "field"}
@@ -196,10 +238,8 @@ describe("controllers/message.js", function() {
     expect(controller.popover.view.attr("ui-view")).toBe("base");
   });
 
-  it("passes the test hook template to the popover and names the component it points at", function() {
+  it("shows the popover with the test hooks and names the component it points at", function() {
     document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
-    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
-    $.fn.popover.Constructor = {DEFAULTS: {whiteList: {"*": ["class", "role"], a: ["href"]}}};
     const action = actionWith({
       parameters: {type: "error", title: "Field", message: "Check"},
       callbackTarget: {view: "base", component: "field"}
@@ -207,17 +247,16 @@ describe("controllers/message.js", function() {
 
     controller.MessageActions.targetMessage(action);
 
-    const options = popover.mock.calls.find(call => typeof call[0] === "object")[0];
-    const template = $(options.template);
-    expect(template.attr("data-testid")).toBe("popover");
-    expect(template.attr("data-type")).toBe("danger");
-    expect(template.attr("data-testid-owner")).toBe("field");
-    expect(options.whiteList["*"]).toEqual(expect.arrayContaining(["data-testid", "data-testid-owner", "data-type", "class"]));
+    const popover = $("body > .popover");
+    expect(popover.attr("data-testid")).toBe("popover");
+    expect(popover.attr("data-type")).toBe("danger");
+    expect(popover.attr("data-testid-owner")).toBe("field");
+    expect(popover.find("[data-testid='popover-title']").text()).toBe("Field");
+    expect(popover.find("[data-testid='popover-content']").text()).toBe("Check");
   });
 
   it("clears the owner when a popover that is not bound to a component follows a bound one", function() {
     document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
-    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
     jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
     controller.MessageActions.targetMessage(actionWith({
       parameters: {type: "error", title: "Field", message: "Check"},
@@ -228,23 +267,20 @@ describe("controllers/message.js", function() {
     controller.MessageActions.targetMessage(actionWith({parameters: {type: "info", title: "Body", message: "Base"}}));
 
     expect(controller.popover.owner).toBeUndefined();
-    const options = popover.mock.calls.filter(call => typeof call[0] === "object").pop()[0];
-    expect($(options.template).attr("data-testid-owner")).toBeUndefined();
+    expect($("body > .popover").length).toBe(1);
+    expect($("body > .popover").attr("data-testid-owner")).toBeUndefined();
   });
 
   it("does not name an owner for a popover that is not bound to a component", function() {
     document.body.innerHTML = '<div ui-view="base"></div>';
-    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
 
     controller.MessageActions.targetMessage(actionWith({parameters: {type: "info", title: "Body", message: "Base"}}));
 
-    const options = popover.mock.calls.find(call => typeof call[0] === "object")[0];
-    expect($(options.template).attr("data-testid-owner")).toBeUndefined();
+    expect($("body > .popover").attr("data-testid-owner")).toBeUndefined();
   });
 
   it("targets grid cell addresses for target-message popovers", function() {
     document.body.innerHTML = '<div ui-view="base"><div id="grid"><div row-id="1"><span column-id="name"></span></div></div></div>';
-    jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
     const action = actionWith({
       parameters: {type: "error", title: "Cell", message: "Invalid"},
       callbackTarget: {view: "base", component: "grid", row: "1", column: "name"}
@@ -257,19 +293,43 @@ describe("controllers/message.js", function() {
   });
 
   it("destroys the previous target-message before creating a new one", function() {
-    const previousAction = actionWith({parameters: {type: "warning"}});
-    controller.popover = {
-      action: previousAction,
-      background: {remove: jest.fn()},
-      target: {popover: jest.fn()},
-      visible: true
-    };
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    const previousAction = actionWith({parameters: {type: "warning", title: "Old", message: "Old"}, callbackTarget: {view: "base", component: "field"}});
     jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
-    jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
+    controller.MessageActions.targetMessage(previousAction);
 
-    controller.MessageActions.targetMessage(actionWith({parameters: {type: "ok", title: "New"}}));
+    controller.MessageActions.targetMessage(actionWith({parameters: {type: "ok", title: "New", message: "New"}, callbackTarget: {view: "base", component: "field"}}));
 
     expect(actionController.acceptAction).toHaveBeenCalledWith(previousAction);
     expect(controller.popover.type).toBe("success");
+    expect($("body > .popover").length).toBe(1);
+    expect($("body > .popover .popover-title").text()).toBe("New");
+    expect($("body > .target-message").length).toBe(1);
+  });
+
+  it("does not destroy a new popover when the one it replaced finishes fading out", function() {
+    jest.useFakeTimers();
+    const computed = window.getComputedStyle.bind(window);
+    jest.spyOn(window, "getComputedStyle").mockImplementation((element, pseudo) => new Proxy(computed(element, pseudo), {
+      get: (style, property) => property === "transitionDuration" ? "0.15s" : (typeof style[property] === "function" ? style[property].bind(style) : style[property])
+    }));
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+    const address = {view: "base", component: "field"};
+    controller.MessageActions.targetMessage(actionWith({parameters: {type: "warning", title: "Old", message: "Old"}, callbackTarget: address}));
+    jest.advanceTimersByTime(150);
+
+    controller.MessageActions.targetMessage(actionWith({parameters: {type: "ok", title: "New", message: "New"}, callbackTarget: address}));
+    jest.advanceTimersByTime(300);
+
+    expect(controller.popover).not.toBe(null);
+    expect(controller.popover.text.title).toBe("New");
+    expect($("body > .popover .popover-title").text()).toBe("New");
+  });
+
+  it("hides and destroys safely a popover which was never created", function() {
+    expect(() => controller.hidePopover(null)).not.toThrow();
+    expect(() => controller.destroyPopover(null)).not.toThrow();
+    expect(controller.popover).toBe(null);
   });
 });

@@ -7,14 +7,16 @@
   "license": "SEE LICENSE IN ./../LICENSE.md",
   "private": true,
   "scripts": {
-    "lint": "eslint src/main/resources/js/awe src/test/jest",
+    "lint": "eslint src/main/resources/js/awe src/test/jest tools",
     "lint:ci": "npm run lint -- --max-warnings 0",
-    "lint:fix": "eslint src/main/resources/js/awe src/test/jest --fix",
+    "lint:fix": "eslint src/main/resources/js/awe src/test/jest tools --fix",
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",
     "build:production": "webpack --config webpack.config.js --mode production",
     "test": "jest --config jest.config.js",
-    "test:coverage": "jest --config jest.config.js --coverage"
+    "test:coverage": "jest --config jest.config.js --coverage",
+    "compat:grid": "node src/main/resources/tailwind/tools/generate-grid.js",
+    "compat:freeze-vendored": "node src/test/jest/styles/support/freezeVendored.js"
   },
   "dependencies": {
     "@babel/core": "^7.8.4",
@@ -22,6 +24,7 @@
     "@babel/plugin-transform-object-assign": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
     "@stomp/stompjs": "^6.1.0",
+    "@tailwindcss/postcss": "4.3.3",
     "angular": "1.5.8",
     "angular-animate": "1.5.11",
     "angular-base64": "^2.0.5",
@@ -39,7 +42,6 @@
     "babel-plugin-array-includes": "^2.0.3",
     "babel-plugin-object-values-to-object-keys": "^1.0.2",
     "babel-plugin-transform-object-entries": "^1.0.0",
-    "bootstrap": "^3.3.7",
     "bootstrap-datepicker": "^1.9.0",
     "bootstrap-markdown": "2.10.0",
     "bootstrap-slider": "^8.0.0",
@@ -66,8 +68,11 @@
     "normalize.css": "^7.0.0",
     "numeral": "^2.0.6",
     "pdfobject": "^2.1.1",
+    "postcss": "8.5.16",
+    "postcss-loader": "8.2.1",
     "Select2": "^3.5.7",
     "spin.js": "^2.3.2",
+    "tailwindcss": "4.3.3",
     "webpack": "^5.72.1",
     "webpack-cli": "^5.1.4"
   },

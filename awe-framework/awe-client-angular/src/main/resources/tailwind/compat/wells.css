@@ -1,0 +1,39 @@
+/*
+ * Wells: Bootstrap 3 wells.less and the pixel-admin well rule on the same selector, as the compiled vendored CSS renders them: well, well-lg
+ * and well-sm.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * There is no !important in this file.
+ *
+ * Not here (it stays in LESS; compatWells.test.js names it with an example selector): the date editor of the x-editable plugin.
+ */
+
+.well {
+  min-height: var(--awe-space-5);
+  padding: var(--awe-space-5);
+  margin-bottom: var(--awe-space-5);
+  background-color: var(--awe-color-secondary);
+  border: var(--awe-border-width) solid var(--awe-color-secondary);
+  border-radius: var(--awe-radius);
+  box-shadow: inset 0 var(--awe-border-width) var(--awe-border-width) color-mix(in srgb, var(--awe-color-text), transparent 95%);
+}
+
+.well blockquote {
+  border-color: color-mix(in srgb, var(--awe-color-text), transparent 85%);
+}
+
+.well-lg {
+  padding: var(--awe-space-6);
+  border-radius: var(--awe-radius-sm);
+}
+
+.well-sm {
+  padding: var(--awe-space-2);
+  border-radius: var(--awe-radius-xs);
+}
+
+.well {
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 97%);
+  border: var(--awe-border-width) solid color-mix(in srgb, var(--awe-color-text), transparent 94%);
+  box-shadow: none;
+}

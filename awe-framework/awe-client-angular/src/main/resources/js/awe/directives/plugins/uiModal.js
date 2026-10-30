@@ -1,14 +1,15 @@
 import {aweApplication} from "../../awe";
 import {TestAttributes} from "../../data/testIds";
+import "../../services/modal";
 import {createFocusTrap} from "../../services/focusTrap";
 
 // Modal plugin
-// Bootstrap closes a modal with Escape only when the keyboard focus is inside it: the focus moves into the modal when
+// A modal closes with Escape only when the keyboard focus is inside it: the focus moves into the modal when
 // it is shown and goes back to the control which opened it when it is hidden. Escape closes only a modal the user can
 // close (it has its own close button, data-dismiss="modal"). With the trap-tab attribute Tab stays inside the modal.
 aweApplication.directive('uiModal',
-  ['AweUtilities',
-    function (Utilities) {
+  ['AweUtilities', 'AweModal',
+    function (Utilities, $modal) {
       return {
         restrict: 'A',
         priority: 1,
@@ -20,7 +21,7 @@ aweApplication.directive('uiModal',
           let  opened = false;
           const trap = createFocusTrap(() => elem[0], {trapTab: "trapTab" in attrs});
 
-          // Expose whether the dialog is open. Bootstrap fires "hidden.bs.modal" after removing the backdrop,
+          // Expose whether the dialog is open. the modal service raises "hidden.bs.modal" after removing the backdrop,
           // so "false" means the screen is interactive again
           const setOpen = open => $(elem).attr(TestAttributes.open, open ? "true" : "false");
           setOpen(false);
@@ -29,25 +30,16 @@ aweApplication.directive('uiModal',
           const isClosable = () => $(elem).find('[data-dismiss="modal"]')
             .filter((index, button) => $(button).closest(".modal")[0] === elem[0]).length > 0;
 
-          // Bootstrap reads its options once: the keyboard option is updated on every show (the close button may come
+          // The modal reads its options once: the keyboard option is updated on every show (the close button may come
           // with the dialog title)
-          const showModal = () => {
-            const keyboard = isClosable();
-            const modal = $(elem).data("bs.modal");
-            if (modal) {
-              modal.options.keyboard = keyboard;
-              $(elem).modal('show');
-            } else {
-              $(elem).modal({keyboard, show: true});
-            }
-          };
+          const showModal = () => $modal.show(elem, {keyboard: isClosable()});
 
           scope.$on("modalChange", function (event, show) {
             if (show && show !== opened) {
               showModal();
               opened = true;
             } else {
-              $(elem).modal('hide');
+              $modal.hide(elem);
             }
           });
 

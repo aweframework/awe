@@ -1,0 +1,47 @@
+/*
+ * Bootstrap 3 grid, container and row, with the values of AWE: a 22px gutter (11px each side) and the containers of the
+ * --awe-grid-container-sm|md|lg tokens (742px, 962px and 1162px). The 4 x 51 column classes plus the 4 x 13 AWE-only col-*-offset-right-N (less/awe/offset.less) are in grid.generated.css (npm run compat:grid).
+ */
+.container,
+.container-fluid {
+  @apply tw:mr-auto tw:ml-auto tw:pl-grid-gutter tw:pr-grid-gutter;
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: var(--awe-grid-container-sm);
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    width: var(--awe-grid-container-md);
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: var(--awe-grid-container-lg);
+  }
+}
+
+.row {
+  @apply tw:-ml-grid-gutter tw:-mr-grid-gutter;
+}
+
+/* Clearfix: rows and containers contain their floated columns */
+.container::before,
+.container::after,
+.container-fluid::before,
+.container-fluid::after,
+.row::before,
+.row::after {
+  content: " ";
+  display: table;
+}
+
+.container::after,
+.container-fluid::after,
+.row::after {
+  clear: both;
+}

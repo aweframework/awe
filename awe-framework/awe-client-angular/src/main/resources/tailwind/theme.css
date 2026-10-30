@@ -1,0 +1,98 @@
+/*
+ * Tailwind theme: the --awe-* design tokens (less/awe/tokens.less), one to one.
+ *
+ * `@theme inline` keeps the var(--awe-...) reference in every utility, so a utility follows the active theme and the dark
+ * mode at runtime with no extra class. The Tailwind default theme is removed: the only colors, fonts, sizes, radii and
+ * shadows are the AWE ones. Naming: --awe-color-X is --color-X, --awe-space-X is --spacing-X, --awe-radius[-X] is
+ * --radius-base|X, --awe-shadow-X is --shadow-X, --awe-font-family-X is --font-X, --awe-font-size-X is --text-X,
+ * --awe-line-height-X is --leading-X, --awe-font-weight-X is --font-weight-X and --awe-size-X-height|width is --spacing-X.
+ * Read the design tokens guide before adding one: a new token goes in tokens.less first.
+ */
+@theme {
+  --*: initial;
+
+  /* Breakpoints of the responsive tw: variants: the Bootstrap 3 ones (compat/grid.generated.css), not a token because a
+     media query cannot read a custom property */
+  --breakpoint-sm: 768px;
+  --breakpoint-md: 992px;
+  --breakpoint-lg: 1200px;
+}
+
+@theme inline {
+  /* Color */
+  --color-theme: var(--awe-color-theme);
+  --color-text: var(--awe-color-text);
+  --color-primary: var(--awe-color-primary);
+  --color-on-primary: var(--awe-color-on-primary);
+  --color-secondary: var(--awe-color-secondary);
+  --color-on-secondary: var(--awe-color-on-secondary);
+  --color-background: var(--awe-color-background);
+  --color-surface: var(--awe-color-surface);
+  --color-border: var(--awe-color-border);
+  --color-shadow: var(--awe-color-shadow);
+  --color-menu: var(--awe-color-menu);
+  --color-menu-accent: var(--awe-color-menu-accent);
+  --color-menu-text: var(--awe-color-menu-text);
+  --color-navbar: var(--awe-color-navbar);
+  --color-navbar-accent: var(--awe-color-navbar-accent);
+  --color-navbar-text: var(--awe-color-navbar-text);
+  --color-navbar-dropdown: var(--awe-color-navbar-dropdown);
+  --color-panel: var(--awe-color-panel);
+  --color-panel-header: var(--awe-color-panel-header);
+  --color-panel-border: var(--awe-color-panel-border);
+  --color-panel-text: var(--awe-color-panel-text);
+  --color-grid-header: var(--awe-color-grid-header);
+  --color-grid-border: var(--awe-color-grid-border);
+  --color-skeleton: var(--awe-color-skeleton);
+  --color-skeleton-highlight: var(--awe-color-skeleton-highlight);
+  --color-disabled: var(--awe-color-disabled);
+  --color-disabled-border: var(--awe-color-disabled-border);
+  --color-disabled-text: var(--awe-color-disabled-text);
+  --color-required: var(--awe-color-required);
+  --color-loading-bar: var(--awe-color-loading-bar);
+  --color-danger: var(--awe-color-danger);
+  --color-warning: var(--awe-color-warning);
+  --color-success: var(--awe-color-success);
+  --color-info: var(--awe-color-info);
+
+  /* Typography */
+  --font-base: var(--awe-font-family-base);
+  --font-monospace: var(--awe-font-family-monospace);
+  --text-base: var(--awe-font-size-base);
+  --text-small: var(--awe-font-size-small);
+  --leading-base: var(--awe-line-height-base);
+  --font-weight-normal: var(--awe-font-weight-normal);
+  --font-weight-bold: var(--awe-font-weight-bold);
+
+  /* Spacing: 1 unit is 5px, so tw:p-3 is the 15px panel margin; the named steps are the tokens */
+  --spacing: 5px;
+  --spacing-2xs: var(--awe-space-2xs);
+  --spacing-xs: var(--awe-space-xs);
+  --spacing-sm: var(--awe-space-sm);
+  --spacing-md: var(--awe-space-md);
+  --spacing-lg: var(--awe-space-lg);
+  --spacing-xl: var(--awe-space-xl);
+
+  /* Radius */
+  --radius-base: var(--awe-radius);
+  --radius-sm: var(--awe-radius-sm);
+  --radius-lg: var(--awe-radius-lg);
+  --radius-full: var(--awe-radius-full);
+
+  /* Shadow */
+  --shadow-sm: var(--awe-shadow-sm);
+  --shadow-md: var(--awe-shadow-md);
+  --shadow-lg: var(--awe-shadow-lg);
+
+  /* Size */
+  --spacing-header: var(--awe-size-header-height);
+  --spacing-menu: var(--awe-size-menu-width);
+}
+
+/*
+ * Not tokens (yet): the grid gutter of AWE. The Bootstrap grid of AWE has a 22px gutter (11px each side), not 30px.
+ * It is a plain theme value here, not a --awe-* token, so the token contract does not change in this slice.
+ */
+@theme inline {
+  --spacing-grid-gutter: 11px;
+}

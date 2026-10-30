@@ -1,0 +1,424 @@
+/*
+ * Type: Bootstrap 3 type.less as the compiled vendored CSS renders it: headings (h1..h6 and .h1..h6, with their small text), paragraphs, .lead, small, mark, the text
+ * alignment, transformation and contextual color classes (text-muted|primary|success|info|warning|danger), the contextual backgrounds (bg-*), .page-header, lists
+ * (list-unstyled, list-inline), description lists (dl-horizontal), abbreviations, .initialism, blockquotes (and blockquote-reverse) and addresses.
+ *
+ * Colors, sizes, weights and line heights are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so the headings, the text colors and the spacing follow the AWE 5
+ * design system and may differ from the compiled Bootstrap values (the heading sizes read the type scale; the description list offsets are written from the space tokens).
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatType.test.js names them): the rules that the cascade guard found must stay unlayered because a pixel-admin or AWE rule on the same
+ * element and property would otherwise win over them, and the rules of the same selectors that the AWE LESS (headings of panels, modals, the help) restyles.
+ */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: inherit;
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-tight);
+  color: inherit;
+}
+
+h1 small,
+h2 small,
+h3 small,
+h4 small,
+h5 small,
+h6 small,
+.h1 small,
+.h2 small,
+.h3 small,
+.h4 small,
+.h5 small,
+.h6 small,
+h1 .small,
+h2 .small,
+h3 .small,
+h4 .small,
+h5 .small,
+h6 .small,
+.h1 .small,
+.h2 .small,
+.h3 .small,
+.h4 .small,
+.h5 .small,
+.h6 .small {
+  font-weight: var(--awe-font-weight-normal);
+  line-height: 1;
+  color: var(--awe-color-text-muted);
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3 {
+  margin-top: var(--awe-space-5);
+  margin-bottom: var(--awe-space-2);
+}
+
+h1 small,
+.h1 small,
+h2 small,
+.h2 small,
+h3 small,
+.h3 small,
+h1 .small,
+.h1 .small,
+h2 .small,
+.h2 .small,
+h3 .small,
+.h3 .small {
+  font-size: 65%;
+}
+
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  margin-top: var(--awe-space-2);
+  margin-bottom: var(--awe-space-2);
+}
+
+h4 small,
+.h4 small,
+h5 small,
+.h5 small,
+h6 small,
+.h6 small,
+h4 .small,
+.h4 .small,
+h5 .small,
+.h5 .small,
+h6 .small,
+.h6 .small {
+  font-size: 75%;
+}
+
+h1,
+.h1 {
+  font-size: var(--awe-font-size-3xl);
+}
+
+h2,
+.h2 {
+  font-size: var(--awe-font-size-2xl);
+}
+
+h3,
+.h3 {
+  font-size: var(--awe-font-size-xl);
+}
+
+h4,
+.h4 {
+  font-size: var(--awe-font-size-lg);
+}
+
+h5,
+.h5 {
+  font-size: var(--awe-font-size-base);
+}
+
+h6,
+.h6 {
+  font-size: var(--awe-font-size-xs);
+}
+
+p {
+  margin: 0 0 var(--awe-space-2);
+}
+
+.lead {
+  margin-bottom: var(--awe-space-5);
+  font-size: var(--awe-font-size-base);
+  font-weight: var(--awe-font-weight-normal);
+  line-height: var(--awe-line-height-snug);
+}
+
+@media (min-width: 768px) {
+  .lead {
+    font-size: var(--awe-font-size-lg);
+  }
+}
+
+small,
+.small {
+  font-size: 92%;
+}
+
+mark,
+.mark {
+  background-color: var(--awe-color-warning-subtle);
+  padding: 0.2em;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.text-muted {
+  color: var(--awe-color-text-muted);
+}
+
+.text-primary {
+  color: var(--awe-color-primary-text);
+}
+
+a.text-primary:hover {
+  color: color-mix(in srgb, var(--awe-color-primary-text), var(--awe-color-text) 10%);
+}
+
+.text-success {
+  color: var(--awe-color-success-text);
+}
+
+a.text-success:hover {
+  color: color-mix(in srgb, var(--awe-color-success-text), var(--awe-color-text) 10%);
+}
+
+.text-info {
+  color: var(--awe-color-info-text);
+}
+
+a.text-info:hover {
+  color: color-mix(in srgb, var(--awe-color-info-text), var(--awe-color-text) 10%);
+}
+
+.text-warning {
+  color: var(--awe-color-warning-text);
+}
+
+a.text-warning:hover {
+  color: color-mix(in srgb, var(--awe-color-warning-text), var(--awe-color-text) 10%);
+}
+
+.text-danger {
+  color: var(--awe-color-danger-text);
+}
+
+a.text-danger:hover {
+  color: color-mix(in srgb, var(--awe-color-danger-text), var(--awe-color-text) 10%);
+}
+
+.bg-primary {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-primary);
+}
+
+a.bg-primary:hover {
+  background-color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 10%);
+}
+
+.bg-success {
+  background-color: var(--awe-color-success-subtle);
+}
+
+a.bg-success:hover {
+  background-color: color-mix(in srgb, var(--awe-color-success-subtle), var(--awe-color-text) 10%);
+}
+
+.bg-info {
+  background-color: var(--awe-color-info-subtle);
+}
+
+a.bg-info:hover {
+  background-color: color-mix(in srgb, var(--awe-color-info-subtle), var(--awe-color-text) 10%);
+}
+
+.bg-warning {
+  background-color: var(--awe-color-warning-subtle);
+}
+
+a.bg-warning:hover {
+  background-color: color-mix(in srgb, var(--awe-color-warning-subtle), var(--awe-color-text) 10%);
+}
+
+.bg-danger {
+  background-color: var(--awe-color-danger-subtle);
+}
+
+a.bg-danger:hover {
+  background-color: color-mix(in srgb, var(--awe-color-danger-subtle), var(--awe-color-text) 10%);
+}
+
+.page-header {
+  padding-bottom: var(--awe-space-2);
+  margin: var(--awe-space-8) 0 var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+ul,
+ol {
+  margin-top: 0;
+  margin-bottom: var(--awe-space-2);
+}
+
+ul ul,
+ol ul,
+ul ol,
+ol ol {
+  margin-bottom: 0;
+}
+
+.list-unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+
+.list-inline {
+  padding-left: 0;
+  list-style: none;
+  margin-left: calc(var(--awe-space-1) * -1);
+}
+
+.list-inline > li {
+  display: inline-block;
+  padding-left: var(--awe-space-1);
+  padding-right: var(--awe-space-1);
+}
+
+dl {
+  margin-top: 0;
+  margin-bottom: var(--awe-space-5);
+}
+
+dt,
+dd {
+  line-height: var(--awe-line-height-base);
+}
+
+dt {
+  font-weight: var(--awe-font-weight-bold);
+}
+
+dd {
+  margin-left: 0;
+}
+
+.dl-horizontal dd:before,
+.dl-horizontal dd:after {
+  content: " ";
+  display: table;
+}
+
+.dl-horizontal dd:after {
+  clear: both;
+}
+
+@media (min-width: 768px) {
+  .dl-horizontal dt {
+    float: left;
+    width: calc(var(--awe-space-16) * 2.5);
+    clear: left;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dl-horizontal dd {
+    margin-left: calc(var(--awe-space-16) * 2.5 + var(--awe-space-5));
+  }
+}
+
+abbr[title],
+abbr[data-original-title] {
+  cursor: help;
+  border-bottom: var(--awe-border-width) dotted var(--awe-color-text-muted);
+}
+
+.initialism {
+  font-size: 90%;
+  text-transform: uppercase;
+}
+
+blockquote {
+  padding: var(--awe-space-2) var(--awe-space-5);
+  margin: 0 0 var(--awe-space-5);
+  font-size: var(--awe-font-size-md);
+  border-left: var(--awe-border-width-strong) solid var(--awe-color-border);
+}
+
+blockquote p:last-child,
+blockquote ul:last-child,
+blockquote ol:last-child {
+  margin-bottom: 0;
+}
+
+blockquote footer,
+blockquote small,
+blockquote .small {
+  display: block;
+  font-size: 80%;
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text-muted);
+}
+
+blockquote footer:before,
+blockquote small:before,
+blockquote .small:before {
+  content: "\2014 \00A0";
+}
+
+.blockquote-reverse,
+blockquote.pull-right {
+  padding-right: var(--awe-space-4);
+  padding-left: 0;
+  border-right: var(--awe-border-width-strong) solid var(--awe-color-border);
+  border-left: 0;
+  text-align: right;
+}
+
+.blockquote-reverse footer:before,
+blockquote.pull-right footer:before,
+.blockquote-reverse small:before,
+blockquote.pull-right small:before,
+.blockquote-reverse .small:before,
+blockquote.pull-right .small:before {
+  content: "";
+}
+
+.blockquote-reverse footer:after,
+blockquote.pull-right footer:after,
+.blockquote-reverse small:after,
+blockquote.pull-right small:after,
+.blockquote-reverse .small:after,
+blockquote.pull-right .small:after {
+  content: "\00A0 \2014";
+}
+
+address {
+  margin-bottom: var(--awe-space-5);
+  font-style: normal;
+  line-height: var(--awe-line-height-base);
+}

@@ -1,6 +1,5 @@
-// ### Import bootstrap
-@import "./libs/bootstrap-3.3.2/bootstrap.less";
-//@import "~bootstrap/less/bootstrap";
+// ### Import the legacy Bootstrap 3 LESS (variables, mixins, grid columns, leftovers)
+@import "./legacy/legacy.less";
 
 // ### Libraries
 // Animate css
@@ -40,9 +39,9 @@
 // Boostrap tabdrop
 @import "./libs/bootstrap-tabdrop/src/less/tabdrop";
 
-// ### Pixel Admin stylesheets
-@import "./libs/pixel-admin-less/pixel-admin";
-@import "./libs/pixel-admin-less/widgets/notifications";
+// ### Pixel Admin stylesheets (AWE-owned LESS, no longer a vendored library: legacy/pixel-admin)
+@import "./legacy/pixel-admin/pixel-admin";
+@import "./legacy/pixel-admin/widgets/notifications";
 
 // ### Font Awesome stylesheets
 @import "~font-awesome/less/font-awesome";

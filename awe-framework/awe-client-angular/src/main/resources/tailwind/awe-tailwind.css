@@ -1,0 +1,20 @@
+/*
+ * Tailwind v4 next to the LESS build (issue #755). Compiled by postcss-loader (see postcss.config.js) and bundled into
+ * css/styles.css after the LESS, so the unlayered Bootstrap 3 / pixel-admin / AWE LESS keep winning over everything here.
+ *
+ * - Layers: Tailwind writes into CSS cascade layers and the LESS is unlayered. An unlayered rule always beats a layered
+ *   one, whatever its specificity or position, so nothing here can change what Bootstrap renders. When a later slice
+ *   removes a vendored family, the compat rule that was layered under it takes over with no other change.
+ * - Prefix: utilities are only emitted with the `tw:` prefix (tw:flex, tw:p-3, tw:md:w-1/2), because Tailwind and
+ *   Bootstrap 3 share class names (hidden, table, collapse, container, ...). The compat layer is the one place that
+ *   writes the Bootstrap 3 names, and it does it explicitly.
+ * - Sources: automatic detection is off (source(none)); only the folders of sources.css are scanned, so a class that is only
+ *   written in a test or in the documentation is never emitted.
+ * - Preflight: not imported. Bootstrap's base styles (normalize, box-sizing, headings) stay.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./theme.css";
+@import "./sources.css";
+@import "./compat/index.css" layer(components);

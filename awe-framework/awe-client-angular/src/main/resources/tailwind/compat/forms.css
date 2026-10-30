@@ -1,0 +1,445 @@
+/*
+ * Forms: Bootstrap 3 forms.less, the pixel-admin form rules (legacy/pixel-admin/forms.less) and the AWE rules on the same
+ * selectors, as the compiled vendored CSS renders them: form-group, form-control (+ focus, placeholder, readonly/disabled), the
+ * input-sm|lg and form-group-sm|lg sizes, form-control-static, help-block, control-label, form-horizontal, form-inline, the
+ * has-feedback / form-control-feedback icon slot, checkbox and radio (+ inline, disabled) and the has-success|warning|error states.
+ * Rules keep the order of the vendored build (Bootstrap first, then pixel-admin), because
+ * several compete at the same specificity (.form-control, .help-block, .form-inline .form-control...).
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. They are plain declarations, not
+ * @apply: Tailwind has no utility that emits the focus ring or the box-shadows (and its utilities add --tw-* variables and logical
+ * properties). The vendor placeholder pseudo-elements are separate rules: a browser drops a whole rule when one selector is unknown.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatForms.test.js names every one of them):
+ * - `.has-*` `.form-control:focus` and `.form-control.focus`: pixel-admin writes `border-color: ... !important` on them, and the themed `.has-*.dark` rules carry it too.
+ * - `.has-* .input-group-addon` (slice 3c), `.has-*.dark|.simple` (themed, `!important`), the `.lbl` custom controls and the `.has-error .checkbox .lbl:before` !important rules.
+ * - input groups (slice 3c), navbar forms, the screens (form-actions), criteria (.criterion .form-control), themes (.theme-* .form-control:focus),
+ *   the px/lbl custom controls, w-icon, no-label, dark, simple and the plugins that restyle a control inside them.
+ * - the global element selectors of forms.less (fieldset, legend, label, output, input[type=...]): no class to move.
+ */
+
+.form-control {
+  display: block;
+  width: 100%;
+  height: var(--awe-size-control);
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-base);
+  line-height: 1.42857143;
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-panel);
+  background-image: none;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius);
+  box-shadow: var(--awe-shadow-field);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.form-control:focus {
+  border-color: var(--awe-color-field-border-focus);
+  outline: 0;
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.form-control::-moz-placeholder {
+  color: var(--awe-color-text-muted);
+  opacity: 1;
+}
+
+.form-control:-ms-input-placeholder {
+  color: var(--awe-color-text-muted);
+}
+
+.form-control::-webkit-input-placeholder {
+  color: var(--awe-color-text-muted);
+}
+
+.form-control[disabled],
+.form-control[readonly],
+fieldset[disabled] .form-control {
+  cursor: not-allowed;
+  background-color: var(--awe-color-disabled);
+  opacity: 1;
+}
+
+textarea.form-control {
+  height: auto;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="date"].input-sm,
+  input[type="time"].input-sm,
+  input[type="datetime-local"].input-sm,
+  input[type="month"].input-sm {
+    line-height: var(--awe-space-6);
+  }
+  input[type="date"].input-lg,
+  input[type="time"].input-lg,
+  input[type="datetime-local"].input-lg,
+  input[type="month"].input-lg {
+    line-height: var(--awe-space-12);
+  }
+}
+
+.form-group {
+  margin-bottom: var(--awe-space-4);
+}
+
+.radio,
+.checkbox {
+  position: relative;
+  display: block;
+  margin-top: var(--awe-space-3);
+  margin-bottom: var(--awe-space-3);
+}
+
+.radio label,
+.checkbox label {
+  min-height: var(--awe-space-5);
+  padding-left: var(--awe-space-5);
+  margin-bottom: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio input[type="radio"],
+.radio-inline input[type="radio"],
+.checkbox input[type="checkbox"],
+.checkbox-inline input[type="checkbox"] {
+  position: absolute;
+  margin-left: calc(var(--awe-space-5) * -1);
+  margin-top: var(--awe-space-1) \9;
+}
+
+.radio + .radio,
+.checkbox + .checkbox {
+  margin-top: calc(var(--awe-space-1-5) * -1);
+}
+
+.radio-inline,
+.checkbox-inline {
+  display: inline-block;
+  padding-left: var(--awe-space-5);
+  margin-bottom: 0;
+  vertical-align: middle;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio-inline + .radio-inline,
+.checkbox-inline + .checkbox-inline {
+  margin-top: 0;
+  margin-left: var(--awe-space-3);
+}
+
+.radio-inline.disabled,
+.checkbox-inline.disabled,
+fieldset[disabled] .radio-inline,
+fieldset[disabled] .checkbox-inline,
+.radio.disabled label,
+.checkbox.disabled label,
+fieldset[disabled] .radio label,
+fieldset[disabled] .checkbox label {
+  cursor: not-allowed;
+}
+
+.form-control-static {
+  padding-top: var(--awe-space-2);
+  padding-bottom: var(--awe-space-2);
+  margin-bottom: 0;
+}
+
+.form-control-static.input-lg,
+.form-control-static.input-sm {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.input-sm {
+  height: var(--awe-size-control-sm);
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+select.input-sm {
+  height: var(--awe-size-control-sm);
+  line-height: var(--awe-space-6);
+}
+
+textarea.input-sm,
+select[multiple].input-sm {
+  height: auto;
+}
+
+.form-group-sm .form-control {
+  height: var(--awe-size-control-sm);
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+select.form-group-sm .form-control {
+  height: var(--awe-size-control-sm);
+  line-height: var(--awe-space-6);
+}
+
+textarea.form-group-sm .form-control,
+select[multiple].form-group-sm .form-control {
+  height: auto;
+}
+
+.form-group-sm .form-control-static {
+  height: var(--awe-size-control-sm);
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+}
+
+.input-lg {
+  height: var(--awe-size-control-lg);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-lg);
+  line-height: 1.3333333;
+  border-radius: var(--awe-radius-xs);
+}
+
+select.input-lg {
+  height: var(--awe-size-control-lg);
+  line-height: var(--awe-space-12);
+}
+
+textarea.input-lg,
+select[multiple].input-lg {
+  height: auto;
+}
+
+.form-group-lg .form-control {
+  height: var(--awe-size-control-lg);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-lg);
+  line-height: 1.3333333;
+  border-radius: var(--awe-radius-xs);
+}
+
+select.form-group-lg .form-control {
+  height: var(--awe-size-control-lg);
+  line-height: var(--awe-space-12);
+}
+
+textarea.form-group-lg .form-control,
+select[multiple].form-group-lg .form-control {
+  height: auto;
+}
+
+.form-group-lg .form-control-static {
+  height: var(--awe-size-control-lg);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-lg);
+  line-height: 1.3333333;
+}
+
+.has-feedback {
+  position: relative;
+}
+
+.has-feedback .form-control {
+  padding-right: var(--awe-space-10);
+}
+
+.form-control-feedback {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: block;
+  width: var(--awe-space-8);
+  height: var(--awe-size-control);
+  line-height: var(--awe-space-8);
+  text-align: center;
+  pointer-events: none;
+}
+
+.input-lg + .form-control-feedback {
+  width: var(--awe-space-12);
+  height: var(--awe-size-control-lg);
+  line-height: var(--awe-space-12);
+}
+
+.input-sm + .form-control-feedback {
+  width: var(--awe-space-6);
+  height: var(--awe-size-control-sm);
+  line-height: var(--awe-space-6);
+}
+
+.has-success .help-block,
+.has-success .control-label,
+.has-success .radio,
+.has-success .checkbox,
+.has-success .radio-inline,
+.has-success .checkbox-inline,
+.has-success.radio label,
+.has-success.checkbox label,
+.has-success.radio-inline label,
+.has-success.checkbox-inline label {
+  color: var(--awe-color-success-text);
+}
+
+.has-success .form-control {
+  border-color: var(--awe-color-success-text);
+  box-shadow: var(--awe-shadow-field);
+}
+
+.has-success .form-control-feedback {
+  color: var(--awe-color-success-text);
+}
+
+.has-warning .help-block,
+.has-warning .control-label,
+.has-warning .radio,
+.has-warning .checkbox,
+.has-warning .radio-inline,
+.has-warning .checkbox-inline,
+.has-warning.radio label,
+.has-warning.checkbox label,
+.has-warning.radio-inline label,
+.has-warning.checkbox-inline label {
+  color: var(--awe-color-warning-text);
+}
+
+.has-warning .form-control {
+  border-color: var(--awe-color-warning-text);
+  box-shadow: var(--awe-shadow-field);
+}
+
+.has-warning .form-control-feedback {
+  color: var(--awe-color-warning-text);
+}
+
+.has-error .help-block,
+.has-error .control-label,
+.has-error .radio,
+.has-error .checkbox,
+.has-error .radio-inline,
+.has-error .checkbox-inline,
+.has-error.radio label,
+.has-error.checkbox label,
+.has-error.radio-inline label,
+.has-error.checkbox-inline label {
+  color: var(--awe-color-danger-text);
+}
+
+.has-error .form-control {
+  border-color: var(--awe-color-danger-text);
+  box-shadow: var(--awe-shadow-field);
+}
+
+.has-error .form-control-feedback {
+  color: var(--awe-color-danger-text);
+}
+
+.has-feedback label ~ .form-control-feedback {
+  top: var(--awe-space-6);
+}
+
+.has-feedback label.sr-only ~ .form-control-feedback {
+  top: 0;
+}
+
+.help-block {
+  display: block;
+  margin-top: var(--awe-space-1-5);
+  margin-bottom: var(--awe-space-3);
+  color: var(--awe-color-text);
+}
+
+@media (min-width: 768px) {
+  .form-inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+  }
+  /* No `width: auto`: AWE comments it out in the vendored forms.less (compatForms.test.js pins it), so the width stays 100% */
+  .form-inline .form-control {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .form-inline .form-control-static {
+    display: inline-block;
+  }
+  .form-inline .control-label {
+    margin-bottom: 0;
+    vertical-align: middle;
+  }
+  .form-inline .radio,
+  .form-inline .checkbox {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: middle;
+  }
+  .form-inline .radio label,
+  .form-inline .checkbox label {
+    padding-left: 0;
+  }
+  .form-inline .radio input[type="radio"],
+  .form-inline .checkbox input[type="checkbox"] {
+    position: relative;
+    margin-left: 0;
+  }
+  .form-inline .has-feedback .form-control-feedback {
+    top: 0;
+  }
+}
+
+.form-horizontal .radio,
+.form-horizontal .checkbox,
+.form-horizontal .radio-inline,
+.form-horizontal .checkbox-inline {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: var(--awe-space-2);
+}
+
+.form-horizontal .radio,
+.form-horizontal .checkbox {
+  min-height: var(--awe-size-control-sm);
+}
+
+.form-horizontal .form-group {
+  margin-left: calc(var(--awe-space-3) * -1);
+  margin-right: calc(var(--awe-space-3) * -1);
+}
+
+.form-horizontal .form-group:before,
+.form-horizontal .form-group:after {
+  content: " ";
+  display: table;
+}
+
+.form-horizontal .form-group:after {
+  clear: both;
+}
+
+@media (min-width: 768px) {
+  .form-horizontal .control-label {
+    text-align: right;
+    margin-bottom: 0;
+    padding-top: var(--awe-space-2);
+  }
+}
+
+.form-horizontal .has-feedback .form-control-feedback {
+  right: var(--awe-space-3);
+}
+
+@media (min-width: 768px) {
+  .form-horizontal .form-group-lg .control-label {
+    padding-top: var(--awe-space-4);
+  }
+  .form-horizontal .form-group-sm .control-label {
+    padding-top: var(--awe-space-1-5);
+  }
+}

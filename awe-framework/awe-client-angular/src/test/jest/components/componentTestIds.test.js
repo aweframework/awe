@@ -578,6 +578,11 @@ describe("button, context menu, menu and info test ids", () => {
   });
 
   describe("info", () => {
+    // The dropdown tests append their element to the page: it must not leak into the next test
+    afterEach(() => {
+      $(document.body).children().remove();
+    });
+
     const infoController = extra => ({
       id: "InfoId", component: "info-dropdown", contextMenu: [], dependencies: [], visible: true, title: "TITLE", children: 0, ...extra
     });
@@ -592,6 +597,50 @@ describe("button, context menu, menu and info test ids", () => {
       expect(element.attr("data-testid")).toBe("info-dropdown");
       expect(element.find(`> a${hook(TestIds.infoDropdownToggle)}`).length).toBe(1);
       expect(element.find(`> ul${hook(TestIds.infoDropdownMenu)}`).length).toBe(1);
+    });
+
+    it("opens the menu of the info dropdown with its toggle and closes it with a click outside (native dropdown)", () => {
+      stubPanelComponent(refs, {values: []}, infoController({children: 2}));
+      const element = refs.$compile("<awe-info-dropdown info-dropdown-id='InfoId'></awe-info-dropdown>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      document.body.appendChild(element[0]);
+      const toggle = element.find(`> a${hook(TestIds.infoDropdownToggle)}`);
+
+      expect(toggle.attr("data-toggle")).toBe("dropdown");
+      toggle.trigger("click");
+      expect(element.hasClass("open")).toBe(true);
+      expect(toggle.attr("aria-expanded")).toBe("true");
+
+      $(document.body).trigger("click");
+      expect(element.hasClass("open")).toBe(false);
+    });
+
+    it("has no dropdown toggle when the info dropdown has no children", () => {
+      stubPanelComponent(refs, {values: []}, infoController({children: 0}));
+      const element = refs.$compile("<awe-info-dropdown info-dropdown-id='InfoId'></awe-info-dropdown>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      document.body.appendChild(element[0]);
+
+      element.find(`> a${hook(TestIds.infoDropdownToggle)}`).trigger("click");
+
+      expect(element.hasClass("open")).toBe(false);
+      expect(element.find(`> a${hook(TestIds.infoDropdownToggle)}`).attr("data-toggle")).toBeFalsy();
+    });
+
+    it("opens the menu of the avatar with its link and closes it with a click outside (native dropdown)", () => {
+      stubPanelComponent(refs, {values: []}, infoController({id: "AvatarId", component: "avatar", children: 2}));
+      const element = refs.$compile("<awe-avatar avatar-id='AvatarId'></awe-avatar>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      document.body.appendChild(element[0]);
+      const toggle = element.children("a");
+
+      expect(toggle.attr("data-toggle")).toBe("dropdown");
+      toggle.trigger("click");
+      expect(element.hasClass("open")).toBe(true);
+      expect(toggle.attr("aria-expanded")).toBe("true");
+
+      $(document.body).trigger("click");
+      expect(element.hasClass("open")).toBe(false);
     });
 
     it("marks the info button and its link", () => {

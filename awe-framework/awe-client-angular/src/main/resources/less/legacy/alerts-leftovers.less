@@ -1,0 +1,53 @@
+//
+// Alerts rules that the compat layer does not move
+//
+// The alerts are served by the compat layer (src/main/resources/tailwind/compat/alerts.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle the same elements: a layered compat rule loses to any unlayered one whatever its specificity): the heading, paragraph, link and rule inside an alert and its close button.
+// The compat tests of the families name what they leave out, with example selectors.
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.alert h4 {
+  margin-top: 0;
+  color: inherit;
+}
+.alert > p,
+.alert > ul {
+  margin-bottom: 0;
+}
+.alert > p + p {
+  margin-top: 5px;
+}
+.alert-dismissable .close,
+.alert-dismissible .close {
+  position: relative;
+  top: -2px;
+  right: -21px;
+}
+.alert-success hr {
+  border-top-color: #d6e9c6;
+}
+.alert-success .alert-link {
+  color: #3c763d;
+}
+.alert-info hr {
+  border-top-color: #bce8f1;
+}
+.alert-info .alert-link {
+  color: #31708f;
+}
+.alert-warning hr {
+  border-top-color: #faebcc;
+}
+.alert-warning .alert-link {
+  color: #8a6d3b;
+}
+.alert-danger hr {
+  border-top-color: #ebccd1;
+}
+.alert-danger .alert-link {
+  color: #a94442;
+}

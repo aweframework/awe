@@ -1,0 +1,148 @@
+//
+// Typography
+// --------------------------------------------------
+// What is left of the vendored type.less after slice 8 of #755: the rules that the cascade guard found must stay unlayered, because a pixel-admin or AWE
+// rule on the same element and property would win over a layered copy (the small text of the `.h1`..`.h6` classes, the text alignment, the hover of the
+// contextual links (and the four text colors that the AWE icon styles call as rule sets), the inline and horizontal lists and the blockquotes). The rest of type.less is served by the compat layer (compat/type.css).
+
+// Headings
+// -------------------------
+
+.h1 .small,
+.h2 .small,
+.h3 .small,
+.h4 .small,
+.h5 .small,
+.h6 .small {
+  font-weight: normal;
+  line-height: 1;
+  color: @headings-small-color;
+}
+
+.h1 .small,
+.h2 .small,
+.h3 .small {
+  font-size: 65%;
+}
+
+.h4 .small,
+.h5 .small,
+.h6 .small {
+  font-size: 75%;
+}
+
+// Alignment
+// (the three rules that the utilities of the compat layer print too: the build counts them twice)
+.text-left           { text-align: left; }
+.text-right          { text-align: right; }
+.text-center         { text-align: center; }
+.text-justify        { text-align: justify; }
+
+// Contextual colors
+a.text-primary:hover {
+  color: color-mix(in srgb, @brand-primary, @text-color 10%);
+}
+// The AWE icon styles call these four rule sets (icon.less: `.text-danger;`), so they stay whole
+.text-success {
+  .text-emphasis-variant(@state-success-text);
+}
+.text-info {
+  .text-emphasis-variant(@state-info-text);
+}
+.text-warning {
+  .text-emphasis-variant(@state-warning-text);
+}
+.text-danger {
+  .text-emphasis-variant(@state-danger-text);
+}
+
+// Contextual backgrounds
+a.bg-primary:hover {
+  background-color: color-mix(in srgb, @brand-primary, @text-color 10%);
+}
+a.bg-success:hover {
+  background-color: color-mix(in srgb, @state-success-bg, @text-color 10%);
+}
+a.bg-info:hover {
+  background-color: color-mix(in srgb, @state-info-bg, @text-color 10%);
+}
+a.bg-warning:hover {
+  background-color: color-mix(in srgb, @state-warning-bg, @text-color 10%);
+}
+a.bg-danger:hover {
+  background-color: color-mix(in srgb, @state-danger-bg, @text-color 10%);
+}
+
+// Lists
+// -------------------------
+
+// Inline turns list items into inline-block
+.list-inline > li {
+  display: inline-block;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+// Horizontal description lists
+//
+// Defaults to being stacked without any of the below styles applied, until the
+// grid breakpoint is reached (default of ~768px).
+
+.dl-horizontal {
+  dd:before,
+  dd:after {
+    content: " ";
+    display: table;
+  }
+
+  @media (min-width: @grid-float-breakpoint) {
+    dt {
+      float: left;
+      width: (@dl-horizontal-offset - 20);
+      clear: left;
+      text-align: right;
+      .text-overflow();
+    }
+    dd {
+      margin-left: @dl-horizontal-offset;
+    }
+  }
+}
+
+
+// Misc
+// -------------------------
+
+// Blockquotes
+blockquote {
+  padding: (@line-height-computed / 2) @line-height-computed;
+  margin: 0 0 @line-height-computed;
+  font-size: @blockquote-font-size;
+  border-left: 5px solid @blockquote-border-color;
+
+  p,
+  ul,
+  ol {
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .small {
+    display: block;
+    font-size: 80%; // back to default font-size
+    line-height: @line-height-base;
+    color: @blockquote-small-color;
+  }
+}
+
+// Opposite alignment of blockquote
+//
+// Heads up: `blockquote.pull-right` has been deprecated as of v3.1.0.
+blockquote.pull-right {
+  padding-right: 15px;
+  padding-left: 0;
+  border-right: 5px solid @blockquote-border-color;
+  border-left: 0;
+  text-align: right;
+}

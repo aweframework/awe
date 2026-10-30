@@ -1,0 +1,104 @@
+//
+// Popovers rules that the compat layer does not move
+//
+// The popovers are served by the compat layer (src/main/resources/tailwind/compat/popovers.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle them: a layered compat rule loses to any unlayered one whatever its specificity), and the rules of selectors that the compat layer
+// leaves out (the compat tests of the families name every one of them, with example selectors).
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.popover.top {
+  margin-top: -10px;
+}
+.popover.right {
+  margin-left: 10px;
+}
+.popover.bottom {
+  margin-top: 10px;
+}
+.popover.left {
+  margin-left: -10px;
+}
+.popover-title {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+  background-color: color-mix(in srgb, var(--awe-color-surface), var(--awe-color-text) 3%);
+  border-bottom: 1px solid color-mix(in srgb, color-mix(in srgb, var(--awe-color-surface), var(--awe-color-text) 3%), var(--awe-color-text) 5%);
+  border-radius: 2px 2px 0 0;
+}
+.popover-content {
+  padding: 9px 14px;
+}
+.popover > .arrow,
+.popover > .arrow:after {
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+}
+.popover.top > .arrow {
+  left: 50%;
+  margin-left: -11px;
+  border-bottom-width: 0;
+  border-top-color: color-mix(in srgb, #ccc, var(--awe-color-text) 20%);
+  border-top-color: var(--awe-color-border);
+  bottom: -11px;
+}
+.popover.top > .arrow:after {
+  content: " ";
+  bottom: 1px;
+  margin-left: -10px;
+  border-bottom-width: 0;
+  border-top-color: var(--awe-color-surface);
+}
+.popover.right > .arrow {
+  top: 50%;
+  left: -11px;
+  margin-top: -11px;
+  border-left-width: 0;
+  border-right-color: color-mix(in srgb, #ccc, var(--awe-color-text) 20%);
+  border-right-color: var(--awe-color-border);
+}
+.popover.right > .arrow:after {
+  content: " ";
+  left: 1px;
+  bottom: -10px;
+  border-left-width: 0;
+  border-right-color: var(--awe-color-surface);
+}
+.popover.bottom > .arrow {
+  left: 50%;
+  margin-left: -11px;
+  border-top-width: 0;
+  border-bottom-color: color-mix(in srgb, #ccc, var(--awe-color-text) 20%);
+  border-bottom-color: var(--awe-color-border);
+  top: -11px;
+}
+.popover.bottom > .arrow:after {
+  content: " ";
+  top: 1px;
+  margin-left: -10px;
+  border-top-width: 0;
+  border-bottom-color: var(--awe-color-surface);
+}
+.popover.left > .arrow {
+  top: 50%;
+  right: -11px;
+  margin-top: -11px;
+  border-right-width: 0;
+  border-left-color: color-mix(in srgb, #ccc, var(--awe-color-text) 20%);
+  border-left-color: var(--awe-color-border);
+}
+.popover.left > .arrow:after {
+  content: " ";
+  right: 1px;
+  border-right-width: 0;
+  border-left-color: var(--awe-color-surface);
+  bottom: -10px;
+}

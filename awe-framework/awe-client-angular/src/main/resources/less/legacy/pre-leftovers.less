@@ -1,0 +1,20 @@
+//
+// Code (inline and block)
+// --------------------------------------------------
+// What is left of the element rules of code, kbd, pre and samp after slice 8 of #755: the block of code, which the cascade guard found must stay unlayered
+// (a pixel-admin or AWE rule on `pre` would win over a layered copy). The other rules are served by the compat layer (compat/code.css).
+
+// Blocks of code
+pre {
+  display: block;
+  padding: ((@line-height-computed - 1) / 2);
+  margin: 0 0 (@line-height-computed / 2);
+  font-size: (@font-size-base - 1); // 14px to 13px
+  line-height: @line-height-base;
+  word-break: break-all;
+  word-wrap: break-word;
+  color: @pre-color;
+  background-color: @pre-bg;
+  border: 1px solid @pre-border-color;
+  border-radius: @border-radius-base;
+}

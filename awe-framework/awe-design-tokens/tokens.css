@@ -1041,6 +1041,13 @@
   --awe-layout-gap: 20px;
   --awe-page-padding: 28px;
 
+  --awe-border-width: 1px;
+  --awe-border-width-strong: 2px;
+
+  --awe-grid-container-sm: 742px;
+  --awe-grid-container-md: 962px;
+  --awe-grid-container-lg: 1162px;
+
   --awe-list-padding: 4px;
   --awe-list-gap: 2px;
   --awe-list-option-padding: 8px 12px;
