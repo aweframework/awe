@@ -267,4 +267,59 @@ public abstract class AbstractColumnBuilder<T extends AbstractColumnBuilder, I e
     getColumnAttributes().setMaxChips(maxChips);
     return (T) this;
   }
+
+  /**
+   * Set the lower end of the scale of the bar of a progress column
+   *
+   * @param barMin Lower end of the scale
+   * @return This
+   */
+  public T setBarMin(Double barMin) {
+    getColumnAttributes().setBarMin(barMin);
+    return (T) this;
+  }
+
+  /**
+   * Set the upper end of the scale of the bar of a progress column
+   *
+   * @param barMax Upper end of the scale
+   * @return This
+   */
+  public T setBarMax(Double barMax) {
+    getColumnAttributes().setBarMax(barMax);
+    return (T) this;
+  }
+
+  /**
+   * Set the field with the second value drawn under the bar
+   *
+   * @param barSecondField Second value field
+   * @return This
+   */
+  public T setBarSecondField(String barSecondField) {
+    getColumnAttributes().setBarSecondField(barSecondField);
+    return (T) this;
+  }
+
+  /**
+   * Set the comma-separated fields with the stacked segments of the bar
+   *
+   * @param barStackFields Stack fields
+   * @return This
+   */
+  public T setBarStackFields(String barStackFields) {
+    getColumnAttributes().setBarStackFields(barStackFields);
+    return (T) this;
+  }
+
+  /**
+   * Set to draw the bar only on the leaf rows of a tree grid
+   *
+   * @param barLeafOnly Draw the bar only on leaf rows
+   * @return This
+   */
+  public T setBarLeafOnly(boolean barLeafOnly) {
+    getColumnAttributes().setBarLeafOnly(barLeafOnly);
+    return (T) this;
+  }
 }

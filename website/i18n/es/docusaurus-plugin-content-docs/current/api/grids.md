@@ -492,6 +492,11 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | chips            | Opcional | Booleano | El valor es una lista que se muestra como etiquetas (chips)                                                                     | El valor por defecto es `false`                                                  |
 | chip-separator   | Opcional | String   | Separador de los elementos de una columna `chips`                                                                               | El valor por defecto es `,`                                                      |
 | max-chips        | Opcional | Entero   | Número de etiquetas que se muestran; el resto se agrupan en una etiqueta "+n"                                                   | Un número mayor que `0`                                                          |
+| bar-min          | Opcional | Número   | Extremo inferior de la escala de una columna `progress`. Ver [opciones de la barra](#progress-bar-options) (solo motor React)   | El valor por defecto es `0`                                                      |
+| bar-max          | Opcional | Número   | Extremo superior de la escala de una columna `progress`                                                                         | El valor por defecto es `100`                                                    |
+| bar-second-field | Opcional | String   | Campo de la fila que se dibuja como una segunda barra, del mismo grosor, bajo la principal                                      | Nombre de otro campo de la fila                                                  |
+| bar-stack-fields | Opcional | String   | Campos de la fila que se dibujan como segmentos consecutivos de la barra                                                        | Nombres de campos separados por comas                                            |
+| bar-leaf-only    | Opcional | Booleano | En un grid en árbol, solo las hojas dibujan la barra                                                                            | El valor por defecto es `false`                                                  |
 | avatar-field     | Opcional | Cadena   | Campo de la fila con el nombre (o las iniciales) a partir del que se construye el avatar previo al valor. Ver [avatar](#avatar)  | Nombre de otro campo de la fila                                                  |
 | avatar-tone-field | Opcional | Cadena  | Campo de la fila con el tono del avatar                                                                                         | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
 | icon-field       | Opcional | Cadena  | Campo de la fila con un icono que se muestra antes del valor; con `status-field` ocupa el lugar del punto. Véase [icono](#icon) | Nombre de otro campo de la fila                                                  |
@@ -1054,6 +1059,58 @@ El componente de progreso es muy útil para mostrar el estado de un trabajo, o u
 | label    | Texto a mostrar en la barra de progreso (es decir, porcentaje)                                                            |
 | title    | Texto a mostrar cuando mueve el ratón sobre el botón. Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
 | style    | Clase CSS para formatear el contenido                                                                                     |
+
+##### Opciones de la barra de progreso {#progress-bar-options}
+
+Por defecto una columna `progress` dibuja la barra de progreso de PrimeReact de la tabla anterior. Con cualquiera de los
+atributos siguientes dibuja en su lugar una **barra de datos tras el número**: el número sigue visible, alineado a la derecha, sobre una barra
+clara. El valor es un número (o un texto numérico) situado entre `bar-min` y `bar-max`, de modo que un valor `4.13` con
+máximo `40` rellena el `10.325 %` de la celda, y un valor negativo rellena a la izquierda del cero. Funciona **solo en el motor React**; el motor AngularJS mantiene la barra de progreso
+simple. La impresión y la exportación escriben el valor de la celda, nunca la barra.
+
+| Atributo           | JSON             | Por defecto | Descripción                                                                                                              |
+|--------------------|------------------|-------------|--------------------------------------------------------------------------------------------------------------------------|
+| `bar-min`          | `barMin`         | `0`         | Extremo inferior de la escala                                                                                            |
+| `bar-max`          | `barMax`         | `100`       | Extremo superior de la escala. Una escala donde `bar-max` no supera a `bar-min`, o que no es numérica, es de `0` a `100` |
+| `bar-second-field` | `barSecondField` |             | Nombre de un campo de la fila que se dibuja como una segunda barra, con la misma escala y reglas de signo. Con ella la celda muestra dos barras finas redondeadas, una sobre otra |
+| `bar-stack-fields` | `barStackFields` |             | Nombres de campos de la fila separados por comas. La barra dibuja un segmento por campo, uno tras otro desde el cero     |
+| `bar-leaf-only`    | `barLeafOnly`    | `false`     | En un [grid en árbol](#tree-grid) solo las hojas dibujan la barra; el resto de filas muestran una celda vacía           |
+
+- La barra ocupa la altura de la fila tras el número; con un segundo valor las dos barras finas redondeadas se reparten
+  esa altura, la principal arriba (color de barra de datos) y la segunda abajo (neutra).
+- El relleno va desde el cero hasta el valor. Los valores fuera de la escala se recortan a sus extremos. El cero es `0`
+  recortado a la escala, y solo se muestra una línea de eje en él cuando la escala va de un número negativo a uno positivo (escala con signo). En
+  una escala con signo el extremo del relleno sobre el eje es recto y solo el extremo exterior es redondeado.
+- Los valores negativos usan el color negativo de la barra de datos y su número el color de texto de peligro; los
+  positivos el color de la barra de datos. Un valor vacío o no numérico no dibuja nada.
+- En `bar-stack-fields` solo los números positivos dibujan un segmento (los demás se omiten), cada segmento se corta al
+  final de la escala y el color del segmento sigue la posición de su campo: primario, info, éxito, aviso y peligro, y
+  luego vuelve a empezar.
+- La barra es un `meter` para las tecnologías de apoyo (`aria-valuemin`, `aria-valuemax`, `aria-valuenow` y un texto con
+  el valor tal como lo muestra la celda, que también se muestra como tooltip). Con un segundo valor el texto es
+  `principal / segundo`, y con segmentos `total (parte + parte)`.
+- En un grid plano todas las filas son hojas.
+
+```xml
+<!-- Un valor 4.13 sobre un máximo de 40: la barra rellena el 10.325 % -->
+<column label="Uso" name="usage" component="progress" bar-max="40" align="center"/>
+
+<!-- Barra con signo: -10 en una escala de -40 a 40 rellena del 37.5 % a la marca del cero en el centro -->
+<column label="Variación" name="variation" component="progress" bar-min="-40" bar-max="40"/>
+
+<!-- Segundo valor: la barra bajo la principal lee el campo "target" de la fila -->
+<column label="Ventas" name="sales" component="progress" bar-max="200" bar-second-field="target"/>
+<column label="Objetivo" name="target" hidden="true"/>
+
+<!-- Segmentos apilados: uno por campo, desde el cero -->
+<column label="Tickets" name="total" component="progress" bar-max="100" bar-stack-fields="open,blocked,closed"/>
+<column label="Abiertos" name="open" hidden="true"/>
+<column label="Bloqueados" name="blocked" hidden="true"/>
+<column label="Cerrados" name="closed" hidden="true"/>
+
+<!-- Grid en árbol: solo las hojas dibujan la barra -->
+<column label="Progreso" name="done" component="progress" bar-leaf-only="true"/>
+```
 
 #### Componente de columna sparkline {#sparkline-column-component}
 

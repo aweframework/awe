@@ -7,6 +7,7 @@ import com.almis.ade.api.bean.component.grid.ReportColumn;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.component.grid.ReportHeader;
 import com.almis.ade.api.bean.input.PrintBean;
+import com.almis.ade.api.enumerate.ColumnType;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.awe.builder.screen.chart.ChartBuilder;
 import com.almis.awe.builder.screen.criteria.TextCriteriaBuilder;
@@ -586,6 +587,22 @@ class ReportDesignTest {
     parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
 
     assertFalse(reportDesigner.hasSpreadsheetOnlyColumns(Collections.singletonList(new GridBuilder().setId("gridId").build()), parameters));
+  }
+
+  @Test
+  void getPrintDesignExportsAProgressColumnWithBarOptionsAsANormalColumn() throws Exception {
+    // The bar options (bar-max, bar-second-field...) only draw the bar on screen: export writes the cell number
+    String progressField = "progress";
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName(progressField).setLabel("Progress").setComponent(progressField).setType("double"),
+      new PrintColumnData().setName("city").setLabel("City")), progressField, "city");
+
+    assertEquals(Arrays.asList(progressField, "city"), reportGrid.getFields());
+    assertEquals(2, reportGrid.getGridHeaders().size());
+    ReportColumn progress = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(0));
+    assertEquals(progressField, progress.getField());
+    assertEquals("Progress", progress.getLabel());
+    assertEquals(ColumnType.DOUBLE, progress.getType());
   }
 
   /**

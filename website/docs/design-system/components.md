@@ -155,7 +155,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Sparkline column | #855 | Done | Line, bars or area per row; negatives in danger; min, max and last marks. |
 | Expandable row detail | #835 | Done | A chevron opens a detail area under the row (fields or a nested grid), marked with a primary left border. |
 | Move rows | #842 | Done | Toolbar actions: top, up, down, bottom on the selected rows. |
-| Data bars in cells | #831 | Planned | A light bar behind the number; negatives grow to the left in the danger tone. The number stays readable. |
+| Data bars in cells | #831 | Done | A light bar behind the number; negatives grow to the left in the danger tone. The number stays readable. A second value draws two thin rounded bars, the value on top; stacked segments use the data scale. |
 | Secondary line, status and tags in cells | #832 | Done | Muted second line, status with a dot, tags collapsing into "+n". |
 | Row grouping with subtotals | #833 | Done | Collapsible group header with count and totals, a subtotal row per group, grand total in the footer. |
 | Quick search and value filters | #834 | Planned | Search in every column; column filter with values and counts; footer totals say they are filtered. |

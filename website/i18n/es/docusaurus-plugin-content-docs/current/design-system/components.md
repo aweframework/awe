@@ -159,7 +159,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Columna sparkline | #855 | Done | Línea, barras o área por fila; negativos en peligro; marcas de mínimo, máximo y último. |
 | Detalle desplegable de fila | #835 | Done | Un chevron abre una zona de detalle bajo la fila (campos o un grid anidado), marcada con un borde izquierdo primario. |
 | Mover filas | #842 | Done | Acciones de la barra: arriba del todo, subir, bajar, abajo del todo sobre las filas seleccionadas. |
-| Barras de datos en celdas | #831 | Planned | Una barra clara detrás del número; los negativos crecen hacia la izquierda en tono de peligro. El número sigue siendo legible. |
+| Barras de datos en celdas | #831 | Done | Una barra clara detrás del número; los negativos crecen hacia la izquierda en tono de peligro. El número sigue siendo legible. Un segundo valor dibuja dos barras finas redondeadas, el valor encima; los segmentos apilados usan la escala de datos. |
 | Segunda línea, estado y etiquetas en celdas | #832 | Done | Segunda línea atenuada, estado con punto, etiquetas que se agrupan en "+n". |
 | Agrupación de filas con subtotales | #833 | Done | Cabecera de grupo plegable con recuento y totales, una fila de subtotal por grupo y el total general en el pie. |
 | Búsqueda rápida y filtros por valor | #834 | Planned | Búsqueda en todas las columnas; filtro de columna con valores y recuentos; los totales del pie indican que están filtrados. |

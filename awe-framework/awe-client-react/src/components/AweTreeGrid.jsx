@@ -181,6 +181,8 @@ function AweTreeGrid(props) {
     const { expandColumn = treeId, iconExpand, iconCollapse, iconLeaf } = attributes;
     const expanded = !!expandedKeys[rowData.key];
     const leaf = rowData.leaf === true && !(rowData.children && rowData.children.length);
+    // The cells know whether their row is a leaf (a progress column can draw its bar only in the leaves, #831)
+    const cellRow = { ...rowData.data, id: rowData.data[treeId], $leaf: leaf };
     const icon = leaf ? (iconLeaf || DEFAULT_ICONS.leaf) : expanded ? (iconCollapse || DEFAULT_ICONS.collapse) : (iconExpand || DEFAULT_ICONS.expand);
     // Each level indents the toggle by the size of a toggle (AWE 5 tree grid, #885)
     const style = { marginLeft: `calc(${rowData.level || 0} * var(--awe-space-6))` };
@@ -191,10 +193,10 @@ function AweTreeGrid(props) {
           {getIconCode(`fa-${icon}`, "p-treetable-toggler-icon fa-fw")}
           <Ripple />
         </button>
-        {baseCellTemplate({ ...rowData.data, id: rowData.data[treeId] }, column)}
+        {baseCellTemplate(cellRow, column)}
       </div>;
     } else {
-      return baseCellTemplate({ ...rowData.data, id: rowData.data[treeId] }, column);
+      return baseCellTemplate(cellRow, column);
     }
   }, [attributes, onTogglerClick, baseCellTemplate, treeId, expandedKeys]);
 

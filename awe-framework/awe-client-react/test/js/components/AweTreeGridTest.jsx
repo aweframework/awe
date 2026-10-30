@@ -322,6 +322,37 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     expect(toggles.map(toggle => toggle.style.marginLeft)).toEqual(["calc(0 * var(--awe-space-6))", "calc(1 * var(--awe-space-6))"]);
   });
 
+  it('draws the bar of a progress column only in the leaves when it asks for leaf only', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            values: [
+              {id: "Root", parent: "", name: "Root", done: 50, $row: {expanded: true}},
+              {id: "Leaf", parent: "Root", name: "Leaf", done: 30}
+            ]
+          },
+          attributes: {
+            treeId: "id", treeParent: "parent", expandColumn: "name", loadAll: true, max: 30,
+            columnModel: [{name: "name"}, {name: "done", component: "progress", barLeafOnly: true}],
+            headerModel: [], buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    const {container} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+
+    const meters = container.querySelectorAll("[tree-grid-id='grid'] [role='meter']");
+    expect(meters).toHaveLength(1);
+    expect(meters[0].closest("[data-testid='grid-row']").getAttribute("row-id")).toBe("Leaf");
+    expect(meters[0].getAttribute("aria-valuenow")).toBe("30");
+  });
+
   it('tells which row of the tree is selected', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

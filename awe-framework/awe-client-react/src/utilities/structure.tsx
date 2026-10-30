@@ -43,6 +43,11 @@ export interface ColumnElement {
   maxChips?: number;
   avatarField?: string;
   avatarToneField?: string;
+  barMin?: number | string;
+  barMax?: number | string;
+  barSecondField?: string;
+  barStackFields?: string;
+  barLeafOnly?: boolean;
   [key: string]: unknown;
 }
 
@@ -212,7 +217,9 @@ export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<s
       ...node,
       key: getComponentId(node.address),
       data: fixedData,
-      attrs
+      attrs,
+      // The progress bar reads other fields of the row for its second value and its segments (#831)
+      ...(component === "progress" ? {row} : {})
     });
   }
   if (Array.isArray(fixedData)) {
