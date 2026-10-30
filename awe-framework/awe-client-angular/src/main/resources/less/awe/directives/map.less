@@ -1,0 +1,66 @@
+//
+// Map (Leaflet and OpenStreetMap)
+// --------------------------------------------------
+.awe-map {
+  position: relative;
+  width: 100%;
+  // A map out of an expandible container still needs room to be seen
+  min-height: calc(var(--awe-size-control-lg) * 7);
+
+  .awe-map-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--awe-color-map-water);
+    font-family: inherit;
+  }
+
+  // Markers: Leaflet draws them as SVG paths, the CSS colours win over the ones Leaflet writes as attributes
+  .awe-map-marker {
+    stroke: var(--awe-color-primary);
+    fill: var(--awe-color-primary);
+    fill-opacity: 0.6;
+  }
+
+  .awe-map-marker-selected {
+    stroke: var(--awe-color-danger);
+    fill: var(--awe-color-danger);
+    fill-opacity: 0.85;
+  }
+
+  // Route of the polyline action
+  .awe-map-route {
+    stroke: var(--awe-color-primary);
+    stroke-opacity: 0.85;
+  }
+
+  // Popup and attribution follow the surface of the theme (light and dark)
+  .leaflet-popup-content-wrapper,
+  .leaflet-popup-tip {
+    background: var(--awe-color-surface);
+    color: var(--awe-color-text);
+    box-shadow: var(--awe-shadow-md);
+  }
+
+  .leaflet-popup-content {
+    font-size: var(--awe-font-size-sm);
+  }
+
+  .leaflet-container a.leaflet-popup-close-button {
+    color: var(--awe-color-text-muted);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--awe-color-text);
+    }
+  }
+
+  .leaflet-control-attribution {
+    background: var(--awe-color-surface);
+    color: var(--awe-color-text-muted);
+
+    a {
+      color: var(--awe-color-primary-text);
+    }
+  }
+}

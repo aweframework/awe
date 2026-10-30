@@ -5,7 +5,7 @@ title: Mapa
 
 Un mapa muestra las filas de una consulta como marcadores sobre un mapa geográfico. Se describe en el XML de la pantalla con un elemento `map`. El mapa carga sus datos de una consulta, como cualquier otro componente de AWE, y al hacer clic en un marcador se selecciona su fila, de modo que las [dependencias](dependencies.md) del mapa (y los componentes que dependen de él) reaccionan a la selección.
 
-> **Nota:** El mapa está disponible en el motor React. El soporte de AngularJS está pendiente (#798).
+> **Nota:** El mapa está disponible en los dos motores, AngularJS y React, con el mismo comportamiento.
 
 El mapa se dibuja con [Leaflet](https://leafletjs.com/) (licencia BSD-2-Clause) y las teselas proceden de [OpenStreetMap](https://www.openstreetmap.org/) por defecto. Ninguno necesita clave de API.
 

@@ -13,7 +13,7 @@ const ANGULAR_VOCABULARY = path.resolve(
  */
 const REACT_ONLY_TEST_IDS = [
   'avatar', 'avatarName', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'tagList', 'wizardStepNumber',
-  'map', 'mapMarker', 'mapRoute', 'gridColumnsStatus', 'errorBoundary', 'errorBoundaryTitle', 'errorBoundaryMessage', 'errorBoundaryDetails', 'errorBoundaryRetry', 'errorBoundaryReload'
+  'gridColumnsStatus', 'errorBoundary', 'errorBoundaryTitle', 'errorBoundaryMessage', 'errorBoundaryDetails', 'errorBoundaryRetry', 'errorBoundaryReload'
 ];
 const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'stepNumber', 'value'];
 

@@ -361,4 +361,7 @@
   <locale name="PARAMETER_POPOVER_RESULT" value="Resultado"/>
   <locale name="PARAMETER_POPOVER_THEME_ID" value="Identificador"/>
   <locale name="LOGIN_DEMO_CREDENTIALS" value="Credenciales de demostración: usuario test, contraseña test"/>
+  <locale name="BUTTON_TEST_MAP_ROUTE" value="Dibujar ruta"/>
+  <locale name="PARAMETER_TEST_MAP_SELECTED" value="Lugar seleccionado"/>
+  <locale name="MENU_TEST_MAP" value="Mapa"/>
 </locales>

@@ -101,10 +101,10 @@ import "./grid";
 import "./treegrid";
 import "./pivotTable";
 import "./chart";
+import "./geoMap";
 
 import "./plugins/uiToc";
 
-import "./map";
 import "./column/icon";
 import "./column/image";
 import "./viewers/fileViewer";

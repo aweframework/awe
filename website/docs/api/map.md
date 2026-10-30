@@ -7,7 +7,7 @@ A map shows the rows of a query as markers over a geographic map. You describe i
 element. The map loads its data from a query, like any other AWE component, and clicking a marker selects its row, so
 the [dependencies](dependencies.md) of the map (and the components that depend on it) react to the selection.
 
-> **Note:** The map is available in the React engine. AngularJS support is pending (#798).
+> **Note:** The map is available in both engines, AngularJS and React, with the same behaviour.
 
 The map is drawn with [Leaflet](https://leafletjs.com/) (BSD-2-Clause licence) and the tiles come from
 [OpenStreetMap](https://www.openstreetmap.org/) by default. Neither needs an API key.

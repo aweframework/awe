@@ -68,7 +68,7 @@ public class GeoMap extends Component {
   }
 
   /**
-   * Retrieve component tag. It must not be "map": that tag binds the legacy AngularJS aweMap directive
+   * Retrieve component tag: the AngularJS client draws it with the aweGeoMap directive
    *
    * @return <code>geo-map</code> tag
    */

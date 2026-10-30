@@ -66,9 +66,6 @@ class TestIdsVocabularyTest {
       .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
       .containsEntry("selectTrigger", TestIds.SELECT_TRIGGER)
       .containsEntry("tagList", TestIds.TAG_LIST)
-      .containsEntry("map", TestIds.MAP)
-      .containsEntry("mapMarker", TestIds.MAP_MARKER)
-      .containsEntry("mapRoute", TestIds.MAP_ROUTE)
       .containsEntry("wizardStepNumber", TestIds.WIZARD_STEP_NUMBER)
       .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER)
       .containsEntry("errorBoundary", TestIds.ERROR_BOUNDARY)
@@ -93,6 +90,17 @@ class TestIdsVocabularyTest {
     assertThat(readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, "TestIds")).containsEntry("chart", TestIds.CHART);
     assertThat(react).containsEntry("rendered", TestAttributes.RENDERED).containsEntry("zoomed", TestAttributes.ZOOMED);
     assertThat(angular).containsEntry("rendered", TestAttributes.RENDERED).containsEntry("zoomed", TestAttributes.ZOOMED);
+  }
+
+  @Test
+  void shouldDeclareTheMapHooksInBothClients() throws IOException {
+    // Both clients draw the map with Leaflet and render the map, its markers and its route
+    for (String vocabularyFile : List.of(ANGULAR_VOCABULARY_FILE, REACT_VOCABULARY_FILE)) {
+      assertThat(readJavaScriptConstant(vocabularyFile, "TestIds")).as(vocabularyFile)
+        .containsEntry("map", TestIds.MAP)
+        .containsEntry("mapMarker", TestIds.MAP_MARKER)
+        .containsEntry("mapRoute", TestIds.MAP_ROUTE);
+    }
   }
 
   @Test

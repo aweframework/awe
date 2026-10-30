@@ -4050,4 +4050,6 @@
     <field id="calls"/>
   </query>
 
+  <query id="TstMapPoints" service="TstMapPoints"/>
+
 </queries>
