@@ -12,6 +12,7 @@ import {
   wrapSelect2FormatResult,
   wrapSelect2FormatSelection
 } from "../../../main/resources/js/awe/services/testIds";
+import {createMessagePopover} from "../../../main/resources/js/awe/services/messagePopover";
 
 const flushObservers = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -531,7 +532,7 @@ describe("tabdrop test hooks", () => {
 });
 
 describe("popover test hooks", () => {
-  it("keeps the markup Bootstrap relies on and adds the hooks", () => {
+  it("keeps the classic popover markup and adds the hooks", () => {
     const popover = $(popoverTemplate("danger", "UserName"));
 
     expect(popover.is(".popover[role='tooltip']")).toBe(true);
@@ -557,23 +558,15 @@ describe("popover test hooks", () => {
     expect(popover.attr("data-testid-owner")).toBe("a\"><script>x</script>");
   });
 
-  it("builds options with a copy of the Bootstrap allow list that accepts the hook attributes", () => {
-    const defaults = $.fn.popover.Constructor.DEFAULTS.whiteList;
-    const originalAttributes = [...defaults["*"]];
-
-    const options = popoverOptions("success", "Target");
-
-    expect(options.template).toBe(popoverTemplate("success", "Target"));
-    expect(options.whiteList["*"]).toEqual(expect.arrayContaining([...originalAttributes, "data-testid", "data-testid-owner", "data-type"]));
-    expect(options.whiteList.a).toBe(defaults.a);
-    expect(defaults["*"]).toEqual(originalAttributes);
+  it("builds the options of a message popover with the template of the hooks", () => {
+    expect(popoverOptions("success", "Target")).toEqual({template: popoverTemplate("success", "Target")});
   });
 
-  it("is rendered by the Bootstrap popover through its official template and whiteList options", () => {
+  it("is rendered by the message popover with the hooks, the title and the content", () => {
     const target = $("<div id='Target'></div>").appendTo(document.body);
-    target.popover({container: "body", title: "Title", content: "Content", trigger: "manual", ...popoverOptions("success", "Target")});
+    const popover = createMessagePopover(target, {title: "Title", content: "Content", ...popoverOptions("success", "Target")});
 
-    target.popover("show");
+    popover.show();
     const shown = $("body > [data-testid='popover']");
 
     expect(shown.length).toBe(1);
@@ -582,7 +575,7 @@ describe("popover test hooks", () => {
     expect(shown.attr("data-testid-owner")).toBe("Target");
     expect(shown.find("[data-testid='popover-title']").text()).toBe("Title");
     expect(shown.find("[data-testid='popover-content']").text()).toBe("Content");
-    target.popover("destroy");
+    popover.destroy();
     target.remove();
   });
 });

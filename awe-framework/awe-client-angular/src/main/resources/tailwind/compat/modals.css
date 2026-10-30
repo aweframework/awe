@@ -1,0 +1,268 @@
+/*
+ * Modals: Bootstrap 3 modals.less and close.less, the pixel-admin rules on the same selectors (the alert modals, the close button inside a
+ * dialog) and the AWE rules on the same class names, as the compiled vendored CSS renders them: modal, modal-open, modal-dialog, modal-content,
+ * modal-backdrop (+ fade and in), modal-header, modal-title, modal-body, modal-footer (+ the button joins), modal-scrollbar-measure,
+ * modal-sm, modal-lg, modal-alert and its contextual variants, and the close button.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. The only !important is the centered footer text of the alert modals, as pixel-admin writes it.
+ *
+ * Not here (they stay in LESS; compatModals.test.js names every one of them with example selectors): the AWE side panel and the grid column
+ * editor, the close button of the sign in, change password and totp screens and of the alerts, the plugin dialogs (bootbox, summernote, the
+ * date, time and color pickers), the AWE popover, the wizard, the icon glyph classes and the selectors that depend on a theme class.
+ */
+
+.close {
+  float: right;
+  font-size: var(--awe-font-size-xl);
+  font-weight: bold;
+  line-height: 1;
+  color: var(--awe-color-text);
+  text-shadow: none;
+  opacity: 0.2;
+}
+
+.close:hover,
+.close:focus {
+  color: var(--awe-color-text);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+button.close {
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+.modal {
+  display: none;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  outline: 0;
+}
+
+.modal.fade .modal-dialog {
+  transform: translate(0, -25%);
+  transition: transform 0.3s ease-out;
+}
+
+.modal.in .modal-dialog {
+  transform: translate(0, 0);
+}
+
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal-dialog {
+  position: relative;
+  width: auto;
+  margin: var(--awe-space-3);
+}
+
+.modal-content {
+  position: relative;
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid color-mix(in srgb, var(--awe-color-text) 20%, transparent);
+  border-radius: var(--awe-radius-xs);
+  box-shadow: var(--awe-shadow-modal);
+  background-clip: padding-box;
+  outline: 0;
+}
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--awe-color-text);
+}
+
+.modal-backdrop.fade {
+  opacity: 0;
+}
+
+.modal-backdrop.in {
+  opacity: 0.5;
+}
+
+.modal-header {
+  padding: var(--awe-space-4);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+  min-height: var(--awe-space-4);
+}
+
+.modal-header .close {
+  margin-top: calc(var(--awe-space-0-5) * -1);
+}
+
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143;
+}
+
+.modal-body {
+  position: relative;
+  padding: var(--awe-space-5);
+}
+
+.modal-footer {
+  padding: var(--awe-space-5);
+  text-align: right;
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.modal-footer:before,
+.modal-footer:after {
+  content: " ";
+  display: table;
+}
+
+.modal-footer:after {
+  clear: both;
+}
+
+.modal-footer .btn + .btn {
+  margin-left: var(--awe-space-1-5);
+  margin-bottom: 0;
+}
+
+.modal-footer .btn-group .btn + .btn {
+  margin-left: calc(var(--awe-space-0-5) * -1);
+}
+
+.modal-footer .btn-block + .btn-block {
+  margin-left: 0;
+}
+
+.modal-scrollbar-measure {
+  position: absolute;
+  top: calc(calc(var(--awe-space-16) * 156.23) * -1);
+  width: var(--awe-space-12);
+  height: var(--awe-space-12);
+  overflow: scroll;
+}
+
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: calc(var(--awe-space-16) * 9.38);
+    margin: 0 auto;
+    padding: var(--awe-space-8) 0;
+    box-sizing: border-box;
+  }
+  .modal-content {
+    box-shadow: var(--awe-shadow-modal);
+  }
+  .modal-sm {
+    width: calc(var(--awe-space-16) * 4.69);
+  }
+}
+
+@media (min-width: 992px) {
+  .modal-lg {
+    width: calc(var(--awe-space-16) * 14.06);
+  }
+}
+
+.modal-dialog {
+  animation-duration: 0.8s;
+}
+
+.modal-content {
+  border: none;
+  border-radius: var(--awe-radius);
+  box-shadow: var(--awe-shadow-xs);
+}
+
+.modal-content:before,
+.modal-content:after {
+  content: " ";
+  display: table;
+}
+
+.modal-content:after {
+  clear: both;
+}
+
+.modal-header {
+  background: var(--awe-color-surface);
+  padding: var(--awe-space-3) var(--awe-space-5);
+  border-top-right-radius: var(--awe-radius);
+  border-top-left-radius: var(--awe-radius);
+  border-color: var(--awe-color-border);
+}
+
+.modal-dialog .close {
+  color: var(--awe-color-text);
+  font-size: var(--awe-font-size-xl);
+  margin-top: var(--awe-space-1);
+}
+
+.modal-footer {
+  padding: var(--awe-space-3) var(--awe-space-5);
+  margin-top: 0;
+  background: var(--awe-color-surface);
+  border-bottom-right-radius: var(--awe-radius);
+  border-bottom-left-radius: var(--awe-radius);
+  border-color: var(--awe-color-border);
+}
+
+@media (min-width: 640px) {
+  .modal-alert .modal-dialog {
+    width: calc(var(--awe-space-16) * 5.47);
+  }
+}
+
+.modal-alert .modal-header,
+.modal-alert .modal-footer {
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0 var(--awe-space-5);
+  text-align: center !important;
+}
+
+.modal-alert .modal-header {
+  color: var(--awe-color-surface);
+  margin-bottom: var(--awe-space-5);
+  padding: var(--awe-space-6) 0 var(--awe-space-5) 0;
+  text-shadow: none;
+  border-bottom: var(--awe-border-width-strong) solid color-mix(in srgb, var(--awe-color-text) 8%, transparent);
+}
+
+.modal-alert .modal-footer {
+  margin: var(--awe-space-6) 0 var(--awe-space-5) 0;
+}
+
+.modal-alert.modal-info .modal-header {
+  background: var(--awe-color-info);
+}
+
+.modal-alert.modal-danger .modal-header {
+  background: var(--awe-color-danger);
+}
+
+.modal-alert.modal-warning .modal-header {
+  background: var(--awe-color-warning);
+}
+
+.modal-alert.modal-success .modal-header {
+  background: var(--awe-color-success);
+}
+
+.modal-backdrop {
+  z-index: 1040;
+  height: 100%;
+}

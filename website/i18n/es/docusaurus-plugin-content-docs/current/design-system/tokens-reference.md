@@ -438,6 +438,11 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-content-padding` | `20px` | `14px` |
 | `--awe-layout-gap` | `20px` | `12px` |
 | `--awe-page-padding` | `28px` | `16px` |
+| `--awe-border-width` | `1px` | `1px` |
+| `--awe-border-width-strong` | `2px` | `2px` |
+| `--awe-grid-container-sm` | `742px` | `742px` |
+| `--awe-grid-container-md` | `962px` | `962px` |
+| `--awe-grid-container-lg` | `1162px` | `1162px` |
 | `--awe-list-padding` | `4px` |  |
 | `--awe-list-gap` | `2px` |  |
 | `--awe-list-option-padding` | `8px 12px` | `6px 10px` |

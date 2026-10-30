@@ -1,0 +1,61 @@
+/*
+ * Code: the element rules of Bootstrap 3 code.less that slice 7 kept (code, kbd, pre, samp) as the compiled vendored CSS renders them: the monospace font,
+ * inline code, keyboard input, blocks of code and the code inside a block.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these elements follow the AWE 5 design system and may differ from
+ * the compiled Bootstrap values. There is no !important in this file.
+ */
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--awe-font-family-monospace);
+}
+
+code {
+  padding: var(--awe-space-0-5) var(--awe-space-1);
+  font-size: 90%;
+  color: var(--awe-color-danger-text);
+  background-color: var(--awe-color-danger-subtle);
+  border-radius: var(--awe-radius);
+}
+
+kbd {
+  padding: var(--awe-space-0-5) var(--awe-space-1);
+  font-size: 90%;
+  color: var(--awe-color-on-contrast);
+  background-color: var(--awe-color-contrast);
+  border-radius: var(--awe-radius-xs);
+  box-shadow: inset 0 calc(var(--awe-border-width) * -1) 0 var(--awe-color-shadow);
+}
+
+kbd kbd {
+  padding: 0;
+  font-size: 100%;
+  font-weight: var(--awe-font-weight-bold);
+  box-shadow: none;
+}
+
+pre {
+  display: block;
+  padding: var(--awe-space-2);
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-base);
+  word-break: break-all;
+  word-wrap: break-word;
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius);
+}
+
+pre code {
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre-wrap;
+  background-color: transparent;
+  border-radius: 0;
+}

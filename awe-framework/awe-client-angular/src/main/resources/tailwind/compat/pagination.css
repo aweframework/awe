@@ -1,0 +1,167 @@
+/*
+ * Pagination: Bootstrap 3 pagination.less, the pixel-admin pagination rules on the same selectors and the print rule, as the compiled vendored CSS
+ * renders them: pagination, its links and spans, the first and last item, the hover, active and disabled states, and pagination-lg|sm|xs.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * !important stays where the vendored rule has it (the print rule that hides the pager): for !important the layer order inverts, so this layered
+ * rule beats an unlayered !important one whatever its specificity.
+ *
+ * Not here (they stay in LESS; compatPagination.test.js names every one of them with example selectors): the !important border of a disabled link on
+ * hover (the dark panel heading and the justified tabs contradict it with theirs), the pagination in the controls of a
+ * panel heading, the calendar of the date picker plugin, the DataTables pager, the pager of the AWE grid and tree grid (the grid footer writes
+ * pagination pagination-size; its rules are unlayered, so they win over these) and the selectors that depend on a theme class.
+ */
+
+.pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: var(--awe-space-5) 0;
+  border-radius: var(--awe-radius);
+}
+
+.pagination > li {
+  display: inline;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+  position: relative;
+  float: left;
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  line-height: 1.42857143;
+  text-decoration: none;
+  color: var(--awe-color-primary-text);
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  margin-left: calc(var(--awe-border-width) * -1);
+}
+
+.pagination > li:first-child > a,
+.pagination > li:first-child > span {
+  margin-left: 0;
+  border-bottom-left-radius: var(--awe-radius);
+  border-top-left-radius: var(--awe-radius);
+}
+
+.pagination > li:last-child > a,
+.pagination > li:last-child > span {
+  border-bottom-right-radius: var(--awe-radius);
+  border-top-right-radius: var(--awe-radius);
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover,
+.pagination > li > a:focus,
+.pagination > li > span:focus {
+  color: color-mix(in srgb, var(--awe-color-primary-text), var(--awe-color-text) 15%);
+  background-color: var(--awe-color-surface-hover);
+  border-color: var(--awe-color-border);
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  z-index: 2;
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-primary);
+  border-color: var(--awe-color-primary);
+  cursor: default;
+}
+
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover,
+.pagination > .disabled > span:focus,
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > a:focus {
+  color: var(--awe-color-disabled-text);
+  background-color: var(--awe-color-disabled);
+  border-color: var(--awe-color-disabled-border);
+  cursor: not-allowed;
+}
+
+.pagination-lg > li > a,
+.pagination-lg > li > span {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-md);
+}
+
+.pagination-lg > li:first-child > a,
+.pagination-lg > li:first-child > span {
+  border-bottom-left-radius: var(--awe-radius-sm);
+  border-top-left-radius: var(--awe-radius-sm);
+}
+
+.pagination-lg > li:last-child > a,
+.pagination-lg > li:last-child > span {
+  border-bottom-right-radius: var(--awe-radius-sm);
+  border-top-right-radius: var(--awe-radius-sm);
+}
+
+.pagination-sm > li > a,
+.pagination-sm > li > span {
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+}
+
+.pagination-sm > li:first-child > a,
+.pagination-sm > li:first-child > span {
+  border-bottom-left-radius: var(--awe-radius-xs);
+  border-top-left-radius: var(--awe-radius-xs);
+}
+
+.pagination-sm > li:last-child > a,
+.pagination-sm > li:last-child > span {
+  border-bottom-right-radius: var(--awe-radius-xs);
+  border-top-right-radius: var(--awe-radius-xs);
+}
+
+.pagination > li > a,
+.pagination > li > span {
+  background-color: transparent;
+  border: var(--awe-border-width) solid var(--awe-color-grid-border);
+  color: var(--awe-color-text);
+  margin-right: var(--awe-space-1-5);
+  border-radius: var(--awe-radius-xs);
+}
+
+.pagination > li > a:hover {
+  background-color: transparent;
+  color: var(--awe-color-text);
+}
+
+.pagination > li.active > a,
+.pagination > li.active > span {
+  color: var(--awe-color-on-primary);
+  font-weight: 600;
+}
+
+.pagination.pagination-xs li a,
+.pagination.pagination-xs li span {
+  font-size: var(--awe-font-size-xs);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover,
+.pagination > .disabled > span:focus,
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > a:focus {
+  background-color: transparent;
+}
+
+.pagination {
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+@media print {
+  .pagination {
+    display: none !important;
+  }
+}

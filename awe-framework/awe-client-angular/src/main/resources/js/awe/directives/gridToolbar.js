@@ -113,8 +113,8 @@ export const getFixedOffset = node => {
 // Grid toolbar directive: Columns panel (a popover anchored to the Columns button by default, a dialog or a side panel)
 // and Maximize
 aweApplication.directive('aweGridToolbar',
-  ['$templateCache', '$compile', 'AweSettings',
-    function ($templateCache, $compile, $settings) {
+  ['$templateCache', '$compile', 'AweSettings', 'AweModal',
+    function ($templateCache, $compile, $settings, $modal) {
       $templateCache.put('grid-column-item', COLUMN_ITEM_TEMPLATE);
       $templateCache.put('grid-columns-header', COLUMNS_HEADER_TEMPLATE);
       $templateCache.put('grid-columns-content', COLUMNS_CONTENT_TEMPLATE);
@@ -135,7 +135,7 @@ aweApplication.directive('aweGridToolbar',
           scope.columnsPanel = null;
           scope.sidePanel = false;
 
-          // Run a scope change from a Bootstrap or DOM event, which may come inside or outside a digest
+          // Run a scope change from a modal or DOM event, which may come inside or outside a digest
           const applyScope = fn => (scope.$root.$$phase ? fn() : scope.$apply(fn));
 
           // Drag and drop of the handle onto a sibling
@@ -284,7 +284,7 @@ aweApplication.directive('aweGridToolbar',
             scope.sidePanel = scope.columnsPanel === "side-panel";
             scope.columnsOpen = true;
             if (scope.sidePanel) {
-              getSidePanel().modal("show");
+              $modal.show(getSidePanel());
             } else if (scope.columnsPanel === "popover") {
               popoverTrap.activate();
               listen(true);
@@ -301,8 +301,8 @@ aweApplication.directive('aweGridToolbar',
           // Close the Columns keeping the changes (close button, Esc, click outside)
           scope.closeColumns = function () {
             if (scope.sidePanel && sidePanel) {
-              // Bootstrap slides it out and then raises hidden.bs.modal, which marks the Columns as closed
-              sidePanel.modal("hide");
+              // The modal slides out and then raises hidden.bs.modal, which marks the Columns as closed
+              $modal.hide(sidePanel);
               return;
             }
             if (scope.columnsPanel === "popover") {
@@ -359,11 +359,7 @@ aweApplication.directive('aweGridToolbar',
             trap.deactivate();
             popoverTrap.deactivate();
             if (sidePanel) {
-              const modal = sidePanel.data("bs.modal");
-              if (modal && modal.isShown) {
-                modal.removeBackdrop();
-                $(document.body).removeClass("modal-open");
-              }
+              $modal.dispose(sidePanel);
               sidePanel.off().remove();
               sidePanel = null;
             }

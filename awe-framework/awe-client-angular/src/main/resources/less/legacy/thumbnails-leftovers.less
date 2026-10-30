@@ -1,0 +1,33 @@
+//
+// Thumbnails rules that the compat layer does not move
+//
+// The thumbnails are served by the compat layer (src/main/resources/tailwind/compat/thumbnails.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle the same elements: a layered compat rule loses to any unlayered one whatever its specificity): the base thumbnail, its images and the active link border. The images keep the extend of .img-responsive of the Bootstrap source, so the rule that img-responsive prints for them stays where it was. Only the caption leaves the build.
+// The compat tests of the families name what they leave out, with example selectors.
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.thumbnail {
+  display: block;
+  padding: 4px;
+  margin-bottom: 18px;
+  line-height: 1.42857143;
+  background-color: var(--awe-color-background);
+  border: 1px solid #ddd;
+  border-radius: var(--awe-radius);
+  transition: border 0.2s ease-in-out;
+}
+.thumbnail > img,
+.thumbnail a > img {
+  &:extend(.img-responsive);
+  margin-left: auto;
+  margin-right: auto;
+}
+a.thumbnail:hover,
+a.thumbnail:focus,
+a.thumbnail.active {
+  border-color: #337ab7;
+}

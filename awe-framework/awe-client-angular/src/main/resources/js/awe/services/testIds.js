@@ -274,8 +274,7 @@ function escapeAttribute(value) {
 }
 
 /**
- * Build the template of a Bootstrap popover. It is the default Bootstrap template plus the hooks, so the plugin keeps
- * working with the same classes.
+ * Build the template of a message popover. It is the classic popover markup (the one Bootstrap defined) plus the hooks.
  * @param {string} type Message type (success, info, warning, danger)
  * @param {string} [owner] Id of the component the message points at
  * @return {string} Popover template
@@ -289,18 +288,11 @@ export function popoverTemplate(type, owner) {
 }
 
 /**
- * Options that make a Bootstrap popover render the test hooks, through the official "template" and "whiteList" options.
- * Bootstrap sanitizes the template and removes every attribute that is not in its allow list, so the hook attributes
- * are added to a copy of the list (the plugin defaults stay untouched).
+ * Options that make a message popover render the test hooks (its template).
  * @param {string} type Message type (success, info, warning, danger)
  * @param {string} [owner] Id of the component the message points at
- * @return {{template: string, whiteList: object|undefined}} Popover options
+ * @return {{template: string}} Popover options
  */
 export function popoverOptions(type, owner) {
-  const defaults = $.fn.popover && $.fn.popover.Constructor && $.fn.popover.Constructor.DEFAULTS.whiteList;
-  const hooks = [TestAttributes.testId, TestAttributes.owner, TestAttributes.type];
-  return {
-    template: popoverTemplate(type, owner),
-    whiteList: defaults ? {...defaults, "*": [...(defaults["*"] || []), ...hooks]} : undefined
-  };
+  return {template: popoverTemplate(type, owner)};
 }

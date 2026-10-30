@@ -7,6 +7,7 @@ const {LucideSpritePlugin} = require('../awe-design-tokens/icons/lucide-sprite.c
 
 const dir = path.join(__dirname, "src", "main", "resources", "webpack");
 const styleDir = path.resolve(__dirname, "src", "main", "resources", "less");
+const tailwindDir = path.resolve(__dirname, "src", "main", "resources", "tailwind");
 // The Inter face of the AWE 5 type scale (#885), shared with the React engine
 const fontsDir = path.resolve(__dirname, "..", "awe-design-tokens", "fonts");
 const srcPath = path.resolve(__dirname, "src", "main", "resources", "js", "awe");
@@ -72,6 +73,8 @@ module.exports = (env = {}, argv = {}) => {
         { test: /\.ts$/, include: [ reactSourcePath ], use: [{loader: 'babel-loader', options: {
             envName: mode, configFile: path.resolve(__dirname, ".babelrc"), babelrc: false }}]},
         { test : /\.css$/, include : [ styleDir, fontsDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
+        // Tailwind v4 (issue #755): postcss.config.js, bundled into the same css/styles.css after the LESS
+        { test : /\.css$/, include : [ tailwindDir ], use : [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"]},
         { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
             loader: "less-loader", options: { lessOptions: { plugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ] }, sourceMap: false }}]},
         { test : /\.(jpg|gif|png)$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './images/[hash][ext][query]' }},

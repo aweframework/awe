@@ -3,6 +3,12 @@
     Author     : pgarcia
 */
 .wizard-panel {
+  // The Bootstrap `.panel` base rule (served by the compat layer for the panel class) and the other `.panel` rule sets
+  margin-bottom: @line-height-computed;
+  background-color: @panel-bg;
+  border: 1px solid transparent;
+  border-radius: @panel-border-radius;
+  .box-shadow(0 1px 1px rgba(0,0,0,.05));
   .panel;
   padding: 0;
   &.wizard-panel-sm {

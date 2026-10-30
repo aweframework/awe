@@ -13,9 +13,15 @@ module.exports = {
   // low-power 10 W laptop CPU, shows 10-16 % steal with 4 workers). CI runs half the CPUs as workers, at most 4 (the
   // previous fixed value) and at least 1. Even then a slow shared runner can push the tests that compile the whole LESS
   // (styles/designTokens, styles/skeleton) far past the 5 s default (over 15 s seen in CI), so CI allows 30 s per test
-  // and hook. Local runs keep Jest's defaults, so a slow test still shows up.
+  // and hook. The suites that compile the styles leave a lot of memory behind, so CI also restarts a worker that keeps
+  // more than 1 GB after a test file (a long run of them exhausted the heap of a worker). Local runs keep Jest's
+  // defaults, so a slow test still shows up.
   ...(process.env.CI
-    ? {maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2))), testTimeout: 30000}
+    ? {
+      maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2))),
+      testTimeout: 30000,
+      workerIdleMemoryLimit: "1GB"
+    }
     : {}),
   testEnvironment: "jsdom",
   cacheDirectory: path.join(__dirname, "target", ".cache", "jest"),

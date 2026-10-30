@@ -33,6 +33,33 @@ describe("Jest foundation configuration", () => {
     expect(obsoleteScopedScripts).toEqual([]);
   });
 
+  it("recycles the CI workers that keep too much memory, so a long run of style builds does not exhaust the heap", () => {
+    const configWith = ci => {
+      const previous = process.env.CI;
+      if (ci === undefined) {
+        delete process.env.CI;
+      } else {
+        process.env.CI = ci;
+      }
+      try {
+        let config;
+        jest.isolateModules(() => {
+          config = require("../../../jest.config");
+        });
+        return config;
+      } finally {
+        if (previous === undefined) {
+          delete process.env.CI;
+        } else {
+          process.env.CI = previous;
+        }
+      }
+    };
+
+    expect(configWith("true").workerIdleMemoryLimit).toBe("1GB");
+    expect(configWith(undefined).workerIdleMemoryLimit).toBeUndefined();
+  });
+
   it("publishes stable GitLab JUnit, Sonar, and LCOV report locations", () => {
     expect(jestConfig.coverageDirectory).toBe(
       path.join(__dirname, "..", "..", "..", "target", "reports", "jest", "coverage")

@@ -997,6 +997,17 @@ describe("grid toolbar", () => {
       expect($(document.body).find(".modal.side-panel").length).toBe(0);
     });
 
+    it("leaves no backdrop nor modal-open flag behind when the grid goes away with the side panel open", () => {
+      const {scope} = openColumns({columnsPanel: "side-panel"});
+      expect($(document.body).children(".modal-backdrop").length).toBe(1);
+      expect(document.body.classList.contains("modal-open")).toBe(true);
+
+      scope.$destroy();
+
+      expect($(document.body).children(".modal-backdrop").length).toBe(0);
+      expect(document.body.classList.contains("modal-open")).toBe(false);
+    });
+
     it("opens the Columns of a grid without columns-panel as the application settings say", () => {
       inject(["AweSettings", settings => settings.update({gridColumnsPanel: "side-panel"})]);
 

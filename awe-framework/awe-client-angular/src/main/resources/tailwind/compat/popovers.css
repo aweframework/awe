@@ -1,0 +1,196 @@
+/*
+ * Popovers: Bootstrap 3 popovers.less and the pixel-admin arrow rules on the same selectors, as the compiled vendored CSS renders them: popover
+ * (+ top, right, bottom, left), popover-title, popover-content and the arrow of each placement (the arrow and its :after border).
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatPopovers.test.js names every one of them with example selectors): the colored and dark variants of
+ * pixel-admin, the AWE help popover and its animation, the summernote and x-editable popovers, the Internet Explorer 8 hacks and the
+ * selectors that depend on a theme class.
+ */
+
+.popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1010;
+  display: none;
+  max-width: calc(var(--awe-space-16) * 4.31);
+  padding: var(--awe-space-0-5);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-base);
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: left;
+  background-color: var(--awe-color-surface);
+  background-clip: padding-box;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xs);
+  box-shadow: var(--awe-shadow-overlay);
+  white-space: normal;
+}
+
+.popover.top {
+  margin-top: calc(var(--awe-space-3) * -1);
+}
+
+.popover.right {
+  margin-left: var(--awe-space-3);
+}
+
+.popover.bottom {
+  margin-top: var(--awe-space-3);
+}
+
+.popover.left {
+  margin-left: calc(var(--awe-space-3) * -1);
+}
+
+.popover-title {
+  margin: 0;
+  padding: var(--awe-space-2) var(--awe-space-4);
+  font-size: var(--awe-font-size-base);
+  background-color: color-mix(in srgb, var(--awe-color-surface), var(--awe-color-text) 3%);
+  border-bottom: var(--awe-border-width) solid color-mix(in srgb, color-mix(in srgb, var(--awe-color-surface), var(--awe-color-text) 3%), var(--awe-color-text) 5%);
+  border-radius: var(--awe-radius-xs) var(--awe-radius-xs) 0 0;
+}
+
+.popover-content {
+  padding: var(--awe-space-2) var(--awe-space-4);
+}
+
+.popover > .arrow,
+.popover > .arrow:after {
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+}
+
+.popover > .arrow {
+  border-width: var(--awe-space-3);
+}
+
+.popover > .arrow:after {
+  border-width: var(--awe-space-3);
+  content: "";
+}
+
+.popover.top > .arrow {
+  left: 50%;
+  margin-left: calc(var(--awe-space-3) * -1);
+  border-bottom-width: 0;
+  border-top-color: var(--awe-color-border);
+  bottom: calc(var(--awe-space-3) * -1);
+}
+
+.popover.top > .arrow:after {
+  content: " ";
+  bottom: var(--awe-space-0-5);
+  margin-left: calc(var(--awe-space-3) * -1);
+  border-bottom-width: 0;
+  border-top-color: var(--awe-color-surface);
+}
+
+.popover.right > .arrow {
+  top: 50%;
+  left: calc(var(--awe-space-3) * -1);
+  margin-top: calc(var(--awe-space-3) * -1);
+  border-left-width: 0;
+  border-right-color: var(--awe-color-border);
+}
+
+.popover.right > .arrow:after {
+  content: " ";
+  left: var(--awe-space-0-5);
+  bottom: calc(var(--awe-space-3) * -1);
+  border-left-width: 0;
+  border-right-color: var(--awe-color-surface);
+}
+
+.popover.bottom > .arrow {
+  left: 50%;
+  margin-left: calc(var(--awe-space-3) * -1);
+  border-top-width: 0;
+  border-bottom-color: var(--awe-color-border);
+  top: calc(var(--awe-space-3) * -1);
+}
+
+.popover.bottom > .arrow:after {
+  content: " ";
+  top: var(--awe-space-0-5);
+  margin-left: calc(var(--awe-space-3) * -1);
+  border-top-width: 0;
+  border-bottom-color: var(--awe-color-surface);
+}
+
+.popover.left > .arrow {
+  top: 50%;
+  right: calc(var(--awe-space-3) * -1);
+  margin-top: calc(var(--awe-space-3) * -1);
+  border-right-width: 0;
+  border-left-color: var(--awe-color-border);
+}
+
+.popover.left > .arrow:after {
+  content: " ";
+  right: var(--awe-space-0-5);
+  border-right-width: 0;
+  border-left-color: var(--awe-color-surface);
+  bottom: calc(var(--awe-space-3) * -1);
+}
+
+.popover {
+  border: var(--awe-border-width-strong) solid var(--awe-color-border);
+  box-shadow: none;
+}
+
+.popover.top .arrow {
+  border-top: none;
+}
+
+.popover.top .arrow:after {
+  border-top-color: var(--awe-color-border);
+  border-width: var(--awe-space-2) var(--awe-space-2) 0 var(--awe-space-2);
+  bottom: var(--awe-space-0-5);
+}
+
+.popover.bottom .arrow {
+  border-bottom: none;
+}
+
+.popover.bottom .arrow:after {
+  border-bottom-color: var(--awe-color-border);
+  border-width: 0 var(--awe-space-2) var(--awe-space-2) var(--awe-space-2);
+  top: var(--awe-space-0-5);
+}
+
+.popover.left .arrow {
+  border-left: none;
+}
+
+.popover.left .arrow:after {
+  border-left-color: var(--awe-color-border);
+  border-width: var(--awe-space-2) 0 var(--awe-space-2) var(--awe-space-2);
+  bottom: calc(var(--awe-space-2) * -1);
+  right: var(--awe-space-0-5);
+}
+
+.popover.right .arrow {
+  border-right: none;
+}
+
+.popover.right .arrow:after {
+  border-right-color: var(--awe-color-border);
+  border-width: var(--awe-space-2) var(--awe-space-2) var(--awe-space-2) 0;
+  bottom: calc(var(--awe-space-2) * -1);
+  left: var(--awe-space-0-5);
+}
+
+.popover-title {
+  background-color: color-mix(in srgb, var(--awe-color-text) 6%, transparent);
+  border-bottom-color: var(--awe-color-border);
+  border-radius: 0;
+}

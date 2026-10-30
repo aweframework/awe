@@ -164,22 +164,26 @@ conserva: compilan como antes.
 
 ## Correspondencia con Tailwind {#mapping-into-tailwind}
 
-Los tokens son lo que adopta Tailwind v4 (`@theme`, issue #755). Cada token se corresponde uno a uno, sin renombrarlo:
+Los tokens son lo que lee Tailwind v4 (`@theme`, issue #755). El cliente AngularJS compila Tailwind junto a la compilación
+LESS y mapea **todos** los tokens uno a uno en `awe-client-angular/src/main/resources/tailwind/theme.css`, con
+`@theme inline` y sin el tema por defecto de Tailwind, de modo que los únicos colores, tamaños, radios y sombras son los de AWE:
 
 ```css
 @theme inline {
   --color-primary: var(--awe-color-primary);
-  --color-on-primary: var(--awe-color-on-primary);
-  --color-surface: var(--awe-color-panel);
-  --color-border: var(--awe-color-border);
-  --radius-awe: var(--awe-radius);
-  --shadow-awe-md: var(--awe-shadow-md);
-  --spacing-awe-md: var(--awe-space-md);
+  --color-panel: var(--awe-color-panel);
+  --radius-base: var(--awe-radius);
+  --shadow-md: var(--awe-shadow-md);
+  --spacing-md: var(--awe-space-md);
 }
 ```
 
-Usa `@theme inline` para que las utilidades mantengan la referencia `var(--awe-...)` y el modo oscuro se aplique sin
-clases de utilidad adicionales.
+`--awe-color-X` es `--color-X`, `--awe-space-X` es `--spacing-X`, `--awe-radius[-X]` es `--radius-base|X`, `--awe-shadow-X`
+es `--shadow-X`, `--awe-font-family-X` es `--font-X`, `--awe-font-size-X` es `--text-X`, `--awe-line-height-X` es
+`--leading-X`, `--awe-font-weight-X` es `--font-weight-X` y `--awe-size-header-height` / `--awe-size-menu-width` son
+`--spacing-header` / `--spacing-menu`. Una utilidad lee entonces el token, por ejemplo `tw:bg-primary`, `tw:p-md`,
+`tw:rounded-base`. `@theme inline` mantiene la referencia `var(--awe-...)`, así que las utilidades siguen el tema y el modo
+oscuro sin clases adicionales. Consulta [Tailwind y la capa de compatibilidad con Bootstrap 3](tailwind-compat-guide.md).
 
 ## El cliente React {#the-react-client}
 

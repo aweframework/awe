@@ -1,0 +1,55 @@
+//
+// Labels rules that the compat layer does not move
+//
+// The labels are served by the compat layer (src/main/resources/tailwind/compat/labels.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle the same elements: a layered compat rule loses to any unlayered one whatever its specificity): the base label, its empty and button variants and the link states.
+// The compat tests of the families name what they leave out, with example selectors.
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.label {
+  display: inline;
+  padding: 0.2em 0.6em 0.3em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25em;
+}
+.label:empty {
+  display: none;
+}
+.btn .label {
+  position: relative;
+  top: -1px;
+}
+.label-default[href]:hover,
+.label-default[href]:focus {
+  background-color: color-mix(in srgb, color-mix(in srgb, #000, var(--awe-color-background) 46.7%), var(--awe-color-text) 10%);
+}
+.label-primary[href]:hover,
+.label-primary[href]:focus {
+  background-color: color-mix(in srgb, #337ab7, var(--awe-color-text) 10%);
+}
+.label-success[href]:hover,
+.label-success[href]:focus {
+  background-color: color-mix(in srgb, #5cb85c, var(--awe-color-text) 10%);
+}
+.label-info[href]:hover,
+.label-info[href]:focus {
+  background-color: color-mix(in srgb, #5bc0de, var(--awe-color-text) 10%);
+}
+.label-warning[href]:hover,
+.label-warning[href]:focus {
+  background-color: color-mix(in srgb, #f0ad4e, var(--awe-color-text) 10%);
+}
+.label-danger[href]:hover,
+.label-danger[href]:focus {
+  background-color: color-mix(in srgb, #d9534f, var(--awe-color-text) 10%);
+}

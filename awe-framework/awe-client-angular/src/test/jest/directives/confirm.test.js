@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import {TestIds} from "../../../main/resources/js/awe/data/testIds";
+import {disposeModal} from "../../../main/resources/js/awe/services/modal";
 import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
@@ -35,7 +36,7 @@ describe("aweConfirm keyboard and focus", () => {
   });
 
   afterEach(() => {
-    $(".modal").modal("hide");
+    $(".modal").each((index, modal) => disposeModal(modal));
     document.body.innerHTML = "";
     $(document.body).removeClass("modal-open");
   });

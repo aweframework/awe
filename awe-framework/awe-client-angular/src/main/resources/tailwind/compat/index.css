@@ -1,0 +1,63 @@
+/*
+ * AWE compatibility layer: the Bootstrap 3 class names that the XML screens, the templates and the products use, written on
+ * Tailwind and the --awe-* tokens with @apply. One file per family. A family is only complete when
+ * test/jest/styles proves it equals the vendored Bootstrap rule; until a later slice removes the vendored rule, the
+ * unlayered Bootstrap still wins, so a family here changes nothing on screen.
+ *
+ * Families (see odd/tasks/755-tailwind-compat-layer.md for the plan):
+ *   grid       container, row, col-{xs,sm,md,lg}-{N,offset-N,push-N,pull-N}       done
+ *   utilities  pull-*, text-*, hidden/visible-*, hide/show, clearfix, center-block                  done
+ *   spacing    pixel-admin no-padding*, padding-*, no-margin*, no-border*, no-bg, valign-*, text-xs..bold, height-*   done
+ *   panels     panel, panel-body|heading|title|footer|title-icon, panel-transparent, panel-padding*, panel-wide...   done (slice 2c)
+ *   buttons    btn, btn-default|primary|success|info|warning|danger|link, btn-lg|sm|xs|block (slice 3a)
+ *   button-groups  btn-group*, btn-toolbar, dropdown-toggle (inside groups and the global :focus rule) (slice 3a, groups)
+ *   forms      form-group, form-control (+ sizes, static, feedback), help-block, control-label, form-horizontal, form-inline (slice 3b; forms-pixel-admin.css is imported last, where the vendored build compiles it)
+ *   input-groups  input-group, -addon, -btn, -sm|lg with their sizes and child rules, and the .has-*, .form-inline and .btn-toolbar selectors that mention them (slice 3c; input-groups-pixel-admin.css is imported after forms-pixel-admin.css, where the vendored build compiles it)
+ *   animations   fade, collapse, collapsing (slice 5; component-animations.css, imported where the vendored build compiles it, before the dropdowns)
+ *   modals       modal-*, close (slice 5)
+ *   tooltip, popovers   tooltip, tooltip-inner|arrow, popover, popover-title|content and the arrows (slice 5)
+ *   dropdowns    caret, dropdown, dropdown-menu and its links, header, divider, sizes and submenu (slice 5)
+ *   navs         nav, nav-tabs|pills|stacked|justified, tab-content, tab-pane (slice 5)
+ *   tables       table, table-condensed|bordered|striped|hover|responsive and the contextual rows and cells (slice 6; imported before the forms, as the vendored build compiles them)
+ *   labels, badges, wells   label, label-default|primary|success|info|warning|danger, badge, badge-success|warning|danger|info, well, well-lg|sm (slice 6)
+ *   alerts, breadcrumbs   alert, alert-link|dismissable|dismissible|success|info|warning|danger, breadcrumb and its page variant (slice 6)
+ *   thumbnails, list-group, responsive-embed   thumbnail, list-group and its items, embed-responsive (slice 7; the families that the notifier screen and the file manager of awe-tools still write)
+ *   progress-bars, pagination   progress, progress-bar and its colors, stripes and animation; pagination and its sizes (slice 6)
+ *   navbar       navbar, navbar-header|collapse|brand|toggle|nav|form|btn|text|left|right|default|inverse (slice 5)
+ *   normalize, print, scaffolding, type, code   the element rules and classes of the Bootstrap base styles: normalize (display roles, form control resets, table reset), print, scaffolding (body, links, images, hr, sr-only), type (headings, text colors, lists, blockquote) and code (slice 8; imported first, as the vendored build compiles them)
+ */
+@import "./normalize.css";
+@import "./print.css";
+@import "./print-map.css";
+@import "./scaffolding.css";
+@import "./type.css";
+@import "./code.css";
+@import "./grid.css";
+@import "./grid.generated.css";
+@import "./tables.css";
+@import "./forms.css";
+@import "./utilities.css";
+@import "./panels.css";
+@import "./spacing.css";
+@import "./buttons.css";
+@import "./button-groups.css";
+@import "./input-groups.css";
+@import "./forms-pixel-admin.css";
+@import "./input-groups-pixel-admin.css";
+@import "./component-animations.css";
+@import "./dropdowns.css";
+@import "./navs.css";
+@import "./navbar.css";
+@import "./breadcrumbs.css";
+@import "./pagination.css";
+@import "./labels.css";
+@import "./badges.css";
+@import "./thumbnails.css";
+@import "./alerts.css";
+@import "./list-group.css";
+@import "./progress-bars.css";
+@import "./responsive-embed.css";
+@import "./wells.css";
+@import "./modals.css";
+@import "./tooltip.css";
+@import "./popovers.css";

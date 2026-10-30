@@ -1,0 +1,445 @@
+/*
+ * Buttons: Bootstrap 3 buttons.less, the pixel-admin button rules (legacy/pixel-admin/buttons.less) and the AWE rules on the same
+ * selectors (less/awe/base.less, less/awe/print.less), as the compiled vendored CSS renders them. The rules keep the order of the
+ * vendored build, because many compete at the same specificity (pixel-admin colors over Bootstrap's, AWE's default button over both).
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. The gradients and
+ * borders are written with color-mix(), as LESS compiled them. They are plain declarations, not @apply: Tailwind has no utility that
+ * emits them (and its utilities add --tw-* variables and logical properties), so the family is written as raw CSS.
+ * !important stays where the vendored rule has it (outline of .btn, the print rule): for !important the layer order inverts, so these
+ * layered rules beat an unlayered !important one whatever its specificity. See compatButtons.test.js, which pins the elements that mix them.
+ *
+ * Not here (they stay in LESS):
+ * - the :hover, :focus, :active and .active selectors of .btn and .btn-default|info|success|warning|danger: pixel-admin gives them
+ *   `background: ... !important`, and every AWE button (btn btn-awe btn-*, services/button.js) has a themed !important background of
+ *   higher specificity (.base-theme .btn-awe.btn-primary:hover). As a layered !important it would beat the themed one: a visible change.
+ * - button groups (button-groups.css), the pixel-admin modifiers (btn-flat, btn-outline, btn-rounded, btn-labeled), the selectors that depend
+ *   on a theme class of the body (.awe-theme .btn-default, .base-theme .btn-awe...) and the rules of other components that restyle a
+ *   button inside them. compatButtons.test.js names every one of them.
+ */
+
+/* Bootstrap 3 buttons.less: base button and its states (focus ring, active, disabled) */
+.btn {
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: normal;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: var(--awe-border-width) solid transparent;
+  white-space: nowrap;
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-base);
+  line-height: 1.42857143;
+  border-radius: var(--awe-radius);
+  user-select: none;
+}
+
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+  outline: var(--awe-space-1-5) auto -webkit-focus-ring-color;
+  outline-offset: calc(var(--awe-space-0-5) * -1);
+}
+
+.btn.focus {
+  color: var(--awe-color-text);
+  text-decoration: none;
+}
+
+.btn.disabled,
+.btn[disabled],
+fieldset[disabled] .btn {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
+/* Bootstrap 3 buttons.less: alternate buttons, with their focus and disabled states */
+.btn-default {
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-surface);
+  border-color: var(--awe-color-border);
+}
+
+.btn-default.focus {
+  color: var(--awe-color-text);
+  background-color: color-mix(in srgb, var(--awe-color-surface), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, var(--awe-color-border), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-default.disabled,
+.btn-default[disabled],
+fieldset[disabled] .btn-default,
+.btn-default.disabled:hover,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default:hover,
+.btn-default.disabled:focus,
+.btn-default[disabled]:focus,
+fieldset[disabled] .btn-default:focus,
+.btn-default.disabled.focus,
+.btn-default[disabled].focus,
+fieldset[disabled] .btn-default.focus,
+.btn-default.disabled:active,
+.btn-default[disabled]:active,
+fieldset[disabled] .btn-default:active,
+.btn-default.disabled.active,
+.btn-default[disabled].active,
+fieldset[disabled] .btn-default.active {
+  background-color: var(--awe-color-surface);
+  border-color: var(--awe-color-border);
+}
+
+.btn-primary {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-primary);
+  border-color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 5%);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active {
+  color: var(--awe-color-on-primary);
+  background-color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 5%), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-primary:active,
+.btn-primary.active {
+  background-image: none;
+}
+
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled.focus,
+.btn-primary[disabled].focus,
+fieldset[disabled] .btn-primary.focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+  background-color: var(--awe-color-primary);
+  border-color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 5%);
+}
+
+.btn-success {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-success);
+  border-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-success.focus {
+  color: var(--awe-color-on-primary);
+  background-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, color-mix(in srgb, var(--awe-color-success), var(--awe-color-on-secondary) 5%), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-success.disabled,
+.btn-success[disabled],
+fieldset[disabled] .btn-success,
+.btn-success.disabled:hover,
+.btn-success[disabled]:hover,
+fieldset[disabled] .btn-success:hover,
+.btn-success.disabled:focus,
+.btn-success[disabled]:focus,
+fieldset[disabled] .btn-success:focus,
+.btn-success.disabled.focus,
+.btn-success[disabled].focus,
+fieldset[disabled] .btn-success.focus,
+.btn-success.disabled:active,
+.btn-success[disabled]:active,
+fieldset[disabled] .btn-success:active,
+.btn-success.disabled.active,
+.btn-success[disabled].active,
+fieldset[disabled] .btn-success.active {
+  background-color: var(--awe-color-success);
+  border-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-info {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-info);
+  border-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-info.focus {
+  color: var(--awe-color-on-primary);
+  background-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, color-mix(in srgb, var(--awe-color-info), var(--awe-color-on-secondary) 5%), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-info.disabled,
+.btn-info[disabled],
+fieldset[disabled] .btn-info,
+.btn-info.disabled:hover,
+.btn-info[disabled]:hover,
+fieldset[disabled] .btn-info:hover,
+.btn-info.disabled:focus,
+.btn-info[disabled]:focus,
+fieldset[disabled] .btn-info:focus,
+.btn-info.disabled.focus,
+.btn-info[disabled].focus,
+fieldset[disabled] .btn-info.focus,
+.btn-info.disabled:active,
+.btn-info[disabled]:active,
+fieldset[disabled] .btn-info:active,
+.btn-info.disabled.active,
+.btn-info[disabled].active,
+fieldset[disabled] .btn-info.active {
+  background-color: var(--awe-color-info);
+  border-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-warning {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-warning);
+  border-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-warning.focus {
+  color: var(--awe-color-on-primary);
+  background-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, color-mix(in srgb, var(--awe-color-warning), var(--awe-color-on-secondary) 5%), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-warning.disabled,
+.btn-warning[disabled],
+fieldset[disabled] .btn-warning,
+.btn-warning.disabled:hover,
+.btn-warning[disabled]:hover,
+fieldset[disabled] .btn-warning:hover,
+.btn-warning.disabled:focus,
+.btn-warning[disabled]:focus,
+fieldset[disabled] .btn-warning:focus,
+.btn-warning.disabled.focus,
+.btn-warning[disabled].focus,
+fieldset[disabled] .btn-warning.focus,
+.btn-warning.disabled:active,
+.btn-warning[disabled]:active,
+fieldset[disabled] .btn-warning:active,
+.btn-warning.disabled.active,
+.btn-warning[disabled].active,
+fieldset[disabled] .btn-warning.active {
+  background-color: var(--awe-color-warning);
+  border-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-danger {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-danger);
+  border-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-on-secondary) 5%);
+}
+
+.btn-danger.focus {
+  color: var(--awe-color-on-primary);
+  background-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-on-secondary) 10%);
+  border-color: color-mix(in srgb, color-mix(in srgb, var(--awe-color-danger), var(--awe-color-on-secondary) 5%), var(--awe-color-on-secondary) 12%);
+}
+
+.btn-danger.disabled,
+.btn-danger[disabled],
+fieldset[disabled] .btn-danger,
+.btn-danger.disabled:hover,
+.btn-danger[disabled]:hover,
+fieldset[disabled] .btn-danger:hover,
+.btn-danger.disabled:focus,
+.btn-danger[disabled]:focus,
+fieldset[disabled] .btn-danger:focus,
+.btn-danger.disabled.focus,
+.btn-danger[disabled].focus,
+fieldset[disabled] .btn-danger.focus,
+.btn-danger.disabled:active,
+.btn-danger[disabled]:active,
+fieldset[disabled] .btn-danger:active,
+.btn-danger.disabled.active,
+.btn-danger[disabled].active,
+fieldset[disabled] .btn-danger.active {
+  background-color: var(--awe-color-danger);
+  border-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-on-secondary) 5%);
+}
+
+/* Bootstrap 3 buttons.less: link button */
+.btn-link {
+  color: var(--awe-color-primary);
+  font-weight: normal;
+  border-radius: 0;
+}
+
+.btn-link,
+.btn-link:active,
+.btn-link.active,
+.btn-link[disabled],
+fieldset[disabled] .btn-link {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-link,
+.btn-link:hover,
+.btn-link:focus,
+.btn-link:active {
+  border-color: transparent;
+}
+
+.btn-link:hover,
+.btn-link:focus {
+  color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 15%);
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+.btn-link[disabled]:hover,
+fieldset[disabled] .btn-link:hover,
+.btn-link[disabled]:focus,
+fieldset[disabled] .btn-link:focus {
+  color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 46.7%);
+  text-decoration: none;
+}
+
+/* Bootstrap 3 buttons.less: sizes and block */
+.btn-lg {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-lg);
+  line-height: 1.3333333;
+  border-radius: var(--awe-radius-xs);
+}
+
+.btn-sm {
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+.btn-xs {
+  padding: var(--awe-space-0-5) var(--awe-space-1-5);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-block + .btn-block {
+  margin-top: var(--awe-space-1-5);
+}
+
+input[type="submit"].btn-block,
+input[type="reset"].btn-block,
+input[type="button"].btn-block {
+  width: 100%;
+}
+
+/* pixel-admin buttons.less: base button, sizes and colors (the later rules win, as in the vendored build) */
+.btn {
+  text-shadow: none;
+  line-height: var(--awe-space-4);
+  font-weight: 400;
+  padding: var(--awe-space-2) var(--awe-space-3);
+  outline: none !important;
+}
+
+.btn {
+  box-shadow: none;
+}
+
+.btn-lg {
+  font-size: var(--awe-font-size-md);
+  line-height: var(--awe-space-5);
+  padding: var(--awe-space-2) var(--awe-space-5);
+}
+
+.btn-sm {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-4);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.btn-xs {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-3);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.btn,
+.btn-default {
+  color: var(--awe-color-text);
+  border-color: color-mix(in srgb, var(--awe-color-surface-subtle), var(--awe-color-text) 9%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-surface-subtle), var(--awe-color-text) 15%);
+  background: var(--awe-color-surface-subtle);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-surface-subtle), var(--awe-color-surface) 0%) 0%, color-mix(in srgb, var(--awe-color-surface-subtle), var(--awe-color-text) 4%) 100%);
+  background-repeat: repeat-x;
+}
+
+.btn-info {
+  color: var(--awe-color-on-primary);
+  border-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-text) 5%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-text) 11%);
+  background: var(--awe-color-info);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-info), var(--awe-color-surface) 1%) 0%, color-mix(in srgb, var(--awe-color-info), var(--awe-color-text) 5%) 100%);
+  background-repeat: repeat-x;
+}
+
+.btn-success {
+  color: var(--awe-color-on-primary);
+  border-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-text) 5%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-text) 11%);
+  background: var(--awe-color-success);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-success), var(--awe-color-surface) 1%) 0%, color-mix(in srgb, var(--awe-color-success), var(--awe-color-text) 5%) 100%);
+  background-repeat: repeat-x;
+}
+
+.btn-warning {
+  color: var(--awe-color-on-primary);
+  border-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-text) 10%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-text) 16%);
+  background: var(--awe-color-warning);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-warning), var(--awe-color-surface) 1%) 0%, color-mix(in srgb, var(--awe-color-warning), var(--awe-color-text) 5%) 100%);
+  background-repeat: repeat-x;
+}
+
+.btn-danger {
+  color: var(--awe-color-on-primary);
+  border-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-text) 5%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-text) 11%);
+  background: var(--awe-color-danger);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-danger), var(--awe-color-surface) 1%) 0%, color-mix(in srgb, var(--awe-color-danger), var(--awe-color-text) 5%) 100%);
+  background-repeat: repeat-x;
+}
+
+/* AWE base.less: the default button on the theme variables */
+.btn-default {
+  color: var(--awe-color-on-secondary);
+  border-color: color-mix(in srgb, var(--awe-color-secondary), var(--awe-color-text) 5%);
+  border-bottom-color: color-mix(in srgb, var(--awe-color-secondary), var(--awe-color-text) 11%);
+  background: var(--awe-color-secondary);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--awe-color-secondary), var(--awe-color-surface) 1%) 0%, color-mix(in srgb, var(--awe-color-secondary), var(--awe-color-text) 5%) 100%);
+  background-repeat: repeat-x;
+}
+
+/* AWE print.less: buttons are not printed */
+@media print {
+  .btn {
+    display: none !important;
+  }
+
+}
