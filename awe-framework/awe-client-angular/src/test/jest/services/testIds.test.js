@@ -148,6 +148,16 @@ describe("test id vocabulary", () => {
       confirmCancel: "confirm-cancel",
       window: "window",
       windowMaximizeButton: "window-maximize-button",
+      windowAdvancedToggle: "window-advanced-toggle",
+      windowAdvancedCount: "window-advanced-count",
+      windowFilterChips: "window-filter-chips",
+      windowFilterChip: "window-filter-chip",
+      windowFilterChipRemove: "window-filter-chip-remove",
+      windowFilterClearAll: "window-filter-clear-all",
+      windowAdvancedPanel: "window-advanced-panel",
+      windowAdvancedReset: "window-advanced-reset",
+      windowAdvancedCancel: "window-advanced-cancel",
+      windowAdvancedApply: "window-advanced-apply",
       loader: "loader",
       loadingBar: "loading-bar",
       loadingSpinner: "loading-spinner",
@@ -189,7 +199,8 @@ describe("test id vocabulary", () => {
       groupLevel: "data-group-level",
       column: "data-column",
       rendered: "data-rendered",
-      zoomed: "data-zoomed"
+      zoomed: "data-zoomed",
+      filterId: "data-filter-id"
     });
   });
 

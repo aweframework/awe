@@ -15,6 +15,7 @@ import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
 import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -5188,6 +5189,220 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkWindowNotMaximized(String windowId) {
     waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, false)));
     checkNotFixed("window " + windowId, frontEndInstructions.getWindow(windowId, false));
+  }
+
+  /**
+   * Click the advanced filters toggle of a window (#790), in the row of its advanced block: it shows or hides the block
+   * below the row in an inline window, and opens the side panel of a side-panel window
+   *
+   * @param windowId Window identifier
+   */
+  protected void toggleAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedToggle(windowId));
+  }
+
+  /**
+   * Check the badge of the advanced filters toggle of a window: the number of advanced criteria whose value differs from
+   * their default. The badge is not shown when there is none
+   *
+   * @param windowId Window identifier
+   * @param count    Expected number (0 when the badge is not shown)
+   */
+  protected void checkAdvancedFiltersCount(String windowId, int count) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindowAdvancedToggle(windowId)));
+    if (count == 0) {
+      checkNotVisible(locator(frontEndInstructions.getWindowAdvancedCount(windowId)));
+    } else {
+      checkText(frontEndInstructions.getWindowAdvancedCount(windowId), String.valueOf(count));
+    }
+  }
+
+  /**
+   * Check that a window has no advanced search: it shows no advanced filters toggle and no filters in effect, as a window
+   * without an advanced block
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoAdvancedFilters(String windowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindow(windowId)));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getWindowAdvancedToggle(windowId))));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getWindowFilterChips(windowId))));
+  }
+
+  /**
+   * Check that the filters in effect of a window show the chip of a criterion, marked as a hidden advanced filter or not
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @param hidden      True when the chip must be marked as a hidden advanced filter
+   */
+  protected void checkFilterChip(String windowId, String criterionId, boolean hidden) {
+    checkVisible(locator(frontEndInstructions.getWindowFilterChip(windowId, criterionId, hidden)));
+  }
+
+  /**
+   * Check that the filters in effect of a window do not show the chip of a criterion
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   */
+  protected void checkNoFilterChip(String windowId, String criterionId) {
+    checkNotVisible(locator(frontEndInstructions.getWindowFilterChip(windowId, criterionId)));
+  }
+
+  /**
+   * Check that a window shows no filters in effect: every criterion has its default value
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoFilterChips(String windowId) {
+    checkNotVisible(locator(frontEndInstructions.getWindowFilterChips(windowId)));
+  }
+
+  /**
+   * Remove the chip of a criterion from the filters in effect of a window: the criterion goes back to its default
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   */
+  protected void removeFilterChip(String windowId, String criterionId) {
+    click(frontEndInstructions.getWindowFilterChipRemove(windowId, criterionId));
+  }
+
+  /**
+   * Click Clear all in the filters in effect of a window: every criterion of the window goes back to its default
+   *
+   * @param windowId Window identifier
+   */
+  protected void clearAllFilters(String windowId) {
+    click(frontEndInstructions.getWindowFilterClearAll(windowId));
+  }
+
+  /**
+   * Check that the side panel with the advanced criteria of a window is open
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersPanelOpen(String windowId) {
+    checkVisible(locator(frontEndInstructions.getOpenWindowAdvancedPanel(windowId)));
+  }
+
+  /**
+   * Check that the side panel with the advanced criteria of a window is closed
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersPanelClosed(String windowId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenWindowAdvancedPanel(windowId)));
+  }
+
+  /**
+   * Click Reset to defaults in the side panel of a window: its advanced criteria go back to their defaults
+   *
+   * @param windowId Window identifier
+   */
+  protected void resetAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_RESET));
+  }
+
+  /**
+   * Click Cancel in the side panel of a window: it closes and its advanced criteria get back the values they had when it
+   * opened
+   *
+   * @param windowId Window identifier
+   */
+  protected void cancelAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_CANCEL));
+  }
+
+  /**
+   * Click Show results in the side panel of a window: it closes and the submit button of the window is launched, as Enter
+   * in a criterion does. It waits for the search to end
+   *
+   * @param windowId Window identifier
+   */
+  protected void applyAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_APPLY));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that a criterion is shown
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionVisible(String criterionName) {
+    checkVisible(locator(frontEndInstructions.getCriterion(criterionName)));
+  }
+
+  /**
+   * Check that a criterion is not shown (it may still be in the page, hidden)
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionNotVisible(String criterionName) {
+    checkNotVisible(locator(frontEndInstructions.getCriterion(criterionName)));
+  }
+
+  /**
+   * Get the vertical position of the advanced filters toggle of a window in the viewport, to check later that it has not
+   * moved (the advanced block opens below its row)
+   *
+   * @param windowId Window identifier
+   * @return Top of the toggle in pixels
+   */
+  protected double getAdvancedFiltersToggleTop(String windowId) {
+    return getBox(frontEndInstructions.getWindowAdvancedToggle(windowId))[0];
+  }
+
+  /**
+   * Check that the advanced filters toggle of a window is at a vertical position of the viewport, give or take a pixel
+   *
+   * @param windowId Window identifier
+   * @param top      Expected top of the toggle in pixels, as {@link #getAdvancedFiltersToggleTop(String)} returns it
+   */
+  protected void checkAdvancedFiltersToggleTop(String windowId, double top) {
+    double shown = getAdvancedFiltersToggleTop(windowId);
+    assertWithScreenshot("The advanced filters toggle of " + windowId + " has moved from " + top + "px to " + shown + "px",
+      Math.abs(shown - top) <= ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Check that a criterion is shown below the advanced filters row of its window, as the advanced criteria of an inline
+   * window when they are shown
+   *
+   * @param windowId      Window identifier
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionBelowAdvancedFilters(String windowId, String criterionName) {
+    double[] toggle = getBox(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    double[] criterion = getBox(frontEndInstructions.getCriterion(criterionName));
+    assertWithScreenshot("The criterion " + criterionName + " (top " + criterion[0] + "px) is not below the advanced filters toggle of "
+      + windowId + " (bottom " + toggle[1] + "px)", criterion[0] >= toggle[1] - ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Check that a criterion is shown above the advanced filters row of its window, as its essential criteria
+   *
+   * @param windowId      Window identifier
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionAboveAdvancedFilters(String windowId, String criterionName) {
+    double[] toggle = getBox(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    double[] criterion = getBox(frontEndInstructions.getCriterion(criterionName));
+    assertWithScreenshot("The criterion " + criterionName + " (bottom " + criterion[1] + "px) is not above the advanced filters toggle of "
+      + windowId + " (top " + toggle[0] + "px)", criterion[1] <= toggle[0] + ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Get the box of a visible element in the viewport
+   *
+   * @param selector Element selector
+   * @return Top, bottom and width in pixels
+   */
+  private double[] getBox(By selector) {
+    waitUntil(toBeVisible(selector));
+    return parseBox(String.valueOf(getBrowser().executeScriptOn(locator(selector), BOX_SCRIPT)));
   }
 
   /**

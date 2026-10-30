@@ -2067,6 +2067,117 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a part of the advanced search of a window (#790). Every part carries the window as its owner, so the side panel,
+   * which does not live inside the window, is found the same way
+   *
+   * @param testId   Hook of the part
+   * @param windowId Window identifier
+   * @return Css selector of the part
+   */
+  private static String getWindowAdvancedCss(String testId, String windowId) {
+    return TestIds.css(testId) + TestAttributes.css(TestAttributes.OWNER, windowId);
+  }
+
+  /**
+   * Get the button of a window that shows or hides its advanced criteria (inline) or opens its side panel
+   *
+   * @param windowId Window identifier
+   * @return Advanced filters toggle selector
+   */
+  default By getWindowAdvancedToggle(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_TOGGLE, windowId));
+  }
+
+  /**
+   * Get the badge of the advanced filters toggle of a window: the number of advanced criteria that differ from their default
+   *
+   * @param windowId Window identifier
+   * @return Advanced filters count selector
+   */
+  default By getWindowAdvancedCount(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_COUNT, windowId));
+  }
+
+  /**
+   * Get the row of the filters in effect of a window
+   *
+   * @param windowId Window identifier
+   * @return Filter chips row selector
+   */
+  default By getWindowFilterChips(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIPS, windowId));
+  }
+
+  /**
+   * Get the chip of a criterion in the filters in effect of a window
+   *
+   * @param windowId     Window identifier
+   * @param criterionId  Criterion identifier
+   * @return Filter chip selector
+   */
+  default By getWindowFilterChip(String windowId, String criterionId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId)
+      + TestAttributes.css(TestAttributes.FILTER_ID, criterionId));
+  }
+
+  /**
+   * Get the chip of a criterion in the filters in effect of a window, marked as a hidden advanced filter or not
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @param hidden      True for the chip of an advanced criterion that is hidden
+   * @return Filter chip selector
+   */
+  default By getWindowFilterChip(String windowId, String criterionId, boolean hidden) {
+    String chip = getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId) + TestAttributes.css(TestAttributes.FILTER_ID, criterionId);
+    return By.cssSelector(hidden ? chip + ".window-filter-chip-hidden" : chip + ":not(.window-filter-chip-hidden)");
+  }
+
+  /**
+   * Get the button of the chip of a criterion that restores the criterion to its default
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @return Filter chip remove button selector
+   */
+  default By getWindowFilterChipRemove(String windowId, String criterionId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId)
+      + TestAttributes.css(TestAttributes.FILTER_ID, criterionId) + " " + TestIds.css(TestIds.WINDOW_FILTER_CHIP_REMOVE));
+  }
+
+  /**
+   * Get the Clear all button of the filters in effect of a window
+   *
+   * @param windowId Window identifier
+   * @return Clear all button selector
+   */
+  default By getWindowFilterClearAll(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CLEAR_ALL, windowId));
+  }
+
+  /**
+   * Get the open side panel with the advanced criteria of a window
+   *
+   * @param windowId Window identifier
+   * @return Open advanced filters panel selector
+   */
+  default By getOpenWindowAdvancedPanel(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_PANEL, windowId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get a button of the footer of the side panel with the advanced criteria of a window
+   *
+   * @param windowId Window identifier
+   * @param testId   Hook of the button: {@link TestIds#WINDOW_ADVANCED_RESET}, {@link TestIds#WINDOW_ADVANCED_CANCEL} or
+   *                 {@link TestIds#WINDOW_ADVANCED_APPLY}
+   * @return Advanced filters panel button selector
+   */
+  default By getWindowAdvancedPanelButton(String windowId, String testId) {
+    return By.cssSelector(getWindowAdvancedCss(testId, windowId));
+  }
+
+  /**
    * Get the Columns dialog of a grid
    *
    * @param gridId Grid identifier

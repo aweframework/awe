@@ -66,6 +66,11 @@ describe('awe-react-client/test/js/utilities/testIdsTest.js', () => {
     expect(reactOnly.sort()).toEqual([...REACT_ONLY_ATTRIBUTES].sort());
   });
 
+  it('names the criterion of a chip of the filters in effect of a window, as the AngularJS client does', () => {
+    expect(TestAttributes.filterId).toBe('data-filter-id');
+    expect(angularAttributes.filterId).toBe('data-filter-id');
+  });
+
   it('uses unique values', () => {
     const values = Object.values(TestIds);
     expect(new Set(values).size).toBe(values.length);

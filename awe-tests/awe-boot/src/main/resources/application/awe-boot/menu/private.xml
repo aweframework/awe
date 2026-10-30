@@ -108,6 +108,7 @@
       <option name="matrix-test-tree" label="MENU_TEST_MATRIX_TREE" screen="test-tree" icon="sitemap"/>
       <option name="matrix-test-move-rows" label="MENU_TEST_MATRIX_MOVE_ROWS" screen="MoveRowsTst" icon="sort"/>
     </option>
+    <option name="matrix-test-advanced-search" label="MENU_TEST_MATRIX_ADVANCED_SEARCH" screen="AdvSchTst" icon="sliders"/>
     <option name="chart" label="MENU_TEST_CHARTS" icon="area-chart">
       <option name="chart-test" label="MENU_TEST_CHARTS" screen="ChrTst" icon="bar-chart-o"/>
       <option name="chart-series-test" label="MENU_TEST_CHART_DYNAMIC_SERIES" screen="ChrTstDynamicSeries"

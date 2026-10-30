@@ -1,5 +1,6 @@
 package com.almis.awe.builder.screen;
 
+import com.almis.awe.builder.enumerates.AdvancedMode;
 import com.almis.awe.builder.screen.base.AbstractTagBuilder;
 import com.almis.awe.model.entities.screen.component.Window;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class WindowBuilder extends AbstractTagBuilder<WindowBuilder, Window> {
 
   private boolean maximize;
   private String icon;
+  private AdvancedMode advancedMode;
 
   @Override
   public Window build() {
@@ -29,6 +31,7 @@ public class WindowBuilder extends AbstractTagBuilder<WindowBuilder, Window> {
   public Window build(Window window) {
     return (Window) super.build(window)
       .setMaximize(isMaximize())
+      .setAdvancedMode(getAdvancedMode() == null ? null : getAdvancedMode().toString())
       .setIcon(getIcon());
   }
 }

@@ -79,6 +79,9 @@ The `help` and `help-image` attributes show a tooltip when the user stays on the
 shown next to it). Both engines show it in every criterion, including checkboxes, radio buttons, button checkboxes and
 button radios, and also in [buttons](button.md) and in the headers of the [grid columns](grids.md#column-attributes).
 
+To keep the less frequent criteria of a search at hand, place them in the `<advanced>` block of their window: see
+[advanced search](window.md#advanced-search).
+
 ### Specific attributes
 
 | Attribute              | Criterion                                                         | Type    | Description                                                                    | Values                                                                                                                                               |

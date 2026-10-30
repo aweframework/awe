@@ -725,6 +725,13 @@
   <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Locataire"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agent utilisateur"/>
+  <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Filtres avancés"/>
+  <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Tout effacer"/>
+  <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtré par"/>
+  <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtre avancé masqué"/>
+  <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Masquer les filtres avancés"/>
+  <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Retirer le filtre"/>
+  <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Rétablir les valeurs par défaut"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activité par jour"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistiques"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Événements"/>
@@ -1351,6 +1358,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Afficher le mot de passe"/>
   <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Masquer le mot de passe"/>
   <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Verr. Maj est activé"/>
+  <locale name="SCREEN_TEXT_SHOW_RESULTS" value="Afficher les résultats"/>
   <locale name="SCREEN_TEXT_SIGNING_IN" value="Connexion…"/>
   <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Se connecter avec Microsoft"/>
   <locale name="SCREEN_TEXT_LOGIN_OR" value="ou continuer avec"/>

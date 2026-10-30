@@ -84,4 +84,31 @@
     <option label="ENUM_DEFERRED_SECOND" value="HeaSecond" />
   </group>
 
+  <!-- Advanced search test screen (#790): its two examples, and the status, country and segment of the customers -->
+  <group id="AdvSchExm">
+    <option label="ENUM_ADV_SCH_INLINE" value="AdvSchInl" />
+    <option label="ENUM_ADV_SCH_SIDE_PANEL" value="AdvSchPnl" />
+  </group>
+
+  <group id="AdvSchSta">
+    <option label="ENUM_ADV_SCH_ACTIVE" value="1" />
+    <option label="ENUM_ADV_SCH_INACTIVE" value="0" />
+  </group>
+
+  <group id="AdvSchCtr">
+    <option label="ENUM_ADV_SCH_COUNTRY_ES" value="ES" />
+    <option label="ENUM_ADV_SCH_COUNTRY_FR" value="FR" />
+    <option label="ENUM_ADV_SCH_COUNTRY_DE" value="DE" />
+    <option label="ENUM_ADV_SCH_COUNTRY_IT" value="IT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_PT" value="PT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_GB" value="GB" />
+  </group>
+
+  <group id="AdvSchSeg">
+    <option label="ENUM_ADV_SCH_SEGMENT_RET" value="RET" />
+    <option label="ENUM_ADV_SCH_SEGMENT_WHO" value="WHO" />
+    <option label="ENUM_ADV_SCH_SEGMENT_PUB" value="PUB" />
+    <option label="ENUM_ADV_SCH_SEGMENT_ONL" value="ONL" />
+  </group>
+
 </enumerated>

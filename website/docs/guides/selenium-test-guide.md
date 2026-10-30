@@ -509,6 +509,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `getText(String criterionName)` | Returns the text of a criterion |
 | `checkCriterionContents(String criterionName, String search)` | Checks the value of a text criterion |
 | `checkCriterionLabel(String criterionName, String text)` | Checks the label of a criterion |
+| `checkCriterionVisible(String criterionName)` / `checkCriterionNotVisible(String criterionName)` | Checks that a criterion is shown, or that it is not (it may still be in the page, hidden) |
 | `checkCriterionNotPresent(String criterionName)` | Checks that a criterion is not in the page at all, neither shown nor hidden, such as one in a tab page that is not shown |
 | `checkCriterionUnit(String criterionName, String text)` | Checks the unit addon of a criterion (the text after the input) |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Checks that criteria are checked (or not) |
@@ -743,6 +744,20 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `restoreWindow(String windowId)` | Restores a maximized window with its Restore button |
 | `checkWindowMaximized(String windowId)` | Checks that a window fills the content area of the screen (its maximize target) and the header stays visible |
 | `checkWindowNotMaximized(String windowId)` | Checks that a window is restored (no longer fixed over the content area) |
+| `toggleAdvancedFilters(String windowId)` | Clicks the advanced filters toggle of a window with an `<advanced>` block: it shows or hides the block below its row (inline window) or opens its side panel (`advanced-mode="side-panel"`) |
+| `checkAdvancedFiltersCount(String windowId, int count)` | Checks the badge of the advanced filters toggle: the number of advanced criteria whose value differs from their default (`0` when the badge is not shown) |
+| `checkNoAdvancedFilters(String windowId)` | Checks that a window shows no advanced filters toggle and no filters in effect, as a window without an `<advanced>` block |
+| `getAdvancedFiltersToggleTop(String windowId)` / `checkAdvancedFiltersToggleTop(String windowId, double top)` | Reads the vertical position of the advanced filters toggle of a window in the viewport, and checks later that it has not moved (give or take a pixel) |
+| `checkCriterionAboveAdvancedFilters(String windowId, String criterionName)` / `checkCriterionBelowAdvancedFilters(String windowId, String criterionName)` | Checks that a shown criterion is above the advanced filters row of its window (an essential criterion) or below it (an advanced criterion of an inline window) |
+| `checkFilterChip(String windowId, String criterionId, boolean hidden)` | Checks that the filters in effect of a window show the chip of a criterion, marked as a hidden advanced filter (`true`) or not |
+| `checkNoFilterChip(String windowId, String criterionId)` | Checks that the filters in effect of a window do not show the chip of a criterion |
+| `checkNoFilterChips(String windowId)` | Checks that a window shows no filters in effect (every criterion has its default) |
+| `removeFilterChip(String windowId, String criterionId)` | Removes the chip of a criterion: the criterion goes back to its default |
+| `clearAllFilters(String windowId)` | Clicks *Clear all* in the filters in effect: every criterion of the window goes back to its default |
+| `checkAdvancedFiltersPanelOpen(String windowId)` / `checkAdvancedFiltersPanelClosed(String windowId)` | Checks that the side panel with the advanced criteria of a window is open or closed |
+| `resetAdvancedFilters(String windowId)` | Clicks *Reset to defaults* in the side panel: its advanced criteria go back to their defaults |
+| `cancelAdvancedFilters(String windowId)` | Clicks *Cancel* in the side panel: it closes and its advanced criteria get back the values they had when it opened |
+| `applyAdvancedFilters(String windowId)` | Clicks *Show results* in the side panel: it closes and launches the submit button of the window, as Enter in a criterion does, and waits for the search |
 | `maximizeTab(String tabId)` | Maximizes a tab component (tab list and content, `maximize="true"`) with its Maximize button |
 | `restoreTab(String tabId)` | Restores a maximized tab component with its Restore button |
 | `checkTabMaximized(String tabId)` | Checks that a tab component fills the content area of the screen (its maximize target) and the header stays visible |

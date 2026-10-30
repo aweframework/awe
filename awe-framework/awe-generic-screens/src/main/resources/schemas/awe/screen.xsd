@@ -234,6 +234,13 @@
   <!-- Window Element -->
   <xs:element name="window" type="windowType" />
 
+  <!-- Advanced Element -->
+  <xs:element name="advanced" type="advancedType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Advanced block of a window: the advanced criteria of a search and their layout tags. Place it right after the essential criteria, inside the window (usually in its panel-body tag); declare at most one per window. The window draws an Advanced filters row where the block is, with the count of the advanced criteria whose value differs from its default, the filters in effect and Clear all, and shows the block on demand below the row or in a side panel (see advanced-mode on the window). Enter in a criterion and Show results launch the submit button of the window. It only has effect inside a window: elsewhere its children are shown as in a plain tag. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <!-- Resizable Element -->
   <xs:element name="resizable" type="resizableType" />
 
@@ -982,6 +989,11 @@
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="maximize" type="booleanEnum" />
+    <xs:attribute name="advanced-mode" type="advancedModeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the window shows its advanced block (the advanced element): inline (the Advanced filters row expands the block below it, inside the window) or side-panel (the same Advanced filters button opens the block in a side panel). Only used when the window holds an advanced block. Default: inline.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Resizable Attributes -->
@@ -1769,6 +1781,7 @@
       <xs:element ref="accordion" />
       <xs:element ref="pivot-table" />
       <xs:element ref="window" />
+      <xs:element ref="advanced" />
       <xs:element ref="card" />
       <xs:element ref="resizable" />
       <xs:element ref="tag" />
@@ -2004,6 +2017,21 @@
   <xs:complexType name="windowType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="windowAttr" />
+  </xs:complexType>
+
+  <!-- Advanced Type -->
+  <xs:complexType name="advancedType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attribute name="id" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the advanced block. Optional: the server generates one when it is missing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the advanced block.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Card Type -->
@@ -2678,6 +2706,14 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="horizontal" />
       <xs:enumeration value="vertical" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- How a window shows its advanced block -->
+  <xs:simpleType name="advancedModeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="inline" />
+      <xs:enumeration value="side-panel" />
     </xs:restriction>
   </xs:simpleType>
 

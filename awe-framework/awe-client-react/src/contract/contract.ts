@@ -124,6 +124,9 @@ export interface ActionParameters {
     value?: string;
 }
 
+export interface Advanced extends Component {
+}
+
 export interface Avatar extends AbstractButton {
     children?: number;
     image?: string;
@@ -648,7 +651,10 @@ export interface WidgetParameter extends AbstractWidget {
 }
 
 export interface Window extends Component {
+    advancedCriteria?: string[];
+    advancedMode?: string;
     maximize?: boolean;
+    searchCriteria?: string[];
 }
 
 export interface Wizard extends Panelable {

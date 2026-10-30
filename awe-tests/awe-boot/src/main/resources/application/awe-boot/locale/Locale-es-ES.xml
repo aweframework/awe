@@ -324,6 +324,36 @@
   <locale name="BUTTON_SIDE_PANEL_LEFT" value="Panel izquierdo"/>
   <locale name="SIDE_PANEL_TITLE_RIGHT" value="Detalle del registro"/>
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtros"/>
+  <locale name="MENU_TEST_MATRIX_ADVANCED_SEARCH" value="Búsqueda avanzada"/>
+  <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Búsqueda avanzada"/>
+  <locale name="ENUM_ADV_SCH_INLINE" value="Filtros avanzados en línea"/>
+  <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Filtros avanzados en un panel lateral"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Buscar clientes"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Clientes"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Filtros de clientes"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL_RESULTS" value="Clientes"/>
+  <locale name="PARAMETER_ADV_SCH_NAME" value="Cliente"/>
+  <locale name="PARAMETER_ADV_SCH_STATUS" value="Estado"/>
+  <locale name="PARAMETER_ADV_SCH_COUNTRY" value="País"/>
+  <locale name="PARAMETER_ADV_SCH_SEGMENT" value="Segmento"/>
+  <locale name="PARAMETER_ADV_SCH_MIN_AMOUNT" value="Importe mínimo"/>
+  <locale name="PARAMETER_ADV_SCH_CREATED_FROM" value="Creado desde"/>
+  <locale name="PARAMETER_ADV_SCH_PRIORITY" value="Solo clientes prioritarios"/>
+  <locale name="COLUMN_ADV_SCH_AMOUNT" value="Importe"/>
+  <locale name="COLUMN_ADV_SCH_CREATED" value="Creado"/>
+  <locale name="COLUMN_ADV_SCH_PRIORITY" value="Prioritario"/>
+  <locale name="ENUM_ADV_SCH_ACTIVE" value="Activo"/>
+  <locale name="ENUM_ADV_SCH_INACTIVE" value="Inactivo"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_ES" value="España"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_FR" value="Francia"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_DE" value="Alemania"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_IT" value="Italia"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_PT" value="Portugal"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_GB" value="Reino Unido"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_RET" value="Minorista"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_WHO" value="Mayorista"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_PUB" value="Sector público"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_ONL" value="En línea"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Resultado"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columnas en un panel lateral"/>
   <locale name="PARAMETER_RELOAD" value="Recargar"/>

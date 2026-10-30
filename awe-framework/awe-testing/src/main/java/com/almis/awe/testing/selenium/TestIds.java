@@ -83,6 +83,18 @@ public final class TestIds {
   // Windows: the window root (identified by its owner) and its Maximize button
   public static final String WINDOW = "window";
   public static final String WINDOW_MAXIMIZE_BUTTON = "window-maximize-button";
+  // Advanced search of a window (#790; owner: window id): the toggle of the advanced criteria with its counter badge,
+  // the filters in effect (row, chip, chip remove button, Clear all) and the side panel with its footer buttons
+  public static final String WINDOW_ADVANCED_TOGGLE = "window-advanced-toggle";
+  public static final String WINDOW_ADVANCED_COUNT = "window-advanced-count";
+  public static final String WINDOW_FILTER_CHIPS = "window-filter-chips";
+  public static final String WINDOW_FILTER_CHIP = "window-filter-chip";
+  public static final String WINDOW_FILTER_CHIP_REMOVE = "window-filter-chip-remove";
+  public static final String WINDOW_FILTER_CLEAR_ALL = "window-filter-clear-all";
+  public static final String WINDOW_ADVANCED_PANEL = "window-advanced-panel";
+  public static final String WINDOW_ADVANCED_RESET = "window-advanced-reset";
+  public static final String WINDOW_ADVANCED_CANCEL = "window-advanced-cancel";
+  public static final String WINDOW_ADVANCED_APPLY = "window-advanced-apply";
   // Tabs: the whole tab component (list and content, identified by its owner) and its Maximize button
   public static final String TABS = "tabs";
   public static final String TAB_MAXIMIZE_BUTTON = "tab-maximize-button";

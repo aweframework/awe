@@ -172,7 +172,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Section title | #910 | Done | A small uppercase muted label followed by a line that fills the row splits a long form into sections: the `awe-section-title` style of a tag, best on a heading (`<tag type="h3" style="awe-section-title" label="..."/>`). |
 | Reveal the first invalid field across tabs | #827 | Done | On validation, open the tab with the first error, mark the tab, focus the field, show a summary with "Go to field". |
 | Required to save vs. required to finish | #840 | Planned | `*` blocks saving; a second marker (diamond, warning tone, dashed border) is needed to finish; a pending list with links; Save draft stays enabled. |
-| Advanced search | #790 | Planned | Conditions (field, operator, value), nested All/Any groups, saved searches per user. |
+| Advanced search | #790 | Done | A search window shows its essential criteria first and, right after them, an Advanced filters row with a count badge; the `<advanced>` block of the window opens below the row (inline) or, per window (`advanced-mode`), in a side panel opened by the same button (Reset to defaults, Cancel, Show results). After a divider the row lists as Filtered by chips every criterion that differs from its default, hidden ones with an eye-off icon; each chip clears its criterion and Clear all clears them all. Show results and Enter launch the submit button of the window. Saved searches and per-user memory are planned. See [Window](../api/window.md#advanced-search). |
 | Visible access restrictions | #791 | Planned | Locked fields and actions stay visible with a lock icon and the reason (help text or tooltip). |
 
 ### Overlays and panels

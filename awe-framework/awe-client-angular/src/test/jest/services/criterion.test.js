@@ -55,6 +55,24 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js',
     expect(comp.address).toEqual(address);
   });
 
+  it('should submit the screen on Enter clicking the first visible submit button of the form', function () {
+    // Prepare
+    const form = $("<form><input class='text'><button type='submit'>Search</button></form>").appendTo(document.body);
+    const button = form.find("button");
+    button[0].getClientRects = () => [{}];
+    const onClick = jest.fn();
+    button.data("$scope", {onClick});
+    let comp = new Criterion(scope, "comp1", form.find("input"));
+    comp.asCriterion();
+
+    // Run
+    scope.submit({stopPropagation: jest.fn(), preventDefault: jest.fn()});
+
+    // Assert
+    expect(onClick).toHaveBeenCalledTimes(1);
+    form.remove();
+  });
+
   it('should check criterion is visible', function () {
     // Prepare
     controller["invisible"] = false;

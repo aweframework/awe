@@ -374,6 +374,18 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getWindow", () -> i.getWindow(WINDOW));
     catalog.put("getWindowMaximized", () -> i.getWindow(WINDOW, true));
     catalog.put("getWindowMaximizeButton", () -> i.getWindowMaximizeButton(WINDOW));
+    catalog.put("getWindowAdvancedToggle", () -> i.getWindowAdvancedToggle(WINDOW));
+    catalog.put("getWindowAdvancedCount", () -> i.getWindowAdvancedCount(WINDOW));
+    catalog.put("getWindowFilterChips", () -> i.getWindowFilterChips(WINDOW));
+    catalog.put("getWindowFilterChip", () -> i.getWindowFilterChip(WINDOW, CRITERION));
+    catalog.put("getWindowFilterChip(hidden)", () -> i.getWindowFilterChip(WINDOW, CRITERION, true));
+    catalog.put("getWindowFilterChip(shown)", () -> i.getWindowFilterChip(WINDOW, CRITERION, false));
+    catalog.put("getWindowFilterChipRemove", () -> i.getWindowFilterChipRemove(WINDOW, CRITERION));
+    catalog.put("getWindowFilterClearAll", () -> i.getWindowFilterClearAll(WINDOW));
+    catalog.put("getOpenWindowAdvancedPanel", () -> i.getOpenWindowAdvancedPanel(WINDOW));
+    catalog.put("getWindowAdvancedPanelButton(reset)", () -> i.getWindowAdvancedPanelButton(WINDOW, TestIds.WINDOW_ADVANCED_RESET));
+    catalog.put("getWindowAdvancedPanelButton(cancel)", () -> i.getWindowAdvancedPanelButton(WINDOW, TestIds.WINDOW_ADVANCED_CANCEL));
+    catalog.put("getWindowAdvancedPanelButton(apply)", () -> i.getWindowAdvancedPanelButton(WINDOW, TestIds.WINDOW_ADVANCED_APPLY));
     catalog.put("getTabComponent", () -> i.getTabComponent(TABS));
     catalog.put("getTabComponentMaximized", () -> i.getTabComponent(TABS, true));
     catalog.put("getTabMaximizeButton", () -> i.getTabMaximizeButton(TABS));

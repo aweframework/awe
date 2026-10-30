@@ -204,6 +204,20 @@ export const TestIds = Object.freeze({
   // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
   window: "window",
   windowMaximizeButton: "window-maximize-button",
+  // Advanced search of a window (#790; the instance is identified by the owner, the window id): the button that shows
+  // its advanced criteria (inline, "aria-expanded") or opens its side panel, with the count of the advanced criteria
+  // in use; the row of filters in effect with a chip per filter ("criterion-id"), its remove button and Clear all;
+  // the side panel and its Reset to defaults, Cancel and Show results buttons
+  windowAdvancedToggle: "window-advanced-toggle",
+  windowAdvancedCount: "window-advanced-count",
+  windowFilterChips: "window-filter-chips",
+  windowFilterChip: "window-filter-chip",
+  windowFilterChipRemove: "window-filter-chip-remove",
+  windowFilterClearAll: "window-filter-clear-all",
+  windowAdvancedPanel: "window-advanced-panel",
+  windowAdvancedReset: "window-advanced-reset",
+  windowAdvancedCancel: "window-advanced-cancel",
+  windowAdvancedApply: "window-advanced-apply",
   // Cards (the instance is identified by the owner) with their value, their trend delta and their target progress
   card: "card",
   cardValue: "card-value",
@@ -263,7 +277,9 @@ export const TestAttributes = Object.freeze({
   groupLevel: "data-group-level",
   column: "data-column",
   // React only: value of a control whose text repeats it (the page size of a grid)
-  value: "data-value"
+  value: "data-value",
+  // Criterion of a chip of the filters in effect of a window (#790)
+  filterId: "data-filter-id"
 });
 
 /**

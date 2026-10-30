@@ -531,4 +531,17 @@
     <java classname="com.almis.awe.test.service.DeferredLoad" method="reset"/>
   </service>
 
+  <!-- Customers of the advanced search test screen (#790), filtered by the criteria of each example -->
+  <service id="getAdvancedSearchCustomers">
+    <java classname="com.almis.awe.test.service.AdvancedSearchCustomers" method="getCustomers">
+      <service-parameter type="STRING" name="name"/>
+      <service-parameter type="STRING" name="status"/>
+      <service-parameter type="STRING" name="country"/>
+      <service-parameter type="STRING" name="segment"/>
+      <service-parameter type="STRING" name="minAmount"/>
+      <service-parameter type="STRING" name="createdFrom"/>
+      <service-parameter type="STRING" name="priority"/>
+    </java>
+  </service>
+
 </services>

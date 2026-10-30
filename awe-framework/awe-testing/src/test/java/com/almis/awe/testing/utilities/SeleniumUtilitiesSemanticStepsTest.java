@@ -3037,6 +3037,179 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldToggleTheAdvancedFiltersOfAWindowAndCheckTheirCountInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowAdvancedToggle("Win"), "Advanced filters 2");
+      show(instructions.getWindowAdvancedCount("Win"), "2");
+      show(instructions.getWindowAdvancedToggle("Clean"), "Advanced filters");
+
+      long start = performed();
+      utilities.toggleAdvancedFilters("Win");
+      assertThat(performed()).isGreaterThan(start);
+
+      assertThatCode(() -> {
+        utilities.checkAdvancedFiltersCount("Win", 2);
+        utilities.checkAdvancedFiltersCount("Clean", 0);
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersCount("Win", 3));
+      // The badge is shown, so the count is not 0
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersCount("Win", 0));
+      // A window without advanced search has no toggle to count
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersCount("Plain", 0));
+      assertThrows(AssertionFailedError.class, () -> utilities.toggleAdvancedFilters("Plain"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatAWindowWithoutAdvancedCriteriaHasNoAdvancedSearchInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindow("Plain"), "");
+      show(instructions.getWindow("Win"), "");
+      show(instructions.getWindowAdvancedToggle("Win"), "Advanced filters");
+      show(instructions.getWindow("Filtered"), "");
+      show(instructions.getWindowFilterChips("Filtered"), "Filtered by");
+
+      assertThatCode(() -> utilities.checkNoAdvancedFilters("Plain")).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoAdvancedFilters("Win"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoAdvancedFilters("Filtered"));
+      // The window must be there
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoAdvancedFilters("Missing"));
+    }
+  }
+
+  @Test
+  void shouldCheckTheFilterChipsOfAWindowAndTheirHiddenMarkInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowFilterChips("Win"), "Filtered by");
+      show(instructions.getWindowFilterChip("Win", "CrtAdv"), "Advanced");
+      show(instructions.getWindowFilterChip("Win", "CrtAdv", true), "Advanced");
+      show(instructions.getWindowFilterChip("Win", "CrtEss"), "Essential");
+      show(instructions.getWindowFilterChip("Win", "CrtEss", false), "Essential");
+
+      assertThatCode(() -> {
+        utilities.checkFilterChip("Win", "CrtAdv", true);
+        utilities.checkFilterChip("Win", "CrtEss", false);
+        utilities.checkNoFilterChip("Win", "CrtOther");
+        utilities.checkNoFilterChips("Clean");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkFilterChip("Win", "CrtAdv", false));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkFilterChip("Win", "CrtEss", true));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoFilterChip("Win", "CrtAdv"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoFilterChips("Win"));
+    }
+  }
+
+  @Test
+  void shouldRemoveAFilterChipAndClearAllTheFiltersOfAWindowInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowFilterChipRemove("Win", "CrtAdv"), "");
+      show(instructions.getWindowFilterClearAll("Win"), "Clear all");
+
+      long start = performed();
+      utilities.removeFilterChip("Win", "CrtAdv");
+      utilities.clearAllFilters("Win");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 2);
+
+      assertThrows(AssertionFailedError.class, () -> utilities.removeFilterChip("Win", "CrtOther"));
+      assertThrows(AssertionFailedError.class, () -> utilities.clearAllFilters("Clean"));
+    }
+  }
+
+  @Test
+  void shouldDriveTheAdvancedFiltersPanelOfAWindowInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getOpenWindowAdvancedPanel("Win"), "");
+      show(instructions.getWindowAdvancedPanelButton("Win", TestIds.WINDOW_ADVANCED_RESET), "Reset to defaults");
+      show(instructions.getWindowAdvancedPanelButton("Win", TestIds.WINDOW_ADVANCED_CANCEL), "Cancel");
+      show(instructions.getWindowAdvancedPanelButton("Win", TestIds.WINDOW_ADVANCED_APPLY), "Show results");
+
+      assertThatCode(() -> {
+        utilities.checkAdvancedFiltersPanelOpen("Win");
+        utilities.checkAdvancedFiltersPanelClosed("Closed");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersPanelOpen("Closed"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersPanelClosed("Win"));
+
+      long start = performed();
+      utilities.resetAdvancedFilters("Win");
+      utilities.cancelAdvancedFilters("Win");
+      utilities.applyAdvancedFilters("Win");
+      assertThat(performed()).isGreaterThanOrEqualTo(start + 3);
+
+      assertThrows(AssertionFailedError.class, () -> utilities.resetAdvancedFilters("Closed"));
+      assertThrows(AssertionFailedError.class, () -> utilities.cancelAdvancedFilters("Closed"));
+      assertThrows(AssertionFailedError.class, () -> utilities.applyAdvancedFilters("Closed"));
+    }
+  }
+
+  @Test
+  void shouldReadAndCheckTheVerticalPositionOfTheAdvancedFiltersToggleInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowAdvancedToggle("Win"), "Advanced filters");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // Box of the toggle: top, bottom and width
+      when(executor.executeScript(anyString(), any())).thenReturn("240.5|272.5|150");
+      assertThat(utilities.getAdvancedFiltersToggleTop("Win")).isEqualTo(240.5);
+      assertThatCode(() -> utilities.checkAdvancedFiltersToggleTop("Win", 240)).doesNotThrowAnyException();
+
+      // It has moved
+      when(executor.executeScript(anyString(), any())).thenReturn("300|332|150");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersToggleTop("Win", 240));
+      // A window without advanced search has no toggle
+      assertThrows(AssertionFailedError.class, () -> utilities.getAdvancedFiltersToggleTop("Plain"));
+    }
+  }
+
+  @Test
+  void shouldCheckThatACriterionIsAboveOrBelowTheAdvancedFiltersRowInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowAdvancedToggle("Win"), "Advanced filters");
+      show(instructions.getCriterion("CrtEss"), "");
+      show(instructions.getCriterion("CrtAdv"), "");
+      JavascriptExecutor executor = (JavascriptExecutor) driver;
+
+      // Box of the toggle, then box of the criterion: top, bottom and width
+      when(executor.executeScript(anyString(), any())).thenReturn("240|272|150", "300|360|320");
+      assertThatCode(() -> utilities.checkCriterionBelowAdvancedFilters("Win", "CrtAdv")).doesNotThrowAnyException();
+      when(executor.executeScript(anyString(), any())).thenReturn("240|272|150", "170|230|320");
+      assertThatCode(() -> utilities.checkCriterionAboveAdvancedFilters("Win", "CrtEss")).doesNotThrowAnyException();
+
+      // Over the toggle, or overlapping it
+      when(executor.executeScript(anyString(), any())).thenReturn("240|272|150", "170|230|320");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionBelowAdvancedFilters("Win", "CrtEss"));
+      when(executor.executeScript(anyString(), any())).thenReturn("240|272|150", "250|310|320");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionBelowAdvancedFilters("Win", "CrtAdv"));
+      when(executor.executeScript(anyString(), any())).thenReturn("240|272|150", "300|360|320");
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionAboveAdvancedFilters("Win", "CrtAdv"));
+      // A hidden criterion has no place
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionBelowAdvancedFilters("Win", "CrtHidden"));
+    }
+  }
+
+  @Test
+  void shouldCheckWhetherACriterionIsShownInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getCriterion("CrtShown"), "");
+
+      assertThatCode(() -> {
+        utilities.checkCriterionVisible("CrtShown");
+        utilities.checkCriterionNotVisible("CrtHidden");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionVisible("CrtHidden"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionNotVisible("CrtShown"));
+    }
+  }
+
+  @Test
   void shouldMaximizeAndRestoreATabComponentInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);

@@ -175,6 +175,18 @@ export const TestIds = Object.freeze({
   // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
   window: "window",
   windowMaximizeButton: "window-maximize-button",
+  // Advanced search of a window (#790; owner: window id): the toggle of the advanced criteria with its counter badge,
+  // the filters in effect (row, chip, chip remove button, Clear all) and the side panel with its footer buttons
+  windowAdvancedToggle: "window-advanced-toggle",
+  windowAdvancedCount: "window-advanced-count",
+  windowFilterChips: "window-filter-chips",
+  windowFilterChip: "window-filter-chip",
+  windowFilterChipRemove: "window-filter-chip-remove",
+  windowFilterClearAll: "window-filter-clear-all",
+  windowAdvancedPanel: "window-advanced-panel",
+  windowAdvancedReset: "window-advanced-reset",
+  windowAdvancedCancel: "window-advanced-cancel",
+  windowAdvancedApply: "window-advanced-apply",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the global loading bar with its spinner
   loader: "loader",
   loadingBar: "loading-bar",
@@ -230,5 +242,7 @@ export const TestAttributes = Object.freeze({
   column: "data-column",
   // A chart has been drawn, and it is zoomed (shows a part of its range)
   rendered: "data-rendered",
-  zoomed: "data-zoomed"
+  zoomed: "data-zoomed",
+  // Criterion of a chip of the filters in effect of a window (#790)
+  filterId: "data-filter-id"
 });
