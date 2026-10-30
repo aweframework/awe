@@ -859,33 +859,6 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  void testAddFavourite() throws Exception {
-    // The favourites target takes the user of the session
-    mockMvc.perform(post("/session/set/user").with(csrf()).param("value", "test").session(session))
-      .andExpect(status().isOk());
-    String maintainName = "addToFavourites";
-    String variables = "\"user\": \"test\", \"option\": \"themes\",";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
-    String result = launchMaintain(maintainName, variables, expected);
-    logger.debug(result);
-    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-      new MaintainResultDetails(MaintainType.INSERT, 1L)
-    });
-
-    variables = "\"user\": \"test\", \"option\": \"users\",";
-    result = launchMaintain(maintainName, variables, expected);
-    logger.debug(result);
-    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-      new MaintainResultDetails(MaintainType.INSERT, 1L)
-    });
-  }
-
-  /**
-   * Test of launchAction method, of class ActionController.
-   *
-   * @throws Exception Test error
-   */
-  @Test
   @Tag("NotOracleDatabase")
   void testGridMultipleAutoIncrement() throws Exception {
     String maintainName = "GridMultipleAutoIncrement";

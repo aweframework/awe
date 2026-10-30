@@ -78,6 +78,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Redirecciones del inicio de sesión (#783) | Una petición de navegador sin autenticar se redirige a `Location: /` en lugar de a una URL absoluta. | Nada, salvo que algo analice la URL absoluta: acepte una relativa. Las implementaciones propias de `AuthorizationManager` deben recibir `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
+| Targets de maintain solo de servidor (#886, nuevo) | Una petición de cliente (`/action/maintain`, los endpoints de maintain de ficheros, `/api/maintain`) que lanza uno de los targets del framework que solo lanza Java (por ejemplo `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) falla ahora con el error de *lanzamiento de maintain sin autorización*, incluso con sesión. | Lance el target de cliente que lo envuelve (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) o llame al servicio Java. Marque los targets propios que solo lanza Java con `server-only="true"`. | [Targets de maintain solo de servidor](#server-only-maintain-targets), [Targets solo de servidor](../api/maintain-definition.md#server-only-targets) |
 | Utilidades de fecha (#782) | El compilador avisa de que los métodos de `DateUtil` que reciben o devuelven `java.util.Date` o `Calendar` están deprecados. | Nada obligatorio: mantienen su comportamiento y no se eliminan antes de la 6.0. Pase a los métodos `java.time` de `com.almis.awe.model.util.data.date`. | [Utilidades de fecha](#date-utilities) |
 | MenuService (#782) | Solo para proyectos que extienden `MenuService`: un método que sobrescriba ya no lo llaman los demás métodos de `MenuService` (por ejemplo, sobrescribir `getOptionByName` ya no cambia `getOptionScreen`). El compilador avisa de que el constructor de siete argumentos de `MenuService` está deprecado. | Nada si solo llama a `MenuService`. Si lo extiende, lleve la personalización a su propio bean del colaborador que contiene el método. | [MenuService](#menuservice) |
 | Spring Session con Redis (#861) | Con varias instancias, los usuarios pierden la sesión al azar y las pantallas fallan tras el login (por ejemplo `Index 0 out of bounds for length 0`): la cookie de sesión es `JSESSIONID` en lugar de `SESSION`, porque las sesiones se quedan en cada servidor. | Sustituya `spring-session-data-redis` por `spring-boot-starter-session-data-redis`, renombre `spring.session.redis.*` a `spring.session.data.redis.*` y actualice las clases de Redis en `spring.autoconfigure.exclude`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
@@ -359,6 +360,26 @@ La incidencia #781 ejecuta cada maintain dentro de una transacción de su dataso
 
 Defina `awe.maintain.transaction.enabled=false` para recuperar el comportamiento de AWE 4. Consulte
 [Transacciones](../api/maintain-definition.md#transactions).
+
+### Targets de maintain solo de servidor {#server-only-maintain-targets}
+
+La incidencia #886 añade el atributo `server-only` a `<target>`. Un target solo de servidor se rechaza en cualquier
+petición de cliente, aunque venga de un usuario con sesión, y se sigue ejecutando cuando lo lanza el servidor con
+`MaintainService.launchPrivateMaintain` (servicios Java, el planificador). En AWE 4 cualquier usuario con sesión podía
+lanzar cualquier target no público con los parámetros que quisiera, así que un usuario podía cambiar los datos de otro
+usuario a través de los targets que el framework solo lanza desde Java.
+
+El framework marca 39 de sus targets como solo de servidor: los targets de usuario, contraseña, segundo factor, bloqueo
+y SSO lanzados desde Java, los de ajustes de usuario, favoritos, avatar y diseño de grid, los de restricciones de menú y
+los internos del notificador y del planificador. La lista completa está en la
+[auditoría de los targets del framework](../api/maintain-definition.md#maintain-targets-audit).
+
+- Una pantalla, código de cliente o cliente REST que lanzaba uno de ellos directamente recibe ahora un error. Lance el
+  target de cliente que lo envuelve, o el servicio Java.
+- Marque con `server-only="true"` los targets de la aplicación que solo lanza Java, sobre todo los que toman un usuario
+  de los parámetros.
+- Un target que un cliente lanza sobre el usuario con sesión debe leer el usuario de la sesión
+  (`<variable ... session="user"/>`), nunca de la petición.
 
 ### Utilidades de fecha {#date-utilities}
 
@@ -1011,6 +1032,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
+- [ ] No client code, screen or REST client of the application launches a framework target that is now `server-only`; own Java-only targets are marked `server-only="true"`
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)

@@ -21,6 +21,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PublicQueryMaintainAuthorizationTest {
 
+  private static final String ACTION_MAINTAIN = "/action/maintain";
+  private static final String ACTION_MAINTAIN_SILENT = "/action/maintain-silent";
+  private static final String ACTION_GET_FILE_MAINTAIN = "/action/get-file-maintain";
+  private static final String FILE_STREAM_MAINTAIN = "/file/stream/maintain";
+  private static final String FILE_DOWNLOAD_MAINTAIN = "/file/download/maintain";
+  private static final String API_MAINTAIN = "/api/maintain";
+  private static final String API_PUBLIC_MAINTAIN = "/api/public/maintain";
+
   @InjectMocks
   PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
   @Mock
@@ -88,13 +96,13 @@ class PublicQueryMaintainAuthorizationTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "/action/maintain",
-    "/action/maintain-silent",
-    "/action/get-file-maintain",
-    "/file/stream/maintain",
-    "/file/download/maintain",
-    "/api/maintain",
-    "/api/public/maintain"
+    ACTION_MAINTAIN,
+    ACTION_MAINTAIN_SILENT,
+    ACTION_GET_FILE_MAINTAIN,
+    FILE_STREAM_MAINTAIN,
+    FILE_DOWNLOAD_MAINTAIN,
+    API_MAINTAIN,
+    API_PUBLIC_MAINTAIN
   })
   void givenNullAweElement_checkIsPublicMaintain_shouldReturnTrue(String action) throws AWException {
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -105,13 +113,13 @@ class PublicQueryMaintainAuthorizationTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "/action/maintain",
-    "/action/maintain-silent",
-    "/action/get-file-maintain",
-    "/file/stream/maintain",
-    "/file/download/maintain",
-    "/api/maintain",
-    "/api/public/maintain"
+    ACTION_MAINTAIN,
+    ACTION_MAINTAIN_SILENT,
+    ACTION_GET_FILE_MAINTAIN,
+    FILE_STREAM_MAINTAIN,
+    FILE_DOWNLOAD_MAINTAIN,
+    API_MAINTAIN,
+    API_PUBLIC_MAINTAIN
   })
   void givenNullAweElement_checkIsPublicMaintain_shouldReturnFalse(String action) throws AWException {
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -122,18 +130,35 @@ class PublicQueryMaintainAuthorizationTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "/action/maintain",
-    "/action/maintain-silent",
-    "/action/get-file-maintain",
-    "/file/stream/maintain",
-    "/file/download/maintain",
-    "/api/maintain",
-    "/api/public/maintain"
+    ACTION_MAINTAIN,
+    ACTION_MAINTAIN_SILENT,
+    ACTION_GET_FILE_MAINTAIN,
+    FILE_STREAM_MAINTAIN,
+    FILE_DOWNLOAD_MAINTAIN,
+    API_MAINTAIN,
+    API_PUBLIC_MAINTAIN
   })
   void givenNullAweElement_checkIsPublicMaintain_shouldReturnNull(String action) throws AWException {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI(action + "/foo");
     when(elements.getMaintain(anyString())).thenReturn(null);
     assertThrows(AuthorizationServiceException.class, () -> publicQueryMaintainAuthorization.isPublicMaintain(request));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    ACTION_MAINTAIN,
+    ACTION_MAINTAIN_SILENT,
+    ACTION_GET_FILE_MAINTAIN,
+    FILE_STREAM_MAINTAIN,
+    FILE_DOWNLOAD_MAINTAIN,
+    API_MAINTAIN,
+    API_PUBLIC_MAINTAIN
+  })
+  void givenServerOnlyMaintain_checkIsPublicMaintain_shouldReturnFalse(String action) throws AWException {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setRequestURI(action + "/foo");
+    when(elements.getMaintain(anyString())).thenReturn(new Target().setIsPublic(true).setServerOnly(true));
+    assertFalse(publicQueryMaintainAuthorization.isPublicMaintain(request));
   }
 }

@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Structural (golden) checks on {@code global/Maintain.xml}: the three new database-mode
  * execution log targets exist with the expected key columns, {@code loadExecutionScreen}'s
  * locator variable is store-neutral, and the shared {@code purgeExecutionLogs} target (constant
- * {@code PURGE_EXECUTION_LOGS}) is byte-identical to before this change — a diff-based assertion
+ * {@code PURGE_EXECUTION_LOGS}) is byte-identical to before this change, except for the server-only
+ * mark (#886) — a diff-based assertion
  * so any accidental future edit fails loudly.
  */
 class MaintainXmlTest {
@@ -24,7 +25,7 @@ class MaintainXmlTest {
 
   // Whitespace-normalized: unaffected by incidental re-indentation, strict about content/order.
   private static final String UNCHANGED_PURGE_EXECUTION_LOGS_TARGET =
-    "<target name=\"purgeExecutionLogs\"> <delete> <table id=\"AweSchExe\" /> <where> "
+    "<target name=\"purgeExecutionLogs\" server-only=\"true\"> <delete> <table id=\"AweSchExe\" /> <where> "
       + "<filter left-field=\"IdeTsk\" condition=\"eq\" right-variable=\"taskId\"/> "
       + "<filter left-field=\"ExeTsk\" condition=\"in\" right-variable=\"executions\"/> </where> "
       + "<variable id=\"taskId\" type=\"INTEGER\" name=\"taskId\" /> "
@@ -34,7 +35,7 @@ class MaintainXmlTest {
   void purgeExecutionLogsTargetIsByteIdenticalToBeforeThisChange() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"purgeExecutionLogs\">");
+    int start = xml.indexOf("<target name=\"purgeExecutionLogs\" server-only=\"true\">");
     int end = xml.indexOf("</target>", start) + "</target>".length();
     assertTrue(start >= 0, "purgeExecutionLogs target must exist");
     String target = xml.substring(start, end);
@@ -59,7 +60,7 @@ class MaintainXmlTest {
   void insertExecutionLogLinesInsertsKeyedByTaskExecutionSectionAndSlot() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"insertExecutionLogLines\">");
+    int start = xml.indexOf("<target name=\"insertExecutionLogLines\" server-only=\"true\">");
     int end = xml.indexOf("</target>", start);
     assertTrue(start >= 0, "insertExecutionLogLines target must exist");
     String target = xml.substring(start, end);
@@ -79,7 +80,7 @@ class MaintainXmlTest {
   void updateExecutionLogLinesUpdatesKeyedByTaskExecutionSectionAndSlot() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"updateExecutionLogLines\">");
+    int start = xml.indexOf("<target name=\"updateExecutionLogLines\" server-only=\"true\">");
     int end = xml.indexOf("</target>", start);
     assertTrue(start >= 0, "updateExecutionLogLines target must exist");
     String target = xml.substring(start, end);
@@ -98,7 +99,7 @@ class MaintainXmlTest {
   void purgeExecutionLogLinesDeletesKeyedByTaskAndExecution() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"purgeExecutionLogLines\">");
+    int start = xml.indexOf("<target name=\"purgeExecutionLogLines\" server-only=\"true\">");
     int end = xml.indexOf("</target>", start);
     assertTrue(start >= 0, "purgeExecutionLogLines target must exist");
     String target = xml.substring(start, end);

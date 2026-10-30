@@ -85,8 +85,49 @@ El elemento target tiene los siguientes atributos:
 |-----------|--------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | name      | **Obligatorio** | String  | Identificador del maintain                                      | **Nota:**  El nombre debe ser único                                                                                 |
 | public    | Opcional     | Boolean | Para establecer que una query se pueda lanzar fuera de sesión (sin haber iniciado sesión) | Por defecto es `false`                                                        |                 
+| server-only | Opcional   | Boolean | Para rechazar el target ante cualquier petición de un cliente; solo lo puede lanzar el servidor | Por defecto es `false`. Ver [targets server-only](#server-only-targets) |
 | label     | Opcional     | String  | Se usa para establecer el mensaje de salida tras ejecutar el mantenimiento | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)                               | 
 | exclusive | Opcional     | Boolean | Para restringir la ejecución concurrente del target                | Establece este atributo a `true` si no quieres que el target se ejecute de forma concurrente (varios usuarios a la vez) |
+
+#### Targets server-only {#server-only-targets}
+
+Un target marcado con `server-only="true"` solo lo puede lanzar el servidor (un servicio Java, el planificador...) mediante `MaintainService.launchPrivateMaintain`. Cualquier petición de un cliente se rechaza con el error *launching maintain without authorization*, **incluso con el usuario autenticado**: `/action/maintain` (también las variantes silenciosa y asíncrona), los endpoints de maintain de ficheros, `/api/maintain`, `/api/maintain/async` y `/api/public/maintain`.
+
+```xml
+<target name="store2faSecret" server-only="true">
+  <update>...</update>
+</target>
+```
+
+Úsalo en todo target que un cliente no deba lanzar por sí mismo, sobre todo los que leen el usuario afectado (o cualquier otro valor relevante para la seguridad) de un parámetro de la petición: el servidor fija los parámetros que necesita al lanzar el target.
+
+| Combinación de atributos                 | Petición de un cliente                                                                      | Lanzamiento del servidor (`launchPrivateMaintain`) |
+|------------------------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------|
+| ni `public` ni `server-only`             | Necesita una sesión iniciada                                                                | Permitido                                          |
+| `public="true"`                          | Permitida sin sesión                                                                        | Permitido                                          |
+| `server-only="true"`                     | **Rechazada**, incluso con sesión                                                           | Permitido                                          |
+| `public="true"` y `server-only="true"`   | **Rechazada**: gana `server-only` (nunca se trata como público y se registra un aviso)      | Permitido                                          |
+
+Un target de cliente puede seguir *incluyendo* un target server-only (`<include target="..."/>`) o llamar a un servicio Java que lo lance: la restricción se aplica a la petición, no a los targets que el servidor ejecuta en nombre del cliente.
+
+##### Auditoría de los targets maintain del framework {#maintain-targets-audit}
+
+Cualquier usuario autenticado puede lanzar un target que no sea `server-only` con los parámetros que elija. Estos son los grupos principales de targets del framework:
+
+| Grupo | Targets | Motivo |
+|-------|---------|--------|
+| Usuario tomado de la sesión | `updateUserData`, `ChdPwd`, `UsrUpdPwd`, `loginUser`, `logoutUser`, `MgrUsrLogIn`, `update2faStatus`, `clickFavourite`, `selectDarkMode`, `selectLightMode`, `selectComfortableDensity`, `selectCompactDensity`, `saveUserAvatar`, `upsertUserAvatar`, `saveGridLayout`, `resetGridLayout`, `read-notification`, `toggle-notifications`, `toggle-web-subscription`, `toggle-email-subscription` | Los usan las pantallas del usuario. El usuario afectado se lee de la sesión (`session="user"`) o lo resuelve un servicio Java, nunca de la petición. |
+| Flujo público de acceso | `login`, `logout`, `MgrUsrLogOut`, `ChdPwdExpired`, `ChdPwdPub`, `verify2faCode` | Se ejecutan antes de que exista la sesión. `ChdPwdPub` y `ChdPwdExpired` delegan en un servicio que comprueba la contraseña actual antes de cambiar nada. |
+| Pantallas de administración | `UsrNew`, `UsrUpd`, `UsrDel`, `UsrUnl`, `reset2fa`, `ModNew`, `ModUpd`, `ModDel`, `SitNew`, `SitUpd`, `SitDel`, `ProNew`, `ProUpd`, `ProDel`, `updateScreenRestriction`, `updateScreenRestrictionNew`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction`, `updateScreenConfiguration`, `StlCnfMul`, `AweKeyUpd`, `AweAppParMul`, `AppParSecUpd`, `ThmNew`, `ThmUpd`, `ThmDel`, `DbsNew`, `DbsUpd`, `DbsDel`, `OptUpd`, `new-subscription`, `update-subscription`, `delete-subscriptions` y los targets de servidores, tareas y calendarios del planificador | Las pantallas de administración trabajan sobre otros usuarios y sobre la configuración, por id o por nombre. |
+| Server-only | `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `ProvisionNewUser`, `UpdateOauthUserProfile`, `UsrRehashPwd`, `ChdPwdExpiredUpdate`, `UsrUpdPwdUpdate`, `ChdPwdPubUpdate`, `addUserSettings`, `updateUserMode`, `updateUserDensity`, `addToFavourites`, `removeFromFavourites`, `insertUserAvatar`, `updateUserAvatar`, `insertGridLayout`, `updateGridLayout`, `deleteGridLayout`, `new-restriction`, `update-restriction`, `delete-restriction`, `new-notification`, `notify-email-users`, `insert-user-subscription`, `update-user-subscription` y los targets de gestión interna del planificador (`insertFile`, `updateFile`, `deleteFile`, `startTask`, `endTask`, `updateTaskStatus`, `updateInterruptedTasks`, `updateExecutionTime`, `purgeExecutionLogs`, `insertExecutionLogLines`, `updateExecutionLogLines`, `purgeExecutionLogLines`, `purgeExecutionLogOrigin`) | Solo los lanza Java. Antes de AWE 5 un usuario autenticado podía lanzarlos contra cualquier usuario (por ejemplo, para guardar un secreto 2FA o cambiar el perfil de otro usuario). |
+
+El resto de targets de cliente (informes, correos, mensajes, colas, utilidades de las pantallas) no modifican datos de un usuario.
+
+:::warning
+Los targets de administración no están ligados al acceso a su pantalla: cualquier usuario autenticado puede lanzarlos con `/action/maintain`. Restringir un target a los perfiles que pueden abrir su pantalla no forma parte de `server-only`.
+:::
+
+Un test automático (`MaintainDescriptorGuardTest`) rompe la compilación cuando un target que lanza Java no es `server-only`, o cuando un target que puede lanzar un cliente lee un usuario de la petición en lugar de la sesión sin estar en la lista auditada de targets de administración y de acceso.
 
 #### Elemento table {#table-element}
 

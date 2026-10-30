@@ -574,6 +574,12 @@ public class MaintainService extends ServiceConfig {
         // Get maintain
         maintain = getElements().getMaintain(maintainId).copy();
 
+        // A server-only target can never be launched from a client request, whatever the session or public flag
+        if (checkAvailable && maintain.isServerOnly()) {
+          log.warn("Client launch of server-only maintain [{}] refused{}", maintainId, maintain.isPublic() ? " (public flag ignored)" : "");
+          throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+        }
+
         // If query is private, check security
         if (checkAvailable && !maintain.isPublic() && !getSession().isAuthenticated()) {
           throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));

@@ -54,6 +54,11 @@ public class Target implements XMLNode, Copyable {
   @XStreamAsAttribute
   private Boolean isPublic;
 
+  // Target can only be launched from the server (never from a client request)
+  @XStreamAlias("server-only")
+  @XStreamAsAttribute
+  private Boolean serverOnly;
+
   // Target Query List
   @XStreamImplicit
   private List<MaintainQuery> queryList;
@@ -69,6 +74,15 @@ public class Target implements XMLNode, Copyable {
    */
   public boolean isPublic() {
     return isPublic != null && isPublic;
+  }
+
+  /**
+   * Returns if the target can only be launched from the server
+   *
+   * @return Is server only
+   */
+  public boolean isServerOnly() {
+    return serverOnly != null && serverOnly;
   }
 
   @JsonIgnore
