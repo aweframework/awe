@@ -2,6 +2,7 @@ package com.almis.awe.security.authorization;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.entities.maintain.Target;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -89,8 +90,10 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
     // Check if target is a public maintain
     String target = getTarget(request);
     try {
-      return Optional.ofNullable(elements.getMaintain(target))
-              .orElseThrow(() -> new AuthorizationServiceException("Maintain not found: " + target)).isPublic();
+      Target maintain = Optional.ofNullable(elements.getMaintain(target))
+              .orElseThrow(() -> new AuthorizationServiceException("Maintain not found: " + target));
+      // A server-only maintain is never public, even if it is flagged as such
+      return maintain.isPublic() && !maintain.isServerOnly();
     } catch (AWException ex) {
       log.warn("Maintain not found: " + target);
       return false;

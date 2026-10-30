@@ -775,7 +775,7 @@
   SCHEDULER CALENDAR
   -->
   <!-- insert new file -->
-  <target name="insertFile">
+  <target name="insertFile" server-only="true">
     <insert>
       <table id="AweSchTskFilMod" />
       <field id="IdeTsk" variable="IdeTsk"/>
@@ -788,7 +788,7 @@
   </target>
 
   <!-- update new file -->
-  <target name="updateFile">
+  <target name="updateFile" server-only="true">
     <update>
       <table id="AweSchTskFilMod" />
       <field id="ModDat" variable="ModDat"/>
@@ -805,7 +805,7 @@
   </target>
 
   <!-- delete new file -->
-  <target name="deleteFile">
+  <target name="deleteFile" server-only="true">
     <delete>
       <table id="AweSchTskFilMod" />
       <where>
@@ -820,7 +820,7 @@
   </target>
 
   <!-- Start a task -->
-  <target name="startTask">
+  <target name="startTask" server-only="true">
     <insert>
       <table id="AweSchExe" />
       <field id="IdeTsk" variable="taskId"/>
@@ -844,7 +844,7 @@
   </target>
 
   <!-- Delete execution logs -->
-  <target name="purgeExecutionLogs">
+  <target name="purgeExecutionLogs" server-only="true">
     <delete>
       <table id="AweSchExe" />
       <where>
@@ -857,7 +857,7 @@
   </target>
 
   <!-- End a task -->
-  <target name="endTask">
+  <target name="endTask" server-only="true">
     <update>
       <table id="AweSchExe" />
       <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
@@ -882,7 +882,7 @@
   </target>
 
   <!-- End a task -->
-  <target name="updateExecutionTime">
+  <target name="updateExecutionTime" server-only="true">
     <update>
       <table id="AweSchExe" />
       <field id="ExeTim" variable="executionTime"/>
@@ -899,7 +899,7 @@
   </target>
 
   <!-- Change a task status -->
-  <target name="updateTaskStatus">
+  <target name="updateTaskStatus" server-only="true">
     <update>
       <table id="AweSchExe" />
       <field id="Sta" variable="status"/>
@@ -917,7 +917,7 @@
     </update>
   </target>
 
-  <target name="updateInterruptedTasks">
+  <target name="updateInterruptedTasks" server-only="true">
     <update>
       <table id="AweSchExe" />
       <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
@@ -959,7 +959,7 @@
   </target>
 
   <!-- Insert database-mode execution log window rows (dirty slots never persisted before) -->
-  <target name="insertExecutionLogLines">
+  <target name="insertExecutionLogLines" server-only="true">
     <insert multiple="true">
       <table id="AweSchExeLog"/>
       <field id="IdeTsk" variable="taskId" key="true"/>
@@ -982,7 +982,7 @@
   </target>
 
   <!-- Update database-mode execution log window rows (dirty slots already persisted) -->
-  <target name="updateExecutionLogLines">
+  <target name="updateExecutionLogLines" server-only="true">
     <update multiple="true">
       <table id="AweSchExeLog"/>
       <field id="LinNum" variable="lineNumber"/>
@@ -1010,7 +1010,7 @@
 
   <!-- Delete stored execution log window rows for a set of (task, execution) keys, across every
        origin. Issued only by DatabaseExecutionLogStore: per-task purge, orphan purge. -->
-  <target name="purgeExecutionLogLines">
+  <target name="purgeExecutionLogLines" server-only="true">
     <delete multiple="true">
       <table id="AweSchExeLog"/>
       <where>
@@ -1027,7 +1027,7 @@
   <!-- Delete stored execution log window rows for a single (task, execution) key, scoped to one
        origin only. Issued only by ExecutionLogWriter's first flush per partition, so the other
        origin's rows for the same execution are never touched. -->
-  <target name="purgeExecutionLogOrigin">
+  <target name="purgeExecutionLogOrigin" server-only="true">
     <delete multiple="true">
       <table id="AweSchExeLog"/>
       <where>

@@ -85,8 +85,49 @@ Target element has the following attributes:
 |-----------|--------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | name      | **Required** | String  | Maintain identifier                                                | **Note:**  The name name must be unique                                                                             |
 | public    | Optional     | Boolean | To set a query as launchable out of session (without being logged) | By default is `false`                                                                                               |                 
+| server-only | Optional   | Boolean | To refuse the target to any client request; only the server can launch it | By default is `false`. See [server-only targets](#server-only-targets) |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                          | 
 | exclusive | Optional     | Boolean | To restrict the concurrently execution  of target                  | set this attribute to `true` if you don't want the target to be executed concurrently (some users at the same time) |
+
+#### Server-only targets {#server-only-targets}
+
+A target marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `MaintainService.launchPrivateMaintain`. Any request from a client is refused with the *launching maintain without authorization* error, **even when the user is signed in**: `/action/maintain` (also the silent and asynchronous variants), the file maintain endpoints, `/api/maintain`, `/api/maintain/async` and `/api/public/maintain`.
+
+```xml
+<target name="store2faSecret" server-only="true">
+  <update>...</update>
+</target>
+```
+
+Use it for every target that a client must never drive by itself, especially the ones that read the affected user (or any other security-relevant value) from a request parameter: the server sets the parameters it needs when it launches the target.
+
+| Attribute combination                    | Client request                                                                            | Server launch (`launchPrivateMaintain`) |
+|------------------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------------|
+| neither `public` nor `server-only`       | Needs a signed-in session                                                                 | Allowed                                 |
+| `public="true"`                          | Allowed without a session                                                                 | Allowed                                 |
+| `server-only="true"`                     | **Refused**, even with a session                                                          | Allowed                                 |
+| `public="true"` and `server-only="true"` | **Refused**: `server-only` wins (it is never treated as public, and a warning is logged)  | Allowed                                 |
+
+A client target can still *include* a server-only target (`<include target="..."/>`) or call a Java service that launches it: the restriction applies to the request, not to the targets that the server runs on behalf of the client.
+
+##### Audit of the framework maintain targets {#maintain-targets-audit}
+
+Any signed-in user can launch a target that is not `server-only` with the parameters it chooses. These are the main groups of the targets of the framework:
+
+| Group | Targets | Why |
+|-------|---------|-----|
+| User taken from the session | `updateUserData`, `ChdPwd`, `UsrUpdPwd`, `loginUser`, `logoutUser`, `MgrUsrLogIn`, `update2faStatus`, `clickFavourite`, `selectDarkMode`, `selectLightMode`, `selectComfortableDensity`, `selectCompactDensity`, `saveUserAvatar`, `upsertUserAvatar`, `saveGridLayout`, `resetGridLayout`, `read-notification`, `toggle-notifications`, `toggle-web-subscription`, `toggle-email-subscription` | The user screens use them. The affected user is read from the session (`session="user"`) or resolved by a Java service, never from the request. |
+| Public login flow | `login`, `logout`, `MgrUsrLogOut`, `ChdPwdExpired`, `ChdPwdPub`, `verify2faCode` | They run before the session exists. `ChdPwdPub` and `ChdPwdExpired` delegate to a service that checks the current password before it changes anything. |
+| Administration screens | `UsrNew`, `UsrUpd`, `UsrDel`, `UsrUnl`, `reset2fa`, `ModNew`, `ModUpd`, `ModDel`, `SitNew`, `SitUpd`, `SitDel`, `ProNew`, `ProUpd`, `ProDel`, `updateScreenRestriction`, `updateScreenRestrictionNew`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction`, `updateScreenConfiguration`, `StlCnfMul`, `AweKeyUpd`, `AweAppParMul`, `AppParSecUpd`, `ThmNew`, `ThmUpd`, `ThmDel`, `DbsNew`, `DbsUpd`, `DbsDel`, `OptUpd`, `new-subscription`, `update-subscription`, `delete-subscriptions` and the scheduler server, task and calendar targets | The administration screens work on other users and on the configuration, by id or name. |
+| Server-only | `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `ProvisionNewUser`, `UpdateOauthUserProfile`, `UsrRehashPwd`, `ChdPwdExpiredUpdate`, `UsrUpdPwdUpdate`, `ChdPwdPubUpdate`, `addUserSettings`, `updateUserMode`, `updateUserDensity`, `addToFavourites`, `removeFromFavourites`, `insertUserAvatar`, `updateUserAvatar`, `insertGridLayout`, `updateGridLayout`, `deleteGridLayout`, `new-restriction`, `update-restriction`, `delete-restriction`, `new-notification`, `notify-email-users`, `insert-user-subscription`, `update-user-subscription` and the scheduler bookkeeping targets (`insertFile`, `updateFile`, `deleteFile`, `startTask`, `endTask`, `updateTaskStatus`, `updateInterruptedTasks`, `updateExecutionTime`, `purgeExecutionLogs`, `insertExecutionLogLines`, `updateExecutionLogLines`, `purgeExecutionLogLines`, `purgeExecutionLogOrigin`) | Only Java launches them. Before AWE 5 a signed-in user could drive them against any user (for example, to store a 2FA secret or change the profile of another user). |
+
+The rest of the client targets (reports, e-mails, messages, queues, utilities of the screens) do not change the data of a user.
+
+:::warning
+The administration targets are not bound to the access to their screen: any signed-in user can still launch them with `/action/maintain`. Restricting a target to the profiles that can open its screen is not part of `server-only`.
+:::
+
+An automated test (`MaintainDescriptorGuardTest`) fails the build when a target that Java launches is not `server-only`, or when a target that a client can launch reads a user from the request instead of the session without being in the audited list of administration and login targets.
 
 #### Table element
 

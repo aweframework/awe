@@ -78,6 +78,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Login redirects (#783) | An unauthenticated browser request is redirected to `Location: /` instead of an absolute URL. | Nothing, unless something parses the absolute URL: accept a relative one. Custom `AuthorizationManager` implementations must take `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
+| Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *launching maintain without authorization* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
 | Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
@@ -345,6 +346,26 @@ default). Compared with AWE 4:
   should not be `@Transactional`.
 
 Set `awe.maintain.transaction.enabled=false` to get the AWE 4 behavior. See [Transactions](../api/maintain-definition.md#transactions).
+
+### Server-only maintain targets
+
+Issue #886 adds the `server-only` attribute to `<target>`. A server-only target is refused to any client request, even
+from a signed-in user, and still runs when the server launches it with `MaintainService.launchPrivateMaintain` (Java
+services, the scheduler). In AWE 4 any signed-in user could launch any target that was not public, with the parameters
+of its choice, so a user could change the data of another user through the targets that the framework only launches
+from Java.
+
+The framework marks 39 of its targets as server-only: the user, password, second factor, lockout and SSO targets
+launched from Java, the user settings, favourites, avatar and grid layout targets, the menu restriction targets, and the
+internal targets of the notifier and the scheduler. The full list is in the
+[audit of the framework targets](../api/maintain-definition.md#maintain-targets-audit).
+
+- A screen, client code or REST client that launched one of them directly gets an error now. Launch the client target
+  that wraps it, or the Java service.
+- Mark with `server-only="true"` the targets of the application that only Java launches, especially those that take a
+  user from the parameters.
+- A target that a client launches about the signed-in user must read the user from the session
+  (`<variable ... session="user"/>`), never from the request.
 
 ### Date utilities
 
@@ -984,6 +1005,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
+- [ ] No client code, screen or REST client of the application launches a framework target that is now `server-only`; own Java-only targets are marked `server-only="true"`
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)

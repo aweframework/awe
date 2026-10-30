@@ -66,7 +66,7 @@ class NotifierServiceTest {
 
     // Assert
     verify(queryService, times(1)).launchPrivateQuery(anyString());
-    verify(maintainService, times(1)).launchMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
+    verify(maintainService, times(1)).launchPrivateMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
   }
 
   @Test
@@ -83,7 +83,7 @@ class NotifierServiceTest {
 
     // Assert
     verify(queryService, times(1)).launchPrivateQuery(anyString());
-    verify(maintainService, times(1)).launchMaintain(eq("update-user-subscription"), any(ObjectNode.class));
+    verify(maintainService, times(1)).launchPrivateMaintain(eq("update-user-subscription"), any(ObjectNode.class));
   }
 
   @Test
@@ -95,7 +95,7 @@ class NotifierServiceTest {
 
     // Assert
     verify(queryService, times(1)).launchPrivateQuery(anyString());
-    verify(maintainService, times(1)).launchMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
+    verify(maintainService, times(1)).launchPrivateMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
   }
 
   @Test
@@ -112,7 +112,7 @@ class NotifierServiceTest {
 
     // Assert
     verify(queryService, times(1)).launchPrivateQuery(anyString());
-    verify(maintainService, times(1)).launchMaintain(eq("update-user-subscription"), any(ObjectNode.class));
+    verify(maintainService, times(1)).launchPrivateMaintain(eq("update-user-subscription"), any(ObjectNode.class));
   }
 
   @Test

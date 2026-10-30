@@ -63,7 +63,7 @@
     </insert>
   </target>
 
-  <target name="ProvisionNewUser">
+  <target name="ProvisionNewUser" server-only="true">
     <insert>
       <table id="ope"/>
       <field id="IdeOpe" sequence="OpeKey"/>
@@ -83,7 +83,7 @@
     </insert>
   </target>
 
-  <target name="UpdateOauthUserProfile">
+  <target name="UpdateOauthUserProfile" server-only="true">
     <update>
       <table id="ope"/>
       <field id="IdePro" query="GetProfileId"/>
@@ -175,7 +175,7 @@
 
   <!-- Stores the new password of UsrUpdPwd. Not public, and the user is never a request parameter (any signed in user can launch a
        target): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it launches this target -->
-  <target name="UsrUpdPwdUpdate">
+  <target name="UsrUpdPwdUpdate" server-only="true">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="Pwd"/>
@@ -236,7 +236,7 @@
 
   <!-- Stores the new password of an expired one. Not public, and the user is never a request parameter (any signed in user can launch a
        target): PasswordChangeService sets the session parameter expiredPasswordUser only while it launches this target -->
-  <target name="ChdPwdExpiredUpdate">
+  <target name="ChdPwdExpiredUpdate" server-only="true">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
@@ -255,7 +255,7 @@
   <!-- Stores a password rehashed with the configured algorithm after a successful login. Not public, and neither the user
        nor the hash are request parameters (any signed in user can launch a target): UserDAOImpl sets the session parameters
        passwordRehashUser and passwordRehashValue only while it launches this target -->
-  <target name="UsrRehashPwd">
+  <target name="UsrRehashPwd" server-only="true">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
@@ -300,7 +300,7 @@
   <!-- Stores the new password of ChdPwdPub. Not public, and the user is never a request parameter (anybody can launch a public target
        and any signed in user a private one): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it
        launches this target -->
-  <target name="ChdPwdPubUpdate">
+  <target name="ChdPwdPubUpdate" server-only="true">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
@@ -727,7 +727,7 @@
     </serve>
   </target>
 
-  <target name="new-restriction">
+  <target name="new-restriction" server-only="true">
     <insert audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -745,7 +745,7 @@
     </insert>
   </target>
 
-  <target name="update-restriction">
+  <target name="update-restriction" server-only="true">
     <update audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdePro" variable="profile"/>
@@ -778,7 +778,7 @@
     </update>
   </target>
 
-  <target name="delete-restriction">
+  <target name="delete-restriction" server-only="true">
     <delete audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdePro" variable="profile" audit="true"/>
@@ -1313,7 +1313,7 @@
   </target>
 
   <!-- Update count loggin -->
-  <target name="UpdCntLog">
+  <target name="UpdCntLog" server-only="true">
     <update>
       <table id="ope"/>
       <field id="NumLog" variable="NumLog"/>
@@ -1328,7 +1328,7 @@
   </target>
 
   <!-- Update flag password blocked -->
-  <target name="UpdPwdLck">
+  <target name="UpdPwdLck" server-only="true">
     <update>
       <table id="ope"/>
       <field id="PwdLck" variable="PwdLck"/>
@@ -1614,7 +1614,7 @@
     <serve service="generate-2fa-secret"/>
   </target>
 
-  <target name="store2faSecret">
+  <target name="store2faSecret" server-only="true">
     <update>
       <table id="ope"/>
       <field id="enable2fa" variable="enabled"/>
@@ -1685,7 +1685,7 @@
     </serve>
   </target>
 
-  <target name="addToFavourites">
+  <target name="addToFavourites" server-only="true">
     <insert>
       <table id="AweUsrFav"/>
       <field id="IdeFav" query="nextIdForFavourites"/>
@@ -1697,7 +1697,7 @@
     </insert>
   </target>
 
-  <target name="removeFromFavourites">
+  <target name="removeFromFavourites" server-only="true">
     <delete>
       <table id="AweUsrFav"/>
       <where>
@@ -1713,7 +1713,7 @@
   User settings (avatar)
   -->
 
-  <target name="insertUserAvatar">
+  <target name="insertUserAvatar" server-only="true">
     <insert>
       <table id="AweUserSettings"/>
       <field id="IdeUsrSet" query="nextIdForUserSettings"/>
@@ -1724,7 +1724,7 @@
     </insert>
   </target>
 
-  <target name="updateUserAvatar">
+  <target name="updateUserAvatar" server-only="true">
     <update>
       <table id="AweUserSettings"/>
       <field id="AvatarImage" variable="avatarToken"/>
@@ -1747,7 +1747,7 @@
   User grid layouts (toolbar columns dialog). The user always comes from the session
   -->
 
-  <target name="insertGridLayout">
+  <target name="insertGridLayout" server-only="true">
     <insert>
       <table id="AweUsrGrdCnf"/>
       <field id="IdeUsrGrdCnf" sequence="GrdCnfKey"/>
@@ -1762,7 +1762,7 @@
     </insert>
   </target>
 
-  <target name="updateGridLayout">
+  <target name="updateGridLayout" server-only="true">
     <update>
       <table id="AweUsrGrdCnf"/>
       <field id="Lay" variable="layout"/>
@@ -1778,7 +1778,7 @@
     </update>
   </target>
 
-  <target name="deleteGridLayout">
+  <target name="deleteGridLayout" server-only="true">
     <delete>
       <table id="AweUsrGrdCnf"/>
       <where>
@@ -1847,7 +1847,7 @@
     </serve>
   </target>
 
-  <target name="addUserSettings">
+  <target name="addUserSettings" server-only="true">
     <insert>
       <table id="AweUsrSet"/>
       <field id="userName" variable="user"/>
@@ -1859,7 +1859,7 @@
     </insert>
   </target>
 
-  <target name="updateUserMode">
+  <target name="updateUserMode" server-only="true">
     <update>
       <table id="AweUsrSet"/>
       <field id="themeMode" variable="mode"/>
@@ -1871,7 +1871,7 @@
     </update>
   </target>
 
-  <target name="updateUserDensity">
+  <target name="updateUserDensity" server-only="true">
     <update>
       <table id="AweUsrSet"/>
       <field id="density" variable="density"/>

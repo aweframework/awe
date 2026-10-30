@@ -208,6 +208,11 @@
         <xs:documentation xml:lang="en">Allows the target to be launched without an authenticated session. Default false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="server-only" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Restricts the target to server-side launches (Java services and schedulers). Any client request for it is refused, even from an authenticated session. Overrides public. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Email Type -->

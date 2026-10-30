@@ -65,7 +65,7 @@
   </target>
 
   <!-- Insert new notification -->
-  <target name="new-notification">
+  <target name="new-notification" server-only="true">
     <insert>
       <table id="AweNot"/>
       <field id="Ide" sequence="Not"/>
@@ -159,7 +159,7 @@
     </serve>
   </target>
 
-  <target name="insert-user-subscription">
+  <target name="insert-user-subscription" server-only="true">
     <insert audit="HISAweSubUsr">
       <table id="AweSubUsr"/>
       <field id="Ide" sequence="SubUsr"/>
@@ -174,7 +174,7 @@
     </insert>
   </target>
 
-  <target name="update-user-subscription">
+  <target name="update-user-subscription" server-only="true">
     <update audit="HISAweSubUsr">
       <table id="AweSubUsr"/>
       <field id="SubNot" variable="web"/>
@@ -192,7 +192,7 @@
     </update>
   </target>
 
-  <target name="notify-email-users">
+  <target name="notify-email-users" server-only="true">
     <send-email id="notify-users"/>
   </target>
 

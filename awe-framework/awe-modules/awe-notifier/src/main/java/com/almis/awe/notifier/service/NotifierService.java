@@ -87,14 +87,14 @@ public class NotifierService {
       parameters.put(USER, user);
       parameters.put(WEB, 1);
       parameters.put(EMAIL, 0);
-      return maintainService.launchMaintain(INSERT_SUBSCRIPTION, parameters);
+      return maintainService.launchPrivateMaintain(INSERT_SUBSCRIPTION, parameters);
     } else {
       // Set update parameters
       parameters.put(SUBSCRIPTION, subscription);
       parameters.put(USER, DataListUtil.getData(dataList, 0, USER));
       parameters.put(WEB, (Integer.parseInt(DataListUtil.getData(dataList, 0, WEB)) + 1) % 2);
       parameters.put(EMAIL, DataListUtil.getData(dataList, 0, EMAIL));
-      return maintainService.launchMaintain(UPDATE_SUBSCRIPTION, parameters);
+      return maintainService.launchPrivateMaintain(UPDATE_SUBSCRIPTION, parameters);
     }
   }
 
@@ -115,13 +115,13 @@ public class NotifierService {
       parameters.put(USER, user);
       parameters.put(WEB, 0);
       parameters.put(EMAIL, 1);
-      return maintainService.launchMaintain(INSERT_SUBSCRIPTION, parameters);
+      return maintainService.launchPrivateMaintain(INSERT_SUBSCRIPTION, parameters);
     } else {
       // Set update parameters
       parameters.put(USER, DataListUtil.getData(dataList, 0, USER));
       parameters.put(WEB, DataListUtil.getData(dataList, 0, WEB));
       parameters.put(EMAIL, (Integer.parseInt(DataListUtil.getData(dataList, 0, EMAIL)) + 1) % 2);
-      return maintainService.launchMaintain(UPDATE_SUBSCRIPTION, parameters);
+      return maintainService.launchPrivateMaintain(UPDATE_SUBSCRIPTION, parameters);
     }
   }
 
