@@ -1267,4 +1267,9 @@
     <serve service="deferredLoadReset"/>
   </target>
 
+  <!-- Route of the map test screen: a polyline client action -->
+  <target name="TstMapRoute">
+    <serve service="TstMapRoute"/>
+  </target>
+
 </maintain>

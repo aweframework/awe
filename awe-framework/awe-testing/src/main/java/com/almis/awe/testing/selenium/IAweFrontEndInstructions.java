@@ -1199,7 +1199,7 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get a map once its markers have been drawn (React client only)
+   * Get a map once its markers have been drawn
    *
    * @param mapId Map identifier
    * @return Selector of the drawn map
@@ -1210,7 +1210,7 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get the markers of a map (React client only)
+   * Get the markers of a map
    *
    * @param mapId Map identifier
    * @return Selector of the markers
@@ -1220,7 +1220,7 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get the marker of a row of a map (React client only)
+   * Get the marker of a row of a map
    *
    * @param mapId Map identifier
    * @param rowId Row identifier (the value of the marker)
@@ -1231,7 +1231,7 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get the marker of a row of a map once it is selected (React client only)
+   * Get the marker of a row of a map once it is selected
    *
    * @param mapId Map identifier
    * @param rowId Row identifier (the value of the marker)
@@ -1243,7 +1243,7 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
-   * Get the route that a map draws (React client only)
+   * Get the route that a map draws
    *
    * @param mapId Map identifier
    * @return Selector of the route

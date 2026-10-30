@@ -200,7 +200,7 @@ public final class TestIds {
   public static final String CARD_PROGRESS = "card-progress";
   public static final String CARD_SPARKLINE = "card-sparkline";
 
-  // React only: map (the instance is identified by "map-id"; "data-rendered" tells that its markers were drawn), its
+  // Map (the instance is identified by "map-id"; "data-rendered" tells that its markers were drawn), its
   // markers ("map-id" and "row-id") and its route ("map-id")
   public static final String MAP = "map";
   public static final String MAP_MARKER = "map-marker";

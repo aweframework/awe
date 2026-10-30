@@ -403,7 +403,7 @@ aweApplication.service('ActionController',
       // Take each targeted actions and if target is not defined, reject them
       $ctrl.garbageActionCollector = function() {
         let actions = {...ClientActions.component, ...ClientActions.chart, ...ClientActions.grid.commons,
-          ...ClientActions.grid.editable, ...ClientActions.grid.tree, ...ClientActions.menu, ...ClientActions.pivot,
+          ...ClientActions.grid.editable, ...ClientActions.grid.tree, ...ClientActions.map, ...ClientActions.menu, ...ClientActions.pivot,
           ...ClientActions.uploader, ...ClientActions.wizard};
         _.each(actions, function (actionOptions, actionId) {
           $scope.$on("/action/" + actionId, function (event, action) {

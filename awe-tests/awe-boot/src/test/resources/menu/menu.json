@@ -1258,6 +1258,27 @@
             },
             {
               "separator": false,
+              "text": "MENU_TEST_MAP",
+              "restricted": false,
+              "label": "MENU_TEST_MAP",
+              "name": "map-test",
+              "icon": "mdi:map",
+              "actions": [
+                {
+                  "type": "screen",
+                  "context": "screen/private/home",
+                  "target": "map-test",
+                  "parameters": {
+                    "target": "map-test",
+                    "serverAction": "screen"
+                  }
+                }
+              ],
+              "options": [],
+              "visible": true
+            },
+            {
+              "separator": false,
               "text": "MENU_GRID_CHART",
               "restricted": false,
               "label": "MENU_GRID_CHART",

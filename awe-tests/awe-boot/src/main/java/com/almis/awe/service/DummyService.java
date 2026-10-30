@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.builder.client.ClientActionBuilder;
 import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.enumerates.Action;
 import com.almis.awe.builder.screen.ScreenBuilder;
@@ -48,6 +49,12 @@ public class DummyService extends ServiceConfig {
   // Rows of the sparkline grid
   private static final int SPARKLINE_ROWS = 100;
 
+  // Points of the map test screen
+  private static final List<String> MAP_IDS = List.of("1", "2", "3", "4");
+  private static final List<Double> MAP_LATITUDES = List.of(40.4168, 41.3874, 39.4699, 37.3891);
+  private static final List<Double> MAP_LONGITUDES = List.of(-3.7038, 2.1686, -0.3763, -5.9845);
+  private static final List<String> MAP_NAMES = List.of("Madrid", "Barcelona", "Valencia", "Sevilla");
+
   public static final String PROFILE_VALUE = "profileValue";
   public static final String PROFILE_NAME = "profileName";
   public static final String STAT_ROW = "stat-row";
@@ -62,6 +69,37 @@ public class DummyService extends ServiceConfig {
    */
   public DummyService(QueryService queryService) {
     this.queryService = queryService;
+  }
+
+  /**
+   * Points of the map test screen: fixed cities, so the map always draws the same
+   *
+   * @return Service data with the id, latitude, longitude and name of every point
+   */
+  public ServiceData mapPoints() {
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "id", MAP_IDS);
+    DataListUtil.addColumn(dataList, "Lat", MAP_LATITUDES);
+    DataListUtil.addColumn(dataList, "Lon", MAP_LONGITUDES);
+    DataListUtil.addColumn(dataList, "Lug", MAP_NAMES);
+    return new ServiceData().setDataList(dataList);
+  }
+
+  /**
+   * Route of the map test screen: goes through the points of the map in order
+   *
+   * @return Service data with the polyline action that draws the route in the map
+   */
+  public ServiceData mapRoute() {
+    List<Map<String, Object>> rows = new ArrayList<>();
+    for (int index = 0; index < MAP_IDS.size(); index++) {
+      rows.add(Map.of("Lat", MAP_LATITUDES.get(index), "Lon", MAP_LONGITUDES.get(index)));
+    }
+    ClientActionBuilder<?> builder = new ClientActionBuilder<>();
+    builder.setType("polyline");
+    builder.setTarget("MapTst");
+    builder.addParameter("rows", rows);
+    return new ServiceData().addClientAction(builder.build());
   }
 
   /**

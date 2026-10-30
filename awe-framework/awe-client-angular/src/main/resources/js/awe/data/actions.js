@@ -80,6 +80,10 @@ export const ClientActions = {
     "reset": {method: "onReset", check: ["component", "view"]},
     "restore": {method: "onRestore", check: ["component", "view"]}
   },
+  // Available map actions
+  map: {
+    "polyline": {method: "onPolyline", check: ["component", "view"]}
+  },
   // Available wizard actions
   wizard: {
     "next-step": {method: "next"},

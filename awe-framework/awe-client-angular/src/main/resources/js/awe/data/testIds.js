@@ -181,6 +181,11 @@ export const TestIds = Object.freeze({
   loadingSpinner: "loading-spinner",
   // Chart (the instance is identified by "chart-id")
   chart: "chart",
+  // Map (the instance is identified by "map-id"; "data-rendered" tells that its markers were drawn), its markers
+  // ("row-id" and "map-id") and its route ("map-id")
+  map: "map",
+  mapMarker: "map-marker",
+  mapRoute: "map-route",
   // Cards (owner: card id): the card, its value, its delta badge, its target progress (bar or gauge), its sparkline
   // and its status chip
   card: "card",

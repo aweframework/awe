@@ -562,4 +562,13 @@
     <java classname="com.almis.awe.test.CardStatusService" method="status"/>
   </service>
 
+  <!-- MAP TEST SCREEN (#882) -->
+  <service id="TstMapPoints">
+    <java classname="com.almis.awe.service.DummyService" method="mapPoints"/>
+  </service>
+
+  <service id="TstMapRoute">
+    <java classname="com.almis.awe.service.DummyService" method="mapRoute"/>
+  </service>
+
 </services>
