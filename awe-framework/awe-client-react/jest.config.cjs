@@ -83,6 +83,7 @@ module.exports = {
     '**/utilities/classChangesTest.{js,jsx}',
     '**/utilities/sparklineTest.{js,jsx}',
     '**/utilities/cardTest.{js,jsx}',
+    '**/utilities/cellBarTest.{ts,tsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/redux/registry/SpecificDependencyRegistryTest.{js,jsx}',
     '**/redux/registry/registriesTest.{js,jsx}',

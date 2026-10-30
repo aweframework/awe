@@ -35,6 +35,11 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
   private Boolean chips;
   private String chipSeparator;
   private Integer maxChips;
+  private Double barMin;
+  private Double barMax;
+  private String barSecondField;
+  private String barStackFields;
+  private Boolean barLeafOnly;
 
   public ColumnAttributes(B builder) {
     super(builder);
@@ -68,7 +73,12 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
       .setStatusField(getStatusField())
       .setChips(getChips())
       .setChipSeparator(getChipSeparator())
-      .setMaxChips(getMaxChips());
+      .setMaxChips(getMaxChips())
+      .setBarMin(getBarMin())
+      .setBarMax(getBarMax())
+      .setBarSecondField(getBarSecondField())
+      .setBarStackFields(getBarStackFields())
+      .setBarLeafOnly(getBarLeafOnly());
 
     if (getAlign() != null) {
       column.setAlign(getAlign().toString());

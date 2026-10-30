@@ -1377,6 +1377,31 @@
         <xs:documentation xml:lang="en">Maximum number of chips of a chips column. The first N chips are shown plus a +n chip whose tooltip and accessible label list the hidden items. Default: all the chips.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="bar-min" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Lower end of the scale of the bar. Below 0 a zero mark is drawn and negative values fill to the left of it in the negative colour. Default: 0. It does not reuse the column max attribute, which sets the option rows of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-max" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Upper end of the scale of the bar: a value of 4.13 with bar-max="40" fills 10.325 % of the bar. Default: 100. It does not reuse the column max attribute, which sets the option rows of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-second-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Name of a field of the row with a second value (a target, for instance) drawn as a thinner bar under the main one, on the same scale (bar-min and bar-max). Print and export write the cell value only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-stack-fields" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Comma-separated names of fields of the row: the bar is drawn as stacked segments with their values (positive numbers, in the given order). The cell value stays the accessible value and the one that print and export write.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-leaf-only" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). In a tree grid the bar is drawn only on leaf rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="avatar-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Name of a field of the row with the name (or the initials) the avatar is built from. The cell shows a small round avatar with its initials (the first letter of its first and its last word that start with a letter, in upper case) before the main value and its secondary line. An empty value shows no avatar. The avatar is decorative: sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
@@ -2570,7 +2595,11 @@
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />
       <xs:enumeration value="color" />
-      <xs:enumeration value="progress" />
+      <xs:enumeration value="progress">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Progress bar of a numeric value, from 0 to 100 by default. The React engine tunes it with bar-min and bar-max (the scale, with a zero mark and negative fill below 0), bar-second-field (a thinner second bar, such as a target), bar-stack-fields (stacked segments) and bar-leaf-only (tree grids); AngularJS ignores these options. Print and export write the cell value.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="textarea" />
       <xs:enumeration value="uploader" />
       <xs:enumeration value="checkbox" />

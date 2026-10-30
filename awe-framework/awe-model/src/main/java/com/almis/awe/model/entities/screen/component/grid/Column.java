@@ -160,6 +160,31 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Integer maxChips;
 
+  // Lower end of the scale of the bar of a progress column
+  @XStreamAlias("bar-min")
+  @XStreamAsAttribute
+  private Double barMin;
+
+  // Upper end of the scale of the bar of a progress column
+  @XStreamAlias("bar-max")
+  @XStreamAsAttribute
+  private Double barMax;
+
+  // Field with the second value drawn under the bar of a progress column
+  @XStreamAlias("bar-second-field")
+  @XStreamAsAttribute
+  private String barSecondField;
+
+  // Comma-separated fields with the stacked segments of the bar of a progress column
+  @XStreamAlias("bar-stack-fields")
+  @XStreamAsAttribute
+  private String barStackFields;
+
+  // Draw the bar of a progress column only on the leaf rows of a tree grid
+  @XStreamAlias("bar-leaf-only")
+  @XStreamAsAttribute
+  private Boolean barLeafOnly;
+
   // Field with the name (or initials) of the avatar shown before the main value
   @XStreamAlias("avatar-field")
   @XStreamAsAttribute

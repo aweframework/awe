@@ -309,6 +309,20 @@ describe("awe-react-client/test/js/components/AweGridCellsTest.jsx", () => {
       expect(cell.querySelector(".awe-cell-secondary")).toHaveTextContent("ana@almis.com");
     });
 
+    it("draws the bar of a progress column in every row of a flat grid, with its second value (#831)", () => {
+      const { container } = renderWithProviders(<AweGrid id="Grd" />, {
+        preloadedState: gridState(
+          [{ name: "done", label: "Done", component: "progress", barMax: 40, barSecondField: "goal", barLeafOnly: true }],
+          [{ id: "r1", done: 4.13, goal: 20 }, { id: "r2", done: 10, goal: 5 }])
+      });
+
+      const meters = container.querySelectorAll("td.done [role='meter']");
+      expect(meters).toHaveLength(2);
+      expect(meters[0].querySelector(".awe-data-bar-fill").style.right).toBe("89.675%");
+      expect(meters[0].querySelector(".awe-data-bar-lane-second .awe-data-bar-fill").style.right).toBe("50%");
+      expect(meters[0]).toHaveAttribute("aria-valuetext", "4.13 / 20");
+    });
+
     it("gives the rest of the width to a column with width * (#793)", () => {
       const { container } = renderWithProviders(<AweGrid id="Grd" />, {
         preloadedState: gridState([{ name: "name", label: "Name", charlength: 30, width: "*" }, { name: "tags", label: "Tags", charlength: 10 }],

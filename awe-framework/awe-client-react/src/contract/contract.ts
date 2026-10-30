@@ -239,6 +239,11 @@ export interface Column extends AbstractCriteria {
     align?: string;
     avatarField?: string;
     avatarToneField?: string;
+    barLeafOnly?: boolean;
+    barMax?: number;
+    barMin?: number;
+    barSecondField?: string;
+    barStackFields?: string;
     charlength?: number;
     chips?: boolean;
     chipSeparator?: string;

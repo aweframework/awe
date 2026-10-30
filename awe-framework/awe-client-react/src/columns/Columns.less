@@ -166,6 +166,118 @@
   }
 }
 
+// Progress column with a scale, a second value or stacked segments (#831): the number over a light data bar. The lanes
+// are drawn behind the number, the zero axis of a signed scale over them and under the number. The geometry (left and
+// width) is inline
+.awe-data-bar {
+  position: relative;
+  display: block;
+  width: auto;
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  margin: calc(var(--awe-space-0-5) * -1) calc(var(--awe-space-2) * -1);
+}
+
+.awe-data-bar-lanes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+}
+
+.awe-data-bar-lane {
+  position: relative;
+  flex: 1;
+}
+
+.awe-data-bar-fill,
+.awe-data-bar-segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.awe-data-bar-fill {
+  background: var(--awe-color-data-bar);
+  border-radius: var(--awe-radius-md);
+}
+
+.awe-data-bar-fill.awe-data-bar-negative {
+  background: var(--awe-color-data-bar-negative);
+}
+
+.awe-data-bar-two .awe-data-bar-fill {
+  border-radius: var(--awe-radius-full);
+}
+
+// Signed scale: the end on the zero axis is square, only the outer end is rounded
+.awe-data-bar .awe-data-bar-signed {
+  border-radius: 0 var(--awe-radius-md) var(--awe-radius-md) 0;
+}
+
+.awe-data-bar .awe-data-bar-signed.awe-data-bar-negative {
+  border-radius: var(--awe-radius-md) 0 0 var(--awe-radius-md);
+}
+
+.awe-data-bar-two .awe-data-bar-signed {
+  border-radius: 0 var(--awe-radius-full) var(--awe-radius-full) 0;
+}
+
+.awe-data-bar-two .awe-data-bar-signed.awe-data-bar-negative {
+  border-radius: var(--awe-radius-full) 0 0 var(--awe-radius-full);
+}
+
+.awe-data-bar-lane-second .awe-data-bar-fill {
+  background: var(--awe-color-neutral-subtle);
+}
+
+.awe-data-bar-lane-second .awe-data-bar-fill.awe-data-bar-negative {
+  background: var(--awe-color-data-bar-negative);
+}
+
+// A stack is rounded only on its outer ends
+.awe-data-bar-segment:first-child {
+  border-radius: var(--awe-radius-md) 0 0 var(--awe-radius-md);
+}
+
+.awe-data-bar-segment:last-child {
+  border-radius: 0 var(--awe-radius-md) var(--awe-radius-md) 0;
+}
+
+.awe-data-bar-segment:only-child {
+  border-radius: var(--awe-radius-md);
+}
+
+.awe-data-bar-segment-0 {
+  background: var(--awe-color-scale-2);
+}
+
+.awe-data-bar-segment-1 {
+  background: var(--awe-color-scale-3);
+}
+
+.awe-data-bar-segment-2 {
+  background: var(--awe-color-scale-4);
+}
+
+.awe-data-bar-axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: thin solid var(--awe-color-chart-axis);
+}
+
+.awe-data-bar-value {
+  position: relative;
+  display: block;
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  text-align: right;
+}
+
+.awe-data-bar-value-negative {
+  color: var(--awe-color-danger-text);
+}
+
 // Image column: the image inside the height of a row of text
 .grid-image {
   max-height: var(--awe-size-control);

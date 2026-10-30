@@ -484,6 +484,11 @@ each country, inline and through an include) in the matrix test menu.
 | chips            | Optional | Boolean | The value is a list shown as chips                                                                                              | Default value is `false`                                                         |
 | chip-separator   | Optional | String  | Separator of the items of a `chips` column                                                                                      | Default value is `,`                                                             |
 | max-chips        | Optional | Integer | Number of chips shown; the rest collapse into a "+n" chip                                                                       | A number greater than `0`                                                        |
+| bar-min          | Optional | Number  | Lower end of the scale of a `progress` column. See [bar options](#progress-bar-options) (React engine only)                     | Default value is `0`                                                             |
+| bar-max          | Optional | Number  | Upper end of the scale of a `progress` column                                                                                   | Default value is `100`                                                           |
+| bar-second-field | Optional | String  | Row field drawn as a second bar, of the same thickness, under the main one                                                      | Name of another field of the row                                                 |
+| bar-stack-fields | Optional | String  | Row fields drawn as consecutive segments of the bar                                                                             | Comma-separated field names                                                      |
+| bar-leaf-only    | Optional | Boolean | In a tree grid, only the leaves draw the bar                                                                                    | Default value is `false`                                                         |
 | avatar-field     | Optional | String  | Row field with the name (or initials) the avatar before the value is built from. See [avatar](#avatar)                         | Name of another field of the row                                                 |
 | avatar-tone-field | Optional | String | Row field with the tone of the avatar                                                                                           | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
 | icon-field       | Optional | String  | Row field with an icon shown before the value; with `status-field` it takes the place of the dot. See [icon](#icon)            | Name of another field of the row                                                 |
@@ -1043,6 +1048,58 @@ The progress component is very useful to show the status of a job, or a task.
 | label     | Text to show in the progress bar (ie percentage)                                                                       |
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
 | style     | CSS class to format the contents                                                                                       |
+
+##### Progress bar options
+
+By default a `progress` column draws the PrimeReact progress bar of the table above. With any of the attributes below it
+draws a **data bar behind the number** instead: the number stays visible, right-aligned, over a light bar. The value is a
+number (or a numeric string) positioned between `bar-min` and `bar-max`, so a value like `4.13` of a maximum of `40` fills
+`10.325 %` of the cell, and a negative value fills to the left of the zero. This works in the **React engine only**; the AngularJS engine keeps the plain progress bar. Print and
+export write the value of the cell, never the bar.
+
+| Attribute          | JSON             | Default | Description                                                                                                       |
+|--------------------|------------------|---------|-------------------------------------------------------------------------------------------------------------------|
+| `bar-min`          | `barMin`         | `0`     | Lower end of the scale                                                                                            |
+| `bar-max`          | `barMax`         | `100`   | Upper end of the scale. A scale where `bar-max` is not above `bar-min`, or that is not numeric, is `0` to `100`   |
+| `bar-second-field` | `barSecondField` |         | Name of a field of the row drawn as a second bar, with the same scale and signed rules. With it the cell shows two thin rounded bars, one above the other |
+| `bar-stack-fields` | `barStackFields` |         | Comma-separated names of fields of the row. The bar draws one segment per field, one after another from the zero  |
+| `bar-leaf-only`    | `barLeafOnly`    | `false` | In a [tree grid](#tree-grid) only the leaves draw the bar, the rest of the rows show an empty cell                |
+
+- The bar fills the height of the row behind the number; with a second value the two thin rounded bars share that height,
+  the main one above (data bar colour) and the second below (neutral).
+- The fill goes from the zero to the value. Values outside the scale are clamped to its ends. The zero is `0` clamped to the
+  scale, and an axis line on it shows only when the scale goes from a negative to a positive number (the signed scale). On a
+  signed scale the end of the fill on the axis is square and only the outer end is rounded.
+- Negative values use the negative data bar colour and their number the danger text colour, positive ones the data bar
+  colour. An empty or non-numeric value draws nothing.
+- In `bar-stack-fields` only positive numbers draw a segment (the others are skipped), each segment is cut at the end of the
+  scale and the colour of the segment follows the position of its field in the three tones of the data scale, and then it
+  starts again.
+- The bar is a `meter` for assistive technologies (`aria-valuemin`, `aria-valuemax`, `aria-valuenow` and a text
+  with the value as the cell shows it, also shown as the tooltip). With a second value the text is `main / second`, and with
+  segments `total (part + part)`.
+- In a flat grid every row is a leaf.
+
+```xml
+<!-- A value of 4.13 over a maximum of 40: the bar fills 10.325 % -->
+<column label="Usage" name="usage" component="progress" bar-max="40" align="center"/>
+
+<!-- Signed bar: -10 on a scale of -40 to 40 fills from 37.5 % to the zero mark in the middle -->
+<column label="Variation" name="variation" component="progress" bar-min="-40" bar-max="40"/>
+
+<!-- Second value: the bar under the main one reads the field "target" of the row -->
+<column label="Sales" name="sales" component="progress" bar-max="200" bar-second-field="target"/>
+<column label="Target" name="target" hidden="true"/>
+
+<!-- Stacked segments: one per field, from the zero -->
+<column label="Tickets" name="total" component="progress" bar-max="100" bar-stack-fields="open,blocked,closed"/>
+<column label="Open" name="open" hidden="true"/>
+<column label="Blocked" name="blocked" hidden="true"/>
+<column label="Closed" name="closed" hidden="true"/>
+
+<!-- Tree grid: only the leaves draw the bar -->
+<column label="Progress" name="done" component="progress" bar-leaf-only="true"/>
+```
 
 #### Sparkline column component
 
