@@ -43,7 +43,7 @@ import java.util.List;
 @Accessors(chain = true)
 @XStreamInclude({Window.class, Resizable.class, AbstractCriteria.class, Dialog.class, SidePanel.class, Popover.class,
   Container.class, AbstractWidget.class, AbstractChart.class, Info.class, MenuContainer.class, Frame.class, TagList.class,
-  Video.class, GeoMap.class, Link.class, Image.class, Card.class})
+  Video.class, GeoMap.class, Link.class, Image.class, Card.class, Advanced.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder(alphabetic = true)
 public abstract class Component extends Element {

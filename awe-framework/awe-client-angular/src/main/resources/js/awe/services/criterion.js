@@ -41,6 +41,30 @@ export const templateColumnColor = `<div ng-show="component.controller.visible" 
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
+/**
+ * Submit the screen as Enter does in a criterion: click the closest visible submit button of the element, or the first
+ * visible one of the form
+ * @param {Object} element Element the submit starts from
+ */
+export function submitForm(element) {
+  // A window with an advanced block (#790) launches its own submit button, also from its side panel
+  const windowController = element.controller ? element.controller("aweWindow") : null;
+  if (windowController?.advancedBlock && windowController.submit()) {
+    return;
+  }
+
+  // Step 1: Retrieve closest submit button
+  let submitButton = element.closest(":submit:visible");
+  if (submitButton.length === 0) {
+    submitButton = $("form").first().find(":submit:visible");
+  }
+
+  // If submit button has been found, make click on it
+  if (submitButton.length > 0) {
+    $(submitButton[0]).scope().onClick();
+  }
+}
+
 // Criterion service
 aweApplication.factory('Criterion',
   ['Component', 'AweUtilities', 'Control', 'AweSettings', 'Validator',
@@ -196,26 +220,7 @@ aweApplication.factory('Criterion',
           component.scope.submit = function (event) {
             // Cancel event propagation
             Utilities.stopPropagation(event, true);
-            // Search submit button
-            let form = $("form").first();
-            // Step 1: Retrieve closest submit button
-            let submitButton = component.element.closest(":submit:visible");
-            if (submitButton.length > 0) {
-              submitButton = $(submitButton[0]);
-            } else {
-              submitButton = form.find(":submit:visible");
-              if (submitButton.length > 0) {
-                submitButton = $(submitButton[0]);
-              } else {
-                submitButton = null;
-              }
-            }
-
-            // If submit button has been found, make click on it
-            if (submitButton) {
-              let submitScope = submitButton.scope();
-              submitScope.onClick();
-            }
+            submitForm(component.element);
           };
 
           /******************************************************************************

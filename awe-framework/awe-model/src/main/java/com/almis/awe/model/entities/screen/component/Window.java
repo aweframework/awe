@@ -1,6 +1,7 @@
 package com.almis.awe.model.entities.screen.component;
 
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.screen.component.criteria.Criteria;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,6 +45,11 @@ public class Window extends Component {
   @XStreamAsAttribute
   private Boolean maximize;
 
+  // How the window shows its advanced block: inline (default) or side-panel
+  @XStreamAlias("advanced-mode")
+  @XStreamAsAttribute
+  private String advancedMode;
+
   @Override
   public Window copy() {
     return this.toBuilder()
@@ -86,6 +92,71 @@ public class Window extends Component {
   @JsonGetter("maximize")
   public boolean getMaximizeConverter() {
     return allowMaximize();
+  }
+
+  /**
+   * Returns if the window holds an advanced block, which turns its advanced search on
+   *
+   * @return Window has an advanced block
+   */
+  private boolean hasAdvancedBlock() {
+    return !getElementsByType(Advanced.class).isEmpty();
+  }
+
+  /**
+   * How the window shows its advanced block, for JSON serialization. Absent when the window has no advanced block
+   *
+   * @return inline or side-panel
+   */
+  @JsonGetter("advancedMode")
+  public String getAdvancedModeConverter() {
+    if (!hasAdvancedBlock()) {
+      return null;
+    }
+    return advancedMode == null ? "inline" : advancedMode;
+  }
+
+  /**
+   * Identifiers of the advanced criteria: the non-hidden criteria inside the advanced block (any depth). Absent when
+   * the window has no advanced block
+   *
+   * @return Advanced criteria identifiers
+   */
+  @JsonGetter("advancedCriteria")
+  public List<String> getAdvancedCriteria() {
+    if (!hasAdvancedBlock()) {
+      return null;
+    }
+    return getElementsByType(Advanced.class).stream()
+      .flatMap(advanced -> getFilterCriteria(advanced).stream())
+      .toList();
+  }
+
+  /**
+   * Identifiers of the criteria of the window whose values are shown as filters in effect: every non-hidden criterion,
+   * in order. Absent when the window has no advanced block
+   *
+   * @return Search criteria identifiers
+   */
+  @JsonGetter("searchCriteria")
+  public List<String> getSearchCriteria() {
+    if (!hasAdvancedBlock()) {
+      return null;
+    }
+    return getFilterCriteria(this);
+  }
+
+  /**
+   * Retrieve the identifiers of the criteria of an element (any depth) that are search filters: all but the hidden ones
+   *
+   * @param element Element
+   * @return Criteria identifiers
+   */
+  private static List<String> getFilterCriteria(Element element) {
+    return element.getElementsByType(Criteria.class).stream()
+      .filter(criterion -> !"hidden".equalsIgnoreCase(criterion.getComponentType()))
+      .map(Criteria::getId)
+      .toList();
   }
 
   /**

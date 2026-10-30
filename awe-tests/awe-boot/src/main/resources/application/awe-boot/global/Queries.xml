@@ -4050,6 +4050,46 @@
     <field id="calls"/>
   </query>
 
+  <!-- Customers of the advanced search test screen (#790): the criteria of the inline example -->
+  <query id="AdvSchInlCst" service="getAdvancedSearchCustomers">
+    <field id="id" alias="InlIde"/>
+    <field id="name" alias="InlNam"/>
+    <field id="status" alias="InlSta" translate="AdvSchSta"/>
+    <field id="country" alias="InlCtr" translate="AdvSchCtr"/>
+    <field id="segment" alias="InlSeg" translate="AdvSchSeg"/>
+    <field id="amount" alias="InlAmt"/>
+    <field id="created" alias="InlDat"/>
+    <field id="createdSort" alias="InlDatSrt"/>
+    <field id="priority" alias="InlPri" translate="Es1Es0"/>
+    <variable id="name" type="STRING" name="AdvInlNam"/>
+    <variable id="status" type="STRING" name="AdvInlSta"/>
+    <variable id="country" type="STRING" name="AdvInlCtr"/>
+    <variable id="segment" type="STRING" name="AdvInlSeg"/>
+    <variable id="minAmount" type="STRING" name="AdvInlAmt"/>
+    <variable id="createdFrom" type="STRING" name="AdvInlDat"/>
+    <variable id="priority" type="STRING" name="AdvInlPri"/>
+  </query>
+
+  <!-- Customers of the advanced search test screen (#790): the criteria of the side panel example -->
+  <query id="AdvSchPnlCst" service="getAdvancedSearchCustomers">
+    <field id="id" alias="PnlIde"/>
+    <field id="name" alias="PnlNam"/>
+    <field id="status" alias="PnlSta" translate="AdvSchSta"/>
+    <field id="country" alias="PnlCtr" translate="AdvSchCtr"/>
+    <field id="segment" alias="PnlSeg" translate="AdvSchSeg"/>
+    <field id="amount" alias="PnlAmt"/>
+    <field id="created" alias="PnlDat"/>
+    <field id="createdSort" alias="PnlDatSrt"/>
+    <field id="priority" alias="PnlPri" translate="Es1Es0"/>
+    <variable id="name" type="STRING" name="AdvPnlNam"/>
+    <variable id="status" type="STRING" name="AdvPnlSta"/>
+    <variable id="country" type="STRING" name="AdvPnlCtr"/>
+    <variable id="segment" type="STRING" name="AdvPnlSeg"/>
+    <variable id="minAmount" type="STRING" name="AdvPnlAmt"/>
+    <variable id="createdFrom" type="STRING" name="AdvPnlDat"/>
+    <variable id="priority" type="STRING" name="AdvPnlPri"/>
+  </query>
+
   <query id="TstMapPoints" service="TstMapPoints"/>
 
 </queries>

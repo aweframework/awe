@@ -508,6 +508,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `getText(String criterionName)` | Devuelve el texto de un criterio |
 | `checkCriterionContents(String criterionName, String search)` | Comprueba el valor de un criterio de texto |
 | `checkCriterionLabel(String criterionName, String text)` | Comprueba la etiqueta de un criterio |
+| `checkCriterionVisible(String criterionName)` / `checkCriterionNotVisible(String criterionName)` | Comprueba que un criterio se muestra, o que no se muestra (puede seguir en la página, oculto) |
 | `checkCriterionNotPresent(String criterionName)` | Comprueba que un criterio no está en la página, ni visible ni oculto, como uno de una página de pestaña que no se muestra |
 | `checkCriterionUnit(String criterionName, String text)` | Comprueba el complemento de unidad de un criterio (el texto tras el input) |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Comprueba que unos criterios están marcados (o no) |
@@ -741,6 +742,20 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `restoreWindow(String windowId)` | Restaura una ventana maximizada con su botón de restaurar |
 | `checkWindowMaximized(String windowId)` | Comprueba que una ventana ocupa el área de contenido de la pantalla (su maximize target) y la cabecera sigue visible |
 | `checkWindowNotMaximized(String windowId)` | Comprueba que una ventana está restaurada (ya no está fija sobre el área de contenido) |
+| `toggleAdvancedFilters(String windowId)` | Pulsa el botón de filtros avanzados de una ventana con un bloque `<advanced>`: muestra u oculta el bloque debajo de su fila (ventana inline) o abre su panel lateral (`advanced-mode="side-panel"`) |
+| `checkAdvancedFiltersCount(String windowId, int count)` | Comprueba el contador del botón de filtros avanzados: el número de criterios avanzados cuyo valor difiere de su valor por defecto (`0` cuando el contador no se muestra) |
+| `checkNoAdvancedFilters(String windowId)` | Comprueba que una ventana no muestra botón de filtros avanzados ni filtros aplicados, como una ventana sin bloque `<advanced>` |
+| `getAdvancedFiltersToggleTop(String windowId)` / `checkAdvancedFiltersToggleTop(String windowId, double top)` | Lee la posición vertical del botón de filtros avanzados de una ventana en el viewport, y comprueba después que no se ha movido (con un píxel de margen) |
+| `checkCriterionAboveAdvancedFilters(String windowId, String criterionName)` / `checkCriterionBelowAdvancedFilters(String windowId, String criterionName)` | Comprueba que un criterio visible está encima de la fila de filtros avanzados de su ventana (un criterio imprescindible) o debajo (un criterio avanzado de una ventana inline) |
+| `checkFilterChip(String windowId, String criterionId, boolean hidden)` | Comprueba que los filtros aplicados de una ventana muestran el chip de un criterio, marcado como filtro avanzado oculto (`true`) o no |
+| `checkNoFilterChip(String windowId, String criterionId)` | Comprueba que los filtros aplicados de una ventana no muestran el chip de un criterio |
+| `checkNoFilterChips(String windowId)` | Comprueba que una ventana no muestra filtros aplicados (todos los criterios tienen su valor por defecto) |
+| `removeFilterChip(String windowId, String criterionId)` | Quita el chip de un criterio: el criterio vuelve a su valor por defecto |
+| `clearAllFilters(String windowId)` | Pulsa *Quitar todos* en los filtros aplicados: todos los criterios de la ventana vuelven a su valor por defecto |
+| `checkAdvancedFiltersPanelOpen(String windowId)` / `checkAdvancedFiltersPanelClosed(String windowId)` | Comprueba que el panel lateral con los criterios avanzados de una ventana está abierto o cerrado |
+| `resetAdvancedFilters(String windowId)` | Pulsa *Restablecer valores por defecto* en el panel lateral: sus criterios avanzados vuelven a su valor por defecto |
+| `cancelAdvancedFilters(String windowId)` | Pulsa *Cancelar* en el panel lateral: se cierra y sus criterios avanzados recuperan los valores que tenían al abrirlo |
+| `applyAdvancedFilters(String windowId)` | Pulsa *Ver resultados* en el panel lateral: se cierra y lanza el botón de envío de la ventana, como Intro en un criterio, y espera a la búsqueda |
 | `maximizeTab(String tabId)` | Maximiza un componente de pestañas (lista y contenido, `maximize="true"`) con su botón de maximizar |
 | `restoreTab(String tabId)` | Restaura un componente de pestañas maximizado con su botón de restaurar |
 | `checkTabMaximized(String tabId)` | Comprueba que un componente de pestañas ocupa el área de contenido de la pantalla (su maximize target) y la cabecera sigue visible |

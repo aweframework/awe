@@ -4,6 +4,7 @@ import { useComponentState } from "./useComponentState";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import { addActionsTop } from "../redux/actions/actions";
 import useComponent from "./useComponent";
+import { useAdvancedWindow } from "../components/AweWindowAdvanced";
 
 /**
  * useText hook
@@ -15,6 +16,7 @@ export default function useText(id) {
   const { address } = useComponent(id);
   const { model = { values: [] }, attributes = {}, validationRules = {}, context = {} } = useComponentState(id);
   const settings = useSelector(state => state.settings || {});
+  const advanced = useAdvancedWindow();
 
   const getValue = useCallback(() => {
     const values = model.values || [];
@@ -58,13 +60,14 @@ export default function useText(id) {
   const onSubmit = useCallback(() => {
     // Store data first
     onBlur();
-    // Publish submit action
+    // Publish submit action: a search criterion of a window with advanced search (#790) submits from the window, so
+    // its own submit button runs although the criterion is inside the advanced block
     const source = context?.source || [];
-    const target = source[source.length - 2];
+    const target = advanced?.searchCriteria.includes(address?.component) ? advanced.id : source[source.length - 2];
     if (address) {
       dispatch(addActionsTop([{ type: "submit", target, address }]));
     }
-  }, [dispatch, onBlur, address, context?.source]);
+  }, [dispatch, onBlur, address, context?.source, advanced]);
 
   return useMemo(() => ({
     address,

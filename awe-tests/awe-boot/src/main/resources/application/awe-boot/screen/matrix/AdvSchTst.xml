@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : AdvSchTst.xml
+    Description: Advanced search of a window (#790) on a list of customers, in two tabs: the advanced block shown inline
+                 (below the Advanced filters row) or in a side panel opened by the same button. Each example has its search window, with
+                 the essential criteria first and then the advanced block, and its grid, with a column per criterion
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_ADVANCED_SEARCH">
+  <tag source="center" expandible="vertical">
+    <tab id="AdvSchTab" initial-load="enum" target-action="AdvSchExm">
+      <tabcontainer id="AdvSchInl">
+        <!-- Inline mode (default): the essential criteria, then the advanced block, which opens below the Advanced filters
+             row. Country has a default value -->
+        <window id="WinAdvInl" label="SCREEN_TEXT_ADVANCED_INLINE" icon="filter">
+          <tag type="div" style="panel-body">
+            <criteria id="AdvInlNam" label="PARAMETER_ADV_SCH_NAME" component="text" style="col-xs-12 col-sm-6 col-lg-3"/>
+            <criteria id="AdvInlSta" label="PARAMETER_ADV_SCH_STATUS" component="select" optional="true" initial-load="enum"
+                      target-action="AdvSchSta" style="col-xs-12 col-sm-6 col-lg-3"/>
+            <advanced>
+              <criteria id="AdvInlCtr" label="PARAMETER_ADV_SCH_COUNTRY" component="select" optional="true" initial-load="enum"
+                        target-action="AdvSchCtr" value="ES" style="col-xs-12 col-sm-6 col-lg-3"/>
+              <criteria id="AdvInlSeg" label="PARAMETER_ADV_SCH_SEGMENT" component="select" optional="true" initial-load="enum"
+                        target-action="AdvSchSeg" style="col-xs-12 col-sm-6 col-lg-3"/>
+              <criteria id="AdvInlAmt" label="PARAMETER_ADV_SCH_MIN_AMOUNT" component="numeric" validation="{le:1000000}"
+                        number-format="{mDec: 0}" style="col-xs-12 col-sm-6 col-lg-3"/>
+              <criteria id="AdvInlDat" label="PARAMETER_ADV_SCH_CREATED_FROM" component="date"
+                        style="col-xs-12 col-sm-6 col-lg-3"/>
+              <criteria id="AdvInlPri" label="PARAMETER_ADV_SCH_PRIORITY" component="checkbox"
+                        style="col-xs-12 col-sm-6 col-lg-3">
+                <!-- Inactive customers are never priority: the flag is cleared when the status is Inactive, even while hidden -->
+                <dependency source-type="reset" target-type="input">
+                  <dependency-element id="AdvInlSta" condition="eq" value="0"/>
+                </dependency>
+              </criteria>
+            </advanced>
+          </tag>
+          <tag type="div" style="panel-footer">
+            <tag type="div" style="pull-right">
+              <button button-type="reset" id="ButAdvInlRst" label="BUTTON_RESET" icon="eraser"/>
+              <button button-type="submit" id="ButAdvInlSch" label="BUTTON_SEARCH" icon="search">
+                <button-action type="validate"/>
+                <button-action type="filter" target="GrdAdvInl"/>
+              </button>
+            </tag>
+          </tag>
+        </window>
+
+        <window id="WinAdvInlGrd" label="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" icon="list" style="expand" expandible="vertical">
+          <grid id="GrdAdvInl" style="expand" initial-load="query" server-action="data" target-action="AdvSchInlCst" max="10">
+            <column label="PARAMETER_ADV_SCH_NAME" name="InlNam" sort-field="InlNam" align="left" charlength="20"/>
+            <column label="PARAMETER_ADV_SCH_STATUS" name="InlSta" sort-field="InlSta" align="left" charlength="12"/>
+            <column label="PARAMETER_ADV_SCH_COUNTRY" name="InlCtr" sort-field="InlCtr" align="left" charlength="14"/>
+            <column label="PARAMETER_ADV_SCH_SEGMENT" name="InlSeg" sort-field="InlSeg" align="left" charlength="16"/>
+            <column label="COLUMN_ADV_SCH_AMOUNT" name="InlAmt" sort-field="InlAmt" align="right" charlength="12"
+                    component="numeric" number-format="{mDec: 2}"/>
+            <column label="COLUMN_ADV_SCH_CREATED" name="InlDat" sort-field="InlDatSrt" align="center" charlength="14"/>
+            <column label="COLUMN_ADV_SCH_PRIORITY" name="InlPri" sort-field="InlPri" align="center" charlength="10"/>
+          </grid>
+        </window>
+      </tabcontainer>
+
+      <tabcontainer id="AdvSchPnl">
+        <!-- Side-panel mode: the essential criteria, then the advanced block, which lives in the side panel; Show
+             results runs the search -->
+        <window id="WinAdvPnl" label="SCREEN_TEXT_ADVANCED_SIDE_PANEL" icon="filter" advanced-mode="side-panel">
+          <tag type="div" style="panel-body">
+            <criteria id="AdvPnlNam" label="PARAMETER_ADV_SCH_NAME" component="text" style="col-xs-12 col-sm-6 col-lg-3"/>
+            <criteria id="AdvPnlSta" label="PARAMETER_ADV_SCH_STATUS" component="select" optional="true" initial-load="enum"
+                      target-action="AdvSchSta" style="col-xs-12 col-sm-6 col-lg-3"/>
+            <advanced>
+              <criteria id="AdvPnlCtr" label="PARAMETER_ADV_SCH_COUNTRY" component="select" optional="true" initial-load="enum"
+                        target-action="AdvSchCtr" style="col-xs-12"/>
+              <criteria id="AdvPnlSeg" label="PARAMETER_ADV_SCH_SEGMENT" component="select" optional="true" initial-load="enum"
+                        target-action="AdvSchSeg" style="col-xs-12"/>
+              <criteria id="AdvPnlAmt" label="PARAMETER_ADV_SCH_MIN_AMOUNT" component="numeric" validation="{le:1000000}"
+                        number-format="{mDec: 0}" style="col-xs-12"/>
+              <criteria id="AdvPnlDat" label="PARAMETER_ADV_SCH_CREATED_FROM" component="date" style="col-xs-12"/>
+              <criteria id="AdvPnlPri" label="PARAMETER_ADV_SCH_PRIORITY" component="checkbox" style="col-xs-12">
+                <!-- Inactive customers are never priority: the flag is cleared when the status is Inactive, even while hidden -->
+                <dependency source-type="reset" target-type="input">
+                  <dependency-element id="AdvPnlSta" condition="eq" value="0"/>
+                </dependency>
+              </criteria>
+            </advanced>
+          </tag>
+          <tag type="div" style="panel-footer">
+            <tag type="div" style="pull-right">
+              <button button-type="reset" id="ButAdvPnlRst" label="BUTTON_RESET" icon="eraser"/>
+              <button button-type="submit" id="ButAdvPnlSch" label="BUTTON_SEARCH" icon="search">
+                <button-action type="validate"/>
+                <button-action type="filter" target="GrdAdvPnl"/>
+              </button>
+            </tag>
+          </tag>
+        </window>
+
+        <window id="WinAdvPnlGrd" label="SCREEN_TEXT_ADVANCED_SIDE_PANEL_RESULTS" icon="list" style="expand" expandible="vertical">
+          <grid id="GrdAdvPnl" style="expand" initial-load="query" server-action="data" target-action="AdvSchPnlCst" max="10">
+            <column label="PARAMETER_ADV_SCH_NAME" name="PnlNam" sort-field="PnlNam" align="left" charlength="20"/>
+            <column label="PARAMETER_ADV_SCH_STATUS" name="PnlSta" sort-field="PnlSta" align="left" charlength="12"/>
+            <column label="PARAMETER_ADV_SCH_COUNTRY" name="PnlCtr" sort-field="PnlCtr" align="left" charlength="14"/>
+            <column label="PARAMETER_ADV_SCH_SEGMENT" name="PnlSeg" sort-field="PnlSeg" align="left" charlength="16"/>
+            <column label="COLUMN_ADV_SCH_AMOUNT" name="PnlAmt" sort-field="PnlAmt" align="right" charlength="12"
+                    component="numeric" number-format="{mDec: 2}"/>
+            <column label="COLUMN_ADV_SCH_CREATED" name="PnlDat" sort-field="PnlDatSrt" align="center" charlength="14"/>
+            <column label="COLUMN_ADV_SCH_PRIORITY" name="PnlPri" sort-field="PnlPri" align="center" charlength="10"/>
+          </grid>
+        </window>
+      </tabcontainer>
+    </tab>
+  </tag>
+</screen>

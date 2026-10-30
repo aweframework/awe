@@ -66,6 +66,10 @@ public final class TestAttributes {
    * Column of an option of the Group by panel of a grid
    */
   public static final String COLUMN = "data-column";
+  /**
+   * Criterion of a chip of the filters in effect of a window (#790)
+   */
+  public static final String FILTER_ID = "data-filter-id";
 
   private TestAttributes() {
     // Constants only

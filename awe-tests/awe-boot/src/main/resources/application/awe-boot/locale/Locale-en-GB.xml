@@ -324,6 +324,36 @@
   <locale name="BUTTON_SIDE_PANEL_LEFT" value="Left panel"/>
   <locale name="SIDE_PANEL_TITLE_RIGHT" value="Record details"/>
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filters"/>
+  <locale name="MENU_TEST_MATRIX_ADVANCED_SEARCH" value="Advanced search"/>
+  <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Advanced search"/>
+  <locale name="ENUM_ADV_SCH_INLINE" value="Advanced filters inline"/>
+  <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Advanced filters in a side panel"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Search customers"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Customers"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Customer filters"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL_RESULTS" value="Customers"/>
+  <locale name="PARAMETER_ADV_SCH_NAME" value="Customer"/>
+  <locale name="PARAMETER_ADV_SCH_STATUS" value="Status"/>
+  <locale name="PARAMETER_ADV_SCH_COUNTRY" value="Country"/>
+  <locale name="PARAMETER_ADV_SCH_SEGMENT" value="Segment"/>
+  <locale name="PARAMETER_ADV_SCH_MIN_AMOUNT" value="Minimum amount"/>
+  <locale name="PARAMETER_ADV_SCH_CREATED_FROM" value="Created from"/>
+  <locale name="PARAMETER_ADV_SCH_PRIORITY" value="Only priority customers"/>
+  <locale name="COLUMN_ADV_SCH_AMOUNT" value="Amount"/>
+  <locale name="COLUMN_ADV_SCH_CREATED" value="Created"/>
+  <locale name="COLUMN_ADV_SCH_PRIORITY" value="Priority"/>
+  <locale name="ENUM_ADV_SCH_ACTIVE" value="Active"/>
+  <locale name="ENUM_ADV_SCH_INACTIVE" value="Inactive"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_ES" value="Spain"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_FR" value="France"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_DE" value="Germany"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_IT" value="Italy"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_PT" value="Portugal"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_GB" value="United Kingdom"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_RET" value="Retail"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_WHO" value="Wholesale"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_PUB" value="Public sector"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_ONL" value="Online"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Result"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columns in a side panel"/>
   <locale name="PARAMETER_RELOAD" value="Reload"/>

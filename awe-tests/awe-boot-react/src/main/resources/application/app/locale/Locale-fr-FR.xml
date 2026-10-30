@@ -386,6 +386,36 @@
   <locale name="BUTTON_SIDE_PANEL_LEFT" value="Panneau gauche"/>
   <locale name="SIDE_PANEL_TITLE_RIGHT" value="Détail de l&apos;enregistrement"/>
   <locale name="SIDE_PANEL_TITLE_LEFT" value="Filtres"/>
+  <locale name="MENU_TEST_MATRIX_ADVANCED_SEARCH" value="Recherche avancée"/>
+  <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Recherche avancée"/>
+  <locale name="ENUM_ADV_SCH_INLINE" value="Filtres avancés dans la fenêtre"/>
+  <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Filtres avancés dans un panneau latéral"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Rechercher des clients"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Clients"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Filtres des clients"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL_RESULTS" value="Clients"/>
+  <locale name="PARAMETER_ADV_SCH_NAME" value="Client"/>
+  <locale name="PARAMETER_ADV_SCH_STATUS" value="Statut"/>
+  <locale name="PARAMETER_ADV_SCH_COUNTRY" value="Pays"/>
+  <locale name="PARAMETER_ADV_SCH_SEGMENT" value="Segment"/>
+  <locale name="PARAMETER_ADV_SCH_MIN_AMOUNT" value="Montant minimum"/>
+  <locale name="PARAMETER_ADV_SCH_CREATED_FROM" value="Créé depuis"/>
+  <locale name="PARAMETER_ADV_SCH_PRIORITY" value="Seulement les clients prioritaires"/>
+  <locale name="COLUMN_ADV_SCH_AMOUNT" value="Montant"/>
+  <locale name="COLUMN_ADV_SCH_CREATED" value="Créé"/>
+  <locale name="COLUMN_ADV_SCH_PRIORITY" value="Prioritaire"/>
+  <locale name="ENUM_ADV_SCH_ACTIVE" value="Actif"/>
+  <locale name="ENUM_ADV_SCH_INACTIVE" value="Inactif"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_ES" value="Espagne"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_FR" value="France"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_DE" value="Allemagne"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_IT" value="Italie"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_PT" value="Portugal"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_GB" value="Royaume-Uni"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_RET" value="Détail"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_WHO" value="Gros"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_PUB" value="Secteur public"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_ONL" value="En ligne"/>
   <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Résultat"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Colonnes dans un panneau latéral"/>
   <locale name="MENU_TEST_CARDS" value="Cartes"/>

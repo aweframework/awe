@@ -89,6 +89,17 @@ public abstract class AbstractTagBuilder<T, I extends Element> extends AbstractE
   }
 
   /**
+   * Add the advanced block of a window (#790)
+   *
+   * @param advanced Advanced block builders
+   * @return this
+   */
+  public T addAdvanced(AdvancedBuilder... advanced) {
+    addAllElements(advanced);
+    return (T) this;
+  }
+
+  /**
    * Add side panel
    *
    * @param sidePanel Side panel builders

@@ -520,53 +520,26 @@
           </article>
 
           <article class="card comp" id="c-790">
-            <header class="comp__head"><h3 class="comp__title">Advanced search</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#790</span><span class="tag tag--info">Planned</span></span></header>
+            <header class="comp__head"><h3 class="comp__title">Advanced search</h3><span class="comp__tags"><span class="tag tag--plain comp__issue">#790</span><span class="tag tag--success">Done</span></span></header>
             <div class="comp__demo stack">
-              <div class="query-head">
-                <span>Match</span>
-                <div class="segmented segmented--sm" role="radiogroup" aria-label="Match conditions">
-                  <label><input type="radio" name="qb-match" checked><span>All</span></label>
-                  <label><input type="radio" name="qb-match"><span>Any</span></label>
-                </div>
-                <span>of these conditions</span>
-              </div>
-              <div class="query-row">
-                <span class="control control--sm"><select aria-label="Field"><option>Country</option><option>Segment</option><option>Balance</option><option>Last order</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <span class="control control--sm"><select aria-label="Operator"><option>is</option><option>is not</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <span class="control control--sm"><select aria-label="Value"><option>Spain</option><option>Germany</option><option>France</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
-              </div>
-              <div class="query-row">
-                <span class="control control--sm"><select aria-label="Field"><option>Balance</option><option>Country</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <span class="control control--sm"><select aria-label="Operator"><option>greater than</option><option>less than</option><option>between</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <span class="control control--sm"><span class="affix">€</span><input class="num" type="text" value="10,000.00" aria-label="Value"></span>
-                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
-              </div>
-              <div class="query-group">
-                <p class="query-group__head"><span class="tag tag--primary tag--plain">Any of</span>
-                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove group"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></p>
-                <div class="query-row">
-                  <span class="control control--sm"><select aria-label="Field"><option>Segment</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                  <span class="control control--sm"><select aria-label="Operator"><option>is</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                  <span class="control control--sm"><select aria-label="Value"><option>Enterprise</option><option>Mid-market</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
-                </div>
-                <div class="query-row">
-                  <span class="control control--sm"><select aria-label="Field"><option>Last order</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                  <span class="control control--sm"><select aria-label="Operator"><option>within the last</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                  <span class="control control--sm"><input class="num" type="text" value="30" aria-label="Days"><span class="affix">days</span></span>
-                  <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove condition"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
-                </div>
-              </div>
               <div class="demo-row">
-                <button class="btn btn--text btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Add condition</button>
-                <button class="btn btn--text btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layers"/></svg>Add group</button>
-                <span class="spacer"></span>
-                <span class="control control--sm saved-search"><select aria-label="Saved searches"><option>Saved searches…</option><option>Spanish key accounts</option><option>Overdue over 10k</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
-                <button class="btn btn--primary btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg>Search</button>
+                <div class="field"><label class="label" for="as-user">User</label><span class="control control--sm"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg><input id="as-user" type="text" placeholder="User, name or email"></span></div>
+                <div class="field"><label class="label" for="as-profile">Profile</label><span class="control control--sm"><select id="as-profile"><option>Any profile</option><option selected>Operator</option></select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
               </div>
+              <div class="filter-chips" role="group" aria-label="Advanced filters and filters in effect">
+                <button class="btn btn--text btn--sm" type="button" aria-expanded="false" aria-controls="as-advanced"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#sliders-horizontal"/></svg>Advanced filters<span class="count" aria-hidden="true">2</span><span class="sr-only">, 2 in use</span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+                <span class="muted">Filtered by</span>
+                <span class="filter-chip">Profile: <b>Operator</b><button type="button" aria-label="Remove filter Profile"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+                <span class="filter-chip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#eye-off"/></svg>Language: <b>Spanish</b><span class="sr-only"> (hidden advanced filter)</span><button type="button" aria-label="Remove filter Language"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+                <span class="filter-chip"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#eye-off"/></svg><b>Locked accounts</b><span class="sr-only"> (hidden advanced filter)</span><button type="button" aria-label="Remove filter Locked accounts"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+                <button class="btn btn--text btn--sm" type="button">Clear all</button>
+              </div>
+              <div id="as-advanced" class="demo-row" hidden></div>
             </div>
-            <p class="comp__note">Conditions on any field with operators, nested All/Any groups and searches saved per user.</p>
+            <p class="comp__note">The window shows its essential criteria first; the Advanced filters row comes right after them, and
+              the advanced block of the window opens below it (inline) or in a side panel behind All filters (per window). The
+              badge counts the advanced criteria that differ from their default and every filter in effect shows as a chip,
+              also the hidden ones.</p>
           </article>
 
           <article class="card comp" id="c-791">

@@ -80,6 +80,9 @@ a ella aparece un icono de ayuda). Ambos motores lo muestran en todos los criter
 los checkbox de botones y los radio de botones, y también en los [botones](button.md) y en las cabeceras de las
 [columnas del grid](grids.md#column-attributes).
 
+Para dejar a mano los criterios menos frecuentes de una búsqueda, colócalos en el bloque `<advanced>` de su ventana: ver
+[búsqueda avanzada](window.md#advanced-search).
+
 ### Atributos específicos {#specific-attributes}
 
 | Atributo                | Criterio                                                                      | Tipo    | Descripción                                                                          | Valores                                                                                                                                                           |

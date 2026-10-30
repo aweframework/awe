@@ -10,6 +10,7 @@ import "./signin";
 import "./plugins/uiDependency";
 
 import "./window";
+import "./advanced";
 import "./resizable";
 
 import "./plugins/uiSpin";

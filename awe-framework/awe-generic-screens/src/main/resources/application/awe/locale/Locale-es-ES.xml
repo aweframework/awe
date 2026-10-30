@@ -728,6 +728,13 @@
   <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Sesión (SHA-256)"/>
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agente de usuario"/>
+  <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Filtros avanzados"/>
+  <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Quitar todos"/>
+  <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtrado por"/>
+  <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtro avanzado oculto"/>
+  <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Ocultar filtros avanzados"/>
+  <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
+  <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Restablecer valores por defecto"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Actividad por día"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Estadísticas"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
@@ -1354,6 +1361,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Mostrar contraseña"/>
   <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Ocultar contraseña"/>
   <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Bloq Mayús está activado"/>
+  <locale name="SCREEN_TEXT_SHOW_RESULTS" value="Ver resultados"/>
   <locale name="SCREEN_TEXT_SIGNING_IN" value="Iniciando sesión…"/>
   <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Iniciar sesión con Microsoft"/>
   <locale name="SCREEN_TEXT_LOGIN_OR" value="o continúa con"/>

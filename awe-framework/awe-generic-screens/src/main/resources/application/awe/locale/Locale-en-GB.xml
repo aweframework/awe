@@ -725,6 +725,13 @@
   <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="User agent"/>
+  <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Advanced filters"/>
+  <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Clear all"/>
+  <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
+  <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Hidden advanced filter"/>
+  <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Hide advanced filters"/>
+  <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
+  <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activity per day"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistics"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
@@ -1351,6 +1358,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Show password"/>
   <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Hide password"/>
   <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Caps Lock is on"/>
+  <locale name="SCREEN_TEXT_SHOW_RESULTS" value="Show results"/>
   <locale name="SCREEN_TEXT_SIGNING_IN" value="Signing in…"/>
   <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Sign in with Microsoft"/>
   <locale name="SCREEN_TEXT_LOGIN_OR" value="or continue with"/>

@@ -33,7 +33,9 @@ const hardCodedIcons = () => [...new Set([
   const source = fs.readFileSync(file, "utf8");
   return [
     ...[...source.matchAll(/\bfa-[a-z0-9-]+/g)].map(match => match[0]),
-    ...[...source.matchAll(/\bicon(?:Template|Markup)\("([a-z0-9-]+)/g)].map(match => `fa-${match[1]}`),
+    // A Lucide icon written by its own name ("lucide:name") is kept as it is
+    ...[...source.matchAll(/\bicon(?:Template|Markup)\("((?:lucide:)?[a-z0-9-]+)/g)]
+      .map(match => (match[1].startsWith("lucide:") ? match[1] : `fa-${match[1]}`)),
     ...[...source.matchAll(/'([a-z0-9-]+)(?: fa-spin)?' \| aweIcon/g)].map(match => `fa-${match[1]}`)
   ];
 }))]

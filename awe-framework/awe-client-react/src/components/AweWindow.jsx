@@ -7,13 +7,18 @@ import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import {TestIds, testHook} from "../utilities/testIds";
 import useMaximize from "../hooks/useMaximize";
+import {AdvancedSearchContext, useAdvancedSearch} from "./AweWindowAdvanced";
 import PropTypes from "prop-types";
 
 function AweWindow(props) {
-  const {id, style, help, helpImage, label, icon, expand, maximize, elementList = []} = props;
+  const {id, style, help, helpImage, label, icon, expand, maximize, elementList = [],
+    advancedMode, advancedCriteria, searchCriteria} = props;
   // The window grows over the maximize target like a grid does, and its siblings fade out
   const {ref: windowRef, iconMaximized, style: maximizeStyle, className: maximizeClassName, toggle: toggleMaximized} = useMaximize();
   const { t } = useTranslation();
+  // Advanced search (#790): a window that holds an advanced block shares its state with it, and the block draws the
+  // disclosure row, the filters in effect and the advanced criteria where it is
+  const advanced = useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria});
 
   const getIcon = () => {
     if (icon) {
@@ -51,7 +56,7 @@ function AweWindow(props) {
 
   const classes = classNames("m-2", `expandible-${expand || "vertical"}`, style, maximizeClassName);
 
-  return <>
+  const panel = <>
     {getHelpTooltipNode(help, helpImage, t,`.help-target-${id}`)}
     <Panel
       id={id}
@@ -64,6 +69,11 @@ function AweWindow(props) {
       {elementList.map((node, index) => Components(node, index))}
     </Panel>
   </>;
+
+  if (!advanced) {
+    return panel;
+  }
+  return <AdvancedSearchContext.Provider value={advanced}>{panel}</AdvancedSearchContext.Provider>;
 }
 
 AweWindow.propTypes = {
@@ -75,7 +85,10 @@ AweWindow.propTypes = {
   icon: PropTypes.string,
   help: PropTypes.string,
   helpImage: PropTypes.string,
-  elementList: PropTypes.array
+  elementList: PropTypes.array,
+  advancedMode: PropTypes.string,
+  advancedCriteria: PropTypes.array,
+  searchCriteria: PropTypes.array
 };
 
 export default AweWindow;

@@ -1,0 +1,268 @@
+//
+// Advanced block of a window (#790): its row (the toggle of the advanced criteria with its counter badge, then the
+// filters in effect as removable dashed chips and Clear all after a divider) and the region of its children, which
+// opens below the row (inline) or lives in the side panel of the advanced criteria (#843)
+// --------------------------------------------------
+
+// The block follows the essential criteria (floating columns) and holds its own ones
+.window-advanced {
+  clear: both;
+}
+
+// The row never moves: the region opens below it. It wraps on small screens
+.window-advanced-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  // The gutter of the criteria columns, so the toggle and its hover start at the edge of the fields
+  padding: var(--awe-space-2) calc(var(--awe-gap-form-column) / 2) var(--awe-space-1);
+}
+
+// The row reads as the separator between the essential and the advanced criteria
+.window-advanced-region {
+  padding-top: var(--awe-space-2);
+
+  &::after {
+    display: table;
+    clear: both;
+    content: "";
+  }
+
+  // Collapsed: hidden, still mounted (dependencies, validation, print and export do not change)
+  &.window-advanced-collapsed {
+    display: none;
+  }
+}
+
+// Text button with the sliders icon, the counter badge and the chevron (inline) or the panel icon (side panel)
+.window-advanced-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-gap-inline);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: 1;
+  color: var(--awe-color-primary-text);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-md);
+  cursor: pointer;
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    background: var(--awe-color-highlight);
+  }
+
+  &:active {
+    background: var(--awe-color-highlight-focus);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+
+  .window-advanced-chevron {
+    transition: rotate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+  }
+
+  &[aria-expanded="true"] .window-advanced-chevron {
+    rotate: 180deg;
+  }
+}
+
+// Counter badge: advanced criteria whose value differs from its default
+.window-advanced-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--awe-size-icon);
+  height: var(--awe-size-icon);
+  padding: 0 var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  color: var(--awe-color-on-highlight);
+  background: var(--awe-color-highlight-focus);
+  border-radius: var(--awe-radius-full);
+}
+
+// Filters in effect, only while there are some: one dashed removable chip per criterion that differs from its default,
+// after a divider, and Clear all
+.window-filter-chips {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  min-width: 0;
+  font-size: var(--awe-font-size-sm);
+
+  &::before {
+    align-self: center;
+    width: 1px;
+    height: var(--awe-space-5);
+    content: "";
+    background: var(--awe-color-border);
+  }
+}
+
+.window-filter-chips-title {
+  color: var(--awe-color-text-muted);
+}
+
+.window-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  max-width: 100%;
+  min-height: calc(var(--awe-size-control-sm) - var(--awe-space-1));
+  padding: 0 var(--awe-space-1) 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: 1px dashed var(--awe-color-field-border);
+  border-radius: var(--awe-radius-full);
+
+  b {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  > .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  // An advanced filter in effect while the advanced criteria are hidden
+  &.window-filter-chip-hidden {
+    background: var(--awe-color-surface-subtle);
+  }
+}
+
+.window-filter-chip-remove {
+  display: inline-grid;
+  place-items: center;
+  line-height: 0;
+  width: var(--awe-size-icon);
+  height: var(--awe-size-icon);
+  padding: 0;
+  color: var(--awe-color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-full);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+  }
+
+  // Centred in its button, not laid on the text baseline
+  .awe-icon {
+    display: block;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+// After the chips
+.window-filter-clear-all {
+  padding: 0 var(--awe-space-2);
+  height: var(--awe-size-control-sm);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-primary-text);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-md);
+  cursor: pointer;
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    background: var(--awe-color-highlight);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+// Side panel of the advanced criteria: Reset to defaults at the start of the footer, Cancel and Show results at the end
+.window-advanced-panel {
+  .window-advanced-panel-body {
+    padding: var(--awe-content-padding);
+  }
+
+  .modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--awe-space-2);
+  }
+
+  .modal-footer .btn + .btn {
+    margin-left: 0;
+  }
+
+  // A text button, as in the design
+  .modal-footer .btn.btn-awe.window-advanced-reset {
+    gap: var(--awe-space-1-5);
+    margin-right: auto;
+    color: var(--awe-color-primary-text);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+
+    &:hover {
+      background: var(--awe-color-highlight);
+    }
+
+    &:active {
+      background: var(--awe-color-highlight-focus);
+    }
+  }
+}
+
+// Small screens: the panel takes the whole width
+@media (max-width: @screen-small) {
+  .window-advanced-panel .modal-dialog {
+    max-width: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-advanced-toggle,
+  .window-advanced-toggle .window-advanced-chevron,
+  .window-filter-clear-all {
+    transition: none;
+  }
+}
