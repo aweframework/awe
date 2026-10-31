@@ -2,6 +2,7 @@
 // the counter badge and the filters in effect) and its criteria, below the row or in a side panel
 import {cleanupHeavyComponentTest, initHeavyComponentTest, stubPanelComponent} from "./heavyComponentTestUtils";
 import {TestIds} from "../../../main/resources/js/awe/data/testIds";
+import {disposeModal} from "../../../main/resources/js/awe/services/modal";
 import {submitForm} from "../../../main/resources/js/awe/services/criterion";
 
 const hook = id => `[data-testid='${id}']`;
@@ -31,7 +32,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvanc
   });
 
   afterEach(() => {
-    $(".modal").modal("hide");
+    $(".modal").each((index, modal) => disposeModal(modal));
     $(document.body).removeClass("modal-open");
     cleanupHeavyComponentTest();
     document.body.innerHTML = "";
