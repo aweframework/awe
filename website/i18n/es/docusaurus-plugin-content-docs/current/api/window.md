@@ -12,7 +12,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 ```xml 
 <window id="[window-identifier]" label="[window-label]" style="[window-style]"
         icon="[window-icon]" expandible="[expand-orientation]" maximize="[maximize-window]"
-        advanced-mode="[advanced-mode]">
+        advanced-mode="[advanced-mode]" saved-searches="[saved-searches]">
   <tag type="div" style="panel-body">
     ...
     <advanced>...</advanced>
@@ -52,6 +52,7 @@ Una ventana es un contenedor con una barra de título. También puede maximizars
 | expandible | Opcional | String  | Cómo [expandir](layout.md) los hijos de la ventana   | `vertical`, `horizontal`                                                                      |
 | maximize   | Opcional | Boolean | Si se muestra o no el icono de maximizar             | **Nota:** Solo se puede maximizar una ventana con `label`                                     |
 | advanced-mode | Opcional | String | Cómo muestra la ventana su [bloque avanzado](#advanced-search) | `inline` (por defecto), `side-panel`. **Nota:** Solo se usa si la ventana tiene un bloque `advanced` |
+| saved-searches | Opcional | Boolean | Si la ventana muestra el menú [Búsquedas guardadas](#saved-searches) de su bloque avanzado | `false` (por defecto), `true`. **Nota:** Solo se usa si la ventana tiene un bloque `advanced` |
 | help       | Opcional | String  | Texto de ayuda del criterio                          | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)                 |
 | help-image | Opcional | String  | Imagen de ayuda del criterio                         | Esto **debe** ser una ruta de imagen                                                          |
 
@@ -134,6 +135,33 @@ ventana sin él no cambia.
       </button>
     </tag>
   </tag>
+</window>
+```
+
+### Búsquedas guardadas {#saved-searches}
+
+Con `saved-searches="true"` una ventana con un bloque `<advanced>` muestra un menú **Búsquedas guardadas** justo después
+del botón **Filtros avanzados**, para que los usuarios conserven las búsquedas que lanzan a menudo y las reutilicen:
+
+* **Mis búsquedas**: las búsquedas que el usuario guardó en esta ventana. Al aplicar una, cada criterio de la ventana
+  vuelve a su valor por defecto, se ponen los valores guardados y se lanza la búsqueda (como **Ver resultados**).
+* **Compartidas con tu perfil**: las búsquedas que un administrador publicó para el perfil del usuario. Se aplican igual,
+  pero solo un administrador las cambia. Un usuario que puede publicar ve aquí las búsquedas publicadas para todos los
+  perfiles, cada una con su perfil, para poder renombrarlas y borrarlas.
+* **Guardar la búsqueda actual…**: guarda con un nombre los valores de los criterios de la ventana. Un nombre que ya existe
+  se reemplaza. Un usuario que puede publicar elige un perfil en lugar de *Solo yo*.
+* **Gestionar búsquedas…**: renombra o borra las búsquedas propias (y las publicadas, si el usuario puede publicar).
+
+El servidor guarda de cada búsqueda solo los valores de los criterios de la ventana (los ocultos no se guardan), toma el
+usuario y el perfil de la sesión y comprueba que la ventana ofrece búsquedas guardadas. Un usuario puede publicar cuando
+su menú, con las restricciones de su perfil y de su usuario, le da acceso a la opción de la propiedad
+`awe.saved-search.publish-option` (por defecto `profiles`, la pantalla de perfiles del menú Herramientas): las
+restricciones de siempre deciden quién publica, sin tablas nuevas. Las búsquedas se guardan en la tabla `AweSavSch`
+(migración Flyway `AWE_V1.5.2`). Una ventana sin el atributo no cambia.
+
+```xml
+<window id="WinUsrCrt" label="SCREEN_TEXT_CRITERIA" icon="filter" saved-searches="true">
+  ...
 </window>
 ```
 

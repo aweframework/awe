@@ -356,6 +356,36 @@
       <service-parameter type="STRING" name="open" />
     </java>
   </service>
+  <!-- Saved searches (the user and the profile come from the session) -->
+  <service id="getWindowSavedSearches">
+    <java classname="com.almis.awe.service.SavedSearchService" method="getWindowSavedSearches">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+    </java>
+  </service>
+  <service id="getSavedSearchProfiles">
+    <java classname="com.almis.awe.service.SavedSearchService" method="getSavedSearchProfiles" />
+  </service>
+  <service id="saveWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="saveWindowSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="name" />
+      <service-parameter type="STRING" name="values" />
+      <service-parameter type="STRING" name="profile" />
+    </java>
+  </service>
+  <service id="renameWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="renameWindowSearch">
+      <service-parameter type="STRING" name="id" />
+      <service-parameter type="STRING" name="name" />
+    </java>
+  </service>
+  <service id="deleteWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="deleteWindowSearch">
+      <service-parameter type="STRING" name="id" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">

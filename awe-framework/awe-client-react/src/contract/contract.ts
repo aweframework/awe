@@ -655,6 +655,7 @@ export interface Window extends Component {
     advancedMode?: string;
     advancedOpen?: boolean;
     maximize?: boolean;
+    savedSearches?: boolean;
     searchCriteria?: string[];
 }
 

@@ -1854,6 +1854,154 @@
     </serve>
   </target>
 
+  <!--
+  Saved searches of the advanced block of the windows. The user always comes from the session. The targets that write
+  an own search read it from the session parameter savedSearchOwner, and the targets of the searches published for a
+  profile read the profile from savedSearchPublishProfile: only SavedSearchService sets them, after its checks, so the
+  targets launched directly change nothing
+  -->
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria -->
+  <target name="saveWindowSearch">
+    <serve service="saveWindowSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="name" type="STRING" name="savedSearchName"/>
+      <variable id="values" type="STRING" name="savedSearchValues"/>
+      <variable id="profile" type="STRING" name="savedSearchProfile"/>
+    </serve>
+  </target>
+
+  <target name="renameWindowSearch">
+    <serve service="renameWindowSearch">
+      <variable id="id" type="STRING" name="savedSearchId"/>
+      <variable id="name" type="STRING" name="savedSearchName"/>
+    </serve>
+  </target>
+
+  <target name="deleteWindowSearch">
+    <serve service="deleteWindowSearch">
+      <variable id="id" type="STRING" name="savedSearchId"/>
+    </serve>
+  </target>
+
+  <target name="insertUserSavedSearch">
+    <insert>
+      <table id="AweSavSch"/>
+      <field id="IdeSavSch" sequence="SavSchKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="Nam" variable="name"/>
+      <field id="Val" variable="values"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="values" type="STRING" name="values"/>
+    </insert>
+  </target>
+
+  <target name="insertProfileSavedSearch">
+    <insert>
+      <table id="AweSavSch"/>
+      <field id="IdeSavSch" sequence="SavSchKey"/>
+      <field id="Pro" variable="profile"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="Nam" variable="name"/>
+      <field id="Val" variable="values"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="values" type="STRING" name="values"/>
+    </insert>
+  </target>
+
+  <target name="updateUserSavedSearchValues">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Val" variable="values"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="values" type="STRING" name="values"/>
+    </update>
+  </target>
+
+  <target name="updateProfileSavedSearchValues">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Val" variable="values"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="values" type="STRING" name="values"/>
+    </update>
+  </target>
+
+  <target name="renameUserSavedSearch">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Nam" variable="name"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="name" type="STRING" name="name"/>
+    </update>
+  </target>
+
+  <target name="renameProfileSavedSearch">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Nam" variable="name"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="name" type="STRING" name="name"/>
+    </update>
+  </target>
+
+  <target name="deleteUserSavedSearch">
+    <delete>
+      <table id="AweSavSch"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="user"/>
+    </delete>
+  </target>
+
+  <target name="deleteProfileSavedSearch">
+    <delete>
+      <table id="AweSavSch"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+    </delete>
+  </target>
+
   <target name="saveUserAvatar">
     <serve service="saveUserAvatar">
       <variable id="avatarToken" type="STRING" name="CrtAvatar"/>

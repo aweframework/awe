@@ -1,0 +1,267 @@
+// Saved searches of a window (#790): the Saved searches button in the row of the advanced block, its menu, and the save,
+// manage and delete dialogs
+
+// Text button with the bookmark icon, the name of the search in effect and the chevron
+.window-saved-searches {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-gap-inline);
+  max-width: 100%;
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+.window-saved-searches-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-saved-searches-icon .awe-icon,
+.window-saved-searches-chevron .awe-icon,
+.window-saved-searches-option-icon .awe-icon {
+  width: var(--awe-size-icon);
+  height: var(--awe-size-icon);
+}
+
+.window-saved-searches-chevron {
+  display: inline-grid;
+  place-items: center;
+  transition: rotate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.window-saved-searches[aria-expanded="true"] .window-saved-searches-chevron {
+  rotate: 180deg;
+}
+
+// Menu: a list of options, as the other menus of the overlays
+.window-saved-searches-overlay {
+  min-width: var(--awe-size-menu-width);
+  max-width: 95vw;
+
+  &.p-overlaypanel::before,
+  &.p-overlaypanel::after {
+    border: none;
+  }
+
+  .p-overlaypanel-content {
+    padding: var(--awe-list-padding);
+  }
+}
+
+.window-saved-searches-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-list-gap);
+}
+
+.window-saved-searches-head {
+  margin: 0;
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-list-option-group);
+}
+
+.window-saved-searches-empty {
+  margin: 0;
+  padding: var(--awe-list-option-padding);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.window-saved-searches-separator {
+  height: 1px;
+  margin: var(--awe-space-1) 0;
+  background: var(--awe-color-border);
+}
+
+.window-saved-searches-option {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+  padding: var(--awe-list-option-padding);
+  font: inherit;
+  text-align: start;
+  color: var(--awe-color-list-option-text);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--awe-color-list-option-text-focus);
+    background: var(--awe-color-list-option-focus);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(var(--awe-focus-ring-width) * -1);
+  }
+
+  // The search in effect
+  &[aria-current="true"] {
+    color: var(--awe-color-list-option-text-selected);
+    background: var(--awe-color-list-option-selected);
+  }
+
+  &[aria-current="true"]:focus-visible {
+    background: var(--awe-color-list-option-selected-focus);
+  }
+}
+
+.window-saved-searches-option-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  color: var(--awe-color-list-option-icon);
+}
+
+.window-saved-searches-option-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Tag of the profile a search is published for
+.window-saved-search-profile {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+}
+
+// Save and manage dialogs: a header with the title, the subtitle and the close button, as the Columns dialog
+.window-saved-search-dialog {
+  .window-saved-search-dialog-header {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    gap: var(--awe-space-3);
+    min-width: 0;
+  }
+
+  .window-saved-search-dialog-titles {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .window-saved-search-dialog-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .window-saved-search-dialog-subtitle {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  .window-saved-search-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--awe-space-2);
+  }
+
+  .window-saved-search-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--awe-space-4);
+  }
+
+  .window-saved-search-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--awe-space-1);
+
+    label {
+      font-size: var(--awe-font-size-label);
+      font-weight: var(--awe-font-weight-medium);
+      color: var(--awe-color-text);
+    }
+
+    .p-inputtext,
+    .p-dropdown {
+      width: 100%;
+    }
+  }
+
+  .window-saved-search-required {
+    color: var(--awe-color-danger);
+  }
+
+  .window-saved-search-help {
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-muted);
+  }
+
+  .p-button:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+// Manage dialog: a row per search with whom it is for and its actions
+.window-saved-search-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--awe-font-size-sm);
+
+  th {
+    padding: var(--awe-space-2);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-semibold);
+    text-align: start;
+    color: var(--awe-color-text-muted);
+    border-bottom: 1px solid var(--awe-color-border);
+  }
+
+  td {
+    padding: var(--awe-space-1) var(--awe-space-2);
+    color: var(--awe-color-text);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--awe-color-border-subtle);
+  }
+
+  .window-saved-search-actions-cell {
+    width: 1%;
+    white-space: nowrap;
+  }
+}
+
+.window-saved-search-actions,
+.window-saved-search-rename {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-0-5);
+}
+
+.window-saved-search-rename .p-inputtext {
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-saved-searches-chevron,
+  .window-saved-searches-option {
+    transition: none;
+  }
+}

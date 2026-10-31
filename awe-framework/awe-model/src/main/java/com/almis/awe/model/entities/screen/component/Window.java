@@ -53,6 +53,11 @@ public class Window extends Component {
   @XStreamAsAttribute
   private String advancedMode;
 
+  // Whether the window offers the saved searches of its advanced block (#790)
+  @XStreamAlias("saved-searches")
+  @XStreamAsAttribute
+  private Boolean savedSearches;
+
   // Whether the current user left the advanced block open (#790): set at screen generation only when the user has a
   // state stored for the window, so windows without one send nothing
   @JsonProperty("advancedOpen")
@@ -125,6 +130,27 @@ public class Window extends Component {
       return null;
     }
     return advancedMode == null ? "inline" : advancedMode;
+  }
+
+  /**
+   * Returns if the window offers saved searches: it opts in and holds an advanced block
+   *
+   * @return Window offers saved searches
+   */
+  @JsonIgnore
+  public boolean hasSavedSearches() {
+    return Boolean.TRUE.equals(savedSearches) && hasAdvancedBlock();
+  }
+
+  /**
+   * Whether the window offers saved searches, for JSON serialization. Absent unless the window opts in and holds an
+   * advanced block
+   *
+   * @return true or null
+   */
+  @JsonGetter("savedSearches")
+  public Boolean getSavedSearchesConverter() {
+    return hasSavedSearches() ? Boolean.TRUE : null;
   }
 
   /**

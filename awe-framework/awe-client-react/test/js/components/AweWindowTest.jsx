@@ -762,4 +762,476 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
       expect(global.fetch).not.toHaveBeenCalled();
     });
   });
+
+  // Delivery 3 of #790: the saved searches of a window (saved-searches="true"): the own ones of the user and the ones
+  // published for its profile, in a menu right after the Advanced filters toggle
+  describe("saved searches", () => {
+    const originalFetch = global.fetch;
+    const SEARCHES = [
+      {id: 1, name: "Dark themes", own: 1, profile: "", values: JSON.stringify({
+        CrtUsr: [{value: "bob", label: "Bob"}], CrtThm: [{value: "2", label: "Dark"}], CrtBlk: []})},
+      {id: 2, name: "Blocked users", own: 0, profile: "ADM", values: JSON.stringify({CrtBlk: [{value: 1}]})}
+    ];
+    const PROFILES = [{value: "ADM", label: "Administrator"}, {value: "OPE", label: "Operator"}];
+    let server;
+    const fill = (rows) => [{type: "fill", parameters: {datalist: {rows, total: 1, page: 1, records: rows.length}}}];
+    const answer = (body) => Promise.resolve({ok: true, status: 200, json: () => Promise.resolve(body),
+      text: () => Promise.resolve(JSON.stringify(body))});
+    // Parameters of every call to a target of the server
+    const calls = (target) => global.fetch.mock.calls.filter(([url]) => url.endsWith(`/${target}`))
+      .map(([, options]) => JSON.parse(options.body));
+    // Actions queued to be launched (a thunk dispatches them inside the store, so a dispatch spy does not see them)
+    const queued = (store, type) => [...store.getState().actions.sync.flat(), ...store.getState().actions.async.flat()]
+      .filter(action => action?.type === type);
+    const flush = async () => {
+      for (let index = 0; index < 6; index++) {
+        await act(async () => {
+          await Promise.resolve();
+        });
+      }
+    };
+
+    const savedState = (attributes) => {
+      const state = preloadedState();
+      state.components.SearchWindow = {address: {component: "SearchWindow", view: VIEW}, attributes,
+        validationRules: {}, specificAttributes: {}};
+      return state;
+    };
+    const renderSaved = (props = {}, attributes = {savedSearches: true}) =>
+      renderWindow(props, {preloadedState: savedState(attributes)});
+    const button = () => byTestId("window-saved-searches");
+    const menu = () => byTestId("window-saved-searches-menu");
+    const items = () => allByTestId("window-saved-search-item");
+    const item = (id) => items().find(element => element.getAttribute("data-saved-search-id") === String(id));
+    const menuItems = () => [...menu().querySelectorAll("[role='menuitem']")];
+    const openMenu = async () => {
+      fireEvent.click(button());
+      await flush();
+    };
+    const saveDialog = () => byTestId("window-saved-search-dialog");
+    const manageDialog = () => byTestId("window-saved-search-manage-dialog");
+    const nameInput = () => byTestId("window-saved-search-name");
+    const openSaveDialog = async () => {
+      await openMenu();
+      fireEvent.click(byTestId("window-saved-search-save"));
+      await flush();
+    };
+    const openManageDialog = async () => {
+      await openMenu();
+      fireEvent.click(byTestId("window-saved-search-manage"));
+      await flush();
+    };
+    const rows = () => allByTestId("window-saved-search-row");
+    const manageRow = (id) => rows().find(element => element.getAttribute("data-saved-search-id") === String(id));
+    const labels = (store, id) => store.getState().components[id].model.values
+      .filter(value => value.selected).map(value => value.label);
+
+    beforeEach(() => {
+      server = {searches: SEARCHES, profiles: [], answers: {}, fail: []};
+      global.fetch = jest.fn((url) => {
+        const target = url.split("/").pop();
+        if (server.fail.includes(target)) {
+          return Promise.reject(new Error("down"));
+        }
+        if (target === "getWindowSavedSearches") {
+          return answer(fill(server.searches));
+        }
+        if (target === "getSavedSearchProfiles") {
+          return answer(fill(server.profiles));
+        }
+        return answer(server.answers[target] ?? []);
+      });
+      ViewRegistry.setView(VIEW, {name: "UsrLst", loading: false});
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+      ViewRegistry.clearAll();
+    });
+
+    describe("the button", () => {
+      it("is not drawn when the window component does not carry savedSearches true", () => {
+        renderSaved({}, {savedSearches: false});
+
+        expect(button()).toBeNull();
+        expect([...row().children]).toEqual([toggle(), byTestId("window-filter-chips")]);
+      });
+
+      it("is not drawn in a window without the window component in the store", () => {
+        renderWindow();
+
+        expect(button()).toBeNull();
+      });
+
+      it("is drawn right after the Advanced filters toggle and before the filters in effect, and loads nothing", () => {
+        renderSaved();
+
+        expect(row().children[0]).toBe(toggle());
+        expect(row().children[1]).toBe(button());
+        expect(row().children[2]).toBe(byTestId("window-filter-chips"));
+        expect(button().getAttribute("data-testid-owner")).toBe("SearchWindow");
+        expect(button().textContent).toBe("SCREEN_TEXT_SAVED_SEARCHES");
+        expect(button().getAttribute("aria-haspopup")).toBe("menu");
+        expect(button().getAttribute("aria-expanded")).toBe("false");
+        expect(button().querySelector("use[href$='#bookmark']")).not.toBeNull();
+        expect(button().querySelector("use[href$='#chevron-down']")).not.toBeNull();
+        expect(menu()).toBeNull();
+        expect(global.fetch).not.toHaveBeenCalled();
+      });
+
+      it("is drawn in a side-panel window too", () => {
+        renderSaved({advancedMode: "side-panel"});
+
+        expect(row().children[1]).toBe(button());
+      });
+    });
+
+    describe("the menu", () => {
+      it("loads the searches of the screen and the window each time it opens, and the profiles only once", async () => {
+        renderSaved();
+
+        await openMenu();
+
+        expect(calls("getWindowSavedSearches")).toEqual([
+          expect.objectContaining({savedSearchScreen: "UsrLst", savedSearchWindow: "SearchWindow"})]);
+        expect(calls("getSavedSearchProfiles")).toHaveLength(1);
+        expect(button().getAttribute("aria-expanded")).toBe("true");
+
+        fireEvent.keyDown(document.activeElement, {key: "Escape"});
+        await flush();
+        await openMenu();
+
+        expect(calls("getWindowSavedSearches")).toHaveLength(2);
+        expect(calls("getSavedSearchProfiles")).toHaveLength(1);
+      });
+
+      it("lists the own searches, then the shared ones with their profile, then Save and Manage", async () => {
+        renderSaved();
+
+        await openMenu();
+
+        expect(menu().getAttribute("role")).toBe("menu");
+        expect(menu().getAttribute("aria-label")).toBe("SCREEN_TEXT_SAVED_SEARCHES");
+        expect(menu().getAttribute("data-testid-owner")).toBe("SearchWindow");
+        expect(button().getAttribute("aria-controls")).toBe(menu().id);
+        expect([...menu().querySelectorAll(".window-saved-searches-head")].map(head => head.textContent))
+          .toEqual(["SCREEN_TEXT_MY_SEARCHES", "SCREEN_TEXT_SHARED_SEARCHES"]);
+        expect(items().map(element => [element.getAttribute("data-saved-search-id"), element.getAttribute("data-type"),
+          element.textContent])).toEqual([["1", "own", "Dark themes"], ["2", "shared", "Blocked usersADM"]]);
+        expect(menuItems()).toEqual([item(1), item(2), byTestId("window-saved-search-save"),
+          byTestId("window-saved-search-manage")]);
+        expect(byTestId("window-saved-search-save").textContent).toBe("SCREEN_TEXT_SAVE_CURRENT_SEARCH");
+        expect(byTestId("window-saved-search-manage").textContent).toBe("SCREEN_TEXT_MANAGE_SEARCHES");
+      });
+
+      it("tags a shared search with the name of its profile when the user may publish for it", async () => {
+        server.profiles = PROFILES;
+        renderSaved();
+
+        await openMenu();
+
+        expect(item(2).querySelector(".window-saved-search-profile").textContent).toBe("Administrator");
+      });
+
+      it("tells there is no saved search yet, and keeps Save and Manage", async () => {
+        server.searches = [];
+        renderSaved();
+
+        await openMenu();
+
+        expect(items()).toEqual([]);
+        expect(menu().textContent).toContain("SCREEN_TEXT_NO_SAVED_SEARCHES");
+        expect(menuItems()).toEqual([byTestId("window-saved-search-save"), byTestId("window-saved-search-manage")]);
+      });
+
+      it("moves the focus with the arrows and gives it back to the button with Escape", async () => {
+        renderSaved();
+        button().focus();
+
+        await openMenu();
+        expect(document.activeElement).toBe(menuItems()[0]);
+
+        fireEvent.keyDown(document.activeElement, {key: "ArrowDown"});
+        expect(document.activeElement).toBe(menuItems()[1]);
+        fireEvent.keyDown(document.activeElement, {key: "End"});
+        expect(document.activeElement).toBe(byTestId("window-saved-search-manage"));
+        fireEvent.keyDown(document.activeElement, {key: "ArrowDown"});
+        expect(document.activeElement).toBe(menuItems()[0]);
+        fireEvent.keyDown(document.activeElement, {key: "ArrowUp"});
+        expect(document.activeElement).toBe(byTestId("window-saved-search-manage"));
+        fireEvent.keyDown(document.activeElement, {key: "Home"});
+        expect(document.activeElement).toBe(menuItems()[0]);
+
+        fireEvent.keyDown(document.activeElement, {key: "Escape"});
+        await flush();
+
+        expect(button().getAttribute("aria-expanded")).toBe("false");
+        expect(document.activeElement).toBe(button());
+      });
+
+      it("shows an error message when the searches cannot be loaded", async () => {
+        server.fail = ["getWindowSavedSearches"];
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+        const {store} = renderSaved();
+
+        await openMenu();
+
+        expect(queued(store, "message")).toEqual([expect.objectContaining({parameters: expect.objectContaining({
+          type: "error", title: "SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE", message: "SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE"})})]);
+        expect(items()).toEqual([]);
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe("apply", () => {
+      it("restores every criterion, sets the saved values with their labels and shows the results", async () => {
+        const {store} = renderSaved();
+        await openMenu();
+
+        fireEvent.click(item(1));
+        await flush();
+
+        expect(selected(store, "CrtUsr")).toEqual(["bob"]);
+        expect(labels(store, "CrtUsr")).toEqual(["Bob"]);
+        expect(selected(store, "CrtThm")).toEqual(["2"]);
+        expect(selected(store, "CrtBlk")).toEqual([]);
+        expect(queued(store, "submit")).toEqual([expect.objectContaining({type: "submit", target: "SearchWindow",
+          address: {component: "CrtThm", view: VIEW}})]);
+        expect(button().getAttribute("aria-expanded")).toBe("false");
+      });
+
+      it("brings back to its default every criterion the search does not carry", async () => {
+        const {store} = renderSaved();
+        await openMenu();
+
+        fireEvent.click(item(2));
+        await flush();
+
+        expect(selected(store, "CrtUsr")).toEqual([]);
+        expect(selected(store, "CrtThm")).toEqual(["1"]);
+        expect(selected(store, "CrtBlk")).toEqual([1]);
+      });
+
+      it("shows the name of the applied search on the button until a criterion changes", async () => {
+        const {store} = renderSaved();
+        await openMenu();
+
+        fireEvent.click(item(1));
+        await flush();
+        expect(button().textContent).toBe("Dark themes");
+        await openMenu();
+        expect(item(1).getAttribute("aria-current")).toBe("true");
+        expect(item(2).getAttribute("aria-current")).toBeNull();
+        fireEvent.keyDown(document.activeElement, {key: "Escape"});
+        await flush();
+
+        update(store, "CrtThm", select("1"));
+
+        expect(button().textContent).toBe("SCREEN_TEXT_SAVED_SEARCHES");
+      });
+    });
+
+    describe("save", () => {
+      it("saves the selected values of every search criterion with the name, and loads the searches again", async () => {
+        renderSaved();
+        await openSaveDialog();
+
+        expect(saveDialog()).not.toBeNull();
+        expect(saveDialog().getAttribute("data-testid-owner")).toBe("SearchWindow");
+        expect(saveDialog().textContent).toContain("SCREEN_TEXT_SAVE_SEARCH");
+        expect(nameInput().value).toBe("");
+        expect(byTestId("window-saved-search-profile")).toBeNull();
+
+        fireEvent.change(nameInput(), {target: {value: "Mine"}});
+        fireEvent.click(byTestId("window-saved-search-accept"));
+        await flush();
+
+        expect(calls("saveWindowSearch")).toEqual([{savedSearchScreen: "UsrLst", savedSearchWindow: "SearchWindow",
+          savedSearchName: "Mine", savedSearchValues: expect.any(String)}]);
+        expect(JSON.parse(calls("saveWindowSearch")[0].savedSearchValues)).toEqual({
+          CrtUsr: [{value: "ana", label: "ana"}], CrtThm: [{value: "2", label: "Dark"}], CrtBlk: [{value: 1}]});
+        expect(global.fetch.mock.calls[global.fetch.mock.calls.length - 2][0]).toContain("/action/maintain-silent/saveWindowSearch");
+        expect(calls("getWindowSavedSearches")).toHaveLength(2);
+        await waitFor(() => expect(saveDialog()).toBeNull());
+      });
+
+      it("requires a name", async () => {
+        renderSaved();
+        await openSaveDialog();
+
+        fireEvent.change(nameInput(), {target: {value: "  "}});
+        fireEvent.click(byTestId("window-saved-search-accept"));
+        await flush();
+
+        expect(calls("saveWindowSearch")).toEqual([]);
+        expect(nameInput().getAttribute("aria-invalid")).toBe("true");
+        expect(saveDialog().textContent).toContain("VALIDATOR_MESSAGE_REQUIRED");
+        expect(saveDialog()).not.toBeNull();
+      });
+
+      it("closes without saving with Cancel", async () => {
+        renderSaved();
+        await openSaveDialog();
+
+        fireEvent.change(nameInput(), {target: {value: "Mine"}});
+        fireEvent.click(byTestId("window-saved-search-cancel"));
+        await flush();
+
+        await waitFor(() => expect(saveDialog()).toBeNull());
+        expect(calls("saveWindowSearch")).toEqual([]);
+      });
+
+      it("is prefilled with the name of the applied search", async () => {
+        renderSaved();
+        await openMenu();
+        fireEvent.click(item(1));
+        await flush();
+
+        await openSaveDialog();
+
+        expect(nameInput().value).toBe("Dark themes");
+      });
+
+      it("publishes for a profile when the user may, Only me first", async () => {
+        server.profiles = PROFILES;
+        renderSaved();
+        await openSaveDialog();
+
+        // The hook is on the trigger of the select, owned by the window, as the select2 trigger of the AngularJS client
+        const profile = byTestId("window-saved-search-profile");
+        expect(profile.getAttribute("data-testid-owner")).toBe("SearchWindow");
+        const select = profile.closest("[data-testid='select']");
+        expect(select).not.toBeNull();
+        expect(select.querySelector("[data-testid='select-value']").textContent).toBe("SCREEN_TEXT_ONLY_ME");
+        fireEvent.click(profile);
+        const options = allByTestId("select-option");
+        expect(options.map(option => option.textContent)).toEqual(["SCREEN_TEXT_ONLY_ME", "Administrator", "Operator"]);
+        expect(options.map(option => option.getAttribute("data-testid-owner"))).toEqual(Array(3).fill("SearchWindow"));
+        fireEvent.click(options[2]);
+        fireEvent.change(nameInput(), {target: {value: "For operators"}});
+        fireEvent.click(byTestId("window-saved-search-accept"));
+        await flush();
+
+        expect(calls("saveWindowSearch")).toEqual([expect.objectContaining({savedSearchName: "For operators",
+          savedSearchProfile: "OPE"})]);
+      });
+
+      it("keeps the dialog open and shows an error message when the save cannot reach the server", async () => {
+        server.fail = ["saveWindowSearch"];
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+        const {store} = renderSaved();
+        await openSaveDialog();
+
+        fireEvent.change(nameInput(), {target: {value: "Mine"}});
+        fireEvent.click(byTestId("window-saved-search-accept"));
+        await flush();
+
+        expect(saveDialog()).not.toBeNull();
+        expect(queued(store, "message")).toEqual([expect.objectContaining({parameters: expect.objectContaining({
+          type: "error", title: "SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE", message: "SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE"})})]);
+        expect(calls("getWindowSavedSearches")).toHaveLength(1);
+        consoleSpy.mockRestore();
+      });
+
+      it("keeps the dialog open and shows the message of the server when it answers with an error", async () => {
+        server.answers.saveWindowSearch = [{type: "message", parameters: {type: "error", title: "Error", message: "Taken"}}];
+        const {store} = renderSaved();
+        await openSaveDialog();
+
+        fireEvent.change(nameInput(), {target: {value: "Mine"}});
+        fireEvent.click(byTestId("window-saved-search-accept"));
+        await flush();
+
+        expect(saveDialog()).not.toBeNull();
+        expect(queued(store, "message")).toEqual([expect.objectContaining({parameters: expect.objectContaining({
+          type: "error", title: "Error", message: "Taken"})})]);
+      });
+    });
+
+    describe("manage", () => {
+      it("lists the searches with rename and delete for the own ones only, when the user may not publish", async () => {
+        renderSaved();
+        await openManageDialog();
+
+        expect(manageDialog().getAttribute("data-testid-owner")).toBe("SearchWindow");
+        expect(rows().map(element => element.getAttribute("data-saved-search-id"))).toEqual(["1", "2"]);
+        expect(manageRow(1).textContent).toContain("SCREEN_TEXT_SEARCH_OWNER_ME");
+        expect(manageRow(2).textContent).toContain("ADM");
+        expect(byTestId("window-saved-search-rename", manageRow(1))).not.toBeNull();
+        expect(byTestId("window-saved-search-delete", manageRow(1))).not.toBeNull();
+        expect(byTestId("window-saved-search-rename", manageRow(2))).toBeNull();
+        expect(byTestId("window-saved-search-delete", manageRow(2))).toBeNull();
+        expect(byTestId("window-saved-search-delete", manageRow(1)).getAttribute("aria-label"))
+          .toBe("SCREEN_TEXT_DELETE_SEARCH Dark themes");
+      });
+
+      it("lets a user who may publish change the shared searches too", async () => {
+        server.profiles = PROFILES;
+        renderSaved();
+        await openManageDialog();
+
+        expect(byTestId("window-saved-search-rename", manageRow(2))).not.toBeNull();
+        expect(byTestId("window-saved-search-delete", manageRow(2))).not.toBeNull();
+      });
+
+      it("renames a search and loads the searches again", async () => {
+        renderSaved();
+        await openManageDialog();
+
+        fireEvent.click(byTestId("window-saved-search-rename", manageRow(1)));
+        const input = byTestId("window-saved-search-rename-input", manageRow(1));
+        expect(input.value).toBe("Dark themes");
+        fireEvent.change(input, {target: {value: "Darker"}});
+        fireEvent.click(byTestId("window-saved-search-rename-accept", manageRow(1)));
+        await flush();
+
+        expect(calls("renameWindowSearch")).toEqual([{savedSearchId: 1, savedSearchName: "Darker"}]);
+        expect(calls("getWindowSavedSearches")).toHaveLength(2);
+        expect(byTestId("window-saved-search-rename-input")).toBeNull();
+      });
+
+      it("cancels a rename with Escape, and keeps the dialog open", async () => {
+        renderSaved();
+        await openManageDialog();
+
+        fireEvent.click(byTestId("window-saved-search-rename", manageRow(1)));
+        fireEvent.keyDown(byTestId("window-saved-search-rename-input"), {key: "Escape"});
+        await flush();
+
+        expect(byTestId("window-saved-search-rename-input")).toBeNull();
+        expect(manageDialog()).not.toBeNull();
+        expect(calls("renameWindowSearch")).toEqual([]);
+      });
+
+      it("deletes a search after the confirmation, and loads the searches again", async () => {
+        renderSaved();
+        await openManageDialog();
+
+        fireEvent.click(byTestId("window-saved-search-delete", manageRow(1)));
+        await flush();
+        expect(byTestId("confirm-dialog").textContent).toContain("SCREEN_TEXT_DELETE_SEARCH_MESSAGE");
+        fireEvent.click(byTestId("confirm-cancel"));
+        await flush();
+        expect(calls("deleteWindowSearch")).toEqual([]);
+
+        fireEvent.click(byTestId("window-saved-search-delete", manageRow(1)));
+        await flush();
+        fireEvent.click(byTestId("confirm-accept"));
+        await flush();
+
+        expect(calls("deleteWindowSearch")).toEqual([{savedSearchId: 1}]);
+        expect(calls("getWindowSavedSearches")).toHaveLength(2);
+      });
+
+      it("closes with its Close button", async () => {
+        renderSaved();
+        await openManageDialog();
+
+        fireEvent.click(byTestId("window-saved-search-manage-close"));
+        await flush();
+
+        await waitFor(() => expect(manageDialog()).toBeNull());
+      });
+    });
+  });
 });

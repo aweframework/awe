@@ -33,6 +33,7 @@ Insert into AweKey (KeyNam, KeyVal, Act) values ('JmsKey', 0, 1);
 Insert into AweKey (KeyNam, KeyVal, Act) values ('ScrCnfKey', 0, 1);
 Insert into AweKey (KeyNam, KeyVal, Act) values ('GrdCnfKey', 0, 1);
 Insert into AweKey (KeyNam, KeyVal, Act) values ('WinCnfKey', 0, 1);
+Insert into AweKey (KeyNam, KeyVal, Act) values ('SavSchKey', 0, 1);
 Insert into AweKey (KeyNam, KeyVal, Act) values ('ScrResKey', 0, 1);
 Insert into AweKey (KeyNam, KeyVal, Act) values ('MntTstKey', 1, 1);
 

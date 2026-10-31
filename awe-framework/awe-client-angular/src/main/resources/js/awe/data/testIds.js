@@ -187,6 +187,29 @@ export const TestIds = Object.freeze({
   windowAdvancedReset: "window-advanced-reset",
   windowAdvancedCancel: "window-advanced-cancel",
   windowAdvancedApply: "window-advanced-apply",
+  // Saved searches of a window (#790; owner: window id): the Saved searches button of the row of the advanced block, its
+  // menu with the searches ("data-saved-search-id", "data-type" own or shared) and its Save current search and Manage
+  // searches options; the Save search dialog (name, profile select, Save and Cancel) and the Manage searches dialog with
+  // a row per search ("data-saved-search-id"), its rename (input, accept, cancel) and delete buttons and its Close
+  // button. The delete is confirmed in the confirm dialog
+  windowSavedSearches: "window-saved-searches",
+  windowSavedSearchesMenu: "window-saved-searches-menu",
+  windowSavedSearchItem: "window-saved-search-item",
+  windowSavedSearchSave: "window-saved-search-save",
+  windowSavedSearchManage: "window-saved-search-manage",
+  windowSavedSearchDialog: "window-saved-search-dialog",
+  windowSavedSearchName: "window-saved-search-name",
+  windowSavedSearchProfile: "window-saved-search-profile",
+  windowSavedSearchAccept: "window-saved-search-accept",
+  windowSavedSearchCancel: "window-saved-search-cancel",
+  windowSavedSearchManageDialog: "window-saved-search-manage-dialog",
+  windowSavedSearchRow: "window-saved-search-row",
+  windowSavedSearchRename: "window-saved-search-rename",
+  windowSavedSearchRenameInput: "window-saved-search-rename-input",
+  windowSavedSearchRenameAccept: "window-saved-search-rename-accept",
+  windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
+  windowSavedSearchDelete: "window-saved-search-delete",
+  windowSavedSearchManageClose: "window-saved-search-manage-close",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the global loading bar with its spinner
   loader: "loader",
   loadingBar: "loading-bar",
@@ -244,5 +267,7 @@ export const TestAttributes = Object.freeze({
   rendered: "data-rendered",
   zoomed: "data-zoomed",
   // Criterion of a chip of the filters in effect of a window (#790)
-  filterId: "data-filter-id"
+  filterId: "data-filter-id",
+  // Saved search of an option of the Saved searches menu and of a row of the Manage searches dialog (#790)
+  savedSearchId: "data-saved-search-id"
 });

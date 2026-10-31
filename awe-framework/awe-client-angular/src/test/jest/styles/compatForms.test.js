@@ -47,6 +47,8 @@ const LEFT_OUT = [
     "select2-search-choice", "select2-container-disabled", "switch", "switch__track", "password-toggle", "signin-password-toggle"],
   examples: [".criterion .form-group:has(.required:not(.px)) > .control-label:after", ".signin-form .form-actions .sign-in-azure-btn-light", ".select2-container .select2-choice .select2-arrow"],
   reason: "rules of the AWE 5 design system (#885) for the sign-in screens, the required mark, the icons, the grid edition and the select2 states: they are written in the AWE LESS"},
+  {names: ["window-saved-search-rename"], examples: [".window-saved-search-rename .form-control"],
+    reason: "the inline rename field of the saved searches of a window (#790): an AWE component rule that sizes the input in its row"},
   {match: name => /^theme-/.test(name) || name.startsWith("#"), examples: [".has-error .select2-choice"],
     reason: "theme-scoped selectors (themed values) and id-scoped selectors (the ui-grid library ships its own Bootstrap subset)"},
   {names: ["grid", "ui-grid-cell", "ui-grid-cell-contents", "component", "column-radio", "ui-grid-checkbox", "ui-grid-header-checkbox", "column-input",

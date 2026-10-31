@@ -11,8 +11,9 @@
     <tab id="AdvSchTab" initial-load="enum" target-action="AdvSchExm">
       <tabcontainer id="AdvSchInl">
         <!-- Inline mode (default): the essential criteria, then the advanced block, which opens below the Advanced filters
-             row. Country has a default value -->
-        <window id="WinAdvInl" label="SCREEN_TEXT_ADVANCED_INLINE" icon="filter">
+             row. Country has a default value. Its searches can be saved and published for a profile (saved-searches); the
+             side-panel window does not opt in -->
+        <window id="WinAdvInl" label="SCREEN_TEXT_ADVANCED_INLINE" icon="filter" saved-searches="true">
           <tag type="div" style="panel-body">
             <criteria id="AdvInlNam" label="PARAMETER_ADV_SCH_NAME" component="text" style="col-xs-12 col-sm-6 col-lg-3"/>
             <criteria id="AdvInlSta" label="PARAMETER_ADV_SCH_STATUS" component="select" optional="true" initial-load="enum"

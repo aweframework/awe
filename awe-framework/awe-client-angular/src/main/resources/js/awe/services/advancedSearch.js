@@ -1,6 +1,7 @@
 import {TestAttributes, TestIds} from "../data/testIds";
 import {submitForm} from "./criterion";
 import {iconMarkup} from "./icon";
+import {initSavedSearches, savedSearchesTemplate} from "./savedSearches";
 import {launchSilentService} from "./silentService";
 import "../directives/plugins/uiModal";
 
@@ -54,6 +55,7 @@ const chipsTemplate = `<div class="window-filter-chips" role="group" aria-label=
 export const advancedTemplate = `<div class="window-advanced">
   <div class="window-advanced-row" ng-if="::advanced">
     ${toggleTemplate}
+    ${savedSearchesTemplate}
     ${chipsTemplate}
   </div>
   <div class="window-advanced-region" ng-attr-id="{{::advanced.regionId}}" ng-transclude
@@ -92,9 +94,9 @@ const panelTemplate = `<div class="window-advanced-panel-host">
  * @param {Object} scope Block scope
  * @param {Object} elem Block element
  * @param {Object} windowController Controller of the window that holds the block
- * @param {{$compile: Function, Control: Object, Utilities: Object, $actionController: Object, $settings: Object, Storage: Object}} services Services
+ * @param {{$compile: Function, Control: Object, Utilities: Object, $actionController: Object, $settings: Object, Storage: Object, Connection: Object}} services Services
  */
-export function initAdvancedBlock(scope, elem, windowController, {$compile, Control, Utilities, $actionController, $settings, Storage}) {
+export function initAdvancedBlock(scope, elem, windowController, {$compile, Control, Utilities, $actionController, $settings, Storage, Connection}) {
   const view = scope.$parent.view;
   const search = windowController ? windowController.getAdvancedSearch(view) : null;
   if (!search) {
@@ -158,14 +160,16 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     .filter(id => !RADIOS.includes(controllerOf(id).component) || isSelectedRadio(id))
     .map(chipOf);
 
+  // Name of the screen of the window
+  const screenName = () => ((Storage.get("screen") || {})[view] || {}).name;
+
   /**
    * Remember for the user whether the inline block is open, silently: a failed save changes nothing on the screen
    * @param {boolean} open The block is open
    */
   const saveState = open => {
-    const screen = (Storage.get("screen") || {})[view] || {};
     launchSilentService({$actionController, $settings}, "saveWindowAdvancedState", {
-      advancedStateScreen: screen.name,
+      advancedStateScreen: screenName(),
       advancedStateWindow: windowId,
       advancedStateOpen: open ? "1" : "0"
     }, () => undefined);
@@ -249,6 +253,11 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     }
   };
   scope.advanced = advanced;
+  // The Saved searches menu of a window that opts in
+  if (search.savedSearches) {
+    initSavedSearches(scope, elem, {windowId, title: search.label, searchIds, view, screenName, controllerOf, modelOf, modelAddressOf, valuesOf, restore},
+      {$compile, Control, Utilities, $actionController, $settings, Connection});
+  }
   // Enter in a criterion of the window (or of its panel) launches the submit button of the window
   windowController.advancedBlock = advanced;
 

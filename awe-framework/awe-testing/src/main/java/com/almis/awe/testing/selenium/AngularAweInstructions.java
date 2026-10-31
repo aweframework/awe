@@ -440,6 +440,12 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), XpathLiterals.of(match)));
   }
 
+  @Override
+  public By getWindowSavedSearchDeleteConfirm(String windowId) {
+    // The deletion of a saved search is confirmed in the confirm dialog of the screen, which has no owner
+    return By.cssSelector(css(TestIds.CONFIRM_ACCEPT));
+  }
+
   public boolean datePickerRequiresManualClick() {
     return true;
   }

@@ -71,6 +71,35 @@ describe('awe-react-client/test/js/utilities/testIdsTest.js', () => {
     expect(angularAttributes.filterId).toBe('data-filter-id');
   });
 
+  it('names the parts of the saved searches of a window, as the AngularJS client does', () => {
+    const SAVED_SEARCHES = {
+      windowSavedSearches: 'window-saved-searches',
+      windowSavedSearchesMenu: 'window-saved-searches-menu',
+      windowSavedSearchItem: 'window-saved-search-item',
+      windowSavedSearchSave: 'window-saved-search-save',
+      windowSavedSearchManage: 'window-saved-search-manage',
+      windowSavedSearchDialog: 'window-saved-search-dialog',
+      windowSavedSearchName: 'window-saved-search-name',
+      windowSavedSearchProfile: 'window-saved-search-profile',
+      windowSavedSearchAccept: 'window-saved-search-accept',
+      windowSavedSearchCancel: 'window-saved-search-cancel',
+      windowSavedSearchManageDialog: 'window-saved-search-manage-dialog',
+      windowSavedSearchRow: 'window-saved-search-row',
+      windowSavedSearchRename: 'window-saved-search-rename',
+      windowSavedSearchRenameInput: 'window-saved-search-rename-input',
+      windowSavedSearchRenameAccept: 'window-saved-search-rename-accept',
+      windowSavedSearchRenameCancel: 'window-saved-search-rename-cancel',
+      windowSavedSearchDelete: 'window-saved-search-delete',
+      windowSavedSearchManageClose: 'window-saved-search-manage-close'
+    };
+    Object.entries(SAVED_SEARCHES).forEach(([key, value]) => {
+      expect([key, TestIds[key]]).toEqual([key, value]);
+      expect([key, angularIds[key]]).toEqual([key, value]);
+    });
+    expect(TestAttributes.savedSearchId).toBe('data-saved-search-id');
+    expect(angularAttributes.savedSearchId).toBe('data-saved-search-id');
+  });
+
   it('uses unique values', () => {
     const values = Object.values(TestIds);
     expect(new Set(values).size).toBe(values.length);

@@ -3087,6 +3087,151 @@
   </query>
 
   <!--
+  Saved searches of the advanced block of the windows. The user and the profile always come from the session; the
+  searches published for a profile are written only through SavedSearchService, which sets the session parameter
+  savedSearchPublishProfile after checking the permission
+  -->
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria -->
+  <query id="getWindowSavedSearches" service="getWindowSavedSearches">
+    <field id="id" alias="id"/>
+    <field id="name" alias="name"/>
+    <field id="values" alias="values"/>
+    <field id="profile" alias="profile"/>
+    <field id="own" alias="own"/>
+    <variable id="screen" type="STRING" name="savedSearchScreen"/>
+    <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+  </query>
+
+  <query id="getSavedSearchProfiles" service="getSavedSearchProfiles">
+    <field id="value" alias="value"/>
+    <field id="label" alias="label"/>
+  </query>
+
+  <query id="getUserSavedSearches">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="values"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+  </query>
+
+  <query id="getProfileSavedSearches">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="values"/>
+    <field id="Pro" alias="profile"/>
+    <where>
+      <filter left-field="Ope" condition="is null"/>
+      <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+    </where>
+    <variable id="profile" type="STRING" session="profile"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+  </query>
+
+  <!-- Searches published for any profile in a window: only read for a user who may publish, so it can manage them.
+       The session parameter savedSearchPublisher only lives while SavedSearchService reads them after checking the
+       permission: launched directly, the query returns nothing -->
+  <query id="getPublishedSavedSearches">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="values"/>
+    <field id="Pro" alias="profile"/>
+    <where>
+      <filter left-variable="publisher" condition="eq" right-variable="publisherMark"/>
+      <filter left-field="Ope" condition="is null"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+    </where>
+    <variable id="publisher" type="STRING" session="savedSearchPublisher"/>
+    <variable id="publisherMark" type="STRING" value="1"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+  </query>
+
+  <query id="getUserSavedSearchByName">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      <filter left-field="Nam" condition="eq" right-variable="name"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+    <variable id="name" type="STRING" name="name"/>
+  </query>
+
+  <query id="getProfileSavedSearchByName">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <where>
+      <filter left-field="Ope" condition="is null"/>
+      <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      <filter left-field="Nam" condition="eq" right-variable="name"/>
+    </where>
+    <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+    <variable id="name" type="STRING" name="name"/>
+  </query>
+
+  <!-- A search of the session user, or one published for a profile -->
+  <query id="getSavedSearch">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Ope" alias="user"/>
+    <field id="Pro" alias="profile"/>
+    <field id="Scr" alias="screen"/>
+    <field id="WinId" alias="windowId"/>
+    <field id="Nam" alias="name"/>
+    <where>
+      <and>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <or>
+          <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+          <!-- A published search is only read while SavedSearchService checks a user who may publish -->
+          <and>
+            <filter left-field="Ope" condition="is null"/>
+            <filter left-variable="publisher" condition="eq" right-variable="publisherMark"/>
+          </and>
+        </or>
+      </and>
+    </where>
+    <variable id="publisher" type="STRING" session="savedSearchPublisher"/>
+    <variable id="publisherMark" type="STRING" value="1"/>
+    <variable id="id" type="INTEGER" name="id"/>
+    <variable id="user" type="STRING" session="user"/>
+  </query>
+
+  <query id="getSavedSearchProfileList">
+    <table id="AwePro"/>
+    <field id="Acr" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <where>
+      <filter left-field="Act" condition="eq" right-variable="active"/>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+
+  <!--
   Theme management
   -->
 

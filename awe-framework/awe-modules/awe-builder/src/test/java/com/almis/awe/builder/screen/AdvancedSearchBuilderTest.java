@@ -60,4 +60,25 @@ class AdvancedSearchBuilderTest {
     assertNull(window.getAdvancedMode());
     assertNull(window.getAdvancedModeConverter());
   }
+
+  @Test
+  void aWindowWithAnAdvancedBlockCanOfferSavedSearches() throws Exception {
+    Window window = new WindowBuilder()
+      .setSavedSearches(true)
+      .addAdvanced(new AdvancedBuilder().addCriteria(new TextCriteriaBuilder().setId("CrtThm")))
+      .build();
+
+    assertEquals(Boolean.TRUE, window.getSavedSearches());
+    assertEquals(Boolean.TRUE, window.getSavedSearchesConverter());
+  }
+
+  @Test
+  void aWindowOffersNoSavedSearchesByDefault() throws Exception {
+    Window window = new WindowBuilder()
+      .addAdvanced(new AdvancedBuilder().addCriteria(new TextCriteriaBuilder().setId("CrtThm")))
+      .build();
+
+    assertNull(window.getSavedSearches());
+    assertNull(window.getSavedSearchesConverter());
+  }
 }

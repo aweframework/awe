@@ -53,17 +53,20 @@ const noFilters = [];
  * @param {string[]} options.searchCriteria Criteria of the window that are search filters
  * @param {boolean} options.advancedOpen Open state the user left (only sent when it is stored): an inline block starts
  * open with it, a side panel always starts closed
+ * @param {boolean} options.savedSearches The window keeps saved searches (saved-searches="true")
  * @return {object|null} Context of the advanced search, null when the window has no advanced block
  */
-export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria, advancedOpen}) {
+export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria, advancedOpen, savedSearches}) {
   const enabled = Boolean(advancedMode) || Array.isArray(advancedCriteria);
   const mode = advancedMode === ADVANCED_MODE_SIDE_PANEL ? ADVANCED_MODE_SIDE_PANEL : ADVANCED_MODE_INLINE;
   const [open, setOpen] = useState(() => enabled && mode === ADVANCED_MODE_INLINE && advancedOpen === true);
+  const saved = savedSearches === true;
   return useMemo(() => enabled ? {
     id, label, mode, open, setOpen,
     advancedCriteria: advancedCriteria || noFilters,
-    searchCriteria: searchCriteria || noFilters
-  } : null, [enabled, id, label, mode, open, advancedCriteria, searchCriteria]);
+    searchCriteria: searchCriteria || noFilters,
+    savedSearches: saved
+  } : null, [enabled, id, label, mode, open, advancedCriteria, searchCriteria, saved]);
 }
 
 /**
@@ -71,7 +74,7 @@ export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, se
  * @param {string[]} ids Criteria ids
  * @return {object[]} Criteria of the state in use
  */
-function useFiltersInEffect(ids) {
+export function useFiltersInEffect(ids) {
   const components = useMultipleComponents(ids);
   return useMemo(() => ids.map(id => components[id]).filter(isFilterInEffect), [ids, components]);
 }
@@ -80,7 +83,7 @@ function useFiltersInEffect(ids) {
  * Restore criteria to their defaults (as the restore action does), with their dependencies
  * @return {function(string[])} Restore the criteria with these ids
  */
-function useRestoreDefaults() {
+export function useRestoreDefaults() {
   const dispatch = useDispatch();
   const store = useStore();
   return useCallback((ids) => {
@@ -93,8 +96,24 @@ function useRestoreDefaults() {
 }
 
 /**
- * Save the open state of an inline advanced block as the state of the user. The screen is the one of the view that holds
- * the criteria of the window (its name is the screen id the server sent). Nothing is saved when it is unknown.
+ * Screen of a window: the one of the view that holds the criteria of the window (its name is the screen id the server
+ * sent)
+ * @param {string[]} criteria Criteria of the window
+ * @return {function(): {view: string, screenId: string}|null} Get the view and the screen id, null when they are unknown
+ */
+export function useWindowScreen(criteria) {
+  const store = useStore();
+  return useCallback(() => {
+    const components = getAllComponents(store.getState());
+    const view = criteria.map(criterion => components[criterion]?.address?.view).find(Boolean);
+    const screenId = view && ViewRegistry.get(view)?.name;
+    return screenId ? {view, screenId} : null;
+  }, [store, criteria]);
+}
+
+/**
+ * Save the open state of an inline advanced block as the state of the user, for the screen of the window. Nothing is
+ * saved when it is unknown.
  * @param {string} windowId Window id
  * @param {string[]} criteria Criteria of the window
  * @return {function(boolean)} Save the open state
@@ -102,18 +121,35 @@ function useRestoreDefaults() {
 export function useSaveAdvancedState(windowId, criteria) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
-  const store = useStore();
+  const getScreen = useWindowScreen(criteria);
   return useCallback((open) => {
-    const components = getAllComponents(store.getState());
-    const view = criteria.map(criterion => components[criterion]?.address?.view).find(Boolean);
-    const screenId = view && ViewRegistry.get(view)?.name;
-    if (screenId) {
-      dispatch(saveWindowAdvancedState({view, component: windowId}, screenId, open, {
+    const screen = getScreen();
+    if (screen) {
+      dispatch(saveWindowAdvancedState({view: screen.view, component: windowId}, screen.screenId, open, {
         title: t("SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE"),
         message: t("SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE")
       }));
     }
-  }, [dispatch, store, windowId, criteria, t]);
+  }, [dispatch, getScreen, windowId, t]);
+}
+
+/**
+ * Show the results of a window as Enter in a criterion does: submit from the first advanced criterion (or the first one
+ * of the window) with the window as target, so the submit button of the window runs when the screen has more
+ * @param {string} id Window id
+ * @param {string[]} advancedCriteria Advanced criteria of the window
+ * @param {string[]} searchCriteria Search criteria of the window
+ * @return {function()} Submit the window
+ */
+export function useShowResults(id, advancedCriteria, searchCriteria) {
+  const dispatch = useDispatch();
+  const store = useStore();
+  return useCallback(() => {
+    const first = getAllComponents(store.getState())[advancedCriteria[0] ?? searchCriteria[0]];
+    if (first?.address) {
+      dispatch(addActionsTop([{type: "submit", target: id, address: first.address}]));
+    }
+  }, [dispatch, store, advancedCriteria, searchCriteria, id]);
 }
 
 /**
@@ -307,15 +343,11 @@ export function AdvancedPanel({id, label, open, advancedCriteria, searchCriteria
     onClose();
   }, [dispatch, store, onClose]);
 
+  const showResults = useShowResults(id, advancedCriteria, searchCriteria);
   const apply = useCallback(() => {
     onClose();
-    // As Enter in a criterion: submit from the first advanced criterion (or the first one of the window) with the window
-    // as target, so the submit button of the window runs when the screen has more
-    const first = getAllComponents(store.getState())[advancedCriteria[0] ?? searchCriteria[0]];
-    if (first?.address) {
-      dispatch(addActionsTop([{type: "submit", target: id, address: first.address}]));
-    }
-  }, [dispatch, store, onClose, advancedCriteria, searchCriteria, id]);
+    showResults();
+  }, [onClose, showResults]);
 
   return <Sidebar
     ref={sidebar}

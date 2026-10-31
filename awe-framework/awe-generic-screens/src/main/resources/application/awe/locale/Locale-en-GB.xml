@@ -460,6 +460,12 @@
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Invalid grid layout"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
+  <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Invalid saved search"/>
+  <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="The saved search is not valid or you are not signed in, so it was not saved"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="The search has too many values to be saved"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_ALLOWED" value="You are not allowed to change the searches published for a profile"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_FOUND" value="The saved search does not exist or is not yours"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NAME_EXISTS" value="There is already a saved search with this name"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="The &apos;include&apos; tag inside {0} screen hasn`t found the following screen source: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; contains a &apos;&apos;dependency&apos;&apos;, which is not supported inside a row detail"/>
   <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="The grid inside the &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; must be read-only: remove its &apos;&apos;editable&apos;&apos; and &apos;&apos;send-operations&apos;&apos; attributes"/>
@@ -729,11 +735,31 @@
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Whether the advanced filters are open could not be saved"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Advanced filters state not saved"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Clear all"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Delete search"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="The saved search will be deleted. Do you want to continue?"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Hidden advanced filter"/>
   <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Hide advanced filters"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES" value="Manage searches…"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES_TITLE" value="Manage searches"/>
+  <locale name="SCREEN_TEXT_MY_SEARCHES" value="My searches"/>
+  <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="No saved searches yet"/>
+  <locale name="SCREEN_TEXT_ONLY_ME" value="Only me"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publish for a profile"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="The users of that profile find it under Shared with your profile. They can apply it, not change it."/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
+  <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Rename"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="The saved searches could not be updated. Try again later."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Save current search…"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Save search"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Keeps the criteria of this window in effect, also the advanced ones."/>
+  <locale name="SCREEN_TEXT_SEARCH_ACTIONS" value="Actions"/>
+  <locale name="SCREEN_TEXT_SEARCH_FOR" value="For"/>
+  <locale name="SCREEN_TEXT_SEARCH_NAME" value="Name"/>
+  <locale name="SCREEN_TEXT_SEARCH_OWNER_ME" value="Me"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activity per day"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistics"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
@@ -1357,6 +1383,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Enter your credentials to continue."/>
   <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
   <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Low coding complete functional web applications"/>
+  <locale name="SCREEN_TEXT_SHARED_SEARCHES" value="Shared with your profile"/>
   <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Show password"/>
   <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Hide password"/>
   <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Caps Lock is on"/>

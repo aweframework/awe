@@ -760,6 +760,19 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `resetAdvancedFilters(String windowId)` | Clicks *Reset to defaults* in the side panel: its advanced criteria go back to their defaults |
 | `cancelAdvancedFilters(String windowId)` | Clicks *Cancel* in the side panel: it closes and its advanced criteria get back the values they had when it opened |
 | `applyAdvancedFilters(String windowId)` | Clicks *Show results* in the side panel: it closes and launches the submit button of the window, as Enter in a criterion does, and waits for the search |
+| `openSavedSearches(String windowId)` / `closeSavedSearches(String windowId)` | Opens the *Saved searches* menu of a window with `saved-searches="true"` and waits for its searches (an open menu is left as it is), or closes it when it is open |
+| `applySavedSearch(String windowId, String name)` | Applies a saved search from the menu, by its name: every search criterion goes back to its default, takes the values of the search, and the search of the window is launched (it waits for it) |
+| `checkSavedSearchListed(String windowId, String name, boolean own)` / `checkSavedSearchNotListed(String windowId, String name)` | Checks that the menu lists a search under *My searches* (`own` true) or *Shared with your profile* (`false`), or that it does not list it. The menu is opened and left open |
+| `hasSavedSearch(String windowId, String name)` | Tells whether the menu lists a search (it opens the menu and leaves it open), so a test can remove what an earlier run left before it starts |
+| `checkSavedSearchesText(String windowId, String text)` | Checks the text of the *Saved searches* button: *Saved searches*, or the name of the search applied while the criteria keep its values |
+| `checkNoSavedSearches(String windowId)` | Checks that a window shows no *Saved searches* button: it does not opt in |
+| `saveCurrentSearch(String windowId, String name)` / `saveCurrentSearch(String windowId, String name, String profile)` | Saves the current values of the search criteria with *Save current search*: the name and, for a user who may publish, the profile to publish it for (the text of its option); without profile it is a search of the user. It waits for the dialog to close |
+| `openSaveSearch(String windowId)` / `cancelSaveSearch(String windowId)` | Opens the *Save search* dialog from the menu, or closes it with *Cancel* without saving |
+| `checkSaveSearchCanPublish(String windowId, boolean canPublish)` | Opens the *Save search* dialog, checks that it shows the profile to publish for (`true`, a user who may publish) or not, and closes it with *Cancel* |
+| `openManageSearches(String windowId)` / `closeManageSearches(String windowId)` | Opens the *Manage searches* dialog from the menu, or closes it with its *Close* button |
+| `renameSavedSearch(String windowId, String name, String newName)` | Renames a search in the *Manage searches* dialog (which it opens and closes): the rename button of its row, the new name and accept |
+| `deleteSavedSearch(String windowId, String name)` | Deletes a search in the *Manage searches* dialog (which it opens and closes), accepting the confirmation (the confirm dialog of the screen in AngularJS, the one of the window in React) |
+| `checkSavedSearchCanBeChanged(String windowId, String name, boolean canChange)` | Checks in the *Manage searches* dialog (which it opens and closes) that the row of a search has the rename and delete buttons (`true`) or none, as a search shared with the profile of a user who may not publish |
 | `maximizeTab(String tabId)` | Maximizes a tab component (tab list and content, `maximize="true"`) with its Maximize button |
 | `restoreTab(String tabId)` | Restores a maximized tab component with its Restore button |
 | `checkTabMaximized(String tabId)` | Checks that a tab component fills the content area of the screen (its maximize target) and the header stays visible |
