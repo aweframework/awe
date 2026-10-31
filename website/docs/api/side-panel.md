@@ -49,6 +49,7 @@ and React) support it.
 | header-subtitle-field | Optional | String | Field of the selected row with the subtitle (muted, under the title). Not shown when empty | A field of the grid |
 | header-avatar-field | Optional | String | Field of the selected row the initials of the avatar are taken from (as the `avatar-field` of a [grid column](grids.md)). No avatar when empty | A field of the grid |
 | header-avatar-tone-field | Optional | String | Field of the selected row with the tone of the avatar | `primary`, `info`, `success`, `warning`, `danger`, `neutral` (default, any other value) |
+| header-swatch-field | Optional | String | Field of the selected row with a colour drawn as a large circle in the place of the avatar (as the `swatch-field` of a [grid column](grids.md#swatch)). No circle for any other value | An AWE 5 palette name or a `#RGB` / `#RRGGBB` hex |
 
 ## Opening and closing
 
@@ -83,7 +84,10 @@ the side panel is open.
 | icon-field                | Optional     | Field with the icon of the tag. With it the tag is plain: the icon takes the place of the dot              |
 
 The avatar and the tags look like the avatar and the status tags of the [grid cells](grids.md). The avatar is decorative;
-the title is the accessible name of the side panel. All the `header-*` attributes are optional; without `header-grid` the
+the title is the accessible name of the side panel. With `header-swatch-field` a circle of the colour of the selected row
+(an AWE 5 palette name or a hex, as the [swatch of a grid column](grids.md#swatch)) takes the place of the avatar, as the
+themes screen does with the primary colour of the theme; with an empty or unknown colour the header shows the avatar of
+`header-avatar-field`, if any. All the `header-*` attributes are optional; without `header-grid` the
 header does not change. Both engines support it.
 
 ```xml

@@ -499,6 +499,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | bar-leaf-only    | Opcional | Booleano | En un grid en árbol, solo las hojas dibujan la barra                                                                            | El valor por defecto es `false`                                                  |
 | avatar-field     | Opcional | Cadena   | Campo de la fila con el nombre (o las iniciales) a partir del que se construye el avatar previo al valor. Ver [avatar](#avatar)  | Nombre de otro campo de la fila                                                  |
 | avatar-tone-field | Opcional | Cadena  | Campo de la fila con el tono del avatar                                                                                         | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
+| swatch-field     | Opcional | Cadena   | Campo de la fila con un color que se dibuja como un círculo antes del valor, en el lugar del avatar. Ver [muestra de color](#swatch) | Un nombre de paleta de AWE 5 o un hexadecimal `#RGB` / `#RRGGBB`               |
 | icon-field       | Opcional | Cadena  | Campo de la fila con un icono que se muestra antes del valor; con `status-field` ocupa el lugar del punto. Véase [icono](#icon) | Nombre de otro campo de la fila                                                  |
 
 > **Nota:** Cuando una columna es editable (tiene un *componente*) todos los atributos de criterios pueden ser usados en la columna. Ver **[criterios atributos](criteria.md#criteria-structure)** para más referencias.
@@ -669,6 +670,31 @@ primera letra de su primera y de su última palabra que empiezan por una letra, 
 </operation>
 <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone"/>
 ```
+
+#### Muestra de color {#swatch}
+
+Una columna puede mostrar un pequeño círculo relleno con un color de la fila antes de su valor (y de su segunda línea), en
+el lugar del avatar, como hace la pantalla de temas con el color primario de cada tema. El color se lee de un campo de la
+fila: un nombre de paleta de AWE 5, que se dibuja con su tono `500` de los tokens de diseño
+(`var(--awe-palette-<nombre>-500)`), o un color hexadecimal.
+
+```xml
+<column label="PARAMETER_THEME" name="NamVal" sort-field="NamVal" charlength="30" width="*"
+        secondary-field="ThmSec" swatch-field="Pri"/>
+<column name="Pri" hidden="true"/>
+```
+
+| Atributo       | JSON          | Descripción                                                                                                       |
+|----------------|---------------|-------------------------------------------------------------------------------------------------------------------|
+| `swatch-field` | `swatchField` | Nombre de un campo de la fila con el color: `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`, `slate`, `gray`, `zinc`, `neutral` o `stone` (recortado, en mayúsculas o minúsculas), o un hexadecimal `#RGB` / `#RRGGBB`. Cualquier otro valor no dibuja el círculo: un espacio vacío del mismo tamaño mantiene alineados los valores de la columna |
+
+- Solo esos valores llegan al estilo del círculo: el cliente comprueba el valor contra los nombres de paleta y un patrón
+  hexadecimal, de modo que un campo nunca puede inyectar otro CSS.
+- Si la columna tiene también `avatar-field`, se muestra la muestra de color mientras la fila tenga un color válido, y el
+  avatar en otro caso.
+- Se combina con `secondary-field` y `status-field`; las columnas con un `component` lo ignoran.
+- El círculo es decorativo (`aria-hidden`): el valor de la celda es su texto accesible. La ordenación, el filtrado, la
+  impresión y la exportación usan solo el valor principal.
 
 #### Icono {#icon}
 

@@ -591,7 +591,8 @@
   <target name="ProUpd">
     <update audit="HISAwePro">
       <table id="AwePro"/>
-      <field id="IdePro" variable="IdePro"/>
+      <!-- Only audited: the key is not updated, so the profiles screen can send it as a one element list -->
+      <field id="IdePro" variable="IdePro" audit="true"/>
       <field id="Acr" variable="Acr"/>
       <field id="Nam" variable="Nam"/>
       <field id="IdeThm" variable="IdeThm"/>
@@ -1094,6 +1095,12 @@
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeDbs" type="INTEGER" name="IdeDbs"/>
+      <!-- The databases screen (database-admin) sends IdeDbs from its grid as a one element list, and a list variable of
+           a multiple takes the element of each row (row 2 and later would get none). With one selected row the grid also
+           sends IdeDbs.selected as a single value: this optional second definition replaces the first one when it comes,
+           so every row gets the connection. The legacy DbsUpd screen sends IdeDbs as a single value and no
+           IdeDbs.selected -->
+      <variable id="IdeDbs" type="INTEGER" name="IdeDbs.selected" optional="true"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
     </multiple>
     <commit/>

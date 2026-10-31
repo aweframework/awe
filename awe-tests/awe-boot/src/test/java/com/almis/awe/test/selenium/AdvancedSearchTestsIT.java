@@ -337,42 +337,29 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
   }
 
   /**
-   * The users screen (#790 pilot): theme, initial screen and blocked are the advanced block of its criteria window, below
-   * the user, profile and active criteria
+   * The advanced block of the inline window (#790, first on the users screen, now deprecated): an advanced filter in effect
+   * stays in view as a marked chip while the block is hidden, and removing that chip clears it without opening the block
    */
   @Test
-  void t070_usersScreenShowsItsAdvancedCriteriaOnDemand() {
-    setTestTitle("Advanced search: the users screen shows its advanced criteria on demand");
-    gotoScreen("test", "matrix", "matrix-test-side-panel");
-    gotoScreen("tools", "users");
-    closeAdvancedFilters("WinUsrCrt");
-    checkCriterionVisible("CrtUsr");
-    checkCriterionVisible("CrtPro");
-    checkCriterionVisible("CrtSta");
-    checkCriterionNotVisible("CrtThm");
-    checkCriterionNotVisible("CrtScr");
-    checkCriterionNotVisible("CrtBlk");
-    checkAdvancedFiltersCount("WinUsrCrt", 0);
-    checkCriterionAboveAdvancedFilters("WinUsrCrt", "CrtUsr");
+  void t070_hiddenAdvancedFilterIsClearedFromItsMarkedChip() {
+    setTestTitle("Advanced search: a hidden advanced filter is cleared from its marked chip");
+    openAdvancedSearchScreen();
+    checkCriterionNotVisible(SEGMENT);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 0);
 
-    double toggleTop = getAdvancedFiltersToggleTop("WinUsrCrt");
-    toggleAdvancedFilters("WinUsrCrt");
-    checkCriterionVisible("CrtThm");
-    checkCriterionVisible("CrtScr");
-    checkCriterionVisible("CrtBlk");
-    checkAdvancedFiltersToggleTop("WinUsrCrt", toggleTop);
-    checkCriterionBelowAdvancedFilters("WinUsrCrt", "CrtThm");
-    selectContain("CrtBlk", "No");
-    checkAdvancedFiltersCount("WinUsrCrt", 1);
-    checkFilterChip("WinUsrCrt", "CrtBlk", false);
+    toggleAdvancedFilters(INLINE_WINDOW);
+    selectContain(SEGMENT, RETAIL);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 1);
+    checkFilterChip(INLINE_WINDOW, SEGMENT, false);
 
     // Hidden, it stays in view as a marked chip, which clears it
-    toggleAdvancedFilters("WinUsrCrt");
-    checkCriterionNotVisible("CrtBlk");
-    checkFilterChip("WinUsrCrt", "CrtBlk", true);
-    removeFilterChip("WinUsrCrt", "CrtBlk");
-    checkAdvancedFiltersCount("WinUsrCrt", 0);
-    checkNoFilterChips("WinUsrCrt");
+    toggleAdvancedFilters(INLINE_WINDOW);
+    checkCriterionNotVisible(SEGMENT);
+    checkFilterChip(INLINE_WINDOW, SEGMENT, true);
+    removeFilterChip(INLINE_WINDOW, SEGMENT);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 0);
+    checkNoFilterChips(INLINE_WINDOW);
+    checkCriterionNotVisible(SEGMENT);
   }
 
   /**
@@ -606,25 +593,13 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     closeSavedSearches(INLINE_WINDOW);
 
     // The user of the profile, if it is still there
-    verifyRecordDeleted("CrtUsr", PROFILE_USER, TOOLS, USERS);
+    verifyUserDeleted(PROFILE_USER);
   }
 
   /**
-   * Create the user of the Test profile, unless an earlier run left it
+   * Create the user of the Test profile from the side panel of the users screen, unless an earlier run left it
    */
   private void createProfileUser() {
-    if (exists(PROFILE_USER, TOOLS, USERS)) {
-      return;
-    }
-    addNew(TOOLS, USERS);
-    writeText("Usr", PROFILE_USER);
-    selectContain("Sta", YES);
-    writeText("Pas", PROFILE_USER_PASSWORD);
-    writeText("RetPas", PROFILE_USER_PASSWORD);
-    writeText("Nam", PROFILE_USER_NAME);
-    suggest("Pro", PROFILE_ACRONYM, PROFILE_ACRONYM);
-    suggest("Thm", "grass", "grass");
-    writeText("Eml", "savsch@almis.com");
-    clickButtonAndConfirm(CONFIRM_BUTTON);
+    createUser(PROFILE_USER, PROFILE_USER_NAME, "savsch@almis.com", PROFILE_ACRONYM, PROFILE_USER_PASSWORD);
   }
 }

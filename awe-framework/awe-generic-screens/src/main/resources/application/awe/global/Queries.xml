@@ -1616,6 +1616,46 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+    <!-- Profiles screen (profile-admin): secondary line (acronym · theme, just the acronym without a theme), avatar (the
+         name its initials are taken from and a tone that depends only on the identifier) and state with its label and tone -->
+    <case alias="ProSec">
+      <when left-field="Nam" left-table="thm" condition="is null">
+        <then>
+          <field id="Acr" table="Pro" function="TRIM" />
+        </then>
+      </when>
+      <else>
+        <operation operator="CONCAT">
+          <field id="Acr" table="Pro" function="TRIM" />
+          <constant value=" · " />
+          <field id="Nam" table="thm" />
+        </operation>
+      </else>
+    </case>
+    <operation operator="COALESCE" alias="Ini">
+      <operation operator="NULLIF">
+        <field id="Nam" table="Pro" function="TRIM" />
+        <constant value="" />
+      </operation>
+      <field id="Acr" table="Pro" function="TRIM" />
+    </operation>
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdePro" table="Pro" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
+    <case alias="StaCod">
+      <when left-field="Act" left-table="Pro" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <join type="LEFT">
       <table id="AweThm" alias="thm" />
       <and>
@@ -1628,12 +1668,178 @@
         <filter left-field="IdeThm" left-table="Pro" condition="eq" right-variable="IdeThm" optional="true" />
         <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="CrtScrIni" optional="true" />
         <filter left-field="Act" left-table="Pro" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (profile-admin): name, acronym, theme name or initial screen contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Acr" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="thm" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+        </or>
+        <!-- State of the profile (active, inactive): same expression as ProStaCnt -->
+        <filter condition="eq" right-variable="ProSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="Pro" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="IdePro" type="INTEGER" name="CrtPro" />
     <variable id="IdeThm" type="INTEGER" name="CrtThm" />
     <variable id="CrtScrIni" type="STRINGN" name="CrtScrIni" />
     <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ProSch" type="STRINGB" name="CrtProTxt" optional="true" />
+    <variable id="ProSta" type="STRING" name="CrtProSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Profiles screen (profile-admin): quick filter options (All, Active, Inactive) with their counts. Each count is the
+       number of rows ProLst returns for that option: the same join, search filters (CrtPro, CrtThm, CrtProTxt...) and
+       state expression as ProLst (a union cannot use subqueries). Keep them in step with ProLst -->
+  <query id="ProStaCnt">
+    <table id="AwePro" alias="Pro" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_PROFILE_FILTER_ALL" alias="label" />
+    <field id="IdePro" table="Pro" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="ProStaCntAct" />
+    <union type="ALL" query="ProStaCntIna" />
+    <join type="LEFT">
+      <table id="AweThm" alias="thm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-field="IdeThm" right-table="thm" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="Pro" condition="eq" right-variable="IdePro" optional="true" />
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="CrtScrIni" optional="true" />
+        <filter left-field="Act" left-table="Pro" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (profile-admin): name, acronym, theme name or initial screen contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Acr" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="thm" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="IdePro" type="INTEGER" name="CrtPro" />
+    <variable id="IdeThm" type="INTEGER" name="CrtThm" />
+    <variable id="CrtScrIni" type="STRINGN" name="CrtScrIni" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ProSch" type="STRINGB" name="CrtProTxt" optional="true" />
+  </query>
+  <query id="ProStaCntAct">
+    <table id="AwePro" alias="Pro" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" alias="label" />
+    <field id="IdePro" table="Pro" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <join type="LEFT">
+      <table id="AweThm" alias="thm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-field="IdeThm" right-table="thm" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="Pro" condition="eq" right-variable="IdePro" optional="true" />
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="CrtScrIni" optional="true" />
+        <filter left-field="Act" left-table="Pro" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (profile-admin): name, acronym, theme name or initial screen contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Acr" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="thm" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="Pro" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdePro" type="INTEGER" name="CrtPro" />
+    <variable id="IdeThm" type="INTEGER" name="CrtThm" />
+    <variable id="CrtScrIni" type="STRINGN" name="CrtScrIni" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ProSch" type="STRINGB" name="CrtProTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+  <query id="ProStaCntIna">
+    <table id="AwePro" alias="Pro" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" alias="label" />
+    <field id="IdePro" table="Pro" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <join type="LEFT">
+      <table id="AweThm" alias="thm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-field="IdeThm" right-table="thm" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="Pro" condition="eq" right-variable="IdePro" optional="true" />
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="CrtScrIni" optional="true" />
+        <filter left-field="Act" left-table="Pro" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (profile-admin): name, acronym, theme name or initial screen contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Acr" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="Nam" left-table="thm" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+          <filter left-field="ScrIni" left-table="Pro" condition="like" right-variable="ProSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="Pro" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdePro" type="INTEGER" name="CrtPro" />
+    <variable id="IdeThm" type="INTEGER" name="CrtThm" />
+    <variable id="CrtScrIni" type="STRINGN" name="CrtScrIni" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ProSch" type="STRINGB" name="CrtProTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <query id="check-profile-acronym">
@@ -1744,17 +1950,174 @@
       </else>
     </case>
     <field id="Mde" alias="Mde" />
+    <!-- Themes screen (theme-admin): secondary line (primary · surface, each one the translated palette or the hex of a
+         custom colour), translated mode, avatar (the name its initials are taken from and a tone that depends only on the
+         identifier) and state with its label and tone -->
+    <computed format="[Pri]" alias="PriTxt" translate="ThmPri" />
+    <computed format="[Srf]" alias="SrfTxt" translate="ThmSrf" />
+    <computed format="[PriTxt] · [SrfTxt]" alias="ThmSec" />
+    <computed format="[Mde]" alias="MdeTxt" translate="ThmMde" />
+    <field id="Nam" alias="Ini" />
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdeThm" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
+    <case alias="StaCod">
+      <when left-field="Act" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
         <or>
           <filter left-field="IdeThm" condition="eq" right-variable="IdeThm" optional="true" />
         </or>
         <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (theme-admin): name, primary colour or surface (palette or hex) contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Pri" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Srf" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+        </or>
+        <!-- State of the theme (active, inactive): same expression as ThmStaCnt -->
+        <filter condition="eq" right-variable="ThmSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="IdeThm" type="INTEGER" name="CrtNam" />
     <variable id="CrtAct" type="INTEGER" name="CrtAct" />
     <variable id="hex" type="STRINGR" value="#" />
+    <variable id="ThmSch" type="STRINGB" name="CrtThmTxt" optional="true" />
+    <variable id="ThmSta" type="STRING" name="CrtThmSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Themes screen (theme-admin): quick filter options (All, Active, Inactive) with their counts. Each count is the
+       number of rows ThmLst returns for that option: the same search filters (CrtNam, CrtAct, CrtThmTxt) and state
+       expression as ThmLst (a union cannot use subqueries). Keep them in step with ThmLst -->
+  <query id="ThmStaCnt">
+    <table id="AweThm" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_THEME_FILTER_ALL" alias="label" />
+    <field id="IdeThm" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="ThmStaCntAct" />
+    <union type="ALL" query="ThmStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (theme-admin): name, primary colour or surface (palette or hex) contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Pri" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Srf" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="IdeThm" type="INTEGER" name="CrtNam" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ThmSch" type="STRINGB" name="CrtThmTxt" optional="true" />
+  </query>
+  <query id="ThmStaCntAct">
+    <table id="AweThm" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_THEME_FILTER_ACTIVE" alias="label" />
+    <field id="IdeThm" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (theme-admin): name, primary colour or surface (palette or hex) contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Pri" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Srf" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeThm" type="INTEGER" name="CrtNam" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ThmSch" type="STRINGB" name="CrtThmTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+  <query id="ThmStaCntIna">
+    <table id="AweThm" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_THEME_FILTER_INACTIVE" alias="label" />
+    <field id="IdeThm" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="eq" right-variable="IdeThm" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (theme-admin): name, primary colour or surface (palette or hex) contain the text, ignoring case -->
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Pri" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+          <filter left-field="Srf" condition="like" right-variable="ThmSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeThm" type="INTEGER" name="CrtNam" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="ThmSch" type="STRINGB" name="CrtThmTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <!-- GET SCREEN CONFIGURATION TO SINGLETON-->
@@ -1946,7 +2309,7 @@
     <field id="Dbt" alias="Dbt" />
     <field id="Dbt" alias="DbtTxt" translate="EnuDbmSys" />
     <field id="DbsUsr" alias="DbsUsr" />
-    <field id="DbsPwd" alias="DbsPwd" />
+    <!-- No DbsPwd: the client gets every field of the query, and the password is read only on the server -->
     <field id="Drv" alias="Drv" />
     <field id="Drv" alias="DrvTxt" translate="DrvTyp" />
     <field id="Act" alias="Act" />
@@ -1956,18 +2319,186 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+    <!-- Databases screen (database-admin): avatar (the alias its initials are taken from and a tone that depends only on
+         the identifier) and state with its label and tone -->
+    <field id="Als" alias="Ini" />
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdeDbs" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
+    <case alias="StaCod">
+      <when left-field="Act" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
         <filter left-field="IdeDbs" condition="eq" right-variable="CrtAls" optional="true" />
         <filter left-field="Dct" condition="like" right-variable="CrtDct" optional="true" />
         <filter left-field="Typ" condition="like" right-variable="CrtTyp" optional="true" />
         <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (database-admin): alias, description, connection or user contain the text, ignoring case -->
+        <or>
+          <filter left-field="Als" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Dbc" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="DbsUsr" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+        </or>
+        <!-- State of the connection (active, inactive): same expression as DbsStaCnt -->
+        <filter condition="eq" right-variable="DbsSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="CrtAls" type="INTEGER" name="CrtAls" />
     <variable id="CrtDct" type="STRINGB" name="CrtDct" />
     <variable id="CrtTyp" type="STRINGB" name="CrtTyp" />
     <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="DbsSch" type="STRINGB" name="CrtDbsTxt" optional="true" />
+    <variable id="DbsSta" type="STRING" name="CrtDbsSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Databases screen (database-admin): quick filter options (All, Active, Inactive) with their counts. Each count is
+       the number of rows DbsLst returns for that option: the same search filters (CrtAls, CrtDct, CrtTyp, CrtAct,
+       CrtDbsTxt) and state expression as DbsLst (a union cannot use subqueries). Keep them in step with DbsLst -->
+  <query id="DbsStaCnt">
+    <table id="AweDbs" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_DATABASE_FILTER_ALL" alias="label" />
+    <field id="IdeDbs" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="DbsStaCntAct" />
+    <union type="ALL" query="DbsStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="IdeDbs" condition="eq" right-variable="CrtAls" optional="true" />
+        <filter left-field="Dct" condition="like" right-variable="CrtDct" optional="true" />
+        <filter left-field="Typ" condition="like" right-variable="CrtTyp" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (database-admin): alias, description, connection or user contain the text, ignoring case -->
+        <or>
+          <filter left-field="Als" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Dbc" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="DbsUsr" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="CrtAls" type="INTEGER" name="CrtAls" />
+    <variable id="CrtDct" type="STRINGB" name="CrtDct" />
+    <variable id="CrtTyp" type="STRINGB" name="CrtTyp" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="DbsSch" type="STRINGB" name="CrtDbsTxt" optional="true" />
+  </query>
+  <query id="DbsStaCntAct">
+    <table id="AweDbs" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" alias="label" />
+    <field id="IdeDbs" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeDbs" condition="eq" right-variable="CrtAls" optional="true" />
+        <filter left-field="Dct" condition="like" right-variable="CrtDct" optional="true" />
+        <filter left-field="Typ" condition="like" right-variable="CrtTyp" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (database-admin): alias, description, connection or user contain the text, ignoring case -->
+        <or>
+          <filter left-field="Als" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Dbc" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="DbsUsr" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="CrtAls" type="INTEGER" name="CrtAls" />
+    <variable id="CrtDct" type="STRINGB" name="CrtDct" />
+    <variable id="CrtTyp" type="STRINGB" name="CrtTyp" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="DbsSch" type="STRINGB" name="CrtDbsTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+  <query id="DbsStaCntIna">
+    <table id="AweDbs" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" alias="label" />
+    <field id="IdeDbs" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeDbs" condition="eq" right-variable="CrtAls" optional="true" />
+        <filter left-field="Dct" condition="like" right-variable="CrtDct" optional="true" />
+        <filter left-field="Typ" condition="like" right-variable="CrtTyp" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="CrtAct" optional="true" />
+        <!-- Search of the grid (database-admin): alias, description, connection or user contain the text, ignoring case -->
+        <or>
+          <filter left-field="Als" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="Dbc" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+          <filter left-field="DbsUsr" condition="like" right-variable="DbsSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="CrtAls" type="INTEGER" name="CrtAls" />
+    <variable id="CrtDct" type="STRINGB" name="CrtDct" />
+    <variable id="CrtTyp" type="STRINGB" name="CrtTyp" />
+    <variable id="CrtAct" type="INTEGER" name="CrtAct" />
+    <variable id="DbsSch" type="STRINGB" name="CrtDbsTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <!-- LIST SITES AND MODULES BY DATA BASE -->

@@ -4,6 +4,7 @@ import {getIconTemplate} from "../services/component";
 import {TestIds} from "../data/testIds";
 import {initDialogComponent} from "./dialog";
 import {AVATAR_TONES, getInitials, STATUS_TONES, toTone} from "../services/grid/initials";
+import {getSwatchColor} from "../services/grid/swatch";
 
 const DEFAULT_MAX_WIDTH = "40rem";
 
@@ -21,7 +22,8 @@ const template = `<div ng-attr-id="{{::controller.id}}" ng-cloak>
             <span translate-multiple="{{::controller.label}}"></span>
           </h4>
           <div class="panel-identity" ng-if="identity">
-            <span class="panel-identity-avatar awe-cell-avatar awe-cell-avatar-{{identity.tone}}" data-tone="{{identity.tone}}" aria-hidden="true" ng-if="identity.initials" ng-bind="identity.initials"></span>
+            <span class="panel-identity-avatar awe-cell-swatch" aria-hidden="true" ng-if="identity.swatch" ng-attr-style="--awe-swatch-color: {{identity.swatch}}"></span>
+            <span class="panel-identity-avatar awe-cell-avatar awe-cell-avatar-{{identity.tone}}" data-tone="{{identity.tone}}" aria-hidden="true" ng-if="!identity.swatch && identity.initials" ng-bind="identity.initials"></span>
             <div class="panel-identity-text">
               <h4 class="panel-identity-title" ng-attr-id="{{::titleId}}" data-testid="${TestIds.sidePanelTitle}" ng-bind="identity.title"></h4>
               <p class="panel-identity-subtitle" ng-if="identity.subtitle" data-testid="${TestIds.sidePanelSubtitle}" ng-bind="identity.subtitle"></p>
@@ -55,8 +57,8 @@ const cellText = cell => {
 const cellValue = cell => cell !== null && typeof cell === "object" ? cell.value : cell;
 
 /**
- * Identity of the header of a side panel (#793): the avatar, title, subtitle and tags of the selected row of its header
- * grid, or null when the panel has no header grid or not exactly one row of it is selected
+ * Identity of the header of a side panel (#793): the avatar (or the colour swatch), title, subtitle and tags of the
+ * selected row of its header grid, or null when the panel has no header grid or not exactly one row of it is selected
  * @param {Object} controller Side panel controller
  * @param {Object} grid Model of the header grid (values and selected row identifiers)
  * @returns {Object|null} Identity
@@ -84,6 +86,7 @@ export function getPanelIdentity(controller, grid) {
     subtitle: text(controller.headerSubtitleField),
     initials: getInitials(text(controller.headerAvatarField)),
     tone: toTone(cellValue(row[controller.headerAvatarToneField]), AVATAR_TONES),
+    swatch: controller.headerSwatchField ? getSwatchColor(cellValue(row[controller.headerSwatchField])) : "",
     tags
   };
 }

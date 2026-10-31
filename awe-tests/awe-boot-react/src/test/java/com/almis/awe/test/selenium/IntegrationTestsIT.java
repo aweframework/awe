@@ -21,6 +21,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
   private static final String SCREEN_CONFIGURATION = "screen-configuration";
   private static final String SETTINGS = "settings";
   private static final String DATABASES = "databases";
+  private static final String DATABASES_SCREEN = "database-admin";
   private static final String PRINT_BUTTON = "ButPrn";
   private static final String XSS_CELLS_GRID = "GrdXssCells";
 
@@ -85,7 +86,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
     clickButton("ButGrdAdd");
 
     // Select on selector
-    suggest("GrdScrCnf", "Scr",  "Dbs", "Dbs");
+    suggest("GrdScrCnf", "Scr",  DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Select on selector
     suggest("GrdScrCnf", "IdeOpe",  "test", "test");
@@ -116,7 +117,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
     gotoScreen("tools", DATABASES);
 
     // Wait for button
-    waitForButton("ButRst");
+    waitForButton("ButNew");
 
     // Verify that ButPrn button is not visible
     checkButtonNotVisible(PRINT_BUTTON);
@@ -519,7 +520,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
     clickButton("ButRst");
 
     // Select on selector
-    suggest("CrtScr",  "Dbs", "Dbs");
+    suggest("CrtScr",  DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Select on selector
     suggest("CrtUsr",  "test", "test");
@@ -531,7 +532,7 @@ class IntegrationTestsIT extends AbstractSessionTests {
     searchAndWait();
 
     // Click on row
-    clickRowContents("Dbs");
+    clickRowContents(DATABASES_SCREEN);
 
     // Click on delete button
     clickButton("ButGrdDel");

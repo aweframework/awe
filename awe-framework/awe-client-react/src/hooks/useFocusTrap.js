@@ -77,6 +77,20 @@ const restoreFocus = (opener, container) => {
   setTimeout(() => observer.disconnect(), OPENER_ENABLE_TIMEOUT);
 };
 
+// A dialog (a modal or an aria modal) shown over the container keeps the focus of its own controls
+const MODAL = ".modal, [aria-modal='true']";
+
+/**
+ * Whether an element is inside a dialog that is not the container nor holds it (a dialog shown over the container)
+ * @param {HTMLElement} container Container
+ * @param {HTMLElement} element Element
+ * @returns {boolean} The element is in another dialog
+ */
+const isInOtherModal = (container, element) => {
+  const modal = element && typeof element.closest === "function" ? element.closest(MODAL) : null;
+  return !!modal && !modal.contains(container);
+};
+
 /**
  * Keep the keyboard focus inside a container while it is active (a side panel), and give it back to the control which
  * opened it when it is deactivated. Tab and Shift+Tab cycle through the focusable controls of the container.
@@ -98,7 +112,7 @@ export function useFocusTrap(getContainer, active) {
 
     const onKeyDown = (event) => {
       const container = containerGetter.current();
-      if (event.key !== "Tab" || !container) {
+      if (event.key !== "Tab" || !container || isInOtherModal(container, document.activeElement)) {
         return;
       }
       const focusable = getFocusable(container);

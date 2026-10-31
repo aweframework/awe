@@ -392,8 +392,8 @@ aweApplication.service('ActionController',
 
         // Launch action
         if ($utilities.checkAddress(action.attr("callbackTarget"), address, check)) {
-          // Launch method
-          parameters.service[parameters.method]({...action.attr("parameters"), async: action.attr("async"), silent: action.attr("silent")}, scope, action.attr("callbackTarget"));
+          // Launch method (the action goes last, for the methods that read its attributes, as the value of copy-rows)
+          parameters.service[parameters.method]({...action.attr("parameters"), async: action.attr("async"), silent: action.attr("silent")}, scope, action.attr("callbackTarget"), action);
 
           // Finish action
           $ctrl.acceptAction(action);

@@ -196,6 +196,55 @@ describe("awe-react-client/test/js/components/AweGridCellsTest.jsx", () => {
     });
   });
 
+  describe("swatch (#793)", () => {
+    const swatch = color => `<span class="awe-cell-swatch" aria-hidden="true" style="--awe-swatch-color: ${color};"></span>`;
+    const SPACER = '<span class="awe-cell-avatar-spacer" aria-hidden="true"></span>';
+
+    it("shows a circle of the colour of the swatch field before the main value, decorative", () => {
+      expect(cellHtml({ swatchField: "pri", secondaryField: "sec" }, { value: "Ocean" }, { pri: "sky", sec: "Sky · Slate" }))
+        .toBe(`<div class="awe-cell-entity">${swatch("var(--awe-palette-sky-500)")}<div class="awe-cell-entity-text"><div class="awe-cell-lines">`
+          + '<span class="awe-cell-main">Ocean</span><span class="awe-cell-secondary">Sky · Slate</span></div></div></div>');
+    });
+
+    it("draws a hex colour and reads the value of a cell model", () => {
+      expect(cellHtml({ swatchField: "pri" }, { value: "Custom" }, { pri: { value: "#10B981", label: "Custom" } })).toContain(swatch("#10B981"));
+    });
+
+    it.each([["empty", ""], ["missing", undefined], ["an unknown palette", "custom"], ["a CSS injection", "red;background:url(x)"]])
+    ("shows no circle, only an aligned space, when the value is %s", (_name, pri) => {
+      expect(cellHtml({ swatchField: "pri" }, { value: "Ann" }, { pri }))
+        .toBe(`<div class="awe-cell-entity">${SPACER}<div class="awe-cell-entity-text"><span class="awe-cell-main" title="Ann">Ann</span></div></div>`);
+    });
+
+    it("takes the place of the avatar, which is shown only when the row has no valid colour", () => {
+      const node = { swatchField: "pri", avatarField: "ini", avatarToneField: "ton" };
+      expect(cellHtml(node, { value: "Ann" }, { pri: "rose", ini: "Ann Lee", ton: "info" }))
+        .toBe(`<div class="awe-cell-entity">${swatch("var(--awe-palette-rose-500)")}<div class="awe-cell-entity-text">`
+          + '<span class="awe-cell-main" title="Ann">Ann</span></div></div>');
+      expect(cellHtml(node, { value: "Ann" }, { pri: "", ini: "Ann Lee", ton: "info" }))
+        .toContain('<span class="awe-cell-avatar awe-cell-avatar-info" data-tone="info" aria-hidden="true">AL</span>');
+    });
+
+    it("is ignored in a column with a component", () => {
+      const { container } = render(<div>{Columns({ address, component: "text", swatchField: "pri" }, { value: "Ann" }, {}, false, { pri: "red" })}</div>);
+      expect(container.querySelector(".awe-cell-entity, .awe-cell-swatch, .awe-cell-avatar-spacer")).toBeNull();
+    });
+
+    it("reads the swatch from the row of the grid", () => {
+      const { container } = renderWithProviders(<AweGrid id="Grd" />, {
+        preloadedState: gridState(
+          [{ name: "name", label: "Name", swatchField: "pri", secondaryField: "sec", sortable: true }],
+          [{ id: "r1", name: "Ocean", pri: "#0EA5E9", sec: "Custom · Slate" }])
+      });
+
+      const cell = container.querySelector("td.name");
+      expect(cell.querySelector(".awe-cell-swatch")).toHaveAttribute("aria-hidden", "true");
+      expect(cell.querySelector(".awe-cell-swatch").style.getPropertyValue("--awe-swatch-color")).toBe("#0EA5E9");
+      expect(cell.querySelector(".awe-cell-entity-text .awe-cell-main")).toHaveTextContent("Ocean");
+      expect(cell.querySelector(".awe-cell-entity-text .awe-cell-secondary")).toHaveTextContent("Custom · Slate");
+    });
+  });
+
   describe("icon (#793)", () => {
     const ICON = '<span class="awe-cell-icon" aria-hidden="true"><svg class="awe-icon" aria-hidden="true" focusable="false">'
       + '<use href="/icons/lucide-sprite.svg#shield-check"></use></svg></span>';

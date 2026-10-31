@@ -20,6 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class RegressionTestsIT extends AbstractSessionTests {
 
+  private static final String SETTINGS = "settings";
+  private static final String SECURITY = "security";
+  private static final String SECURITY_AUDIT = "security-audit";
+  private static final String SECURITY_AUDIT_GRID = "GrdSecAud";
+  private static final String USERS_GRID = "GrdUsrAdm";
+  private static final String BASE_MODULE = "Base";
+
   RegressionTestsIT() {
     super(Session.TEST_MODULE);
   }
@@ -87,8 +94,8 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Suggest Strict: Test to check suggest criteria with 'strict' attribute set to false");
 
-    // Go to screen
-    gotoScreen("tools", "users");
+    // Go to screen (its user suggest is not strict, and the login of the class is one of its events)
+    gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
 
     // Wait for button
     clickButton("ButRst");
@@ -190,20 +197,20 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Keep criteria test");
 
-    // Go to screen
-    gotoScreen("tools", "users");
+    // Go to screen (it keeps its criteria)
+    gotoScreen("tools", "modules");
 
     // Wait for button
     clickButton("ButRst");
 
     // Suggest on column selector
-    suggest("CrtUsr", "test", "test");
+    suggest("CrtMod", BASE_MODULE, BASE_MODULE);
 
     // Search and wait
     searchAndWait();
 
     // Check grid values
-    clickRowContents("test");
+    clickRowContents(BASE_MODULE);
 
     // Click button
     clickButton("ButViw", true);
@@ -215,7 +222,7 @@ class RegressionTestsIT extends AbstractSessionTests {
     waitForButton("ButRst");
 
     // Wait for button
-    checkSuggestContents("CrtUsr", "test");
+    checkSuggestContents("CrtMod", BASE_MODULE);
   }
 
   /**
@@ -287,8 +294,8 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Sort a grid using a component column");
 
-    // Go to screen
-    gotoScreen("tools", "users");
+    // Go to screen (its events grid has icon columns)
+    gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
 
     // Wait for button
     clickButton("ButRst");
@@ -299,29 +306,14 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Search and wait
     searchAndWait();
 
-    // Scroll grid to the right
-    scrollGrid("GrdUsrLst", 10000, 0);
-
     // Sort by a component field
-    sortGrid("GrdUsrLst", "StaIco");
+    sortGrid(SECURITY_AUDIT_GRID, "TypIco");
 
     // Expect not to have an error message
     checkMessageMissing("danger");
 
     // Sort by a component field
-    sortGrid("GrdUsrLst", "BlkIco");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "LanTxt");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "LanImg");
+    sortGrid(SECURITY_AUDIT_GRID, "ResIco");
 
     // Expect not to have an error message
     checkMessageMissing("danger");
@@ -335,32 +327,32 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Check that suggested values are not repeated");
 
-    // Go to screen
-    gotoScreen("tools", "themes");
+    // Go to screen (its theme suggest searches the themes as the old themes screen did)
+    gotoScreen("tools", "modules");
 
     // Wait for button
     clickButton("ButRst");
 
     // Click on suggest
-    openSuggest("CrtNam");
+    openSuggest("CrtThm");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtNam", "a");
+    writeSuggestSearch("CrtThm", "a");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtNam", "s");
+    writeSuggestSearch("CrtThm", "s");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtNam", "p");
+    writeSuggestSearch("CrtThm", "p");
 
     // Pause
     pause(1000);
@@ -478,10 +470,10 @@ class RegressionTestsIT extends AbstractSessionTests {
     waitForButton("ButPrn");
 
     // Click to select all rows of grid
-    selectAllRowsOfGrid("GrdUsrLst");
+    selectAllRowsOfGrid(USERS_GRID);
 
     // Wait for button
-    checkAllRowsSelected("GrdUsrLst");
+    checkAllRowsSelected(USERS_GRID);
   }
 
   /**

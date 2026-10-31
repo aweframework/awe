@@ -335,7 +335,16 @@
   <group id="user-2fa-header">
     <option label="ENUM_USER_2FA_HEADER_ON" value="on"/>
   </group>
-  <!-- Tone of the avatar of a user (user-admin), by its identifier modulo 6 (UsrLst) -->
+  <!-- State of a record that is only active or inactive (ProLst, ThmLst, DbsLst StaCod): label and tone of the profiles, themes and databases screens -->
+  <group id="active-state-label">
+    <option label="ENUM_STATE_ACTIVE" value="active"/>
+    <option label="ENUM_STATE_INACTIVE" value="inactive"/>
+  </group>
+  <group id="active-state-tone">
+    <option label="success" value="active"/>
+    <option label="neutral" value="inactive"/>
+  </group>
+  <!-- Tone of the avatar of a user (user-admin), a profile (profile-admin), a theme (theme-admin) or a database connection (database-admin), by its identifier modulo 6 (UsrLst, ProLst, ThmLst, DbsLst) -->
   <group id="user-avatar-tone">
     <option label="primary" value="0"/>
     <option label="info" value="1"/>

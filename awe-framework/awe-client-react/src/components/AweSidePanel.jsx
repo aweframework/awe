@@ -13,20 +13,21 @@ import PropTypes from "prop-types";
 import { sidePanelPassThrough } from "../utilities/testPassThrough";
 import { TestIds, testHook } from "../utilities/testIds";
 import { getInitials } from "../utilities/initials";
-import { AVATAR_TONES, STATUS_TONES, cellIcon, rowText, rowTone } from "./AweGridCells";
+import { AVATAR_TONES, STATUS_TONES, cellIcon, rowSwatch, rowText, rowTone } from "./AweGridCells";
 import "./AweSidePanel.less";
 
 const DEFAULT_MAX_WIDTH = "40rem";
 
 /**
- * Identity of the header of a side panel (#793): the avatar, title, subtitle and tags of the selected row of its header
- * grid, or null when the panel has no header grid or not exactly one row of it is selected
+ * Identity of the header of a side panel (#793): the avatar (or the colour swatch), title, subtitle and tags of the
+ * selected row of its header grid, or null when the panel has no header grid or not exactly one row of it is selected
  * @param {Object} attributes Side panel attributes (headerGrid, header fields and headerTags)
  * @param {Object} [grid] State of the header grid
  * @returns {Object|null} Identity
  */
 export function getPanelIdentity(attributes, grid) {
-  const { headerGrid, headerTitleField, headerSubtitleField, headerAvatarField, headerAvatarToneField, headerTags = [] } = attributes || {};
+  const { headerGrid, headerTitleField, headerSubtitleField, headerAvatarField, headerAvatarToneField, headerSwatchField,
+    headerTags = [] } = attributes || {};
   const selected = headerGrid ? (grid?.model?.values || []).filter(row => row.selected) : [];
   if (selected.length !== 1) {
     return null;
@@ -39,6 +40,7 @@ export function getPanelIdentity(attributes, grid) {
     subtitle: text(headerSubtitleField),
     initials: getInitials(text(headerAvatarField)),
     tone: headerAvatarToneField ? rowTone(row, headerAvatarToneField, AVATAR_TONES) : "neutral",
+    swatch: rowSwatch(row, headerSwatchField),
     tags: headerTags
       .map(tag => ({ ...tag, text: text(tag.field), tone: tag.toneField ? rowTone(row, tag.toneField, STATUS_TONES) : "neutral" }))
       .filter(tag => tag.text.trim() !== "")
@@ -46,17 +48,18 @@ export function getPanelIdentity(attributes, grid) {
 }
 
 /**
- * Identity header (#793): a large decorative avatar, the title (the accessible name of the panel), a muted subtitle and
+ * Identity header (#793): a large decorative avatar (or colour swatch), the title (the accessible name of the panel), a muted subtitle and
  * the tags, with the look of the avatar and the status tags of the grid cells
  * @param {Object} identity Identity of the selected row
  * @param {string} titleId Identifier of the title
  * @returns {React.ReactElement} Header
  */
 function identityHeader(identity, titleId) {
-  const { row, title, subtitle, initials, tone, tags } = identity;
+  const { row, title, subtitle, initials, tone, swatch, tags } = identity;
   return (
     <div className="panel-identity">
-      {initials && <span className={`panel-identity-avatar awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>}
+      {swatch && <span className="panel-identity-avatar awe-cell-swatch" aria-hidden="true" style={{ "--awe-swatch-color": swatch }}/>}
+      {!swatch && initials && <span className={`panel-identity-avatar awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>}
       <div className="panel-identity-text">
         <h2 className="panel-identity-title" id={titleId} {...testHook(TestIds.sidePanelTitle)}>{title}</h2>
         {subtitle && <p className="panel-identity-subtitle" {...testHook(TestIds.sidePanelSubtitle)}>{subtitle}</p>}

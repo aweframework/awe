@@ -1,8 +1,8 @@
 package com.almis.awe.test.selenium;
 
 /**
- * Steps that the tests of the CRUD screens (sites, modules, profiles, databases and users) share. Each one opens its own
- * screen, so a test does not depend on the screen that the previous test left open, and every CRUD test class creates, updates
+ * Steps that the tests of the CRUD screens (sites, modules, profiles, databases, themes and users) share. Each one opens its
+ * own screen, so a test does not depend on the screen that the previous test left open, and every CRUD test class creates, updates
  * and deletes records with names of its own (no name, acronym or alias of a record of one class contains the one of a record
  * of another class), so the classes do not share rows. The grids are searched by contained text, so a test that updates a
  * record finds it by its original name and the test that deletes it uses the same text. A class that needs a site or a
@@ -21,10 +21,16 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
   static final String MODULES = "modules";
   static final String PROFILES = "profiles";
   static final String DATABASES = "databases";
+  static final String THEMES = "themes";
   static final String USERS = "users";
 
   static final String CONFIRM_BUTTON = "ButCnf";
   static final String RESET_BUTTON = "ButRst";
+
+  private static final String PROFILE_GRID = "GrdProAdm";
+  private static final String PROFILE_SEARCH = "CrtProTxt";
+  private static final String USER_GRID = "GrdUsrAdm";
+  private static final String USER_SEARCH = "CrtUsrTxt";
 
   protected AbstractCrudTests() {
     this(Session.LOGGED_IN);
@@ -276,46 +282,116 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
   }
 
   /**
-   * Create an active profile, for a test that needs one
+   * Open the profiles screen and search a profile by its acronym
+   *
+   * @param acronym Profile acronym
+   */
+  private void searchProfile(String acronym) {
+    openScreen(TOOLS, PROFILES);
+    searchGrid(PROFILE_SEARCH, acronym);
+  }
+
+  /**
+   * Create an active profile from the side panel of the profiles screen, for a test that needs one
    *
    * @param acronym Profile acronym
    * @param name    Profile name
    */
   void createProfile(String acronym, String name) {
     // A rerun finds the profile that the failed attempt saved
-    if (exists(acronym, TOOLS, PROFILES)) {
+    searchProfile(acronym);
+    if (hasRowContents(acronym)) {
       return;
     }
 
-    // Go for new screen
-    addNew(TOOLS, PROFILES);
-
-    // Insert text
+    // Open the side panel of a new profile, which starts active
+    clickButton("ButNew");
     writeText("Acr", acronym);
-
-    // Insert text
     writeText("Nam", name);
-
-    // Select on selector
-    selectContain("Act", "Yes");
-
-    // Suggest on  selector
-    suggest("IdeThm", "sunse", "sunse");
-
-    // Suggest on  selector
+    suggest("IdeThm", "sunset", "sunset");
     suggest("ScrIni", "Modules", "Modules");
 
     // Store and confirm
-    clickButtonAndConfirm(CONFIRM_BUTTON);
+    clickButtonAndConfirm("ButPnlNew");
+
+    // Check that the profile is there
+    searchProfile(acronym);
+    checkRowContentsGrid(PROFILE_GRID, acronym);
   }
 
   /**
-   * Delete a profile that a test created
+   * Delete a profile that a test created, if it is still there, from the row menu of the profiles screen
    *
    * @param acronym Profile acronym
    */
   void verifyProfileDeleted(String acronym) {
-    // Delete the profile, if it is still there
-    verifyRecordDeleted("CrtPro", acronym, TOOLS, PROFILES);
+    searchProfile(acronym);
+    if (hasRowContents(acronym)) {
+      clickGridRowButton(PROFILE_GRID, acronym, "MorBtn");
+      clickContextButton("CtxButDel");
+      acceptConfirm();
+      checkAndCloseMessage("success");
+    }
+
+    // Verify deleted
+    checkRowGone(PROFILE_GRID, acronym);
+  }
+
+  /**
+   * Open the users screen and search a user by its login
+   *
+   * @param login User login
+   */
+  private void searchUser(String login) {
+    openScreen(TOOLS, USERS);
+    searchGrid(USER_SEARCH, login);
+  }
+
+  /**
+   * Create an active user from the side panel of the users screen, for a test that needs one (as a user of a profile)
+   *
+   * @param login    User login
+   * @param name     Full name
+   * @param email    Email
+   * @param profile  Profile acronym
+   * @param password Password
+   */
+  void createUser(String login, String name, String email, String profile, String password) {
+    // A rerun finds the user that the failed attempt saved
+    searchUser(login);
+    if (!hasRowContents(login)) {
+      // Active is a switch, on for a new user
+      clickButton("ButNew");
+      writeText("Nam", name);
+      writeText("Eml", email);
+      writeText("Usr", login);
+      suggest("Pro", profile, profile);
+      checkCheckboxRadio(true, "Sta");
+      writeText("Pas", password);
+      writeText("RetPas", password);
+      clickButtonAndConfirm("ButPnlNew");
+    }
+
+    // Check that the user is there
+    searchUser(login);
+    checkRowContentsGrid(USER_GRID, login);
+  }
+
+  /**
+   * Delete a user that a test created, if it is still there, from the row menu of the users screen
+   *
+   * @param login User login
+   */
+  void verifyUserDeleted(String login) {
+    searchUser(login);
+    if (hasRowContents(login)) {
+      clickGridRowButton(USER_GRID, login, "MorBtn");
+      clickContextButton("CtxButDel");
+      acceptConfirm();
+      checkAndCloseMessage("success");
+    }
+
+    // Verify deleted
+    checkRowGone(USER_GRID, login);
   }
 }

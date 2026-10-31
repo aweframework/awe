@@ -249,6 +249,36 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
       expect(header(element).find(".modal-title").text()).toContain("PANEL_TITLE");
     });
 
+    it("shows a circle of the colour of the swatch field of the selected row in place of the avatar", () => {
+      const element = compileWith(["1"], {...HEADER, headerSwatchField: "PriSwt"});
+      grid.values[0].PriSwt = "violet";
+      grid.values[1].PriSwt = {value: "#0EA5E9", label: "Custom"};
+      refs.$rootScope.$digest();
+
+      const identity = header(element).find(".panel-identity");
+      expect(identity.find(".panel-identity-avatar.awe-cell-avatar").length).toBe(0);
+      const swatch = identity.find(".panel-identity-avatar.awe-cell-swatch");
+      expect(swatch.length).toBe(1);
+      expect(swatch.text()).toBe("");
+      expect(swatch.attr("aria-hidden")).toBe("true");
+      expect(swatch[0].style.getPropertyValue("--awe-swatch-color")).toBe("var(--awe-palette-violet-500)");
+
+      grid.selected = ["2"];
+      refs.$rootScope.$digest();
+      expect(header(element).find(".awe-cell-swatch")[0].style.getPropertyValue("--awe-swatch-color")).toBe("#0EA5E9");
+    });
+
+    it.each([["empty", ""], ["an unknown palette", "custom"], ["a CSS injection", "red;background:url(x)"]])(
+      "shows the avatar and no circle when the swatch of the selected row is %s", (_name, value) => {
+        const element = compileWith(["1"], {...HEADER, headerSwatchField: "PriSwt"});
+        grid.values[0].PriSwt = value;
+        refs.$rootScope.$digest();
+
+        expect(header(element).find(".awe-cell-swatch").length).toBe(0);
+        expect(header(element).find(".panel-identity [style]").length).toBe(0);
+        expect(header(element).find(".panel-identity-avatar").text()).toBe("JG");
+      });
+
     it("does not change without header-grid, even with a selected row in the screen", () => {
       const element = compileWith(["1"], {});
 

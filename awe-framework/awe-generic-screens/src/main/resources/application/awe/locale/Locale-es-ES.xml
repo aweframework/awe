@@ -26,17 +26,25 @@
   <locale name="BUTTON_CLOSE" value="Cerrar"/>
   <locale name="BUTTON_CONFIRM" value="Confirmar"/>
   <locale name="BUTTON_COPY" value="Copiar"/>
+  <locale name="BUTTON_CREATE_DATABASE" value="Crear conexión"/>
+  <locale name="BUTTON_CREATE_PROFILE" value="Crear perfil"/>
+  <locale name="BUTTON_CREATE_THEME" value="Crear tema"/>
   <locale name="BUTTON_CREATE_USER" value="Crear usuario"/>
   <locale name="BUTTON_DARK_MODE" value="Modo oscuro"/>
   <locale name="BUTTON_DEACTIVATE" value="Desactivar"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactivar tareas seleccionadas"/>
   <locale name="BUTTON_DELETE" value="Borrar"/>
+  <locale name="BUTTON_DONE" value="Hecho"/>
   <locale name="BUTTON_EDIT" value="Editar"/>
+  <locale name="BUTTON_EDIT_DATABASE_SITES" value="Editar sitios y módulos"/>
   <locale name="BUTTON_MORE_ACTIONS" value="Más acciones"/>
   <locale name="BUTTON_ENCRYPT" value="Encriptar"/>
   <locale name="BUTTON_EXPORT" value="Exportar"/>
   <locale name="BUTTON_FINISH" value="Terminar"/>
   <locale name="BUTTON_HIDE_MENU" value="OCULTAR MENU"/>
+  <locale name="BUTTON_NEW_DATABASE" value="Nueva conexión"/>
+  <locale name="BUTTON_NEW_PROFILE" value="Nuevo perfil"/>
+  <locale name="BUTTON_NEW_THEME" value="Nuevo tema"/>
   <locale name="BUTTON_TOGGLE_MENU" value="Mostrar u ocultar el menú"/>
   <locale name="BUTTON_HOME" value="Inicio"/>
   <locale name="BUTTON_LIGHT_MODE" value="Modo claro"/>
@@ -389,6 +397,8 @@
   <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Alta del segundo factor"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Baja del segundo factor"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Verificación del segundo factor"/>
+  <locale name="ENUM_STATE_ACTIVE" value="Activo"/>
+  <locale name="ENUM_STATE_INACTIVE" value="Inactivo"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrumpido"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -720,8 +730,11 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Error de lectura de fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Error en la subida del fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error comprobando la subida del fichero"/>
+  <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Conexiones a bases de datos de la aplicación: conexión, entorno, credenciales y los sitios y módulos que usan cada una."/>
+  <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Grupos de usuarios con su tema por defecto, pantalla inicial y restricción de ficheros."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consulta los eventos de seguridad registrados por la aplicación: accesos, cierres de sesión, bloqueos de cuenta, cambios de contraseña y de segundo factor, accesos denegados y tokens REST. Filtra por fecha, evento, resultado, canal, usuario o dirección; selecciona un evento y pulsa Ver para consultar todos sus datos"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
+  <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Temas de color de la aplicación: color primario, superficie y modo. Los perfiles y los usuarios eligen uno de los temas activos."/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Auditoría de seguridad"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Causa"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
@@ -738,6 +751,18 @@
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="No se ha podido guardar si los filtros avanzados están abiertos"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Estado de los filtros avanzados no guardado"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Quitar todos"/>
+  <locale name="SCREEN_TEXT_DATABASE_CONNECTION" value="Conexión"/>
+  <locale name="SCREEN_TEXT_DATABASE_CREDENTIALS" value="Credenciales"/>
+  <locale name="SCREEN_TEXT_DATABASE_DESCRIPTION" value="Descripción"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTERS" value="Estado de la conexión"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" value="Activas"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" value="Inactivas"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH" value="Alias, descripción, conexión o usuario…"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH_LABEL" value="Buscar conexiones"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES" value="Sitios y módulos"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY" value="Sin sitios ni módulos"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="Ningún sitio ni módulo usa todavía esta conexión"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Borrar búsqueda"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="Se borrará la búsqueda guardada. ¿Desea continuar?"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtrado por"/>
@@ -748,6 +773,14 @@
   <locale name="SCREEN_TEXT_MY_SEARCHES" value="Mis búsquedas"/>
   <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="Aún no hay búsquedas guardadas"/>
   <locale name="SCREEN_TEXT_ONLY_ME" value="Solo yo"/>
+  <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Valores por defecto y acceso"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="Estado del perfil"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Nombre, acrónimo, tema o pantalla…"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Buscar perfiles"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publicar para un perfil"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Los usuarios de ese perfil la verán en Compartidas con tu perfil. Pueden aplicarla, no modificarla."/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
@@ -768,8 +801,22 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Fallos por causa"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Petición"/>
+  <locale name="SCREEN_TEXT_THEME_COLOURS" value="Colores y modo"/>
+  <locale name="SCREEN_TEXT_THEME_FILTERS" value="Estado del tema"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH" value="Nombre, primario o superficie…"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Buscar temas"/>
+  <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de datos"/>
+  <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Conexión a base de datos"/>
+  <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Perfiles"/>
+  <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Perfil"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Auditoría de seguridad"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Evento de seguridad"/>
+  <locale name="SCREEN_TITLE_THEME_ADMIN" value="Temas"/>
+  <locale name="SCREEN_TITLE_THEME_PANEL" value="Tema"/>
   <locale name="UPLOADER_DROP_HINT" value="Arrastra un archivo aquí o selecciónalo"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Se ha superado el tamaño de nombre de fichero"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error rellenando la lista de variables"/>
@@ -1544,10 +1591,12 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Por favor, introduzca un texto válido. Los valores numéricos y espacios en blanco no estan permitidos"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Por favor, introduzca un texto válido. Los valores numéricos no estan permitidos"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Por favor, introduzca una hora válida, entre las 00:00:00 y las 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="Ya existe un perfil con este acrónimo. Por favor, cámbielo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="La cola ya existe"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="El nombre del servidor de correo ya existe"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="El nombre de usuario que está intentando introducir ya existe"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="¡Atención! El literal -{0} ya existe y NO se sobrescribirá"/>
+  <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Perfil duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Cola duplicada"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Servidor duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Usuario duplicado"/>

@@ -491,6 +491,7 @@ each country, inline and through an include) in the matrix test menu.
 | bar-leaf-only    | Optional | Boolean | In a tree grid, only the leaves draw the bar                                                                                    | Default value is `false`                                                         |
 | avatar-field     | Optional | String  | Row field with the name (or initials) the avatar before the value is built from. See [avatar](#avatar)                         | Name of another field of the row                                                 |
 | avatar-tone-field | Optional | String | Row field with the tone of the avatar                                                                                           | `primary`, `info`, `success`, `warning`, `danger`, `neutral`                     |
+| swatch-field     | Optional | String  | Row field with a colour drawn as a circle before the value, in the place of the avatar. See [swatch](#swatch)                  | An AWE 5 palette name or a `#RGB` / `#RRGGBB` hex                                |
 | icon-field       | Optional | String  | Row field with an icon shown before the value; with `status-field` it takes the place of the dot. See [icon](#icon)            | Name of another field of the row                                                 |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
@@ -656,6 +657,30 @@ and its last word that start with a letter, in upper case (`Carmen Fernández` i
 </operation>
 <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone"/>
 ```
+
+#### Swatch
+
+A column can show a small circle filled with a colour of the row before its value (and its secondary line), in the place
+of the avatar, as the themes screen does with the primary colour of each theme. The colour is read from a field of the
+row: an AWE 5 palette name, drawn with its `500` shade of the design tokens (`var(--awe-palette-<name>-500)`), or a hex
+colour.
+
+```xml
+<column label="PARAMETER_THEME" name="NamVal" sort-field="NamVal" charlength="30" width="*"
+        secondary-field="ThmSec" swatch-field="Pri"/>
+<column name="Pri" hidden="true"/>
+```
+
+| Attribute      | JSON          | Description                                                                                                       |
+|----------------|---------------|-------------------------------------------------------------------------------------------------------------------|
+| `swatch-field` | `swatchField` | Name of a field of the row with the colour: `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`, `slate`, `gray`, `zinc`, `neutral` or `stone` (trimmed, in any case), or a `#RGB` / `#RRGGBB` hex. Any other value draws no circle: an empty space of the same size keeps the values of the column aligned |
+
+- Only those values reach the style of the circle: the client checks the value against the palette names and a hex
+  pattern, so a field can never inject other CSS.
+- With `avatar-field` too, the swatch is shown while the row has a valid colour, and the avatar otherwise.
+- It combines with `secondary-field` and `status-field`; columns with a `component` ignore it.
+- The circle is decorative (`aria-hidden`): the value of the cell is its accessible text. Sorting, filtering, print and
+  export use the main value only.
 
 #### Icon
 

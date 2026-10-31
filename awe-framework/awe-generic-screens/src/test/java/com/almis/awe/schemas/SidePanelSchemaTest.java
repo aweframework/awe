@@ -93,6 +93,13 @@ class SidePanelSchemaTest {
   }
 
   @Test
+  void acceptsTheSwatchOfTheIdentityHeader() {
+    assertThatCode(() -> validate("<side-panel id=\"Pnl\" label=\"LABEL\" header-grid=\"Grd\" " +
+      "header-title-field=\"NamVal\" header-swatch-field=\"PriSwt\"/>"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
   void headerTagNeedsItsField() {
     assertThatThrownBy(() -> validate("<side-panel id=\"Pnl\" header-grid=\"Grd\"><header-tag tone-field=\"StaTon\"/></side-panel>"))
       .hasMessageContaining("field");

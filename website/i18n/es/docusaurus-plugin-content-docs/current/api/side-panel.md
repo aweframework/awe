@@ -49,6 +49,7 @@ soportan los dos motores web (AngularJS y React).
 | header-subtitle-field | Opcional | String | Campo de la fila seleccionada con el subtítulo (atenuado, bajo el título). No se muestra si está vacío | Un campo del grid |
 | header-avatar-field | Opcional | String | Campo de la fila seleccionada del que se toman las iniciales del avatar (como el `avatar-field` de una [columna de grid](grids.md)). Sin avatar si está vacío | Un campo del grid |
 | header-avatar-tone-field | Opcional | String | Campo de la fila seleccionada con el tono del avatar | `primary`, `info`, `success`, `warning`, `danger`, `neutral` (por defecto, cualquier otro valor) |
+| header-swatch-field | Opcional | String | Campo de la fila seleccionada con un color que se dibuja como un círculo grande en el lugar del avatar (como el `swatch-field` de una [columna de grid](grids.md#swatch)). Sin círculo con cualquier otro valor | Un nombre de paleta de AWE 5 o un hexadecimal `#RGB` / `#RRGGBB` |
 
 ## Apertura y cierre {#opening-and-closing}
 
@@ -83,7 +84,10 @@ cabecera sigue a la fila seleccionada mientras el panel lateral está abierto.
 | icon-field               | Opcional        | Campo con el icono de la etiqueta. Con él la etiqueta es plana: el icono ocupa el lugar del punto           |
 
 El avatar y las etiquetas se ven como el avatar y las etiquetas de estado de las [celdas del grid](grids.md). El avatar es
-decorativo; el título es el nombre accesible del panel lateral. Todos los atributos `header-*` son opcionales; sin
+decorativo; el título es el nombre accesible del panel lateral. Con `header-swatch-field` un círculo del color de la fila
+seleccionada (un nombre de paleta de AWE 5 o un hexadecimal, como la [muestra de color de una columna de
+grid](grids.md#swatch)) ocupa el lugar del avatar, como hace la pantalla de temas con el color primario del tema; con un
+color vacío o desconocido la cabecera muestra el avatar de `header-avatar-field`, si lo hay. Todos los atributos `header-*` son opcionales; sin
 `header-grid` la cabecera no cambia. Lo soportan los dos motores.
 
 ```xml

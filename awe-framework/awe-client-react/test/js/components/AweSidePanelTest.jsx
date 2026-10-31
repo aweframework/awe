@@ -142,18 +142,18 @@ describe("awe-react-client/test/js/components/AweSidePanelTest.jsx", () => {
         { field: "StaTxt", toneField: "StaTon" },
         { field: "2faHdr", toneField: "2faTon", iconField: "2faIcn" }
       ] };
-    const rows = (selected) => [
+    const rows = (selected, extra = {}) => [
       { id: "1", FulNam: "Javier García", UsrPro: "jgarcia · Operator", Ini: "Javier García", IniTon: "warning",
         StaTxt: "Locked", StaTon: "danger", "2faHdr": "Two-factor on", "2faTon": "neutral", "2faIcn": "lucide:shield-check" },
       { id: "2", FulNam: { value: "ana", label: "Ana Ruiz" }, UsrPro: "ana", Ini: "Ana Ruiz", IniTon: "unknown",
         StaTxt: "Active", StaTon: "success", "2faHdr": "", "2faTon": "neutral", "2faIcn": "" }
-    ].map(row => ({ ...row, selected: selected.includes(row.id) }));
+    ].map(row => ({ ...row, ...extra[row.id], selected: selected.includes(row.id) }));
     const gridAddress = { component: "GrdUsr", view: "report" };
-    const renderIdentity = (selected, attributes = HEADER) => {
+    const renderIdentity = (selected, attributes = HEADER, extra = {}) => {
       const state = stateWith({ label: "User", icon: "user", ...attributes });
       state.components.GrdUsr = {
         address: gridAddress,
-        model: { values: rows(selected) },
+        model: { values: rows(selected, extra) },
         attributes: { columnModel: [{ name: "FulNam" }] },
         specificAttributes: {},
         actions: []
@@ -240,6 +240,31 @@ describe("awe-react-client/test/js/components/AweSidePanelTest.jsx", () => {
       });
       expect(identity()).toBeNull();
       expect(panel().querySelector(".side-panel-title").textContent).toBe("User");
+    });
+
+    it("shows a circle of the colour of the swatch field of the selected row in place of the avatar", () => {
+      const { store } = renderIdentity(["1"], { ...HEADER, headerSwatchField: "PriSwt" },
+        { 1: { PriSwt: "violet" }, 2: { PriSwt: { value: "#0EA5E9", label: "Custom" } } });
+
+      expect(identity().querySelector(".awe-cell-avatar")).toBeNull();
+      const swatch = identity().querySelector(".panel-identity-avatar.awe-cell-swatch");
+      expect(swatch.textContent).toBe("");
+      expect(swatch.getAttribute("aria-hidden")).toBe("true");
+      expect(swatch.style.getPropertyValue("--awe-swatch-color")).toBe("var(--awe-palette-violet-500)");
+
+      act(() => {
+        store.dispatch({ type: "UPDATE_MODEL", address: gridAddress, data: { selected: ["2"] } });
+      });
+      expect(identity().querySelector(".awe-cell-swatch").style.getPropertyValue("--awe-swatch-color")).toBe("#0EA5E9");
+    });
+
+    it.each([["empty", ""], ["an unknown palette", "custom"], ["a CSS injection", "red;background:url(x)"]])
+    ("shows the avatar and no circle when the swatch of the selected row is %s", (_name, value) => {
+      renderIdentity(["1"], { ...HEADER, headerSwatchField: "PriSwt" }, { 1: { PriSwt: value } });
+
+      expect(identity().querySelector(".awe-cell-swatch")).toBeNull();
+      expect(identity().querySelector("[style]")).toBeNull();
+      expect(identity().querySelector(".panel-identity-avatar").textContent).toBe("JG");
     });
 
     it("does not change without header-grid, even with a selected row in the screen", () => {

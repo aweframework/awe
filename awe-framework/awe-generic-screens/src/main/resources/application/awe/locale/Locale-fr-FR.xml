@@ -26,17 +26,25 @@
   <locale name="BUTTON_CLOSE" value="Fermer"/>
   <locale name="BUTTON_CONFIRM" value="Enregister"/>
   <locale name="BUTTON_COPY" value="Copier"/>
+  <locale name="BUTTON_CREATE_DATABASE" value="Créer la connexion"/>
+  <locale name="BUTTON_CREATE_PROFILE" value="Créer le profil"/>
+  <locale name="BUTTON_CREATE_THEME" value="Créer le thème"/>
   <locale name="BUTTON_CREATE_USER" value="Créer l&apos;utilisateur"/>
   <locale name="BUTTON_DARK_MODE" value="Mode sombre"/>
   <locale name="BUTTON_DEACTIVATE" value="Désactiver"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactiver taches selectionnees"/>
   <locale name="BUTTON_DELETE" value="Supprimer"/>
+  <locale name="BUTTON_DONE" value="Terminé"/>
   <locale name="BUTTON_EDIT" value="Modifier"/>
+  <locale name="BUTTON_EDIT_DATABASE_SITES" value="Modifier les sites et modules"/>
   <locale name="BUTTON_MORE_ACTIONS" value="Plus d&apos;actions"/>
   <locale name="BUTTON_ENCRYPT" value="Encrypt"/>
   <locale name="BUTTON_EXPORT" value="Exporter"/>
   <locale name="BUTTON_FINISH" value="Finir"/>
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
+  <locale name="BUTTON_NEW_DATABASE" value="Nouvelle connexion"/>
+  <locale name="BUTTON_NEW_PROFILE" value="Nouveau profil"/>
+  <locale name="BUTTON_NEW_THEME" value="Nouveau thème"/>
   <locale name="BUTTON_TOGGLE_MENU" value="Afficher ou masquer le menu"/>
   <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
@@ -386,6 +394,8 @@
   <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Enrôlement du second facteur"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Réinitialisation du second facteur"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Vérification du second facteur"/>
+  <locale name="ENUM_STATE_ACTIVE" value="Actif"/>
+  <locale name="ENUM_STATE_INACTIVE" value="Inactif"/>
   <locale name="ENUM_STATUS_ERROR" value="Erreur"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrompu"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -717,8 +727,11 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Erreur dans lecture du fichier"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Erreur dans le fichier télécharger"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Vérification des erreurs du fichier télécharger"/>
+  <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Connexions aux bases de données de l&apos;application : connexion, environnement, identifiants et les sites et modules qui utilisent chacune."/>
+  <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groupes d&apos;utilisateurs avec leur thème par défaut, écran initial et restriction de fichiers."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consultez les événements de sécurité enregistrés par l&apos;application : connexions, déconnexions, verrouillages de compte, changements de mot de passe et de second facteur, accès refusés et jetons REST. Filtrez par date, événement, résultat, canal, utilisateur ou adresse ; sélectionnez un événement et cliquez sur Voir pour afficher toutes ses données"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Toutes les données enregistrées pour un événement de sécurité"/>
+  <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Thèmes de couleur de l&apos;application : couleur primaire, surface et mode. Les profils et les utilisateurs choisissent l&apos;un des thèmes actifs."/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Audit de sécurité"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
@@ -735,6 +748,18 @@
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Impossible d'enregistrer si les filtres avancés sont ouverts"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="État des filtres avancés non enregistré"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Tout effacer"/>
+  <locale name="SCREEN_TEXT_DATABASE_CONNECTION" value="Connexion"/>
+  <locale name="SCREEN_TEXT_DATABASE_CREDENTIALS" value="Identifiants"/>
+  <locale name="SCREEN_TEXT_DATABASE_DESCRIPTION" value="Description"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTERS" value="État de la connexion"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" value="Actives"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" value="Inactives"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH" value="Alias, description, connexion ou utilisateur…"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH_LABEL" value="Rechercher des connexions"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES" value="Sites et modules"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY" value="Aucun site ni module"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="Aucun site ni module n’utilise encore cette connexion"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Supprimer la recherche"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="La recherche enregistrée sera supprimée. Voulez-vous continuer ?"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtré par"/>
@@ -745,6 +770,14 @@
   <locale name="SCREEN_TEXT_MY_SEARCHES" value="Mes recherches"/>
   <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="Aucune recherche enregistrée"/>
   <locale name="SCREEN_TEXT_ONLY_ME" value="Moi uniquement"/>
+  <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Valeurs par défaut et accès"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="État du profil"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Actifs"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactifs"/>
+  <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Nom, acronyme, thème ou écran…"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Rechercher des profils"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publier pour un profil"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Les utilisateurs de ce profil la trouvent dans Partagées avec votre profil. Ils peuvent l'appliquer, pas la modifier."/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Retirer le filtre"/>
@@ -765,8 +798,22 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Événements"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Échecs par cause"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Requête"/>
+  <locale name="SCREEN_TEXT_THEME_COLOURS" value="Couleurs et mode"/>
+  <locale name="SCREEN_TEXT_THEME_FILTERS" value="État du thème"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Actifs"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactifs"/>
+  <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH" value="Nom, primaire ou surface…"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Rechercher des thèmes"/>
+  <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de données"/>
+  <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Connexion à la base de données"/>
+  <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Profils"/>
+  <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profil"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Audit de sécurité"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Événement de sécurité"/>
+  <locale name="SCREEN_TITLE_THEME_ADMIN" value="Thèmes"/>
+  <locale name="SCREEN_TITLE_THEME_PANEL" value="Thème"/>
   <locale name="UPLOADER_DROP_HINT" value="Glissez un fichier ici ou choisissez-en un"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Vous avez dépassé la taille du nom du fichier"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Erreur en train de remplir la liste des variables"/>
@@ -1541,10 +1588,12 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Veuillez saisir un texte valide. Les nombre et les espaces blancs ne sont pas autorisés"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Veuillez saisir un texte valide. Les nombre ne sont pas autorisés"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Veuillez saisir un temps valide, entre 00:00:00 et 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="Un profil avec cet acronyme existe déjà. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="La queue sélectionnée existe déjà"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="Le nom du serveur de messagerie existe déjà"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="Le nom d&apos;utilisateur que vous tentez d&apos;entrer existe déjà"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Avertissement! La localee -{0}- existe déjà et il ne sera PAS remplacé"/>
+  <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Profil dupliqué"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Queue dupliquée"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Serveur existant"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Utilisateur existant"/>

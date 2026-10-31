@@ -277,6 +277,7 @@ export interface Column extends AbstractCriteria {
     sparklineType?: string;
     statusField?: string;
     summaryType?: string;
+    swatchField?: string;
     width?: string;
     wrap?: boolean;
 }
@@ -599,6 +600,7 @@ export interface SidePanel extends Dialog {
     headerAvatarToneField?: string;
     headerGrid?: string;
     headerSubtitleField?: string;
+    headerSwatchField?: string;
     headerTags?: SidePanelHeaderTag[];
     headerTitleField?: string;
     maxWidth?: string;

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : profile-admin.xml
+    Description: Profiles (#793): list of profiles with a side panel to create and edit them. Replaces the Prf, PrfNew,
+                 PrfUpd and PrfViw screens; it reuses their queries and maintains (ProLst, ProNew, ProUpd, ProDel,
+                 check-profile-acronym). The grid sends IdePro (the selected rows) to every maintain, so the panel has no
+                 IdePro criterion, and the grid columns named as a panel criterion are not sendable.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_PROFILE_ADMIN" help="HELP_SCREEN_TITLE_PROFILE_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW" />
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+    <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_PROFILE" message="WARNING_MESSAGE_DUPLICATED_PROFILE" />
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <!-- Mode of the side panel: new or edit -->
+    <criteria id="PnlMod" component="hidden" value="new" />
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_NEW_PROFILE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+      <!-- No selected row: no IdePro is sent and the panel starts empty -->
+      <button-action type="unselect-all-rows" target="GrdProAdm" />
+      <button-action type="value" target="PnlMod" value="new" />
+      <button-action type="reset" target="Acr" />
+      <button-action type="reset" target="Nam" />
+      <button-action type="reset" target="IdeThm" />
+      <button-action type="reset" target="ScrIni" />
+      <button-action type="reset" target="Res" />
+      <button-action type="value" target="Act" value="1" />
+      <button-action type="dialog" target="PnlPro" />
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_PROFILE_ADMIN" icon="list">
+      <grid id="GrdProAdm" style="expand" server-action="data" target-action="ProLst" multiselect="true" initial-load="query" max="50">
+        <!-- Search: name, acronym, theme or initial screen (ProLst and ProStaCnt read CrtProTxt) -->
+        <search id="CrtProTxt" placeholder="SCREEN_TEXT_PROFILE_SEARCH" label="SCREEN_TEXT_PROFILE_SEARCH_LABEL" />
+        <!-- Quick filters: All, Active and Inactive, counted with the search (ProStaCnt) -->
+        <quick-filter id="CrtProSta" initial-load="query" target-action="ProStaCnt" label="SCREEN_TEXT_PROFILE_FILTERS" value="" />
+        <!-- The profile takes the rest of the width: its name with the acronym and the theme below it -->
+        <column label="PARAMETER_PROFILE" name="Nam" sort-field="Nam" align="left" charlength="30" width="*" secondary-field="ProSec" export-secondary="true" secondary-label="PARAMETER_ACRONYM" avatar-field="Ini" avatar-tone-field="IniTon" sendable="false" />
+        <column label="PARAMETER_SCREEN" name="ScrIni" sort-field="ScrIni" align="left" charlength="20" sendable="false" />
+        <column label="PARAMETER_FILE_RESTRICTION" name="Res" sort-field="Res" align="left" charlength="18" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <!-- Sent to the maintains: identifier of the selected profiles -->
+        <column name="IdePro" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel) -->
+        <column name="ProSec" hidden="true" sendable="false" />
+        <column name="StaCod" hidden="true" sendable="false" />
+        <column name="StaTon" hidden="true" sendable="false" />
+        <column name="Ini" hidden="true" sendable="false" />
+        <column name="IniTon" hidden="true" sendable="false" />
+        <column name="Acr" hidden="true" sendable="false" />
+        <column name="IdeThm" hidden="true" sendable="false" />
+        <column name="Act" hidden="true" sendable="false" />
+        <!-- Row actions: the pencil edits the profile of its row in the side panel and the ellipsis opens the row menu. A
+             row button selects its row (only it) before its actions, so the panel is filled with that profile -->
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="dialog" target="PnlPro" />
+        </column>
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu -->
+        <context-button label="BUTTON_EDIT" icon="edit" id="CtxButUpd">
+          <button-action type="check-one-selected" target="GrdProAdm" />
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="dialog" target="PnlPro" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdProAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="CtxSepDel" />
+        <context-button label="BUTTON_DELETE" icon="trash" id="CtxButDel">
+          <button-action type="check-some-selected" target="GrdProAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ProDel" />
+          <button-action type="filter" target="GrdProAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdProAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Selection actions: in the selection bar of the grid while there are selected profiles, Delete as the danger one -->
+        <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdProAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ProDel" />
+          <button-action type="filter" target="GrdProAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdProAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+
+    <!-- One side panel for new and edit: the criteria ids are the parameters of ProNew and ProUpd. When editing (one
+         selected profile) its header shows the profile: avatar, name, acronym · theme and the state tag; for a new
+         profile (no selected row) it shows its label -->
+    <side-panel id="PnlPro" label="SCREEN_TITLE_PROFILE_PANEL" icon="group" max-width="40rem"
+                header-grid="GrdProAdm" header-title-field="Nam" header-subtitle-field="ProSec"
+                header-avatar-field="Ini" header-avatar-tone-field="IniTon">
+      <header-tag field="StaTxt" tone-field="StaTon" />
+      <tag type="div" style="panel-body" id="PnlProBdy">
+        <!-- Identity -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_PROFILE_IDENTITY" icon="group" />
+        <!-- The acronym stays editable when editing, as in the PrfUpd screen: ProUpd stores it and the profile keeps its
+             identifier, users and restrictions -->
+        <criteria label="PARAMETER_ACRONYM" id="Acr" component="text" validation="{required: true, maxlength: 3}" style="col-xs-12 col-sm-4">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="Acr" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_NAME" id="Nam" component="text" validation="{required: true, maxlength: 120}" style="col-xs-12 col-sm-8">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="Nam" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+
+        <!-- Defaults and access of the users of the profile -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_PROFILE_DEFAULTS" icon="lucide:sliders-horizontal" />
+        <criteria label="PARAMETER_THEME" id="IdeThm" component="suggest" server-action="data" target-action="ThmSug" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="IdeThm" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SCREEN" id="ScrIni" component="suggest" server-action="data" target-action="getScreenList" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="ScrIni" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_FILE_RESTRICTION" id="Res" component="select" initial-load="query" target-action="ProNamLst" optional="true" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="Res" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Active as a switch: 1 when on, 0 when off (ProNew and ProUpd read Act); a new profile starts active -->
+        <criteria label="PARAMETER_ACTIVE" id="Act" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdProAdm" column="Act" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdProAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">
+          <button-action type="close-cancel" target="PnlPro" />
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="save" id="ButPnlUpd" style="btn-primary">
+          <button-action type="validate" target="PnlProBdy" />
+          <button-action type="confirm" target="UpdMsg" />
+          <button-action type="server" server-action="maintain" target-action="ProUpd" />
+          <button-action type="close" target="PnlPro" />
+          <button-action type="filter" target="GrdProAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+        <button label="BUTTON_CREATE_PROFILE" icon="check" id="ButPnlNew" style="btn-primary">
+          <button-action type="validate" target="PnlProBdy" />
+          <button-action type="confirm" target="NewMsg" />
+          <button-action type="server" server-action="control-unique-cancel" target-action="check-profile-acronym" target="UniMsg" />
+          <button-action type="server" server-action="maintain" target-action="ProNew" />
+          <button-action type="close" target="PnlPro" />
+          <button-action type="filter" target="GrdProAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

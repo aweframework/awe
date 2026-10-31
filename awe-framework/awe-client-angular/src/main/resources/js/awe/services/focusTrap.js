@@ -75,6 +75,20 @@ const restoreFocus = (opener, container) => {
 const getFocusable = container => [...container.querySelectorAll(FOCUSABLE)]
   .filter(element => element.tabIndex !== -1 && !element.closest("[hidden],[aria-hidden='true']"));
 
+// A dialog (a modal or an aria modal) shown over the container keeps the focus of its own controls
+const MODAL = ".modal, [aria-modal='true']";
+
+/**
+ * Whether an element is inside a dialog that is not the container nor holds it (a dialog shown over the container)
+ * @param {HTMLElement} container Container
+ * @param {HTMLElement} element Element
+ * @returns {boolean} The element is in another dialog
+ */
+const isInOtherModal = (container, element) => {
+  const modal = element && typeof element.closest === "function" ? element.closest(MODAL) : null;
+  return !!modal && !modal.contains(container);
+};
+
 /**
  * Focus the container itself (when it has no focusable control)
  * @param {HTMLElement} container Container
@@ -102,7 +116,7 @@ export function createFocusTrap(getContainer, {trapTab = true} = {}) {
 
   const onKeyDown = event => {
     const container = getContainer();
-    if (event.key !== "Tab" || !container) {
+    if (event.key !== "Tab" || !container || isInOtherModal(container, document.activeElement)) {
       return;
     }
     const focusable = getFocusable(container);

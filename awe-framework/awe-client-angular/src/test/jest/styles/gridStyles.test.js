@@ -482,6 +482,20 @@ describe("AngularJS grid over ui-grid (#885)", () => {
     });
   });
 
+  describe("cell swatch (#793)", () => {
+    it("draws the swatch as a circle of the size of the avatar, filled with the colour of the row and the border token", () => {
+      expect(style(".awe-cell-swatch")).toMatchObject({
+        "display": "inline-block",
+        "flex": "none",
+        "width": "var(--awe-size-control-sm)",
+        "height": "var(--awe-size-control-sm)",
+        "border": "1px solid var(--awe-color-border)",
+        "border-radius": "var(--awe-radius-full)",
+        "background-color": "var(--awe-swatch-color)"
+      });
+    });
+  });
+
   describe("selection bar", () => {
     it("draws the bar on the highlight, hidden until there are selected rows", () => {
       expect(style(".grid-selection-bar")).toMatchObject({

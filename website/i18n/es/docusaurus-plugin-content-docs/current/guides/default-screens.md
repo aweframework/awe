@@ -35,13 +35,48 @@ eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones 
 
 ## Perfiles {#profiles}
 
-En la pantalla de perfiles se pueden administrar nuevos *perfiles* para agrupar usuarios en categorías de seguridad, como administradores, usuarios regulares o usuarios especiales.
+La opción *Perfiles* del menú abre la pantalla de administración de perfiles (`profile-admin`), construida como la de
+[usuarios](#users): los *perfiles* agrupan a los usuarios en categorías de seguridad, como administradores, usuarios
+regulares o usuarios especiales, y les dan un tema por defecto, una pantalla inicial y una restricción de ficheros.
+Muestra los perfiles en un grid con su avatar, nombre, acrónimo y tema, pantalla inicial, restricción de ficheros y
+estado, con una búsqueda por nombre, acrónimo, tema o pantalla inicial y filtros rápidos con sus contadores (*Todos*,
+*Activos*, *Inactivos*). Cada fila tiene un botón de edición y un menú (editar, borrar), y las filas seleccionadas
+muestran una barra para borrarlas. Un panel lateral crea y edita un perfil, agrupado en secciones (identidad, valores
+por defecto y acceso), y muestra el avatar, el nombre y el estado del perfil que se edita.
+
+La pantalla reutiliza las queries y los maintains de los perfiles (`ProLst`, `ProNew`, `ProUpd`, `ProDel` y la
+comprobación `check-profile-acronym` de un acrónimo nuevo), así que una aplicación que los sobrescribe conserva su
+lógica.
+
+:::warning Deprecadas
+Las pantallas de perfiles anteriores (`Prf`, `PrfNew`, `PrfUpd` y `PrfViw`) están deprecadas desde AWE 5.0.0 y se
+eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `profile-admin`;
+vea la [guía de migración a v5](v5-migration.md).
+:::
 
 <img alt="Pantalla de perfiles" src={require('@docusaurus/useBaseUrl').default('img/ProfilesScreen.png')} />
 
 ## Temas {#themes}
 
-La pantalla de temas permite definir los *temas* de la aplicación. Cada tema tiene un nombre, un primario y una superficie (una paleta de una lista o, con la opción personalizada, un hex elegido con un selector de color) y un modo, que se editan en las pantallas de alta y modificación. Consulte [Configuración del tema](../design-system/for-developers.md).
+La opción *Temas* del menú abre la pantalla de administración de temas (`theme-admin`), construida como la de
+[usuarios](#users): define los *temas* de la aplicación. Cada tema tiene un nombre, un primario y una superficie (una
+paleta de una lista o, con la opción personalizada, un hex elegido con un selector de color) y un modo. Muestra los temas
+en un grid con su avatar, nombre, primario · superficie (la paleta o el hex), modo y estado, con una búsqueda por nombre,
+primario o superficie y filtros rápidos con sus contadores (*Todos*, *Activos*, *Inactivos*). Cada fila tiene un botón
+de edición y un menú (editar, borrar), y las filas seleccionadas muestran una barra para borrarlas. Un panel lateral crea
+y edita un tema, agrupado en secciones (identidad, colores y modo), y muestra el avatar, el nombre, los colores y el
+estado del tema que se edita. Un tema nuevo empieza con el primario esmeralda, la superficie automática y el modo del
+sistema, y está activo; el interruptor *Activo* se muestra al editar un tema. Consulte
+[Configuración del tema](../design-system/for-developers.md).
+
+La pantalla reutiliza las queries y los maintains de los temas (`ThmLst`, `ThmNew`, `ThmUpd` y `ThmDel`, que componen los
+colores con el servicio `composeThemeColors`), así que una aplicación que los sobrescribe conserva su lógica.
+
+:::warning Deprecadas
+Las pantallas de temas anteriores (`Thm`, `ThmNew`, `ThmUpd` y `ThmViw`) están deprecadas desde AWE 5.0.0 y se
+eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `theme-admin`; vea la
+[guía de migración a v5](v5-migration.md).
+:::
 
 <img alt="Pantalla de temas" src={require('@docusaurus/useBaseUrl').default('img/ThemesScreen.png')} />
 
@@ -63,9 +98,41 @@ Esta pantalla permite definir los módulos seleccionables, basándose en los que
 
 ## Bases de datos {#databases}
 
-En la opción de bases de datos se puede gestionar un conjunto de conexiones a orígenes de datos de cualquiera de los tipos de base de datos soportados, como Oracle, SQL Server, H2, etc.
+La opción *Bases de datos* del menú abre la pantalla de administración de bases de datos (`database-admin`), construida
+como la de [usuarios](#users): gestiona las conexiones a orígenes de datos de cualquiera de los tipos de base de datos
+soportados, como Oracle, SQL Server, H2, etc. Muestra las conexiones en un grid con su avatar, alias y descripción,
+entorno, tipo de base de datos y estado, con una búsqueda por alias, descripción, conexión o usuario y filtros
+rápidos con sus contadores (*Todas*, *Activas*, *Inactivas*). Cada fila tiene un botón de edición y un menú (editar,
+borrar), y las filas seleccionadas muestran una barra para borrarlas. Un panel lateral crea y edita una conexión,
+agrupado en secciones (conexión, credenciales, descripción y los sitios y módulos que la usan), y muestra el avatar, el
+alias, la conexión y el estado de la conexión que se edita. La contraseña guardada nunca se
+muestra: al editar, solo cambia si se escribe una nueva. Después de guardar o borrar una conexión se recarga el selector
+de base de datos de la aplicación.
 
-Dentro de la pantalla de gestión de una base de datos se puede establecer la configuración de sitio y módulo de cada una.
+Los sitios y módulos de una conexión son un grid hijo, demasiado ancho para el panel lateral: el panel los muestra en
+modo de solo lectura (sitio, módulo y orden) y su botón *Editar sitios y módulos* abre sobre el panel un diálogo ancho con
+el grid editable. *Hecho* vuelve al panel, que muestra entonces los cambios, y *Guardar cambios* (o *Crear conexión*)
+guarda la conexión y sus sitios y módulos a la vez. Use el mismo patrón para los grids hijos de sus propios paneles
+laterales:
+
+- Ponga el grid editable en un `<dialog>` con `style="modal-lg"` detrás del `<side-panel>` en la pantalla, para que se
+  abra encima del panel. Los dos grids siguen en la pantalla, así que el maintain del panel sigue recibiendo las filas del
+  grid editable.
+- Muestre en el panel un grid de solo lectura (`show-toolbar="false"`, `pagination-disabled="true"`, columnas con
+  `sendable="false"` y nombres propios, porque los nombres de las columnas de una pantalla son únicos), relleno con la
+  acción [`copy-rows`](../api/actions.md): `<button-action type="copy-rows" target="GridSoloLectura" value="GridEditable"/>`.
+  Sus columnas visibles toman, en orden, las celdas de las columnas visibles del grid editable.
+- Lance `copy-rows` después de cargar o vaciar el grid editable al abrir el panel, y después de la acción `dialog` del
+  botón que abre el diálogo: esa acción espera a que el diálogo se cierre (con *Hecho*, su botón de cerrar o Esc).
+
+La pantalla reutiliza las queries y los maintains de las conexiones (`DbsLst`, `DbsNew`, `DbsUpd`, `DbsDel`, `DbsAlsUni`
+y `QryLstSitModByDbs`), así que una aplicación que los sobrescribe conserva su lógica.
+
+:::warning Deprecadas
+Las pantallas de bases de datos anteriores (`Dbs`, `DbsNew`, `DbsUpd` y `DbsViw`) están deprecadas desde AWE 5.0.0 y se
+eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `database-admin`;
+vea la [guía de migración a v5](v5-migration.md).
+:::
 
 ## Servidores de correo {#mail-servers}
 

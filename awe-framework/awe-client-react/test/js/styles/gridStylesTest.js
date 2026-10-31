@@ -241,6 +241,17 @@ describe('AWE 5 grid styles (#885)', () => {
       .toMatch(new RegExp(`color: var\\(--awe-color-${tone}-text\\);[^]*background-color: var\\(--awe-color-${tone}-subtle\\);`)));
   });
 
+  it('draws the swatch of a cell as a circle of the size of the avatar, filled with the colour of the row, as the AngularJS engine (#793)', () => {
+    const swatch = rule(grid, '.awe-cell-swatch');
+    expect(swatch).toMatch(/display: inline-block;/);
+    expect(swatch).toMatch(/flex: none;/);
+    expect(swatch).toMatch(/width: var\(--awe-size-control-sm\);/);
+    expect(swatch).toMatch(/height: var\(--awe-size-control-sm\);/);
+    expect(swatch).toMatch(/border: 1px solid var\(--awe-color-border\);/);
+    expect(swatch).toMatch(/border-radius: var\(--awe-radius-full\);/);
+    expect(swatch).toMatch(/background-color: var\(--awe-swatch-color\);/);
+  });
+
   it('draws the quick filters as a small segmented control at the start of the toolbar', () => {
     const group = rule(grid, '.grid-quick-filter');
     expect(group).toMatch(/margin-inline-end: auto;/);

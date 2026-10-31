@@ -1244,8 +1244,8 @@ Selenium · AngularJS · Chrome · Scheduler:
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
 #                             IntegrationTestsIT                                (port 6309 / 6313)
-#   CRUDCriteriaMatrixIT: CRUDSiteTestsIT, CRUDProfileTestsIT, CRUDModuleTestsIT, CRUDDatabaseTestsIT, CRUDUserTestsIT,
-#                         CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
+#   CRUDCriteriaMatrixIT: CRUDSiteTestsIT, ProfileAdminTestsIT, CRUDModuleTestsIT, DatabaseAdminTestsIT,
+#                         UserAdminTestsIT, ThemeAdminTestsIT, CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
 #                         AdvancedSearchTestsIT                                (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
 #   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
@@ -1275,7 +1275,7 @@ Selenium · React · Firefox · Application:
 Selenium · React · Firefox · CRUD:
   extends: .selenium-react-firefox
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6310"
     TEST_NAME: react-firefox-crud-criteria-matrix
 
@@ -1310,7 +1310,7 @@ Selenium · React · Chrome · Application:
 Selenium · React · Chrome · CRUD:
   extends: .selenium-react-chrome
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6314"
     TEST_NAME: react-chrome-crud-criteria-matrix
 
@@ -1459,7 +1459,7 @@ E2E · React · Chromium · Application:
 E2E · React · Chromium · CRUD:
   extends: .playwright-react-chromium
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6326"
     TEST_NAME: playwright-react-chromium-crud-criteria-matrix
 
@@ -1495,7 +1495,7 @@ E2E · React · Firefox · Application:
 E2E · React · Firefox · CRUD:
   extends: .playwright-react-firefox
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,CRUDProfileTestsIT,CRUDModuleTestsIT,CRUDDatabaseTestsIT,CRUDUserTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6330"
     TEST_NAME: playwright-react-firefox-crud-criteria-matrix
 

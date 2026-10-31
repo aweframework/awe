@@ -3962,4 +3962,125 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     JsonNode all = counts.stream().filter(row -> text(row, "value").isEmpty()).findFirst().orElseThrow();
     assertEquals(users, all.get("count").asInt(), counts.toString());
   }
+
+  /**
+   * The fields that the profile administration screen adds to ProLst (#793) give the same text on every database: the
+   * secondary line is exactly "acronym · theme" (or the acronym), with no padding of char columns, and the state and
+   * tone codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseProfileListFieldsOfTheProfileAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ProLst", "", DATABASE));
+
+    assertTrue(rows.stream().anyMatch(row -> "administrator".equals(text(row, "Nam").trim())), "The administrator profile is listed");
+    for (JsonNode row : rows) {
+      String acronym = text(row, "Acr").trim();
+      String theme = text(row, "ThmTxt").trim();
+      assertEquals(theme.isEmpty() ? acronym : acronym + " · " + theme, text(row, "ProSec"), "Secondary line of " + acronym);
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + acronym);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + acronym);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + acronym);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("ProLst", "\"CrtProTxt\":\"ADMINISTRATOR\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "administrator".equals(text(row, "Nam").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the profile administration screen (#793) run on every database: All, Active and
+   * Inactive, the count of All is the number of profiles of ProLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseProfileStateCountsOfTheProfileAdministrationScreen() throws Exception {
+    int profiles = datalistRows(performRequest("ProLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ProStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(profiles, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(profiles, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The fields that the theme administration screen adds to ThmLst (#793) give the same text on every database: the
+   * secondary line is the primary colour and the surface (a translated palette or a hex), the mode is translated and the
+   * state and tone codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseThemeListFieldsOfTheThemeAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ThmLst", "\"lang\":\"en-GB\"", DATABASE));
+
+    JsonNode sunset = rows.stream().filter(row -> "sunset".equals(text(row, "NamVal").trim())).findFirst().orElseThrow();
+    assertEquals("Red · Automatic", text(sunset, "ThmSec"), sunset.toString());
+    assertEquals("System", text(sunset, "MdeTxt"), sunset.toString());
+    for (JsonNode row : rows) {
+      String name = text(row, "NamVal").trim();
+      assertTrue(text(row, "ThmSec").contains(" · "), "Secondary line of " + name);
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + name);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + name);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + name);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("ThmLst", "\"CrtThmTxt\":\"SUNSET\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "sunset".equals(text(row, "NamVal").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the theme administration screen (#793) run on every database: All, Active and Inactive,
+   * the count of All is the number of themes of ThmLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseThemeStateCountsOfTheThemeAdministrationScreen() throws Exception {
+    int themes = datalistRows(performRequest("ThmLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ThmStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(themes, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(themes, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The fields that the database administration screen adds to DbsLst (#793) give the same values on every database: the
+   * avatar is the alias, the state and tone codes are known values, and the search finds a connection by its alias
+   * ignoring the case
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseConnectionListFieldsOfTheDatabaseAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("DbsLst", "\"lang\":\"en-GB\"", DATABASE));
+
+    assertTrue(!rows.isEmpty(), "There are connections");
+    for (JsonNode row : rows) {
+      String alias = text(row, "Als").trim();
+      assertEquals(alias, text(row, "Ini").trim(), "Avatar of " + alias);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + alias);
+      assertEquals("active".equals(text(row, "StaCod")) ? "Active" : "Inactive", text(row, "StaTxt"), "State label of " + alias);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + alias);
+    }
+
+    String alias = text(rows.getFirst(), "Als").trim();
+    List<JsonNode> found = datalistRows(performRequest("DbsLst", "\"CrtDbsTxt\":\"" + alias.toUpperCase() + "\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> alias.equals(text(row, "Als").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the database administration screen (#793) run on every database: All, Active and
+   * Inactive, the count of All is the number of connections of DbsLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseConnectionStateCountsOfTheDatabaseAdministrationScreen() throws Exception {
+    int connections = datalistRows(performRequest("DbsLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("DbsStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(connections, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(connections, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
 }
