@@ -26,17 +26,25 @@
   <locale name="BUTTON_CLOSE" value="Close"/>
   <locale name="BUTTON_CONFIRM" value="Confirm"/>
   <locale name="BUTTON_COPY" value="Copy"/>
+  <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
+  <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
+  <locale name="BUTTON_CREATE_THEME" value="Create theme"/>
   <locale name="BUTTON_CREATE_USER" value="Create user"/>
   <locale name="BUTTON_DARK_MODE" value="Dark mode"/>
   <locale name="BUTTON_DEACTIVATE" value="Deactivate"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
+  <locale name="BUTTON_DONE" value="Done"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
+  <locale name="BUTTON_EDIT_DATABASE_SITES" value="Edit sites and modules"/>
   <locale name="BUTTON_MORE_ACTIONS" value="More actions"/>
   <locale name="BUTTON_ENCRYPT" value="Encrypt"/>
   <locale name="BUTTON_EXPORT" value="Export"/>
   <locale name="BUTTON_FINISH" value="Finish"/>
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
+  <locale name="BUTTON_NEW_DATABASE" value="New connection"/>
+  <locale name="BUTTON_NEW_PROFILE" value="New profile"/>
+  <locale name="BUTTON_NEW_THEME" value="New theme"/>
   <locale name="BUTTON_TOGGLE_MENU" value="Toggle menu"/>
   <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Light mode"/>
@@ -386,6 +394,8 @@
   <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Second factor enrollment"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Second factor reset"/>
   <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Second factor check"/>
+  <locale name="ENUM_STATE_ACTIVE" value="Active"/>
+  <locale name="ENUM_STATE_INACTIVE" value="Inactive"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrupted"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -717,8 +727,11 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="File access error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="File upload error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error checking the file upload"/>
+  <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Database connections of the application: connection, environment, credentials and the sites and modules that use each one."/>
+  <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groups of users with their default theme, initial screen and file restriction."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Browse the security events recorded by the application: logins, logouts, account locks, password and second factor changes, denied accesses and REST tokens. Filter by date, event, result, channel, user or address; select an event and press View to see all its data"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
+  <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Colour themes of the application: primary colour, surface and mode. Profiles and users choose one of the active themes."/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Channel"/>
@@ -735,6 +748,18 @@
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Whether the advanced filters are open could not be saved"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Advanced filters state not saved"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Clear all"/>
+  <locale name="SCREEN_TEXT_DATABASE_CONNECTION" value="Connection"/>
+  <locale name="SCREEN_TEXT_DATABASE_CREDENTIALS" value="Credentials"/>
+  <locale name="SCREEN_TEXT_DATABASE_DESCRIPTION" value="Description"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTERS" value="Connection state"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH" value="Alias, description, connection or user…"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH_LABEL" value="Search connections"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES" value="Sites and modules"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY" value="No sites or modules"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="No site or module uses this connection yet"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Delete search"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="The saved search will be deleted. Do you want to continue?"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
@@ -745,6 +770,14 @@
   <locale name="SCREEN_TEXT_MY_SEARCHES" value="My searches"/>
   <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="No saved searches yet"/>
   <locale name="SCREEN_TEXT_ONLY_ME" value="Only me"/>
+  <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Defaults and access"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="Profile state"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Name, acronym, theme or screen…"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Search profiles"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publish for a profile"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="The users of that profile find it under Shared with your profile. They can apply it, not change it."/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
@@ -765,8 +798,22 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Failures by cause"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Request"/>
+  <locale name="SCREEN_TEXT_THEME_COLOURS" value="Colours and mode"/>
+  <locale name="SCREEN_TEXT_THEME_FILTERS" value="Theme state"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH" value="Name, primary or surface…"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Search themes"/>
+  <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Databases"/>
+  <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Database connection"/>
+  <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Profiles"/>
+  <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profile"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Security audit"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Security event"/>
+  <locale name="SCREEN_TITLE_THEME_ADMIN" value="Themes"/>
+  <locale name="SCREEN_TITLE_THEME_PANEL" value="Theme"/>
   <locale name="UPLOADER_DROP_HINT" value="Drag a file here or choose one"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="You have exceeded the filename size"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error filling variable list"/>
@@ -1541,10 +1588,12 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Please enter a valid text. Numbers and white spaces are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Please enter a valid text. Numbers are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Please enter a valid time, between 00:00:00 and 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="There is already a profile with this acronym. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="Queue exist yet"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="The name of mail server already exist"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
+  <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Duplicated queue"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Duplicated server name"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Duplicated user name"/>

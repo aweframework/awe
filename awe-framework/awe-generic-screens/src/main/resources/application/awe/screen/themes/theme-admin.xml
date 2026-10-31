@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : theme-admin.xml
+    Description: Themes (#793): list of themes with a side panel to create and edit them. Replaces the Thm, ThmNew,
+                 ThmUpd and ThmViw screens; it reuses their queries and maintains (ThmLst, ThmNew, ThmUpd, ThmDel). The grid
+                 sends IdeThm (the selected rows) to every maintain, so the panel has no IdeThm criterion, and the grid
+                 columns named as a panel criterion are not sendable.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_THEME_ADMIN" help="HELP_SCREEN_TITLE_THEME_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW" />
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <!-- Mode of the side panel: new or edit -->
+    <criteria id="PnlMod" component="hidden" value="new" />
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_NEW_THEME" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+      <!-- No selected row: no IdeThm is sent and the panel starts with the defaults of the ThmNew screen -->
+      <button-action type="unselect-all-rows" target="GrdThmAdm" />
+      <button-action type="value" target="PnlMod" value="new" />
+      <button-action type="reset" target="Nam" />
+      <button-action type="value" target="PriPal" value="emerald" />
+      <button-action type="reset" target="PriHex" />
+      <button-action type="value" target="SrfPal" value="auto" />
+      <button-action type="reset" target="SrfHex" />
+      <button-action type="value" target="Mde" value="system" />
+      <button-action type="value" target="Act" value="1" />
+      <button-action type="dialog" target="PnlThm" />
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_THEME_ADMIN" icon="list">
+      <grid id="GrdThmAdm" style="expand" server-action="data" target-action="ThmLst" multiselect="true" initial-load="query" max="50">
+        <!-- Search: name, primary colour or surface (ThmLst and ThmStaCnt read CrtThmTxt) -->
+        <search id="CrtThmTxt" placeholder="SCREEN_TEXT_THEME_SEARCH" label="SCREEN_TEXT_THEME_SEARCH_LABEL" />
+        <!-- Quick filters: All, Active and Inactive, counted with the search (ThmStaCnt) -->
+        <quick-filter id="CrtThmSta" initial-load="query" target-action="ThmStaCnt" label="SCREEN_TEXT_THEME_FILTERS" value="" />
+        <!-- The theme takes the rest of the width: a circle of its primary colour (Pri: its palette or its hex), its name,
+             and its primary colour and surface below it -->
+        <column label="PARAMETER_THEME" name="NamVal" sort-field="NamVal" align="left" charlength="30" width="*" secondary-field="ThmSec" export-secondary="true" secondary-label="PARAMETER_THEME_PRIMARY" swatch-field="Pri" sendable="false" />
+        <column label="PARAMETER_THEME_MODE" name="MdeTxt" sort-field="Mde" align="left" charlength="14" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <!-- Sent to the maintains: identifier of the selected themes -->
+        <column name="IdeThm" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel) -->
+        <column name="ThmSec" hidden="true" sendable="false" />
+        <column name="StaCod" hidden="true" sendable="false" />
+        <column name="StaTon" hidden="true" sendable="false" />
+        <column name="Pri" hidden="true" sendable="false" />
+        <column name="Act" hidden="true" sendable="false" />
+        <column name="PriPal" hidden="true" sendable="false" />
+        <column name="PriHex" hidden="true" sendable="false" />
+        <column name="SrfPal" hidden="true" sendable="false" />
+        <column name="SrfHex" hidden="true" sendable="false" />
+        <column name="Mde" hidden="true" sendable="false" />
+        <!-- Row actions: the pencil edits the theme of its row in the side panel and the ellipsis opens the row menu. A
+             row button selects its row (only it) before its actions, so the panel is filled with that theme -->
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="dialog" target="PnlThm" />
+        </column>
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu -->
+        <context-button label="BUTTON_EDIT" icon="edit" id="CtxButUpd">
+          <button-action type="check-one-selected" target="GrdThmAdm" />
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="dialog" target="PnlThm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdThmAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="CtxSepDel" />
+        <context-button label="BUTTON_DELETE" icon="trash" id="CtxButDel">
+          <button-action type="check-some-selected" target="GrdThmAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ThmDel" />
+          <button-action type="filter" target="GrdThmAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdThmAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Selection actions: in the selection bar of the grid while there are selected themes, Delete as the danger one -->
+        <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdThmAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ThmDel" />
+          <button-action type="filter" target="GrdThmAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdThmAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+
+    <!-- One side panel for new and edit: the criteria ids are the parameters of ThmNew and ThmUpd. When editing (one
+         selected theme) its header shows the theme: a circle of its primary colour, name, primary · surface and the state
+         tag; for a new theme (no selected row) it shows its label -->
+    <side-panel id="PnlThm" label="SCREEN_TITLE_THEME_PANEL" icon="picture-o" max-width="40rem"
+                header-grid="GrdThmAdm" header-title-field="NamVal" header-subtitle-field="ThmSec"
+                header-swatch-field="Pri">
+      <header-tag field="StaTxt" tone-field="StaTon" />
+      <tag type="div" style="panel-body" id="PnlThmBdy">
+        <!-- Identity -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_THEME_IDENTITY" icon="picture-o" />
+        <criteria label="PARAMETER_THEME" id="Nam" component="text" validation="{required: true, maxlength: 100}" style="col-xs-12 col-sm-8">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="NamVal" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Active as a switch: 1 when on, 0 when off (ThmUpd reads Act). Only when editing: ThmNew does not store it and a
+             new theme starts active (the column defaults to 1) -->
+        <criteria label="PARAMETER_ACTIVE" id="Act" component="checkbox" value="1" style="col-xs-12 col-sm-4 switch">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="Act" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </criteria>
+
+        <!-- Colours and mode: each colour is a palette of the select or, when it is custom, the hex of the colour picker
+             (ThmNew and ThmUpd compose them with composeThemeColors) -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_THEME_COLOURS" icon="lucide:palette" />
+        <criteria label="PARAMETER_THEME_PRIMARY" id="PriPal" component="select" initial-load="enum" target-action="ThmPri" value="emerald" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="PriPal" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_PRIMARY_HEX" id="PriHex" component="color" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="PriHex" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PriPal" condition="eq" value="custom" />
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="PriPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_SURFACE" id="SrfPal" component="select" initial-load="enum" target-action="ThmSrf" value="auto" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="SrfPal" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_SURFACE_HEX" id="SrfHex" component="color" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="SrfHex" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="SrfPal" condition="eq" value="custom" />
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="SrfPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_MODE" id="Mde" component="select" initial-load="enum" target-action="ThmMde" value="system" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdThmAdm" column="Mde" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">
+          <button-action type="close-cancel" target="PnlThm" />
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="save" id="ButPnlUpd" style="btn-primary">
+          <button-action type="validate" target="PnlThmBdy" />
+          <button-action type="confirm" target="UpdMsg" />
+          <button-action type="server" server-action="maintain" target-action="ThmUpd" />
+          <button-action type="close" target="PnlThm" />
+          <button-action type="filter" target="GrdThmAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+        <button label="BUTTON_CREATE_THEME" icon="check" id="ButPnlNew" style="btn-primary">
+          <button-action type="validate" target="PnlThmBdy" />
+          <button-action type="confirm" target="NewMsg" />
+          <button-action type="server" server-action="maintain" target-action="ThmNew" />
+          <button-action type="close" target="PnlThm" />
+          <button-action type="filter" target="GrdThmAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

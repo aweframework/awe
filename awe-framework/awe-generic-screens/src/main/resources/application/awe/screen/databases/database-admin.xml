@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : database-admin.xml
+    Description: Databases (#793): list of database connections with a side panel to create and edit them. Replaces the
+                 Dbs, DbsNew, DbsUpd and DbsViw screens; it reuses their queries and maintains (DbsLst, DbsNew, DbsUpd,
+                 DbsDel, DbsAlsUni, QryLstSitModByDbs). The grid sends IdeDbs (the selected rows) to every maintain, so the
+                 panel has no IdeDbs criterion, and the grid columns named as a panel criterion are not sendable. The grid
+                 never sends nor shows the password of a connection: the panel only writes the typed one (FlgPwd).
+                 The sites and modules of the connection (a child grid) are edited in a wide dialog over the side panel
+                 (SitModDbsLst) and shown read-only in the panel (SitModDbsViw, a copy of its rows made by copy-rows). Both
+                 grids are in the screen, so the panel saves the connection and the row operations of its sites in one
+                 maintain.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DATABASE_ADMIN" help="HELP_SCREEN_TITLE_DATABASE_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW" />
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <message id="DbsAlsUni" title="WARNING_TITLE_DUPLICATED_DATABASE" message="WARNING_MESSAGE_DUPLICATED_DATABASE" />
+    <!-- Mode of the side panel: new or edit -->
+    <criteria id="PnlMod" component="hidden" value="new" />
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_NEW_DATABASE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+      <!-- No selected row: no IdeDbs is sent (DbsNew takes it from its sequence) and the panel starts empty, as the
+           DbsNew screen -->
+      <button-action type="unselect-all-rows" target="GrdDbsAdm" />
+      <button-action type="value" target="PnlMod" value="new" />
+      <button-action type="reset" target="Als" />
+      <button-action type="reset" target="Dct" />
+      <button-action type="reset" target="Dbc" />
+      <button-action type="reset" target="Dbt" />
+      <button-action type="reset" target="Drv" />
+      <button-action type="reset" target="Typ" />
+      <button-action type="reset" target="DbsUsr" />
+      <button-action type="reset" target="DbsPwd" />
+      <button-action type="reset" target="Des" />
+      <button-action type="value" target="Act" value="1" />
+      <button-action type="reset" target="SitModDbsLst" />
+      <button-action type="copy-rows" target="SitModDbsViw" value="SitModDbsLst" />
+      <button-action type="dialog" target="PnlDbs" />
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_DATABASE_ADMIN" icon="list">
+      <grid id="GrdDbsAdm" style="expand" server-action="data" target-action="DbsLst" multiselect="true" initial-load="query" max="50">
+        <!-- Search: alias, description, connection or user (DbsLst and DbsStaCnt read CrtDbsTxt) -->
+        <search id="CrtDbsTxt" placeholder="SCREEN_TEXT_DATABASE_SEARCH" label="SCREEN_TEXT_DATABASE_SEARCH_LABEL" />
+        <!-- Quick filters: All, Active and Inactive, counted with the search (DbsStaCnt) -->
+        <quick-filter id="CrtDbsSta" initial-load="query" target-action="DbsStaCnt" label="SCREEN_TEXT_DATABASE_FILTERS" value="" />
+        <!-- The connection takes the rest of the width: its alias with its description below it. The connection URL is not a
+             column (the side panel header shows it, and the search finds it): with it the React engine had no room left -->
+        <column label="PARAMETER_ALIAS" name="Als" sort-field="Als" align="left" charlength="30" width="*" secondary-field="Des" export-secondary="true" secondary-label="PARAMETER_DESCRIPTION" avatar-field="Ini" avatar-tone-field="IniTon" sendable="false" />
+        <column label="PARAMETER_ENVIRONMENT" name="TypTxt" sort-field="Typ" align="left" charlength="16" sendable="false" />
+        <column label="PARAMETER_DB_TYPE" name="DbtTxt" sort-field="Dbt" align="left" charlength="12" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <!-- Connection URL: read by the side panel (Dbc criterion) and its header; not a visible column -->
+        <column name="Dbc" hidden="true" sendable="false" />
+        <!-- Sent to the maintains: identifier of the selected connections -->
+        <column name="IdeDbs" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel). DbsPwd is never a
+             column: the panel does not show the stored password -->
+        <column name="Des" hidden="true" sendable="false" />
+        <column name="Dct" hidden="true" sendable="false" />
+        <column name="Typ" hidden="true" sendable="false" />
+        <column name="Dbt" hidden="true" sendable="false" />
+        <column name="Drv" hidden="true" sendable="false" />
+        <column name="DbsUsr" hidden="true" sendable="false" />
+        <column name="Act" hidden="true" sendable="false" />
+        <column name="StaCod" hidden="true" sendable="false" />
+        <column name="StaTon" hidden="true" sendable="false" />
+        <column name="Ini" hidden="true" sendable="false" />
+        <column name="IniTon" hidden="true" sendable="false" />
+        <!-- Row actions: the pencil edits the connection of its row in the side panel and the ellipsis opens the row menu.
+             A row button selects its row (only it) before its actions, so the panel is filled with that connection and its
+             sites and modules (the read-only list of the panel is a copy of the rows of the sites grid, once loaded) -->
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="reset" target="DbsPwd" />
+          <button-action type="filter" target="SitModDbsLst" />
+          <button-action type="copy-rows" target="SitModDbsViw" value="SitModDbsLst" />
+          <button-action type="dialog" target="PnlDbs" />
+        </column>
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu -->
+        <context-button label="BUTTON_EDIT" icon="edit" id="CtxButUpd">
+          <button-action type="check-one-selected" target="GrdDbsAdm" />
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="reset" target="DbsPwd" />
+          <button-action type="filter" target="SitModDbsLst" />
+          <button-action type="copy-rows" target="SitModDbsViw" value="SitModDbsLst" />
+          <button-action type="dialog" target="PnlDbs" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdDbsAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="CtxSepDel" />
+        <context-button label="BUTTON_DELETE" icon="trash" id="CtxButDel">
+          <button-action type="check-some-selected" target="GrdDbsAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="DbsDel" />
+          <button-action type="server" server-action="data" target-action="DbsAlsBySitModSel" target="_database_" context="base" />
+          <button-action type="filter" target="GrdDbsAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdDbsAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Selection actions: in the selection bar of the grid while there are selected connections, Delete as the danger
+             one -->
+        <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdDbsAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="DbsDel" />
+          <button-action type="server" server-action="data" target-action="DbsAlsBySitModSel" target="_database_" context="base" />
+          <button-action type="filter" target="GrdDbsAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdDbsAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+
+    <!-- One side panel for new and edit: the criteria ids are the parameters of DbsNew and DbsUpd. When editing (one
+         selected connection) its header shows the connection: avatar, alias, connection and the state tag; for a new
+         connection (no selected row) it shows its label -->
+    <side-panel id="PnlDbs" label="SCREEN_TITLE_DATABASE_PANEL" icon="database" max-width="48rem"
+                header-grid="GrdDbsAdm" header-title-field="Als" header-subtitle-field="Dbc"
+                header-avatar-field="Ini" header-avatar-tone-field="IniTon">
+      <header-tag field="StaTxt" tone-field="StaTon" />
+      <tag type="div" style="panel-body" id="PnlDbsBdy">
+        <!-- Connection -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_DATABASE_CONNECTION" icon="database" />
+        <criteria label="PARAMETER_ALIAS" id="Als" component="text" validation="{required: true, maxlength: 15}" style="col-xs-12 col-sm-8">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Als" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Active as a switch: 1 when on, 0 when off (DbsNew and DbsUpd read Act); a new connection starts active -->
+        <criteria label="PARAMETER_ACTIVE" id="Act" component="checkbox" value="1" style="col-xs-12 col-sm-4 switch">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Act" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_TYPE" id="Dct" component="select" initial-load="enum" target-action="DbsTyp" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Dct" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_ENVIRONMENT" id="Typ" component="select" initial-load="enum" target-action="EnvTyp" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Typ" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_CONNECTION" id="Dbc" component="text" validation="required" style="col-xs-12">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Dbc" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_DB_TYPE" id="Dbt" component="select" initial-load="enum" target-action="EnuDbmSys" validation="required" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Dbt" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_DRIVER" id="Drv" component="select" initial-load="enum" target-action="DrvTyp" optional="true" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Drv" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+
+        <!-- Credentials: the stored password is never loaded; when editing, DbsUpd writes the password only if one is typed
+             (FlgPwd is 1, as in the DbsUpd screen) -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_DATABASE_CREDENTIALS" icon="lucide:key-round" />
+        <criteria label="PARAMETER_USER" id="DbsUsr" component="text" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="DbsUsr" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_PASSWD" id="DbsPwd" component="password" style="col-xs-12 col-sm-6" value="" />
+        <criteria id="FlgPwd" component="hidden" value="0">
+          <dependency source-type="formule" target-type="input" initial="true" formule="'[DbsPwd]' != 'null' &amp;&amp; '[DbsPwd]' != '' ? 1 : 0" type="or">
+            <dependency-element id="DbsPwd" condition="ne" value="" />
+            <dependency-element id="DbsPwd" condition="eq" value="" />
+          </dependency>
+        </criteria>
+
+        <!-- Description -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_DATABASE_DESCRIPTION" icon="lucide:file-text" />
+        <criteria label="PARAMETER_DESCRIPTION" id="Des" component="textarea" style="col-xs-12">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDbsAdm" column="Des" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdDbsAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+
+        <!-- Sites and modules that use the connection, read-only: a copy of the rows of the editable grid of the dialog
+             (copy-rows when the panel is opened and when the dialog is closed), so it shows the changes not saved yet.
+             Its columns take the cells of the shown columns of the editable grid in the same order (the names of the columns
+             of a screen are unique) and are not sent: the maintains read the editable grid -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_DATABASE_SITES" icon="lucide:network" />
+        <tag type="div" style="col-xs-12 height-md" expandible="vertical">
+          <grid id="SitModDbsViw" style="expand" show-toolbar="false" pagination-disabled="true" max="100"
+                empty-title="SCREEN_TEXT_DATABASE_SITES_EMPTY" empty-text="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" empty-icon="lucide:network">
+            <column label="PARAMETER_SITE" name="SitViw" align="left" charlength="16" width="*" sortable="false" sendable="false" />
+            <column label="PARAMETER_MODULE" name="ModViw" align="left" charlength="16" sortable="false" sendable="false" />
+            <column label="PARAMETER_ORDER" name="OrdViw" align="center" charlength="10" sortable="false" sendable="false" />
+          </grid>
+        </tag>
+        <!-- The dialog keeps the action until it is closed (Done, its close button or Esc): then the list is copied again -->
+        <tag type="div" style="col-xs-12">
+          <button label="BUTTON_EDIT_DATABASE_SITES" icon="lucide:pencil" id="ButSitModEdt">
+            <button-action type="dialog" target="DlgSitMod" />
+            <button-action type="copy-rows" target="SitModDbsViw" value="SitModDbsLst" />
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">
+          <button-action type="close-cancel" target="PnlDbs" />
+        </button>
+        <!-- DbsUpd reads IdeDbs.selected for every site row, which is a single value only with one selected connection -->
+        <button label="BUTTON_SAVE_CHANGES" icon="save" id="ButPnlUpd" style="btn-primary">
+          <button-action type="check-one-selected" target="GrdDbsAdm" />
+          <button-action type="validate" target="PnlDbsBdy" />
+          <button-action type="check-records-saved" target="SitModDbsLst" />
+          <button-action type="confirm" target="UpdMsg" />
+          <button-action type="server" server-action="maintain" target-action="DbsUpd" />
+          <button-action type="server" server-action="data" target-action="DbsAlsBySitModSel" target="_database_" context="base" />
+          <button-action type="close" target="PnlDbs" />
+          <button-action type="filter" target="GrdDbsAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+        <button label="BUTTON_CREATE_DATABASE" icon="check" id="ButPnlNew" style="btn-primary">
+          <button-action type="validate" target="PnlDbsBdy" />
+          <button-action type="check-records-saved" target="SitModDbsLst" />
+          <button-action type="server" server-action="control-unique-cancel" target-action="DbsAlsUni" target="DbsAlsUni" />
+          <button-action type="confirm" target="NewMsg" />
+          <button-action type="server" server-action="maintain" target-action="DbsNew" />
+          <button-action type="server" server-action="data" target-action="DbsAlsBySitModSel" target="_database_" context="base" />
+          <button-action type="close" target="PnlDbs" />
+          <button-action type="filter" target="GrdDbsAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+
+    <!-- Sites and modules of the connection of the side panel, editable in a wide dialog that opens over the panel (it is
+         after the panel in the screen, so it is shown on top of it). Its grid sends its row operations to DbsNew and
+         DbsUpd with the panel. Editing loads the rows of the selected connection (QryLstSitModByDbs); a new connection
+         starts without rows -->
+    <dialog id="DlgSitMod" modal="true" style="modal-lg" label="SCREEN_TEXT_DATABASE_SITES" icon="lucide:network">
+      <!-- Room for several rows: the AngularJS engine hides the save button of the row being edited when it does not fit
+           under the row -->
+      <tag type="div" style="modal-body height-lg" expandible="vertical">
+        <grid id="SitModDbsLst" style="expand" editable="true" show-toolbar="false" server-action="data" target-action="QryLstSitModByDbs" max="20" send-operations="true">
+          <column sort-field="IdeSitModDbs" name="IdeSitModDbs" hidden="true" />
+          <column label="PARAMETER_SITE" name="IdeSit" sort-field="IdeSit" align="left" charlength="20" width="*" component="select" validation="required" initial-load="query" server-action="data" target-action="SitSel" />
+          <column label="PARAMETER_MODULE" name="IdeMod" sort-field="IdeMod" align="left" charlength="20" component="select" validation="required" initial-load="query" server-action="data" target-action="ModSelBD" />
+          <column label="PARAMETER_ORDER" name="Ord" sort-field="Ord" align="center" charlength="10" component="text" />
+          <button label="BUTTON_NEW" icon="plus-circle" id="ButSitModDbsLstAdd">
+            <button-action type="add-row" target="SitModDbsLst" silent="true" />
+          </button>
+          <button label="BUTTON_DELETE" icon="trash" id="ButSitModDbsLstDel">
+            <button-action type="delete-row" target="SitModDbsLst" silent="true" />
+            <dependency target-type="enable" initial="true">
+              <dependency-element id="SitModDbsLst" attribute="selectedRows" condition="eq" value="1" />
+            </dependency>
+          </button>
+        </grid>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_DONE" icon="check" id="ButSitModDon" style="btn-primary">
+            <button-action type="check-records-saved" target="SitModDbsLst" />
+            <button-action type="close" target="DlgSitMod" />
+          </button>
+        </tag>
+      </tag>
+    </dialog>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

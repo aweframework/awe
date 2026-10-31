@@ -138,6 +138,11 @@
       <xs:enumeration value="copy-row-top" />
       <xs:enumeration value="copy-row-up" />
       <xs:enumeration value="copy-row-down" />
+      <xs:enumeration value="copy-rows">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Replaces the rows of the target grid with a copy of the rows of the grid named in value, without its deleted rows: each shown column of the target takes the cells of the shown column of that grid in the same position, a select cell with the text of its option. The target is not marked as changed: a read-only view of an editable grid. Both engines.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <!-- Move the selected row of the target grid to the top, one position up, one position down or to the bottom (Alt+ArrowUp/ArrowDown on a selected row) -->
       <xs:enumeration value="move-row-top" />
       <xs:enumeration value="move-row-up" />

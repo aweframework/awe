@@ -647,4 +647,94 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  // -------------------------------
+  // ✅ copyRowsGridAction
+  // -------------------------------
+  describe('copyRowsGridAction', () => {
+    const TARGET = { view: 'base', component: 'GrdViw' };
+    const t = (label) => label === 'SITE_ONATE' ? 'Oñate' : label;
+    let dispatch;
+    let getState;
+    let source;
+    let target;
+
+    /**
+     * Run copy-rows on the target with a value grid and return the model it publishes, or undefined when it publishes none
+     */
+    const copyRows = (value) => {
+      gridThunks.copyRowsGridAction({ type: 'copy-rows', address: TARGET, value, parameters: {} }, t)(dispatch, getState);
+      const update = dispatch.mock.calls.map(([item]) => item).find((item) => typeof item === 'function');
+      if (!update) {
+        return undefined;
+      }
+      const innerDispatch = jest.fn();
+      update(innerDispatch, getState);
+      return innerDispatch.mock.calls.map(([item]) => item).find((item) => item.type === 'UPDATE_MODEL');
+    };
+
+    beforeEach(() => {
+      dispatch = jest.fn();
+      source = {
+        address: { view: 'base', component: 'GrdEdi' },
+        attributes: {
+          editable: true,
+          multioperation: true,
+          columnModel: [
+            { name: 'IdeSitModDbs', hidden: true },
+            { name: 'IdeSit', component: 'select', model: { values: [{ value: 1, label: 'Madrid' }, { value: 2, label: 'SITE_ONATE' }] } },
+            { name: 'IdeMod', component: 'select', model: { values: [{ value: 28, label: 'Base' }, { value: 916, label: 'Test' }] } },
+            { name: 'Ord', component: 'text' }
+          ]
+        },
+        model: {
+          values: [
+            { id: '1', IdeSit: 1, IdeMod: 28, Ord: 1, Sit: 'Madrid', selected: true, $row: {}, $attrs: {} },
+            { id: '2', IdeSit: 2, IdeMod: 916, Ord: 2, $row: { operation: 'DELETE' } },
+            { id: 'new-row-0', IdeSit: '2', IdeMod: { value: 916, label: 'Old' }, Ord: '3', $row: { operation: 'INSERT', editing: false } },
+            { id: '3', IdeSit: 7, IdeMod: 28, Ord: 4, $row: { operation: 'UPDATE' } }
+          ]
+        }
+      };
+      target = {
+        address: TARGET,
+        // Its columns have their own names: the names of the columns of a screen are unique
+        attributes: { columnModel: [{ name: 'ViwSit' }, { name: 'ViwKey', hidden: true }, { name: 'ViwMod' }, { name: 'ViwOrd' }] },
+        model: { values: [{ id: 'old', ViwSit: { value: 9, label: 'Old' } }] }
+      };
+      getState = jest.fn(() => ({ components: { GrdEdi: source, GrdViw: target } }));
+    });
+
+    it('replaces the rows of the target with the rows of the value grid, column by shown column, with the texts of their select cells', () => {
+      const before = JSON.parse(JSON.stringify(source));
+
+      const update = copyRows('GrdEdi');
+
+      expect(update.address).toEqual(TARGET);
+      expect(update.data).toEqual({
+        values: [
+          { id: '1', ViwSit: { value: 1, label: 'Madrid' }, ViwMod: { value: 28, label: 'Base' }, ViwOrd: 1 },
+          { id: 'new-row-0', ViwSit: { value: '2', label: 'Oñate' }, ViwMod: { value: 916, label: 'Test' }, ViwOrd: '3' },
+          { id: '3', ViwSit: 7, ViwMod: { value: 28, label: 'Base' }, ViwOrd: 4 }
+        ],
+        records: 3,
+        total: 1,
+        page: 1
+      });
+      // The value grid keeps its rows, its selection and its operations
+      expect(source).toEqual(before);
+      expect(dispatch.mock.calls.map(([item]) => item).filter((item) => item?.type === 'ACCEPT_ACTION')).toHaveLength(1);
+    });
+
+    it('empties the target when the value grid has no rows', () => {
+      source.model.values = [];
+
+      expect(copyRows('GrdEdi').data).toEqual({ values: [], records: 0, total: 1, page: 1 });
+    });
+
+    it('leaves the target as it is when the value grid is not on screen', () => {
+      expect(copyRows('GrdMissing')).toBeUndefined();
+      expect(target.model.values).toEqual([{ id: 'old', ViwSit: { value: 9, label: 'Old' } }]);
+      expect(dispatch.mock.calls.map(([item]) => item).filter((item) => item?.type === 'ACCEPT_ACTION')).toHaveLength(1);
+    });
+  });
 });

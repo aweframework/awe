@@ -135,6 +135,7 @@ Actions which works over components in the screen.
 | `copy-row-top`                   | Copy the selected row at the top of the grid                                                             | `grid`                      |
 | `copy-row-up`                    | Copy the selected row over the selected row                                                              | `grid`                      |
 | `copy-row-down`                  | Copy the selected row below the selected row                                                             | `grid`                      |
+| `copy-rows`                      | Replace the rows of the grid with a copy of the rows of the grid named in `value` (without its deleted rows): each shown column takes the cells of the shown column of that grid in the same position, a select cell with the text of its option. The grid is not marked as changed (a read-only view of an editable grid) | `grid`                      |
 | `move-row-top`                   | Move the selected row to the top of the grid                                                             | `grid`                      |
 | `move-row-up`                    | Move the selected row one position up                                                                    | `grid`                      |
 | `move-row-down`                  | Move the selected row one position down                                                                  | `grid`                      |

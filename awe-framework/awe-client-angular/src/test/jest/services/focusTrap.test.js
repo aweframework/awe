@@ -69,6 +69,36 @@ describe("awe-framework/awe-client-angular/src/test/jest/services/focusTrap.test
     expect(tab().defaultPrevented).toBe(false);
   });
 
+  it.each([
+    ["a dialog", "<div class='modal'><button>dialog first</button><button>dialog last</button></div>"],
+    ["an aria modal", "<div role='dialog' aria-modal='true'><button>dialog first</button><button>dialog last</button></div>"]
+  ])("leaves Tab alone inside %s shown over the container", (name, html) => {
+    const dialog = document.createElement("div");
+    dialog.innerHTML = html;
+    document.body.append(dialog);
+    trap.activate();
+    [...dialog.querySelectorAll("button")].find(button => button.textContent === "dialog last").focus();
+
+    const event = tab();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement.textContent).toBe("dialog last");
+  });
+
+  it("brings the focus back inside from a dialog that holds the container", () => {
+    const dialog = document.createElement("div");
+    dialog.className = "modal";
+    dialog.innerHTML = "<button>outer</button>";
+    dialog.append(container);
+    document.body.append(dialog);
+    trap.activate();
+    dialog.querySelector("button").focus();
+
+    tab();
+
+    expect(document.activeElement).toBe(byText("first"));
+  });
+
   it("brings the focus back inside when Tab is pressed outside", () => {
     trap.activate();
     opener.focus();

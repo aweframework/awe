@@ -5,6 +5,8 @@
     Created on : 15 de febrero de 2013
     Author     : Pablo VIDAL
     Description: Ventana de herramientas - Consulta de conexiones a bases de datos
+    DEPRECATED since AWE 5.0.0: replaced by the database-admin screen (screen/databases/database-admin.xml), which the
+    "databases" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_DBS_VIW" help="HELP_SCREEN_TITLE_DBS_VIW">
   <tag source="hidden">

@@ -173,7 +173,7 @@ class UserAdminScreenTest extends AbstractSpringAppIntegrationTest {
       .content("{\"cod_usr\":\"" + OTHER_USER + "\",\"pwd_usr\":\"test\"}")
       .accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 
-    String response = mockMvc.perform(post("/screen-data/user-admin")
+    String response = mockMvc.perform(post("/screen-data/users")
         .with(csrf())
         .session(session)
         .contentType(MediaType.APPLICATION_JSON)

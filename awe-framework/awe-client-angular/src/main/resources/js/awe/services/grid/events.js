@@ -1,5 +1,6 @@
 import {aweApplication} from "../../awe";
 import {ClientActions} from "../../data/actions";
+import {copyGridRows} from "./copyRows";
 
 // Grid events service
 aweApplication.factory('GridEvents',
@@ -356,6 +357,28 @@ aweApplication.factory('GridEvents',
          */
         onCopyRowTop : function(parameters, scope) {
           addRow(parameters, scope, "first", scope.component.getSelectedRowData());
+        },
+        /**
+         * Replace the rows of the grid with a copy of the rows of the grid named in the value of the action (#793), as
+         * the fill of a query does: the grid is not marked as changed. Each shown column of the grid takes the cells of
+         * the shown column of that grid in the same position. Nothing changes when that grid is not on screen
+         *
+         * @param {object} parameters Action parameters
+         * @param {object} scope Scope
+         * @param {object} address Address of the grid
+         * @param {object} action Action, with the identifier of the grid to copy in its value
+         */
+        onCopyRows: function (parameters, scope, address, action) {
+          const component = scope.component;
+          const source = {view: component.address.view, component: action.attr("value")};
+          const sourceModel = Control.getAddressModel(source);
+          if (!sourceModel) {
+            return;
+          }
+          const sourceColumns = Control.getAddressController(source)?.columnModel;
+          const values = copyGridRows(sourceModel.values, sourceColumns, component.controller.columnModel,
+            label => $translate.instant(label), component.constants.ROW_IDENTIFIER);
+          Control.changeModelAttribute(component.address, {values, records: values.length, total: 1, page: 1}, true);
         },
         /**
          * Copy row before selected

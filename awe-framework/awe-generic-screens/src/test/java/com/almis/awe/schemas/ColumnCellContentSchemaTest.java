@@ -63,6 +63,12 @@ class ColumnCellContentSchemaTest {
   }
 
   @Test
+  void acceptsASwatchField() {
+    assertThatCode(() -> validateColumn("swatch-field=\"color\" secondary-field=\"surface\""))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
   void rejectsANonBooleanExportSecondary() {
     assertThatThrownBy(() -> validateColumn("secondary-field=\"email\" export-secondary=\"yes\""))
       .isInstanceOf(SAXException.class);

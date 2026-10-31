@@ -77,7 +77,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should get all grid actions', function () {
     setup(preloadedState);
 
-    expect(Object.keys(actions).length).toBe(46);
+    expect(Object.keys(actions).length).toBe(47);
   });
 
   it('should launch an add-row action', async function () {

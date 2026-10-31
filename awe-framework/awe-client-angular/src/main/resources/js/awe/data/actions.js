@@ -133,6 +133,7 @@ export const ClientActions = {
       "copy-row-top": {method: "onCopyRowTop"},
       "copy-row-down": {method: "onCopyRowAfterSelected"},
       "copy-row-up": {method: "onCopyRowBeforeSelected"},
+      "copy-rows": {method: "onCopyRows"},
       "move-row-top": {method: "onMoveRowTop"},
       "move-row-up": {method: "onMoveRowBeforeSelected"},
       "move-row-down": {method: "onMoveRowAfterSelected"},

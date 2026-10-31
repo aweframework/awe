@@ -38,16 +38,45 @@ the next minor release (5.1.0). Point your own menu options to the `user-admin` 
 
 ## Profiles
 
-In profiles screen you can manage new *profiles* to group users in security categories, like administrators, regular users
-or special users.
+The *Profiles* option of the menu opens the profile administration screen (`profile-admin`), built like the
+[users](#users) one: the *profiles* group users in security categories, like administrators, regular users or special
+users, and give them a default theme, an initial screen and a file restriction. It shows the profiles in a grid with
+their avatar, name, acronym and theme, initial screen, file restriction and state, with a search by name, acronym, theme
+or initial screen and quick filters with their counts (*All*, *Active*, *Inactive*). Each row has an edit button and a
+menu (edit, delete), and the selected rows show a bar to delete them. A side panel creates and edits a profile, grouped
+in sections (identity, defaults and access), and shows the avatar, name and state of the profile being edited.
+
+The screen reuses the queries and maintains of the profiles (`ProLst`, `ProNew`, `ProUpd`, `ProDel` and the
+`check-profile-acronym` check of a new acronym), so an application that overrides them keeps its logic.
+
+:::warning Deprecated
+The previous profile screens (`Prf`, `PrfNew`, `PrfUpd` and `PrfViw`) are deprecated since AWE 5.0.0 and will be
+removed in the next minor release (5.1.0). Point your own menu options to the `profile-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 <img alt="Profiles screen" src={require('@docusaurus/useBaseUrl').default('img/ProfilesScreen.png')} />
 
 ## Themes
 
-Themes screen allows you to define the *themes* of the application. Each theme has a name, a primary and a surface (a
-palette from a list or, with the custom option, a hex from a colour picker) and a mode, edited in the new and update
-screens. See [Theme configuration](../design-system/for-developers.md).
+The *Themes* option of the menu opens the theme administration screen (`theme-admin`), built like the [users](#users)
+one: it defines the *themes* of the application. Each theme has a name, a primary and a surface (a palette from a list
+or, with the custom option, a hex from a colour picker) and a mode. It shows the themes in a grid with their avatar,
+name, primary · surface (the palette or the hex), mode and state, with a search by name, primary or surface and quick
+filters with their counts (*All*, *Active*, *Inactive*). Each row has an edit button and a menu (edit, delete), and the
+selected rows show a bar to delete them. A side panel creates and edits a theme, grouped in sections (identity, colours
+and mode), and shows the avatar, name, colours and state of the theme being edited. A new theme starts with the emerald
+primary, the automatic surface and the system mode, and is active; the *Active* switch is shown when editing a theme.
+See [Theme configuration](../design-system/for-developers.md).
+
+The screen reuses the queries and maintains of the themes (`ThmLst`, `ThmNew`, `ThmUpd` and `ThmDel`, which compose the
+colours with the `composeThemeColors` service), so an application that overrides them keeps its logic.
+
+:::warning Deprecated
+The previous theme screens (`Thm`, `ThmNew`, `ThmUpd` and `ThmViw`) are deprecated since AWE 5.0.0 and will be removed
+in the next minor release (5.1.0). Point your own menu options to the `theme-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 <img alt="Themes screen" src={require('@docusaurus/useBaseUrl').default('img/ThemesScreen.png')} />
 
@@ -75,10 +104,38 @@ also define the relationship between modules and profiles, users or sites (and d
 
 ## Databases
 
-In databases option you can manage a set of connections to datasources of any supported database types, like Oracle, 
-SQL Server, H2, etc.
+The *Databases* option of the menu opens the database administration screen (`database-admin`), built like the
+[users](#users) one: it manages the connections to datasources of any supported database type, like Oracle, SQL Server,
+H2, etc. It shows the connections in a grid with their avatar, alias and description, environment, database type
+and state, with a search by alias, description, connection or user and quick filters with their counts
+(*All*, *Active*, *Inactive*). Each row has an edit button and a menu (edit, delete), and the selected rows show a bar
+to delete them. A side panel creates and edits a connection, grouped in sections (connection, credentials, description
+and the sites and modules that use it), and shows the avatar, alias, connection and state of the connection being
+edited. The stored password is never shown: when editing, it only changes if a new one is typed. After
+saving or deleting a connection the database selector of the application is reloaded.
 
-Inside a database management screen you can set the site/module configuration for each one.
+The sites and modules of a connection are a child grid, too wide for the side panel: the panel lists them read-only
+(site, module and order) and its *Edit sites and modules* button opens a wide dialog over the panel with the editable
+grid. *Done* goes back to the panel, which then lists the changes, and *Save changes* (or *Create connection*) saves the
+connection and its sites and modules together. Use the same pattern for the child grids of your own side panels:
+
+- Put the editable grid in a `<dialog>` with `style="modal-lg"` after the `<side-panel>` in the screen, so it opens on top
+  of the panel. Both grids stay in the screen, so the maintain of the panel still receives the rows of the editable grid.
+- Show a read-only grid in the panel (`show-toolbar="false"`, `pagination-disabled="true"`, columns with
+  `sendable="false"` and their own names, as the names of the columns of a screen are unique), filled with the
+  [`copy-rows`](../api/actions.md) action: `<button-action type="copy-rows" target="ReadOnlyGrid" value="EditableGrid"/>`.
+  Its shown columns take, in order, the cells of the shown columns of the editable grid.
+- Run `copy-rows` after loading or resetting the editable grid when the panel opens, and after the `dialog` action of the
+  button that opens the dialog: that action waits until the dialog is closed (with *Done*, its close button or Esc).
+
+The screen reuses the queries and maintains of the connections (`DbsLst`, `DbsNew`, `DbsUpd`, `DbsDel`, `DbsAlsUni` and
+`QryLstSitModByDbs`), so an application that overrides them keeps its logic.
+
+:::warning Deprecated
+The previous database screens (`Dbs`, `DbsNew`, `DbsUpd` and `DbsViw`) are deprecated since AWE 5.0.0 and will be
+removed in the next minor release (5.1.0). Point your own menu options to the `database-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 ## Mail servers
 

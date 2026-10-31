@@ -288,6 +288,40 @@ export function extractCellValues(cell: unknown): unknown {
   }
 }
 
+/** A column whose cells are copied by copy-rows: its name, whether it is hidden and its options */
+type CopiedColumn = {name: string; hidden?: boolean; model?: {values?: CellOption[]}};
+
+/**
+ * Copy of the rows of a grid for the copy-rows action (#793): the rows that are not deleted, with their identifier, and
+ * each shown column of the target with the cell of the shown column of the source in the same position (the names of
+ * the columns of a screen are unique, so the target columns have their own names). A cell of a column with options
+ * (select) is copied as its value and the translated label of its option
+ * @param {Array} rows Rows of the source grid
+ * @param {Array} sourceColumns Columns of the source grid
+ * @param {Array} targetColumns Columns of the target grid
+ * @param {function} t Translates a label
+ * @param {string} identifier Row identifier field
+ * @return {Array} Copied rows
+ * @memberOf Grid
+ */
+export function copyGridRows(rows: GridRow[] = [], sourceColumns: CopiedColumn[] = [], targetColumns: CopiedColumn[] = [],
+  t: Translate = (key) => key, identifier = GRID_ID): GridRow[] {
+  const shown = (columns: CopiedColumn[]) => columns.filter(column => column?.name && !column.hidden);
+  const sources = shown(sourceColumns);
+  const pairs = shown(targetColumns)
+    .map((column, index) => ({name: column.name, source: sources[index]}))
+    .filter(pair => pair.source);
+  const copyCell = (cell: unknown, column: CopiedColumn): unknown => {
+    const value = extractCellValue(cell);
+    const option = (column.model?.values || []).find(item => String(item.value) === String(value));
+    return option ? {value, label: t(String(option.label ?? ""))} : _.cloneDeep(cell);
+  };
+  return rows
+    .filter(row => row.$row?.operation !== OperationType.DELETE)
+    .map(row => pairs.reduce<GridRow>((copy, pair) => ({...copy, [pair.name]: copyCell(row[pair.source.name], pair.source)}),
+      {[identifier]: row[identifier]}));
+}
+
 /**
  * Get cell labels as a printable string
  * @param {mixed} cell Cell to extract

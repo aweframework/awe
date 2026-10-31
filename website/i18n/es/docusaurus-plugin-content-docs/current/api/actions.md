@@ -135,6 +135,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `copy-row-top`                   | Copia la fila seleccionada en la parte superior del grid                                             | `grid`                      |
 | `copy-row-up`                    | Copiar la fila seleccionada sobre la fila seleccionada                                                   | `grid`                      |
 | `copy-row-down`                  | Copiar la fila seleccionada debajo de la fila seleccionada                                               | `grid`                      |
+| `copy-rows`                      | Sustituye las filas del *grid* por una copia de las filas del *grid* indicado en `value` (sin sus filas borradas): cada columna visible toma las celdas de la columna visible de ese *grid* en la misma posición, y una celda de un select con el texto de su opción. El *grid* no se marca como modificado (una vista de solo lectura de un *grid* editable) | `grid`                      |
 | `move-row-top`                   | Mover la fila seleccionada al principio del grid                                                        | `grid`                      |
 | `move-row-up`                    | Mover la fila seleccionada una posición hacia arriba                                                     | `grid`                      |
 | `move-row-down`                  | Mover la fila seleccionada una posición hacia abajo                                                      | `grid`                      |

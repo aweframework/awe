@@ -89,6 +89,16 @@ describe('awe-framework/awe-client-angular/src/test/jest/singletons/actionContro
     expect(action.accept).toHaveBeenCalled();
   });
 
+  it('passes the action to the method that resolves it, so the method can read its attributes (value)', function() {
+    const method = jest.fn();
+    const scope = {component: {address: {view: "base", component: "grid"}}};
+    const action = {accept: jest.fn(), attr: name => ({parameters: {row: 1}, async: false, silent: true, value: "source", callbackTarget: {view: "base", component: "grid"}})[name]};
+
+    $actionController.resolveAction(action, {method: "copy", service: {copy: method}, scope});
+
+    expect(method).toHaveBeenCalledWith({row: 1, async: false, silent: true}, scope, {view: "base", component: "grid"}, action);
+  });
+
   it("shouldn't resolve an action", function() {
     // Mock
     let accept = jest.fn().mockName("accept");

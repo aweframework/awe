@@ -55,6 +55,21 @@ describe("awe-react-client/test/js/hooks/useFocusTrapTest.jsx", () => {
     expect(event).toBe(true);
   });
 
+  it.each([
+    ["a dialog", "<div class='modal'><button>dialog first</button><button>dialog last</button></div>"],
+    ["an aria modal", "<div role='dialog' aria-modal='true'><button>dialog first</button><button>dialog last</button></div>"]
+  ])("leaves Tab alone inside %s shown over the panel", (name, html) => {
+    renderPanel(true);
+    const dialog = document.createElement("div");
+    dialog.innerHTML = html;
+    document.body.appendChild(dialog);
+    byText("dialog last").focus();
+
+    // The browser moves the focus: the trap does not cancel the event
+    expect(tab()).toBe(true);
+    expect(document.activeElement).toBe(byText("dialog last"));
+  });
+
   it("brings the focus back inside when Tab is pressed outside", () => {
     renderPanel(true);
     opener.focus();

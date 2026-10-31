@@ -132,6 +132,23 @@ class SidePanelTest {
   }
 
   @Test
+  void identityHeaderSwatchIsReadFromTheXmlAndReachesTheClient() {
+    SidePanel sidePanel = parse("<side-panel id=\"Pnl\" header-grid=\"Grd\" header-title-field=\"NamVal\" " +
+      "header-swatch-field=\"PriSwt\"/>");
+
+    assertThat(sidePanel.getHeaderSwatchField()).isEqualTo("PriSwt");
+    assertThat(mapper.valueToTree(sidePanel).get("headerSwatchField").asString()).isEqualTo("PriSwt");
+    assertThat(sidePanel.copy().getHeaderSwatchField()).isEqualTo("PriSwt");
+  }
+
+  @Test
+  void clientReceivesNoHeaderSwatchWithoutTheAttribute() {
+    JsonNode json = mapper.valueToTree(parse("<side-panel id=\"Pnl\" header-grid=\"Grd\" header-avatar-field=\"Ini\"/>"));
+
+    assertThat(json.has("headerSwatchField")).isFalse();
+  }
+
+  @Test
   void identityHeaderSurvivesACopy() {
     SidePanel sidePanel = parse("<side-panel id=\"Pnl\" header-grid=\"Grd\" header-title-field=\"FulNam\">" +
       "<header-tag field=\"StaTxt\" tone-field=\"StaTon\"/></side-panel>");

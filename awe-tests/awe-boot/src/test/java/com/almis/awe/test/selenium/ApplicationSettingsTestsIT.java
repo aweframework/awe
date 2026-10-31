@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Settings of the application: themes, sequences and queues. The tests of each one create, update and
- * delete their own record, and every test opens its own screen.
+ * Settings of the application: sequences and queues. The tests of each one create, update and delete their own record,
+ * and every test opens its own screen. The themes have their own screen and tests (ThemeAdminTestsIT).
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -28,91 +28,6 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
   @Test
   void t999_logoutTest() {
     checkLogout();
-  }
-
-  /**
-   * Click on confirm button, accept confirmation and accept message
-   */
-  void verifyView(String suggest, String search) {
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggest(suggest, search, search);
-
-    // Search on grid
-    searchAndWait();
-
-    // Click row
-    clickRowContents(search);
-
-    // Click on button
-    clickButton("ButViw", true);
-
-    // Wait for button
-    waitForButton("ButBck");
-  }
-
-  /**
-   * Add a new theme
-   */
-  @Test
-  void t001_newTheme() {
-    // Title
-    setTestTitle("Add a new theme");
-
-    addNew("tools", "themes");
-
-    // Insert text
-    writeText("Nam", "Theme test");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Verify
-    verifyView("CrtNam", "test");
-
-    // Check contents
-    checkCriterionContents("Nam", "Theme test");
-  }
-
-  /**
-   * Update a theme
-   */
-  @Test
-  void t003_updateTheme() {
-    // Title
-    setTestTitle("Update a theme");
-
-    // Go to update
-    update("CrtNam", "test", "tools", "themes");
-
-    // Insert text
-    writeText("Nam", "Theme changed");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Verify
-    verifyView("CrtNam", "Theme changed");
-
-    // Check contents
-    checkCriterionContents("Nam", "Theme changed");
-  }
-
-  /**
-   * Delete a theme
-   */
-  @Test
-  void t005_deleteTheme() {
-    // Title
-    setTestTitle("Delete a theme");
-
-    // Delete a theme
-    delete("CrtNam", "Theme changed", "tools", "themes");
-
-    // Verify
-    verifyDeleted("Theme changed");
   }
 
   /**
@@ -283,7 +198,7 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
   }
 
   /**
-   * Update a theme
+   * Update a queue
    */
   @Test
   void t063_updateQueue() {
@@ -329,7 +244,7 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
     // Title
     setTestTitle("Delete a queue");
 
-    // Delete a theme
+    // Delete a queue
     delete("CrtAls", "Queue changed", "tools", "queues");
 
     // Verify

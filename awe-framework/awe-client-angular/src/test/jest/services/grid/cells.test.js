@@ -306,6 +306,81 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/cells.js 
     });
   });
 
+  describe("swatch (#793)", () => {
+    const swatchOf = (element) => element.querySelector(".awe-cell-entity > .awe-cell-swatch");
+
+    it("shows a circle of the colour of the swatch field before the main value, decorative", () => {
+      const {element} = render([{id: "name", swatchField: "pri", secondaryField: "sec"}], {name: "Ocean", pri: "sky", sec: "Sky · Slate"});
+
+      const entity = element.querySelector(".awe-cell-entity");
+      expect(entity.children.length).toBe(2);
+      const swatch = swatchOf(element);
+      expect(entity.children[0]).toBe(swatch);
+      expect(swatch.tagName).toBe("SPAN");
+      expect(swatch.textContent).toBe("");
+      expect(swatch.getAttribute("aria-hidden")).toBe("true");
+      expect(swatch.style.getPropertyValue("--awe-swatch-color")).toBe("var(--awe-palette-sky-500)");
+      const text = entity.children[1];
+      expect(text.className).toContain("awe-cell-entity-text");
+      expect(text.querySelector(".awe-cell-lines > .awe-cell-main").textContent).toBe("Ocean");
+      expect(text.querySelector(".awe-cell-lines > .awe-cell-secondary").textContent).toBe("Sky · Slate");
+    });
+
+    it("draws a hex colour and reads the value of a cell given as an object", () => {
+      const {element} = render([{id: "name", swatchField: "pri"}], {name: "Custom", pri: {value: "#10B981", label: "Custom"}});
+
+      expect(swatchOf(element).style.getPropertyValue("--awe-swatch-color")).toBe("#10B981");
+    });
+
+    it.each([["empty", ""], ["missing", undefined], ["an unknown palette", "custom"], ["a CSS injection", "red;background:url(x)"]])(
+      "shows no circle, only an aligned space, when the value is %s", (_name, pri) => {
+        const {element} = render([{id: "name", swatchField: "pri"}], {name: "Ann", pri});
+
+        expect(element.querySelector(".awe-cell-swatch")).toBeNull();
+        expect(element.querySelector("[style]")).toBeNull();
+        const spacer = element.querySelector(".awe-cell-entity > .awe-cell-avatar-spacer");
+        expect(spacer.getAttribute("aria-hidden")).toBe("true");
+        expect(element.querySelector(".awe-cell-entity-text .awe-cell-main").textContent).toBe("Ann");
+      });
+
+    it("takes the place of the avatar, which is shown only when the row has no valid colour", () => {
+      const columns = [{id: "name", swatchField: "pri", avatarField: "ini", avatarToneField: "ton"}];
+
+      const colour = render(columns, {name: "Ann", pri: "rose", ini: "Ann Lee", ton: "info"}).element;
+      expect(colour.querySelector(".awe-cell-avatar")).toBeNull();
+      expect(colour.querySelector(".awe-cell-avatar-spacer")).toBeNull();
+      expect(colour.querySelector(".awe-cell-entity").children.length).toBe(2);
+
+      const avatar = render(columns, {name: "Ann", pri: "", ini: "Ann Lee", ton: "info"}).element;
+      expect(avatar.querySelector(".awe-cell-swatch")).toBeNull();
+      expect(avatar.querySelector(".awe-cell-avatar-spacer")).toBeNull();
+      expect(avatar.querySelector(".awe-cell-entity > .awe-cell-avatar").textContent).toBe("AL");
+    });
+
+    it("follows the colour of the row", () => {
+      const {element, column, component} = render([{id: "name", swatchField: "pri"}], {name: "Ann", pri: "red"});
+
+      expect(component.getCellSwatch({pri: "lime"}, column)).toBe("var(--awe-palette-lime-500)");
+      expect(swatchOf(element).style.getPropertyValue("--awe-swatch-color")).toBe("var(--awe-palette-red-500)");
+    });
+
+    it("lets the rows of the grid grow to fit the swatch and keeps sorting by the main value", () => {
+      const {component, column} = fix([{id: "name", sortable: true, swatchField: "pri"}]);
+
+      expect(component.wrapsText).toBe(true);
+      expect(column.cellTemplate).toContain("cell-rich");
+      expect(column.field).toBe("name");
+      expect(column.sortField).toBe("name");
+    });
+
+    it("is ignored in a column with a component", () => {
+      const {column} = fix([{id: "name", component: "text", swatchField: "pri"}]);
+
+      expect(column.cellTemplate).toContain("<awe-column-text");
+      expect(column.cellTemplate).not.toContain("awe-cell-");
+    });
+  });
+
   describe("icon (#793)", () => {
     const iconOf = (element) => element.querySelector(".awe-cell-icon");
 

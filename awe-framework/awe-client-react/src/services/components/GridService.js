@@ -17,7 +17,7 @@ import {
   checkRecordsGeneratedGridAction,
   checkRecordsSavedGridAction,
   checkSomeSelectedGridAction,
-  copyRowGridAction, copySelectedRowsToClipboardGridAction,
+  copyRowGridAction, copyRowsGridAction, copySelectedRowsToClipboardGridAction,
   deleteRowGridAction,
   editRowGridAction,
   hideColumnsGridAction,
@@ -295,6 +295,12 @@ const useGridService = () => {
   const onGridChangeFilter = (action) => dispatch(changeFilterGridAction(action));
 
   /**
+   * Replace the rows of the grid with a copy of the rows of the grid named in the value of the action
+   * @param {Action} action Action received
+   */
+  const onGridCopyRows = (action) => dispatch(copyRowsGridAction(action, t));
+
+  /**
    * Copy selected rows to the clipboard in csv format
    * @param {Action} action Action received
    */
@@ -341,6 +347,7 @@ const useGridService = () => {
     "copy-row-bottom": onGridCopyRowLast,
     "copy-row-down": onGridCopyRowAfter,
     "copy-row-up": onGridCopyRowBefore,
+    "copy-rows": onGridCopyRows,
     "move-row-top": onGridMoveRowTop,
     "move-row-up": onGridMoveRowUp,
     "move-row-down": onGridMoveRowDown,

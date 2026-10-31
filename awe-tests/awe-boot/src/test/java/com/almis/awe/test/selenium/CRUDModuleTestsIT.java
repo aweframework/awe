@@ -168,7 +168,7 @@ class CRUDModuleTestsIT extends AbstractCrudTests {
     suggest("Nam", MODULE_CHANGED, MODULE_CHANGED);
 
     // Write on criterion
-    suggest("Scr", "Usr", "Usr");
+    suggest("Scr", "user-admin", "user-admin");
 
     // Click row
     editRow("test");
@@ -219,7 +219,7 @@ class CRUDModuleTestsIT extends AbstractCrudTests {
     checkCriterionContents("Thm", "grass");
 
     // Check criterion
-    checkSelectContents("Scr", "Usr");
+    checkSelectContents("Scr", "user-admin");
 
     // Check row contents
     checkRowContents("test", "ADM", SITE);

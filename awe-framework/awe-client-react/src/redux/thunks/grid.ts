@@ -11,6 +11,7 @@ import { updateAttributes, updateSpecificAttributes } from "../actions/component
 import { raiseEventOnDependencies, updateModelWithDependencies } from "./components";
 import { compareEqualValues } from "../../utilities/general";
 import {
+  copyGridRows,
   extractCellValue,
   getGridIdentifier,
   getRow,
@@ -708,6 +709,30 @@ export const copyRowGridAction = (action: ClientAction, position: AddRowPosition
       ...action,
       parameters: { ...action.parameters, row: { ...row, id: `copied-row-${copiedRows}` } }
     }, position));
+  };
+};
+
+/**
+ * Replace the rows of the grid with a copy of the rows of the grid named in the value of the action (#793), as the fill
+ * of a query does: the grid is not marked as changed. Each shown column of the grid takes the cells of the shown column
+ * of that grid in the same position. Nothing changes when that grid is not on screen
+ * @param {object} action Action received, with the identifier of the grid to copy in its value
+ * @param {function} t Translates the labels of the options
+ */
+export const copyRowsGridAction = (action: ClientAction, t: Translate): AppThunk => {
+  return (dispatch, getState) => {
+    const components = getAllComponents(getState());
+    const address = getActionAddress(action);
+    const source = getGrid(components, { view: address.view, component: String(action.value ?? "") });
+
+    dispatch(acceptAction(action));
+
+    if (source?.model) {
+      const target = getGrid(components, address);
+      const values = copyGridRows(source.model.values, source.attributes?.columnModel as Parameters<typeof copyGridRows>[1],
+        target?.attributes?.columnModel as Parameters<typeof copyGridRows>[2], t, getGridIdentifier(target?.attributes));
+      dispatch(updateModelWithDependencies(address, { values, records: values.length, total: 1, page: 1 }));
+    }
   };
 };
 

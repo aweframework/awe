@@ -13,6 +13,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class ApplicationSecurityTestsIT extends AbstractApplicationTests {
 
+  // The screen of the databases option, whose print button the screen configuration tests configure
+  private static final String DATABASES_SCREEN = "database-admin";
+
   /**
    * Log into the application
    */
@@ -195,7 +198,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButton("ButGrdAdd");
 
     // Select on selector
-    suggest("GrdScrCnf", "Scr",  "Dbs", "Dbs");
+    suggest("GrdScrCnf", "Scr",  DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Select on selector
     suggest("GrdScrCnf", "IdeOpe",  "test", "test");
@@ -225,7 +228,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButton("ButRst");
 
     // Suggest
-    suggest("CrtScr", "Dbs", "Dbs");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Suggest
     suggest("CrtUsr", "test", "test");
@@ -237,7 +240,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     searchAndWait();
 
     // Check contents
-    checkRowContents("Dbs", "test", "ButPrn", "Visible", "true");
+    checkRowContents(DATABASES_SCREEN, "test", "ButPrn", "Visible", "true");
   }
 
   /**
@@ -255,7 +258,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButton("ButRst");
 
     // Suggest
-    suggest("CrtScr", "Dbs", "Dbs");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Suggest
     suggest("CrtUsr", "test", "test");
@@ -267,7 +270,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     searchAndWait();
 
     // Click on row
-    editRow("Dbs");
+    editRow(DATABASES_SCREEN);
 
     // Select on selector
     writeText("GrdScrCnf", "Val",  "false");
@@ -282,7 +285,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButton("ButRst");
 
     // Suggest
-    suggest("CrtScr", "Dbs", "Dbs");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Suggest
     suggest("CrtUsr", "test", "test");
@@ -294,7 +297,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     searchAndWait();
 
     // Check contents
-    checkRowContents("Dbs", "test", "ButPrn", "Visible", "false");
+    checkRowContents(DATABASES_SCREEN, "test", "ButPrn", "Visible", "false");
   }
 
   /**
@@ -312,7 +315,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButton("ButRst");
 
     // Suggest
-    suggest("CrtScr", "Dbs", "Dbs");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Suggest
     suggest("CrtUsr", "test", "test");
@@ -324,7 +327,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     searchAndWait();
 
     // Click row
-    clickRowContents("Dbs");
+    clickRowContents(DATABASES_SCREEN);
 
     // Click on delete button
     clickButton("ButGrdDel");
@@ -333,7 +336,7 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
     clickButtonAndConfirm("ButCnf");
 
     // Verify
-    verifyDeleted("Dbs");
+    verifyDeleted(DATABASES_SCREEN);
   }
 
   /**

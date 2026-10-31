@@ -8,6 +8,7 @@ import "./layout";
 import {getColumnHeaders, isActionColumn} from "./layoutRules";
 import {getDensityRowHeight, getExplicitRowHeight, getGridRowHeight, observeDensity} from "./density";
 import {AVATAR_TONES, getInitials, STATUS_TONES, toTone} from "./initials";
+import {getSwatchColor} from "./swatch";
 import {getIconTemplate} from "../component";
 
 // Add requirements
@@ -102,6 +103,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     const hasAvatar = (column) => !("component" in column) && !!column.avatarField;
 
     /**
+     * Check whether a column without component shows a colour swatch before its value (in the place of the avatar)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a swatch
+     */
+    const hasSwatch = (column) => !("component" in column) && !!column.swatchField;
+
+    /**
      * Check whether a column without component shows an icon before its value (ignored in a column of chips)
      *
      * @param {object} column Column model
@@ -122,16 +131,16 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     };
 
     /**
-     * Check whether the cells of a column need more than one line (secondary line, chips or avatar), so the rows grow to
-     * fit them
+     * Check whether the cells of a column need more than one line (secondary line, chips, avatar or swatch), so the rows
+     * grow to fit them
      *
      * @param {object} column Column model
      * @returns {boolean} Cells of the column grow
      */
-    const growsCell = (column) => hasSecondary(column) || hasChips(column) || hasAvatar(column);
+    const growsCell = (column) => hasSecondary(column) || hasChips(column) || hasAvatar(column) || hasSwatch(column);
 
     /**
-     * Contents of the cell of a column with a secondary line, a status, chips, an avatar or an icon. The values are always
+     * Contents of the cell of a column with a secondary line, a status, chips, an avatar, a swatch or an icon. The values are always
      * bound as text. With an icon the status is a plain tag: the icon of the row (if any) takes the place of the dot.
      *
      * @param {object} column Column model
@@ -139,41 +148,67 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      */
     const getRichCellContents = function (column) {
       const value = CELL_COMPONENT + ".getCellValue(COL_FIELD)";
-      const chips = CELL_COMPONENT + ".getCellChips(COL_FIELD, col.colDef)";
-      const tone = "{{" + CELL_COMPONENT + ".getCellTone(row.entity[col.colDef.statusField])}}";
-      const secondary = CELL_COMPONENT + ".getCellSecondary(row.entity, col.colDef)";
-      let main;
-      if (hasChips(column)) {
-        main = "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
-          "<span class=\"awe-cell-chip awe-cell-chip-more\" ng-if=\"" + chips + ".hidden.length\" title=\"{{" + chips + ".hidden.join(', ')}}\"" +
-          " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
-      } else if (hasStatus(column) && hasIcon(column)) {
-        main = "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\">" +
-          getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
-      } else if (hasStatus(column)) {
-        main = "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"></span>";
-      } else if (hasIcon(column)) {
-        main = "<span class=\"awe-cell-icon-text\" title=\"{{" + value + "}}\">" + getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
-      } else {
-        main = null;
-      }
-      let text;
+      const main = getMainCellContents(column, value);
+      let text = main;
       if (hasSecondary(column)) {
+        const secondary = CELL_COMPONENT + ".getCellSecondary(row.entity, col.colDef)";
         const mainLine = main === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : "<span class=\"awe-cell-main\">" + main + "</span>";
         text = "<div class=\"awe-cell-lines\">" + mainLine + "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"></span></div>";
-      } else {
-        text = main;
       }
-      if (!hasAvatar(column)) {
+      if (!hasAvatar(column) && !hasSwatch(column)) {
         return text;
       }
-      // The avatar is decorative (the name is the accessible text); without initials an empty space keeps the names aligned
-      const initials = CELL_COMPONENT + ".getCellInitials(row.entity, col.colDef)";
+      return getEntityCellContents(column, text === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : text);
+    };
+
+    /**
+     * Main contents of a rich cell: its chips, its status (a plain tag with the icon of the row when it has one) or its
+     * icon with the text (null when the column has none of them)
+     *
+     * @param {object} column Column model
+     * @param {string} value Expression of the cell value
+     * @returns {string|null} Main contents of the cell
+     */
+    const getMainCellContents = function (column, value) {
+      const tone = "{{" + CELL_COMPONENT + ".getCellTone(row.entity[col.colDef.statusField])}}";
+      if (hasChips(column)) {
+        const chips = CELL_COMPONENT + ".getCellChips(COL_FIELD, col.colDef)";
+        return "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
+          "<span class=\"awe-cell-chip awe-cell-chip-more\" ng-if=\"" + chips + ".hidden.length\" title=\"{{" + chips + ".hidden.join(', ')}}\"" +
+          " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
+      }
+      if (hasStatus(column) && hasIcon(column)) {
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\">" +
+          getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
+      }
+      if (hasStatus(column)) {
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"></span>";
+      }
+      if (hasIcon(column)) {
+        return "<span class=\"awe-cell-icon-text\" title=\"{{" + value + "}}\">" + getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
+      }
+      return null;
+    };
+
+    /**
+     * Contents of a cell with an avatar or a swatch before its text. Both are decorative (the name is the accessible text).
+     * The swatch takes the place of the avatar while the row has a valid colour; without both an empty space keeps the names
+     * aligned
+     *
+     * @param {object} column Column model
+     * @param {string} mainText Text of the cell (its main line and its secondary line)
+     * @returns {string} Contents of the cell
+     */
+    const getEntityCellContents = function (column, mainText) {
+      const swatch = hasSwatch(column) ? CELL_COMPONENT + ".getCellSwatch(row.entity, col.colDef)" : "''";
+      const initials = hasAvatar(column) ? CELL_COMPONENT + ".getCellInitials(row.entity, col.colDef)" : "''";
       const avatarTone = "{{" + CELL_COMPONENT + ".getAvatarTone(row.entity[col.colDef.avatarToneField])}}";
-      const mainText = text === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : text;
-      return "<div class=\"awe-cell-entity\"><span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
-        " aria-hidden=\"true\" ng-if=\"" + initials + "\" ng-bind=\"" + initials + "\"></span>" +
-        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + initials + "\"></span>" +
+      const swatchTemplate = hasSwatch(column) ? "<span class=\"awe-cell-swatch\" aria-hidden=\"true\" ng-if=\"" + swatch + "\"" +
+        " ng-attr-style=\"--awe-swatch-color: {{" + swatch + "}}\"></span>" : "";
+      const avatarTemplate = hasAvatar(column) ? "<span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
+        " aria-hidden=\"true\" ng-if=\"!" + swatch + " && " + initials + "\" ng-bind=\"" + initials + "\"></span>" : "";
+      return "<div class=\"awe-cell-entity\">" + swatchTemplate + avatarTemplate +
+        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + initials + "\"></span>" +
         "<div class=\"awe-cell-entity-text\">" + mainText + "</div></div>";
     };
 
@@ -1922,6 +1957,18 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.getCellInitials = function (row, column) {
           const name = component.getCellValue(row[column.avatarField]);
           return Utilities.isNull(name) ? "" : getInitials(String(name));
+        };
+
+        /**
+         * Retrieve the colour of the swatch of a cell, from the swatch field of the row: a known palette or a hex (empty
+         * for any other value, so nothing else reaches the style of the swatch)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} CSS colour
+         */
+        component.getCellSwatch = function (row, column) {
+          return getSwatchColor(component.getCellData(row[column.swatchField], component.constants.CELL_VALUE));
         };
 
         /**

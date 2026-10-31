@@ -245,62 +245,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-user",
-                  "parameters": {
-                    "target": "new-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-user",
-                  "parameters": {
-                    "target": "update-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-user",
-                  "parameters": {
-                    "target": "view-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -321,62 +266,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-profile",
-                  "parameters": {
-                    "target": "new-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-profile",
-                  "parameters": {
-                    "target": "update-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-profile",
-                  "parameters": {
-                    "target": "view-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -397,62 +287,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-database",
-                  "parameters": {
-                    "target": "new-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-database",
-                  "parameters": {
-                    "target": "update-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-database",
-                  "parameters": {
-                    "target": "view-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -473,62 +308,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-theme",
-                  "parameters": {
-                    "target": "new-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-theme",
-                  "parameters": {
-                    "target": "update-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-theme",
-                  "parameters": {
-                    "target": "view-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {

@@ -8,28 +8,29 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  * Users screen (user-admin, #793): the search of its grid toolbar finds users by full name, login, email or profile, the
  * quick filters count the users of the search (All, Locked, Without 2FA, Inactive) and filter the grid, the pencil and the
- * row menu of a row edit its user in the side panel (whose header shows the user: name, login · profile and state) and the
- * selection bar resets the 2FA of the selected users. Active is a switch. The class creates its own
- * profile and two users with it, a locked one (with the Users screen, the only one that sets the lock) and an inactive
- * one (with the side panel), so searching by the profile gives known counts; it deletes them at the end.
+ * row menu of a row edit its user in the side panel (whose header shows the user: name, login · profile and state), the
+ * selection bar resets the 2FA of the selected users and the row menu deletes them. Active is a switch. The class creates
+ * its own profile (with the profiles screen) and two users with it from the side panel, an active one and an inactive
+ * one, so searching by the profile gives known counts; it deletes them at the end. No screen of the menu locks a user
+ * (the side panel only unlocks), so the locked state (its count, its filter and the unlock) is covered by the Spring
+ * tests (UserStateQuickFilterTest, UserListQueryTest and UserAdminScreenTest).
  */
 @Tag("CRUDCriteriaMatrixIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class UserAdminTestsIT extends AbstractCrudTests {
 
-  private static final String USER_ADMIN = "user-admin";
   private static final String GRID = "GrdUsrAdm";
   private static final String QUICK_FILTER = "CrtUsrSta";
   private static final String SEARCH = "CrtUsrTxt";
   private static final String PROFILE_ACRONYM = "PQF";
   private static final String PROFILE = "Quick filter accounts";
-  private static final String LOCKED_USER = "qfilter locked";
+  private static final String ACTIVE_USER = "qfilter active";
+  private static final String ACTIVE_NAME = "Quick Active";
   private static final String INACTIVE_USER = "qfilter inactive";
   private static final String INACTIVE_NAME = "Quick Inactive";
   private static final String UPDATED_EMAIL = "qfilter.updated@almis.com";
   private static final String PASSWORD = "1234";
   private static final String EDIT_BUTTON = "EdtBtn";
-  private static final String MORE_BUTTON = "MorBtn";
   private static final String PANEL = "PnlUsr";
 
   /**
@@ -53,33 +54,45 @@ class UserAdminTestsIT extends AbstractCrudTests {
    * Open the users screen and search the users of the profile of the class by its name
    */
   private void searchUsersOfTheProfile() {
-    openScreen(TOOLS, USER_ADMIN);
+    openScreen(TOOLS, USERS);
     searchGrid(SEARCH, PROFILE);
   }
 
   /**
-   * Create the profile of the class and the locked user, unless they are there (a rerun)
+   * Tell whether the users screen lists a user of the class (a rerun finds what a failed attempt saved or deleted)
+   *
+   * @param login User login
+   * @return The grid shows the user
+   */
+  private boolean listed(String login) {
+    return listedInSearch(USERS, SEARCH, login);
+  }
+
+  /**
+   * Create the profile of the class and the active user with the side panel of the users screen, unless they are there (a
+   * rerun)
    */
   @Test
-  void t001_newLockedUser() {
-    setTestTitle("Add the profile and a locked user");
+  void t001_newProfileAndActiveUserFromThePanel() {
+    setTestTitle("Add the profile and an active user from the side panel");
 
     createProfile(PROFILE_ACRONYM, PROFILE);
 
-    if (!exists(LOCKED_USER, TOOLS, USERS)) {
-      addNew(TOOLS, USERS);
-      writeText("Usr", LOCKED_USER);
-      writeText("Nam", "Quick Locked");
-      writeText("Eml", "qfilter.locked@almis.com");
+    if (!listed(ACTIVE_USER)) {
+      clickButton("ButNew");
+      writeText("Nam", ACTIVE_NAME);
+      writeText("Eml", "qfilter.active@almis.com");
+      writeText("Usr", ACTIVE_USER);
+      suggest("Pro", PROFILE_ACRONYM, PROFILE_ACRONYM);
+      // Active is a switch, on for a new user
+      checkCheckboxRadio(true, "Sta");
       writeText("Pas", PASSWORD);
       writeText("RetPas", PASSWORD);
-      suggest("Pro", PROFILE_ACRONYM, PROFILE_ACRONYM);
-      selectContain("Sta", "Yes");
-      selectContain("PwdLck", "Yes");
-      clickButtonAndConfirm(CONFIRM_BUTTON);
+      clickButtonAndConfirm("ButPnlNew");
     }
 
-    verifyListed(LOCKED_USER, TOOLS, USERS);
+    searchUsersOfTheProfile();
+    checkRowContentsGrid(GRID, ACTIVE_USER);
   }
 
   /**
@@ -89,8 +102,7 @@ class UserAdminTestsIT extends AbstractCrudTests {
   void t002_newInactiveUserFromThePanel() {
     setTestTitle("Add an inactive user from the side panel");
 
-    if (!exists(INACTIVE_USER, TOOLS, USERS)) {
-      openScreen(TOOLS, USER_ADMIN);
+    if (!listed(INACTIVE_USER)) {
       clickButton("ButNew");
       writeText("Nam", INACTIVE_NAME);
       writeText("Eml", "qfilter.inactive@almis.com");
@@ -120,7 +132,7 @@ class UserAdminTestsIT extends AbstractCrudTests {
     searchUsersOfTheProfile();
 
     checkGridQuickFilterOption(QUICK_FILTER, "", "All 2");
-    checkGridQuickFilterOption(QUICK_FILTER, "locked", "Locked 1");
+    checkGridQuickFilterOption(QUICK_FILTER, "locked", "Locked 0");
     checkGridQuickFilterOption(QUICK_FILTER, "no2fa", "Without 2FA 2");
     checkGridQuickFilterOption(QUICK_FILTER, "inactive", "Inactive 1");
     checkGridQuickFilterOptionChosen(QUICK_FILTER, "");
@@ -134,24 +146,24 @@ class UserAdminTestsIT extends AbstractCrudTests {
     setTestTitle("Quick filters filter the grid");
 
     searchUsersOfTheProfile();
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
-
-    clickGridQuickFilterOption(QUICK_FILTER, "locked");
-    checkGridQuickFilterOptionChosen(QUICK_FILTER, "locked");
-    checkRowGone(GRID, INACTIVE_USER);
-    checkRowContentsGrid(GRID, LOCKED_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
 
     clickGridQuickFilterOption(QUICK_FILTER, "inactive");
     checkGridQuickFilterOptionChosen(QUICK_FILTER, "inactive");
-    checkRowGone(GRID, LOCKED_USER);
+    checkRowGone(GRID, ACTIVE_USER);
     checkRowContentsGrid(GRID, INACTIVE_USER);
 
+    // No user of the class has 2FA
+    clickGridQuickFilterOption(QUICK_FILTER, "no2fa");
+    checkGridQuickFilterOptionChosen(QUICK_FILTER, "no2fa");
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
+
     // The counts stay the ones of the search, whatever the option chosen
-    checkGridQuickFilterOption(QUICK_FILTER, "locked", "Locked 1");
+    checkGridQuickFilterOption(QUICK_FILTER, "inactive", "Inactive 1");
 
     clickGridQuickFilterOption(QUICK_FILTER, "");
     checkGridQuickFilterOptionChosen(QUICK_FILTER, "");
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
   }
 
   /**
@@ -163,24 +175,24 @@ class UserAdminTestsIT extends AbstractCrudTests {
     setTestTitle("Search users by email, full name or login");
 
     searchUsersOfTheProfile();
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
 
-    typeGridSearch(SEARCH, "qfilter.locked@");
+    typeGridSearch(SEARCH, "qfilter.active@");
     checkRowGone(GRID, INACTIVE_USER);
-    checkRowContentsGrid(GRID, LOCKED_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER);
     checkGridQuickFilterOption(QUICK_FILTER, "", "All 1");
     checkGridQuickFilterOption(QUICK_FILTER, "inactive", "Inactive 0");
 
     searchGrid(SEARCH, INACTIVE_NAME.toUpperCase());
-    checkRowGone(GRID, LOCKED_USER);
+    checkRowGone(GRID, ACTIVE_USER);
     checkRowContentsGrid(GRID, INACTIVE_USER);
 
-    searchGrid(SEARCH, LOCKED_USER);
+    searchGrid(SEARCH, ACTIVE_USER);
     checkRowGone(GRID, INACTIVE_USER);
-    checkRowContentsGrid(GRID, LOCKED_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER);
 
     clearGridSearch(SEARCH);
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
   }
 
   /**
@@ -243,12 +255,12 @@ class UserAdminTestsIT extends AbstractCrudTests {
     setTestTitle("Reset 2FA of the selected users from the selection bar");
 
     searchUsersOfTheProfile();
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
     checkGridSelectionBar(GRID, "1 selected");
 
-    toggleRowContents(GRID, LOCKED_USER);
+    toggleRowContents(GRID, ACTIVE_USER);
     checkGridSelectionBar(GRID, "2 selected");
-    toggleRowContents(GRID, LOCKED_USER);
+    toggleRowContents(GRID, ACTIVE_USER);
     checkGridSelectionBar(GRID, "1 selected");
     toggleRowContents(GRID, INACTIVE_USER);
     checkGridSelectionBarNotVisible(GRID);
@@ -260,19 +272,19 @@ class UserAdminTestsIT extends AbstractCrudTests {
     checkAndCloseMessage("success");
 
     // The grid reloads after the action and keeps the selected user
-    checkRowContentsGrid(GRID, LOCKED_USER, INACTIVE_USER);
+    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
     checkGridSelectionBar(GRID, "1 selected");
   }
 
   /**
-   * Delete the users of the class, if they are still there
+   * Delete the users of the class from the row menu, if they are still there
    */
   @Test
   void t009_deleteUsers() {
     setTestTitle("Delete the users");
 
-    verifyRecordDeleted("CrtUsr", LOCKED_USER, TOOLS, USERS);
-    verifyRecordDeleted("CrtUsr", INACTIVE_USER, TOOLS, USERS);
+    verifyDeletedFromRowMenu(USERS, GRID, SEARCH, ACTIVE_USER);
+    verifyDeletedFromRowMenu(USERS, GRID, SEARCH, INACTIVE_USER);
   }
 
   /**
@@ -282,6 +294,6 @@ class UserAdminTestsIT extends AbstractCrudTests {
   void t010_deleteProfile() {
     setTestTitle("Delete the profile");
 
-    verifyProfileDeleted(PROFILE_ACRONYM);
+    verifyProfileDeleted(PROFILE);
   }
 }

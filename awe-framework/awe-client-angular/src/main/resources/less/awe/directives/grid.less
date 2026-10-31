@@ -2169,6 +2169,18 @@
   background-color: var(--awe-color-primary-subtle);
 }
 
+// Colour swatch before the value of a cell (#793): a decorative circle of the colour of the row (a palette of the design
+// tokens or a hex, validated by the client), of the size of the avatar, in its place
+.awe-cell-swatch {
+  display: inline-block;
+  flex: none;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+  background-color: var(--awe-swatch-color);
+}
+
 .awe-cell-avatar-tone(@tone) {
   .awe-cell-avatar-@{tone} {
     color: ~"var(--awe-color-@{tone}-text)";

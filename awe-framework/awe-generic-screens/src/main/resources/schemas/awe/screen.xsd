@@ -1429,6 +1429,11 @@
         <xs:documentation xml:lang="en">Name of a field of the row with the tone of the avatar: primary, info, success, warning, danger or neutral. An unknown or empty tone is neutral. Only with avatar-field.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="swatch-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with a colour, drawn as a small decorative circle before the main value, in the place of the avatar: an AWE 5 palette name (red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose, slate, gray, zinc, neutral or stone, shown with its 500 shade) or a #RGB / #RRGGBB hex. Only these values reach the style of the circle. Any other value (or none) shows no circle, only an empty space that keeps the values aligned. With avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise. Sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="icon-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Name of a field of the row with an icon (lucide:name, fa-name...) shown before the main value. With status-field the icon takes the place of the dot, so the status is a plain tag (a row without icon shows the tag without dot nor icon). The icon is decorative: the main value is the accessible text, and sorting, filtering, print and export use it. Ignored with chips="true" and in columns with a component.</xs:documentation>
@@ -1737,6 +1742,11 @@
     <xs:attribute name="header-avatar-tone-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Field of the selected row of header-grid with the tone of the avatar: primary, info, success, warning, danger or neutral (any other value, or none, is neutral).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-swatch-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with a colour drawn as a large decorative circle in the place of the avatar, as the swatch-field of a grid column: an AWE 5 palette name or a #RGB / #RRGGBB hex. Any other value (or none) shows no circle. With header-avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

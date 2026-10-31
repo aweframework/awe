@@ -25,17 +25,20 @@
       <option name="update-user" screen="UsrUpd" invisible="true" />
       <option name="view-user" screen="UsrViw" invisible="true" />
     </option>
-    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="Prf" icon="group">
+    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="group">
+      <!-- Options of the deprecated Prf screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-profile" screen="PrfNew" invisible="true" />
       <option name="update-profile" screen="PrfUpd" invisible="true" />
       <option name="view-profile" screen="PrfViw" invisible="true" />
     </option>
-    <option name="databases" label="MENU_TOOLS_DATABASE" screen="Dbs" icon="database">
+    <option name="databases" label="MENU_TOOLS_DATABASE" screen="database-admin" icon="database">
+      <!-- Options of the deprecated Dbs screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-database" screen="DbsNew" invisible="true" />
       <option name="update-database" screen="DbsUpd" invisible="true" />
       <option name="view-database" screen="DbsViw" invisible="true" />
     </option>
-    <option name="themes" label="MENU_TOOLS_THEMES" screen="Thm" icon="picture-o">
+    <option name="themes" label="MENU_TOOLS_THEMES" screen="theme-admin" icon="picture-o">
+      <!-- Options of the deprecated Thm screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-theme" screen="ThmNew" invisible="true" />
       <option name="update-theme" screen="ThmUpd" invisible="true" />
       <option name="view-theme" screen="ThmViw" invisible="true" />

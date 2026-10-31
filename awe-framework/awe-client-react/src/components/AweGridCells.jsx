@@ -2,6 +2,7 @@ import React from "react";
 import {extractCellModel} from "../utilities/grid";
 import {getFirstDefinedAndNotNullValue} from "../utilities/general";
 import {getInitials} from "../utilities/initials";
+import {getSwatchColor} from "../utilities/color";
 import {getIconNode} from "../utilities";
 
 // Tones of a status cell and of an avatar (any other tone is shown as neutral)
@@ -44,14 +45,29 @@ export function rowTone(row, field, tones) {
 }
 
 /**
- * Avatar of a cell (#793): the initials of the avatar field of the row on its tone. It is decorative (the main value is
- * the accessible text); without initials an empty space of the same size keeps the names of the column aligned
- * @param {Object} column Column definition (avatarField, avatarToneField)
+ * Colour of a swatch field of the row (#793): a known palette or a hex, empty for any other value (see getSwatchColor)
+ * @param {Object} row Row data
+ * @param {string} field Field of the row with the colour
+ * @return {string} CSS colour
+ */
+export function rowSwatch(row, field) {
+  return field ? getSwatchColor(extractCellModel(row?.[field]).value) : "";
+}
+
+/**
+ * Avatar of a cell (#793): the initials of the avatar field of the row on its tone, or a circle of the colour of its
+ * swatch field, which takes the place of the avatar while the row has a valid colour. It is decorative (the main value is
+ * the accessible text); without both an empty space of the same size keeps the names of the column aligned
+ * @param {Object} column Column definition (avatarField, avatarToneField, swatchField)
  * @param {Object} [row] Row data
  * @return {React.ReactElement} Avatar
  */
 function avatarCell(column, row) {
-  const initials = getInitials(rowText(row, column.avatarField));
+  const swatch = rowSwatch(row, column.swatchField);
+  if (swatch !== "") {
+    return <span className="awe-cell-swatch" aria-hidden="true" style={{"--awe-swatch-color": swatch}}/>;
+  }
+  const initials = column.avatarField ? getInitials(rowText(row, column.avatarField)) : "";
   if (initials === "") {
     return <span className="awe-cell-avatar-spacer" aria-hidden="true"/>;
   }
@@ -105,18 +121,18 @@ function chipsCell(value, column) {
 }
 
 /**
- * Whether a column shows its cells with a secondary line, a status, chips, an avatar or an icon (only the columns without
- * a component)
+ * Whether a column shows its cells with a secondary line, a status, chips, an avatar, a swatch or an icon (only the
+ * columns without a component)
  * @param {Object} column Column definition
  * @return {boolean} The column has rich cells
  */
 export function hasRichCell(column = {}) {
   return !column.component && (!!column.secondaryField || !!column.statusField || column.chips === true || !!column.avatarField
-    || !!column.iconField);
+    || !!column.swatchField || !!column.iconField);
 }
 
 /**
- * Cell with a secondary line, a status, chips (#832), an avatar or an icon (#793). The values are always text, never HTML
+ * Cell with a secondary line, a status, chips (#832), an avatar, a swatch or an icon (#793). The values are always text, never HTML
  * @param {string} value Main text of the cell
  * @param {Object} column Column definition
  * @param {Object} [row] Row data, where the secondary, the status and the avatar fields are read
@@ -124,7 +140,7 @@ export function hasRichCell(column = {}) {
  * @return {React.ReactElement} Cell
  */
 export function richCell(value, column, row, renderText) {
-  if (!column.avatarField) {
+  if (!column.avatarField && !column.swatchField) {
     return textContents(value, column, row, renderText);
   }
   return <div className="awe-cell-entity">

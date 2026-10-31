@@ -5,6 +5,8 @@
     Created on : 17 de Febrero de 2012
     Author     : Pablo VIDAL
     Description: Ventana de herramientas - Consulta de Perfil
+    DEPRECATED since AWE 5.0.0: replaced by the profile-admin screen (screen/profiles/profile-admin.xml), which the
+    "profiles" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_PRF_VIW" help="HELP_SCREEN_TITLE_PRF_VIW">
   <tag source="buttons">
