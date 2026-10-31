@@ -28,8 +28,8 @@ aweApplication.directive('aweMenu',
               <button type="button" class="awe-menu-search-toggle" ng-click="toggleSearch()" aria-keyshortcuts="Control+K Meta+K"
                       title="{{searchTitle| translateMultiple}}" aria-label="{{searchTitle| translateMultiple}}">
                 ${iconTemplate("search")}
-                <span class="awe-menu-search-toggle-label" ng-if="::menuType === 'vertical'">{{searchTitle| translateMultiple}}</span>
-                <kbd class="awe-menu-search-kbd" aria-hidden="true" ng-if="::menuType === 'vertical'">Ctrl K</kbd>
+                <span class="awe-menu-search-toggle-label">{{searchTitle| translateMultiple}}</span>
+                <kbd class="awe-menu-search-kbd" aria-hidden="true">Ctrl K</kbd>
               </button>
               <div class="awe-menu-search-panel" ng-if="search.open">
                 <input type="text" class="awe-menu-search-input form-control" ng-model="search.query" ng-change="onSearchChange()"
@@ -73,7 +73,9 @@ aweApplication.directive('aweMenu',
           scope.searchEnabled = $settings.get("menuSearchEnabled") !== false;
           // The vertical menu invites to find an option, as the AWE 5 prototype; the icon toggle of the horizontal menu
           // keeps the search title
-          scope.searchTitle = scope.menuType === "vertical" ? "MENU_SEARCH_PLACEHOLDER" : "BUTTON_SEARCH";
+          // The invitation of the prototype titles the search of both menus: the bar shows the same field as the
+          // vertical menu, with its placeholder and the Ctrl K hint
+          scope.searchTitle = "MENU_SEARCH_PLACEHOLDER";
 
           // Update children
           if (component.controller && "options" in component.controller) {

@@ -10,6 +10,25 @@ awe-menu {
   display: block;
 }
 
+// The icon of the search is as big as its box and fills it: inline, the glyph sat 2px under the center of the field and
+// did not line up with the text of the placeholder
+.awe-menu-search-toggle i,
+.awe-menu-search-toggle .awe-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  line-height: 1;
+}
+
+.awe-menu-search-toggle i > svg.awe-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .awe-menu-search {
   &-toggle {
     display: inline-flex;
@@ -214,8 +233,76 @@ awe-menu {
   }
 }
 
-// In the bar the search toggle is as high as the options
+// A phone has no room for the search in the bar: the options are still reachable through the menu
+@media (max-width: @screen-xs-max) {
+  .awe-menu-search-horizontal {
+    display: none;
+  }
+}
+
+// In the bar the search is the same field as the one of the vertical menu (#1236): the icon, the invitation and the
+// Ctrl K hint, with a width that fits the bar
 .awe-menu-search-horizontal .awe-menu-search-toggle {
+  justify-content: flex-start;
+  // Narrower than the search of the vertical menu and as high as an option of the bar: the height of an option of the
+  // horizontal menu is the minimum height of a small control (menu-horizontal.less)
+  width: calc(var(--awe-header-search-width) * 0.6);
+  max-width: 40vw;
+  height: var(--awe-size-control-sm);
   min-height: var(--awe-size-control-sm);
+  gap: var(--awe-space-2);
   padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-field-placeholder);
+  background: var(--awe-color-field);
+  border: 1px solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+
+  i {
+    flex: none;
+    color: var(--awe-color-field-icon);
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--awe-color-field-placeholder);
+    background: var(--awe-color-field);
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:focus-visible {
+    border-color: var(--awe-color-field-border-focus);
+    outline: none;
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+}
+
+.awe-menu-search-horizontal .awe-menu-search-toggle-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-menu-search-horizontal .awe-menu-search-kbd {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 var(--awe-space-1-5);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: var(--awe-color-surface-subtle);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+  box-shadow: none;
+
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
+  }
 }

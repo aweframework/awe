@@ -66,16 +66,18 @@
 }
 
 // The menu: an overlay with list options under the button
+// The panel of the window clips its content, so the menu lives in viewport coordinates (the service places it under its
+// button and flips it up when there is no room below)
 .window-saved-searches-menu {
-  position: absolute;
-  top: calc(100% + var(--awe-space-1));
+  position: fixed;
+  top: 0;
   left: 0;
   z-index: var(--awe-z-dropdown);
   display: flex;
   flex-direction: column;
   width: calc(var(--awe-space-16) * 5);
   max-width: calc(100vw - var(--awe-space-8));
-  max-height: calc(var(--awe-space-16) * 6);
+  max-height: ~"min(calc(var(--awe-space-16) * 6), calc(100vh - var(--awe-space-8)))";
   overflow-y: auto;
   padding: var(--awe-list-padding);
   font-size: var(--awe-font-size-base);

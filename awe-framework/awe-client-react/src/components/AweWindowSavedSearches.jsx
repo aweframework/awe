@@ -63,7 +63,9 @@ function SavedSearchesMenu({id, menuRef, listRef, open, loading, searches, profi
   // The first option takes the focus once the searches are loaded
   useEffect(() => {
     if (open && !loading) {
-      listRef.current?.querySelector("[role='menuitem']")?.focus();
+      // preventScroll: the panel of the window scrolls its content to reveal the focused element, and the menu hangs
+      // from the body, so focusing it moved the panel and hid the footer
+      listRef.current?.querySelector("[role='menuitem']")?.focus({preventScroll: true});
     }
   }, [open, loading, listRef]);
 

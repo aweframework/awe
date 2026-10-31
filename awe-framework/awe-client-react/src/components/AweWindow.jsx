@@ -27,7 +27,7 @@ function AweWindow(props) {
 
   const getIcon = () => {
     if (icon) {
-      return getIconCode(icon, "fa-fw");
+      return getIconCode(icon, "fa-fw window-title-icon");
     }
     return null;
   };
@@ -45,7 +45,8 @@ function AweWindow(props) {
     </button>;
   };
 
-  const getIcons = () => <>{getIcon()}{getMaximizeButton()}</>;
+  // The icon goes before the title, as in the AngularJS engine; the icons of the header hold only the maximize button
+  const getIcons = () => getMaximizeButton();
 
   const getHelpIcon = () => {
     if (help || helpImage) {
@@ -56,7 +57,7 @@ function AweWindow(props) {
   };
 
   const getHeader = () => {
-    return <div className={`help-target-${id}`}>{translateLabel(label, t)} {getHelpIcon()}</div>;
+    return <div className={`help-target-${id}`}>{getIcon()}{translateLabel(label, t)} {getHelpIcon()}</div>;
   };
 
   const classes = classNames("m-2", `expandible-${expand || "vertical"}`, style, maximizeClassName);

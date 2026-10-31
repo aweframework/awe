@@ -325,14 +325,16 @@ describe("components/menu.js", () => {
       expect(kbd.attr("aria-hidden")).toBe("true");
     });
 
-    it("keeps the icon toggle of the horizontal menu without label or shortcut hint", () => {
+    it("shows the same field with the invitation and the shortcut in the horizontal menu", () => {
       const {element} = compileMenu({style: "horizontal"});
 
       const toggle = element.find(".awe-menu-search-toggle");
       expect(toggle.attr("aria-keyshortcuts")).toBe("Control+K Meta+K");
-      expect(toggle.attr("title")).toBe("BUTTON_SEARCH");
-      expect(toggle.find(".awe-menu-search-toggle-label").length).toBe(0);
-      expect(toggle.find("kbd").length).toBe(0);
+      expect(toggle.attr("title")).toBe("MENU_SEARCH_PLACEHOLDER");
+      expect(toggle.find(".awe-menu-search-toggle-label").text()).toBe("MENU_SEARCH_PLACEHOLDER");
+      const kbd = toggle.find("kbd.awe-menu-search-kbd");
+      expect(kbd.text()).toBe("Ctrl K");
+      expect(kbd.attr("aria-hidden")).toBe("true");
     });
 
     it.each([["Ctrl", {ctrlKey: true}], ["Meta", {metaKey: true}], ["Ctrl with caps lock", {ctrlKey: true, key: "K"}]])(

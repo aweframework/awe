@@ -167,13 +167,14 @@ restricciones de siempre deciden quién publica, sin tablas nuevas. Las búsqued
 
 ## Motores AngularJS y React {#angularjs-and-react-engines}
 
-Ambos motores tratan `expandible` y `maximize` de la misma forma:
+Ambos motores tratan `expandible`, `icon` y `maximize` de la misma forma:
 
 * `expandible` establece la dirección en la que la ventana reparte el espacio entre sus hijos (`vertical` por defecto).
+* `icon` se dibuja en la barra de título, antes de la etiqueta de la ventana.
 * `maximize="true"` muestra un botón en la barra de título que maximiza la ventana sobre el contenido de la pantalla y la
   restaura. La ventana ocupa el área de contenido, manteniendo visibles el menú y la barra superior, y las ventanas
   hermanas se ocultan mientras está maximizada. El botón Restaurar la devuelve a su tamaño; no hay atajo con la tecla
   Escape. El contenido con el estilo `expand-maximize` ocupa el espacio libre mientras la ventana está maximizada.
 
 Las diferencias son solo visuales: el botón de maximizar muestra los iconos Lucide `expand` y `shrink` en el motor
-AngularJS y `maximize` y `minimize` en el motor React, y el motor React muestra el `icon` de la ventana a la derecha de la barra de título.
+AngularJS y `maximize` y `minimize` en el motor React.

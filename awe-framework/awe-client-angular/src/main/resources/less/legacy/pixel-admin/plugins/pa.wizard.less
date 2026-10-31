@@ -31,7 +31,7 @@
 
 // Wrapper
 .wizard-wrapper {
-  border: 1px solid @table-border-color;
+  border: 1px solid var(--awe-color-border);
   border-radius: @border-radius-base;
   white-space: nowrap;
   width: auto;
@@ -58,15 +58,22 @@
     padding: 0 10px 0 ((@wizard-step-number-size + (@wizard-step-number-border-width * 2)) + (@wizard-step-number-margin * 2));
     vertical-align: middle;
 
-    // Step border
+    // Connector between the number of the previous step and the number of this one (#1236): one horizontal line at
+    // the center of the numbers, as in the React engine, instead of the vertical separator of the legacy look. The
+    // number of every step is centered in its step, so the line is a whole step wide
     & + li:before {
-      background: @table-border-color;
-      bottom: 0;
+      background: transparent;
+      border-top: 1px solid var(--awe-color-border);
+      bottom: auto;
       content: "";
-      margin-left: -@wizard-step-number-margin - 41px;
+      height: 0;
+      // From the right edge of the previous number to the left edge of this one
+      left: calc(-50% + var(--awe-size-control-lg) / 2);
+      margin: 0;
       position: absolute;
-      top: 0;
-      width: 1px;
+      top: calc(var(--awe-space-3) + var(--awe-size-control-lg) / 2);
+      width: calc(100% - var(--awe-size-control-lg));
+      z-index: 0;
     }
   }
 
@@ -79,16 +86,16 @@
   & > li.active,
   & > li.completed {
     .wizard-step-caption {
-      color: @text-color;
+      color: var(--awe-color-text-emphasis);
     }
 
     .wizard-step-description {
-      color: #888;
+      color: var(--awe-color-text-muted);
     }
 
     .wizard-step-number {
-      border-color: @text-color;
-      color: @text-color;
+      border-color: var(--awe-color-primary);
+      color: var(--awe-color-primary-text);
     }
   }
 
@@ -99,8 +106,8 @@
 
 .wizard-step-number,
 .wizard-steps > li.completed .wizard-step-number:after {
-  background: #fff;
-  border-radius: 9999px;
+  background: var(--awe-color-surface);
+  border-radius: var(--awe-radius-full);
   display: block;
   font-size: 14px;
   line-height: @wizard-step-number-size;
@@ -110,8 +117,8 @@
 
 // Step number
 .wizard-step-number {
-  border: @wizard-step-number-border-width solid #bbb;
-  color: #bbb;
+  border: @wizard-step-number-border-width solid var(--awe-color-border);
+  color: var(--awe-color-text-muted);
   font-weight: 700;
   height: @wizard-step-number-size + (@wizard-step-number-border-width * 2);
   margin-left: -@wizard-step-number-margin - 30px;
@@ -142,16 +149,15 @@
 
 .wizard-step-caption,
 .wizard-step-description {
-  color: #bbb;
+  color: var(--awe-color-text-muted);
   display: inline-block;
   line-height: 14px;
   white-space: normal;
 }
 
 .wizard-step-caption {
-  font-weight: 600;
-  margin-bottom: 15px;
-  margin-top: 15px;
+  // The room over the number is the one of the list item (#1236): the legacy 15px opened a hole under the circle
+  margin: 0;
   vertical-align: middle;
 }
 
