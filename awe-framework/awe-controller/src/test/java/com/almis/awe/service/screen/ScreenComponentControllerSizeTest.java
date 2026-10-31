@@ -20,6 +20,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class ScreenComponentControllerSizeTest {
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, mock(ScreenModelGenerator.class), mock(InitialLoadDao.class),
       mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
-      mock(GridLayoutService.class));
+      mock(GridLayoutService.class), mock(WindowStateService.class));
     ApplicationContext context = mock(ApplicationContext.class);
     when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class, RETURNS_DEEP_STUBS));
     generator.setApplicationContext(context);

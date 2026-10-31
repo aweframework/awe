@@ -20,6 +20,7 @@ import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,7 +56,7 @@ class ScreenComponentGeneratorTest {
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, screenModelGenerator, mock(InitialLoadDao.class),
       mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
-      gridLayoutService);
+      gridLayoutService, mock(WindowStateService.class));
   }
 
   private static SelectCriteriaBuilder select(String id) throws Exception {

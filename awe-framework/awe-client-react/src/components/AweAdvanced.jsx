@@ -11,7 +11,8 @@ import {
   ADVANCED_MODE_INLINE,
   FilterChips,
   getAdvancedRegionId,
-  useAdvancedWindow
+  useAdvancedWindow,
+  useSaveAdvancedState
 } from "./AweWindowAdvanced";
 
 /**
@@ -33,7 +34,14 @@ function AdvancedBlock({id, style, advanced, children}) {
     element.className = "window-advanced-criteria";
     return element;
   });
-  const toggle = useCallback(() => setOpen(value => !value), [setOpen]);
+  const saveState = useSaveAdvancedState(windowId, searchCriteria.length ? searchCriteria : advancedCriteria);
+  // Only the toggles of the user in an inline window are remembered: not the side panel, nor the reveal of an error
+  const toggle = useCallback(() => {
+    setOpen(!open);
+    if (inline) {
+      saveState(!open);
+    }
+  }, [open, setOpen, inline, saveState]);
   const reveal = useCallback(() => setOpen(true), [setOpen]);
   const close = useCallback(() => setOpen(false), [setOpen]);
 

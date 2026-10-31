@@ -86,7 +86,8 @@ first and, right after them, an `<advanced>` block with the less frequent ones (
 with `advanced-mode` how the window shows the block:
 
 * `inline` (default): an **Advanced filters** button shows the block below it, inside the window, and **Hide advanced
-  filters** closes it. The button does not move when the block opens.
+  filters** closes it. The button does not move when the block opens. The window remembers, per user and screen,
+  whether the block was left open, and shows it that way the next time the screen opens.
 
 <img alt="Advanced filters collapsed, with a hidden filter in effect" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-inline-collapsed.png')} />
 

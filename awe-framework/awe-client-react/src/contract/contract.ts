@@ -653,6 +653,7 @@ export interface WidgetParameter extends AbstractWidget {
 export interface Window extends Component {
     advancedCriteria?: string[];
     advancedMode?: string;
+    advancedOpen?: boolean;
     maximize?: boolean;
     searchCriteria?: string[];
 }

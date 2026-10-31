@@ -8,17 +8,22 @@ import {Components} from "../utilities/structure";
 import {TestIds, testHook} from "../utilities/testIds";
 import useMaximize from "../hooks/useMaximize";
 import {AdvancedSearchContext, useAdvancedSearch} from "./AweWindowAdvanced";
+import {useComponentState} from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 
 function AweWindow(props) {
   const {id, style, help, helpImage, label, icon, expand, maximize, elementList = [],
-    advancedMode, advancedCriteria, searchCriteria} = props;
+    advancedMode, advancedCriteria, searchCriteria, advancedOpen} = props;
   // The window grows over the maximize target like a grid does, and its siblings fade out
   const {ref: windowRef, iconMaximized, style: maximizeStyle, className: maximizeClassName, toggle: toggleMaximized} = useMaximize();
   const { t } = useTranslation();
   // Advanced search (#790): a window that holds an advanced block shares its state with it, and the block draws the
   // disclosure row, the filters in effect and the advanced criteria where it is
-  const advanced = useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria});
+  // The state the user left is stored in the controller of the window (the component in the store), which the screen
+  // structure the window is rendered from does not carry
+  const {attributes: {advancedOpen: storedOpen} = {}} = useComponentState(id) || {};
+  const advanced = useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria,
+    advancedOpen: storedOpen ?? advancedOpen});
 
   const getIcon = () => {
     if (icon) {
@@ -88,7 +93,8 @@ AweWindow.propTypes = {
   elementList: PropTypes.array,
   advancedMode: PropTypes.string,
   advancedCriteria: PropTypes.array,
-  searchCriteria: PropTypes.array
+  searchCriteria: PropTypes.array,
+  advancedOpen: PropTypes.bool
 };
 
 export default AweWindow;

@@ -10,7 +10,7 @@ const criterion = id => `[criterion-id='${id}']`;
 const COLLAPSED = "window-advanced-collapsed";
 
 describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvancedSearch.test.js", () => {
-  let refs, controllers, models, restored;
+  let refs, controllers, models, restored, actionController;
 
   // A criterion of the test: an isolated scope that restores its default value as the criteria do
   beforeEach(() => {
@@ -29,6 +29,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvanc
       }));
     }]);
     refs = initHeavyComponentTest();
+    inject(["ActionController", _ActionController_ => {
+      actionController = _ActionController_;
+    }]);
   });
 
   afterEach(() => {
@@ -73,6 +76,8 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvanc
       locked: {selected: 0, defaultValues: null, values: []}
     };
     stubPanelComponent(refs, {}, controllers.w1);
+    refs.$storage.get.mockReturnValue({base: {name: "UsrLst"}});
+    jest.spyOn(actionController, "addActionList").mockImplementation(() => undefined);
     refs.$control.getAddressController.mockImplementation(address => controllers[address.component]);
     refs.$control.getAddressModel.mockImplementation(address => models[address.component]);
     const form = $("<form></form>").appendTo(document.body);
@@ -437,6 +442,110 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvanc
       compileWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined});
 
       expect(initializedBlocks()).toContain("adv1");
+    });
+  });
+
+  // Delivery 2: the state of the block (open or closed) is remembered per user and window
+  describe("per-user memory of the block (S1, S3, S4, S5)", () => {
+    const saves = () => actionController.addActionList.mock.calls.map(([actions]) => actions);
+
+    it("starts expanded in inline mode when the user left it open, without saving", () => {
+      const element = compileWindow({advancedOpen: true});
+
+      expect(toggle(element).attr("aria-expanded")).toBe("true");
+      expect(region().hasClass(COLLAPSED)).toBe(false);
+      expect(saves()).toEqual([]);
+    });
+
+    it("starts collapsed in inline mode when the user left it closed or nothing is stored", () => {
+      const closed = compileWindow({advancedOpen: false});
+      expect(toggle(closed).attr("aria-expanded")).toBe("false");
+      expect(region().hasClass(COLLAPSED)).toBe(true);
+      closed.remove();
+      $("form").remove();
+
+      const none = compileWindow();
+      expect(toggle(none).attr("aria-expanded")).toBe("false");
+      expect(region().hasClass(COLLAPSED)).toBe(true);
+      expect(saves()).toEqual([]);
+    });
+
+    it("saves the new state silently with every toggle of the user, without sending the user", () => {
+      const element = compileWindow();
+
+      toggle(element).trigger("click");
+      expect(saves().length).toBe(1);
+      expect(saves()[0].length).toBe(1);
+      const opened = saves()[0][0];
+      expect(opened.attr("parameters")).toEqual(expect.objectContaining({
+        serverAction: "maintain-silent",
+        targetAction: "saveWindowAdvancedState",
+        advancedStateScreen: "UsrLst",
+        advancedStateWindow: "w1",
+        advancedStateOpen: "1"
+      }));
+      expect(opened.attr("parameters").user).toBeUndefined();
+      expect(opened.attr("silent")).toBe(true);
+
+      toggle(element).trigger("click");
+      expect(saves().length).toBe(2);
+      expect(saves()[1].length).toBe(1);
+      expect(saves()[1][0].attr("parameters")).toEqual(expect.objectContaining({
+        targetAction: "saveWindowAdvancedState",
+        advancedStateScreen: "UsrLst",
+        advancedStateWindow: "w1",
+        advancedStateOpen: "0"
+      }));
+    });
+
+    it("saves the close of a block that started open", () => {
+      const element = compileWindow({advancedOpen: true});
+
+      toggle(element).trigger("click");
+
+      expect(toggle(element).attr("aria-expanded")).toBe("false");
+      expect(saves().length).toBe(1);
+      expect(saves()[0][0].attr("parameters").advancedStateOpen).toBe("0");
+    });
+
+    it("keeps the state the user chose when the save fails", () => {
+      const element = compileWindow();
+      toggle(element).trigger("click");
+      const [save] = saves()[0];
+
+      save.onError({status: 500});
+      save.attr("deferred").reject();
+      digest();
+
+      expect(toggle(element).attr("aria-expanded")).toBe("true");
+      expect(region().hasClass(COLLAPSED)).toBe(false);
+      expect(saves().length).toBe(1);
+    });
+
+    it("neither reads nor saves the state in side panel mode: the panel always starts closed", () => {
+      const element = compileWindow({advancedMode: "side-panel", advancedOpen: true},
+        `${ESSENTIAL}${BLOCK}</div><div class='panel-footer'></div>`);
+
+      expect(panel().attr("data-open")).not.toBe("true");
+      expect(toggle(element).attr("aria-expanded")).toBeUndefined();
+
+      toggle(element).trigger("click");
+      digest();
+      expect(panel().attr("data-open")).toBe("true");
+      panel().find(hook(TestIds.windowAdvancedCancel)).trigger("click");
+      digest();
+
+      expect(saves()).toEqual([]);
+    });
+
+    it("does not save when a hidden criterion is shown because it is invalid", () => {
+      const element = compileWindow();
+
+      element.find(criterion("state")).isolateScope().$emit("criterion-validity", {id: "state", invalid: true});
+      digest();
+
+      expect(toggle(element).attr("aria-expanded")).toBe("true");
+      expect(saves()).toEqual([]);
     });
   });
 

@@ -86,7 +86,8 @@ los criterios imprescindibles y, justo después, un bloque `<advanced>` con los 
 maquetación que necesiten). Elige con `advanced-mode` cómo muestra la ventana el bloque:
 
 * `inline` (por defecto): un botón **Filtros avanzados** muestra el bloque debajo de él, dentro de la ventana, y
-  **Ocultar filtros avanzados** lo cierra. El botón no se mueve al abrirse el bloque.
+  **Ocultar filtros avanzados** lo cierra. El botón no se mueve al abrirse el bloque. La ventana recuerda, por usuario
+  y pantalla, si el bloque se dejó abierto, y lo muestra así la próxima vez que se abre la pantalla.
 
 <img alt="Filtros avanzados plegados, con un filtro oculto aplicado" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-inline-collapsed.png')} />
 

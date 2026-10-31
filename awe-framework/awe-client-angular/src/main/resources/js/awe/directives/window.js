@@ -31,7 +31,7 @@ function WindowController($element, $attrs, Control) {
   /**
    * Advanced search of the window: null without an advanced block
    * @param {string} view View of the window
-   * @returns {{windowId: string, label: string, mode: string, advancedIds: string[], searchIds: string[]}|null} Search
+   * @returns {{windowId: string, label: string, mode: string, open: boolean, advancedIds: string[], searchIds: string[]}|null} Search
    */
   this.getAdvancedSearch = view => {
     const controller = Control.getAddressController({view, component: $attrs.windowId}) || {};
@@ -42,6 +42,8 @@ function WindowController($element, $attrs, Control) {
       windowId: $attrs.windowId,
       label: controller.label || "",
       mode: controller.advancedMode,
+      // The user left the block open (the server sends it only when it is stored)
+      open: controller.advancedOpen === true,
       advancedIds: controller.advancedCriteria,
       searchIds: controller.searchCriteria || []
     };

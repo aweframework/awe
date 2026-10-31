@@ -10,6 +10,7 @@ import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +47,7 @@ class ScreenComponentGeneratorQuickFilterTest {
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, screenModelGenerator, mock(InitialLoadDao.class),
       mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
-      mock(GridLayoutService.class));
+      mock(GridLayoutService.class), mock(WindowStateService.class));
   }
 
   private static Screen screen(String content) {

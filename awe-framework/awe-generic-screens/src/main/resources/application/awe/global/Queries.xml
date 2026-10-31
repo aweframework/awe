@@ -3058,6 +3058,35 @@
   </query>
 
   <!--
+  User window states (advanced block left open or closed)
+  -->
+
+  <query id="getUserWindowStates">
+    <table id="AweUsrWinCnf"/>
+    <field id="WinId" alias="windowId"/>
+    <field id="AdvOpn" alias="advancedOpen"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+  </query>
+
+  <query id="getUserWindowState">
+    <table id="AweUsrWinCnf"/>
+    <field id="AdvOpn" alias="advancedOpen"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+  </query>
+
+  <!--
   Theme management
   -->
 

@@ -628,6 +628,20 @@ CREATE TABLE IF NOT EXISTS AweUsrGrdCnf (
     CONSTRAINT uk_AweUsrGrdCnf UNIQUE (Ope, Scr, GrdId)
     );
 
+CREATE TABLE IF NOT EXISTS AweUsrWinCnf (
+    IdeUsrWinCnf int NOT NULL PRIMARY KEY,   --  Table identifier
+    Ope varchar(20) NOT NULL,                --  User id
+    Scr varchar(100) NOT NULL,               --  Screen id
+    WinId varchar(100) NOT NULL,             --  Window id
+    AdvOpn int NOT NULL,                     --  Advanced block left open (1) or closed (0)
+    CONSTRAINT uk_AweUsrWinCnf UNIQUE (Ope, Scr, WinId)
+    );
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'WinCnfKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'WinCnfKey');
+
 --------------------------------------------------------
 --  TESTING TABLES
 --------------------------------------------------------

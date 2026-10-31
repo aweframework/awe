@@ -6,6 +6,7 @@ import AweWindow from "../../../src/components/AweWindow";
 import AweAdvanced from "../../../src/components/AweAdvanced";
 import {ComponentList} from "../../../src/components/AweComponents";
 import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
+import ViewRegistry from "../../../src/redux/registry/ViewRegistry";
 
 describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
 
@@ -603,6 +604,162 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
 
       expect(isOpen()).toBe(true);
       expect(panel().contains(field("CrtBlk"))).toBe(true);
+    });
+  });
+
+  // Delivery 2 of #790: the open state of the inline block is remembered per user, screen and window. The window
+  // controller carries advancedOpen only when a state is stored, and every user toggle saves it silently
+  describe("remembered open state", () => {
+    const originalFetch = global.fetch;
+    const saves = () => global.fetch.mock.calls
+      .filter(([url]) => url.includes("/action/maintain-silent/saveWindowAdvancedState"))
+      .map(([, options]) => JSON.parse(options.body));
+    // Messages queued to be launched (the thunk dispatches them inside the store, so a dispatch spy does not see them)
+    const messages = (store) => [...store.getState().actions.sync.flat(), ...store.getState().actions.async.flat()]
+      .filter(action => action?.type === "message");
+    const flush = () => act(async () => {
+      await Promise.resolve();
+    });
+
+    beforeEach(() => {
+      global.fetch = jest.fn(() => Promise.resolve({ok: true, status: 200, json: () => Promise.resolve([]),
+        text: () => Promise.resolve("[]")}));
+      // The screen of the view of the window, as the screen data sets it
+      ViewRegistry.setView(VIEW, {name: "UsrLst", loading: false});
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+      ViewRegistry.clearAll();
+    });
+
+    it("starts the inline block open when the window component of the screen carries advancedOpen true", () => {
+      // The server puts the stored state in the controller of the window (the component in the store), not in the
+      // screen structure the window is rendered from
+      const state = preloadedState();
+      state.components.SearchWindow = {address: {component: "SearchWindow", view: VIEW}, attributes: {advancedOpen: true},
+        validationRules: {}, specificAttributes: {}};
+      renderWithProviders(
+        <AweWindow id="SearchWindow" label="Search" advancedMode="inline" advancedCriteria={["CrtThm", "CrtBlk"]}
+                   searchCriteria={["CrtUsr", "CrtThm", "CrtBlk"]} elementList={elementList}/>,
+        {preloadedState: state});
+
+      expect(toggle().getAttribute("aria-expanded")).toBe("true");
+      expect(region().hidden).toBe(false);
+    });
+
+    it("starts the inline block open when the window has advancedOpen true", () => {
+      renderWindow({advancedOpen: true});
+
+      expect(toggle().getAttribute("aria-expanded")).toBe("true");
+      expect(region().hidden).toBe(false);
+      expect(saves()).toEqual([]);
+    });
+
+    it("starts the inline block collapsed when the window has advancedOpen false", () => {
+      renderWindow({advancedOpen: false});
+
+      expect(toggle().getAttribute("aria-expanded")).toBe("false");
+      expect(region().hidden).toBe(true);
+    });
+
+    it("saves the state with every toggle of the user, with the screen, the window and the new state", async () => {
+      renderWindow();
+
+      fireEvent.click(toggle());
+      await flush();
+      expect(saves()).toEqual([{advancedStateScreen: "UsrLst", advancedStateWindow: "SearchWindow", advancedStateOpen: "1"}]);
+
+      fireEvent.click(toggle());
+      await flush();
+      expect(saves()).toEqual([
+        {advancedStateScreen: "UsrLst", advancedStateWindow: "SearchWindow", advancedStateOpen: "1"},
+        {advancedStateScreen: "UsrLst", advancedStateWindow: "SearchWindow", advancedStateOpen: "0"}
+      ]);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("saves the closed state when the user closes a block that started open", async () => {
+      renderWindow({advancedOpen: true});
+
+      fireEvent.click(toggle());
+      await flush();
+
+      expect(region().hidden).toBe(true);
+      expect(saves()).toEqual([{advancedStateScreen: "UsrLst", advancedStateWindow: "SearchWindow", advancedStateOpen: "0"}]);
+    });
+
+    it("does not save when the block opens to reveal a criterion whose validation fails", async () => {
+      const {store} = renderWindow();
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "CrtThm", view: VIEW}, {error: {message: "VALIDATOR_MESSAGE_REQUIRED"}}));
+      });
+      await flush();
+
+      expect(region().hidden).toBe(false);
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("keeps the state and shows an error message when the save fails", async () => {
+      global.fetch = jest.fn(() => Promise.reject(new Error("down")));
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const {store} = renderWindow({});
+
+      fireEvent.click(toggle());
+      await flush();
+      await flush();
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(toggle().getAttribute("aria-expanded")).toBe("true");
+      expect(region().hidden).toBe(false);
+      expect(messages(store)).toEqual([expect.objectContaining({parameters: expect.objectContaining({
+        type: "error", title: "SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE", message: "SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE"})})]);
+      consoleSpy.mockRestore();
+    });
+
+    it("keeps the state and shows the message of the server when it answers the save with an error", async () => {
+      const answer = [{type: "message", parameters: {type: "error", title: "Error", message: "Failed"}}];
+      global.fetch = jest.fn(() => Promise.resolve({ok: true, status: 200, json: () => Promise.resolve(answer),
+        text: () => Promise.resolve(JSON.stringify(answer))}));
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const {store} = renderWindow({});
+
+      fireEvent.click(toggle());
+      await flush();
+      await flush();
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(region().hidden).toBe(false);
+      expect(messages(store)).toEqual([expect.objectContaining({parameters: expect.objectContaining({
+        type: "error", title: "Error", message: "Failed"})})]);
+      consoleSpy.mockRestore();
+    });
+
+    it("starts the side panel closed whatever advancedOpen says, and saves nothing when it opens or closes", async () => {
+      renderWindow({advancedMode: "side-panel", advancedOpen: true});
+      const panel = () => byTestId("window-advanced-panel");
+
+      expect(toggle().getAttribute("aria-expanded")).toBe("false");
+      expect(panel()?.getAttribute("data-open") === "true").toBe(false);
+
+      fireEvent.click(toggle());
+      await flush();
+      expect(toggle().getAttribute("aria-expanded")).toBe("true");
+      fireEvent.click(byTestId("window-advanced-cancel"));
+      await flush();
+
+      expect(toggle().getAttribute("aria-expanded")).toBe("false");
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("ignores advancedOpen in a window without advanced block", () => {
+      renderWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined, advancedOpen: true});
+
+      expect(toggle()).toBeNull();
+      expect(block()).toBeNull();
+      expect(field("CrtThm").parentElement).toBe(document.getElementById("SearchBody"));
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 });

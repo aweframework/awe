@@ -16,6 +16,7 @@ import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.junit.jupiter.api.Test;
@@ -330,7 +331,8 @@ class ScreenModelGeneratorTest {
     AweRequest request = buildRequest(JsonNodeFactory.instance.objectNode());
     BaseConfigProperties properties = mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS);
     ScreenComponentGenerator generator = new ScreenComponentGenerator(request, new TestScreenModelGenerator(initialLoadDao, request, properties),
-      initialLoadDao, mock(AweElementsDao.class), properties, mock(ScreenConfigurationGenerator.class), mock(GridLayoutService.class));
+      initialLoadDao, mock(AweElementsDao.class), properties, mock(ScreenConfigurationGenerator.class), mock(GridLayoutService.class),
+      mock(WindowStateService.class));
     // A generation error is reported with its locale key
     ApplicationContext context = mock(ApplicationContext.class);
     when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class, invocation ->
@@ -364,7 +366,8 @@ class ScreenModelGeneratorTest {
     AweRequest request = buildRequest(JsonNodeFactory.instance.objectNode());
     BaseConfigProperties properties = mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS);
     ScreenComponentGenerator generator = new ScreenComponentGenerator(request, new TestScreenModelGenerator(initialLoadDao, request, properties),
-      initialLoadDao, mock(AweElementsDao.class), properties, mock(ScreenConfigurationGenerator.class), mock(GridLayoutService.class));
+      initialLoadDao, mock(AweElementsDao.class), properties, mock(ScreenConfigurationGenerator.class), mock(GridLayoutService.class),
+      mock(WindowStateService.class));
     // A generation error is reported with its locale key
     ApplicationContext context = mock(ApplicationContext.class);
     when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class, invocation ->

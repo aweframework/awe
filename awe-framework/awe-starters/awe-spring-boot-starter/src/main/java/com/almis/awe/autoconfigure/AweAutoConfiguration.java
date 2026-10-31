@@ -496,6 +496,20 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Window state service (per-user state of the advanced block of the windows)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @return Window state service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public WindowStateService windowStateService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
+    return new WindowStateService(queryService, queryUtil, maintainService);
+  }
+
+  /**
    * Screen service
    *
    * @param menuService              Menu service
@@ -672,8 +686,9 @@ public class AweAutoConfiguration {
   public ScreenComponentGenerator screenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                                            InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
                                                            BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
-                                                           GridLayoutService gridLayoutService) {
-    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator, gridLayoutService);
+                                                           GridLayoutService gridLayoutService, WindowStateService windowStateService) {
+    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator,
+      gridLayoutService, windowStateService);
   }
 
   /////////////////////////////////////////////

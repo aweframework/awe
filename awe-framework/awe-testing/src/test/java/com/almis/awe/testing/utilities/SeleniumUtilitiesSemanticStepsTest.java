@@ -3148,6 +3148,54 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckThatTheInlineAdvancedBlockOfAWindowIsOpenOrClosedByItsToggleInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      WebElement open = show(instructions.getWindowAdvancedToggle("Open"), "Hide advanced filters");
+      when(open.getAttribute("aria-expanded")).thenReturn("true");
+      WebElement closed = show(instructions.getWindowAdvancedToggle("Closed"), "Advanced filters");
+      when(closed.getAttribute("aria-expanded")).thenReturn("false");
+
+      assertThatCode(() -> {
+        utilities.checkAdvancedFiltersOpen("Open");
+        utilities.checkAdvancedFiltersClosed("Closed");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersOpen("Closed"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersClosed("Open"));
+      // A window without advanced search has no toggle
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersOpen("Plain"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkAdvancedFiltersClosed("Plain"));
+    }
+  }
+
+  @Test
+  void shouldCloseTheInlineAdvancedBlockOfAWindowOnlyWhenItIsOpenInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      // The toggle says that the block is open until it is clicked
+      WebElement open = show(instructions.getWindowAdvancedToggle("Open"), "Hide advanced filters");
+      long start = performed();
+      when(open.getAttribute("aria-expanded")).thenAnswer(invocation -> performed() > start ? "false" : "true");
+
+      utilities.closeAdvancedFilters("Open");
+      assertThat(performed()).isEqualTo(start + 1);
+
+      // A closed block is left as it is
+      WebElement closed = show(instructions.getWindowAdvancedToggle("Closed"), "Advanced filters");
+      when(closed.getAttribute("aria-expanded")).thenReturn("false");
+      long before = performed();
+      utilities.closeAdvancedFilters("Closed");
+      assertThat(performed()).isEqualTo(before);
+
+      // The block does not close, or the window has no advanced search
+      WebElement stuck = show(instructions.getWindowAdvancedToggle("Stuck"), "Hide advanced filters");
+      when(stuck.getAttribute("aria-expanded")).thenReturn("true");
+      assertThrows(AssertionFailedError.class, () -> utilities.closeAdvancedFilters("Stuck"));
+      assertThrows(AssertionFailedError.class, () -> utilities.closeAdvancedFilters("Plain"));
+    }
+  }
+
+  @Test
   void shouldReadAndCheckTheVerticalPositionOfTheAdvancedFiltersToggleInBothClients() {
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);

@@ -284,6 +284,20 @@ CREATE TABLE AweUsrGrdCnf (
     CONSTRAINT uk_AweUsrGrdCnf UNIQUE (Ope, Scr, GrdId)
     );
 
+CREATE TABLE AweUsrWinCnf (
+    IdeUsrWinCnf number(10) CONSTRAINT pk_AweUsrWinCnf PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NOT NULL,                                                 --  User id
+    Scr varchar2(100) NOT NULL,                                                --  Screen id
+    WinId varchar2(100) NOT NULL,                                              --  Window id
+    AdvOpn number(1) NOT NULL,                                                 --  Advanced block left open (1) or closed (0)
+    CONSTRAINT uk_AweUsrWinCnf UNIQUE (Ope, Scr, WinId)
+    );
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'WinCnfKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'WinCnfKey');
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier

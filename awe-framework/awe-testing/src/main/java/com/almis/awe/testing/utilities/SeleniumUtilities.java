@@ -5202,6 +5202,39 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the advanced block of an inline window is open: its advanced filters toggle says so ({@code aria-expanded})
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersOpen(String windowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getWindowAdvancedToggle(windowId)), true));
+  }
+
+  /**
+   * Check that the advanced block of an inline window is closed: its advanced filters toggle says so ({@code aria-expanded})
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersClosed(String windowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getWindowAdvancedToggle(windowId)), false));
+  }
+
+  /**
+   * Close the advanced block of an inline window when it is open, and leave it as it is when it is closed. The open state
+   * is remembered for the user (#790), so a test can start from a closed block whatever an earlier run left
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeAdvancedFilters(String windowId) {
+    Locator toggle = locator(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      toggleAdvancedFilters(windowId);
+    }
+    checkAdvancedFiltersClosed(windowId);
+  }
+
+  /**
    * Check the badge of the advanced filters toggle of a window: the number of advanced criteria whose value differs from
    * their default. The badge is not shown when there is none
    *
