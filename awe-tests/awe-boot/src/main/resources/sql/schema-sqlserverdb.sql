@@ -1088,6 +1088,27 @@ IF NOT EXISTS(SELECT *
               WHERE KeyNam = 'WinCnfKey')
 INSERT INTO AweKey (KeyNam, KeyVal) VALUES ('WinCnfKey', 0);
 
+IF NOT EXISTS(SELECT *
+              FROM sys.tables
+              WHERE name = 'AweSavSch'
+                AND type = 'U')
+CREATE TABLE AweSavSch (
+    IdeSavSch int NOT NULL PRIMARY KEY,      --  Table identifier
+    Ope varchar(20) NULL,                    --  User id (own search)
+    Pro varchar(3) NULL,                     --  Profile acronym (search published for the profile)
+    Scr varchar(100) NOT NULL,               --  Screen id
+    WinId varchar(100) NOT NULL,             --  Window id
+    Nam varchar(100) NOT NULL,               --  Search name
+    Val varchar(4000) NOT NULL,              --  Values (JSON with the selected values of each search criterion)
+    CONSTRAINT uk_AweSavSch UNIQUE (Ope, Pro, Scr, WinId, Nam),
+    CONSTRAINT ck_AweSavSch_Own CHECK ((Ope IS NULL AND Pro IS NOT NULL AND Pro <> '') OR (Ope IS NOT NULL AND Ope <> '' AND Pro IS NULL))
+    );
+
+IF NOT EXISTS(SELECT *
+              FROM AweKey
+              WHERE KeyNam = 'SavSchKey')
+INSERT INTO AweKey (KeyNam, KeyVal) VALUES ('SavSchKey', 0);
+
 --------------------------------------------------------
 --  DDL for CONSTRAINTS
 --------------------------------------------------------

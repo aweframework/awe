@@ -11,10 +11,15 @@ import org.junit.jupiter.api.TestMethodOrder;
  * filters in effect with their chips, the search of each example in its own grid, a window without advanced block, and the
  * open state of the inline block, which is remembered for the user. Every test opens its screen with the inline block
  * closed, so each one can run on its own.
+ *
+ * <p>The inline window keeps saved searches (saved-searches="true"): the test user saves, applies, renames and deletes its
+ * own searches and, as it may publish (it reaches the profiles option), publishes one for the Test profile. A user of that
+ * profile, which the class creates (Test reaches the test menu but not the tools, so it may not publish), applies it but
+ * cannot change it. Every test removes what it saves, and what an earlier run left, so the class can run again.</p>
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Tag("CRUDCriteriaMatrixIT")
-class AdvancedSearchTestsIT extends AbstractSessionTests {
+@Tag("RegressionWebsocketPrintIT")
+class AdvancedSearchTestsIT extends AbstractCrudTests {
 
   private static final String INLINE_WINDOW = "WinAdvInl";
   private static final String PANEL_WINDOW = "WinAdvPnl";
@@ -40,6 +45,17 @@ class AdvancedSearchTestsIT extends AbstractSessionTests {
   private static final String FRANCE = "France";
   private static final String RETAIL = "Retail";
   private static final String YES = "Yes";
+  private static final String SAVED_SEARCHES = "Saved searches";
+  private static final String OWN_SEARCH = "Active retail";
+  private static final String RENAMED_SEARCH = "Active retail customers";
+  private static final String SHARED_SEARCH = "Priority customers";
+  // Profile that the shared search is published for (the name of its option) and its user, which the class creates
+  private static final String PROFILE_ACRONYM = "TST";
+  private static final String PROFILE_NAME = "Test";
+  private static final String PROFILE_USER = "savsch";
+  private static final String PROFILE_USER_PASSWORD = "savsch";
+  private static final String PROFILE_USER_NAME = "Saved";
+  private static final String PROFILE_USER_SHOWN = "Saved";
 
   AdvancedSearchTestsIT() {
     super(Session.TEST_MODULE);
@@ -433,5 +449,183 @@ class AdvancedSearchTestsIT extends AbstractSessionTests {
     checkCriterionVisible(PANEL_NAME);
     checkCriterionNotVisible(PANEL_COUNTRY);
     checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
+  }
+
+  /**
+   * Delete the saved searches of the inline window that an earlier run left, and close the menu
+   *
+   * @param names Names of the searches
+   */
+  private void deleteLeftSavedSearches(String... names) {
+    for (String name : names) {
+      if (hasSavedSearch(INLINE_WINDOW, name)) {
+        closeSavedSearches(INLINE_WINDOW);
+        deleteSavedSearch(INLINE_WINDOW, name);
+      }
+    }
+    closeSavedSearches(INLINE_WINDOW);
+  }
+
+  /**
+   * Own searches (#790): the values of the search criteria, advanced ones included, are saved with a name, which the
+   * button shows while they do not change. Applying the search brings them back and launches the search, and the search
+   * can be renamed and deleted
+   */
+  @Test
+  void t100_ownSearchIsSavedAppliedRenamedAndDeleted() {
+    setTestTitle("Saved searches: save, apply, rename and delete an own search");
+    openAdvancedSearchScreen();
+    deleteLeftSavedSearches(OWN_SEARCH, RENAMED_SEARCH);
+    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
+
+    // Active retail customers of the default country
+    selectContain(STATUS, "Active");
+    toggleAdvancedFilters(INLINE_WINDOW);
+    selectContain(SEGMENT, RETAIL);
+    saveCurrentSearch(INLINE_WINDOW, OWN_SEARCH);
+    checkSavedSearchesText(INLINE_WINDOW, OWN_SEARCH);
+    checkSavedSearchListed(INLINE_WINDOW, OWN_SEARCH, true);
+    closeSavedSearches(INLINE_WINDOW);
+
+    // Cleared, the button names no search and the grid lists every customer of the default country
+    clearAllFilters(INLINE_WINDOW);
+    checkNoFilterChips(INLINE_WINDOW);
+    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
+    toggleAdvancedFilters(INLINE_WINDOW);
+    clickButton("ButAdvInlSch");
+    checkNoFilterChips(INLINE_WINDOW);
+
+    // Applied: its values and the search are back, the advanced ones hidden
+    applySavedSearch(INLINE_WINDOW, OWN_SEARCH);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Iris Labs", "Ember Labs");
+    checkGridColumnOrder(INLINE_GRID, INLINE_SEGMENT_COLUMN, RETAIL, RETAIL, RETAIL);
+    checkFilterChip(INLINE_WINDOW, STATUS, false);
+    checkFilterChip(INLINE_WINDOW, SEGMENT, true);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 1);
+    checkSavedSearchesText(INLINE_WINDOW, OWN_SEARCH);
+
+    // Renamed, the button follows it
+    renameSavedSearch(INLINE_WINDOW, OWN_SEARCH, RENAMED_SEARCH);
+    checkSavedSearchesText(INLINE_WINDOW, RENAMED_SEARCH);
+    checkSavedSearchListed(INLINE_WINDOW, RENAMED_SEARCH, true);
+    checkSavedSearchNotListed(INLINE_WINDOW, OWN_SEARCH);
+    closeSavedSearches(INLINE_WINDOW);
+
+    // Deleted
+    deleteSavedSearch(INLINE_WINDOW, RENAMED_SEARCH);
+    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
+    checkSavedSearchNotListed(INLINE_WINDOW, RENAMED_SEARCH);
+    closeSavedSearches(INLINE_WINDOW);
+    clearAllFilters(INLINE_WINDOW);
+  }
+
+  /**
+   * A window opts in to saved searches (#790): the side-panel window, which does not, has no Saved searches button
+   */
+  @Test
+  void t110_windowWithoutSavedSearchesHasNoSavedSearchesButton() {
+    setTestTitle("Saved searches: a window that does not opt in has no Saved searches button");
+    openAdvancedSearchScreen();
+    clickTab("AdvSchTab", "Advanced filters in a side panel");
+    checkCriterionVisible(PANEL_NAME);
+    checkNoSavedSearches(PANEL_WINDOW);
+  }
+
+  /**
+   * The test user may publish (#790): it reaches the profiles option, so the Save search dialog offers the profiles, and it
+   * publishes a search for the Test profile, which it lists as shared and may change
+   */
+  @Test
+  void t120_publisherPublishesASearchForAProfile() {
+    setTestTitle("Saved searches: publish a search for a profile");
+    openAdvancedSearchScreen();
+    deleteLeftSavedSearches(SHARED_SEARCH);
+    checkSaveSearchCanPublish(INLINE_WINDOW, true);
+    publishSharedSearch();
+    checkSavedSearchListed(INLINE_WINDOW, SHARED_SEARCH, false);
+    closeSavedSearches(INLINE_WINDOW);
+    checkSavedSearchCanBeChanged(INLINE_WINDOW, SHARED_SEARCH, true);
+    clearAllFilters(INLINE_WINDOW);
+  }
+
+  /**
+   * A user of the profile (#790) finds the published search shared with its profile and applies it, but it cannot rename
+   * or delete it, and it may not publish. The test user creates that user and publishes the search first, unless they are
+   * there (a rerun comes after the test that deletes them)
+   */
+  @Test
+  void t130_userOfTheProfileAppliesTheSharedSearch() {
+    setTestTitle("Saved searches: a user of the profile applies the shared search but cannot change it");
+    createProfileUser();
+    openAdvancedSearchScreen();
+    if (!hasSavedSearch(INLINE_WINDOW, SHARED_SEARCH)) {
+      closeSavedSearches(INLINE_WINDOW);
+      publishSharedSearch();
+      clearAllFilters(INLINE_WINDOW);
+    }
+    closeSavedSearches(INLINE_WINDOW);
+
+    // The user of the profile, in the Test module
+    ensureLoggedIn(PROFILE_USER, PROFILE_USER_PASSWORD, PROFILE_USER_SHOWN);
+    ensureModule("Test", "test");
+    openAdvancedSearchScreen();
+    checkSavedSearchListed(INLINE_WINDOW, SHARED_SEARCH, false);
+    closeSavedSearches(INLINE_WINDOW);
+
+    applySavedSearch(INLINE_WINDOW, SHARED_SEARCH);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Boreal Retail", "Cobalt Textiles", "Ember Labs");
+    checkFilterChip(INLINE_WINDOW, PRIORITY, true);
+    checkSavedSearchesText(INLINE_WINDOW, SHARED_SEARCH);
+
+    checkSavedSearchCanBeChanged(INLINE_WINDOW, SHARED_SEARCH, false);
+    checkSaveSearchCanPublish(INLINE_WINDOW, false);
+    clearAllFilters(INLINE_WINDOW);
+  }
+
+  /**
+   * Publish the shared search for the Test profile: the priority customers of the default country. The advanced block is
+   * left open
+   */
+  private void publishSharedSearch() {
+    toggleAdvancedFilters(INLINE_WINDOW);
+    clickCheckbox(PRIORITY);
+    saveCurrentSearch(INLINE_WINDOW, SHARED_SEARCH, PROFILE_NAME);
+  }
+
+  /**
+   * The publisher deletes the published search (#790), and the user of the profile is deleted
+   */
+  @Test
+  void t140_publisherDeletesThePublishedSearch() {
+    setTestTitle("Saved searches: the publisher deletes the published search");
+    openAdvancedSearchScreen();
+    if (hasSavedSearch(INLINE_WINDOW, SHARED_SEARCH)) {
+      closeSavedSearches(INLINE_WINDOW);
+      deleteSavedSearch(INLINE_WINDOW, SHARED_SEARCH);
+    }
+    checkSavedSearchNotListed(INLINE_WINDOW, SHARED_SEARCH);
+    closeSavedSearches(INLINE_WINDOW);
+
+    // The user of the profile, if it is still there
+    verifyRecordDeleted("CrtUsr", PROFILE_USER, TOOLS, USERS);
+  }
+
+  /**
+   * Create the user of the Test profile, unless an earlier run left it
+   */
+  private void createProfileUser() {
+    if (exists(PROFILE_USER, TOOLS, USERS)) {
+      return;
+    }
+    addNew(TOOLS, USERS);
+    writeText("Usr", PROFILE_USER);
+    selectContain("Sta", YES);
+    writeText("Pas", PROFILE_USER_PASSWORD);
+    writeText("RetPas", PROFILE_USER_PASSWORD);
+    writeText("Nam", PROFILE_USER_NAME);
+    suggest("Pro", PROFILE_ACRONYM, PROFILE_ACRONYM);
+    suggest("Thm", "grass", "grass");
+    writeText("Eml", "savsch@almis.com");
+    clickButtonAndConfirm(CONFIRM_BUTTON);
   }
 }

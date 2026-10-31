@@ -51,6 +51,20 @@ class AdvancedSearchSchemaTest {
   }
 
   @Test
+  void acceptsTheSavedSearchesAttributeOfAWindow() {
+    assertThatCode(() -> validate("<window label=\"LABEL\" saved-searches=\"true\">" +
+      "<criteria id=\"CrtUsr\" component=\"text\"/><advanced><criteria id=\"CrtBlk\" component=\"checkbox\"/></advanced></window>"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void rejectsASavedSearchesValueThatIsNotABoolean() {
+    assertThatThrownBy(() -> validate("<window label=\"LABEL\" saved-searches=\"always\">" +
+      "<advanced><criteria id=\"CrtBlk\" component=\"checkbox\"/></advanced></window>"))
+      .hasMessageContaining("always");
+  }
+
+  @Test
   void rejectsAnUnknownAdvancedMode() {
     assertThatThrownBy(() -> validate("<window label=\"LABEL\" advanced-mode=\"drawer\">" +
       "<advanced><criteria id=\"CrtBlk\" component=\"checkbox\"/></advanced></window>"))

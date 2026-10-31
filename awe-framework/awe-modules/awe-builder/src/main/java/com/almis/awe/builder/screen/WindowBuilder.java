@@ -21,6 +21,7 @@ public class WindowBuilder extends AbstractTagBuilder<WindowBuilder, Window> {
   private boolean maximize;
   private String icon;
   private AdvancedMode advancedMode;
+  private boolean savedSearches;
 
   @Override
   public Window build() {
@@ -32,6 +33,7 @@ public class WindowBuilder extends AbstractTagBuilder<WindowBuilder, Window> {
     return (Window) super.build(window)
       .setMaximize(isMaximize())
       .setAdvancedMode(getAdvancedMode() == null ? null : getAdvancedMode().toString())
+      .setSavedSearches(isSavedSearches() ? Boolean.TRUE : null)
       .setIcon(getIcon());
   }
 }

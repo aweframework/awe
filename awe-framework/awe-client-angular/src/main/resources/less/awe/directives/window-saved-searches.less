@@ -1,0 +1,321 @@
+//
+// Saved searches of a window (#790, delivery 3): the Saved searches text button of the row of the advanced block, right
+// after the Advanced filters toggle, with its menu (My searches, Shared with your profile, Save current search and
+// Manage searches), and its Save search and Manage searches dialogs
+// --------------------------------------------------
+
+.window-saved-searches {
+  position: relative;
+  flex: none;
+}
+
+// Text button with the bookmark icon, the name of the search applied (or Saved searches) and the chevron, as the toggle
+.window-saved-searches-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-gap-inline);
+  max-width: calc(var(--awe-space-16) * 5);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: 1;
+  color: var(--awe-color-primary-text);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-md);
+  cursor: pointer;
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    background: var(--awe-color-highlight);
+  }
+
+  &:active {
+    background: var(--awe-color-highlight-focus);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    flex: none;
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+
+  .window-saved-searches-chevron {
+    transition: rotate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+  }
+
+  &[aria-expanded="true"] .window-saved-searches-chevron {
+    rotate: 180deg;
+  }
+}
+
+.window-saved-searches-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// The menu: an overlay with list options under the button
+.window-saved-searches-menu {
+  position: absolute;
+  top: calc(100% + var(--awe-space-1));
+  left: 0;
+  z-index: var(--awe-z-dropdown);
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--awe-space-16) * 5);
+  max-width: calc(100vw - var(--awe-space-8));
+  max-height: calc(var(--awe-space-16) * 6);
+  overflow-y: auto;
+  padding: var(--awe-list-padding);
+  font-size: var(--awe-font-size-base);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: 1px solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.window-saved-searches-head {
+  margin: 0;
+  padding: var(--awe-space-2) var(--awe-space-3) var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-list-option-group);
+}
+
+.window-saved-searches-empty {
+  margin: 0;
+  padding: var(--awe-space-1) var(--awe-space-3) var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.window-saved-searches-separator {
+  height: 1px;
+  margin: var(--awe-space-1) 0;
+  background-color: var(--awe-color-border-subtle);
+}
+
+.window-saved-searches-option {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+  min-height: var(--awe-size-control);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-list-option-text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  cursor: pointer;
+
+  .awe-icon {
+    flex: none;
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+    color: var(--awe-color-list-option-icon);
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--awe-color-list-option-text-focus);
+    background: var(--awe-color-list-option-focus);
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(var(--awe-focus-ring-offset) * -1);
+  }
+
+  // The search applied
+  &[aria-current="true"] {
+    color: var(--awe-color-list-option-text-selected);
+    background: var(--awe-color-list-option-selected);
+  }
+}
+
+.window-saved-searches-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Profile of a published search
+.window-saved-searches-tag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-subtle);
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+}
+
+// Dialogs
+.window-saved-search-modal {
+  .window-saved-search-subtitle {
+    margin: var(--awe-space-1) 0 0;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  .modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--awe-space-2);
+  }
+
+  .modal-footer .btn + .btn {
+    margin-left: 0;
+  }
+
+  .modal-footer .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-1-5);
+  }
+}
+
+.window-saved-search-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+
+  & + & {
+    margin-top: var(--awe-space-4);
+  }
+
+  label {
+    margin: 0;
+    font-size: var(--awe-font-size-label);
+    font-weight: var(--awe-font-weight-medium);
+    color: var(--awe-color-field-label);
+  }
+}
+
+// The select of the profile (select2, as the select criteria) takes the width of the field
+awe-saved-search-profile {
+  display: block;
+}
+
+.window-saved-search-required,
+.window-saved-search-error {
+  color: var(--awe-color-danger-text);
+}
+
+.window-saved-search-help,
+.window-saved-search-error {
+  margin: 0;
+  font-size: var(--awe-font-size-xs);
+}
+
+.window-saved-search-help {
+  color: var(--awe-color-field-help);
+}
+
+.window-saved-search-table {
+  width: 100%;
+  font-size: var(--awe-font-size-sm);
+
+  th {
+    padding: var(--awe-space-2);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--awe-color-border);
+  }
+
+  td {
+    padding: var(--awe-space-1) var(--awe-space-2);
+    vertical-align: middle;
+    color: var(--awe-color-text);
+    border-bottom: 1px solid var(--awe-color-border-subtle);
+  }
+
+  .window-saved-search-name {
+    width: 100%;
+  }
+
+  .window-saved-search-actions {
+    white-space: nowrap;
+    text-align: right;
+  }
+}
+
+.window-saved-search-rename {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+
+  .form-control {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: var(--awe-size-control-sm);
+  }
+}
+
+// Icon buttons of a row: rename, delete, and accept or cancel a rename
+.window-saved-search-action {
+  display: inline-grid;
+  place-items: center;
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+  padding: 0;
+  line-height: 0;
+  color: var(--awe-color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-md);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-saved-searches-toggle,
+  .window-saved-searches-toggle .window-saved-searches-chevron {
+    transition: none;
+  }
+}

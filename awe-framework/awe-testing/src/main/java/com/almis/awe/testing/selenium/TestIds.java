@@ -95,6 +95,29 @@ public final class TestIds {
   public static final String WINDOW_ADVANCED_RESET = "window-advanced-reset";
   public static final String WINDOW_ADVANCED_CANCEL = "window-advanced-cancel";
   public static final String WINDOW_ADVANCED_APPLY = "window-advanced-apply";
+  // Saved searches of a window (#790; owner: window id): the Saved searches button and its menu with the searches
+  // ("data-type" own or shared) and its Save current search and Manage searches options; the Save search dialog (name,
+  // profile select trigger, Save and Cancel) and the Manage searches dialog with a row per search, its rename (input,
+  // accept) and delete buttons and its Close button
+  public static final String WINDOW_SAVED_SEARCHES = "window-saved-searches";
+  public static final String WINDOW_SAVED_SEARCHES_MENU = "window-saved-searches-menu";
+  public static final String WINDOW_SAVED_SEARCH_ITEM = "window-saved-search-item";
+  public static final String WINDOW_SAVED_SEARCH_SAVE = "window-saved-search-save";
+  public static final String WINDOW_SAVED_SEARCH_MANAGE = "window-saved-search-manage";
+  public static final String WINDOW_SAVED_SEARCH_DIALOG = "window-saved-search-dialog";
+  public static final String WINDOW_SAVED_SEARCH_NAME = "window-saved-search-name";
+  public static final String WINDOW_SAVED_SEARCH_PROFILE = "window-saved-search-profile";
+  public static final String WINDOW_SAVED_SEARCH_ACCEPT = "window-saved-search-accept";
+  public static final String WINDOW_SAVED_SEARCH_CANCEL = "window-saved-search-cancel";
+  public static final String WINDOW_SAVED_SEARCH_MANAGE_DIALOG = "window-saved-search-manage-dialog";
+  public static final String WINDOW_SAVED_SEARCH_ROW = "window-saved-search-row";
+  public static final String WINDOW_SAVED_SEARCH_RENAME = "window-saved-search-rename";
+  public static final String WINDOW_SAVED_SEARCH_RENAME_INPUT = "window-saved-search-rename-input";
+  public static final String WINDOW_SAVED_SEARCH_RENAME_ACCEPT = "window-saved-search-rename-accept";
+  public static final String WINDOW_SAVED_SEARCH_DELETE = "window-saved-search-delete";
+  public static final String WINDOW_SAVED_SEARCH_MANAGE_CLOSE = "window-saved-search-manage-close";
+  // Accept button of a confirmation (the confirm dialog of the screen, or one that its owner component draws)
+  public static final String CONFIRM_ACCEPT = "confirm-accept";
   // Tabs: the whole tab component (list and content, identified by its owner) and its Maximize button
   public static final String TABS = "tabs";
   public static final String TAB_MAXIMIZE_BUTTON = "tab-maximize-button";

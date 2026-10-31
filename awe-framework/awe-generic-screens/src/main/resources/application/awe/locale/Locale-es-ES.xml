@@ -463,6 +463,12 @@
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposición de grid no válida"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposición del grid no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposición del grid tiene demasiadas columnas para guardarse"/>
+  <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Búsqueda guardada no válida"/>
+  <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="La búsqueda guardada no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="La búsqueda tiene demasiados valores para guardarse"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_ALLOWED" value="No tiene permiso para cambiar las búsquedas publicadas para un perfil"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_FOUND" value="La búsqueda guardada no existe o no es suya"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NAME_EXISTS" value="Ya existe una búsqueda guardada con este nombre"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="La etiqueta &apos;include&apos; en la pantalla {0} no ha encontrado los siguientes elementos: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; contiene una &apos;&apos;dependency&apos;&apos;, que no se admite dentro del detalle de una fila"/>
   <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="El grid dentro del &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; debe ser de solo lectura: elimine sus atributos &apos;&apos;editable&apos;&apos; y &apos;&apos;send-operations&apos;&apos;"/>
@@ -732,11 +738,31 @@
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="No se ha podido guardar si los filtros avanzados están abiertos"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Estado de los filtros avanzados no guardado"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Quitar todos"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Borrar búsqueda"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="Se borrará la búsqueda guardada. ¿Desea continuar?"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtrado por"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtro avanzado oculto"/>
   <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Ocultar filtros avanzados"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES" value="Gestionar búsquedas…"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES_TITLE" value="Gestionar búsquedas"/>
+  <locale name="SCREEN_TEXT_MY_SEARCHES" value="Mis búsquedas"/>
+  <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="Aún no hay búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_ONLY_ME" value="Solo yo"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publicar para un perfil"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Los usuarios de ese perfil la verán en Compartidas con tu perfil. Pueden aplicarla, no modificarla."/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
+  <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renombrar"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Restablecer valores por defecto"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="No se han podido actualizar las búsquedas guardadas. Inténtelo más tarde."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Guardar la búsqueda actual…"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Guardar búsqueda"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Guarda los criterios en uso de esta ventana, también los avanzados."/>
+  <locale name="SCREEN_TEXT_SEARCH_ACTIONS" value="Acciones"/>
+  <locale name="SCREEN_TEXT_SEARCH_FOR" value="Para"/>
+  <locale name="SCREEN_TEXT_SEARCH_NAME" value="Nombre"/>
+  <locale name="SCREEN_TEXT_SEARCH_OWNER_ME" value="Yo"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Actividad por día"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Estadísticas"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
@@ -1360,6 +1386,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Introduce tus credenciales para continuar."/>
   <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
   <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Aplicaciones web funcionales completas con low code"/>
+  <locale name="SCREEN_TEXT_SHARED_SEARCHES" value="Compartidas con tu perfil"/>
   <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Mostrar contraseña"/>
   <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Ocultar contraseña"/>
   <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Bloq Mayús está activado"/>

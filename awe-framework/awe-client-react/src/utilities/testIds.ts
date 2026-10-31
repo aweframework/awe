@@ -218,6 +218,28 @@ export const TestIds = Object.freeze({
   windowAdvancedReset: "window-advanced-reset",
   windowAdvancedCancel: "window-advanced-cancel",
   windowAdvancedApply: "window-advanced-apply",
+  // Saved searches of a window (#790; the owner is the window id): the Saved searches button and its menu, a search of
+  // the menu ("data-saved-search-id", "data-type" own or shared), Save current search and Manage searches; the save
+  // dialog with its name, its profile select (only for users who may publish), Save and Cancel; the manage dialog with a
+  // row per search ("data-saved-search-id"), its rename (input, accept, cancel) and delete buttons, and Close
+  windowSavedSearches: "window-saved-searches",
+  windowSavedSearchesMenu: "window-saved-searches-menu",
+  windowSavedSearchItem: "window-saved-search-item",
+  windowSavedSearchSave: "window-saved-search-save",
+  windowSavedSearchManage: "window-saved-search-manage",
+  windowSavedSearchDialog: "window-saved-search-dialog",
+  windowSavedSearchName: "window-saved-search-name",
+  windowSavedSearchProfile: "window-saved-search-profile",
+  windowSavedSearchAccept: "window-saved-search-accept",
+  windowSavedSearchCancel: "window-saved-search-cancel",
+  windowSavedSearchManageDialog: "window-saved-search-manage-dialog",
+  windowSavedSearchRow: "window-saved-search-row",
+  windowSavedSearchRename: "window-saved-search-rename",
+  windowSavedSearchRenameInput: "window-saved-search-rename-input",
+  windowSavedSearchRenameAccept: "window-saved-search-rename-accept",
+  windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
+  windowSavedSearchDelete: "window-saved-search-delete",
+  windowSavedSearchManageClose: "window-saved-search-manage-close",
   // Cards (the instance is identified by the owner) with their value, their trend delta and their target progress
   card: "card",
   cardValue: "card-value",
@@ -279,7 +301,9 @@ export const TestAttributes = Object.freeze({
   // React only: value of a control whose text repeats it (the page size of a grid)
   value: "data-value",
   // Criterion of a chip of the filters in effect of a window (#790)
-  filterId: "data-filter-id"
+  filterId: "data-filter-id",
+  // Saved search of a window (#790) of an option of its menu or a row of its manage dialog
+  savedSearchId: "data-saved-search-id"
 });
 
 /**

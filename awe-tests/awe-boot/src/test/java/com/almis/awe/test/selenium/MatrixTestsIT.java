@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * test opens the matrix screen, so each one can run on its own.
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Tag("CRUDCriteriaMatrixIT")
+@Tag("ApplicationIntegrationIT")
 class MatrixTestsIT extends AbstractSessionTests {
 
   private static final String BUTTON_DEFERRED_DIALOG = "ButDefDialog";

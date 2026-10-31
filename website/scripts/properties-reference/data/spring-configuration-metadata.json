@@ -1295,6 +1295,12 @@
       "description": "Map with rest service info used by AWE microservice and REST connector. [Service name, Object with service details]"
     },
     {
+      "name": "awe.saved-search.publish-option",
+      "type": "java.lang.String",
+      "description": "Menu option that gives access to publish searches for a profile: a user whose restricted menu holds this option, not restricted, publishes, renames and deletes the searches of any profile. Users without access to it (or when the option is not in the menu) only manage their own searches. Default value profiles",
+      "defaultValue": "profiles"
+    },
+    {
       "name": "awe.scheduler.connection-test-timeout",
       "type": "java.time.Duration",
       "description": "Timeout in seconds for the interactive connection test on the server screens, deliberately shorter than the batch-oriented sshConnectTimeout Default value 10s",

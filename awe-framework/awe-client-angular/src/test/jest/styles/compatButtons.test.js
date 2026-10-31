@@ -34,7 +34,7 @@ const LEFT_OUT = [
     "note-color", "note-palette-title", "note-color-reset", "note-popover", "popover", "popover-content", "w-text",
     "validator", "panel-awe", "grid-columns-dialog", "grid-columns-actions", "modal", "grid-columns-side-panel", "pfi-actions", "pixel-file-input-sm", "pixel-file-input-lg",
     "modal-alert", "signin-form", "form-actions", "change-password-form", "totp-form", "btn-ghost", "no-label", "grid-selection-bar", "grid-selection-bar-actions", "awe-icon",
-    "grid-columns-popover", "is-loading", "signin-busy", "sign-in-sso-btn", "window-advanced-panel", "window-advanced-reset"],
+    "grid-columns-popover", "is-loading", "signin-busy", "sign-in-sso-btn", "window-advanced-panel", "window-advanced-reset", "window-saved-search-modal"],
   reason: "rules of other components, plugins and pages that restyle a button inside them: they stay with their component"},
   {names: ["open", "dropup", "dropdown-menu"], reason: "dropdown states of a group (.open, .dropup) and the menu: with the dropdown slice"}
 ];

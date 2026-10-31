@@ -62,7 +62,8 @@ import tools.jackson.databind.ObjectMapper;
   NumericConfigProperties.class,
   DatabaseConfigProperties.class,
   MaintainConfigProperties.class,
-  RestConfigProperties.class})
+  RestConfigProperties.class,
+  SavedSearchConfigProperties.class})
 public class AweAutoConfiguration {
 
   // Autowired beans
@@ -507,6 +508,23 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public WindowStateService windowStateService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
     return new WindowStateService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Saved search service (own and published searches of the advanced block of the windows)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @param menuService     Menu service
+   * @param properties      Saved search properties
+   * @return Saved search service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public SavedSearchService savedSearchService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService,
+                                               MenuService menuService, SavedSearchConfigProperties properties) {
+    return new SavedSearchService(queryService, queryUtil, maintainService, menuService, properties);
   }
 
   /**

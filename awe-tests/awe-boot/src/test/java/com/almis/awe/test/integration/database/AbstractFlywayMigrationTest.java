@@ -280,6 +280,42 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   }
 
   @Test
+  @DisplayName("The saved search table is migrated")
+  void testSavedSearchTableIsMigrated() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.5.2"), "The AWE saved search migration is shipped for " + dialect());
+
+    assertEquals(0, count("SELECT COUNT(*) FROM AweSavSch WHERE Ope = 'nobody' AND Pro IS NULL AND Scr = 'none' AND WinId = 'none' "
+      + "AND Nam = 'none' AND Val = '{}'"), "AweSavSch, created by AWE_V1.5.2, answers a query on " + dialect());
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'SavSchKey'"), "The SavSchKey sequence exists on " + dialect());
+  }
+
+  @Test
+  @DisplayName("The saved search migration can be applied again over the existing objects")
+  void testSavedSearchMigrationCanBeAppliedAgain() throws Exception {
+    // Forget that 1.5.2 was applied: Flyway runs the script again over the table and the key it already created
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      String quote = connection.getMetaData().getIdentifierQuoteString();
+      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.5.2'");
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
+
+    Flyway.configure()
+      .dataSource(dataSource)
+      .locations("classpath:db/migration/" + dialect())
+      .sqlMigrationPrefix("AWE_V")
+      .table("flyway_schema_AWE")
+      .outOfOrder(true)
+      .load()
+      .migrate();
+
+    assertTrue(appliedVersions("AWE").contains("1.5.2"), "AWE_V1.5.2 applied again successfully on " + dialect());
+    assertEquals(0, count("SELECT COUNT(*) FROM AweSavSch WHERE Ope = 'nobody'"), "AweSavSch still answers a query");
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'SavSchKey'"), "The SavSchKey sequence exists exactly once");
+  }
+
+  @Test
   @DisplayName("The test application seeds the data of its totalization grids and chart examples")
   void testApplicationTestDataIsSeeded() throws Exception {
     // Only the dialects the application ships scripts for get its test data

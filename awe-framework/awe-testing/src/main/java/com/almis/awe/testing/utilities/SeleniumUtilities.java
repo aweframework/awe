@@ -5360,6 +5360,277 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Get a part of the saved searches of a window that is found by its hook
+   *
+   * @param windowId Window identifier
+   * @param testId   Hook of the part
+   * @return Part selector
+   */
+  private By savedSearchesPart(String windowId, String testId) {
+    return frontEndInstructions.getWindowSavedSearchesPart(windowId, testId);
+  }
+
+  /**
+   * Open the menu of the saved searches of a window (#790, {@code saved-searches="true"}) and wait for its searches to
+   * load. A menu that is already open is left as it is
+   *
+   * @param windowId Window identifier
+   */
+  protected void openSavedSearches(String windowId) {
+    By button = savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES);
+    Locator toggle = locator(button);
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (!Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      click(button);
+    }
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchesMenu(windowId)));
+  }
+
+  /**
+   * Close the menu of the saved searches of a window when it is open
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeSavedSearches(String windowId) {
+    By button = savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES);
+    Locator toggle = locator(button);
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      click(button);
+    }
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES_MENU)));
+  }
+
+  /**
+   * Apply a saved search of a window from its menu, by its name: every search criterion of the window goes back to its
+   * default, takes the values of the search, and the search of the window is launched. It waits for the search to end
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void applySavedSearch(String windowId, String name) {
+    openSavedSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchItem(windowId, name));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES_MENU)));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that the menu of the saved searches of a window lists a search, among the searches of the user (My searches)
+   * or among the ones shared with its profile. The menu is opened when it is not, and left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param own      True for a search of the user, false for a search shared with its profile
+   */
+  protected void checkSavedSearchListed(String windowId, String name, boolean own) {
+    openSavedSearches(windowId);
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name, own)));
+  }
+
+  /**
+   * Check that the menu of the saved searches of a window does not list a search. The menu is opened when it is not, and
+   * left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void checkSavedSearchNotListed(String windowId, String name) {
+    openSavedSearches(windowId);
+    checkNotVisible(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name)));
+  }
+
+  /**
+   * Tell whether the menu of the saved searches of a window lists a search, so a test can remove what an earlier run
+   * left before it starts. The menu is opened when it is not, and left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return The menu lists the search
+   */
+  protected boolean hasSavedSearch(String windowId, String name) {
+    openSavedSearches(windowId);
+    return isVisibleNow(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name)));
+  }
+
+  /**
+   * Check the text of the Saved searches button of a window: "Saved searches", or the name of the search applied while
+   * the criteria keep its values
+   *
+   * @param windowId Window identifier
+   * @param text     Expected text
+   */
+  protected void checkSavedSearchesText(String windowId, String text) {
+    Locator button = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(button),
+      BrowserCondition.of("Saved searches button of " + windowId + " to read '" + text + "'",
+        browser -> browser.exists(button) && text.equals(browser.text(button).replaceAll("\\s+", " ").trim()))));
+  }
+
+  /**
+   * Check that a window has no saved searches: it does not opt in ({@code saved-searches}), so it shows no Saved searches
+   * button
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoSavedSearches(String windowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindow(windowId)));
+    waitUntil(BrowserCondition.not(toBePresent(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES))));
+  }
+
+  /**
+   * Open the Save search dialog of a window from the menu of its saved searches
+   *
+   * @param windowId Window identifier
+   */
+  protected void openSaveSearch(String windowId) {
+    openSavedSearches(windowId);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_SAVE));
+    checkVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+  }
+
+  /**
+   * Close the Save search dialog of a window with its Cancel button, without saving
+   *
+   * @param windowId Window identifier
+   */
+  protected void cancelSaveSearch(String windowId) {
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_CANCEL));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+  }
+
+  /**
+   * Save the current values of the search criteria of a window as a search of the user: Save current search, the name
+   * and Save. A search of the user with the same name gets the new values. It waits for the dialog to close
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void saveCurrentSearch(String windowId, String name) {
+    saveCurrentSearch(windowId, name, null);
+  }
+
+  /**
+   * Save the current values of the search criteria of a window: Save current search, the name, the profile to publish it
+   * for (only a user who may publish has the select) and Save. It waits for the dialog to close
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param profile  Text of the option of the profile to publish the search for (the name of the profile, or Only me),
+   *                 or null to keep Only me
+   */
+  protected void saveCurrentSearch(String windowId, String name, String profile) {
+    openSaveSearch(windowId);
+    Locator input = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_NAME));
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, name);
+    if (profile != null) {
+      click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_PROFILE));
+      click(frontEndInstructions.getWindowSavedSearchProfileOption(windowId, profile));
+    }
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_ACCEPT));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check whether the Save search dialog of a window lets the user publish the search for a profile: the profile select
+   * is shown only to a user who may publish. It opens the dialog and closes it with Cancel
+   *
+   * @param windowId   Window identifier
+   * @param canPublish True when the user may publish
+   */
+  protected void checkSaveSearchCanPublish(String windowId, boolean canPublish) {
+    openSaveSearch(windowId);
+    Locator profile = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_PROFILE));
+    if (canPublish) {
+      checkVisible(profile);
+    } else {
+      checkNotVisible(profile);
+    }
+    cancelSaveSearch(windowId);
+  }
+
+  /**
+   * Open the Manage searches dialog of a window from the menu of its saved searches
+   *
+   * @param windowId Window identifier
+   */
+  protected void openManageSearches(String windowId) {
+    openSavedSearches(windowId);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE));
+    checkVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG)));
+  }
+
+  /**
+   * Close the Manage searches dialog of a window with its Close button
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeManageSearches(String windowId) {
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_CLOSE));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG)));
+  }
+
+  /**
+   * Rename a saved search of a window in its Manage searches dialog, which it opens and closes: the rename button of its
+   * row, the new name and accept
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param newName  New name
+   */
+  protected void renameSavedSearch(String windowId, String name, String newName) {
+    openManageSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, TestIds.WINDOW_SAVED_SEARCH_RENAME));
+    Locator input = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_RENAME_INPUT));
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, newName);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_RENAME_ACCEPT));
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, newName)));
+    closeManageSearches(windowId);
+  }
+
+  /**
+   * Delete a saved search of a window in its Manage searches dialog, which it opens and closes: the delete button of its
+   * row and the accept button of the confirmation
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void deleteSavedSearch(String windowId, String name) {
+    openManageSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, TestIds.WINDOW_SAVED_SEARCH_DELETE));
+    click(frontEndInstructions.getWindowSavedSearchDeleteConfirm(windowId));
+    checkNotVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, name)));
+    closeManageSearches(windowId);
+  }
+
+  /**
+   * Check whether the user may rename and delete a saved search of a window: its row in the Manage searches dialog has
+   * the rename and delete buttons or none. It opens the dialog and closes it
+   *
+   * @param windowId  Window identifier
+   * @param name      Name of the search
+   * @param canChange True when the user may rename and delete the search
+   */
+  protected void checkSavedSearchCanBeChanged(String windowId, String name, boolean canChange) {
+    openManageSearches(windowId);
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, name)));
+    for (String button : List.of(TestIds.WINDOW_SAVED_SEARCH_RENAME, TestIds.WINDOW_SAVED_SEARCH_DELETE)) {
+      Locator action = locator(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, button));
+      if (canChange) {
+        checkVisible(action);
+      } else {
+        checkNotVisible(action);
+      }
+    }
+    closeManageSearches(windowId);
+  }
+
+  /**
    * Check that a criterion is shown
    *
    * @param criterionName Criterion name

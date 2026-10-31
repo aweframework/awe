@@ -994,6 +994,11 @@
         <xs:documentation xml:lang="en">How the window shows its advanced block (the advanced element): inline (the Advanced filters row expands the block below it, inside the window) or side-panel (the same Advanced filters button opens the block in a side panel). Only used when the window holds an advanced block. Default: inline.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="saved-searches" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Show the Saved searches menu next to the Advanced filters button: each user saves, applies, renames and deletes their own searches of the window, and sees the ones published for their profile. Only used when the window holds an advanced block. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Resizable Attributes -->

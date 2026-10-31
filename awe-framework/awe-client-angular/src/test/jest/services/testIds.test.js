@@ -158,6 +158,24 @@ describe("test id vocabulary", () => {
       windowAdvancedReset: "window-advanced-reset",
       windowAdvancedCancel: "window-advanced-cancel",
       windowAdvancedApply: "window-advanced-apply",
+      windowSavedSearches: "window-saved-searches",
+      windowSavedSearchesMenu: "window-saved-searches-menu",
+      windowSavedSearchItem: "window-saved-search-item",
+      windowSavedSearchSave: "window-saved-search-save",
+      windowSavedSearchManage: "window-saved-search-manage",
+      windowSavedSearchDialog: "window-saved-search-dialog",
+      windowSavedSearchName: "window-saved-search-name",
+      windowSavedSearchProfile: "window-saved-search-profile",
+      windowSavedSearchAccept: "window-saved-search-accept",
+      windowSavedSearchCancel: "window-saved-search-cancel",
+      windowSavedSearchManageDialog: "window-saved-search-manage-dialog",
+      windowSavedSearchRow: "window-saved-search-row",
+      windowSavedSearchRename: "window-saved-search-rename",
+      windowSavedSearchRenameInput: "window-saved-search-rename-input",
+      windowSavedSearchRenameAccept: "window-saved-search-rename-accept",
+      windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
+      windowSavedSearchDelete: "window-saved-search-delete",
+      windowSavedSearchManageClose: "window-saved-search-manage-close",
       loader: "loader",
       loadingBar: "loading-bar",
       loadingSpinner: "loading-spinner",
@@ -200,7 +218,8 @@ describe("test id vocabulary", () => {
       column: "data-column",
       rendered: "data-rendered",
       zoomed: "data-zoomed",
-      filterId: "data-filter-id"
+      filterId: "data-filter-id",
+      savedSearchId: "data-saved-search-id"
     });
   });
 

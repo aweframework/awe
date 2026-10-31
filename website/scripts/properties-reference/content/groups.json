@@ -48,6 +48,12 @@
       "intro": "These are the session configuration properties for AWE projects. They have the prefix `awe.session`."
     },
     {
+      "id": "awe-saved-search-properties",
+      "title": "AWE Saved Search Properties",
+      "prefix": "awe.saved-search",
+      "intro": "These are the properties of the saved searches of a window (#790). They have the prefix `awe.saved-search`."
+    },
+    {
       "id": "awe-email-properties",
       "title": "AWE Email Properties",
       "prefix": "awe.mail",

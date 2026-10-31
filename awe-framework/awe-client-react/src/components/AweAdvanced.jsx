@@ -14,15 +14,16 @@ import {
   useAdvancedWindow,
   useSaveAdvancedState
 } from "./AweWindowAdvanced";
+import {SavedSearches} from "./AweWindowSavedSearches";
 
 /**
- * Advanced block of a window with its advanced search (#790): the disclosure row (the toggle with its count badge, then
- * the filters in effect) and its children, which stay mounted. Inline, they open in a region below the row (the row
- * never moves); in a side-panel window, they live in a hidden holder of the block and move into the side panel while it
- * is open.
+ * Advanced block of a window with its advanced search (#790): the disclosure row (the toggle with its count badge, the
+ * saved searches of a window that keeps them, then the filters in effect) and its children, which stay mounted. Inline,
+ * they open in a region below the row (the row never moves); in a side-panel window, they live in a hidden holder of the
+ * block and move into the side panel while it is open.
  */
 function AdvancedBlock({id, style, advanced, children}) {
-  const {id: windowId, label, mode, open, setOpen, advancedCriteria, searchCriteria} = advanced;
+  const {id: windowId, label, mode, open, setOpen, advancedCriteria, searchCriteria, savedSearches} = advanced;
   const inline = mode === ADVANCED_MODE_INLINE;
   const holderRef = useRef(null);
   // The container of the children of a side-panel block, moved between its holder and the side panel
@@ -48,6 +49,8 @@ function AdvancedBlock({id, style, advanced, children}) {
   return <div id={id} className={classNames("window-advanced", style)}>
     <div className="window-advanced-row">
       <AdvancedToggle id={windowId} mode={mode} open={open} advancedCriteria={advancedCriteria} onToggle={toggle}/>
+      {savedSearches && <SavedSearches id={windowId} label={label} advancedCriteria={advancedCriteria}
+                                       searchCriteria={searchCriteria}/>}
       <FilterChips id={windowId} searchCriteria={searchCriteria} advancedCriteria={advancedCriteria}
                    advancedHidden={!open}/>
     </div>

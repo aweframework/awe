@@ -12,7 +12,7 @@ A window is a container with a title bar. It also can be maximized or restored, 
 ```xml 
 <window id="[window-identifier]" label="[window-label]" style="[window-style]"
         icon="[window-icon]" expandible="[expand-orientation]" maximize="[maximize-window]"
-        advanced-mode="[advanced-mode]">
+        advanced-mode="[advanced-mode]" saved-searches="[saved-searches]">
   <tag type="div" style="panel-body">
     ...
     <advanced>...</advanced>
@@ -52,6 +52,7 @@ A window is a container with a title bar. It also can be maximized or restored, 
 | expandible   | Optional   | String   | How to [expand](layout.md) the window children | `vertical` (default), `horizontal`                                         |
 | maximize     | Optional   | Boolean  | Whether to show the maximize icon or not       | **Note:** Only a window with a `label` can be maximized                    |
 | advanced-mode | Optional  | String   | How the window shows its [advanced block](#advanced-search) | `inline` (default), `side-panel`. **Note:** Only used when the window holds an `advanced` block |
+| saved-searches | Optional | Boolean  | Whether the window shows the [Saved searches](#saved-searches) menu of its advanced block | `false` (default), `true`. **Note:** Only used when the window holds an `advanced` block |
 | help         | Optional   | String   | Help text for the criterion                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | help-image   | Optional   | String   | Help image for the criterion                   | This **must** be a image path                                              |
 
@@ -132,6 +133,33 @@ session and variable values, printing and export work in the same way when they 
       </button>
     </tag>
   </tag>
+</window>
+```
+
+### Saved searches {#saved-searches}
+
+With `saved-searches="true"` a window with an `<advanced>` block shows a **Saved searches** menu right after the
+**Advanced filters** button, so users keep the searches they run often and reuse them:
+
+* **My searches**: the searches the user saved in this window. Applying one returns every criterion of the window to its
+  default value, sets the saved values and launches the search (as **Show results**).
+* **Shared with your profile**: the searches an administrator published for the profile of the user. They are applied
+  in the same way, but only an administrator changes them. A user who may publish lists here the searches published for
+  every profile, each with its profile, so it can rename and delete them.
+* **Save current search…**: saves the values of the criteria of the window with a name. A name that already exists is
+  replaced. A user allowed to publish can choose a profile instead of *Only me*.
+* **Manage searches…**: renames or deletes the own searches (and the published ones, for a user allowed to publish).
+
+The server keeps, for each search, only the values of the criteria of the window (the hidden ones are not saved), takes
+the user and the profile from the session, and checks that the window offers saved searches. A user may publish when
+their menu, with the restrictions of their profile and user, gives access to the option of the property
+`awe.saved-search.publish-option` (by default `profiles`, the profiles screen of the Tools menu): the usual restrictions
+decide who publishes, with no new tables. The searches are stored in the `AweSavSch` table (Flyway migration
+`AWE_V1.5.2`). A window without the attribute does not change.
+
+```xml
+<window id="WinUsrCrt" label="SCREEN_TEXT_CRITERIA" icon="filter" saved-searches="true">
+  ...
 </window>
 ```
 

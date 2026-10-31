@@ -298,6 +298,23 @@ SELECT 'WinCnfKey', 0
 FROM DUAL
 WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'WinCnfKey');
 
+CREATE TABLE AweSavSch (
+    IdeSavSch number(10) CONSTRAINT pk_AweSavSch PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NULL,                                              --  User id (own search)
+    Pro varchar2(3) NULL,                                               --  Profile acronym (search published for the profile)
+    Scr varchar2(100) NOT NULL,                                         --  Screen id
+    WinId varchar2(100) NOT NULL,                                       --  Window id
+    Nam varchar2(100) NOT NULL,                                         --  Search name
+    Val varchar2(4000) NOT NULL,                                        --  Values (JSON with the selected values of each search criterion)
+    CONSTRAINT uk_AweSavSch UNIQUE (Ope, Pro, Scr, WinId, Nam),
+    CONSTRAINT ck_AweSavSch_Own CHECK ((Ope IS NULL AND Pro IS NOT NULL AND Pro <> '') OR (Ope IS NOT NULL AND Ope <> '' AND Pro IS NULL))
+    );
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'SavSchKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'SavSchKey');
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier

@@ -2178,6 +2178,118 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a part of the saved searches of a window (#790, saved-searches="true") that is found by its hook: the Saved
+   * searches button, the Save current search and Manage searches options of its menu, the Save search dialog with its
+   * name, the trigger of its profile select and its buttons, and the Manage searches dialog with the rename input, the
+   * rename accept button and its Close button. Every part carries the window as its owner, also the dialogs, which do not
+   * live inside the window
+   *
+   * @param windowId Window identifier
+   * @param testId   Hook of the part, one of the {@code WINDOW_SAVED_SEARCH*} values of {@link TestIds}
+   * @return Saved searches part selector
+   */
+  default By getWindowSavedSearchesPart(String windowId, String testId) {
+    return By.cssSelector(getWindowAdvancedCss(testId, windowId));
+  }
+
+  /**
+   * Get the menu of the saved searches of a window once its searches are loaded (it is not busy)
+   *
+   * @param windowId Window identifier
+   * @return Loaded saved searches menu selector
+   */
+  default By getWindowSavedSearchesMenu(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_SAVED_SEARCHES_MENU, windowId) + ":not([aria-busy='true'])");
+  }
+
+  /**
+   * Get the xpath of a part of the saved searches of a window whose text (one of its text nodes) is a name
+   *
+   * @param testId    Hook of the part
+   * @param windowId  Window identifier
+   * @param name      Name of the search
+   * @param condition Other condition of the part, or null
+   * @return Xpath of the part
+   */
+  private static String getWindowSavedSearchXpath(String testId, String windowId, String name, String condition) {
+    return "//*[" + TestIds.xpath(testId) + " and " + TestAttributes.xpath(TestAttributes.OWNER, windowId)
+      + (condition == null ? "" : " and " + condition) + " and .//text()[normalize-space(.)=" + XpathLiterals.of(name) + "]]";
+  }
+
+  /**
+   * Get the option of a search in the menu of the saved searches of a window, by its name
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return Saved search option selector
+   */
+  default By getWindowSavedSearchItem(String windowId, String name) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ITEM, windowId, name, null));
+  }
+
+  /**
+   * Get the option of a search in the menu of the saved searches of a window, by its name, among the searches of the
+   * user (My searches) or among the ones shared with its profile
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param own      True for a search of the user, false for a search shared with its profile
+   * @return Saved search option selector
+   */
+  default By getWindowSavedSearchItem(String windowId, String name, boolean own) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ITEM, windowId, name,
+      TestAttributes.xpath(TestAttributes.TYPE, own ? "own" : "shared")));
+  }
+
+  /**
+   * Get the row of a search in the Manage searches dialog of a window, by its name
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return Saved search row selector
+   */
+  default By getWindowSavedSearchRow(String windowId, String name) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ROW, windowId, name, null));
+  }
+
+  /**
+   * Get a button of the row of a search in the Manage searches dialog of a window: rename or delete
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param testId   Hook of the button: {@link TestIds#WINDOW_SAVED_SEARCH_RENAME} or
+   *                 {@link TestIds#WINDOW_SAVED_SEARCH_DELETE}
+   * @return Saved search row button selector
+   */
+  default By getWindowSavedSearchRowButton(String windowId, String name, String testId) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ROW, windowId, name, null) + "//*[" + TestIds.xpath(testId) + "]");
+  }
+
+  /**
+   * Get an option of the profile select of the Save search dialog of a window, by its text (Only me or the name of a
+   * profile). The window owns the list of the select
+   *
+   * @param windowId Window identifier
+   * @param label    Text of the option
+   * @return Profile option selector
+   */
+  default By getWindowSavedSearchProfileOption(String windowId, String label) {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.SELECT_OPTION) + " and " + TestAttributes.xpath(TestAttributes.OWNER, windowId)
+      + " and normalize-space(.)=" + XpathLiterals.of(label) + "]");
+  }
+
+  /**
+   * Get the accept button of the confirmation of the deletion of a saved search of a window. The window draws its own
+   * confirmation, which it owns
+   *
+   * @param windowId Window identifier
+   * @return Accept button selector
+   */
+  default By getWindowSavedSearchDeleteConfirm(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.CONFIRM_ACCEPT, windowId));
+  }
+
+  /**
    * Get the Columns dialog of a grid
    *
    * @param gridId Grid identifier

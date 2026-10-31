@@ -19,7 +19,9 @@ const REVIEWED = [
   {removed: /^html input\[disabled]$/, kept: /^\.(grid-quick-filter|signin-mode) input$/,
     reason: "the radios of the quick filters and of the sign-in theme switch are invisible overlays with a pointer cursor: the quick filters set the default cursor on a disabled one in LESS (as the base styles did), and the theme switch radios are never disabled"},
   {removed: /^a\.label:(hover|focus)$/, kept: /^\.signin-language-list > \[(role="option"|aria-selected="true")]$/,
-    reason: "the options of the sign-in language list are li elements (signin.js), never an a.label link, so the label hover and focus color never meets their option color"}
+    reason: "the options of the sign-in language list are li elements (signin.js), never an a.label link, so the label hover and focus color never meets their option color"},
+  {removed: /^\.has-(success|warning|error) \.(control-label|radio|checkbox)$/, kept: /^\.window-saved-search-field label$/,
+    reason: "the fields of the save dialog of the saved searches (savedSearches.js) never sit in a .has-success, .has-warning or .has-error group: the name field shows its error with aria-invalid and its own message"}
 ];
 
 describe("awe-framework/awe-client-angular/src/test/jest/styles/cascadeGuard", () => {

@@ -3292,6 +3292,291 @@ class SeleniumUtilitiesSemanticStepsTest {
     }
   }
 
+  /**
+   * Record the elements that the driver clicks, in order: the origin of the pointer when it is pressed
+   *
+   * @return Clicked elements, filled while the steps run
+   */
+  @SuppressWarnings("unchecked")
+  private List<Object> recordClicks() {
+    List<Object> clicked = Collections.synchronizedList(new ArrayList<>());
+    doAnswer(invocation -> {
+      Object origin = null;
+      for (Sequence sequence : (Collection<Sequence>) invocation.getArgument(0)) {
+        for (Map<String, Object> action : (List<Map<String, Object>>) sequence.toJson().get("actions")) {
+          if ("pointerMove".equals(action.get("type"))) {
+            origin = action.get("origin");
+          } else if ("pointerDown".equals(action.get("type"))) {
+            clicked.add(origin);
+          }
+        }
+      }
+      return null;
+    }).when((Interactive) driver).perform(any());
+    return clicked;
+  }
+
+  /**
+   * Keys typed through the actions of the driver
+   *
+   * @return Typed text
+   */
+  private String typedKeys() {
+    return performedActions().stream().filter(action -> "keyDown".equals(action.get("type")))
+      .map(action -> String.valueOf(action.get("value"))).collect(Collectors.joining());
+  }
+
+  /**
+   * Make an element shown only while the last of some elements that was clicked is the one that opens it
+   *
+   * @param element Element (a dialog)
+   * @param clicked Clicked elements, as {@link #recordClicks()} records them
+   * @param opener  Element whose click shows it
+   * @param closers Elements whose click hides it
+   */
+  private static void shownAfter(WebElement element, List<Object> clicked, WebElement opener, WebElement... closers) {
+    List<WebElement> toggles = new ArrayList<>(List.of(closers));
+    toggles.add(opener);
+    when(element.isDisplayed()).thenAnswer(invocation -> {
+      synchronized (clicked) {
+        return clicked.stream().filter(toggles::contains).reduce((first, second) -> second).orElse(null) == opener;
+      }
+    });
+  }
+
+  @Test
+  void shouldOpenTheSavedSearchesMenuOfAWindowOnlyWhenItIsClosedInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      WebElement closed = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(closed.getAttribute("aria-expanded")).thenAnswer(invocation -> String.valueOf(clicked.contains(closed)));
+      show(instructions.getWindowSavedSearchesMenu("Win"), "My searches");
+      WebElement open = show(instructions.getWindowSavedSearchesPart("Open", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(open.getAttribute("aria-expanded")).thenReturn("true");
+      show(instructions.getWindowSavedSearchesMenu("Open"), "My searches");
+      WebElement busy = show(instructions.getWindowSavedSearchesPart("Busy", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(busy.getAttribute("aria-expanded")).thenReturn("true");
+
+      utilities.openSavedSearches("Win");
+      utilities.openSavedSearches("Win");
+      utilities.openSavedSearches("Open");
+      // Opened once: an open menu is left as it is
+      assertThat(clicked).containsExactly(closed);
+
+      // Closed with its button: the menu (not shown here) is gone
+      utilities.closeSavedSearches("Open");
+      assertThat(clicked).containsExactly(closed, open);
+
+      // A window without saved searches, and a menu whose searches never load
+      assertThrows(AssertionFailedError.class, () -> utilities.openSavedSearches("Plain"));
+      assertThrows(AssertionFailedError.class, () -> utilities.openSavedSearches("Busy"));
+      assertThat(instructions.getWindowSavedSearchesMenu("Win").toString()).contains("aria-busy");
+    }
+  }
+
+  @Test
+  void shouldApplyASavedSearchAndCheckTheSearchesThatTheMenuListsInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      WebElement button = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(button.getAttribute("aria-expanded")).thenReturn("true");
+      show(instructions.getWindowSavedSearchesMenu("Win"), "My searches");
+      WebElement mine = show(instructions.getWindowSavedSearchItem("Win", "Mine"), "Mine");
+      show(instructions.getWindowSavedSearchItem("Win", "Mine", true), "Mine");
+      show(instructions.getWindowSavedSearchItem("Win", "Team"), "Team TST");
+      show(instructions.getWindowSavedSearchItem("Win", "Team", false), "Team TST");
+
+      utilities.applySavedSearch("Win", "Mine");
+      assertThat(clicked).containsExactly(mine);
+
+      assertThatCode(() -> {
+        utilities.checkSavedSearchListed("Win", "Mine", true);
+        utilities.checkSavedSearchListed("Win", "Team", false);
+        utilities.checkSavedSearchNotListed("Win", "Other");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchListed("Win", "Mine", false));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchListed("Win", "Team", true));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchNotListed("Win", "Mine"));
+      assertThrows(AssertionFailedError.class, () -> utilities.applySavedSearch("Win", "Other"));
+
+      // A leftover of an earlier run is found without failing
+      assertThat(utilities.hasSavedSearch("Win", "Mine")).isTrue();
+      assertThat(utilities.hasSavedSearch("Win", "Other")).isFalse();
+      assertThrows(AssertionFailedError.class, () -> utilities.hasSavedSearch("Plain", "Mine"));
+    }
+  }
+
+  @Test
+  void shouldFindTheSavedSearchesByTheirWholeNameInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      String item = instructions.getWindowSavedSearchItem("Win", "Bob's search").toString();
+      String shared = instructions.getWindowSavedSearchItem("Win", "Team", false).toString();
+      String row = instructions.getWindowSavedSearchRowButton("Win", "Mine", TestIds.WINDOW_SAVED_SEARCH_DELETE).toString();
+
+      assertThat(item).contains("@data-testid='window-saved-search-item'", "@data-testid-owner='Win'",
+        "normalize-space(.)=\"Bob's search\"");
+      assertThat(shared).contains("@data-type='shared'");
+      assertThat(row).contains("@data-testid='window-saved-search-row'", "normalize-space(.)='Mine'",
+        "//*[@data-testid='window-saved-search-delete']");
+    }
+  }
+
+  @Test
+  void shouldCheckTheTextOfTheSavedSearchesButtonAndAWindowWithoutItInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), " Retail   in Spain ");
+      show(instructions.getWindow("Win"), "");
+      show(instructions.getWindow("Plain"), "");
+
+      assertThatCode(() -> {
+        utilities.checkSavedSearchesText("Win", "Retail in Spain");
+        utilities.checkNoSavedSearches("Plain");
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchesText("Win", "Saved searches"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchesText("Plain", "Saved searches"));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoSavedSearches("Win"));
+      // The window must be there
+      assertThrows(AssertionFailedError.class, () -> utilities.checkNoSavedSearches("Missing"));
+    }
+  }
+
+  @Test
+  void shouldSaveTheCurrentSearchOfAWindowForTheUserOrForAProfileInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      WebElement button = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(button.getAttribute("aria-expanded")).thenReturn("true");
+      show(instructions.getWindowSavedSearchesMenu("Win"), "My searches");
+      WebElement save = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_SAVE), "Save current search");
+      WebElement name = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_NAME), "");
+      when(name.getAttribute("value")).thenReturn("Applied");
+      WebElement profile = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_PROFILE), "Only me");
+      WebElement option = show(instructions.getWindowSavedSearchProfileOption("Win", "Test"), "Test");
+      WebElement accept = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_ACCEPT), "Save search");
+      WebElement cancel = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_CANCEL), "Cancel");
+      WebElement dialog = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_DIALOG), "Save search");
+      shownAfter(dialog, clicked, save, accept, cancel);
+
+      // Own search: the name replaces the one of the search in effect
+      utilities.saveCurrentSearch("Win", "Mine");
+      assertThat(clicked).containsSubsequence(save, accept).doesNotContain(profile, option);
+      assertThat(typedKeys()).contains("Mine");
+
+      // Published for a profile
+      clicked.clear();
+      utilities.saveCurrentSearch("Win", "Team", "Test");
+      assertThat(clicked).containsSubsequence(save, profile, option, accept);
+      assertThat(typedKeys()).contains("Team");
+      verify(name, times(2)).clear();
+
+      // A profile that is not offered
+      assertThrows(AssertionFailedError.class, () -> utilities.saveCurrentSearch("Win", "Other", "Missing"));
+    }
+  }
+
+  @Test
+  void shouldCheckWhetherTheSaveSearchDialogLetsTheUserPublishInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      for (String windowId : List.of("Pub", "Own")) {
+        WebElement button = show(instructions.getWindowSavedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+        when(button.getAttribute("aria-expanded")).thenReturn("true");
+        show(instructions.getWindowSavedSearchesMenu(windowId), "My searches");
+        WebElement save = show(instructions.getWindowSavedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_SAVE), "Save current search");
+        WebElement cancel = show(instructions.getWindowSavedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_CANCEL), "Cancel");
+        WebElement dialog = show(instructions.getWindowSavedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG), "Save search");
+        shownAfter(dialog, clicked, save, cancel);
+      }
+      show(instructions.getWindowSavedSearchesPart("Pub", TestIds.WINDOW_SAVED_SEARCH_PROFILE), "Only me");
+
+      assertThatCode(() -> {
+        utilities.checkSaveSearchCanPublish("Pub", true);
+        utilities.checkSaveSearchCanPublish("Own", false);
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSaveSearchCanPublish("Pub", false));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSaveSearchCanPublish("Own", true));
+    }
+  }
+
+  @Test
+  void shouldRenameAndDeleteASavedSearchInTheManageDialogInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      WebElement button = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(button.getAttribute("aria-expanded")).thenReturn("true");
+      show(instructions.getWindowSavedSearchesMenu("Win"), "My searches");
+      WebElement manage = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE), "Manage searches");
+      WebElement close = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE_CLOSE), "Close");
+      WebElement dialog = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG), "Manage searches");
+      shownAfter(dialog, clicked, manage, close);
+      WebElement rename = show(instructions.getWindowSavedSearchRowButton("Win", "Mine", TestIds.WINDOW_SAVED_SEARCH_RENAME), "");
+      WebElement input = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_RENAME_INPUT), "");
+      when(input.getAttribute("value")).thenReturn("Mine");
+      WebElement renameAccept = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_RENAME_ACCEPT), "");
+      show(instructions.getWindowSavedSearchRow("Win", "Renamed"), "Renamed Me");
+      WebElement gone = show(instructions.getWindowSavedSearchRow("Win", "Gone"), "Gone Me");
+      WebElement delete = show(instructions.getWindowSavedSearchRowButton("Win", "Gone", TestIds.WINDOW_SAVED_SEARCH_DELETE), "");
+      WebElement confirm = show(instructions.getWindowSavedSearchDeleteConfirm("Win"), "Accept");
+      when(gone.isDisplayed()).thenAnswer(invocation -> !clicked.contains(confirm));
+
+      utilities.renameSavedSearch("Win", "Mine", "Renamed");
+      assertThat(clicked).containsSubsequence(manage, rename, renameAccept, close);
+      verify(input).clear();
+      assertThat(typedKeys()).contains("Renamed");
+
+      clicked.clear();
+      utilities.deleteSavedSearch("Win", "Gone");
+      assertThat(clicked).containsExactly(manage, delete, confirm, close);
+
+      assertThrows(AssertionFailedError.class, () -> utilities.renameSavedSearch("Win", "Missing", "Other"));
+      assertThrows(AssertionFailedError.class, () -> utilities.deleteSavedSearch("Win", "Missing"));
+    }
+  }
+
+  @Test
+  void shouldConfirmTheDeletionOfASavedSearchInTheConfirmationOfItsClient() {
+    // AngularJS confirms it in the confirm dialog of the screen, React in a confirmation that the window owns
+    assertThat(new AngularAweInstructions().getWindowSavedSearchDeleteConfirm("Win"))
+      .isEqualTo(By.cssSelector(TestIds.css(TestIds.CONFIRM_ACCEPT)));
+    assertThat(new ReactAweInstructions().getWindowSavedSearchDeleteConfirm("Win"))
+      .isEqualTo(By.cssSelector(TestIds.css(TestIds.CONFIRM_ACCEPT) + TestAttributes.css(TestAttributes.OWNER, "Win")));
+  }
+
+  @Test
+  void shouldCheckWhetherTheUserMayChangeASavedSearchInBothClients() {
+    for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
+      use(client);
+      List<Object> clicked = recordClicks();
+      WebElement button = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCHES), "Saved searches");
+      when(button.getAttribute("aria-expanded")).thenReturn("true");
+      show(instructions.getWindowSavedSearchesMenu("Win"), "My searches");
+      WebElement manage = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE), "Manage searches");
+      WebElement close = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE_CLOSE), "Close");
+      WebElement dialog = show(instructions.getWindowSavedSearchesPart("Win", TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG), "Manage searches");
+      shownAfter(dialog, clicked, manage, close);
+      show(instructions.getWindowSavedSearchRow("Win", "Mine"), "Mine Me");
+      show(instructions.getWindowSavedSearchRowButton("Win", "Mine", TestIds.WINDOW_SAVED_SEARCH_RENAME), "");
+      show(instructions.getWindowSavedSearchRowButton("Win", "Mine", TestIds.WINDOW_SAVED_SEARCH_DELETE), "");
+      show(instructions.getWindowSavedSearchRow("Win", "Team"), "Team TST");
+
+      assertThatCode(() -> {
+        utilities.checkSavedSearchCanBeChanged("Win", "Mine", true);
+        utilities.checkSavedSearchCanBeChanged("Win", "Team", false);
+      }).doesNotThrowAnyException();
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchCanBeChanged("Win", "Mine", false));
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchCanBeChanged("Win", "Team", true));
+      // The search must be listed
+      assertThrows(AssertionFailedError.class, () -> utilities.checkSavedSearchCanBeChanged("Win", "Missing", false));
+    }
+  }
+
   private static String scriptWith(String text) {
     return argThat((String script) -> script != null && script.contains(text));
   }

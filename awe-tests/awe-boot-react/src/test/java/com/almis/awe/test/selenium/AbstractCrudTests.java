@@ -27,7 +27,15 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
   static final String RESET_BUTTON = "ButRst";
 
   protected AbstractCrudTests() {
-    super(Session.LOGGED_IN);
+    this(Session.LOGGED_IN);
+  }
+
+  /**
+   * @param classSession State that the tests of the class start from (a class that is not a CRUD test and needs a record
+   *                     of its own, as a user)
+   */
+  protected AbstractCrudTests(Session classSession) {
+    super(classSession);
   }
 
   /**

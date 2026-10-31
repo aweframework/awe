@@ -85,6 +85,38 @@ class WindowAdvancedSearchTest {
   }
 
   @Test
+  void aWindowWithAnAdvancedBlockOffersSavedSearchesOnlyWhenItOptsIn() {
+    Window window = window(criterion("CrtUsr", "text"), withChildren(new Advanced(), criterion("CrtThm", "select")));
+    assertThat(json(window).has("savedSearches")).isFalse();
+
+    window.setSavedSearches(false);
+    assertThat(json(window).has("savedSearches")).isFalse();
+
+    window.setSavedSearches(true);
+    assertThat(json(window).get("savedSearches").asBoolean()).isTrue();
+    assertThat(window.hasSavedSearches()).isTrue();
+  }
+
+  @Test
+  void aWindowWithoutAnAdvancedBlockNeverOffersSavedSearches() {
+    Window window = window(criterion("CrtUsr", "text"));
+    window.setSavedSearches(true);
+
+    assertThat(json(window).has("savedSearches")).isFalse();
+    assertThat(window.hasSavedSearches()).isFalse();
+  }
+
+  @Test
+  void theSavedSearchesAttributeIsReadFromTheXmlAndKeptByACopy() {
+    Tag tag = parse("<tag source=\"center\"><window id=\"WinCrt\" saved-searches=\"true\">" +
+      "<criteria id=\"CrtUsr\" component=\"text\"/><advanced><criteria id=\"CrtThm\" component=\"select\"/></advanced></window></tag>");
+
+    Window window = (Window) tag.getElementList().get(0);
+    assertThat(window.getSavedSearches()).isTrue();
+    assertThat(json(window.copy()).get("savedSearches").asBoolean()).isTrue();
+  }
+
+  @Test
   void aCriterionHasNoAdvancedFlag() {
     assertThat(json(criterion("CrtThm", "select")).has("advanced")).isFalse();
   }
