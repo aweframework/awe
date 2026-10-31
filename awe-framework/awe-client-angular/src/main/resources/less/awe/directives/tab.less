@@ -22,10 +22,15 @@
     .opacity(1);
   }
 
+  // The panels of a tab pane take its width, and the last one closes it without a trailing gap. The ones above it
+  // keep the gap of the layout between them: without it two stacked windows in a tab are stuck together (#1236)
   > div > .panel:not(.maximizing):not(.maximized) {
-    margin-left:0;
+    margin-left: 0;
     margin-right: 0;
-    margin-bottom: 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 

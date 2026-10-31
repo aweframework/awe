@@ -14,6 +14,11 @@ module.exports = {
       config: [__filename]
     }
   },
+  // The engine is consumed as the awe-react-client package of node_modules (a file: dependency of its dist/): webpack
+  // treats node_modules as immutable (managed) by default, so a rebuilt client would never reach the watch. Track it.
+  snapshot: {
+    managedPaths: []
+  },
   output : {
     filename : "js/[name].js",
     path: path.resolve(__dirname, 'target', 'classes', 'static'),

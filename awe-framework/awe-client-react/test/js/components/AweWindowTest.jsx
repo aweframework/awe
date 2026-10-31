@@ -62,6 +62,21 @@ describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
     expect(document.querySelector("button.maximize-button")).toBeNull();
   });
 
+  it('draws the icon of the window before its title, as the AngularJS window does', () => {
+    renderWithProviders(<AweWindow id="wIcon" label="SCREEN_TEXT_DATA" icon="filter" maximize={true}/>, {preloadedState});
+
+    const header = document.querySelector(".p-panel-header");
+    const title = header.querySelector(".p-panel-title");
+    const icon = title.querySelector(".window-title-icon");
+    // Inside the title, before the label
+    expect(icon).not.toBeNull();
+    expect(title.firstElementChild.contains(icon)).toBe(true);
+    expect(title.firstElementChild.firstChild).toBe(icon);
+    // The header icons hold only the maximize button
+    expect(header.querySelector(".p-panel-icons .window-title-icon")).toBeNull();
+    expect(header.querySelector(".p-panel-icons button.maximize-button")).not.toBeNull();
+  });
+
   describe('maximize', () => {
     beforeEach(() => jest.useFakeTimers());
     afterEach(() => jest.useRealTimers());

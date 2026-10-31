@@ -38,3 +38,16 @@
   cursor: pointer;
   margin-left: 0.5rem;
 }
+
+// The icon of the window goes before its title, as in the AngularJS engine
+.p-panel .p-panel-title .window-title-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-inline-end: var(--awe-space-2);
+  color: var(--awe-color-text-muted);
+
+  .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+}

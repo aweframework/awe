@@ -179,8 +179,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/compatPanels", (
         // the AWE 5 design system (#885) writes the sizes of the window and of the dialog panels with tokens
         ".panel.panel-awe .panel-body var(--awe-content-padding)", ".panel.panel-lg .panel-body var(--awe-space-6)", ".panel.panel-sm .panel-body var(--awe-space-3)",
         ".totp-form .panel > .panel-body var(--awe-space-3)",
+        ".wizard-panel .panel-body var(--awe-space-4)",
         ".wizard-panel.panel-lg .panel-body var(--awe-space-6)", ".wizard-panel.panel-sm .panel-body var(--awe-space-3)",
-        ".wizard-panel.wizard-panel-lg .panel-body 20px", ".wizard-panel.wizard-panel-md .panel-body 15px", ".wizard-panel.wizard-panel-sm .panel-body 10px"
+        ".wizard-panel.wizard-panel-lg .panel-body var(--awe-space-5)", ".wizard-panel.wizard-panel-md .panel-body var(--awe-space-4)", ".wizard-panel.wizard-panel-sm .panel-body var(--awe-space-3)"
       ].sort());
       own.forEach(rule => expect(higher(specificity(rule.selector), compatSpecificity)).toBeGreaterThan(0));
     });

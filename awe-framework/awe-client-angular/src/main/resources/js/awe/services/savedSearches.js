@@ -282,6 +282,29 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
    */
   const showDialog = (testId, show) => dialogs.find(`[data-testid="${testId}"]`).isolateScope().$broadcast("modalChange", show);
 
+  /**
+   * Place the menu under its button, in the coordinates of the viewport: the panel of the window clips its content, so
+   * the menu is fixed and flips up when there is no room below
+   */
+  const positionMenu = () => afterDigest(() => {
+    const button = toggleButton()[0];
+    const menuElement = menu()[0];
+    if (!button || !menuElement || !saved.open) {
+      return;
+    }
+    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--awe-space-1")) || 4;
+    const buttonBox = button.getBoundingClientRect();
+    const menuBox = menuElement.getBoundingClientRect();
+    const fitsBelow = buttonBox.bottom + gap + menuBox.height <= window.innerHeight;
+    const top = fitsBelow ? buttonBox.bottom + gap : Math.max(gap, buttonBox.top - menuBox.height - gap);
+    const left = Math.max(gap, Math.min(buttonBox.left, window.innerWidth - menuBox.width - gap));
+    menuElement.style.top = `${Math.round(top)}px`;
+    menuElement.style.left = `${Math.round(left)}px`;
+  });
+
+  // The menu is placed in viewport coordinates: a scroll or a resize would leave it away from its button
+  const onViewportChange = () => applyScope(() => closeMenu(false));
+
   const onDocumentMouseDown = event => {
     if ($(event.target).closest(elem.find(".window-saved-searches")).length === 0) {
       applyScope(() => closeMenu(false));
@@ -297,9 +320,12 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     if (listening) {
       listening = false;
       $(document).off("mousedown", onDocumentMouseDown);
+      $(window).off("resize scroll", onViewportChange);
     }
     if (focus) {
-      toggleButton().focus();
+      // preventScroll: the window panel scrolls its content to reveal the element that takes the focus, and the menu
+      // of the searches hangs from the body: focusing it moved the panel and hid the footer
+      toggleButton()[0]?.focus({preventScroll: true});
     }
   };
 
@@ -307,7 +333,7 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
   const focusFirst = () => afterDigest(() => {
     const active = document.activeElement;
     if (saved.open && (active === toggleButton()[0] || menu()[0].contains(active))) {
-      menuItems().first().focus();
+      menuItems().first()[0]?.focus({preventScroll: true});
     }
   });
 
@@ -379,9 +405,14 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
       if (!listening) {
         listening = true;
         $(document).on("mousedown", onDocumentMouseDown);
+        $(window).on("resize scroll", onViewportChange);
       }
       focusFirst();
-      load(focusFirst);
+      positionMenu();
+      load(() => {
+        focusFirst();
+        positionMenu();
+      });
     },
     menuKeydown(event) {
       const options = menuItems().toArray();

@@ -1,114 +1,224 @@
-// Vertical steps
+// Stepper of a wizard (React engine). The vertical orientation exists only here: the AngularJS wizard is always
+// horizontal and keeps its own styles.
+//
+// Structure PrimeReact Steps renders, plus the class of every state:
+//   .p-steps-container.orientation-horizontal|vertical
+//     nav.p-steps > ol > li.p-steps-item
+//       button.p-menuitem-link.p-step-current|.p-step-completed|.p-step-invalid
+//         span.p-steps-number          circle with the number or the icon of the step
+//         div.p-steps-text > span.p-steps-supertitle + span.p-steps-title
+
 .p-steps-container {
+  // Gap between steps: the connector of a step reaches the number of the previous one across it, so both use it
+  --awe-steps-gap: var(--awe-space-2);
+
   .p-steps {
-    .p-steps-item:before {
-      top: 33px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+
+    ol {
+      display: flex;
+      gap: var(--awe-steps-gap);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      background: transparent;
+    }
+  }
+
+  .p-steps-item {
+    // Distance between the top of the step and its number: the connector is centered on the number, so it has to
+    // know it. The same variable pads the link, which keeps both aligned whatever the layout changes (#1236).
+    --awe-steps-number-offset: var(--awe-space-1);
+
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding-block-start: var(--awe-steps-number-offset);
+
+    // The theme draws a connector before every step, the first one included: it spans the whole item and starts at
+    // the left edge of the stepper, which leaves a line hanging before the first step. The first step has no previous
+    // step to join, so it draws none.
+    &:first-child::before {
+      content: none;
+    }
+
+    // Connector from the previous step to this one: it goes behind the number, which hides it in the middle
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: calc(var(--awe-steps-number-offset) + var(--awe-size-control-lg) / 2);
+      // From the right edge of the previous number to the left edge of this one: the line touches the circle, it does
+      // not run through it. The left end jumps the gap between the two steps
+      right: calc(50% + var(--awe-size-control-lg) / 2);
+      left: calc(-50% - var(--awe-steps-gap) + var(--awe-size-control-lg) / 2);
+      width: auto;
+      // The theme pulls the connector of every step up with a negative margin: the line has to sit on the center of
+      // the number, so it is reset here
+      margin: 0;
+      border-top: 1px solid var(--awe-color-border);
+      z-index: 0;
+    }
+
+    // The theme also styles this link and its number: these two rules are more specific on purpose, so the spacing of
+    // the step is only the one of the list item. The number then starts exactly at the top of the step and the
+    // connector, positioned from that same edge, crosses its center.
+    .p-menuitem-link {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--awe-space-1);
+      width: 100%;
+      padding: 0 var(--awe-space-2);
+      background: transparent;
+      border: 0;
+      border-radius: var(--awe-radius-field);
+      color: inherit;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: var(--awe-focus-ring);
+        outline-offset: var(--awe-focus-ring-offset);
+      }
+    }
+
+    .p-steps-number {
+      display: grid;
+      place-items: center;
+      flex: none;
+      margin: 0;
+      width: var(--awe-size-control-lg);
+      height: var(--awe-size-control-lg);
+      background: var(--awe-color-surface);
+      border: 1px solid var(--awe-color-border);
+      border-radius: var(--awe-radius-full);
+      color: var(--awe-color-text-muted);
+      font-size: var(--awe-font-size-base);
+      font-weight: var(--awe-font-weight-semibold);
+      transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+        border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+        color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+      .awe-icon {
+        width: var(--awe-size-icon);
+        height: var(--awe-size-icon);
+      }
+    }
+
+    .p-steps-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--awe-space-0-5);
+      min-width: 0;
+      text-align: center;
+
+      .p-steps-supertitle {
+        color: var(--awe-color-text-muted);
+        font-size: var(--awe-font-size-sm);
+        line-height: var(--awe-line-height-snug);
+      }
+
+      .p-steps-title {
+        color: var(--awe-color-text);
+        font-size: var(--awe-font-size-base);
+        line-height: var(--awe-line-height-snug);
+        overflow-wrap: anywhere;
+      }
+    }
+
+    &:hover .p-menuitem-link .p-steps-number {
+      border-color: var(--awe-color-primary);
+    }
+
+    .p-menuitem-link.p-step-current {
+      .p-steps-number {
+        border-color: var(--awe-color-primary);
+        color: var(--awe-color-primary-text);
+      }
+
+      .p-steps-title {
+        color: var(--awe-color-text-emphasis);
+        font-weight: var(--awe-font-weight-semibold);
+      }
+    }
+
+    .p-menuitem-link.p-step-completed {
+      .p-steps-number {
+        background: var(--awe-color-primary);
+        border-color: var(--awe-color-primary);
+        color: var(--awe-color-on-primary);
+      }
+
+      .p-steps-title {
+        color: var(--awe-color-text-emphasis);
+        font-weight: var(--awe-font-weight-semibold);
+      }
+    }
+
+    .p-menuitem-link.p-step-invalid {
+      .p-steps-number {
+        background: var(--awe-color-danger);
+        border-color: var(--awe-color-danger);
+        color: var(--awe-color-on-danger);
+      }
+
+      .p-steps-title {
+        color: var(--awe-color-danger-text);
+      }
+    }
+  }
+
+  // Vertical stepper: the numbers are a column and the text goes on their right
+  &.orientation-vertical {
+    // Space between one step and the next one (#1236): the connector crosses it, so it is a variable
+    --awe-steps-gap: var(--awe-space-4);
+
+    .p-steps {
+      margin-right: var(--awe-space-6);
+    }
+
+    ol {
+      flex-direction: column;
+      gap: var(--awe-steps-gap);
     }
 
     .p-steps-item {
-      .p-menuitem-link {
-        border: 0;
-        padding: 0;
-        outline: inherit;
-        cursor: pointer;
+      --awe-steps-number-offset: var(--awe-space-2);
 
-        .p-steps-number {
-          height: 3rem;
-          width: 3rem;
-        }
+      flex: none;
+      padding-block: var(--awe-steps-number-offset);
 
-        .p-steps-text {
-          justify-items: center;
-
-          .p-steps-supertitle {
-            font-size: 0.8rem;
-            color: var(--awe-color-text-muted)
-          }
-        }
-
-        &.p-step-completed {
-          .p-steps-number {
-            background: var(--awe-color-primary);
-            color: var(--awe-color-on-primary);
-          }
-
-          .p-steps-text {
-            .p-steps-title {
-              font-weight: bold;
-            }
-          }
-        }
-
-        &.p-step-current {
-          .p-steps-number {
-            border: 1px solid var(--awe-color-primary);
-            color: var(--awe-color-primary-text);
-            background: var(--awe-color-surface);
-          }
-        }
-      }
-    }
-  }
-
-  &.orientation-vertical {
-
-    .p-steps {
-      margin-right: 3rem;
-
-      ol {
-        flex-direction: column;
+      &:not(:first-child)::before {
+        display: none;
       }
 
-      .p-steps-item:before {
-        content: " ";
-        border-top: 0;
-        border-right: 1px solid var(--awe-color-border);
-        width: 38px;
-        height: 100%;
-        top: 20%;
-        left: 0;
-        display: block;
+      // Connector below the number, down to the number of the next step: it reaches the next circle through the gap
+      &:not(:last-child)::after {
+        content: "";
         position: absolute;
-        margin-right: -1rem;
+        top: calc(var(--awe-steps-number-offset) + var(--awe-size-control-lg));
+        bottom: calc((var(--awe-steps-gap) + var(--awe-steps-number-offset)) * -1);
+        left: calc(var(--awe-size-control-lg) / 2);
+        margin: 0;
+        border-left: 1px solid var(--awe-color-border);
+        z-index: 0;
       }
 
-      .p-steps-item:first-child:before {
-        top: 45%
+      .p-menuitem-link {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--awe-space-3);
+        padding: 0;
       }
 
-      .p-steps-item:last-child:before {
-        top: unset;
-        bottom: 25%
-      }
-
-      .p-steps-item {
-        justify-content: flex-start;
-        padding: 1.5rem;
-
-        .p-menuitem-link {
-          flex-direction: row;
-          align-items: center;
-          justify-items: flex-start;
-
-          .p-steps-text {
-            justify-items: left;
-            margin-left: 0.5rem;
-            align-self: center;
-          }
-        }
+      .p-steps-text {
+        align-items: flex-start;
+        text-align: left;
       }
     }
-  }
-}
-// A step that holds fields which failed the validation
-.p-steps-container .p-steps .p-menuitem-link.p-step-invalid {
-  .p-steps-number {
-    background: var(--awe-color-danger);
-    border-color: var(--awe-color-danger);
-    color: #fff;
-  }
-
-  .p-steps-title {
-    color: var(--awe-color-danger-text);
   }
 }

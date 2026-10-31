@@ -2,63 +2,131 @@
     Created on : 26-mar-2014, 14:23:20
     Author     : pgarcia
 */
+// The wizard is one card: the bar of steps and the panel that hangs from it share the same frame, so the panel has
+// no outer margin and no rounded top corners (they are the ones of the step bar)
 .wizard-panel {
-  // The Bootstrap `.panel` base rule (served by the compat layer for the panel class) and the other `.panel` rule sets
-  margin-bottom: @line-height-computed;
-  background-color: @panel-bg;
-  border: 1px solid transparent;
-  border-radius: @panel-border-radius;
-  .box-shadow(0 1px 1px rgba(0,0,0,.05));
+  // The Bootstrap mixin of a panel brings the rules of the panel that are not its look (the table inside a panel, for
+  // one): the look itself is the one written below
   .panel;
+  // Room under the card, so the footer does not touch the edge of the screen
+  margin: 0 0 var(--awe-space-4);
   padding: 0;
-  &.wizard-panel-sm {
-    margin: @panel-margin-sm;
-    margin-top: 0;
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: 0 0 var(--awe-radius) var(--awe-radius);
+  box-shadow: none;
 
+  .panel-body {
+    padding: var(--awe-space-4);
+  }
+
+  .panel-footer {
+    padding: var(--awe-space-3) var(--awe-space-4);
+    background: var(--awe-color-surface);
+    border-top: var(--awe-border-width) solid var(--awe-color-border);
+    border-radius: 0 0 var(--awe-radius) var(--awe-radius);
+  }
+
+  // The size only changes the room inside the panel
+  &.wizard-panel-sm {
     .panel-body {
-      padding: @panel-margin-sm;
-    }
-    .panel-footer {
-      padding: 0 10px 2px 10px;
-      line-height: 31px;
+      padding: var(--awe-space-3);
     }
   }
 
   &.wizard-panel-md {
-    margin: @panel-margin-md;
-    margin-top: 0;
-
     .panel-body {
-      padding: @panel-margin-md;
-    }
-    .panel-footer {
-      padding: 0 10px 2px 10px;
-      line-height: 35px;
+      padding: var(--awe-space-4);
     }
   }
 
   &.wizard-panel-lg {
-    margin: @panel-margin-lg;
-    margin-top: 0;
-
     .panel-body {
-      padding: @panel-margin-lg;
-    }
-    .panel-footer {
-      padding: 2px 10px 4px 10px;
-      line-height: 39px;
+      padding: var(--awe-space-5);
     }
   }
 }
 
 .wizard-content.wizard-panel {
-  border-color: #e4e4e4 !important;
+  margin: 0 0 var(--awe-space-4);
+  border-color: var(--awe-color-border) !important;
   border-top: 0;
+  border-radius: 0 0 var(--awe-radius) var(--awe-radius);
 }
 
 .wizard-wrapper {
-  background: #fff;
-  box-shadow: 0 2px 2px #eee;
+  background: var(--awe-color-surface);
+  border-bottom: 0;
+  border-radius: var(--awe-radius) var(--awe-radius) 0 0;
+  box-shadow: none;
+}
+
+// Each step is the reference of its own decorations: the connector between steps is a percentage of the step width
+.wizard-steps > li {
+  position: relative;
+}
+
+// Same layout as the React engine (#1236): the number over its texts, everything centered in the step, so the
+// connector between numbers never crosses a caption
+.wizard .wizard-steps > li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-3) var(--awe-space-2);
+  text-align: center;
+}
+
+.wizard .wizard-steps > li .wizard-step-number {
+  position: static;
+  top: auto;
+  left: auto;
+  display: grid;
+  place-items: center;
+  width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
+  margin: 0;
+  border-radius: var(--awe-radius-full);
+  background: var(--awe-color-surface);
+  font-size: var(--awe-font-size-md);
+  line-height: 1;
+}
+
+// The check of a completed step fills the circle and centers its glyph
+.wizard .wizard-steps > li.completed .wizard-step-number:after {
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: auto;
+  height: auto;
+  font-size: var(--awe-font-size-md);
+  line-height: 1;
+}
+
+// The caption holds the name of the step and the text node of its number: it stays in line, and the description is
+// the block below it
+.wizard .wizard-steps > li .wizard-step-caption {
+  display: block;
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  white-space: normal;
+}
+
+.wizard .wizard-steps > li .wizard-step-description {
+  display: block;
+  margin-top: var(--awe-space-0-5);
+  color: var(--awe-color-text);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-snug);
+  white-space: normal;
+}
+
+.wizard .wizard-steps > li.active .wizard-step-description,
+.wizard .wizard-steps > li.completed .wizard-step-description {
+  color: var(--awe-color-text-emphasis);
+  font-weight: var(--awe-font-weight-semibold);
 }
 
 .wizard-steps {
@@ -92,12 +160,12 @@
 // A step that holds fields which failed the validation
 .wizard-steps > li.step-invalid {
   .wizard-step-number {
-    background: @danger-color;
-    border-color: @danger-color;
-    color: #fff;
+    background: var(--awe-color-danger);
+    border-color: var(--awe-color-danger);
+    color: var(--awe-color-on-danger);
   }
 
   .wizard-step-caption {
-    color: @danger-color;
+    color: var(--awe-color-danger-text);
   }
 }

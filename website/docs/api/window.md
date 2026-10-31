@@ -165,13 +165,14 @@ decide who publishes, with no new tables. The searches are stored in the `AweSav
 
 ## AngularJS and React engines
 
-Both engines handle `expandible` and `maximize` in the same way:
+Both engines handle `expandible`, `icon` and `maximize` in the same way:
 
 * `expandible` sets the direction in which the window shares the space among its children (`vertical` by default).
+* `icon` is drawn in the title bar, before the label of the window.
 * `maximize="true"` shows a button in the title bar that maximizes the window over the content of the screen and
   restores it. The window fills the content area, keeping the menu and the top bar visible, and its sibling windows are
   hidden while it is maximized. The Restore button brings it back; there is no Escape key shortcut. The content with the
   `expand-maximize` style takes the free space while the window is maximized.
 
 The differences are only visual: the maximize button shows the Lucide `expand` and `shrink` icons in the AngularJS
-engine and `maximize` and `minimize` in the React engine, and the React engine shows the `icon` of the window at the right of the title bar.
+engine and `maximize` and `minimize` in the React engine.
