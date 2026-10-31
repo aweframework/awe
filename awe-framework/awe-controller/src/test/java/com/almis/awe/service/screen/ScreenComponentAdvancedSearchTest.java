@@ -19,6 +19,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
@@ -29,8 +30,12 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -41,14 +46,16 @@ class ScreenComponentAdvancedSearchTest {
 
   private final JsonMapper mapper = new JsonMapper();
   private ScreenComponentGenerator generator;
+  private WindowStateService windowStateService;
 
   @BeforeEach
   void setUp() {
+    windowStateService = mock(WindowStateService.class);
     AweRequest request = mock(AweRequest.class);
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, mock(ScreenModelGenerator.class), mock(InitialLoadDao.class),
       mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
-      mock(GridLayoutService.class));
+      mock(GridLayoutService.class), windowStateService);
     ApplicationContext context = mock(ApplicationContext.class);
     when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class, RETURNS_DEEP_STUBS));
     generator.setApplicationContext(context);
@@ -93,5 +100,56 @@ class ScreenComponentAdvancedSearchTest {
     assertThat(advanced.get("elementType").asString()).isEqualTo("Advanced");
     assertThat(advanced.get("id").asString()).isEqualTo("AdvCrt");
     assertThat(advanced.get("elementList").get(0).get("id").asString()).isEqualTo("CrtThm");
+  }
+
+  private Map<String, ScreenComponent> generate(Screen screen) {
+    return generator.generateComponentMap(screen, new ScreenData(), new Menu(), JsonNodeFactory.instance.objectNode());
+  }
+
+  private JsonNode controllerOf(Map<String, ScreenComponent> componentMap, String id) {
+    return mapper.valueToTree(componentMap.get(id)).get("controller");
+  }
+
+  @Test
+  void aWindowWithAnAdvancedBlockCarriesTheStoredStateOfTheUser() throws Exception {
+    when(windowStateService.getScreenAdvancedStates("search")).thenReturn(Map.of("WinCrt", true));
+    assertThat(controllerOf(generate(screen()), "WinCrt").get("advancedOpen").asBoolean()).isTrue();
+
+    when(windowStateService.getScreenAdvancedStates("search")).thenReturn(Map.of("WinCrt", false));
+    JsonNode closed = controllerOf(generate(screen()), "WinCrt");
+    assertThat(closed.get("advancedOpen").isBoolean()).isTrue();
+    assertThat(closed.get("advancedOpen").asBoolean()).isFalse();
+
+    // One query per screen generation
+    verify(windowStateService, times(2)).getScreenAdvancedStates("search");
+  }
+
+  @Test
+  void withoutAStoredStateNoWindowCarriesIt() throws Exception {
+    when(windowStateService.getScreenAdvancedStates("search")).thenReturn(Map.of());
+
+    Map<String, ScreenComponent> componentMap = generate(screen());
+
+    assertThat(controllerOf(componentMap, "WinCrt").has("advancedOpen")).isFalse();
+    assertThat(controllerOf(componentMap, "WinDat").has("advancedOpen")).isFalse();
+  }
+
+  @Test
+  void aWindowWithoutAnAdvancedBlockNeverCarriesTheState() throws Exception {
+    // A stale row of a window that lost its block (or never had one) is ignored
+    when(windowStateService.getScreenAdvancedStates("search")).thenReturn(Map.of("WinCrt", true, "WinDat", true));
+
+    assertThat(controllerOf(generate(screen()), "WinDat").has("advancedOpen")).isFalse();
+  }
+
+  @Test
+  void aScreenWithoutAdvancedBlocksRunsNoQuery() throws Exception {
+    Screen screen = new ScreenBuilder().setId("plain").addTag(new TagBuilder().setSource("center").setType("div")
+      .addWindow(new WindowBuilder().setId("WinDat").addCriteria(new TextCriteriaBuilder().setId("CrtDat")))).build();
+
+    Map<String, ScreenComponent> componentMap = generate(screen);
+
+    assertThat(controllerOf(componentMap, "WinDat").has("advancedOpen")).isFalse();
+    verify(windowStateService, never()).getScreenAdvancedStates(any());
   }
 }

@@ -60,6 +60,8 @@ values ('ScrCnfKey', 1);
 Insert into AweKey (KeyNam, KeyVal)
 values ('GrdCnfKey', 0);
 Insert into AweKey (KeyNam, KeyVal)
+values ('WinCnfKey', 0);
+Insert into AweKey (KeyNam, KeyVal)
 values ('ScrResKey', 1);
 Insert into AweKey (KeyNam, KeyVal)
 values ('CustomerKey', 1);

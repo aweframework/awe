@@ -8,8 +8,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  * Advanced search of a window (#790) on a list of customers: the essential criteria first, then the advanced block, shown
  * inline below its Advanced filters row or in a side panel (a tab each), the counter of the advanced criteria in use, the
- * filters in effect with their chips, the search of each example in its own grid, and a window without advanced block.
- * Every test opens its screen, so each one can run on its own.
+ * filters in effect with their chips, the search of each example in its own grid, a window without advanced block, and the
+ * open state of the inline block, which is remembered for the user. Every test opens its screen with the inline block
+ * closed, so each one can run on its own.
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
@@ -63,12 +64,20 @@ class AdvancedSearchTestsIT extends AbstractSessionTests {
 
   /**
    * Open the advanced search test screen from another one, so it is rendered again: choosing the screen that is shown
-   * keeps it as it is (expanded advanced criteria, values)
+   * keeps it as it is (expanded advanced criteria, values). The inline block starts as the user left it (#790)
    */
-  private void openAdvancedSearchScreen() {
+  private void showAdvancedSearchScreen() {
     gotoScreen("test", "matrix", "matrix-test-side-panel");
     gotoScreen("test", "matrix-test-advanced-search");
     checkCriterionVisible(NAME);
+  }
+
+  /**
+   * Open the advanced search test screen with the inline block closed, whatever an earlier test or run left
+   */
+  private void openAdvancedSearchScreen() {
+    showAdvancedSearchScreen();
+    closeAdvancedFilters(INLINE_WINDOW);
   }
 
   /**
@@ -320,6 +329,7 @@ class AdvancedSearchTestsIT extends AbstractSessionTests {
     setTestTitle("Advanced search: the users screen shows its advanced criteria on demand");
     gotoScreen("test", "matrix", "matrix-test-side-panel");
     gotoScreen("tools", "users");
+    closeAdvancedFilters("WinUsrCrt");
     checkCriterionVisible("CrtUsr");
     checkCriterionVisible("CrtPro");
     checkCriterionVisible("CrtSta");
@@ -347,5 +357,80 @@ class AdvancedSearchTestsIT extends AbstractSessionTests {
     removeFilterChip("WinUsrCrt", "CrtBlk");
     checkAdvancedFiltersCount("WinUsrCrt", 0);
     checkNoFilterChips("WinUsrCrt");
+  }
+
+  /**
+   * The inline block is remembered for the user (#790): it is open when the screen is opened again after leaving it open,
+   * and closed after closing it
+   */
+  @Test
+  void t080_inlineBlockIsRememberedWhenTheScreenIsOpenedAgain() {
+    setTestTitle("Advanced search: the inline block is opened again as the user left it");
+    openAdvancedSearchScreen();
+    checkCriterionNotVisible(COUNTRY);
+
+    // Left open
+    toggleAdvancedFilters(INLINE_WINDOW);
+    checkAdvancedFiltersOpen(INLINE_WINDOW);
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersOpen(INLINE_WINDOW);
+    checkCriterionVisible(COUNTRY);
+    checkCriterionBelowAdvancedFilters(INLINE_WINDOW, COUNTRY);
+
+    // Left closed
+    toggleAdvancedFilters(INLINE_WINDOW);
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    checkCriterionNotVisible(COUNTRY);
+  }
+
+  /**
+   * The inline block is remembered across sessions (#790): left open, it is open after logging out and in again. It is
+   * closed at the end, so the user is left as it was
+   */
+  @Test
+  void t085_inlineBlockIsRememberedAfterLoggingOutAndIn() {
+    setTestTitle("Advanced search: the inline block is remembered after logging out and in again");
+    openAdvancedSearchScreen();
+    toggleAdvancedFilters(INLINE_WINDOW);
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersOpen(INLINE_WINDOW);
+
+    // A new session
+    ensureLoggedOut();
+    checkLogin("test", "test", "Manager (test)");
+    ensureModule("Test", "test");
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersOpen(INLINE_WINDOW);
+    checkCriterionVisible(COUNTRY);
+
+    // Back as it was
+    toggleAdvancedFilters(INLINE_WINDOW);
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+  }
+
+  /**
+   * The side panel is not remembered (#790): it is closed when the screen is opened again, and the inline block of the
+   * other window keeps its own state
+   */
+  @Test
+  void t090_sidePanelIsNotRemembered() {
+    setTestTitle("Advanced search: the side panel always starts closed");
+    openAdvancedSearchScreen();
+    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
+    toggleAdvancedFilters(PANEL_WINDOW);
+    checkAdvancedFiltersPanelOpen(PANEL_WINDOW);
+    cancelAdvancedFilters(PANEL_WINDOW);
+    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
+
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
+    checkCriterionVisible(PANEL_NAME);
+    checkCriterionNotVisible(PANEL_COUNTRY);
+    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
   }
 }

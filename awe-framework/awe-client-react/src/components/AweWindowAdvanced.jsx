@@ -13,7 +13,9 @@ import {
   updateMultipleModelsWithDependencies
 } from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
+import {saveWindowAdvancedState} from "../redux/thunks/windowAdvancedState";
 import {getAllComponents} from "../redux/selectors/componentSelectors";
+import ViewRegistry from "../redux/registry/ViewRegistry";
 import "./AweWindowAdvanced.less";
 
 export const ADVANCED_MODE_INLINE = "inline";
@@ -49,12 +51,14 @@ const noFilters = [];
  * @param {string} options.advancedMode Mode: inline or side-panel (only sent when the window holds an advanced block)
  * @param {string[]} options.advancedCriteria Advanced criteria of the window
  * @param {string[]} options.searchCriteria Criteria of the window that are search filters
+ * @param {boolean} options.advancedOpen Open state the user left (only sent when it is stored): an inline block starts
+ * open with it, a side panel always starts closed
  * @return {object|null} Context of the advanced search, null when the window has no advanced block
  */
-export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria}) {
+export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria, advancedOpen}) {
   const enabled = Boolean(advancedMode) || Array.isArray(advancedCriteria);
   const mode = advancedMode === ADVANCED_MODE_SIDE_PANEL ? ADVANCED_MODE_SIDE_PANEL : ADVANCED_MODE_INLINE;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => enabled && mode === ADVANCED_MODE_INLINE && advancedOpen === true);
   return useMemo(() => enabled ? {
     id, label, mode, open, setOpen,
     advancedCriteria: advancedCriteria || noFilters,
@@ -86,6 +90,30 @@ function useRestoreDefaults() {
       dispatch(restoreMultipleModelWithDependencies(list.map(({address}) => ({address})), false));
     }
   }, [dispatch, store]);
+}
+
+/**
+ * Save the open state of an inline advanced block as the state of the user. The screen is the one of the view that holds
+ * the criteria of the window (its name is the screen id the server sent). Nothing is saved when it is unknown.
+ * @param {string} windowId Window id
+ * @param {string[]} criteria Criteria of the window
+ * @return {function(boolean)} Save the open state
+ */
+export function useSaveAdvancedState(windowId, criteria) {
+  const {t} = useTranslation();
+  const dispatch = useDispatch();
+  const store = useStore();
+  return useCallback((open) => {
+    const components = getAllComponents(store.getState());
+    const view = criteria.map(criterion => components[criterion]?.address?.view).find(Boolean);
+    const screenId = view && ViewRegistry.get(view)?.name;
+    if (screenId) {
+      dispatch(saveWindowAdvancedState({view, component: windowId}, screenId, open, {
+        title: t("SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE"),
+        message: t("SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE")
+      }));
+    }
+  }, [dispatch, store, windowId, criteria, t]);
 }
 
 /**

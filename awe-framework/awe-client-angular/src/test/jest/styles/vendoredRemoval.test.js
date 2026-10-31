@@ -46,7 +46,8 @@ const lfBytes = text => Buffer.byteLength(text.replace(/\r\n/g, "\n"));
 // sign in, busy buttons...): compiled size of the awe.less build at the merge minus the one of the branch before it. The
 // baseline sizes are from before it, so the "smaller than before the removal" checks measure the build without that growth.
 // The sync of the map component (#882: leaflet.css and less/awe/directives/map.less) added 15365 bytes more (compiled awe.less on LF: 892109 before the sync, 907474 after), 83225 + 15365
-const DEVELOP_LESS_BYTES = 98590;
+// The advanced search of windows (#790: less/awe/directives/window-advanced.less) added 5762 bytes more (907474 before, 913236 after), 98590 + 5762
+const DEVELOP_LESS_BYTES = 104352;
 const ownBytes = text => lfBytes(text) - DEVELOP_LESS_BYTES;
 
 const normalizeSelector = selector => selector.replace(/::(before|after)$/, ":$1");
@@ -586,7 +587,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       const restored = restoreRemoved(lacking, [...second(), ...later], [2, ...appliedAfter(2)]);
       expect(restored).toHaveLength(lacking.length + second().length + later.length);
       // The header holds the digest of the ordered rules of the vendored build before the removal
-      // The digests of steps 2 to 6 were refrozen after the develop sync of 2026-10-30: develop's AWE tokens and rules change the whole-build hash, no vendored rule changed; refrozen once more when pixel-admin moved to less/legacy: the unused `.ie-background-none` mixin prints its image path, 4 lines of the build; refrozen after the #882 sync (2026-10-30): the whole-build hash now includes leaflet.css and the map LESS, no vendored rule changed
+      // The digests of steps 2 to 6 were refrozen after the develop sync of 2026-10-30: develop's AWE tokens and rules change the whole-build hash, no vendored rule changed; refrozen once more when pixel-admin moved to less/legacy: the unused `.ie-background-none` mixin prints its image path, 4 lines of the build; refrozen after the #882 sync (2026-10-30): the whole-build hash now includes leaflet.css and the map LESS, no vendored rule changed; refrozen after the #790 merge (2026-10-31): the whole-build hash now includes the window advanced search LESS, no vendored rule changed
       const {digest} = baseline.steps.find(entry => entry.step === 2);
       expect(digest).toMatch(/^[0-9a-f]{40}$/);
       expect(digestOf(restored)).toBe(digest);

@@ -61,9 +61,9 @@ const modals = {
   leftOut: [
     {names: ["side-panel", "side-panel-right", "side-panel-left", "side-panel-body", "grid-columns-side-panel", "grid-columns-counter", "grid-columns-actions", "grid-column-item", "grid-column-label",
       "grid-column-handle", "grid-column-move", "grid-column-group", "grid-column-group-title", "grid-columns-header", "grid-columns-titles", "grid-columns-title", "grid-columns-close",
-      "grid-columns-list", "grid-column-hidden", "grid-columns-reset", "is-loading"],
+      "grid-columns-list", "grid-column-hidden", "grid-columns-reset", "is-loading", "window-advanced-panel", "window-advanced-reset"],
     examples: [".modal.side-panel .modal-dialog", ".modal.side-panel.side-panel-right .modal-dialog", ".modal.grid-columns-side-panel .grid-column-item"],
-    reason: "the AWE side panel and the grid column editor that is shown in one: component rules that restyle the modal"},
+    reason: "the AWE side panel and the grid column editor and the window advanced search (#790) that are shown in one: component rules that restyle the modal"},
     {names: ["panel-identity", "panel-identity-avatar", "panel-identity-text", "panel-identity-title", "panel-identity-subtitle", "panel-identity-tags"],
       examples: [".modal.side-panel .panel-identity", ".modal.side-panel .panel-identity-avatar", ".modal.side-panel .panel-identity-tags"],
       reason: "the identity header of the AWE side panel (avatar, title, subtitle and tags): component rules that restyle the modal"},

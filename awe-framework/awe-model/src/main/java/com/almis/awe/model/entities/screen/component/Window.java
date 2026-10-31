@@ -5,8 +5,11 @@ import com.almis.awe.model.entities.screen.component.criteria.Criteria;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,6 +52,13 @@ public class Window extends Component {
   @XStreamAlias("advanced-mode")
   @XStreamAsAttribute
   private String advancedMode;
+
+  // Whether the current user left the advanced block open (#790): set at screen generation only when the user has a
+  // state stored for the window, so windows without one send nothing
+  @JsonProperty("advancedOpen")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient Boolean advancedOpen;
 
   @Override
   public Window copy() {
@@ -99,7 +109,8 @@ public class Window extends Component {
    *
    * @return Window has an advanced block
    */
-  private boolean hasAdvancedBlock() {
+  @JsonIgnore
+  public boolean hasAdvancedBlock() {
     return !getElementsByType(Advanced.class).isEmpty();
   }
 

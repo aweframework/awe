@@ -53,6 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ThemePrimarySurfaceMigrationTest {
 
   private static final String MIGRATION_FILE = "AWE_V1.5.0__Theme_primary_surface.sql";
+  // The migrations stop at the verified version, so later migrations do not change what these tests check
+  private static final String MIGRATION_VERSION = "1.5.0";
 
   private static final String MIGRATION_BASE_PATH =
     "../../awe-framework/awe-starters/awe-spring-boot-starter/src/main/resources/db/migration/";
@@ -131,7 +133,7 @@ class ThemePrimarySurfaceMigrationTest {
   void migrationIsRecordedAsApplied(String dialect) throws SQLException {
     String url = newUrl(dialect);
     try (Connection ignored = migrateWithThemeData(dialect, url)) {
-      MigrationInfo current = flyway(url, null).info().current();
+      MigrationInfo current = flyway(url, MIGRATION_VERSION).info().current();
       assertThat(current.getVersion().getVersion()).isEqualTo("1.5.0");
       assertThat(current.getState()).isEqualTo(MigrationState.SUCCESS);
     }
@@ -277,7 +279,7 @@ class ThemePrimarySurfaceMigrationTest {
   }
 
   /**
-   * Migrates a new in-memory database up to V1.4.0, inserts the theme data and migrates to the last version
+   * Migrates a new in-memory database up to V1.4.0, inserts the theme data and migrates up to V1.5.0
    *
    * @param dialect Dialect
    * @return Open connection to the migrated database
@@ -291,7 +293,7 @@ class ThemePrimarySurfaceMigrationTest {
     Connection connection = DriverManager.getConnection(url, "sa", "");
     flyway(url, "1.4.0").migrate();
     insertThemeData(connection);
-    flyway(url, null).migrate();
+    flyway(url, MIGRATION_VERSION).migrate();
     return connection;
   }
 
@@ -305,7 +307,7 @@ class ThemePrimarySurfaceMigrationTest {
          Statement statement = connection.createStatement()) {
       assertThat(statement.executeUpdate("DELETE FROM \"flyway_schema_AWE\" WHERE \"version\" = '1.5.0'")).isEqualTo(1);
     }
-    MigrateResult result = flyway(url, null).migrate();
+    MigrateResult result = flyway(url, MIGRATION_VERSION).migrate();
     assertThat(result.migrationsExecuted).isEqualTo(1);
   }
 

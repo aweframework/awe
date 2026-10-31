@@ -1809,6 +1809,51 @@
     </serve>
   </target>
 
+  <!--
+  User window states (advanced block left open or closed). The user always comes from the session
+  -->
+
+  <target name="insertWindowAdvancedState">
+    <insert>
+      <table id="AweUsrWinCnf"/>
+      <field id="IdeUsrWinCnf" sequence="WinCnfKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="AdvOpn" variable="advancedOpen"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="advancedOpen" type="INTEGER" name="advancedOpen"/>
+    </insert>
+  </target>
+
+  <target name="updateWindowAdvancedState">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="AdvOpn" variable="advancedOpen"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="advancedOpen" type="INTEGER" name="advancedOpen"/>
+    </update>
+  </target>
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria,
+       and a criterion called "screen" or "windowId" would replace them -->
+  <target name="saveWindowAdvancedState">
+    <serve service="saveWindowAdvancedState">
+      <variable id="screen" type="STRING" name="advancedStateScreen"/>
+      <variable id="windowId" type="STRING" name="advancedStateWindow"/>
+      <variable id="open" type="STRING" name="advancedStateOpen"/>
+    </serve>
+  </target>
+
   <target name="saveUserAvatar">
     <serve service="saveUserAvatar">
       <variable id="avatarToken" type="STRING" name="CrtAvatar"/>

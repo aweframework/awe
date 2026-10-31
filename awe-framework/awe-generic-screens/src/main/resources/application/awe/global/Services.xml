@@ -348,6 +348,14 @@
       <service-parameter type="STRING" name="gridId" />
     </java>
   </service>
+  <!-- User window states (the user comes from the session) -->
+  <service id="saveWindowAdvancedState">
+    <java classname="com.almis.awe.service.WindowStateService" method="saveAdvancedState">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="open" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">

@@ -1,6 +1,7 @@
 import {TestAttributes, TestIds} from "../data/testIds";
 import {submitForm} from "./criterion";
 import {iconMarkup} from "./icon";
+import {launchSilentService} from "./silentService";
 import "../directives/plugins/uiModal";
 
 // Advanced search of a window (#790): the advanced block of the window is headed by its row (the Advanced filters or
@@ -91,9 +92,9 @@ const panelTemplate = `<div class="window-advanced-panel-host">
  * @param {Object} scope Block scope
  * @param {Object} elem Block element
  * @param {Object} windowController Controller of the window that holds the block
- * @param {{$compile: Function, Control: Object, Utilities: Object}} services Services
+ * @param {{$compile: Function, Control: Object, Utilities: Object, $actionController: Object, $settings: Object, Storage: Object}} services Services
  */
-export function initAdvancedBlock(scope, elem, windowController, {$compile, Control, Utilities}) {
+export function initAdvancedBlock(scope, elem, windowController, {$compile, Control, Utilities, $actionController, $settings, Storage}) {
   const view = scope.$parent.view;
   const search = windowController ? windowController.getAdvancedSearch(view) : null;
   if (!search) {
@@ -157,6 +158,19 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     .filter(id => !RADIOS.includes(controllerOf(id).component) || isSelectedRadio(id))
     .map(chipOf);
 
+  /**
+   * Remember for the user whether the inline block is open, silently: a failed save changes nothing on the screen
+   * @param {boolean} open The block is open
+   */
+  const saveState = open => {
+    const screen = (Storage.get("screen") || {})[view] || {};
+    launchSilentService({$actionController, $settings}, "saveWindowAdvancedState", {
+      advancedStateScreen: screen.name,
+      advancedStateWindow: windowId,
+      advancedStateOpen: open ? "1" : "0"
+    }, () => undefined);
+  };
+
   // The region of the children of the block, in the window or moved into the panel
   const region = elem.children(".window-advanced-region");
   let panel = null;
@@ -174,7 +188,8 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
   const advanced = {
     windowId,
     inline,
-    expanded: false,
+    // Inline, it starts as the user left it; the side panel always starts closed
+    expanded: inline && search.open,
     opened: false,
     applying: false,
     count: 0,
@@ -198,6 +213,7 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     toggle() {
       if (inline) {
         advanced.expanded = !advanced.expanded;
+        saveState(advanced.expanded);
       } else {
         openPanel();
       }

@@ -18,6 +18,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.MenuContainer;
+import com.almis.awe.model.entities.screen.component.Window;
 import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
@@ -27,6 +28,7 @@ import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.screen.data.*;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -56,6 +58,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
   private final ScreenConfigurationGenerator screenConfigurationGenerator;
   private final GridLayoutService gridLayoutService;
+  private final WindowStateService windowStateService;
 
   /**
    * Autowired constructor
@@ -67,11 +70,12 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param baseConfigProperties         Base configuration properties
    * @param screenConfigurationGenerator Screen configuration generator
    * @param gridLayoutService            Grid layout service
+   * @param windowStateService           Window state service
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                   InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
                                   BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
-                                  GridLayoutService gridLayoutService) {
+                                  GridLayoutService gridLayoutService, WindowStateService windowStateService) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
     this.initialLoadDao = initialLoadDao;
@@ -79,6 +83,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     this.baseConfigProperties = baseConfigProperties;
     this.screenConfigurationGenerator = screenConfigurationGenerator;
     this.gridLayoutService = gridLayoutService;
+    this.windowStateService = windowStateService;
   }
 
   /**
@@ -125,6 +130,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
       for (Component component : components) {
         generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, gridLayouts, deferredComponents.contains(component), true);
       }
+
+      // Apply the advanced block states of the user (only when the screen has windows with an advanced block)
+      applyAdvancedStates(screen, componentMap);
 
       // Launch all initial load actions and store the values
       screenModelGenerator.launchInitialLoadList(initializationList, componentMap, data);
@@ -249,6 +257,28 @@ public class ScreenComponentGenerator extends ServiceConfig {
     } else {
       gridController.setScreenId(containerId);
       gridController.setColumnLayout(gridLayoutService.resolveLayout(gridController, gridLayouts));
+    }
+  }
+
+  /**
+   * Tell each window with an advanced block whether the user left the block open, when the user has a state stored for
+   * it. The states are read with one query per screen, and only for screens with such windows
+   *
+   * @param screen       Screen
+   * @param componentMap Component map of the screen
+   */
+  private void applyAdvancedStates(Screen screen, Map<String, ScreenComponent> componentMap) {
+    List<Window> windows = screen.getElementsByType(Window.class).stream().filter(Window::hasAdvancedBlock).toList();
+    if (windows.isEmpty()) {
+      return;
+    }
+
+    Map<String, Boolean> states = windowStateService.getScreenAdvancedStates(screen.getId());
+    for (Window window : windows) {
+      ScreenComponent screenComponent = componentMap.get(window.getElementKey());
+      if (screenComponent != null && states.containsKey(window.getElementKey())) {
+        ((Window) screenComponent.getController()).setAdvancedOpen(states.get(window.getElementKey()));
+      }
     }
   }
 

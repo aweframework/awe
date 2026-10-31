@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -30,7 +31,7 @@ class ScreenComponentGeneratorGridToolbarTest {
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     ScreenComponentGenerator generator = new ScreenComponentGenerator(request, mock(ScreenModelGenerator.class),
       mock(InitialLoadDao.class), mock(AweElementsDao.class), new BaseConfigProperties(), mock(ScreenConfigurationGenerator.class),
-      mock(GridLayoutService.class));
+      mock(GridLayoutService.class), mock(WindowStateService.class));
     Grid grid = new Grid();
     grid.setId("TagGrid");
     List<Element> elements = List.of(grid);

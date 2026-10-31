@@ -726,6 +726,8 @@
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="User agent"/>
   <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Advanced filters"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Whether the advanced filters are open could not be saved"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Advanced filters state not saved"/>
   <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Clear all"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Hidden advanced filter"/>

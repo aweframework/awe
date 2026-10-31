@@ -16,6 +16,7 @@ import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,7 @@ class ScreenComponentGeneratorRowDetailTest {
     when(request.getParameterList()).thenReturn(JsonNodeFactory.instance.objectNode());
     generator = new ScreenComponentGenerator(request, screenModelGenerator, mock(InitialLoadDao.class),
       mock(AweElementsDao.class), mock(BaseConfigProperties.class, RETURNS_DEEP_STUBS), mock(ScreenConfigurationGenerator.class),
-      gridLayoutService);
+      gridLayoutService, mock(WindowStateService.class));
     // Locales are returned as "<key>|<parameters>"
     AweElements elements = mock(AweElements.class, invocation -> "getLocaleWithLanguage".equals(invocation.getMethod().getName()) ?
       invocation.getArgument(0) + "|" + String.join(",", Arrays.stream(invocation.getArguments()).skip(2).map(String::valueOf).toList()) : null);
