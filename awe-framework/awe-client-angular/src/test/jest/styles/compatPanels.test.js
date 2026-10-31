@@ -116,8 +116,10 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/compatPanels", (
     const used = [...sourceUsedTokens()].filter(name => name !== "panel-");
     expect(used).toEqual(expect.arrayContaining(["panel", "panel-body", "panel-heading", "panel-footer", "panel-title-icon", "panel-padding", "panel-transparent",
       "panel-info", "panel-body-colorful", "panel-group", "panel-collapse"]));
-    // The identity header of the AWE side panel (panel-identity-*) and its left variant are AWE LESS component classes, not Bootstrap panel classes
-    const AWE_SIDE_PANEL = ["panel-identity", "panel-identity-avatar", "panel-identity-text", "panel-identity-title", "panel-identity-subtitle", "panel-identity-tags", "panel-left"];
+    // The identity header of the AWE side panel (panel-identity-*) and its left variant are AWE LESS component classes, not Bootstrap panel classes;
+    // panel-right is the Lucide icon of the button that opens the advanced search of a window in a side panel (#790)
+    const AWE_SIDE_PANEL = ["panel-identity", "panel-identity-avatar", "panel-identity-text", "panel-identity-title", "panel-identity-subtitle", "panel-identity-tags", "panel-left",
+      "panel-right"];
     expect(used.filter(name => !CLASSES.includes(name) && !isLeftOut(name) && !AWE_SIDE_PANEL.includes(name))).toEqual([]);
     const xml = [...usedXmlClasses().keys()].filter(name => CLASSES.includes(name));
     expect(xml).toEqual(expect.arrayContaining(["panel-body", "panel-footer", "panel-padding", "panel-transparent", "panel-info", "panel-body-colorful"]));
