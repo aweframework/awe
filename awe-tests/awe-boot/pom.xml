@@ -736,7 +736,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.6.0.jre11</version>
+          <version>13.6.1.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -765,7 +765,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.6.0.jre11</version>
+          <version>13.6.1.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
