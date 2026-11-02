@@ -809,6 +809,9 @@ Unit · Java:
     - .unit-testing
     - .playwright-install   # Chromium for the adapter tests of awe-testing: variables, cache (read only) and install
     - .playwright-chromium
+  # Untagged, so the GitLab SaaS small runners also take it: there the whole build and its ~4,800 tests take 17-20 minutes,
+  # right at the 20 minute limit of .unit-testing, and a slightly slower run was cut by the timeout
+  timeout: 30m
   script:
     # The Playwright tests must run here: without the browser they fail instead of being skipped as they are on a developer
     # machine, so the coverage that Sonar reads for the adapter is real and cannot stop silently
@@ -1086,7 +1089,9 @@ Docs · Javadoc check:
     max: 1
     when:
       - runner_system_failure
-  timeout: 30m
+  # Untagged, so the GitLab SaaS small runners also take them: there the longest suite (AngularJS CRUD) takes 23-28 minutes,
+  # against 15-20 on the large project runners, and the slower runs were cut by a 30 minute limit
+  timeout: 45m
   variables:
     # Test application that runs the suites: awe-tests/awe-boot (AngularJS) or awe-tests/awe-boot-react
     IT_APP_MODULE: awe-tests/awe-boot
