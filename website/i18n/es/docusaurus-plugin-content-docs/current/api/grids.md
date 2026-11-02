@@ -1477,7 +1477,7 @@ El componente grid envía algunas variables específicas al servidor, dependiend
 | _[ColumnName]_                  | Matriz       | `send-all="false"`                   | Lista de valores de columnas de líneas seleccionadas (para cada columna)                                                                                 |
 | _[ColumnName]_                  | Matriz       | `send-all="true"`               | Lista de todos los valores de columna (para cada columna)                                                                                                |
 | _[ColumnName]_.selected         | Valor/Matriz | Siempre                                | Lista de valores de columna de líneas seleccionadas (para cada columna). Si sólo hay una fila seleccionada, sólo enviará el valor en lugar de una matriz |
-| _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila                                                                    |
+| _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila (y `column` si una celda lanza la acción)                         |
 | sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de grid (`id`: id de columna, `direction`: dirección de ordenación)                          |
 | _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra del grid (página, máximos registros, información de ordenación, etc.)                                                 |
 
@@ -1490,8 +1490,23 @@ El grid multioperación envía las variables de una manera diferente a los otros
 | _[GridName]_-id                 | Matriz       | Siempre                                | Lista de identificadores de fila para registros con operaciones                                                                                          |
 | _[ColumnName]_                  | Matriz       | `multioperation="true"`           | Lista de valores de columna para filas con operaciones (para cada columna)                                                                               |
 | _[ColumnName]_.selected         | Valor/Matriz | Siempre                                | Lista de valores de columna de líneas seleccionadas (para cada columna). Si sólo hay una fila seleccionada, sólo enviará el valor en lugar de una matriz |
-| _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila                                                                    |
+| _[GridName]_.selectedRowAddress | JsonNode     | Cuando sólo hay una línea seleccionada | Nodo Json con la dirección `address` de la fila seleccionada: vista, componente e id de fila (y `column` si una celda lanza la acción)                         |
 | sort                            | Matriz       | Al ordenar                             | Lista de JsonNodes con la información de ordenamiento de grid (`id`: id de columna, `direction`: dirección de ordenación)                          |
 | _[GridName]_.data               | JsonNode     | Siempre                                | Lista de información extra del grid (página, máximos registros, información de ordenación, etc.)                                                 |
 
 > **Nota:** Ver muestras de uso en [Definición de servicio](service-definition.md#load-beans-from-parameters)
+
+**Acción lanzada desde una celda**
+
+Cuando la acción la lanza un componente de una celda de la grid (un botón, un select, un checkbox, un texto...), esa fila
+se selecciona antes y `[GridName].selectedRowAddress` lleva la dirección de la celda: `view`, `component` (la grid),
+`row` (el id de la fila) y `column` (el id de la columna de la celda). Una acción que no viene de una celda de grid sigue
+enviando la dirección de la fila seleccionada, sin `column`. Una grid `multiselect` mantiene las filas que seleccionó el
+usuario y envía igualmente la dirección de la celda.
+
+```json
+{"view": "report", "component": "GrdUsr", "row": 4, "column": "Status"}
+```
+
+Un servicio puede leerla para saber qué celda hizo la llamada, por ejemplo para colorearla, como se muestra en
+[Definición de servicio](service-definition.md#grid-cell-caller).

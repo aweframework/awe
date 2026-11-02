@@ -328,7 +328,45 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-**Ejemplo 4**: Cargar una lista de datos almacenada desde una fila de un grid
+#### Ejemplo 4: Saber qué celda de la grid llamó al servicio {#grid-cell-caller}
+
+Cuando un componente de una celda de grid (un botón, un select, un checkbox...) lanza el servicio, esa fila se selecciona
+y el parámetro `[gridId].selectedRowAddress` trae la `view`, el `component` (la grid), la `row` (id de fila) y la
+`column` (id de columna) de la celda. Se carga como en el Ejemplo 3 y se puede usar, por ejemplo, para cambiar el estilo
+de esa celda con una acción [update-cell](actions.md#grid-actions-from-java-services):
+
+```java
+@Service
+public class CellService extends ServiceConfig {
+  /**
+   * Colour the cell that called the service
+   * @param address Address of the cell: view, component, row and column
+   * @return Service data
+   */
+  public ServiceData colourCell(JsonNode address) {
+    ServiceData serviceData = new ServiceData();
+
+    // Style of the cell
+    ObjectNode values = JsonNodeFactory.instance.objectNode();
+    values.put("style", "updated");
+
+    // Address of the cell that made the call
+    ComponentAddress cellAddress = new ComponentAddress(getApplicationName(), null, address.get("view").asText(), null,
+      address.get("component").asText(), address.get("row").asText(), address.get("column").asText());
+
+    ClientAction updateCell = new ClientAction("update-cell");
+    updateCell.setAddress(cellAddress);
+    updateCell.setAsync("true");
+    updateCell.setSilent("true");
+    updateCell.addParameter("data", new CellData(values));
+    serviceData.addClientAction(updateCell);
+
+    return serviceData;
+  }
+}
+```
+
+**Ejemplo 5**: Cargar una lista de datos almacenada desde una fila de un grid
 
 Definición de consulta
 
