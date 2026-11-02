@@ -5,6 +5,8 @@
     Created on : 12 de marzo de 2013
     Author     : Pablo Vidal
     Description: Gestion secuencias del sistema
+    DEPRECATED since AWE 5.0.0: replaced by the sequence-admin screen (screen/configuration/sequence-admin.xml), which the
+    "sequences" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_AWEKEY" help="HELP_SCREEN_TITLE_AWEKEY" keep-criteria="true">
   <tag source="hidden">
@@ -21,7 +23,7 @@
     <button button-type="button" label="BUTTON_CONFIRM" icon="save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
       <button-action type="validate" />
       <button-action type="confirm" target="UpdMsg" />
-      <button-action type="server" server-action="maintain" target-action="AweKeyUpd" />
+      <button-action type="server" server-action="maintain" target-action="AweKeyMul" />
       <button-action type="filter" target="GrdKeyLst" />
     </button>
   </tag>

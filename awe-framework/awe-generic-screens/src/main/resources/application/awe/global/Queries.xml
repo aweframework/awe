@@ -2888,20 +2888,163 @@
     <order-by field="KeyNam" type="ASC" />
   </query>
 
+  <!-- Sequences list: the deprecated AweKey screen (criteria CrtKeyNam and CrtSta) and the sequences screen
+       (sequence-admin: search CrtKeyTxt and quick filters CrtKeySta) -->
   <query id="AweKeyLst" distinct="true">
     <table id="AweKey" alias="AweKey" />
     <field id="KeyNam" alias="id" />
     <field id="KeyNam" alias="KeyNam" />
     <field id="KeyVal" alias="KeyVal" />
     <field id="Act" alias="Act" />
+    <!-- State of the sequence (active, inactive) with its label and tone, as SitLst -->
+    <case alias="StaCod">
+      <when left-field="Act" left-table="AweKey" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
         <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="key" optional="true" />
         <filter left-field="Act" left-table="AweKey" condition="eq" right-variable="active" optional="true" />
+        <!-- Search of the grid (sequence-admin): the name contains the text, ignoring case -->
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="KeySch" ignorecase="true" optional="true" />
+        <!-- State of the sequence (active, inactive): same expression as KeyStaCnt -->
+        <filter condition="eq" right-variable="KeySta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweKey" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="key" type="STRINGB" name="CrtKeyNam" />
     <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="KeySch" type="STRINGB" name="CrtKeyTxt" optional="true" />
+    <variable id="KeySta" type="STRING" name="CrtKeySta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- SEQUENCE STATE COUNTERS: the quick filters of the sequences screen (sequence-admin), counted with its search -->
+  <query id="KeyStaCnt">
+    <table id="AweKey" alias="AweKey" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_SEQUENCE_FILTER_ALL" alias="label" />
+    <field id="KeyNam" table="AweKey" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="KeyStaCntAct" />
+    <union type="ALL" query="KeyStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="key" optional="true" />
+        <filter left-field="Act" left-table="AweKey" condition="eq" right-variable="active" optional="true" />
+        <!-- Search of the grid (sequence-admin): the name contains the text, ignoring case -->
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="KeySch" ignorecase="true" optional="true" />
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="key" type="STRINGB" name="CrtKeyNam" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="KeySch" type="STRINGB" name="CrtKeyTxt" optional="true" />
+  </query>
+
+  <!-- SEQUENCE STATE COUNTERS: active sequences -->
+  <query id="KeyStaCntAct">
+    <table id="AweKey" alias="AweKey" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_SEQUENCE_FILTER_ACTIVE" alias="label" />
+    <field id="KeyNam" table="AweKey" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="key" optional="true" />
+        <filter left-field="Act" left-table="AweKey" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="KeySch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweKey" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="key" type="STRINGB" name="CrtKeyNam" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="KeySch" type="STRINGB" name="CrtKeyTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- SEQUENCE STATE COUNTERS: inactive sequences -->
+  <query id="KeyStaCntIna">
+    <table id="AweKey" alias="AweKey" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_SEQUENCE_FILTER_INACTIVE" alias="label" />
+    <field id="KeyNam" table="AweKey" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="key" optional="true" />
+        <filter left-field="Act" left-table="AweKey" condition="eq" right-variable="active" optional="true" />
+        <filter left-field="KeyNam" left-table="AweKey" condition="like" right-variable="KeySch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweKey" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="key" type="STRINGB" name="CrtKeyNam" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="KeySch" type="STRINGB" name="CrtKeyTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Sequences screen (sequence-admin): name of a new sequence check unique (the panel names it SeqNam) -->
+  <query id="KeyNamUni">
+    <table id="AweKey" />
+    <field id="KeyNam" alias="KeyNam" />
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="KeyNam" trim="true" />
+      </and>
+    </where>
+    <variable id="KeyNam" type="STRING" name="SeqNam" />
   </query>
 
   <!-- AweKey KeyNam check unique -->
@@ -2916,7 +3059,8 @@
     <variable id="KeyNam" type="STRING" name="KeyNam.selected" />
   </query>
 
-  <!-- Application parameter list -->
+  <!-- Application parameter list: the deprecated AweAppPar screen (criteria CrtParNam, CrtCat and CrtSta) and the
+       application parameters screen (application-parameter-admin: search CrtAppParTxt and quick filters CrtAppParSta) -->
   <query id="AweAppParLst" distinct="true">
     <table id="AweAppPar" alias="AweAppPar" />
     <field id="IdeAweAppPar" alias="id" />
@@ -2926,16 +3070,180 @@
     <field id="Cat" alias="Cat" />
     <field id="Des" alias="Des" />
     <field id="Act" alias="Act" />
+    <!-- Category of the parameter with its label: the grid of the application parameters screen (application-parameter-admin)
+         shows it as a plain column, with no quick filter by category. It is a field with its translation, as the category of
+         getApplicationParameters, not a computed one: a computed value with translate comes out empty -->
+    <field id="Cat" alias="CatTxt" translate="CatParTyp" />
+    <!-- State of the parameter (active, inactive) with its label and tone, as SitLst -->
+    <case alias="StaCod">
+      <when left-field="Act" left-table="AweAppPar" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
         <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="ParNam" optional="true" />
         <filter left-field="Cat" left-table="AweAppPar" condition="eq" right-variable="Cat" optional="true" />
         <filter left-field="Act" left-table="AweAppPar" condition="eq" right-variable="active" optional="true" />
+        <!-- Search of the grid (application-parameter-admin): the name or the description contains the text, ignoring case -->
+        <or>
+          <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+        </or>
+        <!-- State of the parameter (active, inactive): same expression as AppParStaCnt -->
+        <filter condition="eq" right-variable="AppParSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweAppPar" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="ParNam" type="STRING" name="CrtParNam" />
     <variable id="Cat" type="STRING" name="CrtCat" />
     <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="AppParSch" type="STRINGB" name="CrtAppParTxt" optional="true" />
+    <variable id="AppParSta" type="STRING" name="CrtAppParSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- APPLICATION PARAMETER STATE COUNTERS: the quick filters of the application parameters screen
+       (application-parameter-admin), counted with its search -->
+  <query id="AppParStaCnt">
+    <table id="AweAppPar" alias="AweAppPar" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_APP_PAR_FILTER_ALL" alias="label" />
+    <field id="IdeAweAppPar" table="AweAppPar" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="AppParStaCntAct" />
+    <union type="ALL" query="AppParStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="ParNam" optional="true" />
+        <filter left-field="Cat" left-table="AweAppPar" condition="eq" right-variable="Cat" optional="true" />
+        <filter left-field="Act" left-table="AweAppPar" condition="eq" right-variable="active" optional="true" />
+        <!-- Search of the grid (application-parameter-admin): the name or the description contains the text, ignoring case -->
+        <or>
+          <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="ParNam" type="STRING" name="CrtParNam" />
+    <variable id="Cat" type="STRING" name="CrtCat" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="AppParSch" type="STRINGB" name="CrtAppParTxt" optional="true" />
+  </query>
+
+  <!-- APPLICATION PARAMETER STATE COUNTERS: active parameters -->
+  <query id="AppParStaCntAct">
+    <table id="AweAppPar" alias="AweAppPar" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_APP_PAR_FILTER_ACTIVE" alias="label" />
+    <field id="IdeAweAppPar" table="AweAppPar" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="ParNam" optional="true" />
+        <filter left-field="Cat" left-table="AweAppPar" condition="eq" right-variable="Cat" optional="true" />
+        <filter left-field="Act" left-table="AweAppPar" condition="eq" right-variable="active" optional="true" />
+        <or>
+          <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweAppPar" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="ParNam" type="STRING" name="CrtParNam" />
+    <variable id="Cat" type="STRING" name="CrtCat" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="AppParSch" type="STRINGB" name="CrtAppParTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- APPLICATION PARAMETER STATE COUNTERS: inactive parameters -->
+  <query id="AppParStaCntIna">
+    <table id="AweAppPar" alias="AweAppPar" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_APP_PAR_FILTER_INACTIVE" alias="label" />
+    <field id="IdeAweAppPar" table="AweAppPar" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="ParNam" optional="true" />
+        <filter left-field="Cat" left-table="AweAppPar" condition="eq" right-variable="Cat" optional="true" />
+        <filter left-field="Act" left-table="AweAppPar" condition="eq" right-variable="active" optional="true" />
+        <or>
+          <filter left-field="ParNam" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+          <filter left-field="Des" left-table="AweAppPar" condition="like" right-variable="AppParSch" ignorecase="true" optional="true" />
+        </or>
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="AweAppPar" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="ParNam" type="STRING" name="CrtParNam" />
+    <variable id="Cat" type="STRING" name="CrtCat" />
+    <variable id="active" type="INTEGER" name="CrtSta" />
+    <variable id="AppParSch" type="STRINGB" name="CrtAppParTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Application parameters screen (application-parameter-admin): name of a new parameter check unique -->
+  <query id="AppParNamUni">
+    <table id="AweAppPar" />
+    <field id="ParNam" alias="ParNam" />
+    <where>
+      <and>
+        <filter left-field="ParNam" condition="eq" right-variable="ParNam" trim="true" />
+      </and>
+    </where>
+    <variable id="ParNam" type="STRING" name="ParNam" />
   </query>
 
   <!-- Application parameter check unique -->

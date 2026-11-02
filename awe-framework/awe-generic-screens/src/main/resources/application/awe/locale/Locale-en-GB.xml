@@ -26,8 +26,10 @@
   <locale name="BUTTON_CLOSE" value="Close"/>
   <locale name="BUTTON_CONFIRM" value="Confirm"/>
   <locale name="BUTTON_COPY" value="Copy"/>
+  <locale name="BUTTON_CREATE_APP_PAR" value="Create parameter"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
+  <locale name="BUTTON_CREATE_SEQUENCE" value="Create sequence"/>
   <locale name="BUTTON_CREATE_SITE" value="Create site"/>
   <locale name="BUTTON_CREATE_THEME" value="Create theme"/>
   <locale name="BUTTON_CREATE_USER" value="Create user"/>
@@ -57,8 +59,10 @@
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
   <locale name="BUTTON_NEW" value="New"/>
+  <locale name="BUTTON_NEW_APP_PAR" value="New parameter"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 row below selected"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 row above selected"/>
+  <locale name="BUTTON_NEW_SEQUENCE" value="New sequence"/>
   <locale name="BUTTON_NEW_USER" value="New user"/>
   <locale name="BUTTON_NEXT" value="Next"/>
   <locale name="BUTTON_PREVIOUS" value="Previous"/>
@@ -1002,6 +1006,7 @@
   <locale name="HELP_SCREEN_TITLE" value="Help Screen"/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
+  <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Parameters of the application: the security, reporting and general settings it reads."/>
   <locale name="HELP_SCREEN_TITLE_AWEKEY" value="Manage application unique keys for sequences"/>
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Send a broadcast message. If you let the &apos;User&apos; criterion empty, the message is sent to all connected users in the application"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Calendar management"/>
@@ -1053,6 +1058,7 @@
   <locale name="HELP_SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_SCREEN" value="Manage secure access to the application screens"/>
   <locale name="HELP_SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="HELP_SCREEN_TITLE_SEQUENCE_ADMIN" value="Sequences of the application: the value AWE hands out as the next identifier of each name."/>
   <locale name="HELP_SCREEN_TITLE_SIT"><![CDATA[Manage application sites. Here you can view, add, delete and modify all application sites.
 
 A site is defined as a *separated application node*, with it's own [databases](#databases) and [modules](#modules).]]></locale>
@@ -1370,6 +1376,15 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Second factor authentication settings"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Add localee text"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Add a localee identifier"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="Parameter state"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_APP_PAR_IDENTITY" value="Parameter"/>
+  <locale name="SCREEN_TEXT_APP_PAR_RELOAD_HINT" value="Saving a parameter reloads it in the application."/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Name or description…"/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Search parameters"/>
+  <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Value"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendar"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Added dates"/>
   <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Your password has expired. Set a new one to sign in."/>
@@ -1462,6 +1477,14 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_SECUENCE" value="Sequences"/>
   <locale name="SCREEN_TEXT_SEL_DAT" value="Select date"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Printer selection"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTERS" value="Sequence state"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_IDENTITY" value="Sequence"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH_LABEL" value="Search sequences"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="The last identifier AWE handed out for this name; it is added up on every new record."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Put file name without any extension"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Selected"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servers"/>
@@ -1488,6 +1511,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
+  <locale name="SCREEN_TITLE_APP_PAR_ADMIN" value="Application parameters"/>
+  <locale name="SCREEN_TITLE_APP_PAR_PANEL" value="Application parameter"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Sequences"/>
   <locale name="SCREEN_TITLE_BATCH" value="Batch definition"/>
   <locale name="SCREEN_TITLE_BATCH_AUDIT" value="Batch audit management"/>
@@ -1547,6 +1572,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Screen access"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Closed"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Sequences"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Sequence"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>
   <locale name="SCREEN_TITLE_SIT_UPD" value="Update site"/>
@@ -1605,14 +1632,18 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Please enter a valid text. Numbers and white spaces are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Please enter a valid text. Numbers are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Please enter a valid time, between 00:00:00 and 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="There is already a parameter with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="There is already a profile with this acronym. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="Queue exist yet"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="There is already a sequence with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="The name of mail server already exist"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="There is already a site with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
+  <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Duplicated parameter"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Duplicated queue"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Duplicated sequence"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Duplicated server name"/>
   <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Duplicated site"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Duplicated user name"/>

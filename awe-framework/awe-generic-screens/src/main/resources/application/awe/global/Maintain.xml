@@ -844,8 +844,9 @@
     </multiple>
   </target>
 
-  <!-- AweKey Update Multiple -->
-  <target name="AweKeyUpd">
+  <!-- AweKey Update Multiple: the editable grid of the deprecated AweKey screen. It is named AweKeyMul (as
+       AweAppParMul) since the sequences screen (sequence-admin) took AweKeyUpd for the update of one sequence -->
+  <target name="AweKeyMul">
     <multiple grid="GrdKeyLst">
       <table id="AweKey"/>
       <field id="KeyNam" variable="KeyNam" key="true"/>
@@ -855,6 +856,52 @@
       <variable id="KeyVal" type="INTEGER" name="KeyVal"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </multiple>
+  </target>
+
+  <!-- Sequences screen (sequence-admin): one sequence per action. The name of a sequence is its primary key and the screen
+       keeps it read-only when editing, so only the update of the value and the state needs the name of the selected row -->
+  <target name="AweKeyNew">
+    <insert>
+      <table id="AweKey"/>
+      <field id="KeyNam" variable="KeyNam"/>
+      <field id="KeyVal" variable="KeyVal"/>
+      <field id="Act" variable="Act"/>
+      <!-- The screen names the typed name SeqNam: the grid sends KeyNam with the selected rows and the button of a new
+           sequence unselects them all, so KeyNam is empty when a sequence is created -->
+      <variable id="KeyNam" type="STRING" name="SeqNam"/>
+      <variable id="KeyVal" type="INTEGER" name="KeyVal"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </insert>
+  </target>
+
+  <target name="AweKeyUpd">
+    <update>
+      <table id="AweKey"/>
+      <field id="KeyVal" variable="KeyVal"/>
+      <field id="Act" variable="Act"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <!-- KeyNam.selected is the name of the selected row of the grid, a single value only with one row selected -->
+      <variable id="KeyNam" type="STRING" name="KeyNam.selected"/>
+      <variable id="KeyVal" type="INTEGER" name="KeyVal"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </update>
+  </target>
+
+  <target name="AweKeyDel">
+    <!-- The grid sends the name of every selected sequence (a list) -->
+    <delete multiple="true">
+      <table id="AweKey"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <variable id="KeyNam" type="STRING" name="KeyNam"/>
+    </delete>
   </target>
 
   <!-- AweAppPar Application parameters -->
@@ -874,6 +921,77 @@
       <variable id="Des" type="STRING" name="Des"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </multiple>
+  </target>
+
+  <!-- Application parameters screen (application-parameter-admin): one parameter per action. The name of a parameter is the
+       key the application reads and the screen keeps it read-only when editing, so the update of the selected row writes it
+       again together with its value, its category, its description and its state -->
+  <target name="AweAppParNew">
+    <insert audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="IdeAweAppPar" variable="IdeAweAppPar" sequence="AppParKey"/>
+      <field id="ParNam" variable="ParNam"/>
+      <field id="ParVal" variable="ParVal"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Des" variable="Des"/>
+      <field id="Act" variable="Act"/>
+      <!-- The screen names the typed name ParNam; its grid sends only the identifier of the selected rows, so ParNam is
+           empty when a parameter is created -->
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <!-- The value and the description of a parameter are optional: an empty one is stored as null -->
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </insert>
+  </target>
+
+  <target name="AweAppParUpd">
+    <update audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="ParNam" variable="ParNam"/>
+      <field id="ParVal" variable="ParVal"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Des" variable="Des"/>
+      <field id="Act" variable="Act"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweAppPar" condition="eq" right-variable="IdeAweAppPar"/>
+        </and>
+      </where>
+      <!-- IdeAweAppPar.selected is the identifier of the selected row of the grid, a single value only with one row selected -->
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar.selected"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </update>
+  </target>
+
+  <target name="AweAppParDel">
+    <!-- The grid sends the identifier of every selected parameter (a list) -->
+    <delete multiple="true" audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="IdeAweAppPar" variable="IdeAweAppPar" audit="true"/>
+      <field id="ParNam" variable="ParNam" audit="true"/>
+      <field id="ParVal" variable="ParVal" audit="true"/>
+      <field id="Cat" variable="Cat" audit="true"/>
+      <field id="Des" variable="Des" audit="true"/>
+      <field id="Act" variable="Act" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweAppPar" condition="eq" right-variable="IdeAweAppPar"/>
+        </and>
+      </where>
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </delete>
   </target>
 
   <!-- Security application parameters -->
