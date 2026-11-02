@@ -104,6 +104,7 @@ Para dejar a mano los criterios menos frecuentes de una búsqueda, colócalos en
 | date-format             | [Date](#date-criterion)                                                       | String  | Para establecer el formato de la fecha que desea mostrar                             | El valor predeterminado es `dd/MM/yyyy`. **Nota:** Ver el formato en el siguiente enlace [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
 | date-show-today-button | [Date](#date-criterion)                                                       | Boolean | Para mostrar o no el botón para seleccionar la fecha de hoy                          | El valor predeterminado es `true`                                                                                                                            |
 | date-view-mode        | [Date](#date-criterion)                                                       | String  | Selecciona 'days', 'months' o 'years' para establecer la magnitud mínima a mostrar     | El valor predeterminado es `days`                                                                                                                                 |
+| time-format | [Time](#time-criterion) | String | Formato de la hora que desea mostrar | `HH:mm`, `HH:mm:ss`, `hh:mm a` o `hh:mm:ss a`. El valor predeterminado es `HH:mm:ss`. Solo motor React |
 | presets                 | [Rango de fechas](#date-range-criterion) | String  | Preajustes rápidos que se muestran bajo el rango, separados por comas o espacios | `TODAY`, `YTD`, `ALL` o un periodo hacia atrás desde hoy (`7D`, `2W`, `1M`, `3M`, `12M`, `3Y`...). Por defecto no se muestra ningún preajuste |
 
 ## Componentes {#components}
@@ -201,6 +202,21 @@ Los motores AngularJS y React aplican las mismas opciones al criterio de fecha y
 Permite seleccionar una hora con un selector de tiempo.
 
 <img alt="TimeCriterion" src={require('@docusaurus/useBaseUrl').default('img/TimeCriterion.png')} />
+
+El atributo `time-format` (solo motor React) define cómo se muestra la hora:
+
+| Formato      | Muestra                       | Valor enviado al servidor |
+|--------------|-------------------------------|---------------------------|
+| `HH:mm`      | `14:30`                       | `14:30`                   |
+| `HH:mm:ss`   | `14:30:15` (por defecto)      | `14:30:15`                |
+| `hh:mm a`    | `02:30 PM` (reloj de 12 horas) | `14:30`                  |
+| `hh:mm:ss a` | `02:30:15 PM` (reloj de 12 horas) | `14:30:15`            |
+
+El valor que envía el cliente es siempre una hora en formato de 24 horas, y solo lleva segundos cuando el formato los incluye.
+
+```xml
+<criteria label="PARAMETER_TIME" id="Time" component="time" time-format="HH:mm"/>
+```
 
 ### Criterio de rango de fechas {#date-range-criterion}
 

@@ -197,6 +197,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String dateFormat;
 
+  // Format of a time (HH:mm, HH:mm:ss, hh:mm a, hh:mm:ss a)
+  @XStreamAlias("time-format")
+  @XStreamAsAttribute
+  private String timeFormat;
+
   // Show today button in date criteria
   @XStreamAlias("date-show-today-button")
   @XStreamAsAttribute

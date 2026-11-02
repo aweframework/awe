@@ -103,6 +103,7 @@ To keep the less frequent criteria of a search at hand, place them in the `<adva
 | date-format            | [Date](#date-criterion)                                           | String  | To set the format of the date you want to show                                 | Default value is `dd/MM/yyyy`. **Note:** See the format in the following [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
 | date-show-today-button | [Date](#date-criterion)                                           | Boolean | To show or not the button to select today date                                 | Default value is `true`                                                                                                                              |
 | date-view-mode         | [Date](#date-criterion)                                           | String  | Select 'days', 'months' or 'years' to set the minimum magnitude to be shown    | Default value is `days`                                                                                                                              |
+| time-format | [Time](#time-criterion) | String | Format of the time you want to show | `HH:mm`, `HH:mm:ss`, `hh:mm a` or `hh:mm:ss a`. Default value is `HH:mm:ss`. React engine only |
 | presets                | [Date range](#date-range-criterion)                               | String  | Quick presets shown under the range, separated by commas or spaces             | `TODAY`, `YTD`, `ALL` or a period back from today (`7D`, `2W`, `1M`, `3M`, `12M`, `3Y`...). By default no preset is shown                            |
 
 ## Components
@@ -197,6 +198,21 @@ The AngularJS and the React engines apply the same options to the date criterion
 Allows to select a time with a time picker.
 
 <img alt="TimeCriterion" src={require('@docusaurus/useBaseUrl').default('img/TimeCriterion.png')} />
+
+The `time-format` attribute (React engine only) sets how the time is shown:
+
+| Format       | Shows                       | Value sent to the server |
+|--------------|-----------------------------|--------------------------|
+| `HH:mm`      | `14:30`                     | `14:30`                  |
+| `HH:mm:ss`   | `14:30:15` (default)        | `14:30:15`               |
+| `hh:mm a`    | `02:30 PM` (12-hour clock)  | `14:30`                  |
+| `hh:mm:ss a` | `02:30:15 PM` (12-hour clock) | `14:30:15`             |
+
+The value that the client sends is always a 24-hour time, and it has seconds only when the format has them.
+
+```xml
+<criteria label="PARAMETER_TIME" id="Time" component="time" time-format="HH:mm"/>
+```
 
 ### Date range criterion
 

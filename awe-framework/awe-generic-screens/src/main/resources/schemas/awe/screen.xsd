@@ -907,6 +907,11 @@
         <xs:documentation xml:lang="en">Date criteria only. Date format in bootstrap-datepicker syntax (default dd/mm/yyyy). AngularJS only; React always uses its own fixed format.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="time-format" type="timeFormatEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Time criteria only (component="time"). Format of the time: HH:mm, HH:mm:ss, hh:mm a or hh:mm:ss a (hh = 12-hour clock with AM/PM). The value sent to the server is always 24-hour and includes seconds only when the format has them. Default: HH:mm:ss. React only; AngularJS ignores it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="date-show-today-button" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Date criteria only. Shows the button that goes to today. AngularJS only (default: shown); React always shows it.</xs:documentation>
@@ -2436,6 +2441,18 @@
       <xs:enumeration value="days" />
       <xs:enumeration value="months" />
       <xs:enumeration value="years" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="timeFormatEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format of a time criterion: 24-hour or 12-hour clock (with AM/PM), with or without seconds.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HH:mm" />
+      <xs:enumeration value="HH:mm:ss" />
+      <xs:enumeration value="hh:mm a" />
+      <xs:enumeration value="hh:mm:ss a" />
     </xs:restriction>
   </xs:simpleType>
 
