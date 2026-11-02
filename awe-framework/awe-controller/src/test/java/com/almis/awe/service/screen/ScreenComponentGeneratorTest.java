@@ -15,6 +15,7 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
@@ -159,5 +160,20 @@ class ScreenComponentGeneratorTest {
     verify(screenModelGenerator, never()).addColumnTarget(any(), any(), any());
     // The grid layouts were applied with the screen too: the deferred load only sends models
     verify(gridLayoutService, never()).getScreenLayouts(any());
+  }
+
+  @Test
+  void optionWithServerActionIsSerializedAsServerAction() {
+    Option screenOption = Option.builder().name("ScreenOption").build();
+    Option serverOption = Option.builder().name("ServerOption").serverAction("maintain-silent").targetAction("MyTarget").build();
+    Menu menu = Menu.builder().defaultAction("screen").elementList(List.of(screenOption, serverOption)).build();
+
+    generator.applyOptionActions(menu);
+
+    // The default "screen" action is a client action type, any other is a server action (#879)
+    assertThat(screenOption.getActionList().get(0).getServerActionConverter()).isEqualTo("screen");
+    assertThat(serverOption.getActionList().get(0).getServerActionConverter()).isEqualTo("server");
+    assertThat(serverOption.getActionList().get(0).getServerAction()).isEqualTo("maintain-silent");
+    assertThat(serverOption.getActionList().get(0).getTargetAction()).isEqualTo("MyTarget");
   }
 }

@@ -308,7 +308,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
       if (option.getActionList() == null) {
         String serverAction = option.getServerAction() != null ? option.getServerAction() : menu.getDefaultAction();
         String context = option.getScreenContext() != null ? option.getScreenContext() : menu.getScreenContext();
+        // Only "screen" is also a client action type, any other server action must be sent as a server action (#879)
         AbstractAction action = ButtonAction.builder()
+          .type("screen".equals(serverAction) ? null : "server")
           .serverAction(serverAction)
           .targetAction(option.getTargetAction())
           .screenContext(context)
