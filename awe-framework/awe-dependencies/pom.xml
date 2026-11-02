@@ -62,7 +62,7 @@
     <plugin-flatten-maven.version>1.8.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.5.0</plugin-resources.version>
-    <plugin-japicmp.version>0.26.3</plugin-japicmp.version>
+    <plugin-japicmp.version>0.26.5</plugin-japicmp.version>
     <plugin-maven-archetype.version>3.4.1</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.2.0</plugin-maven-install.version>
     <!-- Skip configuration -->
