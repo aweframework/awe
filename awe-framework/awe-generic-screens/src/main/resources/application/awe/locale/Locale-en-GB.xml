@@ -28,6 +28,7 @@
   <locale name="BUTTON_COPY" value="Copy"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
+  <locale name="BUTTON_CREATE_SITE" value="Create site"/>
   <locale name="BUTTON_CREATE_THEME" value="Create theme"/>
   <locale name="BUTTON_CREATE_USER" value="Create user"/>
   <locale name="BUTTON_DARK_MODE" value="Dark mode"/>
@@ -35,6 +36,7 @@
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
   <locale name="BUTTON_DONE" value="Done"/>
+  <locale name="BUTTON_DUPLICATE_SITE" value="Duplicate site"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
   <locale name="BUTTON_EDIT_DATABASE_SITES" value="Edit sites and modules"/>
   <locale name="BUTTON_MORE_ACTIONS" value="More actions"/>
@@ -44,6 +46,7 @@
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="New connection"/>
   <locale name="BUTTON_NEW_PROFILE" value="New profile"/>
+  <locale name="BUTTON_NEW_SITE" value="New site"/>
   <locale name="BUTTON_NEW_THEME" value="New theme"/>
   <locale name="BUTTON_TOGGLE_MENU" value="Toggle menu"/>
   <locale name="BUTTON_HOME" value="Home"/>
@@ -731,6 +734,7 @@
   <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groups of users with their default theme, initial screen and file restriction."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Browse the security events recorded by the application: logins, logouts, account locks, password and second factor changes, denied accesses and REST tokens. Filter by date, event, result, channel, user or address; select an event and press View to see all its data"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
+  <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Sites of the application and the database each module uses on them."/>
   <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Colour themes of the application: primary colour, surface and mode. Profiles and users choose one of the active themes."/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
@@ -798,6 +802,17 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Failures by cause"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Request"/>
+  <locale name="SCREEN_TEXT_SITE_FILTERS" value="Site state"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_SITE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES" value="Modules and databases"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY" value="No modules yet"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY_TEXT" value="Add the database each module uses."/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_ORDER" value="The order of the modules is the order in which AWE loads them when several modules share a database."/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH_LABEL" value="Search sites"/>
   <locale name="SCREEN_TEXT_THEME_COLOURS" value="Colours and mode"/>
   <locale name="SCREEN_TEXT_THEME_FILTERS" value="Theme state"/>
   <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Active"/>
@@ -812,6 +827,8 @@
   <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profile"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Security audit"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Security event"/>
+  <locale name="SCREEN_TITLE_SITE_PANEL" value="Site"/>
+  <locale name="SCREEN_TITLE_SIT_ADMIN" value="Sites"/>
   <locale name="SCREEN_TITLE_THEME_ADMIN" value="Themes"/>
   <locale name="SCREEN_TITLE_THEME_PANEL" value="Theme"/>
   <locale name="UPLOADER_DROP_HINT" value="Drag a file here or choose one"/>
@@ -1591,11 +1608,13 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="There is already a profile with this acronym. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="Queue exist yet"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="The name of mail server already exist"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="There is already a site with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Duplicated queue"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Duplicated server name"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Duplicated site"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Duplicated user name"/>
   <locale name="WARNING_TITLE_WEB_SERVICE_CALL" value="Warning!"/>
   <locale name="WEEK" value="{0} week"/>

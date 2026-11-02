@@ -26,9 +26,11 @@ describe('AWE 5 grid styles (#885)', () => {
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(css).not.toMatch(/\b(rgba?|hsla?|oklch|color-mix)\(/);
     expect(css).not.toMatch(/:\s*(white|black)\b/);
-    // Only hairlines are written in px: every other size comes from a token
-    expect(css.match(/\b(?!1px\b)\d+(\.\d+)?px\b/g)).toBeNull();
-    expect(css).not.toMatch(/\d(\.\d+)?(rem|em|ms|s)\b/);
+    // Only hairlines are written in px: every other size comes from a token. The condition of a container query is the
+    // exception: it cannot read a custom property, as the breakpoints of the Tailwind theme, so its threshold is a size
+    const declarations = css.replace(/@container \([^)]*\)/g, '');
+    expect(declarations.match(/\b(?!1px\b)\d+(\.\d+)?px\b/g)).toBeNull();
+    expect(declarations).not.toMatch(/\d(\.\d+)?(rem|em|ms|s)\b/);
     expect(css).not.toMatch(/\.dark\b|\.light\b|data-awe-density|prefers-color-scheme|layout-(dark|light)/);
     (css.match(/var\(--[\w-]+/g) || []).forEach(variable => expect(variable).toMatch(/^var\(--(awe-|_|cell-max-lines|grid-row-height)/));
     expect(css).not.toMatch(/var\(--awe-palette-/);
@@ -304,7 +306,8 @@ describe('AWE 5 grid styles (#885)', () => {
 
   it('pads the skeleton rows like the cells of the grid', () => {
     const skeleton = read('components/AweGridSkeleton.less');
-    expect(rule(skeleton, '.grid-skeleton-row')).toMatch(/border-bottom: 1px solid var\(--awe-grid-border\);/);
+    // No separator lines: the bars appear after a delay, so on a fast load the lines alone would flash
+    expect(rule(skeleton, '.grid-skeleton-row')).toMatch(/border-bottom: 1px solid transparent;/);
     expect(rule(skeleton, '.grid-skeleton-cell')).toMatch(/padding: var\(--awe-grid-cell-padding-y\) var\(--awe-grid-cell-padding-x\);/);
   });
 

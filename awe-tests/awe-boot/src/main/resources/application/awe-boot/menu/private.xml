@@ -12,11 +12,7 @@
   <option module="Inf" name="information-restricted" screen="info" invisible="true"/>
   <option module="Inf Changed" name="information-restricted-changed" screen="info" invisible="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
-    <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
-      <option name="new-site" screen="SitNew" invisible="true"/>
-      <option name="update-site" screen="SitUpd" invisible="true"/>
-      <option name="view-site" screen="SitViw" invisible="true"/>
-    </option>
+    <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
     <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
       <option name="new-module" screen="ModNew" invisible="true"/>
       <option name="update-module" screen="ModUpd" invisible="true"/>

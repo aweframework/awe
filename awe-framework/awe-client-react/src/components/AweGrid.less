@@ -912,6 +912,38 @@
   }
 }
 
+// A grid in a narrow container (a side panel of 640px, a dialog) drops from its paginator what does not fit, in this
+// order: the range of the rows shown (the page number and the total remain, and the header of the grid card counts the
+// rows), the word that labels the page input and, in a narrower container, the rows per page, which is a setting of the
+// grid that a wider screen shows. The arrows and the page input never go: they are the navigation.
+// The thresholds are in px and not tokens: a container query cannot read a custom property, as the breakpoints of the
+// Tailwind theme (theme.css)
+.grid-container {
+  container-type: inline-size;
+}
+
+@container (width < 650px) {
+  .p-paginator .p-paginator-current,
+  .p-paginator .pagination-goto-page .pagination-goto-label {
+    display: none;
+  }
+}
+
+@container (width < 546px) {
+  // The rows per page are a setting of the grid: in a narrow container the navigation comes first
+  .p-paginator .p-dropdown {
+    display: none;
+  }
+}
+
+// A very narrow grid keeps the previous and next arrows only
+@container (width < 442px) {
+  .p-paginator .p-paginator-first,
+  .p-paginator .p-paginator-last {
+    display: none;
+  }
+}
+
 .grid-container .p-paginator .pagination-goto-page {
   display: inline-flex;
   align-items: center;

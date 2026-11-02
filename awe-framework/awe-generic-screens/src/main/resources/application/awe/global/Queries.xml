@@ -2544,14 +2544,153 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+    <!-- Sites screen (site-admin): avatar (the name its initials are taken from and a tone that depends only on the
+         identifier) and state with its label and tone, as ProLst -->
+    <operation operator="NULLIF" alias="Ini">
+      <field id="Nam" table="sit" function="TRIM" />
+      <constant value="" />
+    </operation>
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdeSit" table="sit" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
+    <case alias="StaCod">
+      <when left-field="Act" left-table="sit" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
         <filter left-field="IdeSit" left-table="sit" condition="eq" right-variable="site" optional="true" />
         <filter left-field="Act" left-table="sit" condition="eq" right-variable="status" optional="true" />
+        <!-- Search of the grid (site-admin): the name contains the text, ignoring case -->
+        <filter left-field="Nam" left-table="sit" condition="like" right-variable="SitSch" ignorecase="true" optional="true" />
+        <!-- State of the site (active, inactive): same expression as SitStaCnt -->
+        <filter condition="eq" right-variable="SitSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="sit" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
       </and>
     </where>
     <variable id="site" type="INTEGER" name="CrtSit" />
     <variable id="status" type="INTEGER" name="CrtSta" />
+    <variable id="SitSch" type="STRINGB" name="CrtSitTxt" optional="true" />
+    <variable id="SitSta" type="STRING" name="CrtSitSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- SITE STATE COUNTERS: the quick filters of the sites screen (site-admin), counted with its search -->
+  <query id="SitStaCnt">
+    <table id="AweSit" alias="sit" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_SITE_FILTER_ALL" alias="label" />
+    <field id="IdeSit" table="sit" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="SitStaCntAct" />
+    <union type="ALL" query="SitStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="IdeSit" left-table="sit" condition="eq" right-variable="site" optional="true" />
+        <filter left-field="Act" left-table="sit" condition="eq" right-variable="status" optional="true" />
+        <!-- Search of the grid (site-admin): the name contains the text, ignoring case -->
+        <filter left-field="Nam" left-table="sit" condition="like" right-variable="SitSch" ignorecase="true" optional="true" />
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="site" type="INTEGER" name="CrtSit" />
+    <variable id="status" type="INTEGER" name="CrtSta" />
+    <variable id="SitSch" type="STRINGB" name="CrtSitTxt" optional="true" />
+  </query>
+
+  <!-- SITE STATE COUNTERS: active sites -->
+  <query id="SitStaCntAct">
+    <table id="AweSit" alias="sit" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_SITE_FILTER_ACTIVE" alias="label" />
+    <field id="IdeSit" table="sit" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeSit" left-table="sit" condition="eq" right-variable="site" optional="true" />
+        <filter left-field="Act" left-table="sit" condition="eq" right-variable="status" optional="true" />
+        <filter left-field="Nam" left-table="sit" condition="like" right-variable="SitSch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="sit" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="site" type="INTEGER" name="CrtSit" />
+    <variable id="status" type="INTEGER" name="CrtSta" />
+    <variable id="SitSch" type="STRINGB" name="CrtSitTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- SITE STATE COUNTERS: inactive sites -->
+  <query id="SitStaCntIna">
+    <table id="AweSit" alias="sit" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_SITE_FILTER_INACTIVE" alias="label" />
+    <field id="IdeSit" table="sit" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="IdeSit" left-table="sit" condition="eq" right-variable="site" optional="true" />
+        <filter left-field="Act" left-table="sit" condition="eq" right-variable="status" optional="true" />
+        <filter left-field="Nam" left-table="sit" condition="like" right-variable="SitSch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="sit" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="site" type="INTEGER" name="CrtSit" />
+    <variable id="status" type="INTEGER" name="CrtSta" />
+    <variable id="SitSch" type="STRINGB" name="CrtSitTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <!-- Site check Name Unique -->
@@ -2606,11 +2745,44 @@
   <query id="QryLstModDbsBySit">
     <table id="AweSitModDbs" alias="sitModDbs" />
     <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
+    <!-- The site of the row (site-admin): SitUpd takes it from each row, so saving a site without changing its rows works -->
+    <field id="IdeSit" table="sitModDbs" alias="IdeSitRow" />
     <field id="IdeMod" table="sitModDbs" alias="IdeMod" />
     <field id="Nam" table="mod" alias="Mod" />
     <field id="IdeDbs" table="sitModDbs" alias="IdeDbs" />
     <field id="Als" table="dbs" alias="Als" />
     <field id="Ord" table="sitModDbs" alias="Ord" />
+    <join>
+      <table id="AweDbs" alias="dbs" />
+      <and>
+        <filter left-field="IdeDbs" left-table="sitModDbs" condition="eq" right-field="IdeDbs" right-table="dbs" />
+      </and>
+    </join>
+    <join>
+      <table id="AweMod" alias="mod" />
+      <and>
+        <filter left-field="IdeMod" left-table="sitModDbs" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeSit" left-table="sitModDbs" condition="eq" right-variable="IdeSit" />
+      </and>
+    </where>
+    <variable id="IdeSit" type="INTEGER" name="IdeSit" />
+  </query>
+
+  <!-- LIST MODULES AND DATABASES BY SITE (sites screen, site-admin): the order of the row is SitModOrd and the site of the
+       row is IdeSitRow, so neither clashes with the Ord and the IdeSit of the site in the grid of the screen -->
+  <query id="QryLstModDbsBySitAdm">
+    <table id="AweSitModDbs" alias="sitModDbs" />
+    <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
+    <field id="IdeSit" table="sitModDbs" alias="IdeSitRow" />
+    <field id="IdeMod" table="sitModDbs" alias="IdeMod" />
+    <field id="Nam" table="mod" alias="Mod" />
+    <field id="IdeDbs" table="sitModDbs" alias="IdeDbs" />
+    <field id="Als" table="dbs" alias="Als" />
+    <field id="Ord" table="sitModDbs" alias="SitModOrd" />
     <join>
       <table id="AweDbs" alias="dbs" />
       <and>

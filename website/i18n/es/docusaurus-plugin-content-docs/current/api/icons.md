@@ -130,6 +130,7 @@ los dos motores y las plantillas del servidor. Cubre todos los nombres de icono 
 | `comment`              | `message-circle`       |
 | `compass`              | `compass`              |
 | `compress`             | `shrink`               |
+| `copy`                 | `copy`                 |
 | `database`             | `database`             |
 | `dollar`               | `dollar-sign`          |
 | `dot-circle-o`         | `circle-dot`           |

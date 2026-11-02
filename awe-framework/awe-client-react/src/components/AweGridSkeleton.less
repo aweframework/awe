@@ -1,5 +1,6 @@
 /* Placeholder rows shown in the body of a grid while its rows are loading: rows of the height of a row of text, with
-   a bar in each cell */
+   a bar in each cell. The rows draw no separator lines: the bars appear after a delay, so on a fast load the lines
+   alone would flash. The border stays transparent to keep the height of the real rows */
 .grid-skeleton {
   display: flex;
   flex-direction: column;
@@ -7,7 +8,7 @@
 
   .grid-skeleton-row {
     display: flex;
-    border-bottom: 1px solid var(--awe-grid-border);
+    border-bottom: 1px solid transparent;
   }
 
   .grid-skeleton-cell {

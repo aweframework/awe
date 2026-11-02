@@ -88,7 +88,35 @@ Los botones de la barra de navegación se definen en la pantalla `info-buttons.x
 
 ## Sitios {#sites}
 
-Esta es una opción de alto nivel que permite separar la lógica de la aplicación en sitios, cada uno con su propia base de datos (o conjunto de bases de datos). Aquí se pueden definir los sitios y la relación entre ellos y las bases de datos que gestionan. También se pueden definir los módulos que puede utilizar cada sitio.
+La opción *Sitios* del menú abre la pantalla de administración de sitios (`site-admin`), construida como la de
+[usuarios](#users): un sitio separa la lógica de la aplicación, cada uno con sus bases de datos, y fija qué base de datos
+usa cada módulo en ese sitio. Muestra los sitios en un grid con su avatar, nombre, orden y estado, con una búsqueda por
+nombre y filtros rápidos con sus contadores (*Todos*, *Activos*, *Inactivos*). Cada fila tiene un botón de edición y un
+menú (editar, duplicar, eliminar), y las filas seleccionadas muestran una barra para eliminarlas.
+
+Un panel lateral crea y edita un sitio, agrupado en secciones (identidad y los módulos y bases de datos del sitio), y
+muestra el avatar, el nombre y el estado del sitio que se está editando. El grid de módulos y bases de datos está
+**dentro del panel**: sus filas (módulo, base de datos y orden) se editan en el sitio y *Guardar cambios* (o *Crear
+site*) guarda el sitio y sus filas con un solo maintain. El panel mide 640 píxeles, en píxeles porque el tamaño de fuente
+raíz es de 10px en el cliente AngularJS y de 13px en React, así que un `max-width` en `rem` daría un panel distinto en
+cada uno; las tres columnas del grid caben en esos 640 píxeles.
+
+La pantalla reutiliza las queries y los maintains de los sitios (`SitLst`, `SitStaCnt`, `QryLstModDbsBySitAdm`, `SitNew`,
+`SitUpd`, `SitDel` y `SitNamUni`), así que una aplicación que los sobrescriba conserva su lógica. `SitUpd` toma el sitio
+de cada fila del grid de módulos de la propia fila (`IdeSitRow`), de modo que guardar un sitio sin cambiar sus filas
+funciona, y `SitNew` lee el orden del sitio nuevo de `OrdCrt`.
+
+:::tip Un grid hijo dentro del panel lateral
+Cuando el grid hijo de un panel lateral cabe en él (unas pocas columnas estrechas), déjelo dentro del panel como hace
+esta pantalla: un solo overlay y un solo guardado. Cuando es demasiado ancho, use el patrón de la pantalla de
+[bases de datos](#databases): una lista de solo lectura en el panel y el grid editable en un diálogo ancho sobre él.
+:::
+
+:::warning Deprecado
+Las pantallas anteriores de sitios (`Sit`, `SitNew`, `SitUpd` y `SitViw`) están deprecadas desde AWE 5.0.0 y se eliminarán
+en la próxima versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `site-admin`; consulte la
+[guía de migración a la 5](v5-migration.md).
+:::
 
 ## Módulos {#modules}
 

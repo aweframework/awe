@@ -15,11 +15,7 @@
   <!-- Sections: a separator with label titles the options below it, one without label draws a divider line -->
   <option name="administration-section" label="MENU_SECTION_ADMINISTRATION" separator="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
-    <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
-      <option name="new-site" screen="SitNew" invisible="true"/>
-      <option name="update-site" screen="SitUpd" invisible="true"/>
-      <option name="view-site" screen="SitViw" invisible="true"/>
-    </option>
+    <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
     <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
       <option name="new-module" screen="ModNew" invisible="true"/>
       <option name="update-module" screen="ModUpd" invisible="true"/>

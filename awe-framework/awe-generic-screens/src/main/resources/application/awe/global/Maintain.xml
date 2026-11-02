@@ -487,6 +487,10 @@
       <field id="Act" variable="Act"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
+      <!-- The sites screen (site-admin) names the order of the site OrdCrt, as SitUpd does: its modules grid already sends
+           Ord for the order of each row, and a variable the screen sends as an empty list left the insert without value.
+           The deprecated SitNew screen sends Ord and no OrdCrt, so this optional definition only replaces it when it comes -->
+      <variable id="Ord" type="INTEGER" name="OrdCrt" optional="true"/>
       <variable id="Act" type="INTEGER" name="Act"/>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
     </insert>
@@ -518,6 +522,9 @@
         </and>
       </where>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
+      <!-- The sites screen (site-admin) sends IdeSit from the selected rows of its grid, so it also comes as a one element
+           list: this optional definition replaces the first one with the single value when it comes -->
+      <variable id="IdeSit" type="INTEGER" name="IdeSit.selected" optional="true"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="OrdCrt" type="INTEGER" name="OrdCrt"/>
       <variable id="Act" type="INTEGER" name="Act"/>
@@ -532,9 +539,15 @@
       <field id="Ord" variable="Ord"/>
       <variable id="IdeSitModDbs" type="INTEGER" name="IdeSitModDbs"/>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
+      <!-- The modules grid of the sites screen (site-admin) sends the site of each row, so the site comes with the rows of
+           the grid and not from the one element list of the selected site: the grid may send no rows at all -->
+      <variable id="IdeSit" type="INTEGER" name="IdeSitRow" optional="true"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeDbs" type="INTEGER" name="IdeDbs"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
+      <!-- The modules grid of the sites screen (site-admin) names the order of the row SitModOrd, because Ord is the order
+           of the site in the grid of the screen: this optional definition replaces the first one when it comes -->
+      <variable id="Ord" type="INTEGER" name="SitModOrd" optional="true"/>
     </multiple>
   </target>
 

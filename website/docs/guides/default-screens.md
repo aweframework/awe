@@ -89,9 +89,35 @@ Here you have the `themeModeSelector` and the `themeSelector`.
 
 ## Sites
 
-This option is a high level option which allow you to separate application logic in sites, each one with its own
-database (or set of databases). Here you can define sites and the relationship between them and the databases they 
-manage. You can also define the modules which can site can use.
+The *Sites* option of the menu opens the site administration screen (`site-admin`), built like the [users](#users) one:
+a site separates the logic of the application, each one with its own databases, and it fixes which database uses each
+module on that site. It shows the sites in a grid with their avatar, name, order and state, with a search by name and
+quick filters with their counts (*All*, *Active*, *Inactive*). Each row has an edit button and a menu (edit, duplicate,
+delete), and the selected rows show a bar to delete them.
+
+A side panel creates and edits a site, grouped in sections (identity and the modules and databases of the site), and
+shows the avatar, name and state of the site being edited. The grid of modules and databases is **inside the panel**: its
+rows (module, database and order) are edited in place, and *Save changes* (or *Create site*) saves the site and its rows
+with one maintain. The panel is 640 pixels wide, in pixels because the root font size is 10px in the AngularJS client and
+13px in React, so a `max-width` in `rem` would render a different panel in each one; the three columns of the grid fit in
+those 640 pixels.
+
+The screen reuses the queries and maintains of the sites (`SitLst`, `SitStaCnt`, `QryLstModDbsBySitAdm`, `SitNew`,
+`SitUpd`, `SitDel` and `SitNamUni`), so an application that overrides them keeps its logic. `SitUpd` takes the site of
+each row of the modules grid from the row itself (`IdeSitRow`), so saving a site without changing its rows works, and
+`SitNew` reads the order of the new site from `OrdCrt`.
+
+:::tip A child grid inside the side panel
+When the child grid of a side panel fits in it (a few narrow columns), keep it inside the panel as this screen does: one
+overlay and one save. When it is too wide, use the pattern of the [databases](#databases) screen: a read-only list in the
+panel and the editable grid in a wide dialog over it.
+:::
+
+:::warning Deprecated
+The previous site screens (`Sit`, `SitNew`, `SitUpd` and `SitViw`) are deprecated since AWE 5.0.0 and will be removed in
+the next minor release (5.1.0). Point your own menu options to the `site-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 ## Modules
 
