@@ -52,6 +52,7 @@ export interface AbstractCriteria extends Component {
     showWeekends?: boolean;
     specific?: string;
     strict?: boolean;
+    timeFormat?: string;
     timeout?: number;
     unit?: string;
     validation?: string;

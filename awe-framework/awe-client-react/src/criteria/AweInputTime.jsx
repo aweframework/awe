@@ -1,7 +1,7 @@
 import React, {useCallback} from "react";
 import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Calendar} from "primereact/calendar";
-import {fromTime, toTime} from "../utilities/dates";
+import {fromTime, getTimeOptions, toTime} from "../utilities/dates";
 import {classNames} from "../utilities/components";
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
@@ -19,11 +19,14 @@ function AweInputTime(props) {
   const settings = useSelector(state => state.settings);
   const { address, attributes, validationRules, value, onSubmit } = useText(id);
 
+  const timeFormat = attributes.timeFormat;
+  const { hourFormat, showSeconds } = getTimeOptions(timeFormat);
+
   const onChange = useCallback((e) => {
     const newDate = e?.value ?? e?.target?.value ?? null;
-    const fixed = fromTime(newDate) || "";
+    const fixed = fromTime(newDate, timeFormat) || "";
     dispatch(updateThunk(address, { values: [{ value: fixed, label: fixed, selected: true }] }));
-  }, [dispatch, address]);
+  }, [dispatch, address, timeFormat]);
 
   const onKeyDown = useEnterKey(onSubmit);
 
@@ -43,7 +46,8 @@ function AweInputTime(props) {
         locale={settings.language}
         pt={calendarPassThrough(address?.component, onKeyDown, undefined, requiredAria(attributes, validationRules))}
         timeOnly
-        showSeconds
+        hourFormat={hourFormat}
+        showSeconds={showSeconds}
       />
     </AweCriterion>
   );

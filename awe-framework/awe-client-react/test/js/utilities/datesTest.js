@@ -1,6 +1,6 @@
 import {
   formatDate, fromDate, getAvailableDates, getDisabledDates, getViewMode, isDateRangeValid, parsePresets,
-  resolvePreset, toCalendarFormat, toDate
+  resolvePreset, toCalendarFormat, toDate, fromTime, toTime, getTimeOptions
 } from "../../../src/utilities/dates";
 
 const day = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -212,6 +212,40 @@ describe("awe-react-client/test/js/utilities/datesTest.js", () => {
       expect(getViewMode(1)).toBe("month");
       expect(getViewMode("2")).toBe("year");
       expect(getViewMode("other")).toBe("date");
+    });
+  });
+
+  describe("time", () => {
+    const at = (h, m, s) => new Date(0, 0, 0, h, m, s);
+
+    it("sends the time in 24 hours with seconds by default", () => {
+      expect(fromTime(at(14, 30, 15))).toBe("14:30:15");
+      expect(fromTime(at(14, 30, 15), "HH:mm:ss")).toBe("14:30:15");
+      expect(fromTime(at(14, 30, 15), "hh:mm:ss a")).toBe("14:30:15");
+    });
+
+    it("sends no seconds when the format has none", () => {
+      expect(fromTime(at(14, 30, 15), "HH:mm")).toBe("14:30");
+      expect(fromTime(at(14, 30, 15), "hh:mm a")).toBe("14:30");
+    });
+
+    it("sends nothing without a date", () => {
+      expect(fromTime(null, "HH:mm")).toBeNull();
+    });
+
+    it("parses values with and without seconds", () => {
+      expect(toTime("14:30:15")).toEqual(at(14, 30, 15));
+      expect(toTime("14:30")).toEqual(at(14, 30, 0));
+      expect(toTime("")).toBeNull();
+    });
+
+    it("tells the hour format and the seconds of each pattern", () => {
+      expect(getTimeOptions()).toEqual({hourFormat: "24", showSeconds: true});
+      expect(getTimeOptions("HH:mm")).toEqual({hourFormat: "24", showSeconds: false});
+      expect(getTimeOptions("HH:mm:ss")).toEqual({hourFormat: "24", showSeconds: true});
+      expect(getTimeOptions("hh:mm a")).toEqual({hourFormat: "12", showSeconds: false});
+      expect(getTimeOptions("hh:mm:ss a")).toEqual({hourFormat: "12", showSeconds: true});
+      expect(getTimeOptions("nonsense")).toEqual({hourFormat: "24", showSeconds: true});
     });
   });
 });

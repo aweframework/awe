@@ -315,13 +315,33 @@ export function fromDate(date?: Date | null, format?: string | null, language?: 
 }
 
 /**
- * Transform date (time) to string
+ * Get the PrimeReact options of a time format (HH:mm, HH:mm:ss, hh:mm a or hh:mm:ss a)
+ * @param {string} [format] Time format. Default: HH:mm:ss
+ * @returns {{hourFormat: "12" | "24", showSeconds: boolean}}
+ * @memberOf Dates
+ */
+export function getTimeOptions(format?: string | null): { hourFormat: "12" | "24"; showSeconds: boolean } {
+  const pattern = format ?? "";
+  const known = ["HH:mm", "HH:mm:ss", "hh:mm a", "hh:mm:ss a"].includes(pattern);
+  return {
+    hourFormat: known && pattern.startsWith("hh") ? "12" : "24",
+    showSeconds: !known || pattern.includes("ss")
+  };
+}
+
+/**
+ * Transform date (time) to string. The result is always a 24-hour time, with seconds only if the format has them
  * @param {Date} date
+ * @param {string} [format] Time format. Default: HH:mm:ss
  * @returns {string}
  * @memberOf Dates
  */
-export function fromTime(date?: Date | null): string | null {
-  return date ? date.toLocaleTimeString("fr-FR") : null;
+export function fromTime(date?: Date | null, format?: string | null): string | null {
+  if (!date) {
+    return null;
+  }
+  const time = date.toLocaleTimeString("fr-FR");
+  return getTimeOptions(format).showSeconds ? time : time.slice(0, 5);
 }
 
 /**

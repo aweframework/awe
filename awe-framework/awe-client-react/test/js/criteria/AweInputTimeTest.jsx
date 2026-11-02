@@ -71,4 +71,55 @@ describe('awe-react-client/test/js/criteria/AweInputTimeTest.jsx', () => {
     expect(submitActions(dispatchSpy)).toEqual([]);
   });
 
+  describe('time-format', () => {
+    const stateWith = (timeFormat, value) => ({
+      settings: DEFAULT_SETTINGS,
+      components: {
+        time: {
+          address: {component: 'time', view: 'report'},
+          model: {values: value ? [{label: value, value, selected: true}] : []},
+          attributes: {readonly: false, ...(timeFormat ? {timeFormat} : {})},
+          validationRules: {}
+        }
+      }
+    });
+    const typed = (timeFormat, text) => {
+      const {store} = renderWithProviders(<AweInputTime id="time"/>, {preloadedState: stateWith(timeFormat)});
+      fireEvent.input(screen.getByRole("combobox"), {target: {value: text}});
+      return modelValue(store);
+    };
+    const shown = (timeFormat, value) => {
+      renderWithProviders(<AweInputTime id="time"/>, {preloadedState: stateWith(timeFormat, value)});
+      return screen.getByRole("combobox").value;
+    };
+
+    afterEach(cleanup);
+
+    it('shows seconds and 24 hours by default', () => {
+      expect(shown(undefined, "14:30:15")).toBe("14:30:15");
+    });
+
+    it('hides the seconds with HH:mm and sends the time without them', () => {
+      expect(shown("HH:mm", "14:30")).toBe("14:30");
+      cleanup();
+      expect(typed("HH:mm", "10:20")).toEqual(["10:20"]);
+    });
+
+    it('keeps the seconds with HH:mm:ss', () => {
+      expect(typed("HH:mm:ss", "10:20:30")).toEqual(["10:20:30"]);
+    });
+
+    it('shows a 12-hour clock with hh:mm a and sends 24 hours', () => {
+      expect(shown("hh:mm a", "14:30")).toBe("02:30 PM");
+      cleanup();
+      expect(typed("hh:mm a", "02:30 PM")).toEqual(["14:30"]);
+    });
+
+    it('shows a 12-hour clock with seconds with hh:mm:ss a and sends 24 hours', () => {
+      expect(shown("hh:mm:ss a", "14:30:15")).toBe("02:30:15 PM");
+      cleanup();
+      expect(typed("hh:mm:ss a", "02:30:15 PM")).toEqual(["14:30:15"]);
+    });
+  });
+
 });
