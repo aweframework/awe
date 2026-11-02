@@ -80,4 +80,40 @@ describe('awe-react-client/test/js/redux/selectors/formSelectorsTest.js', () => 
       })
     );
   });
+
+  describe('address of the grid cell that calls an action (#341)', () => {
+    const view = 'base';
+    const gridState = (selected) => ({
+      settings: {},
+      components: {
+        grid: {
+          address: { view, component: 'grid' },
+          attributes: { id: 'grid', component: 'grid', columnModel: [{ name: 'Col1', sendable: true }] },
+          model: { values: [1, 2, 3].map(id => ({ id, Col1: `V${id}`, selected: selected.includes(id) })) },
+          storedModel: { values: [] }
+        }
+      }
+    });
+
+    it('adds the column of the caller cell and takes its row', () => {
+      const values = getFormValues(gridState([1]), false, (o) => o, { view, component: 'grid', row: 2, column: 'Col1' });
+
+      expect(values['grid.selectedRowAddress']).toEqual({ view, component: 'grid', row: 2, column: 'Col1' });
+    });
+
+    it('adds the column when the row of the cell is the selected one', () => {
+      const values = getFormValues(gridState([2]), false, (o) => o, { view, component: 'grid', row: 2, column: 'Col1' });
+
+      expect(values['grid.selectedRowAddress']).toEqual({ view, component: 'grid', row: 2, column: 'Col1' });
+    });
+
+    it('keeps the address of the selected rows when the caller is not a cell of the grid', () => {
+      const state = gridState([1]);
+      expect(getFormValues(state, false, (o) => o, { view, component: 'button' })['grid.selectedRowAddress'])
+        .toEqual({ view, component: 'grid', row: 1 });
+      expect(getFormValues(state)['grid.selectedRowAddress']).toEqual({ view, component: 'grid', row: 1 });
+      expect(getFormValues(state, false, (o) => o, { view, component: 'grid', row: 3 })['grid.selectedRowAddress'])
+        .toEqual({ view, component: 'grid', row: 1 });
+    });
+  });
 });

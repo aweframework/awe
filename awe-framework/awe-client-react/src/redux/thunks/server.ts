@@ -6,6 +6,7 @@ import { updateAttributes } from "../actions/components";
 import { getFormValues } from "../selectors/form";
 import { getAllComponents } from "../selectors/componentSelectors";
 import type { AppThunk } from "../types";
+import { selectButtonRow } from "./grid";
 import type { ClientAction, Translate } from "./types";
 
 /** An action that launches a server action: its parameters name the server action and its target */
@@ -30,6 +31,13 @@ export const serverAction = (
     const targetAddress = target ? { ...address, component: target } : null;
     if (targetAddress) {
       dispatch(updateAttributes(targetAddress, { loading: true }));
+    }
+
+    // An action called from a cell of a grid acts on its row: it is selected (only it) before the parameters are read.
+    // A multiselect grid keeps the rows the user selected: the caller cell is sent in its address anyway
+    const callerGrid = component ? getAllComponents(getState())[component] : null;
+    if (!callerGrid?.attributes?.multiselect) {
+      dispatch(selectButtonRow(address as ComponentAddress & { row?: unknown }));
     }
 
     try {

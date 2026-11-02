@@ -328,7 +328,45 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-**Example 4**: Load a stored datalist from one grid row
+#### Example 4: Know which grid cell called the service {#grid-cell-caller}
+
+When a component of a grid cell (a button, a select, a checkbox...) launches the service, that row is selected and the
+`[gridId].selectedRowAddress` parameter has the `view`, the `component` (the grid), the `row` (row id) and the `column`
+(column id) of the cell. Load it like Example 3 and use it, for instance, to change the style of that cell with an
+[update-cell](actions.md#grid-actions-from-java-services) action:
+
+```java
+@Service
+public class CellService extends ServiceConfig {
+  /**
+   * Colour the cell that called the service
+   * @param address Address of the cell: view, component, row and column
+   * @return Service data
+   */
+  public ServiceData colourCell(JsonNode address) {
+    ServiceData serviceData = new ServiceData();
+
+    // Style of the cell
+    ObjectNode values = JsonNodeFactory.instance.objectNode();
+    values.put("style", "updated");
+
+    // Address of the cell that made the call
+    ComponentAddress cellAddress = new ComponentAddress(getApplicationName(), null, address.get("view").asText(), null,
+      address.get("component").asText(), address.get("row").asText(), address.get("column").asText());
+
+    ClientAction updateCell = new ClientAction("update-cell");
+    updateCell.setAddress(cellAddress);
+    updateCell.setAsync("true");
+    updateCell.setSilent("true");
+    updateCell.addParameter("data", new CellData(values));
+    serviceData.addClientAction(updateCell);
+
+    return serviceData;
+  }
+}
+```
+
+**Example 5**: Load a stored datalist from one grid row
 
 Query definition
 

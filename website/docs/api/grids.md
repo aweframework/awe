@@ -1459,7 +1459,7 @@ Here is the list of variables that can be sent by the grid component:
 | _[ColumnName]_                  | Array       | `send-all="false"`                   | List of selected lines column values (for each column)                                                                                     |
 | _[ColumnName]_                  | Array       | `send-all="true"`                    | List of all column values (for each column)                                                                                                |
 | _[ColumnName]_.selected         | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
-| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
+| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id (and `column` when a cell calls the action)                     |
 | sort                            | Array       | When sorting                         | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
 | _[GridName]_.data               | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
 
@@ -1472,8 +1472,23 @@ The multioperation grid sends the variables in a different way than the other gr
 | _[GridName]_-id                 | Array       | Always                               | List of row identifiers for rows with operations                                                                                           |
 | _[ColumnName]_                  | Array       | `multioperation="true"`              | List of column values for rows with operations (for each column)                                                                           |
 | _[ColumnName]_.selected         | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
-| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
+| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id (and `column` when a cell calls the action)                     |
 | sort                            | Array       | When sorting                         | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
 | _[GridName]_.data               | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
 
 > **Note:** See samples of usages on [Service Definition](service-definition.md#load-beans-from-parameters)
+
+**Action called from a cell**
+
+When the action is launched by a component of a grid cell (a button, a select, a checkbox, a text view...), that row is
+selected first and `[GridName].selectedRowAddress` carries the address of the cell: `view`, `component` (the grid),
+`row` (the row id) and `column` (the id of the column of the cell). An action that does not come from a grid cell keeps
+sending the address of the selected row, without `column`. A `multiselect` grid keeps the rows the user selected and
+still sends the address of the cell.
+
+```json
+{"view": "report", "component": "GrdUsr", "row": 4, "column": "Status"}
+```
+
+A service can read it to know which cell made the call, e.g. to colour it, as shown in
+[Service Definition](service-definition.md#grid-cell-caller).

@@ -31,6 +31,27 @@ function getRowDetailInstanceValues(
 }
 
 /**
+ * Address of the grid cell that calls an action, in the parameters of the grid: the address of the cell, with its
+ * column, replaces the one of the selected rows, as the caller row is the one the action acts on. An address that is
+ * not the cell of a grid changes nothing
+ * @param {object} components All components
+ * @param {object} address Address of the component that sends a request
+ * @return {object} Parameter with the address of the cell, or nothing
+ */
+function getCallerCellAddress(
+  components: Record<string, ComponentState>,
+  address: ComponentAddress | null
+): Record<string, unknown> {
+  const { view, component, row, column } = (address || {}) as ComponentAddress & { row?: unknown; column?: unknown };
+  const isCell = !!component && row !== undefined && row !== null && column !== undefined && column !== null;
+  const attributes = (components[component as string] || {}).attributes as { id?: string; component?: string } | undefined;
+  if (!isCell || attributes?.component !== "grid") {
+    return {};
+  }
+  return { [`${attributes.id || component}.selectedRowAddress`]: { view, component, row, column } };
+}
+
+/**
  * Get all form values
  * @param state Full state
  * @param t Translate function
@@ -66,6 +87,7 @@ export const getFormValues = (
     });
   return {
     ...formValues,
+    ...getCallerCellAddress(components, address),
     ...getRowDetailInstanceValues(components, address, { components, settings, t }, forPrinting)
   };
 };

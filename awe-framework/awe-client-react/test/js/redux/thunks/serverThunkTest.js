@@ -1,5 +1,8 @@
 import {serverAction, serverDownloadAction} from '../../../../src/redux/thunks/server';
 import {ACCEPT_ACTION} from '../../../../src/redux/actions/actions';
+import {configureStore} from '@reduxjs/toolkit';
+import createRootReducer from '../../../../src/redux/reducers';
+import {DEFAULT_SETTINGS} from '../../../../src/redux/actions/settings';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -39,6 +42,60 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       const update = dispatch.mock.calls.map(([call]) => call).find(call => call.type === 'UPDATE_ATTRIBUTES');
       expect(update.address).toEqual(failing);
       expect(update.data).toEqual({deferredLoaded: false});
+    });
+
+    describe('action called from a cell of a grid (#341)', () => {
+      const gridAddress = {view: 'report', component: 'GrdUsr'};
+      const newStore = (selected, multiselect = false) => configureStore({
+        reducer: createRootReducer({}),
+        preloadedState: {
+          settings: DEFAULT_SETTINGS,
+          actions: {running: false},
+          components: {
+            GrdUsr: {
+              address: gridAddress,
+              attributes: {id: 'GrdUsr', component: 'grid', multiselect, columnModel: [{name: 'Name', sendable: true}]},
+              model: {values: [1, 2, 3].map(id => ({id, Name: `N${id}`, selected: selected.includes(id)}))},
+              storedModel: {values: []}
+            }
+          }
+        },
+        middleware: getDefaultMiddleware => getDefaultMiddleware({serializableCheck: false, immutableCheck: false})
+      });
+      const callFrom = async (store, address) => {
+        global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([])});
+        await store.dispatch(serverAction({
+          type: 'server', address, parameters: {serverAction: 'color-cell', targetAction: 'target'}
+        }));
+        return JSON.parse(global.fetch.mock.calls[0][1].body);
+      };
+
+      it('sends the row and the column of the cell that calls it, selecting its row first', async () => {
+        const store = newStore([1, 3]);
+
+        const sent = await callFrom(store, {...gridAddress, row: 2, column: 'Name'});
+
+        expect(sent['GrdUsr.selectedRowAddress']).toEqual({...gridAddress, row: 2, column: 'Name'});
+        expect(sent['GrdUsr.selected']).toBe(2);
+        expect(store.getState().components.GrdUsr.model.values.filter(row => row.selected).map(row => row.id)).toEqual([2]);
+      });
+
+      it('keeps the selected rows of a multiselect grid, still sending the cell that calls it', async () => {
+        const store = newStore([1, 3], true);
+
+        const sent = await callFrom(store, {...gridAddress, row: 2, column: 'Name'});
+
+        expect(sent['GrdUsr.selectedRowAddress']).toEqual({...gridAddress, row: 2, column: 'Name'});
+        expect(store.getState().components.GrdUsr.model.values.filter(row => row.selected).map(row => row.id)).toEqual([1, 3]);
+      });
+
+      it('sends the address of the selected row, without column, when the action does not come from a cell', async () => {
+        const store = newStore([1]);
+
+        const sent = await callFrom(store, {view: 'report', component: 'ButSea'});
+
+        expect(sent['GrdUsr.selectedRowAddress']).toEqual({...gridAddress, row: 1});
+      });
     });
 
     describe('loading of the target', () => {
