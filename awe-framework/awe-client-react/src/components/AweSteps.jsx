@@ -87,7 +87,7 @@ function AweSteps(props) {
       itemRenderer={itemRenderer} />
     {elementList
       .filter(item => item.elementType === "WizardPanel")
-      .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+      .filter(item => item.id === values[activeIndex]?.value).map((node, index) => Components(node, index))}
     {contextMenuTemplate()}
   </div>;
 }
