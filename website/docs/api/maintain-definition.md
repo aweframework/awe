@@ -118,7 +118,7 @@ Any signed-in user can launch a target that is not `server-only` with the parame
 |-------|---------|-----|
 | User taken from the session | `updateUserData`, `ChdPwd`, `UsrUpdPwd`, `loginUser`, `logoutUser`, `MgrUsrLogIn`, `update2faStatus`, `clickFavourite`, `selectDarkMode`, `selectLightMode`, `selectComfortableDensity`, `selectCompactDensity`, `saveUserAvatar`, `upsertUserAvatar`, `saveGridLayout`, `resetGridLayout`, `read-notification`, `toggle-notifications`, `toggle-web-subscription`, `toggle-email-subscription` | The user screens use them. The affected user is read from the session (`session="user"`) or resolved by a Java service, never from the request. |
 | Public login flow | `login`, `logout`, `MgrUsrLogOut`, `ChdPwdExpired`, `ChdPwdPub`, `verify2faCode` | They run before the session exists. `ChdPwdPub` and `ChdPwdExpired` delegate to a service that checks the current password before it changes anything. |
-| Administration screens | `UsrNew`, `UsrUpd`, `UsrDel`, `UsrUnl`, `reset2fa`, `ModNew`, `ModUpd`, `ModDel`, `SitNew`, `SitUpd`, `SitDel`, `ProNew`, `ProUpd`, `ProDel`, `updateScreenRestriction`, `updateScreenRestrictionNew`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction`, `updateScreenConfiguration`, `StlCnfMul`, `AweKeyUpd`, `AweAppParMul`, `AppParSecUpd`, `ThmNew`, `ThmUpd`, `ThmDel`, `DbsNew`, `DbsUpd`, `DbsDel`, `OptUpd`, `new-subscription`, `update-subscription`, `delete-subscriptions` and the scheduler server, task and calendar targets | The administration screens work on other users and on the configuration, by id or name. |
+| Administration screens | `UsrNew`, `UsrUpd`, `UsrDel`, `UsrUnl`, `reset2fa`, `ModNew`, `ModUpd`, `ModDel`, `SitNew`, `SitUpd`, `SitDel`, `ProNew`, `ProUpd`, `ProDel`, `updateScreenRestriction`, `updateScreenRestrictionNew`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction`, `updateScreenConfiguration`, `StlCnfMul`, `AweKeyMul`, `AweKeyNew`, `AweKeyUpd`, `AweKeyDel`, `AweAppParMul`, `AweAppParNew`, `AweAppParUpd`, `AweAppParDel`, `AppParSecUpd`, `ThmNew`, `ThmUpd`, `ThmDel`, `DbsNew`, `DbsUpd`, `DbsDel`, `OptUpd`, `new-subscription`, `update-subscription`, `delete-subscriptions` and the scheduler server, task and calendar targets | The administration screens work on other users and on the configuration, by id or name. |
 | Server-only | `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `ProvisionNewUser`, `UpdateOauthUserProfile`, `UsrRehashPwd`, `ChdPwdExpiredUpdate`, `UsrUpdPwdUpdate`, `ChdPwdPubUpdate`, `addUserSettings`, `updateUserMode`, `updateUserDensity`, `addToFavourites`, `removeFromFavourites`, `insertUserAvatar`, `updateUserAvatar`, `insertGridLayout`, `updateGridLayout`, `deleteGridLayout`, `new-restriction`, `update-restriction`, `delete-restriction`, `new-notification`, `notify-email-users`, `insert-user-subscription`, `update-user-subscription` and the scheduler bookkeeping targets (`insertFile`, `updateFile`, `deleteFile`, `startTask`, `endTask`, `updateTaskStatus`, `updateInterruptedTasks`, `updateExecutionTime`, `purgeExecutionLogs`, `insertExecutionLogLines`, `updateExecutionLogLines`, `purgeExecutionLogLines`, `purgeExecutionLogOrigin`) | Only Java launches them. Before AWE 5 a signed-in user could drive them against any user (for example, to store a 2FA secret or change the profile of another user). |
 
 The rest of the client targets (reports, e-mails, messages, queues, utilities of the screens) do not change the data of a user.
@@ -670,8 +670,8 @@ Multiple element in maintains has the following attributes:
 ```
 
 ```xml
-<!-- AweKey Update Multiple -->
-<target name="AweKeyUpd">
+<!-- AweKey Update Multiple: the editable grid of the deprecated AweKey screen -->
+<target name="AweKeyMul">
   <multiple grid="GrdKeyLst">
     <table id="AweKey"/>
     <field id="KeyNam" variable="KeyNam" key="true"/>

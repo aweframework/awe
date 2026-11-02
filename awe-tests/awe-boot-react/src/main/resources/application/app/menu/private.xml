@@ -33,8 +33,8 @@
       <option name="new-queue" screen="QueNew" invisible="true"/>
       <option name="update-queue" screen="QueUpd" invisible="true"/>
     </option>
-    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="AweKey" icon="key"/>
-    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="AweAppPar" icon="cogs"/>
+    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="sequence-admin" icon="key"/>
+    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="application-parameter-admin" icon="cogs"/>
     <option name="broadcast-messages" label="MENU_BROADCAST" screen="MsgUsr" icon="rss"/>
     <option name="log" label="MENU_LOG" screen="Log" icon="file-text">
       <option name="view-log" screen="LogViw" invisible="true"/>

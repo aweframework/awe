@@ -6,7 +6,7 @@ sidebar_label: Ventanas por defecto
 
 ## Introducción {#introduction}
 
-AWE tiene algunas pantallas comunes prediseñadas que son muy útiles para una primera versión de una aplicación. De esta manera, ya está implementada la gestión de [usuarios](#users) y [perfiles](#profiles), algunos [temas](#themes) útiles para personalizar la aplicación, gestión de seguridad como el [acceso a pantallas](#screen-access) y la [configuración de pantallas](#screen-configuration), y algunas herramientas de gestión a alto nivel como la [base de datos](#databases), la [configuración de módulos](#modules) y los [sitios](#sites).
+AWE tiene algunas pantallas comunes prediseñadas que son muy útiles para una primera versión de una aplicación. De esta manera, ya está implementada la gestión de [usuarios](#users) y [perfiles](#profiles), algunos [temas](#themes) útiles para personalizar la aplicación, gestión de seguridad como el [acceso a pantallas](#screen-access) y la [configuración de pantallas](#screen-configuration), y algunas herramientas de gestión a alto nivel como la [base de datos](#databases), la [configuración de módulos](#modules) y los [sitios](#sites), además de las [secuencias](#sequences) y los [parámetros de la aplicación](#application-parameters).
 
 AWE también permite visualizar una pantalla de ayuda autogenerada basada en la definición de pantalla y algunos atributos adicionales como `help` y `help-image`. Esta pantalla de ayuda puede ser generada por pantalla o también hay una [pantalla de ayuda de la aplicación](#application-help) que contiene la documentación sobre la aplicación completa (basada en el menú).
 
@@ -172,11 +172,52 @@ Esta opción permite definir una lista de colas de mensajes que se utilizan como
 
 ## Secuencias {#sequences}
 
-La pantalla de secuencias contiene una lista de identificadores y valores de secuencia que AWE utiliza en los archivos de mantenimiento. Estas secuencias se utilizan como si fueran campos autonuméricos, algo muy útil para modelos de base de datos antiguos que no disponen de ellos.
+La opción *Secuencias* del menú abre la pantalla de administración de secuencias (`sequence-admin`), construida como la
+de [usuarios](#users). Una secuencia es un nombre con un valor que AWE incrementa y entrega como siguiente identificador
+de un registro nuevo, como haría un campo autonumérico: resulta muy útil para modelos de base de datos antiguos sin
+campos autonuméricos. La pantalla muestra las secuencias en un grid con su nombre, valor y estado, con una búsqueda por
+nombre y filtros rápidos con sus contadores (*Todas*, *Activas*, *Inactivas*). Cada fila tiene un botón de edición y un
+menú (editar, eliminar), y las filas seleccionadas muestran una barra para eliminarlas.
+
+Un panel lateral crea y edita una secuencia: su nombre, su estado y su valor, con una ayuda de qué significa el valor. El
+nombre de una secuencia es su clave primaria, así que el panel lo muestra de solo lectura al editar: se escribe al crear
+la secuencia.
+
+Reutiliza las queries de las secuencias (`AweKeyLst`, `AweKeySug`) y añade los maintains `AweKeyNew`, `AweKeyUpd` y
+`AweKeyDel`, que trabajan sobre una secuencia cada uno (`AweKeyUpd` toma la secuencia de la fila seleccionada de
+`KeyNam.selected`), así que el grid editable de la pantalla anterior y su maintain múltiple ya no se usan. El maintain
+múltiple sigue funcionando para la pantalla deprecada como `AweKeyMul`.
+
+:::warning Deprecado
+La pantalla anterior de secuencias (`AweKey`) está deprecada desde AWE 5.0.0 y se eliminará en la próxima versión menor
+(5.1.0). Apunte sus propias opciones de menú a la pantalla `sequence-admin`; consulte la
+[guía de migración a la 5](v5-migration.md).
+:::
 
 ## Parámetros de la aplicación {#application-parameters}
 
-La pantalla de parámetros de la aplicación define una especie de propiedades adicionales de la aplicación que pueden sobrescribir las definidas en el archivo `application.properties`. Es una capa extra para mejorar la personalización de la aplicación.
+La opción *Parámetros de la aplicación* del menú abre la pantalla de administración de parámetros de la aplicación
+(`application-parameter-admin`), construida como la de [secuencias](#sequences). Los parámetros de la aplicación son una
+especie de propiedades adicionales que pueden sobrescribir las definidas en el archivo `application.properties`, una capa
+extra para mejorar la personalización de la aplicación. La pantalla muestra los parámetros en un grid con su nombre y
+descripción, valor, categoría (*General*, *Seguridad* o *Informes*) y estado, con una búsqueda por nombre o descripción y
+filtros rápidos con sus contadores (*Todos*, *Activos*, *Inactivos*). Cada fila tiene un botón de edición y un menú
+(editar, eliminar), y las filas seleccionadas muestran una barra para eliminarlas.
+
+Un panel lateral crea y edita un parámetro: su nombre, su categoría y su estado, y su valor y descripción. El nombre de
+un parámetro es la clave que lee la aplicación, así que el panel lo muestra de solo lectura al editar. Al guardar un
+parámetro se recargan las propiedades de la aplicación, de modo que el valor nuevo está en vigor sin reiniciarla.
+
+Reutiliza las queries de los parámetros (`AweAppParLst`, `AweAppParSug`) y añade los maintains `AweAppParNew`,
+`AweAppParUpd` y `AweAppParDel`, que trabajan sobre un parámetro cada uno (`AweAppParUpd` toma el parámetro de la fila
+seleccionada de `IdeAweAppPar.selected`), así que el grid editable de la pantalla anterior y su maintain múltiple ya no se
+usan. El maintain múltiple sigue funcionando para la pantalla deprecada como `AweAppParMul`.
+
+:::warning Deprecado
+La pantalla anterior de parámetros de la aplicación (`AweAppPar`) está deprecada desde AWE 5.0.0 y se eliminará en la
+próxima versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `application-parameter-admin`; consulte
+la [guía de migración a la 5](v5-migration.md).
+:::
 
 ## Difusión {#broadcasting}
 

@@ -26,8 +26,10 @@
   <locale name="BUTTON_CLOSE" value="Fermer"/>
   <locale name="BUTTON_CONFIRM" value="Enregister"/>
   <locale name="BUTTON_COPY" value="Copier"/>
+  <locale name="BUTTON_CREATE_APP_PAR" value="Créer le paramètre"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Créer la connexion"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Créer le profil"/>
+  <locale name="BUTTON_CREATE_SEQUENCE" value="Créer la séquence"/>
   <locale name="BUTTON_CREATE_SITE" value="Créer un site"/>
   <locale name="BUTTON_CREATE_THEME" value="Créer le thème"/>
   <locale name="BUTTON_CREATE_USER" value="Créer l&apos;utilisateur"/>
@@ -57,8 +59,10 @@
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
   <locale name="BUTTON_NEW" value="Nouveau"/>
+  <locale name="BUTTON_NEW_APP_PAR" value="Nouveau paramètre"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 ligne au-dessous"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 ligne au-dessus"/>
+  <locale name="BUTTON_NEW_SEQUENCE" value="Nouvelle séquence"/>
   <locale name="BUTTON_NEW_USER" value="Nouvel utilisateur"/>
   <locale name="BUTTON_NEXT" value="Suivant"/>
   <locale name="BUTTON_PREVIOUS" value="Précédent"/>
@@ -1002,6 +1006,7 @@
   <locale name="HELP_SCREEN_TITLE" value="Écran d&apos;aide"/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>
+  <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Paramètres de l&apos;application : les réglages de sécurité, de rapports et généraux qu&apos;elle lit."/>
   <locale name="HELP_SCREEN_TITLE_AWEKEY" value="Secuencias"/>
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Gestión de calendriers"/>
@@ -1053,6 +1058,7 @@
   <locale name="HELP_SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_SCREEN" value="Accès à l&apos;écran"/>
   <locale name="HELP_SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="HELP_SCREEN_TITLE_SEQUENCE_ADMIN" value="Séquences de l&apos;application : la valeur qu&apos;AWE remet comme identifiant suivant de chaque nom."/>
   <locale name="HELP_SCREEN_TITLE_SIT"><![CDATA[Gérer les sites d'application. Ici, vous pouvez afficher, ajouter, modifier, supprimer tous les sites d'application.
 
 Un site est défini comme un *séparé nœud d'application*, avec ses propres [bases de données](#databases) et [modules](#modules).]]></locale>
@@ -1370,6 +1376,15 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Authentification à deux facteurs"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Ajouter le texte du paramètre régionaux"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Ajouter un identificateur de paramètres régionaux"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="État du paramètre"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ACTIVE" value="Actif"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_INACTIVE" value="Inactif"/>
+  <locale name="SCREEN_TEXT_APP_PAR_IDENTITY" value="Paramètre"/>
+  <locale name="SCREEN_TEXT_APP_PAR_RELOAD_HINT" value="L&apos;enregistrement d&apos;un paramètre le recharge dans l&apos;application."/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Nom ou description…"/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Rechercher des paramètres"/>
+  <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Valeur"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendrier"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Les Dates d&apos;ajout"/>
   <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Votre mot de passe a expiré. Définissez-en un nouveau pour vous connecter."/>
@@ -1462,6 +1477,14 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_SECUENCE" value="Secuences"/>
   <locale name="SCREEN_TEXT_SEL_DAT" value="Sélectionnez la date"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Printer selection"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTERS" value="État de la séquence"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_IDENTITY" value="Séquence"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH" value="Nom…"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH_LABEL" value="Rechercher des séquences"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="Dernier identifiant remis par AWE pour ce nom ; il est incrémenté à chaque nouvel enregistrement."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Mettre de nom de fichier sans extension"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Choisi"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Les serveurs"/>
@@ -1488,6 +1511,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>
+  <locale name="SCREEN_TITLE_APP_PAR_ADMIN" value="Paramètres d&apos;application"/>
+  <locale name="SCREEN_TITLE_APP_PAR_PANEL" value="Paramètre d&apos;application"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Secuencias"/>
   <locale name="SCREEN_TITLE_BATCH" value="Definition du batch"/>
   <locale name="SCREEN_TITLE_BATCH_AUDIT" value="Gestión de l&apos;audit du batch"/>
@@ -1547,6 +1572,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Accès à l&apos;écran"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Fermée"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Séquences"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Séquence"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>
   <locale name="SCREEN_TITLE_SIT_UPD" value="Update site"/>
@@ -1605,14 +1632,18 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Veuillez saisir un texte valide. Les nombre et les espaces blancs ne sont pas autorisés"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Veuillez saisir un texte valide. Les nombre ne sont pas autorisés"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Veuillez saisir un temps valide, entre 00:00:00 et 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="Il existe déjà un paramètre avec ce nom. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="Un profil avec cet acronyme existe déjà. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="La queue sélectionnée existe déjà"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="Il existe déjà une séquence avec ce nom. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="Le nom du serveur de messagerie existe déjà"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="Il existe déjà un site avec ce nom. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="Le nom d&apos;utilisateur que vous tentez d&apos;entrer existe déjà"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Avertissement! La localee -{0}- existe déjà et il ne sera PAS remplacé"/>
+  <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Paramètre en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Profil dupliqué"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Queue dupliquée"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Séquence en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Serveur existant"/>
   <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Site en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Utilisateur existant"/>
