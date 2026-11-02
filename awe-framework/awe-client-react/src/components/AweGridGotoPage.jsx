@@ -44,7 +44,7 @@ function AweGridGotoPage({ page, totalPages, rows, onChange, ariaLabel }) {
   };
 
   return <span className="pagination-goto-page">
-    <span>{t("SCREEN_TEXT_GRID_PAGE")}</span>
+    <span className="pagination-goto-label">{t("SCREEN_TEXT_GRID_PAGE")}</span>
     <input type="number" className="pagination-goto p-inputtext p-component" min={1} max={totalPages}
            value={value} disabled={totalPages <= 1} aria-label={ariaLabel}
            onChange={(event) => setValue(event.target.value)} onKeyDown={onKeyDown}

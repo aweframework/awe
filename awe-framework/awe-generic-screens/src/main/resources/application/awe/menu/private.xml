@@ -9,11 +9,7 @@
 <menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
   <option name="information" screen="info" invisible="true" />
   <option name="tools" label="MENU_TOOLS" icon="wrench">
-    <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
-      <option name="new-site" screen="SitNew" invisible="true" />
-      <option name="update-site" screen="SitUpd" invisible="true" />
-      <option name="view-site" screen="SitViw" invisible="true" />
-    </option>
+    <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
     <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
       <option name="new-module" screen="ModNew" invisible="true" />
       <option name="update-module" screen="ModUpd" invisible="true" />

@@ -25,6 +25,9 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
   static final String CONFIRM_BUTTON = "ButCnf";
   static final String RESET_BUTTON = "ButRst";
   static final String MORE_BUTTON = "MorBtn";
+  private static final String SITE_GRID = "GrdSitAdm";
+  private static final String SITE_SEARCH = "CrtSitTxt";
+  private static final String SITE_MODULES_GRID = "SitModDbsLst";
   private static final String PROFILE_GRID = "GrdProAdm";
   private static final String PROFILE_SEARCH = "CrtProTxt";
   private static final String USER_GRID = "GrdUsrAdm";
@@ -183,15 +186,28 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
    * @param options Screen options
    */
   void verifyListed(String search, String... options) {
-    // Go to screen
+    // Go to screen: the administration screens (a list with a side panel) have no criteria to reset, so the search of the
+    // grid lists the records
     openScreen(options);
-
-    // List everything
-    clickButton(RESET_BUTTON);
-    searchAndWait();
+    if (isSitesScreen(options)) {
+      searchGrid(SITE_SEARCH, search);
+    } else {
+      clickButton(RESET_BUTTON);
+      searchAndWait();
+    }
 
     // Check that the row is there
     checkRowContents(search);
+  }
+
+  /**
+   * Tell whether the options of a test open the sites screen (site-admin), which has a search instead of a criteria panel
+   *
+   * @param options Menu options of the screen
+   * @return The options open the sites screen
+   */
+  private boolean isSitesScreen(String... options) {
+    return options.length > 0 && SITES.equals(options[options.length - 1]);
   }
 
   /**
@@ -228,55 +244,38 @@ abstract class AbstractCrudTests extends AbstractSessionTests {
   }
 
   /**
-   * Create a site that is active and has the Base module with the first database, for a test that needs one
+   * Create a site that is active and has the Base module with the first database, for a test that needs one: the site and
+   * its module rows are created from the side panel of the sites screen (site-admin), with one save
    *
    * @param name Site name
    */
   void createSite(String name) {
     // A rerun finds the site that the failed attempt saved
-    if (exists(name, TOOLS, SITES)) {
-      return;
+    if (!listedInSearch(SITES, SITE_SEARCH, name)) {
+      clickButton("ButNew");
+      // Active is a switch, on for a new site
+      writeText("Nam", name);
+      writeText("OrdCrt", "3");
+      clickButton("ButSitModAdd");
+      suggest(SITE_MODULES_GRID, "IdeMod", "Base", "Base");
+      suggest(SITE_MODULES_GRID, "IdeDbs", "awedb", "awedb");
+      writeText(SITE_MODULES_GRID, "SitModOrd", "3");
+      saveRow(SITE_MODULES_GRID);
+      clickButtonAndConfirm("ButPnlNew");
     }
 
-    // Go for new screen
-    addNew(TOOLS, SITES);
-
-    // Write on criterion
-    writeText("Nam", name);
-
-    // Select on selector
-    selectLast("Act");
-
-    // Write on criterion
-    writeText("Ord", "3");
-
-    // Click on button
-    clickButton("ButGrdAdd");
-
-    // Suggest on column selector
-    suggest("SitModDbsLst", "IdeMod", "Base", "Base");
-
-    // Suggest on column selector
-    suggest("SitModDbsLst", "IdeDbs", "awedb", "awedb");
-
-    // Write on criterion
-    writeText("SitModDbsLst", "Order", "3");
-
-    // Save line
-    saveRow();
-
-    // Store and confirm
-    clickButtonAndConfirm(CONFIRM_BUTTON);
+    // Verify listed
+    searchGrid(SITE_SEARCH, name);
+    checkRowContentsGrid(SITE_GRID, name);
   }
 
   /**
-   * Delete a site that a test created
+   * Delete a site that a test created, if it is still there
    *
    * @param name Site name
    */
   void verifySiteDeleted(String name) {
-    // Delete the site, if it is still there
-    verifyRecordDeleted("CrtSit", name, TOOLS, SITES);
+    verifyDeletedFromRowMenu(SITES, SITE_GRID, SITE_SEARCH, name);
   }
 
   /**

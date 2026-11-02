@@ -144,7 +144,7 @@ class CRUDModuleTestsIT extends AbstractCrudTests {
     checkCriterionContents("Thm", "grass");
 
     // Check contents
-    checkSelectContents("Scr", "Sites (Sit)");
+    checkSelectContents("Scr", "Sites (site-admin)");
 
     // Check row contents
     checkRowContents("test", "TST", SITE);

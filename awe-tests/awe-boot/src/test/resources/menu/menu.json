@@ -93,62 +93,6 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-site",
-                  "parameters": {
-                    "target": "new-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-site",
-                  "parameters": {
-                    "target": "update-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-site",
-                  "parameters": {
-                    "target": "view-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
           "visible": true
         },
         {
