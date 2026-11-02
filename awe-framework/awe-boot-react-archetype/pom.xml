@@ -15,7 +15,7 @@
   <packaging>maven-archetype</packaging>
   <name>AWE Spring Boot React Archetype (V${project.version})</name>
   <url>https://www.almis.com</url>
-  <description>This archetype generates a simple AWE web application with spring boot using the React frontend engine</description>
+  <description>This archetype generates a simple AWE web application with spring boot using the React frontend engine. This is the recommended archetype for new AWE 5 projects</description>
 
   <developers>
     <developer>

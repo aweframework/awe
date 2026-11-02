@@ -15,7 +15,7 @@
   <packaging>maven-archetype</packaging>
   <name>AWE Spring Boot AngularJS Archetype (V${project.version})</name>
   <url>https://www.almis.com</url>
-  <description>This archetype generates a simple AWE web application with spring boot using the AngularJS frontend engine</description>
+  <description>This archetype generates a simple AWE web application with spring boot using the AngularJS frontend engine. The AngularJS client is supported in compatibility mode through the 5.x line, for projects that keep the AngularJS stack</description>
 
   <developers>
     <developer>

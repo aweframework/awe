@@ -1,5 +1,7 @@
 #[[#]]# ${artifactId} application powered by **AWE** 
 
+> The AngularJS client is supported in compatibility mode through the 5.x line.
+
 #[[##]]# Requirements
 
 - Apache Maven 3 or higher
