@@ -375,6 +375,13 @@
     <option label="SECURITY" value="security"/>
   </group>
 
+  <!-- Tabs of the side panel of the modules screen (module-admin) -->
+  <group id="module-admin-tabs">
+    <option label="SCREEN_TEXT_MODULE_TAB_GENERAL" value="general"/>
+    <option label="SCREEN_TEXT_MODULE_TAB_ACCESS" value="access"/>
+    <option label="SCREEN_TEXT_MODULE_TAB_SITES" value="sites"/>
+  </group>
+
   <group id="IsRestricted">
     <option label="true" value="R" />
     <option label="false" value="A" />

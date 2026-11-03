@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : module-admin.xml
+    Description: Modules: list of modules with a side panel that creates and edits them, with three tabs: General, Access
+                 (profiles and users that can enter the module) and Sites and databases (the database the module uses in each
+                 site, the same AweSitModDbs rows that site-admin edits from the site) (design/modules/02-panel-pestanas.html).
+                 Replaces the Mod, ModNew, ModUpd and ModViw screens; it reuses their maintains and the queries of their grids
+                 (ModNew, ModUpd, ModDel, QryLstProByMod, QryLstUsrByMod, QryLstSitDbsByMod) and lists the modules with
+                 ModLstAdm and ModStaCnt.
+                 The window has no theme: the theme of a module and the theme of a user in a module were never applied, and
+                 ModNew and ModUpd leave them out when they are not sent (the deprecated screens still send them).
+                 The module of the panel is the hidden IdeMod criterion, filled from the selected row, because ModUpd and ModNew
+                 read IdeMod for the module and for every row of the three grids: the columns of the grid of the screen are not
+                 sendable, but IdeModSel, the selected modules that the selection bar and the row menu send to ModDel.
+                 The panel always opens on the General tab, and its three grids are sent with the module in one save even when
+                 their tab was never opened. The panel is 640px wide: the width of a side panel is in rem and the root font
+                 size is 10px in the AngularJS engine and 13px in React, so a rem value would give a different panel in each one.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="SCREEN_TITLE_MOD_ADMIN" help="HELP_SCREEN_TITLE_MOD_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW" />
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_MODULE" message="WARNING_MESSAGE_DUPLICATED_MODULE" />
+    <!-- Mode of the side panel: new or edit -->
+    <criteria id="PnlMod" component="hidden" value="new" />
+    <!-- Module of the side panel as a single value: ModUpd and ModNew read IdeMod for the module and for every grid row,
+         and the grids of the panel are filtered with it. Empty for a new module (ModNew takes it from its sequence) -->
+    <criteria id="IdeMod" component="hidden">
+      <dependency source-type="launcher" target-type="input" target-action="value">
+        <dependency-element id="GrdModAdm" column="IdeMod" attribute="selectedRowValue" alias="value" optional="true" />
+        <dependency-element id="GrdModAdm" event="select-row" optional="true" />
+      </dependency>
+    </criteria>
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_NEW_MODULE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+      <!-- No selected row and no module: the panel starts empty on its General tab -->
+      <button-action type="unselect-all-rows" target="GrdModAdm" />
+      <button-action type="value" target="PnlMod" value="new" />
+      <button-action type="reset" target="IdeMod" />
+      <button-action type="reset" target="Nam" />
+      <button-action type="reset" target="Scr" />
+      <button-action type="reset" target="Ord" />
+      <button-action type="value" target="Act" value="1" />
+      <button-action type="reset" target="MdlPrfLst" />
+      <button-action type="reset" target="MdlUsrLst" />
+      <button-action type="reset" target="MdlSitDbsLst" />
+      <button-action type="value" target="ModTab" value="general" />
+      <button-action type="dialog" target="PnlModAdm" />
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_MOD_ADMIN" icon="list">
+      <grid id="GrdModAdm" style="expand" server-action="data" target-action="ModLstAdm" initial-load="query" max="50" multiselect="true">
+        <!-- Search: the name of the module (ModLstAdm and ModStaCnt read CrtModTxt) -->
+        <search id="CrtModTxt" placeholder="SCREEN_TEXT_MODULE_SEARCH" label="SCREEN_TEXT_MODULE_SEARCH_LABEL" />
+        <!-- Quick filters: All, Active and Inactive, counted with the search (ModStaCnt) -->
+        <quick-filter id="CrtModSta" initial-load="query" target-action="ModStaCnt" label="SCREEN_TEXT_MODULE_FILTERS" value="" />
+        <!-- The module with its avatar and its initial screen below; the access summary (profiles and users that can enter
+             it) and the sites where it has a database are counts. The list keeps the order of the modules (ModLstAdm) -->
+        <column label="PARAMETER_MODULE" name="Nam" sort-field="Nam" align="left" charlength="30" width="*" avatar-field="Ini" avatar-tone-field="IniTon"
+                secondary-field="ScrIni" export-secondary="true" secondary-label="PARAMETER_INITIAL_SCREEN" sendable="false" />
+        <column label="SCREEN_TEXT_MODULE_PROFILES" name="ProCnt" sort-field="ProCnt" align="center" charlength="10" sendable="false" />
+        <column label="SCREEN_TEXT_MODULE_USERS" name="UsrCnt" sort-field="UsrCnt" align="center" charlength="10" sendable="false" />
+        <column label="SCREEN_TEXT_MODULE_SITES" name="SitCnt" sort-field="SitCnt" align="center" charlength="10" sendable="false" />
+        <column label="PARAMETER_ORDER" name="Ord" sort-field="Ord" align="center" charlength="8" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <!-- Sent to ModDel: identifier of the selected modules (IdeMod is the criterion of the side panel) -->
+        <column name="IdeModSel" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel) -->
+        <column name="IdeMod" hidden="true" sendable="false" />
+        <column name="ScrIni" hidden="true" sendable="false" />
+        <column name="Act" hidden="true" sendable="false" />
+        <column name="StaCod" hidden="true" sendable="false" />
+        <column name="StaTon" hidden="true" sendable="false" />
+        <column name="Ini" hidden="true" sendable="false" />
+        <column name="IniTon" hidden="true" sendable="false" />
+        <!-- Row actions: the pencil edits the module of its row in the side panel and the ellipsis opens the row menu. A row
+             button selects its row (only it) before its actions, so the panel is filled with that module -->
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="filter" target="MdlPrfLst" />
+          <button-action type="filter" target="MdlUsrLst" />
+          <button-action type="filter" target="MdlSitDbsLst" />
+          <button-action type="value" target="ModTab" value="general" />
+          <button-action type="dialog" target="PnlModAdm" />
+        </column>
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu -->
+        <context-button label="BUTTON_EDIT" icon="edit" id="CtxButUpd">
+          <button-action type="check-one-selected" target="GrdModAdm" />
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="filter" target="MdlPrfLst" />
+          <button-action type="filter" target="MdlUsrLst" />
+          <button-action type="filter" target="MdlSitDbsLst" />
+          <button-action type="value" target="ModTab" value="general" />
+          <button-action type="dialog" target="PnlModAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdModAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Duplicate: the panel opens as a new module with the values of the selected one and no module (ModNew takes it
+             from its sequence); its grid rows start empty (the name is taken, so the create action refuses it until it
+             changes) -->
+        <context-button label="BUTTON_DUPLICATE_MODULE" icon="copy" id="CtxButDup">
+          <button-action type="check-one-selected" target="GrdModAdm" />
+          <button-action type="value" target="PnlMod" value="new" />
+          <button-action type="reset" target="IdeMod" />
+          <button-action type="reset" target="MdlPrfLst" />
+          <button-action type="reset" target="MdlUsrLst" />
+          <button-action type="reset" target="MdlSitDbsLst" />
+          <button-action type="value" target="ModTab" value="general" />
+          <button-action type="dialog" target="PnlModAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdModAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="CtxSepDel" />
+        <context-button label="BUTTON_DELETE" icon="trash" id="CtxButDel">
+          <button-action type="check-some-selected" target="GrdModAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ModDel" />
+          <button-action type="server" server-action="data" target-action="ModNamByOpeSel" target="module" context="base" />
+          <button-action type="filter" target="GrdModAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdModAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Selection actions: in the selection bar of the grid while there are selected modules, Delete as the danger one -->
+        <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdModAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="ModDel" />
+          <button-action type="server" server-action="data" target-action="ModNamByOpeSel" target="module" context="base" />
+          <button-action type="filter" target="GrdModAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdModAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+
+    <!-- One side panel for new and edit: the criteria ids are the parameters of ModNew and ModUpd. When editing (one selected
+         module) its header shows the module: avatar, name, initial screen and the state tag; for a new module (no selected
+         row) it shows its label -->
+    <side-panel id="PnlModAdm" label="SCREEN_TITLE_MODULE_PANEL" icon="puzzle-piece" max-width="640px"
+                header-grid="GrdModAdm" header-title-field="Nam" header-subtitle-field="ScrIni" header-avatar-field="Ini"
+                header-avatar-tone-field="IniTon">
+      <header-tag field="StaTxt" tone-field="StaTon" />
+      <tag type="div" style="panel-body expand" id="PnlModBdy">
+        <!-- Tabs (module-admin-tabs). The open actions select General every time: AngularJS keeps the last tab -->
+        <tab id="ModTab" initial-load="enum" target-action="module-admin-tabs">
+          <tabcontainer id="general">
+            <tag type="div" style="panel-body">
+              <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_MODULE_IDENTITY" icon="puzzle-piece" />
+              <!-- A module is one of the modules declared in the menu (getModuleList), as in the deprecated screens -->
+              <criteria label="PARAMETER_NAME" id="Nam" component="select" initial-load="query" server-action="data" target-action="ModSel" validation="required" style="col-xs-12 col-sm-6">
+                <dependency source-type="launcher" target-type="input" target-action="value">
+                  <dependency-element id="GrdModAdm" column="Nam" attribute="selectedRowValue" alias="value" optional="true" />
+                  <dependency-element id="GrdModAdm" event="select-row" optional="true" />
+                </dependency>
+              </criteria>
+              <criteria label="PARAMETER_INITIAL_SCREEN" id="Scr" component="suggest" server-action="data" target-action="getScreenList" style="col-xs-12 col-sm-6">
+                <dependency source-type="launcher" target-type="input" target-action="value">
+                  <dependency-element id="GrdModAdm" column="ScrIni" attribute="selectedRowValue" alias="value" optional="true" />
+                  <dependency-element id="GrdModAdm" event="select-row" optional="true" />
+                </dependency>
+              </criteria>
+              <criteria label="PARAMETER_ORDER" id="Ord" component="numeric" style="col-xs-6 col-sm-3">
+                <dependency source-type="launcher" target-type="input" target-action="value">
+                  <dependency-element id="GrdModAdm" column="Ord" attribute="selectedRowValue" alias="value" optional="true" />
+                  <dependency-element id="GrdModAdm" event="select-row" optional="true" />
+                </dependency>
+              </criteria>
+              <!-- Active as a switch: 1 when on, 0 when off (ModNew and ModUpd read Act); a new module starts active -->
+              <criteria label="PARAMETER_ACTIVE" id="Act" component="checkbox" value="1" style="col-xs-6 col-sm-3 switch">
+                <dependency source-type="launcher" target-type="input" target-action="value">
+                  <dependency-element id="GrdModAdm" column="Act" attribute="selectedRowValue" alias="value" optional="true" />
+                  <dependency-element id="GrdModAdm" event="select-row" optional="true" />
+                </dependency>
+              </criteria>
+            </tag>
+          </tabcontainer>
+          <!-- Access: the users of the profiles of the module and the users of the list can enter it. One column per grid; a
+               user row has no theme. Each grid box is height-xl (a 450px minimum height in both engines), with room for its empty
+               state, and a module with more rows than fit scrolls inside the grid, not in the panel -->
+          <tabcontainer id="access">
+            <tag type="div" style="panel-body">
+              <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_MODULE_PROFILES" icon="lucide:shield" />
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="MdlPrfLst" style="expand" editable="true" send-operations="true" show-toolbar="false"
+                      server-action="data" target-action="QryLstProByMod" max="20"
+                      empty-title="SCREEN_TEXT_MODULE_PROFILES_EMPTY" empty-text="SCREEN_TEXT_MODULE_PROFILES_EMPTY_TEXT" empty-icon="lucide:shield">
+                  <column name="IdeModPro" sort-field="IdeModPro" hidden="true" />
+                  <column label="PARAMETER_PROFILE" name="IdePro" sort-field="IdeProVal" align="left" charlength="40" component="select" validation="required" initial-load="query" server-action="data" target-action="ProSel" sortable="false" />
+                  <button label="BUTTON_NEW" icon="plus-circle" id="ButMdlPrfLstAdd">
+                    <button-action type="add-row" target="MdlPrfLst" silent="true" />
+                  </button>
+                  <button label="BUTTON_DELETE" icon="trash" id="ButMdlPrfLstDel">
+                    <button-action type="delete-row" target="MdlPrfLst" silent="true" />
+                    <dependency target-type="enable" initial="true">
+                      <dependency-element id="MdlPrfLst" attribute="selectedRows" condition="eq" value="1" />
+                    </dependency>
+                  </button>
+                </grid>
+              </tag>
+              <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_MODULE_USERS" icon="user" />
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="MdlUsrLst" style="expand" editable="true" send-operations="true" show-toolbar="false"
+                      server-action="data" target-action="QryLstUsrByMod" max="20"
+                      empty-title="SCREEN_TEXT_MODULE_USERS_EMPTY" empty-text="SCREEN_TEXT_MODULE_USERS_EMPTY_TEXT" empty-icon="user">
+                  <column name="IdeModOpe" sort-field="IdeModOpe" hidden="true" />
+                  <column label="PARAMETER_USER" name="IdeOpe" sort-field="IdeOpe" align="left" charlength="40" component="select" validation="required" initial-load="query" server-action="data" target-action="UsrActSel" sortable="false" />
+                  <button label="BUTTON_NEW" icon="plus-circle" id="ButMdlUsrLstAdd">
+                    <button-action type="add-row" target="MdlUsrLst" silent="true" />
+                  </button>
+                  <button label="BUTTON_DELETE" icon="trash" id="ButMdlUsrLstDel">
+                    <button-action type="delete-row" target="MdlUsrLst" silent="true" />
+                    <dependency target-type="enable" initial="true">
+                      <dependency-element id="MdlUsrLst" attribute="selectedRows" condition="eq" value="1" />
+                    </dependency>
+                  </button>
+                </grid>
+              </tag>
+            </tag>
+          </tabcontainer>
+          <!-- Sites and databases: the database the module uses in each site, the same rows that site-admin edits from the
+               site. The order of the row is SitModOrd, so it does not clash with the order of the module (Ord) -->
+          <tabcontainer id="sites">
+            <tag type="div" style="panel-body">
+              <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_MODULE_SITES_DATABASES" icon="lucide:network" />
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="MdlSitDbsLst" style="expand" editable="true" send-operations="true" show-toolbar="false"
+                      server-action="data" target-action="QryLstSitDbsByMod" max="20"
+                      empty-title="SCREEN_TEXT_MODULE_SITES_EMPTY" empty-text="SCREEN_TEXT_MODULE_SITES_EMPTY_TEXT" empty-icon="lucide:network">
+                  <column sort-field="IdeSitModDbs" name="IdeSitModDbs" hidden="true" />
+                  <column label="PARAMETER_SITE" name="IdeSit" sort-field="IdeSit" align="left" charlength="12" component="select" validation="required" initial-load="query" server-action="data" target-action="SitSel" sortable="false" />
+                  <column label="PARAMETER_DB_ALS" name="IdeDbs" sort-field="IdeDbs" align="left" charlength="17" component="select" validation="required" initial-load="query" server-action="data" target-action="DbsSel" sortable="false" />
+                  <column label="PARAMETER_ORDER" name="SitModOrd" sort-field="SitModOrd" align="center" charlength="6" component="text" sortable="false" />
+                  <button label="BUTTON_NEW" icon="plus-circle" id="ButMdlSitDbsLstAdd">
+                    <button-action type="add-row" target="MdlSitDbsLst" silent="true" />
+                  </button>
+                  <button label="BUTTON_DELETE" icon="trash" id="ButMdlSitDbsLstDel">
+                    <button-action type="delete-row" target="MdlSitDbsLst" silent="true" />
+                    <dependency target-type="enable" initial="true">
+                      <dependency-element id="MdlSitDbsLst" attribute="selectedRows" condition="eq" value="1" />
+                    </dependency>
+                  </button>
+                </grid>
+              </tag>
+            </tag>
+          </tabcontainer>
+        </tab>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">
+          <button-action type="close-cancel" target="PnlModAdm" />
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="save" id="ButPnlUpd" style="btn-primary">
+          <button-action type="validate" target="PnlModBdy" />
+          <button-action type="check-records-saved" target="MdlPrfLst" />
+          <button-action type="check-records-saved" target="MdlUsrLst" />
+          <button-action type="check-records-saved" target="MdlSitDbsLst" />
+          <button-action type="confirm" target="UpdMsg" />
+          <button-action type="server" server-action="maintain" target-action="ModUpd" />
+          <button-action type="server" server-action="data" target-action="ModNamByOpeSel" target="module" context="base" />
+          <button-action type="close" target="PnlModAdm" />
+          <button-action type="filter" target="GrdModAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+        <button label="BUTTON_CREATE_MODULE" icon="check" id="ButPnlNew" style="btn-primary">
+          <button-action type="validate" target="PnlModBdy" />
+          <button-action type="check-records-saved" target="MdlPrfLst" />
+          <button-action type="check-records-saved" target="MdlUsrLst" />
+          <button-action type="check-records-saved" target="MdlSitDbsLst" />
+          <button-action type="confirm" target="NewMsg" />
+          <button-action type="server" server-action="control-unique-cancel" target-action="ModNamUni" target="UniMsg" />
+          <button-action type="server" server-action="maintain" target-action="ModNew" />
+          <button-action type="server" server-action="data" target-action="ModNamByOpeSel" target="module" context="base" />
+          <button-action type="close" target="PnlModAdm" />
+          <button-action type="filter" target="GrdModAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

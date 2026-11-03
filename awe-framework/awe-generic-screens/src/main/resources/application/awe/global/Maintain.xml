@@ -319,12 +319,15 @@
   </target>
 
   <!-- Modules -->
+  <!-- The modules screen (module-admin) has no theme (it was never applied): it sends no Thm and no IdeThm column, so the
+       IdeThm fields of ModNew and ModUpd are optional and left out of the statement without a value (a new module and its
+       new user rows get none, an update keeps the stored one). The deprecated ModNew and ModUpd screens still send them -->
   <target name="ModNew">
     <insert audit="HISAweMod">
       <table id="AweMod"/>
       <field id="IdeMod" sequence="ModKey" variable="IdeMod"/>
       <field id="Nam" variable="Nam"/>
-      <field id="IdeThm" variable="Thm"/>
+      <field id="IdeThm" variable="Thm" optional="true"/>
       <field id="ScrIni" variable="Scr"/>
       <field id="Ord" variable="Ord"/>
       <field id="Act" variable="Act"/>
@@ -340,7 +343,7 @@
       <field id="IdeModOpe" sequence="ModOpeKey" variable="IdeModOpe" key="true"/>
       <field id="IdeMod" variable="IdeMod"/>
       <field id="IdeOpe" variable="IdeOpe"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <variable id="IdeModOpe" type="INTEGER" name="IdeModOpe"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
@@ -376,7 +379,7 @@
       <field id="IdeMod" variable="IdeMod"/>
       <field id="Nam" variable="Nam"/>
       <field id="ScrIni" variable="ScrIni"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <field id="Ord" variable="Ord"/>
       <field id="Act" variable="Act"/>
       <where>
@@ -396,7 +399,7 @@
       <field id="IdeModOpe" variable="IdeModOpe" sequence="ModOpeKey" key="true"/>
       <field id="IdeMod" variable="IdeMod"/>
       <field id="IdeOpe" variable="IdeOpe"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <variable id="IdeModOpe" type="INTEGER" name="IdeModOpe"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
@@ -426,6 +429,9 @@
     </multiple>
   </target>
 
+  <!-- The modules screen (module-admin) sends the selected modules as IdeModSel (IdeMod is the hidden criterion of its side
+       panel, a single module): this optional second definition replaces the first one when it comes. The deprecated Mod
+       screen sends IdeMod from its grid and no IdeModSel -->
   <target name="ModDel">
     <delete multiple="true" audit="HISAweModOpe">
       <table id="AweModOpe"/>
@@ -436,6 +442,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweModPro">
       <table id="AweModPro"/>
@@ -446,6 +453,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
@@ -456,6 +464,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweMod">
       <table id="AweMod"/>
@@ -470,6 +479,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="ScrIni" type="STRINGN" name="ScrIni"/>

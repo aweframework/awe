@@ -1284,7 +1284,8 @@ Selenium · AngularJS · Chrome · Scheduler:
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
 #                             IntegrationTestsIT                                (port 6309 / 6313)
-#   CRUDCriteriaMatrixIT: CRUDModuleTestsIT, UserAdminTestsIT (the reference flow of the side-panel admin pattern: the other admin
+#   CRUDCriteriaMatrixIT: CRUDModuleTestsIT (the smoke flow of the tabs with nested grids of module-admin, React only),
+#                         UserAdminTestsIT (the reference flow of the side-panel admin pattern: the other admin
 #                         windows are proven by descriptor and Spring tests), CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
 #                         AdvancedSearchTestsIT                                (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)

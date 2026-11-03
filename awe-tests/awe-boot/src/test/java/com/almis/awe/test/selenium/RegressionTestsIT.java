@@ -182,20 +182,20 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Keep criteria test");
 
-    // Go to screen (it keeps its criteria)
-    gotoScreen("tools", "modules");
+    // Go to screen (it keeps its criteria, and the login of the class is one of its events)
+    gotoScreen("settings", "security", "security-audit");
 
     // Wait for button
     clickButton("ButRst");
 
     // Suggest on column selector
-    suggest("CrtMod", "Base", "Base");
+    suggest("CrtUsr", "test", "test");
 
     // Search and wait
     searchAndWait();
 
     // Check grid values
-    clickRowContents("Base");
+    clickRowContents("test");
 
     // Click button
     clickButton("ButViw", true);
@@ -207,7 +207,7 @@ class RegressionTestsIT extends AbstractSessionTests {
     waitForButton("ButRst");
 
     // Wait for button
-    checkSelectContents("CrtMod", "Base");
+    checkSelectContents("CrtUsr", "test");
   }
 
   /**
@@ -297,32 +297,32 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Check that suggested values are not repeated");
 
-    // Go to screen: its theme criterion suggests the themes
-    gotoScreen("tools", "modules");
+    // Go to screen: the side panel of a new profile has a theme suggest that searches the themes
+    gotoScreen("tools", "profiles");
 
-    // Wait for button
-    clickButton("ButRst");
+    // Open the side panel
+    clickButton("ButNew");
 
     // Click on suggest
-    openSuggest("CrtThm");
+    openSuggest("IdeThm");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "a");
+    writeSuggestSearch("IdeThm", "a");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "s");
+    writeSuggestSearch("IdeThm", "s");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "p");
+    writeSuggestSearch("IdeThm", "p");
 
     // Pause
     pause(1000);
@@ -332,6 +332,9 @@ class RegressionTestsIT extends AbstractSessionTests {
 
     // Click selector
     selectResult("asp");
+
+    // Close the side panel without saving
+    clickButton("ButPnlCnl");
   }
 
   /**

@@ -109,6 +109,34 @@ describe("icon-only buttons", () => {
       expect(calls).toEqual([["select", "2"], ["actions", cellController.actions]]);
     });
 
+    it("launches its actions once when selecting its row runs other actions", () => {
+      // Selecting the row may run actions at once (the dependencies of the row), which disable the buttons: the click
+      // that is being handled must not be taken as a click that the disabled button lost. A selected row is not
+      // selected again
+      gridComponent.selectButtonRow.mockImplementation(row => {
+        calls.push(["select", row]);
+        if (!gridComponent.model.selected.includes(row)) {
+          gridComponent.model.selected = [row];
+          $rootScope.$broadcast("disable-buttons");
+        }
+      });
+      const button = compileCell();
+
+      button.triggerHandler("mousedown");
+      button.triggerHandler("click");
+
+      expect(calls.filter(([type]) => type === "actions")).toEqual([["actions", cellController.actions]]);
+    });
+
+    it("launches its actions when the buttons were disabled after its mousedown and before its click", () => {
+      const button = compileCell();
+
+      button.triggerHandler("mousedown");
+      $rootScope.$broadcast("disable-buttons");
+
+      expect(calls).toEqual([["select", "2"], ["actions", cellController.actions]]);
+    });
+
     it("takes the title of the column as tooltip and accessible name when the cell has no label", () => {
       const button = compileCell();
 

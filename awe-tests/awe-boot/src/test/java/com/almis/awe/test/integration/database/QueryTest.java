@@ -4045,6 +4045,46 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * The list of the module administration screen runs on every database: each module has its avatar, a known state and
+   * the counts of its profiles, users and sites (correlated subqueries) match the rows of QryLstProByMod, QryLstUsrByMod
+   * and QryLstSitDbsByMod
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseModuleListFieldsOfTheModuleAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ModLstAdm", "\"lang\":\"en-GB\"", DATABASE));
+
+    assertTrue(!rows.isEmpty(), "There are modules");
+    for (JsonNode row : rows) {
+      String name = text(row, "Nam").trim();
+      String module = "\"IdeMod\":" + text(row, "IdeMod");
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + name);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + name);
+      assertEquals(datalistRows(performRequest("QryLstProByMod", module, DATABASE)).size(), row.get("ProCnt").asInt(),
+        "Profiles of " + name);
+      assertEquals(datalistRows(performRequest("QryLstUsrByMod", module, DATABASE)).size(), row.get("UsrCnt").asInt(),
+        "Users of " + name);
+      assertEquals(datalistRows(performRequest("QryLstSitDbsByMod", module, DATABASE)).stream()
+        .map(site -> text(site, "IdeSit")).distinct().count(), row.get("SitCnt").asLong(), "Sites of " + name);
+    }
+  }
+
+  /**
+   * The quick filter counts of the module administration screen run on every database: All, Active and Inactive, the
+   * count of All is the number of modules of ModLstAdm and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseModuleStateCountsOfTheModuleAdministrationScreen() throws Exception {
+    int modules = datalistRows(performRequest("ModLstAdm", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ModStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(modules, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(modules, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
    * The fields that the database administration screen adds to DbsLst (#793) give the same values on every database: the
    * avatar is the alias, the state and tone codes are known values, and the search finds a connection by its alias
    * ignoring the case

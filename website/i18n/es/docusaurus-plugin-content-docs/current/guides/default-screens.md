@@ -122,7 +122,41 @@ en la próxima versión menor (5.1.0). Apunte sus propias opciones de menú a la
 
 Un módulo es un conjunto especial de opciones definidas en el menú que se puede utilizar para separar funcionalidades dentro de una aplicación. Un usuario solo puede tener un módulo activo a la vez, por lo que cuando se cambia de módulo, las opciones del menú se actualizan con las opciones comunes y las del módulo.
 
-Esta pantalla permite definir los módulos seleccionables, basándose en los que están definidos en el menú. Aquí también se puede definir la relación entre módulos y perfiles, usuarios o sitios (y bases de datos).
+La opción *Módulos* del menú abre la pantalla de administración de módulos (`module-admin`), construida como la de
+[sitios](#sites). Muestra los módulos en un grid con su avatar, nombre y pantalla inicial, el número de perfiles,
+usuarios y sitios, orden y estado, con una búsqueda por nombre y filtros rápidos con sus contadores (*Todos*, *Activos*,
+*Inactivos*). Cada fila tiene un botón de edición y un menú (editar, duplicar, eliminar), y las filas seleccionadas
+muestran una barra para eliminarlas.
+
+Un panel lateral de 640 píxeles crea y edita un módulo en tres pestañas, y siempre se abre en la primera:
+
+- *General*: el módulo, elegido entre los módulos declarados en el menú, su pantalla inicial, su orden en el selector de
+  módulos y si está activo.
+- *Acceso*: los perfiles cuyos usuarios pueden entrar en el módulo y, además de ellos, los usuarios que pueden entrar.
+  Un usuario puede elegir un módulo cuando está asignado al usuario o a su perfil.
+- *Sites y bases de datos*: la base de datos que usa el módulo en cada sitio. Son las mismas filas que edita la pantalla
+  de [sitios](#sites) desde el sitio, así que un cambio en una pantalla se ve en la otra.
+
+Los tres grids se editan dentro del panel, y *Guardar cambios* (o *Crear módulo*) guarda el módulo y sus filas con un solo
+maintain (`ModUpd` o `ModNew`), aunque una pestaña no se haya abierto. La lista usa `ModLstAdm`, los filtros rápidos
+`ModStaCnt`, y un nombre que ya existe se rechaza (`ModNamUni`).
+
+La pantalla no tiene tema: el tema de un módulo y el tema de un usuario en un módulo se guardaban pero nunca se aplicaban,
+porque el tema de un usuario sale del usuario y, si no tiene, del perfil. Los campos `IdeThm` de `ModNew` y `ModUpd` son
+opcionales, así que guardar un módulo sin tema conserva el que tenía.
+
+:::tip Pestañas dentro de un panel lateral
+Cuando un panel lateral contiene varios grids hijos, repártalos en pestañas como hace esta pantalla: cada pestaña cabe en
+el panel sin desplazamiento y los grids de las pestañas que no se abrieron se envían igualmente al guardar. Un campo
+obligatorio vacío abre su pestaña y la marca; una fila de grid que se está editando bloquea el guardado con un aviso, pero
+todavía no abre su pestaña (#918).
+:::
+
+:::warning Deprecado
+Las pantallas anteriores de módulos (`Mod`, `ModNew`, `ModUpd` y `ModViw`) están deprecadas desde AWE 5.0.0 y se
+eliminarán en la próxima versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `module-admin`;
+consulte la [guía de migración a la 5](v5-migration.md).
+:::
 
 ## Bases de datos {#databases}
 

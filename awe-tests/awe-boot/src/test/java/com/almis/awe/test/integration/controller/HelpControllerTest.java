@@ -84,6 +84,18 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * The help of the modules option is the help of the module-admin screen it opens, not the help of the Mod screen it
+   * replaces
+   *
+   * @throws Exception test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test")
+  void testGetModulesHelpTemplate() throws Exception {
+    testHelpOfAdminScreen("modules", "SCREEN_TITLE_MOD_ADMIN", "SCREEN_TITLE_MDL");
+  }
+
+  /**
    * The help of the message queues option is the help of the queue-admin screen it opens, not the help of the Que screen it
    * replaces
    *

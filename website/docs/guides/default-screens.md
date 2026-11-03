@@ -126,8 +126,40 @@ A module is a special set of options defined on the menu which can be used to se
 application. A user can only have an active module at a time, so when the module is changed, menu options will 
 be refreshed with common and module options.
 
-This screen allows to define the selectable modules, based on the ones which are defined on the menu. Here you can 
-also define the relationship between modules and profiles, users or sites (and databases).
+The *Modules* option of the menu opens the module administration screen (`module-admin`), built like the
+[sites](#sites) one. It shows the modules in a grid with their avatar, name and initial screen, the number of profiles,
+users and sites, order and state, with a search by name and quick filters with their counts (*All*, *Active*,
+*Inactive*). Each row has an edit button and a menu (edit, duplicate, delete), and the selected rows show a bar to delete
+them.
+
+A 640 pixels side panel creates and edits a module in three tabs, and always opens on the first one:
+
+- *General*: the module, chosen among the modules declared in the menu, its initial screen, its order in the module
+  selector and whether it is active.
+- *Access*: the profiles whose users can enter the module and, besides them, the users that can enter it. A user can
+  select a module when it is assigned to the user or to the profile of the user.
+- *Sites and databases*: the database the module uses on each site. These are the same rows the [sites](#sites) screen
+  edits from the site, so a change in one screen shows in the other.
+
+The three grids are editable inside the panel, and *Save changes* (or *Create module*) saves the module and its rows with
+one maintain (`ModUpd` or `ModNew`), even when a tab was never opened. The list uses `ModLstAdm`, the quick filters
+`ModStaCnt`, and a name that is already taken is refused (`ModNamUni`).
+
+The screen has no theme: the theme of a module and the theme of a user in a module were stored but never applied, because
+the theme of a user comes from the user and, when it has none, from the profile. The `IdeThm` fields of `ModNew` and
+`ModUpd` are optional, so saving a module without a theme keeps the stored one.
+
+:::tip Tabs inside a side panel
+When a side panel holds several child grids, split them in tabs as this screen does: each tab fits the panel without
+scrolling and the grids of the tabs that were not opened are still sent on save. An empty required field opens its tab
+and marks it; a grid row still being edited blocks the save with a warning, but does not open its tab yet (#918).
+:::
+
+:::warning Deprecated
+The previous module screens (`Mod`, `ModNew`, `ModUpd` and `ModViw`) are deprecated since AWE 5.0.0 and will be removed in
+the next minor release (5.1.0). Point your own menu options to the `module-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 ## Databases
 

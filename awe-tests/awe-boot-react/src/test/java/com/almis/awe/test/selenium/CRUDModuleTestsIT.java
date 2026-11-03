@@ -6,16 +6,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Modules: add, update and delete a module. The class creates its own site, which the module uses, and deletes it after the module.
+ * Modules screen (module-admin): the smoke flow of its side panel with tabs and nested editable grids, which only the
+ * browser sees. A new module is created from the panel with a profile row in its Access tab, its row is listed and it is
+ * deleted from the selection bar. The list, its search, quick filters and counts, the unique name, the maintains of the
+ * panel and the actions of its buttons are proven by ModuleListQueryTest and ModuleAdminScreenTest (awe-boot) and by the
+ * descriptor tests of awe-generic-screens.
+ *
+ * <p>A module takes its name from the modules that the menu of the application declares, so the name is fixed: Inf, which
+ * no other module has. The search by Inf lists only what this class (or a previous run) created.</p>
  */
 @Tag("CRUDCriteriaMatrixIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class CRUDModuleTestsIT extends AbstractCrudTests {
 
-  private static final String SITE = "Site beta";
-  // A module takes its name from the modules that the menu of the application defines (Inf and Inf Changed), so these names are fixed
+  private static final String GRID = "GrdModAdm";
+  private static final String SEARCH = "CrtModTxt";
+  private static final String TABS = "ModTab";
+  private static final String PROFILES_GRID = "MdlPrfLst";
+  // The React tab criterion matches its tabs by the text of their label
+  private static final String ACCESS_TAB = "Access";
   private static final String MODULE = "Inf";
-  private static final String MODULE_CHANGED = "Inf Changed";
+  private static final String PROFILE = "TST";
 
   /**
    * Log into the application
@@ -36,217 +47,51 @@ class CRUDModuleTestsIT extends AbstractCrudTests {
   }
 
   /**
-   * Add the site that the module uses
+   * Open the modules screen and search the modules of the class
    */
-  @Test
-  void t001_newSite() {
-    // Title
-    setTestTitle("Add the site of the module");
-
-    // Create the site
-    createSite(SITE);
-
-    // Check that it is in the list
-    verifyListed(SITE, TOOLS, SITES);
+  private void searchModulesOfTheClass() {
+    openScreen(TOOLS, MODULES);
+    searchGrid(SEARCH, MODULE);
   }
 
   /**
-   * Add the module with the site that it uses, unless they are there. A step that is run again finds them as the run left them:
-   * the failed attempt may have saved the module, and the later steps of the class (which a rerun comes after) have deleted it
+   * Delete every module that the search of the class lists, from the selection bar
    */
-  private void createModule() {
-    // The site of the module
-    createSite(SITE);
-
-    if (!exists(MODULE, TOOLS, MODULES)) {
-      // Go for new screen
-      addNew(TOOLS, MODULES);
-
-      // Select option
-      selectContain("Nam", MODULE);
-
-      // Suggest on selector
-      suggest("Scr", "Sites", "Sites");
-
-      // Suggest on  selector
-      suggest("Thm", "gra", "gra");
-
-      // Select text
-      writeText("Ord", "3");
-
-      // Select on selector
-      selectContain("Act", "Yes");
-
-      // Click on button
-      clickButton("ButMdlUsrLstAdd");
-
-      // Suggest on column selector
-      suggest("MdlUsrLst", "IdeOpe", "test", "test");
-
-      // Suggest on column selector
-      suggest("MdlUsrLst", "IdeThm", "sky", "sky");
-
-      // Save line
-      saveRow("MdlUsrLst");
-
-      // Check row values
-      checkRowContentsGrid("MdlUsrLst", "test", "sky");
-
-      // Click on button
-      clickButton("ButMdlPrfLstAdd");
-
-      // Suggest on column selector
-      suggest("MdlPrfLst", "IdePro", "TST", "TST");
-
-      // Save line
-      saveRow("MdlPrfLst");
-
-      // Check row values
-      checkRowContentsGrid("MdlPrfLst", "TST");
-
-      // Click on button
-      clickButton("ButMdlSitDbsLstAdd");
-
-      // Suggest on column selector
-      suggest("MdlSitDbsLst", "IdeSit", SITE, SITE);
-
-      // Suggest on column selector
-      suggest("MdlSitDbsLst", "IdeDbs", "awedb", "awedb");
-
-      // Save line
-      saveRow("MdlSitDbsLst");
-
-      // Check row values
-      checkRowContentsGrid("MdlSitDbsLst", SITE, "awedb");
-
-      // Store and confirm
-      clickButtonAndConfirm(CONFIRM_BUTTON);
+  private void deleteModulesOfTheClass() {
+    searchModulesOfTheClass();
+    if (hasRowContents(MODULE)) {
+      selectAllRowsOfGrid(GRID);
+      clickGridSelectionButton(GRID, "ButDel");
+      acceptConfirm();
+      checkAndCloseMessage("success");
     }
+    checkRowGone(GRID, MODULE);
   }
 
   /**
-   * Add a new module
+   * Create a module from the side panel with a profile in its Access tab, check that the grid lists it and delete it. A
+   * module that a previous run left is deleted first
    */
   @Test
-  void t002_newModule() {
-    // Title
-    setTestTitle("Add a new module");
+  void t001_createAndDeleteAModuleFromTheSidePanel() {
+    setTestTitle("Create a module with a profile from the side panel and delete it");
 
-    // The module is added unless an attempt that saved it is still there (a rerun)
-    createModule();
+    deleteModulesOfTheClass();
 
-    // Verify
-    verifyView("CrtMod", MODULE);
+    clickButton("ButNew");
+    selectContain("Nam", MODULE);
+    writeText("Ord", "3");
+    clickTab(TABS, ACCESS_TAB);
+    clickButton("ButMdlPrfLstAdd");
+    // In React the select of a grid cell shows its search only when it is open: choose the option by its text
+    selectContain(PROFILES_GRID, "IdePro", PROFILE);
+    saveRow(PROFILES_GRID);
+    // One save for the module and the rows of its grids
+    clickButtonAndConfirm("ButPnlNew");
 
-    // Check contents
-    checkCriterionContents("Nam", MODULE);
+    searchModulesOfTheClass();
+    checkRowContentsGrid(GRID, MODULE, "Active");
 
-    // Check contents
-    checkCriterionContents("Thm", "grass");
-
-    // Check contents
-    checkSuggestContents("Scr", "Sites (site-admin)");
-
-    // Check row contents
-    checkRowContents("test", "TST", SITE);
-  }
-
-  /**
-   * Update the module
-   */
-  @Test
-  void t004_updateModule() {
-    // Title
-    setTestTitle("Update the module");
-
-    // The module that the update needs (a rerun comes after the deletion of the module)
-    createModule();
-
-    // Go to update
-    update("CrtMod", MODULE, TOOLS, MODULES);
-
-    // Write on criterion
-    selectContain("Nam", MODULE_CHANGED);
-
-    // Write on criterion
-    suggest("Scr", "Usr", "Usr");
-
-    // Click row
-    editRow("test");
-
-    // Suggest on column selector
-    selectContain("MdlUsrLst", "IdeThm", "grass");
-
-    // Save line
-    saveRow("MdlUsrLst");
-
-    // Check row values
-    checkRowContentsGrid("MdlUsrLst", "grass");
-
-    // Click row (the profile is the one of the creation, or the one that a failed attempt of this step saved)
-    editRow(hasRowContentsGrid("MdlPrfLst", "TST") ? "TST" : "ADM");
-
-    // Suggest on column selector
-    selectContain("MdlPrfLst", "IdePro", "ADM - Administrator");
-
-    // Save line
-    saveRow("MdlPrfLst");
-
-    // Check row values
-    checkRowContentsGrid("MdlPrfLst", "ADM - Administrator");
-
-    // Click row
-    editRow(SITE);
-
-    // Suggest on column selector
-    selectContain("MdlSitDbsLst", "IdeDbs", "awedb2");
-
-    // Save line
-    saveRow("MdlSitDbsLst");
-
-    // Check row values
-    checkRowContentsGrid("MdlSitDbsLst", "awedb2");
-
-    // Store and confirm
-    clickButtonAndConfirm(CONFIRM_BUTTON);
-
-    // Verify
-    verifyView("CrtMod", MODULE_CHANGED);
-
-    // Check criterion
-    checkCriterionContents("Nam", MODULE_CHANGED);
-
-    // Check criterion
-    checkCriterionContents("Thm", "grass");
-
-    // Check criterion
-    checkSuggestContents("Scr", "Usr");
-
-    // Check row contents
-    checkRowContents("test", "ADM", SITE);
-  }
-
-  /**
-   * Delete the module
-   */
-  @Test
-  void t006_deleteModule() {
-    // Title
-    setTestTitle("Delete a module");
-
-    // Delete the module, if it is still there
-    verifyRecordDeleted("CrtMod", MODULE, TOOLS, MODULES);
-  }
-
-  /**
-   * Delete the site of the module, once the module that used it is deleted
-   */
-  @Test
-  void t008_deleteSite() {
-    // Title
-    setTestTitle("Delete the site of the module");
-
-    // Delete the site
-    verifySiteDeleted(SITE);
+    deleteModulesOfTheClass();
   }
 }

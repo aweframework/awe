@@ -1500,7 +1500,8 @@
         <filter left-field="IdeOpe" left-table="modOpe" condition="eq" right-field="IdeOpe" right-table="ope" />
       </and>
     </join>
-    <join>
+    <!-- The modules screen (module-admin) has no theme: the user rows it adds have none, and they are listed too -->
+    <join type="LEFT">
       <table id="AweThm" alias="thm" />
       <and>
         <filter left-field="IdeThm" left-table="modOpe" condition="eq" right-field="IdeThm" right-table="thm" />
@@ -1537,6 +1538,200 @@
       </and>
     </where>
     <variable id="IdeMod" type="INTEGER" name="IdeMod" />
+  </query>
+
+  <!-- MODULE LIST (modules screen, module-admin): the initial screen as the secondary line, avatar (the name its initials
+       are taken from and a tone that depends only on the identifier), how many profiles and users can enter the module
+       and in how many sites it has a database (scalar subqueries on the row) and its state with its label and tone. The
+       module is in IdeModSel too: the grid sends the selected modules to ModDel with it, because IdeMod is the hidden
+       criterion of the side panel. ModLst stays as it is for the deprecated Mod screen -->
+  <query id="ModLstAdm">
+    <table id="AweMod" alias="mod" />
+    <field id="IdeMod" table="mod" alias="id" />
+    <field id="IdeMod" table="mod" alias="IdeMod" />
+    <field id="IdeMod" table="mod" alias="IdeModSel" />
+    <field id="Nam" table="mod" alias="Nam" />
+    <field id="ScrIni" table="mod" alias="ScrIni" />
+    <field id="Ord" table="mod" alias="Ord" />
+    <field id="Act" table="mod" alias="Act" />
+    <field query="ModLstAdmPro" alias="ProCnt" />
+    <field query="ModLstAdmUsr" alias="UsrCnt" />
+    <field query="ModLstAdmSit" alias="SitCnt" />
+    <operation operator="NULLIF" alias="Ini">
+      <field id="Nam" table="mod" function="TRIM" />
+      <constant value="" />
+    </operation>
+    <operation operator="MOD" alias="IniIdx">
+      <field id="IdeMod" table="mod" />
+      <constant value="6" type="INTEGER" />
+    </operation>
+    <computed format="[IniIdx]" alias="IniTon" translate="user-avatar-tone" />
+    <case alias="StaCod">
+      <when left-field="Act" left-table="mod" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
+    <where>
+      <and>
+        <!-- Search of the grid: the name contains the text, ignoring case -->
+        <filter left-field="Nam" left-table="mod" condition="like" right-variable="ModSch" ignorecase="true" optional="true" />
+        <!-- State of the module (active, inactive): same expression as ModStaCnt -->
+        <filter condition="eq" right-variable="ModSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="mod" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <order-by field="Ord" table="mod" type="ASC" />
+    <order-by field="Nam" table="mod" type="ASC" />
+    <variable id="ModSch" type="STRINGB" name="CrtModTxt" optional="true" />
+    <variable id="ModSta" type="STRING" name="CrtModSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- MODULE LIST (module-admin): profiles of the module of the row -->
+  <query id="ModLstAdmPro">
+    <table id="AweModPro" alias="modPro" />
+    <field id="IdeModPro" table="modPro" function="CNT" alias="ProCnt" />
+    <where>
+      <and>
+        <filter left-field="IdeMod" left-table="modPro" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </where>
+  </query>
+
+  <!-- MODULE LIST (module-admin): users of the module of the row (besides the ones of its profiles) -->
+  <query id="ModLstAdmUsr">
+    <table id="AweModOpe" alias="modOpe" />
+    <field id="IdeModOpe" table="modOpe" function="CNT" alias="UsrCnt" />
+    <where>
+      <and>
+        <filter left-field="IdeMod" left-table="modOpe" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </where>
+  </query>
+
+  <!-- MODULE LIST (module-admin): sites where the module of the row has a database -->
+  <query id="ModLstAdmSit">
+    <table id="AweSitModDbs" alias="sitModDbs" />
+    <field id="IdeSit" table="sitModDbs" function="CNT_DISTINCT" alias="SitCnt" />
+    <where>
+      <and>
+        <filter left-field="IdeMod" left-table="sitModDbs" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </where>
+  </query>
+
+  <!-- MODULE STATE COUNTERS: the quick filters of the modules screen (module-admin), counted with its search -->
+  <query id="ModStaCnt">
+    <table id="AweMod" alias="mod" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_MODULE_FILTER_ALL" alias="label" />
+    <field id="IdeMod" table="mod" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="ModStaCntAct" />
+    <union type="ALL" query="ModStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="mod" condition="like" right-variable="ModSch" ignorecase="true" optional="true" />
+      </and>
+    </where>
+    <order-by field="pos" type="ASC" />
+    <variable id="ModSch" type="STRINGB" name="CrtModTxt" optional="true" />
+  </query>
+
+  <!-- MODULE STATE COUNTERS: active modules -->
+  <query id="ModStaCntAct">
+    <table id="AweMod" alias="mod" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_MODULE_FILTER_ACTIVE" alias="label" />
+    <field id="IdeMod" table="mod" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="mod" condition="like" right-variable="ModSch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="mod" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="ModSch" type="STRINGB" name="CrtModTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- MODULE STATE COUNTERS: inactive modules -->
+  <query id="ModStaCntIna">
+    <table id="AweMod" alias="mod" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_MODULE_FILTER_INACTIVE" alias="label" />
+    <field id="IdeMod" table="mod" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="mod" condition="like" right-variable="ModSch" ignorecase="true" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" left-table="mod" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="ModSch" type="STRINGB" name="CrtModTxt" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Module check Name Unique (module-admin) -->
+  <query id="ModNamUni">
+    <table id="AweMod" />
+    <field id="Nam" alias="Nam" />
+    <where>
+      <and>
+        <filter left-field="Nam" condition="eq" right-variable="Nam" trim="true" />
+      </and>
+    </where>
+    <variable id="Nam" type="STRING" name="Nam" />
   </query>
 
 

@@ -77,6 +77,12 @@
     }
   }
 }
+// The page of a horizontal tab starts below the tab list with the layout gap, as the AngularJS engine does (tab.less,
+// .tab-container .tab-content): the first title of the page does not touch the line under the tabs
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu {
+  margin-bottom: var(--awe-layout-gap);
+}
+
 // Horizontal tabs as the AWE 5 prototype (Aura): muted medium labels, the active label and a 2px underline in the primary
 // text, a line under the list. The tab is a button of the template of AweTabs, so it takes the font of the page
 .p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav {
