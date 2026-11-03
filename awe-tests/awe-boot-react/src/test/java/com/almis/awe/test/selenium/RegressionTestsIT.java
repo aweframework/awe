@@ -25,7 +25,6 @@ class RegressionTestsIT extends AbstractSessionTests {
   private static final String SECURITY_AUDIT = "security-audit";
   private static final String SECURITY_AUDIT_GRID = "GrdSecAud";
   private static final String USERS_GRID = "GrdUsrAdm";
-  private static final String BASE_MODULE = "Base";
 
   RegressionTestsIT() {
     super(Session.TEST_MODULE);
@@ -197,20 +196,20 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Keep criteria test");
 
-    // Go to screen (it keeps its criteria)
-    gotoScreen("tools", "modules");
+    // Go to screen (it keeps its criteria, and the login of the class is one of its events)
+    gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
 
     // Wait for button
     clickButton("ButRst");
 
     // Suggest on column selector
-    suggest("CrtMod", BASE_MODULE, BASE_MODULE);
+    suggest("CrtUsr", "test", "test");
 
     // Search and wait
     searchAndWait();
 
     // Check grid values
-    clickRowContents(BASE_MODULE);
+    clickRowContents("test");
 
     // Click button
     clickButton("ButViw", true);
@@ -222,7 +221,7 @@ class RegressionTestsIT extends AbstractSessionTests {
     waitForButton("ButRst");
 
     // Wait for button
-    checkSuggestContents("CrtMod", BASE_MODULE);
+    checkSuggestContents("CrtUsr", "test");
   }
 
   /**
@@ -327,32 +326,32 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Check that suggested values are not repeated");
 
-    // Go to screen (its theme suggest searches the themes as the old themes screen did)
-    gotoScreen("tools", "modules");
+    // Go to screen: the side panel of a new profile has a theme suggest that searches the themes
+    gotoScreen("tools", "profiles");
 
-    // Wait for button
-    clickButton("ButRst");
+    // Open the side panel
+    clickButton("ButNew");
 
     // Click on suggest
-    openSuggest("CrtThm");
+    openSuggest("IdeThm");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "a");
+    writeSuggestSearch("IdeThm", "a");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "s");
+    writeSuggestSearch("IdeThm", "s");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeSuggestSearch("CrtThm", "p");
+    writeSuggestSearch("IdeThm", "p");
 
     // Pause
     pause(1000);
@@ -362,6 +361,9 @@ class RegressionTestsIT extends AbstractSessionTests {
 
     // Click selector
     selectResult("asp");
+
+    // Close the side panel without saving
+    clickButton("ButPnlCnl");
   }
 
   /**

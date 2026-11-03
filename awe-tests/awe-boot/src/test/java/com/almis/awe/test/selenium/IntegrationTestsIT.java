@@ -158,23 +158,15 @@ class IntegrationTestsIT extends AbstractSessionTests {
     // Go to screen
     gotoScreen("tools", "modules");
 
-    // Click on row
-    clickRowContents("Test");
-
-    // Click button
-    clickButton("ButUpd");
-
-    // Wait for button
-    waitForButton("ButCnf");
+    // Search the module and open it in the side panel with the pencil of its row
+    searchGrid("CrtModTxt", "Test");
+    clickGridRowButton("GrdModAdm", "Test", "EdtBtn");
 
     // Select text
     writeText("Ord", "0");
 
     // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Wait for button
-    waitForButton("ButRst");
+    clickButtonAndConfirm("ButPnlUpd");
 
     checkLogout();
 

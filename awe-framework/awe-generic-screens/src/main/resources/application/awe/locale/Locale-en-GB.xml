@@ -29,6 +29,7 @@
   <locale name="BUTTON_CREATE_APP_PAR" value="Create parameter"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
   <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Create mail server"/>
+  <locale name="BUTTON_CREATE_MODULE" value="Create module"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
   <locale name="BUTTON_CREATE_QUEUE" value="Create queue"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Create sequence"/>
@@ -41,6 +42,7 @@
   <locale name="BUTTON_DELETE" value="Delete"/>
   <locale name="BUTTON_DONE" value="Done"/>
   <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicate mail server"/>
+  <locale name="BUTTON_DUPLICATE_MODULE" value="Duplicate module"/>
   <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicate queue"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Duplicate site"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
@@ -52,6 +54,7 @@
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="New connection"/>
   <locale name="BUTTON_NEW_EMAIL_SERVER" value="New mail server"/>
+  <locale name="BUTTON_NEW_MODULE" value="New module"/>
   <locale name="BUTTON_NEW_PROFILE" value="New profile"/>
   <locale name="BUTTON_NEW_SITE" value="New site"/>
   <locale name="BUTTON_NEW_THEME" value="New theme"/>
@@ -1067,6 +1070,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="View module"/>
   <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Menu access restrictions screen"/>
+  <locale name="HELP_SCREEN_TITLE_MOD_ADMIN" value="Modules of the application, who can enter each one and the database it uses in each site."/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="View system option"/>
@@ -1279,6 +1283,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_HOUR_INI" value="Start time"/>
   <locale name="PARAMETER_HOURS" value="Hours"/>
   <locale name="PARAMETER_IDE" value="Identifier"/>
+  <locale name="PARAMETER_INITIAL_SCREEN" value="Initial screen"/>
   <locale name="PARAMETER_INT_PATH" value="Integration path"/>
   <locale name="PARAMETER_INTEGER" value="Integer"/>
   <locale name="PARAMETER_ISLEAF" value="Is leaf"/>
@@ -1481,6 +1486,26 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Message from {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTERS" value="Module state"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_MODULE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES" value="Profiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY" value="No profiles yet"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY_TEXT" value="Add the profiles whose users can enter the module."/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH_LABEL" value="Search modules"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES" value="Sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_DATABASES" value="Sites and databases"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY" value="No sites yet"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY_TEXT" value="Add the database the module uses in each site."/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_GENERAL" value="General"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_SITES" value="Sites and databases"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS" value="Users"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY" value="No users yet"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY_TEXT" value="Add the users that can enter the module besides the users of its profiles."/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navigation"/>
   <locale name="SCREEN_TEXT_NEW_DATE" value="New date"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Parameter list"/>
@@ -1576,6 +1601,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="View module"/>
   <locale name="SCREEN_TITLE_MENU_ACCESS" value="Menu restrictions"/>
+  <locale name="SCREEN_TITLE_MODULE_PANEL" value="Module"/>
+  <locale name="SCREEN_TITLE_MOD_ADMIN" value="Modules"/>
   <locale name="SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="View system option"/>
@@ -1662,6 +1689,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Please enter a valid text. Numbers are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Please enter a valid time, between 00:00:00 and 23:59:59"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="There is already a parameter with this name. Please change it."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_MODULE" value="There is already a module with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="There is already a profile with this acronym. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="Queue exist yet"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="There is already a sequence with this name. Please change it."/>
@@ -1670,6 +1698,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
   <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Duplicated parameter"/>
+  <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Duplicated module"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Duplicated queue"/>
   <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Duplicated sequence"/>

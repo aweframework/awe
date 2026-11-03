@@ -29,6 +29,7 @@
   <locale name="BUTTON_CREATE_APP_PAR" value="Crear parámetro"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Crear conexión"/>
   <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Crear servidor de correo"/>
+  <locale name="BUTTON_CREATE_MODULE" value="Crear módulo"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Crear perfil"/>
   <locale name="BUTTON_CREATE_QUEUE" value="Crear cola"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Crear secuencia"/>
@@ -41,6 +42,7 @@
   <locale name="BUTTON_DELETE" value="Borrar"/>
   <locale name="BUTTON_DONE" value="Hecho"/>
   <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicar servidor de correo"/>
+  <locale name="BUTTON_DUPLICATE_MODULE" value="Duplicar módulo"/>
   <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicar cola"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Duplicar site"/>
   <locale name="BUTTON_EDIT" value="Editar"/>
@@ -52,6 +54,7 @@
   <locale name="BUTTON_HIDE_MENU" value="OCULTAR MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="Nueva conexión"/>
   <locale name="BUTTON_NEW_EMAIL_SERVER" value="Nuevo servidor de correo"/>
+  <locale name="BUTTON_NEW_MODULE" value="Nuevo módulo"/>
   <locale name="BUTTON_NEW_PROFILE" value="Nuevo perfil"/>
   <locale name="BUTTON_NEW_SITE" value="Nuevo site"/>
   <locale name="BUTTON_NEW_THEME" value="Nuevo tema"/>
@@ -1070,6 +1073,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
   <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Restricciones de acceso al menú"/>
+  <locale name="HELP_SCREEN_TITLE_MOD_ADMIN" value="Los módulos de la aplicación, quién puede entrar en cada uno y qué base de datos usa en cada site."/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>
@@ -1282,6 +1286,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_HOUR_INI" value="Hora inicial"/>
   <locale name="PARAMETER_HOURS" value="Horas"/>
   <locale name="PARAMETER_IDE" value="Identificador"/>
+  <locale name="PARAMETER_INITIAL_SCREEN" value="Pantalla inicial"/>
   <locale name="PARAMETER_INT_PATH" value="Ruta en int."/>
   <locale name="PARAMETER_INTEGER" value="Entero"/>
   <locale name="PARAMETER_ISLEAF" value="Es hoja"/>
@@ -1484,6 +1489,26 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_MENU" value="Menú"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Modulo"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTERS" value="Estado del módulo"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_MODULE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES" value="Perfiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY" value="Todavía no hay perfiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY_TEXT" value="Añade los perfiles cuyos usuarios pueden entrar en el módulo."/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH" value="Nombre…"/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH_LABEL" value="Buscar módulos"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES" value="Sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_DATABASES" value="Sites y bases de datos"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY" value="Todavía no hay sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY_TEXT" value="Añade la base de datos que usa el módulo en cada site."/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_ACCESS" value="Acceso"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_GENERAL" value="General"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_SITES" value="Sites y bases de datos"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS" value="Usuarios"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY" value="Todavía no hay usuarios"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY_TEXT" value="Añade los usuarios que pueden entrar en el módulo además de los de sus perfiles."/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navegación"/>
   <locale name="SCREEN_TEXT_NEW_DATE" value="Nueva fecha"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Listado de parámetros"/>
@@ -1579,6 +1604,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
   <locale name="SCREEN_TITLE_MENU_ACCESS" value="Restricciones de menú"/>
+  <locale name="SCREEN_TITLE_MODULE_PANEL" value="Módulo"/>
+  <locale name="SCREEN_TITLE_MOD_ADMIN" value="Módulos"/>
   <locale name="SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>
@@ -1665,6 +1692,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Por favor, introduzca un texto válido. Los valores numéricos no estan permitidos"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Por favor, introduzca una hora válida, entre las 00:00:00 y las 23:59:59"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="Ya existe un parámetro con este nombre. Cámbialo."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_MODULE" value="Ya existe un módulo con este nombre. Por favor, cámbielo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="Ya existe un perfil con este acrónimo. Por favor, cámbielo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="La cola ya existe"/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="Ya existe una secuencia con este nombre. Cámbialo."/>
@@ -1673,6 +1701,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="El nombre de usuario que está intentando introducir ya existe"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="¡Atención! El literal -{0} ya existe y NO se sobrescribirá"/>
   <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Parámetro duplicado"/>
+  <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Módulo duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Perfil duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Cola duplicada"/>
   <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Secuencia duplicada"/>

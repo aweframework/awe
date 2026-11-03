@@ -14,9 +14,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The buttons that open the side panel of the databases and sites screens as a new record start it from scratch: active,
- * and without the site or module rows of the record edited before (those rows live in a grid of the panel, which keeps
- * them until it is reset). The broker user and password of the queues panel apply only to a remote connection.
+ * The buttons that open the side panel of the databases, sites and modules screens as a new record start it from scratch:
+ * active, and without the site, module, profile or user rows of the record edited before (those rows live in a grid of the
+ * panel, which keeps them until it is reset). The broker user and password of the queues panel apply only to a remote
+ * connection.
  */
 @DisplayName("Admin side panel screens")
 class AdminSidePanelScreensTest {
@@ -24,6 +25,7 @@ class AdminSidePanelScreensTest {
   private static final String AWE = "application/awe/";
   private static final String DATABASES = "screen/databases/database-admin.xml";
   private static final String SITES = "screen/sites/site-admin.xml";
+  private static final String MODULES = "screen/modules/module-admin.xml";
   private static final String QUEUES = "screen/queues/queue-admin.xml";
 
   private Document load(String path) throws Exception {
@@ -108,6 +110,25 @@ class AdminSidePanelScreensTest {
       "dialog:PnlSit");
     // The values of the selected site stay in the panel
     assertThat(duplicate).doesNotContain("unselect-all-rows:GrdSitAdm", "reset:Nam");
+  }
+
+  @Test
+  @DisplayName("A new module starts active, on General and without the rows of the module edited before")
+  void newModuleStartsActiveWithoutRows() throws Exception {
+    assertThat(actions(load(MODULES), "button", "ButNew")).containsSubsequence(
+      "unselect-all-rows:GrdModAdm", "value:PnlMod=new", "reset:IdeMod", "value:Act=1", "reset:MdlPrfLst",
+      "reset:MdlUsrLst", "reset:MdlSitDbsLst", "value:ModTab=general", "dialog:PnlModAdm");
+  }
+
+  @Test
+  @DisplayName("Duplicating a module opens the panel as a new module with its values and without its rows")
+  void duplicatedModuleStartsAsANewModuleWithoutRows() throws Exception {
+    List<String> duplicate = actions(load(MODULES), "context-button", "CtxButDup");
+
+    assertThat(duplicate).containsSubsequence("check-one-selected:GrdModAdm", "value:PnlMod=new", "reset:IdeMod",
+      "reset:MdlPrfLst", "reset:MdlUsrLst", "reset:MdlSitDbsLst", "value:ModTab=general", "dialog:PnlModAdm");
+    // The values of the selected module stay in the panel
+    assertThat(duplicate).doesNotContain("unselect-all-rows:GrdModAdm", "reset:Nam", "reset:Ord");
   }
 
   @Test

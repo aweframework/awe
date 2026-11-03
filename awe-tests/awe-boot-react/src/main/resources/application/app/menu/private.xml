@@ -16,11 +16,7 @@
   <option name="administration-section" label="MENU_SECTION_ADMINISTRATION" separator="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
     <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
-    <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
-      <option name="new-module" screen="ModNew" invisible="true"/>
-      <option name="update-module" screen="ModUpd" invisible="true"/>
-      <option name="view-module" screen="ModViw" invisible="true"/>
-    </option>
+    <option name="modules" label="MENU_TOOLS_MODULES" screen="module-admin" icon="puzzle-piece"/>
     <option name="users" label="MENU_TOOLS_USERS" screen="user-admin" icon="user"/>
     <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="group"/>
     <option name="databases" label="MENU_TOOLS_DATABASE" screen="database-admin" icon="database"/>

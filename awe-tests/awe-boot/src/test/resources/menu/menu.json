@@ -113,62 +113,6 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-module",
-                  "parameters": {
-                    "target": "new-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-module",
-                  "parameters": {
-                    "target": "update-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-module",
-                  "parameters": {
-                    "target": "view-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
           "visible": true
         },
         {

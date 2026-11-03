@@ -32,9 +32,11 @@ aweApplication.directive('aweColumnButton',
           };
 
           // The button acts on its row: it is selected (only it) before the actions run, as their dependencies and the
-          // parameters they send read the selected row
+          // parameters they send read the selected row. The click launches them, so they are no longer pending:
+          // selecting the row may run actions that disable the buttons, and a pending click would launch them again
           const launchActions = scope.onClick;
           scope.onClick = function (event) {
+            component.pendingActions = false;
             component.selectCellRow();
             launchActions(event);
           };
