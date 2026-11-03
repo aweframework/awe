@@ -118,6 +118,18 @@ describe("grid search", () => {
     expect(filters().length).toBe(1);
   });
 
+  it("marks the grid as loading as soon as it filters it, before the filter reaches the server", () => {
+    $control.setAddressController({view: "base", component: "GrdUsr"}, {id: "GrdUsr", loading: false});
+    const element = mount();
+    const grid = $control.getAddressController({view: "base", component: "GrdUsr"});
+
+    type(element, "adm");
+    expect(grid.loading).toBe(false);
+
+    keyDown(element, "Enter");
+    expect(grid.loading).toBe(true);
+  });
+
   it("empties the field and filters the grid with the clear button, keeping the focus in the field", () => {
     const element = mount("adm");
 

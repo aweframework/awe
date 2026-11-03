@@ -1,6 +1,7 @@
 import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {moveChoice} from "../services/checkboxRadio";
+import {filterGrid} from "./gridSearch";
 
 // Quick filters of a grid: a segmented control (one radio per option, "Label N") at the start of the grid toolbar
 export const GRID_QUICK_FILTER_TEMPLATE = `<div ng-show="controller.visible" class="grid-quick-filter" role="radiogroup" aria-label="{{(controller.label || 'SCREEN_TEXT_FILTERS') | translateMultiple}}" ng-attr-criterion-id="{{::controller.id}}" data-testid="${TestIds.gridQuickFilter}" ng-attr-data-testid-owner="{{::gridId}}" ng-attr-aria-busy="{{controller.loading ? 'true' : undefined}}" ng-cloak>
@@ -71,8 +72,7 @@ aweApplication.directive('aweGridQuickFilter',
             }
             component.model.selected = asText(option.value);
             component.modelChange();
-            $actionController.addActionList([{type: "filter", target: scope.gridId}], true,
-              {address: component.address, context: component.context});
+            filterGrid(Control, $actionController, component, scope.gridId);
           };
 
           // The arrow keys move the choice. Listened outside Angular: the click on the next option starts its own digest

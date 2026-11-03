@@ -66,6 +66,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final int CLOSE_COLUMNS_ATTEMPTS = 3;
   private static final String TEXT_VALUE = " text: '";
+  // Property of a text field that holds its current text
+  private static final String VALUE_PROPERTY = "value";
   // Tells whether the element that has the focus is inside the element that the selector (first argument) finds
   private static final String FOCUS_INSIDE_SCRIPT = "var active = document.activeElement;"
     + " return !!active && !!active.closest(arguments[0]);";
@@ -7301,6 +7303,10 @@ public class SeleniumUtilities implements IAweInstructions {
     waitUntil(BrowserCondition.visible(input));
     getBrowser().clear(input);
     writeText(input, text);
+    // Emptying the search filters the grid after its pause, so the text may be typed while the grid reloads: the search
+    // must hold all of it, or the grid is filtered with less
+    waitUntil(BrowserCondition.of("search " + criterionName + " to hold the typed text '" + text + "'",
+      browser -> text.equals(browser.attribute(input, VALUE_PROPERTY))));
     return input;
   }
 

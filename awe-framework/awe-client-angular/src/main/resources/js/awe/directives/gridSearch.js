@@ -22,11 +22,26 @@ const asText = value => {
   return first === null || first === undefined ? "" : String(first);
 };
 
+/**
+ * Filter a grid from a criterion of its toolbar. The grid is marked as loading at once: the filter reaches the server
+ * through the action queue a moment later, and until then the grid would show its previous rows as if they were the
+ * filtered ones
+ * @param {object} Control Control service
+ * @param {object} $actionController Action controller
+ * @param {object} component Criterion that filters the grid
+ * @param {string} gridId Grid identifier
+ */
+export const filterGrid = (Control, $actionController, component, gridId) => {
+  Control.changeControllerAttribute({view: component.address.view, component: gridId}, {loading: true});
+  $actionController.addActionList([{type: "filter", target: gridId}], true,
+    {address: component.address, context: component.context});
+};
+
 // Grid search directive: a text criterion of the screen with no query of its own. Its value is sent with the requests
 // of the grid; typing filters the grid after a pause, Enter at once, and the clear button or Escape empty it
 aweApplication.directive('aweGridSearch',
-  ['Criterion', 'ActionController', '$timeout',
-    function (Criterion, $actionController, $timeout) {
+  ['Criterion', 'Control', 'ActionController', '$timeout',
+    function (Criterion, Control, $actionController, $timeout) {
       return {
         restrict: 'E',
         replace: true,
@@ -60,8 +75,7 @@ aweApplication.directive('aweGridSearch',
               return;
             }
             filtered = text;
-            $actionController.addActionList([{type: "filter", target: scope.gridId}], true,
-              {address: component.address, context: component.context});
+            filterGrid(Control, $actionController, component, scope.gridId);
           };
 
           /**

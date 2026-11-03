@@ -106,6 +106,16 @@ describe("grid quick filter", () => {
     expect(actions).toEqual([{type: "filter", target: "GrdUsr"}]);
   });
 
+  it("marks the grid as loading as soon as it filters it, before the filter reaches the server", () => {
+    $control.setAddressController({view: "base", component: "GrdUsr"}, {id: "GrdUsr", loading: false});
+    const element = mount();
+
+    radios(element).eq(1).click();
+    $rootScope.$digest();
+
+    expect($control.getAddressController({view: "base", component: "GrdUsr"}).loading).toBe(true);
+  });
+
   it("does not filter the grid again when the chosen option is clicked", () => {
     const element = mount("LCK");
 
