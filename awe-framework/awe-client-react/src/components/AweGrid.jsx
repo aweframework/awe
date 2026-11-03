@@ -56,6 +56,22 @@ AweGridRowDetailInstance.propTypes = {
   id: PropTypes.string.isRequired,
 };
 
+/**
+ * Selection settings of a grid. With selectable="false" (#303) the grid never selects a row (no highlight, no toggle on
+ * click, no selection column) while the events of its cells keep firing
+ * @param {object} attributes Grid attributes
+ * @return {object} Whether rows can be selected, whether the multiselect column is shown and the selection mode
+ */
+function getSelectionSettings(attributes) {
+  const selectable = attributes.selectable !== false;
+  const multiselect = !!attributes.multiselect;
+  return {
+    selectable,
+    multiselectColumn: multiselect && selectable,
+    selectionMode: selectable && !multiselect ? "single" : null
+  };
+}
+
 function AweGrid(props) {
   const { id } = props;
   const dispatch = useDispatch();
@@ -187,13 +203,15 @@ function AweGrid(props) {
     }
   }, [editingRowId]);
 
+  const { selectable, multiselectColumn, selectionMode } = getSelectionSettings(attributes);
+
   const headerTemplate = useCallback(() => {
     const { headerModel = [] } = attributes;
     if (headerModel.length > 0) {
       const header = getHeader();
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
+          {preColumnTemplates("header", 2, { multiselect: multiselectColumn, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
           {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, enableFilters, hasFrozen))}
           {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
@@ -204,27 +222,27 @@ function AweGrid(props) {
     } else {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
+          {preColumnTemplates("header", 1, { multiselect: multiselectColumn, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
           {visibleColumns.map(col => columnTemplate(col, 1, enableFilters, hasFrozen))}
           {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, model, address, visibleColumns, hasFrozen, moveRows, enableFilters, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, multiselectColumn, model, address, visibleColumns, hasFrozen, moveRows, enableFilters, getHeader, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
   const footerTemplate = useCallback(() => {
     const { showTotals } = attributes;
     if (showTotals) {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
+          {preColumnTemplates("footer", 1, { multiselect: multiselectColumn, rowNumbers: attributes.rowNumbers, rowDetail: attributes.rowDetail, moveRows, frozen: hasFrozen })}
           {visibleColumns.map(col => footerColumnTemplate(col, hasFrozen))}
           {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
     return null;
-  }, [attributes, visibleColumns, hasFrozen, moveRows, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
+  }, [attributes, multiselectColumn, visibleColumns, hasFrozen, moveRows, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
 
   // PrimeReact does not expose the data of a row to the pass-through of the row, and the order of the rendered rows
   // depends on its own sort and filter. It evaluates "rowClassName" with the row data right before the row pass-through
@@ -251,7 +269,7 @@ function AweGrid(props) {
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const { paginator, pageRows } = getPaginatorSettings(attributes, rows, values.length);
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
-  const selectedValues = values.filter(item => item.selected);
+  const selectedValues = selectable ? values.filter(item => item.selected) : [];
   const loadingIcon = getGridIconLoading(iconLoading, settings);
   // The skeleton replaces the rows in the body instead of masking them. While it is shown the grid is kept lazy with
   // its known total, so a client-side paginated grid does not jump back to the first page when its rows disappear
@@ -259,7 +277,7 @@ function AweGrid(props) {
   const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={!!multiselect} rowNumbers={!!attributes.rowNumbers}
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={multiselectColumn} rowNumbers={!!attributes.rowNumbers}
                                     rowDetail={!!rowDetail} first={first} />;
   }
   // Only a grid with row detail shows the details under its rows
@@ -272,7 +290,7 @@ function AweGrid(props) {
                     onContextMenu={onContextMenu} loading={loading} reloading={reloading} rowHeight={attributes.rowHeight}>
     <DataTable
       selection={selectedValues}
-      selectionMode={multiselect ? null : "single"}
+      selectionMode={selectionMode}
       onSelectionChange={onSelect} onRowDoubleClick={onRowDoubleClick}
       onContextMenu={onContextMenu}
       contextMenuSelection={selectedValues}
@@ -310,7 +328,7 @@ function AweGrid(props) {
         getRowProps: moveRows ? getRowProps : undefined
       })}
     >
-      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail, moveRows,
+      {preColumnTemplates("cell", 1, { multiselect: multiselectColumn, first, rows, rowNumbers: attributes.rowNumbers, rowDetail, expandedRows, onToggleRowDetail, moveRows,
         onRowDragStart: onGripDragStart, onRowDragEnd: onGripDragEnd, frozen: hasFrozen, rowNumberOf: grouping.rowNumberOf })}
       {
         visibleColumns

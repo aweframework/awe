@@ -1290,6 +1290,22 @@ Agrupar por y total general).
 | multiselect          | Boolean | Permitir seleccionar más de una línea                                                           | El valor predeterminado es `false` |
 | checkbox-multiselect | Boolean | Permitir seleccionar más de una línea, pero haciendo clic en **solo** en las casillas laterales | El valor predeterminado es `false` |
 
+### Grid no seleccionable {#non-selectable-grid}
+
+| Atributo   | Tipo    | Descripción                                                                           | Valores                            |
+| ---------- | ------- | ------------------------------------------------------------------------------------- | ---------------------------------- |
+| selectable | Boolean | Permitir seleccionar filas al hacer clic en ellas. Con `false` el grid nunca selecciona una fila | El valor predeterminado es `true`  |
+
+Con `selectable="false"` un clic en una fila ni la selecciona ni la deselecciona, ninguna fila se resalta (tampoco al pasar
+el ratón) y no se muestra la columna de casillas de `multiselect`. Los eventos de las celdas (dependencias `click` y los
+botones de las columnas) siguen disparándose. Úsalo en grids cuyas filas solo lanzan acciones, por ejemplo con una columna
+de botones, donde el primer clic seleccionaba la fila y el siguiente la deseleccionaba.
+
+- Un botón de celda sigue actuando sobre su propia fila: sus acciones y dependencias leen esa fila, que queda registrada
+  como fila seleccionada del modelo, pero nunca se muestra como seleccionada.
+- Las dependencias sobre el evento `select-row` del grid no se disparan con el clic en una fila.
+- Soportado por el motor React; el motor AngularJS ignora el atributo. Los grids de árbol no se ven afectados.
+
 ## Grid de árbol {#tree-grid}
 
 El grid de árbol es un grid que se puede expandir como árbol. Se puede definir como *árbol estándar*, *cargando árbol*, *árbol editable* o *árbol multiopción*, y combinaciones entre ellos.

@@ -82,6 +82,10 @@ export function useGrid(id) {
   }, [validateRow, address, attributes, model]);
 
   const onSelect = useCallback((event) => {
+    // A non-selectable grid (selectable="false", #303) never selects a row by clicking it
+    if (attributes.selectable === false) {
+      return;
+    }
     const gridId = getGridIdentifier(attributes);
     const values = [event.value].flat().filter(i => !isEmpty(i)).map(i => i[gridId]);
     validateRow([{ type: "select-row", address, parameters: { values } }]);
