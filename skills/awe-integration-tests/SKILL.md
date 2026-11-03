@@ -1,15 +1,15 @@
 ---
 name: awe-integration-tests
-description: "Trigger: run integration tests, browser IT, playwright IT, selenium IT, spring integration tests, awe-boot verify, run a test suite. Exact commands to run AWE's Spring integration and browser (Playwright, Selenium) tests locally."
+description: "Trigger: run integration tests, browser IT, playwright IT, selenium IT, spring integration tests, awe-boot verify, run a test suite, write a browser test, add an IT. Exact commands to run AWE's Spring integration and browser (Playwright, Selenium) tests locally, and the rules for writing new ones."
 license: Apache-2.0
 metadata:
   author: awe-team
-  version: "1.2"
+  version: "1.3"
 ---
 
 ## Activation Contract
 
-Use when running or debugging AWE's integration tests locally: Spring/JUnit DB-backed tests, or the browser suites. Commands mirror `.gitlab-ci.yml` so a local pass predicts CI.
+Use when running or debugging AWE's integration tests locally (Spring/JUnit DB-backed tests, or the browser suites), and when writing or changing a browser or Spring test. Commands mirror `.gitlab-ci.yml` so a local pass predicts CI. The **Test Policy** section of `AGENTS.md` decides whether a test belongs in these layers at all; read it first.
 
 The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwright`): those are the jobs of every merge request (`E2E · <engine> · Chromium · <suite>`, `.playwright-testing` in `.gitlab-ci.yml`). Selenium (`awe.test.tool=selenium`, the property default) only runs on `master`, `support/*` and the `develop` schedule (`.rules-selenium`): use it only to reproduce one of those jobs, or for remote/service browsers, which Playwright does not support.
 
@@ -23,6 +23,28 @@ The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwrig
 - Playwright needs no display and no recorder (`awe.test.allowed-recording=false`, as in CI). It downloads its own browsers to `~/.cache/ms-playwright` on the first run (needs network); `headless-chrome` runs its Chromium, not the installed Chrome.
 - Selenium Manager / WebDriverManager auto-resolves the driver for the installed `google-chrome`; no manual chromedriver needed (needs network on first run).
 - Run `mvn install -DskipTests` (or `-pl <module>`) before testing so awe-boot bundles your latest module resources.
+
+## Writing a Browser or Spring Test
+
+Every CI job runs on a GitLab SaaS `small` runner (2 vCPU, 8 GB); the budgets are measured there.
+
+- **Lowest layer first** (`AGENTS.md`, Test Policy): a browser test exists only for a user flow no unit, descriptor or
+  Spring test can observe. Searches, filters, counts, validations and messages are query, maintain or service tests.
+- **One flow per screen**: open it, act, verify the visible result, in one `t0NN_` method or a few that share the
+  setup. Not one browser test per CRUD operation. A redesigned screen keeps one flow and deletes the old screen's tests.
+- **Engine**: the engine the change touches. A backend or XML change gets its flow in the React application
+  (`awe-tests/awe-boot-react`) by default; both applications only when the behavior is engine-specific.
+- **Budget**: < 20 s per test, < 3 min per class, < 15 min per suite job. Before adding a test, read the duration of
+  the suite job (`E2E · <engine> · Chromium · <suite>`) in the latest `develop` pipeline; over 15 minutes, remove or
+  speed up a test first. Check your test's time in `target/surefire-reports/TEST-*IT.xml` after the local run.
+- **Waits**: `waitForLoadingBar()` and element conditions only; no `pause()`, no `Thread.sleep()`, no assertions on
+  render time or durations (flaky on shared runners by design).
+- **Spring tests** go in `awe-tests/awe-boot`, extend `AbstractSpringAppIntegrationTest` and share the cached context:
+  no `@DirtiesContext`, and no new `@TestPropertySource` set unless the rule needs that property (each distinct set
+  starts another context, about 30 s).
+- **Flaky**: a browser test that fails without a code change is quarantined with `@Quarantine` and an issue; it is not
+  retried until green and its class is not turned into a `@DependentChain`.
+- **Report** in the merge request: tests added, their layer and the duration of the affected jobs.
 
 ## Execution Steps
 

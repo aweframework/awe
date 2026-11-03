@@ -4,7 +4,7 @@ description: "Trigger: AWE UI, UX design, screen design, styles, CSS, LESS, them
 license: Apache-2.0
 metadata:
   author: awe-team
-  version: "1.0"
+  version: "1.1"
 ---
 
 ## Activation Contract
@@ -30,6 +30,9 @@ and dark, primary + surface themes, comfortable and compact density) is the sour
 - Typography is Inter on the type scale; icons are Lucide (XML `fa-*` names map to Lucide equivalents).
 - Do not add PrimeUI-licensed packages (`primereact` 11, `@primereact/*`, `@primeuix/themes` >= 3); the React
   engine stays on PrimeReact 10.
+- Styles are verified in review against the tokens and the prototype, not by tests: write no Jest test that asserts
+  CSS values, class lists or computed styles (`AGENTS.md`, Test Policy). A behavior of a component (state, event,
+  rendered content) gets one unit test; its look gets step 4 below.
 
 ## Decision Gates
 
