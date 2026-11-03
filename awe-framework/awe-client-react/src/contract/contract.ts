@@ -91,6 +91,7 @@ export interface AbstractGrid extends AbstractCriteria {
     rowNumbers?: boolean;
     screenId?: string;
     search?: string;
+    selectable?: boolean;
     sendAll?: boolean;
     showToolbar?: boolean;
     showTotals?: boolean;

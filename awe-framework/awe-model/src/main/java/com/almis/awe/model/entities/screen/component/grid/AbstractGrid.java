@@ -95,6 +95,11 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean multiselect;
 
+  // The grid selects rows when they are clicked (true by default)
+  @XStreamAlias("selectable")
+  @XStreamAsAttribute
+  private Boolean selectable;
+
   // User can select more than one record
   @XStreamAlias("checkbox-multiselect")
   @XStreamAsAttribute
@@ -309,6 +314,16 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("multiselect")
   public boolean isMultiselect() {
     return multiselect != null && multiselect;
+  }
+
+  /**
+   * Check if the grid selects its rows (true unless selectable="false")
+   *
+   * @return Grid is selectable
+   */
+  @JsonGetter("selectable")
+  public boolean isSelectable() {
+    return selectable == null || selectable;
   }
 
   /**

@@ -1062,6 +1062,11 @@
         <xs:documentation xml:lang="en">Allows selecting several rows and adds a checkbox column to select them. Default: false. In a tree grid the React engine only supports single selection.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="selectable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows selecting rows by clicking them. Default: true. With false the grid never selects a row (no highlight, no toggle on click) while the row and cell click events, the cell buttons and the dependencies keep firing. Use it for grids whose rows only trigger actions. Supported by the React engine; ignored when multiselect is true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="checkbox-multiselect" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Read by the model but not implemented by either client engine; use multiselect to get a checkbox column. Default: false.</xs:documentation>

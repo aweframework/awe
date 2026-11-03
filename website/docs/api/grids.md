@@ -1272,6 +1272,22 @@ total).
 | multiselect          | Boolean  | Allow selecting more than one line                                               | Default value is `false` |
 | checkbox-multiselect | Boolean  | Allow selecting more than one line, but clicking **only** on the side checkboxes | Default value is `false` |
 
+### Non-selectable grid
+
+| Attribute  | Type    | Description                                                                          | Values                  |
+|------------|---------|--------------------------------------------------------------------------------------|-------------------------|
+| selectable | Boolean | Allow selecting rows by clicking them. With `false` the grid never selects a row     | Default value is `true` |
+
+With `selectable="false"` a click on a row neither selects nor deselects it, no row is highlighted (not even when hovered),
+and the selection checkbox column of `multiselect` is not shown. The events of the cells (`click` dependencies and the
+buttons of the columns) keep firing. Use it for grids whose rows only trigger actions, for example with a button column,
+where the first click used to select the row and the next one to deselect it.
+
+- A cell button still acts on its own row: its actions and dependencies read that row, which is registered as the selected
+  row of the model, but it is never shown as selected.
+- Dependencies on the `select-row` event of the grid do not fire from a row click.
+- Supported by the React engine; the AngularJS engine ignores the attribute. Tree grids are not affected.
+
 ## Tree grid
 
 The tree grid is a grid that can be expanded as a tree. It can be defined as *standard tree*, *loading tree*, *editable tree* or *multi-option tree*, and combinations between them.

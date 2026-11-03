@@ -176,6 +176,7 @@ module.exports = {
     '**/components/AweGridRadioColumnTest.{js,jsx}',
     '**/components/AweGridRowDetailTest.{js,jsx}',
     '**/components/AweGridMoveRowsTest.{js,jsx}',
+    '**/components/AweGridSelectableTest.{js,jsx}',
     '**/components/AweGridRowDetailComponentsTest.{js,jsx}',
     '**/components/ElementHelpTest.{js,jsx}',
     '**/components/ErrorBoundaryTest.{js,jsx}',
