@@ -516,6 +516,13 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-switch-height` | `20px` | = claro |
 | `--awe-switch-handle-size` | `16px` | = claro |
 
+**Calendario de un criterio de fecha**
+
+| Token | Cómoda | Compacta |
+|---|---|---|
+| `--awe-datepicker-day-size` | `var(--awe-space-8)` | `28px` |
+| `--awe-datepicker-cell-gap` | `var(--awe-space-0-5)` |  |
+
 **Página de login**
 
 | Token | Cómoda | Compacta |

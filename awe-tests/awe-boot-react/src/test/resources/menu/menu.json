@@ -273,44 +273,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-email-server",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-email-server",
-                  "parameters": {
-                    "target": "new-email-server",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-email-server",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-email-server",
-                  "parameters": {
-                    "target": "update-email-server",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -331,44 +294,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-queue",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-queue",
-                  "parameters": {
-                    "target": "new-queue",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-queue",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-queue",
-                  "parameters": {
-                    "target": "update-queue",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {

@@ -365,6 +365,11 @@
     <option label="ENUM_NO" value="0"/>
     <option label="ENUM_YES" value="1"/>
   </group>
+  <!-- Authentication of a mail server (EmlSrvLst AthTon): tone of its tag in the mail servers screen (email-server-admin) -->
+  <group id="authenticated-tone">
+    <option label="neutral" value="0"/>
+    <option label="info" value="1"/>
+  </group>
   <group id="user-settings">
     <option label="PROFILE" value="profile"/>
     <option label="SECURITY" value="security"/>

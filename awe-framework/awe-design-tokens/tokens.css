@@ -1175,6 +1175,11 @@
   --awe-switch-width: 36px;
   --awe-switch-height: 20px;
   --awe-switch-handle-size: 16px;
+
+  /* Calendar of a date criterion: the day of a date picker and the gap between the days of its grid. A table separates
+     its cells by their padding, so each side of a cell takes half of the gap */
+  --awe-datepicker-day-size: var(--awe-space-8);
+  --awe-datepicker-cell-gap: var(--awe-space-0-5);
 }
 
 :root[data-awe-density="compact"] {
@@ -1190,6 +1195,7 @@
   --awe-menu-flyout-width: 240px;
   --awe-header-search-width: 320px;
   --awe-header-logo-height: 30px;
+  --awe-datepicker-day-size: 28px;
 }
 
 /* ==========================================================================

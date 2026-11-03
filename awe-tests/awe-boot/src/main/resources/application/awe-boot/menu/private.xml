@@ -22,14 +22,8 @@
     <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="group"/>
     <option name="databases" label="MENU_TOOLS_DATABASE" screen="database-admin" icon="database"/>
     <option name="themes" label="MENU_TOOLS_THEMES" screen="theme-admin" icon="picture-o"/>
-    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="EmlSrv" icon="envelope">
-      <option name="new-email-server" screen="EmlSrvNew" invisible="true"/>
-      <option name="update-email-server" screen="EmlSrvUpd" invisible="true"/>
-    </option>
-    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="Que" icon="exchange">
-      <option name="new-queue" screen="QueNew" invisible="true"/>
-      <option name="update-queue" screen="QueUpd" invisible="true"/>
-    </option>
+    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="email-server-admin" icon="envelope"/>
+    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="queue-admin" icon="exchange"/>
     <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="sequence-admin" icon="key"/>
     <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="application-parameter-admin" icon="cogs"/>
     <option name="broadcast-messages" label="MENU_BROADCAST" screen="MsgUsr" icon="rss"/>

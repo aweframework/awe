@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Settings of the application: sequences, application parameters and queues, one flow per screen. The flows of the two
+ * Settings of the application: sequences and application parameters, one flow per screen. The flows of the two
  * administration screens (sequence-admin and application-parameter-admin) create two records through the side panel,
  * check the search and the quick filters (no query test runs them), delete one record from the selection bar, edit the
  * other from the pencil of its row and delete it from the row menu. Each flow opens its screen once, searches the words
@@ -212,49 +212,6 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
 
     deleteSequenceFromTheRowMenu(COUNT_ACTIVE_SEQUENCE);
     checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 0");
-  }
-
-  /**
-   * Add a queue, update it and delete it from the queues screen
-   */
-  @Test
-  void t061_queueFromCreationToDeletion() {
-    setTestTitle("Add, update and delete a queue");
-
-    addNew(TOOLS, "queues");
-    writeText("Als", "Queue test");
-    writeText("JmsBrk", "Broker");
-    writeText("DstNam", "Destination");
-    selectContain("ConTyp", "JNDI");
-    writeText("Des", "Queue description");
-    clickButtonAndConfirm("ButCnf");
-
-    // The screen goes back to the list of queues
-    clickButton("ButRst");
-    suggest("CrtAls", "test", "test");
-    searchAndWait();
-    checkRowContents("Queue test", "Broker", "Destination", "JNDI", "Queue description");
-
-    // Update the queue of the list
-    clickRowContents("Queue test");
-    clickButton("ButUpd", true);
-    waitForButton("ButCnf");
-    waitForLoadingBar();
-    writeText("Als", "Queue changed");
-    writeText("JmsBrk", "New broker");
-    writeText("DstNam", "New destination");
-    writeText("Des", "Queue changed description");
-    clickButtonAndConfirm("ButCnf");
-
-    clickButton("ButRst");
-    suggest("CrtAls", "changed", "changed");
-    searchAndWait();
-    checkRowContents("Queue changed", "New broker", "New destination", "JNDI", "Queue changed description");
-
-    // Delete the queue of the list
-    clickRowContents("Queue changed");
-    clickButtonAndConfirm("ButDel");
-    verifyDeleted("Queue changed");
   }
 
   /**

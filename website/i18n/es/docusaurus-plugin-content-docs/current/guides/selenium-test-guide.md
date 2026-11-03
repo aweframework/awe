@@ -511,6 +511,7 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkCriterionVisible(String criterionName)` / `checkCriterionNotVisible(String criterionName)` | Comprueba que un criterio se muestra, o que no se muestra (puede seguir en la página, oculto) |
 | `checkCriterionNotPresent(String criterionName)` | Comprueba que un criterio no está en la página, ni visible ni oculto, como uno de una página de pestaña que no se muestra |
 | `checkCriterionUnit(String criterionName, String text)` | Comprueba el complemento de unidad de un criterio (el texto tras el input) |
+| `checkCriterionDisabled(String criterionName)` | Comprueba que un criterio no se puede editar: su campo está deshabilitado porque una dependencia de la pantalla lo ha apagado |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Comprueba que unos criterios están marcados (o no) |
 | `clickCheckbox(String criterionName)` | Hace clic en un checkbox o botón de radio |
 | `clickCheckboxOption(String criterionName, String optionId)` | Hace clic en una opción de un grupo de botones (un checkbox o radio de botón dibujado como un solo grupo) |

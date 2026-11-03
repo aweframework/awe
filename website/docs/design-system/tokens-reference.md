@@ -515,6 +515,13 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-switch-height` | `20px` | = light |
 | `--awe-switch-handle-size` | `16px` | = light |
 
+**Calendar of a date criterion**
+
+| Token | Comfortable | Compact |
+|---|---|---|
+| `--awe-datepicker-day-size` | `var(--awe-space-8)` | `28px` |
+| `--awe-datepicker-cell-gap` | `var(--awe-space-0-5)` |  |
+
 **Login page**
 
 | Token | Comfortable | Compact |
