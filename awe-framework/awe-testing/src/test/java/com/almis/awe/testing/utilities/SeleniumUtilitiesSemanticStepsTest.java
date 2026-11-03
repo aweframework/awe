@@ -1399,7 +1399,13 @@ class SeleniumUtilitiesSemanticStepsTest {
   @SuppressWarnings("unchecked")
   void shouldSearchTypeAndClearTheSearchOfAGrid() {
     WebElement input = show(instructions.getGridSearchInput("CrtTxt"), "");
-    when(input.getAttribute("value")).thenReturn("old");
+    // The text of the search: emptied by clear and filled by the typed keys, which the step waits for
+    StringBuilder value = new StringBuilder("old");
+    when(input.getAttribute("value")).thenAnswer(invocation -> value.toString());
+    doAnswer(invocation -> {
+      value.setLength(0);
+      return null;
+    }).when(input).clear();
     show(instructions.getGridSearchClear("CrtTxt"), "");
     List<Object> keysPressed = new ArrayList<>();
     List<Object> clicks = new ArrayList<>();
@@ -1408,6 +1414,7 @@ class SeleniumUtilitiesSemanticStepsTest {
         ((List<Map<String, Object>>) sequence.toJson().get("actions")).forEach(action -> {
           if ("keyDown".equals(action.get("type"))) {
             keysPressed.add(action.get("value"));
+            value.append(action.get("value"));
           } else if ("pointerDown".equals(action.get("type"))) {
             clicks.add(action);
           }
@@ -1430,6 +1437,16 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThat(clicks).hasSize(clicksBeforeClear + 1);
     assertThrows(AssertionFailedError.class, () -> utilities.searchGrid("Missing", "adm"));
     assertThrows(AssertionFailedError.class, () -> utilities.clearGridSearch("Missing"));
+  }
+
+  @Test
+  void shouldFailASearchOfAGridThatLostTheTypedText() {
+    // The keys never reach the search (something else has the focus): its text stays empty
+    WebElement input = show(instructions.getGridSearchInput("CrtTxt"), "");
+    when(input.getAttribute("value")).thenReturn("");
+
+    AssertionFailedError failure = assertThrows(AssertionFailedError.class, () -> utilities.searchGrid("CrtTxt", "adm"));
+    assertThat(failure.getMessage()).contains("search CrtTxt to hold the typed text 'adm'");
   }
 
   @Test
