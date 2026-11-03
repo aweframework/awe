@@ -529,8 +529,7 @@ engine, text cells and headers show it as a tooltip (the AngularJS engine alread
   columns (`frozen`) or a tree grid keeps its single-line rows in that engine.
 :::
 
-The test applications include the screens *Wrapping cells* and *Single-line cells* in the matrix test menu, with the same
-100 rows with and without wrapping.
+The test applications include the screen *Wrapping cells* in the matrix test menu, with 100 rows of wrapping columns.
 
 ### Secondary line, status and chips
 

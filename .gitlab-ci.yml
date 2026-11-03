@@ -994,8 +994,9 @@ Unit · AngularJS:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
   needs: [ ]
   cache: { }
-  # The slow medium runner, when busy, takes close to 15 minutes for the AngularJS suite even when every test passes
-  timeout: 30m
+  # The unit suite alone (the compat guards of styles/ run in "Unit · AngularJS · Compat" below): about 20 s of Jest
+  # after the Node install; the limit leaves room for a slow medium runner
+  timeout: 15m
   variables:
     BABEL_ENV: test
     NODE_ENV: test
@@ -1011,6 +1012,35 @@ Unit · AngularJS:
   rules:
     - <<: *if-mr-frontend
     - <<: *if-branches
+
+# The compat guards of the AngularJS client (src/test/jest/styles, jest.compat.config.js): the equivalence tests of the
+# Bootstrap 3 to Tailwind migration (website/docs/guides/tailwind-compat-guide.md). They compile the LESS and Tailwind
+# builds and took two of the two and a half minutes of "Unit · AngularJS" on their own, so they left `npm test` and run
+# only where a regression of the compat layer matters and nobody waits for the result: develop and master pushes and the
+# "Nightly Firefox" schedule, never a merge request (the test policy of AGENTS.md: styles are checked in review).
+Unit · AngularJS · Compat:
+  stage: test
+  tags: [ medium ]
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
+  needs: [ ]
+  cache: { }
+  timeout: 30m
+  variables:
+    BABEL_ENV: test
+    NODE_ENV: test
+  script:
+    - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test -Djest.script=test:compat
+  artifacts:
+    paths:
+      - awe-framework/awe-client-angular/target/reports/jest-compat/
+    expire_in: 1 day
+    reports:
+      junit:
+        - awe-framework/awe-client-angular/target/reports/jest-compat/junit/*.xml
+  rules:
+    - <<: *if-develop
+    - <<: *if-master
+    - <<: *if-firefox-nightly
 
 Unit · React:
   stage: test
@@ -1254,8 +1284,8 @@ Selenium · AngularJS · Chrome · Scheduler:
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
 #                             IntegrationTestsIT                                (port 6309 / 6313)
-#   CRUDCriteriaMatrixIT: CRUDSiteTestsIT, ProfileAdminTestsIT, CRUDModuleTestsIT, DatabaseAdminTestsIT,
-#                         UserAdminTestsIT, ThemeAdminTestsIT, CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
+#   CRUDCriteriaMatrixIT: CRUDModuleTestsIT, UserAdminTestsIT (the reference flow of the side-panel admin pattern: the other admin
+#                         windows are proven by descriptor and Spring tests), CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
 #                         AdvancedSearchTestsIT                                (port 6310 / 6314)
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
 #   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
@@ -1285,7 +1315,7 @@ Selenium · React · Firefox · Application:
 Selenium · React · Firefox · CRUD:
   extends: .selenium-react-firefox
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDModuleTestsIT,UserAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6310"
     TEST_NAME: react-firefox-crud-criteria-matrix
 
@@ -1320,7 +1350,7 @@ Selenium · React · Chrome · Application:
 Selenium · React · Chrome · CRUD:
   extends: .selenium-react-chrome
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDModuleTestsIT,UserAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6314"
     TEST_NAME: react-chrome-crud-criteria-matrix
 
@@ -1469,7 +1499,7 @@ E2E · React · Chromium · Application:
 E2E · React · Chromium · CRUD:
   extends: .playwright-react-chromium
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDModuleTestsIT,UserAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6326"
     TEST_NAME: playwright-react-chromium-crud-criteria-matrix
 
@@ -1505,7 +1535,7 @@ E2E · React · Firefox · Application:
 E2E · React · Firefox · CRUD:
   extends: .playwright-react-firefox
   variables:
-    TEST_CLASSES: CRUDSiteTestsIT,ProfileAdminTestsIT,CRUDModuleTestsIT,DatabaseAdminTestsIT,UserAdminTestsIT,ThemeAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
+    TEST_CLASSES: CRUDModuleTestsIT,UserAdminTestsIT,CriteriaTestsIT,ButtonTestsIT,DependencyTestsIT,MapTestsIT,MatrixTestsIT
     TEST_PORT: "6330"
     TEST_NAME: playwright-react-firefox-crud-criteria-matrix
 

@@ -67,6 +67,10 @@ class SeleniumUtilitiesSemanticStepsTest {
 
   // Text of the Maximize buttons of grids, windows and tabs
   private static final String MAXIMIZE = "Maximize";
+  // The mocked browser answers at once: the waits look again every millisecond, and one that is not met (a step that
+  // fails) ends after this short timeout
+  private static final Duration POLL_INTERVAL = Duration.ofMillis(1);
+  private static final Duration TIMEOUT = Duration.ofMillis(30);
 
   @TempDir
   Path tempDir;
@@ -88,7 +92,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     properties.setFrontend(FrontendType.ANGULAR);
     properties.setStartUrl("http://localhost:8080/");
     properties.setScreenshotPath(tempDir.toString());
-    properties.setTimeout(Duration.ofMillis(150));
+    properties.setTimeout(TIMEOUT);
     model = new SeleniumModel().setDriver(driver).setCurrentOption("unit-test").setProperties(properties);
 
     use(new AngularAweInstructions());
@@ -98,6 +102,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     frontEndInstructions.setSeleniumModel(model);
     instructions = frontEndInstructions;
     utilities = new RecordingSeleniumUtilities();
+    utilities.setMaxPollInterval(POLL_INTERVAL);
     ReflectionTestUtils.setField(utilities, "properties", properties);
     ReflectionTestUtils.setField(utilities, "seleniumModel", model);
     ReflectionTestUtils.setField(utilities, "frontEndInstructions", frontEndInstructions);
@@ -724,8 +729,10 @@ class SeleniumUtilitiesSemanticStepsTest {
     WebElement search = mock(WebElement.class);
     when(search.isEnabled()).thenReturn(true);
     when(search.getAttribute("value")).thenReturn("");
-    // The panel is still displayed when the escape key is pressed and takes some checks to leave (exit animation)
-    properties.setTimeout(Duration.ofSeconds(5));
+    // The panel is still displayed when the escape key is pressed and takes some checks to leave (exit animation). The
+    // timeout leaves room for those checks; it is short because the options of this panel never settle and are waited
+    // for during the whole timeout
+    properties.setTimeout(Duration.ofMillis(200));
     when(search.isDisplayed()).thenAnswer(invocation -> performed.get() < 4 || checksAfterEscape.incrementAndGet() < 3);
     doAnswer(invocation -> {
       if (performed.incrementAndGet() == 1) {
@@ -820,6 +827,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     // the screen would not change
     SeleniumUtilities navigating = new SeleniumUtilities() {
     };
+    navigating.setMaxPollInterval(POLL_INTERVAL);
     ReflectionTestUtils.setField(navigating, "properties", properties);
     ReflectionTestUtils.setField(navigating, "seleniumModel", model);
     ReflectionTestUtils.setField(navigating, "frontEndInstructions", instructions);
@@ -847,6 +855,7 @@ class SeleniumUtilitiesSemanticStepsTest {
         // No browser
       }
     };
+    navigating.setMaxPollInterval(POLL_INTERVAL);
     ReflectionTestUtils.setField(navigating, "properties", properties);
     ReflectionTestUtils.setField(navigating, "seleniumModel", model);
     ReflectionTestUtils.setField(navigating, "frontEndInstructions", instructions);
@@ -855,7 +864,7 @@ class SeleniumUtilitiesSemanticStepsTest {
 
   private AtomicInteger menuOptionBecomesActiveAfterClick(int clicksNeeded) {
     use(new ReactAweInstructions());
-    properties.setTimeout(Duration.ofMillis(300));
+    properties.setTimeout(Duration.ofMillis(50));
     show(instructions.getMenuOption("test"), "Tests");
     AtomicInteger clicks = new AtomicInteger();
     doAnswer(invocation -> {
@@ -904,7 +913,8 @@ class SeleniumUtilitiesSemanticStepsTest {
     // A list that changes at every look never settles: the step waits for the configured time at most, then chooses
     show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
     show(instructions.getSuggestResult("1"), "1");
-    properties.setTimeout(Duration.ofSeconds(1));
+    properties.setTimeout(Duration.ofMillis(100));
+    utilities.setMaxPollInterval(Duration.ofMillis(20));
     AtomicInteger looked = new AtomicInteger();
     By options = Locator.from(instructions.getSelectOptions()).toBy();
     when(driver.findElements(argThat(options::equals))).thenAnswer(invocation -> {
@@ -921,8 +931,8 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     utilities.suggestMultiple("Months", "1", "1");
 
-    // It chose, after looking more than once and not for ever: a look is 200 ms after the last one for at most the timeout
-    // of 1 s, so there are six at the most whatever the speed of the machine
+    // It chose, after looking more than once and not for ever: a look is 20 ms after the last one for at most the timeout
+    // of 100 ms, so there are six at the most whatever the speed of the machine
     assertThat(performed.get()).isGreaterThanOrEqualTo(2);
     assertThat(looked.get()).isBetween(2, 7);
   }
@@ -931,7 +941,8 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldChooseTheOptionAfterABoundedWaitWhenThereAreNoOptionsToLookAt() {
     show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
     show(instructions.getSuggestResult("1"), "1");
-    properties.setTimeout(Duration.ofSeconds(1));
+    properties.setTimeout(Duration.ofMillis(100));
+    utilities.setMaxPollInterval(Duration.ofMillis(20));
     AtomicInteger looked = showOptionsThatChange(new String[0]);
     AtomicInteger performed = new AtomicInteger();
     doAnswer(invocation -> {
@@ -941,8 +952,8 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     utilities.suggestMultiple("Months", "1", "1");
 
-    // It chose, after looking more than once and not for ever: a look is 200 ms after the last one for at most the timeout
-    // of 1 s, so there are six at the most whatever the speed of the machine
+    // It chose, after looking more than once and not for ever: a look is 20 ms after the last one for at most the timeout
+    // of 100 ms, so there are six at the most whatever the speed of the machine
     assertThat(performed.get()).isGreaterThanOrEqualTo(2);
     assertThat(looked.get()).isBetween(2, 7);
   }
@@ -2748,7 +2759,7 @@ class SeleniumUtilitiesSemanticStepsTest {
 
   @Test
   void shouldNotClickCloseAgainWhenTheColumnsDialogIsClosingSlowly() {
-    properties.setTimeout(Duration.ofSeconds(1));
+    properties.setTimeout(Duration.ofMillis(100));
     for (IAweFrontEndInstructions client : List.of(new AngularAweInstructions(), new ReactAweInstructions())) {
       use(client);
       show(instructions.getGridColumnsDialog("Grd"), "");
@@ -2766,7 +2777,7 @@ class SeleniumUtilitiesSemanticStepsTest {
       }).when((Interactive) driver).perform(any());
       WebElement shown = driver.findElements(dialog).get(0);
       when(driver.findElements(argThat(dialog::equals))).thenAnswer(invocation ->
-        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] > 1500 ? Collections.emptyList() : List.of(shown));
+        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] > 150 ? Collections.emptyList() : List.of(shown));
 
       assertThatCode(() -> utilities.closeGridColumns("Grd")).doesNotThrowAnyException();
       assertThat(performed() - before).isEqualTo(1);
@@ -2894,20 +2905,20 @@ class SeleniumUtilitiesSemanticStepsTest {
       By busy = Locator.from(instructions.getGridColumnsBusy("Grd")).toBy();
       WebElement root = driver.findElements(busy).get(0);
 
-      // Restore default is silent: the Columns are aria-busy until the server answers, 300 ms after the click
+      // Restore default is silent: the Columns are aria-busy until the server answers, 100 ms after the click
       long[] clickedAt = {0};
       doAnswer(invocation -> {
         clickedAt[0] = System.currentTimeMillis();
         return null;
       }).when((Interactive) driver).perform(any());
       when(driver.findElements(argThat(busy::equals))).thenAnswer(invocation ->
-        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] < 300 ? List.of(root) : Collections.emptyList());
+        clickedAt[0] > 0 && System.currentTimeMillis() - clickedAt[0] < 100 ? List.of(root) : Collections.emptyList());
 
       utilities.clickGridColumnsReset("Grd");
-      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(300);
+      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(100);
 
       // The server never answers
-      properties.setTimeout(Duration.ofMillis(300));
+      properties.setTimeout(TIMEOUT);
       when(driver.findElements(argThat(busy::equals))).thenReturn(List.of(root));
       assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsReset("Grd"));
     }
@@ -2923,20 +2934,20 @@ class SeleniumUtilitiesSemanticStepsTest {
       By dialog = Locator.from(instructions.getGridColumnsDialog("Grd")).toBy();
       WebElement root = driver.findElements(dialog).get(0);
 
-      // Save closes the Columns when the server answers that the layout was saved, 300 ms after the click
+      // Save closes the Columns when the server answers that the layout was saved, 100 ms after the click
       long[] clickedAt = {0};
       doAnswer(invocation -> {
         clickedAt[0] = System.currentTimeMillis();
         return null;
       }).when((Interactive) driver).perform(any());
       when(driver.findElements(argThat(dialog::equals))).thenAnswer(invocation ->
-        clickedAt[0] == 0 || System.currentTimeMillis() - clickedAt[0] < 300 ? List.of(root) : Collections.emptyList());
+        clickedAt[0] == 0 || System.currentTimeMillis() - clickedAt[0] < 100 ? List.of(root) : Collections.emptyList());
 
       utilities.clickGridColumnsSave("Grd");
-      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(300);
+      assertThat(System.currentTimeMillis() - clickedAt[0]).isGreaterThanOrEqualTo(100);
 
       // The layout is not saved: the Columns stay open
-      properties.setTimeout(Duration.ofMillis(300));
+      properties.setTimeout(TIMEOUT);
       when(driver.findElements(argThat(dialog::equals))).thenReturn(List.of(root));
       assertThrows(AssertionFailedError.class, () -> utilities.clickGridColumnsSave("Grd"));
     }

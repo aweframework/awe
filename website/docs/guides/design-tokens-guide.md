@@ -192,7 +192,9 @@ React page and an AngularJS page get the same values in both modes.
 
 ## Checking a change
 
-`awe-client-angular/src/test/jest/styles/designTokens.test.js` compiles the whole LESS build and checks that the
+`awe-client-angular/src/test/jest/styles/designTokens.test.js` (a compat guard: it runs with
+`npm run test:compat --prefix awe-framework/awe-client-angular`, not with `npm test`, and in CI only in the job
+`Unit · AngularJS · Compat` of develop, master and the nightly schedule) compiles the whole LESS build and checks that the
 `--awe-*` tokens are declared only by the shared token file (no bridge), that no `.theme-<name>` rule and no AWE 4 theme
 variable is left, that the colour mode is set on `<html>`, that the LESS variables read the tokens and that a product
 LESS keeps compiling. `sharedTokens.test.js` checks that the engine ships the token file whole and that it matches the

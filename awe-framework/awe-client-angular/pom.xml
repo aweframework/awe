@@ -32,6 +32,9 @@
     <awe.build.timestamp>${project.version}-${maven.build.timestamp}</awe.build.timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
     <nodePackageSkipDevDependencies>true</nodePackageSkipDevDependencies>
+    <!-- npm script of the "jest" execution: the unit tests by default; the CI job "Unit · AngularJS · Compat" passes
+         -Djest.script=test:compat to run the compat guards of src/test/jest/styles (jest.compat.config.js) instead -->
+    <jest.script>test:coverage</jest.script>
   </properties>
 
   <build>
@@ -103,7 +106,7 @@
             </goals>
             <phase>test</phase>
             <configuration>
-              <arguments>run test:coverage</arguments>
+              <arguments>run ${jest.script}</arguments>
             </configuration>
           </execution>
         </executions>

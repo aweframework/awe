@@ -36,7 +36,7 @@ const resetRoot = () => {
 
 const inlineProperties = () => Array.from(root.style).filter(name => name.startsWith('--awe-'));
 
-describe('awe-react-client/test/js/styles/themeAppearanceTest.jsx', () => {
+describe('awe-react-client/test/js/utilities/themeAppearanceTest.jsx', () => {
   beforeEach(resetRoot);
   afterEach(resetRoot);
 
