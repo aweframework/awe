@@ -111,6 +111,15 @@ The first invalid field is the first one in the order of the screen definition. 
 
 For automated tests, the marked tab, step or item carries the attribute `data-invalid="true"` (and `"false"` otherwise), next to `data-active` and `data-completed`. The test screen `reveal-invalid` of the test applications has a required field in a second tab, in a collapsed accordion item and in the second step of a wizard.
 
+## Grids with unsaved rows
+
+An editable grid can hold a row that is still being edited: a row the user just added, or one the user is changing. When an action with `check-records-saved` finds one, both clients keep the warning message and, as with an invalid field, tell the user where that grid is:
+
+1. The tabs, wizard steps and accordion items that hide the grid are opened, and the row being edited is scrolled into view.
+2. The tab header and the wizard step that hold the grid are marked with the same error indicator as an invalid field while the grid has unsaved rows. The mark goes away when the row is saved or cancelled.
+
+The warning message does not change, and a screen without hidden content keeps working as it did: the warning is the only thing the user sees. The test screen `unsaved-grid` of the test applications has a side panel with three tabs, each one with an editable grid, and a save button with a `check-records-saved` action on every grid.
+
 ## Examples
 
 ### Standard criteria with validation action

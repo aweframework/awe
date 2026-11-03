@@ -56,6 +56,9 @@
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Loading tree"/>
   <locale name="ENUM_REVEAL_FIRST" value="First"/>
   <locale name="ENUM_REVEAL_SECOND" value="Second"/>
+  <locale name="ENUM_UNSAVED_GRID_ACCESS" value="Access"/>
+  <locale name="ENUM_UNSAVED_GRID_GENERAL" value="General"/>
+  <locale name="ENUM_UNSAVED_GRID_SITES" value="Sites and databases"/>
   <locale name="ENUM_STEP_1" value="Message for step 1"/>
   <locale name="ENUM_STEP_2" value="Message for step 2"/>
   <locale name="ENUM_STEP_3" value="Message for step 3"/>
@@ -149,6 +152,7 @@
   <locale name="MENU_TEST_PIVOT" value="Pivot table"/>
   <locale name="MENU_TEST_QUEUES" value="Message queues"/>
   <locale name="MENU_TEST_REVEAL_INVALID" value="Reveal invalid field"/>
+  <locale name="MENU_TEST_UNSAVED_GRID" value="Grid with unsaved rows"/>
   <locale name="MENU_TEST_TABS_VERTICAL" value="Vertical Tabs"/>
   <locale name="MENU_TEST_WIZARD" value="Wizard"/>
   <locale name="MENU_TEST_WIZARD_VERTICAL" value="Vertical wizard"/>
@@ -240,6 +244,7 @@
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Criteria test"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Matrix test"/>
   <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Reveal invalid field"/>
+  <locale name="SCREEN_TITLE_UNSAVED_GRID" value="Grid with unsaved rows"/>
   <locale name="SCREEN_TITLE_MOVE_ROWS" value="Move rows (Alt+Up, Alt+Down, Alt+Home, Alt+End)"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Vertical tabs"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Wizard"/>

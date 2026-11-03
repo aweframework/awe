@@ -14,6 +14,7 @@ describe("Panel", () => {
 
   const VALIDITY = "criterion-validity";
   const SELECT_TAB = "select-current-tab";
+  const UNSAVED = "records-unsaved";
 
   beforeEach(() => {
     angular.mock.module("aweApplication");
@@ -63,6 +64,16 @@ describe("Panel", () => {
     expect(panelController.setInvalid).toHaveBeenLastCalledWith("tab1", true);
 
     scopedFunctions[VALIDITY]({}, {id: "b", invalid: false});
+    expect(panelController.setInvalid).toHaveBeenLastCalledWith("tab1", false);
+  });
+
+  it("marks its tab as invalid while some grid inside it holds unsaved rows", () => {
+    Panel.init(panelController, scope, "tab1");
+
+    scopedFunctions[UNSAVED]({}, {id: "grid", invalid: true});
+    expect(panelController.setInvalid).toHaveBeenLastCalledWith("tab1", true);
+
+    scopedFunctions[UNSAVED]({}, {id: "grid", invalid: false});
     expect(panelController.setInvalid).toHaveBeenLastCalledWith("tab1", false);
   });
 

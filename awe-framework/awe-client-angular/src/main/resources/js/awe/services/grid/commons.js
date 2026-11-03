@@ -769,7 +769,33 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
             // Set button position
             component.layers["save"].css(buttonPosition);
+
+            // Tell the containers (tabs, wizard steps, accordion items) when the grid starts or stops editing a row
+            if (component.editable && (component.reportedUnsaved === true) !== component.isEditing) {
+              component.reportedUnsaved = component.isEditing;
+              component.scope.$emit("records-unsaved", {id: component.id, invalid: component.isEditing});
+            }
           }
+        };
+        /**
+         * Open the containers that hide the grid and scroll the row being edited into view
+         */
+        component.revealEditingRow = function () {
+          if (!component.layers || !component.currentSelection || component.currentSelection.length === 0) {
+            return;
+          }
+          const rowId = component.currentSelection[0];
+          // Select the tab of the grid (if it's in a tab)
+          component.scope.$emit("select-current-tab");
+          // Wait for the container to open before scrolling
+          Utilities.timeout(function () {
+            const content = component.layers["content"];
+            const row = content ? content.find(".ui-grid-row[id='" + rowId + "']").last()[0] :
+              document.querySelector('.ui-grid-row[id="' + rowId + '"]');
+            if (row) {
+              row.scrollIntoView({block: "center", behavior: "smooth"});
+            }
+          }, 250);
         };
         /**
          * Update button position

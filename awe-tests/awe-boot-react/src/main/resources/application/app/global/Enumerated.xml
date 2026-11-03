@@ -45,6 +45,13 @@
     <option label="ENUM_REVEAL_SECOND" value="RevStepTwo" />
   </group>
 
+  <!-- UNSAVED GRID TEST TABS -->
+  <group id="UnsTabs">
+    <option label="ENUM_UNSAVED_GRID_GENERAL" value="unsGeneral" />
+    <option label="ENUM_UNSAVED_GRID_ACCESS" value="unsAccess" />
+    <option label="ENUM_UNSAVED_GRID_SITES" value="unsSites" />
+  </group>
+
   <!-- WIZARD TEST STEPS -->
   <group id="WizTst">
     <option label="ENUM_STEP_1" value="WizardStep1" />

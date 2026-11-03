@@ -7182,6 +7182,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a tab criterion shows a tab as the active one
+   *
+   * @param tabId    Tab criterion identifier
+   * @param tabLabel Tab label
+   */
+  protected void checkTabActive(String tabId, String tabLabel) {
+    waitUntil(toBeVisible(frontEndInstructions.getTabActive(tabId, tabLabel)));
+  }
+
+  /**
    * Check that a wizard marks a step as holding fields that failed the validation, or that it marks none
    *
    * @param wizardId Wizard criterion identifier

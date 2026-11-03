@@ -56,6 +56,9 @@
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Arbre de charge"/>
   <locale name="ENUM_REVEAL_FIRST" value="Premier"/>
   <locale name="ENUM_REVEAL_SECOND" value="Deuxième"/>
+  <locale name="ENUM_UNSAVED_GRID_ACCESS" value="Accès"/>
+  <locale name="ENUM_UNSAVED_GRID_GENERAL" value="Général"/>
+  <locale name="ENUM_UNSAVED_GRID_SITES" value="Sites et bases de données"/>
   <locale name="ENUM_STEP_1" value="Message pour l&apos;étape 1"/>
   <locale name="ENUM_STEP_2" value="Message pour étape 2"/>
   <locale name="ENUM_STEP_3" value="Message pour étape 3"/>
@@ -149,6 +152,7 @@
   <locale name="MENU_TEST_PIVOT" value="Tableau croisé dynamique"/>
   <locale name="MENU_TEST_QUEUES" value="Queues de messages"/>
   <locale name="MENU_TEST_REVEAL_INVALID" value="Afficher le champ invalide"/>
+  <locale name="MENU_TEST_UNSAVED_GRID" value="Grille avec des lignes non enregistrées"/>
   <locale name="MENU_TEST_TABS_VERTICAL" value="Onglets verticaux"/>
   <locale name="MENU_TEST_WIZARD" value="Assistant"/>
   <locale name="MENU_TEST_WIZARD_VERTICAL" value="Assistant vertical"/>
@@ -240,6 +244,7 @@
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
   <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Afficher le champ invalide"/>
+  <locale name="SCREEN_TITLE_UNSAVED_GRID" value="Grille avec des lignes non enregistrées"/>
   <locale name="SCREEN_TITLE_MOVE_ROWS" value="Déplacer les lignes (Alt+Haut, Alt+Bas, Alt+Début, Alt+Fin)"/>
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Onglets verticaux"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Assistant"/>

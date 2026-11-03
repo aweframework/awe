@@ -799,6 +799,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `clickTab(String tabName, String tabLabel)` | Clicks a tab of a tab criterion. The label is the locale key (AngularJS) or the translated text (React) |
 | `checkActiveWizardStep(String number)` | Checks the number of the active step of a wizard |
 | `checkTagListContains(String tagListId, String text)` | Checks that a tag list (text view) contains a text |
+| `checkTabActive(String tabId, String tabLabel)` | Checks that a tab criterion shows a tab as the active one. The label is the locale key (AngularJS) or the translated text (React) |
 | `checkTabInvalid(String tabId, boolean invalid)` | Checks that a tab criterion marks a tab as holding fields that failed the validation (`true`), or that it marks none (`false`) |
 | `checkWizardStepInvalid(String wizardId, boolean invalid)` | The same for the steps of a wizard |
 | `checkChartVisible(String chartId)` | Checks that a chart is displayed (the chart has been drawn) |

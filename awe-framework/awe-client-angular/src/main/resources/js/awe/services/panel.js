@@ -10,6 +10,7 @@ aweApplication.factory('Panel',
     function (Component) {
       // Events
       const VALIDITY_EVENT = "criterion-validity";
+      const UNSAVED_EVENT = "records-unsaved";
       const SELECT_EVENT = "select-current-tab";
 
       const Panel = {
@@ -61,15 +62,15 @@ aweApplication.factory('Panel',
           }
         },
         /**
-         * Follow the validity of the fields inside a panel
+         * Follow the validity of the fields inside a panel and the unsaved rows of its grids
          * @param {Scope} scope Panel scope
-         * @param {function} onChange Called with true when the panel starts to hold invalid fields and with false when
-         * it holds none anymore
-         * @return {function} Function to release the listener
+         * @param {function} onChange Called with true when the panel starts to hold invalid fields or unsaved rows and
+         * with false when it holds none anymore
+         * @return {function} Function to release the listeners
          */
         trackInvalid: function (scope, onChange) {
           const invalidIds = new Set();
-          return scope.$on(VALIDITY_EVENT, function (event, data) {
+          const onReport = function (event, data) {
             const wasInvalid = invalidIds.size > 0;
             if (data.invalid) {
               invalidIds.add(data.id);
@@ -79,7 +80,13 @@ aweApplication.factory('Panel',
             if (wasInvalid !== invalidIds.size > 0) {
               onChange(invalidIds.size > 0);
             }
-          });
+          };
+          const releaseValidity = scope.$on(VALIDITY_EVENT, onReport);
+          const releaseUnsaved = scope.$on(UNSAVED_EVENT, onReport);
+          return function () {
+            releaseValidity();
+            releaseUnsaved();
+          };
         },
         /**
          * Open a collapsible item when a field inside it has to be revealed

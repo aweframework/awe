@@ -52,6 +52,7 @@
     <option label="ENUM_REVEAL_SECOND" value="RevStepTwo" />
   </group>
 
+
   <!-- WIZARD TEST STEPS -->
   <group id="WizTst">
     <option label="ENUM_STEP_1" value="WizardStep1" />

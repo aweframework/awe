@@ -3,7 +3,9 @@ import {
   focusComponent,
   getInvalidPanelValues,
   getRevealSelections,
-  getStructureOrder
+  getStructureOrder,
+  hasUnsavedRows,
+  scrollToGridRow
 } from "../../../src/utilities/reveal";
 
 const ERROR = {message: "x"};
@@ -141,6 +143,36 @@ describe("awe-react-client/test/js/utilities/revealTest.js", () => {
     it("returns an empty list when the panel has no invalid fields", () => {
       expect(getInvalidPanelValues({a: component("a", ["tabs", "one", "a"])}, "tabs")).toEqual([]);
     });
+
+    it("lists the items of a panel that contain a grid with unsaved rows", () => {
+      const components = {
+        grid: component("grid", ["tabs", "two", "grid"], null, {values: [{id: "1"}, {id: "2", $row: {editing: true}}]}),
+        saved: component("saved", ["tabs", "one", "saved"], null, {values: [{id: "1"}]})
+      };
+      expect(getInvalidPanelValues(components, "tabs")).toEqual(["two"]);
+    });
+
+    it("does not mark a panel whose grid has its rows saved", () => {
+      const components = {
+        grid: component("grid", ["tabs", "two", "grid"], null, {values: [{id: "1", $row: {editing: false}}]})
+      };
+      expect(getInvalidPanelValues(components, "tabs")).toEqual([]);
+    });
+  });
+
+  describe("hasUnsavedRows", () => {
+    it("is true while a row of the grid is being edited", () => {
+      expect(hasUnsavedRows({model: {values: [{id: "1"}, {id: "2", $row: {editing: true}}]}})).toBe(true);
+    });
+
+    it("is false when no row is being edited", () => {
+      expect(hasUnsavedRows({model: {values: [{id: "1", $row: {editing: false}}, {id: "2"}]}})).toBe(false);
+    });
+
+    it("is false for a component without rows", () => {
+      expect(hasUnsavedRows({attributes: {error: {message: "x"}}})).toBe(false);
+      expect(hasUnsavedRows(null)).toBe(false);
+    });
   });
 
   describe("focusComponent", () => {
@@ -181,6 +213,49 @@ describe("awe-react-client/test/js/utilities/revealTest.js", () => {
     it("gives up when the criterion never shows up", () => {
       jest.useFakeTimers();
       expect(focusComponent("never", {attempts: 2, delay: 10})).toBe(false);
+      jest.advanceTimersByTime(100);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+  });
+
+  describe("scrollToGridRow", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+      jest.useRealTimers();
+    });
+
+    it("scrolls the row of the grid into view", () => {
+      document.body.innerHTML = `<div grid-id="grid"><div row-id="1"></div><div row-id="new-row-0"></div></div>`;
+      const row = document.querySelector("[row-id='new-row-0']");
+      row.scrollIntoView = jest.fn();
+
+      expect(scrollToGridRow("grid", "new-row-0")).toBe(true);
+      expect(row.scrollIntoView).toHaveBeenCalledWith({block: "center", behavior: "smooth"});
+    });
+
+    it("does not scroll a row of another grid", () => {
+      document.body.innerHTML = `<div grid-id="other"><div row-id="1"></div></div><div grid-id="grid"></div>`;
+      document.querySelector("[row-id='1']").scrollIntoView = jest.fn();
+
+      expect(scrollToGridRow("grid", "1", {attempts: 1})).toBe(false);
+      expect(document.querySelector("[row-id='1']").scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it("waits for a row that is rendered later", () => {
+      jest.useFakeTimers();
+      expect(scrollToGridRow("grid", "2", {attempts: 5, delay: 10})).toBe(false);
+      document.body.innerHTML = `<div grid-id="grid"><div row-id="2"></div></div>`;
+      const row = document.querySelector("[row-id='2']");
+      row.scrollIntoView = jest.fn();
+
+      jest.advanceTimersByTime(20);
+
+      expect(row.scrollIntoView).toHaveBeenCalled();
+    });
+
+    it("gives up when the row never shows up", () => {
+      jest.useFakeTimers();
+      expect(scrollToGridRow("grid", "3", {attempts: 2, delay: 10})).toBe(false);
       jest.advanceTimersByTime(100);
       expect(jest.getTimerCount()).toBe(0);
     });

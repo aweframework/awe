@@ -145,6 +145,7 @@
     <option name="tabs-vertical" label="MENU_TEST_TABS_VERTICAL" screen="tabs-vertical" icon="mdi:vertical_split"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="reveal-invalid-test" label="MENU_TEST_REVEAL_INVALID" screen="reveal-invalid" icon="exclamation-circle"/>
+    <option name="unsaved-grid-test" label="MENU_TEST_UNSAVED_GRID" screen="unsaved-grid" icon="exclamation-circle"/>
     <option name="carousel-test" label="MENU_TEST_CAROUSEL" screen="carousel" icon="mdi:view_carousel" />
     <option name="map-test" label="MENU_TEST_MAP" screen="map" icon="mdi:map" />
     <option name="event-calendar-test" label="MENU_TEST_EVENT_CALENDAR" screen="event-calendar-test" icon="calendar" />

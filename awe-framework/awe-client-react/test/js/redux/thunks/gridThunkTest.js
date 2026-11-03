@@ -737,4 +737,70 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       expect(dispatch.mock.calls.map(([item]) => item).filter((item) => item?.type === 'ACCEPT_ACTION')).toHaveLength(1);
     });
   });
+  describe('checkRecordsSavedGridAction', () => {
+    const translate = (key) => key;
+    const saved = {type: 'check-records-saved', address: mockAddress};
+
+    it('accepts the action when no row is being edited', () => {
+      gridThunks.checkRecordsSavedGridAction({...saved, address: mockAddress}, translate)(dispatch, getState);
+
+      const dispatched = dispatch.mock.calls.map(([item]) => item);
+      expect(dispatched.some((item) => item?.type === 'ACCEPT_ACTION')).toBe(true);
+      expect(dispatched.some((item) => item?.type === 'REJECT_ACTION')).toBe(false);
+    });
+
+    it('rejects the action, keeps the warning and reveals the grid with the unsaved row', () => {
+      mockComponent.model.values[1].$row = { editing: true };
+
+      gridThunks.checkRecordsSavedGridAction({...saved, address: mockAddress}, translate)(dispatch, getState);
+
+      const dispatched = dispatch.mock.calls.map(([item]) => item);
+      expect(dispatched.some((item) => item?.type === 'REJECT_ACTION')).toBe(true);
+      expect(dispatched.some((item) => item?.type === 'ACCEPT_ACTION')).toBe(false);
+      // The reveal of the grid comes after rejecting the action, and the warning is still sent
+      expect(typeof dispatched[2]).toBe('function');
+      const warning = dispatched.find((item) => item?.type === 'ADD_ACTIONS_TOP');
+      expect(warning.actions[0]).toEqual({
+        type: 'message',
+        parameters: { type: 'warning', title: 'GRID_CHECK_ALL_SAVED_TITLE', message: 'GRID_CHECK_ALL_SAVED_MESSAGE' }
+      });
+    });
+  });
+
+  describe('revealUnsavedRowsGridAction', () => {
+    const tabs = (selected) => ({
+      address: { view: 'base', component: 'tabs' },
+      context: { view: 'base', source: ['tabs'] },
+      attributes: {},
+      model: { values: [{ value: 'one', selected: selected === 'one' }, { value: 'two', selected: selected === 'two' }] }
+    });
+
+    beforeEach(() => {
+      mockComponent.context = { view: 'base', source: ['tabs', 'two', 'grid1'] };
+      mockComponent.model.values[1].$row = { editing: true };
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    it('opens the tab that hides the grid and scrolls the row that is being edited', () => {
+      document.body.innerHTML = `<div grid-id="grid1"><div row-id="1"></div><div row-id="2"></div></div>`;
+      const row = document.querySelector("[row-id='2']");
+      row.scrollIntoView = jest.fn();
+      mockState.components.tabs = tabs('one');
+
+      gridThunks.revealUnsavedRowsGridAction(mockAddress)(dispatch, getState);
+
+      expect(dispatch).toHaveBeenCalledTimes(1);
+      const [[updateThunk]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      updateThunk(innerDispatch, getState);
+      const [[updateModel]] = innerDispatch.mock.calls;
+      expect(updateModel.type).toBe('UPDATE_MODEL');
+      expect(updateModel.address.component).toBe('tabs');
+      expect(updateModel.data.values.map((item) => item.selected)).toEqual([false, true]);
+      expect(row.scrollIntoView).toHaveBeenCalledWith({ block: 'center', behavior: 'smooth' });
+    });
+  });
 });

@@ -14,7 +14,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     },
     controller: {columnModel: [], headerModel: [{startColumnName: "other", numberOfColumns: 2, titleText: "Header text"}]},
     enableSorting: true,
-    scope: {$on: () => null, charSize: 7, gridOptions: {}},
+    scope: {$on: () => null, $emit: () => null, charSize: 7, gridOptions: {}},
     listeners: {},
     api: {},
     model: {
