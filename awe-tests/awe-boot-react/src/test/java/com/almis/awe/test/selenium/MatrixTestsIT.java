@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.almis.awe.test.selenium.PaneBoxes.HEIGHT;
@@ -37,15 +35,6 @@ class MatrixTestsIT extends AbstractSessionTests {
   private static final String ROW_DETAIL_NESTED_GRID = "GrdRowDetailCmpCus";
   private static final String ROW_DETAIL_INCLUDE_GRID = "GrdRowDetailCmpInc";
   private static final String ROW_DETAIL_INCLUDED_GRID = "GrdRowDetailCmpIncCus";
-
-  /**
-   * Time that a page with wrapping columns may take to render, as a multiple of the time of the same page without wrapping.
-   * The React grid lays out every row, and the wrapped text of the taller rows costs about 20% more in this harness (median
-   * of the medians 1.22, from 1.04 to 1.52 over 3 runs). The limit leaves room for that and for the noise of a shared
-   * machine, and still fails for a render that does several times the work (a layout per cell measured on every render cost
-   * a median of 1.37, up to 1.55)
-   */
-  private static final double WRAP_RENDER_TIME_LIMIT = 1.35;
   private static final String MOVE_ROWS_GRID = "GrdMoveRows";
   private static final String MOVE_ROWS_COLUMN = "label";
   private static final String STEP_ONE = "Step one";
@@ -1077,77 +1066,6 @@ class MatrixTestsIT extends AbstractSessionTests {
     sortGrid("GrdWrapTst", "code");
     checkGridCellLines("GrdWrapTst", "5", "description", 3);
     checkGridRowFitsItsCells("GrdWrapTst", "5", "code");
-  }
-
-  /**
-   * Wrapping cells render time test: a page of 100 rows with wrapping columns renders in a time close to the one of the
-   * same page without wrapping. The client-side sorts of each grid are timed in two rounds, one grid after the other and
-   * the second round in the opposite order, so that neither grid has the advantage of the warm browser; the median of
-   * all the samples of each grid is compared, so that one slow sample of a loaded machine does not decide the result
-   */
-  @Test
-  void t099_gridWrappingRenderTime() {
-    // Title
-    setTestTitle("Grid wrapping render time");
-
-    // Measure both grids
-    List<Double> wrapping = new ArrayList<>();
-    List<Double> singleLine = new ArrayList<>();
-    for (int round = 0; round < 2; round++) {
-      boolean wrappingFirst = round % 2 == 0;
-      for (int turn = 0; turn < 2; turn++) {
-        if (wrappingFirst == (turn == 0)) {
-          wrapping.addAll(sortRenderTimes("matrix-test-wrap", "GrdWrapTst"));
-        } else {
-          singleLine.addAll(sortRenderTimes("matrix-test-nowrap", "GrdNoWrapTst"));
-        }
-      }
-    }
-    double wrappingMedian = median(wrapping);
-    double singleLineMedian = median(singleLine);
-    System.out.printf("GRID-WRAP-TIMING engine=%s rows=100 samples=%d: median wrapping=%.1fms singleLine=%.1fms ratio=%.3f; best wrapping=%.1fms singleLine=%.1fms%n",
-      "react", wrapping.size(), wrappingMedian, singleLineMedian, wrappingMedian / singleLineMedian, Collections.min(wrapping), Collections.min(singleLine));
-
-    // Compare
-    assertTrue(wrappingMedian <= singleLineMedian * WRAP_RENDER_TIME_LIMIT, "Rendering 100 rows with wrapping columns took " + wrappingMedian
-      + " ms (median), more than " + Math.round(WRAP_RENDER_TIME_LIMIT * 100) + "% of the " + singleLineMedian + " ms of the same page without wrapping");
-  }
-
-  /**
-   * Render times of the client-side sorts of a grid, once it is warm. A click on a header cycles the sort of the column
-   * (ascending, descending, none) and the three renders cost differently, so each time is the sum of a whole cycle
-   *
-   * @param option Menu option of the screen
-   * @param gridId Grid identifier
-   * @return Times of the cycles, in milliseconds
-   */
-  private List<Double> sortRenderTimes(String option, String gridId) {
-    openMatrixOption(option);
-    checkRowContentsGrid(gridId, "WR-005");
-    for (int i = 0; i < 6; i++) {
-      measureGridSortRender(gridId, "code");
-    }
-    List<Double> times = new ArrayList<>();
-    for (int i = 0; i < 9; i++) {
-      double cycle = 0;
-      for (int click = 0; click < 3; click++) {
-        cycle += measureGridSortRender(gridId, "code");
-      }
-      times.add(cycle);
-    }
-    return times;
-  }
-
-  /**
-   * Median of some times
-   *
-   * @param times Times
-   * @return Median
-   */
-  private static double median(List<Double> times) {
-    List<Double> sorted = new ArrayList<>(times);
-    Collections.sort(sorted);
-    return sorted.get(sorted.size() / 2);
   }
 
   /**

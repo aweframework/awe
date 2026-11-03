@@ -226,6 +226,17 @@ class DatabaseAdminScreenTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  @DisplayName("The alias check of the creation finds an alias in use and lets a free one pass")
+  void aliasCheckFindsTheAliasInUse() throws Exception {
+    assertThat(JsonPath.<List<Object>>read(data("DbsAlsUni", "{\"Als\":\"" + OTHER_DATABASE + "\"}"),
+      "$[?(@.type == 'fill')].parameters.datalist.rows[*].Als")).map(String::valueOf).map(String::trim)
+      .containsExactly(OTHER_DATABASE);
+    assertThat(JsonPath.<List<Object>>read(data("DbsAlsUni", "{\"Als\":\"" + NEW_DATABASE + "\"}"),
+      "$[?(@.type == 'fill')].parameters.datalist.rows[*]")).isEmpty();
+  }
+
+  @Test
   @DisplayName("The databases screen is generated with its grid and its side panel")
   void screenIsGenerated() throws Exception {
     // The option is in the private menu: sign in first
@@ -362,6 +373,16 @@ class DatabaseAdminScreenTest extends AbstractSpringAppIntegrationTest {
       list.add(value);
     }
     return list;
+  }
+
+  private String data(String query, String body) throws Exception {
+    return mockMvc.perform(post("/action/data/" + query)
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn().getResponse().getContentAsString();
   }
 
   private ResultActions maintain(String target, JsonNode parameters) throws Exception {

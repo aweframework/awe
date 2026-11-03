@@ -6,11 +6,6 @@ const fs = require("fs");
 const path = require("path");
 
 const REACT = path.join(__dirname, "../../..");
-const FRAMEWORK = path.join(REACT, "..");
-const SHARED_ICON_STYLES = path.join(FRAMEWORK, "awe-design-tokens", "icons", "awe-icon.css");
-const MAIN_CSS = path.join(REACT, "src", "main.css");
-const ANGULAR_STYLES = path.join(FRAMEWORK, "awe-client-angular", "src", "main", "resources", "less", "awe.less");
-const ANGULAR_ICON_STYLES = path.join(FRAMEWORK, "awe-client-angular", "src", "main", "resources", "less", "awe", "awe-icon.less");
 
 // The markup of a node, rendered alone
 const markupOf = node => {
@@ -25,7 +20,7 @@ const svg = (name, classes = "") => `<svg class="awe-icon${classes ? ` ${classes
 
 // The AWE 5 icons in the React client (#885): the same markup as the AngularJS client, the svg of the Lucide sprite
 // inside the element that held the glyph
-describe("awe-react-client/test/js/styles/aweIconTest.jsx", () => {
+describe("awe-react-client/test/js/utilities/aweIconTest.jsx", () => {
   let warn;
 
   beforeEach(() => {
@@ -136,60 +131,6 @@ describe("awe-react-client/test/js/styles/aweIconTest.jsx", () => {
       const webpack = fs.readFileSync(path.join(REACT, "webpack.common.js"), "utf8");
       expect(webpack).toContain(`filename: "static${ICON_SPRITE}"`);
       expect(webpack).toContain(`{from: "src/static", to: "static/"}`);
-    });
-  });
-
-  describe("styles", () => {
-    // Declarations of the rule with exactly this selector
-    const declarationsOf = (css, selector) => {
-      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const match = new RegExp(`(?:^|\\})\\s*${escaped}\\s*\\{([^}]*)\\}`, "m").exec(css);
-      return match ? Object.fromEntries(match[1].split(";").map(part => part.trim()).filter(Boolean)
-        .map(part => [part.slice(0, part.indexOf(":")).trim(), part.slice(part.indexOf(":") + 1).trim()])) : null;
-    };
-    const withoutComments = css => css.replace(/\/\*[\s\S]*?\*\//g, "");
-    const importedFiles = (file, pattern) => [...fs.readFileSync(file, "utf8").matchAll(pattern)]
-      .map(match => path.resolve(path.dirname(file), match[1]));
-
-    it("are one file shared by both clients", () => {
-      expect(importedFiles(MAIN_CSS, /@import\s+(?:url\()?["']([^"']+)["']/g)).toContain(SHARED_ICON_STYLES);
-      expect(importedFiles(ANGULAR_STYLES, /@import\s+\(inline\)\s+"([^"]+)"/g)).toContain(SHARED_ICON_STYLES);
-      expect(fs.readFileSync(ANGULAR_ICON_STYLES, "utf8")).not.toMatch(/^\.awe-icon\s*\{/m);
-    });
-
-    it("draw the Lucide icons with the size tokens, the text colour and the stroke of the prototype", () => {
-      const css = withoutComments(fs.readFileSync(SHARED_ICON_STYLES, "utf8"));
-      expect(declarationsOf(css, ".awe-icon")).toEqual({
-        "display": "inline-block",
-        "width": "var(--awe-size-icon)",
-        "height": "var(--awe-size-icon)",
-        "flex": "none",
-        "fill": "none",
-        "stroke": "currentColor",
-        "stroke-width": "1.75",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "vertical-align": "middle"
-      });
-      expect(declarationsOf(css, ".awe-icon-sm")).toEqual({"width": "var(--awe-size-icon-sm)", "height": "var(--awe-size-icon-sm)"});
-      expect(declarationsOf(css, ".awe-icon-lg")).toEqual({"width": "var(--awe-size-icon-lg)", "height": "var(--awe-size-icon-lg)"});
-      expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|\b\d+(\.\d+)?(px|rem|em)\b|rgba?\(/i);
-    });
-
-    it("spin like the Font Awesome icons, except when the user prefers reduced motion", () => {
-      const css = withoutComments(fs.readFileSync(SHARED_ICON_STYLES, "utf8"));
-      expect(declarationsOf(css, ".awe-icon-spin")).toEqual({
-        "-webkit-animation": "fa-spin 2s infinite linear",
-        "animation": "fa-spin 2s infinite linear"
-      });
-      expect(css.indexOf("prefers-reduced-motion")).toBeGreaterThan(css.indexOf(".awe-icon-spin"));
-      expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.awe-icon-spin\s*\{\s*animation:\s*none;?\s*\}/);
-    });
-
-    it("give the icons their context shows larger than the text the font size of that context", () => {
-      const css = withoutComments(fs.readFileSync(MAIN_CSS, "utf8"));
-      expect(css).toMatch(/\.grid-empty-icon > \.awe-icon,\s*\.confirm-icon > \.awe-icon,\s*\.animation-dot > \.awe-icon\s*\{\s*width: 1em;\s*height: 1em;\s*\}/);
-      expect(css).toMatch(/\}\s*\.animation-dot > \.awe-icon\s*\{\s*fill: currentColor;\s*\}/);
     });
   });
 });

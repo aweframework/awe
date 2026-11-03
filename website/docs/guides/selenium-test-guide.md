@@ -1204,7 +1204,7 @@ files in `awe.test.screenshot-path` (`browser-evidence/` in CI, and linked from 
 | File | What it is |
 |---|---|
 | `<test>.trace.zip` | The **trace** of a failed test: every action with its screenshots, the console and the network (and the DOM at each step, see `trace-snapshots` below). One file for each failed test, named like its screenshot |
-| `<qualified.TestClass>.webm` | The **video** of the page during the whole test class (named after the qualified class name, e.g. `com.almis.awe.test.selenium.CRUDSiteTestsIT.webm`). One per class, and kept only when a test of the class failed. The rerun of a failed test (`it.rerun-count`) is a new session of the class: its video is `<qualified.TestClass>-2.webm` (then `-3`...), next to the one of the first run, which is the one with the context of the failure |
+| `<qualified.TestClass>.webm` | The **video** of the page during the whole test class (named after the qualified class name, e.g. `com.almis.awe.test.selenium.UserAdminTestsIT.webm`). One per class, and kept only when a test of the class failed. The rerun of a failed test (`it.rerun-count`) is a new session of the class: its video is `<qualified.TestClass>-2.webm` (then `-3`...), next to the one of the first run, which is the one with the context of the failure |
 | `<qualified.TestClass>.video-times.txt` | Next to the video: the start of each test of the class from the beginning of the video (`mm:ss.SSS`, approximate), its result and its name. Look for the `FAILED` line and move the video there |
 
 The browser lasts the whole test class (its ordered tests share the login and the data), so the video is of the class and not
@@ -1450,7 +1450,7 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 
 - `-Dawe.test.browser` takes `headless-chrome` or `headless-firefox` (also `chrome` and `firefox` to watch the browser).
   `-Dawe.test.tool` is `selenium` and can be left out (see [Automation tool](#automation-tool-awetesttool)).
-- `-Dit.test=` takes a class, several separated by commas (`CRUDSiteTestsIT,CriteriaTestsIT`) or a method
+- `-Dit.test=` takes a class, several separated by commas (`UserAdminTestsIT,CriteriaTestsIT`) or a method
   (`SchedulerCalendarTestsIT#t001_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser
   reads the address from `awe.test.start-url`, which follows `server.port`.

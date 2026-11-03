@@ -155,6 +155,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private AweTestConfigProperties properties;
   private SeleniumModel seleniumModel;
   private IAweFrontEndInstructions frontEndInstructions;
+  // Longest pause between two looks of a wait: each wait keeps its own interval, up to this one
+  private Duration maxPollInterval = BrowserPoll.DEFAULT_INTERVAL;
 
   /**
    * Get driver
@@ -260,6 +262,41 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Shorten the longest pause between two looks of a wait. The unit tests of the steps, which run over a mocked browser,
+   * use it so that a wait that is not met ends with its timeout instead of sleeping a whole interval
+   *
+   * @param maxPollInterval Longest pause between two looks
+   */
+  void setMaxPollInterval(Duration maxPollInterval) {
+    this.maxPollInterval = maxPollInterval;
+  }
+
+  /**
+   * Wait until a condition is met, looking at it every {@link BrowserPoll#DEFAULT_INTERVAL} at most
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @throws BrowserPoll.PollTimeoutException If the condition is not met in time
+   */
+  private void poll(BrowserCondition condition, Duration timeout) {
+    poll(condition, timeout, BrowserPoll.DEFAULT_INTERVAL);
+  }
+
+  /**
+   * Wait until a condition is met
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @param interval  Time between two looks (at most the longest pause of the waits)
+   * @throws BrowserPoll.PollTimeoutException If the condition is not met in time
+   */
+  private void poll(BrowserCondition condition, Duration timeout, Duration interval) {
+    Duration pause = interval.compareTo(maxPollInterval) < 0 ? interval : maxPollInterval;
+    BrowserPoll.until(getBrowser(), condition, timeout, pause, Clock.systemUTC(),
+      duration -> Thread.sleep(duration.toMillis()));
+  }
+
+  /**
    * Wait for screen load
    */
   private void waitForLoad() {
@@ -273,7 +310,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void waitUntil(BrowserCondition condition) {
     try {
-      BrowserPoll.until(getBrowser(), condition, properties.getTimeout());
+      poll(condition, properties.getTimeout());
       // Assert true on condition
       assertTrue(true, condition.toString());
       log.debug(condition.toString());
@@ -305,8 +342,7 @@ public class SeleniumUtilities implements IAweInstructions {
     });
     Duration timeout = properties.getTimeout().compareTo(OPTIONS_SETTLE_TIMEOUT) < 0 ? properties.getTimeout() : OPTIONS_SETTLE_TIMEOUT;
     try {
-      BrowserPoll.until(getBrowser(), settled, timeout, OPTIONS_SETTLE_INTERVAL, Clock.systemUTC(),
-        duration -> Thread.sleep(duration.toMillis()));
+      poll(settled, timeout, OPTIONS_SETTLE_INTERVAL);
     } catch (BrowserPoll.PollTimeoutException exc) {
       log.debug("The options did not settle: {}", exc.getMessage());
     }
@@ -929,7 +965,7 @@ public class SeleniumUtilities implements IAweInstructions {
     }
     Duration timeout = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
     try {
-      BrowserPoll.until(getBrowser(), toBePresent(editingRow), timeout);
+      poll(toBePresent(editingRow), timeout);
       return true;
     } catch (BrowserPoll.PollTimeoutException exc) {
       return false;
@@ -1337,7 +1373,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void waitForExpectedText(BrowserCondition condition) {
     try {
-      BrowserPoll.until(getBrowser(), condition, properties.getTimeout());
+      poll(condition, properties.getTimeout());
     } catch (BrowserPoll.PollTimeoutException exc) {
       log.debug("Not yet: {}", condition);
     }
@@ -1442,7 +1478,7 @@ public class SeleniumUtilities implements IAweInstructions {
     // An asynchronous action may still be changing the value: wait for it, then assert (with evidence) what is shown
     Locator input = locator(selector);
     try {
-      BrowserPoll.until(getBrowser(), BrowserCondition.of("the value of " + input + " to contain '" + text + "'",
+      poll(BrowserCondition.of("the value of " + input + " to contain '" + text + "'",
         browser -> String.valueOf(browser.attribute(input, "value")).contains(text)), properties.getTimeout());
     } catch (Exception exc) {
       log.debug("The value of {} does not contain '{}' yet", selector, text);
@@ -1545,7 +1581,7 @@ public class SeleniumUtilities implements IAweInstructions {
     BrowserCondition tookEffect = menuOptionTookEffect(option);
     for (int retry = 0; retry <= MENU_CLICK_RETRIES; retry++) {
       try {
-        BrowserPoll.until(getBrowser(), tookEffect, timeout);
+        poll(tookEffect, timeout);
         return;
       } catch (BrowserPoll.PollTimeoutException exc) {
         if (retry == MENU_CLICK_RETRIES) {
@@ -3570,8 +3606,7 @@ public class SeleniumUtilities implements IAweInstructions {
     });
     Duration timeout = properties.getTimeout().compareTo(LOGGED_USER_NAME_TIMEOUT) < 0 ? properties.getTimeout() : LOGGED_USER_NAME_TIMEOUT;
     try {
-      BrowserPoll.until(getBrowser(), named, timeout, LOGGED_USER_NAME_INTERVAL, Clock.systemUTC(),
-        duration -> Thread.sleep(duration.toMillis()));
+      poll(named, timeout, LOGGED_USER_NAME_INTERVAL);
       return shown.get();
     } catch (BrowserPoll.PollTimeoutException exc) {
       log.debug("The logged user showed no name: {}", exc.getMessage());
@@ -4843,7 +4878,7 @@ public class SeleniumUtilities implements IAweInstructions {
       }
       click(close);
       try {
-        BrowserPoll.until(getBrowser(), BrowserCondition.not(toBePresent(dialog)), wait);
+        poll(BrowserCondition.not(toBePresent(dialog)), wait);
         return;
       } catch (BrowserPoll.PollTimeoutException exc) {
         log.debug("The Columns dialog of {} did not close within {}", gridId, wait, exc);

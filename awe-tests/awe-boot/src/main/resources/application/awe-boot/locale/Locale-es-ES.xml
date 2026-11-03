@@ -243,7 +243,6 @@
   <locale name="SCREEN_TITLE_GRID_PAGER" value="Grid pager"/>
   <locale name="MENU_TEST_MATRIX_EMPTY" value="Empty grid"/>
   <locale name="MENU_TEST_MATRIX_WRAP" value="Wrapping cells"/>
-  <locale name="MENU_TEST_MATRIX_NOWRAP" value="Single-line cells"/>
   <locale name="SCREEN_TITLE_GRID_WRAP" value="Wrapping cells"/>
   <locale name="SCREEN_TITLE_GRID_NOWRAP" value="Single-line cells"/>
   <locale name="COLUMN_WRAP_CODE" value="Code"/>

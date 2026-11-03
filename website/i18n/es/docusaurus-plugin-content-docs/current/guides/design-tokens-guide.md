@@ -193,7 +193,9 @@ así que una página React y una AngularJS obtienen los mismos valores en los do
 
 ## Comprobar un cambio {#checking-a-change}
 
-`awe-client-angular/src/test/jest/styles/designTokens.test.js` compila toda la build LESS y comprueba que los tokens
+`awe-client-angular/src/test/jest/styles/designTokens.test.js` (una guarda de compatibilidad: se ejecuta con
+`npm run test:compat --prefix awe-framework/awe-client-angular`, no con `npm test`, y en CI solo en el job
+`Unit · AngularJS · Compat` de develop, master y la programación nocturna) compila toda la build LESS y comprueba que los tokens
 `--awe-*` solo los declara el fichero de tokens compartido (sin puente), que no queda ninguna regla `.theme-<nombre>` ni
 ninguna variable de tema de AWE 4, que el modo de color se fija en `<html>`, que las variables LESS leen los tokens y que
 el LESS de un producto sigue compilando. `sharedTokens.test.js` comprueba que el motor incluye el fichero de tokens

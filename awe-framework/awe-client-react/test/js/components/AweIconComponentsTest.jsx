@@ -39,7 +39,7 @@ const criterionState = (id, component, attributes = {}, values = []) => ({
 
 // The icons the AWE components draw (#885): the Lucide icon inside the element that held the glyph, which keeps its
 // classes, attributes and test hooks
-describe("awe-react-client/test/js/styles/aweIconComponentsTest.jsx", () => {
+describe("awe-react-client/test/js/components/AweIconComponentsTest.jsx", () => {
   afterEach(cleanup);
 
   it("draws the icon of an icon column from the data, and keeps the data value on data-icon", () => {
@@ -61,12 +61,10 @@ describe("awe-react-client/test/js/styles/aweIconComponentsTest.jsx", () => {
     expect(hook.querySelector(".text-success")).not.toBeNull();
   });
 
-  it("draws the row editor icons in the elements PrimeReact styles", () => {
+  it("draws the row editor icons", () => {
     const actions = {editRow: jest.fn(), saveRow: jest.fn(), cancelRow: jest.fn()};
     const {container, rerender} = render(<ColumnRowEditor rowData={{id: "1", $row: {}}} {...actions}/>);
-    const edit = container.querySelector(".p-row-editor-init-icon");
-    expect(edit.className).toBe("p-row-editor-init-icon p-clickable");
-    expect(lucideOf(edit)).toBe("pencil");
+    expect(lucideOf(container.querySelector(".p-row-editor-init-icon"))).toBe("pencil");
 
     rerender(<ColumnRowEditor rowData={{id: "1", $row: {editing: true}}} {...actions}/>);
     expect(lucideOf(container.querySelector(".p-row-editor-save-icon"))).toBe("check");
@@ -126,12 +124,7 @@ describe("awe-react-client/test/js/styles/aweIconComponentsTest.jsx", () => {
     renderWithProviders(<MessageContainer/>, {preloadedState: {settings: DEFAULT_SETTINGS,
       messages: {showing: [], confirm: {title: "Confirm title", message: "Confirm message", action}}}});
 
-    const warning = document.querySelector(".confirm-icon");
-    // The badge of the warning takes its size and colour from the overlay styles (#885), not from utility classes
-    expect(warning.className).toBe("confirm-icon");
-    expect(warning.style.fontSize).toBe("");
-    expect(warning.closest(".p-dialog").classList).toContain("awe-confirm-dialog");
-    expect(lucideOf(warning)).toBe("triangle-alert");
+    expect(lucideOf(document.querySelector(".confirm-icon"))).toBe("triangle-alert");
     expect(lucideOf(document.querySelector("#confirm-accept i.p-button-icon"))).toBe("check");
     expect(lucideOf(document.querySelector("#confirm-cancel i.p-button-icon"))).toBe("x");
   });

@@ -1204,7 +1204,7 @@ en `awe.test.screenshot-path` (`browser-evidence/` en CI, y enlazados desde el l
 | Archivo | Qué es |
 |---|---|
 | `<test>.trace.zip` | El **trace** de una prueba fallida: cada acción con sus capturas de pantalla, la consola y la red (y el DOM en cada paso, consulta `trace-snapshots` más abajo). Un archivo por cada prueba fallida, con el nombre de su captura de pantalla |
-| `<qualified.TestClass>.webm` | El **vídeo** de la página durante toda la clase de pruebas (con el nombre de la clase cualificada, p. ej. `com.almis.awe.test.selenium.CRUDSiteTestsIT.webm`). Uno por clase, y conservado solo cuando una prueba de la clase falló. La repetición de una prueba fallida (`it.rerun-count`) es una sesión nueva de la clase: su vídeo es `<qualified.TestClass>-2.webm` (luego `-3`...), junto al de la primera ejecución, que es el que tiene el contexto del fallo |
+| `<qualified.TestClass>.webm` | El **vídeo** de la página durante toda la clase de pruebas (con el nombre de la clase cualificada, p. ej. `com.almis.awe.test.selenium.UserAdminTestsIT.webm`). Uno por clase, y conservado solo cuando una prueba de la clase falló. La repetición de una prueba fallida (`it.rerun-count`) es una sesión nueva de la clase: su vídeo es `<qualified.TestClass>-2.webm` (luego `-3`...), junto al de la primera ejecución, que es el que tiene el contexto del fallo |
 | `<qualified.TestClass>.video-times.txt` | Junto al vídeo: el inicio de cada prueba de la clase desde el comienzo del vídeo (`mm:ss.SSS`, aproximado), su resultado y su nombre. Busca la línea `FAILED` y lleva el vídeo hasta ahí |
 
 El navegador dura toda la clase de pruebas (sus pruebas ordenadas comparten el inicio de sesión y los datos), de modo que el vídeo es de la clase y no
@@ -1450,7 +1450,7 @@ mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium
 
 - `-Dawe.test.browser` admite `headless-chrome` o `headless-firefox` (también `chrome` y `firefox` para ver el navegador).
   `-Dawe.test.tool` es `selenium` y puede omitirse (consulta [Herramienta de automatización](#automation-tool-awetesttool)).
-- `-Dit.test=` admite una clase, varias separadas por comas (`CRUDSiteTestsIT,CriteriaTestsIT`) o un método
+- `-Dit.test=` admite una clase, varias separadas por comas (`UserAdminTestsIT,CriteriaTestsIT`) o un método
   (`SchedulerCalendarTestsIT#t001_...`). En `awe-boot` las suites también se seleccionan por etiqueta (`-Dgroups=SchedulerIT`).
 - La aplicación arranca en el puerto 8080. Para usar otro, establécelo en el entorno (`SERVER_PORT=8090`); el navegador
   lee la dirección de `awe.test.start-url`, que sigue a `server.port`.

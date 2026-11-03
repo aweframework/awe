@@ -33,8 +33,8 @@ describe("Jest foundation configuration", () => {
     expect(obsoleteScopedScripts).toEqual([]);
   });
 
-  it("recycles the CI workers that keep too much memory, so a long run of style builds does not exhaust the heap", () => {
-    const configWith = ci => {
+  it("recycles the CI workers that keep too much memory in the compat run, the only one that builds the styles", () => {
+    const configWith = (ci, file) => {
       const previous = process.env.CI;
       if (ci === undefined) {
         delete process.env.CI;
@@ -44,7 +44,7 @@ describe("Jest foundation configuration", () => {
       try {
         let config;
         jest.isolateModules(() => {
-          config = require("../../../jest.config");
+          config = require(file);
         });
         return config;
       } finally {
@@ -56,8 +56,15 @@ describe("Jest foundation configuration", () => {
       }
     };
 
-    expect(configWith("true").workerIdleMemoryLimit).toBe("1GB");
-    expect(configWith(undefined).workerIdleMemoryLimit).toBeUndefined();
+    // The compat guards of styles/ compile the LESS and Tailwind builds: their own run gets the limit and the long timeout
+    expect(configWith("true", "../../../jest.compat.config").workerIdleMemoryLimit).toBe("1GB");
+    expect(configWith("true", "../../../jest.compat.config").testTimeout).toBe(30000);
+    expect(configWith(undefined, "../../../jest.compat.config").workerIdleMemoryLimit).toBeUndefined();
+    // The default run (npm test, the merge request job) leaves them out, together with the styles/ suites
+    expect(configWith("true", "../../../jest.config").workerIdleMemoryLimit).toBeUndefined();
+    expect(configWith("true", "../../../jest.config").testTimeout).toBeUndefined();
+    expect(jestConfig.testPathIgnorePatterns).toEqual(expect.arrayContaining([expect.stringContaining("src/test/jest/styles/")]));
+    expect(packageConfig.scripts["test:compat"]).toBe("jest --config jest.compat.config.js");
   });
 
   it("publishes stable GitLab JUnit, Sonar, and LCOV report locations", () => {
@@ -85,7 +92,10 @@ describe("Jest foundation configuration", () => {
     const normalizedRootPom = collapseWhitespace(rootPomXml);
 
     expect(normalizedPom).toContain("<id>jest</id> <goals> <goal>npm</goal> </goals> <phase>test</phase>");
-    expect(normalizedPom).toContain("<arguments>run test:coverage</arguments>");
+    // The npm script is a property so that "Unit · AngularJS · Compat" runs test:compat with the same execution
+    expect(normalizedPom).toContain("<arguments>run ${jest.script}</arguments>");
+    expect(normalizedPom).toContain("<jest.script>test:coverage</jest.script>");
+    expect(gitlabCi).toContain("-Djest.script=test:compat");
     expect(pomXml).toContain("target/reports/jest/sonar/javascriptUnitTests.xml");
     expect(pomXml).toContain("target/reports/jest/coverage/lcov.info");
     expect(normalizedRootPom).toContain(

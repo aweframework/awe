@@ -299,6 +299,10 @@ npm run compat:grid --prefix awe-framework/awe-client-angular
 
 ## Checking a change
 
+The compat tests (`src/test/jest/styles` of `awe-client-angular`) compile the whole LESS and Tailwind builds, so
+`npm test` no longer runs them: run them with `npm run test:compat --prefix awe-framework/awe-client-angular`. In CI they
+run on develop, master and the nightly schedule (job `Unit · AngularJS · Compat`), not in merge requests.
+
 | Test | What it proves |
 |------|----------------|
 | `tailwindBuild.test.js` | Layer order, no preflight, only `tw:` utilities, no default theme, every token mapped, the scanned folders exist and scanning reaches XML, templates and directives |

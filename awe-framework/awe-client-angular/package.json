@@ -15,6 +15,7 @@
     "build:production": "webpack --config webpack.config.js --mode production",
     "test": "jest --config jest.config.js",
     "test:coverage": "jest --config jest.config.js --coverage",
+    "test:compat": "jest --config jest.compat.config.js",
     "compat:grid": "node src/main/resources/tailwind/tools/generate-grid.js",
     "compat:freeze-vendored": "node src/test/jest/styles/support/freezeVendored.js"
   },

@@ -538,8 +538,8 @@ celdas de texto y las cabeceras lo muestran como tooltip (el motor AngularJS ya 
   grid con columnas congeladas (`frozen`) o un grid de árbol mantiene sus filas de una línea en ese motor.
 :::
 
-Las aplicaciones de prueba incluyen las pantallas *Wrapping cells* y *Single-line cells* en el menú de pruebas de la matriz,
-con las mismas 100 filas con y sin varias líneas.
+Las aplicaciones de prueba incluyen la pantalla *Wrapping cells* en el menú de pruebas de la matriz, con 100 filas de
+columnas de varias líneas.
 
 ### Segunda línea, estado y etiquetas {#secondary-line-status-and-chips}
 

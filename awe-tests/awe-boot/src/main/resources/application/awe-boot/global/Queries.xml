@@ -2727,7 +2727,7 @@
     <variable id="inactive" type="INTEGER" value="0"/>
   </query>
 
-  <!-- Rows with texts of very different lengths (GrdWrapTst and GrdNoWrapTst screens) -->
+  <!-- Rows with texts of very different lengths (GrdWrapTst screen) -->
   <query id="WrapRowsTst" service="loadWrapRows">
     <field id="id" alias="id"/>
     <field id="code" alias="code"/>
