@@ -1513,14 +1513,15 @@
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
       <field id="EmlPwd" variable="EmlPwd"/>
-      <field id="Act" variable="Act"/>
+      <!-- The state comes from the screen (0 or 1): a missing one is left out, so the column default (1) applies -->
+      <field id="Act" variable="Act" optional="true"/>
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
-      <variable id="Act" type="INTEGER" name="Act" value="1"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
     <commit/>
     <serve service="reloadMailServers"/>
@@ -1608,7 +1609,8 @@
       <field id="JmsUsr" variable="JmsUsr"/>
       <field id="JmsPwd" variable="JmsPwd"/>
       <field id="DstNam" variable="DstNam"/>
-      <field id="Act" variable="Act"/>
+      <!-- The state comes from the screen (0 or 1): a missing one is left out, so the column default (1) applies -->
+      <field id="Act" variable="Act" optional="true"/>
       <variable id="IdeAweQue" type="INTEGER" name="IdeAweQue"/>
       <variable id="Als" type="STRING" name="Als"/>
       <variable id="Des" type="STRING" name="Des"/>
@@ -1618,7 +1620,7 @@
       <variable id="JmsUsr" type="STRING" name="JmsUsr"/>
       <variable id="JmsPwd" type="STRING_ENCRYPT" name="JmsPwd"/>
       <variable id="DstNam" type="STRING" name="DstNam"/>
-      <variable id="Act" type="INTEGER" name="Act" value="1"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
   </target>
 
@@ -1631,7 +1633,8 @@
       <field id="ConTyp" variable="ConTyp"/>
       <field id="JmsBrk" variable="JmsBrk"/>
       <field id="JmsUsr" variable="JmsUsr"/>
-      <field id="JmsPwd" variable="JmsPwd"/>
+      <!-- The password is not written here: the next update writes it only when a new one is typed (FlgPwdUpd is 1),
+           as EmlSrvUpd, so an update without a typed password keeps the stored one -->
       <field id="DstNam" variable="DstNam"/>
       <field id="Act" variable="Act"/>
       <where>

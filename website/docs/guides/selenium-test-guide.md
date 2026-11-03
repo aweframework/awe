@@ -512,6 +512,7 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkCriterionVisible(String criterionName)` / `checkCriterionNotVisible(String criterionName)` | Checks that a criterion is shown, or that it is not (it may still be in the page, hidden) |
 | `checkCriterionNotPresent(String criterionName)` | Checks that a criterion is not in the page at all, neither shown nor hidden, such as one in a tab page that is not shown |
 | `checkCriterionUnit(String criterionName, String text)` | Checks the unit addon of a criterion (the text after the input) |
+| `checkCriterionDisabled(String criterionName)` | Checks that a criterion cannot be edited: its input is disabled because a dependency of the screen has switched it off |
 | `checkCheckboxRadio(boolean isChecked, String... criteriaNames)` | Checks that criteria are checked (or not) |
 | `clickCheckbox(String criterionName)` | Clicks a checkbox or radio button |
 | `clickCheckboxOption(String criterionName, String optionId)` | Clicks one option of a button group (a button checkbox or radio drawn as one group) |

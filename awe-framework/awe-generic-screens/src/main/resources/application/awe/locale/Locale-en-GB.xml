@@ -28,7 +28,9 @@
   <locale name="BUTTON_COPY" value="Copy"/>
   <locale name="BUTTON_CREATE_APP_PAR" value="Create parameter"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
+  <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Create mail server"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
+  <locale name="BUTTON_CREATE_QUEUE" value="Create queue"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Create sequence"/>
   <locale name="BUTTON_CREATE_SITE" value="Create site"/>
   <locale name="BUTTON_CREATE_THEME" value="Create theme"/>
@@ -38,6 +40,8 @@
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
   <locale name="BUTTON_DONE" value="Done"/>
+  <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicate mail server"/>
+  <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicate queue"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Duplicate site"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
   <locale name="BUTTON_EDIT_DATABASE_SITES" value="Edit sites and modules"/>
@@ -47,6 +51,7 @@
   <locale name="BUTTON_FINISH" value="Finish"/>
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="New connection"/>
+  <locale name="BUTTON_NEW_EMAIL_SERVER" value="New mail server"/>
   <locale name="BUTTON_NEW_PROFILE" value="New profile"/>
   <locale name="BUTTON_NEW_SITE" value="New site"/>
   <locale name="BUTTON_NEW_THEME" value="New theme"/>
@@ -59,6 +64,7 @@
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
   <locale name="BUTTON_NEW" value="New"/>
+  <locale name="BUTTON_NEW_QUEUE" value="New queue"/>
   <locale name="BUTTON_NEW_APP_PAR" value="New parameter"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 row below selected"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 row above selected"/>
@@ -735,6 +741,7 @@
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="File upload error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error checking the file upload"/>
   <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Database connections of the application: connection, environment, credentials and the sites and modules that use each one."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Mail servers of the application: alias, host, user, authentication and state."/>
   <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groups of users with their default theme, initial screen and file restriction."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Browse the security events recorded by the application: logins, logouts, account locks, password and second factor changes, denied accesses and REST tokens. Filter by date, event, result, channel, user or address; select an event and press View to see all its data"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
@@ -770,6 +777,14 @@
   <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="No site or module uses this connection yet"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Delete search"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="The saved search will be deleted. Do you want to continue?"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Authentication"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="Server state"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH_LABEL" value="Search mail servers"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Hidden advanced filter"/>
   <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Hide advanced filters"/>
@@ -788,6 +803,15 @@
   <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Search profiles"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publish for a profile"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="The users of that profile find it under Shared with your profile. They can apply it, not change it."/>
+  <locale name="SCREEN_TEXT_QUEUE_CONNECTION" value="Connection"/>
+  <locale name="SCREEN_TEXT_QUEUE_DATA" value="Queue"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTERS" value="Queue state"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_QUEUE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Search queues"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Rename"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
@@ -827,6 +851,8 @@
   <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Search themes"/>
   <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Databases"/>
   <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Database connection"/>
+  <locale name="SCREEN_TITLE_EMAIL_SERVER_PANEL" value="Mail server"/>
+  <locale name="SCREEN_TITLE_EML_SRV_ADMIN" value="Mail servers"/>
   <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Profiles"/>
   <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profile"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Security audit"/>
@@ -1051,6 +1077,7 @@
   <locale name="HELP_SCREEN_TITLE_QUE" value="Message queues"/>
   <locale name="HELP_SCREEN_TITLE_QUE_NEW" value="New message queue"/>
   <locale name="HELP_SCREEN_TITLE_QUE_UPD" value="Update message queue"/>
+  <locale name="HELP_SCREEN_TITLE_QUEUE_ADMIN" value="Message queues of the application: alias, destination, queue type, broker, connection and state."/>
   <locale name="HELP_SCREEN_TITLE_REP" value="Report assignation"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN" value="Generated report list"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN_VIW" value="View generated report"/>
@@ -1564,6 +1591,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_QUE" value="Message queues"/>
   <locale name="SCREEN_TITLE_QUE_NEW" value="New message queue"/>
   <locale name="SCREEN_TITLE_QUE_UPD" value="Update message queue"/>
+  <locale name="SCREEN_TITLE_QUEUE_ADMIN" value="Message queues"/>
+  <locale name="SCREEN_TITLE_QUEUE_PANEL" value="Message queue"/>
   <locale name="SCREEN_TITLE_REP" value="Report assignation"/>
   <locale name="SCREEN_TITLE_REP_GEN" value="Generated report list"/>
   <locale name="SCREEN_TITLE_REP_GEN_VIW" value="View generated report"/>

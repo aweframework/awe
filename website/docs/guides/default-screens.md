@@ -166,13 +166,51 @@ removed in the next minor release (5.1.0). Point your own menu options to the `d
 
 ## Mail servers
 
-Mail server option contains a set of external mail servers used to send e-mail in some parts of the application, like
-print screens and scheduler reports.
+The *Mail servers* option of the menu opens the mail server administration screen (`email-server-admin`), built like the
+[databases](#databases) one: it holds the external mail servers used to send e-mail in some parts of the application,
+like print screens and scheduler reports. It shows the servers in a grid with their alias (and the host under it), user,
+authentication and state, with a search by alias and quick filters with their counts (*All*, *Active*,
+*Inactive*). Each row has an edit button and a menu (edit, duplicate, delete), and the selected rows show a bar to delete
+them.
+
+A side panel creates and edits a server, grouped in sections (identity: alias, host and the *Active* select;
+authentication: its switch, the user and the password) and shows the alias and the state of the server being edited. The
+stored password is never shown: when editing, it only changes if a new one is typed. *Duplicate* opens the panel as a new
+server with the values of the selected one, without its password, and the alias of a server is unique.
+
+The screen reads the mail server queries and maintains of the framework (`EmlSrvLst`, `EmlSrvNew`, `EmlSrvUpd`,
+`EmlSrvDel` and `EmlSrvNamUni`) and adds `EmlSrvStaCnt`, `EmlSrvStaCntAct` and `EmlSrvStaCntIna` for the counts of the
+quick filters, so an application that overrides them keeps its logic.
+
+:::warning Deprecated
+The previous mail server screens (`EmlSrv`, `EmlSrvNew` and `EmlSrvUpd`) are deprecated since AWE 5.0.0 and will be
+removed in the next minor release (5.1.0). Point your own menu options to the `email-server-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 ## Message queues
 
-This option can define a list of message queues to be used as external communication with AWE applications. Each entry
-contains a broker queue definition which can be used by the [Queues.xml](api/jms-queues-definition.md) file.
+The *Message queues* option of the menu opens the message queue administration screen (`queue-admin`), built like the
+[databases](#databases) one: it holds the JMS queues that the application uses to communicate with a broker, and each
+entry is the queue definition that the [Queues.xml](api/jms-queues-definition.md) file can use. It shows the queues in a
+grid with their alias (and the description under it), destination, queue type, broker and state, with a search by alias
+and quick filters with their counts (*All*, *Active*, *Inactive*). Each row has an edit button and a menu (edit,
+duplicate, delete), and the selected rows show a bar to delete them.
+
+A side panel creates and edits a queue, grouped in sections (identity: alias, description and the *Active* select; queue:
+queue type, destination and connection type; connection: broker, user and password) and shows the state of the queue
+being edited. The user and the password of the broker only apply to a remote connection: with a JNDI connection they are
+disabled and cleared. The stored password is never shown: when editing, it only changes if a new one is typed.
+
+The screen reads the queue queries and maintains of the framework (`QueLst`, `QueNew`, `QueUpd`, `QueDel` and
+`QueAlsUni`) and adds `QueStaCnt`, `QueStaCntAct` and `QueStaCntIna` for the counts of the quick filters, so an
+application that overrides them keeps its logic.
+
+:::warning Deprecated
+The previous queue screens (`Que`, `QueNew` and `QueUpd`) are deprecated since AWE 5.0.0 and will be removed in the next
+minor release (5.1.0). Point your own menu options to the `queue-admin` screen; see the
+[v5 migration guide](v5-migration.md).
+:::
 
 ## Sequences
 

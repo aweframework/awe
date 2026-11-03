@@ -47,6 +47,18 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * The help of the mail servers option is the help of the email-server-admin screen it opens, not the help of the EmlSrv
+   * screen it replaces
+   *
+   * @throws Exception test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test")
+  void testGetEmailServersHelpTemplate() throws Exception {
+    testHelpOfAdminScreen("email-servers", "SCREEN_TITLE_EML_SRV_ADMIN", "SCREEN_TITLE_EML_SRV");
+  }
+
+  /**
    * The help of the sequences option is the help of the sequence-admin screen it opens, not the help of the AweKey screen it
    * replaces. It is not compared with a golden file of the whole template: that file would change with every edit of the
    * screen, and what this test protects is which screen the option opens.
@@ -69,6 +81,18 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
   @WithMockUser(username = "test", password = "test")
   void testGetApplicationParametersHelpTemplate() throws Exception {
     testHelpOfAdminScreen("application-parameters", "SCREEN_TITLE_APP_PAR_ADMIN", "SCREEN_TITLE_APP_PARAMETERS");
+  }
+
+  /**
+   * The help of the message queues option is the help of the queue-admin screen it opens, not the help of the Que screen it
+   * replaces
+   *
+   * @throws Exception test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test")
+  void testGetQueuesHelpTemplate() throws Exception {
+    testHelpOfAdminScreen("queues", "SCREEN_TITLE_QUEUE_ADMIN", "SCREEN_TITLE_QUE");
   }
 
   /**

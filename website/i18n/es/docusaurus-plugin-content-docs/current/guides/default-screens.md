@@ -164,11 +164,53 @@ vea la [guía de migración a v5](v5-migration.md).
 
 ## Servidores de correo {#mail-servers}
 
-La opción de servidores de correo contiene un conjunto de servidores de correo externos que se utilizan para enviar correos electrónicos en algunas partes de la aplicación, como la impresión de pantallas y los informes del planificador.
+La opción *Servidores de correo* del menú abre la pantalla de administración de servidores de correo
+(`email-server-admin`), construida como la de [bases de datos](#databases): contiene los servidores de correo externos
+que se usan para enviar correo en algunas partes de la aplicación, como la impresión de pantallas y los informes del
+planificador. Muestra los servidores en una rejilla con su alias (y el host debajo), el usuario, la autenticación y el
+estado, con una búsqueda por alias y filtros rápidos con sus recuentos (*Todos*, *Activos*, *Inactivos*). Cada
+fila tiene un botón de edición y un menú (editar, duplicar, borrar), y las filas seleccionadas muestran una barra para
+borrarlas.
+
+Un panel lateral crea y edita un servidor, agrupado en secciones (identidad: alias, host y el selector *Activo*;
+autenticación: su interruptor, el usuario y la contraseña) y muestra el alias y el estado del servidor que se está
+editando. La contraseña guardada nunca se muestra: al editar, solo cambia si se escribe una nueva. *Duplicar* abre el
+panel como un servidor nuevo con los valores del seleccionado, sin su contraseña, y el alias de un servidor es único.
+
+La pantalla lee las consultas y los mantenimientos de servidores de correo del framework (`EmlSrvLst`, `EmlSrvNew`,
+`EmlSrvUpd`, `EmlSrvDel` y `EmlSrvNamUni`) y añade `EmlSrvStaCnt`, `EmlSrvStaCntAct` y `EmlSrvStaCntIna` para los
+recuentos de los filtros rápidos, de modo que una aplicación que los sobrescriba conserva su lógica.
+
+:::warning Obsoleto
+Las pantallas anteriores de servidores de correo (`EmlSrv`, `EmlSrvNew` y `EmlSrvUpd`) están obsoletas desde AWE 5.0.0 y
+se eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla
+`email-server-admin`; consulte la [guía de migración a la v5](v5-migration.md).
+:::
 
 ## Colas de mensajes {#message-queues}
 
-Esta opción permite definir una lista de colas de mensajes que se utilizan como comunicación externa con las aplicaciones AWE. Cada entrada contiene la definición de una cola de un broker que puede ser utilizada por el archivo [Queues.xml](api/jms-queues-definition.md).
+La opción *Colas de mensajes* del menú abre la pantalla de administración de colas de mensajes (`queue-admin`),
+construida como la de [bases de datos](#databases): contiene las colas JMS que la aplicación usa para comunicarse con un
+broker, y cada entrada es la definición de cola que puede usar el archivo
+[Queues.xml](api/jms-queues-definition.md). Muestra las colas en una rejilla con su alias (y la descripción debajo), el
+destino, el tipo de cola, el broker y el estado, con una búsqueda por alias y filtros rápidos con sus recuentos
+(*Todos*, *Activos*, *Inactivos*). Cada fila tiene un botón de edición y un menú (editar, duplicar, borrar), y las filas
+seleccionadas muestran una barra para borrarlas.
+
+Un panel lateral crea y edita una cola, agrupado en secciones (identidad: alias, descripción y el selector *Activo*;
+cola: tipo de cola, destino y tipo de conexión; conexión: broker, usuario y contraseña) y muestra el estado de la cola
+que se está editando. El usuario y la contraseña del broker solo se aplican a una conexión remota: con una conexión JNDI
+se desactivan y se vacían. La contraseña guardada nunca se muestra: al editar, solo cambia si se escribe una nueva.
+
+La pantalla lee las consultas y los mantenimientos de colas del framework (`QueLst`, `QueNew`, `QueUpd`, `QueDel` y
+`QueAlsUni`) y añade `QueStaCnt`, `QueStaCntAct` y `QueStaCntIna` para los recuentos de los filtros rápidos, de modo que
+una aplicación que los sobrescriba conserva su lógica.
+
+:::warning Obsoleto
+Las pantallas anteriores de colas (`Que`, `QueNew` y `QueUpd`) están obsoletas desde AWE 5.0.0 y se eliminarán en la
+siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla `queue-admin`; consulte la
+[guía de migración a la v5](v5-migration.md).
+:::
 
 ## Secuencias {#sequences}
 

@@ -3291,6 +3291,19 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Assert that a criterion cannot be edited: its input is disabled because a dependency of the screen has switched it
+   * off. The AngularJS engine disables the input with ng-disabled and the React one with the disabled attribute, so the
+   * same step covers both
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionDisabled(String criterionName) {
+    Locator input = locator(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)));
+    waitUntil(BrowserCondition.of("criterion " + criterionName + " to be disabled",
+      browser -> browser.exists(input) && !browser.isEnabled(input)));
+  }
+
+  /**
    * Assert if some criteria are checked or not
    *
    * @param isChecked     Flag to check

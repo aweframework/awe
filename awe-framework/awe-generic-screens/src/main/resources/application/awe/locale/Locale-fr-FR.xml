@@ -28,7 +28,9 @@
   <locale name="BUTTON_COPY" value="Copier"/>
   <locale name="BUTTON_CREATE_APP_PAR" value="Créer le paramètre"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Créer la connexion"/>
+  <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Créer le serveur de messagerie"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Créer le profil"/>
+  <locale name="BUTTON_CREATE_QUEUE" value="Créer une file"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Créer la séquence"/>
   <locale name="BUTTON_CREATE_SITE" value="Créer un site"/>
   <locale name="BUTTON_CREATE_THEME" value="Créer le thème"/>
@@ -38,6 +40,8 @@
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactiver taches selectionnees"/>
   <locale name="BUTTON_DELETE" value="Supprimer"/>
   <locale name="BUTTON_DONE" value="Terminé"/>
+  <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Dupliquer le serveur de messagerie"/>
+  <locale name="BUTTON_DUPLICATE_QUEUE" value="Dupliquer la file"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Dupliquer le site"/>
   <locale name="BUTTON_EDIT" value="Modifier"/>
   <locale name="BUTTON_EDIT_DATABASE_SITES" value="Modifier les sites et modules"/>
@@ -47,6 +51,7 @@
   <locale name="BUTTON_FINISH" value="Finir"/>
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="Nouvelle connexion"/>
+  <locale name="BUTTON_NEW_EMAIL_SERVER" value="Nouveau serveur de messagerie"/>
   <locale name="BUTTON_NEW_PROFILE" value="Nouveau profil"/>
   <locale name="BUTTON_NEW_SITE" value="Nouveau site"/>
   <locale name="BUTTON_NEW_THEME" value="Nouveau thème"/>
@@ -59,6 +64,7 @@
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
   <locale name="BUTTON_NEW" value="Nouveau"/>
+  <locale name="BUTTON_NEW_QUEUE" value="Nouvelle file"/>
   <locale name="BUTTON_NEW_APP_PAR" value="Nouveau paramètre"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 ligne au-dessous"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 ligne au-dessus"/>
@@ -735,6 +741,7 @@
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Erreur dans le fichier télécharger"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Vérification des erreurs du fichier télécharger"/>
   <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Connexions aux bases de données de l&apos;application : connexion, environnement, identifiants et les sites et modules qui utilisent chacune."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Serveurs de messagerie de l&apos;application : alias, hôte, utilisateur, authentification et état."/>
   <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groupes d&apos;utilisateurs avec leur thème par défaut, écran initial et restriction de fichiers."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consultez les événements de sécurité enregistrés par l&apos;application : connexions, déconnexions, verrouillages de compte, changements de mot de passe et de second facteur, accès refusés et jetons REST. Filtrez par date, événement, résultat, canal, utilisateur ou adresse ; sélectionnez un événement et cliquez sur Voir pour afficher toutes ses données"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Toutes les données enregistrées pour un événement de sécurité"/>
@@ -770,6 +777,14 @@
   <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="Aucun site ni module n’utilise encore cette connexion"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Supprimer la recherche"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="La recherche enregistrée sera supprimée. Voulez-vous continuer ?"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Authentification"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="État du serveur"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Actifs"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" value="Inactifs"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH_LABEL" value="Rechercher des serveurs de messagerie"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtré par"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtre avancé masqué"/>
   <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Masquer les filtres avancés"/>
@@ -788,6 +803,15 @@
   <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Rechercher des profils"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publier pour un profil"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Les utilisateurs de ce profil la trouvent dans Partagées avec votre profil. Ils peuvent l'appliquer, pas la modifier."/>
+  <locale name="SCREEN_TEXT_QUEUE_CONNECTION" value="Connexion"/>
+  <locale name="SCREEN_TEXT_QUEUE_DATA" value="File"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTERS" value="État de la file"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" value="Actives"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" value="Inactives"/>
+  <locale name="SCREEN_TEXT_QUEUE_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Rechercher des files"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Retirer le filtre"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renommer"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Rétablir les valeurs par défaut"/>
@@ -827,6 +851,8 @@
   <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Rechercher des thèmes"/>
   <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de données"/>
   <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Connexion à la base de données"/>
+  <locale name="SCREEN_TITLE_EMAIL_SERVER_PANEL" value="Serveur de messagerie"/>
+  <locale name="SCREEN_TITLE_EML_SRV_ADMIN" value="Serveurs de messagerie"/>
   <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Profils"/>
   <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profil"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Audit de sécurité"/>
@@ -1051,6 +1077,7 @@
   <locale name="HELP_SCREEN_TITLE_QUE" value="Queues du messages"/>
   <locale name="HELP_SCREEN_TITLE_QUE_NEW" value="Nouvelle file d&apos;attente de messages"/>
   <locale name="HELP_SCREEN_TITLE_QUE_UPD" value="Modifier la file d&apos;attente de messages"/>
+  <locale name="HELP_SCREEN_TITLE_QUEUE_ADMIN" value="Files de messages de l&apos;application : alias, destination, type de file, broker, connexion et état."/>
   <locale name="HELP_SCREEN_TITLE_REP" value="Assignation de rapports"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN" value="Liste des rapports generes"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN_VIW" value="Consultation de rapport genere"/>
@@ -1564,6 +1591,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_QUE" value="Queues du messages"/>
   <locale name="SCREEN_TITLE_QUE_NEW" value="Nouvelle file d&apos;attente de messages"/>
   <locale name="SCREEN_TITLE_QUE_UPD" value="Modifier la file d&apos;attente de messages"/>
+  <locale name="SCREEN_TITLE_QUEUE_ADMIN" value="Files de messages"/>
+  <locale name="SCREEN_TITLE_QUEUE_PANEL" value="File de messages"/>
   <locale name="SCREEN_TITLE_REP" value="Assignation de rapports"/>
   <locale name="SCREEN_TITLE_REP_GEN" value="Liste des rapports generes"/>
   <locale name="SCREEN_TITLE_REP_GEN_VIW" value="Consultation de rapport genere"/>

@@ -28,7 +28,9 @@
   <locale name="BUTTON_COPY" value="Copiar"/>
   <locale name="BUTTON_CREATE_APP_PAR" value="Crear parámetro"/>
   <locale name="BUTTON_CREATE_DATABASE" value="Crear conexión"/>
+  <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Crear servidor de correo"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Crear perfil"/>
+  <locale name="BUTTON_CREATE_QUEUE" value="Crear cola"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Crear secuencia"/>
   <locale name="BUTTON_CREATE_SITE" value="Crear site"/>
   <locale name="BUTTON_CREATE_THEME" value="Crear tema"/>
@@ -38,6 +40,8 @@
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactivar tareas seleccionadas"/>
   <locale name="BUTTON_DELETE" value="Borrar"/>
   <locale name="BUTTON_DONE" value="Hecho"/>
+  <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicar servidor de correo"/>
+  <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicar cola"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Duplicar site"/>
   <locale name="BUTTON_EDIT" value="Editar"/>
   <locale name="BUTTON_EDIT_DATABASE_SITES" value="Editar sitios y módulos"/>
@@ -47,6 +51,7 @@
   <locale name="BUTTON_FINISH" value="Terminar"/>
   <locale name="BUTTON_HIDE_MENU" value="OCULTAR MENU"/>
   <locale name="BUTTON_NEW_DATABASE" value="Nueva conexión"/>
+  <locale name="BUTTON_NEW_EMAIL_SERVER" value="Nuevo servidor de correo"/>
   <locale name="BUTTON_NEW_PROFILE" value="Nuevo perfil"/>
   <locale name="BUTTON_NEW_SITE" value="Nuevo site"/>
   <locale name="BUTTON_NEW_THEME" value="Nuevo tema"/>
@@ -59,6 +64,7 @@
   <locale name="BUTTON_LOGOUT" value="Salir"/>
   <locale name="BUTTON_MODIFY" value="Modificar"/>
   <locale name="BUTTON_NEW" value="Nuevo"/>
+  <locale name="BUTTON_NEW_QUEUE" value="Nueva cola"/>
   <locale name="BUTTON_NEW_APP_PAR" value="Nuevo parámetro"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 fila debajo"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 fila encima"/>
@@ -738,6 +744,7 @@
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Error en la subida del fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error comprobando la subida del fichero"/>
   <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Conexiones a bases de datos de la aplicación: conexión, entorno, credenciales y los sitios y módulos que usan cada una."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo de la aplicación: alias, host, usuario, autenticación y estado."/>
   <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Grupos de usuarios con su tema por defecto, pantalla inicial y restricción de ficheros."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consulta los eventos de seguridad registrados por la aplicación: accesos, cierres de sesión, bloqueos de cuenta, cambios de contraseña y de segundo factor, accesos denegados y tokens REST. Filtra por fecha, evento, resultado, canal, usuario o dirección; selecciona un evento y pulsa Ver para consultar todos sus datos"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
@@ -773,6 +780,14 @@
   <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="Ningún sitio ni módulo usa todavía esta conexión"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Borrar búsqueda"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="Se borrará la búsqueda guardada. ¿Desea continuar?"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Autenticación"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="Estado del servidor"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH_LABEL" value="Buscar servidores de correo"/>
   <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtrado por"/>
   <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtro avanzado oculto"/>
   <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Ocultar filtros avanzados"/>
@@ -791,6 +806,15 @@
   <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Buscar perfiles"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publicar para un perfil"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Los usuarios de ese perfil la verán en Compartidas con tu perfil. Pueden aplicarla, no modificarla."/>
+  <locale name="SCREEN_TEXT_QUEUE_CONNECTION" value="Conexión"/>
+  <locale name="SCREEN_TEXT_QUEUE_DATA" value="Cola"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTERS" value="Estado de la cola"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" value="Activas"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" value="Inactivas"/>
+  <locale name="SCREEN_TEXT_QUEUE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Buscar colas"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renombrar"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Restablecer valores por defecto"/>
@@ -830,6 +854,8 @@
   <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Buscar temas"/>
   <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de datos"/>
   <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Conexión a base de datos"/>
+  <locale name="SCREEN_TITLE_EMAIL_SERVER_PANEL" value="Servidor de correo"/>
+  <locale name="SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo"/>
   <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Perfiles"/>
   <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Perfil"/>
   <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Auditoría de seguridad"/>
@@ -1054,6 +1080,7 @@
   <locale name="HELP_SCREEN_TITLE_QUE" value="Colas de mensajes"/>
   <locale name="HELP_SCREEN_TITLE_QUE_NEW" value="Nueva cola de mensajes"/>
   <locale name="HELP_SCREEN_TITLE_QUE_UPD" value="Modificar cola de mensajes"/>
+  <locale name="HELP_SCREEN_TITLE_QUEUE_ADMIN" value="Colas de mensajes de la aplicación: alias, destino, tipo de cola, broker, conexión y estado."/>
   <locale name="HELP_SCREEN_TITLE_REP" value="Asignación de informes"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN" value="Listado de informes generados"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN_VIW" value="Consulta de un informe generado"/>
@@ -1567,6 +1594,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_QUE" value="Colas de mensajes"/>
   <locale name="SCREEN_TITLE_QUE_NEW" value="Nueva cola de mensajes"/>
   <locale name="SCREEN_TITLE_QUE_UPD" value="Modificar cola de mensajes"/>
+  <locale name="SCREEN_TITLE_QUEUE_ADMIN" value="Colas de mensajes"/>
+  <locale name="SCREEN_TITLE_QUEUE_PANEL" value="Cola de mensajes"/>
   <locale name="SCREEN_TITLE_REP" value="Asignación de informes"/>
   <locale name="SCREEN_TITLE_REP_GEN" value="Listado de informes generados"/>
   <locale name="SCREEN_TITLE_REP_GEN_VIW" value="Consulta de un informe generado"/>

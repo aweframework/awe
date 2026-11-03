@@ -3664,6 +3664,23 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+    <!-- Mail servers screen (email-server-admin): state (active or inactive) with its label and tone, as SitLst, and the
+         authentication with its text, the tone and the icon of its tag -->
+    <case alias="StaCod">
+      <when left-field="Act" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
+    <computed format="[Ath]" alias="AthTxt" translate="authenticated-label" />
+    <computed format="[Ath]" alias="AthTon" translate="authenticated-tone" />
+    <computed format="[Ath]" alias="AthIcn" translate="authenticated-icon" />
 
     <!-- Fields for EmailServer bean -->
     <field id="SrvNam" alias="name" />
@@ -3673,17 +3690,139 @@
     <field id="EmlPwd" alias="pass" />
     <where>
       <and>
-        <filter left-field="SrvNam" condition="like" right-variable="serverName" optional="true" />
+        <!-- Search of the grid (email-server-admin): the alias contains the text, ignoring case. The EmlSrv screen filters
+             its suggest criterion with the same variable, so it keeps working -->
+        <filter left-field="SrvNam" condition="like" right-variable="serverName" ignorecase="true" optional="true" />
+        <filter left-field="Hst" condition="like" right-variable="host" optional="true" />
+        <filter left-field="Ath" condition="eq" right-variable="authenticated" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <!-- State of the server (active, inactive): same expression as EmlSrvStaCnt -->
+        <filter condition="eq" right-variable="EmlSrvSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="serverName" type="STRINGB" name="CrtNam" />
+    <variable id="host" type="STRINGN" name="CrtSrv" />
+    <variable id="authenticated" type="INTEGER" name="CrtAth" />
+    <variable id="active" type="INTEGER" name="CrtAct" />
+    <variable id="EmlSrvSta" type="STRING" name="CrtEmlSrvSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+    <order-by field="Act" type="ASC" />
+  </query>
+
+  <!-- EMAIL SERVER STATE COUNTERS: the quick filters of the mail servers screen (email-server-admin), counted with its
+       search. Each count is the number of rows EmlSrvLst returns for that option: the same search filter (CrtNam) and state
+       expression as EmlSrvLst (a union cannot use subqueries). Keep them in step with EmlSrvLst -->
+  <query id="EmlSrvStaCnt">
+    <table id="AweEmlSrv" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" alias="label" />
+    <field id="IdeAweEmlSrv" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="EmlSrvStaCntAct" />
+    <union type="ALL" query="EmlSrvStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="SrvNam" condition="like" right-variable="serverName" ignorecase="true" optional="true" />
         <filter left-field="Hst" condition="like" right-variable="host" optional="true" />
         <filter left-field="Ath" condition="eq" right-variable="authenticated" optional="true" />
         <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
       </and>
     </where>
-    <variable id="serverName" type="STRINGN" name="CrtNam" />
+    <order-by field="pos" type="ASC" />
+    <variable id="serverName" type="STRINGB" name="CrtNam" />
     <variable id="host" type="STRINGN" name="CrtSrv" />
     <variable id="authenticated" type="INTEGER" name="CrtAth" />
     <variable id="active" type="INTEGER" name="CrtAct" />
-    <order-by field="Act" type="ASC" />
+  </query>
+
+  <!-- EMAIL SERVER STATE COUNTERS: active mail servers -->
+  <query id="EmlSrvStaCntAct">
+    <table id="AweEmlSrv" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" alias="label" />
+    <field id="IdeAweEmlSrv" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="SrvNam" condition="like" right-variable="serverName" ignorecase="true" optional="true" />
+        <filter left-field="Hst" condition="like" right-variable="host" optional="true" />
+        <filter left-field="Ath" condition="eq" right-variable="authenticated" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="serverName" type="STRINGB" name="CrtNam" />
+    <variable id="host" type="STRINGN" name="CrtSrv" />
+    <variable id="authenticated" type="INTEGER" name="CrtAth" />
+    <variable id="active" type="INTEGER" name="CrtAct" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- EMAIL SERVER STATE COUNTERS: inactive mail servers -->
+  <query id="EmlSrvStaCntIna">
+    <table id="AweEmlSrv" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" alias="label" />
+    <field id="IdeAweEmlSrv" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="SrvNam" condition="like" right-variable="serverName" ignorecase="true" optional="true" />
+        <filter left-field="Hst" condition="like" right-variable="host" optional="true" />
+        <filter left-field="Ath" condition="eq" right-variable="authenticated" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="serverName" type="STRINGB" name="CrtNam" />
+    <variable id="host" type="STRINGN" name="CrtSrv" />
+    <variable id="authenticated" type="INTEGER" name="CrtAth" />
+    <variable id="active" type="INTEGER" name="CrtAct" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <!-- EMAIL SERVER (SUGGEST SERVER ALIAS)-->
@@ -3782,6 +3921,8 @@
     <variable id="active" type="INTEGER" value="1" />
   </query>
 
+  <!-- JMS QUEUES: the message queues screen (queue-admin) and the deprecated Que screen. The state (active or inactive)
+       with its label and tone, as SitLst and EmlSrvLst, and the state filter of the quick filters (QueStaCnt) -->
   <query id="QueLst">
     <table id="AweQue" />
     <field id="IdeAweQue" alias="id" />
@@ -3802,21 +3943,161 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+    <case alias="StaCod">
+      <when left-field="Act" condition="eq" right-variable="One">
+        <then>
+          <constant value="active" />
+        </then>
+      </when>
+      <else>
+        <constant value="inactive" />
+      </else>
+    </case>
+    <computed format="[StaCod]" alias="StaTxt" translate="active-state-label" />
+    <computed format="[StaCod]" alias="StaTon" translate="active-state-tone" />
     <where>
       <and>
-        <filter left-field="Als" condition="like" right-variable="CrtAls" optional="true" />
+        <!-- Search of the grid (queue-admin): the alias contains the text, ignoring case. The Que screen filters its
+             suggest criterion with the same variable, so it keeps working (D2) -->
+        <filter left-field="Als" condition="like" right-variable="CrtAls" ignorecase="true" optional="true" />
+        <filter left-field="QueTyp" condition="like" right-variable="CrtTypQue" optional="true" />
+        <filter left-field="DstNam" condition="like" right-variable="CrtQue" optional="true" />
+        <filter left-field="JmsBrk" condition="like" right-variable="CrtBrk" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <!-- State of the queue (active, inactive): same expression as QueStaCnt -->
+        <filter condition="eq" right-variable="QueSta" optional="true">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="CrtAls" type="STRINGB" name="CrtAls" optional="true" />
+    <variable id="CrtTypQue" type="STRINGN" name="CrtTypQue" optional="true" />
+    <variable id="CrtQue" type="STRINGN" name="CrtQue" optional="true" />
+    <variable id="CrtBrk" type="STRINGN" name="CrtBrk" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtAct" optional="true" />
+    <variable id="QueSta" type="STRING" name="CrtQueSta" optional="true" />
+    <variable id="One" type="INTEGER" value="1" />
+    <order-by field="Act" type="ASC" />
+  </query>
+
+  <!-- QUEUE STATE COUNTERS: the quick filters of the message queues screen (queue-admin), counted with its alias search
+       (CrtAls). Each count is the number of rows QueLst returns for that option: the same filters and state expression as
+       QueLst (a union cannot use subqueries). Keep them in step with QueLst -->
+  <query id="QueStaCnt">
+    <table id="AweQue" />
+    <constant value="1" type="INTEGER" alias="pos" />
+    <constant value="" alias="value" />
+    <constant value="SCREEN_TEXT_QUEUE_FILTER_ALL" alias="label" />
+    <field id="IdeAweQue" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <union type="ALL" query="QueStaCntAct" />
+    <union type="ALL" query="QueStaCntIna" />
+    <where>
+      <and>
+        <filter left-field="Als" condition="like" right-variable="CrtAls" ignorecase="true" optional="true" />
         <filter left-field="QueTyp" condition="like" right-variable="CrtTypQue" optional="true" />
         <filter left-field="DstNam" condition="like" right-variable="CrtQue" optional="true" />
         <filter left-field="JmsBrk" condition="like" right-variable="CrtBrk" optional="true" />
         <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
       </and>
     </where>
-    <variable id="CrtAls" type="STRINGN" name="CrtAls" optional="true" />
+    <order-by field="pos" type="ASC" />
+    <variable id="CrtAls" type="STRINGB" name="CrtAls" optional="true" />
     <variable id="CrtTypQue" type="STRINGN" name="CrtTypQue" optional="true" />
     <variable id="CrtQue" type="STRINGN" name="CrtQue" optional="true" />
     <variable id="CrtBrk" type="STRINGN" name="CrtBrk" optional="true" />
     <variable id="active" type="INTEGER" name="CrtAct" optional="true" />
-    <order-by field="Act" type="ASC" />
+  </query>
+
+  <!-- QUEUE STATE COUNTERS: active queues -->
+  <query id="QueStaCntAct">
+    <table id="AweQue" />
+    <constant value="2" type="INTEGER" alias="pos" />
+    <constant value="active" alias="value" />
+    <constant value="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" alias="label" />
+    <field id="IdeAweQue" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="Als" condition="like" right-variable="CrtAls" ignorecase="true" optional="true" />
+        <filter left-field="QueTyp" condition="like" right-variable="CrtTypQue" optional="true" />
+        <filter left-field="DstNam" condition="like" right-variable="CrtQue" optional="true" />
+        <filter left-field="JmsBrk" condition="like" right-variable="CrtBrk" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="CrtAls" type="STRINGB" name="CrtAls" optional="true" />
+    <variable id="CrtTypQue" type="STRINGN" name="CrtTypQue" optional="true" />
+    <variable id="CrtQue" type="STRINGN" name="CrtQue" optional="true" />
+    <variable id="CrtBrk" type="STRINGN" name="CrtBrk" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtAct" optional="true" />
+    <variable id="Sta" type="STRING" value="active" />
+    <variable id="One" type="INTEGER" value="1" />
+  </query>
+
+  <!-- QUEUE STATE COUNTERS: inactive queues -->
+  <query id="QueStaCntIna">
+    <table id="AweQue" />
+    <constant value="3" type="INTEGER" alias="pos" />
+    <constant value="inactive" alias="value" />
+    <constant value="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" alias="label" />
+    <field id="IdeAweQue" function="CNT" alias="count" />
+    <constant value="" alias="tone" />
+    <where>
+      <and>
+        <filter left-field="Als" condition="like" right-variable="CrtAls" ignorecase="true" optional="true" />
+        <filter left-field="QueTyp" condition="like" right-variable="CrtTypQue" optional="true" />
+        <filter left-field="DstNam" condition="like" right-variable="CrtQue" optional="true" />
+        <filter left-field="JmsBrk" condition="like" right-variable="CrtBrk" optional="true" />
+        <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
+        <filter condition="eq" right-variable="Sta">
+          <left-operand>
+            <case>
+              <when left-field="Act" condition="eq" right-variable="One">
+                <then>
+                  <constant value="active" />
+                </then>
+              </when>
+              <else>
+                <constant value="inactive" />
+              </else>
+            </case>
+          </left-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="CrtAls" type="STRINGB" name="CrtAls" optional="true" />
+    <variable id="CrtTypQue" type="STRINGN" name="CrtTypQue" optional="true" />
+    <variable id="CrtQue" type="STRINGN" name="CrtQue" optional="true" />
+    <variable id="CrtBrk" type="STRINGN" name="CrtBrk" optional="true" />
+    <variable id="active" type="INTEGER" name="CrtAct" optional="true" />
+    <variable id="Sta" type="STRING" value="inactive" />
+    <variable id="One" type="INTEGER" value="1" />
   </query>
 
   <query id="AlsJmsSug">
