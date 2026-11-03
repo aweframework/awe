@@ -8,6 +8,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Integration tests of the framework screens. Every test starts logged in with the Test module selected and opens its own
  * screen, so a failing test does not leave the next ones without a session or a screen. The test that stores a screen
@@ -411,6 +413,49 @@ class IntegrationTestsIT extends AbstractSessionTests {
     clickButton("ButRevealValidate");
     checkTabInvalid("RevTabs", false);
     checkWizardStepInvalid("RevWizard", false);
+  }
+
+  /**
+   * Unsaved grid rows: an action blocked by check-records-saved opens the tab that hides the grid with the row that is
+   * still being edited, marks the tab while the row is not saved and lets the action run once the row is saved
+   */
+  @Test
+  void t066_revealUnsavedGridRow() {
+    // Title
+    setTestTitle("Unsaved grid rows: an action blocked by check-records-saved opens the tab of the grid and marks it");
+
+    // Go to screen
+    gotoScreen("test", "unsaved-grid-test");
+
+    // Open the side panel with the three tabs and their editable grids
+    waitForButton("ButUnsOpen");
+    clickButton("ButUnsOpen");
+    waitForButton("ButUnsSave");
+
+    // Add a row in the grid of the second tab: the tab is marked while the row is not saved
+    clickTab("UnsTabs", "Access");
+    waitForButton("ButUnsAccessAdd");
+    clickButton("ButUnsAccessAdd");
+    checkTabInvalid("UnsTabs", true);
+
+    // The panel is on another tab, so the grid that holds the unsaved row is hidden
+    clickTab("UnsTabs", "General");
+    checkTabActive("UnsTabs", "General");
+
+    // Save: the action is blocked and the tab with the grid opens again
+    clickButton("ButUnsSave");
+    checkTabActive("UnsTabs", "Access");
+    checkTabInvalid("UnsTabs", true);
+    assertEquals("", getText("UnsResult"));
+
+    // Save the row: the tab is not marked anymore and the same action runs
+    clickButton("ButUnsSaveRow");
+    checkTabInvalid("UnsTabs", false);
+    clickButton("ButUnsSave");
+    assertEquals("saved", getText("UnsResult"));
+
+    // Close the panel, so the next test opens its screen with nothing over it
+    clickButton("ButUnsClose");
   }
 
   /**

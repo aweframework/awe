@@ -111,6 +111,15 @@ El primer campo no válido es el primero según el orden de la definición de la
 
 Para las pruebas automatizadas, la pestaña, el paso o el elemento marcado lleva el atributo `data-invalid="true"` (y `"false"` en caso contrario), junto a `data-active` y `data-completed`. La pantalla de prueba `reveal-invalid` de las aplicaciones de prueba tiene un campo obligatorio en una segunda pestaña, en un elemento de acordeón contraído y en el segundo paso de un asistente.
 
+## Rejillas con filas sin guardar {#grids-with-unsaved-rows}
+
+Una rejilla editable puede tener una fila que todavía se está editando: una fila que el usuario acaba de añadir, o una que está modificando. Cuando una acción con `check-records-saved` encuentra una, ambos clientes mantienen el mensaje de aviso y, igual que con un campo no válido, indican al usuario dónde está esa rejilla:
+
+1. Se abren las pestañas, los pasos de asistente y los elementos de acordeón que ocultan la rejilla, y se desplaza la fila que se está editando hasta que queda a la vista.
+2. La cabecera de pestaña y el paso de asistente que contienen la rejilla se marcan con el mismo indicador de error que un campo no válido mientras la rejilla tenga filas sin guardar. La marca desaparece cuando la fila se guarda o se cancela.
+
+El mensaje de aviso no cambia, y una pantalla sin contenido oculto sigue funcionando como antes: el aviso es lo único que ve el usuario. La pantalla de prueba `unsaved-grid` de las aplicaciones de prueba tiene un panel lateral con tres pestañas, cada una con una rejilla editable, y un botón de guardar con una acción `check-records-saved` sobre cada rejilla.
+
 ## Ejemplos {#examples}
 
 ### Criterios estándar con acción de validación {#standard-criteria-with-validation-action}

@@ -1301,6 +1301,16 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckThatATabIsTheActiveOne() {
+    assertThrows(AssertionFailedError.class, () -> utilities.checkTabActive("Tabs", "Second"));
+
+    show(instructions.getTabActive("Tabs", "First"), "First");
+
+    assertThatCode(() -> utilities.checkTabActive("Tabs", "First")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkTabActive("Tabs", "Second"));
+  }
+
+  @Test
   void shouldCheckThatTheFocusIsOnACriterion() {
     JavascriptExecutor executor = (JavascriptExecutor) driver;
     when(executor.executeScript(anyString(), any(Object[].class))).thenReturn(false, true);

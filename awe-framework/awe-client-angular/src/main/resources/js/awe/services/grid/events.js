@@ -526,6 +526,8 @@ aweApplication.factory('GridEvents',
           if (component.isEditing) {
             // Send grid message
             GridEvents.sendGridMessage(component, 'warning', 'GRID_CHECK_ALL_SAVED_TITLE', 'GRID_CHECK_ALL_SAVED_MESSAGE');
+            // Show the row being edited
+            component.revealEditingRow();
           }
         },
         /**

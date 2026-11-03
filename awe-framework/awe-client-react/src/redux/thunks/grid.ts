@@ -22,6 +22,8 @@ import {
 } from "../../utilities/grid";
 import type { GridAttributes, GridColumn, GridRow, RowPosition } from "../../utilities/grid";
 import type { ComponentState } from "../../utilities/mergeUtils";
+import { getRevealSelections, scrollToGridRow } from "../../utilities/reveal";
+import type { RevealComponent } from "../../utilities/reveal";
 import { validateRow } from "./validate";
 import { getAllComponents } from "../selectors/componentSelectors";
 import type { AppDispatch, AppThunk, RootState } from "../types";
@@ -470,9 +472,30 @@ export const checkRecordsSavedGridAction = (action: ClientAction, t: Translate):
       // Reject action
       dispatch(rejectAction(action));
 
+      // Show the grid with the row that is not saved yet
+      dispatch(revealUnsavedRowsGridAction(address));
+
       // Send message
       dispatch(addActionsTop([generateMessageAction("warning", translateLabel('GRID_CHECK_ALL_SAVED_TITLE', t), translateLabel('GRID_CHECK_ALL_SAVED_MESSAGE', t))]));
     }
+  };
+};
+
+/**
+ * Bring the grid with a row that is still being edited into view: open the tabs, wizard steps and accordion items that
+ * hide it and scroll the row into view
+ * @param {object} address Address of the grid
+ * @return {function} Thunk
+ */
+export const revealUnsavedRowsGridAction = (address: ComponentAddress): AppThunk => {
+  return (dispatch, getState) => {
+    // The components that are on screen have what the reveal reads: their address, their context and their model
+    const components = getAllComponents(getState());
+    const grid = getGrid(components, address);
+    getRevealSelections(components as unknown as Record<string, RevealComponent>, grid as unknown as RevealComponent)
+      .forEach(({ address: panelAddress, values }) => dispatch(updateModelWithDependencies(panelAddress, { values })));
+    const editingRow = grid.model.values.find(row => row.$row?.editing);
+    scrollToGridRow(address.component as string, (editingRow || {})[getGridIdentifier(grid.attributes)]);
   };
 };
 

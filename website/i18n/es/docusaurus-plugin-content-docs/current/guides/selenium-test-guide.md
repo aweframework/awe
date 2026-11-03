@@ -797,6 +797,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `clickTab(String tabName, String tabLabel)` | Hace clic en una pestaña de un criterio de pestañas. La etiqueta es la clave de locale (AngularJS) o el texto traducido (React) |
 | `checkActiveWizardStep(String number)` | Comprueba el número del paso activo de un asistente |
 | `checkTagListContains(String tagListId, String text)` | Comprueba que una lista de etiquetas (vista de texto) contiene un texto |
+| `checkTabActive(String tabId, String tabLabel)` | Comprueba que un criterio de pestañas muestra una pestaña como la activa. La etiqueta es la clave de idioma (AngularJS) o el texto traducido (React) |
 | `checkTabInvalid(String tabId, boolean invalid)` | Comprueba que un criterio de pestañas marca una pestaña como que contiene campos que han fallado la validación (`true`), o que no marca ninguna (`false`) |
 | `checkWizardStepInvalid(String wizardId, boolean invalid)` | Lo mismo para los pasos de un asistente |
 | `checkChartVisible(String chartId)` | Comprueba que un gráfico se muestra (el gráfico se ha dibujado) |

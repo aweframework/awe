@@ -37,6 +37,13 @@ export interface RevealComponent {
 }
 
 /**
+ * Grid row, as far as the reveal reads it
+ */
+export interface RevealRow extends RevealOption {
+  $row?: {editing?: boolean};
+}
+
+/**
  * Options to select in a container to show one of its children
  */
 export interface RevealSelection {
@@ -116,7 +123,17 @@ export function getRevealSelections(components: ComponentsById<RevealComponent>,
 }
 
 /**
- * Get the options of a container that hold invalid fields
+ * A grid holds unsaved records while one of its rows is being edited
+ * @param {object} component Component of the state
+ * @return {boolean} The component is a grid with a row that is still being edited
+ */
+export function hasUnsavedRows(component?: RevealComponent | null): boolean {
+  const values = component?.model?.values;
+  return Array.isArray(values) && values.some(row => (row as RevealRow)?.$row?.editing === true);
+}
+
+/**
+ * Get the options of a container that hold invalid fields or a grid with unsaved records
  * @param {object} components Components by id
  * @param {string} panelId Container id
  * @return {string[]} Values of the options with invalid fields
@@ -126,11 +143,34 @@ export function getInvalidPanelValues(components: ComponentsById<RevealComponent
   Object.values(components || {}).forEach(component => {
     const source = component?.context?.source || [];
     const position = source.indexOf(panelId);
-    if (component?.attributes?.error && position >= 0 && position + 1 < source.length) {
+    if ((component?.attributes?.error || hasUnsavedRows(component)) && position >= 0 && position + 1 < source.length) {
       invalid.add(source[position + 1]);
     }
   });
   return [...invalid];
+}
+
+/**
+ * Scroll the row of a grid into view. A grid inside a panel that has just been opened is not rendered yet, so the
+ * lookup is retried a few times.
+ * @param {string} gridId Grid identifier
+ * @param {string} rowId Row identifier
+ * @param {object} options Options
+ * @param {number} options.attempts Number of retries
+ * @param {number} options.delay Milliseconds between retries
+ * @return {boolean} The row was found at the first try
+ */
+export function scrollToGridRow(gridId: string, rowId: unknown, {attempts = DEFAULT_ATTEMPTS, delay = DEFAULT_DELAY}: FocusOptions = {}): boolean {
+  const rows = document.querySelectorAll(`[grid-id="${gridId}"] [row-id]`);
+  const row = Array.from(rows).find(item => item.getAttribute("row-id") === String(rowId));
+  if (!row) {
+    if (attempts > 1) {
+      setTimeout(() => scrollToGridRow(gridId, rowId, {attempts: attempts - 1, delay}), delay);
+    }
+    return false;
+  }
+  row.scrollIntoView?.({block: "center", behavior: "smooth"});
+  return true;
 }
 
 /**
