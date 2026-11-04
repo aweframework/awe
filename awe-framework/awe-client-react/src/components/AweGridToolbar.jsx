@@ -6,14 +6,16 @@ import AweGridColumnsDialog from "./AweGridColumnsDialog";
 import AweGridQuickFilter from "../criteria/AweGridQuickFilter";
 import AweGridSearch from "../criteria/AweGridSearch";
 import AweGridGroupBy from "./AweGridGroupBy";
+import AweGridSavedSearches from "./AweGridSavedSearches";
 import { TestIds, testHook } from "../utilities/testIds";
 import { getIconNode } from "../utilities";
 
 /**
  * Toolbar of a grid: the search, the quick filters and the row grouping controls (#833) of the grid first, then a spacer,
- * the Columns panel (a popover anchored to the Columns button, a dialog or a side panel, as its columns-panel says) and
- * the Maximize toggle. A grid opts out of the grouping controls and the Columns and Maximize buttons with
- * show-toolbar="false": its toolbar is then shown only for its search and quick filters.
+ * the Saved searches menu (#912, saved-searches="true"), the Columns panel (a popover anchored to the Columns button, a
+ * dialog or a side panel, as its columns-panel says) and the Maximize toggle. A grid opts out of the grouping controls and
+ * the Columns and Maximize buttons with show-toolbar="false": its toolbar is then shown only for its search, quick filters
+ * and saved searches.
  * @category Components
  * @subcategory Grid
  */
@@ -23,10 +25,10 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize }) {
   const columnsButton = useRef(null);
   const { address, attributes = {} } = useComponentState(id);
 
-  const { quickFilter, search } = attributes;
+  const { quickFilter, search, savedSearches } = attributes;
   const showButtons = attributes.showToolbar !== false;
   // A grid that is explicitly hidden hides its toolbar too
-  if ((!showButtons && !quickFilter && !search) || attributes.visible === false || !address) {
+  if ((!showButtons && !quickFilter && !search && !savedSearches) || attributes.visible === false || !address) {
     return null;
   }
 
@@ -42,8 +44,9 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize }) {
     {quickFilter && <AweGridQuickFilter id={quickFilter} grid={address.component} />}
     {/* Row grouping (#833): Expand all, Collapse all and Group by */}
     {showButtons && <AweGridGroupBy address={address} attributes={attributes} />}
-    {/* The search, the quick filters and the grouping go at the start, the Columns and Maximize buttons at the end */}
-    {showButtons && <span className="grid-toolbar-spacer" aria-hidden="true" />}
+    {/* The search, the quick filters and the grouping go at the start, the Saved searches, Columns and Maximize buttons at the end */}
+    {(showButtons || savedSearches) && <span className="grid-toolbar-spacer" aria-hidden="true" />}
+    {savedSearches && <AweGridSavedSearches id={address.component} />}
     {showButtons && <button ref={columnsButton} type="button" className="p-button p-component p-button-outlined p-button-sm grid-toolbar-button"
       title={t("GRID_COLUMNS_TITLE")} aria-haspopup="dialog" aria-expanded={columnsOpen} onClick={openColumns}
       {...testHook(TestIds.gridColumnsButton)}>

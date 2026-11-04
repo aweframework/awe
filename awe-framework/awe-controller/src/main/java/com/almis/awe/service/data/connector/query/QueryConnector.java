@@ -1,6 +1,8 @@
 package com.almis.awe.service.data.connector.query;
 
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
@@ -33,4 +35,18 @@ public interface QueryConnector {
    * @throws AWException Error on subscription
    */
   ServiceData subscribe(Query query, ComponentAddress address, ObjectNode parameters) throws AWException;
+
+  /**
+   * Retrieve the distinct values of a grid column (#912): the values of its filtered fields with their rows count and
+   * label, with every column filter of the parameters in effect
+   *
+   * @param query        Query of the grid
+   * @param parameters   Parameters, without pagination
+   * @param columnValues Column values
+   * @return Service data with the values and whether more exist
+   * @throws AWException The connector does not list column values, or the query failed
+   */
+  default ServiceData launchColumnValues(Query query, ObjectNode parameters, ColumnValues columnValues) throws AWException {
+    throw new AWEQueryException("Column values", "Column values are not supported by the connector of the query", query.getId(), null);
+  }
 }

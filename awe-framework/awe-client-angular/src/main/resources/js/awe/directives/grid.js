@@ -11,11 +11,14 @@ import "./gridSkeleton";
 import "./gridToolbar";
 import {getSelectionButtons} from "./gridSelectionBar";
 import "./gridGroupBy";
+import "./gridColumnFilter";
+import "./gridColumnFilterChips";
 
 export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <awe-grid-toolbar ng-if="controller.showToolbar !== false || controller.quickFilter || controller.search"></awe-grid-toolbar>
+  <awe-grid-toolbar ng-if="controller.showToolbar !== false || controller.quickFilter || controller.search || controller.savedSearches"></awe-grid-toolbar>
   <awe-grid-selection-bar ng-if="::component.selectionButtons.length"></awe-grid-selection-bar>
+  <awe-grid-column-filter-chips ng-if="component.columnFilters.length"></awe-grid-column-filter-chips>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button">

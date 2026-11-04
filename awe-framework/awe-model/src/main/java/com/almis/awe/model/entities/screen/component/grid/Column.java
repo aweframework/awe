@@ -50,6 +50,17 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private String field;
 
+  // Column FILTER type (values, text, number or date)
+  @XStreamAlias("filter")
+  @XStreamAsAttribute
+  private String filter;
+
+  // Comma-separated query fields the column filter applies to (joined by OR)
+  @JsonProperty("filterFields")
+  @XStreamAlias("filter-fields")
+  @XStreamAsAttribute
+  private String filterFields;
+
   // Column POSITION in grid
   @XStreamOmitField
   private String position;

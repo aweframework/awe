@@ -439,7 +439,7 @@ public class ReportDesigner extends ServiceConfig {
   }
 
   /**
-   * Lift the grid pagination (sort, page size and current page) from the grid data node to the
+   * Lift the grid pagination (sort, page size and current page) and its column filters from the grid data node to the
    * parameters root, so the relaunched query returns the same rows the user is looking at.
    * Values the client did not send are left untouched so the query keeps its own defaults.
    *
@@ -448,7 +448,8 @@ public class ReportDesigner extends ServiceConfig {
    */
   private void addGridPaginationData(Grid grid, ObjectNode parameters) {
     JsonNode gridData = parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix());
-    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_MAX, AweConstants.COMPONENT_PAGE)) {
+    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_MAX, AweConstants.COMPONENT_PAGE,
+      AweConstants.COMPONENT_COLUMN_FILTERS)) {
       JsonNode value = gridData == null ? null : gridData.get(key);
       if (value != null && !value.isNull()) {
         parameters.set(key, value);

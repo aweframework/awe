@@ -569,6 +569,36 @@
     </answer>
   </action>
 
+  <!-- COLUMN VALUES REQUEST ACTION: distinct values of a grid column for its autofilter (#912) -->
+  <action id="column-values" format="JSON">
+    <call service="launchColumnValues" />
+    <answer type="ok">
+      <response>
+        <type>column-values</type>
+        <parameters>
+          <parameter name="datalist" variable="DATA" />
+          <parameter name="more" variable="MORE_VALUES" />
+        </parameters>
+      </response>
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" value="error" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+    </answer>
+  </action>
+
   <!-- TREE BRANCH REQUEST ACTION -->
   <action id="tree-branch" format="JSON">
     <call service="launchQuery" />

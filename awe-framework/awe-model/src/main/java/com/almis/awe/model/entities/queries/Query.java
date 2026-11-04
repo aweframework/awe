@@ -272,6 +272,7 @@ public class Query implements XMLNode, Copyable {
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_PAGE);
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_MAX);
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_SORT);
+    allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_COLUMN_FILTERS);
     if (getVariableDefinitionList() != null) {
       for (Variable variable : getVariableDefinitionList()) {
         String parameterKey = variable.getName() != null ? variable.getName() : variable.getId();

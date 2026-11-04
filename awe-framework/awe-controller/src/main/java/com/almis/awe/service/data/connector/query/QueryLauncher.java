@@ -5,6 +5,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
@@ -139,6 +140,19 @@ public class QueryLauncher extends ServiceConfig {
       return new ServiceData().setDataList(new DataList());
     }
     return queryLauncher.subscribe(query, address, parameters);
+  }
+
+  /**
+   * Retrieve the distinct values of a grid column (#912). Not cached: the values follow the column filters in effect.
+   *
+   * @param query        Query of the grid
+   * @param parameters   Parameters, without pagination
+   * @param columnValues Column values
+   * @return Service data with the values and whether more exist
+   * @throws AWException Query has failed or its connector is not available
+   */
+  public ServiceData launchColumnValues(@NonNull Query query, ObjectNode parameters, ColumnValues columnValues) throws AWException {
+    return getQueryConnector(query).launchColumnValues(query, parameters, columnValues);
   }
 
   /**

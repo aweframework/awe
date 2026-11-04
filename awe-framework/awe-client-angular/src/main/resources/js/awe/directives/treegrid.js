@@ -5,6 +5,8 @@ import "../services/grid/tree";
 import {getGridRowHeight, getTreeIndent} from "../services/grid/density";
 import "./gridSkeleton";
 import "./gridToolbar";
+import "./gridColumnFilter";
+import "./gridColumnFilterChips";
 import {getSelectionButtons} from "./gridSelectionBar";
 
 // Treegrid directive

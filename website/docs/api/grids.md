@@ -72,6 +72,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out (the [quick filters](#quick-filters) of the grid are still shown) |
 | columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a popover anchored to the Columns button, a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `popover`, `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows           | Optional     | Boolean | Adds a leading column with a grip to [move the rows by dragging them](#drag-and-drop). Not available in tree grids         | Default value is `false` |
+| saved-searches      | Optional     | Boolean | Shows the [Saved searches](#saved-searches) menu in the toolbar: each user saves and applies the column filters, sort, quick filter and search of the grid | Default value is `false` |
 
 
 ### Toolbar
@@ -285,6 +286,167 @@ of *All* leaves the grid unfiltered:
   the Columns and Maximize buttons are hidden.
 - Declare at most one per grid; only the first one is used.
 
+### Column autofilter
+
+A column can offer a filter like the autofilter of a spreadsheet: a funnel in its header opens a menu to sort the
+grid, pick the values to show from a list with their counts, or set conditions on text, numbers or dates. It is opt-in
+per column: declare `filter` on the `<column>`. The filter runs **on the server**, in the query of the grid, so it
+filters every row (not only the page shown) and keeps the database pagination. It works in **both client engines**,
+in plain, tree and grouping grids.
+
+| Attribute     | Use      | Type   | Description                                                                                       | Values |
+|---------------|----------|--------|---------------------------------------------------------------------------------------------------|--------|
+| filter        | Optional | String | Type of the filter, and the funnel in the header                                                   | `values`, `text`, `number` or `date`. Default: no filter (no funnel) |
+| filter-fields | Optional | String | Query fields the filter applies to, for a column that shows several values. A row matches when any of them matches (joined by OR) | Comma-separated field ids. Default: `sort-field`, else `name` |
+
+What each type offers in its menu:
+
+| Type     | Menu |
+|----------|------|
+| `values` | Only the list of values. |
+| `text`   | The list of values and *Text filters*: equals, does not equal, begins with, ends with, contains, does not contain, custom filter. |
+| `number` | The list of values and *Number filters*: equals, does not equal, greater than (or equal to), less than (or equal to), between, custom filter. |
+| `date`   | The list of values as a year / month / day tree and *Date filters*: equals, before, after, between, today, yesterday, this week, last month, this year, custom filter. |
+
+**Filtered field.** The filter compares a field of the query, not the text the cell shows. The field is the first of:
+
+1. `filter-fields`, when the column declares it;
+2. `sort-field`, the same field the server sorts the column by;
+3. the column `name`.
+
+So a column built with a `computed`, `compound` or `translate` filters by its `sort-field`, the plain field it is built
+from: the list of values shows what the user sees (the label) and filters by the code (the value).
+
+**Example.** The advanced search test screen (`AdvSchTst`) declares a filter on four columns of its grid:
+
+```xml
+<grid id="GrdAdvInl" style="expand" initial-load="query" server-action="data" target-action="AdvSchInlCst" max="10"
+      saved-searches="true">
+  <column label="PARAMETER_ADV_SCH_NAME" name="InlNam" sort-field="InlNam" align="left" charlength="20" filter="text"/>
+  <column label="PARAMETER_ADV_SCH_STATUS" name="InlSta" sort-field="InlSta" align="left" charlength="12" filter="values"/>
+  <column label="PARAMETER_ADV_SCH_COUNTRY" name="InlCtr" sort-field="InlCtr" align="left" charlength="14"/>
+  <column label="COLUMN_ADV_SCH_AMOUNT" name="InlAmt" sort-field="InlAmt" align="right" charlength="12"
+          component="numeric" number-format="{mDec: 2}" filter="number"/>
+  <column label="COLUMN_ADV_SCH_CREATED" name="InlDat" sort-field="InlDatSrt" align="center" charlength="14"
+          filter="date" filter-fields="InlDat"/>
+</grid>
+```
+
+```xml
+<query id="AdvSchInlCst" service="getAdvancedSearchCustomers">
+  <field id="id" alias="InlIde"/>
+  <field id="name" alias="InlNam"/>
+  <field id="status" alias="InlSta" translate="AdvSchSta"/>
+  <field id="country" alias="InlCtr" translate="AdvSchCtr"/>
+  <field id="amount" alias="InlAmt"/>
+  <field id="created" alias="InlDat"/>
+  <field id="createdSort" alias="InlDatSrt"/>
+  ...
+</query>
+```
+
+The status lists its translated labels and filters by the status codes. The creation column sorts by `InlDatSrt` but
+filters by the date `InlDat`, so it declares `filter-fields`.
+
+**What the query must offer.** The server checks every filtered field against the fields of the grid query, by their
+identifier (the alias, else the id):
+
+- It must be a field of the query that is printed: a field marked `noprint` is rejected, so a filter cannot probe
+  values the query never sends.
+- A field with an aggregate or window function cannot be filtered (it cannot be compared in a `WHERE`).
+- A `computed` or `compound` is not a query field: filter its column by the field it is built from (`sort-field` or
+  `filter-fields`).
+
+A filter that breaks these rules (or any malformed filter) is rejected with an error message and the query is not run.
+For example, on the users query `UsrLst` the *Blocked* icon column is the compound `BlkIco`, built from the printed
+field `Lck`:
+
+```xml
+<column label="PARAMETER_BLOCKED" component="icon" name="BlkIco" sort-field="Lck" align="center" charlength="8"
+        filter="values"/>
+```
+
+**Behaviour.**
+
+- The funnel is outlined while the column has no filter in effect and filled while it has one. Clicking it never sorts
+  the column; the header still sorts it as before. Columns without `filter` look and behave exactly as before.
+- The menu shows, in order: sort ascending and descending (as the header does), *Clear filter from «label»* (disabled
+  without a filter), the submenu of the type and the list of values. *Accept* applies the filter; *Cancel* and
+  <kbd>Esc</kbd> close the menu without changes, and the focus goes back to the funnel.
+- The list of values comes from the server: the distinct values of the field, with the number of rows of each one,
+  among the rows that the **other** column filters keep (in cascade, as in a spreadsheet). It has a search box, *(Select
+  all)* (checked, unchecked or mixed), one checkbox per value and *(Blanks)* for the empty values. Checking every value
+  is the same as no filter.
+- At most 1,000 values are listed; when there are more, a note says so: type in the search box to find the others.
+  The search reloads the list after a short pause.
+- A date column lists its values as a year / month / day tree and compares whole days. Today, yesterday, this week
+  (Monday to Sunday), last month and this year are sent as a *between* of two dates.
+- *Custom filter…* edits two conditions joined by *And* or *Or*. A column filters either by values or by conditions,
+  not both.
+- Numbers are typed with the decimal separator of the application (a comma in Spanish, for example).
+- While any column has a filter, a **Filtered by** row under the toolbar shows one removable chip per filtered column
+  (*Profile: Operator, Viewer*; the first three labels and then *+N*) and **Clear all**. Removing a chip or *Clear all*
+  reloads the grid.
+- Applying or clearing a filter reloads the grid from page 1, also in grids with `load-all="true"` (they reload their
+  rows from the server).
+- On a column with `filter`, the native column filter of `enable-filters` is not offered: the autofilter replaces it.
+  The other columns keep the native filter.
+
+**Server side.** The grid sends its filters in the `columnFilters` parameter of every request, next to `sort`, `page`
+and `max` (two requests with different filters never share a cached result). Requests without it run exactly as before.
+
+- **Database queries.** The engine adds one condition per filtered column to the `WHERE` of the query (also when the
+  query has no `<where>`), on the expression of the field (table field, function or case), never on its alias. On a
+  `UNION` query it filters the whole union. The values are escaped constants built by QueryDSL, never concatenated text;
+  `%` and `_` typed by the user are matched literally; text comparisons ignore case; *between* includes both ends.
+  The count and the pagination use the same `WHERE`, so the pagination stays in the database.
+- **Service, enumerated and queue queries.** The same filters are applied in Java to the data list of the query, before
+  its sort and pagination. A field with `translate` is filtered by its code. A query whose service manages its own
+  pagination is not filtered: the parameter reaches the service unchanged.
+- **List of values.** The menu loads it with the `column-values` server action (`/action/column-values/<grid query>`),
+  which runs the grid query with the same access checks as `data`. Database queries group the values in the database;
+  the other queries group their data list in Java. A query whose service manages its own pagination has no list of
+  values (the action returns an error).
+- **Print and export.** Printing and the Excel and PDF exports of a grid keep its column filters.
+
+:::note Limits
+- A column whose `id` is a `compound` (an icon column, for example) lists the text of the whole cell as the label of
+  each value, not the label of the compound. Columns built with `translate` or `computed` list their labels.
+- A column with several `filter-fields` lists the values of its fields, not the labels of the column.
+- On database queries, the search in the list of values runs in the database only on `text` columns that list their
+  values as they are (no `translate` nor transform); in the rest it searches the labels of the first 10,000 values.
+- A service query with `post-process="false"` is not filtered.
+- On service queries, *(Blanks)* also keeps the empty texts; on database queries only the null values.
+:::
+
+### Saved searches
+
+With `saved-searches="true"` a grid shows a **Saved searches** menu at the end of its [toolbar](#toolbar), before the
+Columns and Maximize buttons, in both engines. It works as the
+[saved searches of a window](window.md#saved-searches): each user saves, applies, renames and deletes their own
+searches of the grid, and sees the ones published for their profile. Grids without the attribute show nothing new.
+
+```xml
+<grid id="GrdAdvInl" server-action="data" target-action="AdvSchInlCst" saved-searches="true">
+  ...
+</grid>
+```
+
+- **What is saved.** The state of the grid: its [column filters](#column-autofilter) (with the labels of their chips),
+  its sort, the value of its [quick filter](#quick-filters) and the text of its [search](#search). Applying a search
+  restores that state and reloads the grid from page 1. Filters and columns that no longer exist in the screen are
+  dropped when applying.
+- **What the server keeps.** Only those keys. It checks every column filter with the rules of the `columnFilters`
+  parameter and against the column declaration (same `filter` type and fields), drops the filters of columns the grid
+  does not have, and refuses a search longer than 4,000 characters with the message *The search has too many values to
+  be saved*. The fields of the query are checked when the search is applied, as in any request of the grid.
+- **Who publishes.** A user may publish searches for a profile when their menu gives access to the option of the
+  property `awe.saved-search.publish-option` (by default `profiles`), as for the windows.
+- **Storage.** The same `AweSavSch` table as the window searches, with the grid id in place of the window id (component
+  ids are unique in a screen). The user and the profile are always taken from the session, and the grid must exist in
+  the screen with `saved-searches="true"`.
+- The toolbar shows the menu also when the grid sets `show-toolbar="false"`.
+
 ### Empty state
 
 A grid without rows shows an empty state instead of an empty table, in both the AngularJS and the React engines. It is
@@ -460,6 +622,8 @@ each country, inline and through an include) in the matrix test menu.
 |------------|--------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | name       | **Required** | String  | Column identifier. For reference purposes                                                                                         |                                                                                  |
 | sort-field | Optional     | String  | Sort field to sort by (if not treegrid)                                                                                           |                                                                                  |
+| filter     | Optional     | String  | Shows the [column autofilter](#column-autofilter) funnel in the header                                                            | `values`, `text`, `number` or `date`. Default: no filter                         |
+| filter-fields | Optional  | String  | Query fields the [column autofilter](#column-autofilter) applies to, joined by OR. Only used with `filter`                        | Comma-separated field ids. Default: `sort-field`, else `name`                    |
 | type       | Optional     | String  | Field type (for printing purposes)                                                                                                | `string`, `integer`, `float` or `date`                                           |
 | hidden     | Optional     | Boolean | Column is **not** visible on screen. It can still be printed, see [printing columns](#printing-columns)                           | Default value is `false`                                                         |
 | printable  | Optional     | String  | Whether the column is included in the printed report. See [printing columns](#printing-columns)                                   | `true` (default) or `false`                                                      |

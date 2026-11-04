@@ -72,6 +72,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla (los [filtros rápidos](#quick-filters) del grid se siguen mostrando)                                                                                                      |
 | columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un popover anclado al botón de columnas, un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho | `popover`, `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
+| saved-searches          | Opcional        | Boolean | Muestra el menú [Búsquedas guardadas](#saved-searches) en la barra de herramientas: cada usuario guarda y aplica los filtros de columna, la ordenación, el filtro rápido y la búsqueda del grid | El valor predeterminado es `false` |
 
 ### Barra de herramientas {#toolbar}
 
@@ -289,6 +290,177 @@ el valor vacío de *Todos* deje el grid sin filtrar:
   los controles de agrupación de filas y los botones de columnas y maximizar.
 - Declare como mucho uno por grid; solo se usa el primero.
 
+### Autofiltro de columna {#column-autofilter}
+
+Una columna puede ofrecer un filtro como el autofiltro de una hoja de cálculo: un embudo en su cabecera abre un menú
+para ordenar el grid, elegir los valores que se muestran de una lista con sus recuentos o poner condiciones sobre texto,
+números o fechas. Se activa por columna: declare `filter` en la `<column>`. El filtro se ejecuta **en el servidor**, en
+la consulta del grid, así que filtra todas las filas (no solo la página mostrada) y mantiene la paginación en la base de
+datos. Funciona en **los dos motores de cliente**, en grids normales, en árbol y con agrupación.
+
+| Atributo      | Uso      | Tipo   | Descripción                                                                                        | Valores |
+|---------------|----------|--------|----------------------------------------------------------------------------------------------------|---------|
+| filter        | Opcional | String | Tipo del filtro, y el embudo en la cabecera                                                         | `values`, `text`, `number` o `date`. Por defecto: sin filtro (sin embudo) |
+| filter-fields | Opcional | String | Campos de la consulta a los que se aplica el filtro, para una columna que muestra varios valores. Una fila cumple el filtro cuando lo cumple cualquiera de ellos (unidos por OR) | Identificadores de campo separados por comas. Por defecto: `sort-field`, si no `name` |
+
+Lo que ofrece cada tipo en su menú:
+
+| Tipo     | Menú |
+|----------|------|
+| `values` | Solo la lista de valores. |
+| `text`   | La lista de valores y *Filtros de texto*: es igual a, no es igual a, comienza por, termina con, contiene, no contiene, filtro personalizado. |
+| `number` | La lista de valores y *Filtros de número*: es igual a, no es igual a, es mayor (o igual) que, es menor (o igual) que, entre, filtro personalizado. |
+| `date`   | La lista de valores como un árbol de año / mes / día y *Filtros de fecha*: es igual a, antes de, después de, entre, hoy, ayer, esta semana, mes pasado, este año, filtro personalizado. |
+
+**Campo filtrado.** El filtro compara un campo de la consulta, no el texto que muestra la celda. El campo es el primero
+de:
+
+1. `filter-fields`, cuando la columna lo declara;
+2. `sort-field`, el mismo campo por el que el servidor ordena la columna;
+3. el `name` de la columna.
+
+Así, una columna construida con un `computed`, un `compound` o un `translate` filtra por su `sort-field`, el campo simple
+del que sale: la lista de valores muestra lo que ve el usuario (la etiqueta) y filtra por el código (el valor).
+
+**Ejemplo.** La pantalla de prueba de búsqueda avanzada (`AdvSchTst`) declara un filtro en cuatro columnas de su grid:
+
+```xml
+<grid id="GrdAdvInl" style="expand" initial-load="query" server-action="data" target-action="AdvSchInlCst" max="10"
+      saved-searches="true">
+  <column label="PARAMETER_ADV_SCH_NAME" name="InlNam" sort-field="InlNam" align="left" charlength="20" filter="text"/>
+  <column label="PARAMETER_ADV_SCH_STATUS" name="InlSta" sort-field="InlSta" align="left" charlength="12" filter="values"/>
+  <column label="PARAMETER_ADV_SCH_COUNTRY" name="InlCtr" sort-field="InlCtr" align="left" charlength="14"/>
+  <column label="COLUMN_ADV_SCH_AMOUNT" name="InlAmt" sort-field="InlAmt" align="right" charlength="12"
+          component="numeric" number-format="{mDec: 2}" filter="number"/>
+  <column label="COLUMN_ADV_SCH_CREATED" name="InlDat" sort-field="InlDatSrt" align="center" charlength="14"
+          filter="date" filter-fields="InlDat"/>
+</grid>
+```
+
+```xml
+<query id="AdvSchInlCst" service="getAdvancedSearchCustomers">
+  <field id="id" alias="InlIde"/>
+  <field id="name" alias="InlNam"/>
+  <field id="status" alias="InlSta" translate="AdvSchSta"/>
+  <field id="country" alias="InlCtr" translate="AdvSchCtr"/>
+  <field id="amount" alias="InlAmt"/>
+  <field id="created" alias="InlDat"/>
+  <field id="createdSort" alias="InlDatSrt"/>
+  ...
+</query>
+```
+
+El estado lista sus etiquetas traducidas y filtra por los códigos de estado. La columna de creación ordena por
+`InlDatSrt` pero filtra por la fecha `InlDat`, por eso declara `filter-fields`.
+
+**Lo que debe ofrecer la consulta.** El servidor comprueba cada campo filtrado contra los campos de la consulta del
+grid, por su identificador (el alias, si no el id):
+
+- Debe ser un campo de la consulta que se imprime: un campo marcado `noprint` se rechaza, para que un filtro no pueda
+  sondear valores que la consulta nunca envía.
+- Un campo con una función de agregado o de ventana no se puede filtrar (no se puede comparar en un `WHERE`).
+- Un `computed` o un `compound` no es un campo de la consulta: filtre su columna por el campo del que sale
+  (`sort-field` o `filter-fields`).
+
+Un filtro que no cumple estas reglas (o cualquier filtro mal formado) se rechaza con un mensaje de error y la consulta no
+se ejecuta. Por ejemplo, en la consulta de usuarios `UsrLst` la columna de icono *Bloqueado* es el compound `BlkIco`,
+que sale del campo impreso `Lck`:
+
+```xml
+<column label="PARAMETER_BLOCKED" component="icon" name="BlkIco" sort-field="Lck" align="center" charlength="8"
+        filter="values"/>
+```
+
+**Comportamiento.**
+
+- El embudo se muestra con contorno mientras la columna no tiene un filtro en vigor y relleno mientras lo tiene. Pulsarlo
+  nunca ordena la columna; la cabecera la sigue ordenando como antes. Las columnas sin `filter` se ven y se comportan
+  exactamente como antes.
+- El menú muestra, en este orden: ordenar ascendente y descendente (como la cabecera), *Borrar filtro de «etiqueta»*
+  (desactivado sin filtro), el submenú del tipo y la lista de valores. *Aceptar* aplica el filtro; *Cancelar* y
+  <kbd>Esc</kbd> cierran el menú sin cambios, y el foco vuelve al embudo.
+- La lista de valores viene del servidor: los valores distintos del campo, con el número de filas de cada uno, entre las
+  filas que dejan los **demás** filtros de columna (en cascada, como en una hoja de cálculo). Tiene una caja de búsqueda,
+  *(Seleccionar todo)* (marcado, desmarcado o mixto), una casilla por valor y *(Vacías)* para los valores vacíos. Marcar
+  todos los valores equivale a no filtrar.
+- Se listan como mucho 1.000 valores; cuando hay más, una nota lo indica: escriba en la caja de búsqueda para encontrar
+  los demás. La búsqueda recarga la lista tras una pausa corta.
+- Una columna de fecha lista sus valores como un árbol de año / mes / día y compara días completos. Hoy, ayer, esta
+  semana (de lunes a domingo), mes pasado y este año se envían como un *entre* de dos fechas.
+- *Filtro personalizado…* edita dos condiciones unidas por *Y* u *O*. Una columna filtra por valores o por condiciones,
+  no por ambos.
+- Los números se escriben con el separador decimal de la aplicación (una coma en español, por ejemplo).
+- Mientras alguna columna tiene un filtro, una fila **Filtrado por** bajo la barra de herramientas muestra un chip
+  eliminable por columna filtrada (*Perfil: Operador, Consulta*; las tres primeras etiquetas y después *+N*) y **Quitar
+  todos**. Quitar un chip o *Quitar todos* recarga el grid.
+- Aplicar o borrar un filtro recarga el grid desde la página 1, también en los grids con `load-all="true"` (recargan sus
+  filas del servidor).
+- En una columna con `filter` no se ofrece el filtro de columna nativo de `enable-filters`: el autofiltro lo sustituye.
+  Las demás columnas mantienen el filtro nativo.
+
+**En el servidor.** El grid envía sus filtros en el parámetro `columnFilters` de cada petición, junto a `sort`, `page` y
+`max` (dos peticiones con filtros distintos nunca comparten un resultado en caché). Las peticiones sin él se ejecutan
+exactamente como antes.
+
+- **Consultas de base de datos.** El motor añade una condición por columna filtrada al `WHERE` de la consulta (también
+  cuando la consulta no tiene `<where>`), sobre la expresión del campo (campo de tabla, función o case), nunca sobre su
+  alias. En una consulta con `UNION` filtra la unión completa. Los valores son constantes escapadas que construye
+  QueryDSL, nunca texto concatenado; los `%` y `_` que escribe el usuario se buscan literalmente; las comparaciones de
+  texto no distinguen mayúsculas de minúsculas; *entre* incluye los dos extremos. El recuento y la paginación usan el
+  mismo `WHERE`, así que la paginación se mantiene en la base de datos.
+- **Consultas de servicio, enumerado y cola.** Los mismos filtros se aplican en Java a la lista de datos de la consulta,
+  antes de su ordenación y paginación. Un campo con `translate` se filtra por su código. Una consulta cuyo servicio
+  gestiona su propia paginación no se filtra: el parámetro llega al servicio sin cambios.
+- **Lista de valores.** El menú la carga con la acción de servidor `column-values`
+  (`/action/column-values/<consulta del grid>`), que ejecuta la consulta del grid con las mismas comprobaciones de
+  acceso que `data`. Las consultas de base de datos agrupan los valores en la base de datos; las demás agrupan su lista
+  de datos en Java. Una consulta cuyo servicio gestiona su propia paginación no tiene lista de valores (la acción
+  devuelve un error).
+- **Impresión y exportación.** La impresión y las exportaciones a Excel y PDF de un grid mantienen sus filtros de
+  columna.
+
+:::note Límites
+- Una columna cuyo `id` es un `compound` (una columna de icono, por ejemplo) lista como etiqueta de cada valor el texto
+  de la celda completa, no la etiqueta del compound. Las columnas construidas con `translate` o `computed` listan sus
+  etiquetas.
+- Una columna con varios `filter-fields` lista los valores de sus campos, no las etiquetas de la columna.
+- En las consultas de base de datos, la búsqueda en la lista de valores se ejecuta en la base de datos solo en las
+  columnas `text` que listan sus valores tal cual (sin `translate` ni transformación); en el resto busca en las
+  etiquetas de los primeros 10.000 valores.
+- Una consulta de servicio con `post-process="false"` no se filtra.
+- En las consultas de servicio, *(Vacías)* también deja los textos vacíos; en las de base de datos, solo los valores
+  nulos.
+:::
+
+### Búsquedas guardadas {#saved-searches}
+
+Con `saved-searches="true"` un grid muestra un menú **Búsquedas guardadas** al final de su
+[barra de herramientas](#toolbar), antes de los botones de columnas y maximizar, en los dos motores. Funciona como las
+[búsquedas guardadas de una ventana](window.md#saved-searches): cada usuario guarda, aplica, renombra y borra sus propias
+búsquedas del grid, y ve las publicadas para su perfil. Los grids sin el atributo no muestran nada nuevo.
+
+```xml
+<grid id="GrdAdvInl" server-action="data" target-action="AdvSchInlCst" saved-searches="true">
+  ...
+</grid>
+```
+
+- **Qué se guarda.** El estado del grid: sus [filtros de columna](#column-autofilter) (con las etiquetas de sus chips),
+  su ordenación, el valor de su [filtro rápido](#quick-filters) y el texto de su [búsqueda](#search). Aplicar una
+  búsqueda restaura ese estado y recarga el grid desde la página 1. Los filtros y las columnas que ya no existen en la
+  pantalla se descartan al aplicarla.
+- **Qué guarda el servidor.** Solo esas claves. Comprueba cada filtro de columna con las reglas del parámetro
+  `columnFilters` y contra la declaración de la columna (mismo tipo de `filter` y mismos campos), descarta los filtros de
+  columnas que el grid no tiene y rechaza una búsqueda de más de 4.000 caracteres con el mensaje *La búsqueda tiene
+  demasiados valores para guardarse*. Los campos de la consulta se comprueban al aplicar la búsqueda, como en cualquier
+  petición del grid.
+- **Quién publica.** Un usuario puede publicar búsquedas para un perfil cuando su menú le da acceso a la opción de la
+  propiedad `awe.saved-search.publish-option` (por defecto `profiles`), como en las ventanas.
+- **Almacenamiento.** La misma tabla `AweSavSch` que las búsquedas de las ventanas, con el id del grid en lugar del id
+  de la ventana (los ids de los componentes son únicos en una pantalla). El usuario y el perfil se toman siempre de la
+  sesión, y el grid debe existir en la pantalla con `saved-searches="true"`.
+- La barra de herramientas muestra el menú también cuando el grid usa `show-toolbar="false"`.
+
 ### Estado vacío {#empty-state}
 
 Un grid sin filas muestra un estado vacío en lugar de una tabla vacía, tanto en el motor AngularJS como en el de React. Se
@@ -468,6 +640,8 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | ---------- | --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
 | name       | **Obligatorio** | String  | Identificador de columna. Con fines de referencia                                                                                                      |                                                                                  |
 | sort-field | Opcional        | String  | Ordenar por campo (si no treegrid)                                                                                                                     |                                                                                  |
+| filter     | Opcional        | String  | Muestra el embudo del [autofiltro de columna](#column-autofilter) en la cabecera                                                                        | `values`, `text`, `number` o `date`. Por defecto: sin filtro                     |
+| filter-fields | Opcional     | String  | Campos de la consulta a los que se aplica el [autofiltro de columna](#column-autofilter), unidos por OR. Solo se usa con `filter`                        | Identificadores de campo separados por comas. Por defecto: `sort-field`, si no `name` |
 | type       | Opcional        | String  | Tipo de campo (para fines de impresión)                                                                                                                | `string`, `integer`, `float` o `date`                                            |
 | hidden     | Opcional        | Boolean | La columna **no** es visible en pantalla. Aun así puede imprimirse, véase [columnas de impresión](#printing-columns)                                                | El valor predeterminado es `false`                                               |
 | printable | Opcional        | String  | Indica si la columna se incluye en el informe impreso. Véase [columnas de impresión](#printing-columns)                                                        | `true` (por defecto) o `false`                                                      |

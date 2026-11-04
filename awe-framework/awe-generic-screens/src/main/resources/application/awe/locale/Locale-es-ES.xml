@@ -1486,6 +1486,57 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposición del grid no guardada"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="No se ha podido guardar ni eliminar la disposición del grid"/>
   <locale name="GRID_COLUMNS_SAVED" value="Guardado"/>
+  <locale name="GRID_FILTER_BUTTON" value="Filtrar y ordenar {{label}}"/>
+  <locale name="GRID_FILTER_SORT_ASC_TEXT" value="Ordenar de A a Z"/>
+  <locale name="GRID_FILTER_SORT_DESC_TEXT" value="Ordenar de Z a A"/>
+  <locale name="GRID_FILTER_SORT_ASC_NUMBER" value="Ordenar de menor a mayor"/>
+  <locale name="GRID_FILTER_SORT_DESC_NUMBER" value="Ordenar de mayor a menor"/>
+  <locale name="GRID_FILTER_SORT_ASC_DATE" value="Ordenar de más antiguo a más reciente"/>
+  <locale name="GRID_FILTER_SORT_DESC_DATE" value="Ordenar de más reciente a más antiguo"/>
+  <locale name="GRID_FILTER_CLEAR" value="Borrar filtro de «{{label}}»"/>
+  <locale name="GRID_FILTER_TEXT_FILTERS" value="Filtros de texto"/>
+  <locale name="GRID_FILTER_NUMBER_FILTERS" value="Filtros de número"/>
+  <locale name="GRID_FILTER_DATE_FILTERS" value="Filtros de fecha"/>
+  <locale name="GRID_FILTER_OPERATOR_EQ" value="Es igual a"/>
+  <locale name="GRID_FILTER_OPERATOR_NE" value="No es igual a"/>
+  <locale name="GRID_FILTER_OPERATOR_STARTS_WITH" value="Comienza por"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_STARTS_WITH" value="No comienza por"/>
+  <locale name="GRID_FILTER_OPERATOR_ENDS_WITH" value="Termina con"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_ENDS_WITH" value="No termina con"/>
+  <locale name="GRID_FILTER_OPERATOR_CONTAINS" value="Contiene"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_CONTAINS" value="No contiene"/>
+  <locale name="GRID_FILTER_OPERATOR_GT" value="Es mayor que"/>
+  <locale name="GRID_FILTER_OPERATOR_GE" value="Es mayor o igual que"/>
+  <locale name="GRID_FILTER_OPERATOR_LT" value="Es menor que"/>
+  <locale name="GRID_FILTER_OPERATOR_LE" value="Es menor o igual que"/>
+  <locale name="GRID_FILTER_OPERATOR_BETWEEN" value="Entre"/>
+  <locale name="GRID_FILTER_OPERATOR_EMPTY" value="Está vacío"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_EMPTY" value="No está vacío"/>
+  <locale name="GRID_FILTER_OPERATOR_BEFORE" value="Antes de"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_BEFORE" value="Hasta el"/>
+  <locale name="GRID_FILTER_OPERATOR_AFTER" value="Después de"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_AFTER" value="Desde el"/>
+  <locale name="GRID_FILTER_TODAY" value="Hoy"/>
+  <locale name="GRID_FILTER_YESTERDAY" value="Ayer"/>
+  <locale name="GRID_FILTER_THIS_WEEK" value="Esta semana"/>
+  <locale name="GRID_FILTER_LAST_MONTH" value="Mes pasado"/>
+  <locale name="GRID_FILTER_THIS_YEAR" value="Este año"/>
+  <locale name="GRID_FILTER_CUSTOM" value="Filtro personalizado…"/>
+  <locale name="GRID_FILTER_CUSTOM_TITLE" value="Filtro personalizado"/>
+  <locale name="GRID_FILTER_AND" value="Y"/>
+  <locale name="GRID_FILTER_OR" value="O"/>
+  <locale name="GRID_FILTER_UNION" value="Unión de las condiciones"/>
+  <locale name="GRID_FILTER_NO_CONDITION" value="(Ninguna)"/>
+  <locale name="GRID_FILTER_CONDITION_OPERATOR" value="Operador de la condición {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_VALUE" value="Valor de la condición {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_TO" value="Valor final de la condición {{number}}"/>
+  <locale name="GRID_FILTER_SEARCH" value="Buscar"/>
+  <locale name="GRID_FILTER_SELECT_ALL" value="(Seleccionar todo)"/>
+  <locale name="GRID_FILTER_BLANKS" value="(Vacías)"/>
+  <locale name="GRID_FILTER_VALUES" value="Valores de {{label}}"/>
+  <locale name="GRID_FILTER_LOADING" value="Cargando valores…"/>
+  <locale name="GRID_FILTER_NO_VALUES" value="Sin valores"/>
+  <locale name="GRID_FILTER_MORE_VALUES" value="Solo se muestran los primeros {{count}} valores: escribe para buscar los demás o usa los filtros de la columna."/>
   <locale name="SCREEN_TEXT_MENU" value="Menú"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Modulo"/>

@@ -100,9 +100,9 @@ Ficheros listados con icono, nombre, tamaño, progreso o estado. Una imagen mues
 | Parte | Regla |
 |-------|-------|
 | Tarjeta | El grid vive en una tarjeta; título y recuento en la cabecera de la tarjeta. |
-| Barra de herramientas | Buscar en resultados, Filtros (con recuento), espacio, Columnas, Exportar (botón dividido). |
-| Filtros activos | Chips discontinuos eliminables bajo la barra, más "Limpiar todo". |
-| Cabecera | `--awe-grid-header-*`; las columnas ordenables muestran una flecha y la ordenada va en el primario. Fija al desplazar. |
+| Barra de herramientas | Buscar en resultados, Filtros (con recuento), espacio, Búsquedas guardadas (#912), Columnas, Exportar (botón dividido). |
+| Filtros activos | Una fila "Filtrado por" bajo la barra: un chip discontinuo eliminable por columna filtrada ("Perfil: Operador, Consulta", tres etiquetas y después "+N"), más "Quitar todos" (#912). |
+| Cabecera | `--awe-grid-header-*`; las columnas ordenables muestran una flecha y la ordenada va en el primario. Fija al desplazar. Una columna con autofiltro muestra un embudo: con contorno sin filtro, relleno con filtro (#912). |
 | Filas | Relleno de celda `--awe-grid-cell-padding-*`, fondo de hover, sin cebreado. |
 | Selección | Columna de casillas; las filas seleccionadas usan el fondo de resaltado; una barra de selección muestra el recuento y las acciones en bloque. |
 | Números | Alineados a la derecha, tabulares, negativos en color de peligro con signo menos. |
@@ -162,7 +162,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Barras de datos en celdas | #831 | Done | Una barra clara detrás del número; los negativos crecen hacia la izquierda en tono de peligro. El número sigue siendo legible. Un segundo valor dibuja dos barras finas redondeadas, el valor encima; los segmentos apilados usan la escala de datos. |
 | Segunda línea, estado y etiquetas en celdas | #832 | Done | Segunda línea atenuada, estado con punto, etiquetas que se agrupan en "+n". |
 | Agrupación de filas con subtotales | #833 | Done | Cabecera de grupo plegable con recuento y totales, una fila de subtotal por grupo y el total general en el pie. |
-| Búsqueda rápida y filtros por valor | #834 | Planned | Búsqueda en todas las columnas; filtro de columna con valores y recuentos; los totales del pie indican que están filtrados. |
+| Autofiltro de columna y búsquedas guardadas del grid | #834, #912 | Done | Un embudo en la cabecera de las columnas que declaran `filter` abre un popover: ordenar, borrar, condiciones del tipo (texto, número, fecha con fechas relativas, filtro personalizado de dos condiciones) y la lista de valores con búsqueda, Seleccionar todo, Vacías y recuentos del servidor. Las columnas filtradas muestran chips bajo la barra. Un menú Búsquedas guardadas en la barra guarda los filtros, la ordenación, el filtro rápido y la búsqueda por usuario o perfil. Ver [Grids](../api/grids.md#column-autofilter). Los totales del pie que indican que están filtrados no forman parte de ello. |
 | Paginador con rango, total e ir a página | #826, #874 | Done | Ver Grid. |
 | Diálogo de columnas por usuario | #813 | Done | Popover anclado al botón de columnas por defecto (`columns-panel`: `popover`, `dialog` o `side-panel`), con los cambios aplicados en vivo. Mostrar, ocultar, reordenar (arrastrando o con flechas), Restaurar predeterminado, Cancelar y Guardar. |
 

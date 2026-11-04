@@ -97,9 +97,9 @@ Read-only uploaders show the file and disable the actions.
 | Part | Rule |
 |------|------|
 | Card | The grid lives in a card; title and count in the card header. |
-| Toolbar | Search in results, Filters (with count), spacer, Columns, Export (split button). |
-| Active filters | Removable dashed chips under the toolbar, plus "Clear all". |
-| Header | `--awe-grid-header-*`, sortable columns show an arrow; the sorted one in the primary. Sticky. |
+| Toolbar | Search in results, Filters (with count), spacer, Saved searches (#912), Columns, Export (split button). |
+| Active filters | A "Filtered by" row under the toolbar: one removable dashed chip per filtered column ("Profile: Operator, Viewer", three labels then "+N"), plus "Clear all" (#912). |
+| Header | `--awe-grid-header-*`, sortable columns show an arrow; the sorted one in the primary. Sticky. A column with an autofilter shows a funnel: outlined without a filter, filled with one (#912). |
 | Rows | Cell padding `--awe-grid-cell-padding-*`, hover background, no zebra. |
 | Selection | Checkbox column; selected rows use the highlight background; a selection bar shows the count and bulk actions. |
 | Numbers | Right-aligned, tabular, negatives in the danger colour with a minus sign. |
@@ -158,7 +158,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Data bars in cells | #831 | Done | A light bar behind the number; negatives grow to the left in the danger tone. The number stays readable. A second value draws two thin rounded bars, the value on top; stacked segments use the data scale. |
 | Secondary line, status and tags in cells | #832 | Done | Muted second line, status with a dot, tags collapsing into "+n". |
 | Row grouping with subtotals | #833 | Done | Collapsible group header with count and totals, a subtotal row per group, grand total in the footer. |
-| Quick search and value filters | #834 | Planned | Search in every column; column filter with values and counts; footer totals say they are filtered. |
+| Column autofilter and grid saved searches | #834, #912 | Done | A funnel in the header of the columns that declare `filter` opens a popover: sort, clear, conditions of the type (text, number, date with relative dates, custom filter of two conditions) and the list of values with search, Select all, Blanks and counts from the server. Filtered columns show chips under the toolbar. A Saved searches menu in the toolbar keeps the filters, sort, quick filter and search per user or profile. See [Grids](../api/grids.md#column-autofilter). Footer totals that say they are filtered are not part of it. |
 | Pager with range, total and go to page | #826, #874 | Done | See Grid. |
 | Columns dialog per user | #813 | Done | Popover anchored to the Columns button by default (`columns-panel`: `popover`, `dialog` or `side-panel`), changes applied live. Show, hide, reorder (drag or arrows), Restore default, Cancel, Save. |
 

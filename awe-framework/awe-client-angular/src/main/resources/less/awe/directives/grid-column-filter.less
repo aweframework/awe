@@ -1,0 +1,512 @@
+// Grid column autofilter (#912): the funnel of a column header, its menu and the row of the column filters in effect.
+// The same look as the React client (AweGridColumnFilter.less)
+
+// Header of a column with a funnel: the label (it sorts) and the funnel at its side
+.grid .ui-grid-header-cell .grid-header-filterable {
+  display: flex;
+  align-items: center;
+
+  > .ui-grid-cell-contents {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  > .grid-column-filter-button {
+    margin-right: var(--awe-space-1);
+  }
+}
+
+// Funnel: outlined while the column is not filtered, filled (with a dot) while it is
+.grid-column-filter-button {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--awe-space-6);
+  height: var(--awe-space-6);
+  margin-left: var(--awe-space-1);
+  padding: 0;
+  line-height: 0;
+  vertical-align: middle;
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  .awe-icon {
+    display: block;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+
+  &:hover {
+    color: var(--awe-color-text);
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+.grid-column-filter-active {
+  color: var(--awe-color-primary-text);
+  background: var(--awe-color-primary-subtle);
+
+  .awe-icon {
+    fill: currentColor;
+  }
+
+  &::after {
+    position: absolute;
+    top: var(--awe-space-0-5);
+    right: var(--awe-space-0-5);
+    width: var(--awe-space-1-5);
+    height: var(--awe-space-1-5);
+    content: "";
+    background: var(--awe-color-primary);
+    border-radius: var(--awe-radius-full);
+  }
+}
+
+// Menu: a dialog under the funnel, over the screen and its header (the navbar of the AngularJS shell is over the
+// dropdown layer)
+.grid-column-filter-menu {
+  position: fixed;
+  z-index: var(--awe-z-modal);
+  display: flex;
+  flex-direction: column;
+  // No token for the width of the menu yet (proposed --awe-grid-filter-menu-width): the one of the React client, relative
+  // to the text of the menu and not to the root font size, which differs between the engines
+  width: 24em;
+  max-width: calc(100vw - var(--awe-space-4));
+  // The room the window leaves under (or above) the funnel: the list of values shrinks to fit it
+  max-height: calc(var(--grid-column-filter-room, 100vh) - var(--awe-space-2));
+  margin-top: var(--awe-space-1);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  text-align: left;
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &:focus {
+    outline: none;
+  }
+
+  // The views fill the menu, so the list of values scrolls inside it
+  > div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+.grid-column-filter-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+// Above the funnel when there is little room under it
+.grid-column-filter-menu-above {
+  margin-top: calc(var(--awe-space-1) * -1);
+  transform: translateY(-100%);
+}
+
+.grid-column-filter-actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  padding: var(--awe-space-2);
+}
+
+// An option of the menu, of the type submenu and a value of the list
+.grid-column-filter-option,
+.grid-column-filter-value {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+  padding: var(--awe-list-option-padding);
+  font: inherit;
+  text-align: left;
+  color: var(--awe-color-list-option-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  cursor: pointer;
+
+  .awe-icon {
+    display: block;
+    flex: none;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    color: var(--awe-color-list-option-icon);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--awe-color-list-option-focus);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(var(--awe-focus-ring-offset) * -1);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: var(--awe-opacity-disabled);
+    background: transparent;
+  }
+}
+
+.grid-column-filter-option-label,
+.grid-column-filter-value-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grid-column-filter-option .grid-column-filter-option-end {
+  margin-left: auto;
+}
+
+.grid-column-filter-separator {
+  height: var(--awe-border-width);
+  margin: var(--awe-space-1) 0;
+  background: var(--awe-color-border-subtle);
+}
+
+// Type submenu: at the right of its option, or at its left when there is no room
+.grid-column-filter-submenu {
+  position: relative;
+}
+
+.grid-column-filter-flyout {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  min-width: var(--awe-menu-flyout-width);
+  padding: var(--awe-space-2);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+.grid-column-filter-flyout-start {
+  right: 100%;
+  left: auto;
+}
+
+// Values: the search, the list and its notes
+.grid-column-filter-values {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-2);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+
+  // The list scrolls in the room of the menu
+  > div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+.grid-column-filter-search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  color: var(--awe-color-field-placeholder);
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+
+  .awe-icon {
+    display: block;
+    flex: none;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    font: inherit;
+    color: var(--awe-color-field-text);
+    background: transparent;
+    border: 0;
+    outline: none;
+  }
+
+  &:hover {
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:focus-within {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+.grid-column-filter-list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  min-height: var(--awe-size-control-sm);
+  // Room for six and a half rows (Select all and five values, the half row tells there is more to scroll), the same
+  // in both engines: a row is a control high plus the gap between rows
+  max-height: calc((var(--awe-size-control) + var(--awe-space-0-5)) * 6.5);
+  overflow: auto;
+}
+
+// Each level of the date tree is indented by the size of its toggle
+.grid-column-filter-value {
+  padding-left: var(--awe-space-2);
+}
+
+.grid-column-filter-value.grid-column-filter-level-1 {
+  padding-left: calc(var(--awe-space-2) + var(--awe-space-5));
+}
+
+.grid-column-filter-value.grid-column-filter-level-2 {
+  padding-left: calc(var(--awe-space-2) + var(--awe-space-5) * 2);
+}
+
+.grid-column-filter-toggle {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.grid-column-filter-value-count {
+  flex: none;
+  margin-left: auto;
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  color: var(--awe-color-text-muted);
+}
+
+// Box of a checkbox row: checked and mixed boxes take the primary colour
+.grid-column-filter-check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--awe-size-checkbox);
+  height: var(--awe-size-checkbox);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-xs);
+
+  .grid-column-filter-value & .awe-icon {
+    width: var(--awe-checkbox-icon-size);
+    height: var(--awe-checkbox-icon-size);
+    color: inherit;
+  }
+}
+
+.grid-column-filter-check-checked,
+.grid-column-filter-check-mixed {
+  background: var(--awe-color-primary);
+  border-color: var(--awe-color-primary);
+}
+
+.grid-column-filter-note {
+  margin: 0;
+  padding: var(--awe-space-1) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.grid-column-filter-footer {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  gap: var(--awe-gap-inline);
+  padding: var(--awe-space-3) var(--awe-overlay-padding);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+// Custom filter: two conditions joined by And or Or
+.grid-column-filter-head {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3) var(--awe-overlay-padding);
+  font-weight: var(--awe-font-weight-semibold);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.grid-column-filter-head-column {
+  margin-left: auto;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-color-text-muted);
+}
+
+.grid-column-filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: var(--awe-overlay-padding);
+}
+
+.grid-column-filter-condition {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-2);
+
+  .grid-column-filter-operator {
+    position: relative;
+    flex: 1 1 100%;
+  }
+
+  .grid-column-filter-input-wrapper {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+// The list of the operators takes the width of its field
+.grid-column-filter-operator-list {
+  width: 100%;
+}
+
+// The operator of a condition (a list) and its values: fields of the design
+.grid-column-filter-select,
+.grid-column-filter-input {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+  min-width: 0;
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  font: inherit;
+  text-align: left;
+  color: var(--awe-color-field-text);
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+
+  &:hover {
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    flex: none;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    color: var(--awe-color-text-muted);
+  }
+}
+
+.grid-column-filter-select-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grid-column-filter-union {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: var(--awe-space-0-5);
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-field);
+}
+
+.grid-column-filter-union-option {
+  min-width: var(--awe-size-control-sm);
+  padding: var(--awe-space-1) var(--awe-space-3);
+  font: inherit;
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+  cursor: pointer;
+
+  &[aria-checked="true"] {
+    color: var(--awe-color-text);
+    background: var(--awe-color-surface);
+    box-shadow: var(--awe-shadow-sm);
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+// Column filters in effect, under the toolbar of the grid (the chips of the window filters, #790)
+.grid-column-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  background: var(--awe-color-surface-subtle);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-column-filter-button {
+    transition: none;
+  }
+}

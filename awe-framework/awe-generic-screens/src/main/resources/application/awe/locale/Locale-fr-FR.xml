@@ -1483,6 +1483,57 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposition non enregistrée"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="La disposition de la grille n&apos;a pas pu être enregistrée ni supprimée"/>
   <locale name="GRID_COLUMNS_SAVED" value="Enregistré"/>
+  <locale name="GRID_FILTER_BUTTON" value="Filtrer et trier {{label}}"/>
+  <locale name="GRID_FILTER_SORT_ASC_TEXT" value="Trier de A à Z"/>
+  <locale name="GRID_FILTER_SORT_DESC_TEXT" value="Trier de Z à A"/>
+  <locale name="GRID_FILTER_SORT_ASC_NUMBER" value="Trier du plus petit au plus grand"/>
+  <locale name="GRID_FILTER_SORT_DESC_NUMBER" value="Trier du plus grand au plus petit"/>
+  <locale name="GRID_FILTER_SORT_ASC_DATE" value="Trier du plus ancien au plus récent"/>
+  <locale name="GRID_FILTER_SORT_DESC_DATE" value="Trier du plus récent au plus ancien"/>
+  <locale name="GRID_FILTER_CLEAR" value="Effacer le filtre de « {{label}} »"/>
+  <locale name="GRID_FILTER_TEXT_FILTERS" value="Filtres textuels"/>
+  <locale name="GRID_FILTER_NUMBER_FILTERS" value="Filtres numériques"/>
+  <locale name="GRID_FILTER_DATE_FILTERS" value="Filtres chronologiques"/>
+  <locale name="GRID_FILTER_OPERATOR_EQ" value="Est égal à"/>
+  <locale name="GRID_FILTER_OPERATOR_NE" value="N'est pas égal à"/>
+  <locale name="GRID_FILTER_OPERATOR_STARTS_WITH" value="Commence par"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_STARTS_WITH" value="Ne commence pas par"/>
+  <locale name="GRID_FILTER_OPERATOR_ENDS_WITH" value="Se termine par"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_ENDS_WITH" value="Ne se termine pas par"/>
+  <locale name="GRID_FILTER_OPERATOR_CONTAINS" value="Contient"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_CONTAINS" value="Ne contient pas"/>
+  <locale name="GRID_FILTER_OPERATOR_GT" value="Est supérieur à"/>
+  <locale name="GRID_FILTER_OPERATOR_GE" value="Est supérieur ou égal à"/>
+  <locale name="GRID_FILTER_OPERATOR_LT" value="Est inférieur à"/>
+  <locale name="GRID_FILTER_OPERATOR_LE" value="Est inférieur ou égal à"/>
+  <locale name="GRID_FILTER_OPERATOR_BETWEEN" value="Entre"/>
+  <locale name="GRID_FILTER_OPERATOR_EMPTY" value="Est vide"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_EMPTY" value="N'est pas vide"/>
+  <locale name="GRID_FILTER_OPERATOR_BEFORE" value="Avant le"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_BEFORE" value="Le ou avant le"/>
+  <locale name="GRID_FILTER_OPERATOR_AFTER" value="Après le"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_AFTER" value="Le ou après le"/>
+  <locale name="GRID_FILTER_TODAY" value="Aujourd'hui"/>
+  <locale name="GRID_FILTER_YESTERDAY" value="Hier"/>
+  <locale name="GRID_FILTER_THIS_WEEK" value="Cette semaine"/>
+  <locale name="GRID_FILTER_LAST_MONTH" value="Le mois dernier"/>
+  <locale name="GRID_FILTER_THIS_YEAR" value="Cette année"/>
+  <locale name="GRID_FILTER_CUSTOM" value="Filtre personnalisé…"/>
+  <locale name="GRID_FILTER_CUSTOM_TITLE" value="Filtre personnalisé"/>
+  <locale name="GRID_FILTER_AND" value="Et"/>
+  <locale name="GRID_FILTER_OR" value="Ou"/>
+  <locale name="GRID_FILTER_UNION" value="Union des conditions"/>
+  <locale name="GRID_FILTER_NO_CONDITION" value="(Aucune)"/>
+  <locale name="GRID_FILTER_CONDITION_OPERATOR" value="Opérateur de la condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_VALUE" value="Valeur de la condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_TO" value="Valeur finale de la condition {{number}}"/>
+  <locale name="GRID_FILTER_SEARCH" value="Rechercher"/>
+  <locale name="GRID_FILTER_SELECT_ALL" value="(Sélectionner tout)"/>
+  <locale name="GRID_FILTER_BLANKS" value="(Vides)"/>
+  <locale name="GRID_FILTER_VALUES" value="Valeurs de {{label}}"/>
+  <locale name="GRID_FILTER_LOADING" value="Chargement des valeurs…"/>
+  <locale name="GRID_FILTER_NO_VALUES" value="Aucune valeur"/>
+  <locale name="GRID_FILTER_MORE_VALUES" value="Seules les {{count}} premières valeurs sont affichées : saisissez du texte pour rechercher les autres ou utilisez les filtres de la colonne."/>
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>

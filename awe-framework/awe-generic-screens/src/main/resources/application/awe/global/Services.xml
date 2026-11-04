@@ -109,6 +109,9 @@
   <service id="launchQuery">
     <java classname="com.almis.awe.service.QueryService" method="launchQueryAction" />
   </service>
+  <service id="launchColumnValues">
+    <java classname="com.almis.awe.service.QueryService" method="launchColumnValuesAction" />
+  </service>
   <service id="updateModel">
     <java classname="com.almis.awe.service.QueryService" method="updateModelAction" />
   </service>

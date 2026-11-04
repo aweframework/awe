@@ -8,7 +8,8 @@ import "../directives/plugins/uiSelect";
 // Saved searches of a window (#790, delivery 3): a window with an advanced block and saved-searches="true" has a Saved
 // searches menu in the row of the block, with the searches of the user and the ones published for their profile.
 // Applying one restores every search criterion of the window to its default, sets the saved values and launches the
-// submit of the window. The user is never sent: the server takes it (and its profile) from the session.
+// submit of the window. The user is never sent: the server takes it (and its profile) from the session. A grid with
+// saved-searches="true" (#912) has the same menu in its toolbar, with a source that reads and restores the grid state.
 
 // Lists whose selected values are an array
 const MULTIPLE = ["select-multiple", "suggest-multiple"];
@@ -32,9 +33,13 @@ const optionTemplate = (type, icon) => `<button type="button" role="menuitem" ta
       ${type === "shared" ? `<span class="window-saved-searches-tag">{{saved.profileLabel(search.profile)}}</span>` : ""}
     </button>`;
 
-// The Saved searches button (with the name of the search applied while its values do not change) and its menu
-export const savedSearchesTemplate = `<div class="window-saved-searches" ng-if="::saved">
-  <button type="button" class="window-saved-searches-toggle" data-testid="${TestIds.windowSavedSearches}" ${owner}
+/**
+ * The Saved searches button (with the name of the search applied while its values do not change) and its menu
+ * @param {string} [buttonClasses] Classes of the button: a text button, or the look of the toolbar it is in
+ * @returns {string} Template
+ */
+export const getSavedSearchesTemplate = (buttonClasses = "") => `<div class="window-saved-searches" ng-if="::saved">
+  <button type="button" class="window-saved-searches-toggle${buttonClasses ? ` ${buttonClasses}` : ""}" data-testid="${TestIds.windowSavedSearches}" ${owner}
           aria-haspopup="menu" ng-attr-aria-expanded="{{saved.open}}" aria-controls="{{::saved.menuId}}" ng-click="saved.toggleMenu()">
     ${iconMarkup("lucide:bookmark")}
     <span class="window-saved-searches-label" ng-if="!saved.current">{{'SCREEN_TEXT_SAVED_SEARCHES' | translateMultiple}}</span>
@@ -61,6 +66,9 @@ export const savedSearchesTemplate = `<div class="window-saved-searches" ng-if="
             ng-click="saved.openManage()">${iconMarkup("lucide:settings")}<span class="window-saved-searches-text">{{'SCREEN_TEXT_MANAGE_SEARCHES' | translateMultiple}}</span></button>
   </div>
 </div>`;
+
+// The Saved searches of the advanced block of a window: a text button
+export const savedSearchesTemplate = getSavedSearchesTemplate();
 
 // The Save search dialog: the name (required) and, only for a user who may publish, the profile to publish it for
 const saveDialogTemplate = `<div class="modal fade window-saved-search-modal" ui-modal trap-tab role="dialog" aria-modal="true"
@@ -170,16 +178,73 @@ const parseValues = values => {
 };
 
 /**
- * Initialize the saved searches of the advanced block of a window: only for a window that opts in
+ * Source of the values of the saved searches of a window: its search criteria. Applying a search restores every search
+ * criterion to its default (as Clear all), sets the saved values and launches the submit of the window
+ * @param {Object} block What the advanced block offers (searchIds, controllerOf, modelOf, modelAddressOf, valuesOf, restore)
+ * @param {Object} elem Block element
+ * @param {Object} services Control and Utilities services
+ * @returns {Object} Source: snapshot(), currentValues(), parseValues(json) and apply(values, onApplied)
+ */
+function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, valuesOf, restore}, elem, {Control, Utilities}) {
+  /**
+   * Set the saved values of a criterion. The options of a list that it does not have are added with their labels, so
+   * a suggest or a multiple select shows them
+   * @param {string} id Criterion id
+   * @param {Array} items Saved values with their labels
+   */
+  const setValues = (id, items) => {
+    const component = controllerOf(id).component;
+    const list = Utilities.asArray(items).filter(item => item && !Utilities.isEmpty(item.value));
+    const values = list.map(item => item.value);
+    const attributes = {selected: MULTIPLE.includes(component) ? values : (values.length > 0 ? values[0] : null)};
+    if (LISTS.includes(component)) {
+      const options = modelOf(id).values || [];
+      const missing = list.filter(item => !options.some(option => String(option.value) === String(item.value)))
+        .map(({value, label}) => ({value, label: Utilities.isEmpty(label) ? value : label}));
+      if (missing.length > 0) {
+        attributes.values = [...options, ...missing];
+      }
+    }
+    Control.changeModelAttribute(modelAddressOf(id), attributes, true);
+  };
+
+  return {
+    // Values of the search criteria as the criteria show them
+    snapshot: () => searchIds.map(id => valuesOf(modelOf(id).selected)),
+    // Values to save: the selected values of every search criterion, with their labels
+    currentValues: () => searchIds.reduce((all, id) => {
+      const model = modelOf(id);
+      all[id] = Utilities.asArray(model.selected).filter(value => !Utilities.isEmpty(value)).map(value => {
+        const option = (model.values || []).find(item => String(item.value) === String(value));
+        return {value, label: option && !Utilities.isEmpty(option.label) ? option.label : value};
+      });
+      return all;
+    }, {}),
+    parseValues,
+    apply(values, onApplied) {
+      restore(null);
+      Object.keys(values).filter(id => searchIds.includes(id)).forEach(id => setValues(id, values[id]));
+      // Once the criteria have taken the values
+      Utilities.timeout(() => {
+        onApplied();
+        submitForm(elem);
+      });
+    }
+  };
+}
+
+/**
+ * Initialize the saved searches of a component: the advanced block of a window, or a grid (#912), that opts in
  * @param {Object} scope Block scope
  * @param {Object} elem Block element
- * @param {Object} block What the block offers: windowId, title, searchIds, view, screenName(), controllerOf(id),
- * modelOf(id), modelAddressOf(id), valuesOf(value) and restore(ids)
+ * @param {Object} block What the block offers: windowId (the component id), title, view, screenName() and either the
+ * search criteria of a window (searchIds, controllerOf(id), modelOf(id), modelAddressOf(id), valuesOf(value) and
+ * restore(ids)) or a source of values (source: snapshot(), currentValues(), parseValues(json) and apply(values, onApplied))
  * @param {Object} services $compile, Control, Utilities, $actionController, $settings and Connection services
  * @returns {Object} Saved searches of the block
  */
 export function initSavedSearches(scope, elem, block, {$compile, Control, Utilities, $actionController, $settings, Connection}) {
-  const {windowId, searchIds, view, controllerOf, modelOf, modelAddressOf, valuesOf, restore} = block;
+  const {windowId, view} = block;
   let profilesLoaded = false;
   let listening = false;
 
@@ -227,43 +292,9 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     });
   };
 
-  // Values of the search criteria as the criteria show them, to know whether they changed
-  const snapshot = () => searchIds.map(id => valuesOf(modelOf(id).selected));
-
-  /**
-   * Values to save: the selected values of every search criterion, with their labels
-   * @returns {Object} Values by criterion id
-   */
-  const currentValues = () => searchIds.reduce((all, id) => {
-    const model = modelOf(id);
-    all[id] = Utilities.asArray(model.selected).filter(value => !Utilities.isEmpty(value)).map(value => {
-      const option = (model.values || []).find(item => String(item.value) === String(value));
-      return {value, label: option && !Utilities.isEmpty(option.label) ? option.label : value};
-    });
-    return all;
-  }, {});
-
-  /**
-   * Set the saved values of a criterion. The options of a list that it does not have are added with their labels, so
-   * a suggest or a multiple select shows them
-   * @param {string} id Criterion id
-   * @param {Array} items Saved values with their labels
-   */
-  const setValues = (id, items) => {
-    const component = controllerOf(id).component;
-    const list = Utilities.asArray(items).filter(item => item && !Utilities.isEmpty(item.value));
-    const values = list.map(item => item.value);
-    const attributes = {selected: MULTIPLE.includes(component) ? values : (values.length > 0 ? values[0] : null)};
-    if (LISTS.includes(component)) {
-      const options = modelOf(id).values || [];
-      const missing = list.filter(item => !options.some(option => String(option.value) === String(item.value)))
-        .map(({value, label}) => ({value, label: Utilities.isEmpty(label) ? value : label}));
-      if (missing.length > 0) {
-        attributes.values = [...options, ...missing];
-      }
-    }
-    Control.changeModelAttribute(modelAddressOf(id), attributes, true);
-  };
+  const source = block.source || getCriteriaSource(block, elem, {Control, Utilities});
+  // Values as the component shows them, to know whether they changed
+  const snapshot = () => source.snapshot();
 
   /**
    * Call one of the saved search services (see launchSilentService)
@@ -433,18 +464,14 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
         closeMenu(false);
       }
     },
-    // Restore every search criterion to its default (as Clear all), set the saved values and launch the submit
+    // Apply the values of the search (a window restores its criteria and launches its submit, a grid restores its state
+    // and reloads); the button names it once the component has taken them
     apply(search) {
       closeMenu(true);
-      const values = parseValues(search.values);
-      restore(null);
-      Object.keys(values).filter(id => searchIds.includes(id)).forEach(id => setValues(id, values[id]));
       saved.current = {id: search.id, name: search.name, values: null};
       const applied = saved.current;
-      // Once the criteria have taken the values
-      Utilities.timeout(() => {
+      source.apply(source.parseValues(search.values), () => {
         applied.values = snapshot();
-        submitForm(elem);
       });
     },
     openSave() {
@@ -473,7 +500,7 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
         savedSearchScreen: block.screenName(),
         savedSearchWindow: windowId,
         savedSearchName: name,
-        savedSearchValues: JSON.stringify(currentValues()),
+        savedSearchValues: JSON.stringify(source.currentValues()),
         // Empty: a search of the user only
         savedSearchProfile: form.profile && form.profile !== ONLY_ME ? form.profile : ""
       };

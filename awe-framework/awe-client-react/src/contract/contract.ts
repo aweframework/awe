@@ -89,6 +89,7 @@ export interface AbstractGrid extends AbstractCriteria {
     rowDetail?: { [index: string]: any };
     rowHeight?: string;
     rowNumbers?: boolean;
+    savedSearches?: boolean;
     screenId?: string;
     search?: string;
     selectable?: boolean;
@@ -254,6 +255,8 @@ export interface Column extends AbstractCriteria {
     chipSeparator?: string;
     dialog?: string;
     exportSecondary?: boolean;
+    filter?: string;
+    filterFields?: string;
     formatOptions?: string;
     formatter?: string;
     frozen?: boolean;

@@ -157,6 +157,7 @@
   <group id="AdvSchExm">
     <option label="ENUM_ADV_SCH_INLINE" value="AdvSchInl" />
     <option label="ENUM_ADV_SCH_SIDE_PANEL" value="AdvSchPnl" />
+    <option label="ENUM_ADV_SCH_SQL" value="AdvSchSql" />
   </group>
 
   <group id="AdvSchSta">

@@ -757,6 +757,13 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkNoFilterChips(String windowId)` | Checks that a window shows no filters in effect (every criterion has its default) |
 | `removeFilterChip(String windowId, String criterionId)` | Removes the chip of a criterion: the criterion goes back to its default |
 | `clearAllFilters(String windowId)` | Clicks *Clear all* in the filters in effect: every criterion of the window goes back to its default |
+| `openGridColumnFilter(String gridId, String columnId)` | Opens the autofilter menu of a column of a grid from its funnel (#912) and waits for its values |
+| `checkGridColumnFilterValue(String gridId, String value, boolean check)` | Checks (`true`) or unchecks a value of the open autofilter menu; the value is the code the column filters, not its label |
+| `acceptGridColumnFilter(String gridId, String columnId)` | Clicks *Accept* in the open autofilter menu: the grid is filtered and the menu closes |
+| `checkGridColumnFiltered(String gridId, String columnId, boolean filtered)` | Checks that the funnel of a column shows that the column is filtered (`true`) or not |
+| `checkGridColumnFilterChip(String gridId, String columnId, String text)` | Checks the chip of a column in the column filters in effect of a grid (for instance `Status: Inactive`) |
+| `checkNoGridColumnFilterChips(String gridId)` | Checks that a grid shows no column filters in effect |
+| `removeGridColumnFilterChip(String gridId, String columnId)` | Removes the chip of a column: the grid is reloaded without the filter of the column |
 | `checkAdvancedFiltersPanelOpen(String windowId)` / `checkAdvancedFiltersPanelClosed(String windowId)` | Checks that the side panel with the advanced criteria of a window is open or closed |
 | `resetAdvancedFilters(String windowId)` | Clicks *Reset to defaults* in the side panel: its advanced criteria go back to their defaults |
 | `cancelAdvancedFilters(String windowId)` | Clicks *Cancel* in the side panel: it closes and its advanced criteria get back the values they had when it opened |

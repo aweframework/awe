@@ -996,6 +996,25 @@ export const changeFilterGridAction = (action: ClientAction): AppThunk => {
   };
 };
 
+/**
+ * Change the column filters of a grid (#912): they go with the next requests of the grid, from its first page, and the
+ * labels of their values (shown by the chips) stay in the attributes, as they are not sent to the server
+ * @param {object} action Action with the column filters and the labels of their values by column
+ */
+export const changeColumnFiltersGridAction = (action: ClientAction): AppThunk => {
+  return (dispatch) => {
+    const address = getActionAddress(action);
+    const { columnFilters = [], labels = {} } = action.parameters as { columnFilters?: unknown[]; labels?: Record<string, unknown> };
+
+    // Accept action
+    dispatch(acceptAction(action));
+
+    // Update the column filters and go back to the first page
+    dispatch(updateAttributes(address, { columnFilterLabels: labels }));
+    dispatch(updateSpecificAttributes(address, { columnFilters, page: 1, first: 0 }));
+  };
+};
+
 export const copySelectedRowsToClipboardGridAction = (action: ClientAction, t: Translate): AppThunk => {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());

@@ -32,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Saved searches of the advanced block of a window (#790): an administrator (access to the profiles option) saves own
  * searches and publishes them for a profile; a general user (the tools menu restricted) saves own searches, sees the
- * ones published for the profile, and cannot change them nor publish.
+ * ones published for the profile, and cannot change them nor publish. A grid with saved searches (#912) keeps its
+ * searches the same way, with the grid id as window id.
  */
 @Tag("integration")
 @DisplayName("Saved search tests")
@@ -42,6 +43,10 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
   private static final String SCREEN = "AdvSchTst";
   private static final String WINDOW = "WinAdvInl";
   private static final String WINDOW_WITHOUT_BLOCK = "WinAdvInlGrd";
+  private static final String GRID = "GrdAdvInl";
+  private static final String GRID_VALUES = "{\"columnFilters\":[{\"id\":\"InlSta\",\"fields\":[\"InlSta\"],"
+    + "\"type\":\"values\",\"values\":[\"ACT\"]}],\"columnFilterLabels\":{\"InlSta\":{\"ACT\":\"Active\"}},"
+    + "\"sort\":[{\"id\":\"InlAmt\",\"direction\":\"desc\"}]}";
   private static final String ADMIN = "test";
   private static final String GENERAL = "donald";
   private static final String VALUES = "{\"AdvInlNam\":[{\"value\":\"Ana\",\"label\":\"Ana\"}],\"AdvInlCtr\":[{\"value\":\"FR\",\"label\":\"France\"}]}";
@@ -209,6 +214,25 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
+  @DisplayName("A grid with saved-searches keeps its own searches and the published ones, managed only by their owner or a publisher")
+  void gridSearches() throws Exception {
+    assertEquals("ok", save(admin, ADMIN, GRID, "Mine", GRID_VALUES, null));
+    assertEquals("ok", save(admin, ADMIN, GRID, "Shared", GRID_VALUES, "GNR"));
+    assertEquals("error", save(admin, ADMIN, GRID, "Bad", "{\"sort\":[{\"id\":\"InlAmt\",\"direction\":\"up\"}]}", null));
+
+    assertEquals(1, count("SELECT COUNT(*) FROM AweSavSch WHERE Ope = 'test' AND WinId = '" + GRID + "' AND Val = " + sqlQuote(GRID_VALUES)));
+    List<Map<String, Object>> searches = searches(general, GENERAL, GRID);
+    assertEquals(List.of("Shared"), searches.stream().map(row -> row.get("name")).toList(), "Only the published search");
+    assertEquals(GRID_VALUES, searches.get(0).get("values"));
+    assertTrue(searches(general, GENERAL, WINDOW).isEmpty(), "The searches of the grid are not the ones of the window");
+
+    Object ownId = count("SELECT IdeSavSch FROM AweSavSch WHERE Ope = 'test' AND WinId = '" + GRID + "'");
+    assertEquals("error", maintain(general, GENERAL, "renameWindowSearch", "{\"savedSearchId\":" + ownId + ",\"savedSearchName\":\"Hacked\"}"));
+    assertEquals("error", maintain(general, GENERAL, "deleteWindowSearch", "{\"savedSearchId\":" + searches.get(0).get("id") + "}"));
+    assertEquals(2, count("SELECT COUNT(*) FROM AweSavSch WHERE WinId = '" + GRID + "'"));
+  }
+
+  @Test
   @DisplayName("A user who may not publish does not read the searches published for another profile")
   void publishedSearchesOfOtherProfilesAreNotReadable() throws Exception {
     assertEquals("ok", save(admin, ADMIN, "AdminOnly", VALUES, "ADM"));
@@ -244,7 +268,12 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   private String save(MockHttpSession session, String userName, String name, String values, String profile) throws Exception {
-    return maintain(session, userName, "saveWindowSearch", "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\"" + WINDOW
+    return save(session, userName, WINDOW, name, values, profile);
+  }
+
+  private String save(MockHttpSession session, String userName, String component, String name, String values, String profile)
+    throws Exception {
+    return maintain(session, userName, "saveWindowSearch", "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\"" + component
       + "\",\"savedSearchName\":\"" + name + "\",\"savedSearchValues\":" + quote(values)
       + (profile == null ? "" : ",\"savedSearchProfile\":\"" + profile + "\"") + ",\"max\":30}");
   }
@@ -271,9 +300,13 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   private List<Map<String, Object>> searches(MockHttpSession session, String userName) throws Exception {
+    return searches(session, userName, WINDOW);
+  }
+
+  private List<Map<String, Object>> searches(MockHttpSession session, String userName, String component) throws Exception {
     // The clients ask for the queries with max 0, as the suggests do: every row comes back
     return rows(session, userName, "getWindowSavedSearches",
-      "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\"" + WINDOW + "\",\"max\":0}");
+      "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\"" + component + "\",\"max\":0}");
   }
 
   private List<Map<String, Object>> profiles(MockHttpSession session, String userName) throws Exception {

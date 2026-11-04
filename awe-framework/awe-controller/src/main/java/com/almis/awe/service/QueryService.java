@@ -5,6 +5,8 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnFilter;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
@@ -18,6 +20,8 @@ import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -119,6 +123,67 @@ public class QueryService extends ServiceConfig {
 
     // Proceed with action
     return checkEmpty(getRequest().getTargetAction());
+  }
+
+  /**
+   * Retrieve the distinct values of a grid column for its autofilter (#912). The query comes defined in target-action
+   * variable, with the same checks as the data action; the column comes in the columnValues parameter.
+   *
+   * @return Service data with the values (value, label, count) and whether more exist
+   * @throws AWException Query failed or the column values are not valid
+   */
+  public ServiceData launchColumnValuesAction() throws AWException {
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return launchColumnValues(getRequest().getTargetAction());
+  }
+
+  /**
+   * Retrieve the distinct values of a grid column: the query runs without pagination nor sort, with every column filter
+   * of the request except the filter of the column itself
+   *
+   * @param queryId Query identifier
+   * @return Service data with the values (value, label, count) and whether more exist
+   * @throws AWException Query failed or the column values are not valid
+   */
+  public ServiceData launchColumnValues(String queryId) throws AWException {
+    Query query = getQuery(queryId, true);
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+
+    // Check the column and its fields before running anything
+    ColumnValues columnValues = queryUtil.getColumnValues(parameters.get(AweConstants.COMPONENT_COLUMN_VALUES));
+    queryUtil.getColumnValuesFields(query, columnValues);
+
+    // Every column filter but the filter of the column itself, and no sort (an absent parameter falls back to the request)
+    parameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, getOtherColumnFilters(parameters.get(AweConstants.COMPONENT_COLUMN_FILTERS), columnValues.getId()));
+    parameters.set(AweConstants.COMPONENT_SORT, JsonNodeFactory.instance.arrayNode());
+
+    ServiceData out = queryLauncher.launchColumnValues(query, parameters, columnValues);
+
+    // Add variables
+    addOutputVariables(out);
+    return out;
+  }
+
+  /**
+   * Retrieve the column filters of the other columns
+   *
+   * @param columnFilters Column filters parameter
+   * @param column        Column
+   * @return Column filters whose id is not the column
+   * @throws AWException The column filters are not valid
+   */
+  private ArrayNode getOtherColumnFilters(JsonNode columnFilters, String column) throws AWException {
+    ArrayNode otherColumnFilters = JsonNodeFactory.instance.arrayNode();
+    List<ColumnFilter> columnFilterList = queryUtil.getColumnFilterList(columnFilters);
+    for (int index = 0; index < columnFilterList.size(); index++) {
+      if (!column.equals(columnFilterList.get(index).getId())) {
+        otherColumnFilters.add(columnFilters.get(index));
+      }
+    }
+    return otherColumnFilters;
   }
 
   /**

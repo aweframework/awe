@@ -5401,6 +5401,83 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Open the autofilter menu of a column of a grid (#912) from its funnel, and wait for its values
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void openGridColumnFilter(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilter(gridId, columnId));
+    checkVisible(locator(frontEndInstructions.getGridColumnFilterMenu(gridId, columnId)));
+    waitUntil(toBeClickable(frontEndInstructions.getGridColumnFilterAccept(gridId)));
+  }
+
+  /**
+   * Check or uncheck a value of the open autofilter menu of a grid
+   *
+   * @param gridId Grid identifier
+   * @param value  Value (the code the column filters, not its label)
+   * @param check  True to check it, false to uncheck it
+   */
+  protected void checkGridColumnFilterValue(String gridId, String value, boolean check) {
+    click(frontEndInstructions.getGridColumnFilterValue(gridId, value, !check));
+    checkVisible(locator(frontEndInstructions.getGridColumnFilterValue(gridId, value, check)));
+  }
+
+  /**
+   * Accept the open autofilter menu of a column of a grid: the grid is filtered and the menu closes
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void acceptGridColumnFilter(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilterAccept(gridId));
+    checkNotVisible(locator(frontEndInstructions.getGridColumnFilterMenu(gridId, columnId)));
+  }
+
+  /**
+   * Check that the funnel of a column of a grid shows whether the column is filtered
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param filtered True when the column must be filtered
+   */
+  protected void checkGridColumnFiltered(String gridId, String columnId, boolean filtered) {
+    checkVisible(locator(frontEndInstructions.getGridColumnFilter(gridId, columnId, filtered)));
+  }
+
+  /**
+   * Check the chip of a column in the column filters in effect of a grid: the label of the column and the summary of its
+   * filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param text     Text of the chip ("Status: Inactive")
+   */
+  protected void checkGridColumnFilterChip(String gridId, String columnId, String text) {
+    checkText(frontEndInstructions.getGridColumnFilterChip(gridId, columnId), text);
+  }
+
+  /**
+   * Check that a grid shows no column filters in effect
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkNoGridColumnFilterChips(String gridId) {
+    checkNotVisible(locator(frontEndInstructions.getGridColumnFilterChips(gridId)));
+  }
+
+  /**
+   * Remove the chip of a column from the column filters in effect of a grid: the grid is reloaded without its filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void removeGridColumnFilterChip(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilterChipRemove(gridId, columnId));
+  }
+
+  /**
    * Check that the side panel with the advanced criteria of a window is open
    *
    * @param windowId Window identifier
@@ -5461,9 +5538,10 @@ public class SeleniumUtilities implements IAweInstructions {
 
   /**
    * Open the menu of the saved searches of a window (#790, {@code saved-searches="true"}) and wait for its searches to
-   * load. A menu that is already open is left as it is
+   * load. A menu that is already open is left as it is. The steps of the saved searches of a window work on the saved
+   * searches of a grid too (#912): they take the grid identifier as window identifier
    *
-   * @param windowId Window identifier
+   * @param windowId Window identifier (or grid identifier)
    */
   protected void openSavedSearches(String windowId) {
     By button = savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES);

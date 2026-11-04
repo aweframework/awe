@@ -22,6 +22,8 @@ import {
 } from "../utilities/testPassThrough";
 import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 import { applyColumnLayout, buildHeader } from "../utilities/gridLayout";
+import { getColumnFilterType } from "../utilities/columnFilters";
+import AweGridColumnFilter from "../components/AweGridColumnFilter";
 
 // Model of a grid whose data has not arrived yet
 const EMPTY_MODEL = Object.freeze({ values: [] });
@@ -169,11 +171,22 @@ export function useGrid(id) {
   // The header of a column is cut by its width: it shows its full text as tooltip
   const headerLabel = (text) => text ? <span className="p-column-title-text" title={text}>{text}</span> : text;
 
-  // Header of a column: its label and, if it has help or help image, the help icon and tooltip
-  const columnHeader = (name, label, help, helpImage) => {
+  // Sort of a column from its autofilter menu, as the click on its header: the column alone, in a direction. A tree
+  // grid does not sort from its header, so its menu does not either
+  const sortColumn = (col) => (direction) => filterRow({ type: "change-sort", address, parameters: {
+    sort: [{ id: col.sortField || col.name, order: direction === "asc" ? 1 : -1, direction }] } });
+
+  // Funnel of a column that declares a filter (#912): it opens the autofilter menu of the column
+  const columnFilter = (col, text) => getColumnFilterType(col) ? <AweGridColumnFilter address={address} column={col} label={text}
+    onSort={col.sortable && !attributes.treegrid ? sortColumn(col) : undefined} /> : null;
+
+  // Header of a column: its label and, if it has help or help image, the help icon and tooltip, and its funnel
+  const columnHeader = (col) => {
+    const { name, label, help, helpImage } = col;
     const text = translateLabel(label, t);
     if (!help && !helpImage) {
-      return headerLabel(text);
+      const funnel = columnFilter(col, text);
+      return funnel ? <>{headerLabel(text)}{funnel}</> : headerLabel(text);
     }
     const target = `help-target-${address.component}-${name}`;
     return <>
@@ -181,17 +194,19 @@ export function useGrid(id) {
       <span className={target} style={{ cursor: "pointer" }}>
         {getIconNode("pi-question-circle", { role: "icon", className: "help-icon" })}{headerLabel(text)}
       </span>
+      {columnFilter(col, text)}
     </>;
   };
 
+  // A column that declares a filter has its funnel instead of the filter of enable-filters
   const columnTemplate = (col, rowSpan, enableFilters, frozen = false) => {
-    const { name, sortField, label, charlength, width, sortable, help, helpImage, align } = col;
+    const { name, sortField, charlength, width, sortable, align } = col;
     // A column with an alignment aligns its header like its cells (AWE 5 grid, #885); without one it stays centred
-    return <Column key={name} field={sortField || name} header={columnHeader(name, label, help, helpImage)}
+    return <Column key={name} field={sortField || name} header={columnHeader(col)}
       alignHeader={align || undefined}
       style={{ textAlign: align || "center", ...getWidthStyle(charlength, width) }}
       pt={headerCellPassThrough(name)}
-      sortable={sortable} rowSpan={rowSpan} filter={enableFilters} frozen={frozen && !!col.frozen} />;
+      sortable={sortable} rowSpan={rowSpan} filter={!!enableFilters && !getColumnFilterType(col)} frozen={frozen && !!col.frozen} />;
   };
 
   const headerColumnTemplate = (col) => {
