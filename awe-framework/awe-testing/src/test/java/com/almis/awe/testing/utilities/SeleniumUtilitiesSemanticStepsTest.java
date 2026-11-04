@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +68,8 @@ class SeleniumUtilitiesSemanticStepsTest {
 
   // Text of the Maximize buttons of grids, windows and tabs
   private static final String MAXIMIZE = "Maximize";
+  // Text of the test option of the menu
+  private static final String TEST_OPTION_TEXT = "Tests";
   // The mocked browser answers at once: the waits look again every millisecond, and one that is not met (a step that
   // fails) ends after this short timeout
   private static final Duration POLL_INTERVAL = Duration.ofMillis(1);
@@ -332,7 +335,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     show(instructions.getMenuOptionItem("test"), "Tests Charts");
     show(instructions.getTagList("tags"), "Manager (test)");
 
-    assertThatCode(() -> utilities.checkMenuOption("test", "Tests")).doesNotThrowAnyException();
+    assertThatCode(() -> utilities.checkMenuOption("test", TEST_OPTION_TEXT)).doesNotThrowAnyException();
     assertThatCode(() -> utilities.checkTagListContains("tags", "Manager")).doesNotThrowAnyException();
     assertThrows(AssertionFailedError.class, () -> utilities.checkMenuOption("test", "Missing"));
   }
@@ -832,7 +835,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     ReflectionTestUtils.setField(navigating, "seleniumModel", model);
     ReflectionTestUtils.setField(navigating, "frontEndInstructions", instructions);
     properties.setTimeout(Duration.ofSeconds(5));
-    show(instructions.getMenuOption("test"), "Tests");
+    show(instructions.getMenuOption("test"), TEST_OPTION_TEXT);
     WebElement loadingBar = show(instructions.getLoadingBar(), "");
     AtomicInteger barLooks = new AtomicInteger();
     when(loadingBar.isDisplayed()).thenAnswer(invocation -> barLooks.incrementAndGet() <= 2);
@@ -865,13 +868,13 @@ class SeleniumUtilitiesSemanticStepsTest {
   private AtomicInteger menuOptionBecomesActiveAfterClick(int clicksNeeded) {
     use(new ReactAweInstructions());
     properties.setTimeout(Duration.ofMillis(50));
-    show(instructions.getMenuOption("test"), "Tests");
+    show(instructions.getMenuOption("test"), TEST_OPTION_TEXT);
     AtomicInteger clicks = new AtomicInteger();
     doAnswer(invocation -> {
       clicks.incrementAndGet();
       return null;
     }).when((Interactive) driver).perform(any());
-    WebElement active = show(instructions.getMenuActiveOption("test"), "Tests");
+    WebElement active = show(instructions.getMenuActiveOption("test"), TEST_OPTION_TEXT);
     when(active.isDisplayed()).thenAnswer(invocation -> clicks.get() >= clicksNeeded);
     return clicks;
   }
@@ -906,6 +909,63 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     // The click and two more
     assertThat(clicks.get()).isEqualTo(3);
+  }
+
+  /**
+   * An AngularJS menu whose click took effect, but whose dropdown closes later than the short wait of the retry. The
+   * option is hidden from the click on
+   *
+   * @param closesAfter Time from the click to the dropdown closing
+   * @return Clicks done on the menu
+   */
+  private AtomicInteger menuDropdownClosesLateAfterClick(Duration closesAfter) {
+    properties.setTimeout(Duration.ofMillis(300));
+    AtomicLong clickedAt = new AtomicLong();
+    AtomicInteger clicks = new AtomicInteger();
+    doAnswer(invocation -> {
+      clicks.incrementAndGet();
+      clickedAt.compareAndSet(0, System.nanoTime());
+      return null;
+    }).when((Interactive) driver).perform(any());
+    WebElement option = show(instructions.getMenuOption("test"), TEST_OPTION_TEXT);
+    when(option.isDisplayed()).thenAnswer(invocation -> clicks.get() == 0);
+    WebElement dropdown = show(instructions.getMenuDropdown(), "");
+    when(dropdown.isDisplayed()).thenAnswer(invocation ->
+      clickedAt.get() == 0 || System.nanoTime() - clickedAt.get() < closesAfter.toNanos());
+    return clicks;
+  }
+
+  @Test
+  void shouldNotFailWhenTheMenuClickTookEffectButTheDropdownClosesLate() {
+    // The first click opened the screen: the option is gone, and the dropdown closes after the short wait of the retry
+    AtomicInteger clicks = menuDropdownClosesLateAfterClick(Duration.ofMillis(450));
+
+    assertThatCode(() -> navigatingUtilities().gotoScreen("test")).doesNotThrowAnyException();
+
+    assertThat(clicks.get()).isEqualTo(1);
+  }
+
+  @Test
+  void shouldReopenTheParentOfTheMenuOptionBeforeClickingItAgain() {
+    // The click was ignored and the submenu of the parent collapsed: the option is hidden until the parent opens again
+    use(new ReactAweInstructions());
+    properties.setTimeout(Duration.ofMillis(50));
+    AtomicInteger clicks = new AtomicInteger();
+    doAnswer(invocation -> {
+      clicks.incrementAndGet();
+      return null;
+    }).when((Interactive) driver).perform(any());
+    show(instructions.getMenuOption("parent"), "Parent");
+    WebElement option = show(instructions.getMenuOption("test"), TEST_OPTION_TEXT);
+    // Shown after each click on the parent (the first and the third)
+    when(option.isDisplayed()).thenAnswer(invocation -> clicks.get() % 2 == 1);
+    WebElement active = show(instructions.getMenuActiveOption("test"), TEST_OPTION_TEXT);
+    when(active.isDisplayed()).thenAnswer(invocation -> clicks.get() >= 4);
+
+    assertThatCode(() -> navigatingUtilities().gotoScreen("parent", "test")).doesNotThrowAnyException();
+
+    // Parent, option, parent again and option again
+    assertThat(clicks.get()).isEqualTo(4);
   }
 
   @Test
