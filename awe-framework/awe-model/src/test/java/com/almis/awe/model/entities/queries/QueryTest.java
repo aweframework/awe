@@ -435,4 +435,16 @@ class QueryTest {
     assertEquals("requestQuery|{\"filter\":\"value\"}", requestQuery.getQueryKeys(parameters, name -> "anything"));
     assertEquals("requestQuery|{\"filter\":\"value\"}", requestQuery.getQueryKeys(parameters));
   }
+
+  @Test
+  void testQueryKeysDifferWhenOnlyColumnFiltersDiffer() {
+    Query gridQuery = new Query().setId("gridQuery");
+    ObjectNode filtered = JsonNodeFactory.instance.objectNode();
+    filtered.putArray("columnFilters").addObject().put("id", "Nam").put("type", "values").putArray("values").add("x");
+    ObjectNode otherFilter = filtered.deepCopy();
+    ((ObjectNode) otherFilter.get("columnFilters").get(0)).putArray("values").add("y");
+
+    assertNotEquals(gridQuery.getQueryKeys(filtered), gridQuery.getQueryKeys(otherFilter));
+    assertNotEquals(gridQuery.getQueryKeys(filtered), gridQuery.getQueryKeys(JsonNodeFactory.instance.objectNode()));
+  }
 }

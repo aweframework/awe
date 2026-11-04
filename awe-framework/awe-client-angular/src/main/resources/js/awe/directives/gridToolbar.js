@@ -2,6 +2,8 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {createFocusTrap} from "../services/focusTrap";
 import {iconMarkup, iconTemplate} from "../services/icon";
+import {getSavedSearchesTemplate} from "../services/savedSearches";
+import {initGridSavedSearches} from "../services/gridSavedSearches";
 import "./gridQuickFilter";
 import "./gridSearch";
 
@@ -20,14 +22,16 @@ const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen
   </div>`;
 
 // The Columns (popover, dialog or side panel) are aria-busy while Save or Restore default wait for the server
-// The search, the quick filters and the row grouping controls (#833) of the grid go first, then a spacer and the Columns
-// and Maximize buttons at the end. The grouping controls, the Columns and Maximize buttons are hidden when the grid opts
-// out of them (show-toolbar="false"), which shows the toolbar only for its search and quick filters
+// The search, the quick filters and the row grouping controls (#833) of the grid go first, then a spacer, the Saved
+// searches menu (#912, saved-searches="true") and the Columns and Maximize buttons at the end. The grouping controls,
+// the Columns and Maximize buttons are hidden when the grid opts out of them (show-toolbar="false"), which shows the
+// toolbar only for its search, quick filters and saved searches
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
   <awe-grid-search ng-if="component.controller.search" search-id="{{::component.controller.search}}" grid-id="{{::component.address.component}}"></awe-grid-search>
   <awe-grid-quick-filter ng-if="component.controller.quickFilter" quick-filter-id="{{::component.controller.quickFilter}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
   <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
-  <span ng-if="component.controller.showToolbar !== false" class="grid-toolbar-spacer" aria-hidden="true"></span>
+  <span ng-if="component.controller.showToolbar !== false || component.controller.savedSearches" class="grid-toolbar-spacer" aria-hidden="true"></span>
+  ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button")}
   <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
@@ -110,11 +114,11 @@ export const getFixedOffset = node => {
   return {top: 0, left: 0};
 };
 
-// Grid toolbar directive: Columns panel (a popover anchored to the Columns button by default, a dialog or a side panel)
-// and Maximize
+// Grid toolbar directive: Saved searches, Columns panel (a popover anchored to the Columns button by default, a dialog or
+// a side panel) and Maximize
 aweApplication.directive('aweGridToolbar',
-  ['$templateCache', '$compile', 'AweSettings', 'AweModal',
-    function ($templateCache, $compile, $settings, $modal) {
+  ['$templateCache', '$compile', 'AweSettings', 'AweModal', 'Control', 'AweUtilities', 'ActionController', 'Storage', 'Connection',
+    function ($templateCache, $compile, $settings, $modal, Control, Utilities, $actionController, Storage, Connection) {
       $templateCache.put('grid-column-item', COLUMN_ITEM_TEMPLATE);
       $templateCache.put('grid-columns-header', COLUMNS_HEADER_TEMPLATE);
       $templateCache.put('grid-columns-content', COLUMNS_CONTENT_TEMPLATE);
@@ -134,6 +138,11 @@ aweApplication.directive('aweGridToolbar',
           scope.columnsOpen = false;
           scope.columnsPanel = null;
           scope.sidePanel = false;
+
+          // The Saved searches menu of a grid that opts in
+          if ((component.controller || {}).savedSearches) {
+            initGridSavedSearches(scope, element, component, {$compile, Control, Utilities, $actionController, $settings, Storage, Connection});
+          }
 
           // Run a scope change from a modal or DOM event, which may come inside or outside a digest
           const applyScope = fn => (scope.$root.$$phase ? fn() : scope.$apply(fn));

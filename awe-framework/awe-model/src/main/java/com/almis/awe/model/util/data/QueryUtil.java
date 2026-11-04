@@ -3,16 +3,21 @@ package com.almis.awe.model.util.data;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.ColumnFilter;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
+import com.almis.awe.model.entities.queries.OutputField;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.model.entities.queries.SqlField;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.ParameterType;
@@ -44,6 +49,11 @@ public class QueryUtil extends ServiceConfig {
   private static final String MASKED_SQL_VALUE_LOG = "'********'";
   private static final char SQL_PLACEHOLDER = '?';
   private static final char SQL_LITERAL_DELIMITER = '\'';
+  private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
+  // Aggregate and window functions: their fields cannot be compared in a WHERE
+  private static final Set<String> NOT_FILTERABLE_FUNCTIONS = Set.of("AVG", "CNT", "CNT_DISTINCT", "MAX", "MIN", "SUM",
+    "LAG", "FIRST_VALUE", "LAST_VALUE", "ROW_NUMBER", "RANK");
+  private static final String ERROR_MESSAGE_GENERATING_FILTER = "ERROR_MESSAGE_GENERATING_FILTER";
 
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
@@ -82,6 +92,97 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
+   * Generate the column filter list of the {@code columnFilters} request parameter
+   *
+   * @param columnFilters Column filters parameter
+   * @return Column filters, empty when there are none
+   * @throws AWEQueryException The column filters are not valid
+   */
+  public List<ColumnFilter> getColumnFilterList(JsonNode columnFilters) throws AWEQueryException {
+    try {
+      return ColumnFilter.fromJson(columnFilters);
+    } catch (IllegalArgumentException exc) {
+      throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+        getLocale(ERROR_MESSAGE_GENERATING_FILTER, exc.getMessage()), null, exc);
+    }
+  }
+
+  /**
+   * Resolve the fields of a column filter against the fields of the query, by their identifier (alias, else id).
+   * Only the printed fields can be filtered: a filter cannot probe values the query never sends to the client. Fields
+   * of an aggregate or window function cannot be filtered either: they cannot be compared in a WHERE.
+   *
+   * @param query        Query
+   * @param columnFilter Column filter
+   * @return Query fields of the column filter, in its order
+   * @throws AWEQueryException A field is not a field of the query, it is not printed or it is an aggregate
+   */
+  public List<SqlField> getColumnFilterFields(Query query, ColumnFilter columnFilter) throws AWEQueryException {
+    List<SqlField> queryFields = Optional.ofNullable(query.getSqlFieldList()).orElse(Collections.emptyList());
+    List<SqlField> fields = new ArrayList<>();
+    for (String fieldId : columnFilter.getFields()) {
+      SqlField field = queryFields.stream()
+        .filter(candidate -> fieldId.equals(candidate.getIdentifier()))
+        .findFirst()
+        .orElseThrow(() -> getColumnFilterException(query, "unknown field " + fieldId + " in column filter " + columnFilter.getId()));
+      if (field.isNoprint()) {
+        throw getColumnFilterException(query, "field " + fieldId + " of column filter " + columnFilter.getId() + " is not printed");
+      }
+      if (field.getFunction() != null && NOT_FILTERABLE_FUNCTIONS.contains(field.getFunction().toUpperCase(Locale.ROOT))) {
+        throw getColumnFilterException(query, "field " + fieldId + " of column filter " + columnFilter.getId()
+          + " is an aggregate or window function");
+      }
+      fields.add(field);
+    }
+    return fields;
+  }
+
+  /**
+   * Parse the {@code columnValues} request parameter of the column values action
+   *
+   * @param columnValues Column values parameter
+   * @return Column values
+   * @throws AWEQueryException The column values are not valid
+   */
+  public ColumnValues getColumnValues(JsonNode columnValues) throws AWEQueryException {
+    try {
+      return ColumnValues.fromJson(columnValues);
+    } catch (IllegalArgumentException exc) {
+      throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+        getLocale(ERROR_MESSAGE_GENERATING_FILTER, exc.getMessage()), null, exc);
+    }
+  }
+
+  /**
+   * Resolve the fields of the column values against the fields of the query, with the rules of the column filters, and
+   * check that the column is a printed field of the query (its value is the label of each value)
+   *
+   * @param query        Query
+   * @param columnValues Column values
+   * @return Query fields whose values are listed, in its order
+   * @throws AWEQueryException A field cannot be filtered, or the column is not a printed field of the query
+   */
+  public List<SqlField> getColumnValuesFields(Query query, ColumnValues columnValues) throws AWEQueryException {
+    List<SqlField> fields = getColumnFilterFields(query, columnValues.asColumnFilter());
+    List<OutputField> outputFields = new ArrayList<>(Optional.ofNullable(query.getSqlFieldList()).orElse(Collections.emptyList()));
+    outputFields.addAll(Optional.ofNullable(query.getComputedList()).orElse(Collections.emptyList()));
+    outputFields.addAll(Optional.ofNullable(query.getCompoundList()).orElse(Collections.emptyList()));
+    OutputField column = outputFields.stream()
+      .filter(candidate -> columnValues.getId().equals(candidate.getIdentifier()))
+      .findFirst()
+      .orElseThrow(() -> getColumnFilterException(query, "unknown column " + columnValues.getId() + " in column values"));
+    if (column.isNoprint()) {
+      throw getColumnFilterException(query, "column " + columnValues.getId() + " of column values is not printed");
+    }
+    return fields;
+  }
+
+  private AWEQueryException getColumnFilterException(Query query, String reason) {
+    return new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+      getLocale(ERROR_MESSAGE_GENERATING_FILTER, reason), query.getId(), null);
+  }
+
+  /**
    * Prepare query variables if not defined previously
    *
    * @param parameters Parameter list
@@ -95,6 +196,12 @@ public class QueryUtil extends ServiceConfig {
     if (sortParameter != null && sortParameter.isArray()) {
       ArrayNode sortList = (ArrayNode) sortParameter;
       variableMap.put(AweConstants.QUERY_SORT, new QueryParameter(sortList, true, ParameterType.OBJECT));
+    }
+
+    // Add column filters variable (validated when the query applies them)
+    JsonNode columnFiltersParameter = getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters);
+    if (columnFiltersParameter != null && !columnFiltersParameter.isNull()) {
+      variableMap.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFiltersParameter, true, ParameterType.OBJECT));
     }
 
     // Add page variable

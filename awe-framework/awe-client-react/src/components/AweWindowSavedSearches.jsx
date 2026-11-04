@@ -437,16 +437,15 @@ ManageSearchesDialog.propTypes = {
 };
 
 /**
- * Saved searches of a window (#790, saved-searches="true"), in the row of its advanced block right after the Advanced
- * filters toggle: a text button that opens the menu of the searches and shows the name of the search last applied
- * while the criteria keep its values. Applying a search brings every search criterion to its default, sets the values of
- * the search and shows the results. The searches are loaded each time the menu opens; the profiles the user may publish
- * for, once.
+ * Saved searches of a component (a window, #790, or a grid, #912): a text button that opens the menu of the searches and
+ * shows the name of the search last applied while the component keeps its values. The searches are loaded each time the
+ * menu opens; the profiles the user may publish for, once. The component tells where it is, reads its values, applies
+ * the values of a search and checks whether they are still in effect; a text button by default, or the look it chooses.
  */
-export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
+export function SavedSearchesControl({id, label, getScreen, getValues, applyValues, isInEffect,
+                                      parseValues = parseSearchValues, buttonClassName = "p-button-text"}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
-  const store = useStore();
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
   const listRef = useRef(null);
@@ -459,16 +458,12 @@ export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
   const [dialog, setDialog] = useState(null);
   // A new save dialog each time it opens, so it starts with the name of the search in effect
   const [saveKey, setSaveKey] = useState(0);
-  const getScreen = useWindowScreen(searchCriteria.length ? searchCriteria : advancedCriteria);
-  const restore = useRestoreDefaults();
-  const showResults = useShowResults(id, advancedCriteria, searchCriteria);
-  const components = useMultipleComponents(searchCriteria);
   const errorMessage = useMemo(() => ({
     title: t("SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE"),
     message: t("SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE")
   }), [t]);
 
-  const inEffect = applied && isSavedSearchInEffect(components, searchCriteria, applied.values) ? applied : null;
+  const inEffect = applied && isInEffect(applied.values) ? applied : null;
 
   // Load the searches (and the profiles the first time); the search in effect follows its new name, or is forgotten
   // when it is gone
@@ -519,20 +514,9 @@ export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
 
   const apply = (search) => {
     closeMenu(true);
-    const values = parseSearchValues(search.values);
-    restore(searchCriteria);
-    const restored = getAllComponents(store.getState());
-    const updates = searchCriteria
-      .filter(criterion => criterion in values && restored[criterion]?.address)
-      .map(criterion => ({
-        address: restored[criterion].address,
-        data: {values: getSavedModelValues(restored[criterion], values[criterion])}
-      }));
-    if (updates.length) {
-      dispatch(updateMultipleModelsWithDependencies(updates));
-    }
+    const values = parseValues(search.values);
+    applyValues(values);
     setApplied({id: search.id, name: search.name, values});
-    showResults();
   };
 
   const openDialog = (type) => {
@@ -553,7 +537,7 @@ export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
     if (!screen) {
       return false;
     }
-    const values = getSearchValues(getAllComponents(store.getState()), searchCriteria);
+    const values = getValues();
     const worked = await dispatch(saveWindowSearch({view: screen.view, component: id}, screen.screenId,
       {name, profile, values: JSON.stringify(values)}, errorMessage));
     if (worked) {
@@ -591,7 +575,7 @@ export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
   const text = inEffect ? inEffect.name : t("SCREEN_TEXT_SAVED_SEARCHES");
   return <>
     <button ref={buttonRef} type="button" onClick={toggleMenu}
-            className="window-saved-searches p-button p-component p-button-text p-button-sm"
+            className={`window-saved-searches p-button p-component p-button-sm ${buttonClassName}`}
             aria-haspopup="menu" aria-expanded={menuOpen}
             aria-controls={menuOpen ? `${id}-saved-searches-menu` : undefined}
             title={inEffect ? `${t("SCREEN_TEXT_SAVED_SEARCHES")}: ${inEffect.name}` : undefined}
@@ -608,6 +592,55 @@ export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
     <ManageSearchesDialog id={id} label={label} visible={dialog === MANAGE} searches={searches} profiles={profiles}
                           onRename={rename} onDelete={remove} onHide={closeDialog}/>
   </>;
+}
+
+SavedSearchesControl.propTypes = {
+  id: PropTypes.string,
+  label: PropTypes.string,
+  getScreen: PropTypes.func,
+  getValues: PropTypes.func,
+  applyValues: PropTypes.func,
+  isInEffect: PropTypes.func,
+  parseValues: PropTypes.func,
+  buttonClassName: PropTypes.string
+};
+
+/**
+ * Saved searches of a window (#790, saved-searches="true"), in the row of its advanced block right after the Advanced
+ * filters toggle. Applying a search brings every search criterion to its default, sets the values of the search and
+ * shows the results; the search stays in effect while the criteria keep its values.
+ */
+export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
+  const dispatch = useDispatch();
+  const store = useStore();
+  const getScreen = useWindowScreen(searchCriteria.length ? searchCriteria : advancedCriteria);
+  const restore = useRestoreDefaults();
+  const showResults = useShowResults(id, advancedCriteria, searchCriteria);
+  const components = useMultipleComponents(searchCriteria);
+
+  const getValues = useCallback(() => getSearchValues(getAllComponents(store.getState()), searchCriteria),
+    [store, searchCriteria]);
+
+  const applyValues = useCallback((values) => {
+    restore(searchCriteria);
+    const restored = getAllComponents(store.getState());
+    const updates = searchCriteria
+      .filter(criterion => criterion in values && restored[criterion]?.address)
+      .map(criterion => ({
+        address: restored[criterion].address,
+        data: {values: getSavedModelValues(restored[criterion], values[criterion])}
+      }));
+    if (updates.length) {
+      dispatch(updateMultipleModelsWithDependencies(updates));
+    }
+    showResults();
+  }, [dispatch, store, restore, showResults, searchCriteria]);
+
+  const isInEffect = useCallback((values) => isSavedSearchInEffect(components, searchCriteria, values),
+    [components, searchCriteria]);
+
+  return <SavedSearchesControl id={id} label={label} getScreen={getScreen} getValues={getValues}
+                               applyValues={applyValues} isInEffect={isInEffect}/>;
 }
 
 SavedSearches.propTypes = {

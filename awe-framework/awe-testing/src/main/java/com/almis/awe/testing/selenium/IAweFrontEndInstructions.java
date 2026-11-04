@@ -2156,6 +2156,108 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Css of a part of the column autofilter of a grid (#912), identified by its owner, the grid
+   *
+   * @param testId Hook of the part
+   * @param gridId Grid identifier
+   * @return Css selector
+   */
+  private static String getGridColumnFilterCss(String testId, String gridId) {
+    return TestIds.css(testId) + TestAttributes.css(TestAttributes.OWNER, gridId);
+  }
+
+  /**
+   * Get the funnel of a column of a grid that declares a filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Funnel selector
+   */
+  default By getGridColumnFilter(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the funnel of a column of a grid that declares a filter, filtered or not
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param filtered True while the column is filtered
+   * @return Funnel selector
+   */
+  default By getGridColumnFilter(String gridId, String columnId, boolean filtered) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER, gridId) + "[column-id='" + columnId + "']"
+      + TestAttributes.css(TestAttributes.ACTIVE, filtered));
+  }
+
+  /**
+   * Get the autofilter menu of a column of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Autofilter menu selector
+   */
+  default By getGridColumnFilterMenu(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_MENU, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get a value of the list of the open autofilter menu of a grid, checked or not
+   *
+   * @param gridId  Grid identifier
+   * @param value   Value (the code the column filters, not its label)
+   * @param checked True for the value when it is checked
+   * @return Value selector
+   */
+  default By getGridColumnFilterValue(String gridId, String value, boolean checked) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_VALUE, gridId) + "[option-id='" + value + "']"
+      + TestAttributes.css(TestAttributes.SELECTED, checked));
+  }
+
+  /**
+   * Get the Accept button of the open autofilter menu of a grid, when it can be pressed
+   *
+   * @param gridId Grid identifier
+   * @return Accept button selector
+   */
+  default By getGridColumnFilterAccept(String gridId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_ACCEPT, gridId) + ":not([disabled])");
+  }
+
+  /**
+   * Get the row of the column filters in effect of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Column filter chips row selector
+   */
+  default By getGridColumnFilterChips(String gridId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIPS, gridId));
+  }
+
+  /**
+   * Get the chip of a column in the column filters in effect of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column filter chip selector
+   */
+  default By getGridColumnFilterChip(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIP, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the button of the chip of a column that removes the filter of the column
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column filter chip remove button selector
+   */
+  default By getGridColumnFilterChipRemove(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIP, gridId) + "[column-id='" + columnId + "'] "
+      + TestIds.css(TestIds.GRID_COLUMN_FILTER_CHIP_REMOVE));
+  }
+
+  /**
    * Get the open side panel with the advanced criteria of a window
    *
    * @param windowId Window identifier
@@ -2182,9 +2284,10 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * searches button, the Save current search and Manage searches options of its menu, the Save search dialog with its
    * name, the trigger of its profile select and its buttons, and the Manage searches dialog with the rename input, the
    * rename accept button and its Close button. Every part carries the window as its owner, also the dialogs, which do not
-   * live inside the window
+   * live inside the window. The saved searches of a grid (#912, saved-searches="true") have the same parts, with the grid
+   * as their owner: every selector of the saved searches of a window takes the grid identifier as window identifier
    *
-   * @param windowId Window identifier
+   * @param windowId Window identifier (or grid identifier)
    * @param testId   Hook of the part, one of the {@code WINDOW_SAVED_SEARCH*} values of {@link TestIds}
    * @return Saved searches part selector
    */

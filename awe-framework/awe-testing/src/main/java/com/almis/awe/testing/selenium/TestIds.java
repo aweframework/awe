@@ -77,6 +77,16 @@ public final class TestIds {
   // Search of the grid toolbar (identified by "criterion-id"; its text box is its criterion input) and its clear button
   public static final String GRID_SEARCH = "grid-search";
   public static final String GRID_SEARCH_CLEAR = "grid-search-clear";
+  // Column autofilter (#912; owner: grid id): the funnel of a column header ("column-id"; "data-active" while
+  // the column is filtered), its menu ("column-id") with a value ("option-id", its value; "data-selected") and Accept, and
+  // the row of the column filters in effect with a chip per column ("column-id") and its remove button
+  public static final String GRID_COLUMN_FILTER = "grid-column-filter";
+  public static final String GRID_COLUMN_FILTER_MENU = "grid-column-filter-menu";
+  public static final String GRID_COLUMN_FILTER_VALUE = "grid-column-filter-value";
+  public static final String GRID_COLUMN_FILTER_ACCEPT = "grid-column-filter-accept";
+  public static final String GRID_COLUMN_FILTER_CHIPS = "grid-column-filter-chips";
+  public static final String GRID_COLUMN_FILTER_CHIP = "grid-column-filter-chip";
+  public static final String GRID_COLUMN_FILTER_CHIP_REMOVE = "grid-column-filter-chip-remove";
   // Selection bar of the grid (identified by its owner, the grid; "data-count" is the number of selected rows) and its text
   public static final String GRID_SELECTION_BAR = "grid-selection-bar";
   public static final String GRID_SELECTION_COUNT = "grid-selection-count";

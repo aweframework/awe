@@ -158,6 +158,16 @@ public abstract class AbstractFrontEndSelectorGuardTest {
   }
 
   /**
+   * Hooks that the selectors of the implementation use and its client does not render yet (a feature that reaches the
+   * client in a later delivery), with the reason. They are not checked against the vocabulary of the client
+   *
+   * @return Reason by hook value
+   */
+  protected Map<String, String> hooksNotRenderedYet() {
+    return Map.of();
+  }
+
+  /**
    * Methods of the implementation that return a selector but are not part of the representative catalog
    *
    * @return Method names
@@ -382,6 +392,14 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getWindowFilterChip(shown)", () -> i.getWindowFilterChip(WINDOW, CRITERION, false));
     catalog.put("getWindowFilterChipRemove", () -> i.getWindowFilterChipRemove(WINDOW, CRITERION));
     catalog.put("getWindowFilterClearAll", () -> i.getWindowFilterClearAll(WINDOW));
+    catalog.put("getGridColumnFilter", () -> i.getGridColumnFilter(GRID, COLUMN));
+    catalog.put("getGridColumnFilter(filtered)", () -> i.getGridColumnFilter(GRID, COLUMN, true));
+    catalog.put("getGridColumnFilterMenu", () -> i.getGridColumnFilterMenu(GRID, COLUMN));
+    catalog.put("getGridColumnFilterValue", () -> i.getGridColumnFilterValue(GRID, TEXT, true));
+    catalog.put("getGridColumnFilterAccept", () -> i.getGridColumnFilterAccept(GRID));
+    catalog.put("getGridColumnFilterChips", () -> i.getGridColumnFilterChips(GRID));
+    catalog.put("getGridColumnFilterChip", () -> i.getGridColumnFilterChip(GRID, COLUMN));
+    catalog.put("getGridColumnFilterChipRemove", () -> i.getGridColumnFilterChipRemove(GRID, COLUMN));
     catalog.put("getOpenWindowAdvancedPanel", () -> i.getOpenWindowAdvancedPanel(WINDOW));
     catalog.put("getWindowAdvancedPanelButton(reset)", () -> i.getWindowAdvancedPanelButton(WINDOW, TestIds.WINDOW_ADVANCED_RESET));
     catalog.put("getWindowAdvancedPanelButton(cancel)", () -> i.getWindowAdvancedPanelButton(WINDOW, TestIds.WINDOW_ADVANCED_CANCEL));
@@ -487,6 +505,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
       }
     }
 
+    hooks.removeAll(hooksNotRenderedYet().keySet());
     Map<String, String> vocabulary = TestIdsVocabularyTest.readJavaScriptConstant(clientVocabularyFile(), "TestIds");
     Map<String, String> clientAttributes = TestIdsVocabularyTest.readJavaScriptConstant(clientVocabularyFile(), "TestAttributes");
 

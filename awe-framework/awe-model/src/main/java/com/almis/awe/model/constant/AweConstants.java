@@ -135,12 +135,15 @@ public class AweConstants {
   public static final String COMPONENT_SORT = "sort";
   public static final String COMPONENT_PAGE = "page";
   public static final String COMPONENT_MAX = "max";
+  public static final String COMPONENT_COLUMN_FILTERS = "columnFilters";
+  public static final String COMPONENT_COLUMN_VALUES = "columnValues";
   public static final String COMPONENT_DATABASE = "__database__";
 
   // Query variables
   public static final String QUERY_SORT = "_sort_";
   public static final String QUERY_PAGE = "_page_";
   public static final String QUERY_MAX = "_max_";
+  public static final String QUERY_COLUMN_FILTERS = "_column_filters_";
   public static final String QUERY_DATABASE = "_database_";
   public static final String QUERY_LANGUAGE = "lang";
 
@@ -182,6 +185,7 @@ public class AweConstants {
   public static final String ACTION_LOCALS = "LOCALS";
   public static final String ACTION_DATA = "DATA";
   public static final String ACTION_ROWS = "ROWS";
+  public static final String ACTION_MORE_VALUES = "MORE_VALUES";
   public static final String ACTION_MENU_OPTIONS = "MENU_OPTIONS";
   public static final String ACTION_SCREEN_DATA = "SCREEN_DATA";
   public static final String ACTION_FILE_NAME = "FILE_NAME";

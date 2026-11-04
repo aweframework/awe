@@ -10,6 +10,7 @@ import {getDensityRowHeight, getExplicitRowHeight, getGridRowHeight, observeDens
 import {AVATAR_TONES, getInitials, STATUS_TONES, toTone} from "./initials";
 import {getSwatchColor} from "./swatch";
 import {getIconTemplate} from "../component";
+import {getColumnFilterType} from "awe-client-react/utilities/columnFilters";
 
 // Add requirements
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
@@ -38,6 +39,20 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
     // Selector of the cells whose text is cut by their maximum number of lines
     const CLAMPED_CELL = ".cell-clamp";
+
+    /**
+     * Give the funnel of the autofilter (#912) to a column that declares a filter, instead of the filter of
+     * enable-filters, which the other columns keep
+     *
+     * @param {object} column Column model
+     */
+    const setColumnFilterType = function (column) {
+      const filterType = getColumnFilterType(column);
+      if (filterType) {
+        column.columnFilterType = filterType;
+        column.enableFiltering = false;
+      }
+    };
 
     /**
      * Retrieve how many lines the text of a column wraps over. A column wraps when it declares wrap, or a maximum
@@ -1797,6 +1812,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           column.field = column.name;
 
           column.pinnedLeft = column.frozen;
+
+          setColumnFilterType(column);
 
           // Retrieve cell template
           column.cellClass = function (grid, row, col) {

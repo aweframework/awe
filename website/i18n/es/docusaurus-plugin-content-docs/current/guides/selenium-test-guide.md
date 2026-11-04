@@ -755,6 +755,13 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkNoFilterChips(String windowId)` | Comprueba que una ventana no muestra filtros aplicados (todos los criterios tienen su valor por defecto) |
 | `removeFilterChip(String windowId, String criterionId)` | Quita el chip de un criterio: el criterio vuelve a su valor por defecto |
 | `clearAllFilters(String windowId)` | Pulsa *Quitar todos* en los filtros aplicados: todos los criterios de la ventana vuelven a su valor por defecto |
+| `openGridColumnFilter(String gridId, String columnId)` | Abre el menú de autofiltro de una columna de un grid desde su embudo (#912) y espera a sus valores |
+| `checkGridColumnFilterValue(String gridId, String value, boolean check)` | Marca (`true`) o desmarca un valor del menú de autofiltro abierto; el valor es el código por el que filtra la columna, no su etiqueta |
+| `acceptGridColumnFilter(String gridId, String columnId)` | Pulsa *Aceptar* en el menú de autofiltro abierto: el grid se filtra y el menú se cierra |
+| `checkGridColumnFiltered(String gridId, String columnId, boolean filtered)` | Comprueba que el embudo de una columna indica que la columna está filtrada (`true`) o no |
+| `checkGridColumnFilterChip(String gridId, String columnId, String text)` | Comprueba el chip de una columna en los filtros de columna aplicados de un grid (por ejemplo `Estado: Inactivo`) |
+| `checkNoGridColumnFilterChips(String gridId)` | Comprueba que un grid no muestra filtros de columna aplicados |
+| `removeGridColumnFilterChip(String gridId, String columnId)` | Quita el chip de una columna: el grid se recarga sin el filtro de la columna |
 | `checkAdvancedFiltersPanelOpen(String windowId)` / `checkAdvancedFiltersPanelClosed(String windowId)` | Comprueba que el panel lateral con los criterios avanzados de una ventana está abierto o cerrado |
 | `resetAdvancedFilters(String windowId)` | Pulsa *Restablecer valores por defecto* en el panel lateral: sus criterios avanzados vuelven a su valor por defecto |
 | `cancelAdvancedFilters(String windowId)` | Pulsa *Cancelar* en el panel lateral: se cierra y sus criterios avanzados recuperan los valores que tenían al abrirlo |

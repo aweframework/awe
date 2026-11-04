@@ -6,6 +6,9 @@ import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnFilter;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
@@ -17,9 +20,15 @@ import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.QueryBuilder;
 import com.almis.awe.service.data.processor.*;
+import com.almis.awe.service.data.processor.ColumnValuesProcessor.ColumnValueGroup;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,6 +41,12 @@ import java.util.Optional;
  * @author Jorge BELLON 24-02-2017
  */
 public abstract class AbstractQueryConnector extends ServiceConfig implements QueryConnector {
+
+  // Groups read at most to search the labels of a column whose label is not the value: beyond them the response
+  // states that more values exist
+  protected static final int COLUMN_VALUES_SEARCH_LIMIT = 10000;
+  private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
+  private static final String ERROR_MESSAGE_GENERATING_FILTER = "ERROR_MESSAGE_GENERATING_FILTER";
 
   // Autowired services
   private final QueryUtil queryUtil;
@@ -126,6 +141,30 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     }
 
     // Recover builder's instance
+    DataListBuilder builder = getDataListBuilder(serviceData, query, parameterMap);
+
+    // Add transformations & translations
+    builder = processDataList(builder, query, parameterMap);
+
+    // Filter datalist by the grid column filters
+    builder = filterDataList(builder, query, parameterMap);
+
+    // Sort datalist
+    builder = sortDataList(builder, parameterMap);
+
+    // Return complete result
+    return builder.build();
+  }
+
+  /**
+   * Retrieve the builder of the data list of a service result, with its rows and pagination
+   *
+   * @param serviceData  ServiceData
+   * @param query        Query
+   * @param parameterMap Parameters
+   * @return Data list builder
+   */
+  private DataListBuilder getDataListBuilder(ServiceData serviceData, Query query, Map<String, QueryParameter> parameterMap) {
     DataListBuilder builder = getBean(DataListBuilder.class);
 
     // Define pagination
@@ -157,15 +196,148 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
         .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
         .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L));
     }
+    return builder;
+  }
 
-    // Add transformations & translations
-    builder = processDataList(builder, query, parameterMap);
+  @Override
+  public ServiceData launchColumnValues(Query query, ObjectNode parameters, ColumnValues columnValues) throws AWException {
+    // A service that manages its pagination does not return all its rows
+    if (query.isPaginationManaged()) {
+      throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER), getLocale(ERROR_MESSAGE_GENERATING_FILTER,
+        "the service of the query manages its pagination: its column values are not available"), query.getId(), null);
+    }
 
-    // Sort datalist
-    builder = sortDataList(builder, parameterMap);
+    // Reject invalid grid column filters before the rows are read
+    validateColumnFilters(query, parameters);
 
-    // Return complete result
-    return builder.build();
+    // Group the rows that match the other column filters, before any processing
+    Map<String, QueryParameter> variableMap = getQueryUtil().getVariableMap(query, parameters);
+    List<ColumnValueGroup> groups = ColumnValuesProcessor.group(getColumnValuesRows(query, parameters, variableMap).getRows(), columnValues);
+    return getColumnValuesResult(query, columnValues, groups, variableMap, false, false);
+  }
+
+  /**
+   * Retrieve every row of the query that matches the column filters of the parameters, without processing, sort nor
+   * pagination
+   *
+   * @param query      Query
+   * @param parameters Parameters
+   * @param variables  Query variables
+   * @return Rows
+   * @throws AWException The connector does not list column values, or the query failed
+   */
+  protected DataList getColumnValuesRows(Query query, ObjectNode parameters, Map<String, QueryParameter> variables) throws AWException {
+    throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER), getLocale(ERROR_MESSAGE_GENERATING_FILTER,
+      "column values are not supported by the connector of the query"), query.getId(), null);
+  }
+
+  /**
+   * Retrieve the rows of a service result that match the column filters, without processing, sort nor pagination
+   *
+   * @param serviceData Service result
+   * @param query       Query
+   * @param variables   Query variables
+   * @return Rows
+   * @throws AWException Error filtering the rows
+   */
+  protected DataList getFilteredRows(ServiceData serviceData, Query query, Map<String, QueryParameter> variables) throws AWException {
+    if (serviceData == null) {
+      return new DataList();
+    }
+    return filterDataList(getDataListBuilder(serviceData, query, variables).paginate(false), query, variables).build();
+  }
+
+  /**
+   * Build the column values response from the groups of the filtered field values: computes the label of each value
+   * from its representative row with the processing of the column, then applies the search and the cap
+   *
+   * @param query        Query
+   * @param columnValues Column values
+   * @param groups       Groups, sorted
+   * @param variables    Query variables
+   * @param searched     The search was already applied to the groups
+   * @param truncated    The groups are not all the values of the column
+   * @return Service data with the values and whether more exist
+   * @throws AWException Error computing the labels
+   */
+  protected ServiceData getColumnValuesResult(Query query, ColumnValues columnValues, List<ColumnValueGroup> groups,
+                                              Map<String, QueryParameter> variables, boolean searched, boolean truncated) throws AWException {
+    List<String> labels = new ArrayList<>();
+    if (ColumnValuesProcessor.isLabelTheValue(query, columnValues)) {
+      groups.forEach(group -> labels.add(group.value() == null ? null : new CellData(group.value()).getStringValue()));
+    } else {
+      labels.addAll(getLabels(ColumnValuesProcessor.getLabelQuery(query, columnValues.getId()), columnValues.getId(), groups, variables));
+    }
+    return ColumnValuesProcessor.getResult(groups, labels, searched ? null : columnValues.getSearch(), truncated);
+  }
+
+  /**
+   * Compute the label of each group: the column of its representative row after the processing of the label query
+   *
+   * @param labelQuery Query with the fields and processing the column needs
+   * @param column     Column
+   * @param groups     Groups
+   * @param variables  Query variables
+   * @return Labels, null for the empty values
+   * @throws AWException Error processing the rows
+   */
+  private List<String> getLabels(Query labelQuery, String column, List<ColumnValueGroup> groups, Map<String, QueryParameter> variables) throws AWException {
+    DataList rows = new DataList();
+    groups.forEach(group -> rows.addRow(new HashMap<>(group.row())));
+    DataList labelled = processDataList(getBean(DataListBuilder.class).setDataList(rows), labelQuery, variables).build();
+    List<String> labels = new ArrayList<>();
+    for (int index = 0; index < groups.size(); index++) {
+      CellData label = labelled.getRows().get(index).get(column);
+      labels.add(groups.get(index).value() == null || label == null ? null : label.getStringValue());
+    }
+    return labels;
+  }
+
+  /**
+   * Filter data list by the grid column filters, unless the service manages the pagination (then the request
+   * parameter reaches the service unchanged)
+   *
+   * @param builder   DataListBuilder
+   * @param query     Query
+   * @param variables Query variables
+   * @return Builder
+   * @throws AWException The column filters are not valid for the query
+   */
+  protected DataListBuilder filterDataList(DataListBuilder builder, Query query, Map<String, QueryParameter> variables) throws AWException {
+    if (query != null && !query.isPaginationManaged() && variables.containsKey(AweConstants.QUERY_COLUMN_FILTERS)) {
+      builder.columnFilter(getColumnFilters(query, variables.get(AweConstants.QUERY_COLUMN_FILTERS).getValue()));
+    }
+
+    return builder;
+  }
+
+  /**
+   * Check the grid column filters of the request before running the query, unless the service manages the pagination
+   *
+   * @param query      Query
+   * @param parameters Request parameters
+   * @throws AWException The column filters are not valid for the query
+   */
+  protected void validateColumnFilters(Query query, ObjectNode parameters) throws AWException {
+    if (!query.isPaginationManaged()) {
+      getColumnFilters(query, getQueryUtil().getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters));
+    }
+  }
+
+  /**
+   * Parse the grid column filters and check their fields against the query
+   *
+   * @param query         Query
+   * @param columnFilters Column filters parameter
+   * @return Column filters
+   * @throws AWException The column filters are not valid for the query
+   */
+  private List<ColumnFilter> getColumnFilters(Query query, JsonNode columnFilters) throws AWException {
+    List<ColumnFilter> columnFilterList = getQueryUtil().getColumnFilterList(columnFilters);
+    for (ColumnFilter columnFilter : columnFilterList) {
+      getQueryUtil().getColumnFilterFields(query, columnFilter);
+    }
+    return columnFilterList;
   }
 
   /**

@@ -16,6 +16,7 @@ import lombok.Getter;
 public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
 
   private final GridAttributes<GridBuilder> gridAttributes;
+  private boolean savedSearches;
 
   public GridBuilder() {
     super();
@@ -30,6 +31,7 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   @Override
   public Grid build(Grid grid) {
     getGridAttributes().asGrid(grid);
+    grid.setSavedSearches(isSavedSearches() ? Boolean.TRUE : null);
     return super.build(grid);
   }
 
@@ -184,6 +186,17 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
    */
   public GridBuilder setShowToolbar(boolean showToolbar) {
     getGridAttributes().setShowToolbar(showToolbar);
+    return this;
+  }
+
+  /**
+   * Offer the saved searches of the grid in its toolbar (#912). Not offered by default
+   *
+   * @param savedSearches Offer the saved searches
+   * @return Grid builder
+   */
+  public GridBuilder setSavedSearches(boolean savedSearches) {
+    this.savedSearches = savedSearches;
     return this;
   }
 

@@ -1,10 +1,13 @@
 import {aweApplication} from "../../awe";
 import "./commons";
+import "./columnFilters";
 
 // Tree grid service
 aweApplication.factory('GridTree',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$log', 'ActionController', 'ServerData', 'AweSettings', 'uiGridConstants',
-    function (Utilities, Control, Component, GridEvents, GridCommons, $log, ActionController, ServerData, $settings, uiGridConstants) {
+    'GridColumnFilters',
+    function (Utilities, Control, Component, GridEvents, GridCommons, $log, ActionController, ServerData, $settings, uiGridConstants,
+              GridColumnFilters) {
 
       /**
        * Fix identifier
@@ -495,11 +498,12 @@ aweApplication.factory('GridTree',
            * @returns {Object} Specific fields from component
            */
           component.getSpecificFields = function () {
-            // Retrieve specific query data
+            // Retrieve specific query data (and the column filters in effect, #912)
             return {
               max: component.controller.loadAll ? 0 : component.getMax(),
               page: component.currentPage,
-              sort: grid.sorting
+              sort: grid.sorting,
+              ...component.getColumnFiltersParameters()
             };
           };
 
@@ -1014,6 +1018,9 @@ aweApplication.factory('GridTree',
           if (!this.commons.init()) {
             return false;
           }
+
+          // Column autofilter (#912)
+          GridColumnFilters.attach(component);
 
           /**********************************************************************/
           /* EVENTS                                                             */

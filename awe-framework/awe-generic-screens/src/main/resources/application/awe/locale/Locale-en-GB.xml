@@ -1483,6 +1483,57 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
   <locale name="GRID_COLUMNS_SAVED" value="Saved"/>
+  <locale name="GRID_FILTER_BUTTON" value="Filter and sort {{label}}"/>
+  <locale name="GRID_FILTER_SORT_ASC_TEXT" value="Sort A to Z"/>
+  <locale name="GRID_FILTER_SORT_DESC_TEXT" value="Sort Z to A"/>
+  <locale name="GRID_FILTER_SORT_ASC_NUMBER" value="Sort smallest to largest"/>
+  <locale name="GRID_FILTER_SORT_DESC_NUMBER" value="Sort largest to smallest"/>
+  <locale name="GRID_FILTER_SORT_ASC_DATE" value="Sort oldest to newest"/>
+  <locale name="GRID_FILTER_SORT_DESC_DATE" value="Sort newest to oldest"/>
+  <locale name="GRID_FILTER_CLEAR" value="Clear filter from «{{label}}»"/>
+  <locale name="GRID_FILTER_TEXT_FILTERS" value="Text filters"/>
+  <locale name="GRID_FILTER_NUMBER_FILTERS" value="Number filters"/>
+  <locale name="GRID_FILTER_DATE_FILTERS" value="Date filters"/>
+  <locale name="GRID_FILTER_OPERATOR_EQ" value="Equals"/>
+  <locale name="GRID_FILTER_OPERATOR_NE" value="Does not equal"/>
+  <locale name="GRID_FILTER_OPERATOR_STARTS_WITH" value="Begins with"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_STARTS_WITH" value="Does not begin with"/>
+  <locale name="GRID_FILTER_OPERATOR_ENDS_WITH" value="Ends with"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_ENDS_WITH" value="Does not end with"/>
+  <locale name="GRID_FILTER_OPERATOR_CONTAINS" value="Contains"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_CONTAINS" value="Does not contain"/>
+  <locale name="GRID_FILTER_OPERATOR_GT" value="Is greater than"/>
+  <locale name="GRID_FILTER_OPERATOR_GE" value="Is greater than or equal to"/>
+  <locale name="GRID_FILTER_OPERATOR_LT" value="Is less than"/>
+  <locale name="GRID_FILTER_OPERATOR_LE" value="Is less than or equal to"/>
+  <locale name="GRID_FILTER_OPERATOR_BETWEEN" value="Between"/>
+  <locale name="GRID_FILTER_OPERATOR_EMPTY" value="Is empty"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_EMPTY" value="Is not empty"/>
+  <locale name="GRID_FILTER_OPERATOR_BEFORE" value="Before"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_BEFORE" value="On or before"/>
+  <locale name="GRID_FILTER_OPERATOR_AFTER" value="After"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_AFTER" value="On or after"/>
+  <locale name="GRID_FILTER_TODAY" value="Today"/>
+  <locale name="GRID_FILTER_YESTERDAY" value="Yesterday"/>
+  <locale name="GRID_FILTER_THIS_WEEK" value="This week"/>
+  <locale name="GRID_FILTER_LAST_MONTH" value="Last month"/>
+  <locale name="GRID_FILTER_THIS_YEAR" value="This year"/>
+  <locale name="GRID_FILTER_CUSTOM" value="Custom filter…"/>
+  <locale name="GRID_FILTER_CUSTOM_TITLE" value="Custom filter"/>
+  <locale name="GRID_FILTER_AND" value="And"/>
+  <locale name="GRID_FILTER_OR" value="Or"/>
+  <locale name="GRID_FILTER_UNION" value="Join of the conditions"/>
+  <locale name="GRID_FILTER_NO_CONDITION" value="(None)"/>
+  <locale name="GRID_FILTER_CONDITION_OPERATOR" value="Operator of condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_VALUE" value="Value of condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_TO" value="End value of condition {{number}}"/>
+  <locale name="GRID_FILTER_SEARCH" value="Search"/>
+  <locale name="GRID_FILTER_SELECT_ALL" value="(Select all)"/>
+  <locale name="GRID_FILTER_BLANKS" value="(Blanks)"/>
+  <locale name="GRID_FILTER_VALUES" value="Values of {{label}}"/>
+  <locale name="GRID_FILTER_LOADING" value="Loading values…"/>
+  <locale name="GRID_FILTER_NO_VALUES" value="No values"/>
+  <locale name="GRID_FILTER_MORE_VALUES" value="Only the first {{count}} values are shown: type to search for the others or use the filters of the column."/>
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Message from {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>

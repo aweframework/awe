@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
@@ -50,6 +51,11 @@ public class ServiceQueryConnector extends AbstractQueryConnector {
     // Log start query prepare time
     List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
+    // Reject invalid grid column filters before the service runs
+    if (query.isPostProcessed()) {
+      validateColumnFilters(query, parameters);
+    }
+
     // Get query builder
     ServiceBuilder builder = getBean(ServiceBuilder.class);
     builder.setParameters(parameters);
@@ -81,6 +87,13 @@ public class ServiceQueryConnector extends AbstractQueryConnector {
       LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
       LogUtil.getTotalTime(timeLapse));
     return result;
+  }
+
+  @Override
+  protected DataList getColumnValuesRows(Query query, ObjectNode parameters, Map<String, QueryParameter> variables) throws AWException {
+    ServiceBuilder builder = getBean(ServiceBuilder.class);
+    builder.setParameters(parameters);
+    return getFilteredRows(buildResults(builder, query), query, variables);
   }
 
   @Override

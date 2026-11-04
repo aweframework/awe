@@ -1,0 +1,41 @@
+{
+  "title": "Grid filters (#912)",
+  "brief": "Filtros a nivel de grid (#912): búsqueda y filtros rápidos (ya existen), filtros declarados en el XML del grid, chips de lo aplicado y búsquedas guardadas, en los dos motores. Tres alternativas sobre dónde viven los filtros. Sistema de diseño: design/system.md; lenguaje visual de design/modules.",
+  "artboards": [
+    {
+      "file": "01-issue-panel-lateral.html",
+      "title": "01 · Lo que plantea el issue: botón Filtros y panel lateral — descartada",
+      "tradeoff": "Reutiliza tal cual el panel de #790 y escala a muchos filtros; aleja los filtros del dato y duplica el patrón de la ventana.",
+      "width": 1440,
+      "height": 3150
+    },
+    {
+      "file": "02-barra-sin-panel.html",
+      "title": "02 · Filtros en la barra del grid, sin panel — descartada",
+      "tradeoff": "Los filtros están junto al dato y la píldora es a la vez control y chip; con más de ~5 fijados la barra ocupa dos líneas.",
+      "width": 1440,
+      "height": 4450
+    },
+    {
+      "file": "03-filtro-columna.html",
+      "title": "03 · Filtros en la cabecera de cada columna — superada por la 05",
+      "tradeoff": "Lo más directo si filtro = columna; no cubre criterios que no son columna y se confunde con enable-filters (cliente).",
+      "width": 1440,
+      "height": 1150
+    },
+    {
+      "file": "04-mixta-columna-mas-filtros.html",
+      "title": "04 · Mixta: embudo en las columnas declaradas y Más filtros — descartada (Más filtros fuera de alcance)",
+      "tradeoff": "Lo directo de la 03 para lo que es columna y un hueco para lo que no; dos sitios donde filtrar, unidos por los chips.",
+      "width": 1440,
+      "height": 3700
+    },
+    {
+      "file": "05-autofiltro-excel.html",
+      "title": "05 · Autofiltro tipo Excel en las columnas — elegida",
+      "tradeoff": "Modelo que el usuario ya conoce y filtro junto al dato; necesita una consulta de valores distintos por columna y un contrato para filtros compuestos.",
+      "width": 1440,
+      "height": 3700
+    }
+  ]
+}

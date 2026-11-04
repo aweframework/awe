@@ -4,10 +4,16 @@ import com.almis.awe.config.SavedSearchConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnFilter;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.screen.component.Window;
+import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
+import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.entities.screen.component.grid.GroupHeader;
+import com.almis.awe.model.type.ColumnFilterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
@@ -18,16 +24,23 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Manage the saved searches of the advanced block of the windows (#790): each user saves, renames and deletes their own
- * searches, and a user with access to the publish option (property {@code awe.saved-search.publish-option}) publishes
- * searches for a profile, which the users of that profile see and apply but do not change.
+ * Manage the saved searches of the advanced block of the windows (#790) and of the grids (#912): each user saves, renames
+ * and deletes their own searches, and a user with access to the publish option (property
+ * {@code awe.saved-search.publish-option}) publishes searches for a profile, which the users of that profile see and
+ * apply but do not change. The searches of a grid are stored as the ones of a window, with the grid id as window id
+ * (component ids are unique in a screen), and keep the state of the grid: its column filters (with the labels of their
+ * values), its sort, the value of its quick filter and the text of its search.
  *
  * <p>The user and the profile always come from the session, never from the parameters of the request. The maintain
  * targets that write the searches published for a profile read the profile from a session parameter that only this
@@ -62,6 +75,15 @@ public class SavedSearchService extends ServiceConfig {
   private static final String WINDOW_ID = "windowId";
   private static final String VALUE = "value";
   private static final String LABEL = "label";
+
+  // Keys of the state of a grid
+  private static final String COLUMN_FILTERS = "columnFilters";
+  private static final String COLUMN_FILTER_LABELS = "columnFilterLabels";
+  private static final String SORT = "sort";
+  private static final String DIRECTION = "direction";
+  private static final String QUICK_FILTER = "quickFilter";
+  private static final String SEARCH = "search";
+  private static final Set<String> SORT_DIRECTIONS = Set.of("asc", "desc");
 
   // Sizes of the columns of AweSavSch
   private static final int MAX_IDENTIFIER_LENGTH = 100;
@@ -140,13 +162,15 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Save a search of a window: an own search of the session user, or a search published for a profile when the user
-   * may publish. A search with the same name for the same owner replaces its values
+   * Save a search of a window or a grid: an own search of the session user, or a search published for a profile when
+   * the user may publish. A search with the same name for the same owner replaces its values
    *
    * @param screen   Screen identifier
-   * @param windowId Window identifier
+   * @param windowId Window or grid identifier
    * @param name     Search name
-   * @param values   Values as JSON text ({@code {"<criterion>": [{"value": ..., "label": ...}]}})
+   * @param values   Values as JSON text: of a window {@code {"<criterion>": [{"value": ..., "label": ...}]}}, of a grid
+   *                 {@code {"columnFilters": [...], "columnFilterLabels": {...}, "sort": [...], "quickFilter": ...,
+   *                 "search": ...}}
    * @param profile  Profile acronym to publish the search for, empty for an own search
    * @return Service data
    * @throws AWException Invalid search, not allowed to publish, no user in the session or storage error
@@ -156,8 +180,7 @@ public class SavedSearchService extends ServiceConfig {
     validateIdentifier(screen);
     validateIdentifier(windowId);
     String searchName = validateName(name);
-    Window window = getSavedSearchWindow(screen, windowId);
-    String normalized = normalize(values, window.getSearchCriteria());
+    String normalized = normalize(values, getSavedSearchComponent(screen, windowId));
     boolean publish = profile != null && !profile.isBlank();
     if (publish) {
       requirePublishAllowed();
@@ -379,38 +402,34 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Retrieve the window of the screen whose saved searches are managed: it must hold an advanced block and opt in
+   * Retrieve the component of the screen whose saved searches are managed: a window that holds an advanced block, or a
+   * grid, that opts in
    */
-  private Window getSavedSearchWindow(String screenId, String windowId) throws AWException {
-    Optional<Window> window;
+  private Element getSavedSearchComponent(String screenId, String componentId) throws AWException {
+    Optional<Element> component;
     try {
-      window = getElements().getScreen(screenId).getElementsById(windowId).stream()
-        .filter(Window.class::isInstance)
-        .map(Window.class::cast)
-        .filter(Window::hasSavedSearches)
+      component = getElements().getScreen(screenId).getElementsById(componentId).stream()
+        .filter(element -> element instanceof Window window && window.hasSavedSearches()
+          || element instanceof AbstractGrid grid && grid.hasSavedSearches())
         .findFirst();
     } catch (AWException exc) {
       throw invalid(exc);
     }
-    return window.orElseThrow(() -> invalid(null));
+    return component.orElseThrow(() -> invalid(null));
   }
 
   /**
-   * Parse the values sent by the client and write them back in their compact form, keeping only the criteria of the
-   * window search and the value and label of each selected value
+   * Parse the values sent by the client and write them back in their compact form: the state of a grid, or the
+   * criteria of the search of a window with the value and label of each selected value
    */
-  private String normalize(String values, List<String> searchCriteria) throws AWException {
+  private String normalize(String values, Element component) throws AWException {
     try {
       JsonNode node = values == null ? null : mapper.readTree(values);
       if (node == null || !node.isObject()) {
         throw invalid(null);
       }
-      ObjectNode normalized = JsonNodeFactory.instance.objectNode();
-      for (String criterion : searchCriteria) {
-        if (node.has(criterion)) {
-          normalized.set(criterion, normalizeSelection(node.get(criterion)));
-        }
-      }
+      ObjectNode normalized = component instanceof AbstractGrid grid ? normalizeGridState(node, grid)
+        : normalizeCriteria(node, ((Window) component).getSearchCriteria());
       String text = mapper.writeValueAsString(normalized);
       if (text.length() > MAX_VALUES_LENGTH) {
         throw new AWException(getLocale(ERROR_TITLE_INVALID_SAVED_SEARCH), getLocale(ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE));
@@ -419,6 +438,152 @@ public class SavedSearchService extends ServiceConfig {
     } catch (JacksonException exc) {
       throw invalid(exc);
     }
+  }
+
+  private ObjectNode normalizeCriteria(JsonNode node, List<String> searchCriteria) throws AWException {
+    ObjectNode normalized = JsonNodeFactory.instance.objectNode();
+    for (String criterion : searchCriteria) {
+      if (node.has(criterion)) {
+        normalized.set(criterion, normalizeSelection(node.get(criterion)));
+      }
+    }
+    return normalized;
+  }
+
+  /**
+   * Keep the state of a grid: its column filters (valid and on columns that declare that filter), the labels of their
+   * values, its sort (on columns it can sort by), and the value of its quick filter and the text of its search when it
+   * has them. Filters and sorts of columns the grid no longer has are dropped; any other wrong value is rejected
+   */
+  private ObjectNode normalizeGridState(JsonNode state, AbstractGrid grid) throws AWException {
+    List<Column> columns = getGridColumns(grid);
+    ObjectNode normalized = JsonNodeFactory.instance.objectNode();
+    Set<String> filtered = new HashSet<>();
+    if (state.has(COLUMN_FILTERS)) {
+      normalized.set(COLUMN_FILTERS, normalizeColumnFilters(state.get(COLUMN_FILTERS), columns, filtered));
+    }
+    if (state.has(COLUMN_FILTER_LABELS)) {
+      normalized.set(COLUMN_FILTER_LABELS, normalizeColumnFilterLabels(state.get(COLUMN_FILTER_LABELS), filtered));
+    }
+    if (state.has(SORT)) {
+      normalized.set(SORT, normalizeSort(state.get(SORT), columns));
+    }
+    if (grid.getQuickFilter() != null && state.has(QUICK_FILTER)) {
+      JsonNode quickFilter = state.get(QUICK_FILTER);
+      if (!quickFilter.isValueNode()) {
+        throw invalid(null);
+      }
+      normalized.set(QUICK_FILTER, quickFilter);
+    }
+    if (grid.getSearch() != null && state.has(SEARCH)) {
+      JsonNode search = state.get(SEARCH);
+      if (!search.isString() && !search.isNull()) {
+        throw invalid(null);
+      }
+      normalized.set(SEARCH, search);
+    }
+    return normalized;
+  }
+
+  /**
+   * Columns of a grid, also the ones of its group headers
+   */
+  private static List<Column> getGridColumns(AbstractGrid grid) {
+    List<Column> columns = new ArrayList<>();
+    for (Element element : grid.getElementList()) {
+      if (element instanceof Column column) {
+        columns.add(column);
+      } else if (element instanceof GroupHeader groupHeader) {
+        columns.addAll(groupHeader.getChildrenByType(Column.class));
+      }
+    }
+    return columns;
+  }
+
+  private ArrayNode normalizeColumnFilters(JsonNode node, List<Column> columns, Set<String> filtered) throws AWException {
+    if (!node.isArray()) {
+      throw invalid(null);
+    }
+    List<ColumnFilter> filters;
+    try {
+      filters = ColumnFilter.fromJson(node);
+    } catch (IllegalArgumentException exc) {
+      throw invalid(exc);
+    }
+    ArrayNode normalized = JsonNodeFactory.instance.arrayNode();
+    for (ColumnFilter filter : filters) {
+      Optional<Column> column = columns.stream().filter(candidate -> filter.getId().equals(candidate.getName())).findFirst();
+      Optional<ColumnFilterType> type = column.flatMap(candidate -> ColumnFilterType.fromCode(candidate.getFilter()));
+      if (type.isEmpty() || !filtered.add(filter.getId())) {
+        continue;
+      }
+      // The filter of a column always has the type and the fields the column declares
+      if (filter.getType() != type.get() || !filter.getFields().equals(getFilterFields(column.get()))) {
+        throw invalid(null);
+      }
+      normalized.add(filter.toJson());
+    }
+    return normalized;
+  }
+
+  /**
+   * Fields a column filters: its filter-fields, else its sort-field, else its name (as the clients send them)
+   */
+  private static List<String> getFilterFields(Column column) {
+    List<String> fields = column.getFilterFields() == null ? List.of() : Arrays.stream(column.getFilterFields().split(","))
+      .map(String::trim)
+      .filter(field -> !field.isEmpty())
+      .toList();
+    if (!fields.isEmpty()) {
+      return fields;
+    }
+    return List.of(column.getField() == null || column.getField().isBlank() ? column.getName() : column.getField());
+  }
+
+  private ObjectNode normalizeColumnFilterLabels(JsonNode node, Set<String> filtered) throws AWException {
+    if (!node.isObject()) {
+      throw invalid(null);
+    }
+    ObjectNode normalized = JsonNodeFactory.instance.objectNode();
+    for (String column : node.propertyNames()) {
+      JsonNode labels = node.get(column);
+      if (!labels.isObject()) {
+        throw invalid(null);
+      }
+      for (String value : labels.propertyNames()) {
+        if (!labels.get(value).isString()) {
+          throw invalid(null);
+        }
+      }
+      if (filtered.contains(column)) {
+        normalized.set(column, labels);
+      }
+    }
+    return normalized;
+  }
+
+  private ArrayNode normalizeSort(JsonNode node, List<Column> columns) throws AWException {
+    if (!node.isArray()) {
+      throw invalid(null);
+    }
+    ArrayNode normalized = JsonNodeFactory.instance.arrayNode();
+    for (JsonNode entry : node) {
+      JsonNode id = entry.get(ID);
+      JsonNode direction = entry.get(DIRECTION);
+      if (!entry.isObject() || id == null || !id.isString() || direction == null || !direction.isString()
+        || !SORT_DIRECTIONS.contains(direction.stringValue().toLowerCase(Locale.ROOT))) {
+        throw invalid(null);
+      }
+      String column = id.stringValue();
+      boolean sortable = columns.stream().anyMatch(candidate -> candidate.isSortable()
+        && (column.equals(candidate.getName()) || column.equals(candidate.getField())));
+      if (sortable) {
+        normalized.addObject()
+          .put(ID, column)
+          .put(DIRECTION, direction.stringValue().toLowerCase(Locale.ROOT));
+      }
+    }
+    return normalized;
   }
 
   private ArrayNode normalizeSelection(JsonNode selection) throws AWException {

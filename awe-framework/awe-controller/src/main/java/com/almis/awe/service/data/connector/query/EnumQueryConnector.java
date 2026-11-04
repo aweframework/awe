@@ -95,15 +95,7 @@ public class EnumQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Query launch
-    List<Global> resultList;
-    try {
-      // Launch query
-      resultList = builder.setEnumerated(enumId).build();
-    } catch (AWException exc) {
-      throw exc;
-    } catch (Exception exc) {
-      throw new AWEQueryException(getLocale("ERROR_TITLE_LAUNCHING_ENUM_QUERY"), exc.getMessage(), enumId, exc);
-    }
+    List<Global> resultList = buildEnumerated(builder, enumId);
 
     // Get elapsed query time
     LogUtil.checkpoint(timeLapse);
@@ -133,6 +125,33 @@ public class EnumQueryConnector extends AbstractQueryConnector {
   }
 
   /**
+   * Retrieve the options of an enumerated
+   *
+   * @param builder Enumerated builder
+   * @param enumId  Enumerated identifier
+   * @return Options
+   * @throws AWException Error retrieving the enumerated
+   */
+  private List<Global> buildEnumerated(EnumBuilder builder, String enumId) throws AWException {
+    try {
+      return builder.setEnumerated(enumId).build();
+    } catch (AWException exc) {
+      throw exc;
+    } catch (Exception exc) {
+      throw new AWEQueryException(getLocale("ERROR_TITLE_LAUNCHING_ENUM_QUERY"), exc.getMessage(), enumId, exc);
+    }
+  }
+
+  @Override
+  protected DataList getColumnValuesRows(Query query, ObjectNode parameters, Map<String, QueryParameter> variables) throws AWException {
+    List<Global> resultList = buildEnumerated(getBean(EnumBuilder.class), query.getEnumerated());
+    DataListBuilder builder = getBean(DataListBuilder.class)
+      .setEnumQueryResult(resultList)
+      .setRecords((long) resultList.size());
+    return filterDataList(builder, query, variables).build();
+  }
+
+  /**
    * Fill output datalist
    *
    * @param results      Query results
@@ -157,6 +176,9 @@ public class EnumQueryConnector extends AbstractQueryConnector {
       // Add transformations & translations
       builder = processDataList(builder, query, parameterMap);
     }
+
+    // Filter datalist by the grid column filters
+    builder = filterDataList(builder, query, parameterMap);
 
     // Sort datalist
     builder = sortDataList(builder, parameterMap);

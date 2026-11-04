@@ -170,6 +170,11 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private String columnsPanel;
 
+  // Whether the toolbar offers the saved searches of the grid (#912): its column filters, sort, quick filter and search
+  @XStreamAlias("saved-searches")
+  @XStreamAsAttribute
+  private Boolean savedSearches;
+
   // Identifier of the screen the grid was generated for: the key, with the grid id, of the layout of the user
   @JsonProperty("screenId")
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -334,6 +339,27 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("showToolbar")
   public boolean isShowToolbar() {
     return showToolbar == null || showToolbar;
+  }
+
+  /**
+   * Returns if the grid offers saved searches in its toolbar
+   *
+   * @return Grid offers saved searches
+   */
+  @JsonIgnore
+  public boolean hasSavedSearches() {
+    return Boolean.TRUE.equals(savedSearches);
+  }
+
+  /**
+   * Whether the grid offers saved searches, for JSON serialization. Absent unless the grid opts in
+   *
+   * @return true or null
+   */
+  @JsonGetter("savedSearches")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean getSavedSearchesConverter() {
+    return hasSavedSearches() ? Boolean.TRUE : null;
   }
 
   /**

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.TestMethodOrder;
  * Advanced search of a window (#790) on a list of customers: the essential criteria first, then the advanced block, shown
  * inline below its Advanced filters row or in a side panel (a tab each), the counter of the advanced criteria in use, the
  * filters in effect with their chips, the search of each example in its own grid, a window without advanced block, and the
- * open state of the inline block, which is remembered for the user. Every test opens its screen with the inline block
- * closed, so each one can run on its own.
+ * open state of the inline block, which is remembered for the user, and the column autofilter of the inline grid (#912).
+ * Every test opens its screen with the inline block closed, so each one can run on its own.
  *
  * <p>The inline window keeps saved searches (saved-searches="true"): the test user saves, applies, renames and deletes its
  * own searches and, as it may publish (it reaches the profiles option), publishes one for the Test profile. A user of that
@@ -39,12 +39,16 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
   private static final String INLINE_COUNTRY_COLUMN = "InlCtr";
   private static final String INLINE_SEGMENT_COLUMN = "InlSeg";
   private static final String INLINE_PRIORITY_COLUMN = "InlPri";
+  private static final String INLINE_STATUS_COLUMN = "InlSta";
   private static final String PANEL_NAME_COLUMN = "PnlNam";
   private static final String PANEL_COUNTRY_COLUMN = "PnlCtr";
   private static final String SPAIN = "Spain";
   private static final String FRANCE = "France";
   private static final String RETAIL = "Retail";
   private static final String YES = "Yes";
+  // First page of the customers of the default country (Spain) in the inline grid
+  private static final String[] SPANISH_CUSTOMERS = {"Atlas Logistics", "Granite Textiles", "Atlas Foods", "Granite Systems",
+    "Boreal Retail", "Harbor Media", "Boreal Motors", "Harbor Logistics", "Cobalt Textiles", "Iris Labs"};
   private static final String SAVED_SEARCHES = "Saved searches";
   private static final String OWN_SEARCH = "Active retail";
   private static final String RENAMED_SEARCH = "Active retail customers";
@@ -595,6 +599,37 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
 
     // The user of the profile, if it is still there
     verifyUserDeleted(PROFILE_USER);
+  }
+
+  /**
+   * Column autofilter (#912): after a search of the customers of the default country, the funnel of the status column
+   * lists its values from the server (codes shown by their labels). Unchecking Active and accepting keeps the inactive
+   * customers, fills the funnel and shows the chip of the filter; removing the chip brings every customer back
+   */
+  @Test
+  void t150_columnAutofilterFiltersTheGridAndItsChipRemovesIt() {
+    setTestTitle("Column autofilter: filter the grid from the values of a column and remove the filter from its chip");
+    openAdvancedSearchScreen();
+    clickButton("ButAdvInlSch");
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_CUSTOMERS);
+    checkGridPaginationInfo("View 1 - 10 of 20");
+    checkNoGridColumnFilterChips(INLINE_GRID);
+
+    // Only the inactive customers
+    openGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
+    checkGridColumnFilterValue(INLINE_GRID, "1", false);
+    acceptGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Harbor Media", "Harbor Logistics", "Delta Media", "Delta Logistics");
+    checkGridPaginationInfo("View 1 - 4 of 4");
+    checkGridColumnFiltered(INLINE_GRID, INLINE_STATUS_COLUMN, true);
+    checkGridColumnFilterChip(INLINE_GRID, INLINE_STATUS_COLUMN, "Status: Inactive");
+
+    // The chip removes the filter
+    removeGridColumnFilterChip(INLINE_GRID, INLINE_STATUS_COLUMN);
+    checkNoGridColumnFilterChips(INLINE_GRID);
+    checkGridColumnFiltered(INLINE_GRID, INLINE_STATUS_COLUMN, false);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_CUSTOMERS);
+    checkGridPaginationInfo("View 1 - 10 of 20");
   }
 
   /**

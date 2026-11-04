@@ -81,6 +81,23 @@ export const TestIds = Object.freeze({
   // Search of the grid toolbar (the owner is the grid) and its clear button
   gridSearch: "grid-search",
   gridSearchClear: "grid-search-clear",
+  // Column autofilter (#912; the owner is the grid): the funnel of a column header ("column-id"; "data-active"
+  // while the column is filtered) and its menu ("column-id") with its options ("option-id": sort-asc, sort-desc, clear,
+  // conditions, an operator, a relative date or custom), its search, its Select all, a value ("option-id" with the value,
+  // "data-selected"; "data-type" blanks for the empty values), Accept and Cancel; the row of the column filters in effect
+  // with a chip per column ("column-id"), its remove button and Clear all
+  gridColumnFilter: "grid-column-filter",
+  gridColumnFilterMenu: "grid-column-filter-menu",
+  gridColumnFilterOption: "grid-column-filter-option",
+  gridColumnFilterSearch: "grid-column-filter-search",
+  gridColumnFilterSelectAll: "grid-column-filter-select-all",
+  gridColumnFilterValue: "grid-column-filter-value",
+  gridColumnFilterAccept: "grid-column-filter-accept",
+  gridColumnFilterCancel: "grid-column-filter-cancel",
+  gridColumnFilterChips: "grid-column-filter-chips",
+  gridColumnFilterChip: "grid-column-filter-chip",
+  gridColumnFilterChipRemove: "grid-column-filter-chip-remove",
+  gridColumnFilterClearAll: "grid-column-filter-clear-all",
   // Selection bar of the grid (the owner is the grid; "data-count" is the number of selected rows) and its text
   gridSelectionBar: "grid-selection-bar",
   gridSelectionCount: "grid-selection-count",

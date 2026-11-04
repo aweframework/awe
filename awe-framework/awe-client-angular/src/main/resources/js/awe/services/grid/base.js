@@ -1,13 +1,14 @@
 import {aweApplication} from "../../awe";
 import "./commons";
 import "./groupingGrid";
+import "./columnFilters";
 import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
 import {getMoveRowsColumn} from "./rowDrag";
 
 // Base grid service
 aweApplication.factory('GridBase',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$translate', '$filter', '$log', 'uiGridConstants',
-    'Storage', 'ServerData', 'GridGrouping',
+    'Storage', 'ServerData', 'GridGrouping', 'GridColumnFilters',
     /**
      * Grid generic methods
      * @param {service} Utilities Utilities service
@@ -22,8 +23,9 @@ aweApplication.factory('GridBase',
      * @param {service} Storage Storage service
      * @param {service} ServerData Server data service
      * @param {service} GridGrouping Row grouping
+     * @param {service} GridColumnFilters Column autofilter
      */
-    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData, GridGrouping) {
+    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData, GridGrouping, GridColumnFilters) {
 
       /**
        * Grid constructor
@@ -397,11 +399,12 @@ aweApplication.factory('GridBase',
            * @returns {Object} Specific fields from component
            */
           component.getSpecificFields = function () {
-            // Retrieve specific query data
+            // Retrieve specific query data (and the column filters in effect, #912)
             return {
               max: component.controller.loadAll ? 0 : component.getMax(),
               page: component.currentPage,
-              sort: grid.sorting
+              sort: grid.sorting,
+              ...component.getColumnFiltersParameters()
             };
           };
           /**
@@ -952,6 +955,9 @@ aweApplication.factory('GridBase',
 
           // Row grouping (#833)
           GridGrouping.attach(component);
+
+          // Column autofilter (#912)
+          GridColumnFilters.attach(component);
 
           /**********************************************************************/
           /* EVENTS                                                             */

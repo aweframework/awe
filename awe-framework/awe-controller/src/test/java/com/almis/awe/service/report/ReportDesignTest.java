@@ -201,6 +201,39 @@ class ReportDesignTest {
   }
 
   @Test
+  void getPrintDesignLiftsTheGridColumnFiltersToTheQuery() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // A grid filtered with its column autofilter (#912) prints and exports the filtered rows
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    gridData.set("columnFilters", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("id", "name").put("type", "values")
+        .set("values", JsonNodeFactory.instance.arrayNode().add("Ann"))));
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder()
+        .setId("gridId")
+        .setTargetAction("gridQuery")
+        .addColumn(new TextColumnBuilder().setName("name"))
+        .build()
+    );
+
+    reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
+    assertEquals("Ann", queryParameters.getValue().get("columnFilters").get(0).get("values").get(0).asString(),
+      "the column filters of the grid must reach the query root");
+  }
+
+  @Test
   void getPrintDesignWithQueryGridWithoutClientPaginationLeavesQueryDefaults() throws Exception {
     when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());

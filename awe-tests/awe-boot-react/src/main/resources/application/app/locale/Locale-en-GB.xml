@@ -394,6 +394,7 @@
   <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Advanced search"/>
   <locale name="ENUM_ADV_SCH_INLINE" value="Advanced filters inline"/>
   <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Advanced filters in a side panel"/>
+  <locale name="ENUM_ADV_SCH_SQL" value="Column filters on a SQL query"/>
   <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Search customers"/>
   <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Customers"/>
   <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Customer filters"/>

@@ -327,6 +327,7 @@
   <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Búsqueda avanzada"/>
   <locale name="ENUM_ADV_SCH_INLINE" value="Filtros avanzados en línea"/>
   <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Filtros avanzados en un panel lateral"/>
+  <locale name="ENUM_ADV_SCH_SQL" value="Filtros de columna sobre una consulta SQL"/>
   <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Buscar clientes"/>
   <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Clientes"/>
   <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Filtros de clientes"/>

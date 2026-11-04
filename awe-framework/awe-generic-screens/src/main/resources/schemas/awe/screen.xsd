@@ -1107,6 +1107,11 @@
         <xs:documentation xml:lang="en">Shows a filter for each column. Default: false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="saved-searches" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Saved searches menu in the grid toolbar: each user saves, applies, renames and deletes their own searches of the grid (its column filters, sort, quick filter and search), and sees the ones published for their profile. Both engines. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="row-numbers" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Adds a first column with the row number. Not shown in tree grids. Default: true.</xs:documentation>
@@ -1452,6 +1457,16 @@
     <xs:attribute name="sort-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Field used to sort the column. Default: the column name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filter" type="columnFilterEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a filter button in the column header to filter the grid by the values of the column, as the autofilter of a spreadsheet: values (pick from the list of values), text, number or date (conditions of that type). The filter runs on the server with the query (in the SQL WHERE of database queries, keeping the database pagination). It applies to the fields of filter-fields, else to sort-field, else to the column name, which must be fields of the query not marked noprint. When a column declares it, it replaces the filter of enable-filters for that column. Default: no filter.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filter-fields" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma-separated query fields the column filter applies to, for a column that shows several values: a row matches when any of the fields matches (joined by OR). Default: sort-field, else the column name. Only used with filter.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="hidden" type="booleanEnum">
@@ -2855,6 +2870,18 @@
   </xs:simpleType>
 
   <!-- Sparkline column type -->
+  <xs:simpleType name="columnFilterEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Type of the filter of a grid column: a list of values to pick, or conditions on text, numbers or dates.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="values" />
+      <xs:enumeration value="text" />
+      <xs:enumeration value="number" />
+      <xs:enumeration value="date" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="sparklineTypeEnum">
     <xs:annotation>
       <xs:documentation xml:lang="en">Drawing of a sparkline column: a connected line, one bar per value (negative values go below the zero line) or a line with the area under it filled.</xs:documentation>

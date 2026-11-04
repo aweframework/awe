@@ -293,17 +293,31 @@ class SavedSearchServiceTest {
   }
 
   @Test
-  @DisplayName("Values that are not a JSON object of lists of objects, or longer than 4000 characters, are rejected")
+  @DisplayName("Values that are not a JSON object of lists of objects are rejected")
   void invalidValuesAreRejected() throws Exception {
     assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", "not json", null));
     assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", "[]", null));
     assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", "{\"CrtUsr\":\"john\"}", null));
     assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", "{\"CrtUsr\":[\"john\"]}", null));
     assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", null, null));
-    String large = "{\"CrtUsr\":[{\"value\":\"" + "x".repeat(4000) + "\"}]}";
-    AWException tooLarge = assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", large, null));
+    verifyNoMaintain();
+  }
+
+  @Test
+  @DisplayName("Values of exactly 4,000 characters are saved and longer ones are rejected with the too large message")
+  void valuesAreLimitedTo4000Characters() throws Exception {
+    when(queryService.launchPrivateQuery(eq("getUserSavedSearchByName"), any(ObjectNode.class))).thenReturn(noRows());
+    String prefix = "{\"CrtUsr\":[{\"value\":\"";
+    String suffix = "\",\"label\":\"L\"}]}";
+    String atTheLimit = prefix + "x".repeat(4000 - prefix.length() - suffix.length()) + suffix;
+    String overTheLimit = prefix + "x".repeat(4001 - prefix.length() - suffix.length()) + suffix;
+
+    AWException tooLarge = assertThrows(AWException.class, () -> savedSearchService.saveWindowSearch("Scr", "Win", "Mine", overTheLimit, null));
     assertEquals("ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE", tooLarge.getMessage());
     verifyNoMaintain();
+
+    savedSearchService.saveWindowSearch("Scr", "Win", "Mine", atTheLimit, null);
+    assertEquals(atTheLimit, maintainParameters("insertUserSavedSearch").get("values").asString());
   }
 
   @Test

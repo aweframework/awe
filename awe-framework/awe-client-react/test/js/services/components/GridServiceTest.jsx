@@ -77,7 +77,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should get all grid actions', function () {
     setup(preloadedState);
 
-    expect(Object.keys(actions).length).toBe(47);
+    expect(Object.keys(actions).length).toBe(48);
   });
 
   it('should launch an add-row action', async function () {
@@ -448,6 +448,24 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
     // Spies
     await waitFor(() => {
       expect(store.dispatch).toHaveBeenCalled();
+    });
+  });
+
+  it('changes the column filters of the grid from its first page and keeps the labels of their values (#912)', async function () {
+    const { store } = setup({
+      ...preloadedState, components: {
+        grid: {...preloadedState.components.grid, specificAttributes: {page: 3, first: 20, sort: []}}
+      }
+    });
+    const columnFilters = [{id: "col1", fields: ["col1"], type: "values", values: ["A"]}];
+
+    act(() => actions["change-column-filters"]({address: {component: "grid", view: "report"},
+      parameters: {columnFilters, labels: {col1: {A: "Alpha"}}}}, props));
+
+    await waitFor(() => {
+      const grid = store.getState().components.grid;
+      expect(grid.specificAttributes).toEqual({page: 1, first: 0, sort: [], columnFilters});
+      expect(grid.attributes.columnFilterLabels).toEqual({col1: {A: "Alpha"}});
     });
   });
 

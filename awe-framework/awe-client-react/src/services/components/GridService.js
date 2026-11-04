@@ -9,6 +9,7 @@ import {
   afterSaveRowGridAction,
   addRowGridAction,
   cancelRowGridAction,
+  changeColumnFiltersGridAction,
   changeColumnLabelGridAction,
   changeFilterGridAction,
   changePageGridAction,
@@ -295,6 +296,12 @@ const useGridService = () => {
   const onGridChangeFilter = (action) => dispatch(changeFilterGridAction(action));
 
   /**
+   * Launch when the column filters of the autofilter change (#912)
+   * @param {Action} action Action received
+   */
+  const onGridChangeColumnFilters = (action) => dispatch(changeColumnFiltersGridAction(action));
+
+  /**
    * Replace the rows of the grid with a copy of the rows of the grid named in the value of the action
    * @param {Action} action Action received
    */
@@ -368,6 +375,7 @@ const useGridService = () => {
     "change-page": onGridChangePage,
     "change-sort": onGridChangeSort,
     "change-filter": onGridChangeFilter,
+    "change-column-filters": onGridChangeColumnFilters,
     "copy-selected-rows-clipboard": copySelectedRowsToClipboard,
     "validate-row": validateCurrentRow,
     "verify-row-validation": verifyRowValidation,

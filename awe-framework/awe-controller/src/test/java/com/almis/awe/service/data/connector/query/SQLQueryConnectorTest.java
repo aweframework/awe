@@ -7,6 +7,7 @@ import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.ColumnFilter;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,6 +45,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -393,6 +396,34 @@ class SQLQueryConnectorTest {
           .isInstanceOfSatisfying(AWEQueryException.class,
             exception -> assertThat(exception.getQuery()).isEqualTo("SELECT 1 WHERE l1_pas = '********'"));
         verify(sqlQueryBuilder).setLogMaskedFields("l1_pas");
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  @Nested
+  @DisplayName("Grid column filters")
+  class GridColumnFilters {
+
+    @Test
+    @DisplayName("The columnFilters of the request reach the builder before it builds the query")
+    void columnFiltersReachTheBuilder() throws Exception {
+      ObjectNode columnFilters = JsonNodeFactory.instance.objectNode().put("id", "name");
+      Map<String, QueryParameter> variables = buildVariableMap(0L, 1L);
+      variables.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFilters));
+      List<ColumnFilter> parsed = List.of(mock(ColumnFilter.class));
+      when(sqlQueryBuilder.getVariables()).thenReturn(variables);
+      when(queryUtil.getColumnFilterList(columnFilters)).thenReturn(parsed);
+      when(sqlQuery.fetch()).thenReturn(Collections.emptyList());
+
+      try (MockedStatic<DataSourceUtils> dsu = mockStatic(DataSourceUtils.class)) {
+        dsu.when(() -> DataSourceUtils.getConnection(dataSource)).thenReturn(connection);
+
+        connector.launch(buildQuery("qFiltered"), emptyParams());
+
+        InOrder order = inOrder(sqlQueryBuilder);
+        order.verify(sqlQueryBuilder).setColumnFilters(parsed);
+        order.verify(sqlQueryBuilder).build();
       }
     }
   }
