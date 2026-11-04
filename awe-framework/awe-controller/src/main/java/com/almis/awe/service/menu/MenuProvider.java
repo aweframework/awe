@@ -17,6 +17,7 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -129,9 +130,14 @@ public class MenuProvider extends ServiceConfig {
           AweConstants.SESSION_RESTRICTION, AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE)
         .map(name -> String.valueOf(getSession().getParameter(String.class, name)))
         .collect(Collectors.joining("|"));
-      List<ScreenRestriction> screenRestrictions = ScreenRestrictionRequestCache.get(restrictionKey, () ->
-        DataListUtil.asBeanList(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")
-          .getDataList(), ScreenRestriction.class));
+      List<ScreenRestriction> screenRestrictions = ScreenRestrictionRequestCache.get(restrictionKey, () -> {
+        // The sort of the client request (e.g. a grid being reloaded) does not apply to the restrictions; it must be
+        // overridden, as an absent parameter would be read from the request
+        ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+        parameters.putArray(AweConstants.COMPONENT_SORT);
+        return DataListUtil.asBeanList(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, parameters)
+          .getDataList(), ScreenRestriction.class);
+      });
 
       // Apply restrictions
       new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menu);

@@ -119,6 +119,10 @@ The *query* element has the following attributes:
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
 
+:::info Screen access
+When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.screen-access`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
+:::
+
 ### Query cache and trace logging
 
 If `cacheable="true"`, the query result is cached and reused while the same inputs repeat during the cache lifetime.

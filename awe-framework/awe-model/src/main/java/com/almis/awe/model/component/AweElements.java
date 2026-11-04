@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.*;
@@ -75,6 +76,8 @@ public class AweElements {
   private volatile Map<String, Profile> profileList;
   private volatile Map<String, Menu> menuList;
   private volatile Map<String, Screen> screenMap;
+  // Incremented each time the screens, menus, queries or maintains are loaded again
+  private final AtomicLong reloadVersion = new AtomicLong();
   // Locale list
   private volatile Map<String, Map<String, String>> localeList;
 
@@ -118,6 +121,16 @@ public class AweElements {
   }
 
   /**
+   * Version of the loaded definitions. It changes each time the screens, menus, queries or maintains are loaded
+   * again, so a cache built from them can tell when it is stale
+   *
+   * @return Reload version
+   */
+  public long getReloadVersion() {
+    return reloadVersion.get();
+  }
+
+  /**
    * Reload all element maps (global files, screens, locales, profiles and menus).
    * Each map is fully rebuilt before being swapped in, so concurrent readers never
    * observe a partially loaded state.
@@ -143,6 +156,7 @@ public class AweElements {
     XMLInitData initData = new XMLInitData();
     waitForFuture(launchQueries(initData));
     queryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -161,6 +175,7 @@ public class AweElements {
     XMLInitData initData = new XMLInitData();
     waitForFuture(launchMaintains(initData));
     maintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -204,6 +219,7 @@ public class AweElements {
    */
   public void reloadScreens() {
     screenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(launchScreens(), SCREEN), screenMap, SCREEN);
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -224,6 +240,7 @@ public class AweElements {
     // Private menu
     reloadMenu(newMenuList, baseConfigProperties.getFiles().getMenuPrivate());
     menuList = newMenuList;
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -283,6 +300,7 @@ public class AweElements {
 
     // Read locale list
     localeList = keepPreviousLocalesOnEmptyRebuild(mergeLocaleResults(initData.getLocaleResults()), localeList);
+    reloadVersion.incrementAndGet();
   }
 
   /**

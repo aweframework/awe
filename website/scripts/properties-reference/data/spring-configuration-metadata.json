@@ -1627,6 +1627,12 @@
       "defaultValue": true
     },
     {
+      "name": "awe.security.screen-access",
+      "type": "com.almis.awe.config.ScreenAccessMode",
+      "description": "Check of the maintain targets and queries launched by a client: they can only be launched when the session user can open at least one menu option whose screen uses them. Public targets and targets that no screen uses are not checked, and the launches made by the server (not requested by a client) are never checked. off does not check, warn logs and audits the launches without access but allows them, and enforce refuses them. Default value enforce",
+      "defaultValue": "enforce"
+    },
+    {
       "name": "awe.security.sso.auto-launch",
       "type": "java.lang.Boolean",
       "description": "When Auto Launch is enabled, the login page will automatically redirect the user to the OAuth authorization url, to log in with OAuth",

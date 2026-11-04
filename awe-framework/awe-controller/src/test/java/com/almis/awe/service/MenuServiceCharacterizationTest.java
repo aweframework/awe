@@ -25,6 +25,7 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.type.RestrictionType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -37,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -51,6 +53,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -94,6 +97,9 @@ class MenuServiceCharacterizationTest {
   @BeforeEach
   void setUp() {
     menuService.setApplicationContext(context);
+    QueryUtil queryUtil = mock(QueryUtil.class);
+    lenient().when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
+    lenient().when(queryUtil.getParameters(any(), any(), any())).thenAnswer(invocation -> JsonNodeFactory.instance.objectNode());
   }
 
   @AfterEach
@@ -489,7 +495,7 @@ class MenuServiceCharacterizationTest {
     mockElements();
     mockSession(true);
     when(aweElements.getMenu("private")).thenReturn(menu(option("allowed"), option("denied")));
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class))).thenReturn(
       new ServiceData().setDataList(DataListUtil.fromBeanList(List.of(
         new ScreenRestriction().setOption("denied").setRestricted(true)))));
 
@@ -637,7 +643,7 @@ class MenuServiceCharacterizationTest {
     mockElements();
     when(securityConfigProperties.getDefaultRestriction()).thenReturn("general");
     when(aweElements.getProfile("general")).thenReturn(profile);
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY, "1", "0"))
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY), any(ObjectNode.class)))
       .thenReturn(queryOutput);
     when(context.getBean(DataListBuilder.class)).thenReturn(builder);
     when(builder.build()).thenReturn(merged);
@@ -662,7 +668,7 @@ class MenuServiceCharacterizationTest {
     DataListBuilder builder = mock(DataListBuilder.class, RETURNS_SELF);
     mockElements();
     when(aweElements.getProfile("custom")).thenReturn(new Profile());
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY, "1", "0"))
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
     when(context.getBean(DataListBuilder.class)).thenReturn(builder);
     when(builder.build()).thenReturn(new DataList());
@@ -681,7 +687,7 @@ class MenuServiceCharacterizationTest {
     mockElements();
     when(securityConfigProperties.getDefaultRestriction()).thenReturn("general");
     when(aweElements.getProfile("general")).thenReturn(new Profile());
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY, "1", "0"))
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
     when(context.getBean(DataListBuilder.class)).thenReturn(builder);
     when(builder.build()).thenReturn(new DataList());
@@ -702,7 +708,7 @@ class MenuServiceCharacterizationTest {
     mockSession(true);
     when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweRequest.getParameter(AweConstants.SESSION_MODULE)).thenReturn(JsonNodeFactory.instance.stringNode("SALES"));
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class))).thenReturn(
       new ServiceData().setDataList(DataListUtil.fromBeanList(List.of(
         new ScreenRestriction().setOption("profile-restricted").setRestricted(true)))));
 
@@ -721,7 +727,7 @@ class MenuServiceCharacterizationTest {
     mockSession(true);
     when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getParameter(String.class, AweConstants.SESSION_MODULE)).thenReturn("admin");
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0"))
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
 
     Menu result = menuService.getMenuWithAllRestrictions(menu);

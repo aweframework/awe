@@ -26,6 +26,7 @@ module.exports = {
 						"security/idp-first",
 						"security/idp-first-keycloak-entra",
 						"security/security-audit",
+						"security/screen-access",
 					],
 				},
 				{

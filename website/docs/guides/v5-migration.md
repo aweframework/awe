@@ -79,6 +79,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *launching maintain without authorization* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
+| Access by screen (#914, new) | A client request that launches a maintain target or a query used by a menu screen (`/action/...`, the file maintain endpoints, `/api/maintain`, `/api/data`, `/api/public/...`) is refused unless the session user can open at least one of the options whose screen uses it. `/api/data` now goes through the same checks as `/action/data`. | Run with `awe.security.screen-access=warn`, read the log and the `ACCESS_DENIED` events, fix screens and restrictions, then leave the default `enforce`. `off` keeps the AWE 4 behaviour. | [Access by screen](#access-by-screen), [Screen access](../security/screen-access.md) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
 | Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
@@ -417,6 +418,30 @@ internal targets of the notifier and the scheduler. The full list is in the
   user from the parameters.
 - A target that a client launches about the signed-in user must read the user from the session
   (`<variable ... session="user"/>`), never from the request.
+
+### Access by screen {#access-by-screen}
+
+Issue #914 checks the access to the screens before a client launches a maintain target or a query. At startup AWE
+indexes the targets and queries that each menu option uses (resolving includes and frames). A client request for an
+indexed target or query runs only if the session user can open at least one of the options whose screen uses it; the
+options of the public menu are open to everyone. Targets and queries that no screen uses keep their previous rules
+(`public`, signed-in session, `server-only`), and the launches made by Java services are not affected.
+
+The mode is set with `awe.security.screen-access`:
+
+| Value | Behaviour |
+|-------|-----------|
+| `enforce` (default) | The request is refused with the *unauthorized* error and audited. |
+| `warn` | The refusal is logged and audited (`ACCESS_DENIED`), but the request runs. |
+| `off` | No check, as in AWE 4. |
+
+- Roll it out in an existing application: set `warn`, review the log and the audit events, fix the screens or the
+  restrictions that do not match the intended access, then use `enforce`.
+- Screens generated at runtime (`dynamic-screen-service` and `menu-screen` options) are not indexed. A target used both
+  by one of them and by a restricted static screen is refused to the users who cannot open the static one.
+- `/api/data` and `/api/public/data` go through the same checks as `/action/data`.
+
+See [Screen access](../security/screen-access.md).
 
 ### Date utilities
 
@@ -1058,6 +1083,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] No client code, screen or REST client of the application launches a framework target that is now `server-only`; own Java-only targets are marked `server-only="true"`
+- [ ] `awe.security.screen-access=warn` was run, the `ACCESS_DENIED` events were reviewed and the application uses `enforce` (or `off` on purpose)
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)

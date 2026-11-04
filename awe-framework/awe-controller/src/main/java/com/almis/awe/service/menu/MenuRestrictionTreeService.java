@@ -105,7 +105,11 @@ public class MenuRestrictionTreeService extends ServiceConfig {
     baseRestrictions.setRecords(baseRestrictions.getRows().size());
 
     // Step 3: Get database restrictions and apply profile restrictions if it doesn't exist
-    ServiceData serviceData = queryService.launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY, "1", "0");
+    // The sort of the client request (e.g. a grid being reloaded) does not apply to the restrictions; it must be
+    // overridden, as an absent parameter would be read from the request
+    ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+    parameters.putArray(AweConstants.COMPONENT_SORT);
+    ServiceData serviceData = queryService.launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_QUERY, parameters);
     DataList databaseRestrictions = serviceData.getDataList();
 
     // Step 4: Merge datalists
