@@ -48,6 +48,8 @@ class ScreenComponentControllerSizeTest {
   private static final int PAGES = 7;
   private static final int CRITERIA = 10;
   private static final int COLUMNS = 10;
+  private static final String TAB_OPTIONS = "TabOpts";
+  private static final String CONTROLLER = "controller";
 
   private final JsonMapper mapper = new JsonMapper();
   private ScreenComponentGenerator generator;
@@ -75,7 +77,7 @@ class ScreenComponentControllerSizeTest {
    * A tab of several pages, each one with a window of criteria, a grid with columns and buttons, and a nested tab
    */
   private static Screen largeScreen() throws Exception {
-    TabBuilder tab = new TabBuilder().setId("Tab").setInitialLoad(InitialLoad.ENUMERATED).setTargetAction("TabOpts");
+    TabBuilder tab = new TabBuilder().setId("Tab").setInitialLoad(InitialLoad.ENUMERATED).setTargetAction(TAB_OPTIONS);
     for (int page = 1; page <= PAGES; page++) {
       WindowBuilder window = new WindowBuilder().setId("Win" + page).setLabel("Window " + page);
       for (int criterion = 1; criterion <= CRITERIA; criterion++) {
@@ -115,8 +117,8 @@ class ScreenComponentControllerSizeTest {
 
     StringBuilder controllers = new StringBuilder();
     for (JsonNode component : mapper.readTree(components)) {
-      assertThat(component.get("controller").has("elementList")).as(component.get("id").asString()).isFalse();
-      controllers.append(component.get("controller"));
+      assertThat(component.get(CONTROLLER).has("elementList")).as(component.get("id").asString()).isFalse();
+      controllers.append(component.get(CONTROLLER));
     }
     for (int page = 1; page <= PAGES; page++) {
       assertThat(occurrences(controllers.toString(), "Page" + page)).as("Page" + page).isEqualTo(1);
@@ -131,11 +133,40 @@ class ScreenComponentControllerSizeTest {
   void theFieldsTheClientsReadFromTheChildrenAreStillSent() throws Exception {
     Map<String, ScreenComponent> componentMap = generate(largeScreen());
 
-    JsonNode grid = mapper.valueToTree(componentMap.get("Grd1")).get("controller");
+    JsonNode grid = mapper.valueToTree(componentMap.get("Grd1")).get(CONTROLLER);
 
     assertThat(grid.get("columnModel")).hasSize(COLUMNS);
     assertThat(grid.get("buttonModel")).hasSize(2);
     // The generated controllers keep their children: only their serialization leaves them out
     assertThat(componentMap.get("Tab").getController().getElementList()).hasSize(PAGES);
+  }
+
+  @Test
+  void theScreenStructureIsASkeleton() throws Exception {
+    Screen screen = largeScreen();
+    Map<String, ScreenComponent> componentMap = generate(screen);
+
+    String components = mapper.writeValueAsString(componentMap.values());
+    String fullStructure = mapper.writeValueAsString(screen);
+    String structure = mapper.valueToTree(new ScreenData().setStructure(screen)).get("structure").toString();
+    log.info("Structure {} bytes, against {} bytes with every attribute and {} bytes of components", structure.length(), fullStructure.length(), components.length());
+
+    // The attributes of the components travel in their controllers, not in the structure
+    assertThat(structure).doesNotContain("Criterion 1").doesNotContain("\"label\"").doesNotContain(TAB_OPTIONS).doesNotContain("\"Column\"");
+    assertThat(controllersOf(components)).contains("Criterion 1").contains(TAB_OPTIONS);
+    for (int page = 1; page <= PAGES; page++) {
+      assertThat(occurrences(structure, "Page" + page)).as("Page" + page).isEqualTo(1);
+      assertThat(occurrences(structure, "Crt" + page + "_1")).as("Crt" + page + "_1").isEqualTo(1);
+    }
+    assertThat(structure.length()).isLessThan(fullStructure.length() / 5);
+    assertThat(structure.length()).isLessThan(components.length() / 5);
+  }
+
+  private String controllersOf(String components) {
+    StringBuilder controllers = new StringBuilder();
+    for (JsonNode component : mapper.readTree(components)) {
+      controllers.append(component.get(CONTROLLER));
+    }
+    return controllers.toString();
   }
 }

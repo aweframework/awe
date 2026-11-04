@@ -760,6 +760,46 @@ export function inspectComponentStructure(element: StructureNode, context: strin
   return inspected;
 }
 
+/**
+ * Keys of a controller that only the state of the component needs: the components do not read them from the props of
+ * their structure node (a window reads the state of its advanced block, a grid its columns from its attributes...)
+ */
+const CONTROLLER_ONLY_KEYS = ["columnModel", "columnLayout", "screenId", "showToolbar", "options", "advancedOpen", "rowDetail"];
+
+/**
+ * Rebuild the nodes of a skeleton structure: the screen sends each component node with its id, its type and its
+ * children, and the rest of its attributes in its controller. The node keeps its own keys (its id, its element type,
+ * which may have been changed to a tree grid, and its children). The subtree of a tag list is left as it comes, as it
+ * is a template that the server sends whole and its elements have no controller.
+ * @param {Object} node Node of the structure
+ * @param {Object} controllers Controllers of the screen components, by id
+ * @return {Object} Node with the attributes of its controller and its children rebuilt
+ */
+export function rebuildStructureNodes(node: StructureNode, controllers: Record<string, ControllerData>): StructureNode {
+  if (node.elementType === "TagList") {
+    return node;
+  }
+  const controller = node.id ? controllers[node.id] : undefined;
+  const rebuilt: StructureNode = controller ? {...omitControllerOnlyKeys(controller), ...node} : {...node};
+  if (node.elementList) {
+    rebuilt.elementList = node.elementList.map(child => rebuildStructureNodes(child, controllers));
+  }
+  return rebuilt;
+}
+
+/**
+ * Get the attributes of a controller that the components read from their structure node
+ * @param {Object} controller Controller of a component
+ * @return {Object} Attributes of the controller, without the ones that only the state of the component needs
+ */
+function omitControllerOnlyKeys(controller: ControllerData): ControllerData {
+  const attributes = {...controller};
+  CONTROLLER_ONLY_KEYS.forEach(key => delete attributes[key]);
+  // The children of a controller are never sent: the ones of the structure node are the ones that count
+  delete attributes.elementList;
+  return attributes;
+}
+
 export function classNames(...args: ClassValue[]): string {
   return (args || [])
     .filter((className): className is NonNullable<ClassValue> => !isEmpty(className))
