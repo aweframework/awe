@@ -320,7 +320,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    */
   protected void validateColumnFilters(Query query, ObjectNode parameters) throws AWException {
     if (!query.isPaginationManaged()) {
-      getColumnFilters(query, getQueryUtil().getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters));
+      getColumnFilters(query, getQueryUtil().getColumnFiltersParameter(query, parameters));
     }
   }
 

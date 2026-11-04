@@ -8,6 +8,7 @@
  *   grid       container, row, col-{xs,sm,md,lg}-{N,offset-N,push-N,pull-N}       done
  *   utilities  pull-*, text-*, hidden/visible-*, hide/show, clearfix, center-block                  done
  *   spacing    pixel-admin no-padding*, padding-*, no-margin*, no-border*, no-bg, valign-*, text-xs..bold, height-*   done
+ *   primeflex-spacing  PrimeFlex p|m[t|b|l|r|x|y]-{0..8|auto}, -m*-N, as the React engine (#791)                done
  *   panels     panel, panel-body|heading|title|footer|title-icon, panel-transparent, panel-padding*, panel-wide...   done (slice 2c)
  *   buttons    btn, btn-default|primary|success|info|warning|danger|link, btn-lg|sm|xs|block (slice 3a)
  *   button-groups  btn-group*, btn-toolbar, dropdown-toggle (inside groups and the global :focus rule) (slice 3a, groups)
@@ -39,6 +40,7 @@
 @import "./utilities.css";
 @import "./panels.css";
 @import "./spacing.css";
+@import "./primeflex-spacing.css";
 @import "./buttons.css";
 @import "./button-groups.css";
 @import "./input-groups.css";

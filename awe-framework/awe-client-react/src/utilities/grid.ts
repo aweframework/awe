@@ -405,11 +405,12 @@ export function getCellModel(value: unknown = null, column: {model?: {values?: C
  * Get row index
  * @param {array} values Values
  * @param {number|string} rowId Row id
+ * @param {string} gridId Field that identifies the rows (the tree id of a tree grid)
  * @returns {number} Row index
  * @memberOf Utilities
  */
-export function getRowIndex(values: readonly GridRow[], rowId: string | number): number {
-  return values.findIndex(row => String(row.id) === String(rowId));
+export function getRowIndex(values: readonly GridRow[], rowId: string | number, gridId: string = GRID_ID): number {
+  return values.findIndex(row => String(row[gridId]) === String(rowId));
 }
 
 /**

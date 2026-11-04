@@ -75,6 +75,10 @@ Write tags so that the result is clear in both engines:
 * Use a tag with `label` for text only. If you need text next to other elements, put each one in its own tag.
 * Use `<tag source="...">` only to fill a source point. Add a `type` to it if it needs an `expandible`.
 
+The PrimeFlex spacing classes (`p-3`, `pt-5`, `mb-3`, `mx-auto`, `-mt-2`...) work in the `style` of any element in both
+engines: the React engine has them from PrimeFlex and the AngularJS engine serves the same names and values (only the
+plain classes, not the responsive `md:p-3` ones).
+
 ## Section titles
 
 Two tag styles turn a heading tag (`h2` to `h6`, so screen readers announce the section) with a `label` into a section

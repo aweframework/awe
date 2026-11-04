@@ -12,6 +12,7 @@
   <locale name="APP_CLIENT" value="Almis I.F."/>
   <locale name="APP_NAME" value="Almis Web Engine"/>
   <locale name="BUTTON_ACCEPT" value="Accepter"/>
+  <locale name="BUTTON_ACCESS_ALLOW_SUBJECT" value="Autoriser au profil ou à l&apos;utilisateur choisi"/>
   <locale name="BUTTON_ACTIVATE" value="Activer"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activer taches selctionnees"/>
   <locale name="BUTTON_ADD" value="Ajouter"/>
@@ -148,6 +149,9 @@
   <locale name="COLUMN_TYPE_QUEUE" value="Type de queue"/>
   <locale name="COLUMN_USER" value="Utilisateur"/>
   <locale name="COLUMN_VALUE" value="Valeur"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REMOVE_RULE" value="La règle est retirée pour son profil, son utilisateur ou tous les utilisateurs, qui peut ne pas être celui choisi. Êtes-vous d&apos;accord ?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_ALLOW_PARENT" value="L&apos;option parente est autorisée au profil ou à l&apos;utilisateur de la règle, et avec elle les options en dessous qu&apos;elle refuse aujourd&apos;hui. Êtes-vous d&apos;accord ?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_CLEAN" value="Les règles sans effet de tous les profils et utilisateurs sont retirées. L&apos;accès de personne ne change. Êtes-vous d&apos;accord ?"/>
   <locale name="CONFIRM_MESSAGE_DELETE" value="Donnees selectionees vont etre effacees. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_EMPTY_DATA" value="Attention, les valeurs des critères sont vides. Voulez-vous continuer?"/>
   <locale name="CONFIRM_MESSAGE_EXPORT_DOC" value="Fichier DOC va etre genere avec donnees de l&apos;ecran. Etes-vous d&apos;accord?"/>
@@ -161,6 +165,7 @@
   <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="L&apos;utilisateur pourra se connecter de nouveau. Êtes-vous d&apos;accord ?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="Donnees modifies vont etre sauvegardees. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Attention, les données modifiées seront perdues. Voulez-vous continuer?"/>
+  <locale name="CONFIRM_TITLE_ACCESS_REVIEW_ALLOW_PARENT" value="Autoriser l&apos;option parente"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Confirmation d&apos;effacement"/>
   <locale name="CONFIRM_TITLE_EMPTY_DATA" value="Donees vides"/>
   <locale name="CONFIRM_TITLE_EXPORT_FILE" value="Confirmation de generation de fichier"/>
@@ -475,6 +480,7 @@
   <locale name="ERROR_GENERATING_PIE_CHART" value="Erreur générant le graphique à secteurs"/>
   <locale name="ERROR_LOG" value="Journal des erreurs"/>
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="Acces a l&apos;ecran n&apos;est pas possible - {0}"/>
+  <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Sélectionnez un profil ou un utilisateur pour modifier son accès"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="L&apos;action n&apos;a pas ete definie"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="Il y avait une erreur composés en ajoutant des champs calculés dans une requête"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="Il y avait une erreur composés en champs calculés dans une requête"/>
@@ -703,6 +709,7 @@
   <locale name="ERROR_MESSAGE_WRONG_BANK_ACCOUNT" value="Le numéro de compte {0} n&apos;est pas un numéro de compte bancaire valide"/>
   <locale name="ERROR_STARTING_APPLICATION" value="Erreur lors du démarrage de l&apos;application"/>
   <locale name="ERROR_TITLE_ACCESS_DENIED" value="Acces interdit"/>
+  <locale name="ERROR_TITLE_ACCESS_NO_SUBJECT" value="Aucun profil ni utilisateur sélectionné"/>
   <locale name="ERROR_TITLE_ACTION_NOT_DEFINED" value="Action non definie"/>
   <locale name="ERROR_TITLE_ADDING_COMPOUND_FIELDS" value="Erreur d&apos;ajout de champs composés"/>
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Erreur dapos;ajout de champs calculés"/>
@@ -1022,6 +1029,10 @@
   <locale name="HELP_NEW_BUTTON" value="Aller au nouveau écran pour ajouter un nouvel élément"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Sélectionnez une action à faire: Générer des fichiers, envoyer des fichiers par e-mail ou imprimer des fichiers"/>
   <locale name="HELP_PRINT_BUTTON" value="Ouvrir une dialogue avec les options d&apos;impresion de l&apos;écran"/>
+  <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Comparer l’accès avec un autre profil ou un autre utilisateur, ou simuler l’utilisateur avec un autre profil. Rien n’est enregistré"/>
+  <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Arrêter la comparaison et afficher seulement l’accès du profil ou de l’utilisateur choisi"/>
+  <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Revoir les règles de tous les profils et utilisateurs qui n’ont pas d’effet ou n’ont pas de sens, et les corriger"/>
+  <locale name="HELP_ACCESS_PREVIEW_BUTTON" value="Prévisualiser le menu que verrait le profil ou l’utilisateur choisi dans le module, sans se connecter en son nom"/>
   <locale name="HELP_PRINT_DESTINATION_USERS_CRITERION" value="Sélectionnez les utilisateurs auxquels vous souhaitez envoyer les données"/>
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Sélectionnez les formats de fichier dont vous souhaitez récupérer les données"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Sélectionnez le type de format que vous souhaitez appliquer aux données numériques"/>
@@ -1033,6 +1044,7 @@
   <locale name="HELP_SCREEN_HELP" value="Dialogue avec la définition des composants de la fenêtre et assistance"/>
   <locale name="HELP_SCREEN_TEXT_PRINT_EMAIL" value="Dialogue qui génère des fichiers avec les informations dans la fenêtre, l&apos;impression et/ou e-mail"/>
   <locale name="HELP_SCREEN_TITLE" value="Écran d&apos;aide"/>
+  <locale name="HELP_SCREEN_TITLE_ACCESS_ADMIN" value="L&apos;accès effectif d&apos;un profil ou d&apos;un utilisateur à chaque option du menu privé, la couche qui le décide et les règles qui le changent."/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>
   <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Paramètres de l&apos;application : les réglages de sécurité, de rapports et généraux qu&apos;elle lit."/>
@@ -1406,6 +1418,148 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_APPLICATION_HELP" value="Application Help"/>
   <locale name="SCREEN_HELP" value="Screen Help"/>
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Authentification à deux facteurs"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOW" value="Autoriser"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOWED" value="Autorisé"/>
+  <locale name="SCREEN_TEXT_ACCESS_CASCADE" value="Évaluation des règles d&apos;accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_ACCESS" value="Accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_AFTER" value="Après le changement"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_CHANGE" value="Ce qui change"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE" value="Dans la comparaison"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE_REASON" value="Pourquoi cela change"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_DECIDES_TODAY" value="Décide aujourd&apos;hui"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_KEY" value="Identifiant"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_LAYER" value="Couche"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OPTION" value="Option du menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OWN_RULE" value="Règle propre"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_REASON" value="Motif"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_RULE" value="Règle"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_TODAY" value="Aujourd&apos;hui"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_VERDICT" value="Verdict"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WARNING" value="Avertissement"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WHO" value="Qui"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE" value="Comparer"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_HELP" value="Avec un profil, l’utilisateur conserve ses règles propres ; avec un utilisateur, son profil et ses règles s’appliquent. Rien n’est enregistré"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SAME" value="Identique"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SEARCH" value="Rechercher profil ou utilisateur"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_STOP" value="Arrêter de comparer"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_WITH" value="Comparer avec"/>
+  <locale name="SCREEN_TEXT_ACCESS_DECIDES" value="Décide"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENIED" value="Refusé"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENY" value="Refuser"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_NONE" value="Le profil de base {0}.xml n’a pas de règle sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_RULE" value="Règle du profil de base {0}.xml sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_NONE" value="Aucune règle globale sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_RULE" value="Règle globale sur l’option, pour tous les utilisateurs"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_INHERITED" value="Hérité de {0} : {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_HIDDEN" value="Appartient au module {0}, pas au module sélectionné {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_VISIBLE" value="Visible dans le module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NOT_INHERITED" value="Aucune règle d’une option parente ne décide l’accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_MODULE" value="Aucun module sélectionné"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_PROFILE" value="L’utilisateur n’a pas de profil"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_NONE" value="Aucune règle du profil {0} sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_RULE" value="Règle du profil {0} sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NONE" value="Aucune règle de l’utilisateur {0} sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NOT_APPLICABLE" value="Sans objet : le sujet est un profil"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_RULE" value="Règle de l’utilisateur {0} sur l’option"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TEXT" value="Son accès à chaque option du menu privé s&apos;affiche ici"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TITLE" value="Choisissez un profil ou un utilisateur"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTERS" value="Filtres d&apos;accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALLOWED" value="Autorisées"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DENIED" value="Refusées"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DIFFERENCES" value="Seulement les différences"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WARNINGS" value="Avertissements"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WITH_RULE" value="Avec règle"/>
+  <locale name="SCREEN_TEXT_ACCESS_HINT" value="Une règle d’utilisateur l’emporte sur celle de son profil, et celle du profil sur la règle globale. Une règle sur une option s’applique aussi à ses enfants"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT" value="Aperçu du changement"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_GAINS" value="Gagne {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_HINT" value="Le menu des utilisateurs connectés est actualisé à la confirmation. Celui qui a l&apos;un de ces écrans ouvert le garde jusqu&apos;à sa fermeture."/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEP" value="Utilisateurs qui en gardent par leur propre règle : {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS" value="Garde {0} par sa propre règle"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS_DENIED" value="Garde {0} refusé par sa propre règle"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_LOSES" value="Perd {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_OPTIONS" value="{0} et {1} de plus"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_USERS" value="{0} utilisateurs de plus"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS" value="Aucun utilisateur ne change"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS_TEXT" value="Les utilisateurs du sujet dont l&apos;accès change sont listés ici"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS" value="Options"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_ALLOW" value="Options qui deviennent autorisées : {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_DENY" value="Options qui deviennent refusées : {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_REMOVE" value="Options dont l&apos;accès change : {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_ALLOW" value="Autoriser les options sélectionnées à {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_DENY" value="Refuser les options sélectionnées à {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_REMOVE" value="Retirer la règle de {1} sur les options sélectionnées ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS" value="Utilisateurs concernés"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_ALLOW" value="Utilisateurs de {2} qui en gagnent : {0} sur {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_DENY" value="Utilisateurs de {2} qui en perdent : {0} sur {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_REMOVE" value="Utilisateurs de {2} avec un changement : {0} sur {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_MENU" value="Accès aux options de menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="Aucune règle sur l&apos;option"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Son accès vient du module, du profil de base ou de ses options parentes"/>
+  <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Toutes les règles sur l&apos;option"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Aperçu du menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="tous les modules"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} options visibles sur {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TEXT" value="Le profil ou l&apos;utilisateur ne voit aucune option du menu dans ce module"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TITLE" value="Aucune option visible"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN" value="Options masquées et leur raison"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_BY_PARENT" value="Son parent {0} n&apos;est pas affiché"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_TEXT" value="Les options qu&apos;il ne peut pas ouvrir ne sont pas affichées, ni celles en dessous"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MENU" value="Le menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MODULE" value="module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_PARENT_HIDDEN" value="{0} n&apos;apparaît pas : son parent {1} est refusé"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TEXT" value="C&apos;est un aperçu du menu : vous ne vous connectez pas en tant que {0} et n&apos;ouvrez pas ses écrans."/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TITLE" value="Vu en tant que {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_BASE" value="Profil de base {0}.xml"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_GLOBAL" value="Règle globale"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_INHERITED" value="Hérité de {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_MODULE" value="Appartient au module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_NONE" value="Aucune règle : autorisé par défaut"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_PROFILE" value="Règle du profil {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_USER" value="Règle de l’utilisateur {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REMOVE_RULE" value="Retirer la règle"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_ALLOWED" value="{0} peut ouvrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_DENIED" value="{0} ne peut pas ouvrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW" value="Réviser"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_ALLOW_PARENT" value="Autoriser aussi {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_BUTTON" value="Réviser · {0} avertissements"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN" value="Retirer les {0} règles sans effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN_RULES" value="Retirer les règles sans effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TEXT" value="Chaque règle change l&apos;accès de son profil ou de son utilisateur"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TITLE" value="Rien à réviser"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_OBSOLETE" value="Règles sur des options qui n&apos;existent plus"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_PARENT_DENIED" value="Options autorisées dont le parent est refusé"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_REDUNDANT" value="Règles qui ne changent pas le résultat"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_HINT" value="La révision couvre tous les profils et utilisateurs, pas seulement celui que vous consultez. Les règles des utilisateurs supprimés apparaissent aussi ici."/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_NO_WARNINGS" value="Aucun avertissement : chaque règle a un effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_OPTION" value="L&apos;option {0} n&apos;est pas dans le menu privé de cette application : la règle n&apos;a pas d&apos;effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_PROFILE" value="Le profil n&apos;existe plus : la règle n&apos;a pas d&apos;effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_USER" value="L&apos;utilisateur n&apos;existe plus : la règle n&apos;a pas d&apos;effet"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_PARENT_DENIED" value="{0} est refusée ({1}), donc {2} n&apos;apparaît pas dans le menu de {3} bien qu&apos;elle soit autorisée"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_ALLOWED" value="Sans cette règle le résultat est le même : {0} peut déjà ouvrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_DENIED" value="Sans cette règle le résultat est le même : {0} ne peut déjà pas ouvrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_PROFILE" value="Profil n°{0} (supprimé)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_USER" value="Utilisateur n°{0} (supprimé)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_SUMMARY" value="Dans {0} règles de {1} profils et {2} utilisateurs"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_TITLE" value="Révision de l&apos;accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_WARNINGS" value="{0} avertissements"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH" value="Rechercher une option…"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH_LABEL" value="Rechercher des options par libellé ou identifiant"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_BASE" value="Profil de base"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_GLOBAL" value="Règle globale"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_INHERITANCE" value="Héritage"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_MODULE" value="Module"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Règle du profil"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="Règle de l’utilisateur"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="le profil {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="Voir l&apos;accès de"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="l&apos;&apos;utilisateur {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Inverser la règle : Autoriser ↔ Refuser"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Prévisualiser"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Autorisée, mais son parent est refusé : elle n’est pas accessible depuis le menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Règle redondante : la supprimer ne change pas l’accès"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Tous les utilisateurs"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHY" value="Pourquoi ?"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Ajouter le texte du paramètre régionaux"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Ajouter un identificateur de paramètres régionaux"/>
   <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="État du paramètre"/>
@@ -1611,6 +1765,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_USER_SEARCH" value="Utilisateur, nom, e-mail ou profil…"/>
   <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Rechercher des utilisateurs"/>
   <locale name="SCREEN_TEXT_VERSION" value="Contexte"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Accès"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>

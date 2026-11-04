@@ -189,6 +189,172 @@
       <service-parameter type="STRING" name="option" />
     </java>
   </service>
+  <!-- Access window (access-admin): effective access of a profile or a user to the private menu -->
+  <service id="access-tree">
+    <java classname="com.almis.awe.service.access.AccessTreeService" method="getAccessTree">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="filter" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <service id="access-tree-counts">
+    <java classname="com.almis.awe.service.access.AccessTreeService" method="getAccessTreeCounts">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <!-- Access window: profiles and users to compare with (compare-with suggest), or the label of the selected one -->
+  <service id="access-compare-suggest">
+    <java classname="com.almis.awe.service.access.AccessCompareService" method="getCompareSuggest">
+      <service-parameter type="STRING" name="suggest" />
+    </java>
+  </service>
+  <!-- Access window: preview of a bulk change (summary, options and users); the change is simulated, nothing is stored -->
+  <service id="access-impact">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpact">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-impact-options">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpactOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-impact-users">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpactUsers">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-why">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getAccessWhy">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-why-result">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getAccessResult">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-option-rules">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getOptionRules">
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-allow">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="allowOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-deny">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="denyOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-remove">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="removeOptionRules">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-remove-rule">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="removeRules">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <service id="access-switch-rule">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="switchRules">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <!-- Access window: review of every rule of every profile and user (obsolete, parent denied, redundant) and its fixes -->
+  <service id="access-review">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReview" />
+  </service>
+  <service id="access-review-counts">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReviewCounts" />
+  </service>
+  <service id="access-review-label">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReviewLabel">
+      <service-parameter type="STRING" name="kind" />
+    </java>
+  </service>
+  <service id="access-review-allow-parent">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="allowReviewParents">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <service id="access-review-clean">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="removeRulesWithoutEffect" />
+  </service>
+  <!-- Access window: view as, the menu that a profile or a user would see in a module (nothing is stored) -->
+  <service id="access-menu-preview">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreview">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-counts">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewCounts">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-hidden">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewHidden">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-banner">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewBanner">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
   <service id="getScreenElementList">
     <java classname="com.almis.awe.service.ScreenService" method="getScreenElementList">
       <service-parameter type="STRING" name="screenName" />

@@ -133,6 +133,13 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/cells.js 
       expect(element.querySelector(".awe-cell-status").getAttribute("data-tone")).toBe("danger");
     });
 
+    it.each([["empty", ""], ["missing", undefined], ["null", null]])("shows no status, not even its dot, when the value is %s (as React)", (_name, state) => {
+      expect(render([{id: "state", statusField: "tone"}], {state, tone: "danger"}).element.querySelector(".awe-cell-status")).toBeNull();
+      expect(render([{id: "state", statusField: "tone", iconField: "icn"}], {state, tone: "danger", icn: "lucide:ban"})
+        .element.querySelector(".awe-cell-status")).toBeNull();
+      expect(render([{id: "state", statusField: "tone"}], {state: "0", tone: "danger"}).element.querySelector(".awe-cell-status").textContent).toBe("0");
+    });
+
     it("combines with a secondary line", () => {
       const {element} = render([{id: "state", statusField: "tone", secondaryField: "since"}], {state: "Active", tone: "success", since: "2026"});
 

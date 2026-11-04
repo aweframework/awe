@@ -10,6 +10,7 @@ import {
 import type { Address } from "../../utilities";
 import type { ComponentState } from "../../utilities/mergeUtils";
 import { acceptAction, addActionsTop } from "../actions/actions";
+import { forgetRowDependencies } from "../actions/dependencies";
 import { ButtonTypes, keepModel, updateAttributes } from "../actions/components";
 import type { ComponentUpdate } from "../actions/components";
 import { getFormValues } from "../selectors/form";
@@ -239,6 +240,11 @@ export function fillAction(action: ClientAction): AppThunk {
     // Generate model
     const model = { ...datalist, values };
     delete model.rows;
+
+    // The loaded rows have none of the cell attributes the dependencies of each row wrote: launch them again
+    if (isGridComponent(component)) {
+      forgetRowDependencies(component as Parameters<typeof forgetRowDependencies>[0]);
+    }
 
     // Publish model change
     dispatch(updateModelWithDependencies(address, model));

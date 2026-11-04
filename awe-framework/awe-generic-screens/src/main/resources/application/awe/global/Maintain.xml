@@ -751,6 +751,71 @@
     </serve>
   </target>
 
+  <!-- Access window (access-admin): allow, deny or remove the own rule of the subject on one or more options. The service
+       stores them with new-restriction, update-restriction and delete-restriction (audit HISAweScrRes) -->
+  <target name="access-allow">
+    <serve service="access-allow">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <target name="access-deny">
+    <serve service="access-deny">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <target name="access-remove">
+    <serve service="access-remove">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <!-- Access window: remove one rule of an option, of any subject (the side panel of an option lists them all). The service
+       removes only its row with delete-restriction-by-id (audit HISAweScrRes) -->
+  <target name="access-remove-rule">
+    <serve service="access-remove-rule">
+      <variable id="rule" type="INTEGER" name="access-rule"/>
+    </serve>
+  </target>
+
+  <!-- Access window: switch one rule of an option, of any subject, from allow to deny or from deny to allow. The service
+       stores only its row with update-restriction-by-id (audit HISAweScrRes) -->
+  <target name="access-switch-rule">
+    <serve service="access-switch-rule">
+      <variable id="rule" type="INTEGER" name="access-rule"/>
+    </serve>
+  </target>
+
+  <!-- Access window: fixes of the review. Remove the rule of a finding (sent as review-rule: access-rule is the rule of
+       the side panel of an option), allow the denied parent of a finding to the subject of its rule, and remove every
+       rule without effect. The services store them with new-restriction, update-restriction and delete-restriction (audit
+       HISAweScrRes); no user variable is read from the request -->
+  <target name="access-review-remove">
+    <serve service="access-remove-rule">
+      <variable id="rule" type="INTEGER" name="review-rule"/>
+    </serve>
+  </target>
+
+  <target name="access-review-allow-parent">
+    <serve service="access-review-allow-parent">
+      <variable id="rule" type="INTEGER" name="review-rule"/>
+    </serve>
+  </target>
+
+  <target name="access-review-clean">
+    <serve service="access-review-clean"/>
+  </target>
+
   <target name="new-restriction" server-only="true">
     <insert audit="HISAweScrRes">
       <table id="AweScrRes"/>
@@ -828,6 +893,52 @@
       <variable id="user" type="INTEGER" name="user"/>
       <variable id="profile" type="INTEGER" name="profile"/>
       <variable id="option" type="STRING" name="option"/>
+    </delete>
+  </target>
+
+  <!-- One rule by identifier (access window): another row of the same subject and option is not touched. The subject, the
+       option and the rule are only for the audit -->
+  <target name="update-restriction-by-id" server-only="true">
+    <update audit="HISAweScrRes">
+      <table id="AweScrRes"/>
+      <field id="IdeAweScrRes" variable="id" audit="true"/>
+      <field id="IdePro" variable="profile" audit="true"/>
+      <field id="IdeOpe" variable="user" audit="true"/>
+      <field id="Opt" variable="option" audit="true"/>
+      <field id="AccMod" variable="restriction"/>
+      <field id="Act" variable="active"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweScrRes" condition="eq" right-variable="id"/>
+        </and>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option"/>
+      <variable id="restriction" type="STRING" name="restriction"/>
+      <variable id="active" type="INTEGER" name="active"/>
+    </update>
+  </target>
+
+  <target name="delete-restriction-by-id" server-only="true">
+    <delete audit="HISAweScrRes">
+      <table id="AweScrRes"/>
+      <field id="IdeAweScrRes" variable="id" audit="true"/>
+      <field id="IdePro" variable="profile" audit="true"/>
+      <field id="IdeOpe" variable="user" audit="true"/>
+      <field id="Opt" variable="option" audit="true"/>
+      <field id="AccMod" variable="restriction" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweScrRes" condition="eq" right-variable="id"/>
+        </and>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option"/>
+      <variable id="restriction" type="STRING" name="restriction"/>
     </delete>
   </target>
 

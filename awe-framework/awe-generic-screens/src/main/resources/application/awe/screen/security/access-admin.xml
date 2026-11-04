@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : access-admin.xml
+    Description: Access (#791): the effective access of a profile or a user to every option of the private menu, as a tree,
+                 with the layer that decides it (the reason), the own rule of the subject and its warnings, and a side panel
+                 that explains one option (design/access-admin/01-arbol-motivo.html). Replaces the ScrAccRes, screen-access
+                 and menu-access screens.
+                 The data comes from the services of com.almis.awe.service.access (access-tree, access-tree-counts,
+                 access-why, access-why-result, access-option-rules) and the changes go through access-allow, access-deny, access-switch-rule and
+                 access-remove-rule, which reuse the audited restriction maintains; they do not refresh the menu, so every
+                 change runs refresh-menu.
+                 The Profile | User button group is one button-radio criterion with its options (access-subject-types); it
+                 starts on User: a radio takes its value as the selected option only with checked="true".
+                 The module criterion is access-module, not module: that request parameter changes the module of the
+                 session menu. The tree only sends access-options (the options of the selected rows); the option of the
+                 side panel is the hidden access-option criterion, filled from the selected row, like IdeMod in
+                 module-admin. The panel is 640px wide: the root font size is 10px in AngularJS and 13px in React.
+                 Bulk change: the tree is multiselect; Allow, Deny and Remove rule of the selection bar set the hidden
+                 access-change and open a preview dialog (access-impact, access-impact-options, access-impact-users: the change
+                 is simulated, nothing is stored) whose confirm button runs the maintain of that change on the selected options.
+                 Compare: the hidden access-compare shows one suggest of the profiles and the users to compare with
+                 (compare-with, design/access-admin/05-buscador-mixto.html: AccessCompareSug, profile:IdePro or user:IdeOpe
+                 with its type before its name) and its help; with a profile or a user, access-tree adds the access with it
+                 and why it changes (two columns shown only then) and access-tree-counts adds Only differences. With a profile, a user keeps its own rules; another user has its
+                 real profile and its own rules. Nothing is stored.
+                 Review: every rule of every profile and user, global ones included (access-review), grouped by its
+                 warning (obsolete, parent denied, redundant) with its fix in the row: Remove rule (access-review-remove)
+                 and, for an option hidden by its denied parent, Allow the parent too (access-review-allow-parent); the
+                 footer removes every rule without effect (access-review-clean). The labels of the Review button and of the
+                 footer button carry their counts (a query dependency on the label: access-review-label and
+                 access-review-clean-label), reloaded when access-review-reload changes to 1 after every change made from the
+                 screen (a fix of the review, a change of the tree, of the preview dialog or of the why panel).
+                 View as: the menu the subject would see in the module (access-menu-preview: the options it can reach), a
+                 banner that it is only a preview, the visible count, and the hidden options with their reason.
+                 Nothing is stored and no session is opened as the subject.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="SCREEN_TITLE_ACCESS_ADMIN" help="HELP_SCREEN_TITLE_ACCESS_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_ACCESS_REMOVE_RULE" />
+    <!-- Option of the side panel (access-why and access-option-rules read access-option) -->
+    <criteria id="access-option" component="hidden">
+      <dependency source-type="launcher" target-type="input" target-action="value">
+        <dependency-element id="GrdAcc" column="option-id" attribute="selectedRowValue" alias="value" optional="true" />
+        <dependency-element id="GrdAcc" event="select-row" optional="true" />
+      </dependency>
+    </criteria>
+    <!-- Change of the preview dialog: allow, deny or remove, set by the button of the selection bar -->
+    <criteria id="access-change" component="hidden" />
+    <!-- Compare: "true" shows the profile or the user to compare with -->
+    <criteria id="access-compare" component="hidden" />
+    <message id="AlwPrnMsg" title="CONFIRM_TITLE_ACCESS_REVIEW_ALLOW_PARENT" message="CONFIRM_MESSAGE_ACCESS_REVIEW_ALLOW_PARENT" />
+    <message id="ClnMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_ACCESS_REVIEW_CLEAN" />
+    <!-- Review: set to 0 and back to 1 after every change, to reload the labels with the counts of the review -->
+    <criteria id="access-review-reload" component="hidden" value="1" />
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <!-- Compare with another profile or another user, and stop comparing: the tree goes back to the subject alone. AngularJS does not reset a
+         hidden criterion, so access-compare is emptied with a value -->
+    <button label="SCREEN_TEXT_ACCESS_COMPARE" icon="lucide:git-compare" id="ButCmp" help="HELP_ACCESS_COMPARE_BUTTON">
+      <button-action type="value" target="access-compare" value="true" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="access-compare" condition="ne" value="true" />
+      </dependency>
+    </button>
+    <button label="SCREEN_TEXT_ACCESS_COMPARE_STOP" icon="lucide:x" id="ButCmpStp" help="HELP_ACCESS_COMPARE_STOP_BUTTON">
+      <button-action type="reset" target="compare-with" />
+      <button-action type="value" target="access-compare" value="" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="access-compare" condition="eq" value="true" />
+      </dependency>
+    </button>
+    <!-- Review: its label has the number of warnings of every profile and user -->
+    <button label="SCREEN_TEXT_ACCESS_REVIEW" icon="lucide:triangle-alert" id="ButAccRev" help="HELP_ACCESS_REVIEW_BUTTON">
+      <button-action type="filter" target="CrdAccRev" />
+      <button-action type="filter" target="GrdAccRev" />
+      <button-action type="dialog" target="PnlAccRev" />
+      <dependency source-type="query" target-type="label" server-action="data" target-action="access-review-label" initial="true">
+        <dependency-element id="access-review-reload" condition="eq" value="1" />
+      </dependency>
+    </button>
+    <!-- Preview: the menu of the chosen profile or user, as it sees it -->
+    <button label="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" icon="lucide:eye" id="ButAccPrv" help="HELP_ACCESS_PREVIEW_BUTTON" style="btn-tonal">
+      <button-action type="filter" target="CrdAccPrv" />
+      <button-action type="filter" target="GrdAccPrv" />
+      <button-action type="filter" target="CrdAccPrvCnt" />
+      <button-action type="filter" target="GrdAccPrvHid" />
+      <button-action type="dialog" target="PnlAccPrv" />
+      <dependency target-type="enable" initial="true" type="or">
+        <dependency-element id="IdeOpe" condition="ne" value="" />
+        <dependency-element id="IdePro" condition="ne" value="" />
+      </dependency>
+    </button>
+  </tag>
+  <tag source="center" type="div" style="expand" expandible="vertical">
+    <!-- One card: the subject in one row (Profile | User, the profile or the user, the module and, while comparing, the
+         profile or the user to compare with and its help) above the private menu as a tree with its access. Any change of the subject reloads the
+         tree and its counts; without subject the service returns no rows -->
+    <window label="SCREEN_TEXT_ACCESS_MENU" icon="lucide:shield-check" style="expand">
+      <tag type="div" style="panel-body static mb-3" id="AccSbj">
+        <criteria label="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" id="subject-type" component="button-radio" initial-load="enum" target-action="access-subject-types"
+                  value="user" checked="true" style="col-xs-12 col-sm-6 col-lg-2" />
+        <!-- The user resolves its own profile: the profile of the other subject type is reset, not sent stale -->
+        <criteria label="PARAMETER_USER" component="suggest" id="IdeOpe" icon="user" server-action="data" target-action="UsrSug" style="col-xs-12 col-sm-6 col-lg-2">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="subject-type" condition="eq" value="user" />
+          </dependency>
+          <dependency>
+            <dependency-element id="subject-type" condition="ne" value="user" />
+            <dependency-action type="reset" target="IdeOpe" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_PROFILE" component="suggest" id="IdePro" icon="group" server-action="data" target-action="ProSug" style="col-xs-12 col-sm-6 col-lg-2">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="subject-type" condition="eq" value="profile" />
+          </dependency>
+          <dependency>
+            <dependency-element id="subject-type" condition="ne" value="profile" />
+            <dependency-action type="reset" target="IdePro" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_MODULE" component="select" id="access-module" icon="lucide:layers" initial-load="query" target-action="ModSel" optional="true" style="col-xs-12 col-sm-6 col-lg-2" />
+        <!-- Compare with a profile or a user: one suggest searches both, each option with its type before its name. A
+             profile against another one, or the user simulated with another profile (it keeps its own rules); or the real
+             access of another user. The suggest also shows and hides the help after it (a tag has no dependencies) -->
+        <criteria label="SCREEN_TEXT_ACCESS_COMPARE_WITH" component="suggest" id="compare-with" icon="lucide:git-compare"
+                  placeholder="SCREEN_TEXT_ACCESS_COMPARE_SEARCH" server-action="data" target-action="AccessCompareSug" style="col-xs-12 col-sm-6 col-lg-2">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="access-compare" condition="eq" value="true" />
+          </dependency>
+          <dependency initial="true">
+            <dependency-element id="access-compare" condition="eq" value="true" />
+            <dependency-action type="remove-class" target="#AccCmpHlp" target-action="hidden" />
+          </dependency>
+          <dependency initial="true">
+            <dependency-element id="access-compare" condition="ne" value="true" />
+            <dependency-action type="add-class" target="#AccCmpHlp" target-action="hidden" />
+          </dependency>
+        </criteria>
+        <!-- What a comparison does: nothing is stored, and the own rules of each user apply -->
+        <tag type="p" id="AccCmpHlp" style="col-xs-12 col-sm-6 col-lg-4 text-default text-sm pt-5 hidden" label="SCREEN_TEXT_ACCESS_COMPARE_HELP" />
+      </tag>
+      <grid id="GrdAcc" treegrid="true" tree-id="option-id" tree-parent="parent-option" tree-leaf="option-is-leaf" expand-column="option-name"
+            style="expand" server-action="data" target-action="access-tree" load-all="true" multiselect="true"
+            empty-title="SCREEN_TEXT_ACCESS_EMPTY_TITLE" empty-text="SCREEN_TEXT_ACCESS_EMPTY_TEXT" empty-icon="lucide:shield">
+        <!-- Search: the label or the identifier of the option; the matching options bring their parents (access-search) -->
+        <search id="access-search" placeholder="SCREEN_TEXT_ACCESS_SEARCH" label="SCREEN_TEXT_ACCESS_SEARCH_LABEL" />
+        <!-- Quick filters: All, Allowed, Denied, With rule and Warnings, counted with the search (access-tree-counts) -->
+        <quick-filter id="access-filter" initial-load="query" target-action="access-tree-counts" label="SCREEN_TEXT_ACCESS_FILTERS" value="" />
+        <column name="option-id" hidden="true" sendable="false" />
+        <column name="parent-option" hidden="true" sendable="false" />
+        <column name="option-is-leaf" hidden="true" sendable="false" />
+        <!-- The option with its icon and its identifier below -->
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_OPTION" name="option-name" align="left" charlength="40" width="*" sortable="false"
+                icon-field="option-icon" secondary-field="option-key" export-secondary="true" secondary-label="SCREEN_TEXT_ACCESS_COLUMN_KEY" sendable="false" />
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_ACCESS" name="access-text" align="left" charlength="18" status-field="access-tone" sortable="false" sendable="false" />
+        <!-- Compare: the access with the other profile or of the other user and why it changes ("Same" when it does not; a
+             differing row has an icon), shown only with a profile or a user to compare with -->
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_COMPARE" name="compare-access-text" align="left" charlength="18" status-field="compare-access-tone" sortable="false" sendable="false">
+          <dependency target-type="show-column" initial="true">
+            <dependency-element id="compare-with" condition="ne" value="" />
+          </dependency>
+        </column>
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_COMPARE_REASON" name="compare-reason" align="left" charlength="30" icon-field="compare-icon" sortable="false" sendable="false">
+          <dependency target-type="show-column" initial="true">
+            <dependency-element id="compare-with" condition="ne" value="" />
+          </dependency>
+        </column>
+        <!-- The layer that decides, with the warning below and its icon before. While comparing, the reason and the own rule
+             give their room to the comparison: the option takes the rest of the width, and would have none -->
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_REASON" name="reason" align="left" charlength="40" icon-field="warning-icon"
+                secondary-field="warning" export-secondary="true" secondary-label="SCREEN_TEXT_ACCESS_COLUMN_WARNING" sortable="false" sendable="false">
+          <dependency target-type="hide-column" initial="true">
+            <dependency-element id="compare-with" condition="ne" value="" />
+          </dependency>
+        </column>
+        <column label="SCREEN_TEXT_ACCESS_COLUMN_OWN_RULE" name="own-rule-text" align="left" charlength="14" status-field="own-rule-tone" sortable="false" sendable="false">
+          <dependency target-type="hide-column" initial="true">
+            <dependency-element id="compare-with" condition="ne" value="" />
+          </dependency>
+        </column>
+        <!-- Sent to the maintains: the options of the selected rows -->
+        <column name="access-options" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent -->
+        <column name="option-key" hidden="true" sendable="false" />
+        <column name="option-icon" hidden="true" sendable="false" />
+        <column name="option-subtitle" hidden="true" sendable="false" />
+        <column name="access" hidden="true" sendable="false" />
+        <column name="access-tone" hidden="true" sendable="false" />
+        <column name="reason-layer" hidden="true" sendable="false" />
+        <column name="own-rule" hidden="true" sendable="false" />
+        <column name="own-rule-tone" hidden="true" sendable="false" />
+        <column name="warning" hidden="true" sendable="false" />
+        <column name="warning-code" hidden="true" sendable="false" />
+        <column name="warning-icon" hidden="true" sendable="false" />
+        <column name="context" hidden="true" sendable="false" />
+        <column name="compare-access" hidden="true" sendable="false" />
+        <column name="compare-access-tone" hidden="true" sendable="false" />
+        <column name="compare-differs" hidden="true" sendable="false" />
+        <column name="compare-icon" hidden="true" sendable="false" />
+        <!-- Row actions: a row button selects its row (only it) before its actions, so it acts on its option -->
+        <column name="AlwBtn" component="button" icon="lucide:check" title="SCREEN_TEXT_ACCESS_ALLOW" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="server" server-action="maintain" target-action="access-allow" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="filter" target="GrdAcc" />
+          <!-- Only when it changes the access of its row: an allowed option has nothing to allow -->
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdAcc" column="access" attribute="currentRowValue" condition="ne" value="allowed" />
+          </dependency>
+        </column>
+        <column name="DnyBtn" component="button" icon="lucide:ban" title="SCREEN_TEXT_ACCESS_DENY" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="server" server-action="maintain" target-action="access-deny" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="filter" target="GrdAcc" />
+          <!-- Only when it changes the access of its row: a denied option has nothing to deny -->
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdAcc" column="access" attribute="currentRowValue" condition="ne" value="denied" />
+          </dependency>
+        </column>
+        <column name="WhyBtn" component="button" icon="lucide:circle-help" title="SCREEN_TEXT_ACCESS_WHY" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="filter" target="CrdAccRes" />
+          <button-action type="filter" target="GrdAccWhy" />
+          <button-action type="filter" target="GrdAccRul" />
+          <button-action type="dialog" target="PnlAccWhy" />
+        </column>
+        <!-- Selection bar: the change of the selected options, previewed in a dialog before it is applied -->
+        <button label="SCREEN_TEXT_ACCESS_ALLOW" icon="lucide:check" id="ButAccAlw" selection="true">
+          <button-action type="check-some-selected" target="GrdAcc" />
+          <button-action type="value" target="access-change" value="allow" />
+          <button-action type="filter" target="CrdAccImp" />
+          <button-action type="filter" target="GrdAccImpOpt" />
+          <button-action type="filter" target="GrdAccImpUsr" />
+          <button-action type="dialog" target="DlgAccImp" />
+          <!-- Several rows (the preview tells which of them change), or one row that is not allowed yet -->
+          <dependency target-type="enable" initial="true" type="or">
+            <dependency-element id="GrdAcc" attribute="selectedRows" condition="gt" value="1" />
+            <dependency-element id="GrdAcc" column="access" attribute="selectedRowValue" condition="ne" value="allowed" />
+          </dependency>
+        </button>
+        <button label="SCREEN_TEXT_ACCESS_DENY" icon="lucide:ban" id="ButAccDny" selection="true">
+          <button-action type="check-some-selected" target="GrdAcc" />
+          <button-action type="value" target="access-change" value="deny" />
+          <button-action type="filter" target="CrdAccImp" />
+          <button-action type="filter" target="GrdAccImpOpt" />
+          <button-action type="filter" target="GrdAccImpUsr" />
+          <button-action type="dialog" target="DlgAccImp" />
+          <!-- Several rows (the preview tells which of them change), or one row that is not denied yet -->
+          <dependency target-type="enable" initial="true" type="or">
+            <dependency-element id="GrdAcc" attribute="selectedRows" condition="gt" value="1" />
+            <dependency-element id="GrdAcc" column="access" attribute="selectedRowValue" condition="ne" value="denied" />
+          </dependency>
+        </button>
+        <button label="SCREEN_TEXT_ACCESS_REMOVE_RULE" icon="lucide:eraser" id="ButAccRmv" selection="true">
+          <button-action type="check-some-selected" target="GrdAcc" />
+          <button-action type="value" target="access-change" value="remove" />
+          <button-action type="filter" target="CrdAccImp" />
+          <button-action type="filter" target="GrdAccImpOpt" />
+          <button-action type="filter" target="GrdAccImpUsr" />
+          <button-action type="dialog" target="DlgAccImp" />
+          <!-- Only when there is a rule to remove: one selected row with its own rule, or several rows (the preview tells
+               which of them have one). The selected row value is the one of the first selected row in both engines -->
+          <dependency target-type="enable" initial="true" type="or">
+            <dependency-element id="GrdAcc" attribute="selectedRows" condition="gt" value="1" />
+            <dependency-element id="GrdAcc" column="own-rule" attribute="selectedRowValue" condition="in" value="A,R" />
+          </dependency>
+        </button>
+        <!-- A change of the subject, of the module or of the profile or the user to compare with reloads the tree (and its
+             counts) -->
+        <dependency type="or">
+          <dependency-element id="subject-type" />
+          <dependency-element id="subject-type" condition="eq" value="" />
+          <dependency-element id="IdeOpe" />
+          <dependency-element id="IdeOpe" condition="eq" value="" />
+          <dependency-element id="IdePro" />
+          <dependency-element id="IdePro" condition="eq" value="" />
+          <dependency-element id="access-module" />
+          <dependency-element id="access-module" condition="eq" value="" />
+          <dependency-element id="compare-with" />
+          <dependency-element id="compare-with" condition="eq" value="" />
+          <dependency-action type="filter" target="GrdAcc" />
+        </dependency>
+      </grid>
+    </window>
+
+    <!-- Why: the result of the selected option for the subject (a card: whether it can open it and what decides), the cascade
+         of its layers with a hint on their order, and every rule on the option, of any subject, which can be switched
+         (Allow / Deny) or removed. Its header is the selected row: the option, its identifier and the subject, and the
+         access tag. The panel grids are not paged (six steps, few rules): the panel scrolls -->
+    <side-panel id="PnlAccWhy" label="SCREEN_TEXT_ACCESS_WHY" icon="lucide:circle-help" max-width="640px"
+                header-grid="GrdAcc" header-title-field="option-name" header-subtitle-field="option-subtitle">
+      <header-tag field="access-text" tone-field="access-tone" />
+      <tag type="div" style="panel-body expand" id="PnlAccWhyBdy">
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccRes" style="card-note" initial-load="query" target-action="access-why-result" server-action="data" />
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_CASCADE" icon="lucide:layers" />
+        <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+          <!-- The row number is the step of the cascade -->
+          <grid id="GrdAccWhy" style="expand" show-toolbar="false" server-action="data" target-action="access-why" max="20" pagination-disabled="true">
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_LAYER" name="title" align="left" charlength="40" width="*" secondary-field="detail" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_VERDICT" name="verdict-text" align="left" charlength="14" status-field="verdict-tone" sortable="false" sendable="false" />
+            <!-- The layer that decides -->
+            <column label="SCREEN_TEXT_ACCESS_DECIDES" name="decides-text" align="left" charlength="14" status-field="verdict-tone" sortable="false" sendable="false" />
+            <column name="detail" hidden="true" sendable="false" />
+            <column name="verdict-tone" hidden="true" sendable="false" />
+          </grid>
+        </tag>
+        <!-- The order of the layers -->
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_HINT" />
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_OPTION_RULES" icon="lucide:list-checks" />
+        <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+          <!-- Every rule of the option (load-all), paged in the browser -->
+          <grid id="GrdAccRul" style="expand" show-toolbar="false" server-action="data" target-action="access-option-rules" load-all="true" max="20" row-numbers="false"
+                empty-title="SCREEN_TEXT_ACCESS_NO_RULES" empty-text="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" empty-icon="lucide:list-checks">
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_WHO" name="who" align="left" charlength="40" width="*" secondary-field="who-sub" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_RULE" name="rule-text" align="left" charlength="14" status-field="rule-tone" sortable="false" sendable="false" />
+            <!-- Sent to access-switch-rule and access-remove-rule: the rule of the selected row, which can be of another subject -->
+            <column name="access-rule" hidden="true" />
+            <column name="who-sub" hidden="true" sendable="false" />
+            <column name="rule-tone" hidden="true" sendable="false" />
+            <!-- Allow becomes Deny and Deny becomes Allow, for the subject of the rule -->
+            <column name="SwtBtn" component="button" icon="lucide:repeat" title="SCREEN_TEXT_ACCESS_SWITCH_RULE" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+              <button-action type="server" server-action="maintain" target-action="access-switch-rule" />
+              <button-action type="server" server-action="refresh-menu" />
+              <button-action type="value" target="access-review-reload" value="0" />
+              <button-action type="value" target="access-review-reload" value="1" />
+              <button-action type="filter" target="GrdAccRul" />
+              <button-action type="filter" target="GrdAccWhy" />
+              <button-action type="filter" target="CrdAccRes" />
+              <button-action type="filter" target="GrdAcc" />
+            </column>
+            <column name="RmvBtn" component="button" icon="lucide:trash-2" title="SCREEN_TEXT_ACCESS_REMOVE_RULE" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+              <button-action type="confirm" target="DelMsg" />
+              <button-action type="server" server-action="maintain" target-action="access-remove-rule" />
+              <button-action type="server" server-action="refresh-menu" />
+              <button-action type="value" target="access-review-reload" value="0" />
+              <button-action type="value" target="access-review-reload" value="1" />
+              <button-action type="filter" target="GrdAccRul" />
+              <button-action type="filter" target="CrdAccRes" />
+              <button-action type="filter" target="GrdAccWhy" />
+              <button-action type="filter" target="GrdAcc" />
+            </column>
+          </grid>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CLOSE" icon="times" id="ButPnlCls">
+          <button-action type="close" target="PnlAccWhy" />
+        </button>
+        <!-- Allow the option to the subject with its own rule -->
+        <button label="BUTTON_ACCESS_ALLOW_SUBJECT" icon="lucide:check" id="ButPnlAlw" style="btn-primary">
+          <button-action type="server" server-action="maintain" target-action="access-allow" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="filter" target="CrdAccRes" />
+          <button-action type="filter" target="GrdAccWhy" />
+          <button-action type="filter" target="GrdAccRul" />
+          <button-action type="filter" target="GrdAcc" />
+        </button>
+      </tag>
+    </side-panel>
+
+    <!-- Review: every rule of every profile and user that has no effect or does not make sense, grouped by its warning (the
+         group cell is its position and its label), with the fix of each one in its row. The labels of the buttons carry
+         their counts. The findings are the last block: their grid scrolls in its box, so nothing lies under its last rows -->
+    <side-panel id="PnlAccRev" label="SCREEN_TEXT_ACCESS_REVIEW_TITLE" icon="lucide:triangle-alert" max-width="960px">
+      <tag type="div" style="panel-body expand" id="PnlAccRevBdy">
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccRev" style="card-note" initial-load="query" target-action="access-review-counts" server-action="data" />
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccRevHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_REVIEW_HINT" />
+        </tag>
+        <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+          <!-- Every finding (load-all); a grouped grid shows them all -->
+          <grid id="GrdAccRev" style="expand" show-toolbar="false" server-action="data" target-action="access-review" load-all="true" pagination-disabled="true" row-numbers="false"
+                group-by="review-group" group-subtotals="false"
+                empty-title="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TITLE" empty-text="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TEXT" empty-icon="lucide:shield-check">
+            <!-- The option, or its identifier when it is not in the menu, with the message of the warning below. The column names
+                 of a screen are unique: the ones of the review, of the preview and of its hidden options have their prefix -->
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_OPTION" name="review-option" align="left" charlength="50" width="*" secondary-field="review-message" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_WHO" name="review-who" align="left" charlength="13" secondary-field="review-who-sub" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_RULE" name="review-rule-text" align="left" charlength="13" status-field="review-rule-tone" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_WARNING" name="review-group" hidden="true" sendable="false" />
+            <!-- Sent to the maintains of the fixes: the rule of the row -->
+            <column name="review-rule" hidden="true" />
+            <column name="review-message" hidden="true" sendable="false" />
+            <column name="review-who-sub" hidden="true" sendable="false" />
+            <column name="review-rule-tone" hidden="true" sendable="false" />
+            <column name="review-option-key" hidden="true" sendable="false" />
+            <column name="review-group-code" hidden="true" sendable="false" />
+            <!-- Allow the denied parent to the subject of the rule; its cell hides it on the other warnings -->
+            <column name="review-allow-parent" component="button" icon="lucide:check" style="btn-ghost" align="right" charlength="18" sortable="false" sendable="false">
+              <button-action type="confirm" target="AlwPrnMsg" />
+              <button-action type="server" server-action="maintain" target-action="access-review-allow-parent" />
+              <button-action type="server" server-action="refresh-menu" />
+              <button-action type="filter" target="CrdAccRev" />
+              <button-action type="filter" target="GrdAccRev" />
+              <button-action type="value" target="access-review-reload" value="0" />
+              <button-action type="value" target="access-review-reload" value="1" />
+              <button-action type="filter" target="GrdAcc" />
+            </column>
+            <column name="review-remove" component="button" icon="lucide:trash-2" title="SCREEN_TEXT_ACCESS_REMOVE_RULE" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+              <button-action type="confirm" target="DelMsg" />
+              <button-action type="server" server-action="maintain" target-action="access-review-remove" />
+              <button-action type="server" server-action="refresh-menu" />
+              <button-action type="filter" target="CrdAccRev" />
+              <button-action type="filter" target="GrdAccRev" />
+              <button-action type="value" target="access-review-reload" value="0" />
+              <button-action type="value" target="access-review-reload" value="1" />
+              <button-action type="filter" target="GrdAcc" />
+            </column>
+          </grid>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CLOSE" icon="times" id="ButRevCls">
+          <button-action type="close" target="PnlAccRev" />
+        </button>
+        <!-- The obsolete and the redundant rules: the access of nobody changes -->
+        <button label="SCREEN_TEXT_ACCESS_REVIEW_CLEAN_RULES" icon="lucide:eraser" id="ButRevCln" style="btn-primary">
+          <button-action type="confirm" target="ClnMsg" />
+          <button-action type="server" server-action="maintain" target-action="access-review-clean" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="filter" target="CrdAccRev" />
+          <button-action type="filter" target="GrdAccRev" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="filter" target="GrdAcc" />
+          <dependency source-type="query" target-type="label" server-action="data" target-action="access-review-clean-label" initial="true">
+            <dependency-element id="access-review-reload" condition="eq" value="1" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+
+    <!-- View as: the menu that the chosen profile or user would see in the module, as the real menu shows it (the options it
+         can reach, with their sections), how many it sees, and the hidden options with their reason. It is a preview: no
+         session is opened as the subject and no screen of it -->
+    <side-panel id="PnlAccPrv" label="SCREEN_TEXT_ACCESS_PREVIEW" icon="lucide:eye" max-width="640px">
+      <tag type="div" style="panel-body expand" id="PnlAccPrvBdy">
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccPrv" style="card-note" initial-load="query" target-action="access-menu-preview-banner" server-action="data" />
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_PREVIEW_MENU" icon="lucide:panel-left" />
+        <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+          <!-- It starts expanded, as a menu: the initial level is deeper than any menu (both engines open a loaded node while
+               its level plus one is below it) -->
+          <grid id="GrdAccPrv" treegrid="true" tree-id="preview-id" tree-parent="preview-parent" tree-leaf="preview-is-leaf" expand-column="preview-name"
+                style="expand" show-toolbar="false" server-action="data" target-action="access-menu-preview" load-all="true" initial-level="10" row-numbers="false"
+                empty-title="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TITLE" empty-text="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TEXT" empty-icon="lucide:eye-off">
+            <column name="preview-id" hidden="true" sendable="false" />
+            <column name="preview-parent" hidden="true" sendable="false" />
+            <column name="preview-is-leaf" hidden="true" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_OPTION" name="preview-name" align="left" charlength="40" width="*" sortable="false" sendable="false" />
+          </grid>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccPrvCnt" style="card-note" initial-load="query" target-action="access-menu-preview-counts" server-action="data" />
+        </tag>
+        <!-- The options it does not see, with the layer that denies each one or the parent that hides it -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN" icon="lucide:eye-off" />
+        <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+          <!-- Every hidden option (load-all), paged in the browser -->
+          <grid id="GrdAccPrvHid" style="expand" show-toolbar="false" server-action="data" target-action="access-menu-preview-hidden" load-all="true" max="50" row-numbers="false">
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_OPTION" name="hidden-option" align="left" charlength="30" secondary-field="hidden-option-key" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_REASON" name="hidden-reason" align="left" charlength="40" width="*" sortable="false" sendable="false" />
+            <column name="hidden-option-key" hidden="true" sendable="false" />
+          </grid>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CLOSE" icon="times" id="ButPrvCls">
+          <button-action type="close" target="PnlAccPrv" />
+        </button>
+      </tag>
+    </side-panel>
+
+    <!-- Preview of a bulk change (access-change on the selected options): the summary, the options with their access
+         before and after and what decides today, and the users of the subject that lose, gain or keep them. The change is
+         simulated; the confirm button of the change applies it, refreshes the menu, clears the selection and reloads the
+         tree. Its grids send nothing: the maintains read the options of the selected rows of the tree -->
+    <dialog id="DlgAccImp" modal="true" style="modal-lg" label="SCREEN_TEXT_ACCESS_IMPACT" icon="lucide:eye">
+      <tag type="div" style="modal-body" id="DlgAccImpBdy">
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccImp" style="card-note" initial-load="query" target-action="access-impact" server-action="data" />
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS" icon="lucide:list-tree" />
+        <tag type="div" style="col-xs-12 height-md" expandible="vertical">
+          <!-- Every option that changes (load-all), paged in the browser -->
+          <grid id="GrdAccImpOpt" style="expand" show-toolbar="false" server-action="data" target-action="access-impact-options" load-all="true" max="50" row-numbers="false">
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_OPTION" name="impact-option" align="left" charlength="30" width="*" secondary-field="impact-option-key" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_TODAY" name="impact-before-text" align="left" charlength="14" status-field="impact-before-tone" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_AFTER" name="impact-after-text" align="left" charlength="14" status-field="impact-after-tone" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_DECIDES_TODAY" name="impact-decides" align="left" charlength="30" sortable="false" sendable="false" />
+            <column name="impact-option-key" hidden="true" sendable="false" />
+            <column name="impact-before-tone" hidden="true" sendable="false" />
+            <column name="impact-after-tone" hidden="true" sendable="false" />
+            <column name="impact-changes" hidden="true" sendable="false" />
+          </grid>
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACCESS_IMPACT_USERS" icon="lucide:users" />
+        <tag type="div" style="col-xs-12 height-md" expandible="vertical">
+          <!-- The first users by name, and a last row with the number of the rest -->
+          <grid id="GrdAccImpUsr" style="expand" show-toolbar="false" server-action="data" target-action="access-impact-users" max="20" pagination-disabled="true" row-numbers="false"
+                empty-title="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS" empty-text="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS_TEXT" empty-icon="lucide:users">
+            <column label="PARAMETER_USER" name="impact-user" align="left" charlength="24" secondary-field="impact-user-name" sortable="false" sendable="false" />
+            <column label="SCREEN_TEXT_ACCESS_COLUMN_CHANGE" name="impact-user-change" align="left" charlength="50" width="*" sortable="false" sendable="false" />
+            <column name="impact-user-name" hidden="true" sendable="false" />
+            <column name="impact-user-tone" hidden="true" sendable="false" />
+          </grid>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdAccImpHnt" style="card-note" icon="lucide:info" icon-tone="warning" description="SCREEN_TEXT_ACCESS_IMPACT_HINT" />
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButImpCnc">
+          <button-action type="close" target="DlgAccImp" />
+        </button>
+        <button label="SCREEN_TEXT_ACCESS_ALLOW" icon="lucide:check" id="ButImpAlw" style="btn-primary">
+          <button-action type="server" server-action="maintain" target-action="access-allow" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="close" target="DlgAccImp" />
+          <button-action type="unselect-all-rows" target="GrdAcc" />
+          <button-action type="filter" target="GrdAcc" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="access-change" condition="eq" value="allow" />
+          </dependency>
+        </button>
+        <button label="SCREEN_TEXT_ACCESS_DENY" icon="lucide:ban" id="ButImpDny" style="btn-danger">
+          <button-action type="server" server-action="maintain" target-action="access-deny" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="close" target="DlgAccImp" />
+          <button-action type="unselect-all-rows" target="GrdAcc" />
+          <button-action type="filter" target="GrdAcc" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="access-change" condition="eq" value="deny" />
+          </dependency>
+        </button>
+        <button label="SCREEN_TEXT_ACCESS_REMOVE_RULE" icon="lucide:eraser" id="ButImpRmv" style="btn-primary">
+          <button-action type="server" server-action="maintain" target-action="access-remove" />
+          <button-action type="server" server-action="refresh-menu" />
+          <button-action type="value" target="access-review-reload" value="0" />
+          <button-action type="value" target="access-review-reload" value="1" />
+          <button-action type="close" target="DlgAccImp" />
+          <button-action type="unselect-all-rows" target="GrdAcc" />
+          <button-action type="filter" target="GrdAcc" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="access-change" condition="eq" value="remove" />
+          </dependency>
+        </button>
+      </tag>
+    </dialog>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

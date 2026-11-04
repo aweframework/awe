@@ -1,8 +1,11 @@
 package com.almis.awe.service.data.connector.query;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -18,6 +21,8 @@ import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.ColumnFilterTestFixtures;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.ServiceBuilder;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +42,7 @@ import java.util.Map;
 
 import static com.almis.awe.service.data.ColumnFilterTestFixtures.stubLocales;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
@@ -130,6 +136,32 @@ class AbstractQueryConnectorColumnFilterTest {
     assertThatThrownBy(() -> connector.launch(query(), parameters)).isInstanceOf(AWEQueryException.class)
       .hasMessageContaining("field secret of column filter secret is not printed");
     verify(context, never()).getBean(ServiceBuilder.class);
+  }
+
+  @Test
+  @DisplayName("The column filters of the request are checked only against the query the client launched (S18)")
+  void requestFiltersAreCheckedOnlyForTheClientQuery() {
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, MAPPER.readTree(FILTER.replace("'name'", "'InlSta'").replace('\'', '"')));
+    AweRequest request = new AweRequest(mock(HttpServletRequest.class), mock(HttpServletResponse.class), MAPPER);
+    request.setTargetAction("AdvSchInlCst").setParameterList(requestParameters);
+    QueryUtil requestQueryUtil = new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), MAPPER, new PrototypeRequestBeanHolder()) {
+      @Override
+      public AweElements getElements() {
+        return elements;
+      }
+
+      @Override
+      public AweRequest getRequest() {
+        return request;
+      }
+    };
+    ServiceQueryConnector requestConnector = new ServiceQueryConnector(requestQueryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
+
+    assertThatCode(() -> requestConnector.validateColumnFilters(query(), requestQueryUtil.getParameters(null, "1", "0")))
+      .doesNotThrowAnyException();
+    assertThatThrownBy(() -> requestConnector.validateColumnFilters(query().setId("AdvSchInlCst"), requestQueryUtil.getParameters()))
+      .isInstanceOf(AWEQueryException.class).hasMessageContaining("unknown field InlSta in column filter InlSta");
   }
 
   private static Query query() {

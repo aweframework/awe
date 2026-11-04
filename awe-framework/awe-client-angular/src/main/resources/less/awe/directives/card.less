@@ -397,3 +397,75 @@ each(@card-progress-tones, {
     grid-column: span 2;
   }
 }
+
+// Note card (style card-note, #791): an explanation, not a metric. A soft band in the tone of its icon, the icon on the
+// left and the title and the description next to it, without the shadow nor the padding of a tile
+.awe-card.card-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--awe-space-3);
+  row-gap: var(--awe-space-0-5);
+  align-items: start;
+  padding: var(--awe-space-3) var(--awe-space-4);
+  color: var(--awe-color-on-primary-subtle);
+  background-color: var(--awe-color-primary-subtle);
+  border-color: transparent;
+  box-shadow: none;
+
+  .awe-card-header {
+    display: contents;
+  }
+
+  .awe-card-heading {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .awe-card-title {
+    font-size: var(--awe-font-size-base);
+    font-weight: var(--awe-font-weight-semibold);
+    color: inherit;
+  }
+
+  .awe-card-icon {
+    grid-column: 1;
+    grid-row: ~"1 / span 2";
+    width: auto;
+    height: auto;
+    padding-top: var(--awe-space-0-5);
+    color: inherit;
+    background-color: transparent;
+  }
+
+  .awe-card-description {
+    grid-column: 2;
+    margin: 0;
+    font-size: var(--awe-font-size-sm);
+    color: inherit;
+  }
+
+  &:has(.awe-card-icon-info) {
+    color: var(--awe-color-info-text);
+    background-color: var(--awe-color-info-subtle);
+  }
+
+  &:has(.awe-card-icon-warning) {
+    color: var(--awe-color-warning-text);
+    background-color: var(--awe-color-warning-subtle);
+  }
+
+  &:has(.awe-card-icon-danger) {
+    color: var(--awe-color-danger-text);
+    background-color: var(--awe-color-danger-subtle);
+  }
+
+  &:has(.awe-card-icon-success) {
+    color: var(--awe-color-success-text);
+    background-color: var(--awe-color-success-subtle);
+  }
+
+  &:has(.awe-card-icon-neutral) {
+    color: var(--awe-color-text);
+    background-color: var(--awe-color-neutral-subtle);
+  }
+}

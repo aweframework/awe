@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Security of the application: screen restrictions, screen configuration and encryption tools. The tests of
- * each one create, update and delete their own record, and every test opens its own screen.
+ * Security of the application: screen configuration and encryption tools. The tests of the screen configuration create,
+ * update and delete their own record, and every test opens its own screen. The access window (access-admin, #791) has its
+ * browser flow in the React application only: its rules are covered by the unit and Spring tests of the access services
+ * and its engine pieces by the Jest tests of each client.
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -31,153 +33,6 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
   @Test
   void t999_logoutTest() {
     checkLogout();
-  }
-
-  /**
-   * Add a new screen restriction
-   */
-  @Test
-  void t021_newRestriction() {
-    // Title
-    setTestTitle("Add a new screen restriction");
-
-    // Go to screen
-    gotoScreen("settings", "security", "screen-access");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Wait for button
-    clickButton("ButGrdAdd");
-
-    // Select on selector
-    suggest("GrdScrAccLst", "IdeOpe",  "test", "test");
-
-    // Select on selector
-    suggest("GrdScrAccLst", "Opt",  "application-info", "application-info");
-
-    // Select text
-    selectContain("GrdScrAccLst", "AccMod", "Restricted");
-
-    // Select text
-    selectContain("GrdScrAccLst", "Act", "Yes");
-
-    // Save row
-    saveRow();
-
-    // Check row contents
-    checkRowContents("application-info", "Restricted", "Yes");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Check contents
-    checkRowContents("application-info");
-  }
-
-  /**
-   * Update a screen restriction
-   */
-  @Test
-  void t023_updateRestriction() {
-    // Title
-    setTestTitle("Update a screen restriction");
-
-    // Go to screen
-    gotoScreen("settings", "security", "screen-access");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Edit row
-    editRow("application-info");
-
-    // Select on selector
-    selectContain("GrdScrAccLst", "AccMod",  "Restricted");
-
-    // Select on selector
-    selectContain("GrdScrAccLst", "Act",  "No");
-
-    // Save row
-    saveRow();
-
-    // Check row contents
-    checkRowContents("Restricted", "No");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Check contents
-    checkRowContents("application-info", "Restricted", "No");
-  }
-
-  /**
-   * Delete a screen restriction
-   */
-  @Test
-  void t025_deleteRestriction() {
-    // Title
-    setTestTitle("Delete a screen restriction");
-
-    // Go to screen
-    gotoScreen("settings", "security", "screen-access");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Search on grid
-    searchAndWait();
-
-    // Click row
-    clickRowContents("application-info");
-
-    // Click on delete button
-    clickButton("ButGrdDel");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Verify
-    verifyDeleted("application-info");
   }
 
   /**

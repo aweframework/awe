@@ -1,12 +1,13 @@
 // Row grouping of the grids (#833), as the prototype (components.html#c-833): group rows on the subtle surface with the
 // toggle, the label in bold and the muted count, indented by level; subtotal rows with the muted "Subtotal" label and
-// the aggregates in bold. The label of the first column runs over the empty cells at its right.
+// the aggregates in bold. The label of the first column runs over the empty cells at its right: a column that fills the
+// rest of the width (width="*") clips its cells with an inline style (getWidthStyle), which only !important overrides.
 .p-datatable .p-datatable-tbody > tr.grid-group-row,
 .p-datatable .p-datatable-tbody > tr.grid-subtotal-row {
   cursor: default;
 
   > td {
-    overflow: visible;
+    overflow: visible !important;
     font-weight: var(--awe-font-weight-semibold);
     color: var(--awe-color-text-emphasis);
   }

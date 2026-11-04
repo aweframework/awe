@@ -12,6 +12,7 @@
   <locale name="APP_CLIENT" value="Almis I.F."/>
   <locale name="APP_NAME" value="Almis Web Engine"/>
   <locale name="BUTTON_ACCEPT" value="Accept"/>
+  <locale name="BUTTON_ACCESS_ALLOW_SUBJECT" value="Allow to the chosen profile or user"/>
   <locale name="BUTTON_ACTIVATE" value="Activate"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activate selected tasks"/>
   <locale name="BUTTON_ADD" value="Add"/>
@@ -148,6 +149,9 @@
   <locale name="COLUMN_TYPE_QUEUE" value="Queue type"/>
   <locale name="COLUMN_USER" value="User"/>
   <locale name="COLUMN_VALUE" value="Value"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REMOVE_RULE" value="The rule is removed for its profile, user or every user, which may not be the chosen one. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_ALLOW_PARENT" value="The parent option is allowed to the profile or user of the rule, and with it the options under it that it denies today. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_CLEAN" value="The rules without effect of every profile and user are removed. The access of nobody changes. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_DELETE" value="You will delete the selected records. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_EMPTY_DATA" value="Warning, criteria values are empty. Do you want to continue?"/>
   <locale name="CONFIRM_MESSAGE_EXPORT_DOC" value="You will generate a DOC file with the screen data. Do you agree?"/>
@@ -161,6 +165,7 @@
   <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="The user will be able to sign in again. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="You will store the data on the screen. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Warning, changed data will be lost. Do you want to continue?"/>
+  <locale name="CONFIRM_TITLE_ACCESS_REVIEW_ALLOW_PARENT" value="Allow the parent option"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Delete confirmation"/>
   <locale name="CONFIRM_TITLE_EMPTY_DATA" value="Empty data"/>
   <locale name="CONFIRM_TITLE_EXPORT_FILE" value="File generation confirmation"/>
@@ -475,6 +480,7 @@
   <locale name="ERROR_GENERATING_PIE_CHART" value="Error generating pie chart"/>
   <locale name="ERROR_LOG" value="Error log"/>
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="Access to selected screen has been denied - {0}"/>
+  <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Select a profile or a user to change its access"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="This action has not been defined"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="There has been a problem adding compound fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="There has been a problem adding computed fields for one query"/>
@@ -703,6 +709,7 @@
   <locale name="ERROR_MESSAGE_WRONG_BANK_ACCOUNT" value="The account number {0} is not a valid bank account number"/>
   <locale name="ERROR_STARTING_APPLICATION" value="Error starting the application"/>
   <locale name="ERROR_TITLE_ACCESS_DENIED" value="Access denied"/>
+  <locale name="ERROR_TITLE_ACCESS_NO_SUBJECT" value="No profile or user selected"/>
   <locale name="ERROR_TITLE_ACTION_NOT_DEFINED" value="Action not defined"/>
   <locale name="ERROR_TITLE_ADDING_COMPOUND_FIELDS" value="Error adding compound fields"/>
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Error adding computed fields"/>
@@ -1022,6 +1029,10 @@
   <locale name="HELP_NEW_BUTTON" value="Go to a new screen to add a new item"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Select an action to do: Generate files, send files by e-mail or print files"/>
   <locale name="HELP_PRINT_BUTTON" value="Open a dialog with screen print options"/>
+  <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Compare the access with another profile or another user, or simulate the user with another profile. Nothing is stored"/>
+  <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Stop comparing and show only the access of the chosen profile or user"/>
+  <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Review the rules of every profile and user that have no effect or do not make sense, and fix them"/>
+  <locale name="HELP_ACCESS_PREVIEW_BUTTON" value="Preview the menu that the chosen profile or user would see in the module, without signing in as them"/>
   <locale name="HELP_PRINT_DESTINATION_USERS_CRITERION" value="Select the users which you want to send the data to"/>
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Select the file formats which you want to retrieve the data"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Select the format you want to apply to the numeric data"/>
@@ -1033,6 +1044,7 @@
   <locale name="HELP_SCREEN_HELP" value="Dialogue with the definition of the window components and its help"/>
   <locale name="HELP_SCREEN_TEXT_PRINT_EMAIL" value="Dialog that allows you to generate files with the window information, print and/or send them by mail"/>
   <locale name="HELP_SCREEN_TITLE" value="Help Screen"/>
+  <locale name="HELP_SCREEN_TITLE_ACCESS_ADMIN" value="The effective access of a profile or a user to every option of the private menu, the layer that decides it, and the rules that change it."/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
   <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Parameters of the application: the security, reporting and general settings it reads."/>
@@ -1406,6 +1418,148 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_APPLICATION_HELP" value="Application help"/>
   <locale name="SCREEN_HELP" value="Screen help"/>
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Second factor authentication settings"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOW" value="Allow"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOWED" value="Allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_CASCADE" value="Evaluation of the access rules"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_AFTER" value="After the change"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_CHANGE" value="What changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE" value="In the comparison"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE_REASON" value="Why it changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_DECIDES_TODAY" value="Decides today"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_KEY" value="Identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_LAYER" value="Layer"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OPTION" value="Menu option"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OWN_RULE" value="Own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_REASON" value="Reason"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_RULE" value="Rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_TODAY" value="Today"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_VERDICT" value="Verdict"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WARNING" value="Warning"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WHO" value="Who"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE" value="Compare"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_HELP" value="With a profile, the user keeps its own rules; with a user, its own profile and rules apply. Nothing is stored"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SAME" value="Same"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SEARCH" value="Search profile or user"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_STOP" value="Stop comparing"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_WITH" value="Compare with"/>
+  <locale name="SCREEN_TEXT_ACCESS_DECIDES" value="Decides"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENIED" value="Denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENY" value="Deny"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_NONE" value="The base profile {0}.xml has no rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_RULE" value="Rule of the base profile {0}.xml on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_NONE" value="No global rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_RULE" value="Global rule on the option, for every user"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_INHERITED" value="Inherited from {0}: {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_HIDDEN" value="Belongs to module {0}, not to the selected module {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_VISIBLE" value="Visible in module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NOT_INHERITED" value="No rule of a parent option decides the access"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_MODULE" value="No module selected"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_PROFILE" value="The user has no profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_NONE" value="No rule of profile {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_RULE" value="Rule of profile {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NONE" value="No rule of user {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NOT_APPLICABLE" value="Not applicable: the subject is a profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_RULE" value="Rule of user {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TEXT" value="Its access to every option of the private menu is shown here"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TITLE" value="Choose a profile or a user"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTERS" value="Access filters"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALLOWED" value="Allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DENIED" value="Denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DIFFERENCES" value="Only differences"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WARNINGS" value="Warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WITH_RULE" value="With rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_HINT" value="A user rule wins over the rule of its profile, and the profile rule over the global one. A rule on an option also applies to its children"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT" value="Preview of the change"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_GAINS" value="Gains {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_HINT" value="The menu of the connected users is refreshed when you confirm. Anyone with one of these screens open keeps it until they close it."/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEP" value="Users that keep some through their own rule: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS" value="Keeps {0} through their own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS_DENIED" value="Keeps {0} denied through their own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_LOSES" value="Loses {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_OPTIONS" value="{0} and {1} more"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_USERS" value="{0} more users"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS" value="No user changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS_TEXT" value="The users of the subject whose access changes are listed here"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS" value="Options"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_ALLOW" value="Options that become allowed: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_DENY" value="Options that become denied: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_REMOVE" value="Options that change their access: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_ALLOW" value="Allow the selected options to {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_DENY" value="Deny the selected options to {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_REMOVE" value="Remove the rule of {1} on the selected options ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS" value="Affected users"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_ALLOW" value="Users of {2} that gain some: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_DENY" value="Users of {2} that lose some: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_REMOVE" value="Users of {2} with a change: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_MENU" value="Access to the menu options"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="No rules on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Its access comes from the module, the base profile or its parent options"/>
+  <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Every rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Menu preview"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="every module"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} visible options of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TEXT" value="The subject sees no option of the menu in this module"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TITLE" value="No visible options"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN" value="Hidden options and their reason"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_BY_PARENT" value="Its parent {0} is not shown"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_TEXT" value="The options it cannot open are not shown, nor the ones under them"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MENU" value="The menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MODULE" value="module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_PARENT_HIDDEN" value="{0} does not appear: its parent {1} is denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TEXT" value="This is a preview of the menu: you do not sign in as {0} nor open their screens."/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TITLE" value="Viewing as {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_BASE" value="Base profile {0}.xml"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_GLOBAL" value="Global rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_INHERITED" value="Inherited from {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_MODULE" value="Belongs to module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_NONE" value="No rules: allowed by default"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_PROFILE" value="Rule of profile {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_USER" value="Rule of user {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REMOVE_RULE" value="Remove rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_ALLOWED" value="{0} can open {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_DENIED" value="{0} cannot open {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW" value="Review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_ALLOW_PARENT" value="Allow {0} too"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_BUTTON" value="Review · {0} warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN" value="Remove the {0} rules without effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN_RULES" value="Remove the rules without effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TEXT" value="Every rule changes the access of its profile or user"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TITLE" value="Nothing to review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_OBSOLETE" value="Rules on options that no longer exist"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_PARENT_DENIED" value="Options allowed while their parent is denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_REDUNDANT" value="Rules that do not change the result"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_HINT" value="The review covers all profiles and users, not only the one you are viewing. The rules of removed users also appear here."/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_NO_WARNINGS" value="No warnings: every rule has an effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_OPTION" value="The option {0} is not in the private menu of this application: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_PROFILE" value="The profile no longer exists: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_USER" value="The user no longer exists: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_PARENT_DENIED" value="{0} is denied ({1}), so {2} does not appear in the menu of {3} although it is allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_ALLOWED" value="Without this rule the result is the same: {0} can open {1} anyway"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_DENIED" value="Without this rule the result is the same: {0} cannot open {1} anyway"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_PROFILE" value="Profile #{0} (removed)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_USER" value="User #{0} (removed)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_SUMMARY" value="In {0} rules of {1} profiles and {2} users"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_TITLE" value="Access review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_WARNINGS" value="{0} warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH" value="Search option…"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH_LABEL" value="Search options by label or identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_BASE" value="Base profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_GLOBAL" value="Global rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_INHERITANCE" value="Inheritance"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_MODULE" value="Module"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Profile rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="User rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="profile {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="See the access of"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="user {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Switch the rule: Allow ↔ Deny"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Preview"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Allowed, but its parent is denied: it cannot be reached from the menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Redundant rule: removing it does not change the access"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Every user"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHY" value="Why?"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Add localee text"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Add a localee identifier"/>
   <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="Parameter state"/>
@@ -1611,6 +1765,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_USER_SEARCH" value="User, name, email or profile…"/>
   <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Search users"/>
   <locale name="SCREEN_TEXT_VERSION" value="Environment"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Access"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>

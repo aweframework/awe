@@ -65,6 +65,7 @@ and React), with the AWE 5 design system:
 | `btn-warning` | Filled warning button                                                                              |
 | `btn-dark`    | Filled contrast button                                                                             |
 | `btn-ghost`   | Ghost button: no background nor border until the pointer is over it, muted text. For toolbar and row actions |
+| `btn-tonal`   | Tonal button: the soft primary tint, with the primary text. For an action that has to stand out next to the outlined ones without being the primary action of the area |
 | `no-label`    | Icon-only button (see below). It can be combined with any of the others                            |
 
 When a style has several `btn-*` classes the first one is used. Any other class is added to the button as it is.

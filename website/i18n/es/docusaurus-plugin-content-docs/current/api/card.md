@@ -193,6 +193,18 @@ Una card con un gráfico o un grid en su cuerpo necesita más espacio: el estilo
 columnas de la rejilla (`<card id="CrdSales" style="awe-card-wide">`). En pantallas estrechas la rejilla tiene una sola
 columna y la card ancha ocupa la fila entera como las demás.
 
+## Card de nota {#note-card}
+
+Una card también puede contener una explicación en lugar de una métrica: el estilo `card-note` la dibuja como una banda
+suave en el tono de su `icon-tone` (el tinte del color principal si no tiene), con el icono a la izquierda y el `title`
+y la `description` a su lado, sin la sombra ni el relleno de una tarjeta de métrica. Se ve igual en los dos motores
+cliente, en modo claro y oscuro. Úsala para pistas y resúmenes dentro de paneles laterales y diálogos; se puede rellenar
+desde una consulta como cualquier card.
+
+```xml
+<card id="CrdAccHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_HINT" />
+```
+
 ## Refresco {#refresh}
 
 Una card se refresca como cualquier componente que carga datos:

@@ -186,6 +186,33 @@
   }
 }
 
+// Tonal (style btn-tonal, #791): the soft primary tint, for an action that has to stand out next to the outlined ones
+// without being the primary action of the area
+.btn.btn-awe.btn-tonal {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  background-image: none;
+  border-color: var(--awe-color-primary-subtle);
+  box-shadow: none;
+
+  &:focus,
+  &.focused {
+    color: var(--awe-color-on-primary-subtle);
+    background: var(--awe-color-primary-subtle) !important;
+    background-image: none !important;
+    border-color: var(--awe-color-primary-subtle);
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    color: var(--awe-color-on-primary-subtle);
+    background: var(--awe-color-primary-subtle) !important;
+    background-image: none !important;
+    border-color: var(--awe-color-on-primary-subtle);
+  }
+}
+
 // Icon only (style no-label, #793): a square button with the icon in the middle; the label is its tooltip and its
 // accessible name
 .btn.btn-awe.no-label {
@@ -285,10 +312,15 @@
   border-radius: var(--awe-radius-field);
 }
 
-// Button checkbox and button radio: a segmented control whose segments wrap instead of clipping, as in React
-.btn-group:has(> .criterion.btn) {
+// Button checkbox and button radio: a segmented control whose segments wrap instead of clipping, as in React. A button
+// radio criterion with options is the same control, one segment per option
+.btn-group:has(> .criterion.btn),
+// As wide as its options, as the segmented control of the React engine (#791), on its own line under the label
+.criterion .btn-group.button-radio-group {
   display: flex;
   flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
   gap: var(--awe-space-0-5);
   padding: var(--awe-space-0-5);
   background: var(--awe-segmented-track);
@@ -296,7 +328,8 @@
   border-radius: var(--awe-radius-md);
 }
 
-.btn-group > label.criterion.btn.btn-awe.validator {
+.btn-group > label.criterion.btn.btn-awe.validator,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe {
   flex: 1 0 auto;
   float: none;
   width: auto;
@@ -313,13 +346,16 @@
 }
 
 .btn-group > label.criterion.btn.btn-awe.validator:hover,
-.btn-group > label.criterion.btn.btn-awe.validator:focus {
+.btn-group > label.criterion.btn.btn-awe.validator:focus,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:hover,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:focus {
   color: var(--awe-segmented-hover-text);
   background: transparent !important;
   border-color: transparent;
 }
 
-.btn-group > label.criterion.btn.btn-awe.validator.active {
+.btn-group > label.criterion.btn.btn-awe.validator.active,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe.active {
   font-weight: var(--awe-font-weight-semibold);
   color: var(--awe-segmented-selected-text);
   background: var(--awe-segmented-selected) !important;
@@ -327,12 +363,14 @@
   box-shadow: var(--awe-shadow-sm);
 }
 
-.btn-group > label.criterion.btn.btn-awe.validator:has(input:focus-visible) {
+.btn-group > label.criterion.btn.btn-awe.validator:has(input:focus-visible),
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible) {
   outline: var(--awe-focus-ring);
   outline-offset: calc(-1 * var(--awe-focus-ring-width));
 }
 
-.btn-group:has(> .criterion.btn.has-error) {
+.btn-group:has(> .criterion.btn.has-error),
+.criterion.has-error .btn-group.button-radio-group {
   border-color: var(--awe-color-field-border-invalid);
 }
 

@@ -8,7 +8,7 @@ import { buttonGroupPassThrough } from "../utilities/testPassThrough";
 
 function AweButtonCheckbox(props) {
   const { id } = props;
-  const { address, model, attributes, validationRules, getValue, itemTemplate, onChangeButtonCheckbox } = useCheckboxRadio(id);
+  const { address, model, attributes, validationRules, getValue, optionLabel, itemTemplate, onChangeButtonCheckbox } = useCheckboxRadio(id);
 
   const { size, error = false } = attributes;
   const classes = classNames("", { [`text-${size}`]: size, "p-invalid": error });
@@ -19,6 +19,7 @@ function AweButtonCheckbox(props) {
         inputid={address?.component}
         value={getValue()}
         options={model.values}
+        optionLabel={optionLabel}
         onChange={onChangeButtonCheckbox}
         itemTemplate={itemTemplate}
         className={classes}

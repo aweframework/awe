@@ -46,7 +46,8 @@ export const suggestAction = (event: unknown, text: string, props: SuggestProps)
     ) as ClientAction[]; // An error answer has no list of actions: reading it as one fails, as it always did
 
     const datalist = manageFillAction(response, dispatch);
-    return _.uniqBy([...(datalist.rows || []), ...defaultValue], "label");
+    // One option per label in each group (the options of a suggest without groups are one group)
+    return _.uniqBy([...(datalist.rows || []), ...defaultValue], item => item.group ? `${item.group}:${item.label}` : item.label);
   };
 };
 

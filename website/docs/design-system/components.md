@@ -18,6 +18,7 @@ active, disabled, invalid, loading, empty) and works in both densities and both 
 | Outlined | Neutral actions, toolbars, button groups. |
 | Text | Low-emphasis actions (History, Clear all, links inside cards). |
 | Ghost icon | Toolbar and row actions. Always `aria-label` + tooltip. |
+| Tonal | A secondary action that has to stand out next to the outlined ones (Preview), without being the primary (`btn-tonal`). |
 | Danger / danger outlined | Destructive actions. Filled only in the confirmation step. |
 
 - Sizes: small (`--awe-size-control-sm`), default (`--awe-size-control`), large (`--awe-size-control-lg`, login).
@@ -126,7 +127,7 @@ Read-only uploaders show the file and disable the actions.
 
 | Element | Rule |
 |---------|------|
-| Dialog | `<dialog>`, `--awe-radius-modal`, header (title, subtitle, close), scrollable body, footer with actions on the right. Mask `--awe-color-mask` with a slight blur. Sizes in #844. |
+| Dialog | `<dialog>`, `--awe-radius-modal`, header (title, subtitle, close), scrollable body, footer with actions on the right that stays at the bottom after a separator line (`modal-footer`). Mask `--awe-color-mask` with a slight blur. Sizes in #844. |
 | Confirmation | Small dialog with a danger icon, a precise question ("Delete 2 customers?"), the consequence, Cancel focused by default. |
 | Side panel (#843) | Slides from the right, full height, own footer of actions. For editing a record without leaving the list. |
 | Popover (#843) | Anchored to its button, with an arrow; can hold criteria and a small grid; Cancel / Accept. |
@@ -198,7 +199,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Pivot table | #821, #878 | Done | Drop zones for rows, columns and values; aggregation select; swap; totals per row and column. |
 | Map | #798 | Done | Controls and panels use AWE surfaces and buttons; markers and routes in the primary. |
 | Colour scale cells and grid without header | #830 | Done | 5-step scale from the primary with a legend; a headerless grid starts with its first row. |
-| Card | #899 | Done | Metric tile: title, value (tabular) with unit, change as a tag with arrow and text (tone from `good-trend`), optional target progress, an optional status chip at the top right, before the icon (#836) and a body with any component; laid out with `awe-card-grid`. |
+| Card | #899 | Done | Metric tile: title, value (tabular) with unit, change as a tag with arrow and text (tone from `good-trend`), optional target progress, an optional status chip at the top right, before the icon (#836) and a body with any component; laid out with `awe-card-grid`. The `card-note` style (#791) turns it into a note: a soft band in the tone of its icon with the title and the description, for hints and summaries. |
 | KPI | #836 | Planned | Adds the filter mode on top of the card (#899): a selected state, and a click filters a grid through dependencies. |
 
 ### Feedback and loading

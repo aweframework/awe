@@ -7,7 +7,8 @@ import { useTranslation } from "react-i18next";
 import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import { getSuggestionLabel, getVirtualItemSize, withTextLabels } from "../utilities/suggest";
+import { getSuggestionLabel, getVirtualItemSize, groupSuggestions, withTextLabels } from "../utilities/suggest";
+import { translateLabel } from "../utilities/labels";
 import { CriterionSkeleton } from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
@@ -24,6 +25,9 @@ function AweSuggest(props) {
   const [suggestions, setSuggestions] = useState([...model?.values || []]);
   // PrimeReact needs the labels as text, but the server answers numbers for a suggest over a numeric column
   const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
+  // Rows with a group (a locale key) are shown under the header of their group
+  const groupedSuggestions = useMemo(() => groupSuggestions(textSuggestions, key => translateLabel(key, t)),
+    [textSuggestions, t]);
   const [value, setValue] = useState({});
   const { onChange, onClear, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
 
@@ -55,13 +59,32 @@ function AweSuggest(props) {
     }
   }, [openPanelOnMount, suggestions.length]);
 
+  // PrimeReact highlights the first row of the list, which is a header in a grouped list: highlight its first option
+  const highlightFirstOption = () => {
+    const overlay = autocompleteRef.current?.getOverlay?.();
+    const first = overlay?.querySelector('[data-pc-section="item"]');
+    if (!groupedSuggestions || !first) {
+      return;
+    }
+    overlay.querySelectorAll('[data-p-highlight="true"]').forEach(row => {
+      row.classList.remove("p-highlight");
+      row.setAttribute("data-p-highlight", "false");
+    });
+    first.classList.add("p-highlight");
+    first.setAttribute("data-p-highlight", "true");
+  };
+  useEffect(highlightFirstOption, [groupedSuggestions]);
+  // When the list opens, right after PrimeReact highlights its first row
+  const highlightOnOpen = {onEntering: highlightFirstOption};
+
   // If the criterion is not registered yet, return skeleton
   if (!address?.component) {
     return <CriterionSkeleton attributes={attributes} />;
   }
 
   let virtualSettings = null;
-  if (isLargeList && enableVirtualScroll) {
+  // A grouped list is not virtual: its headers would break the fixed height of the rows
+  if (isLargeList && enableVirtualScroll && !groupedSuggestions) {
       virtualSettings = {
           itemSize: getVirtualItemSize(),
           overscan: 10
@@ -126,7 +149,10 @@ function AweSuggest(props) {
         invalid={error}
         onKeyDown={onKeyPress}
         delay={timeout || 300}
-        suggestions={textSuggestions}
+        suggestions={groupedSuggestions || textSuggestions}
+        optionGroupLabel={groupedSuggestions ? "label" : undefined}
+        optionGroupChildren={groupedSuggestions ? "items" : undefined}
+        transitionOptions={highlightOnOpen}
         completeMethod={onSuggest}
         className={classes}
         appendTo={document.body}

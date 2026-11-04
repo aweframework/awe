@@ -306,32 +306,123 @@ observability stack in a distributed architecture.
 
 ## Screen access
 
-Screen access contains a list of option restrictions which can be defined to all application users, to a specific profile
-or even to a specific user.
+The *Screen access* option of the menu opens the access window (`access-admin`): one screen that answers, for a
+profile or a user, **what they can open in the private menu and why**, and lets a functional administrator change it.
+An auditor reads the same screen without changing anything.
 
-You can search a specific restriction with the upper criteria, or update 
+<img alt="Access screen" src={require('@docusaurus/useBaseUrl').default('img/AccessScreen.png')} />
 
-## Menu access
+### Quick path
 
-This is a new screen designed to improve the usability of menu option restriction. 
-In this screen you have a menu tree and three criteria: `User`, `Profile` and `Module`.
-The tree below is based in the selections you have picked in the criteria: for example, the initial tree shows the
-restriction menu for all users and all profiles, for the options which doesn't belong to any module.
+1. In *See the access of*, choose *Profile* or *User*, then the profile or the user in the suggest beside it.
+   Optionally choose a module. These fields share one row at the top of the card of the tree.
+2. Read the tree: each option of the private menu with its access and the reason.
+3. Press *Why?* on an option to see the layer that decides it, and *Allow* or *Deny* to change it.
 
-When you select a module in the criteria, the tree below will show all the menu options for this module, including the 
-options which doesn't have module defined.
+### Read the tree
 
-If you pick a profile in the `Profile` criterion, the tree will show the restrictions for this profile (and in the 
-`access` column you will see the general restrictions for all users and profiles for each option).
+The tree is the whole private menu (`menu/private.xml`) of the application. Each option shows:
 
-Picking a user in the `User` criterion will make the tree to show the restrictions for the user. The `access` column 
-will show the specific restrictions for the user profile in each option.
+| Column | What it says |
+|--------|--------------|
+| Menu option | The label and, under it, the name of the option in `private.xml`. |
+| Access | *Allowed* or *Denied*: what the profile or the user gets in the real menu. |
+| Reason | The layer that decides the access: no rules (allowed by default), the base profile file, the module, a global rule, a profile rule, a user rule or a rule inherited from a parent option. |
+| Own rule | The rule of the chosen profile or user on that option (*Allow* or *Deny*), if any. |
+| Warnings | Under the reason: *allowed, but its parent is denied* (the option cannot be reached from the menu) or *redundant rule* (removing it does not change the access without module nor in any module of the menu). |
 
-<img alt="Menu restrictions" src={require('@docusaurus/useBaseUrl').default('img/MenuRestrictionsScreen.png')} />
+The search finds options by label or name, and the quick filters show their counts: *All*, *Allowed*, *Denied*,
+*With rule* and *Warnings*. A matching option keeps its parent options in the tree, so it never shows alone.
 
-To change the restrictions for any option, you can do it by selecting the option and doing *right-click* on it. It will
-show a context-menu with the restriction options (allow, restrict or remove restriction in case of defined). You can also
-select the option and click on the buttons below the tree to change a restriction value.
+With a module chosen, the options of other modules are denied with the reason *Belongs to module ...*, as in the real
+menu of a user who works in that module. Without a module, only the rules decide.
+
+### Allow or deny an option
+
+The *Allow* and *Deny* buttons of a row store a rule of the chosen profile or user on that option. A rule on an option
+also applies to the options under it. The menu of the connected users is refreshed after the change. A button that
+would change nothing is disabled: *Allow* on an allowed option, *Deny* on a denied one.
+
+To change several options at once, check their rows: a bar shows *Allow*, *Deny* and *Remove rule*. With one row
+checked, the bar disables the same buttons as the row, and *Remove rule* is only enabled when the option has an own rule.
+With several rows checked, the three buttons are enabled and the preview tells which options change. Before anything is
+stored, a preview dialog lists the options whose access changes (today, after the change and what decides today) and the
+users of the profile that lose or gain access, including the ones that keep it through their own rule. Its buttons stay
+at the bottom while the lists scroll. *Cancel* stores nothing.
+
+### Why panel
+
+*Why?* opens a side panel with the result (*OPE cannot open Information*) and the cascade that decides it, from the
+most general layer to the most specific one:
+
+1. **Module**: an option of another module than the chosen one is denied.
+2. **Base profile**: the restriction file of the user or of its profile (`profile/<name>.xml`; when neither sets one,
+   `awe.security.default-restriction`, `general` by default).
+3. **Global rule**: a rule for every user.
+4. **Profile rule**: a rule of the profile (of the user's profile, for a user).
+5. **User rule**: a rule of the user.
+6. **Inheritance**: a rule on a parent option applies to its children.
+
+The last layer with a rule wins, and the panel marks it with *Decides*. So a user rule wins over the rule of its profile,
+and a profile rule over a global one. The access shown is computed with the same cascade as the menu of a signed-in
+user, so the screen never contradicts the real menu.
+
+The panel also lists *every rule on the option*, of any profile or user, where each rule can be switched (*Allow* ↔
+*Deny*) or removed. Removing a rule asks for confirmation, because it may belong to another profile or user.
+
+<img alt="Why panel" src={require('@docusaurus/useBaseUrl').default('img/AccessWhyPanel.png')} />
+
+### Compare
+
+*Compare* adds *Compare with* to the row of the subject, with a reminder beside it: one suggest that searches profiles
+and users at once and lists them grouped under *Profile* and *User* (in the React client, its arrow lists all of them).
+The tree gets two more columns, the access in the comparison and why it changes, and the *Only differences* quick
+filter.
+
+- **A profile** simulates the subject with that profile: a profile against another one, or a user with another profile,
+  keeping the user's own rules.
+- **A user** compares with the real access of that user: its own profile and its own rules.
+
+Nothing is stored: *Stop comparing* goes back to the normal view. To give that profile to the user, use the
+[users](#users) screen.
+
+### Review
+
+*Review* shows the number of warnings and opens a side panel that checks the rules of **all** profiles and users, not
+only the chosen one. Each finding has its fix:
+
+| Finding | Fix |
+|---------|-----|
+| Rules on options that no longer exist in `private.xml`, or of a profile or user that was removed | Remove the rule. |
+| Options allowed while their parent is denied (they do not appear in the menu) | Allow the parent option too, or remove the rule. |
+| Rules that do not change the result (without module nor in any module) | Remove the rule, one by one or all at once with *Remove the rules without effect*. A rule that only matters inside a module is not listed. |
+
+<img alt="Access review" src={require('@docusaurus/useBaseUrl').default('img/AccessReviewPanel.png')} />
+
+### Preview
+
+*Preview* opens a preview of the menu that the chosen profile or user sees in the chosen module: the options they can
+reach, how many are hidden and the reason of each hidden one. It is only a preview: it does not sign in as the user nor
+open their screens.
+
+### Access that travels with the application
+
+The rules of this screen are **data of each environment**: they are stored in the database and point at the option
+names of the `private.xml` of the application. That is why there is no import or export of rules: the options of one
+application do not exist in another one.
+
+- Access that must be the same in every environment, and that ships with the application, goes in the base restriction
+  files of the profiles (`profile/<name>.xml`, with `<restriction option="..."/>` entries). The screen shows them as
+  the *Base profile* layer.
+- For an audit, *Print* exports the tree with the access and the reason of each option (see the
+  [print engine](print-guide.md)).
+
+:::warning Deprecated
+The previous access screens `ScrAccRes` (*Screen access*), `menu-access` and `screen-access` are deprecated since AWE
+5.0.0 and will be removed in the next minor release (5.1.0). The `screen-access` option of the default menu and of the
+archetypes now opens `access-admin`. Point your own menu options to the `access-admin` screen; see the
+[v5 migration guide](v5-migration.md). The rules they stored are the same ones, so nothing has to be migrated.
+:::
 
 ## Encrypt util
 

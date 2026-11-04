@@ -463,6 +463,24 @@ fieldset[disabled] .form-control {
     border-radius: var(--awe-radius-list-option);
   }
 
+  /* The text that matches the search: semibold, not underlined (an underlined space reads as an underscore, #791) */
+  .select2-result-selectable .select2-match,
+  .select2-result-unselectable .select2-match {
+    font-weight: var(--awe-font-weight-semibold);
+    text-decoration: none;
+  }
+
+  /* Option group header (suggest rows with a group): a small muted label, never selectable */
+  li.select2-result-with-children.select2-result-unselectable > .select2-result-label {
+    padding: var(--awe-space-2) var(--awe-space-2) var(--awe-space-1);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-list-option-group);
+    text-transform: uppercase;
+    letter-spacing: var(--awe-letter-spacing-caps);
+    cursor: default;
+  }
+
   .select2-highlighted {
     color: var(--awe-color-list-option-text-focus);
     background: var(--awe-color-list-option-focus);

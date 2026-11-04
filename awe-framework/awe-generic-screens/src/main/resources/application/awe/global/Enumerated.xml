@@ -382,6 +382,12 @@
     <option label="SCREEN_TEXT_MODULE_TAB_SITES" value="sites"/>
   </group>
 
+  <!-- Access window (access-admin): subject of the window, the button group of the React engine -->
+  <group id="access-subject-types">
+    <option label="PARAMETER_PROFILE" value="profile"/>
+    <option label="PARAMETER_USER" value="user"/>
+  </group>
+
   <group id="IsRestricted">
     <option label="true" value="R" />
     <option label="false" value="A" />

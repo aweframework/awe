@@ -229,6 +229,19 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/tree.js',
       expect(tree.grid.api.selection.clearSelectedRows).toHaveBeenCalled();
     });
 
+    it('should replace the rows of a tree when it is filled with fewer rows', function () {
+      // A load-all tree reloaded with a quick filter or a search: the rows that are not sent again are gone
+      let tree = initTree({...currentModel}, {...currentController, loadAll: true});
+      jest.spyOn(tree, "updateModel").mockImplementation(() => null);
+      const values = [{_ID: 5, value: "lili"}, {_ID: 8, value: "lyly", parent: 5}];
+
+      tree.api.updateModelValues({values, records: 2});
+
+      expect(tree.model.values).toEqual([{_ID: 5, value: "lili"}, {_ID: 8, value: "lyly", parent: 5}]);
+      expect(tree.model.records).toBe(2);
+      expect(tree.updateModel).toHaveBeenCalled();
+    });
+
     it('should delete a row without parent', function () {
       jest.spyOn($utilities, "getRowIndex").mockReturnValue(1);
       let tree = initTree({...currentModel}, {...currentController, loadAll: true});

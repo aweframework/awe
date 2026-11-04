@@ -85,6 +85,9 @@ class MaintainDescriptorGuardTest {
     Map.entry("allowMenuOption", MENU_RESTRICTION_ADMIN),
     Map.entry("restrictMenuOption", MENU_RESTRICTION_ADMIN),
     Map.entry("removeRestriction", MENU_RESTRICTION_ADMIN),
+    Map.entry("access-allow", MENU_RESTRICTION_ADMIN),
+    Map.entry("access-deny", MENU_RESTRICTION_ADMIN),
+    Map.entry("access-remove", MENU_RESTRICTION_ADMIN),
     Map.entry("ChdPwdPub", "Public login flow: the service checks the current password of the user before it changes it"),
     Map.entry("ChkSchSrvCnx", "Scheduler server connection test: the user is the SSH user of the server, not an AWE user"));
 

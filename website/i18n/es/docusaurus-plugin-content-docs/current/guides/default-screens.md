@@ -307,23 +307,125 @@ La pantalla de registro da acceso a todos los registros de la aplicación. Se de
 
 ## Acceso a las pantallas {#screen-access}
 
-El acceso a pantallas contiene una lista de restricciones de opciones que se pueden definir para todos los usuarios de la aplicación, para un perfil concreto o incluso para un usuario concreto.
+La opción *Acceso a pantallas* del menú abre la ventana de acceso (`access-admin`): una sola pantalla que responde,
+para un perfil o un usuario, **qué puede abrir del menú privado y por qué**, y permite a un administrador funcional
+cambiarlo. Un auditor consulta la misma pantalla sin cambiar nada.
 
-Puede buscar una restricción concreta con los criterios superiores, o actualizar
+<img alt="Pantalla de acceso" src={require('@docusaurus/useBaseUrl').default('img/AccessScreen.png')} />
 
-## Acceso al menú {#menu-access}
+### Camino rápido {#quick-path}
 
-Esta es una nueva pantalla diseñada para mejorar la usabilidad de la restricción de opciones de menú. En esta pantalla hay un árbol de menú y tres criterios: `User`, `Profile` y `Module`. El árbol inferior se basa en las selecciones realizadas en los criterios: por ejemplo, el árbol inicial muestra el menú de restricciones para todos los usuarios y todos los perfiles, para las opciones que no pertenecen a ningún módulo.
+1. En *Ver el acceso de*, elija *Perfil* o *Usuario* y después el perfil o el usuario en el buscador de al lado. Si
+   quiere, elija un módulo. Estos campos comparten una fila en la parte superior de la tarjeta del árbol.
+2. Lea el árbol: cada opción del menú privado con su acceso y el motivo.
+3. Pulse *¿Por qué?* en una opción para ver la capa que lo decide, y *Permitir* o *Denegar* para cambiarlo.
 
-Cuando se selecciona un módulo en los criterios, el árbol inferior muestra todas las opciones de menú de ese módulo, incluidas las opciones que no tienen módulo definido.
+### Leer el árbol {#read-the-tree}
 
-Si se elige un perfil en el criterio `Profile`, el árbol muestra las restricciones de ese perfil (y en la columna `access` se ven las restricciones generales para todos los usuarios y perfiles de cada opción).
+El árbol es el menú privado completo (`menu/private.xml`) de la aplicación. Cada opción muestra:
 
-Al elegir un usuario en el criterio `User`, el árbol muestra las restricciones de ese usuario. La columna `access` muestra las restricciones específicas del perfil del usuario en cada opción.
+| Columna | Qué dice |
+|---------|----------|
+| Opción del menú | La etiqueta y, debajo, el nombre de la opción en `private.xml`. |
+| Acceso | *Permitido* o *Denegado*: lo que el perfil o el usuario tiene en el menú real. |
+| Motivo | La capa que decide el acceso: sin reglas (permitido por defecto), el fichero del perfil base, el módulo, una regla global, una regla del perfil, una regla del usuario o una regla heredada de una opción padre. |
+| Regla propia | La regla del perfil o del usuario elegido sobre esa opción (*Permitir* o *Denegar*), si la tiene. |
+| Avisos | Debajo del motivo: *permitida, pero su padre está denegado* (no se puede llegar a ella desde el menú) o *regla redundante* (quitarla no cambia el acceso ni sin módulo ni en ningún módulo del menú). |
 
-<img alt="Menu restrictions" src={require('@docusaurus/useBaseUrl').default('img/MenuRestrictionsScreen.png')} />
+La búsqueda encuentra opciones por etiqueta o por nombre, y los filtros rápidos muestran sus contadores: *Todas*,
+*Permitidas*, *Denegadas*, *Con regla* y *Avisos*. Una opción encontrada conserva sus opciones padre en el árbol, así
+que nunca aparece sola.
 
-Para cambiar las restricciones de cualquier opción, se puede seleccionar la opción y hacer *clic derecho* sobre ella. Se mostrará un menú contextual con las opciones de restricción (permitir, restringir o eliminar la restricción en caso de estar definida). También se puede seleccionar la opción y pulsar los botones situados debajo del árbol para cambiar el valor de una restricción.
+Con un módulo elegido, las opciones de otros módulos aparecen denegadas con el motivo *Pertenece al módulo ...*, como en
+el menú real de un usuario que trabaja en ese módulo. Sin módulo, solo deciden las reglas.
+
+### Permitir o denegar una opción {#allow-or-deny-an-option}
+
+Los botones *Permitir* y *Denegar* de una fila guardan una regla del perfil o del usuario elegido sobre esa opción. Una
+regla sobre una opción se aplica también a las opciones que cuelgan de ella. Tras el cambio se refresca el menú de los
+usuarios conectados. Un botón que no cambiaría nada aparece deshabilitado: *Permitir* en una opción permitida,
+*Denegar* en una denegada.
+
+Para cambiar varias opciones a la vez, marque sus filas: aparece una barra con *Permitir*, *Denegar* y *Quitar regla*.
+Con una fila marcada, la barra deshabilita los mismos botones que la fila, y *Quitar regla* solo se habilita si la
+opción tiene regla propia. Con varias filas marcadas, los tres botones están habilitados y la vista previa indica qué
+opciones cambian. Antes de guardar nada, un diálogo de vista previa lista las opciones cuyo acceso cambia (hoy, después del cambio y qué
+lo decide hoy) y los usuarios del perfil que pierden o ganan acceso, incluidos los que lo conservan por su propia regla.
+Sus botones se quedan abajo mientras las listas se desplazan. *Cancelar* no guarda nada.
+
+### Panel ¿Por qué? {#why-panel}
+
+*¿Por qué?* abre un panel lateral con el resultado (*OPE no puede abrir Información*) y la cascada que lo decide, de la
+capa más general a la más concreta:
+
+1. **Módulo**: una opción de un módulo distinto del elegido queda denegada.
+2. **Perfil base**: el fichero de restricciones del usuario o de su perfil (`profile/<nombre>.xml`; si ninguno lo
+   indica, `awe.security.default-restriction`, `general` por defecto).
+3. **Regla global**: una regla para todos los usuarios.
+4. **Regla del perfil**: una regla del perfil (del perfil del usuario, si se ha elegido un usuario).
+5. **Regla del usuario**: una regla del usuario.
+6. **Herencia**: una regla sobre una opción padre se aplica a sus hijas.
+
+Gana la última capa con regla, y el panel la marca con *Decide*. Así, una regla del usuario gana a la de su perfil, y
+una regla del perfil a una global. El acceso se calcula con la misma cascada que el menú de un usuario conectado, así
+que la pantalla nunca contradice el menú real.
+
+El panel lista también *todas las reglas sobre la opción*, de cualquier perfil o usuario, donde cada regla se puede
+cambiar (*Permitir* ↔ *Denegar*) o quitar. Quitar una regla pide confirmación, porque puede ser de otro perfil o
+usuario.
+
+<img alt="Panel ¿Por qué?" src={require('@docusaurus/useBaseUrl').default('img/AccessWhyPanel.png')} />
+
+### Comparar {#compare}
+
+*Comparar* añade *Comparar con* a la fila del sujeto, con un recordatorio a su lado: un solo buscador que busca perfiles
+y usuarios a la vez y los lista agrupados bajo *Perfil* y *Usuario* (en el cliente React, su flecha los lista todos). El
+árbol gana dos columnas, el acceso en la comparación y por qué cambia, y el filtro rápido *Solo diferencias*.
+
+- **Un perfil** simula el sujeto con ese perfil: un perfil frente a otro, o un usuario con otro perfil, conservando las
+  reglas propias del usuario.
+- **Un usuario** compara con el acceso real de ese usuario: su propio perfil y sus propias reglas.
+
+No se guarda nada: *Dejar de comparar* vuelve a la vista normal. Para dar ese perfil al usuario, use la pantalla de
+[usuarios](#users).
+
+### Revisar {#review}
+
+*Revisar* muestra el número de avisos y abre un panel lateral que comprueba las reglas de **todos** los perfiles y
+usuarios, no solo del elegido. Cada hallazgo tiene su corrección:
+
+| Hallazgo | Corrección |
+|----------|------------|
+| Reglas sobre opciones que ya no existen en `private.xml`, o de un perfil o usuario borrado | Quitar la regla. |
+| Opciones permitidas con el padre denegado (no aparecen en el menú) | Permitir también la opción padre, o quitar la regla. |
+| Reglas que no cambian el resultado (ni sin módulo ni en ningún módulo) | Quitar la regla, una a una o todas a la vez con *Quitar las reglas sin efecto*. Una regla que solo importa dentro de un módulo no aparece. |
+
+<img alt="Revisión de accesos" src={require('@docusaurus/useBaseUrl').default('img/AccessReviewPanel.png')} />
+
+### Previsualizar {#preview}
+
+*Previsualizar* abre una vista previa del menú que ve el perfil o el usuario elegido en el módulo elegido: las opciones a
+las que llega, cuántas quedan ocultas y el motivo de cada una. Es solo una vista previa: no inicia sesión como el
+usuario ni abre sus pantallas.
+
+### El acceso que viaja con la aplicación {#access-that-travels-with-the-application}
+
+Las reglas de esta pantalla son **datos de cada entorno**: se guardan en la base de datos y apuntan a los nombres de
+las opciones del `private.xml` de la aplicación. Por eso no hay importación ni exportación de reglas: las opciones de una
+aplicación no existen en otra.
+
+- El acceso que debe ser igual en todos los entornos, y que se distribuye con la aplicación, va en los ficheros de
+  restricciones base de los perfiles (`profile/<nombre>.xml`, con entradas `<restriction option="..."/>`). La pantalla
+  los muestra como la capa *Perfil base*.
+- Para una auditoría, *Imprimir* exporta el árbol con el acceso y el motivo de cada opción (vea el
+  [motor de impresión](print-guide.md)).
+
+:::warning Deprecadas
+Las pantallas de acceso anteriores `ScrAccRes` (*Acceso a pantallas*), `menu-access` y `screen-access` están deprecadas
+desde AWE 5.0.0 y se eliminarán en la siguiente versión menor (5.1.0). La opción `screen-access` del menú por defecto y
+de los arquetipos abre ahora `access-admin`. Apunte sus propias opciones de menú a la pantalla `access-admin`; vea la
+[guía de migración a v5](v5-migration.md). Las reglas que guardaban son las mismas, así que no hay nada que migrar.
+:::
 
 ## Utilidad de cifrado {#encrypt-util}
 
