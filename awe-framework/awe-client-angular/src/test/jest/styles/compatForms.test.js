@@ -58,6 +58,8 @@ const LEFT_OUT = [
   reason: "the AWE grid and tree grid cells draw their own checkbox and radio columns (sizes grid-sm|md|lg): the rules belong to the grid component"},
   {names: ["btn", "column-button-radio"], examples: [".grid .ui-grid-cell .ui-grid-cell-contents.component .column-button-radio.has-error > label.btn"],
     reason: "a radio rendered as a button group inside a grid cell: it stays with the grid and the button family"},
+  {names: ["button-radio-group"], examples: [".criterion.has-error .btn-group.button-radio-group"],
+    reason: "the button group of an AWE criterion radio (#791): the criterion owns the layout of its group, and the button family serves the .btn-group inside it"},
   {names: ["panel-heading-controls", "panel-dark"], examples: [".panel-heading-controls > .form-control", ".panel-dark .panel-heading-controls > .form-control"],
     reason: "controls placed in a panel heading (margin, and an !important transparent border in the dark panel): they belong to the panel family"},
   {names: ["select2-container", "select2-choice", "select2-choices", "select2-chosen"], examples: [".has-error .select2-choice", ".select2-container.form-control", ".form-group.w-icon .select2-chosen"],
