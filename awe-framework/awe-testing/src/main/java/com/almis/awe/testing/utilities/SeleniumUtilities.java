@@ -1519,34 +1519,42 @@ public class SeleniumUtilities implements IAweInstructions {
     // actions that are waiting when an option is chosen, so the screen would not change
     waitForLoadingBar();
 
-    int optionNumber = 1;
-    for (String option : menuOptions) {
-      // Wait for text in selector
-      waitUntil(toBeVisible(frontEndInstructions.getMenuOption(option)));
-
-      switch (frontEndInstructions.getMenuBehavior()) {
-        case CLICK_ALL:
-          clickAllOptions(optionNumber, option, menuOptions);
-          break;
-        case CLICK_FIRST_AND_OPTION:
-          clickFirstAndOption(optionNumber, option, menuOptions);
-          break;
-        case CLICK_OPTION:
-        default:
-          clickOption(optionNumber, option, menuOptions);
-      }
-
-      seleniumModel.setCurrentOption(option);
-      optionNumber++;
+    for (int optionNumber = 1; optionNumber <= menuOptions.length; optionNumber++) {
+      chooseMenuOption(optionNumber, menuOptions);
+      seleniumModel.setCurrentOption(menuOptions[optionNumber - 1]);
     }
 
     // Wait for the click to take effect, clicking again when the browser ignored it
     String lastOption = menuOptions[menuOptions.length - 1];
-    retryMenuClickWhenIgnored(lastOption);
+    retryMenuClickWhenIgnored(menuOptions);
     waitForMenuOption(lastOption);
 
     // Wait for loading bar
     waitForLoadingBar();
+  }
+
+  /**
+   * Make the gesture of the menu behavior on an option of a menu path (a click or a hover)
+   *
+   * @param optionNumber Number of the option in the path, from 1
+   * @param menuOptions  Menu path
+   */
+  private void chooseMenuOption(int optionNumber, String[] menuOptions) {
+    String option = menuOptions[optionNumber - 1];
+    // Wait for text in selector
+    waitUntil(toBeVisible(frontEndInstructions.getMenuOption(option)));
+
+    switch (frontEndInstructions.getMenuBehavior()) {
+      case CLICK_ALL:
+        clickAllOptions(optionNumber, option, menuOptions);
+        break;
+      case CLICK_FIRST_AND_OPTION:
+        clickFirstAndOption(optionNumber, option, menuOptions);
+        break;
+      case CLICK_OPTION:
+      default:
+        clickOption(optionNumber, option, menuOptions);
+    }
   }
 
   /**
@@ -1572,24 +1580,55 @@ public class SeleniumUtilities implements IAweInstructions {
    * A browser may ignore a click on a menu option that it reports as done (the option gets the focus but the screen does
    * not change). Give the click a short time to take effect and, if it did not, click the option again (at most
    * {@value #MENU_CLICK_RETRIES} more times). A click that took effect is never repeated, and a click that never takes
-   * effect is reported by the wait that follows, as always
+   * effect is reported by the wait that follows, as always.
+   * <p>
+   * A click that took effect late (the screen opened, but the dropdown closes after the short wait) must not fail the
+   * step: the retry waits for the option to be clickable or for the effect, whichever comes first. When the option is
+   * hidden (its parent collapsed), the parents are chosen again before the new click
    *
-   * @param option Last option clicked
+   * @param menuOptions Menu path clicked
    */
-  private void retryMenuClickWhenIgnored(String option) {
+  private void retryMenuClickWhenIgnored(String[] menuOptions) {
+    String option = menuOptions[menuOptions.length - 1];
+    By optionSelector = frontEndInstructions.getMenuOption(option);
     Duration timeout = properties.getTimeout().compareTo(MENU_CLICK_EFFECT_TIMEOUT) < 0 ? properties.getTimeout() : MENU_CLICK_EFFECT_TIMEOUT;
     BrowserCondition tookEffect = menuOptionTookEffect(option);
-    for (int retry = 0; retry <= MENU_CLICK_RETRIES; retry++) {
-      try {
-        poll(tookEffect, timeout);
+    for (int retry = 0; retry < MENU_CLICK_RETRIES; retry++) {
+      if (isMetWithin(tookEffect, timeout)) {
         return;
-      } catch (BrowserPoll.PollTimeoutException exc) {
-        if (retry == MENU_CLICK_RETRIES) {
+      }
+      if (!getBrowser().isVisible(locator(optionSelector))) {
+        // The effect may come right after the wait: opening the parents then would open the menu over the new screen
+        if (tookEffect.isMet(getBrowser())) {
           return;
         }
-        log.warn("The click on the menu option '{}' had no effect after {} ms, clicking it again", option, timeout.toMillis());
-        click(frontEndInstructions.getMenuOption(option));
+        log.warn("The menu option '{}' is hidden after a click with no effect, opening its parents again", option);
+        for (int optionNumber = 1; optionNumber < menuOptions.length; optionNumber++) {
+          chooseMenuOption(optionNumber, menuOptions);
+        }
       }
+      if (isMetWithin(BrowserCondition.anyOf(tookEffect, toBeClickable(optionSelector)), properties.getTimeout())
+        && tookEffect.isMet(getBrowser())) {
+        return;
+      }
+      log.warn("The click on the menu option '{}' had no effect after {} ms, clicking it again", option, timeout.toMillis());
+      click(optionSelector);
+    }
+  }
+
+  /**
+   * Wait for a condition, telling whether it was met instead of failing
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @return true if the condition was met in time
+   */
+  private boolean isMetWithin(BrowserCondition condition, Duration timeout) {
+    try {
+      poll(condition, timeout);
+      return true;
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      return false;
     }
   }
 
