@@ -83,6 +83,15 @@ public class SecurityConfigProperties {
   private PasswordEncoderType passwordEncoder = PasswordEncoderType.BCRYPT;
 
   /**
+   * Check of the maintain targets and queries launched by a client: they can only be launched when the session user
+   * can open at least one menu option whose screen uses them. Public targets and targets that no screen uses are not
+   * checked, and the launches made by the server (not requested by a client) are never checked. off does not check,
+   * warn logs and audits the launches without access but allows them, and enforce refuses them.
+   * Default value enforce
+   */
+  private ScreenAccessMode screenAccess = ScreenAccessMode.ENFORCE;
+
+  /**
    * Authentication mode
    * Default value BBDD (Database)
    */

@@ -287,4 +287,21 @@ class AweElementsTest {
       Thread.interrupted();
     }
   }
+
+  /**
+   * Test that the reload version changes each time the definitions are loaded again
+   */
+  @Test
+  void reloadVersionChangesOnReload() {
+    long initial = aweElements.getReloadVersion();
+    aweElements.reloadScreens();
+    long afterScreens = aweElements.getReloadVersion();
+    aweElements.reloadMenus();
+    long afterMenus = aweElements.getReloadVersion();
+    aweElements.reloadAll();
+
+    assertTrue(afterScreens > initial);
+    assertTrue(afterMenus > afterScreens);
+    assertTrue(aweElements.getReloadVersion() > afterMenus);
+  }
 }

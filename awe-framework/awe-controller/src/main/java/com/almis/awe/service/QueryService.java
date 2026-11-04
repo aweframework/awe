@@ -13,6 +13,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
@@ -446,6 +447,11 @@ public class QueryService extends ServiceConfig {
       // If query is private, check security
       if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
         throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      }
+      // A private query used by screens can only be launched by a user that can open one of them
+      if (checkAvailable && !query.isPublic()
+        && !ScreenTargetAuthorizer.isAllowed(getApplicationContext(), queryName, ScreenTargetAuthorizer.Kind.QUERY)) {
+        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
       }
     } else {
       throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_QUERY_NOT_FOUND, queryName));

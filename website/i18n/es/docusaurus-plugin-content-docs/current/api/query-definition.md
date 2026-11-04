@@ -119,6 +119,10 @@ El elemento *query* tiene los siguientes atributos:
 | service            |    Opcional    |  String   | El nombre del servicio con el que rellenar la consulta                                                                                                                                | **Nota:** Solo se aplica en consultas de servicio. Para más información, consulta la [consulta de servicio](#service-query)                                       |
 | queue              |    Opcional    |  String   | El nombre de la cola con la que rellenar la consulta                                                                                                                                  | **Nota:** Solo se aplica en consultas de cola. Para más información, consulta la [consulta de cola](#queue-query)                                                 |
 
+:::info Acceso por pantalla
+Cuando una consulta la usa una pantalla del menú, una petición de cliente solo la lanza si el usuario de la sesión puede abrir al menos una de las pantallas que la usan (`awe.security.screen-access`, `enforce` por defecto). Las consultas que no usa ninguna pantalla conservan las reglas de `public` y de la sesión iniciada. Consulte [Acceso por pantalla](../security/screen-access.md).
+:::
+
 ### Caché de consultas y trazas de log {#query-cache-and-trace-logging}
 
 Si `cacheable="true"`, el resultado de la consulta se almacena en caché y se reutiliza mientras se repitan las mismas entradas durante la vida de la caché.

@@ -13,6 +13,7 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
@@ -42,7 +44,10 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 /**
  * Menu service tests
@@ -76,6 +81,9 @@ class MenuServiceTest {
   @BeforeEach
   void setUp() {
     menuService.setApplicationContext(context);
+    QueryUtil queryUtil = mock(QueryUtil.class);
+    lenient().when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
+    lenient().when(queryUtil.getParameters(any(), any(), any())).thenAnswer(invocation -> JsonNodeFactory.instance.objectNode());
   }
 
   @Test
@@ -419,7 +427,7 @@ class MenuServiceTest {
 
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweSession.isAuthenticated()).thenReturn(true);
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(new ServiceData().setDataList(
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
       DataListUtil.fromBeanList(screenRestrictionList)
     ));
 
@@ -442,7 +450,7 @@ class MenuServiceTest {
       when(context.getBean(AweSession.class)).thenReturn(aweSession);
       when(aweSession.isAuthenticated()).thenReturn(true);
       lenient().when(aweSession.getParameter(String.class, AweConstants.SESSION_USER)).thenReturn("test");
-      when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0"))
+      when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class)))
         .thenAnswer(invocation -> new ServiceData().setDataList(DataListUtil.fromBeanList(restrictions)));
     }
 
@@ -456,7 +464,7 @@ class MenuServiceTest {
       Menu first = menuService.getMenuWithRestrictions(restrictableMenu());
       Menu second = menuService.getMenuWithRestrictions(restrictableMenu());
 
-      verify(queryService, times(1)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+      verify(queryService, times(1)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
       assertEquals(List.of("test", "test2"), restrictedNames(first));
       assertEquals(List.of("test", "test2"), restrictedNames(second));
     }
@@ -468,7 +476,7 @@ class MenuServiceTest {
       menuService.getMenuWithRestrictions(restrictableMenu());
       menuService.getMenuWithRestrictions(restrictableMenu());
 
-      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
     }
 
     @ParameterizedTest
@@ -480,7 +488,7 @@ class MenuServiceTest {
 
       menuService.getMenuWithRestrictions(restrictableMenu());
 
-      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
     }
 
     @Test
@@ -490,7 +498,7 @@ class MenuServiceTest {
 
       menuService.getMenuWithRestrictions(restrictableMenu());
 
-      verify(queryService, times(2)).launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
     }
 
     private Menu restrictableMenu() {

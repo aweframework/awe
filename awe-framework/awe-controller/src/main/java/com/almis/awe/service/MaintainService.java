@@ -18,6 +18,7 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.RowType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
 import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
@@ -573,16 +574,8 @@ public class MaintainService extends ServiceConfig {
       if (getElements().getMaintain(maintainId) != null) {
         // Get maintain
         maintain = getElements().getMaintain(maintainId).copy();
-
-        // A server-only target can never be launched from a client request, whatever the session or public flag
-        if (checkAvailable && maintain.isServerOnly()) {
-          log.warn("Client launch of server-only maintain [{}] refused{}", maintainId, maintain.isPublic() ? " (public flag ignored)" : "");
-          throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
-        }
-
-        // If query is private, check security
-        if (checkAvailable && !maintain.isPublic() && !getSession().isAuthenticated()) {
-          throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+        if (checkAvailable) {
+          checkClientLaunch(maintainId, maintain);
         }
       } else {
         throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_MAINTAIN_NOT_FOUND, maintainId));
@@ -593,6 +586,32 @@ public class MaintainService extends ServiceConfig {
       throw exc;
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), exc.toString(), exc);
+    }
+  }
+
+  /**
+   * Check that a maintain target can be launched from a client request
+   *
+   * @param maintainId Maintain id
+   * @param maintain   Maintain target
+   * @throws AWException The client cannot launch the maintain target
+   */
+  private void checkClientLaunch(String maintainId, Target maintain) throws AWException {
+    // A server-only target can never be launched from a client request, whatever the session or public flag
+    if (maintain.isServerOnly()) {
+      log.warn("Client launch of server-only maintain [{}] refused{}", maintainId, maintain.isPublic() ? " (public flag ignored)" : "");
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+    }
+
+    // If query is private, check security
+    if (!maintain.isPublic() && !getSession().isAuthenticated()) {
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+    }
+
+    // A private target used by screens can only be launched by a user that can open one of them
+    if (!maintain.isPublic()
+      && !ScreenTargetAuthorizer.isAllowed(getApplicationContext(), maintainId, ScreenTargetAuthorizer.Kind.MAINTAIN)) {
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
     }
   }
 

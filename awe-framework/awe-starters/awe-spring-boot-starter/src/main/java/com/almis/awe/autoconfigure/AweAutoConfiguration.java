@@ -10,6 +10,8 @@ import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.ScreenTargetIndex;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.service.connector.JavaConnector;
@@ -352,6 +354,34 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
     return new MenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+
+  /**
+   * Index of the targets used by the screens of the menu options
+   *
+   * @param baseConfigProperties Base configuration properties
+   * @return Screen target index bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenTargetIndex screenTargetIndex(BaseConfigProperties baseConfigProperties) {
+    return new ScreenTargetIndex(baseConfigProperties);
+  }
+
+  /**
+   * Authorizer of the targets launched by a client according to the screens that use them
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param screenTargetIndex        Index of the targets used by each option
+   * @param menuOptionLookup         Menu option lookup
+   * @return Screen target authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenTargetAuthorizer screenTargetAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                                       ScreenTargetIndex screenTargetIndex,
+                                                       MenuOptionLookup menuOptionLookup) {
+    return new ScreenTargetAuthorizer(securityConfigProperties, screenTargetIndex, menuOptionLookup);
   }
 
   /**

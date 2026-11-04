@@ -112,7 +112,7 @@ A client target can still *include* a server-only target (`<include target="..."
 
 ##### Audit of the framework maintain targets {#maintain-targets-audit}
 
-Any signed-in user can launch a target that is not `server-only` with the parameters it chooses. These are the main groups of the targets of the framework:
+A client target that is not `server-only` receives its parameters from the request. These are the main groups of the targets of the framework:
 
 | Group | Targets | Why |
 |-------|---------|-----|
@@ -123,8 +123,8 @@ Any signed-in user can launch a target that is not `server-only` with the parame
 
 The rest of the client targets (reports, e-mails, messages, queues, utilities of the screens) do not change the data of a user.
 
-:::warning
-The administration targets are not bound to the access to their screen: any signed-in user can still launch them with `/action/maintain`. Restricting a target to the profiles that can open its screen is not part of `server-only`.
+:::info
+`server-only` and [screen access](../security/screen-access.md) are different checks. `server-only` refuses the target to every client request. Screen access lets a client launch a target only when the session user can open at least one menu option whose screen uses it, so the administration targets run only for the profiles that can open the administration screens. A target that no screen uses keeps the rules of the table above.
 :::
 
 An automated test (`MaintainDescriptorGuardTest`) fails the build when a target that Java launches is not `server-only`, or when a target that a client can launch reads a user from the request instead of the session without being in the audited list of administration and login targets.

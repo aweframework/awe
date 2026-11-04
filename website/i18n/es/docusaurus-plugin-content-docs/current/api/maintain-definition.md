@@ -112,7 +112,7 @@ Un target de cliente puede seguir *incluyendo* un target server-only (`<include 
 
 ##### Auditoría de los targets maintain del framework {#maintain-targets-audit}
 
-Cualquier usuario autenticado puede lanzar un target que no sea `server-only` con los parámetros que elija. Estos son los grupos principales de targets del framework:
+Un target de cliente que no es `server-only` recibe sus parámetros de la petición. Estos son los grupos principales de targets del framework:
 
 | Grupo | Targets | Motivo |
 |-------|---------|--------|
@@ -123,8 +123,8 @@ Cualquier usuario autenticado puede lanzar un target que no sea `server-only` co
 
 El resto de targets de cliente (informes, correos, mensajes, colas, utilidades de las pantallas) no modifican datos de un usuario.
 
-:::warning
-Los targets de administración no están ligados al acceso a su pantalla: cualquier usuario autenticado puede lanzarlos con `/action/maintain`. Restringir un target a los perfiles que pueden abrir su pantalla no forma parte de `server-only`.
+:::info
+`server-only` y el [acceso por pantalla](../security/screen-access.md) son comprobaciones distintas. `server-only` rechaza el target ante cualquier petición de un cliente. El acceso por pantalla permite que un cliente lance un target solo cuando el usuario de la sesión puede abrir al menos una opción de menú cuya pantalla lo usa, de modo que los targets de administración solo se ejecutan para los perfiles que pueden abrir las pantallas de administración. Un target que no usa ninguna pantalla conserva las reglas de la tabla anterior.
 :::
 
 Un test automático (`MaintainDescriptorGuardTest`) rompe la compilación cuando un target que lanza Java no es `server-only`, o cuando un target que puede lanzar un cliente lee un usuario de la petición en lugar de la sesión sin estar en la lista auditada de targets de administración y de acceso.
