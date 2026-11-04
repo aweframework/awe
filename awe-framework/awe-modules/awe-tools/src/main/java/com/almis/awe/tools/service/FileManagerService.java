@@ -78,15 +78,19 @@ public class FileManagerService implements InitializingBean {
 
     // Check system
     FileSystem defFS = FileSystems.getDefault();
-    for (String fileAttrView : defFS.supportedFileAttributeViews()) {
-      log.debug("Default file system supports: {}", fileAttrView);
-      if (fileAttrView.equals(SYSTEM_UNIX)) {
-        isUnix = true;
-      }
-      if (fileAttrView.equals(SYSTEM_DOS)) {
-        isDOS = true;
-      }
-    }
+    detectFileSystem(defFS.supportedFileAttributeViews());
+  }
+
+  /**
+   * Detect the file system type from its supported attribute views
+   *
+   * @param supportedViews Supported file attribute views
+   */
+  void detectFileSystem(Set<String> supportedViews) {
+    log.debug("Default file system supports: {}", supportedViews);
+    isUnix = supportedViews.contains(SYSTEM_UNIX);
+    // Linux also supports the "dos" view: it is only a DOS file system when it is not unix (#858)
+    isDOS = !isUnix && supportedViews.contains(SYSTEM_DOS);
   }
 
   /**
@@ -562,7 +566,7 @@ public class FileManagerService implements InitializingBean {
 
       for (JsonNode file : fileList) {
         File f = new File(baseConfigProperties.getFilemanager().getBasePath(), file.asString(""));
-        setPermissions(f, perms, recursive);
+        setPermissions(f, permsCode, recursive);
       }
 
       return success();

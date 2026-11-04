@@ -20,14 +20,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -312,6 +315,42 @@ class FileManagerServiceTest {
     assertError(response, "file size = 0");
   }
 
+  @Test
+  void changePermissionsIsRejectedOnDosOnlyFileSystem() throws IOException {
+    writeFile("a.txt", "hello");
+    FileManagerService service = serviceOnBaseDir();
+    service.detectFileSystem(Set.of("owner", "dos", "basic", "user"));
+
+    JsonNode response = service.fileOperation(permissions("640", "rw-r-----", false, "a.txt"));
+
+    assertError(response, "only valid in UNIX");
+  }
+
+  @Test
+  void changePermissionsIsNotRejectedOnLinuxFileSystemThatAlsoSupportsDos() throws IOException {
+    writeFile("a.txt", "hello");
+    FileManagerService service = serviceOnBaseDir();
+    // Views reported by the JDK on Linux: "dos" is supported too (#858)
+    service.detectFileSystem(Set.of("owner", "dos", "basic", "posix", "user", "unix"));
+
+    JsonNode response = service.fileOperation(permissions("640", "rw-r-----", false, "a.txt"));
+
+    assertThat(response.get("result").path("error").asString("")).doesNotContain("only valid in UNIX");
+  }
+
+  @Test
+  void changePermissionsAppliesPermissionsRecursivelyOnPosixFileSystem() throws IOException {
+    assumeTrue(isPosix(), "Needs a POSIX file system");
+    writeFile("docs/a.txt", "hello");
+    String permsCode = "rwxr-x---";
+
+    JsonNode response = serviceOnBaseDir().fileOperation(permissions("750", permsCode, true, "docs"));
+
+    assertSuccess(response);
+    assertThat(Files.getPosixFilePermissions(baseDir.resolve("docs"))).isEqualTo(PosixFilePermissions.fromString(permsCode));
+    assertThat(Files.getPosixFilePermissions(baseDir.resolve("docs/a.txt"))).isEqualTo(PosixFilePermissions.fromString(permsCode));
+  }
+
   private FileManagerService serviceOnBaseDir() {
     return serviceOnBaseDir(baseDir);
   }
@@ -328,6 +367,12 @@ class FileManagerServiceTest {
 
   private ObjectNode action(String action) {
     return JsonNodeFactory.instance.objectNode().put("action", action);
+  }
+
+  private ObjectNode permissions(String perms, String permsCode, boolean recursive, String... items) {
+    ObjectNode params = action("changePermissions").put("perms", perms).put("permsCode", permsCode).put("recursive", recursive);
+    params.set("items", items(items));
+    return params;
   }
 
   private ArrayNode items(String... items) {
