@@ -30,6 +30,22 @@
     0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
 }
 
+// Tonal buttons (style btn-tonal, #791): the soft primary tint, for an action that has to stand out next to the
+// outlined ones without being the primary action of the area
+.p-button.btn-tonal,
+.p-button.btn-tonal:enabled:focus {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  border-color: var(--awe-color-primary-subtle);
+}
+
+.p-button.btn-tonal:enabled:hover,
+.p-button.btn-tonal:enabled:active {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  border-color: var(--awe-color-on-primary-subtle);
+}
+
 // Icon-only buttons (style no-label, #793): a square with the icon in the middle; the label is the tooltip and the
 // accessible name
 .p-button.no-label {

@@ -243,9 +243,10 @@ describe("awe-react-client/test/js/components/TestIdsGridTest.jsx", () => {
       expect(icons.map(icon => icon.getAttribute("data-expanded"))).toEqual(["true", "false"]);
     });
 
+    // A load-all tree is not paged: the pagination is the one of a tree loaded by branches
     it("exposes the loader and the pagination", () => {
       const { container } = renderWithProviders(<AweTreeGrid id="Grd" />, {
-        preloadedState: gridState({ loadAll: true, loading: true }, nodes, true)
+        preloadedState: gridState({ loading: true }, nodes, true)
       });
 
       expect(container.querySelector(hook("grid-loader"))).not.toBeNull();

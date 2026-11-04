@@ -183,7 +183,7 @@ xsi:noNamespaceSchemaLocation = "../../sch/menu.xsd" context="screen/home" defau
     <option name="update_theme" screen="ThmUpd" invisible="true" />
     <option name="view_theme" screen="ThmViw" invisible="true" />
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
-      <option name="screen_access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash"/>
+      <option name="screen_access" label="MENU_TOOLS_SCREENS_ACCESS" screen="access-admin" icon="eye-slash"/>
       <option name="encrypt_tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
     </option>    
   </option>

@@ -1474,6 +1474,15 @@ The data structure **needs** an **identifier per row**, and also a **parent iden
 | icon-collapse | String  | Icon of a expanded branch         | **Note:** You can check all iconsets at [icons](icons.md) screen |
 | icon-leaf     | String  | Icon of a leaf branch             | **Note:** You can check all iconsets at [icons](icons.md) screen |
 
+A tree grid has the toolbar (`<search>` and `<quick-filter>`), the rich cells (`status-field`, `secondary-field`), the row
+buttons (`component="button"`) and the [selection bar](#selection-bar) of the flat grid, in both engines. With
+`multiselect="true"` each row has a checkbox and the header a select-all checkbox, as in the flat grid, and the selected
+rows are sent and counted the same way. Each row is selected on its own: selecting a parent does not select its
+children.
+
+A tree grid with `load-all="true"` shows all its rows in one page and has no paginator, in both engines: a branch is
+never split between pages.
+
 ## Editable grid
 
 <img alt="EditableGrid" src={require('@docusaurus/useBaseUrl').default('img/EditableGrid.png')} />

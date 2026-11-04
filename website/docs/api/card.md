@@ -192,6 +192,17 @@ A card with a chart or a grid in its body needs more room: the `awe-card-wide` s
 grid (`<card id="CrdSales" style="awe-card-wide">`). On narrow screens the grid has a single column and the wide card
 takes the whole row like the others.
 
+## Note card
+
+A card can also hold an explanation instead of a metric: the `card-note` style draws it as a soft band in the tone of
+its `icon-tone` (the primary tint without one), with the icon on the left and the `title` and the `description` next
+to it, without the shadow nor the padding of a tile. It looks the same in both client engines, in light and dark mode.
+Use it for hints and summaries inside side panels and dialogs; it can be filled from a query like any card.
+
+```xml
+<card id="CrdAccHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_HINT" />
+```
+
 ## Refresh
 
 A card refreshes like any component that loads data:

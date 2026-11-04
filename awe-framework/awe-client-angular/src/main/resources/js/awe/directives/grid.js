@@ -1,7 +1,6 @@
 import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
 import {TestIds} from "../data/testIds";
-import {getIconTemplate} from "../services/component";
 import {iconMarkup, iconTemplate} from "../services/icon";
 import "./../services/grid/base";
 import {getGridRowHeight} from "../services/grid/density";
@@ -11,6 +10,7 @@ import "./gridSkeleton";
 import "./gridToolbar";
 import {getSelectionButtons} from "./gridSelectionBar";
 import "./gridGroupBy";
+import {initEmptyState} from "./gridEmptyState";
 import "./gridColumnFilter";
 import "./gridColumnFilterChips";
 
@@ -31,15 +31,7 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
     </div>
-    <div ng-if="component.loaded && !controller.loading && !model.values.length" class="grid-empty-state" data-testid="${TestIds.gridEmpty}" ng-cloak>
-      ${getIconTemplate("grid-empty-icon", "span", "emptyState.icon")}
-      <div class="grid-empty-title" data-testid="${TestIds.gridEmptyTitle}" translate-multiple="{{emptyState.title}}"></div>
-      <div class="grid-empty-text" data-testid="${TestIds.gridEmptyText}" translate-multiple="{{emptyState.text}}"></div>
-      <button ng-if="emptyState.button" type="button" class="btn-awe btn-default grid-empty-action" data-testid="${TestIds.gridEmptyAction}" ng-click="onEmptyAction()">
-        ${getIconTemplate("", "i", "emptyState.buttonIcon")}
-        <span class="button-text" translate-multiple="{{emptyState.button.label}}"></span>
-      </button>
-    </div>
+    <awe-grid-empty-state ng-if="component.loaded && !controller.loading && !model.values.length"></awe-grid-empty-state>
     <div ng-attr-id="grid-{{::gridId}}" ui-grid="gridOptions" ui-grid-selection ui-grid-pagination ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning class="ag-awe grid-node no-border-hr"></div>
   </div>
   <div class="table-footer" ng-cloak>
@@ -202,18 +194,7 @@ aweApplication.directive('aweGrid',
                   ...component.getGroupingOptions()
                 });
                 // Empty state (grid without rows)
-                scope.emptyState = {
-                  icon: $utilities.extractIcon(component.controller.emptyIcon || "inbox"),
-                  title: component.controller.emptyTitle || "SCREEN_TEXT_GRID_EMPTY_TITLE",
-                  text: component.controller.emptyText || "SCREEN_TEXT_GRID_EMPTY_TEXT",
-                  button: (component.controller.buttonModel || []).find(button => button.id === component.controller.emptyAction)
-                };
-                scope.emptyState.buttonIcon = $utilities.extractIcon(scope.emptyState.button?.icon);
-                scope.onEmptyAction = function () {
-                  // Runs the actions of the grid button like any other click on it, once the digest of this click is over
-                  // (the button starts a digest of its own)
-                  $utilities.timeout(() => document.getElementById(component.controller.emptyAction)?.click());
-                };
+                initEmptyState(scope, component, $utilities);
                 scope.onGoToPageChanged = function (event) {
                   if (event.type === "keypress") {
                     // If key pressed is ENTER

@@ -295,6 +295,18 @@ Allows the user to search a value by typing some characters of the seek value.
 > with a `target` query on screen load but only with a field instead of a compound field with `value`
 > and `label` fields).
 
+The options of a suggest can be grouped: when the rows of its query carry a `group` field (a locale key, translated by
+the client), the list shows one header per group, in the order of the first option of each group, and the options of
+the group under it. A header cannot be chosen and the arrow keys skip it; the chosen option shows its own `label`. The
+options of a query without `group` are shown as always. For example, a service that searches profiles and users at once
+answers:
+
+```json
+[
+  {"value": "profile:1", "label": "ADM - Administrator", "group": "PARAMETER_PROFILE"},
+  {"value": "user:1", "label": "test - Manager", "group": "PARAMETER_USER"}
+]
+```
 
 ### Select VS Suggest
 
@@ -375,6 +387,19 @@ Similar to a [checkbox](#checkbox-criterion) but it has a button appearance. It 
 Similar to a [radio button](#radio-button-criterion) but it has a button appearance. It is mono-selection. It sends the **[value](#general-attributes)** attribute of the selected element between all the radio buttons with the same **[group](#specific-attributes)** attribute.
 
 <img alt="ButtonRadio" src={require('@docusaurus/useBaseUrl').default('img/ButtonRadio.png')} />
+
+With options of its own (an `initial-load` of an enumerated or a query), one button radio criterion is one joined group
+of buttons, one per option, in both engines: it sends the value of the chosen option, and the option of its `value`
+starts chosen when it has `checked="true"`:
+
+```xml
+<criteria id="subject-type" label="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" component="button-radio"
+          initial-load="enum" target-action="access-subject-types" value="user" checked="true"/>
+```
+
+Its `label` is shown above the buttons, as the label of any other criterion, so it lines up with the criteria of its
+row. Without options, each button radio criterion is one button of its own `value`, and the criteria with the same `group`
+make the group, as the radio buttons above (this is how the AngularJS engine draws them).
 
 ### Color criterion
 

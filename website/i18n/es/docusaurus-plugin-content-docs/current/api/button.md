@@ -65,6 +65,7 @@ React), con el sistema de diseño de AWE 5:
 | `btn-warning` | Botón de aviso relleno                                                                             |
 | `btn-dark`    | Botón de contraste relleno                                                                         |
 | `btn-ghost`   | Botón fantasma: sin fondo ni borde hasta que el puntero pasa por encima, texto atenuado. Para acciones de barra de herramientas y de fila |
+| `btn-tonal`   | Botón tonal: el tinte suave del color principal, con el texto en el principal. Para una acción que tiene que destacar junto a los botones con borde sin ser la acción principal de la zona |
 | `no-label`    | Botón solo con icono (ver abajo). Se puede combinar con cualquiera de los anteriores               |
 
 Si un estilo tiene varias clases `btn-*` se usa la primera. El resto de clases se añaden al botón tal cual.

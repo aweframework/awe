@@ -4,6 +4,7 @@ import "./groupingGrid";
 import "./columnFilters";
 import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
 import {getMoveRowsColumn} from "./rowDrag";
+import {getMultiselectColumn, selectAllClick} from "./multiselect";
 
 // Base grid service
 aweApplication.factory('GridBase',
@@ -106,13 +107,7 @@ aweApplication.factory('GridBase',
            * @param {type} event
            */
           component.selectAllClick = function (event) {
-            if (grid.api) {
-              if (!grid.api.selection.getSelectAllState()) {
-                grid.api.selection.clearSelectedRows(event);
-              } else {
-                grid.api.selection.selectAllRows(event);
-              }
-            }
+            selectAllClick(grid.api, event);
           };
 
           /**
@@ -198,21 +193,7 @@ aweApplication.factory('GridBase',
           component.addInitialColumns = function () {
             // Add checkboxes
             if (component.controller.multiselect) {
-              let  checkboxes = {
-                width: 26,
-                label: "",
-                displayName: "",
-                name: "chkBox",
-                frozen: component.hasFrozen,
-                headerCellTemplate: "grid/headerCheckbox",
-                cellTemplate: "grid/cellCheckbox",
-                enableColumnResizing: false,
-                enableColumnMoving: false,
-                enableColumnMenu: false,
-                enableFiltering: false,
-                sortable: false
-              };
-              component.controller.columnModel.unshift(checkboxes);
+              component.controller.columnModel.unshift(getMultiselectColumn(component));
             }
             // Add row numbers first
             if (component.controller.rowNumbers) {

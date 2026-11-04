@@ -1009,6 +1009,14 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
       expect(rowIds(container)).toHaveLength(40);
     });
 
+    it('does not page a load-all tree: every root row and no paginator bar without buttons, as in AngularJS', () => {
+      const roots = Array.from({length: 40}, (_, index) => ({id: `R${index}`, parent: "", name: `Root ${index}`}));
+      const {container} = renderTree(roots, {loadAll: true});
+
+      expect(rowIds(container)).toHaveLength(40);
+      expect(container.querySelector(".p-paginator")).toBeNull();
+    });
+
     it('shows the configured icon-expand, icon-collapse and icon-leaf', () => {
       const {container} = renderTree([
         {id: "Open", parent: "", name: "Open", $row: {expanded: true}},

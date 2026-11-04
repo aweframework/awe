@@ -14,6 +14,15 @@ import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
 import com.almis.awe.security.authorization.ScreenTargetIndex;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
+import com.almis.awe.service.access.AccessChangeService;
+import com.almis.awe.service.access.AccessCompareService;
+import com.almis.awe.service.access.AccessImpactService;
+import com.almis.awe.service.access.AccessMenuPreviewService;
+import com.almis.awe.service.access.AccessReviewService;
+import com.almis.awe.service.access.AccessSubjects;
+import com.almis.awe.service.access.AccessTexts;
+import com.almis.awe.service.access.AccessTreeService;
+import com.almis.awe.service.access.AccessWhyService;
 import com.almis.awe.service.connector.JavaConnector;
 import com.almis.awe.service.connector.MicroserviceConnector;
 import com.almis.awe.service.connector.RestConnector;
@@ -432,6 +441,135 @@ public class AweAutoConfiguration {
                                                                QueryService queryService,
                                                                SecurityConfigProperties securityConfigProperties) {
     return new MenuRestrictionTreeService(menuProvider, menuScreenResolver, queryService, securityConfigProperties);
+  }
+
+  /**
+   * Subjects of the access window (access-admin) and their rules
+   *
+   * @param menuProvider             Menu provider
+   * @param queryService             Query service
+   * @param securityConfigProperties Security configuration properties
+   * @return Access subjects bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessSubjects accessSubjects(MenuProvider menuProvider, QueryService queryService,
+                                       SecurityConfigProperties securityConfigProperties) {
+    return new AccessSubjects(menuProvider, queryService, securityConfigProperties);
+  }
+
+  /**
+   * Texts of the access window (access-admin)
+   *
+   * @param menuScreenResolver Menu screen resolver
+   * @return Access texts bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessTexts accessTexts(MenuScreenResolver menuScreenResolver) {
+    return new AccessTexts(menuScreenResolver);
+  }
+
+  /**
+   * Comparison of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @return Access compare service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessCompareService accessCompareService(AccessSubjects accessSubjects, AccessTexts accessTexts) {
+    return new AccessCompareService(accessSubjects, accessTexts);
+  }
+
+  /**
+   * Tree of the access window (access-admin)
+   *
+   * @param accessSubjects       Access subjects
+   * @param accessTexts          Access texts
+   * @param accessCompareService Access compare service
+   * @return Access tree service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessTreeService accessTreeService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                             AccessCompareService accessCompareService) {
+    return new AccessTreeService(accessSubjects, accessTexts, accessCompareService);
+  }
+
+  /**
+   * Why side panel of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @param queryService   Query service
+   * @return Access why service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessWhyService accessWhyService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                           QueryService queryService) {
+    return new AccessWhyService(accessSubjects, accessTexts, queryService);
+  }
+
+  /**
+   * Changes of the access window (access-admin)
+   *
+   * @param accessSubjects             Access subjects
+   * @param menuRestrictionTreeService Menu restriction tree service
+   * @return Access change service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessChangeService accessChangeService(AccessSubjects accessSubjects,
+                                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new AccessChangeService(accessSubjects, menuRestrictionTreeService);
+  }
+
+  /**
+   * Preview of a bulk change of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @param queryService   Query service
+   * @return Access impact service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessImpactService accessImpactService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                 QueryService queryService) {
+    return new AccessImpactService(accessSubjects, accessTexts, queryService);
+  }
+
+  /**
+   * Review of the access window (access-admin)
+   *
+   * @param accessSubjects             Access subjects
+   * @param accessTexts                Access texts
+   * @param queryService               Query service
+   * @param menuRestrictionTreeService Menu restriction tree service
+   * @return Access review service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessReviewService accessReviewService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                 QueryService queryService,
+                                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new AccessReviewService(accessSubjects, accessTexts, queryService, menuRestrictionTreeService);
+  }
+
+  /**
+   * View as of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @return Access menu preview service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessMenuPreviewService accessMenuPreviewService(AccessSubjects accessSubjects, AccessTexts accessTexts) {
+    return new AccessMenuPreviewService(accessSubjects, accessTexts);
   }
 
   /**

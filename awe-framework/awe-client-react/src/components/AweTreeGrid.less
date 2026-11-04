@@ -3,7 +3,8 @@
     justify-content: center;
   }
 
-  .p-treetable-tbody > tr .p-treetable-emptymessage {
+  // PrimeReact puts the class on the row of the empty message, as the flat grid does (AweGrid.less)
+  .p-treetable-tbody > tr.p-treetable-emptymessage > td {
     border: 0;
     padding: 0;
   }

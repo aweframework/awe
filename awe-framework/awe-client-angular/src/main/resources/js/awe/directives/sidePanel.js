@@ -58,17 +58,20 @@ const cellValue = cell => cell !== null && typeof cell === "object" ? cell.value
 
 /**
  * Identity of the header of a side panel (#793): the avatar (or the colour swatch), title, subtitle and tags of the
- * selected row of its header grid, or null when the panel has no header grid or not exactly one row of it is selected
+ * selected row of its header grid, or null when the panel has no header grid or not exactly one row of it is selected.
+ * The selection of a grid holds the id of its rows; the one of a treegrid, their tree-id
  * @param {Object} controller Side panel controller
  * @param {Object} grid Model of the header grid (values and selected row identifiers)
+ * @param {Object} [gridController] Controller of the header grid (treegrid and treeId)
  * @returns {Object|null} Identity
  */
-export function getPanelIdentity(controller, grid) {
+export function getPanelIdentity(controller, grid, gridController) {
   if (!controller || !controller.headerGrid || !grid) {
     return null;
   }
+  const identifier = gridController?.treegrid ? gridController.treeId || "id" : "id";
   const selected = [].concat(grid.selected ?? []).filter(id => id != null);
-  const row = selected.length === 1 ? (grid.values || []).find(item => String(cellValue(item.id)) === String(selected[0])) : null;
+  const row = selected.length === 1 ? (grid.values || []).find(item => String(cellValue(item[identifier])) === String(selected[0])) : null;
   if (!row) {
     return null;
   }
@@ -116,8 +119,9 @@ aweApplication.directive('aweSidePanel',
           // Identity header (#793): the header follows the selected row of the header grid; its title names the panel
           if (controller.headerGrid) {
             scope.titleId = controller.id + "-title";
-            scope.$watch(() => getPanelIdentity(component.controller,
-              Control.getAddressModel({view: component.address.view, component: component.controller.headerGrid})),
+            const gridAddress = () => ({view: component.address.view, component: component.controller.headerGrid});
+            scope.$watch(() => getPanelIdentity(component.controller, Control.getAddressModel(gridAddress()),
+              Control.getAddressController(gridAddress())),
             identity => {
               scope.identity = identity && {
                 ...identity,

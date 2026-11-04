@@ -1057,6 +1057,36 @@
     <variable id="active" type="INTEGER" value="1"/>
   </query>
 
+  <!-- Rules of a subject of the access window, in the order the real menu applies them (IdeAweScrRes) -->
+  <query id="access-subject-rules" cacheable="true">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="restriction" />
+    <where>
+      <or>
+        <filter left-field="IdeOpe" condition="eq" right-variable="user" optional="true"/>
+        <and>
+          <filter left-field="IdeOpe" condition="is null"/>
+          <filter left-variable="user" condition="is null"/>
+        </and>
+      </or>
+      <or>
+        <filter left-field="IdePro" condition="eq" right-variable="profile" optional="true"/>
+        <and>
+          <filter left-field="IdePro" condition="is null"/>
+          <filter left-variable="profile" condition="is null"/>
+        </and>
+      </or>
+      <filter left-field="Act" condition="eq" right-variable="active"/>
+      <filter left-field="Opt" condition="eq" right-variable="option" optional="true"/>
+    </where>
+    <order-by field="IdeAweScrRes"/>
+    <variable id="user" type="INTEGER" name="user"/>
+    <variable id="profile" type="INTEGER" name="profile"/>
+    <variable id="option" type="STRING" name="option"/>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+
   <query id="menu-restrictions-with-user-profile" cacheable="true">
     <table id="AweScrRes" alias="scrRes" />
     <field id="Opt" table="scrRes" alias="option" />
@@ -1080,6 +1110,299 @@
     <variable id="user" type="INTEGER" name="selected-user"/>
     <variable id="profile" type="INTEGER" name="selected-profile"/>
     <variable id="module" type="STRING" name="selected-module"/>
+  </query>
+
+  <!-- ACCESS WINDOW (access-admin): the private menu as a tree with the effective access of the subject (a profile or
+       a user). The module criterion is not called "module": that request parameter changes the module of the session menu -->
+  <query id="access-tree" service="access-tree">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+    <variable id="filter" type="STRING" name="access-filter"/>
+    <variable id="search" type="STRING" name="access-search"/>
+    <variable id="compareWith" type="STRING" name="compare-with"/>
+  </query>
+
+  <!-- ACCESS WINDOW: options of the quick filter of the tree with their counts (with the search) -->
+  <query id="access-tree-counts" service="access-tree-counts">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+    <variable id="search" type="STRING" name="access-search"/>
+    <variable id="compareWith" type="STRING" name="compare-with"/>
+  </query>
+
+  <!-- ACCESS WINDOW: the profiles and the users to compare with (one suggest): profile:IdePro or user:IdeOpe, its code
+       and name as label and its type as group (PARAMETER_PROFILE, PARAMETER_USER), or the selected value -->
+  <query id="AccessCompareSug" service="access-compare-suggest">
+    <variable id="suggest" type="STRING" name="suggest"/>
+  </query>
+
+  <!-- ACCESS WINDOW: preview of a bulk change of the selected options (access-options): access-change is allow, deny or
+       remove. The summary as a card, the options that change and the users of the subject that lose, gain or keep them -->
+  <query id="access-impact" service="access-impact">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="options" type="STRING" name="access-options"/>
+    <variable id="change" type="STRING" name="access-change"/>
+  </query>
+
+  <query id="access-impact-options" service="access-impact-options">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="options" type="STRING" name="access-options"/>
+    <variable id="change" type="STRING" name="access-change"/>
+  </query>
+
+  <query id="access-impact-users" service="access-impact-users">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="options" type="STRING" name="access-options"/>
+    <variable id="change" type="STRING" name="access-change"/>
+  </query>
+
+  <!-- ACCESS WINDOW: cascade of the layers of an option for the subject -->
+  <query id="access-why" service="access-why">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+    <variable id="option" type="STRING" name="access-option"/>
+  </query>
+
+  <!-- ACCESS WINDOW: result of an option for the subject, as the card of the side panel (title, description, icon) -->
+  <query id="access-why-result" service="access-why-result">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+    <variable id="option" type="STRING" name="access-option"/>
+  </query>
+
+  <!-- ACCESS WINDOW: active rules of an option (global, profile and user) -->
+  <query id="access-option-rules" service="access-option-rules">
+    <variable id="option" type="STRING" name="access-option"/>
+  </query>
+
+  <!-- ACCESS WINDOW: review of every rule of every profile and user, its summary (a card) and the labels of its buttons
+       with their counts (the button of the header and the one that removes the rules without effect) -->
+  <query id="access-review" service="access-review" />
+  <query id="access-review-counts" service="access-review-counts" />
+  <query id="access-review-label" service="access-review-label">
+    <variable id="kind" type="STRING" value="review"/>
+  </query>
+  <query id="access-review-clean-label" service="access-review-label">
+    <variable id="kind" type="STRING" value="clean"/>
+  </query>
+
+  <!-- ACCESS WINDOW: every active rule, of every subject, in the order the real menu applies them (IdeAweScrRes), read by
+       the review -->
+  <query id="access-review-rules">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeAweScrRes" table="scrRes" alias="id" />
+    <field id="IdeOpe" table="scrRes" alias="userId" />
+    <field id="IdePro" table="scrRes" alias="profileId" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="restriction" />
+    <where>
+      <and>
+        <filter left-field="Act" left-table="scrRes" condition="eq" right-variable="active" />
+      </and>
+    </where>
+    <order-by field="IdeAweScrRes" table="scrRes" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
+  <!-- ACCESS WINDOW: view as. The menu that the subject would see in the module (a tree of the options it can reach), the
+       number of visible options (a card), the hidden ones with their reason, the banner (a card) and the label of the
+       button that opens it -->
+  <query id="access-menu-preview" service="access-menu-preview">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+  </query>
+  <query id="access-menu-preview-counts" service="access-menu-preview-counts">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+  </query>
+  <query id="access-menu-preview-hidden" service="access-menu-preview-hidden">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+  </query>
+  <query id="access-menu-preview-banner" service="access-menu-preview-banner">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="module" type="STRING" name="access-module"/>
+  </query>
+
+  <!-- ACCESS WINDOW: rules of an option, read by the access-option-rules service -->
+  <query id="access-option-rule-list">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeAweScrRes" table="scrRes" alias="id" />
+    <field id="IdeOpe" table="scrRes" alias="userId" />
+    <field id="IdePro" table="scrRes" alias="profileId" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="OpeNam" table="ope" alias="userName" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Nam" table="pro" alias="profileName" />
+    <field id="AccMod" table="scrRes" alias="rule" />
+    <join type="LEFT">
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="scrRes" condition="eq" right-field="IdeOpe" right-table="ope" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="scrRes" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Opt" left-table="scrRes" condition="eq" right-variable="option" />
+        <filter left-field="Act" left-table="scrRes" condition="eq" right-variable="active" />
+      </and>
+    </where>
+    <order-by field="IdeAweScrRes" table="scrRes" />
+    <variable id="option" type="STRING" name="option" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
+  <!-- ACCESS WINDOW: subject, option and rule of a rule, read by the access-remove-rule and access-switch-rule services -->
+  <query id="access-rule">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeOpe" table="scrRes" alias="userId" />
+    <field id="IdePro" table="scrRes" alias="profileId" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="rule" />
+    <where>
+      <and>
+        <filter left-field="IdeAweScrRes" left-table="scrRes" condition="eq" right-variable="rule" />
+      </and>
+    </where>
+    <variable id="rule" type="INTEGER" name="rule" />
+  </query>
+
+  <!-- ACCESS WINDOW: a user with its profile and their base restrictions, read by the access services -->
+  <query id="access-subject-user">
+    <table id="ope" alias="ope" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="OpeNam" table="ope" alias="fullName" />
+    <field id="IdePro" table="ope" alias="profileId" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Res" table="ope" alias="userRestriction" />
+    <field id="Res" table="pro" alias="profileRestriction" />
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="user" />
+      </and>
+    </where>
+    <variable id="user" type="INTEGER" name="user" />
+  </query>
+
+  <!-- ACCESS WINDOW: users of a profile with their own base restriction, read by the preview of a change -->
+  <query id="access-profile-users">
+    <table id="ope" alias="ope" />
+    <field id="IdeOpe" table="ope" alias="userId" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="OpeNam" table="ope" alias="fullName" />
+    <field id="Res" table="ope" alias="userRestriction" />
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="profile" />
+      </and>
+    </where>
+    <order-by field="l1_nom" table="ope" />
+    <variable id="profile" type="INTEGER" name="profile" />
+  </query>
+
+  <!-- ACCESS WINDOW: own rules of the users of a profile (a user rule has no profile), in the order the real menu applies
+       them (IdeAweScrRes), read by the preview of a change -->
+  <query id="access-profile-user-rules">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeOpe" table="scrRes" alias="userId" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="restriction" />
+    <join>
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="ope" condition="eq" right-field="IdeOpe" right-table="scrRes" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-variable="profile" />
+        <filter left-field="IdePro" left-table="scrRes" condition="is null" />
+        <filter left-field="Act" left-table="scrRes" condition="eq" right-variable="active" />
+      </and>
+    </where>
+    <order-by field="IdeAweScrRes" table="scrRes" />
+    <variable id="profile" type="INTEGER" name="profile" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
+  <!-- ACCESS WINDOW: a profile with its base restriction, read by the access services -->
+  <query id="access-subject-profile">
+    <table id="AwePro" alias="pro" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Nam" table="pro" alias="name" />
+    <field id="Res" table="pro" alias="restriction" />
+    <where>
+      <and>
+        <filter left-field="IdePro" left-table="pro" condition="eq" right-variable="profile" />
+      </and>
+    </where>
+    <variable id="profile" type="INTEGER" name="profile" />
+  </query>
+
+  <!-- ACCESS WINDOW: profiles to compare with whose acronym or name contain the text, read by the compare-with suggest -->
+  <query id="access-compare-profiles">
+    <table id="AwePro" alias="pro" />
+    <field id="IdePro" table="pro" alias="profileId" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Nam" table="pro" alias="name" />
+    <where>
+      <or>
+        <filter left-field="Acr" left-table="pro" condition="like" right-variable="search" ignorecase="true" />
+        <filter left-field="Nam" left-table="pro" condition="like" right-variable="search" ignorecase="true" />
+      </or>
+    </where>
+    <order-by field="Acr" table="pro" type="ASC" />
+    <variable id="search" type="STRINGB" name="search" />
+  </query>
+
+  <!-- ACCESS WINDOW: users to compare with whose user or full name contain the text, read by the compare-with suggest -->
+  <query id="access-compare-users">
+    <table id="ope" alias="ope" />
+    <field id="IdeOpe" table="ope" alias="userId" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="OpeNam" table="ope" alias="fullName" />
+    <where>
+      <or>
+        <filter left-field="l1_nom" left-table="ope" condition="like" right-variable="search" ignorecase="true" />
+        <filter left-field="OpeNam" left-table="ope" condition="like" right-variable="search" ignorecase="true" />
+      </or>
+    </where>
+    <order-by field="l1_nom" table="ope" type="ASC" />
+    <variable id="search" type="STRINGB" name="search" />
   </query>
 
   <query id="restriction-list">

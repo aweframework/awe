@@ -18,6 +18,7 @@ foco, activo, deshabilitado, inválido, cargando, vacío) y funciona en las dos 
 | Con borde | Acciones neutras, barras de herramientas, grupos de botones. |
 | Texto | Acciones de poco énfasis (Historial, Limpiar todo, enlaces dentro de tarjetas). |
 | Icono sin fondo | Acciones de barras de herramientas y de filas. Siempre `aria-label` + tooltip. |
+| Tonal | Una acción secundaria que tiene que destacar junto a las de borde (Previsualizar), sin ser la principal (`btn-tonal`). |
 | Peligro / peligro con borde | Acciones destructivas. Relleno solo en el paso de confirmación. |
 
 - Tamaños: pequeño (`--awe-size-control-sm`), normal (`--awe-size-control`) y grande (`--awe-size-control-lg`, login).
@@ -130,7 +131,7 @@ Ficheros listados con icono, nombre, tamaño, progreso o estado. Una imagen mues
 
 | Elemento | Regla |
 |----------|-------|
-| Diálogo | `<dialog>`, `--awe-radius-modal`, cabecera (título, subtítulo, cerrar), cuerpo con desplazamiento y pie con las acciones a la derecha. Máscara `--awe-color-mask` con un ligero desenfoque. Tamaños en #844. |
+| Diálogo | `<dialog>`, `--awe-radius-modal`, cabecera (título, subtítulo, cerrar), cuerpo con desplazamiento y pie con las acciones a la derecha, que se queda abajo tras una línea de separación (`modal-footer`). Máscara `--awe-color-mask` con un ligero desenfoque. Tamaños en #844. |
 | Confirmación | Diálogo pequeño con icono de peligro, una pregunta precisa ("¿Borrar 2 clientes?"), la consecuencia y Cancelar enfocado por defecto. |
 | Panel lateral (#843) | Entra desde la derecha, a toda la altura, con su propio pie de acciones. Para editar un registro sin salir de la lista. |
 | Popover (#843) | Anclado a su botón, con flecha; puede contener criterios y un grid pequeño; Cancelar / Aceptar. |
@@ -202,7 +203,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Tabla dinámica | #821, #878 | Done | Zonas para filas, columnas y valores; select de agregación; intercambiar; totales por fila y por columna. |
 | Mapa | #798 | Done | Controles y paneles con las superficies y botones de AWE; marcadores y rutas en el primario. |
 | Celdas con escala de color y grid sin cabecera | #830 | Done | Escala de 5 pasos desde el primario con leyenda; un grid sin cabecera empieza por su primera fila. |
-| Card | #899 | Done | Tarjeta de métrica: título, valor (tabular) con unidad, variación como etiqueta con flecha y texto (tono según `good-trend`), progreso hacia un objetivo opcional, un chip de estado opcional arriba a la derecha, delante del icono (#836) y un cuerpo con cualquier componente; se coloca con `awe-card-grid`. |
+| Card | #899 | Done | Tarjeta de métrica: título, valor (tabular) con unidad, variación como etiqueta con flecha y texto (tono según `good-trend`), progreso hacia un objetivo opcional, un chip de estado opcional arriba a la derecha, delante del icono (#836) y un cuerpo con cualquier componente; se coloca con `awe-card-grid`. El estilo `card-note` (#791) la convierte en una nota: una banda suave en el tono de su icono con el título y la descripción, para pistas y resúmenes. |
 | KPI | #836 | Planned | Añade el modo filtro sobre la card (#899): un estado seleccionado, y un clic filtra una rejilla mediante dependencias. |
 
 ### Respuesta al usuario y carga {#feedback-and-loading}

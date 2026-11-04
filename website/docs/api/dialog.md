@@ -38,6 +38,12 @@ Two containers open and close as a dialog and accept its attributes: the [side p
 
 > **Note:** You can add the styles `modal-lg`, `modal-md` or `modal-sm` to change the width of the dialog.
 
+## Footer
+
+Put the buttons of the dialog in a child tag with the `modal-footer` style. In the React engine the footer sticks to the
+bottom of the dialog, after a separator line, and the body scrolls under it when its content is longer than the dialog,
+as in the [side panel](side-panel.md#footer).
+
 ## Deferred loading {#deferred-loading}
 
 By default the server runs the `initial-load` queries of every component of the screen when it generates it, including the

@@ -133,14 +133,15 @@ class QueryUtilColumnFilterTest {
 
   @Test
   @DisplayName("The columnFilters request parameter is kept in the query variables, as the sort")
-  void columnFiltersReachTheVariables() {
+  void columnFiltersReachTheVariables() throws Exception {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     JsonNode columnFilters = json("[{'id':'a','type':'text','conditions':[{'operator':'eq','value':'x'}]}]");
     parameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, columnFilters);
+    Query query = new Query().setId("UsrLst");
 
-    Map<String, QueryParameter> variables = queryUtil.getDefaultVariableMap(parameters);
+    Map<String, QueryParameter> variables = queryUtil.getVariableMap(query, parameters);
 
     assertThat(variables.get(AweConstants.QUERY_COLUMN_FILTERS).getValue()).isEqualTo(columnFilters);
-    assertThat(queryUtil.getDefaultVariableMap(JsonNodeFactory.instance.objectNode())).doesNotContainKey(AweConstants.QUERY_COLUMN_FILTERS);
+    assertThat(queryUtil.getVariableMap(query, JsonNodeFactory.instance.objectNode())).doesNotContainKey(AweConstants.QUERY_COLUMN_FILTERS);
   }
 }

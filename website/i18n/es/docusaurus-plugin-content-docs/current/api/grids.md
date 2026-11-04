@@ -1502,6 +1502,15 @@ La estructura de datos **necesita** un identificador **por fila**, y también un
 | icon-collapse     | String  | Icono de una rama expandida         | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md) |
 | icon-leaf       | String  | Icono de una rama de hoja           | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md) |
 
+Un grid en árbol tiene la barra de herramientas (`<search>` y `<quick-filter>`), las celdas enriquecidas (`status-field`,
+`secondary-field`), los botones de fila (`component="button"`) y la [barra de selección](#selection-bar) del grid plano,
+en ambos motores. Con `multiselect="true"` cada fila tiene una casilla y la cabecera una casilla para seleccionar todas,
+como en el grid plano, y las filas seleccionadas se envían y se cuentan del mismo modo. Cada fila se selecciona por sí
+sola: seleccionar un padre no selecciona sus hijos.
+
+Un grid en árbol con `load-all="true"` muestra todas sus filas en una sola página y no tiene paginador, en ambos
+motores: una rama nunca se parte entre páginas.
+
 ## Grid editable {#editable-grid}
 
 <img alt="Grilla editable" src={require('@docusaurus/useBaseUrl').default('img/EditableGrid.png')} />

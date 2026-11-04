@@ -90,6 +90,7 @@ type ModelContext = {componentId: string; attribute: string; modelVersion?: numb
 /** A column of a grid, as the dependencies read it */
 interface GridColumn {
   id?: string;
+  component?: string;
   dependencies?: Dependency[];
 }
 
@@ -348,6 +349,8 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
   // Else, check attributes: the row and the column are only there for the attributes of a grid cell
   const rowId = trigger.address.row as string;
   const columnId = trigger.address.column as string;
+  // The rows of a tree grid are identified by its tree id
+  const gridId = getGridIdentifier(component.attributes);
   switch (trigger.attribute) {
     // Common attributes
     case "visible":
@@ -378,13 +381,13 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
       return component.model.values.filter(item => item.selected).length;
 
     case "currentRow":
-      return getRowIndex(component.model.values, rowId);
+      return getRowIndex(component.model.values, rowId, gridId);
 
     case "prevCurrentRow":
-      return Math.max(getRowIndex(component.model.values, rowId) - 1, 0);
+      return Math.max(getRowIndex(component.model.values, rowId, gridId) - 1, 0);
 
     case "nextCurrentRow":
-      return Math.min(getRowIndex(component.model.values, rowId) + 1, component.model.values.length);
+      return Math.min(getRowIndex(component.model.values, rowId, gridId) + 1, component.model.values.length);
 
     case "prevRowValue":
       return getCellValue(component.model.values, Math.max(getEditingRowIndex(component.model.values) - 1, 0), columnId);
@@ -418,13 +421,13 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
       return component.model.values.filter(row => !isEmptyCell(row[columnId])).length === component.model.values.length;
 
     case "currentRowValue":
-      return getCellValue(component.model.values, getRowIndex(component.model.values, rowId), columnId);
+      return getCellValue(component.model.values, getRowIndex(component.model.values, rowId, gridId), columnId);
 
     case "prevCurrentRowValue":
-      return getCellValue(component.model.values, Math.max(getRowIndex(component.model.values, rowId) - 1, 0), columnId);
+      return getCellValue(component.model.values, Math.max(getRowIndex(component.model.values, rowId, gridId) - 1, 0), columnId);
 
     case "nextCurrentRowValue":
-      return getCellValue(component.model.values, Math.min(getRowIndex(component.model.values, rowId) + 1, component.model.values.length), columnId);
+      return getCellValue(component.model.values, Math.min(getRowIndex(component.model.values, rowId, gridId) + 1, component.model.values.length), columnId);
 
     case "modifiedRows":
       return component.model.values.filter(row => !isEmpty(row["ROW_TYPE"])).length;
@@ -1008,7 +1011,7 @@ function getComponentDependencies(component: DependencyComponent): PlacedDepende
 function getColumnDependencies(dependency: Dependency, column: GridColumn, component: DependencyComponent): PlacedDependency[] {
   const { values } = component.model;
   const gridId = getGridIdentifier(component.attributes);
-  if (isColumnDependency(dependency)) {
+  if (isColumnDependency(dependency) || isRowButtonDependency(dependency, column)) {
     return values.map(row => ({
       ...dependency,
       address: { ...component.address, column: column.id, row: row[gridId] as string },
@@ -1026,6 +1029,19 @@ function getColumnDependencies(dependency: Dependency, column: GridColumn, compo
 function isColumnDependency(dependency: Dependency): boolean {
   return dependency.elements!.flatMap(element => [element.attribute1 || "", element.attribute2 || ""])
     .reduce((prev, current) => ["currentRow", "prevCurrentRow", "nextCurrentRow"].includes(current) || prev, false);
+}
+
+/**
+ * Check if a dependency of a button column reads the cell of its own row. As AngularJS, a button is rendered in every
+ * row and evaluates the dependencies of its column with its row, so a "currentRowValue" element without a row of its own
+ * reads the row of each button (e.g. a row action disabled when its row already has the value it sets)
+ * @param {object} dependency Dependency
+ * @param {object} column Grid column
+ * @returns {boolean} The dependency is evaluated in every row
+ */
+function isRowButtonDependency(dependency: Dependency, column: GridColumn): boolean {
+  return column.component === "button" && (dependency.elements || [])
+    .some(element => element.attribute1 === "currentRowValue" && !element.row1);
 }
 
 /**
@@ -1091,6 +1107,31 @@ export function forgetInputDependencies(componentList: Partial<DependencyCompone
         delete DEPENDENCY_VALUES[view][componentId];
       });
   });
+}
+
+/**
+ * Forget the values stored for the dependencies of a grid that are placed in every row (a "currentRow" element, or a
+ * button column that reads its row). Loading the rows replaces them with rows without the cell attributes these
+ * dependencies had written (e.g. a disabled row button): when the loaded rows hold the same values, the stored values
+ * would make the next check believe that nothing changed and the cells would keep their default state. Forgetting
+ * them makes the next check launch them again on the loaded rows, as AngularJS does when it renders the new cells.
+ * @param {object} component Grid whose rows are loaded, before the load
+ */
+export function forgetRowDependencies(component: Partial<DependencyComponent> | undefined): void {
+  const view = component?.address?.view as string;
+  if (!component?.attributes?.columnModel || !DEPENDENCY_VALUES[view]) {
+    return;
+  }
+  const columns: GridColumn[] = component.attributes.columnModel.flat();
+  getComponentDependencies(component as DependencyComponent)
+    .filter(dependency => {
+      const column = columns.find(item => item.id === dependency.address?.column);
+      return column && (isColumnDependency(dependency) || isRowButtonDependency(dependency, column));
+    })
+    .forEach(dependency => {
+      const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
+      delete DEPENDENCY_VALUES[view][componentId];
+    });
 }
 
 /**

@@ -279,6 +279,22 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
         expect(header(element).find(".panel-identity-avatar").text()).toBe("JG");
       });
 
+    it("shows the selected row of a header treegrid, whose selection holds the tree-id of its rows", () => {
+      grid = {values: [{"option-id": "users", FulNam: "Users", UsrPro: "users · OPE", StaTxt: "Denied", StaTon: "danger"}],
+        selected: ["users"]};
+      const element = compile("awe-side-panel", HEADER);
+      const panel = refs.$control.getAddressController.getMockImplementation();
+      refs.$control.getAddressController.mockImplementation(address => address.component === "GrdUsr"
+        ? {id: "GrdUsr", treegrid: true, treeId: "option-id"} : panel(address));
+      refs.$control.getAddressModel.mockImplementation(address => address.component === "GrdUsr" ? grid : {values: []});
+      refs.$rootScope.$digest();
+
+      const identity = header(element).find(".panel-identity");
+      expect(identity.find(".panel-identity-title").text()).toBe("Users");
+      expect(identity.find(".panel-identity-subtitle").text()).toBe("users · OPE");
+      expect(identity.find(".panel-identity-tags > .awe-cell-status").text().trim()).toBe("Denied");
+    });
+
     it("does not change without header-grid, even with a selected row in the screen", () => {
       const element = compileWith(["1"], {});
 

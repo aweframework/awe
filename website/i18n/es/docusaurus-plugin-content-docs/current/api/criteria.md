@@ -293,6 +293,18 @@ Permite al usuario buscar un valor escribiendo algunos caracteres del valor busc
 > 
 > El atributo `check-target` hará que se lance una consulta cuando se inicialice el criterio **solo si** los datos del criterio tienen el campo `value` pero no el campo `label` (es decir, si el componente de sugerencia se ha cargado con una consulta `target` al cargar la pantalla, pero solo con un campo en lugar de un campo compuesto con los campos `value` y `label`).
 
+Las opciones de un criterio sugerido se pueden agrupar: cuando las filas de su consulta llevan un campo `group` (una
+clave de idioma, que traduce el cliente), la lista muestra una cabecera por grupo, en el orden de la primera opción de
+cada grupo, y debajo las opciones del grupo. Una cabecera no se puede elegir y las flechas del teclado la saltan; la
+opción elegida muestra su propio `label`. Las opciones de una consulta sin `group` se muestran como siempre. Por ejemplo,
+un servicio que busca perfiles y usuarios a la vez responde:
+
+```json
+[
+  {"value": "profile:1", "label": "ADM - Administrator", "group": "PARAMETER_PROFILE"},
+  {"value": "user:1", "label": "test - Manager", "group": "PARAMETER_USER"}
+]
+```
 
 ### Seleccionar sugerencia de VS {#select-vs-suggest}
 
@@ -373,6 +385,19 @@ Similar a una [casilla de verificación](#checkbox-criterion) pero tiene una apa
 Similar a un [botón de radio](#radio-button-criterion) pero tiene una apariencia de botón. Es una monoselección. Envía el atributo **[value](#general-attributes)** del elemento seleccionado entre todos los botones de radio con el mismo atributo **[grupo](#specific-attributes)**.
 
 <img alt="Radio Botón" src={require('@docusaurus/useBaseUrl').default('img/ButtonRadio.png')} />
+
+Con opciones propias (un `initial-load` de un enumerado o de una consulta), un criterio de radio de botones es un único
+grupo de botones unidos, uno por opción, en ambos motores: envía el valor de la opción elegida, y la opción de su
+`value` empieza elegida cuando tiene `checked="true"`:
+
+```xml
+<criteria id="subject-type" label="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" component="button-radio"
+          initial-load="enum" target-action="access-subject-types" value="user" checked="true"/>
+```
+
+Su `label` se muestra encima de los botones, como la etiqueta de cualquier otro criterio, para que quede alineado con
+los criterios de su fila. Sin opciones, cada criterio de radio de botones es un botón de su propio `value`, y los criterios con el mismo `group`
+forman el grupo, como los botones de radio anteriores (así los dibuja el motor AngularJS).
 
 ### Criterios de color {#color-criterion}
 

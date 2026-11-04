@@ -186,6 +186,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      */
     const getMainCellContents = function (column, value) {
       const tone = "{{" + CELL_COMPONENT + ".getCellTone(row.entity[col.colDef.statusField])}}";
+      // An empty status is not drawn, not even its dot (as in React)
+      const filled = " ng-if=\"(" + value + ") !== '' && (" + value + ") != null\"";
       if (hasChips(column)) {
         const chips = CELL_COMPONENT + ".getCellChips(COL_FIELD, col.colDef)";
         return "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
@@ -193,11 +195,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
       }
       if (hasStatus(column) && hasIcon(column)) {
-        return "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\">" +
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\"" + filled + ">" +
           getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
       }
       if (hasStatus(column)) {
-        return "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"></span>";
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"" + filled + "></span>";
       }
       if (hasIcon(column)) {
         return "<span class=\"awe-cell-icon-text\" title=\"{{" + value + "}}\">" + getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";

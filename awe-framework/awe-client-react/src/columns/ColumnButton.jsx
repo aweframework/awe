@@ -20,7 +20,7 @@ const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 function ColumnButton(props) {
   const {data, attrs, address, style, disabled, icon, actions, buttonType = BUTTON_NORMAL, title: columnTitle} = props;
   const {style: cellStyle, label, icon: cellIcon, title: cellTitle} = data;
-  const {visible = true, readonly: cellReadonly} = attrs;
+  const {visible = true, readonly: cellReadonly, disabled: cellDisabled} = attrs;
   // A btn-* style of the column gives the look of its buttons (btn-ghost for the row actions)
   const classes = classNames('p-button-sm', 'p-1', getButtonVariant(classNames(style, cellStyle), ""), style, cellStyle, {"hidden": !visible});
   const dispatch = useDispatch();
@@ -52,7 +52,7 @@ function ColumnButton(props) {
     type="button"
     className={classes}
     icon={getIconCode(getFirstDefinedValue(cellIcon, icon), "p-button-icon p-c")}
-    disabled={getFirstDefinedValue(cellReadonly, disabled, false)}
+    disabled={getFirstDefinedValue(cellReadonly, cellDisabled, disabled, false)}
     label={label ? translateLabel(label, t) : null}
     {...(tooltip ? {title: tooltip} : {})}
     {...(!label && tooltip ? {"aria-label": tooltip} : {})}

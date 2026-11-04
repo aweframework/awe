@@ -88,7 +88,9 @@ decorativo; el título es el nombre accesible del panel lateral. Con `header-swa
 seleccionada (un nombre de paleta de AWE 5 o un hexadecimal, como la [muestra de color de una columna de
 grid](grids.md#swatch)) ocupa el lugar del avatar, como hace la pantalla de temas con el color primario del tema; con un
 color vacío o desconocido la cabecera muestra el avatar de `header-avatar-field`, si lo hay. Todos los atributos `header-*` son opcionales; sin
-`header-grid` la cabecera no cambia. Lo soportan los dos motores.
+`header-grid` la cabecera no cambia. Lo soportan los dos motores. El `header-grid` puede ser un [grid en
+árbol](grids.md#tree-grid): la cabecera muestra su fila seleccionada, como el panel *¿Por qué?* de la [pantalla de
+acceso](../guides/default-screens.md#screen-access).
 
 ```xml
 <side-panel id="PnlUsr" label="SCREEN_TITLE_USER_PANEL" icon="user"

@@ -89,6 +89,7 @@ function setState(element, attribute, value) {
 
 /**
  * Wrap a select2 "formatResult" so the option label carries the select-option hook.
+ * Group headers (results with children) are not options: no hook, and presentation role.
  * The markup is produced by the original formatter (the select2 default when none is given).
  * @param {function} [original] Formatter to wrap
  * @param {string|function} owner Id of the selector that owns the options
@@ -98,7 +99,11 @@ export function wrapSelect2FormatResult(original, owner) {
   return function formatResult(result, label, ...rest) {
     const delegate = original || $.fn.select2.defaults.formatResult;
     const markup = delegate.call(this, result, label, ...rest);
-    tag($(label), TestIds.selectOption, resolveOwner(owner));
+    if (result && Array.isArray(result.children)) {
+      $(label).attr("role", "presentation");
+    } else {
+      tag($(label), TestIds.selectOption, resolveOwner(owner));
+    }
     return markup;
   };
 }

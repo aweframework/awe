@@ -1,8 +1,10 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
+import {Checkbox} from "primereact/checkbox";
+import {ariaLabel} from "primereact/api";
 import {generateServerAction, getIconCode} from "../utilities";
-import {getColumnWrap, getPaginatorSettings, getWidthStyle, OperationType} from "../utilities/grid";
+import {getColumnWrap, getPaginatorSettings, getWidthStyle, OperationType, SELECTION_COLUMN_WIDTH} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
@@ -60,6 +62,9 @@ function AweTreeGrid(props) {
   const treeParent = attributes.treeParent || "parent";
   const treeLeaf = attributes.treeLeaf || "isLeaf";
   const initialLevel = parseInt(attributes.initialLevel || "0", 10) || 0;
+  // With multiselect each row has a checkbox, as in the flat grid (#791). A node is selected on its own: selecting a parent
+  // does not select its children
+  const multiselect = !!attributes.multiselect && attributes.selectable !== false;
 
   const onTogglerClick = useCallback((row, expanded) => {
     const { loadAll, targetAction } = attributes;
@@ -73,10 +78,25 @@ function AweTreeGrid(props) {
     }
   }, [attributes, model, treeId, dispatch, address, settings]);
 
-  const onSelectTree = useCallback((event) => {
-    const values = [event.value].flat().filter(i => !isEmpty(i));
+  const selectRows = useCallback((values) => {
     dispatch(addActionsTop([{ type: "select-row", address, parameters: { values } }]));
   }, [dispatch, address]);
+
+  // Identifiers of the rows whose keys are given, in the order of the rows and with their own type (the keys of a
+  // selection are strings)
+  const getRowIds = useCallback((keys) => {
+    const selected = new Set(keys.map(String));
+    return (model.values || []).map(row => row[treeId]).filter(rowId => selected.has(String(rowId)));
+  }, [model.values, treeId]);
+
+  // A single selection is the key of its row, a multiple selection an object with the keys of its rows
+  const onSelectTree = useCallback((event) => {
+    if (multiselect) {
+      selectRows(getRowIds(Object.keys(event.value || {})));
+    } else {
+      selectRows([event.value].flat().filter(i => !isEmpty(i)));
+    }
+  }, [multiselect, selectRows, getRowIds]);
 
   const formatTreeData = useCallback((data, parent, level) => {
     const { loadAll } = attributes;
@@ -114,8 +134,11 @@ function AweTreeGrid(props) {
   }, [initialLevel]);
 
   const getSelection = useCallback((values) => {
+    if (multiselect) {
+      return Object.fromEntries(values.filter(row => row.selected).map(row => [row[treeId], true]));
+    }
     return (values.find(row => row.selected) || {})[treeId] || null;
-  }, [treeId]);
+  }, [treeId, multiselect]);
 
   const updateTreeData = useCallback((values) => {
     const n = formatTreeData(values, "", 0);
@@ -141,12 +164,45 @@ function AweTreeGrid(props) {
     setRowsPerPageOptions(Array.from(set).sort((a, b) => a - b));
   }, [attributes.pagerValues, attributes.max]);
 
+  // Checkbox of a row, which adds it to the selection or removes it, and checkbox of the header, which selects every row
+  // or, when all of them are selected, none
+  const rowCheckboxTemplate = useCallback((rowData) => {
+    const rowId = rowData.data[treeId];
+    const checked = !!rowData.data.selected;
+    const selectedIds = (model.values || []).filter(row => row.selected).map(row => row[treeId]);
+    const toggle = () => selectRows(getRowIds(checked
+      ? selectedIds.filter(selectedId => String(selectedId) !== String(rowId))
+      : [...selectedIds, rowId]));
+    return <Checkbox checked={checked} onChange={toggle} tabIndex={-1}
+      aria-label={ariaLabel(checked ? "unselectRow" : "selectRow")}
+      pt={{ root: testHook(TestIds.gridRowCheckbox, { selected: checked }) }} />;
+  }, [model.values, treeId, selectRows, getRowIds]);
+
+  const headerCheckboxTemplate = useCallback(() => {
+    const values = model.values || [];
+    const checked = values.length > 0 && values.every(row => row.selected);
+    return <Checkbox checked={checked} onChange={() => selectRows(checked ? [] : values.map(row => row[treeId]))}
+      aria-label={ariaLabel(checked ? "unselectAll" : "selectAll")}
+      pt={{ root: testHook(TestIds.gridHeaderCheckbox, { selected: checked }) }} />;
+  }, [model.values, treeId, selectRows]);
+
+  const selectionColumnTemplate = useCallback((place, rowSpan) => multiselect ? <Column
+    key={`multiselect-${place}`}
+    field={`multiselect-${place}`}
+    rowSpan={rowSpan}
+    header={place === "header" ? headerCheckboxTemplate() : null}
+    body={place === "cell" ? rowCheckboxTemplate : null}
+    footer={null}
+    style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
+  /> : null, [multiselect, headerCheckboxTemplate, rowCheckboxTemplate]);
+
   const headerTemplate = useCallback(() => {
     const { headerModel = [] } = attributes;
     if (headerModel.length > 0) {
       const header = getHeader();
       return <ColumnGroup>
         <Row key="firstRow">
+          {selectionColumnTemplate("header", 2)}
           {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters))}
           {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
@@ -157,25 +213,27 @@ function AweTreeGrid(props) {
     } else {
       return <ColumnGroup>
         <Row key="firstRow">
+          {selectionColumnTemplate("header", 1)}
           {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters))}
           {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
-  }, [attributes, visibleColumns, getHeader, headerColumnTemplate, columnTemplate, postColumnTemplates]);
+  }, [attributes, visibleColumns, getHeader, headerColumnTemplate, columnTemplate, postColumnTemplates, selectionColumnTemplate]);
 
   const footerTemplate = useCallback(() => {
     const { showTotals } = attributes;
     if (showTotals) {
       return <ColumnGroup>
         <Row>
+          {selectionColumnTemplate("footer", 1)}
           {visibleColumns.map(col => footerColumnTemplate(col))}
           {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
     return null;
-  }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates]);
+  }, [attributes, visibleColumns, footerColumnTemplate, postColumnTemplates, selectionColumnTemplate]);
 
   const cellTemplate = useCallback((rowData, column) => {
     const { expandColumn = treeId, iconExpand, iconCollapse, iconLeaf } = attributes;
@@ -218,7 +276,8 @@ function AweTreeGrid(props) {
 
   const { style, headerModel = [], max, disablePagination, loadAll, visible, loading = false, iconLoading } = attributes;
   const { first = 0, rows = max } = specificAttributes;
-  const { paginator, pageRows } = getPaginatorSettings(attributes, rows, nodes.length);
+  // A load-all tree is not paged (as in AngularJS): it shows every root, like a grid without pagination
+  const { paginator, pageRows } = getPaginatorSettings({ ...attributes, disablePagination: disablePagination || loadAll }, rows, nodes.length);
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
   const loadingIcon = getGridIconLoading(iconLoading, settings);
   // The skeleton replaces the rows in the body instead of masking them (see AweGrid)
@@ -226,7 +285,7 @@ function AweTreeGrid(props) {
   const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows || settings.recordsPerPage} />;
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows || settings.recordsPerPage} multiselect={multiselect} />;
   }
 
   return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu} loading={loading} reloading={reloading}>
@@ -234,7 +293,7 @@ function AweTreeGrid(props) {
       id={address?.component}
       value={showSkeleton ? [] : nodes} expandedKeys={expandedKeys} selectionKeys={selectionKeys} onToggle={() => null}
       className={styles}
-      selectionMode="single"
+      selectionMode={multiselect ? "multiple" : "single"}
       onSelectionChange={onSelectTree}
       onContextMenu={onContextMenu}
       onContextMenuSelectionChange={onSelectTree}
@@ -242,7 +301,7 @@ function AweTreeGrid(props) {
       footerColumnGroup={footerTemplate()}
       paginator={paginator} lazy={!loadAll || showSkeleton}
       loading={loading && !showSkeleton}
-      paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
+      paginatorTemplate={disablePagination || loadAll ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={pageRows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
       emptyMessage={emptyMessage}
@@ -252,6 +311,7 @@ function AweTreeGrid(props) {
       rowClassName={rowClassName}
       pt={passThrough}
     >
+      {selectionColumnTemplate("cell", 1)}
       {
         visibleColumns
           .map(col => {

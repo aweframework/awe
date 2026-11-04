@@ -198,12 +198,6 @@ public class QueryUtil extends ServiceConfig {
       variableMap.put(AweConstants.QUERY_SORT, new QueryParameter(sortList, true, ParameterType.OBJECT));
     }
 
-    // Add column filters variable (validated when the query applies them)
-    JsonNode columnFiltersParameter = getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters);
-    if (columnFiltersParameter != null && !columnFiltersParameter.isNull()) {
-      variableMap.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFiltersParameter, true, ParameterType.OBJECT));
-    }
-
     // Add page variable
     JsonNode pageParameter = getRequestParameter(AweConstants.COMPONENT_PAGE, parameters);
     if (pageParameter != null) {
@@ -291,7 +285,32 @@ public class QueryUtil extends ServiceConfig {
    * @throws AWException Error generating variables
    */
   public Map<String, QueryParameter> getVariableMap(Query query, ObjectNode parameters) throws AWException {
-    return getVariableMap(query.getVariableDefinitionList() == null ? new ArrayList<>() : query.getVariableDefinitionList(), parameters, null);
+    Map<String, QueryParameter> variableMap = getVariableMap(query.getVariableDefinitionList() == null ? new ArrayList<>() : query.getVariableDefinitionList(), parameters, null);
+
+    // Add column filters variable (validated when the query applies them)
+    JsonNode columnFiltersParameter = getColumnFiltersParameter(query, parameters);
+    if (columnFiltersParameter != null && !columnFiltersParameter.isNull()) {
+      variableMap.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFiltersParameter, true, ParameterType.OBJECT));
+    }
+    return variableMap;
+  }
+
+  /**
+   * Retrieve the grid column filters of a query. The column filters of the request apply only to the query the client
+   * launched (the request target action); any other query launched while serving the request (a private, service or
+   * restriction query) takes only the column filters its caller passes, not the ones copied from the request.
+   *
+   * @param query      Query
+   * @param parameters Parameters
+   * @return Column filters parameter, null when the query has none
+   */
+  public JsonNode getColumnFiltersParameter(Query query, ObjectNode parameters) {
+    String targetAction = Optional.ofNullable(getRequest()).map(AweRequest::getTargetAction).orElse(null);
+    if (query.getId() != null && query.getId().equals(targetAction)) {
+      return getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters);
+    }
+    JsonNode columnFilters = parameters == null ? null : parameters.get(AweConstants.COMPONENT_COLUMN_FILTERS);
+    return columnFilters == null || columnFilters.equals(getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS)) ? null : columnFilters;
   }
 
   /**

@@ -88,7 +88,8 @@ the title is the accessible name of the side panel. With `header-swatch-field` a
 (an AWE 5 palette name or a hex, as the [swatch of a grid column](grids.md#swatch)) takes the place of the avatar, as the
 themes screen does with the primary colour of the theme; with an empty or unknown colour the header shows the avatar of
 `header-avatar-field`, if any. All the `header-*` attributes are optional; without `header-grid` the
-header does not change. Both engines support it.
+header does not change. Both engines support it. The `header-grid` can be a [tree grid](grids.md#tree-grid): the header
+shows its selected row, as the *Why?* panel of the [access screen](../guides/default-screens.md#screen-access) does.
 
 ```xml
 <side-panel id="PnlUsr" label="SCREEN_TITLE_USER_PANEL" icon="user"

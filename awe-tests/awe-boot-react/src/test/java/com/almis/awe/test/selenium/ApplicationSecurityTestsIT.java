@@ -6,8 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Security of the application: screen restrictions, screen configuration and encryption tools. The tests of
- * each one create, update and delete their own record, and every test opens its own screen.
+ * Security of the application: the access window, screen configuration and encryption tools. Every test opens its own
+ * screen and leaves no data behind: the access window removes the rule it adds, and the tests of the screen
+ * configuration create, update and delete their own record.
+ *
+ * <p>The access window (access-admin, #791) has one flow: the cascade, its reasons, the filters, the counts and the
+ * changes are covered by the unit and Spring tests of the access services.</p>
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -15,6 +19,17 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
 
   // A screen of the menu with a print button: the screen suggest lists only the screens of the menu
   private static final String DATABASES_SCREEN = "database-admin";
+  // Access window
+  private static final String ACCESS_GRID = "GrdAcc";
+  private static final String WHY_PANEL = "PnlAccWhy";
+  private static final String WHY_GRID = "GrdAccWhy";
+  private static final String RULES_GRID = "GrdAccRul";
+  // The step of the cascade of the profile rules: module, base profile, global rule, profile rule, user rule, inheritance
+  private static final String PROFILE_STEP = "4";
+  // A root option of the menu that the profile OPE can open: no rule and no restriction of its base profile file
+  private static final String PROFILE = "OPE";
+  private static final String OPTION = "help";
+  private static final String ACCESS = "access-text";
 
   /**
    * Log into the application
@@ -35,150 +50,37 @@ class ApplicationSecurityTestsIT extends AbstractApplicationTests {
   }
 
   /**
-   * Add a new screen restriction
+   * Access window: choose the profile OPE, deny an option from its row (Denied, decided by the rule of the profile), open
+   * Why to see the layer that decides, and remove the rule from the panel, which gives the access back
    */
   @Test
-  void t021_newRestriction() {
-    // Title
-    setTestTitle("Add a new screen restriction");
+  void t021_denyAnOptionToAProfileAndRemoveTheRuleFromWhy() {
+    setTestTitle("Deny an option to a profile in the access window, see why and remove the rule");
 
-    // Go to screen
     gotoScreen("settings", "security", "screen-access");
+    clickCheckboxOption("subject-type", "profile");
+    suggest("IdePro", PROFILE, PROFILE);
 
-    // Wait for button
-    clickButton("ButRst");
+    clickGridCellButton(ACCESS_GRID, OPTION, "DnyBtn");
+    checkAndCloseMessage("success");
+    checkCellContents(ACCESS_GRID, OPTION, ACCESS, "Denied");
+    checkCellContents(ACCESS_GRID, OPTION, "reason", "Rule of profile " + PROFILE);
 
-    // Wait for button
-    clickButton("ButGrdAdd");
+    // The panel shows the option and its access, and the profile rule is the layer that decides
+    clickGridCellButton(ACCESS_GRID, OPTION, "WhyBtn");
+    checkSidePanelTitle(WHY_PANEL, "Help");
+    checkSidePanelTag(WHY_PANEL, "Denied");
+    checkCellContents(WHY_GRID, PROFILE_STEP, "title", "Rule of profile " + PROFILE + " on the option");
+    checkCellContents(WHY_GRID, PROFILE_STEP, "decides-text", "Decides");
 
-    // Select on selector
-    suggest("GrdScrAccLst", "IdeOpe",  "test", "test");
+    clickGridRowButton(RULES_GRID, PROFILE, "RmvBtn");
+    acceptConfirm();
+    checkAndCloseMessage("success");
+    checkRowGone(RULES_GRID, PROFILE);
+    checkSidePanelTag(WHY_PANEL, "Allowed");
 
-    // Select on selector
-    suggest("GrdScrAccLst", "Opt",  "application-info", "application-info");
-
-    // Select text
-    selectContain("GrdScrAccLst", "AccMod", "Restricted");
-
-    // Select text
-    selectContain("GrdScrAccLst", "Act", "Yes");
-
-    // Save row
-    saveRow();
-
-    // Check row contents
-    checkRowContents("application-info", "Restricted", "Yes");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Check contents
-    checkRowContents("application-info");
-  }
-
-  /**
-   * Update a screen restriction
-   */
-  @Test
-  void t023_updateRestriction() {
-    // Title
-    setTestTitle("Update a screen restriction");
-
-    // Go to screen
-    gotoScreen("settings", "security", "screen-access");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Click on row
-    editRow("application-info");
-
-    // Select on selector
-    selectContain("GrdScrAccLst", "AccMod",  "Restricted");
-
-    // Select on selector
-    selectContain("GrdScrAccLst", "Act",  "No");
-
-    // Save row
-    saveRow();
-
-    // Check row contents
-    checkRowContents("Restricted", "No");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Wait for button
-    searchAndWait();
-
-    // Check contents
-    checkRowContents("application-info", "Restricted", "No");
-  }
-
-  /**
-   * Delete a screen restriction
-   */
-  @Test
-  void t025_deleteRestriction() {
-    // Title
-    setTestTitle("Delete a screen restriction");
-
-    // Go to screen
-    gotoScreen("settings", "security", "screen-access");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest
-    suggestMultiple("CrtOpe", "test", "test");
-
-    // Suggest
-    suggestMultiple("CrtOpc", "application-info", "application-info");
-
-    // Search on grid
-    searchAndWait();
-
-    // Click row
-    clickRowContents("application-info");
-
-    // Click on delete button
-    clickButton("ButGrdDel");
-
-    // Store and confirm
-    clickButtonAndConfirm("ButCnf");
-
-    // Verify
-    verifyDeleted("application-info");
+    closeSidePanel(WHY_PANEL);
+    checkCellContents(ACCESS_GRID, OPTION, ACCESS, "Allowed");
   }
 
   /**

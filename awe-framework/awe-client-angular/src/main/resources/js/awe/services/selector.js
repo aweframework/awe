@@ -133,6 +133,39 @@ aweApplication.factory('Selector',
       }
 
       /**
+       * Group select data by the "group" locale key of its values (in order of first appearance).
+       * Options without group stay where they are; group headers have no id, so select2 does not select them.
+       * @param {Array} values Model values
+       * @param {Array} data Formatted data (as returned by formatSelectData)
+       * @return {Array} grouped data
+       */
+      function groupSelectData(values, data) {
+        let groupByValue = {};
+        _.each(values, function (element) {
+          if (element && element.group && !(String(element.value) in groupByValue)) {
+            groupByValue[String(element.value)] = String(element.group);
+          }
+        });
+        if (_.isEmpty(groupByValue)) {
+          return data;
+        }
+        let grouped = [];
+        let headers = {};
+        _.each(data, function (option) {
+          let group = groupByValue[String(option.id)];
+          if (!group) {
+            grouped.push(option);
+          } else if (group in headers) {
+            headers[group].children.push(option);
+          } else {
+            headers[group] = {text: $translate.instant(group), children: [option]};
+            grouped.push(headers[group]);
+          }
+        });
+        return grouped;
+      }
+
+      /**
        * Format select data
        * @param {Array} values Model values
        * @param {Array} selected Model selected values
@@ -171,7 +204,7 @@ aweApplication.factory('Selector',
        * @param {String} term Search term
        */
       function fillCallback(values, callback, term) {
-        let results = formatSelectData(values, term);
+        let results = groupSelectData(values, formatSelectData(values, term));
         let data = {
           results: results
         };

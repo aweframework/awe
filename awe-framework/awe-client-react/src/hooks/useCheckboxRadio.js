@@ -13,7 +13,7 @@ import useComponent from "./useComponent";
  * Provides helpers to read selection and to update selection depending on the control type.
  *
  * Usage:
- *   const { address, model, attributes, validationRules, getChecked, getValue, itemTemplate,
+ *   const { address, model, attributes, validationRules, getChecked, getValue, optionLabel, itemTemplate,
  *           onChangeCheckbox, onChangeButtonRadio, onChangeButtonCheckbox } = useCheckboxRadio(id);
  */
 export default function useCheckboxRadio(id) {
@@ -57,6 +57,9 @@ export default function useCheckboxRadio(id) {
     }));
   }, [dispatch, address, values]);
 
+  // The label of an option for the button group: its accessible name, translated as the text of its template
+  const optionLabel = useCallback((option) => option?.label ? translateLabel(option.label, t) : option?.label, [t]);
+
   const itemTemplate = useCallback((option) => {
     const { icon, label, style } = option || {};
     const { size } = attributes || {};
@@ -75,6 +78,7 @@ export default function useCheckboxRadio(id) {
     validationRules,
     getChecked,
     getValue,
+    optionLabel,
     itemTemplate,
     onChangeCheckbox,
     onChangeRadio,
@@ -87,6 +91,7 @@ export default function useCheckboxRadio(id) {
     validationRules,
     getChecked,
     getValue,
+    optionLabel,
     itemTemplate,
     onChangeCheckbox,
     onChangeRadio,

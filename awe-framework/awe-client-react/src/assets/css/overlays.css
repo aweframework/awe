@@ -16,3 +16,24 @@
   font-weight: var(--awe-font-weight-medium);
   line-height: var(--awe-line-height-snug);
 }
+
+/* Dialog footer (a child with style modal-footer, #791): it sticks to the bottom of the dialog, with a separator line,
+   so the body scrolls under it, as in the side panel. With a footer the content has no bottom padding: the body would
+   show through it, under the footer */
+.p-dialog .p-dialog-content:has(> .modal-footer) {
+  padding-bottom: 0;
+}
+
+.p-dialog .p-dialog-content > .modal-footer {
+  position: sticky;
+  bottom: 0;
+  /* Above the icons of the fields that scroll under it (the suggest arrow has z-index 1) */
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+  margin-top: var(--awe-space-4);
+  padding: var(--awe-space-4) 0;
+  background-color: var(--awe-color-overlay);
+  border-top: 1px solid var(--awe-color-border);
+}

@@ -38,6 +38,12 @@ Dos contenedores se abren y se cierran como un diálogo y aceptan sus atributos:
 
 > **Nota:** Puedes añadir los estilos `modal-lg`, `modal-md` o `modal-sm` para cambiar el ancho del diálogo.
 
+## Pie {#footer}
+
+Pon los botones del diálogo en un tag hijo con el estilo `modal-footer`. En el motor React el pie se queda pegado abajo
+del diálogo, tras una línea de separación, y el cuerpo se desplaza por debajo cuando su contenido es más largo que el
+diálogo, como en el [panel lateral](side-panel.md#footer).
+
 ## Carga diferida {#deferred-loading}
 
 Por defecto, el servidor ejecuta las consultas `initial-load` de todos los componentes de la pantalla cuando la genera,

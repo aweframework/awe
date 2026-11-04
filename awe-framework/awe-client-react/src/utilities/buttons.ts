@@ -11,7 +11,8 @@ const BUTTON_VARIANTS: Record<string, string> = {
   "btn-success": "p-button-success",
   "btn-warning": "p-button-warning",
   "btn-dark": "p-button-contrast",
-  "btn-ghost": "p-button-text"
+  "btn-ghost": "p-button-text",
+  "btn-tonal": "p-button-outlined"
 };
 
 /**

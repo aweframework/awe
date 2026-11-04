@@ -75,6 +75,10 @@ Escribe los tags de modo que el resultado sea claro en ambos motores:
 * Usa un tag con `label` solo para texto. Si necesitas texto junto a otros elementos, pon cada uno en su propio tag.
 * Usa `<tag source="...">` solo para rellenar un punto de origen. Añade un `type` si necesita un `expandible`.
 
+Las clases de espaciado de PrimeFlex (`p-3`, `pt-5`, `mb-3`, `mx-auto`, `-mt-2`...) funcionan en el `style` de cualquier
+elemento en los dos motores: el motor React las tiene de PrimeFlex y el motor AngularJS sirve los mismos nombres y
+valores (solo las clases simples, no las responsive como `md:p-3`).
+
 ## Títulos de sección {#section-titles}
 
 Dos estilos de tag convierten un tag de encabezado (`h2` a `h6`, para que los lectores de pantalla anuncien la sección)

@@ -871,8 +871,26 @@
     }
   }
 
+  // Tree grid: the cell of the expand column draws the expander before its content, as React
+  .ui-grid-cell.tree-expand-cell {
+    display: flex;
+    align-items: center;
+    > .ui-grid-cell-contents {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+  .tree-toggle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    padding-right: var(--awe-space-1);
+    margin-left: var(--awe-space-1);
+  }
+
   // Tree grid: the expander of a branch (and the expand all of the header) as a small icon button. The indent of each
   // level comes from the grid options (inline padding of --awe-space-6 per level)
+  .tree-toggle .tree-icon,
   .ui-grid-tree-base-row-header-buttons .tree-icon,
   .ui-grid-tree-base-row-header-buttons > i {
     display: inline-grid;
@@ -899,6 +917,12 @@
       width: var(--awe-size-icon-sm);
       height: var(--awe-size-icon-sm);
     }
+  }
+
+  // Tree grid: ui-grid draws every row of a tree (a tree header row) in bold; its cells keep their own weight, as in
+  // React
+  .ui-grid-tree-header-row {
+    font-weight: inherit !important;
   }
 
 }

@@ -15,6 +15,7 @@
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
     </div>
+    <awe-grid-empty-state ng-if="component.loaded && !controller.loading && !model.values.length"></awe-grid-empty-state>
     <div ng-attr-id="grid-{{::gridId}}" ui-grid="gridOptions" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-tree-view class="ag-awe grid-node no-border-hr" ng-cloak></div>
   </div>
   <div class="table-footer">
