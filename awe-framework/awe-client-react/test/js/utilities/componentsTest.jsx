@@ -22,6 +22,7 @@ import {
   inspectComponentStructure,
   parseRule,
   parseValidationRules,
+  rebuildStructureNodes,
 } from "../../../src/utilities/components";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {getDataDependingOnList, getVisibleTextData} from "../../../src/utilities";
@@ -1227,5 +1228,81 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  // Tests for rebuildStructureNodes (#909)
+  describe('rebuildStructureNodes', () => {
+    const controllers = {
+      Win: {id: "Win", elementType: "Window", label: "Window", icon: "fa-user", advancedOpen: true, screenId: "scr", elementList: ["ignored"]},
+      Crt: {id: "Crt", elementType: "Criteria", label: "Criterion", component: "text", style: "small"},
+      Grd: {
+        id: "Grd", elementType: "Grid", label: "Grid", treegrid: true, columnModel: [{name: "a"}], columnLayout: {}, showToolbar: true,
+        options: [1], rowDetail: {}, screenId: "scr", dependencies: [{id: 1}]
+      },
+      Row: {id: "Row", label: "must not be used"}
+    };
+
+    it('gives a component node the attributes of its controller', () => {
+      const result = rebuildStructureNodes({id: "Crt", elementType: "Criteria", elementList: []}, controllers);
+
+      expect(result).toEqual({id: "Crt", elementType: "Criteria", label: "Criterion", component: "text", style: "small", elementList: []});
+    });
+
+    it('keeps the keys of the node over the ones of the controller', () => {
+      const result = rebuildStructureNodes({id: "Grd", elementType: "TreeGrid", treegrid: true, elementList: []}, controllers);
+
+      expect(result.elementType).toBe("TreeGrid");
+      expect(result.id).toBe("Grd");
+      expect(result.elementList).toEqual([]);
+      expect(result.label).toBe("Grid");
+      expect(result.dependencies).toEqual([{id: 1}]);
+    });
+
+    it('leaves out the keys that only the controller needs', () => {
+      const result = rebuildStructureNodes({id: "Grd", elementType: "Grid", elementList: []}, controllers);
+      const window = rebuildStructureNodes({id: "Win", elementType: "Window", elementList: []}, controllers);
+
+      ["columnModel", "columnLayout", "screenId", "showToolbar", "options", "rowDetail"].forEach(key => expect(result).not.toHaveProperty(key));
+      expect(window).not.toHaveProperty("advancedOpen");
+      expect(window).not.toHaveProperty("screenId");
+      expect(window.elementList).toEqual([]);
+      expect(window.icon).toBe("fa-user");
+    });
+
+    it('rebuilds the children at any depth and leaves the plain nodes as they are', () => {
+      const tag = {elementType: "Tag", source: "center", type: "div", elementList: [
+        {id: "Win", elementType: "Window", elementList: [{id: "Crt", elementType: "Criteria", elementList: []}]}
+      ]};
+
+      const result = rebuildStructureNodes({elementType: "Screen", id: "scr", elementList: [tag]}, controllers);
+
+      expect(result.id).toBe("scr");
+      expect(result.elementList[0]).toMatchObject({elementType: "Tag", source: "center", type: "div"});
+      expect(result.elementList[0].elementList[0].label).toBe("Window");
+      expect(result.elementList[0].elementList[0].elementList[0].label).toBe("Criterion");
+    });
+
+    it('does not touch a node without a controller', () => {
+      const node = {id: "Other", elementType: "Criteria", elementList: []};
+
+      expect(rebuildStructureNodes(node, controllers)).toEqual(node);
+    });
+
+    it('does not touch the subtree of a tag list, as it has no controllers', () => {
+      const list = {id: "List", elementType: "TagList", elementList: [{id: "Row", elementType: "Tag", elementList: [{id: "Crt", elementType: "Criteria", label: "own"}]}]};
+
+      const result = rebuildStructureNodes({id: "Tag", elementType: "Tag", elementList: [list]}, controllers);
+
+      expect(result.elementList[0].elementList).toEqual(list.elementList);
+    });
+
+    it('does not change the structure it receives', () => {
+      const node = {id: "Win", elementType: "Window", elementList: [{id: "Crt", elementType: "Criteria"}]};
+      const copy = JSON.parse(JSON.stringify(node));
+
+      rebuildStructureNodes(node, controllers);
+
+      expect(node).toEqual(copy);
+    });
   });
 });

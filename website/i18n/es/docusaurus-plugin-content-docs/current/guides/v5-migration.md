@@ -65,7 +65,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Dependencia `jsoup` | `org.jsoup:jsoup` ya no está en el classpath de `awe-model` y ya no lo gestiona el BOM `awe-dependencies`. | Si su propio código usa jsoup, declare la dependencia y su versión en su `pom.xml`. En caso contrario no hay que hacer nada. Consulte la nota bajo la tabla. | MR !849 |
 | Caducidad de contraseña (`PwdExp`) | La aplicación define el parámetro `PwdExp`. Tras la actualización, los usuarios cuyo último cambio de contraseña es anterior a `PwdExp` días se les indica que la contraseña ha caducado (antes entraban) y tienen que establecer una nueva, y los que la cambiaron recientemente pueden volver a iniciar sesión (antes eran rechazados). | Nada si los datos son correctos: la comprobación ya no está invertida y el inicio de sesión guía al usuario para cambiar la contraseña (consulte la nota bajo la tabla). Revise los usuarios que nunca cambiaron la contraseña y el valor de `PwdExp`. | [Caducidad de contraseña](../security/authentication.md#password-expiration-local-login), incidencia #846 |
 | JSON del menú | La carga del menú es más pequeña. | Nada, salvo que un cliente personalizado lea `elementList` de una `Option` del menú: lea `options` en su lugar. Consulte la nota bajo la tabla. | MR !792 |
-| JSON de los componentes de pantalla | La respuesta de `screen-data` de las pantallas con contenedores anidados es mucho más pequeña. | Nada, salvo que un cliente personalizado lea `elementList` del `controller` de una entrada de `components`: lea los hijos de `structure` en su lugar. Consulte la nota bajo la tabla. | Issue #907 |
+| JSON de los componentes de pantalla | La respuesta de `screen-data` de las pantallas con contenedores anidados es mucho más pequeña. | Nada, salvo que un cliente personalizado lea `elementList` del `controller` de una entrada de `components`: lea los hijos de `structure` en su lugar. En la respuesta de React (`template: false`) `structure` es un esqueleto: lea los atributos de un componente de su `controller`. Consulte la nota bajo la tabla. | Issues #907 y #909 |
 | Inicio de sesión SSO de usuarios deshabilitados o bloqueados | Un usuario deshabilitado o bloqueado en AWE podía iniciar sesión a través del proveedor de identidad; ahora el inicio de sesión SSO se rechaza con una página de error. | Nada, salvo que dependiera de ello: habilite el usuario en AWE en su lugar. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
 | Beans del manejador SSO | Su propio código llama a `AweWebSecurityConfig.authSuccessHandler()` (ahora recibe como parámetro el bean `AweOauth2AuthenticationFailureHandler`), o construye `AweOauth2AuthenticationSuccessHandler` con un argumento (obsoleto y pendiente de eliminación). | Pase el manejador de fallos: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Los beans de manejador propios ahora se respetan en el inicio de sesión SSO. | [Usuarios deshabilitados y bloqueados](../security/authentication-sso.md#disabled-and-locked-users) |
 | Base de datos del planificador | Flyway falla con un error de checksum en `SCHEDULER_V1.0.5`, o no se puede construir una base de datos nueva desde cero. | Ejecute el paso de migración descrito más abajo. | MR !843 |
@@ -147,10 +147,19 @@ pantalla (componentes de una pantalla) no se ve afectado.
 Cada entrada de `components` en la respuesta de `screen-data` llevaba un `controller` con todo el subárbol
 `elementList` del componente, por lo que una definición se enviaba una vez en `structure` y otra más por cada
 componente que la contenía. En pantallas grandes la mayor parte de la respuesta eran esas copias. `elementList` ya no
-forma parte del JSON del `controller` de un componente (issue #907); `structure` lo conserva, y los campos calculados a
+forma parte del JSON del `controller` de un componente (issue #907); `structure` lo conserva (como esqueleto en la respuesta de React, véase abajo), y los campos calculados a
 partir de los hijos (`columnModel`, `buttonModel`, `headerModel` de las grids, `children` de avatares y desplegables de
 información) se siguen enviando. Los clientes de este repositorio construyen el árbol de componentes a partir de
 `structure`, por lo que para ellos no cambia nada.
+
+El `structure` de la respuesta que recibe el cliente React (`template: false`) es un esqueleto desde la issue #909:
+cada definición se envía una sola vez, en el `controller` de su componente, y `structure` solo indica qué es cada
+componente y dónde está. Un nodo de componente (un elemento con etiqueta de componente) solo tiene `elementType`, `id`,
+`elementList` y, en una tree grid, `treegrid`; lea sus demás atributos de la entrada correspondiente de `components`.
+Las columnas, las dependencias y las acciones de botón no están en `structure` (llegan en el `controller` de su
+componente). Las tag lists y los row details conservan todo su subárbol, porque los clientes lo repiten para cada fila,
+y el resto de elementos (pantalla, tags, includes, views, mensajes) conservan sus atributos. La respuesta de AngularJS
+(`template: true`) no cambia.
 
 ### Caducidad de contraseña (`PwdExp`) {#password-expiration-pwdexp}
 
@@ -1065,6 +1074,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] If the application sets `PwdExp`, the value and the users with an old or empty password change date were reviewed
 - [ ] Custom clients do not read `elementList` from the menu JSON
 - [ ] Los clientes personalizados no leen `elementList` del `controller` de los componentes de `screen-data`
+- [ ] Los clientes personalizados tipo React (`template: false`) leen los atributos de un componente de su `controller`, no de `structure`
 - [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
 - [ ] Se tomó la decisión sobre el modo oscuro que sigue al sistema operativo (`awe.application.theme-mode`)
 - [ ] El CSS de la aplicación ya no define las variables de tema de AWE 4 (`--primary-color`...) ni da estilo a `.theme-<nombre>`

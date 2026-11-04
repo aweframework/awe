@@ -64,7 +64,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | `jsoup` dependency | `org.jsoup:jsoup` is no longer on the classpath of `awe-model` and is no longer managed by the `awe-dependencies` BOM. | If your own code uses jsoup, declare the dependency and its version in your `pom.xml`. No action otherwise. See the note below the table. | MR !849 |
 | Password expiration (`PwdExp`) | The application sets the `PwdExp` parameter. After the upgrade, users whose last password change is older than `PwdExp` days are told that the password has expired (they used to get in) and have to set a new one, and users who changed it recently can log in again (they used to be rejected). | Nothing for correct data: the check is no longer inverted and the login guides the user to change the password (see the note below the table). Review the users that never changed the password and the value of `PwdExp`. | [Password expiration](../security/authentication.md#password-expiration-local-login), issue #846 |
 | Menu JSON | The menu payload is smaller. | Nothing, unless a custom client reads `elementList` from a menu `Option`: read `options` instead. See the note below the table. | MR !792 |
-| Screen components JSON | The `screen-data` answer of screens with nested containers is much smaller. | Nothing, unless a custom client reads `elementList` from the `controller` of an entry of `components`: read the children from `structure` instead. See the note below the table. | Issue #907 |
+| Screen components JSON | The `screen-data` answer of screens with nested containers is much smaller. | Nothing, unless a custom client reads `elementList` from the `controller` of an entry of `components`: read the children from `structure` instead. In the React answer (`template: false`) `structure` is a skeleton: read the attributes of a component from its `controller`. See the note below the table. | Issues #907 and #909 |
 | SSO login of disabled or locked users | A user that is disabled or locked in AWE could log in through the identity provider; now the SSO login is refused with an error page. | Nothing, unless you relied on it: enable the user in AWE instead. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
 | SSO users with several roles | A user whose token carries several roles with the `filter-authority-prefix` may get a different profile than before: AWE 5 uses the first name in alphabetical order that exists as an AWE profile (AWE 4 took the first role of an unordered set). | Send one prefixed role per user, or check that the alphabetical choice is the expected one. Roles can now be read from other claims with `awe.security.sso.roles-claims`. | [Several roles: which profile wins](../security/authentication-sso.md#several-roles-which-profile-wins) |
 | SSO handler beans | Your own code calls `AweWebSecurityConfig.authSuccessHandler()` (it now takes the `AweOauth2AuthenticationFailureHandler` bean as a parameter), or builds `AweOauth2AuthenticationSuccessHandler` with one argument (deprecated for removal). | Pass the failure handler: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Handler beans of your own are now honoured by the SSO login. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
@@ -147,9 +147,17 @@ clients of this repository read `options`, so nothing changes for them. The `ele
 Each entry of `components` in the `screen-data` answer carried a `controller` with the whole `elementList` subtree of
 the component, so a definition was sent once in `structure` and once more for each component that contained it. On
 large screens most of the answer was those copies. `elementList` is no longer part of the JSON of a component
-`controller` (issue #907); `structure` still has it, and the fields computed from the children (`columnModel`,
+`controller` (issue #907); `structure` still has it (as a skeleton in the React answer, see below), and the fields computed from the children (`columnModel`,
 `buttonModel`, `headerModel` of grids, `children` of avatars and info dropdowns) are still sent. The clients of this
 repository build the component tree from `structure`, so nothing changes for them.
+
+The `structure` of the answer sent to the React client (`template: false`) is a skeleton since issue #909: each
+definition travels once, in the `controller` of its component, and `structure` only says what each component is and
+where it is. A component node (an element with a component tag) only has `elementType`, `id`, `elementList` and, for a
+tree grid, `treegrid`; read its other attributes from the matching entry of `components`. Columns, dependencies and
+button actions are not in `structure` (they come in the `controller` of their component). Tag lists and row details
+keep their whole subtree, as the clients repeat it for each row, and the other elements (screen, tags, includes,
+views, messages) keep their attributes. The AngularJS answer (`template: true`) does not change.
 
 ### Password expiration (`PwdExp`)
 
@@ -1037,6 +1045,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] If the application sets `PwdExp`, the value and the users with an old or empty password change date were reviewed
 - [ ] Custom clients do not read `elementList` from the menu JSON
 - [ ] Custom clients do not read `elementList` from the `controller` of the `screen-data` components
+- [ ] Custom React-style clients (`template: false`) read the attributes of a component from its `controller`, not from `structure`
 - [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
 - [ ] The decision about the dark mode that follows the operating system was taken (`awe.application.theme-mode`)
 - [ ] CSS of the application no longer sets the AWE 4 theme variables (`--primary-color`...) or styles `.theme-<name>`

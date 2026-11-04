@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,8 @@ public class ScreenData {
   // Screen properties
   private Map<String, String> screenProperties;
 
-  // Screen structure (AWE React)
+  // Screen structure (AWE React): a skeleton, as each component definition travels in its controller (#909)
+  @JsonSerialize(using = ScreenStructureSerializer.class)
   private Screen structure;
 
   // Screen template (AWE Angular)

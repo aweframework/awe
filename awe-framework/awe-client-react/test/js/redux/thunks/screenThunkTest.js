@@ -2,6 +2,7 @@ import download from 'downloadjs';
 import * as screenThunks from '../../../../src/redux/thunks/screen';
 import { ADD_ACTIONS_TOP } from '../../../../src/redux/actions/actions';
 import { navigationActions } from '../../../../src/redux/actions/navigation';
+import ViewRegistry from '../../../../src/redux/registry/ViewRegistry';
 import { clearClassChanges, rememberClassChange } from '../../../../src/utilities/classChanges';
 
 // downloadjs removes its anchor from the body in a timer (66 ms) that outlives the test: when the next test
@@ -364,6 +365,32 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(model.values.filter(value => value.selected)).toEqual([{ value: '1', label: '1', selected: true }]);
       expect(storedModel.values).toEqual(model.values);
       expect(defaultModel.values.filter(value => value.selected)).toEqual([{ value: 'xml', label: 'xml', selected: true }]);
+    });
+
+    it('stores the skeleton structure with the attributes of the controllers of its components (#909)', async () => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          structure: { id: 'scr', elementType: 'Screen', elementList: [
+            { id: 'Win', elementType: 'Window', elementList: [{ id: 'Tree', elementType: 'Grid', treegrid: true, elementList: [] }] }
+          ] },
+          components: [
+            { id: 'Win', model: { values: [] }, controller: { label: 'Window', advancedOpen: true } },
+            { id: 'Tree', model: { values: [] }, controller: { label: 'Tree', treegrid: true, columnModel: [] } }
+          ],
+          messages: [],
+          screen: {}
+        })
+      });
+
+      await screenThunks.loadScreen('view-skeleton', 'option-a', (key) => key)(dispatch, () => ({ settings: { token: 'TOK' }, components: {} }));
+
+      const { structure } = ViewRegistry.get('view-skeleton');
+      const win = structure.elementList[0];
+      expect(win).toMatchObject({ id: 'Win', elementType: 'Window', label: 'Window' });
+      expect(win).not.toHaveProperty('advancedOpen');
+      expect(win.elementList[0]).toMatchObject({ id: 'Tree', elementType: 'TreeGrid', label: 'Tree' });
+      expect(win.elementList[0]).not.toHaveProperty('columnModel');
     });
 
     it('forgets the remembered class changes of the previous screen when a screen is loaded', async () => {

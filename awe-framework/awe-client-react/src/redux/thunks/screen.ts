@@ -21,7 +21,8 @@ import {
   fixDefaultModel,
   getSpecificAttributes,
   inspectComponentStructure,
-  parseValidationRules
+  parseValidationRules,
+  rebuildStructureNodes
 } from "../../utilities/components";
 import type {ComponentModelData, ControllerData, StructureNode} from "../../utilities/components";
 import type {ComponentState} from "../../utilities/mergeUtils";
@@ -177,7 +178,10 @@ export const loadScreen = (view: string, option: string, t: Translate): AppThunk
       MenuRegistry.setOptions(menu.controller.options as MenuOption[] | undefined);
     }
     dispatch(updateMessages(view, response.messages));
-    ViewRegistry.setView(view, { ...response.screen, structure: produce(response.structure, draft => draft), loading: false });
+    // The structure is a skeleton: each component node gets its attributes back from its controller
+    const controllers = Object.fromEntries(response.components.map(component => [component.id, component.controller]));
+    const structure = rebuildStructureNodes(response.structure, controllers);
+    ViewRegistry.setView(view, { ...response.screen, structure: produce(structure, draft => draft), loading: false });
     if (response.actions?.length) {
       // Dispatch server-provided actions (e.g. initial messages) after the screen is fully registered.
       dispatch(addActionsTop(response.actions));
