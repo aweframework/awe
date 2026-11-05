@@ -297,6 +297,15 @@ public class ScreenService extends ServiceConfig {
       eventPublisher.publishEvent(new ScreenChangeEvent(this, getSession().getUser(), getRequest().getToken(), optionId));
     }
 
+    // A fresh screen (opened from the menu) must not see the values of the screen left, which were only needed above
+    if (Boolean.parseBoolean(getRequest().getParameterAsString(AweConstants.PARAMETER_FRESH_SCREEN))) {
+      ObjectNode screenParameters = getScreenParameters(optionId);
+      updateParameterList(screenParameters, screen);
+      // setParameterList only merges: drop the previous values so they do not reach the on load
+      getRequest().getParameterList().removeAll();
+      getRequest().setParameterList(screenParameters);
+    }
+
     // Launch on load
     launchScreenOnLoadEvent(screen);
   }

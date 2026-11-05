@@ -25,6 +25,7 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.service.observation.ExecutionObserver;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -94,6 +96,9 @@ class ScreenServiceTest {
 
   @Mock
   private TemplateService templateService;
+
+  @Mock
+  private MaintainService maintainService;
 
   /**
    * Initializes json mapper for tests
@@ -375,6 +380,63 @@ class ScreenServiceTest {
     assertNotNull(screenService.getScreenData(null, true));
 
     assertEquals(List.of("SCREEN:default-screen:{screen=default-screen}"), observed);
+  }
+
+  private ObjectNode onLoadParameters;
+  private ObjectNode storedPreviousCriteria;
+
+  /**
+   * Opens "Next" (on-load maintain "OnLoadMaintain", keep-criteria "x": "next") coming from "Prev" with the request values given (#934)
+   */
+  private void openNextScreenFrom(Map<String, String> requestValues, boolean fresh) throws Exception {
+    AweRequest request = new AweRequest(mock(HttpServletRequest.class), null, JsonMapper.builder().build());
+    requestValues.forEach(request::setParameter);
+    if (fresh) {
+      request.setParameter(AweConstants.PARAMETER_FRESH_SCREEN, true);
+    }
+    ObjectNode nextCriteria = JsonNodeFactory.instance.objectNode().put("x", "next");
+    lenient().when(applicationContext.getBean(AweRequest.class)).thenReturn(request);
+    lenient().when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    lenient().when(applicationContext.getBean(AweClientTracker.class)).thenReturn(aweClientTracker);
+    lenient().when(aweSession.isAuthenticated()).thenReturn(true);
+    lenient().when(aweSession.getParameter(String.class, AweConstants.SESSION_LAST_SCREEN)).thenReturn("Prev");
+    lenient().when(aweSession.getParameter(AweConstants.SESSION_KEEP_CRITERIA_HEADER + "Next")).thenReturn(nextCriteria);
+    lenient().doAnswer(invocation -> {
+      storedPreviousCriteria = invocation.getArgument(1);
+      return null;
+    }).when(aweSession).setParameter(eq(AweConstants.SESSION_KEEP_CRITERIA_HEADER + "Prev"), any());
+    lenient().when(menuService.getMenu()).thenReturn(new Menu());
+    lenient().when(menuService.getAvailableOptionScreen(eq("Next"), any(Menu.class)))
+      .thenReturn(new ScreenBuilder().setId("next-screen").setOnLoad("OnLoadMaintain").build());
+    lenient().when(maintainService.launchPrivateMaintain("OnLoadMaintain")).thenAnswer(invocation -> {
+      onLoadParameters = request.getParametersSafe();
+      return null;
+    });
+
+    screenService.getScreenData("Next", false);
+  }
+
+  @Test
+  void aFreshScreenRunsItsOnLoadWithItsOwnValues() throws Exception {
+    openNextScreenFrom(Map.of("prevValue", "previous", "option", "Next"), true);
+
+    assertEquals("next", onLoadParameters.get("x").asString());
+    assertFalse(onLoadParameters.has("prevValue"));
+    assertEquals("next-screen", onLoadParameters.get(AweConstants.JSON_SCREEN).asString());
+  }
+
+  @Test
+  void aFreshScreenStillKeepsTheCriteriaOfTheScreenLeft() throws Exception {
+    openNextScreenFrom(Map.of("prevValue", "previous", "option", "Next"), true);
+
+    assertEquals("previous", storedPreviousCriteria.get("prevValue").asString());
+  }
+
+  @Test
+  void aScreenWithoutTheFreshFlagRunsItsOnLoadWithTheRequestValues() throws Exception {
+    openNextScreenFrom(Map.of("prevValue", "previous", "option", "Next"), false);
+
+    assertEquals("previous", onLoadParameters.get("prevValue").asString());
   }
 
   @Test

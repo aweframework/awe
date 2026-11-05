@@ -218,7 +218,7 @@ aweApplication.directive('aweOption',
                   ActionController.closeAllActions();
 
                   // All action list to stack
-                  ActionController.addActionList(scope.controller.actions, true, {address: scope.address, context: scope.context});
+                  ActionController.addActionList(scope.controller.actions.map(a => ({...a, origin: "menu"})), true, {address: scope.address, context: scope.context});
 
                   // Emit option clicked
                   scope.$emit("optionClicked");

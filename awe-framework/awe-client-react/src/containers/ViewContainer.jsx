@@ -77,7 +77,7 @@ function ViewContainer() {
         endInitialLoad();
       }
     };
-    Promise.resolve(dispatch(loadScreen(VIEW, screenId, t))).then(endLoad, endInitialLoad);
+    Promise.resolve(dispatch(loadScreen(VIEW, screenId, t, location.state?.freshScreen))).then(endLoad, endInitialLoad);
   }, [dispatch, screenId, screenReloadToken]);
 
   return view.loading ? <AweScreenSkeleton /> : (

@@ -7,7 +7,7 @@ export const routeMethods = {
   "screenData": ["$stateParams", (p) => routeMethods.view(p)],
   "template": (p) => {
     fixParameters(p);
-    return angular.element('body').injector().get('ServerData').getScreenData(routeMethods.screen(p), routeMethods.view(p));
+    return angular.element('body').injector().get('ServerData').getScreenData(routeMethods.screen(p), routeMethods.view(p), p.freshScreen === true);
   },
   "view": (p) => "subScreenId" in p ? "report" : "base",
   "screen": (p) => "subScreenId" in p ? p.subScreenId.split("?")[0] : "screenId" in p ? p.screenId.split("?")[0] : null
@@ -19,9 +19,9 @@ const viewControllerData = {"controller": "ViewController", "template": routeMet
 // Set up states
 export const states = [
   {"name": 'index', "url": "/", "views": {"base": {...viewControllerData}}},
-  {"name": 'global', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData}}, "params": {"r": null}},
+  {"name": 'global', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData}}, "params": {"r": null, "freshScreen": null}},
   {"name": 'public', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
-  {"name": 'public.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.public}}}, "params": {"r": null}},
+  {"name": 'public.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.public}}}, "params": {"r": null, "freshScreen": null}},
   {"name": 'private', "url": "/screen/private/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
-  {"name": 'private.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.private}}}, "params": {"r": null}}
+  {"name": 'private.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.private}}}, "params": {"r": null, "freshScreen": null}}
 ];

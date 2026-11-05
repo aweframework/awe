@@ -23,6 +23,9 @@ const FLYOUT_CLOSE_DELAY = 220;
 const FLYOUT_OFFSET = 4;
 const FLYOUT_MARGIN = 8;
 
+// The actions of a menu option do not send the values of the screen the menu leaves
+const stampMenuOrigin = (actions) => actions.map(action => ({ ...action, origin: "menu" }));
+
 /**
  * Whether the vertical menu of an element is collapsed to the rail
  * @param {Element} element Element of the menu
@@ -185,7 +188,7 @@ function optionToItem(option, props) {
       command: () => {
         onLaunch?.();
         deleteStack();
-        addActionsTop(actions);
+        addActionsTop(stampMenuOrigin(actions));
       }
     } : {})
   };
@@ -336,7 +339,7 @@ function AweMenu(props) {
   // Launch a selected option exactly as clicking the leaf in the menu would
   const onSelectOption = useCallback((option) => {
     dispatch(deleteStack());
-    dispatch(addActionsTop(option.actions));
+    dispatch(addActionsTop(stampMenuOrigin(option.actions)));
   }, [dispatch]);
 
   const search = searchEnabled && model.length > 0 ? (

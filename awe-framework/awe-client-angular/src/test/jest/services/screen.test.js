@@ -71,7 +71,7 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/signin", false);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.signin",
-      {screen: "signin"},
+      {screen: "signin", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
@@ -117,7 +117,7 @@ describe("Screen", () => {
 
     expect($state.transitionTo).toHaveBeenCalledWith(
       $state.current,
-      {},
+      {freshScreen: null},
       expect.objectContaining({reload: false, inherit: true, notify: true, location: false})
     );
     expect($windowMock.history.back).toHaveBeenCalled();
@@ -331,7 +331,7 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/report", false);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.report",
-      {screen: "report"},
+      {screen: "report", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
@@ -349,11 +349,31 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/current", true);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.current",
-      {screen: "current"},
+      {screen: "current", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($screen.reload).not.toHaveBeenCalled();
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
+  });
+
+  it("navigates with a fresh screen only when the action comes from the menu", () => {
+    jest.spyOn($utilities, "sameUrl").mockReturnValue(false);
+    jest.spyOn($utilities, "getState").mockReturnValue({to: "base.signin", parameters: {screen: "signin"}});
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    $screen.screen(action({parameters: {target: "signin"}, origin: "menu"}));
+    $screen.screen(action({parameters: {target: "signin"}}));
+
+    expect($state.transitionTo.mock.calls[0][1]).toEqual({screen: "signin", freshScreen: true});
+    expect($state.transitionTo.mock.calls[1][1]).toEqual({screen: "signin", freshScreen: null});
+  });
+
+  it("reloads the current screen fresh only when the action comes from the menu", () => {
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    $screen.reload(action({origin: "menu"}));
+
+    expect($state.transitionTo.mock.calls[0][1]).toEqual({freshScreen: true});
   });
 
   it("stores screen data without queueing action lists when no server actions are provided", () => {

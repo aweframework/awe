@@ -22,11 +22,13 @@ aweApplication.factory('ServerData',
          * Retrieve a screen template code
          * @param {String} screen Screen name
          * @param {String} view Screen view
+         * @param {Boolean} fresh Opened from the menu: the server does not give the values sent to the new screen
          * @returns {String} Screen template
          */
-        getScreenData: function (screen, view) {
+        getScreenData: function (screen, view, fresh = false) {
           let parameters = {
             ...ServerData.getFormValues(),
+            ...(fresh ? {freshScreen: true} : {}),
             view
           };
           let screenToRetrieve = "initial screen";
@@ -286,12 +288,15 @@ aweApplication.factory('ServerData',
          * @param {*} args Method arguments
          * @returns {Object} Data of the screen
          */
-        getScreenValues: function (method, args) {
+        getScreenValues: function (method, args, onlyView) {
           let model = {};
           let api = Storage.get("api");
 
           // Retrieve components from each view (the row detail instances are not screen components)
           _.each(api, function (view, viewId) {
+            if (onlyView && viewId !== onlyView) {
+              return;
+            }
             _.each(view, function (component, componentId) {
               if (!ServerData.isRowDetailComponent(viewId, componentId)) {
                 model = ServerData.getComponentData(component, model, method, args);
@@ -305,9 +310,10 @@ aweApplication.factory('ServerData',
         /**
          * Retrieve the updated model
          * @param {Object} address Address of the component that sends the values: a grid row detail instance adds its own
+         * @param {String} onlyView Retrieve only the values of this view
          */
-        getFormValues: function (address = null) {
-          return {...ServerData.getScreenValues("getData"), ...ServerData.getRowDetailValues(address, "getData")};
+        getFormValues: function (address = null, onlyView = undefined) {
+          return {...ServerData.getScreenValues("getData", undefined, onlyView), ...ServerData.getRowDetailValues(address, "getData")};
         },
         /**
          * Retrieve the updated model for printing

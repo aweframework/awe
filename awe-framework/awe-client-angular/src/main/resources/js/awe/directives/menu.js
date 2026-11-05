@@ -249,7 +249,7 @@ aweApplication.directive('aweMenu',
             let option = entry && entry.option;
             if (option && option.actions) {
               $actionController.closeAllActions();
-              $actionController.addActionList(option.actions, true, {});
+              $actionController.addActionList(option.actions.map(a => ({...a, origin: "menu"})), true, {});
               scope.$emit("optionClicked");
             }
             scope.closeSearch();
