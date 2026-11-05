@@ -655,9 +655,12 @@ export function fixModel(model: ComponentModelData, isGrid: boolean): ComponentM
  * @param {object} model Component model, already fixed
  * @param {Array} defaultValues Default values the server sent, undefined when it did not send them
  * @param {boolean} isGrid Component is a grid (a grid has no default selection)
+ * @param {boolean} ownOptions The options are all the component can select (a checkbox or a radio): a default value that
+ * is not one of them, as the 0 keep-criteria stores for an unchecked checkbox, is no selection
  * @return {object} Model with the default values selected
  */
-export function fixDefaultModel(model: ComponentModelData, defaultValues: unknown, isGrid: boolean): ComponentModelData {
+export function fixDefaultModel(model: ComponentModelData, defaultValues: unknown, isGrid: boolean,
+                                ownOptions = false): ComponentModelData {
   if (isGrid || !Array.isArray(defaultValues) || defaultValues.length === 0) {
     return model;
   }
@@ -665,9 +668,10 @@ export function fixDefaultModel(model: ComponentModelData, defaultValues: unknow
   const keys = new Set(defaults.map(value => String(value?.value)));
   const values = (model.values || []).map(value => ({...value, selected: keys.has(String(value.value))}));
   const present = new Set(values.map(value => String(value.value)));
+  const missing = ownOptions ? [] : defaults.filter(value => !present.has(String(value?.value)));
   return {
     ...model,
-    values: [...values, ...defaults.filter(value => !present.has(String(value?.value))).map(value => ({...value, selected: true}))]
+    values: [...values, ...missing.map(value => ({...value, selected: true}))]
   };
 }
 

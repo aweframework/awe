@@ -505,6 +505,20 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
     });
   });
 
+  describe('buildComponent', () => {
+    // #923: keep-criteria stores an unchecked checkbox as 0, which is not one of its options
+    it.each(['checkbox', 'radio'])('does not add a default value that is not the option of a %s', type => {
+      const component = screenThunks.buildComponent('base', {
+        id: 'ShowAll',
+        controller: {id: 'ShowAll', component: type},
+        model: {selected: [0], defaultValues: [0], values: [{value: '1', label: 'Show all'}]}
+      }, {});
+
+      expect(component.model.values).toEqual([{value: '1', label: 'Show all', selected: false}]);
+      expect(component.defaultModel.values).toEqual([{value: '1', label: 'Show all', selected: false}]);
+    });
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
     delete global.fetch;
