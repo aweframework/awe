@@ -47,14 +47,23 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
     expect(btn).toBeTruthy();
     // classes
     expect(btn.className).toContain('help-button-btn1');
-    expect(btn.className).toContain('mr-2');
-    expect(btn.className).toContain('mt-2');
     expect(btn.className).toContain('p-button-outlined'); // normal type
     expect(btn.className).toContain('p-button-lg');
-    expect(btn.className).toContain('text-lg');
+    // the utility classes are !important and beat the design tokens: size and spacing come from tokens (#928)
+    expect(btn.className).not.toMatch(/(^|\s)(text-|mr-2|mt-2)/);
     expect(btn.className).toContain('my-style');
     // enabled by default
     expect(btn.hasAttribute('disabled')).toBe(false);
+  });
+
+  it('does not size the icon with a utility class either', () => {
+    const preloadedState = baseState();
+    preloadedState.components.btn1.attributes.icon = 'fa-save';
+    const { container } = renderWithProviders(<AweButton id="btn1" />, { preloadedState });
+
+    const icon = container.querySelector('#btn1 .p-button-icon');
+    expect(icon).toBeTruthy();
+    expect(icon.className).not.toMatch(/(^|\s)text-/);
   });
 
   it('adds hidden class when visible=false', () => {
@@ -205,6 +214,7 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
       const skeleton = container.querySelector("[data-testid='loader']");
       expect(skeleton.querySelector('.p-skeleton').style.width).toBe('14ch');
       expect(skeleton.classList.contains('awe-skeleton-lg')).toBe(true);
+      expect(skeleton.className).not.toMatch(/(^|\s)(mr-2|mt-2)/);
     });
 
     it('paints the button, and no skeleton, once it is registered', () => {

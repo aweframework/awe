@@ -35,6 +35,9 @@
     {"selector": "^\\.p-inputgroup-addon$", "property": "min-width", "value": "var(--awe-size-control)"},
 
     {"selector": "^\\.p-button$", "property": "padding", "value": "var(--awe-field-padding-y) var(--awe-button-padding-x)"},
+    {"selector": "^\\.p-button$", "property": "font-size", "value": "var(--awe-button-font-size)"},
+    {"selector": "^\\.p-button\\.p-button-sm( \\.p-button-icon)?$", "property": "font-size", "value": "var(--awe-button-font-size-sm)"},
+    {"selector": "^\\.p-button\\.p-button-lg( \\.p-button-icon)?$", "property": "font-size", "value": "var(--awe-button-font-size-lg)"},
     {"selector": "^\\.p-button\\.p-button-icon-only$", "property": "width", "value": "var(--awe-size-control)"},
     {"selector": "^\\.p-button\\.p-button-icon-only$", "property": "padding", "value": "var(--awe-field-padding-y) 0"},
     {"selector": "^\\.p-button\\.p-button-icon-only\\.p-button-rounded$", "property": "height", "value": "var(--awe-size-control)"},

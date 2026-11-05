@@ -63,7 +63,7 @@ function AweButton(props) {
   const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading, title } = attributes;
   // The btn-* styles of the screen give the look of the button, as in the AngularJS engine; without them, its type does
   const buttonVariant = signin?.variant ?? variant ?? getButtonVariant(style, getButtonType(buttonType));
-  const classes = classNames(`help-button-${id}`, className ?? ["mr-2", "mt-2"], buttonVariant, { "hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size }, style, signin?.className);
+  const classes = classNames(`help-button-${id}`, className ?? "awe-button-spaced", buttonVariant, { "hidden": !visible, [`p-button-${size}`]: size }, style, signin?.className);
   // An icon-only button (style no-label) shows its label as its tooltip (unless it has a help) and accessible name
   const iconOnly = !signin && isIconOnly(style);
   const text = translateLabel(label, t);
@@ -75,7 +75,7 @@ function AweButton(props) {
       id={id}
       type="button"
       className={classes}
-      icon={signin?.icon ?? getIconCode(icon || signin?.defaultIcon, classNames("p-button-icon", "p-c", "p-button-icon-left", { [`text-${size}`]: size }),)}
+      icon={signin?.icon ?? getIconCode(icon || signin?.defaultIcon, classNames("p-button-icon", "p-c", "p-button-icon-left"))}
       disabled={disabled || signin?.disabled}
       // Busy state unless show-loading="false"; the sign-in page draws its own
       showLoading={!signin && showLoading !== false}
