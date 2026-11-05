@@ -270,6 +270,17 @@ describe("components/menu.js", () => {
     expect(scope.search.open).toBe(false);
   });
 
+  it("launches the selected search result with the menu origin", () => {
+    const actionController = getService("ActionController");
+    jest.spyOn(actionController, "closeAllActions").mockImplementation(jest.fn());
+    const addActionList = jest.spyOn(actionController, "addActionList").mockImplementation(jest.fn());
+    const {scope} = compileMenu({style: "vertical"});
+
+    scope.selectResult({option: {name: "a", actions: [{type: "screen"}]}});
+
+    expect(addActionList.mock.calls[0][0]).toEqual([{type: "screen", origin: "menu"}]);
+  });
+
   it("closes the search on Escape and resets its state", () => {
     const {scope} = compileMenu({style: "vertical"});
 

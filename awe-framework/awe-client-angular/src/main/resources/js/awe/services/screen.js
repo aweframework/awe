@@ -49,7 +49,8 @@ aweApplication.factory("Screen",
           if (!$utilities.sameUrl(target, $location.url()) || reload) {
             // Redirect to the screen
             let state = $utilities.getState(target, reload);
-            $state.transitionTo(state.to, state.parameters, {reload: false, inherit: true, notify: true, location: true});
+            // A menu option opens the screen without the values of the screen it leaves
+            $state.transitionTo(state.to, {...state.parameters, freshScreen: action.attr("origin") === "menu" || null}, {reload: false, inherit: true, notify: true, location: true});
 
             // Finish screen action
             $actionController.acceptAction(action);
@@ -67,7 +68,7 @@ aweApplication.factory("Screen",
          */
         reload: function (action) {
           // Retrieve action parameters
-          $state.go($state.current, {}, {reload: false, inherit: true, notify: true, location: false});
+          $state.go($state.current, {freshScreen: action.attr("origin") === "menu" || null}, {reload: false, inherit: true, notify: true, location: false});
 
           // Finish screen action
           $actionController.acceptAction(action);

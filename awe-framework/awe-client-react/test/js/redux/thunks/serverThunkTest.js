@@ -98,6 +98,45 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       });
     });
 
+    describe('action launched from a menu option (#934)', () => {
+      const text = (view, id, value) => ({
+        address: {view, component: id},
+        attributes: {id, component: 'text'},
+        model: {values: [{value, label: value, selected: true}]},
+        storedModel: {values: [{value, label: value, selected: true}]}
+      });
+      const state = () => ({
+        settings: {token: 'token'},
+        components: {Menu: text('base', 'Menu', 'm'), Name: text('report', 'Name', 'leaked')}
+      });
+      const call = async (origin, answer = []) => {
+        global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve(answer)});
+        await serverAction({
+          type: 'server', origin, address: {view: 'base', component: 'Menu'},
+          parameters: {serverAction: 'screen', targetAction: 'target'}
+        })(dispatch, state);
+        return JSON.parse(global.fetch.mock.calls[0][1].body);
+      };
+
+      it('sends the values of the base view, not the ones of the report view', async () => {
+        const sent = await call('menu');
+
+        expect(sent.Menu).toBe('m');
+        expect(sent).not.toHaveProperty('Name');
+      });
+
+      it('keeps sending the values of every view when the action is not from a menu', async () => {
+        expect((await call(undefined)).Name).toBe('leaked');
+      });
+
+      it('passes its origin to the actions of the response', async () => {
+        await call('menu', [{type: 'screen'}]);
+
+        const added = dispatch.mock.calls.map(([c]) => c).find(c => c.type === 'ADD_ACTIONS_TOP');
+        expect(added.payload[0].origin).toBe('menu');
+      });
+    });
+
     describe('loading of the target', () => {
       const launcher = {view: 'report', component: 'ButSea'};
       const target = {view: 'report', component: 'ChrLinTst'};

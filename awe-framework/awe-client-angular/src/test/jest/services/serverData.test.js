@@ -186,6 +186,30 @@ describe("ServerData", function () {
     expect(instance.getPrintData).toHaveBeenCalledWith("PORTRAIT");
   });
 
+  it("sends only the base view values when asked for one view", function () {
+    const stored = {
+      api: {base: {CrtStatus: {getData: () => ({CrtStatus: "ACTIVE"})}}, report: {CrtName: {getData: () => ({CrtName: "Old"})}}},
+      controller: {}, model: {}
+    };
+    jest.spyOn($storage, "get").mockImplementation(key => stored[key]);
+
+    expect($serverData.getFormValues(null, "base")).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValues()).toEqual({CrtStatus: "ACTIVE", CrtName: "Old"});
+  });
+
+  it("retrieves the screen data with every value, flagging a fresh screen so the server keeps the criteria", async function () {
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({Base: 1, Report: 2});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.resolve({data: {template: "t"}}));
+
+    await $serverData.getScreenData("customer-list", "base", true);
+    expect($connection.post.mock.calls[0][1]).toMatchObject({Base: 1, Report: 2, freshScreen: true, template: true});
+
+    await $serverData.getScreenData("customer-list", "base");
+    expect($connection.post.mock.calls[1][1]).toHaveProperty("Report", 2);
+    expect($connection.post.mock.calls[1][1]).not.toHaveProperty("freshScreen");
+  });
+
   it("creates server actions and maintain actions with custom selector parameters", function () {
     jest.spyOn($storage, "get").mockReturnValue({center: {name: "report-screen"}});
     jest.spyOn($actionController, "addActionList").mockReturnValue("maintain-enqueued");

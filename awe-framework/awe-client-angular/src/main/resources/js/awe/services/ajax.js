@@ -183,6 +183,13 @@ aweApplication.factory('Ajax',
 
             // Add action list
             if (angular.isArray(data)) {
+              // The actions returned inherit the origin (the menu keeps its whole chain free of the screen values)
+              const origin = action.attr("origin");
+              if (origin) {
+                data.forEach(returned => {
+                  returned.origin = origin;
+                });
+              }
               $actionController.addActionList(data, false, {
                 address: action.attr("callbackTarget"),
                 context: action.attr("context")

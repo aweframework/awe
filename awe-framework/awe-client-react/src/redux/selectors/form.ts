@@ -57,6 +57,7 @@ function getCallerCellAddress(
  * @param t Translate function
  * @param forPrinting For printing
  * @param address Address of the component that sends the values: a grid row detail instance adds its own
+ * @param view Only the components of this view send their values (all the views when it is not given)
  * @return {object} Form values
  * @memberOf Components
  */
@@ -64,7 +65,8 @@ export const getFormValues = (
   state: RootState,
   forPrinting = false,
   t: (label: string) => string = (o) => o,
-  address: ComponentAddress | null = null
+  address: ComponentAddress | null = null,
+  view?: string
 ): Record<string, unknown> => {
   const components = getAllComponents(state);
   const { settings = {} as SettingsState } = state;
@@ -74,6 +76,7 @@ export const getFormValues = (
       operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues",
       componentKey
     }))
+    .filter(([, component]) => !view || component.address?.view === view)
     .reduce((result: Record<string, unknown>, [, component]) => {
       const values = getComponentData(component, { components, settings, t }, forPrinting);
       // The components that reach this point have a valid address: the others were filtered out above

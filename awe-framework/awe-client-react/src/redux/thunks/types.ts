@@ -12,6 +12,8 @@ export interface ClientAction extends ActionItem {
   target?: string;
   view?: string;
   silent?: boolean;
+  /** Where the action was launched from: a menu option sends no values of the screen it leaves */
+  origin?: string;
   parameters?: Record<string, unknown>;
 }
 

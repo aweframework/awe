@@ -9975,7 +9975,8 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
     const renderVerticalMenu = (option) => {
       MenuRegistry.setOptions(options);
       ViewRegistry.setView("report", {option, title: option});
-      renderWithProviders(<AweMenu id="menu" style="vertical"/>, {
+      return renderWithProviders(<AweMenu id="menu" style="vertical"/>, {
+        spyDispatch: true,
         preloadedState: {
           settings: DEFAULT_SETTINGS,
           screen: {size: {width: 100, height: 100}},
@@ -9985,6 +9986,15 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
         }
       });
     };
+
+    it('marks the actions of the launched option as coming from the menu (#934)', () => {
+      const {dispatchSpy} = renderVerticalMenu("screen-access");
+
+      fireEvent.click(document.querySelector("li.screen-access a"));
+
+      const added = dispatchSpy.mock.calls.map(([call]) => call).find(call => call.type === "ADD_ACTIONS_TOP");
+      expect(added.payload.map(action => action.origin)).toEqual(["menu"]);
+    });
 
     it('marks the option of the open screen as active', () => {
       renderVerticalMenu("screen-access");

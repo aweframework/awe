@@ -65,8 +65,8 @@ let downloadIdentifier = 0;
 let screenReloadIdentifier = 0;
 let themeAppearanceRequest = 0;
 
-function getScreenReloadState(): { screenReloadToken: number } {
-  return { screenReloadToken: ++screenReloadIdentifier };
+function getScreenReloadState(isFresh = false): { screenReloadToken: number; freshScreen?: boolean } {
+  return { screenReloadToken: ++screenReloadIdentifier, ...(isFresh ? { freshScreen: true } : {}) };
 }
 
 function resolveScreenTarget(screen: string, pathname: string, context?: string): string {
@@ -77,12 +77,12 @@ function resolveScreenTarget(screen: string, pathname: string, context?: string)
   return context ? `/${context}/${screen}` : `${pathname.split("/").slice(0, -1).join("/")}/${screen}`;
 }
 
-function getScreenNavigationOptions(isCurrentScreenReload: boolean, isRelativeRoute: boolean): Record<string, unknown> {
+function getScreenNavigationOptions(isCurrentScreenReload: boolean, isRelativeRoute: boolean, isFresh: boolean): Record<string, unknown> {
   if (isCurrentScreenReload) {
-    return { replace: true, relative: false, state: getScreenReloadState() };
+    return { replace: true, relative: false, state: getScreenReloadState(isFresh) };
   }
 
-  return { relative: isRelativeRoute ? "path" : false };
+  return { relative: isRelativeRoute ? "path" : false, ...(isFresh ? { state: { freshScreen: true } } : {}) };
 }
 
 /**
@@ -126,7 +126,9 @@ export function buildComponent(
   };
 }
 
-export const loadScreen = (view: string, option: string, t: Translate): AppThunk<Promise<void>> => async (dispatch, getState) => {
+// A fresh screen (opened from a menu option) is flagged so the server keeps the criteria of the screen it leaves but
+// does not give its values to the new screen
+export const loadScreen = (view: string, option: string, t: Translate, fresh = false): AppThunk<Promise<void>> => async (dispatch, getState) => {
   try {
     const state = getState();
     const { settings } = state;
@@ -156,7 +158,7 @@ export const loadScreen = (view: string, option: string, t: Translate): AppThunk
     // An error answer has no structure, but the message and the status of the error. The request has always sent an
     // empty object where the view goes
     const response = await fetchScreen<ScreenResponse>(
-      option, {} as unknown as string, token, getFormValues(state)
+      option, {} as unknown as string, token, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}) }
     ) as ScreenResponse & Partial<FetchError>;
     if (!response.structure) {
       manageScreenError(option, response);
@@ -233,7 +235,7 @@ export function screenAction(action: ScreenClientAction, pathname: string, curre
 
     if (target !== pathname || reload) {
       const navigationTarget = isCurrentScreenReload ? currentLocation : target;
-      dispatch(navigationActions.navigateTo(navigationTarget, getScreenNavigationOptions(isCurrentScreenReload, isRelativeRoute)));
+      dispatch(navigationActions.navigateTo(navigationTarget, getScreenNavigationOptions(isCurrentScreenReload, isRelativeRoute, action.origin === "menu")));
       dispatch(acceptAction(action));
     } else if (settings.reloadCurrentScreen) {
       dispatch(reloadScreenAction(action, currentLocation));
@@ -245,7 +247,7 @@ export function screenAction(action: ScreenClientAction, pathname: string, curre
 
 export function reloadScreenAction(action: ClientAction, pathname: string): AppThunk {
   return (dispatch) => {
-    dispatch(navigationActions.navigateTo(pathname, { replace: true, state: getScreenReloadState() }));
+    dispatch(navigationActions.navigateTo(pathname, { replace: true, state: getScreenReloadState(action.origin === "menu") }));
     dispatch(acceptAction(action));
   };
 }

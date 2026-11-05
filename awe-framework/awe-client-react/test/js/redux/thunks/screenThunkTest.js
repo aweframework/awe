@@ -231,6 +231,20 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(accept.type).toBe('ACCEPT_ACTION');
     });
 
+    it('navigates to a fresh screen when the action comes from a menu option (#934)', () => {
+      const action = { origin: 'menu', parameters: { screen: '/absoluta' }, target: '/absoluta' };
+      screenThunks.screenAction(action, '/otro')(dispatch, () => ({ settings: {} }));
+      const [nav] = dispatch.mock.calls.map(a => a[0]);
+      expect(nav.payload.options.state).toEqual({ freshScreen: true });
+    });
+
+    it('does not ask for a fresh screen when the action has no origin (#934)', () => {
+      const action = { parameters: { screen: '/absoluta' }, target: '/absoluta' };
+      screenThunks.screenAction(action, '/otro')(dispatch, () => ({ settings: {} }));
+      const [nav] = dispatch.mock.calls.map(a => a[0]);
+      expect(nav.payload.options.state).toBeUndefined();
+    });
+
     it('navega a ruta relativa usando context', () => {
       const action = { context: 'orders', parameters: { screen: 'list' }, target: 'list' };
       screenThunks.screenAction(action, '/app/home')(dispatch, () => ({ settings: {} }));
@@ -294,6 +308,36 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       await screenThunks.loadScreen('v', 'op', t)(dispatch, () => ({ settings: { token: 'TOK' } }));
       const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a.type === ADD_ACTIONS_TOP);
       expect(addTop).toBeDefined();
+    });
+
+    describe('values sent with the screen request (#934)', () => {
+      const text = (view, id, value) => ({
+        address: { view, component: id },
+        attributes: { id, component: 'text' },
+        model: { values: [{ value, label: value, selected: true }] },
+        storedModel: { values: [{ value, label: value, selected: true }] }
+      });
+      const load = async (...fresh) => {
+        jest.spyOn(window, 'fetch').mockResolvedValue({ status: 500, message: 'ERR' });
+        await screenThunks.loadScreen('base', 'op', (k) => k, ...fresh)(dispatch, () => ({
+          settings: {},
+          components: { Menu: text('base', 'Menu', 'm'), Name: text('report', 'Name', 'leaked') }
+        }));
+        return JSON.parse(window.fetch.mock.calls[0][1].body);
+      };
+
+      it('sends every value plus the fresh flag to a fresh screen, so the server can keep the criteria', async () => {
+        const sent = await load(true);
+        expect(sent.Menu).toBe('m');
+        expect(sent.Name).toBe('leaked');
+        expect(sent.freshScreen).toBe(true);
+      });
+
+      it('sends every value without the fresh flag otherwise', async () => {
+        const sent = await load();
+        expect(sent.Name).toBe('leaked');
+        expect(sent).not.toHaveProperty('freshScreen');
+      });
     });
 
     it('dispatches response.actions on initial screen load', async () => {

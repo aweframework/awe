@@ -33,7 +33,7 @@ function SubViewContainer() {
 
   useEffect(() => {
     // The initial load of the page ends with the sub screen, also when it fails
-    Promise.resolve(dispatch(loadScreen(VIEW, subScreenId, t))).then(endInitialLoad, endInitialLoad);
+    Promise.resolve(dispatch(loadScreen(VIEW, subScreenId, t, location.state?.freshScreen))).then(endInitialLoad, endInitialLoad);
     return () => {
       ViewRegistry.clearView(VIEW);
     };

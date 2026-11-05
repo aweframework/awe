@@ -88,6 +88,14 @@ Dentro de la opción de herramientas hay un conjunto de opciones, algunas de ell
 | menu-screen | Opcional        | Boolean | La opción es una pantalla autogenerada con sub opciones                                                                                                                                                                       | Ver [ventana de opciones](#menu-screen) para más información                                                               |
 | expanded    | Opcional        | Boolean | Si se establece en true, la opción se mostrará inicialmente expandida (solo en menús verticales)                                                                                                                              | El valor predeterminado es `false`                                                                                         |
 
+### Valores enviados al pulsar una opción {#option-values}
+
+Al pulsar una opción del menú se abre su pantalla sin los valores de la pantalla que se abandona: no se pasan al
+mantenimiento `on-load` de la nueva pantalla, y la acción de servidor de la opción solo envía los valores de los
+componentes del marco principal (el menú y la cabecera). Los criterios de la pantalla abandonada se siguen guardando, por
+lo que `keep-criteria` sigue funcionando. Las acciones `screen` lanzadas desde dentro de una pantalla (botones, acciones
+de grid, servicios) siguen enviando los valores de la pantalla.
+
 ## Ventana de opciones {#menu-screen}
 
 La **ventana de opciones** es un nuevo tipo de pantalla autogenerada que contiene una lista de botones con las opciones definidas dentro de la opción de tipo `menu-screen`. La visibilidad de estos botones se puede gestionar con las pantallas de configuración de acceso a opciones de menú.

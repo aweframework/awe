@@ -132,6 +132,17 @@ describe("Ajax", () => {
     });
   });
 
+  it("passes the origin of the action to the actions it returns", () => {
+    const action = new Action();
+    action.attr("origin", "menu");
+    jest.spyOn($utilities, "decodeData").mockReturnValue([{type: "screen"}, {type: "message"}]);
+    jest.spyOn($actionController, "addActionList").mockReturnValue(undefined);
+
+    $ajax.manageMessage({data: []}, action);
+
+    expect($actionController.addActionList.mock.calls[0][0].map(a => a.origin)).toEqual(["menu", "menu"]);
+  });
+
   it("does not enqueue non-array response data or actions that are no longer alive", () => {
     const aliveAction = new Action();
     const deadAction = new Action();

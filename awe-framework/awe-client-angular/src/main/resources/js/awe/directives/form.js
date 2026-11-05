@@ -138,7 +138,8 @@ aweApplication.directive('aweForm',
         server: function (action) {
           // Launch server action with form values
           // The components of a grid row detail instance also send the values of their instance
-          ServerData.launchServerAction(action, ServerData.getFormValues(action.attr("callbackTarget")), false);
+          // A menu action sends only the base view values: the report view belongs to the screen it leaves
+          ServerData.launchServerAction(action, ServerData.getFormValues(action.attr("callbackTarget"), action.attr("origin") === "menu" ? "base" : undefined), false);
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)

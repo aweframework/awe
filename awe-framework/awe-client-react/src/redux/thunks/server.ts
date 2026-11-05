@@ -24,7 +24,7 @@ export const serverAction = (
 ): AppThunk<Promise<boolean>> => {
   return async (dispatch, getState) => {
     const { settings } = getState();
-    const { parameters, target, address } = action;
+    const { parameters, target, address, origin } = action;
     const component = address?.component;
     const { serverAction, targetAction } = parameters;
     // The target of the action loads until its response (fill, end-load...) arrives, as in the AngularJS client
@@ -48,7 +48,7 @@ export const serverAction = (
         // Form values win over the action parameters (as in the AngularJS client): the action always carries
         // null target, value and label, which would otherwise wipe a component or column with that name. The
         // components of a grid row detail instance also send the values of their instance
-        { ...parameters, ...getFormValues(getState(), forPrinting, t, address) },
+        { ...parameters, ...getFormValues(getState(), forPrinting, t, address, origin === "menu" ? "base" : undefined) },
         settings.token,
         null
       ) as ClientAction[];
@@ -57,7 +57,8 @@ export const serverAction = (
       dispatch(addActionsTop(
         response.map(a => ({
           ...a,
-          address: { ...address, component: target || component, ...(a.address || {}) }
+          address: { ...address, component: target || component, ...(a.address || {}) },
+          ...(origin ? { origin } : {})
         }))
       ));
 

@@ -49,6 +49,7 @@ public class AweConstants {
   // Parameters
   public static final String PARAMETER_VIEW = "view";
   public static final String PARAMETER_OPTION = "option";
+  public static final String PARAMETER_FRESH_SCREEN = "freshScreen";
   public static final String PARAMETER_ADDRESS = "address";
   public static final String PARAMETER_DESTINATION = "destination";
   public static final String PARAMETER_TARGET = "target";
