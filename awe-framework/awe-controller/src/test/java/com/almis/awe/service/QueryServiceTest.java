@@ -21,6 +21,7 @@ import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.ColumnFilterType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,9 @@ class QueryServiceTest {
 
   @InjectMocks
   private QueryService queryService;
+
+  @Mock
+  private TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   @Mock
   private ApplicationContext context;
@@ -306,7 +310,7 @@ class QueryServiceTest {
         return locale + " " + String.join(",", parameters);
       }
     };
-    QueryService service = new QueryService(queryLauncher, realQueryUtil);
+    QueryService service = new QueryService(queryLauncher, realQueryUtil, (targetId, kind) -> true);
     service.setApplicationContext(context);
     when(aweRequest.getTargetAction()).thenReturn("QryUsers");
     return service;

@@ -1,8 +1,11 @@
 package com.almis.awe.security.authorization;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
@@ -12,6 +15,7 @@ import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.almis.awe.model.entities.screen.component.action.Dependency;
 import com.almis.awe.model.entities.screen.component.criteria.Criteria;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
+import com.almis.awe.service.menu.MenuOptionLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,8 @@ class ScreenTargetIndexTest {
 
   @Mock private ApplicationContext applicationContext;
   @Mock private AweElements aweElements;
+  @Mock private AweSession aweSession;
+  @Mock private MenuOptionLookup menuOptionLookup;
 
   private ScreenTargetIndex index;
   private Menu privateMenu;
@@ -171,6 +177,27 @@ class ScreenTargetIndexTest {
     assertThat(index.getOptionsUsing("DynamicTarget")).isEmpty();
     assertThat(index.getOptionsUsing("MenuTarget")).isEmpty();
     assertThat(index.getOptionsUsing("ServiceTarget")).isEmpty();
+  }
+
+  @Test
+  @DisplayName("A target shared by a static screen and a dynamic option is refused to a user who can only open the "
+    + "dynamic option (documented limit)")
+  void sharedWithDynamicScreenIsRefusedToDynamicOnlyUser() throws Exception {
+    Option dynamic = option("dynamicOption", "dynamicScreen");
+    dynamic.setDynamicScreen(true);
+    screen("dynamicScreen", button("Shared"));
+    screen("staticScreen", button("Shared"));
+    privateMenu.addElement(option("staticOption", "staticScreen"));
+    privateMenu.addElement(dynamic);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweSession.isAuthenticated()).thenReturn(true);
+    when(menuOptionLookup.isAvailableOption("dynamicOption", AweConstants.PRIVATE_MENU)).thenReturn(true);
+    ScreenTargetAuthorizer authorizer = new ScreenTargetAuthorizer(new SecurityConfigProperties(), index,
+      menuOptionLookup);
+    authorizer.setApplicationContext(applicationContext);
+
+    assertThat(index.getOptionsUsing("Shared")).containsExactly("staticOption");
+    assertThat(authorizer.authorize("Shared", TargetKind.MAINTAIN)).isFalse();
   }
 
   @Test

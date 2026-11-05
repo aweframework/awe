@@ -92,7 +92,7 @@ class ExecutionOutcomeTest {
   }
 
   private MaintainService maintainService(MaintainLauncher launcher, AnswerTypeObserver observer) {
-    MaintainService service = new MaintainService(launcher, null, mock(DatabaseConfigProperties.class));
+    MaintainService service = new MaintainService(launcher, null, mock(DatabaseConfigProperties.class), (targetId, kind) -> true);
     ApplicationContext context = mock(ApplicationContext.class);
     AweElements elements = mock(AweElements.class);
     when(context.getBean(AweElements.class)).thenReturn(elements);

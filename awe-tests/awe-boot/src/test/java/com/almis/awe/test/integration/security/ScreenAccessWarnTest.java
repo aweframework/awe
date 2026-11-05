@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("integration")
 @DisplayName("Screen access warn tests")
 @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
-@TestPropertySource(properties = {"awe.security.screen-access=warn", "awe.security.default-restriction=operator"})
+@TestPropertySource(properties = {"awe.security.authorization.mode=warn", "awe.security.default-restriction=operator"})
 class ScreenAccessWarnTest extends ScreenAccessSupport {
 
   @Test

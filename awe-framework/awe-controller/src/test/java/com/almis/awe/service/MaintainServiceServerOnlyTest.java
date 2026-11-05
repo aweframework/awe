@@ -59,7 +59,7 @@ class MaintainServiceServerOnlyTest {
 
   @BeforeEach
   void setUp() {
-    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, (targetId, kind) -> true);
     maintainService.setApplicationContext(applicationContext);
 
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);

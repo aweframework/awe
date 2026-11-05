@@ -121,7 +121,7 @@ The *query* element has the following attributes:
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
 
 :::info Screen access
-When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.screen-access`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
+When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.authorization.mode`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
 :::
 
 #### Server-only queries {#server-only-queries}

@@ -9,7 +9,8 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
@@ -47,20 +47,17 @@ class QueryServiceScreenAccessTest {
   @Mock private AweElements aweElements;
   @Mock private AweRequest aweRequest;
   @Mock private AweSession aweSession;
-  @Mock private ScreenTargetAuthorizer authorizer;
-  @Mock private ObjectProvider<ScreenTargetAuthorizer> authorizerProvider;
+  @Mock private TargetLaunchAuthorizer authorizer;
 
   private QueryService queryService;
 
   @BeforeEach
   void setUp() throws Exception {
-    queryService = new QueryService(queryLauncher, queryUtil);
+    queryService = new QueryService(queryLauncher, queryUtil, authorizer);
     queryService.setApplicationContext(applicationContext);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    when(applicationContext.getBeanProvider(ScreenTargetAuthorizer.class)).thenReturn(authorizerProvider);
-    when(authorizerProvider.getIfAvailable()).thenReturn(authorizer);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");
     when(aweSession.isAuthenticated()).thenReturn(true);
@@ -73,18 +70,18 @@ class QueryServiceScreenAccessTest {
     when(queryLauncher.launchQuery(any(Query.class), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
     when(aweElements.getQuery(QUERY)).thenReturn(new Query());
-    when(authorizer.authorize(QUERY, ScreenTargetAuthorizer.Kind.QUERY)).thenReturn(true);
+    when(authorizer.authorize(QUERY, TargetKind.QUERY)).thenReturn(true);
   }
 
   private void refuse() {
-    when(authorizer.authorize(QUERY, ScreenTargetAuthorizer.Kind.QUERY)).thenReturn(false);
+    when(authorizer.authorize(QUERY, TargetKind.QUERY)).thenReturn(false);
   }
 
   @Test
   @DisplayName("A client query launch the authorizer allows goes on")
   void allowedLaunchGoesOn() throws Exception {
     assertThat(queryService.launchQuery(QUERY)).isNotNull();
-    verify(authorizer).authorize(QUERY, ScreenTargetAuthorizer.Kind.QUERY);
+    verify(authorizer).authorize(QUERY, TargetKind.QUERY);
   }
 
   @Test
@@ -136,10 +133,10 @@ class QueryServiceScreenAccessTest {
   }
 
   @Test
-  @DisplayName("Without an authorizer bean the query launch is not checked")
-  void withoutAuthorizerBean() throws Exception {
-    when(authorizerProvider.getIfAvailable()).thenReturn(null);
-
-    assertThat(queryService.launchQuery(QUERY)).isNotNull();
+  @DisplayName("The query service cannot be built without an authorizer")
+  void authorizerIsRequired() {
+    assertThatThrownBy(() -> new QueryService(queryLauncher, queryUtil, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 }

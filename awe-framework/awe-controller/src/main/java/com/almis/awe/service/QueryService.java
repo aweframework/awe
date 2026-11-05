@@ -15,7 +15,8 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
@@ -29,6 +30,7 @@ import tools.jackson.databind.node.ObjectNode;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides methods to retrieve application data
@@ -41,6 +43,7 @@ public class QueryService extends ServiceConfig {
   // Autowired services
   private final QueryLauncher queryLauncher;
   private final QueryUtil queryUtil;
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   // Constants
   private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
@@ -51,12 +54,15 @@ public class QueryService extends ServiceConfig {
   /**
    * Autowired constructor
    *
-   * @param queryLauncher Query launcher
-   * @param queryUtil     Query utilities
+   * @param queryLauncher          Query launcher
+   * @param queryUtil              Query utilities
+   * @param targetLaunchAuthorizer Authorizer of the queries launched by a client
    */
-  public QueryService(QueryLauncher queryLauncher, QueryUtil queryUtil) {
+  public QueryService(QueryLauncher queryLauncher, QueryUtil queryUtil, TargetLaunchAuthorizer targetLaunchAuthorizer) {
     this.queryLauncher = queryLauncher;
     this.queryUtil = queryUtil;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 
   /**
@@ -520,9 +526,8 @@ public class QueryService extends ServiceConfig {
       if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
         throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
       }
-      // A private query used by screens can only be launched by a user that can open one of them
-      if (checkAvailable && !query.isPublic()
-        && !ScreenTargetAuthorizer.isAllowed(getApplicationContext(), queryName, ScreenTargetAuthorizer.Kind.QUERY)) {
+      // A private query launched by a client goes on only when the authorizers allow it
+      if (checkAvailable && !query.isPublic() && !targetLaunchAuthorizer.authorize(queryName, TargetKind.QUERY)) {
         throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
       }
     } else {
