@@ -48,6 +48,16 @@ describe("uiSelect2", () => {
     delete $.fn.select2;
   });
 
+  it("asks select2 to keep the summary class of a select multiple in every sync of its classes (#922)", () => {
+    const container = $("<div class='select2-container-multi'><ul class='select2-choices'><li class='select2-search-field'><input/></li></ul></div>");
+    select2Spy.mockImplementation(function select2(method) {
+      return method === "container" ? container : this;
+    });
+    compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component: {onPluginInit: jest.fn()}, aweSelectOptions: {summary: true}, initialized: true});
+
+    expect(select2Spy.mock.calls[0][0]).toEqual(expect.objectContaining({containerCssClass: "awe-select-summary"}));
+  });
+
   it("translates placeholders on initialization and exposes fill/select methods through the component API", () => {
     const component = {onPluginInit: jest.fn()};
     const {scope} = compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component, aweSelectOptions: {placeholder: "SCREEN_TEXT_USER"}, initialized: true});

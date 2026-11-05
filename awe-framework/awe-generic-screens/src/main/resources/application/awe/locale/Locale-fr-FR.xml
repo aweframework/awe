@@ -823,6 +823,7 @@
   <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
   <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Rechercher des files"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Retirer le filtre"/>
+  <locale name="SCREEN_TEXT_REMOVE_VALUE" value="Retirer {{label}}"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renommer"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Rétablir les valeurs par défaut"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Recherches enregistrées"/>
@@ -1744,6 +1745,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="Dernier identifiant remis par AWE pour ce nom ; il est incrémenté à chaque nouvel enregistrement."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Mettre de nom de fichier sans extension"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Choisi"/>
+  <locale name="SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL" value="+{{count}} valeurs sélectionnées, tout afficher"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Les serveurs"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Réglages"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>

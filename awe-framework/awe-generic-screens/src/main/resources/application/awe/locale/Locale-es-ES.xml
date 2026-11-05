@@ -826,6 +826,7 @@
   <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
   <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Buscar colas"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
+  <locale name="SCREEN_TEXT_REMOVE_VALUE" value="Quitar {{label}}"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renombrar"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Restablecer valores por defecto"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Búsquedas guardadas"/>
@@ -1747,6 +1748,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="Último identificador que AWE ha entregado para este nombre; se incrementa con cada registro nuevo."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Poner nombre de archivo sin la extensión"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Seleccionados"/>
+  <locale name="SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL" value="+{{count}} valores seleccionados, mostrar todos"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servidores"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Opciones"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>

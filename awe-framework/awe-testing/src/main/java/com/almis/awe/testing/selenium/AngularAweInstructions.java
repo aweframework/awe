@@ -436,6 +436,12 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_CHOICE_CLOSE)));
   }
 
+  @Override
+  public boolean multipleChoiceClearsWithKeyboard() {
+    // The one-line select2 multiple (#922) hides the remove link of its chips
+    return true;
+  }
+
   public By getSuggestResult(String match) {
     return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), XpathLiterals.of(match)));
   }

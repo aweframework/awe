@@ -162,6 +162,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String placeholder;
 
+  // How a select-multiple shows its values (chip: the chips of the client, which grow with the values)
+  @XStreamAlias("display")
+  @XStreamAsAttribute
+  private String display;
+
   // Text area rows
   @XStreamAlias("area-rows")
   @XStreamAsAttribute

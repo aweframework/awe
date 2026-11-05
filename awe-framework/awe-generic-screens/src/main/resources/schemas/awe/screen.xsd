@@ -748,6 +748,16 @@
         <xs:documentation xml:lang="en">Size of the input: xs, sm, md or lg. Default: md (property awe.component.size).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="display">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Select-multiple criteria only. By default React shows the chips that fit in one line and a +K counter that lists all the values. chip keeps the chips of PrimeReact, one remove icon each, which grow with the values. AngularJS ignores it.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="chip"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="area-rows" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Textarea only. Number of visible rows. Without it the browser default applies.</xs:documentation>

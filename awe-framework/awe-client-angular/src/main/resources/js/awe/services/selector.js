@@ -365,8 +365,10 @@ aweApplication.factory('Selector',
           selector.initializable = initializable;
           return selector.asSuggest();
         };
-        this.component.asSelectMultiple = function () {
+        this.component.asSelectMultiple = function (summary) {
           selector.multiple = true;
+          // A criteria select multiple shows its values as one line (#922), unless it asks for the chips (display="chip")
+          selector.summary = summary === true;
           return selector.asSelect();
         };
         this.component.asSuggestMultiple = function (initializable) {
@@ -399,6 +401,7 @@ aweApplication.factory('Selector',
            */
           let options = {
             allowClear: component.controller && component.controller.optional,
+            summary: selector.summary && component.controller.display !== "chip",
             minimumResultsForSearch: 5,
             multiple: selector.multiple,
             query: function (query) {

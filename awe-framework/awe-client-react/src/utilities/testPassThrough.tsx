@@ -79,6 +79,7 @@ export interface DropdownPassThrough {
  */
 export interface MultiSelectPassThrough {
   root: TestHook;
+  label: TestHook;
   token: TestHook;
   removeTokenIcon: TestHook;
   trigger: TestHook;
@@ -355,6 +356,7 @@ export function dropdownPassThrough(owner: string): DropdownPassThrough {
 export function multiSelectPassThrough(owner: string): MultiSelectPassThrough {
   return {
     root: testHook(TestIds.select),
+    label: testHook(TestIds.selectValue),
     token: testHook(TestIds.selectChoice),
     removeTokenIcon: testHook(TestIds.selectChoiceClose),
     trigger: testHook(TestIds.selectTrigger),

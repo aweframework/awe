@@ -33,6 +33,7 @@ export interface AbstractCriteria extends Component {
     dateFormat?: string;
     dateViewMode?: string;
     destination?: string;
+    display?: string;
     dropZone?: boolean;
     formule?: string;
     group?: string;

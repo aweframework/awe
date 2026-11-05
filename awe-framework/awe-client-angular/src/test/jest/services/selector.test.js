@@ -61,7 +61,7 @@ describe("Selector", function () {
         component.asSelect();
         break;
       case "selectMultiple":
-        component.asSelectMultiple();
+        component.asSelectMultiple(options.summary);
         break;
       case "suggest":
         component.asSuggest();
@@ -90,6 +90,17 @@ describe("Selector", function () {
     expect(emptyInitCallback).toHaveBeenCalledWith([]);
     expect(select.model.selected).toBeNull();
     expect(multi.component.getData()).toEqual({CrtMulti: ["A"]});
+  });
+
+  it.each([
+    ["a criteria select multiple", true, undefined, true],
+    ["a criteria select multiple with display chip", true, "chip", false],
+    ["a select multiple outside the criteria", undefined, undefined, false]
+  ])("asks for the one line summary only for %s", function (title, summary, display, expected) {
+    installSelectorSpies();
+    const multi = createSelector("selectMultiple", {summary, controller: {display}});
+
+    expect(!!multi.scope.aweSelectOptions.summary).toBe(expected);
   });
 
   it("updates select state from plugin changes, listeners, and initialized fill/select calls", function () {

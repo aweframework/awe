@@ -896,8 +896,8 @@ so a test can tell which component opened them.
 |---|---|---|
 | `criterion-input` | The real control of the criterion: the `input`, `textarea`, checkbox, radio or hidden input, the value of a text view, or the file chooser of an uploader. In a select or suggest it is the hidden input that holds the value: interact with `select`. The editors of the cells of an editable grid carry it too | Inside `[criterion-id='X']`, or inside the grid cell |
 | `select` | Visible select2 container of a select or suggest (the element to click) | Inside `[criterion-id='X']` |
-| `select-value` | Chosen value of a single select | Inside `[criterion-id='X']` |
-| `select-choice`, `select-choice-close` | One chosen item of a multiple select or suggest, and the link that removes it | Inside `[criterion-id='X']` |
+| `select-value` | Chosen value of a single select, and the chips of a multiple select with its `+K` counter (React) | Inside `[criterion-id='X']` |
+| `select-choice`, `select-choice-close` | One chosen item of a multiple select or suggest, and the link that removes it. In the React multiple select the chips carry `select-choice` and the remove buttons of the `+K` popover carry `select-choice-close`; the chips have no remove link, and the `+K` counter is the `button[aria-haspopup=dialog]` of the field | Inside `[criterion-id='X']` |
 | `select-search` | Search input (the one in the dropdown for a single select, the one in the container for a multiple select) | Dropdown, or inside `[criterion-id='X']` |
 | `select-dropdown` | The open dropdown. Only the open dropdown carries the hook | End of `<body>`, with `data-testid-owner` |
 | `select-option` | One option of the open dropdown | Inside the dropdown, with `data-testid-owner` |

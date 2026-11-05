@@ -686,6 +686,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
     return false;
   }
 
+  /**
+   * Check if the values of a multiple choice are removed with the backspace key of its search box, because its chips
+   * show no remove link. Engines whose chips or panel offer a remove control keep the default.
+   * @return true if the multiple choice is cleared with the keyboard, false otherwise.
+   */
+  default boolean multipleChoiceClearsWithKeyboard() {
+    return false;
+  }
+
   /*
   =================================
   SEMANTIC STEPS

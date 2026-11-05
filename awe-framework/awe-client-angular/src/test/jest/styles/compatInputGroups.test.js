@@ -35,7 +35,7 @@ const LEFT_OUT = [
     reason: "input groups placed in a panel heading (size and border colors): they belong to the panel family"},
   {names: ["criterion"], examples: [".criterion .input-group", ".criterion .input-group-addon"],
     reason: "AWE criterion layout (full width group, addon width and sizes): scoped to the criterion directive, which owns its sizes"},
-  {names: ["select2-container", "select2-choice", "select2-choices", "select2-search-choice", "select2-search-field"],
+  {names: ["select2-container", "select2-container-multi", "awe-select-summary", "select2-choice", "select2-choices", "select2-search-choice", "select2-search-field"],
     examples: [".form-group .input-group-sm .select2-container .select2-choice", ".form-group .input-group-sm .select2-container .select2-choices .select2-search-choice"],
     reason: "the select2 plugin renders its own control inside an input group: its heights and paddings stay with the plugin styles"},
   {names: ["form-group", "w-icon"], examples: [".form-group.w-icon .input-group > input"],
