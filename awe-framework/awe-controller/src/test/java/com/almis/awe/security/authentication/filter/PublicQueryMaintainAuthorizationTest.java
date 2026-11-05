@@ -96,6 +96,25 @@ class PublicQueryMaintainAuthorizationTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
+    "/action/data",
+    "/action/update-value",
+    "/action/unique",
+    "/action/control",
+    "/action/validate",
+    "/action/subscribe",
+    "/action/tree-branch",
+    "/api/data",
+    "/api/public/data"
+  })
+  void givenServerOnlyQuery_checkIsPublicQuery_shouldReturnFalse(String action) throws AWException {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setRequestURI(action + "/foo");
+    when(elements.getQuery(anyString())).thenReturn(new Query().setIsPublic(true).setServerOnly(true));
+    assertFalse(publicQueryMaintainAuthorization.isPublicQuery(request));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
     ACTION_MAINTAIN,
     ACTION_MAINTAIN_SILENT,
     ACTION_GET_FILE_MAINTAIN,

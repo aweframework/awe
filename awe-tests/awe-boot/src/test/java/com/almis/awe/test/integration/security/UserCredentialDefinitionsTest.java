@@ -349,12 +349,14 @@ class UserCredentialDefinitionsTest extends AbstractSpringAppIntegrationTest {
   @ParameterizedTest
   @ValueSource(strings = {"UsrInf", "AutUsr"})
   @WithMockUser(username = SIGNED_IN_USER, password = SIGNED_IN_USER, roles = {"ADMIN", "USER"})
-  void userInformationQueriesDoNotReturnPasswords(String queryName) throws Exception {
+  void userInformationQueriesAreRefusedAndDoNotReturnPasswords(String queryName) throws Exception {
+    // Server-only: a signed-in client is refused
     String result = launchQuery(queryName, signedInSession())
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
-    assertThat(result.contains("\"" + SIGNED_IN_USER + "\"")).isTrue();
+    assertThat(result).contains("without authorization");
+    assertThat(result.contains("\"rows\"")).isFalse();
     assertThat(result.contains(String.valueOf(signedInUserCredentials.password()))).isFalse();
     if (signedInUserCredentials.newPassword() != null) {
       assertThat(result.contains(signedInUserCredentials.newPassword())).isFalse();

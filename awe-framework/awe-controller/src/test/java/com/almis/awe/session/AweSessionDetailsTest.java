@@ -6,6 +6,9 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
+import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
@@ -26,6 +29,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,6 +101,22 @@ class AweSessionDetailsTest {
 
 
   @Test
+  void onLoginSuccessLaunchesTheSessionParameterQueriesAsServer() throws Exception {
+    SecurityContextHolder.setContext(securityContext);
+    when(sessionConfigProperties.getParameter()).thenReturn(Map.of("module", "MyModule"));
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    DataList dataList = new DataList();
+    dataList.addRow(Map.of("value", new CellData("onboarding")));
+    when(queryService.launchPrivateQuery("MyModule", "1", "0")).thenReturn(new ServiceData().setDataList(dataList));
+
+    aweSessionDetails.onLoginSuccess(new AweUserDetails());
+
+    verify(sessionService).setSessionParameter("module", "onboarding");
+    verify(queryService, never()).launchQuery("MyModule", "1", "0");
+    verify(aweSession, never()).setParameter(eq(SESSION_FAILURE), any());
+  }
+
+  @Test
   void onLoginSuccessErrorSessionParameters() {
     SecurityContextHolder.setContext(securityContext);
     when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
@@ -124,7 +144,7 @@ class AweSessionDetailsTest {
     SecurityConfigProperties.Sso ssoConfig = mock(SecurityConfigProperties.Sso.class);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     when(ssoConfig.isEnabled()).thenReturn(false);
-    
+
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getSessionId()).thenReturn("session-id");

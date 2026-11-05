@@ -655,7 +655,7 @@
   </query>
 
   <!--Scheduler server by id-->
-  <query id="serverData">
+  <query id="serverData" server-only="true">
     <table id="AweSchSrv" alias="Srv"/>
     <field id="Ide" alias="serverId" table="Srv"/>
     <field id="Nom" alias="name" table="Srv"/>

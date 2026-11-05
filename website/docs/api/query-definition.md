@@ -115,6 +115,7 @@ The *query* element has the following attributes:
 | managed-pagination |    Optional    |  Boolean  | To set how a SQL query is paginated. When `true` or omitted the database returns only the requested page (`limit` and `offset` plus a count query); when `false` all the rows are loaded and the page is cut in memory. Used to achieve high performance in queries with a very high number of records. | By default (omitted) it is the same as `true`, the database paginates. **Note:** It does not apply to queries with a `totalize` element, nor when the page size is 0. |
 | post-process       |    Optional    |  Boolean  | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing                                                       | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)                                                 |
 | public             |    Optional    |  Boolean  | Allows the query to run without the need to be logged                                                                                                                                 | By default is `false`                                                                                                                                             |
+| server-only        |    Optional    |  Boolean  | Refuses the query to any client request; only the server can launch it | By default is `false`. See [server-only queries](#server-only-queries) |
 | enumerated         |    Optional    |  String   | The name of enumerate to fill the query                                                                                                                                               | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)                                                            |
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
@@ -122,6 +123,29 @@ The *query* element has the following attributes:
 :::info Screen access
 When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.screen-access`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
 :::
+
+#### Server-only queries {#server-only-queries}
+
+A query marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `QueryService.launchPrivateQuery`. Any request from a client is refused with the *launching query without authorization* error, **even when the user is signed in**: `/action/data` and the other query actions (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` and `/api/public/data`.
+
+```xml
+<query id="userDetails" cacheable="true" server-only="true">
+  ...
+</query>
+```
+
+Use it for every query that returns credentials or the data of other users and that a client must never launch by itself: the server sets the parameters it needs when it launches the query.
+
+| Attribute combination                    | Client request                                                                            | Server launch (`launchPrivateQuery`) |
+|------------------------------------------|-------------------------------------------------------------------------------------------|--------------------------------------|
+| neither `public` nor `server-only`       | Needs a signed-in session                                                                 | Allowed                              |
+| `public="true"`                          | Allowed without a session                                                                 | Allowed                              |
+| `server-only="true"`                     | **Refused**, even with a session                                                          | Allowed                              |
+| `public="true"` and `server-only="true"` | **Refused**: `server-only` wins (it is never treated as public, and a warning is logged)  | Allowed                              |
+
+The framework marks as server-only the login and SSO queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`), the lockout and security audit queries (`UsrGetNumLog`, `UsrGetSecSta`), the user queries of the access window services (`access-subject-user`, `access-compare-users`, `access-profile-users`, `access-profile-user-rules`), the database and JMS connections (`DatabaseConnections`, `JmsConnections`), the scheduler server data (`serverData`), the users subscribed to a notification (`get-interested-users`) and the user queries by name (`GetChgPwdUsr`, `AutUsr`, `UsrInf`, `GetEmlSrvByOpe`).
+
+`server-only` only refuses client requests by query id: the XML of the server (a subquery, a union, an initial load, the retrieve-data of a maintain) can still launch the query, so do not use a server-only query to feed something a client sees.
 
 ### Query cache and trace logging
 

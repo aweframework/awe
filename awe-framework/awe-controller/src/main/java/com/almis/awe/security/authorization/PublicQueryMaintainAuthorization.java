@@ -3,6 +3,7 @@ package com.almis.awe.security.authorization;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.maintain.Target;
+import com.almis.awe.model.entities.queries.Query;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -72,8 +73,10 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
     // Check if target is a public query
     String target = getTarget(request);
     try {
-      return Optional.ofNullable(elements.getQuery(target))
-              .orElseThrow(() -> new AuthorizationServiceException("Query not found: " + target)).isPublic();
+      Query query = Optional.ofNullable(elements.getQuery(target))
+              .orElseThrow(() -> new AuthorizationServiceException("Query not found: " + target));
+      // A server-only query is never public, even if it is flagged as such
+      return query.isPublic() && !query.isServerOnly();
     } catch (AWException ex) {
       log.warn("Query not found: " + target);
       return false;
