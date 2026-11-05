@@ -24,6 +24,10 @@ const STATES = ["active", "disabled", "focus"];
 const LEFT_OUT = [
   {names: ["btn-flat", "btn-outline", "btn-rounded", "btn-labeled", "btn-label", "focused", "dark", "btn-facebook", "btn-dark", "navbar-btn", "button-icon", "button-text"],
     reason: "pixel-admin button modifiers (flat, outline, rounded, labeled): a later slice, they stay in LESS"},
+  {names: ["btn-tonal"],
+    reason: "the AWE 5 tonal modifier of a button (.btn.btn-awe.btn-tonal, #791): an AWE style that the LESS build serves, with no vendored Bootstrap rule behind it"},
+  {names: ["button-radio-group"],
+    reason: "the button group of an AWE criterion radio (#791): the criterion owns the layout of its group, and the family serves the .btn-group inside it"},
   {match: name => /^theme-/.test(name) || ["awe-theme", "base-theme", "btn-awe"].includes(name), reason: "selectors that depend on a theme class of the body: themed (AWE button themes)"},
   {match: name => name.startsWith("#"), reason: "id-scoped selectors: the ui-grid library ships its own Bootstrap subset under #ui-grid-twbs"},
   {names: ["badge", "label", "caret", "fa", "fa-caret-down", "icon", "input-group", "input-group-btn", "input-group-lg", "input-group-sm", "navbar-default", "navbar-inverse",
