@@ -142,7 +142,7 @@ class ExecutionObserverTest {
   }
 
   private MaintainService maintainService() throws AWException {
-    MaintainService service = new MaintainService(mock(MaintainLauncher.class), null, mock(DatabaseConfigProperties.class));
+    MaintainService service = new MaintainService(mock(MaintainLauncher.class), null, mock(DatabaseConfigProperties.class), (targetId, kind) -> true);
     service.setApplicationContext(context);
     AweElements elements = mock(AweElements.class);
     when(context.getBean(AweElements.class)).thenReturn(elements);

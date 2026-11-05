@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @Tag("integration")
 @DisplayName("Screen access enforced tests")
 @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
-@TestPropertySource(properties = {"awe.security.screen-access=enforce", "awe.security.default-restriction=operator"})
+@TestPropertySource(properties = {"awe.security.authorization.mode=enforce", "awe.security.default-restriction=operator"})
 class ScreenAccessEnforcedTest extends ScreenAccessSupport {
 
   @ParameterizedTest(name = "{0} through /action/maintain")

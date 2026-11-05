@@ -9,7 +9,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
@@ -52,20 +51,17 @@ class QueryServiceServerOnlyTest {
   @Mock private AweElements aweElements;
   @Mock private AweRequest aweRequest;
   @Mock private AweSession aweSession;
-  @Mock private ScreenTargetAuthorizer authorizer;
-  @Mock private ObjectProvider<ScreenTargetAuthorizer> authorizerProvider;
+  @Mock private TargetLaunchAuthorizer authorizer;
 
   private QueryService queryService;
 
   @BeforeEach
   void setUp() throws Exception {
-    queryService = new QueryService(queryLauncher, queryUtil);
+    queryService = new QueryService(queryLauncher, queryUtil, authorizer);
     queryService.setApplicationContext(applicationContext);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    when(applicationContext.getBeanProvider(ScreenTargetAuthorizer.class)).thenReturn(authorizerProvider);
-    when(authorizerProvider.getIfAvailable()).thenReturn(authorizer);
     when(authorizer.authorize(anyString(), any())).thenReturn(true);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");

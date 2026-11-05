@@ -10,25 +10,25 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests of the awe.security.screen-access property (issue #914)
+ * Tests of the awe.security.authorization.mode property (issue #914)
  */
-class SecurityConfigPropertiesScreenAccessTest {
+class SecurityConfigPropertiesAuthorizationTest {
 
   @Test
-  @DisplayName("Screen access is enforced by default")
+  @DisplayName("Authorization is enforced by default")
   void enforcedByDefault() {
-    assertThat(new SecurityConfigProperties().getScreenAccess()).isEqualTo(ScreenAccessMode.ENFORCE);
+    assertThat(new SecurityConfigProperties().getAuthorization().getMode()).isEqualTo(AuthorizationMode.ENFORCE);
   }
 
   @Test
-  @DisplayName("Screen access binds off, warn and enforce")
+  @DisplayName("awe.security.authorization.mode binds off, warn and enforce")
   void bindsEveryMode() {
-    for (ScreenAccessMode mode : ScreenAccessMode.values()) {
+    for (AuthorizationMode mode : AuthorizationMode.values()) {
       Binder binder = new Binder(new MapConfigurationPropertySource(
-        Map.of("awe.security.screen-access", mode.name().toLowerCase())));
+        Map.of("awe.security.authorization.mode", mode.name().toLowerCase())));
       SecurityConfigProperties properties = binder.bind("awe.security", SecurityConfigProperties.class)
         .orElseGet(SecurityConfigProperties::new);
-      assertThat(properties.getScreenAccess()).isEqualTo(mode);
+      assertThat(properties.getAuthorization().getMode()).isEqualTo(mode);
     }
   }
 }

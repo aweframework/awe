@@ -8,7 +8,8 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -58,26 +58,23 @@ class MaintainServiceScreenAccessTest {
   @Mock private DataSource dataSource;
   @Mock private Connection connection;
   @Mock private DatabaseConnection databaseConnection;
-  @Mock private ScreenTargetAuthorizer authorizer;
-  @Mock private ObjectProvider<ScreenTargetAuthorizer> authorizerProvider;
+  @Mock private TargetLaunchAuthorizer authorizer;
 
   private MaintainService maintainService;
 
   @BeforeEach
   void setUp() {
-    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, authorizer);
     maintainService.setApplicationContext(applicationContext);
 
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    when(applicationContext.getBeanProvider(ScreenTargetAuthorizer.class)).thenReturn(authorizerProvider);
-    when(authorizerProvider.getIfAvailable()).thenReturn(authorizer);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN"), any(), any()))
       .thenReturn(UNAUTHORIZED);
     when(aweSession.isAuthenticated()).thenReturn(true);
-    when(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).thenReturn(true);
+    when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(true);
 
     when(databaseConnection.getDataSource()).thenReturn(dataSource);
     when(databaseConnection.getConnection()).thenReturn(connection);
@@ -98,7 +95,7 @@ class MaintainServiceScreenAccessTest {
   @DisplayName("A client launch is checked against the screens and refused when the authorizer refuses it")
   void clientLaunchIsRefused() throws Exception {
     givenTarget(null);
-    when(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).thenReturn(false);
+    when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(false);
 
     ObjectNode parameters = params();
 
@@ -112,7 +109,7 @@ class MaintainServiceScreenAccessTest {
   @DisplayName("Every client launch variant is checked")
   void everyClientVariantIsChecked() throws Exception {
     givenTarget(null);
-    when(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).thenReturn(false);
+    when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(false);
 
     ObjectNode parameters = params();
 
@@ -130,14 +127,14 @@ class MaintainServiceScreenAccessTest {
       ServiceData result = maintainService.launchMaintain(TARGET, params(), databaseConnection, false);
       assertThat(result).isNotNull();
     }
-    verify(authorizer).authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN);
+    verify(authorizer).authorize(TARGET, TargetKind.MAINTAIN);
   }
 
   @Test
   @DisplayName("A server launch is not checked")
   void serverLaunchIsNotChecked() throws Exception {
     givenTarget(null);
-    when(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).thenReturn(false);
+    when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(false);
 
     try (var ignored = mockStatic(DataSourceUtils.class)) {
       ServiceData result = maintainService.launchPrivateMaintain(TARGET, params(), databaseConnection, false);
@@ -151,7 +148,7 @@ class MaintainServiceScreenAccessTest {
   void publicTargetIsNotChecked() throws Exception {
     givenTarget(true);
     when(aweSession.isAuthenticated()).thenReturn(false);
-    when(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).thenReturn(false);
+    when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(false);
 
     try (var ignored = mockStatic(DataSourceUtils.class)) {
       ServiceData result = maintainService.launchMaintain(TARGET, params(), databaseConnection, false);
@@ -174,14 +171,10 @@ class MaintainServiceScreenAccessTest {
   }
 
   @Test
-  @DisplayName("Without an authorizer bean the launch is not checked")
-  void withoutAuthorizerBean() throws Exception {
-    givenTarget(null);
-    when(authorizerProvider.getIfAvailable()).thenReturn(null);
-
-    try (var ignored = mockStatic(DataSourceUtils.class)) {
-      ServiceData result = maintainService.launchMaintain(TARGET, params(), databaseConnection, false);
-      assertThat(result).isNotNull();
-    }
+  @DisplayName("The maintain service cannot be built without an authorizer")
+  void authorizerIsRequired() {
+    assertThatThrownBy(() -> new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 }

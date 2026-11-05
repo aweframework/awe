@@ -82,14 +82,6 @@ public class SecurityConfigProperties {
    */
   private PasswordEncoderType passwordEncoder = PasswordEncoderType.BCRYPT;
 
-  /**
-   * Check of the maintain targets and queries launched by a client: they can only be launched when the session user
-   * can open at least one menu option whose screen uses them. Public targets and targets that no screen uses are not
-   * checked, and the launches made by the server (not requested by a client) are never checked. off does not check,
-   * warn logs and audits the launches without access but allows them, and enforce refuses them.
-   * Default value enforce
-   */
-  private ScreenAccessMode screenAccess = ScreenAccessMode.ENFORCE;
 
   /**
    * Authentication mode
@@ -121,6 +113,24 @@ public class SecurityConfigProperties {
   @NestedConfigurationProperty
   @Valid
   private Sso sso = new Sso();
+
+  @NestedConfigurationProperty
+  private Authorization authorization = new Authorization();
+
+  /**
+   * Authorization of the maintain targets and queries launched by a client
+   */
+  @Data
+  public static class Authorization {
+    /**
+     * Check of the maintain targets and queries launched by a client: they can only be launched when the session user
+     * can open at least one menu option whose screen uses them. Public targets and targets that no screen uses are not
+     * checked, and the launches made by the server (not requested by a client) are never checked. off does not check,
+     * warn logs and audits the launches that are not authorized but allows them, and enforce refuses them.
+     * Default value enforce
+     */
+    private AuthorizationMode mode = AuthorizationMode.ENFORCE;
+  }
 
   /**
    * SSO authentication configuration properties

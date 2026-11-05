@@ -56,9 +56,12 @@ Screen access lets through only the users who can open a screen that uses the ta
 
 ## Configuration
 
+The mode is shared by every authorization of the launches requested by a client: the access by screen
+now, and any authorization layer added later.
+
 | Property | Default | Description |
 | --- | --- | --- |
-| `awe.security.screen-access` | `enforce` | `off`, `warn` or `enforce` |
+| `awe.security.authorization.mode` | `enforce` | `off`, `warn` or `enforce` |
 
 | Value | Behaviour |
 | --- | --- |
@@ -68,14 +71,14 @@ Screen access lets through only the users who can open a screen that uses the ta
 
 ```properties
 # off | warn | enforce (default)
-awe.security.screen-access=warn
+awe.security.authorization.mode=warn
 ```
 
 ## Rollout
 
 An existing application, such as a product migrating from AWE 4, can adopt the check gradually:
 
-1. Set `awe.security.screen-access=warn` and run the application with normal use.
+1. Set `awe.security.authorization.mode=warn` and run the application with normal use.
 2. Read the log and the `ACCESS_DENIED` events of the [security audit](security-audit.md). Each one carries the user and, in
    the detail, the kind and the name of the target or query that would be refused (`RESTRICTED` cause).
 3. Review the refusals. Fix the screens or the restrictions that do not match the intended access.

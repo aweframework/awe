@@ -18,7 +18,8 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.RowType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.almis.awe.service.data.connector.maintain.MaintainLauncher;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
@@ -98,7 +99,7 @@ public class MaintainService extends ServiceConfig {
   private final MaintainLauncher maintainLauncher;
   private final QueryUtil queryUtil;
   private final DatabaseConfigProperties databaseConfigProperties;
-
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   /**
    * Autowired constructor
@@ -106,11 +107,16 @@ public class MaintainService extends ServiceConfig {
    * @param maintainLauncher         Maintain launcher
    * @param queryUtil                Query utilities
    * @param databaseConfigProperties Database  configuration properties
+   * @param targetLaunchAuthorizer   Authorizer of the maintain targets launched by a client
    */
-  public MaintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
+  public MaintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil,
+                         DatabaseConfigProperties databaseConfigProperties,
+                         TargetLaunchAuthorizer targetLaunchAuthorizer) {
     this.maintainLauncher = maintainLauncher;
     this.queryUtil = queryUtil;
     this.databaseConfigProperties = databaseConfigProperties;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 
   /**
@@ -608,9 +614,8 @@ public class MaintainService extends ServiceConfig {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
     }
 
-    // A private target used by screens can only be launched by a user that can open one of them
-    if (!maintain.isPublic()
-      && !ScreenTargetAuthorizer.isAllowed(getApplicationContext(), maintainId, ScreenTargetAuthorizer.Kind.MAINTAIN)) {
+    // A private target launched by a client goes on only when the authorizers allow it
+    if (!maintain.isPublic() && !targetLaunchAuthorizer.authorize(maintainId, TargetKind.MAINTAIN)) {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
     }
   }

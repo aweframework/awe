@@ -121,7 +121,7 @@ El elemento *query* tiene los siguientes atributos:
 | queue              |    Opcional    |  String   | El nombre de la cola con la que rellenar la consulta                                                                                                                                  | **Nota:** Solo se aplica en consultas de cola. Para más información, consulta la [consulta de cola](#queue-query)                                                 |
 
 :::info Acceso por pantalla
-Cuando una consulta la usa una pantalla del menú, una petición de cliente solo la lanza si el usuario de la sesión puede abrir al menos una de las pantallas que la usan (`awe.security.screen-access`, `enforce` por defecto). Las consultas que no usa ninguna pantalla conservan las reglas de `public` y de la sesión iniciada. Consulte [Acceso por pantalla](../security/screen-access.md).
+Cuando una consulta la usa una pantalla del menú, una petición de cliente solo la lanza si el usuario de la sesión puede abrir al menos una de las pantallas que la usan (`awe.security.authorization.mode`, `enforce` por defecto). Las consultas que no usa ninguna pantalla conservan las reglas de `public` y de la sesión iniciada. Consulte [Acceso por pantalla](../security/screen-access.md).
 :::
 
 #### Consultas server-only {#server-only-queries}

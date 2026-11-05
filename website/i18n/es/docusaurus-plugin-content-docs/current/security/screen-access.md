@@ -57,9 +57,12 @@ un cliente. El acceso por pantalla solo deja pasar a los usuarios que pueden abr
 
 ## Configuración {#configuration}
 
+El modo es común a todas las autorizaciones de los lanzamientos que pide un cliente: ahora el acceso por
+pantalla y cualquier capa de autorización que se añada más adelante.
+
 | Propiedad | Por defecto | Descripción |
 | --- | --- | --- |
-| `awe.security.screen-access` | `enforce` | `off`, `warn` o `enforce` |
+| `awe.security.authorization.mode` | `enforce` | `off`, `warn` o `enforce` |
 
 | Valor | Comportamiento |
 | --- | --- |
@@ -69,14 +72,14 @@ un cliente. El acceso por pantalla solo deja pasar a los usuarios que pueden abr
 
 ```properties
 # off | warn | enforce (por defecto)
-awe.security.screen-access=warn
+awe.security.authorization.mode=warn
 ```
 
 ## Despliegue gradual {#rollout}
 
 Una aplicación existente, como un producto que migra desde AWE 4, puede adoptar la comprobación poco a poco:
 
-1. Configure `awe.security.screen-access=warn` y ejecute la aplicación con un uso normal.
+1. Configure `awe.security.authorization.mode=warn` y ejecute la aplicación con un uso normal.
 2. Lea el log y los eventos `ACCESS_DENIED` de la [auditoría de seguridad](security-audit.md). Cada uno lleva el usuario
    y, en el detalle, el tipo y el nombre del target o de la consulta que se rechazaría (causa `RESTRICTED`).
 3. Revise los rechazos. Corrija las pantallas o las restricciones que no coincidan con el acceso previsto.

@@ -12,6 +12,8 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
 import com.almis.awe.security.authorization.ScreenTargetIndex;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizerChain;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.service.access.AccessChangeService;
@@ -46,6 +48,7 @@ import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -311,14 +314,16 @@ public class AweAutoConfiguration {
   /**
    * Query service
    *
-   * @param queryLauncher Query launcher
-   * @param queryUtil     Query utilities
+   * @param queryLauncher               Query launcher
+   * @param queryUtil                   Query utilities
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Query service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueryService queryService(QueryLauncher queryLauncher, QueryUtil queryUtil) {
-    return new QueryService(queryLauncher, queryUtil);
+  public QueryService queryService(QueryLauncher queryLauncher, QueryUtil queryUtil,
+                                   TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new QueryService(queryLauncher, queryUtil, targetLaunchAuthorizerChain);
   }
 
   /**
@@ -326,14 +331,30 @@ public class AweAutoConfiguration {
    *
    * @param maintainLauncher         Maintain launcher
    * @param queryUtil                Query utilities
-   * @param databaseConfigProperties Database configuration properties
+   * @param databaseConfigProperties    Database configuration properties
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Maintain service bean
    */
   @Bean
   @ConditionalOnMissingBean
   @DependsOnDatabaseInitialization
-  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
-    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil,
+                                         DatabaseConfigProperties databaseConfigProperties,
+                                         TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, targetLaunchAuthorizerChain);
+  }
+
+  /**
+   * Chain of the authorizers of the maintain targets and queries launched by a client. Every
+   * {@link TargetLaunchAuthorizer} bean is a link of the chain
+   *
+   * @param authorizerProvider Provider of the authorizers
+   * @return Target launch authorizer chain bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public TargetLaunchAuthorizerChain targetLaunchAuthorizerChain(ObjectProvider<TargetLaunchAuthorizer> authorizerProvider) {
+    return new TargetLaunchAuthorizerChain(authorizerProvider);
   }
 
   /**

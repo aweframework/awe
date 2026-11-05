@@ -85,7 +85,7 @@ class MaintainServiceConnectionTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, (targetId, kind) -> true);
     maintainService.setApplicationContext(applicationContext);
 
     // Locale helpers used when building exception messages

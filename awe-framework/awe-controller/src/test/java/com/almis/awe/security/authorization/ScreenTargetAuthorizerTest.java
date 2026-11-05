@@ -1,7 +1,7 @@
 package com.almis.awe.security.authorization;
 
+import com.almis.awe.config.AuthorizationMode;
 import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.config.ScreenAccessMode;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.ScreenRestriction;
@@ -77,10 +77,10 @@ class ScreenTargetAuthorizerTest {
   @Test
   @DisplayName("Mode off does not check anything")
   void offDoesNotCheck() {
-    properties.setScreenAccess(ScreenAccessMode.OFF);
+    properties.getAuthorization().setMode(AuthorizationMode.OFF);
     givenIndexed("users");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
     verify(index, never()).getOptionsUsing(anyString());
   }
 
@@ -89,7 +89,7 @@ class ScreenTargetAuthorizerTest {
   void unindexedTargetIsAllowed() {
     when(index.getOptionsUsing(TARGET)).thenReturn(Set.of());
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.QUERY)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isTrue();
     verify(securityAuditService, never()).failure(any(), any(), any(), any());
   }
 
@@ -99,7 +99,7 @@ class ScreenTargetAuthorizerTest {
     givenIndexed("users", "profiles");
     givenAvailable("profiles", "private");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
     verify(securityAuditService, never()).failure(any(), any(), any(), any());
   }
 
@@ -108,7 +108,7 @@ class ScreenTargetAuthorizerTest {
   void restrictedIsRefusedAndAudited() {
     givenIndexed("users", "profiles");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isFalse();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isFalse();
     verify(securityAuditService).failure(eq(SecurityAuditEventType.ACCESS_DENIED), any(),
       eq(SecurityAuditCause.RESTRICTED), eq("maintain: " + TARGET));
   }
@@ -118,7 +118,7 @@ class ScreenTargetAuthorizerTest {
   void refusedQueryIsAuditedAsQuery() {
     givenIndexed("users");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.QUERY)).isFalse();
+    assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isFalse();
     verify(securityAuditService).failure(eq(SecurityAuditEventType.ACCESS_DENIED), any(),
       eq(SecurityAuditCause.RESTRICTED), eq("query: " + TARGET));
   }
@@ -126,10 +126,10 @@ class ScreenTargetAuthorizerTest {
   @Test
   @DisplayName("Warn mode audits the launch without access but allows it")
   void warnAuditsAndAllows() {
-    properties.setScreenAccess(ScreenAccessMode.WARN);
+    properties.getAuthorization().setMode(AuthorizationMode.WARN);
     givenIndexed("users");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
     verify(securityAuditService).failure(eq(SecurityAuditEventType.ACCESS_DENIED), any(),
       eq(SecurityAuditCause.RESTRICTED), eq("maintain: " + TARGET));
   }
@@ -139,12 +139,12 @@ class ScreenTargetAuthorizerTest {
   void refusalSurvivesAuditProblems() {
     givenIndexed("users");
     when(securityAuditService.isEnabled()).thenReturn(false);
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isFalse();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isFalse();
 
     when(securityAuditService.isEnabled()).thenReturn(true);
     org.mockito.Mockito.doThrow(new IllegalStateException("sink down")).when(securityAuditService)
       .failure(any(), any(), any(), any());
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.MAINTAIN)).isFalse();
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isFalse();
   }
 
   @Test
@@ -154,7 +154,7 @@ class ScreenTargetAuthorizerTest {
     givenIndexed("login");
     givenAvailable("login", "public");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.QUERY)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isTrue();
     verify(menuOptionLookup, never()).isAvailableOption(anyString(), eq("private"));
   }
 
@@ -165,7 +165,7 @@ class ScreenTargetAuthorizerTest {
     givenIndexed("users");
     givenAvailable("users", "private");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.QUERY)).isFalse();
+    assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isFalse();
   }
 
   @Test
@@ -174,7 +174,7 @@ class ScreenTargetAuthorizerTest {
     givenIndexed("help");
     givenAvailable("help", "public");
 
-    assertThat(authorizer.authorize(TARGET, ScreenTargetAuthorizer.Kind.QUERY)).isTrue();
+    assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isTrue();
   }
 
   @Test

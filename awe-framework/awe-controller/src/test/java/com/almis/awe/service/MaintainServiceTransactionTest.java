@@ -80,7 +80,7 @@ class MaintainServiceTransactionTest {
   @BeforeEach
   void setUp() throws Exception {
     maintainConfigProperties = new MaintainConfigProperties();
-    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+    maintainService = new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, (targetId, kind) -> true);
     maintainService.setApplicationContext(applicationContext);
     maintainService.setMaintainConfigProperties(maintainConfigProperties);
     maintainService.setMaintainTransactionManagerProvider(new MaintainTransactionManagerProvider());
