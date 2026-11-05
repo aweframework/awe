@@ -1,9 +1,12 @@
 package com.almis.awe.test.integration.database.hsql;
 
+import com.almis.awe.scheduler.bean.file.Server;
+import com.almis.awe.scheduler.dao.ServerDAO;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -27,8 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>{@code UpdSchSrv} is PRESERVE-WHEN-BLANK <b>per field</b>: {@code SshPwd} is gated by
  *   {@code FlgSshPwdUpd} and {@code SshKey} by {@code FlgSshKeyUpd}, so updating only one secret
  *   (leaving the other blank) never wipes the untouched secret.</li>
- *   <li>{@code serverData} (executor read path) decrypts the stored secrets correctly via the
- *   {@code STRING_ENCRYPT}/{@code DECRYPT} transform pair.</li>
+ *   <li>{@code serverData} (executor read path, {@link ServerDAO#findServer}) decrypts the stored secrets
+ *   correctly via the {@code STRING_ENCRYPT}/{@code DECRYPT} transform pair, and is server-only: a client request
+ *   for it is refused.</li>
  * </ul>
  */
 @Slf4j
@@ -36,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser(username = "test", password = "test")
 @Transactional
 class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegrationTest {
+
+  @Autowired
+  private ServerDAO serverDAO;
 
   private String performRequest(String type, String name, String variables) throws Exception {
     MvcResult mvcResult = mockMvc.perform(post("/action/" + type + "/" + name)
@@ -85,11 +93,17 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
     assertNull(schSrvRow.get("SshKeyPass"), "SchSrv must never expose SshKeyPass to the edit form");
 
     // 3. serverData (executor read path) decrypts the secrets in memory
-    String serverDataResult = performRequest("data", "serverData", "\"serverId\":" + serverId);
-    ArrayNode serverDataRows = dataRows(serverDataResult);
-    assertEquals("initialSecret", serverDataRows.get(0).get("password").asString());
-    assertEquals("initialKey", serverDataRows.get(0).get("key").asString());
-    assertEquals("initialPass", serverDataRows.get(0).get("keyPassphrase").asString());
+    Server serverData = serverDAO.findServer(serverId);
+    assertEquals("initialSecret", serverData.getPassword());
+    assertEquals("initialKey", serverData.getKey());
+    assertEquals("initialPass", serverData.getKeyPassphrase());
+
+    // serverData is server-only: a client request is refused and gets no secret
+    assertThat(performRequest("data", "serverData", "\"serverId\":" + serverId))
+        .contains("without authorization")
+        .doesNotContain("initialSecret")
+        .doesNotContain("initialKey")
+        .doesNotContain("initialPass");
 
     // 4. Update with blank secrets (all flags 0) -- SshUsr changes, secrets are preserved
     String preserveVars = "\"IdeSrv\":" + serverId + ",\"Nom\":\"" + name + "\",\"Pro\":\"ssh\",\"Hst\":\"10.0.0.1\","
@@ -97,13 +111,12 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
         + "\"FlgSshPwdUpd\":0,\"FlgSshKeyUpd\":0,\"FlgSshKeyPassUpd\":0";
     performRequest("maintain", "UpdSchSrv", preserveVars);
 
-    String afterPreserveResult = performRequest("data", "serverData", "\"serverId\":" + serverId);
-    ArrayNode afterPreserveRows = dataRows(afterPreserveResult);
-    assertEquals("initialSecret", afterPreserveRows.get(0).get("password").asString(),
+    Server afterPreserve = serverDAO.findServer(serverId);
+    assertEquals("initialSecret", afterPreserve.getPassword(),
         "Blank submit (FlgSshPwdUpd=0) must preserve the previously-stored password");
-    assertEquals("initialKey", afterPreserveRows.get(0).get("key").asString(),
+    assertEquals("initialKey", afterPreserve.getKey(),
         "Blank submit (FlgSshKeyUpd=0) must preserve the previously-stored key");
-    assertEquals("initialPass", afterPreserveRows.get(0).get("keyPassphrase").asString(),
+    assertEquals("initialPass", afterPreserve.getKeyPassphrase(),
         "Blank submit (FlgSshKeyPassUpd=0) must preserve the previously-stored key passphrase");
 
     String afterPreserveSchSrv = performRequest("data", "SchSrv", "\"Ide.selected\":" + serverId);
@@ -116,13 +129,12 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
         + "\"FlgSshPwdUpd\":1,\"FlgSshKeyUpd\":1,\"FlgSshKeyPassUpd\":1";
     performRequest("maintain", "UpdSchSrv", overwriteVars);
 
-    String afterOverwriteResult = performRequest("data", "serverData", "\"serverId\":" + serverId);
-    ArrayNode afterOverwriteRows = dataRows(afterOverwriteResult);
-    assertEquals("newSecret", afterOverwriteRows.get(0).get("password").asString(),
+    Server afterOverwrite = serverDAO.findServer(serverId);
+    assertEquals("newSecret", afterOverwrite.getPassword(),
         "FlgSshPwdUpd=1 must overwrite the stored password with the new value");
-    assertEquals("newKey", afterOverwriteRows.get(0).get("key").asString(),
+    assertEquals("newKey", afterOverwrite.getKey(),
         "FlgSshKeyUpd=1 must overwrite the stored key with the new value");
-    assertEquals("newPass", afterOverwriteRows.get(0).get("keyPassphrase").asString(),
+    assertEquals("newPass", afterOverwrite.getKeyPassphrase(),
         "FlgSshKeyPassUpd=1 must overwrite the stored key passphrase with the new value");
   }
 
@@ -148,10 +160,10 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
         + "\"Prt\":22,\"Act\":1,\"SshUsr\":\"admin\",\"SshPwd\":\"pwd1\",\"SshKey\":\"\",\"FlgSshPwdUpd\":1,\"FlgSshKeyUpd\":0";
     performRequest("maintain", "UpdSchSrv", pwdOnlyVars);
 
-    ArrayNode afterPwd = dataRows(performRequest("data", "serverData", "\"serverId\":" + serverId));
-    assertEquals("pwd1", afterPwd.get(0).get("password").asString(),
+    Server afterPwd = serverDAO.findServer(serverId);
+    assertEquals("pwd1", afterPwd.getPassword(),
         "Typing only a new password must overwrite the stored password");
-    assertEquals("key0", afterPwd.get(0).get("key").asString(),
+    assertEquals("key0", afterPwd.getKey(),
         "Typing only a new password (key blank) must PRESERVE the stored key");
 
     // (b) Type ONLY a new key (password blank) -> key overwritten, password preserved
@@ -159,10 +171,10 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
         + "\"Prt\":22,\"Act\":1,\"SshUsr\":\"admin\",\"SshPwd\":\"\",\"SshKey\":\"key1\",\"FlgSshPwdUpd\":0,\"FlgSshKeyUpd\":1";
     performRequest("maintain", "UpdSchSrv", keyOnlyVars);
 
-    ArrayNode afterKey = dataRows(performRequest("data", "serverData", "\"serverId\":" + serverId));
-    assertEquals("pwd1", afterKey.get(0).get("password").asString(),
+    Server afterKey = serverDAO.findServer(serverId);
+    assertEquals("pwd1", afterKey.getPassword(),
         "Typing only a new key (password blank) must PRESERVE the stored password");
-    assertEquals("key1", afterKey.get(0).get("key").asString(),
+    assertEquals("key1", afterKey.getKey(),
         "Typing only a new key must overwrite the stored key");
   }
 }

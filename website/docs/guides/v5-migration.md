@@ -79,6 +79,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
 | Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *launching maintain without authorization* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
+| Server-only queries (new) | A client request (`/action/data`, `/api/data`, `/api/public/data`) that launches one of the framework login queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`...) now fails with the *launching query without authorization* error, even with a session. | Define your own query with the fields the client needs, reading the user from the session. Mark your own Java-only queries with `server-only="true"`. | [Server-only queries](#server-only-queries), [Server-only queries](../api/query-definition.md#server-only-queries) |
 | Access by screen (#914, new) | A client request that launches a maintain target or a query used by a menu screen (`/action/...`, the file maintain endpoints, `/api/maintain`, `/api/data`, `/api/public/...`) is refused unless the session user can open at least one of the options whose screen uses it. `/api/data` now goes through the same checks as `/action/data`. | Run with `awe.security.screen-access=warn`, read the log and the `ACCESS_DENIED` events, fix screens and restrictions, then leave the default `enforce`. `off` keeps the AWE 4 behaviour. | [Access by screen](#access-by-screen), [Screen access](../security/screen-access.md) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
@@ -419,6 +420,30 @@ internal targets of the notifier and the scheduler. The full list is in the
   user from the parameters.
 - A target that a client launches about the signed-in user must read the user from the session
   (`<variable ... session="user"/>`), never from the request.
+
+### Server-only queries {#server-only-queries}
+
+Queries get the same `server-only` attribute as maintain targets. A server-only query is refused to any client request,
+even from a signed-in user and whatever its `public` flag, and still runs when the server launches it with
+`QueryService.launchPrivateQuery`.
+
+The framework marks as server-only the login and SSO queries (`userDetails`, `userDetailsByEmail`,
+`userDetailsByProfile`, `checkProfileExists`), the lockout and security audit queries (`UsrGetNumLog`,
+`UsrGetSecSta`), the user queries of the access window services (`access-subject-user`, `access-compare-users`,
+`access-profile-users`, `access-profile-user-rules`), the database and JMS connections (`DatabaseConnections`,
+`JmsConnections`), the scheduler server data (`serverData`), the users subscribed to a notification
+(`get-interested-users`) and the user queries by name (`GetChgPwdUsr`, `AutUsr`, `UsrInf`, `GetEmlSrvByOpe`).
+
+`server-only` only refuses client requests by query id: the XML of the server (a subquery, a union, an initial load,
+the retrieve-data of a maintain) can still launch the query, so do not use a server-only query to feed something a
+client sees.
+
+The queries of `awe.session.parameter` are launched by the server at login, so they can be server-only.
+
+- An application that launched one of them from a client must use its own query, with only the fields it needs and the
+  user read from the session (`<variable ... session="user"/>`).
+- Mark with `server-only="true"` the queries of the application that only Java launches, especially those that return
+  credentials or the data of other users.
 
 ### Access by screen {#access-by-screen}
 

@@ -59,7 +59,7 @@
     <variable id="unread" type="INTEGER" value="1"/>
   </query>
 
-  <query id="get-interested-users" distinct="true">
+  <query id="get-interested-users" distinct="true" server-only="true">
     <table id="ope" alias="users"/>
     <field id="l1_nom" alias="user"/>
     <field id="SubNot" alias="byWeb" transform="BOOLEAN"/>

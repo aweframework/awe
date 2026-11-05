@@ -285,6 +285,11 @@
   <xs:complexType name="queryType">
     <xs:group ref="queryGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="queryBaseAttributes" />
+    <xs:attribute name="server-only" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Restricts the query to server-side launches (Java services and schedulers). Any client request for it is refused, even from an authenticated session. Overrides public. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="id" use="required" type="identifierType">
       <xs:annotation>
         <xs:documentation xml:lang="en">Unique identifier of the query. Screens, services and other queries refer to the query by this id.</xs:documentation>

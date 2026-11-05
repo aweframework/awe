@@ -115,6 +115,7 @@ El elemento *query* tiene los siguientes atributos:
 | managed-pagination |    Opcional    |  Boolean  | Para establecer una consulta como paginada (para cargar solo los datos de esa página concreta, no todos los registros de la consulta).  Se usa para lograr un alto rendimiento en consultas con un número muy alto de registros. | Por defecto es `false`. **Nota:** Usa este parámetro solo en consultas sin totalize.                                                                              |
 | post-process       |    Opcional    |  Boolean  | Lanza o no el procesamiento de la lista de datos que realiza AWE, para permitir a los desarrolladores hacer su propio posprocesamiento                                                | Por defecto es `true`. **Nota:** Solo se aplica en consultas de servicio. Para más información, consulta la [consulta de servicio](#service-query)                |
 | public             |    Opcional    |  Boolean  | Permite que la consulta se ejecute sin necesidad de haber iniciado sesión                                                                                                             | Por defecto es `false`                                                                                                                                            |
+| server-only        |    Opcional    |  Boolean  | Rechaza la consulta ante cualquier petición de un cliente; solo la puede lanzar el servidor | Por defecto es `false`. Ver [consultas server-only](#server-only-queries) |
 | enumerated         |    Opcional    |  String   | El nombre del enumerado con el que rellenar la consulta                                                                                                                               | **Nota:** Solo se aplica en consultas de enumerado. Para más información, consulta la [consulta de enumerado](#enumerated-query)                                  |
 | service            |    Opcional    |  String   | El nombre del servicio con el que rellenar la consulta                                                                                                                                | **Nota:** Solo se aplica en consultas de servicio. Para más información, consulta la [consulta de servicio](#service-query)                                       |
 | queue              |    Opcional    |  String   | El nombre de la cola con la que rellenar la consulta                                                                                                                                  | **Nota:** Solo se aplica en consultas de cola. Para más información, consulta la [consulta de cola](#queue-query)                                                 |
@@ -122,6 +123,29 @@ El elemento *query* tiene los siguientes atributos:
 :::info Acceso por pantalla
 Cuando una consulta la usa una pantalla del menú, una petición de cliente solo la lanza si el usuario de la sesión puede abrir al menos una de las pantallas que la usan (`awe.security.screen-access`, `enforce` por defecto). Las consultas que no usa ninguna pantalla conservan las reglas de `public` y de la sesión iniciada. Consulte [Acceso por pantalla](../security/screen-access.md).
 :::
+
+#### Consultas server-only {#server-only-queries}
+
+Una consulta marcada con `server-only="true"` solo la puede lanzar el servidor (un servicio Java, el planificador...) mediante `QueryService.launchPrivateQuery`. Cualquier petición de un cliente se rechaza con el error *launching query without authorization*, **incluso con el usuario autenticado**: `/action/data` y el resto de acciones de consulta (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` y `/api/public/data`.
+
+```xml
+<query id="userDetails" cacheable="true" server-only="true">
+  ...
+</query>
+```
+
+Úsalo en toda consulta que devuelva credenciales o datos de otros usuarios y que un cliente nunca deba lanzar por sí mismo: el servidor fija los parámetros que necesita al lanzarla.
+
+| Combinación de atributos                 | Petición de cliente                                                                         | Lanzamiento del servidor (`launchPrivateQuery`) |
+|------------------------------------------|---------------------------------------------------------------------------------------------|-------------------------------------------------|
+| ni `public` ni `server-only`             | Necesita una sesión iniciada                                                                | Permitido                                       |
+| `public="true"`                          | Permitida sin sesión                                                                        | Permitido                                       |
+| `server-only="true"`                     | **Rechazada**, incluso con sesión                                                           | Permitido                                       |
+| `public="true"` y `server-only="true"`   | **Rechazada**: gana `server-only` (nunca se trata como pública y se registra un aviso)      | Permitido                                       |
+
+El framework marca como server-only las consultas de login y SSO (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`), las de bloqueo y auditoría de seguridad (`UsrGetNumLog`, `UsrGetSecSta`), las consultas de usuarios de los servicios de la ventana de accesos (`access-subject-user`, `access-compare-users`, `access-profile-users`, `access-profile-user-rules`), las conexiones de base de datos y JMS (`DatabaseConnections`, `JmsConnections`), los datos de servidor del planificador (`serverData`), los usuarios suscritos a una notificación (`get-interested-users`) y las consultas de usuario por nombre (`GetChgPwdUsr`, `AutUsr`, `UsrInf`, `GetEmlSrvByOpe`).
+
+`server-only` solo rechaza las peticiones de cliente por identificador de consulta: el XML del servidor (una subconsulta, una unión, una carga inicial, el retrieve-data de un maintain) puede seguir lanzándola, así que no uses una consulta server-only para alimentar algo que ve un cliente.
 
 ### Caché de consultas y trazas de log {#query-cache-and-trace-logging}
 

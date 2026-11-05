@@ -140,7 +140,8 @@ public class AweSessionDetails extends ServiceConfig {
   private void initializeSessionVariables() {
     sessionConfigProperties.getParameter().forEach((paramName, queryName) -> {
       try {
-        ServiceData queryOutput = queryService.launchQuery(queryName, "1", "0");
+        // The query id comes from the server configuration: launch it as the server
+        ServiceData queryOutput = queryService.launchPrivateQuery(queryName, "1", "0");
         DataList queryData = queryOutput.getDataList();
         if (queryData != null && !queryData.getRows().isEmpty()) {
           Map<String, CellData> row = queryData.getRows().get(0);

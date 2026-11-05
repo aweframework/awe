@@ -79,6 +79,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Plugins de build (#783) | Su `pom.xml` declara `lombok-maven-plugin` a través de la gestión de plugins de AWE y el build no resuelve su versión; `selenium-server` no tiene versión gestionada. | Declare `maven-antrun-plugin` para delombok (la ejecución `delombok` de AWE) o elimínelo; declare usted mismo la versión de `selenium-server`. | [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Transacciones de maintain (#781) | Un maintain que falla ya no deja nada a medias: los maintains lanzados desde servicios Java y `retrieve-data` se unen al maintain exterior, un paso que devuelve `ERROR` deshace el maintain, y un maintain lanzado dentro de un `@Transactional` de la aplicación se une a esa transacción. Un test que lee con su propia conexión JDBC dentro de un test `@Transactional` no ve las filas (o espera a un bloqueo). | Nada para maintains correctos. Si la aplicación depende de confirmaciones parciales, defina `awe.maintain.transaction.enabled=false` o mueva ese trabajo a su propio maintain. En los tests, lea a través de la transacción (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Transacciones de maintain](#maintain-transactions), [Transacciones](../api/maintain-definition.md#transactions) |
 | Targets de maintain solo de servidor (#886, nuevo) | Una petición de cliente (`/action/maintain`, los endpoints de maintain de ficheros, `/api/maintain`) que lanza uno de los targets del framework que solo lanza Java (por ejemplo `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) falla ahora con el error de *lanzamiento de maintain sin autorización*, incluso con sesión. | Lance el target de cliente que lo envuelve (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) o llame al servicio Java. Marque los targets propios que solo lanza Java con `server-only="true"`. | [Targets de maintain solo de servidor](#server-only-maintain-targets), [Targets solo de servidor](../api/maintain-definition.md#server-only-targets) |
+| Consultas solo de servidor (nuevo) | Una petición de cliente (`/action/data`, `/api/data`, `/api/public/data`) que lanza una de las consultas de login del framework (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`...) falla ahora con el error de *lanzamiento de consulta sin autorización*, incluso con sesión. | Defina una consulta propia con los campos que necesita el cliente, leyendo el usuario de la sesión. Marque las consultas propias que solo lanza Java con `server-only="true"`. | [Consultas solo de servidor](#server-only-queries), [Consultas server-only](../api/query-definition.md#server-only-queries) |
 | Acceso por pantalla (#914, nuevo) | Una petición de cliente que lanza un target de maintain o una consulta usados por una pantalla del menú (`/action/...`, los endpoints de maintain de ficheros, `/api/maintain`, `/api/data`, `/api/public/...`) se rechaza salvo que el usuario de la sesión pueda abrir al menos una de las opciones cuya pantalla lo usa. `/api/data` pasa ahora por las mismas comprobaciones que `/action/data`. | Ejecute con `awe.security.screen-access=warn`, lea el log y los eventos `ACCESS_DENIED`, corrija pantallas y restricciones y deje después el valor por defecto `enforce`. `off` mantiene el comportamiento de AWE 4. | [Acceso por pantalla](#access-by-screen), [Acceso por pantalla](../security/screen-access.md) |
 | Utilidades de fecha (#782) | El compilador avisa de que los métodos de `DateUtil` que reciben o devuelven `java.util.Date` o `Calendar` están deprecados. | Nada obligatorio: mantienen su comportamiento y no se eliminan antes de la 6.0. Pase a los métodos `java.time` de `com.almis.awe.model.util.data.date`. | [Utilidades de fecha](#date-utilities) |
 | MenuService (#782) | Solo para proyectos que extienden `MenuService`: un método que sobrescriba ya no lo llaman los demás métodos de `MenuService` (por ejemplo, sobrescribir `getOptionByName` ya no cambia `getOptionScreen`). El compilador avisa de que el constructor de siete argumentos de `MenuService` está deprecado. | Nada si solo llama a `MenuService`. Si lo extiende, lleve la personalización a su propio bean del colaborador que contiene el método. | [MenuService](#menuservice) |
@@ -435,6 +436,31 @@ los internos del notificador y del planificador. La lista completa está en la
   de los parámetros.
 - Un target que un cliente lanza sobre el usuario con sesión debe leer el usuario de la sesión
   (`<variable ... session="user"/>`), nunca de la petición.
+
+### Consultas solo de servidor {#server-only-queries}
+
+Las consultas reciben el mismo atributo `server-only` que los targets de maintain. Una consulta solo de servidor se
+rechaza en cualquier petición de cliente, incluso de un usuario con sesión y sea cual sea su indicador `public`, y se
+sigue ejecutando cuando el servidor la lanza con `QueryService.launchPrivateQuery`.
+
+El framework marca como solo de servidor las consultas de login y SSO (`userDetails`, `userDetailsByEmail`,
+`userDetailsByProfile`, `checkProfileExists`), las de bloqueo y auditoría de seguridad (`UsrGetNumLog`,
+`UsrGetSecSta`), las consultas de usuarios de los servicios de la ventana de accesos (`access-subject-user`,
+`access-compare-users`, `access-profile-users`, `access-profile-user-rules`), las conexiones de base de datos y JMS
+(`DatabaseConnections`, `JmsConnections`), los datos de servidor del planificador (`serverData`), los usuarios
+suscritos a una notificación (`get-interested-users`) y las consultas de usuario por nombre (`GetChgPwdUsr`,
+`AutUsr`, `UsrInf`, `GetEmlSrvByOpe`).
+
+`server-only` solo rechaza las peticiones de cliente por identificador de consulta: el XML del servidor (una
+subconsulta, una unión, una carga inicial, el retrieve-data de un maintain) puede seguir lanzándola, así que no use una
+consulta server-only para alimentar algo que ve un cliente.
+
+Las consultas de `awe.session.parameter` las lanza el servidor al iniciar sesión, así que pueden ser server-only.
+
+- Una aplicación que lanzaba alguna de ellas desde un cliente debe usar una consulta propia, solo con los campos que
+  necesita y el usuario leído de la sesión (`<variable ... session="user"/>`).
+- Marque con `server-only="true"` las consultas de la aplicación que solo lanza Java, sobre todo las que devuelven
+  credenciales o datos de otros usuarios.
 
 ### Acceso por pantalla {#access-by-screen}
 

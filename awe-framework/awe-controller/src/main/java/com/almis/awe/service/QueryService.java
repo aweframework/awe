@@ -509,6 +509,13 @@ public class QueryService extends ServiceConfig {
     if (query != null) {
       // Get the query
       query = query.copy();
+      // A server-only query can never be launched from a client request, whatever the session or public flag
+      if (checkAvailable && query.isServerOnly()) {
+        log.warn("Client launch of server-only query [{}] refused{}", queryName,
+          query.isPublic() ? " (public flag ignored)" : "");
+        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA),
+          getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      }
       // If query is private, check security
       if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
         throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));

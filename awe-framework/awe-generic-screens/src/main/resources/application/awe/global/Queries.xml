@@ -110,7 +110,7 @@
   </query>
 
   <!-- User name and lock flag of users (security audit) -->
-  <query id="UsrGetSecSta">
+  <query id="UsrGetSecSta" server-only="true">
     <table id="ope" />
     <field id="l1_nom" alias="user" />
     <field id="PwdLck" alias="locked" />
@@ -123,7 +123,7 @@
   </query>
 
   <!-- Consecutive failed logins of a user (automatic lockout) -->
-  <query id="UsrGetNumLog">
+  <query id="UsrGetNumLog" server-only="true">
     <table id="ope" />
     <field id="NumLog" alias="value" />
     <where>
@@ -247,7 +247,7 @@
   </query>
 
   <!-- GET USER INFO -->
-  <query id="UsrInf" cacheable="true">
+  <query id="UsrInf" cacheable="true" server-only="true">
     <table id="ope" alias="ope" />
     <table id="AwePro" alias="pro" />
     <field id="l1_nom" alias="Usr" />
@@ -267,7 +267,7 @@
   </query>
 
   <!-- AUTHENTICATE USER -->
-  <query id="AutUsr">
+  <query id="AutUsr" server-only="true">
     <table id="ope" alias="ope" />
     <table id="AwePro" alias="pro" />
     <field id="IdeOpe" alias="IdeOpe" />
@@ -286,7 +286,7 @@
   </query>
 
   <!-- Get change password date -->
-  <query id="GetChgPwdUsr" public="true">
+  <query id="GetChgPwdUsr" server-only="true">
     <table id="ope" alias="ope" />
     <field id="l1_psd" alias="l1_psd" transform="DATE" />
     <where>
@@ -302,7 +302,6 @@
   <query id="UsrChkUni" cacheable="true">
     <table id="ope" />
     <field id="l1_nom" alias="Usr" />
-    <field id="l1_pas" alias="Pwd" />
     <field id="l1_lan" alias="Lan" />
     <where>
       <and>
@@ -787,7 +786,7 @@
   </query>
 
   <!-- USER DATA -->
-  <query id="userDetails" cacheable="true">
+  <query id="userDetails" cacheable="true" server-only="true">
     <table id="ope" alias="Usr" />
     <field id="IdeOpe" table="Usr" alias="userId" />
     <field id="l1_nom" table="Usr" alias="username" function="TRIM"/>
@@ -843,7 +842,7 @@
     <variable id="Usr" type="STRING" name="user" />
   </query>
 
-  <query id="userDetailsByProfile" cacheable="true">
+  <query id="userDetailsByProfile" cacheable="true" server-only="true">
     <table id="AwePro" alias="Pro" />
     <field id="IdeThm" table="Pro" alias="IdeThm" />
     <field id="Nam" table="UsrThm" alias="profileTheme" />
@@ -864,7 +863,7 @@
     <variable id="profile" type="STRING" name="profile" />
   </query>
 
-  <query id="userDetailsByEmail" cacheable="true">
+  <query id="userDetailsByEmail" cacheable="true" server-only="true">
     <table id="ope" alias="Usr" />
     <field id="IdeOpe" table="Usr" alias="userId" />
     <field id="l1_nom" table="Usr" alias="username" function="TRIM"/>
@@ -920,7 +919,7 @@
     <variable id="email" type="STRING" name="email" />
   </query>
 
-  <query id="checkProfileExists" cacheable="true">
+  <query id="checkProfileExists" cacheable="true" server-only="true">
     <table id="AwePro" />
     <field id="IdePro"/>
     <where>
@@ -1296,7 +1295,7 @@
   </query>
 
   <!-- ACCESS WINDOW: a user with its profile and their base restrictions, read by the access services -->
-  <query id="access-subject-user">
+  <query id="access-subject-user" server-only="true">
     <table id="ope" alias="ope" />
     <field id="l1_nom" table="ope" alias="user" />
     <field id="OpeNam" table="ope" alias="fullName" />
@@ -1319,7 +1318,7 @@
   </query>
 
   <!-- ACCESS WINDOW: users of a profile with their own base restriction, read by the preview of a change -->
-  <query id="access-profile-users">
+  <query id="access-profile-users" server-only="true">
     <table id="ope" alias="ope" />
     <field id="IdeOpe" table="ope" alias="userId" />
     <field id="l1_nom" table="ope" alias="user" />
@@ -1336,7 +1335,7 @@
 
   <!-- ACCESS WINDOW: own rules of the users of a profile (a user rule has no profile), in the order the real menu applies
        them (IdeAweScrRes), read by the preview of a change -->
-  <query id="access-profile-user-rules">
+  <query id="access-profile-user-rules" server-only="true">
     <table id="AweScrRes" alias="scrRes" />
     <field id="IdeOpe" table="scrRes" alias="userId" />
     <field id="Opt" table="scrRes" alias="option" />
@@ -1390,7 +1389,7 @@
   </query>
 
   <!-- ACCESS WINDOW: users to compare with whose user or full name contain the text, read by the compare-with suggest -->
-  <query id="access-compare-users">
+  <query id="access-compare-users" server-only="true">
     <table id="ope" alias="ope" />
     <field id="IdeOpe" table="ope" alias="userId" />
     <field id="l1_nom" table="ope" alias="user" />
@@ -2793,7 +2792,7 @@
   </query>
 
   <!-- DATA BASE INFORMATION -->
-  <query id="DatabaseConnections" cacheable="true">
+  <query id="DatabaseConnections" cacheable="true" server-only="true">
     <table id="AweDbs" />
     <field id="Als" alias="alias" />
     <field id="Des" alias="description" />
@@ -4398,7 +4397,7 @@
   </query>
 
   <!-- Email server (Get info by alias -->
-  <query id="GetEmlSrvByOpe">
+  <query id="GetEmlSrvByOpe" server-only="true">
     <table id="AweEmlSrv" alias="EmlSrv" />
     <field id="Hst" alias="Hst" />
     <field id="Ath" alias="Ath" />
@@ -4419,7 +4418,7 @@
   </query>
 
   <!-- JMS QUEUES -->
-  <query id="JmsConnections">
+  <query id="JmsConnections" server-only="true">
     <table id="AweQue" />
     <field id="IdeAweQue" alias="IdeAweQue" />
     <field id="Als" alias="Als" />
