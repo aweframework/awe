@@ -1186,7 +1186,7 @@ describe("grid selection bar", () => {
     expect(reset.className).toContain("p-button-sm");
     expect(reset.className).toContain("p-button-text");
     expect(reset.className).not.toContain("p-button-outlined");
-    expect(reset.className).not.toContain("mt-2");
+    expect(reset.className).not.toContain("awe-button-spaced");
     expect(remove.className).toContain("p-button-danger");
     expect(remove.className).not.toContain("p-button-text");
   });
@@ -1196,7 +1196,7 @@ describe("grid selection bar", () => {
 
     expect(bar()).toBeNull();
     expect(footerButtons()).toEqual(["ButNew", "ButDel"]);
-    expect(document.querySelector("#ButNew").className).toContain("mt-2");
+    expect(document.querySelector("#ButNew").className).toContain("awe-button-spaced");
     expect(document.querySelector("#ButNew").className).toContain("p-button-outlined");
   });
 

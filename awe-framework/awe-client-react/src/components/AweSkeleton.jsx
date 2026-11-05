@@ -81,7 +81,7 @@ CriterionSkeleton.propTypes = {
  * @returns {JSX.Element} Skeleton
  */
 export function ButtonSkeleton({attributes = {}, className}) {
-  return <span className={classNames("awe-skeleton-button", "mr-2", "mt-2", sizeClass(attributes), className)} {...rootProps()}>
+  return <span className={classNames("awe-skeleton-button", "awe-button-spaced", sizeClass(attributes), className)} {...rootProps()}>
     <Skeleton width={`${labelLength(attributes) + BUTTON_PADDING_CH}ch`}/>
   </span>;
 }

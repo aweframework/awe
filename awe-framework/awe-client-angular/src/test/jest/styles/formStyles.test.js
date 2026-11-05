@@ -567,7 +567,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "gap": "var(--awe-gap-inline)",
         "height": "var(--awe-size-control)",
         "padding": "0 var(--awe-button-padding-x)",
-        "font-size": "var(--awe-font-size-base)",
+        "font-size": "var(--awe-button-font-size)",
         "font-weight": "var(--awe-font-weight-medium)",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-color-surface)",
@@ -622,7 +622,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".btn.btn-awe.btn-sm")).toMatchObject({
         "height": "var(--awe-size-control-sm)",
         "padding": "0 var(--awe-space-3)",
-        "font-size": "var(--awe-font-size-sm)"
+        "font-size": "var(--awe-button-font-size-sm)"
       });
       expect(style(".btn.btn-awe.btn-xs")).toMatchObject({
         "height": "var(--awe-size-control-sm)",
@@ -630,7 +630,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       });
       expect(style(".btn.btn-awe.btn-lg")).toMatchObject({
         "height": "var(--awe-size-control-lg)",
-        "font-size": "var(--awe-font-size-md)"
+        "font-size": "var(--awe-button-font-size-lg)"
       });
     });
 

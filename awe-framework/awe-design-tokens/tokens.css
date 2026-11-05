@@ -1098,6 +1098,12 @@
    Tier 3 - Component tokens (only where a component needs its own knobs)
    ========================================================================== */
 :root {
+  /* Button */
+  --awe-button-font-size: var(--awe-font-size-base);
+  --awe-button-font-size-sm: var(--awe-font-size-sm);
+  --awe-button-font-size-lg: var(--awe-font-size-md);
+  --awe-button-gap: var(--awe-gap-inline);
+
   /* Grid */
   --awe-grid-header-background: var(--awe-color-grid-header);
   --awe-grid-header-text: var(--awe-color-text-muted);

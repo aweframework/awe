@@ -457,6 +457,10 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 
 | Token | Claro | Oscuro |
 |---|---|---|
+| `--awe-button-font-size` | `var(--awe-font-size-base)` | = claro |
+| `--awe-button-font-size-sm` | `var(--awe-font-size-sm)` | = claro |
+| `--awe-button-font-size-lg` | `var(--awe-font-size-md)` | = claro |
+| `--awe-button-gap` | `var(--awe-gap-inline)` | = claro |
 | `--awe-grid-header-background` | `var(--awe-color-grid-header)` | = claro |
 | `--awe-grid-header-text` | `var(--awe-color-text-muted)` | = claro |
 | `--awe-grid-header-font-size` | `var(--awe-font-size-sm)` | = claro |
