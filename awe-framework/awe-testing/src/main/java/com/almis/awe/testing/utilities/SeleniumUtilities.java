@@ -1308,22 +1308,33 @@ public class SeleniumUtilities implements IAweInstructions {
       waitUntil(toBePresent(searchBox));
     }
 
-    // Clear selector
-    if (clear) {
-      By clearSelector = frontEndInstructions.getSuggestMultipleChoiceClose(parentSelector);
-      while (getBrowser().exists(locator(clearSelector)) && safecheck < RETRY_COUNT) {
-        click(clearSelector);
-        safecheck++;
-      }
-    }
-
     // Open the panel when the search box lives inside it (a multiple select). A multiple suggest keeps its search box in
-    // the criterion, so nothing is opened and the panel steps below are skipped
+    // the criterion, so nothing is opened and the panel steps below are skipped. The panel is opened before clearing,
+    // because a multiple select may only be cleared by unchecking the checked options of its panel
     boolean openedPanel = panelBased && !getBrowser().exists(locator(searchBox));
     if (openedPanel) {
       selectClick(parentSelector);
     }
     waitUntil(toBePresent(searchBox));
+
+    // Clear selector
+    if (clear) {
+      By clearSelector = frontEndInstructions.getSuggestMultipleChoiceClose(parentSelector);
+      boolean byKeyboard = frontEndInstructions.multipleChoiceClearsWithKeyboard();
+      if (byKeyboard && getBrowser().exists(locator(clearSelector))) {
+        click(searchBox);
+      }
+      // A backspace highlights the last value and the next one removes it: two keys per value
+      int retries = byKeyboard ? 2 * RETRY_COUNT : RETRY_COUNT;
+      while (getBrowser().exists(locator(clearSelector)) && safecheck < retries) {
+        if (byKeyboard) {
+          getBrowser().press(Key.BACK_SPACE);
+        } else {
+          click(clearSelector);
+        }
+        safecheck++;
+      }
+    }
 
     // Write search text (the panel keeps the text of the previous search)
     if (openedPanel) {

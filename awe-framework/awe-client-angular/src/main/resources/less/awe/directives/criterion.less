@@ -352,6 +352,168 @@ fieldset[disabled] .form-control {
   }
 }
 
+// Select multiple of one line (#922): the chips that fit and a "+K" counter (selectSummary.js). The field keeps the
+// height of its control however many values are chosen; the chips look as the ones of a grid cell
+.form-group .select2-container-multi.awe-select-summary {
+  --select-summary-height: var(--awe-size-control);
+
+  .select2-choices {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--awe-space-1);
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--select-summary-height);
+    max-height: var(--select-summary-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    // A hidden overflow still scrolls to show the focused search input, which hides the start of the first chip
+    overflow: clip;
+
+    li {
+      float: none;
+    }
+  }
+
+  .select2-search-choice {
+    display: flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+    // The padding of the chip of a grid cell, as in the React client
+    padding: var(--awe-space-0-5) var(--awe-space-2);
+    overflow: hidden;
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-snug);
+
+    > div {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    // The values are removed from the options, the counter or the clear icon: no "x" inside the field
+    .select2-search-choice-close {
+      display: none;
+    }
+
+    &.awe-select-summary-hidden {
+      display: none;
+    }
+  }
+
+  &.awe-select-summary-measuring .select2-search-choice {
+    flex: none;
+  }
+
+  .select2-search-field {
+    flex: 1 1 var(--awe-space-6);
+    min-width: var(--awe-space-6);
+
+    input {
+      width: 100% !important;
+      height: calc(var(--select-summary-height) - 2 * var(--awe-border-width));
+    }
+  }
+
+  // A flex item, so the counter is not put on the text line of the item, lower than the chips
+  .awe-select-summary-more-item {
+    display: flex;
+    flex: none;
+  }
+}
+
+// Out of the scope of the container: it must hide the counter whatever the classes select2 leaves on it
+.select2-container-multi .select2-choices .awe-select-summary-more-item[hidden] {
+  display: none !important;
+}
+
+.form-group .input-group-sm .select2-container-multi.awe-select-summary {
+  --select-summary-height: var(--awe-size-control-sm);
+}
+
+.form-group .input-group-lg .select2-container-multi.awe-select-summary {
+  --select-summary-height: var(--awe-size-control-lg);
+}
+
+// The counter is a button: the size and the font of the chips next to it (over the padding of a grid cell chip)
+.awe-cell-chip.awe-select-summary-more {
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+}
+
+// List of all the values, under the field (appended to the body)
+.awe-select-summary-panel {
+  position: fixed;
+  z-index: var(--awe-z-tooltip);
+  max-height: calc(100vh - var(--awe-space-8));
+  padding: var(--awe-space-1) var(--awe-space-3);
+  overflow-y: auto;
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &:focus {
+    outline: 0;
+  }
+
+  .awe-select-summary-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      gap: var(--awe-space-3);
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--awe-space-1) 0;
+    }
+
+    li > span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    button {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      width: var(--awe-size-icon-lg);
+      height: var(--awe-size-icon-lg);
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      border-radius: var(--awe-radius-sm);
+
+      &:hover {
+        background: var(--awe-color-surface-hover);
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: var(--awe-shadow-field-focus);
+      }
+    }
+  }
+}
+
 .form-group .select2-container-multi.select2-container-disabled .select2-choices .select2-search-choice {
   background: var(--awe-color-secondary) !important;
   opacity: 1;

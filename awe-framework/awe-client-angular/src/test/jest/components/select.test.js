@@ -141,6 +141,20 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
     done();
   });
 
+  it.each([[undefined, 1], ["chip", 0]])('shows a criteria select multiple of display %s as one line summary: %s', function(display, summaries) {
+    $rootScope.firstLoad = true;
+    registerSelectorData();
+    $control.setAddressController({view: "base", component: "RefreshTime"}, {
+      ...$control.getAddressController({view: "base", component: "RefreshTime"}), component: "select-multiple", display
+    });
+
+    let  element = $compile("<awe-input-select-multiple input-select-multiple-id='RefreshTime'></awe-input-select-multiple>")($rootScope);
+    $rootScope.$digest();
+
+    expect(element.find(".select2-container-multi.awe-select-summary").length).toBe(summaries);
+    expect(element.find(".awe-select-summary-more").length).toBe(summaries);
+  });
+
   it('initializes a suggest multiple', function(done) {
     $rootScope.firstLoad = true;
     registerSelectorData();

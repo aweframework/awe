@@ -30,6 +30,7 @@ module.exports = {
     '**/utilities/mapTest.{ts,tsx}',
     '**/utilities/testPassThroughTest.{ts,tsx}',
     '**/utilities/loginEffectsTest.{ts,tsx}',
+    '**/utilities/chipsTest.{ts,tsx}',
     '**/contract/contractTest.{ts,tsx}',
     '**/packaging/bootstrapGridCompatTest.{js,jsx}',
     '**/packaging/packageVersionTest.{js,jsx}',

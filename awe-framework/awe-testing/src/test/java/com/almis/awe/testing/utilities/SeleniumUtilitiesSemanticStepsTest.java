@@ -762,6 +762,30 @@ class SeleniumUtilitiesSemanticStepsTest {
     verify((Interactive) driver, times(2)).perform(any());
   }
 
+  @Test
+  void shouldClearAnAngularMultipleSelectWithTheKeyboardBecauseItsChipsHaveNoVisibleRemoveLink() {
+    String parent = instructions.getCriterionCss("Months");
+    show(instructions.getSuggestMultipleInput(parent), "");
+    show(instructions.getSuggestResult("October"), "October");
+    // The one-line select2 multiple (#922) keeps the remove link of its two chips on the page, hidden
+    WebElement close = show(instructions.getSuggestMultipleChoiceClose(parent), "");
+    when(close.isDisplayed()).thenReturn(false);
+    By closeSelector = Locator.from(instructions.getSuggestMultipleChoiceClose(parent)).toBy();
+    AtomicInteger performed = new AtomicInteger();
+    doAnswer(invocation -> {
+      // Focus on the search box, then a backspace highlights the last chip and the next one removes it, twice
+      if (performed.incrementAndGet() == 5) {
+        when(driver.findElements(argThat(closeSelector::equals))).thenReturn(Collections.emptyList());
+      }
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.suggestMultiple("Months", "October", "October")).doesNotThrowAnyException();
+
+    // Focus, four backspaces, type and choose the option
+    verify((Interactive) driver, times(7)).perform(any());
+  }
+
   /**
    * The options of the open list, that answer a list of texts per lookup (the last one stays) and count the lookups
    */

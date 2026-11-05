@@ -894,8 +894,8 @@ para que una prueba pueda saber qué componente los abrió.
 |---|---|---|
 | `criterion-input` | El control real del criterio: el `input`, `textarea`, checkbox, radio o input oculto, el valor de una vista de texto, o el selector de archivos de un uploader. En un select o suggest es el input oculto que contiene el valor: interactúa con `select`. Los editores de las celdas de un grid editable también lo llevan | Dentro de `[criterion-id='X']`, o dentro de la celda del grid |
 | `select` | Contenedor select2 visible de un select o suggest (el elemento en el que hacer clic) | Dentro de `[criterion-id='X']` |
-| `select-value` | Valor elegido de un select simple | Dentro de `[criterion-id='X']` |
-| `select-choice`, `select-choice-close` | Un elemento elegido de un select o suggest múltiple, y el enlace que lo elimina | Dentro de `[criterion-id='X']` |
+| `select-value` | Valor elegido de un select simple, y los chips de un select múltiple con su contador `+K` (React) | Dentro de `[criterion-id='X']` |
+| `select-choice`, `select-choice-close` | Un elemento elegido de un select o suggest múltiple, y el enlace que lo elimina. En el select múltiple de React los chips llevan `select-choice` y los botones de quitar del popover `+K` llevan `select-choice-close`; los chips no tienen enlace de quitar, y el contador `+K` es el `button[aria-haspopup=dialog]` del campo | Dentro de `[criterion-id='X']` |
 | `select-search` | Input de búsqueda (el del desplegable para un select simple, el del contenedor para un select múltiple) | Desplegable, o dentro de `[criterion-id='X']` |
 | `select-dropdown` | El desplegable abierto. Solo el desplegable abierto lleva el hook | Final de `<body>`, con `data-testid-owner` |
 | `select-option` | Una opción del desplegable abierto | Dentro del desplegable, con `data-testid-owner` |

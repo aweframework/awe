@@ -183,13 +183,15 @@ class ReactAweInstructionsTest {
     assertThat(instructions.getSuggestMultipleInput(criterion)).hasToString("By.cssSelector: "
       + "[criterion-id='Sug'] [data-testid='select-search'], [data-testid='select-dropdown'] [data-testid='select-search']");
     assertThat(instructions.getSuggestMultipleChoiceClose(criterion))
-      .hasToString("By.cssSelector: [criterion-id='Sug'] [data-testid='select-choice-close']");
+      .hasToString("By.cssSelector: [criterion-id='Sug'] [data-testid='select-choice-close'], "
+        + "[data-testid='select-dropdown'] [data-testid='select-option'][data-selected='true']");
   }
 
   @Test
   void shouldLocateDatepickerCellsByTheirHooksAndState() {
     assertThat(instructions.datePickerRequiresManualClick()).isFalse();
     assertThat(instructions.multipleChoiceUsesPanel()).isTrue();
+    assertThat(instructions.multipleChoiceClearsWithKeyboard()).isFalse();
     assertThat(instructions.getDatepicker()).hasToString("By.cssSelector: [data-testid='datepicker']");
     assertThat(instructions.getActiveDatepicker())
       .hasToString("By.cssSelector: [data-testid='datepicker'] [data-testid='datepicker-day'][data-selected='true']");

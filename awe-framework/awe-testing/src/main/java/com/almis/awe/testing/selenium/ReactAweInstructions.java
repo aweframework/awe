@@ -495,7 +495,10 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSuggestMultipleChoiceClose(String parentSelector) {
-    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_CHOICE_CLOSE)));
+    // The one-line multiple select (#922) has no remove link on its chips: its values are removed by unchecking the
+    // checked options of its open panel
+    return By.cssSelector(String.format("%s %s, %s %s[data-selected='true']", parentSelector, css(TestIds.SELECT_CHOICE_CLOSE),
+      css(TestIds.SELECT_DROPDOWN), css(TestIds.SELECT_OPTION)));
   }
 
   public boolean datePickerRequiresManualClick() {

@@ -281,9 +281,11 @@ describe("awe-react-client/test/js/criteria/TestIdsCriteriaTest.jsx", () => {
         { preloadedState: criterion("Mul", multiple) });
 
       expect(container.querySelector(`[criterion-id='Mul'] ${hook("select")}`)).not.toBeNull();
+      expect(container.querySelector(`[criterion-id='Mul'] ${hook("select-value")}`)).not.toBeNull();
       const choices = Array.from(container.querySelectorAll(hook("select-choice")));
       expect(choices.map(choice => choice.textContent)).toEqual(["One", "Two"]);
-      expect(container.querySelectorAll(`${hook("select-choice")} ${hook("select-choice-close")}`).length).toBe(2);
+      // The field has no remove icon per chip (#922)
+      expect(container.querySelector(hook("select-choice-close"))).toBeNull();
 
       fireEvent.click(container.querySelector(hook("select")));
       const dropdown = document.querySelector(hook("select-dropdown"));

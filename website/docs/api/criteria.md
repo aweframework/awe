@@ -474,6 +474,13 @@ This criterion simply shows a text, which can be retrieved from a variable, a pa
 
 <img alt="SelectMultiplePreselected" src={require('@docusaurus/useBaseUrl').default('img/SelectMultiplePreselected.png')} />
 
+In the React client the field of a multiple select is always one control high. It shows the chips of the chosen values
+that fit, in the order of the options (a label that does not fit ends with an ellipsis and shows in full as a tooltip),
+and a `+3` counter when some do not. The counter is a button: it opens a popover with every chosen value and a button to
+remove each one, and Escape, a click outside, a scroll or a resize close it. Optional criteria also have a clear icon;
+the chips have no remove icon of their own. Add `display="chip"` to the criterion to keep the chips of PrimeReact, one
+remove icon each, which grow with the values (AngularJS ignores it).
+
 ### Color criterion sample
 
 ```xml

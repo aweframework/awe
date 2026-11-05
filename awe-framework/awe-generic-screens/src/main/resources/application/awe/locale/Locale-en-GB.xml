@@ -823,6 +823,7 @@
   <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
   <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Search queues"/>
   <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
+  <locale name="SCREEN_TEXT_REMOVE_VALUE" value="Remove {{label}}"/>
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Rename"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Saved searches"/>
@@ -1744,6 +1745,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="The last identifier AWE handed out for this name; it is added up on every new record."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Put file name without any extension"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Selected"/>
+  <locale name="SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL" value="+{{count}} selected values, show all"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servers"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Settings"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
